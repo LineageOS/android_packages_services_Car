@@ -97,6 +97,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -637,6 +638,52 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 policyId, new String[]{"AUDIO", "INVALID_COMPONENT"}, new String[]{"WIFI"});
 
         assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_INVALID_POWER_COMPONENT);
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromCommand_validCommand() {
+        String policyId = "policy_id_valid_command";
+        String[] args = {"define-power-policy", policyId, "--enable", "AUDIO,BLUETOOTH",
+                "--disable", "ETHERNET,WIFI"};
+
+        try (IndentingPrintWriter writer = new IndentingPrintWriter(new StringWriter(), "  ")) {
+            boolean status = mService.definePowerPolicyFromCommand(args, writer);
+
+            assertWithMessage(
+                    "Calling definePowerPolicyFromCommand with args: "
+                            + Arrays.toString(args) + " must succeed").that(status).isTrue();
+            assertWithMessage("Power policy daemon must have " + policyId
+                    + " as last defined policy id").that(
+                            mPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(policyId);
+        }
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromCommand_tooFewArgs() {
+        String[] args = {"define-power-policy"};
+
+        assertDefinePowerPolicyFromCommandFailed(args);
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromCommand_missingEnabledComp() {
+        String[] args = {"define-power-policy", "policy_id_no_enabled", "--enable"};
+
+        assertDefinePowerPolicyFromCommandFailed(args);
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromCommand_missingDisabledComp() {
+        String[] args = {"define-power-policy", "policy_id_no_disabled", "--disable"};
+
+        assertDefinePowerPolicyFromCommandFailed(args);
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromCommand_unknownArg() {
+        String[] args = {"define-power-policy", "policy_id_unknown_arg", "--unknown_arg"};
+
+        assertDefinePowerPolicyFromCommandFailed(args);
     }
 
     @Test
@@ -1358,6 +1405,16 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 () -> {
                     return !mVoiceInteractionEnabled;
                 });
+    }
+
+    private void assertDefinePowerPolicyFromCommandFailed(String[] args) {
+        try (IndentingPrintWriter writer = new IndentingPrintWriter(new StringWriter(), "  ")) {
+            boolean status = mService.definePowerPolicyFromCommand(args, writer);
+
+            assertWithMessage(
+                    "Calling definePowerPolicyFromCommand with args: "
+                            + Arrays.toString(args) + " must fail").that(status).isFalse();
+        }
     }
 
     private void waitForPowerPolicy(String policyId) throws Exception {
