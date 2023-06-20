@@ -50,4 +50,13 @@
     <string name="config_recentsComponentName" translatable="false">
         com.android.car.portraitlauncher/.recents.PortraitCarRecentsActivity
     </string>
+
+    <!-- Vertical position of a center of the letterboxed app window.
+    0 corresponds to the upper side of the screen and 1 to the lower side. If given value < 0
+    or > 1 it is ignored and for non-tabletop mode central position is used (0.5); for
+     tabletop mode top (0.0) is used. -->
+    <item name="config_letterboxVerticalPositionMultiplier" format="float" type="dimen">0.5</item>
+
+    <!-- Whether vertical reachability repositioning is allowed for letterboxed fullscreen apps. -->
+    <bool name="config_letterboxIsVerticalReachabilityEnabled">true</bool>
 </resources>
