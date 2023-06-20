@@ -1030,6 +1030,40 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .that(mPowerHal.getRequestedShutdownPowerState())
                 .isEqualTo(PowerHalService.PowerState.SHUTDOWN_TYPE_UNDEFINED);
     }
+
+    @Test
+    public void testIsSuspendAvailable_hibernateAvailable() {
+        mPowerHal.setHibernationEnabled(true);
+
+        assertWithMessage("Suspend availability").that(
+                mService.isSuspendAvailable(/* isHibernation= */ true)).isTrue();
+    }
+
+    @Test
+    public void testIsSuspendAvailable_hibernateNotAvailable() {
+        mPowerHal.setHibernationEnabled(false);
+
+        assertWithMessage("Suspend availability").that(
+                mService.isSuspendAvailable(/* isHibernation= */ true)).isFalse();
+    }
+
+    @Test
+    public void testIsSuspendAvailable_deepSleepAvailable() {
+        mPowerHal.setDeepSleepEnabled(true);
+
+        assertWithMessage("Suspend availability").that(
+                mService.isSuspendAvailable(/* isHibernation= */ false)).isTrue();
+    }
+
+    @Test
+    public void testIsSuspendAvailable_deepSleepNotAvailable() {
+        mPowerHal.setDeepSleepEnabled(false);
+
+        assertWithMessage("Suspend availability").that(
+                mService.isSuspendAvailable(/* isHibernation= */ false)).isFalse();
+    }
+
+
     @Test
     public void testPowerPolicyNotificationCustomComponents() throws Exception {
         grantPowerPolicyPermission();
