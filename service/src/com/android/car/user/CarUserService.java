@@ -310,6 +310,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private final CarPackageManagerService mCarPackageManagerService;
 
+    private final CarOccupantZoneService mCarOccupantZoneService;
+
     /**
      * Whether some operations - like user switch - are restricted by driving safety constraints.
      */
@@ -347,12 +349,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             @NonNull UserManager userManager,
             int maxRunningUsers,
             @NonNull CarUxRestrictionsManagerService uxRestrictionService,
-            @NonNull CarPackageManagerService carPackageManagerService) {
+            @NonNull CarPackageManagerService carPackageManagerService,
+            @NonNull CarOccupantZoneService carOccupantZoneService) {
         this(context, hal, userManager, new UserHandleHelper(context, userManager),
                 context.getSystemService(DevicePolicyManager.class),
                 context.getSystemService(ActivityManager.class), maxRunningUsers,
                 /* initialUserSetter= */ null, uxRestrictionService, /* handler= */ null,
-                carPackageManagerService);
+                carPackageManagerService, carOccupantZoneService);
     }
 
     @VisibleForTesting
@@ -365,7 +368,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             @Nullable InitialUserSetter initialUserSetter,
             @NonNull CarUxRestrictionsManagerService uxRestrictionService,
             @Nullable Handler handler,
-            @NonNull CarPackageManagerService carPackageManagerService) {
+            @NonNull CarPackageManagerService carPackageManagerService,
+            @NonNull CarOccupantZoneService carOccupantZoneService) {
         Slogf.d(TAG, "CarUserService(): DBG=%b, user=%s", DBG, context.getUser());
         mContext = context;
         mHal = hal;
@@ -386,6 +390,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mIsVisibleBackgroundUsersOnDefaultDisplaySupported =
                 isVisibleBackgroundUsersOnDefaultDisplaySupported(mUserManager);
         mCreateUserQueue = new ArrayDeque<>(UserManagerHelper.getMaxRunningUsers(context));
+        mCarOccupantZoneService = carOccupantZoneService;
     }
 
     /**
@@ -408,8 +413,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mCarUxRestrictionService.registerUxRestrictionsChangeListener(
                 mCarUxRestrictionsChangeListener, Display.DEFAULT_DISPLAY);
 
-        CarLocalServices.getService(CarOccupantZoneService.class).registerCallback(
-                mOccupantZoneCallback);
+        mCarOccupantZoneService.registerCallback(mOccupantZoneCallback);
 
         CarServiceHelperWrapper.getInstance().runOnConnection(() ->
                 setUxRestrictions(mCarUxRestrictionService.getCurrentUxRestrictions()));
@@ -445,8 +449,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mCarUxRestrictionService
                 .unregisterUxRestrictionsChangeListener(mCarUxRestrictionsChangeListener);
 
-        CarLocalServices.getService(CarOccupantZoneService.class).unregisterCallback(
-                mOccupantZoneCallback);
+        mCarOccupantZoneService.unregisterCallback(mOccupantZoneCallback);
     }
 
     @Override
@@ -504,12 +507,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     // TODO(b/248608281): clean up.
     @Nullable
     private OccupantZoneInfo getOccupantZoneForDisplayId(int displayId) {
-        CarOccupantZoneService zoneService = CarLocalServices.getService(
-                CarOccupantZoneService.class);
-        List<OccupantZoneInfo> occupantZoneInfos = zoneService.getAllOccupantZones();
+        List<OccupantZoneInfo> occupantZoneInfos = mCarOccupantZoneService.getAllOccupantZones();
         for (int index = 0; index < occupantZoneInfos.size(); index++) {
             OccupantZoneInfo occupantZoneInfo = occupantZoneInfos.get(index);
-            int[] displays = zoneService.getAllDisplaysForOccupantZone(
+            int[] displays = mCarOccupantZoneService.getAllDisplaysForOccupantZone(
                     occupantZoneInfo.zoneId);
             for (int displayIndex = 0; displayIndex < displays.length; displayIndex++) {
                 if (displays[displayIndex] == displayId) {
@@ -2149,10 +2150,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 }
             }
         }
-        CarOccupantZoneService occupantZoneService =
-                CarLocalServices.getService(CarOccupantZoneService.class);
         // If the specified display is not available to start a user on.
-        if (occupantZoneService.getUserForDisplayId(displayId)
+        if (mCarOccupantZoneService.getUserForDisplayId(displayId)
                 != CarOccupantZoneManager.INVALID_USER_ID) {
             return UserStartResponse.STATUS_DISPLAY_UNAVAILABLE;
         }
@@ -2490,19 +2489,17 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     // starts user picker on displays without user allocation exception for on driver main display.
     void startUserPicker() {
-        CarOccupantZoneService zoneService = CarLocalServices.getService(
-                CarOccupantZoneService.class);
         int driverZoneId = OccupantZoneInfo.INVALID_ZONE_ID;
-        boolean hasDriverZone = zoneService.hasDriverZone();
+        boolean hasDriverZone = mCarOccupantZoneService.hasDriverZone();
         if (hasDriverZone) {
-            driverZoneId = zoneService.getOccupantZone(
+            driverZoneId = mCarOccupantZoneService.getOccupantZone(
                     CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER,
                     VehicleAreaSeat.SEAT_UNKNOWN).zoneId;
         }
 
         // Start user picker on displays without user allocation.
         List<OccupantZoneInfo> occupantZoneInfos =
-                zoneService.getAllOccupantZones();
+                mCarOccupantZoneService.getAllOccupantZones();
         for (int i = 0; i < occupantZoneInfos.size(); i++) {
             OccupantZoneInfo occupantZoneInfo = occupantZoneInfos.get(i);
             int zoneId = occupantZoneInfo.zoneId;
@@ -2511,13 +2508,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 continue;
             }
 
-            int userId = zoneService.getUserForOccupant(zoneId);
+            int userId = mCarOccupantZoneService.getUserForOccupant(zoneId);
             if (userId != CarOccupantZoneManager.INVALID_USER_ID) {
                 // If there is already a user allocated to the zone, skip.
                 continue;
             }
 
-            int displayId = zoneService.getDisplayForOccupant(zoneId,
+            int displayId = mCarOccupantZoneService.getDisplayForOccupant(zoneId,
                     CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
             if (displayId == Display.INVALID_DISPLAY) {
                 Slogf.e(TAG, "No main display for occupant zone:%d", zoneId);
@@ -2559,9 +2556,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
 
         int zoneId = zoneInfo.zoneId;
-        CarOccupantZoneService zoneService = CarLocalServices.getService(
-                CarOccupantZoneService.class);
-        int assignResult = zoneService.assignVisibleUserToOccupantZone(zoneId,
+        int assignResult = mCarOccupantZoneService.assignVisibleUserToOccupantZone(zoneId,
                 UserHandle.of(userId));
         if (assignResult != CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK) {
             Slogf.w(TAG,
@@ -2574,17 +2569,15 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     // Unassigns the invisible user from the occupant zone.
     private void unassignInvisibleUserFromZone(@UserIdInt int userId) {
-        CarOccupantZoneService zoneService = CarLocalServices.getService(
-                CarOccupantZoneService.class);
         CarOccupantZoneManager.OccupantZoneInfo zoneInfo =
-                zoneService.getOccupantZoneForUser(UserHandle.of(userId));
+                mCarOccupantZoneService.getOccupantZoneForUser(UserHandle.of(userId));
         if (zoneInfo == null) {
             Slogf.e(TAG, "unassignInvisibleUserFromZone: cannot find occupant zone for user %d",
                     userId);
             return;
         }
 
-        int result = zoneService.unassignOccupantZone(zoneInfo.zoneId);
+        int result = mCarOccupantZoneService.unassignOccupantZone(zoneInfo.zoneId);
         if (result != CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK) {
             Slogf.e(TAG,
                     "unassignInvisibleUserFromZone: failed to unassign user %d from zone %d,"
