@@ -628,7 +628,8 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                 mInitialUserSetter,
                 mCarUxRestrictionService,
                 mHandler,
-                mCarPackageManagerService);
+                mCarPackageManagerService,
+                mCarOccupantZoneService);
     }
 
     /**
