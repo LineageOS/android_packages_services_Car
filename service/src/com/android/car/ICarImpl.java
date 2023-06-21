@@ -291,7 +291,8 @@ public class ICarImpl extends ICar.Stub {
             int maxRunningUsers = UserManagerHelper.getMaxRunningUsers(serviceContext);
             mCarUserService = constructWithTrace(t, CarUserService.class,
                     () -> new CarUserService(serviceContext, mHal.getUserHal(), userManager,
-                            maxRunningUsers, mCarUXRestrictionsService, mCarPackageManagerService),
+                            maxRunningUsers, mCarUXRestrictionsService, mCarPackageManagerService,
+                            mCarOccupantZoneService),
                     allServices);
         }
         if (mDoPriorityInitInConstruction) {
