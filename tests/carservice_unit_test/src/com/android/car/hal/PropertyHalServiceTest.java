@@ -16,10 +16,15 @@
 
 package com.android.car.hal;
 
+import static android.car.Car.PERMISSION_VENDOR_EXTENSION;
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 import static android.car.VehiclePropertyIds.PERF_VEHICLE_SPEED;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_INTERNAL_ERROR;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE;
+import static android.car.hardware.property.VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_ENGINE;
+import static android.car.hardware.property.VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_INFO;
+import static android.car.hardware.property.VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_ENGINE;
+import static android.hardware.automotive.vehicle.VehicleProperty.SUPPORT_CUSTOMIZE_VENDOR_PERMISSION;
 
 import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
 
@@ -50,6 +55,7 @@ import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
+import android.hardware.automotive.vehicle.VehicleVendorPermission;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -67,8 +73,6 @@ import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
-
-import com.google.common.collect.ImmutableList;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -122,6 +126,9 @@ public class PropertyHalServiceTest {
     private static final int RECEIVED_REQUEST_ID_3 = 2;
     private static final int INT32_PROP = VehiclePropertyIds.INFO_FUEL_DOOR_LOCATION;
     private static final int VENDOR_ERROR_CODE = 1234;
+    private static final int VENDOR_PROPERTY_1 = 0x21e01111;
+    private static final int VENDOR_PROPERTY_2 = 0x21e01112;
+    private static final int VENDOR_PROPERTY_3 = 0x21e01113;
     private static final AsyncPropertyServiceRequest GET_PROPERTY_SERVICE_REQUEST_1 =
             new AsyncPropertyServiceRequest(REQUEST_ID_1, HVAC_TEMPERATURE_SET, /* areaId= */ 0);
     private static final AsyncPropertyServiceRequest GET_PROPERTY_SERVICE_REQUEST_2 =
@@ -168,7 +175,7 @@ public class PropertyHalServiceTest {
         when(mockPropConfig2.getChangeMode()).thenReturn(VehiclePropertyChangeMode.CONTINUOUS);
         when(mockPropConfig2.getMinSampleRate()).thenReturn(20.0f);
         when(mockPropConfig2.getMaxSampleRate()).thenReturn(100.0f);
-        mPropertyHalService.takeProperties(ImmutableList.of(mockPropConfig1, mockPropConfig2));
+        mPropertyHalService.takeProperties(List.of(mockPropConfig1, mockPropConfig2));
     }
 
     @After
@@ -1680,7 +1687,7 @@ public class PropertyHalServiceTest {
 
     @Test
     public void isDisplayUnitsProperty_returnsTrueForAllDisplayUnitProperties() {
-        for (int propId : ImmutableList.of(VehiclePropertyIds.DISTANCE_DISPLAY_UNITS,
+        for (int propId : List.of(VehiclePropertyIds.DISTANCE_DISPLAY_UNITS,
                 VehiclePropertyIds.FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME,
                 VehiclePropertyIds.FUEL_VOLUME_DISPLAY_UNITS,
                 VehiclePropertyIds.TIRE_PRESSURE_DISPLAY_UNITS,
@@ -1701,7 +1708,7 @@ public class PropertyHalServiceTest {
         when(mockCarPropertyValue.getAreaId()).thenReturn(0);
         when(mockCarPropertyValue.getValue()).thenReturn(1.0f);
         when(mockPropConfig.getPropId()).thenReturn(VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
-        mPropertyHalService.takeProperties(ImmutableList.of(mockPropConfig));
+        mPropertyHalService.takeProperties(List.of(mockPropConfig));
 
         mPropertyHalService.setProperty(mockCarPropertyValue);
 
@@ -1909,5 +1916,60 @@ public class PropertyHalServiceTest {
                 CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE);
         verify(mPropertyHalListener).onPropertySetError(PERF_VEHICLE_SPEED, 0,
                 CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN);
+    }
+
+    @Test
+    public void testNoCustomizeVendorPermission() throws Exception {
+        HalPropConfig vendor1Config = mock(HalPropConfig.class);
+        when(vendor1Config.getPropId()).thenReturn(VENDOR_PROPERTY_1);
+        when(mVehicleHal.getPropConfig(SUPPORT_CUSTOMIZE_VENDOR_PERMISSION)).thenReturn(null);
+
+        mPropertyHalService.takeProperties(List.of(vendor1Config));
+
+        // By default we require PERMISSION_VENDOR_EXTENSION for getting/setting vendor props.
+        assertThat(mPropertyHalService.getReadPermission(VENDOR_PROPERTY_1)).isEqualTo(
+                PERMISSION_VENDOR_EXTENSION);
+        assertThat(mPropertyHalService.getWritePermission(VENDOR_PROPERTY_1)).isEqualTo(
+                PERMISSION_VENDOR_EXTENSION);
+    }
+
+    @Test
+    public void testCustomizeVendorPermission() throws Exception {
+        HalPropConfig mockVendorPermConfig = mock(HalPropConfig.class);
+        // Use the same test config we used in PropertyHalServiceTest.
+        when(mockVendorPermConfig.getConfigArray()).thenReturn(new int[]{
+                VENDOR_PROPERTY_1,
+                VehicleVendorPermission.PERMISSION_DEFAULT,
+                VehicleVendorPermission.PERMISSION_NOT_ACCESSIBLE,
+                VENDOR_PROPERTY_2,
+                VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_ENGINE,
+                VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_ENGINE,
+                VENDOR_PROPERTY_3,
+                VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_INFO,
+                VehicleVendorPermission.PERMISSION_DEFAULT
+        });
+        when(mVehicleHal.getPropConfig(SUPPORT_CUSTOMIZE_VENDOR_PERMISSION)).thenReturn(
+                mockVendorPermConfig);
+        HalPropConfig vendor1Config = mock(HalPropConfig.class);
+        when(vendor1Config.getPropId()).thenReturn(VENDOR_PROPERTY_1);
+        HalPropConfig vendor2Config = mock(HalPropConfig.class);
+        when(vendor2Config.getPropId()).thenReturn(VENDOR_PROPERTY_2);
+        HalPropConfig vendor3Config = mock(HalPropConfig.class);
+        when(vendor3Config.getPropId()).thenReturn(VENDOR_PROPERTY_3);
+
+        mPropertyHalService.takeProperties(List.of(vendor1Config, vendor2Config,
+                vendor3Config));
+
+        assertThat(mPropertyHalService.getReadPermission(VENDOR_PROPERTY_1)).isEqualTo(
+                PERMISSION_VENDOR_EXTENSION);
+        assertThat(mPropertyHalService.getWritePermission(VENDOR_PROPERTY_1)).isNull();
+        assertThat(mPropertyHalService.getReadPermission(VENDOR_PROPERTY_2)).isEqualTo(
+                PERMISSION_GET_CAR_VENDOR_CATEGORY_ENGINE);
+        assertThat(mPropertyHalService.getWritePermission(VENDOR_PROPERTY_2)).isEqualTo(
+                PERMISSION_SET_CAR_VENDOR_CATEGORY_ENGINE);
+        assertThat(mPropertyHalService.getReadPermission(VENDOR_PROPERTY_3)).isEqualTo(
+                PERMISSION_GET_CAR_VENDOR_CATEGORY_INFO);
+        assertThat(mPropertyHalService.getWritePermission(VENDOR_PROPERTY_3)).isEqualTo(
+                PERMISSION_VENDOR_EXTENSION);
     }
 }
