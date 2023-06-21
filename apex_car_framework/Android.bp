@@ -38,7 +38,8 @@ apex_defaults {
     compile_multilib: "both",
     name: "com.android.car.framework-defaults",
 
-    min_sdk_version: "33",
+    // TODO(b/288271411): enable it when car mainline module is supported
+    // min_sdk_version: "33",
     file_contexts: ":com.android.car.framework-file_contexts",
     key: "com.android.car.framework.key",
     certificate: ":com.android.car.framework.certificate",
