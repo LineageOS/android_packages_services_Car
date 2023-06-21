@@ -264,7 +264,7 @@ PRODUCT_LOCALES := \
 PRODUCT_BOOT_JARS += \
     android.car.builtin
 
-USE_CAR_FRAMEWORK_APEX ?= true
+USE_CAR_FRAMEWORK_APEX ?= false
 
 ifeq ($(USE_CAR_FRAMEWORK_APEX),true)
     PRODUCT_PACKAGES += com.android.car.framework
