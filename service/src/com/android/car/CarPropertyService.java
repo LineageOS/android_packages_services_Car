@@ -154,6 +154,11 @@ public class CarPropertyService extends ICarProperty.Stub
             new Histogram.ScaledRangeOptions(/* binCount= */ 20, /* minValue= */ 0,
                     /* firstBinWidth= */ 2, /* scaleFactor= */ 1.5f));
 
+    private static final Histogram sSubscriptionUpdateRateHistogram = new Histogram(
+            "automotive_os.value_subscription_update_rate",
+            new Histogram.UniformOptions(/* binCount= */ 101, /* minValue= */ 0,
+                    /* exclusiveMaxValue= */ 101));
+
     private final Context mContext;
     private final PropertyHalService mPropertyHalService;
     private final Object mLock = new Object();
@@ -356,6 +361,7 @@ public class CarPropertyService extends ICarProperty.Stub
 
         float sanitizedUpdateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(carPropertyConfig,
                 updateRateHz);
+        sSubscriptionUpdateRateHistogram.logSample(sanitizedUpdateRateHz);
 
         if (DBG) {
             Slogf.d(TAG, "registerListener: property ID=" + VehiclePropertyIds.toString(propertyId)
