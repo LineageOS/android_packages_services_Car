@@ -247,7 +247,7 @@ droidstubs {
           "--hide MissingPermission " +
           "--hide HiddenSuperclass --hide DeprecationMismatch --hide UnavailableSymbol " +
           "--hide SdkConstant --hide HiddenTypeParameter " +
-          "--hide Todo --hide Typo ",
+          "--hide Todo ",
     write_sdk_values: true,
 }
 
