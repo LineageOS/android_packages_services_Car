@@ -170,7 +170,8 @@ java_defaults {
 
     defaults: [ "carservice-updatable-min-java-defaults" ],
 
-    min_sdk_version: "33",
+    // TODO(b/288271411): enable it when car mainline module is supported
+    // min_sdk_version: "33",
 }
 
 // Non-module build
