@@ -16,6 +16,7 @@
 package android.car;
 
 import android.annotation.NonNull;
+import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
 import android.car.annotation.ApiRequirements.CarVersion;
 import android.os.Build;
@@ -62,6 +63,18 @@ public final class PlatformVersion extends ApiVersion<PlatformVersion> implement
         @NonNull
         public static final PlatformVersion TIRAMISU_2 =
                 new PlatformVersion("TIRAMISU_2", Build.VERSION_CODES.TIRAMISU, 2);
+
+        /**
+         * Helper object for third minor upgrade of Android 13.
+         *
+         * @hide
+         */
+        @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_3,
+                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        @SystemApi
+        @NonNull
+        public static final PlatformVersion TIRAMISU_3 =
+                new PlatformVersion("TIRAMISU_3", Build.VERSION_CODES.TIRAMISU, 3);
 
         private VERSION_CODES() {
             throw new UnsupportedOperationException("Only provide constants");

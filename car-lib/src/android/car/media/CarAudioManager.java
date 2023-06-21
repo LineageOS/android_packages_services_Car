@@ -25,6 +25,7 @@ import android.car.Car;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ApiRequirements;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
@@ -536,6 +537,83 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
+     * Returns the volume group info associated with the zone id and group id.
+     *
+     * <p>The volume information, including mute, blocked, limited state will reflect the state
+     * of the volume group at the time of query.
+     *
+     * @param zoneId zone id for the group to query
+     * @param groupId group id for the group to query
+     * @throws IllegalArgumentException if the audio zone or group id are invalid
+     *
+     * @return the current volume group info
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
+    @Nullable
+    public CarVolumeGroupInfo getVolumeGroupInfo(int zoneId, int groupId) {
+        try {
+            return mService.getVolumeGroupInfo(zoneId, groupId);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, null);
+        }
+    }
+
+    /**
+     * Returns a list of volume group info associated with the zone id.
+     *
+     * <p>The volume information, including mute, blocked, limited state will reflect the state
+     * of the volume group at the time of query.
+     *
+     * @param zoneId zone id for the group to query
+     * @throws IllegalArgumentException if the audio zone is invalid
+     *
+     * @return all the current volume group info's for the zone id
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
+    @NonNull
+    public List<CarVolumeGroupInfo> getVolumeGroupInfosForZone(int zoneId) {
+        try {
+            return mService.getVolumeGroupInfosForZone(zoneId);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, Collections.EMPTY_LIST);
+        }
+    }
+
+    /**
+     * Returns a list of audio attributes associated with the volume group info.
+     *
+     * @param groupInfo group info to query
+     * @throws NullPointerException if the volume group info is {@code null}
+     *
+     * @return list of audio attributes associated with the volume group info
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
+    @NonNull
+    public List<AudioAttributes> getAudioAttributesForVolumeGroup(
+            @NonNull CarVolumeGroupInfo groupInfo) {
+        try {
+            return mService.getAudioAttributesForVolumeGroup(groupInfo);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, Collections.EMPTY_LIST);
+        }
+    }
+
+    /**
      * Gets array of {@link AudioAttributes} usages for a volume group in a zone.
      *
      * @param zoneId The zone id whose volume group is queried.
@@ -703,7 +781,7 @@ public final class CarAudioManager extends CarManagerBase {
                     mService.getInputDevicesForZoneId(zoneId),
                     AudioManager.GET_DEVICES_INPUTS);
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, new ArrayList<>());
+            return handleRemoteExceptionFromCarService(e, Collections.EMPTY_LIST);
         }
     }
 

@@ -17,6 +17,7 @@ function onConnectivityDataWithSession(published_data, state)
     res['createdAtMillis'] = published_data['session.createdAtMillis']
     -- bootReason: last boot reason
     res['bootReason'] = published_data['session.bootReason']
+    res['bootCount'] = published_data['session.bootCount']
 
     -- If we don't have metrics data then exit with only sessions data right now
     if published_data['conn.packages'] == nil then

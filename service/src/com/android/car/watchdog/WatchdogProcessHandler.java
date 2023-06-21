@@ -266,7 +266,7 @@ public final class WatchdogProcessHandler {
 
     /** Posts health check message */
     public void postHealthCheckMessage(int sessionId) {
-        mMainHandler.post(() -> doHealthCheck(sessionId));
+        mMainHandler.postAtFrontOfQueue(() -> doHealthCheck(sessionId));
     }
 
     /** Returns the registered and alive client count. */

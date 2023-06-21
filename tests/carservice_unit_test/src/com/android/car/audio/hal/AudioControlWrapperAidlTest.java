@@ -49,13 +49,16 @@ import android.hardware.automotive.audiocontrol.IAudioGainCallback;
 import android.hardware.automotive.audiocontrol.IFocusListener;
 import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.hardware.automotive.audiocontrol.Reasons;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.os.IBinder;
 import android.os.RemoteException;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.android.car.audio.CarAudioContext;
 import com.android.car.audio.CarAudioGainConfigInfo;
+import com.android.car.audio.CarAudioZone;
 import com.android.car.audio.CarDuckingInfo;
 import com.android.car.audio.CarHalAudioUtils;
 import com.android.car.audio.hal.AudioControlWrapper.AudioControlDeathRecipient;
@@ -94,6 +97,18 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     private static final String SECONDARY_NOTIFICATION_ADDRESS = "secondary notification";
 
     private static final int AIDL_AUDIO_CONTROL_VERSION_1 = 1;
+    private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
+            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+
+    public static final AudioAttributes TEST_MEDIA_ATTRIBUTE =
+            CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA);
+    public static final AudioAttributes TEST_NOTIFICATION_ATTRIBUTE =
+            CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION);
+
+    public static final int TEST_MEDIA_CONTEXT_ID =
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_MEDIA_ATTRIBUTE);
+    public static final int TEST_NOTIFICATION_CONTEXT_ID =
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_NOTIFICATION_ATTRIBUTE);
 
     @Mock
     IBinder mBinder;
@@ -209,14 +224,15 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Test
     public void onDevicesToDuckChange_convertsUsagesToXsdStrings() throws Exception {
+        List<AudioAttributes> audioAttributes = List.of(
+                TEST_MEDIA_ATTRIBUTE, TEST_NOTIFICATION_ATTRIBUTE);
         CarDuckingInfo carDuckingInfo =
                 new CarDuckingInfo(
                         ZONE_ID,
                         new ArrayList<>(),
                         new ArrayList<>(),
-                        CarHalAudioUtils.usagesToMetadatas(
-                                new int[] {USAGE_MEDIA, USAGE_NOTIFICATION},
-                                /* CarAudioZone= */ null));
+                        CarHalAudioUtils.audioAttributesToMetadatas(audioAttributes,
+                                generateAudioZoneMock()));
 
         mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo));
 
@@ -652,6 +668,18 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 .onAudioDeviceGainsChanged(eq(validReasons), captorGains.capture());
 
         assertThat(captorGains.getValue()).containsExactlyElementsIn(carGains);
+    }
+
+    private static CarAudioZone generateAudioZoneMock() {
+        CarAudioZone mockZone = mock(CarAudioZone.class);
+        when(mockZone.getAddressForContext(TEST_MEDIA_CONTEXT_ID))
+                .thenReturn(PRIMARY_MUSIC_ADDRESS);
+        when(mockZone.getAddressForContext(TEST_NOTIFICATION_CONTEXT_ID))
+                .thenReturn(PRIMARY_NOTIFICATION_ADDRESS);
+
+        when(mockZone.getCarAudioContext()).thenReturn(TEST_CAR_AUDIO_CONTEXT);
+
+        return mockZone;
     }
 
     private MutingInfo verifyOnDevicesToMuteChangeCalled(int audioZoneId) throws Exception {

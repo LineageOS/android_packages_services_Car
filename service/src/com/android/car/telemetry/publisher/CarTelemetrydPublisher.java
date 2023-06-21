@@ -38,6 +38,7 @@ import com.android.car.telemetry.sessioncontroller.SessionController;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -310,20 +311,15 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
             // It is possible the carId is no longer subscribed to while data is in-flight.
             return;
         }
-        int[] content = new int[dataItem.content.length];
-        for (int i = 0; i < content.length; i++) {
-            content[i] = dataItem.content[i];
-        }
+        String content = new String(dataItem.content, StandardCharsets.UTF_8);
         PersistableBundle bundle = new PersistableBundle();
         bundle.putInt(Constants.CAR_TELEMETRYD_BUNDLE_KEY_ID, dataItem.id);
-        bundle.putIntArray(Constants.CAR_TELEMETRYD_BUNDLE_KEY_CONTENT,
-                content);
+        bundle.putString(Constants.CAR_TELEMETRYD_BUNDLE_KEY_CONTENT, content);
         SessionAnnotation sessionAnnotation = mSessionController.getSessionAnnotation();
         sessionAnnotation.addAnnotationsToBundle(bundle);
         for (int i = 0; i < currentSubscribers.size(); i++) {
             currentSubscribers.get(i).push(bundle,
-                    content.length * Integer.BYTES
-                            > DataSubscriber.SCRIPT_INPUT_SIZE_THRESHOLD_BYTES);
+                    content.length() > DataSubscriber.SCRIPT_INPUT_SIZE_THRESHOLD_BYTES);
         }
     }
 

@@ -874,6 +874,30 @@ public final class ScriptExecutorFunctionalTest {
     }
 
     @Test
+    public void invokeScript_runtimeErrorWithStackTrace()
+            throws RemoteException, InterruptedException {
+        // Verifies that errors during script are showing stacktrace.
+        String script =
+                "function func_2(data, state)\n"
+                        + "    func_3(data, state)\n"
+                        + "end\n"
+                        + "function func_1(data, state)\n"
+                        + "    func_2(data, state)\n"
+                        + "end\n";
+
+        runScriptAndWaitForError(script, "func_1");
+
+        // Verify that the expected error is received.
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_RUNTIME_ERROR);
+        assertThat(mListener.mMessage).contains("Error encountered while running the script");
+        assertThat(mListener.mStackTrace).isNotNull();
+        assertThat(mListener.mStackTrace).isNotEmpty();
+        assertThat(mListener.mStackTrace).contains("func_2");
+        assertThat(mListener.mStackTrace).contains("func_1");
+    }
+
+    @Test
     public void invokeScript_returnedValuesOfUnsupportedTypesReturnError()
             throws RemoteException, InterruptedException {
         // Verifies that if we try to return a value of unsupported type, we get an error instead.

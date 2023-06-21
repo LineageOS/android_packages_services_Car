@@ -18,6 +18,8 @@ package com.android.car;
 
 import static android.car.hardware.property.CarPropertyManager.SENSOR_RATE_ONCHANGE;
 
+import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -25,6 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
@@ -41,6 +44,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 import android.util.Pair;
 import android.util.SparseArray;
 
@@ -54,6 +58,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -63,30 +69,34 @@ public final class CarPropertyServiceUnitTest {
     private Context mContext;
     @Mock
     private PropertyHalService mHalService;
+    @Mock
+    private ICarPropertyEventListener mICarPropertyEventListener;
+    @Mock
+    private IBinder mIBinder;
 
-    private String mReadPermission;
     private CarPropertyService mService;
 
     private static final int SPEED_ID = VehiclePropertyIds.PERF_VEHICLE_SPEED;
     private static final int HVAC_TEMP = VehiclePropertyIds.HVAC_TEMPERATURE_SET;
+    private static final String GRANTED_PERMISSION = "GRANTED_PERMISSION";
 
     @Before
     public void setUp() {
-        mReadPermission = "READ_PERMISSION";
-
-        when(mContext.checkCallingOrSelfPermission(mReadPermission)).thenReturn(
+        when(mICarPropertyEventListener.asBinder()).thenReturn(mIBinder);
+        when(mContext.checkCallingOrSelfPermission(GRANTED_PERMISSION)).thenReturn(
                 PackageManager.PERMISSION_GRANTED);
 
         SparseArray<CarPropertyConfig<?>> configs = new SparseArray<>();
         configs.put(SPEED_ID, CarPropertyConfig.newBuilder(
                 Float.class, SPEED_ID,
                 VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).build());
-        when(mHalService.getReadPermission(SPEED_ID)).thenReturn(mReadPermission);
+        when(mHalService.getReadPermission(SPEED_ID)).thenReturn(GRANTED_PERMISSION);
         // HVAC_TEMP is actually not a global property, but for simplicity, make it global here.
         configs.put(HVAC_TEMP, CarPropertyConfig.newBuilder(
                 Float.class, HVAC_TEMP,
                 VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).build());
-        when(mHalService.getReadPermission(HVAC_TEMP)).thenReturn(mReadPermission);
+        when(mHalService.getReadPermission(HVAC_TEMP)).thenReturn(GRANTED_PERMISSION);
+        when(mHalService.getWritePermission(HVAC_TEMP)).thenReturn(GRANTED_PERMISSION);
         when(mHalService.getPropertyList()).thenReturn(configs);
 
         mService = new CarPropertyService(mContext, mHalService);
@@ -288,5 +298,47 @@ public final class CarPropertyServiceUnitTest {
             assertThat(actualCarPropertyValue.getValue()).isEqualTo(
                     expectedCarPropertyValue.getValue());
         }
+    }
+
+    // Test that limited number of sync operations are allowed at once.
+    @Test
+    public void testSyncOperationLimit() throws Exception {
+        CountDownLatch startCd = new CountDownLatch(16);
+        CountDownLatch finishCd = new CountDownLatch(16);
+        CountDownLatch returnCd = new CountDownLatch(1);
+        when(mHalService.getProperty(HVAC_TEMP, 0))
+                .thenAnswer((invocation) -> {
+                    return new CarPropertyValue(HVAC_TEMP, /* areaId= */ 0, Float.valueOf(11f));
+                });
+        doAnswer((invocation) -> {
+            // Notify the operation has started.
+            startCd.countDown();
+
+            // Wait for the signal before finishing the operation.
+            returnCd.await(10, TimeUnit.SECONDS);
+            return null;
+        }).when(mHalService).setProperty(any());
+
+        Executor executor = Executors.newFixedThreadPool(16);
+        for (int i = 0; i < 16; i++) {
+            executor.execute(() -> {
+                mService.setProperty(
+                        new CarPropertyValue(HVAC_TEMP, /* areaId= */ 0, Float.valueOf(11f)),
+                        mICarPropertyEventListener);
+                finishCd.countDown();
+            });
+        }
+
+        // Wait until 16 requests are ongoing.
+        startCd.await(10, TimeUnit.SECONDS);
+
+        // The 17th request must throw exception.
+        Exception e = assertThrows(ServiceSpecificException.class, () -> mService.getProperty(
+                HVAC_TEMP, /* areaId= */ 0));
+        assertThat(((ServiceSpecificException) e).errorCode).isEqualTo(SYNC_OP_LIMIT_TRY_AGAIN);
+
+        // Unblock the operations.
+        returnCd.countDown();
+        finishCd.await(10, TimeUnit.SECONDS);
     }
 }

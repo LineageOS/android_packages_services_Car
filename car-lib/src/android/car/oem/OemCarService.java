@@ -19,6 +19,7 @@ package android.car.oem;
 import android.annotation.CallSuper;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.SystemApi;
 import android.app.Service;
 import android.car.CarVersion;
 import android.car.annotation.ApiRequirements;
@@ -47,6 +48,7 @@ import java.util.Map;
  *
  * @hide
  */
+@SystemApi
 public abstract class OemCarService extends Service {
 
     private static final String TAG = OemCarService.class.getSimpleName();
@@ -70,6 +72,24 @@ public abstract class OemCarService extends Service {
             synchronized (mLock) {
                 return (IOemCarAudioFocusService) mOemCarServiceComponents
                         .getOrDefault(IOemCarAudioFocusService.class, null);
+            }
+        }
+
+        @Override
+        public IOemCarAudioVolumeService getOemAudioVolumeService() {
+            assertPermission();
+            synchronized (mLock) {
+                return (IOemCarAudioVolumeService) mOemCarServiceComponents
+                        .getOrDefault(IOemCarAudioVolumeService.class, null);
+            }
+        }
+
+        @Override
+        public IOemCarAudioDuckingService getOemAudioDuckingService() {
+            assertPermission();
+            synchronized (mLock) {
+                return (IOemCarAudioDuckingService) mOemCarServiceComponents
+                        .getOrDefault(IOemCarAudioDuckingService.class, null);
             }
         }
 
@@ -149,10 +169,20 @@ public abstract class OemCarService extends Service {
 
         // Create all components
         OemCarAudioFocusService oemCarAudioFocusService = getOemAudioFocusService();
+        OemCarAudioVolumeService oemCarAudioVolumeService = getOemAudioVolumeService();
+        OemCarAudioDuckingService oemCarAudioDuckingService = getOemAudioDuckingService();
         synchronized (mLock) {
             if (oemCarAudioFocusService != null) {
                 mOemCarServiceComponents.put(IOemCarAudioFocusService.class,
                         new OemCarAudioFocusServiceImpl(oemCarAudioFocusService));
+            }
+            if (oemCarAudioVolumeService != null) {
+                mOemCarServiceComponents.put(IOemCarAudioVolumeService.class,
+                        new OemCarAudioVolumeServiceImpl(oemCarAudioVolumeService));
+            }
+            if (oemCarAudioDuckingService != null) {
+                mOemCarServiceComponents.put(IOemCarAudioDuckingService.class,
+                        new OemCarAudioDuckingServiceImpl(oemCarAudioDuckingService));
             }
 
             // Initialize them
@@ -222,11 +252,43 @@ public abstract class OemCarService extends Service {
      */
     @Nullable
     @SuppressWarnings("[OnNameExpected]")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public OemCarAudioFocusService getOemAudioFocusService() {
         if (DBG) {
             Slogf.d(TAG, "getOemUserService");
+        }
+        return null;
+    }
+
+    /**
+     * Gets Audio Volume implemented by OEM Service.
+     *
+     * @return audio volume service if implemented by OEM service, else return {@code null}.
+     */
+    @Nullable
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @SuppressWarnings("OnNameExpected")
+    public OemCarAudioVolumeService getOemAudioVolumeService() {
+        if (DBG) {
+            Slogf.d(TAG, "getOemAudioVolumeService");
+        }
+        return null;
+    }
+
+    /**
+     * Gets Audio Ducking implemented by OEM Service.
+     *
+     * @return audio ducking service if implemented by OEM service, else return {@code null}.
+     */
+    @Nullable
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @SuppressWarnings("OnNameExpected")
+    public OemCarAudioDuckingService getOemAudioDuckingService() {
+        if (DBG) {
+            Slogf.d(TAG, "getOemAudioDuckingService");
         }
         return null;
     }

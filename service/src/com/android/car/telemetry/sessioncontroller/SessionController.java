@@ -20,10 +20,12 @@ import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
+import android.content.Context;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.SystemProperties;
+import android.provider.Settings;
 
 import com.android.car.power.CarPowerManagementService;
 
@@ -58,6 +60,7 @@ public class SessionController {
     private long mStateChangedAtMillisSinceBoot; // uses SystemClock.elapsedRealtime();
     private long mStateChangedAtMillis; // unix time
     private String mBootReason;
+    private int mBootCount;
     private final ArrayList<SessionControllerCallback> mSessionControllerListeners =
             new ArrayList<>();
     private final ICarPowerStateListener.Stub mCarPowerStateListener =
@@ -73,6 +76,7 @@ public class SessionController {
                 }
             };
 
+    private Context mContext;
     private CarPowerManagementService mCarPowerManagementService;
     private Handler mTelemetryHandler;
 
@@ -92,7 +96,10 @@ public class SessionController {
     }
 
     public SessionController(
-            CarPowerManagementService carPowerManagementService, Handler telemetryHandler) {
+            Context context,
+            CarPowerManagementService carPowerManagementService,
+            Handler telemetryHandler) {
+        mContext = context;
         mTelemetryHandler = telemetryHandler;
         mCarPowerManagementService = carPowerManagementService;
         mCarPowerManagementService.registerInternalListener(mCarPowerStateListener);
@@ -123,6 +130,8 @@ public class SessionController {
      */
     public void initSession() {
         mBootReason = SystemProperties.get(SYSTEM_BOOT_REASON);
+        mBootCount = Settings.Global.getInt(
+                mContext.getContentResolver(), Settings.Global.BOOT_COUNT, 0);
         // Read the current power state and handle it.
         onCarPowerStateChanged(mCarPowerManagementService.getPowerState());
     }
@@ -139,7 +148,7 @@ public class SessionController {
     public SessionAnnotation getSessionAnnotation() {
         return new SessionAnnotation(
                 mSessionId, mSessionState, mStateChangedAtMillisSinceBoot, mStateChangedAtMillis,
-                mBootReason);
+                mBootReason, mBootCount);
     }
 
     private void updateSessionState(@SessionControllerState int sessionState) {

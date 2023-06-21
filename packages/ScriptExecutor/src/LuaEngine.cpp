@@ -127,16 +127,57 @@ int LuaEngine::run() {
     // input arguments are in the Lua stack as well in proper order.
     // On how to call Lua functions: https://www.lua.org/pil/25.2.html
     // Doc on lua_pcall: https://www.lua.org/manual/5.3/manual.html#lua_pcall
-    int status = lua_pcall(mLuaState, /* nargs= */ 2, /* nresults= */ 0, /*errfunc= */ 0);
+    int n_args = 2;
+    int n_results = 0;
+
+    // pushes the "debug" on top of the stack, so now "debug" is at index -1
+    lua_getglobal(mLuaState, "debug");
+
+    // pushes "traceback" as debug[traceback] because "debug" is the value at given index -1
+    lua_getfield(mLuaState, -1, "traceback");
+
+    // removing value "debug" from stack as we only need debug.traceback which is at index -1
+    lua_remove(mLuaState, -2);
+
+    // We need to insert err_handler (debug.traceback) before all arguments and function.
+    // Current indices (starting from top of stack): debug.traceback (-1), arg2 (-2), arg1 (-3 ==
+    // -n_args-1), function (-4 == -n_args-2) After insert (starting from top of stack): arg2 (-1),
+    // arg1 (-2 == -n_args), function (-3 == -n_args-1), debug.traceback (-4 == -n_args-2) so, we
+    // will insert error_handler at index : (-n_args - 2)
+    int err_handler_index = -n_args - 2;
+    lua_insert(mLuaState, err_handler_index);
+
+    // After lua_pcall, the function and all arguments are removed from the stack i.e. (n_args+1)
+    // If there is no error then lua_pcall pushes "n_results" elements to the stack.
+    // But in case of error, lua_pcall pushes exactly one element (error message).
+    // So, "error message" will be at top of the stack i.e. "-1".
+    // Therefore, we need to pop error_handler explicitly.
+    // error_handler will be at "-2" index from top of stack after lua_pcall,
+    // but once we pop error_message from top of stack, error_handler's new index will be "-1".
+    int status = lua_pcall(mLuaState, n_args, n_results, err_handler_index);
     if (status) {
         const char* error = lua_tostring(mLuaState, -1);
-        lua_pop(mLuaState, 1);  // pop the error object from the stack.
+        std::string s = error;
+
+        std::string delimiter = "stack traceback:";
+        // because actual delimiter is "\nstack traceback:\n\t"
+        // tried using \n and \t as part of the delimiter , but it did not work.
+        // also tried \\n and \\t in the delimiter, but it did not work.
+        // so to get error_msg string, avoided the \n in front by using dpos -1
+        // and for stack_traceback, avoided \n and \t in the tail by using delimiter.length() + 2.
+        int dpos = s.find(delimiter);
+        std::string error_msg = s.substr(0, dpos - 1);
+        std::string stack_traceback = s.substr(dpos + delimiter.length() + 2);
+
+        lua_pop(mLuaState, 2);  // pop top 2 elements (error message & error handler) from the stack
         std::ostringstream out;
         out << "Error encountered while running the script. The returned error code=" << status
             << ". Refer to lua.h file of Lua C API library for error code definitions. Error: "
-            << error;
-        sListener->onError(ERROR_TYPE_LUA_RUNTIME_ERROR, out.str().c_str(), "");
+            << error_msg.c_str();
+        sListener->onError(ERROR_TYPE_LUA_RUNTIME_ERROR, out.str().c_str(),
+                           stack_traceback.c_str());
     }
+    lua_pop(mLuaState, 1);  // pop top element (error handler) from the stack.
     return status;
 }
 
