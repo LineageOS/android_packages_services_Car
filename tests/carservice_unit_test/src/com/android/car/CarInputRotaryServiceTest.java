@@ -297,7 +297,7 @@ public class CarInputRotaryServiceTest {
         UserHalService userHal = mock(UserHalService.class);
         mCarUserService = new CarUserService(mMockContext, userHal,
                 userManager, /* maxRunningUsers= */ 2,
-                mUxRestrictionService, mCarPackageManagerService);
+                mUxRestrictionService, mCarPackageManagerService, mCarOccupantZoneService);
 
         mCarInputService = new CarInputService(mMockContext, mInputHalService, mCarUserService,
                 mCarOccupantZoneService, mCarBluetoothService, mCarPowerManagementService,
