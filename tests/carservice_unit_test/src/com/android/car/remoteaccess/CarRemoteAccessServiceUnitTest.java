@@ -184,6 +184,9 @@ public final class CarRemoteAccessServiceUnitTest {
         mDatabaseFile = mContext.getDatabasePath(DATABASE_NAME);
         when(mResources.getInteger(R.integer.config_allowedSystemUptimeForRemoteAccess))
                 .thenReturn(300);
+        when(mResources.getInteger(R.integer.config_notifyApStateChange_max_retry)).thenReturn(10);
+        when(mResources.getInteger(R.integer.config_notifyApStateChange_retry_sleep_ms))
+                .thenReturn(100);
         when(mRemoteAccessHalWrapper.getWakeupServiceName()).thenReturn(WAKEUP_SERVICE_NAME);
         when(mRemoteAccessHalWrapper.getVehicleId()).thenReturn(TEST_VEHICLE_ID);
         when(mRemoteAccessHalWrapper.getProcessorId()).thenReturn(TEST_PROCESSOR_ID);

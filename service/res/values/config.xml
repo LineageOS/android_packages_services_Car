@@ -580,4 +580,8 @@
          This is enabled only for a system having both driver and passenger zones. If the system
          has only driver zone or passenger zones, this configuration will be ignored. -->
     <bool name="config_assignPassengerActivityToForegroundCpuGroup">true</bool>
+    <!-- Max number of retires for notifying AP power state change. -->
+    <integer name="config_notifyApStateChange_max_retry">100</integer>
+    <!-- Number of ms to sleep between retries for notifying AP power state change. -->
+    <integer name="config_notifyApStateChange_retry_sleep_ms">100</integer>
 </resources>
