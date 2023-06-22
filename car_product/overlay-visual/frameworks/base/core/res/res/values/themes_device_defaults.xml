@@ -164,8 +164,13 @@
     <style name="Theme.DeviceDefault.Settings" parent="android:Theme.DeviceDefault"/>
     <style name="Theme.DeviceDefault.Settings.NoActionBar" parent="android:Theme.DeviceDefault.NoActionBar"/>
 
-    <style name="Theme.DeviceDefault.Light.DarkActionBar"  parent="android:Theme.DeviceDefault"/>
-      <!-- DeviceDefault theme for the default system theme.  -->
+    <!-- This theme is applied as the app base. Attributes not defined in app/ activity themes will fallthrough to this
+    theme. This makes it app facing, regardless if the app is directly using it or a theme that inherits from it.  -->
+    <style name="Theme.DeviceDefault.Light.DarkActionBar"  parent="android:Theme.DeviceDefault">
+        <item name="android:windowLayoutInDisplayCutoutMode">default</item>
+    </style>
+
+    <!-- DeviceDefault theme for the default system theme.  -->
     <style name="Theme.DeviceDefault.System" parent="android:Theme.DeviceDefault.Light.DarkActionBar" />
 
     <!-- Theme used for the intent picker activity. -->
