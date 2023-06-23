@@ -325,8 +325,6 @@ public class PropertyHalService extends HalServiceBase {
     private final Map<IBinder, VehicleStubCallback>
             mResultBinderToVehicleStubCallback = new ArrayMap<>();
     @GuardedBy("mLock")
-    private final SparseArray<CarPropertyConfig<?>> mMgrPropIdToCarPropConfig = new SparseArray<>();
-    @GuardedBy("mLock")
     private final SparseArray<HalPropConfig> mHalPropIdToPropConfig =
             new SparseArray<>();
     @GuardedBy("mLock")
@@ -950,16 +948,15 @@ public class PropertyHalService extends HalServiceBase {
             Slogf.d(TAG, "getPropertyList");
         }
         synchronized (mLock) {
-            if (mMgrPropIdToCarPropConfig.size() == 0) {
-                for (int i = 0; i < mHalPropIdToPropConfig.size(); i++) {
-                    HalPropConfig halPropConfig = mHalPropIdToPropConfig.valueAt(i);
-                    int mgrPropId = halToManagerPropId(halPropConfig.getPropId());
-                    CarPropertyConfig<?> carPropertyConfig = halPropConfig.toCarPropertyConfig(
-                            mgrPropId);
-                    mMgrPropIdToCarPropConfig.put(mgrPropId, carPropertyConfig);
-                }
+            SparseArray<CarPropertyConfig<?>> mgrPropIdToCarPropConfig = new SparseArray<>();
+            for (int i = 0; i < mHalPropIdToPropConfig.size(); i++) {
+                HalPropConfig halPropConfig = mHalPropIdToPropConfig.valueAt(i);
+                int mgrPropId = halToManagerPropId(halPropConfig.getPropId());
+                CarPropertyConfig<?> carPropertyConfig = halPropConfig.toCarPropertyConfig(
+                        mgrPropId);
+                mgrPropIdToCarPropConfig.put(mgrPropId, carPropertyConfig);
             }
-            return mMgrPropIdToCarPropConfig;
+            return mgrPropIdToCarPropConfig;
         }
     }
 
@@ -1132,7 +1129,6 @@ public class PropertyHalService extends HalServiceBase {
             }
             mSubscribedHalPropIdToUpdateRateHz.clear();
             mHalPropIdToPropConfig.clear();
-            mMgrPropIdToCarPropConfig.clear();
             mMgrPropIdToPermissions.clear();
             mPropertyHalListener = null;
         }
