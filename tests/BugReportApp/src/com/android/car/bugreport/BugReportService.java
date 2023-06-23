@@ -543,7 +543,7 @@ public class BugReportService extends Service {
             Log.d(TAG, "Zipping bugreport into " + bugreportFileName);
             mMetaBugReport = BugStorageUtils.update(this,
                     mMetaBugReport.toBuilder().setBugReportFileName(bugreportFileName).build());
-            File bugReportTempDir = FileUtils.createTempDir(this, mMetaBugReport.getTimestamp());
+            File bugReportTempDir = FileUtils.getTempDir(this, mMetaBugReport.getTimestamp());
             zipDirectoryToOutputStream(bugReportTempDir,
                     BugStorageUtils.openBugReportFileToWrite(this, mMetaBugReport));
         } catch (IOException e) {
