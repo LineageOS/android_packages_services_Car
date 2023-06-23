@@ -1043,7 +1043,9 @@ package android.car.hardware {
     field public static final int DEFROST = 4; // 0x4
     field public static final int DEFROST_AND_FLOOR = 6; // 0x6
     field public static final int FACE = 1; // 0x1
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int FACE_AND_DEFROST = 5; // 0x5
     field public static final int FACE_AND_FLOOR = 3; // 0x3
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int FACE_DEFROST_AND_FLOOR = 7; // 0x7
     field public static final int FLOOR = 2; // 0x2
     field public static final int UNKNOWN = 0; // 0x0
   }
