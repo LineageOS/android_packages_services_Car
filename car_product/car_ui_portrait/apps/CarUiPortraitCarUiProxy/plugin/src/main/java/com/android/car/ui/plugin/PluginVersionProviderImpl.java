@@ -67,7 +67,7 @@ public class PluginVersionProviderImpl implements PluginVersionProviderOEMV1 {
             }
         }
 
-        return new PluginFactoryImpl(new PluginContextWrapper(context));
+        return new PluginFactoryImpl(new PluginContextWrapper(context, packageName));
     }
 
     /**
