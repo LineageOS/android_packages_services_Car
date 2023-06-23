@@ -50,7 +50,6 @@ import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTIO
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
-import static com.android.car.internal.common.CommonConstants.INVALID_PID;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_GARAGE_MODE_OFF;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_GARAGE_MODE_ON;
 import static com.android.car.watchdog.CarWatchdogService.MISSING_ARG_VALUE;
@@ -71,7 +70,6 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.AdditionalMatchers.or;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
@@ -147,7 +145,6 @@ import android.os.FileUtils;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
-import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -208,7 +205,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private static final String CAR_WATCHDOG_DAEMON_INTERFACE =
             "android.automotive.watchdog.internal.ICarWatchdog/default";
     private static final int MAX_WAIT_TIME_MS = 3000;
-    private static final int INVALID_SESSION_ID = -1;
     private static final int OVERUSE_HANDLING_DELAY_MILLS = 1000;
     private static final int RECURRING_OVERUSE_TIMES = 2;
     private static final int RECURRING_OVERUSE_PERIOD_IN_DAYS = 2;
@@ -234,6 +230,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Mock private ICarWatchdog mMockCarWatchdogDaemon;
     @Mock private NotificationHelper mMockNotificationHelper;
     @Mock private ICarServiceHelper.Stub mMockCarServiceHelper;
+    @Mock private WatchdogProcessHandler mMockWatchdogProcessHandler;
 
     @Captor private ArgumentCaptor<ICarPowerStateListener> mICarPowerStateListenerCaptor;
     @Captor private ArgumentCaptor<ICarPowerPolicyListener> mICarPowerPolicyListenerCaptor;
@@ -384,7 +381,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         mTimeSource.updateNow(/* numDaysAgo= */ 0);
         mCarWatchdogService = new CarWatchdogService(mMockContext, mMockBuiltinPackageContext,
-                mSpiedWatchdogStorage, mTimeSource);
+                mSpiedWatchdogStorage, mTimeSource, mMockWatchdogProcessHandler);
         initService(/* wantedInvocations= */ 1);
     }
 
@@ -410,85 +407,43 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Test
     public void testCarWatchdogServiceHealthCheck() throws Exception {
         mWatchdogServiceForSystemImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
-        verify(mMockCarWatchdogDaemon,
-                timeout(MAX_WAIT_TIME_MS)).tellCarWatchdogServiceAlive(
-                eq(mWatchdogServiceForSystemImpl), any(), eq(123456));
+
+        verify(mMockWatchdogProcessHandler).postHealthCheckMessage(eq(123456));
+    }
+
+    @Test
+    public void testTellClientAlive() throws Exception {
+        TestClient client = new TestClient();
+
+        mCarWatchdogService.tellClientAlive(client, TIMEOUT_CRITICAL);
+
+        verify(mMockWatchdogProcessHandler).tellClientAlive(eq(client), eq(TIMEOUT_CRITICAL));
     }
 
     @Test
     public void testRegisterClient() throws Exception {
         TestClient client = new TestClient();
+
         mCarWatchdogService.registerClient(client, TIMEOUT_CRITICAL);
-        mWatchdogServiceForSystemImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
-        // Checking client health is asynchronous, so wait at most 1 second.
-        int repeat = 10;
-        while (repeat > 0) {
-            int sessionId = client.getLastSessionId();
-            if (sessionId != INVALID_SESSION_ID) {
-                return;
-            }
-            SystemClock.sleep(100L);
-            repeat--;
-        }
-        assertThat(client.getLastSessionId()).isNotEqualTo(INVALID_SESSION_ID);
+
+        verify(mMockWatchdogProcessHandler).registerClient(eq(client), eq(TIMEOUT_CRITICAL));
     }
 
     @Test
-    public void testUnregisterUnregisteredClient() throws Exception {
+    public void testUnregisterClient() throws Exception {
         TestClient client = new TestClient();
+
         mCarWatchdogService.registerClient(client, TIMEOUT_CRITICAL);
         mCarWatchdogService.unregisterClient(client);
-        mWatchdogServiceForSystemImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
-        assertThat(client.getLastSessionId()).isEqualTo(INVALID_SESSION_ID);
-    }
 
-    @Test
-    public void testGoodClientHealthCheck() throws Exception {
-        testClientHealthCheck(new TestClient(), 0);
-    }
-
-    @Test
-    public void testBadClientHealthCheck() throws Exception {
-        testClientHealthCheck(new BadTestClient(), 1);
+        verify(mMockWatchdogProcessHandler).unregisterClient(eq(client));
     }
 
     @Test
     public void testRequestAidlVhalPid() throws Exception {
-        int vhalPid = 15687;
-        when(mMockCarWatchdogDaemon.getInterfaceVersion())
-                .thenReturn(CARWATCHDOG_DAEMON_INTERFACE_VERSION_UDC);
-        when(mMockCarServiceHelper.fetchAidlVhalPid()).thenReturn(vhalPid);
-
         mWatchdogServiceForSystemImpl.requestAidlVhalPid();
 
-        verify(mMockCarServiceHelper, timeout(MAX_WAIT_TIME_MS)).fetchAidlVhalPid();
-        verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).onAidlVhalPidFetched(vhalPid);
-    }
-
-    @Test
-    public void testRequestAidlVhalPidWithInvalidPid() throws Exception {
-        when(mMockCarServiceHelper.fetchAidlVhalPid()).thenReturn(INVALID_PID);
-
-        mWatchdogServiceForSystemImpl.requestAidlVhalPid();
-
-        verify(mMockCarServiceHelper, timeout(MAX_WAIT_TIME_MS)).fetchAidlVhalPid();
-        // Shouldn't respond to car watchdog daemon when invalid pid is returned by
-        // the system_server.
-        verify(mMockCarWatchdogDaemon, never()).onAidlVhalPidFetched(INVALID_PID);
-    }
-
-    @Test
-    public void testRequestAidlVhalPidWithDaemonRemoteException() throws Exception {
-        int vhalPid = 15687;
-        when(mMockCarWatchdogDaemon.getInterfaceVersion())
-                .thenReturn(CARWATCHDOG_DAEMON_INTERFACE_VERSION_UDC);
-        when(mMockCarServiceHelper.fetchAidlVhalPid()).thenReturn(vhalPid);
-        doThrow(RemoteException.class).when(mMockCarWatchdogDaemon).onAidlVhalPidFetched(anyInt());
-
-        mWatchdogServiceForSystemImpl.requestAidlVhalPid();
-
-        verify(mMockCarServiceHelper, timeout(MAX_WAIT_TIME_MS)).fetchAidlVhalPid();
-        verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).onAidlVhalPidFetched(vhalPid);
+        verify(mMockWatchdogProcessHandler, timeout(MAX_WAIT_TIME_MS)).asyncFetchAidlVhalPid();
     }
 
     // TODO(b/262301082): Add a unit test to verify the race condition that caused watchdog to
@@ -4053,20 +4008,17 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     @Test
-    public void testSetProcessHealthCheckEnabled() throws Exception {
+    public void testControlProcessHealthCheckEnabled() throws Exception {
         mCarWatchdogService.controlProcessHealthCheck(true);
 
-        verify(mMockCarWatchdogDaemon).controlProcessHealthCheck(eq(true));
+        verify(mMockWatchdogProcessHandler).controlProcessHealthCheck(eq(true));
     }
 
     @Test
-    public void testSetProcessHealthCheckEnabledWithDisconnectedDaemon() throws Exception {
-        crashWatchdogDaemon();
+    public void testControlProcessHealthCheckDisabled() throws Exception {
+        mCarWatchdogService.controlProcessHealthCheck(false);
 
-        assertThrows(IllegalStateException.class,
-                () -> mCarWatchdogService.controlProcessHealthCheck(false));
-
-        verify(mMockCarWatchdogDaemon, never()).controlProcessHealthCheck(anyBoolean());
+        verify(mMockWatchdogProcessHandler).controlProcessHealthCheck(eq(false));
     }
 
     @Test
@@ -4615,23 +4567,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         mockWatchdogDaemon();
         latch.await(MAX_WAIT_TIME_MS, TimeUnit.MILLISECONDS);
         captureAndVerifyRegistrationWithDaemon(/* waitOnMain= */ false);
-    }
-
-    private void testClientHealthCheck(TestClient client, int badClientCount) throws Exception {
-        mCarWatchdogService.registerClient(client, TIMEOUT_CRITICAL);
-        mWatchdogServiceForSystemImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
-
-        verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).tellCarWatchdogServiceAlive(
-                eq(mWatchdogServiceForSystemImpl), mProcessIdentifiersCaptor.capture(), eq(123456));
-
-        assertThat(mProcessIdentifiersCaptor.getValue()).isEmpty();
-
-        mWatchdogServiceForSystemImpl.checkIfAlive(987654, TIMEOUT_CRITICAL);
-
-        verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).tellCarWatchdogServiceAlive(
-                eq(mWatchdogServiceForSystemImpl), mProcessIdentifiersCaptor.capture(), eq(987654));
-
-        assertThat(mProcessIdentifiersCaptor.getValue().size()).isEqualTo(badClientCount);
     }
 
     private List<android.automotive.watchdog.internal.ResourceOveruseConfiguration>
@@ -5407,32 +5342,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .build();
     }
 
-    private class TestClient extends ICarWatchdogServiceCallback.Stub {
-        protected int mLastSessionId = INVALID_SESSION_ID;
-
-        @Override
-        public void onCheckHealthStatus(int sessionId, int timeout) {
-            mLastSessionId = sessionId;
-            mCarWatchdogService.tellClientAlive(this, sessionId);
-        }
-
-        @Override
-        public void onPrepareProcessTermination() {
-        }
-
-        public int getLastSessionId() {
-            return mLastSessionId;
-        }
-    }
-
-    private final class BadTestClient extends TestClient {
-        @Override
-        public void onCheckHealthStatus(int sessionId, int timeout) {
-            mLastSessionId = sessionId;
-            // This client doesn't respond to CarWatchdogService.
-        }
-    }
-
     private static IResourceOveruseListener createMockResourceOveruseListener() {
         IResourceOveruseListener listener = mock(IResourceOveruseListener.Stub.class);
         when(listener.asBinder()).thenCallRealMethod();
@@ -5545,6 +5454,13 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             idOffset = ++idOffset % RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
         }
         return packagesById;
+    }
+
+    private static final class TestClient extends ICarWatchdogServiceCallback.Stub {
+        @Override
+        public void onCheckHealthStatus(int sessionId, int timeout) {}
+        @Override
+        public void onPrepareProcessTermination() {}
     }
 
     private static final class TestTimeSource extends TimeSource {
