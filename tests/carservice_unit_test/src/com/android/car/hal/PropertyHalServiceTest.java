@@ -49,6 +49,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.VehiclePropertyIds;
+import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
 import android.hardware.automotive.vehicle.VehiclePropError;
@@ -168,13 +169,20 @@ public class PropertyHalServiceTest {
         mPropertyHalService.init();
 
         HalPropConfig mockPropConfig1 = mock(HalPropConfig.class);
+        CarPropertyConfig mockCarPropConfig1 = mock(CarPropertyConfig.class);
+        when(mockPropConfig1.toCarPropertyConfig(VehicleProperty.HVAC_TEMPERATURE_SET))
+                .thenReturn(mockCarPropConfig1);
         when(mockPropConfig1.getPropId()).thenReturn(VehicleProperty.HVAC_TEMPERATURE_SET);
-        when(mockPropConfig1.getChangeMode()).thenReturn(VehiclePropertyChangeMode.ON_CHANGE);
+        when(mockCarPropConfig1.getChangeMode()).thenReturn(VehiclePropertyChangeMode.ON_CHANGE);
+
         HalPropConfig mockPropConfig2 = mock(HalPropConfig.class);
+        CarPropertyConfig mockCarPropConfig2 = mock(CarPropertyConfig.class);
+        when(mockPropConfig2.toCarPropertyConfig(VehicleProperty.PERF_VEHICLE_SPEED))
+                .thenReturn(mockCarPropConfig2);
         when(mockPropConfig2.getPropId()).thenReturn(VehicleProperty.PERF_VEHICLE_SPEED);
-        when(mockPropConfig2.getChangeMode()).thenReturn(VehiclePropertyChangeMode.CONTINUOUS);
-        when(mockPropConfig2.getMinSampleRate()).thenReturn(20.0f);
-        when(mockPropConfig2.getMaxSampleRate()).thenReturn(100.0f);
+        when(mockCarPropConfig2.getChangeMode()).thenReturn(VehiclePropertyChangeMode.CONTINUOUS);
+        when(mockCarPropConfig2.getMinSampleRate()).thenReturn(20.0f);
+        when(mockCarPropConfig2.getMaxSampleRate()).thenReturn(100.0f);
         mPropertyHalService.takeProperties(List.of(mockPropConfig1, mockPropConfig2));
     }
 

@@ -33,6 +33,7 @@ import static android.car.hardware.property.VehicleHalStatusCode.STATUS_TRY_AGAI
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
+import static com.android.car.internal.property.InputSanitizationUtils.sanitizeUpdateRateHz;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -255,14 +256,14 @@ public class PropertyHalService extends HalServiceBase {
         /**
          * Parses the updateRateHz from client and sanitize it.
          */
-        void parseClientUpdateRateHz(HalPropConfig halPropConfig) {
+        void parseClientUpdateRateHz(CarPropertyConfig carPropertyConfig) {
             float clientUpdateRateHz = mPropMgrRequest.getUpdateRateHz();
             if (clientUpdateRateHz == 0.0f) {
                 // If client does not specify a sample rate for async set, subscribe at the max
                 // sample rate so that we can get the property update as soon as possible.
-                clientUpdateRateHz = halPropConfig.getMaxSampleRate();
+                clientUpdateRateHz = carPropertyConfig.getMaxSampleRate();
             }
-            mUpdateRateHz = sanitizeUpdateRateHz(clientUpdateRateHz, halPropConfig);
+            mUpdateRateHz = sanitizeUpdateRateHz(carPropertyConfig, clientUpdateRateHz);
         }
 
         @Override
@@ -1534,19 +1535,6 @@ public class PropertyHalService extends HalServiceBase {
         sendVehicleStubRequests(GET, vehicleStubRequests, vehicleStubCallback);
     }
 
-    private static float sanitizeUpdateRateHz(float updateRateHz, HalPropConfig halPropConfig) {
-        float sanitizedUpdateRateHz = updateRateHz;
-        if (halPropConfig.getChangeMode()
-                != CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS) {
-            sanitizedUpdateRateHz = CarPropertyManager.SENSOR_RATE_ONCHANGE;
-        } else if (sanitizedUpdateRateHz > halPropConfig.getMaxSampleRate()) {
-            sanitizedUpdateRateHz = halPropConfig.getMaxSampleRate();
-        } else if (sanitizedUpdateRateHz < halPropConfig.getMinSampleRate()) {
-            sanitizedUpdateRateHz = halPropConfig.getMinSampleRate();
-        }
-        return sanitizedUpdateRateHz;
-    }
-
     @GuardedBy("mLock")
     @Nullable
     private Float calcNewUpdateRateHzLocked(int halPropId) {
@@ -1602,7 +1590,8 @@ public class PropertyHalService extends HalServiceBase {
                 // {@code prepareVehicleStubRequests}, this is guaranteed not to be null.
                 HalPropConfig halPropConfig = mHalPropIdToPropConfig.get(halPropId);
 
-                setRequestInfo.parseClientUpdateRateHz(halPropConfig);
+                setRequestInfo.parseClientUpdateRateHz(halPropConfig.toCarPropertyConfig(
+                        setRequestInfo.getPropertyId()));
 
                 if (mHalPropIdToWaitingUpdateRequestInfo.get(halPropId) == null) {
                     mHalPropIdToWaitingUpdateRequestInfo.put(halPropId, new ArrayList<>());
