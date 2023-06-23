@@ -52,23 +52,15 @@ public class FileUtils {
     }
 
     /**
-     * Creates and returns file directory for storing bug report files before they are zipped into
-     * a single file.
-     */
-    static File createTempDir(Context context, String timestamp) {
-        File dir = getTempDir(context, timestamp);
-        dir.mkdirs();
-        return dir;
-    }
-
-    /**
      * Returns path to the directory for storing bug report files before they are zipped into a
      * single file.
      */
     static File getTempDir(Context context, String timestamp) {
         Preconditions.checkArgument(!context.getUser().isSystem(),
                 "Must be called from the current user.");
-        return new File(context.getDataDir(), TEMP_DIR + "/" + timestamp);
+        File dir = new File(context.getDataDir(), TEMP_DIR + "/" + timestamp);
+        dir.mkdirs();
+        return dir;
     }
 
     /**
@@ -112,7 +104,7 @@ public class FileUtils {
      * @return A file.
      */
     static File getFileWithSuffix(Context context, String timestamp, String suffix) {
-        return new File(createTempDir(context, timestamp), timestamp + suffix);
+        return new File(getTempDir(context, timestamp), timestamp + suffix);
     }
 
     /**
