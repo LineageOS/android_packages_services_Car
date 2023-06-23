@@ -18,12 +18,17 @@ package com.android.car.evs;
 
 import static android.car.evs.CarEvsManager.ERROR_NONE;
 import static android.car.evs.CarEvsManager.ERROR_UNAVAILABLE;
+import static android.car.evs.CarEvsManager.SERVICE_STATE_ACTIVE;
+import static android.car.evs.CarEvsManager.SERVICE_STATE_INACTIVE;
+import static android.car.evs.CarEvsManager.SERVICE_STATE_REQUESTED;
+import static android.car.evs.CarEvsManager.SERVICE_STATE_UNAVAILABLE;
 import static android.car.evs.CarEvsManager.STREAM_EVENT_STREAM_STOPPED;
 import static android.car.hardware.property.CarPropertyEvent.PROPERTY_EVENT_ERROR;
 import static android.car.hardware.property.CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE;
 
 import static com.android.car.CarLog.TAG_EVS;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doNothing;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
@@ -53,6 +58,7 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.mocks.JavaMockitoHelper;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -68,6 +74,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.ServiceManager;
+import android.os.SystemClock;
 import android.os.UserHandle;
 import android.view.Display;
 import android.util.Log;
@@ -90,6 +97,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.Semaphore;
 
 /**
  * <p>This class contains unit tests for the {@link CarEvsService}.
@@ -119,6 +127,8 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
     // ComponentName.unflattenFromString() returns a null object on below String object because it
     // does not contain an expected separator, '/'.
     private static final String INVALID_EVS_CAMERA_ACTIVITY_COMPONENT_NAME = "InvalidComponentName";
+    // Minimum delay to receive callbacks.
+    private static final int DEFAULT_TIMEOUT_IN_MS = 100;
 
     @Mock private CarPropertyService mMockCarPropertyService;
     @Mock private ClassLoader mMockClassLoader;
@@ -131,9 +141,11 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
     @Mock private Resources mMockResources;
     @Mock private Display mMockDisplay;
 
-    @Captor private ArgumentCaptor<ICarPropertyEventListener> mGearSelectionListenerCaptor;
-    @Captor private ArgumentCaptor<IBinder.DeathRecipient> mDeathRecipientCaptor;
     @Captor private ArgumentCaptor<DisplayManager.DisplayListener> mDisplayListenerCaptor;
+    @Captor private ArgumentCaptor<IBinder.DeathRecipient> mDeathRecipientCaptor;
+    @Captor private ArgumentCaptor<ICarPropertyEventListener> mGearSelectionListenerCaptor;
+    @Captor private ArgumentCaptor<Intent> mIntentCaptor;
+    @Captor private ArgumentCaptor<StateMachine.HalCallback> mHalCallbackCaptor;
 
     private CarEvsService mCarEvsService;
     private Random mRandom = new Random();
@@ -149,6 +161,7 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
             .spyStatic(Binder.class)
             .spyStatic(CarServiceUtils.class)
             .spyStatic(CarEvsService.class)
+            .spyStatic(StateMachine.class)
             .spyStatic(BuiltinPackageDependency.class);
     }
 
@@ -163,6 +176,7 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
                 .thenReturn(DEFAULT_CAMERA_ID);
         when(mMockContext.getSystemService(DisplayManager.class)).thenReturn(mMockDisplayManager);
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
+        doNothing().when(mMockContext).startActivity(mIntentCaptor.capture());
 
         if (mTestName.getMethodName().endsWith("InvalidEvsCameraActivity")) {
             when(mMockResources.getString(com.android.car.R.string.config_evsCameraActivity))
@@ -181,7 +195,8 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
 
         mockEvsHalService();
         mockEvsHalWrapper();
-        doReturn(mMockEvsHalWrapper).when(() -> CarEvsService.createHalWrapper(any(), any()));
+        doReturn(mMockEvsHalWrapper).when(
+                () -> StateMachine.createHalWrapper(any(), mHalCallbackCaptor.capture()));
 
         // Get the property listener
         when(mMockCarPropertyService
@@ -222,7 +237,7 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
     public void testGetCurrentStatus() {
         CarEvsStatus status = mCarEvsService.getCurrentStatus();
         assertThat(status.getServiceType()).isEqualTo(CarEvsManager.SERVICE_TYPE_REARVIEW);
-        assertThat(status.getState()).isEqualTo(CarEvsManager.SERVICE_STATE_INACTIVE);
+        assertThat(status.getState()).isEqualTo(SERVICE_STATE_INACTIVE);
     }
 
     @Test
@@ -264,21 +279,51 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
 
     @Test
     public void testOnEvent() {
-        mCarEvsService.onEvent(CarEvsManager.SERVICE_TYPE_REARVIEW, /* on= */ true);
-        assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_REQUESTED);
+        // Create a buffer to circulate
+        HardwareBuffer buffer =
+                HardwareBuffer.create(/* width= */ 64, /* height= */ 32,
+                                      /* format= */ HardwareBuffer.RGBA_8888,
+                                      /* layers= */ 1,
+                                      /* usage= */ HardwareBuffer.USAGE_CPU_READ_OFTEN);
+        int bufferId = mRandom.nextInt();
+        EvsStreamCallbackImpl spiedCallback = spy(new EvsStreamCallbackImpl());
+        EvsStatusListenerImpl spiedStatusListener = spy(new EvsStatusListenerImpl());
+        mCarEvsService.registerStatusListener(spiedStatusListener);
 
-        mCarEvsService.onEvent(CarEvsManager.SERVICE_TYPE_SURROUNDVIEW, /* on= */ true);
+        // Request a REARVIEW via HAL Event. CarEvsService should enter REQUESTED state.
+        mCarEvsService.mEvsTriggerListener.onEvent(CarEvsManager.SERVICE_TYPE_REARVIEW,
+                /* on= */ true);
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_REQUESTED)).isTrue();
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_REQUESTED);
+                .isEqualTo(SERVICE_STATE_REQUESTED);
 
-        mCarEvsService.onEvent(CarEvsManager.SERVICE_TYPE_REARVIEW, /* on= */ false);
-        assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_REQUESTED);
+        // Request a video stream with a given token. CarEvsService should enter ACTIVE state and
+        // gives a callback upon the frame event.
+        Bundle extras = mIntentCaptor.getValue().getExtras();
+        assertThat(extras).isNotNull();
+        IBinder token = extras.getBinder(CarEvsManager.EXTRA_SESSION_TOKEN);
+        assertThat(mCarEvsService.startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW,
+                  token, spiedCallback)).isEqualTo(ERROR_NONE);
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_ACTIVE)).isTrue();
 
-        mCarEvsService.onEvent(CarEvsManager.SERVICE_TYPE_SURROUNDVIEW, /* on= */ false);
+        mHalCallbackCaptor.getValue().onFrameEvent(bufferId, buffer);
+        assertThat(spiedCallback.waitForFrames(/* expected= */ 1)).isTrue();
+
+        // Request stopping a current activity. CarEvsService should give us a callback with
+        // STREAM_STOPPED event and ehter INACTIVE state.
+        mCarEvsService.mEvsTriggerListener.onEvent(CarEvsManager.SERVICE_TYPE_REARVIEW,
+                /* on= */ false);
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_INACTIVE)).isTrue();
+        assertThat(spiedCallback.waitForEvent(CarEvsManager.STREAM_EVENT_STREAM_STOPPED)).isTrue();
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_INACTIVE);
+                .isEqualTo(SERVICE_STATE_INACTIVE);
+
+
+        // Request an unsupported service. CarEvsService should decline a request and stay at the
+        // same state.
+        mCarEvsService.mEvsTriggerListener.onEvent(CarEvsManager.SERVICE_TYPE_SURROUNDVIEW,
+                /* on= */ true);
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_REQUESTED)).isFalse();
     }
 
     @Test
@@ -291,72 +336,83 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
                                       /* usage= */ HardwareBuffer.USAGE_CPU_READ_OFTEN);
         int bufferId = mRandom.nextInt();
         mCarEvsService.setStreamCallback(null);
-        mCarEvsService.onFrameEvent(bufferId, buffer);
+        mCarEvsService.setServiceState(SERVICE_STATE_INACTIVE);
+        mHalCallbackCaptor.getValue().onFrameEvent(bufferId, buffer);
+
+        SystemClock.sleep(DEFAULT_TIMEOUT_IN_MS);
         verify(mMockEvsHalWrapper).doneWithFrame(anyInt());
 
         // Nothing to verify from below line but added to increase the code coverage.
-        mCarEvsService.onHalEvent(/* eventType= */ 0);
+        mHalCallbackCaptor.getValue().onHalEvent(/* eventType= */ 0);
     }
 
     @Test
     public void testHalDeath() {
-        mCarEvsService.onHalDeath();
+        mHalCallbackCaptor.getValue().onHalDeath();
         verify(mMockEvsHalWrapper, times(2)).connectToHalServiceIfNecessary();
     }
 
     @Test
     public void testTransitionFromUnavailableToInactive() {
         EvsStreamCallbackImpl spiedCallback = spy(new EvsStreamCallbackImpl());
+        EvsStatusListenerImpl spiedStatusListener = spy(new EvsStatusListenerImpl());
 
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_UNAVAILABLE);
+        mCarEvsService.registerStatusListener(spiedStatusListener);
+        mCarEvsService.setServiceState(SERVICE_STATE_UNAVAILABLE);
         mCarEvsService.stopActivity();
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_INACTIVE)).isFalse();
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_INACTIVE);
-        verify(mMockEvsHalWrapper, times(2)).connectToHalServiceIfNecessary();
+                .isEqualTo(SERVICE_STATE_UNAVAILABLE);
+        verify(mMockEvsHalWrapper).connectToHalServiceIfNecessary();
 
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_UNAVAILABLE);
+        mCarEvsService.setServiceState(SERVICE_STATE_UNAVAILABLE);
         mCarEvsService.setStreamCallback(null);
         when(mMockEvsHalWrapper.connectToHalServiceIfNecessary()).thenReturn(false);
-        mCarEvsService.onEvent(CarEvsManager.SERVICE_TYPE_REARVIEW, /* on= */ false);
-        verify(mMockEvsHalWrapper, times(3)).connectToHalServiceIfNecessary();
+        mCarEvsService.mEvsTriggerListener.onEvent(CarEvsManager.SERVICE_TYPE_REARVIEW,
+                /* on= */ false);
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_ACTIVE)).isFalse();
+        verify(mMockEvsHalWrapper).connectToHalServiceIfNecessary();
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_UNAVAILABLE);
+                .isEqualTo(SERVICE_STATE_UNAVAILABLE);
 
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_UNAVAILABLE);
+        mCarEvsService.setServiceState(SERVICE_STATE_UNAVAILABLE);
         mCarEvsService.setStreamCallback(spiedCallback);
         mCarEvsService.stopVideoStream(spiedCallback);
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_INACTIVE)).isFalse();
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_UNAVAILABLE);
+                .isEqualTo(SERVICE_STATE_UNAVAILABLE);
         verify(spiedCallback, times(3)).asBinder();
 
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_UNAVAILABLE);
+        mCarEvsService.setServiceState(SERVICE_STATE_UNAVAILABLE);
         when(spiedCallback.asBinder()).thenReturn(null);
         mCarEvsService.setStreamCallback(spiedCallback);
         mCarEvsService.stopVideoStream(spiedCallback);
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_INACTIVE)).isFalse();
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_UNAVAILABLE);
+                .isEqualTo(SERVICE_STATE_UNAVAILABLE);
         verify(spiedCallback, times(6)).asBinder();
 
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_UNAVAILABLE);
+        mCarEvsService.setServiceState(SERVICE_STATE_UNAVAILABLE);
         mCarEvsService.stopActivity();
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_INACTIVE)).isFalse();
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_UNAVAILABLE);
+                .isEqualTo(SERVICE_STATE_UNAVAILABLE);
     }
 
     @Test
     public void testTransitionFromInactiveToInactive() {
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_INACTIVE);
+        mCarEvsService.setServiceState(SERVICE_STATE_INACTIVE);
         mCarEvsService.stopActivity();
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_INACTIVE);
+                .isEqualTo(SERVICE_STATE_INACTIVE);
     }
 
     @Test
     public void testTransitionFromActiveToInactive() {
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_ACTIVE);
+        mCarEvsService.setServiceState(SERVICE_STATE_ACTIVE);
         mCarEvsService.setStreamCallback(null);
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_ACTIVE);
+                .isEqualTo(SERVICE_STATE_ACTIVE);
     }
 
     @Test
@@ -373,13 +429,13 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
     public void testTransitionFromUnavailableToActive() {
         EvsStreamCallbackImpl streamCallback = new EvsStreamCallbackImpl();
 
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_UNAVAILABLE);
+        mCarEvsService.setServiceState(SERVICE_STATE_UNAVAILABLE);
         assertThat(mCarEvsService
                 .startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW,
                                   /* token= */ null, streamCallback))
                 .isEqualTo(ERROR_UNAVAILABLE);
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_UNAVAILABLE);
+                .isEqualTo(SERVICE_STATE_UNAVAILABLE);
     }
 
     @Test
@@ -388,30 +444,31 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         EvsStatusListenerImpl spiedStatusListener = spy(new EvsStatusListenerImpl());
         mCarEvsService.registerStatusListener(spiedStatusListener);
 
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_INACTIVE);
+        mCarEvsService.setServiceState(SERVICE_STATE_INACTIVE);
         assertThat(mCarEvsService
                 .startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW, null, streamCallback))
                 .isEqualTo(ERROR_NONE);
-        assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_ACTIVE);
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_ACTIVE)).isTrue();
         verify(spiedStatusListener).onStatusChanged(argThat(
-                received -> received.getState() == CarEvsManager.SERVICE_STATE_ACTIVE));
+                received -> received.getState() == SERVICE_STATE_ACTIVE));
 
         when(mMockEvsHalWrapper.requestToStartVideoStream()).thenReturn(false);
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_INACTIVE);
+        mCarEvsService.setServiceState(SERVICE_STATE_INACTIVE);
         assertThat(mCarEvsService
                 .startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW, null, streamCallback))
                 .isEqualTo(ERROR_UNAVAILABLE);
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_ACTIVE)).isFalse();
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_INACTIVE);
+                .isEqualTo(SERVICE_STATE_INACTIVE);
 
         when(mMockEvsHalWrapper.openCamera(anyString())).thenReturn(false);
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_INACTIVE);
+        mCarEvsService.setServiceState(SERVICE_STATE_INACTIVE);
         assertThat(mCarEvsService
                 .startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW, null, streamCallback))
                 .isEqualTo(ERROR_UNAVAILABLE);
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_ACTIVE)).isFalse();
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_INACTIVE);
+                .isEqualTo(SERVICE_STATE_INACTIVE);
 
         when(mMockEvsHalWrapper.requestToStartVideoStream()).thenReturn(true);
         when(mMockEvsHalWrapper.openCamera(anyString())).thenReturn(true);
@@ -423,45 +480,49 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         EvsStatusListenerImpl spiedStatusListener = spy(new EvsStatusListenerImpl());
         mCarEvsService.registerStatusListener(spiedStatusListener);
 
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_REQUESTED);
+        mCarEvsService.setServiceState(SERVICE_STATE_REQUESTED);
         assertThat(mCarEvsService
                 .startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW, null, streamCallback))
                 .isEqualTo(ERROR_NONE);
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_ACTIVE);
+                .isEqualTo(SERVICE_STATE_ACTIVE);
         verify(spiedStatusListener).onStatusChanged(argThat(
-                received -> received.getState() == CarEvsManager.SERVICE_STATE_ACTIVE));
+                received -> received.getState() == SERVICE_STATE_ACTIVE));
 
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_REQUESTED);
+        mCarEvsService.setServiceState(SERVICE_STATE_REQUESTED);
         assertThrows(NullPointerException.class,
                 () -> mCarEvsService.startVideoStream(
                         CarEvsManager.SERVICE_TYPE_REARVIEW, null, null));
 
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_REQUESTED);
+        mCarEvsService.setServiceState(SERVICE_STATE_REQUESTED);
         when(mMockEvsHalWrapper.openCamera(anyString())).thenReturn(false);
         assertThat(mCarEvsService
                 .startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW, null, streamCallback))
                 .isEqualTo(ERROR_UNAVAILABLE);
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_REQUESTED);
+                .isEqualTo(SERVICE_STATE_REQUESTED);
     }
 
     @Test
     public void testTransitionFromActiveToActive() {
         EvsStreamCallbackImpl streamCallback = new EvsStreamCallbackImpl();
+        EvsStatusListenerImpl spiedStatusListener = spy(new EvsStatusListenerImpl());
 
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_ACTIVE);
+        mCarEvsService.setServiceState(SERVICE_STATE_ACTIVE);
         mCarEvsService.setStreamCallback(streamCallback);
+        mCarEvsService.registerStatusListener(spiedStatusListener);
         assertThat(mCarEvsService
                 .startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW, null, streamCallback))
                 .isEqualTo(ERROR_NONE);
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_ACTIVE)).isFalse();
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_ACTIVE);
+                .isEqualTo(SERVICE_STATE_ACTIVE);
 
         // Transition from unknown states
         mCarEvsService.setServiceState(SERVICE_STATE_UNKNOWN);
         IllegalStateException thrown = assertThrows(IllegalStateException.class,
                 () -> mCarEvsService.startActivity(CarEvsManager.SERVICE_TYPE_REARVIEW));
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_ACTIVE)).isFalse();
         assertWithMessage("Verify current status of CarEvsService")
                 .that(thrown).hasMessageThat()
                 .contains("CarEvsService is in the unknown state.");
@@ -472,50 +533,54 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         EvsStatusListenerImpl spiedStatusListener = spy(new EvsStatusListenerImpl());
         mCarEvsService.registerStatusListener(spiedStatusListener);
 
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_UNAVAILABLE);
+        mCarEvsService.setServiceState(SERVICE_STATE_UNAVAILABLE);
         when(mMockEvsHalWrapper.connectToHalServiceIfNecessary()).thenReturn(false);
         assertThat(mCarEvsService.startActivity(CarEvsManager.SERVICE_TYPE_REARVIEW))
                 .isEqualTo(ERROR_UNAVAILABLE);
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_UNAVAILABLE);
+                .isEqualTo(SERVICE_STATE_UNAVAILABLE);
 
         when(mMockEvsHalWrapper.connectToHalServiceIfNecessary()).thenReturn(true);
         assertThat(mCarEvsService.startActivity(CarEvsManager.SERVICE_TYPE_REARVIEW))
                 .isEqualTo(ERROR_NONE);
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_REQUESTED);
+                .isEqualTo(SERVICE_STATE_REQUESTED);
+
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_REQUESTED)).isTrue();
         verify(spiedStatusListener).onStatusChanged(argThat(
-                received -> received.getState() == CarEvsManager.SERVICE_STATE_REQUESTED));
+                received -> received.getState() == SERVICE_STATE_REQUESTED));
     }
 
     @Test
     public void testTransitionFromInactiveToRequested() {
         EvsStatusListenerImpl spiedStatusListener = spy(new EvsStatusListenerImpl());
         mCarEvsService.registerStatusListener(spiedStatusListener);
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_INACTIVE);
+        mCarEvsService.setServiceState(SERVICE_STATE_INACTIVE);
 
         assertThat(mCarEvsService.startActivity(CarEvsManager.SERVICE_TYPE_REARVIEW))
                 .isEqualTo(ERROR_NONE);
 
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_REQUESTED);
+                .isEqualTo(SERVICE_STATE_REQUESTED);
         verify(spiedStatusListener).onStatusChanged(argThat(
-                received -> received.getState() == CarEvsManager.SERVICE_STATE_REQUESTED));
+                received -> received.getState() == SERVICE_STATE_REQUESTED));
     }
 
     @Test
     public void testTransitionFromActiveToRequested() {
+        EvsStreamCallbackImpl streamCallback = new EvsStreamCallbackImpl();
         EvsStatusListenerImpl spiedStatusListener = spy(new EvsStatusListenerImpl());
+        mCarEvsService.setStreamCallback(streamCallback);
         mCarEvsService.registerStatusListener(spiedStatusListener);
 
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_ACTIVE);
+        mCarEvsService.setServiceState(SERVICE_STATE_ACTIVE);
 
         assertThat(mCarEvsService.startActivity(CarEvsManager.SERVICE_TYPE_REARVIEW))
                 .isEqualTo(ERROR_NONE);
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_REQUESTED);
+                .isEqualTo(SERVICE_STATE_REQUESTED);
         verify(spiedStatusListener).onStatusChanged(argThat(
-                received -> received.getState() == CarEvsManager.SERVICE_STATE_REQUESTED));
+                received -> received.getState() == SERVICE_STATE_REQUESTED));
     }
 
     @Test
@@ -541,7 +606,7 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         mGearSelectionListenerCaptor.getValue().onEvent(Arrays.asList(event));
 
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_REQUESTED);
+                .isEqualTo(SERVICE_STATE_REQUESTED);
     }
 
     @Test
@@ -557,12 +622,11 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         mGearSelectionListenerCaptor.getValue().onEvent(Arrays.asList(event));
 
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_INACTIVE);
+                .isEqualTo(SERVICE_STATE_INACTIVE);
     }
 
     @Test
     public void testDuplicatedDisplayEvent() throws Exception {
-        ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
         EvsStatusListenerImpl spiedStatusListener = spy(new EvsStatusListenerImpl());
         when(mMockEvsHalService.isEvsServiceRequestSupported()).thenReturn(false);
         when(mMockDisplayManager.getDisplay(Display.DEFAULT_DISPLAY)).thenReturn(mMockDisplay);
@@ -582,17 +646,17 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         mDisplayListenerCaptor.getValue().onDisplayChanged(Display.DEFAULT_DISPLAY);
         mDisplayListenerCaptor.getValue().onDisplayChanged(Display.DEFAULT_DISPLAY);
 
-        // Confirm that we have received onStatusChanged() callback only twice.
-        verify(spiedStatusListener, times(2)).onStatusChanged(argThat(
-                received -> received.getState() == CarEvsManager.SERVICE_STATE_REQUESTED ||
-                        received.getState() == CarEvsManager.SERVICE_STATE_INACTIVE));
-        verify(mMockContext).startActivity(intentCaptor.capture());
+        // Confirm that we have received onStatusChanged() callback only once.
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_REQUESTED)).isTrue();
+        verify(spiedStatusListener).onStatusChanged(argThat(
+                received -> received.getState() == SERVICE_STATE_REQUESTED));
+        verify(mMockContext).startActivity(any());
 
         // Also, verify that we have received an intent for a camera activity.
-        assertThat(intentCaptor.getValue().getComponent()).isEqualTo(
+        assertThat(mIntentCaptor.getValue().getComponent()).isEqualTo(
                 ComponentName.unflattenFromString(VALID_EVS_CAMERA_ACTIVITY_COMPONENT_NAME));
 
-        Bundle extras = intentCaptor.getValue().getExtras();
+        Bundle extras = mIntentCaptor.getValue().getExtras();
         assertThat(extras).isNotNull();
         assertThat(extras.getBinder(CarEvsManager.EXTRA_SESSION_TOKEN)).isNotNull();
     }
@@ -608,7 +672,7 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         mGearSelectionListenerCaptor.getValue().onEvent(Arrays.asList());
 
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_INACTIVE);
+                .isEqualTo(SERVICE_STATE_INACTIVE);
     }
 
     @Test
@@ -624,14 +688,14 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         mGearSelectionListenerCaptor.getValue().onEvent(Arrays.asList(event));
 
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_INACTIVE);
+                .isEqualTo(SERVICE_STATE_INACTIVE);
     }
 
     @Test
     public void testNonGearSelectionProperty() throws Exception {
         CarPropertyEvent event = new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
                                                       CURRENT_GEAR_PROPERTY_REVERSE);
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_INACTIVE);
+        mCarEvsService.setServiceState(SERVICE_STATE_INACTIVE);
         when(mMockEvsHalService.isEvsServiceRequestSupported()).thenReturn(false);
         when(mMockCarPropertyService.getPropertySafe(anyInt(), anyInt()))
                 .thenReturn(GEAR_SELECTION_PROPERTY_REVERSE);
@@ -641,27 +705,31 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         mGearSelectionListenerCaptor.getValue().onEvent(Arrays.asList(event));
 
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_INACTIVE);
+                .isEqualTo(SERVICE_STATE_INACTIVE);
     }
 
     @Test
     public void testStartActivity() {
         EvsStreamCallbackImpl spiedCallback = spy(new EvsStreamCallbackImpl());
+        EvsStatusListenerImpl spiedStatusListener = spy(new EvsStatusListenerImpl());
         int bufferId = mRandom.nextInt();
         HardwareBuffer buffer =
                 HardwareBuffer.create(/* width= */ 64, /* height= */ 32,
                                       /* format= */ HardwareBuffer.RGBA_8888,
                                       /* layers= */ 1,
                                       /* usage= */ HardwareBuffer.USAGE_CPU_READ_OFTEN);
+        mCarEvsService.registerStatusListener(spiedStatusListener);
 
-        mCarEvsService.startActivity(CarEvsManager.SERVICE_TYPE_SURROUNDVIEW);
-        assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_REQUESTED);
+        mCarEvsService.startActivity(CarEvsManager.SERVICE_TYPE_REARVIEW);
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_REQUESTED)).isTrue();
+
         assertThat(mCarEvsService
                 .startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW, null, spiedCallback))
                 .isEqualTo(ERROR_NONE);
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_ACTIVE)).isTrue();
 
-        mCarEvsService.onFrameEvent(bufferId, buffer);
+        mHalCallbackCaptor.getValue().onFrameEvent(bufferId, buffer);
+        assertThat(spiedCallback.waitForFrames(/* expected= */ 1)).isTrue();
         verify(spiedCallback)
                 .onNewFrame(argThat(received -> received.getId() == bufferId));
     }
@@ -669,7 +737,7 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
     @Test
     public void testStartActivityFromUnavailableState() {
         when(mMockEvsHalWrapper.connectToHalServiceIfNecessary()).thenReturn(true);
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_UNAVAILABLE);
+        mCarEvsService.setServiceState(SERVICE_STATE_UNAVAILABLE);
 
         mCarEvsService.startActivity(CarEvsManager.SERVICE_TYPE_REARVIEW);
         verify(mMockEvsHalWrapper, times(2)).connectToHalServiceIfNecessary();
@@ -677,69 +745,84 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
 
     @Test
     public void testStartActivityFromInactiveState() {
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_INACTIVE);
+        mCarEvsService.setServiceState(SERVICE_STATE_INACTIVE);
         mCarEvsService.startActivity(CarEvsManager.SERVICE_TYPE_REARVIEW);
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_REQUESTED);
+                .isEqualTo(SERVICE_STATE_REQUESTED);
     }
 
     @Test
     public void testStartActivityFromActiveState() {
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_ACTIVE);
+        EvsStreamCallbackImpl streamCallback = new EvsStreamCallbackImpl();
+        mCarEvsService.setStreamCallback(streamCallback);
+
+        mCarEvsService.setServiceState(SERVICE_STATE_ACTIVE);
         mCarEvsService.startActivity(CarEvsManager.SERVICE_TYPE_REARVIEW);
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_REQUESTED);
+                .isEqualTo(SERVICE_STATE_REQUESTED);
     }
 
     @Test
     public void testStartActivityFromRequestedState() {
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_REQUESTED);
+        EvsStreamCallbackImpl streamCallback = new EvsStreamCallbackImpl();
+        mCarEvsService.setStreamCallback(streamCallback);
+
+        mCarEvsService.setServiceState(SERVICE_STATE_REQUESTED);
         mCarEvsService.startActivity(CarEvsManager.SERVICE_TYPE_REARVIEW);
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_REQUESTED);
+                .isEqualTo(SERVICE_STATE_REQUESTED);
     }
 
     @Test
     public void testRequestDifferentServiceInRequestedState() {
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_ACTIVE);
+        EvsStreamCallbackImpl streamCallback = new EvsStreamCallbackImpl();
+        EvsStatusListenerImpl spiedStatusListener = spy(new EvsStatusListenerImpl());
+
+        mCarEvsService.setStreamCallback(streamCallback);
+        mCarEvsService.registerStatusListener(spiedStatusListener);
+        mCarEvsService.setServiceState(SERVICE_STATE_ACTIVE);
         mCarEvsService.startActivity(CarEvsManager.SERVICE_TYPE_REARVIEW);
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_REQUESTED)).isTrue();
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_REQUESTED);
+                .isEqualTo(SERVICE_STATE_REQUESTED);
 
         assertThat(mCarEvsService.startActivity(CarEvsManager.SERVICE_TYPE_SURROUNDVIEW))
-                .isEqualTo(ERROR_NONE);
+                .isEqualTo(ERROR_UNAVAILABLE);
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_REQUESTED);
+                .isEqualTo(SERVICE_STATE_REQUESTED);
     }
 
     @Test
     public void testStartAndStopActivity() {
+        EvsStreamCallbackImpl streamCallback = new EvsStreamCallbackImpl();
+
+        mCarEvsService.setStreamCallback(streamCallback);
         mCarEvsService.startActivity(CarEvsManager.SERVICE_TYPE_REARVIEW);
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_REQUESTED);
+                .isEqualTo(SERVICE_STATE_REQUESTED);
         assertThat(mCarEvsService.getCurrentStatus().getServiceType())
                 .isEqualTo(CarEvsManager.SERVICE_TYPE_REARVIEW);
 
         mCarEvsService.stopActivity();
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_INACTIVE);
+                .isEqualTo(SERVICE_STATE_INACTIVE);
     }
 
     @Test
     public void testStopVideoStream() {
         EvsStreamCallbackImpl streamCallback0 = new EvsStreamCallbackImpl();
         EvsStreamCallbackImpl streamCallback1 = new EvsStreamCallbackImpl();
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_ACTIVE);
+        mCarEvsService.setServiceState(SERVICE_STATE_ACTIVE);
         mCarEvsService.setStreamCallback(null);
         mCarEvsService.stopVideoStream(streamCallback1);
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_ACTIVE);
+                .isEqualTo(SERVICE_STATE_ACTIVE);
 
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_ACTIVE);
+        mCarEvsService.setServiceState(SERVICE_STATE_ACTIVE);
         mCarEvsService.setStreamCallback(streamCallback0);
         mCarEvsService.stopVideoStream(streamCallback1);
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_ACTIVE);
+                .isEqualTo(SERVICE_STATE_ACTIVE);
     }
 
     @Test
@@ -758,13 +841,15 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         assertThat(mCarEvsService
                 .startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW, null, spiedStreamCallback0))
                 .isEqualTo(ERROR_NONE);
-        mCarEvsService.onFrameEvent(bufferId, buffer);
+        mHalCallbackCaptor.getValue().onFrameEvent(bufferId, buffer);
 
         int anotherBufferId = mRandom.nextInt();
         assertThat(mCarEvsService
                 .startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW, null, spiedStreamCallback1))
                 .isEqualTo(ERROR_NONE);
-        mCarEvsService.onFrameEvent(anotherBufferId, buffer);
+        mHalCallbackCaptor.getValue().onFrameEvent(anotherBufferId, buffer);
+        assertThat(spiedStreamCallback0.waitForFrames(/* expected= */ 1)).isTrue();
+        assertThat(spiedStreamCallback1.waitForFrames(/* expected= */ 1)).isTrue();
         verify(spiedStreamCallback0)
                 .onNewFrame(argThat(received -> received.getId() == bufferId));
         verify(spiedStreamCallback1)
@@ -786,7 +871,8 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
                                   /* token= */ null, spiedCallback))
                 .isEqualTo(ERROR_NONE);
 
-        mCarEvsService.onFrameEvent(bufferId, buffer);
+        mHalCallbackCaptor.getValue().onFrameEvent(bufferId, buffer);
+        assertThat(spiedCallback.waitForFrames(/* expected= */ 1)).isTrue();
         verify(spiedCallback)
                 .onNewFrame(argThat(received -> received.getId() == bufferId));
         mCarEvsService.stopVideoStream(spiedCallback);
@@ -814,11 +900,8 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
                 .startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW, token, spiedCallback))
                 .isEqualTo(ERROR_NONE);
 
-        mCarEvsService.onFrameEvent(bufferId, buffer);
-        doAnswer(args -> {
-                mCarEvsService.returnFrameBuffer(new CarEvsBufferDescriptor(bufferId, buffer));
-                return true;
-        }).when(spiedCallback).onNewFrame(any());
+        mHalCallbackCaptor.getValue().onFrameEvent(bufferId, buffer);
+        assertThat(spiedCallback.waitForFrames(/* expected= */ 1)).isTrue();
         mCarEvsService.stopVideoStream(spiedCallback);
         verify(spiedCallback)
                 .onNewFrame(argThat(received -> received.getId() == bufferId));
@@ -860,29 +943,39 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         EvsStreamCallbackImpl spiedCallback = spy(new EvsStreamCallbackImpl());
         mCarEvsService.setStreamCallback(spiedCallback);
 
-        mCarEvsService.onHalEvent(0);
+        mHalCallbackCaptor.getValue().onHalEvent(CarEvsManager.STREAM_EVENT_NONE);
+        assertThat(spiedCallback.waitForEvent(CarEvsManager.STREAM_EVENT_NONE)).isTrue();
+        verify(spiedCallback).onStreamEvent(CarEvsManager.STREAM_EVENT_NONE);
+
+        mHalCallbackCaptor.getValue().onHalEvent(CarEvsManager.STREAM_EVENT_STREAM_STARTED);
+        assertThat(spiedCallback.waitForEvent(CarEvsManager.STREAM_EVENT_STREAM_STARTED)).isTrue();
         verify(spiedCallback).onStreamEvent(CarEvsManager.STREAM_EVENT_STREAM_STARTED);
 
-        mCarEvsService.onHalEvent(1);
+        mHalCallbackCaptor.getValue().onHalEvent(CarEvsManager.STREAM_EVENT_STREAM_STOPPED);
+        assertThat(spiedCallback.waitForEvent(CarEvsManager.STREAM_EVENT_STREAM_STOPPED)).isTrue();
         verify(spiedCallback).onStreamEvent(CarEvsManager.STREAM_EVENT_STREAM_STOPPED);
 
-        mCarEvsService.onHalEvent(2);
+        mHalCallbackCaptor.getValue().onHalEvent(CarEvsManager.STREAM_EVENT_FRAME_DROPPED);
+        assertThat(spiedCallback.waitForEvent(CarEvsManager.STREAM_EVENT_FRAME_DROPPED)).isTrue();
         verify(spiedCallback).onStreamEvent(CarEvsManager.STREAM_EVENT_FRAME_DROPPED);
 
-        mCarEvsService.onHalEvent(3);
+        mHalCallbackCaptor.getValue().onHalEvent(CarEvsManager.STREAM_EVENT_TIMEOUT);
+        assertThat(spiedCallback.waitForEvent(CarEvsManager.STREAM_EVENT_TIMEOUT)).isTrue();
         verify(spiedCallback).onStreamEvent(CarEvsManager.STREAM_EVENT_TIMEOUT);
 
-        mCarEvsService.onHalEvent(4);
+        mHalCallbackCaptor.getValue().onHalEvent(CarEvsManager.STREAM_EVENT_PARAMETER_CHANGED);
+        assertThat(spiedCallback.waitForEvent(CarEvsManager.STREAM_EVENT_PARAMETER_CHANGED))
+                .isTrue();
         verify(spiedCallback).onStreamEvent(CarEvsManager.STREAM_EVENT_PARAMETER_CHANGED);
 
-        mCarEvsService.onHalEvent(5);
+        mHalCallbackCaptor.getValue().onHalEvent(CarEvsManager.STREAM_EVENT_PRIMARY_OWNER_CHANGED);
+        assertThat(spiedCallback.waitForEvent(CarEvsManager.STREAM_EVENT_PRIMARY_OWNER_CHANGED))
+                .isTrue();
         verify(spiedCallback).onStreamEvent(CarEvsManager.STREAM_EVENT_PRIMARY_OWNER_CHANGED);
 
-        mCarEvsService.onHalEvent(6);
+        mHalCallbackCaptor.getValue().onHalEvent(CarEvsManager.STREAM_EVENT_OTHER_ERRORS);
+        assertThat(spiedCallback.waitForEvent(CarEvsManager.STREAM_EVENT_OTHER_ERRORS)).isTrue();
         verify(spiedCallback).onStreamEvent(CarEvsManager.STREAM_EVENT_OTHER_ERRORS);
-
-        mCarEvsService.onHalEvent(7);
-        verify(spiedCallback).onStreamEvent(CarEvsManager.STREAM_EVENT_NONE);
     }
 
     @Test
@@ -901,7 +994,7 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
 
         binderDeathRecipient.binderDied();
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_INACTIVE);
+                .isEqualTo(SERVICE_STATE_INACTIVE);
     }
 
     @Test
@@ -918,12 +1011,12 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         assertWithMessage("CarEvsService binder death recipient")
             .that(binderDeathRecipient).isNotNull();
 
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_ACTIVE);
+        mCarEvsService.setServiceState(SERVICE_STATE_ACTIVE);
         mCarEvsService.setLastEvsHalEvent(/* timestamp= */ 0, CarEvsManager.SERVICE_TYPE_REARVIEW,
                                           /* on= */ true);
         binderDeathRecipient.binderDied();
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_REQUESTED);
+                .isEqualTo(SERVICE_STATE_REQUESTED);
     }
 
     @Test
@@ -939,7 +1032,7 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
 
         binderDeathRecipient.binderDied();
         assertThat(mCarEvsService.getCurrentStatus().getState())
-                .isEqualTo(CarEvsManager.SERVICE_STATE_INACTIVE);
+                .isEqualTo(SERVICE_STATE_INACTIVE);
         mCarEvsService.unregisterStatusListener(spiedListener);
     }
 
@@ -961,14 +1054,14 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         EvsStreamCallbackImpl spiedStreamCallback1 = spy(new EvsStreamCallbackImpl());
 
         // Configures the service to be in its ACTIVE state and use a spied stream callback.
-        mCarEvsService.setServiceState(CarEvsManager.SERVICE_STATE_ACTIVE);
+        mCarEvsService.setServiceState(SERVICE_STATE_ACTIVE);
         mCarEvsService.setStreamCallback(spiedStreamCallback0);
 
         // Requests starting the rearview video stream.
         assertThat(mCarEvsService
                 .startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW, token, spiedStreamCallback1))
                 .isEqualTo(ERROR_NONE);
-        mCarEvsService.onFrameEvent(bufferId, buffer);
+        mHalCallbackCaptor.getValue().onFrameEvent(bufferId, buffer);
         verify(spiedStreamCallback0, timeout(3000)).onStreamEvent(STREAM_EVENT_STREAM_STOPPED);
         verify(spiedStreamCallback1)
                 .onNewFrame(argThat(received -> received.getId() == bufferId));
@@ -985,18 +1078,6 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         when(mMockEvsHalWrapper.openCamera(any())).thenReturn(true);
         when(mMockEvsHalWrapper.connectToHalServiceIfNecessary()).thenReturn(true);
         when(mMockEvsHalWrapper.requestToStartVideoStream()).thenReturn(true);
-
-        // Create a buffer to circulate
-        HardwareBuffer buffer =
-                HardwareBuffer.create(/* width= */ 64, /* height= */ 32,
-                                      /* format= */ HardwareBuffer.RGBA_8888,
-                                      /* layers= */ 1,
-                                      /* usage= */ HardwareBuffer.USAGE_CPU_READ_OFTEN);
-        doAnswer(args -> {
-                mCarEvsService.returnFrameBuffer(
-                        new CarEvsBufferDescriptor(args.getArgument(0), buffer));
-                return true;
-        }).when(mMockEvsHalWrapper).doneWithFrame(anyInt());
     }
 
     /**
@@ -1004,9 +1085,33 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
      * {@link android.car.evs.CarEvsManager.CarEvsStatusListener}.
      */
     private final static class EvsStatusListenerImpl extends ICarEvsStatusListener.Stub {
+        private final Semaphore mSemaphore = new Semaphore(0);
+
+        private CarEvsStatus mLastUpdate;
+
         @Override
         public void onStatusChanged(CarEvsStatus status) {
             Log.i(TAG, "Received a status change notification: " + status.getState());
+            mLastUpdate = status;
+            mSemaphore.release();
+        }
+
+        public boolean waitFor(int expected) {
+            return waitFor(expected, DEFAULT_TIMEOUT_IN_MS);
+        }
+
+        public boolean waitFor(int expected, int timeout) {
+            try {
+                while (true) {
+                    JavaMockitoHelper.await(mSemaphore, timeout);
+                    if(expected == mLastUpdate.getState()) {
+                        return true;
+                    }
+                }
+            } catch (IllegalStateException | InterruptedException e) {
+                Log.d(TAG, "Failure to wait for status update, " + e);
+                return false;
+            }
         }
     }
 
@@ -1015,15 +1120,59 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
      * {@link android.hardware.automotive.evs.IEvsCameraStream}.
      */
     private final static class EvsStreamCallbackImpl extends ICarEvsStreamCallback.Stub {
+        private final Semaphore mFrameSemaphore = new Semaphore(0);
+        private final Semaphore mEventSemaphore = new Semaphore(0);
+
+        private int mLastEvent = CarEvsManager.STREAM_EVENT_NONE;
+
         @Override
         public void onStreamEvent(@CarEvsStreamEvent int event) {
             Log.i(TAG, "Received stream event " + event);
+            mLastEvent = event;
+            mEventSemaphore.release();
         }
 
         @Override
         public void onNewFrame(CarEvsBufferDescriptor buffer) {
             // Return a buffer immediately
-            Log.i(TAG_EVS, "Received buffer " + buffer.getId());
+            Log.i(TAG, "Received buffer " + buffer.getId());
+            mFrameSemaphore.release();
+        }
+
+        public boolean waitForEvent(int expected) {
+            return waitForEvent(expected, DEFAULT_TIMEOUT_IN_MS);
+        }
+
+        public boolean waitForEvent(int expected, int timeout) {
+            try {
+                while (true) {
+                    JavaMockitoHelper.await(mEventSemaphore, timeout);
+                    if (expected == mLastEvent) {
+                        return true;
+                    }
+                }
+            } catch (IllegalStateException | InterruptedException e) {
+                Log.d(TAG, "Failure to wait for an event " + expected);
+                return false;
+            }
+        }
+
+        public boolean waitForFrames(int expected) {
+            return waitForFrames(expected, DEFAULT_TIMEOUT_IN_MS);
+        }
+
+        public boolean waitForFrames(int expected, int timeout) {
+            try {
+                while (expected > 0) {
+                    JavaMockitoHelper.await(mFrameSemaphore, timeout);
+                    expected -= 1;
+                }
+            } catch (IllegalStateException | InterruptedException e) {
+                Log.d(TAG, "Failure to wait for " + expected + " frames.");
+                return false;
+            }
+
+            return true;
         }
     }
 }
