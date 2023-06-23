@@ -1702,7 +1702,6 @@ public class CarPropertyManager extends CarManagerBase {
                 Log.d(TAG, "too many sync request, sleeping for " + SYNC_OP_RETRY_SLEEP_IN_MS
                         + " ms before retry");
                 SystemClock.sleep(SYNC_OP_RETRY_SLEEP_IN_MS);
-                continue;
             } catch (RemoteException e) {
                 throw e;
             }
@@ -1928,7 +1927,6 @@ public class CarPropertyManager extends CarManagerBase {
             });
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
-            return;
         } catch (ServiceSpecificException e) {
             if (DBG) {
                 Log.d(TAG, "setProperty received service specific exception", e);
@@ -1945,7 +1943,6 @@ public class CarPropertyManager extends CarManagerBase {
                 }
             }
             handleCarServiceSpecificException(e, propertyId, areaId);
-            return;
         } finally {
             Trace.endSection();
         }
@@ -2211,7 +2208,6 @@ public class CarPropertyManager extends CarManagerBase {
         for (int i = 0; i < getPropertyRequests.size(); i++) {
             GetPropertyRequest getPropertyRequest = getPropertyRequests.get(i);
             int propertyId = getPropertyRequest.getPropertyId();
-            int areaId = getPropertyRequest.getAreaId();
             assertPropertyIdIsSupported(propertyId);
 
             getPropertyServiceRequests.add(AsyncPropertyServiceRequest.newGetAsyncRequest(
@@ -2333,7 +2329,6 @@ public class CarPropertyManager extends CarManagerBase {
         for (int i = 0; i < setPropertyRequests.size(); i++) {
             SetPropertyRequest setPropertyRequest = setPropertyRequests.get(i);
             int propertyId = setPropertyRequest.getPropertyId();
-            int areaId = setPropertyRequest.getAreaId();
             requireNonNull(setPropertyRequest.getValue());
             assertPropertyIdIsSupported(propertyId);
 
