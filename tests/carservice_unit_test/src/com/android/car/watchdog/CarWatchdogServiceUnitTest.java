@@ -1354,161 +1354,10 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         /* maxStatsPeriod= */ 0));
     }
 
-    @Test
-    public void testAddResourceOveruseListenerThrowsWithInvalidFlag() throws Exception {
-        IResourceOveruseListener mockListener = createMockResourceOveruseListener();
-        assertThrows(IllegalArgumentException.class, () -> {
-            mCarWatchdogService.addResourceOveruseListener(0, mockListener);
-        });
-    }
-
-    @Test
-    public void testResourceOveruseListener() throws Exception {
-        mGenericPackageNameByUid.put(Binder.getCallingUid(), mMockContext.getPackageName());
-
-        IResourceOveruseListener mockListener = createMockResourceOveruseListener();
-        IBinder mockBinder = mockListener.asBinder();
-
-        mCarWatchdogService.addResourceOveruseListener(CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
-                mockListener);
-
-        verify(mockBinder).linkToDeath(any(IBinder.DeathRecipient.class), anyInt());
-
-        injectIoOveruseStatsForPackages(
-                mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
-                /* shouldNotifyPackages= */ new ArraySet<>(
-                        Collections.singleton(mMockContext.getPackageName())));
-
-        verify(mockListener).onOveruse(any());
-
-        mCarWatchdogService.removeResourceOveruseListener(mockListener);
-
-        verify(mockListener, atLeastOnce()).asBinder();
-        verify(mockBinder).unlinkToDeath(any(IBinder.DeathRecipient.class), anyInt());
-
-        injectIoOveruseStatsForPackages(
-                mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
-                /* shouldNotifyPackages= */ new ArraySet<>(
-                        Collections.singletonList(mMockContext.getPackageName())));
-
-        verifyNoMoreInteractions(mockListener);
-    }
-
-    @Test
-    public void testDuplicateAddResourceOveruseListener() throws Exception {
-        mGenericPackageNameByUid.put(Binder.getCallingUid(), mMockContext.getPackageName());
-
-        IResourceOveruseListener mockListener = createMockResourceOveruseListener();
-        IBinder mockBinder = mockListener.asBinder();
-
-        mCarWatchdogService.addResourceOveruseListener(CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
-                mockListener);
-
-        assertThrows(IllegalStateException.class,
-                () -> mCarWatchdogService.addResourceOveruseListener(
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, mockListener));
-
-        verify(mockBinder).linkToDeath(any(IBinder.DeathRecipient.class), anyInt());
-
-        mCarWatchdogService.removeResourceOveruseListener(mockListener);
-
-        verify(mockListener, atLeastOnce()).asBinder();
-        verify(mockBinder).unlinkToDeath(any(IBinder.DeathRecipient.class), anyInt());
-
-        verifyNoMoreInteractions(mockListener);
-    }
-
-    @Test
-    public void testAddMultipleResourceOveruseListeners() throws Exception {
-        mGenericPackageNameByUid.put(Binder.getCallingUid(), mMockContext.getPackageName());
-
-        IResourceOveruseListener firstMockListener = createMockResourceOveruseListener();
-        IBinder firstMockBinder = firstMockListener.asBinder();
-        IResourceOveruseListener secondMockListener = createMockResourceOveruseListener();
-        IBinder secondMockBinder = secondMockListener.asBinder();
-
-        mCarWatchdogService.addResourceOveruseListener(CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
-                firstMockListener);
-        mCarWatchdogService.addResourceOveruseListener(CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
-                secondMockListener);
-
-        verify(firstMockBinder).linkToDeath(any(IBinder.DeathRecipient.class), anyInt());
-        verify(secondMockBinder).linkToDeath(any(IBinder.DeathRecipient.class), anyInt());
-
-        injectIoOveruseStatsForPackages(
-                mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
-                /* shouldNotifyPackages= */ new ArraySet<>(
-                        Collections.singleton(mMockContext.getPackageName())));
-
-        verify(firstMockListener).onOveruse(any());
-
-        mCarWatchdogService.removeResourceOveruseListener(firstMockListener);
-
-        verify(firstMockListener, atLeastOnce()).asBinder();
-        verify(firstMockBinder).unlinkToDeath(any(IBinder.DeathRecipient.class), anyInt());
-
-        injectIoOveruseStatsForPackages(
-                mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
-                /* shouldNotifyPackages= */ new ArraySet<>(
-                        Collections.singletonList(mMockContext.getPackageName())));
-
-        verify(secondMockListener, times(2)).onOveruse(any());
-
-        mCarWatchdogService.removeResourceOveruseListener(secondMockListener);
-
-        verify(secondMockListener, atLeastOnce()).asBinder();
-        verify(secondMockBinder).unlinkToDeath(any(IBinder.DeathRecipient.class), anyInt());
-
-        injectIoOveruseStatsForPackages(
-                mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
-                /* shouldNotifyPackages= */ new ArraySet<>(
-                        Collections.singletonList(mMockContext.getPackageName())));
-
-        verifyNoMoreInteractions(firstMockListener);
-        verifyNoMoreInteractions(secondMockListener);
-    }
-
-    @Test
-    public void testAddResourceOveruseListenerForSystemThrowsWithInvalidFlag() throws Exception {
-        IResourceOveruseListener mockListener = createMockResourceOveruseListener();
-        assertThrows(IllegalArgumentException.class, () -> {
-            mCarWatchdogService.addResourceOveruseListenerForSystem(0, mockListener);
-        });
-    }
-
-    @Test
-    public void testResourceOveruseListenerForSystem() throws Exception {
-        int callingUid = Binder.getCallingUid();
-        mGenericPackageNameByUid.put(callingUid, "system_package.critical");
-
-        IResourceOveruseListener mockListener = createMockResourceOveruseListener();
-        mCarWatchdogService.addResourceOveruseListenerForSystem(
-                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, mockListener);
-
-        IBinder mockBinder = mockListener.asBinder();
-        verify(mockBinder).linkToDeath(any(IBinder.DeathRecipient.class), anyInt());
-
-        List<PackageIoOveruseStats> packageIoOveruseStats = Collections.singletonList(
-                constructPackageIoOveruseStats(callingUid, /* shouldNotify= */ true,
-                        /* forgivenWriteBytes= */ constructPerStateBytes(80, 170, 260),
-                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
-                                /* remainingWriteBytes= */ constructPerStateBytes(20, 20, 20),
-                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
-                                /* totalOveruses= */ 3)));
-
-        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
-
-        verify(mockListener).onOveruse(any());
-
-        mCarWatchdogService.removeResourceOveruseListenerForSystem(mockListener);
-
-        verify(mockListener, atLeastOnce()).asBinder();
-        verify(mockBinder).unlinkToDeath(any(IBinder.DeathRecipient.class), anyInt());
-
-        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
-
-        verifyNoMoreInteractions(mockListener);
-    }
+    // TODO(b/262301082): Add a test for addResourceOveruseListener,
+    //  addResourceOveruseListenerForSystem, removeResourceOveruseListenerForSystem and
+    //  removeResourceOveruseListener using mMockWatchdogPerfHandler when all relevant tests have
+    //  been moved to WatchdogPerfHandlerUnitTest.
 
     @Test
     public void testSetKillablePackageAsUser() throws Exception {
@@ -4174,6 +4023,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 "vendor_package.non_critical.A", ComponentType.VENDOR, null)).isFalse();
     }
 
+    //TODO(b/262301082): Remove when all relevant tests have moved to WatchdogPerfHandlerUnitTest.
     public static android.automotive.watchdog.PerStateBytes constructPerStateBytes(
             long fgBytes, long bgBytes, long gmBytes) {
         android.automotive.watchdog.PerStateBytes perStateBytes =
@@ -4577,6 +4427,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         return mResourceOveruseConfigurationsCaptor.getValue();
     }
 
+    //TODO(b/262301082): Remove when all relevant tests have moved to WatchdogPerfHandlerUnitTest.
     private SparseArray<PackageIoOveruseStats> injectIoOveruseStatsForPackages(
             SparseArray<String> genericPackageNameByUid, Set<String> killablePackages,
             Set<String> shouldNotifyPackages) throws Exception {
@@ -4626,6 +4477,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         }
     }
 
+    //TODO(b/262301082): Remove when all relevant tests have moved to WatchdogPerfHandlerUnitTest.
     private void pushLatestIoOveruseStatsAndWait(List<PackageIoOveruseStats> packageIoOveruseStats)
             throws Exception {
         ResourceStats resourceStats = new ResourceStats();
@@ -5098,6 +4950,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         return threshold;
     }
 
+    //TODO(b/262301082): Remove when all relevant tests have moved to WatchdogPerfHandlerUnitTest.
     private static PackageIoOveruseStats constructPackageIoOveruseStats(int uid,
             boolean shouldNotify, android.automotive.watchdog.PerStateBytes forgivenWriteBytes,
             android.automotive.watchdog.IoOveruseStats ioOveruseStats) {
@@ -5150,6 +5003,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 && actual.garageModeBytes == expected.garageModeBytes;
     }
 
+    //TODO(b/262301082): Remove when all relevant tests have moved to WatchdogPerfHandlerUnitTest.
     private android.automotive.watchdog.IoOveruseStats constructInternalIoOveruseStats(
             boolean killableOnOveruse,
             android.automotive.watchdog.PerStateBytes remainingWriteBytes,
@@ -5342,6 +5196,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .build();
     }
 
+    //TODO(b/262301082): Remove when all relevant tests have moved to WatchdogPerfHandlerUnitTest.
     private static IResourceOveruseListener createMockResourceOveruseListener() {
         IResourceOveruseListener listener = mock(IResourceOveruseListener.Stub.class);
         when(listener.asBinder()).thenCallRealMethod();
@@ -5463,7 +5318,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         public void onPrepareProcessTermination() {}
     }
 
-    private static final class TestTimeSource extends TimeSource {
+    public static final class TestTimeSource extends TimeSource {
         private static final Instant TEST_DATE_TIME = Instant.parse("2021-11-12T13:14:15.16Z");
         private Instant mNow;
         TestTimeSource() {
