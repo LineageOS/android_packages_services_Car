@@ -23,7 +23,9 @@ import static android.car.watchdog.CarWatchdogManager.RETURN_CODE_SUCCESS;
 
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
+import static com.android.car.watchdog.WatchdogPerfHandler.MAX_WAIT_TIME_MILLS;
 import static com.android.car.watchdog.WatchdogStorage.WatchdogDbHelper.DATABASE_NAME;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doThrow;
 
@@ -67,7 +69,9 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Binder;
 import android.os.FileUtils;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -107,7 +111,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     private static final String WATCHDOG_DIR_NAME = "watchdog";
     private static final String CANONICAL_NAME =
             WatchdogPerfHandlerUnitTest.class.getCanonicalName();
-    private static final int MAX_WAIT_TIME_MILLIS = 3000;
+
     @Mock
     private Context mMockContext;
     @Mock
@@ -126,22 +130,27 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     private UserManager mMockUserManager;
     @Mock
     private StatsManager mMockStatsManager;
+
     @Captor
     private ArgumentCaptor<ICarUxRestrictionsChangeListener>
             mICarUxRestrictionsChangeListener;
     @Captor
     private ArgumentCaptor<StatsManager.StatsPullAtomCallback> mStatsPullAtomCallbackCaptor;
-    @Captor private ArgumentCaptor<List<
+    @Captor
+    private ArgumentCaptor<List<
             android.automotive.watchdog.internal.ResourceOveruseConfiguration>>
             mResourceOveruseConfigurationsCaptor;
+
     private ICarUxRestrictionsChangeListener mCarUxRestrictionsChangeListener;
-    private final SparseArray<String> mGenericPackageNameByUid = new SparseArray<>();
     private StatsManager.StatsPullAtomCallback mStatsPullAtomCallback;
     private WatchdogStorage mSpiedWatchdogStorage;
     private WatchdogPerfHandler mWatchdogPerfHandler;
+    private File mTempSystemCarDir;
+
+    private final SparseArray<String> mGenericPackageNameByUid = new SparseArray<>();
     private final CarWatchdogServiceUnitTest.TestTimeSource mTimeSource =
             new CarWatchdogServiceUnitTest.TestTimeSource();
-    private File mTempSystemCarDir;
+    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
 
     public WatchdogPerfHandlerUnitTest() {
         super(CarWatchdogService.TAG);
@@ -218,6 +227,8 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         verifyDatabaseInit(wantedInvocations);
         captureStatsPullAtomCallback(wantedInvocations);
         mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ true);
+        when(mMockCarWatchdogDaemonHelper.getResourceOveruseConfigurations()).thenReturn(
+                sampleInternalResourceOveruseConfigurations());
     }
 
     @Test
@@ -567,6 +578,82 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         assertThrows(IllegalArgumentException.class,
                 () -> mWatchdogPerfHandler.setResourceOveruseConfigurations(
                         resourceOveruseConfigs, FLAG_RESOURCE_OVERUSE_IO));
+    }
+
+    @Test
+    public void testGetResourceOveruseConfigurations() throws Exception {
+        List<ResourceOveruseConfiguration> actualConfigs =
+                mWatchdogPerfHandler.getResourceOveruseConfigurations(FLAG_RESOURCE_OVERUSE_IO);
+
+        ResourceOveruseConfigurationSubject.assertThat(actualConfigs)
+                .containsExactlyElementsIn(sampleResourceOveruseConfigurations());
+    }
+
+    @Test
+    public void testGetResourceOveruseConfigurationsWithDisconnectedDaemon() throws Exception {
+        mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ false);
+
+        assertThrows(IllegalStateException.class,
+                () -> mWatchdogPerfHandler.getResourceOveruseConfigurations(
+                        FLAG_RESOURCE_OVERUSE_IO));
+
+        /* Method initially called in CarWatchdogService init */
+        verify(mMockCarWatchdogDaemonHelper).getResourceOveruseConfigurations();
+    }
+
+    @Test
+    public void testGetResourceOveruseConfigurationsWithReconnectedDaemon() throws Exception {
+        crashAndDelayReconnectDaemon();
+
+        List<ResourceOveruseConfiguration> actualConfigs =
+                mWatchdogPerfHandler.getResourceOveruseConfigurations(FLAG_RESOURCE_OVERUSE_IO);
+
+        ResourceOveruseConfigurationSubject.assertThat(actualConfigs)
+                .containsExactlyElementsIn(sampleResourceOveruseConfigurations());
+    }
+
+    @Test
+    public void testConcurrentSetGetResourceOveruseConfigurationsWithReconnectedDaemon()
+            throws Exception {
+        crashAndDelayReconnectDaemon();
+
+        /* Capture and respond with the configuration received in the set request. */
+        List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> internalConfigs =
+                new ArrayList<>();
+        doAnswer(args -> {
+            List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> configs =
+                    args.getArgument(0);
+            internalConfigs.addAll(configs);
+            return null;
+        }).when(mMockCarWatchdogDaemonHelper).updateResourceOveruseConfigurations(anyList());
+        when(mMockCarWatchdogDaemonHelper.getResourceOveruseConfigurations()).thenReturn(
+                internalConfigs);
+
+        /* Start a set request that will become pending and a blocking get request. */
+        List<ResourceOveruseConfiguration> setConfigs = sampleResourceOveruseConfigurations();
+        assertThat(mWatchdogPerfHandler.setResourceOveruseConfigurations(
+                setConfigs, FLAG_RESOURCE_OVERUSE_IO))
+                .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
+
+        List<ResourceOveruseConfiguration> getConfigs =
+                mWatchdogPerfHandler.getResourceOveruseConfigurations(FLAG_RESOURCE_OVERUSE_IO);
+
+        ResourceOveruseConfigurationSubject.assertThat(getConfigs)
+                .containsExactlyElementsIn(setConfigs);
+    }
+
+    @Test
+    public void testFailsGetResourceOveruseConfigurationsOnInvalidArgs() throws Exception {
+        assertThrows(IllegalArgumentException.class,
+                () -> mWatchdogPerfHandler.getResourceOveruseConfigurations(0));
+    }
+
+    private void crashAndDelayReconnectDaemon() {
+        mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ false);
+
+        mMainHandler.postAtTime(
+                () -> mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ true),
+                MAX_WAIT_TIME_MILLS - 1000);
     }
 
     private static List<android.automotive.watchdog.internal.ResourceOveruseConfiguration>
