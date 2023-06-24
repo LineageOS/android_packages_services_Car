@@ -18,11 +18,22 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical">
-    <Button
-        android:id="@+id/refresh_remote_task_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/refresh_remote_task"/>
+    
+    <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:orientation="horizontal">
+        <Button
+            android:id="@+id/refresh_remote_task_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/refresh_remote_task"/>
+        <Button
+            android:id="@+id/clear_remote_task_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/clear_remote_task"/>
+    </LinearLayout>
 
     <TableLayout
         android:id="@+id/remote_task_list"
