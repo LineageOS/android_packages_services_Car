@@ -142,7 +142,6 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.FileUtils;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
 import android.os.UserHandle;
@@ -2258,6 +2257,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         captureAndVerifyKillStatsReported(expectedReportedKillStats);
     }
 
+    //TODO(b/262301082): When using a mocked WatchdogPerfHandler, verify that a call to
+    // asyncFetchTodayIoUsageStats is made.
     @Test
     public void testRequestTodayIoUsageStats() throws Exception {
         List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = Arrays.asList(
@@ -2306,36 +2307,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         .containsExactlyElementsIn(expectedStats);
     }
 
-    @Test
-    public void testRequestTodayIoUsageStatsWithDaemonRemoteException() throws Exception {
-        List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = Arrays.asList(
-                WatchdogStorageUnitTest.constructIoUsageStatsEntry(
-                        /* userId= */ 100, "system_package", /* startTime */ 0,
-                        /* duration= */1234,
-                        /* remainingWriteBytes= */ constructPerStateBytes(200, 300, 400),
-                        /* writtenBytes= */ constructPerStateBytes(1000, 2000, 3000),
-                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
-                        /* totalOveruses= */ 2, /* forgivenOveruses= */ 0,
-                        /* totalTimesKilled= */ 1),
-                WatchdogStorageUnitTest.constructIoUsageStatsEntry(
-                        /* userId= */ 101, "vendor_package", /* startTime */ 0,
-                        /* duration= */ 1234,
-                        /* remainingWriteBytes= */ constructPerStateBytes(500, 600, 700),
-                        /* writtenBytes= */ constructPerStateBytes(1100, 2300, 4300),
-                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
-                        /* totalOveruses= */ 4, /* forgivenOveruses= */ 1,
-                        /* totalTimesKilled= */ 10));
-        when(mSpiedWatchdogStorage.getTodayIoUsageStats()).thenReturn(ioUsageStatsEntries);
-        when(mMockCarWatchdogDaemon.getInterfaceVersion())
-                .thenReturn(CARWATCHDOG_DAEMON_INTERFACE_VERSION_UDC);
-        doThrow(RemoteException.class)
-                .when(mMockCarWatchdogDaemon).onTodayIoUsageStatsFetched(any());
-
-        mWatchdogServiceForSystemImpl.requestTodayIoUsageStats();
-
-        verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).onTodayIoUsageStatsFetched(any());
-    }
-
+    //TODO(b/262301082): Replace with a verify of getTodayIoUsageStats when a mock
+    // WatchdogPerfHandler is used.
     @Test
     public void testGetTodayIoUsageStats() throws Exception {
         List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = Arrays.asList(
@@ -4732,7 +4705,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .setIoOveruseStats(ioOveruseStats).build();
     }
 
-    private static UserPackageIoUsageStats constructUserPackageIoUsageStats(
+    static UserPackageIoUsageStats constructUserPackageIoUsageStats(
             int userId, String packageName, android.automotive.watchdog.PerStateBytes writtenBytes,
             android.automotive.watchdog.PerStateBytes forgivenWriteBytes, int totalOveruses) {
         UserPackageIoUsageStats stats = new UserPackageIoUsageStats();
