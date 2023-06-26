@@ -29,6 +29,7 @@ import static android.car.test.util.AndroidHelper.assertFilterHasDataScheme;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING;
+import static android.car.watchdog.CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_CRITICAL;
 import static android.content.Intent.ACTION_PACKAGE_CHANGED;
 import static android.content.Intent.ACTION_USER_REMOVED;
@@ -103,7 +104,6 @@ import android.automotive.watchdog.internal.PackageIoOveruseStats;
 import android.automotive.watchdog.internal.PackageMetadata;
 import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
 import android.automotive.watchdog.internal.PowerCycle;
-import android.automotive.watchdog.internal.ProcessIdentifier;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
 import android.automotive.watchdog.internal.ResourceStats;
 import android.automotive.watchdog.internal.StateType;
@@ -259,7 +259,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Captor private ArgumentCaptor<UserHandle> mUserHandle;
     @Captor private ArgumentCaptor<SparseArray<String>> mHeadsUpPackages;
     @Captor private ArgumentCaptor<SparseArray<String>> mNotificationCenterPackages;
-    @Captor private ArgumentCaptor<List<ProcessIdentifier>> mProcessIdentifiersCaptor;
 
     private CarWatchdogService mCarWatchdogService;
     private ICarWatchdogServiceForSystem mWatchdogServiceForSystemImpl;
@@ -794,7 +793,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         packageIoOveruseStatsByUid.get(uid).ioOveruseStats);
 
         ResourceOveruseStats actualStats = mCarWatchdogService.getResourceOveruseStats(
-                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                FLAG_RESOURCE_OVERUSE_IO,
                 CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
 
         ResourceOveruseStatsSubject.assertEquals(actualStats, expectedStats);
@@ -821,7 +820,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 /* shouldNotifyPackages= */ new ArraySet<>());
 
         ResourceOveruseStats actualStats = mCarWatchdogService.getResourceOveruseStats(
-                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                FLAG_RESOURCE_OVERUSE_IO,
                 CarWatchdogManager.STATS_PERIOD_PAST_7_DAYS);
 
         IoOveruseStats ioOveruseStats =
@@ -852,7 +851,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 /* shouldNotifyPackages= */ new ArraySet<>());
 
         ResourceOveruseStats actualStats = mCarWatchdogService.getResourceOveruseStats(
-                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                FLAG_RESOURCE_OVERUSE_IO,
                 CarWatchdogManager.STATS_PERIOD_PAST_7_DAYS);
 
         ResourceOveruseStats expectedStats =
@@ -882,7 +881,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .getHistoricalIoOveruseStats(UserHandle.getUserId(uid), packageName, 6);
 
         ResourceOveruseStats actualStats = mCarWatchdogService.getResourceOveruseStats(
-                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                FLAG_RESOURCE_OVERUSE_IO,
                 CarWatchdogManager.STATS_PERIOD_PAST_7_DAYS);
 
         ResourceOveruseStats expectedStats =
@@ -910,7 +909,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         packageIoOveruseStatsByUid.get(sharedUid).ioOveruseStats);
 
         ResourceOveruseStats actualStats = mCarWatchdogService.getResourceOveruseStats(
-                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                FLAG_RESOURCE_OVERUSE_IO,
                 CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
 
         ResourceOveruseStatsSubject.assertEquals(actualStats, expectedStats);
@@ -924,7 +923,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogService.getResourceOveruseStats(
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* maxStatsPeriod= */ 0));
+                        FLAG_RESOURCE_OVERUSE_IO, /* maxStatsPeriod= */ 0));
     }
 
     @Test
@@ -957,7 +956,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         packageIoOveruseStats.get(1).ioOveruseStats));
 
         List<ResourceOveruseStats> actualStats = mCarWatchdogService.getAllResourceOveruseStats(
-                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
+                FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
                 CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
 
         ResourceOveruseStatsSubject.assertThat(actualStats)
@@ -1005,7 +1004,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .getHistoricalIoOveruseStats(12, "vendor_package.critical", 6);
 
         List<ResourceOveruseStats> actualStats = mCarWatchdogService.getAllResourceOveruseStats(
-                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
+                FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
                 CarWatchdogManager.STATS_PERIOD_PAST_7_DAYS);
 
         IoOveruseStats thirdPartyIoStats = new IoOveruseStats.Builder(
@@ -1081,7 +1080,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         packageIoOveruseStats.get(2).ioOveruseStats));
 
         List<ResourceOveruseStats> actualStats = mCarWatchdogService.getAllResourceOveruseStats(
-                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
+                FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
                 CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
 
         ResourceOveruseStatsSubject.assertThat(actualStats)
@@ -1098,19 +1097,19 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogService.getAllResourceOveruseStats(
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                        FLAG_RESOURCE_OVERUSE_IO,
                         CarWatchdogManager.FLAG_MINIMUM_STATS_IO_1_MB
                                 | CarWatchdogManager.FLAG_MINIMUM_STATS_IO_100_MB,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
 
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogService.getAllResourceOveruseStats(
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 1 << 5,
+                        FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 1 << 5,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
 
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogService.getAllResourceOveruseStats(
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
+                        FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
                         /* maxStatsPeriod= */ 0));
     }
 
@@ -1140,7 +1139,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         packageIoOveruseStats.get(1).ioOveruseStats));
 
         List<ResourceOveruseStats> actualStats = mCarWatchdogService.getAllResourceOveruseStats(
-                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                FLAG_RESOURCE_OVERUSE_IO,
                 CarWatchdogManager.FLAG_MINIMUM_STATS_IO_1_MB,
                 CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
 
@@ -1189,7 +1188,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .getHistoricalIoOveruseStats(12, "vendor_package.critical", 6);
 
         List<ResourceOveruseStats> actualStats = mCarWatchdogService.getAllResourceOveruseStats(
-                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                FLAG_RESOURCE_OVERUSE_IO,
                 CarWatchdogManager.FLAG_MINIMUM_STATS_IO_1_MB,
                 CarWatchdogManager.STATS_PERIOD_PAST_7_DAYS);
 
@@ -1238,7 +1237,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         ResourceOveruseStats actualStats =
                 mCarWatchdogService.getResourceOveruseStatsForUserPackage(
                         "vendor_package.critical", UserHandle.of(12),
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                        FLAG_RESOURCE_OVERUSE_IO,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
 
         ResourceOveruseStatsSubject.assertEquals(actualStats, expectedStats);
@@ -1279,7 +1278,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         ResourceOveruseStats actualStats =
                 mCarWatchdogService.getResourceOveruseStatsForUserPackage(
                         "vendor_package.critical", UserHandle.of(12),
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                        FLAG_RESOURCE_OVERUSE_IO,
                         CarWatchdogManager.STATS_PERIOD_PAST_7_DAYS);
 
         IoOveruseStats vendorIoStats = new IoOveruseStats.Builder(
@@ -1319,7 +1318,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         ResourceOveruseStats actualStats =
                 mCarWatchdogService.getResourceOveruseStatsForUserPackage(
                         "vendor_package", UserHandle.of(11),
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                        FLAG_RESOURCE_OVERUSE_IO,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
 
         ResourceOveruseStatsSubject.assertEquals(actualStats, expectedStats);
@@ -1330,17 +1329,17 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         assertThrows(NullPointerException.class,
                 () -> mCarWatchdogService.getResourceOveruseStatsForUserPackage(
                         /* packageName= */ null, UserHandle.of(100),
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                        FLAG_RESOURCE_OVERUSE_IO,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
 
         assertThrows(NullPointerException.class,
                 () -> mCarWatchdogService.getResourceOveruseStatsForUserPackage("some_package",
-                        /* userHandle= */ null, CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                        /* userHandle= */ null, FLAG_RESOURCE_OVERUSE_IO,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
 
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogService.getResourceOveruseStatsForUserPackage("some_package",
-                        UserHandle.ALL, CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                        UserHandle.ALL, FLAG_RESOURCE_OVERUSE_IO,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
 
         assertThrows(IllegalArgumentException.class,
@@ -1350,7 +1349,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogService.getResourceOveruseStatsForUserPackage("some_package",
-                        UserHandle.of(100), CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                        UserHandle.of(100), FLAG_RESOURCE_OVERUSE_IO,
                         /* maxStatsPeriod= */ 0));
     }
 
@@ -2029,7 +2028,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Test
     public void testSetResourceOveruseConfigurations() throws Exception {
         assertThat(mCarWatchdogService.setResourceOveruseConfigurations(
-                sampleResourceOveruseConfigurations(), CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO))
+                sampleResourceOveruseConfigurations(), FLAG_RESOURCE_OVERUSE_IO))
                 .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
 
         InternalResourceOveruseConfigurationSubject
@@ -2050,7 +2049,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         crashWatchdogDaemon();
 
         assertThat(mCarWatchdogService.setResourceOveruseConfigurations(
-                sampleResourceOveruseConfigurations(), CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO))
+                sampleResourceOveruseConfigurations(), FLAG_RESOURCE_OVERUSE_IO))
                 .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
 
         restartWatchdogDaemonAndAwait();
@@ -2071,7 +2070,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         }).when(mMockCarWatchdogDaemon).updateResourceOveruseConfigurations(anyList());
 
         assertThat(mCarWatchdogService.setResourceOveruseConfigurations(
-                sampleResourceOveruseConfigurations(), CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO))
+                sampleResourceOveruseConfigurations(), FLAG_RESOURCE_OVERUSE_IO))
                 .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
 
         restartWatchdogDaemonAndAwait();
@@ -2113,24 +2112,24 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         crashWatchdogDaemon();
 
         assertThat(mCarWatchdogService.setResourceOveruseConfigurations(
-                sampleResourceOveruseConfigurations(), CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO))
+                sampleResourceOveruseConfigurations(), FLAG_RESOURCE_OVERUSE_IO))
                 .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
 
         assertThrows(IllegalStateException.class,
                 () -> mCarWatchdogService.setResourceOveruseConfigurations(
                         sampleResourceOveruseConfigurations(),
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
+                        FLAG_RESOURCE_OVERUSE_IO));
     }
 
     @Test
     public void testFailsSetResourceOveruseConfigurationsOnInvalidArgs() throws Exception {
         assertThrows(NullPointerException.class,
                 () -> mCarWatchdogService.setResourceOveruseConfigurations(null,
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
+                        FLAG_RESOURCE_OVERUSE_IO));
 
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogService.setResourceOveruseConfigurations(new ArrayList<>(),
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
+                        FLAG_RESOURCE_OVERUSE_IO));
 
         List<ResourceOveruseConfiguration> resourceOveruseConfigs = Collections.singletonList(
                 sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
@@ -2149,7 +2148,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         List<ResourceOveruseConfiguration> resourceOveruseConfigs = Arrays.asList(config, config);
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogService.setResourceOveruseConfigurations(resourceOveruseConfigs,
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
+                        FLAG_RESOURCE_OVERUSE_IO));
     }
 
     @Test
@@ -2164,7 +2163,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                                 .build());
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogService.setResourceOveruseConfigurations(resourceOveruseConfigs,
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
+                        FLAG_RESOURCE_OVERUSE_IO));
     }
 
     @Test
@@ -2179,7 +2178,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                                 .build());
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogService.setResourceOveruseConfigurations(resourceOveruseConfigs,
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
+                        FLAG_RESOURCE_OVERUSE_IO));
     }
 
     @Test
@@ -2195,7 +2194,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogService.setResourceOveruseConfigurations(
                         resourceOveruseConfigs,
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
+                        FLAG_RESOURCE_OVERUSE_IO));
 
         resourceOveruseConfigs.set(0,
                 sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
@@ -2207,7 +2206,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogService.setResourceOveruseConfigurations(
                         resourceOveruseConfigs,
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
+                        FLAG_RESOURCE_OVERUSE_IO));
     }
 
     @Test
@@ -2217,14 +2216,14 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM, null).build());
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogService.setResourceOveruseConfigurations(resourceOveruseConfigs,
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
+                        FLAG_RESOURCE_OVERUSE_IO));
     }
 
     @Test
     public void testGetResourceOveruseConfigurations() throws Exception {
         List<ResourceOveruseConfiguration> actualConfigs =
                 mCarWatchdogService.getResourceOveruseConfigurations(
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO);
+                        FLAG_RESOURCE_OVERUSE_IO);
 
         ResourceOveruseConfigurationSubject.assertThat(actualConfigs)
                 .containsExactlyElementsIn(sampleResourceOveruseConfigurations());
@@ -2236,7 +2235,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         assertThrows(IllegalStateException.class,
                 () -> mCarWatchdogService.getResourceOveruseConfigurations(
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
+                        FLAG_RESOURCE_OVERUSE_IO));
 
         /* Method initially called in CarWatchdogService init */
         verify(mMockCarWatchdogDaemon).getResourceOveruseConfigurations();
@@ -2257,7 +2256,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         List<ResourceOveruseConfiguration> actualConfigs =
                 mCarWatchdogService.getResourceOveruseConfigurations(
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO);
+                        FLAG_RESOURCE_OVERUSE_IO);
 
         ResourceOveruseConfigurationSubject.assertThat(actualConfigs)
                 .containsExactlyElementsIn(sampleResourceOveruseConfigurations());
@@ -2291,12 +2290,12 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         /* Start a set request that will become pending and a blocking get request. */
         List<ResourceOveruseConfiguration> setConfigs = sampleResourceOveruseConfigurations();
         assertThat(mCarWatchdogService.setResourceOveruseConfigurations(
-                setConfigs, CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO))
+                setConfigs, FLAG_RESOURCE_OVERUSE_IO))
                 .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
 
         List<ResourceOveruseConfiguration> getConfigs =
                 mCarWatchdogService.getResourceOveruseConfigurations(
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO);
+                        FLAG_RESOURCE_OVERUSE_IO);
 
         ResourceOveruseConfigurationSubject.assertThat(getConfigs)
                 .containsExactlyElementsIn(setConfigs);
@@ -2329,11 +2328,11 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         IResourceOveruseListener mockSystemListener = createMockResourceOveruseListener();
         mCarWatchdogService.addResourceOveruseListenerForSystem(
-                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, mockSystemListener);
+                FLAG_RESOURCE_OVERUSE_IO, mockSystemListener);
 
         IResourceOveruseListener mockListener = createMockResourceOveruseListener();
         mCarWatchdogService.addResourceOveruseListener(
-                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, mockListener);
+                FLAG_RESOURCE_OVERUSE_IO, mockListener);
 
         List<PackageIoOveruseStats> packageIoOveruseStats = Arrays.asList(
                 /* Overuse occurred but cannot be killed/disabled. */
@@ -2431,11 +2430,11 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         IResourceOveruseListener mockSystemListener = createMockResourceOveruseListener();
         mCarWatchdogService.addResourceOveruseListenerForSystem(
-                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, mockSystemListener);
+                FLAG_RESOURCE_OVERUSE_IO, mockSystemListener);
 
         IResourceOveruseListener mockListener = createMockResourceOveruseListener();
         mCarWatchdogService.addResourceOveruseListener(
-                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, mockListener);
+                FLAG_RESOURCE_OVERUSE_IO, mockListener);
 
         List<PackageIoOveruseStats> packageIoOveruseStats = Arrays.asList(
                 /* Overuse occurred but cannot be killed/disabled. */
@@ -2646,7 +2645,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         restartService(/* totalRestarts= */ 1, /* wantedDbWrites= */ 1);
 
         List<ResourceOveruseStats> actualStats = mCarWatchdogService.getAllResourceOveruseStats(
-                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
+                FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
                 CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
 
         List<ResourceOveruseStats> expectedStats = Arrays.asList(
@@ -2750,7 +2749,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         List<ResourceOveruseStats> actualCurrentDayStats =
                 mCarWatchdogService.getAllResourceOveruseStats(
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
+                        FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
 
         List<ResourceOveruseStats> expectedCurrentDayStats = Arrays.asList(
@@ -3407,7 +3406,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         ResourceOveruseStats actualStats =
                 mCarWatchdogService.getResourceOveruseStatsForUserPackage(
                         packageName, user,
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                        FLAG_RESOURCE_OVERUSE_IO,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
 
         ResourceOveruseStats expectedStats = new ResourceOveruseStats.Builder(
@@ -5318,7 +5317,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         public void onPrepareProcessTermination() {}
     }
 
-    public static final class TestTimeSource extends TimeSource {
+    static final class TestTimeSource extends TimeSource {
         private static final Instant TEST_DATE_TIME = Instant.parse("2021-11-12T13:14:15.16Z");
         private Instant mNow;
         TestTimeSource() {
