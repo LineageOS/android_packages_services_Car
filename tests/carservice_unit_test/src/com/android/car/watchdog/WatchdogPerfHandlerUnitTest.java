@@ -19,6 +19,7 @@ package com.android.car.watchdog;
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_BASELINE;
 import static android.car.settings.CarSettings.Secure.KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAllUsers;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
 import static android.car.watchdog.CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO;
 import static android.car.watchdog.CarWatchdogManager.RETURN_CODE_SUCCESS;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED;
@@ -47,6 +48,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
@@ -73,11 +75,14 @@ import android.car.watchdog.CarWatchdogManager;
 import android.car.watchdog.IResourceOveruseListener;
 import android.car.watchdog.IoOveruseAlertThreshold;
 import android.car.watchdog.IoOveruseConfiguration;
+import android.car.watchdog.PackageKillableState;
 import android.car.watchdog.PerStateBytes;
 import android.car.watchdog.ResourceOveruseConfiguration;
+import android.car.watchdog.ResourceOveruseStats;
 import android.car.watchdoglib.CarWatchdogDaemonHelper;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.IPackageManager;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -129,6 +134,8 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     private static final String WATCHDOG_DIR_NAME = "watchdog";
     private static final String CANONICAL_NAME =
             WatchdogPerfHandlerUnitTest.class.getCanonicalName();
+    private static final String CAR_WATCHDOG_SERVICE_NAME =
+            CarWatchdogService.class.getSimpleName();
 
     @Mock
     private Context mMockContext;
@@ -136,8 +143,6 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     private Context mMockBuiltinPackageContext;
     @Mock
     private CarWatchdogDaemonHelper mMockCarWatchdogDaemonHelper;
-    @Mock
-    private PackageInfoHandler mMockedPackageInfoHandler;
     @Mock
     private CarUxRestrictionsManagerService mMockCarUxRestrictionsManagerService;
     @Mock
@@ -216,8 +221,6 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         when(mMockCarUxRestrictionsManagerService.getCurrentUxRestrictions())
                 .thenReturn(new CarUxRestrictions.Builder(/* reqOpt= */ false,
                         UX_RESTRICTIONS_BASELINE, /* time= */ 0).build());
-        when(mMockedPackageInfoHandler.getNamesForUids(any())).thenAnswer(
-                args -> mGenericPackageNameByUid);
 
         mTempSystemCarDir = Files.createTempDirectory("watchdog_test").toFile();
         doReturn(new File(mTempSystemCarDir.getAbsolutePath(), WATCHDOG_DIR_NAME)).when(
@@ -231,7 +234,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                         mTimeSource));
         mWatchdogPerfHandler = new WatchdogPerfHandler(mMockContext,
                 mMockBuiltinPackageContext, mMockCarWatchdogDaemonHelper,
-                mMockedPackageInfoHandler,
+                new PackageInfoHandler(mMockContext.getPackageManager()),
                 mSpiedWatchdogStorage, mTimeSource);
 
         setupUsers();
@@ -838,6 +841,205 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         verifyNoDisabledPackages();
     }
 
+    @Test
+    public void testResetResourceOveruseStatsResetsStats() throws Exception {
+        UserHandle user = UserHandle.getUserHandleForUid(10003346);
+        String packageName = mMockContext.getPackageName();
+        mGenericPackageNameByUid.put(10003346, packageName);
+        mGenericPackageNameByUid.put(10101278, "vendor_package.critical");
+        injectIoOveruseStatsForPackages(
+                mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
+                /* shouldNotifyPackages= */ new ArraySet<>());
+
+        mWatchdogPerfHandler.resetResourceOveruseStats(Collections.singleton(packageName));
+
+        // Resetting resource overuse stats is done on the CarWatchdogService service handler
+        // thread. Wait until the below message is processed before returning, so the resource
+        // overuse stats resetting is completed.
+        CarServiceUtils.runEmptyRunnableOnLooperSync(CAR_WATCHDOG_SERVICE_NAME);
+
+        ResourceOveruseStats actualStats =
+                mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage(
+                        packageName, user,
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                        CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
+
+        ResourceOveruseStats expectedStats = new ResourceOveruseStats.Builder(
+                packageName, user).build();
+
+        ResourceOveruseStatsSubject.assertEquals(actualStats, expectedStats);
+
+        verify(mSpiedWatchdogStorage).deleteUserPackage(eq(user.getIdentifier()), eq(packageName));
+    }
+
+    @Test
+    public void testResetResourceOveruseStatsEnablesPackage() throws Exception {
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo("third_party_package.A", 10012345,
+                        /* sharedUserId= */ null),
+                constructPackageManagerPackageInfo("vendor_package.critical.A", 10014567,
+                        "vendor_shared_package.A"),
+                constructPackageManagerPackageInfo("vendor_package.critical.B", 10014567,
+                        "vendor_shared_package.A"),
+                constructPackageManagerPackageInfo("system_package.critical.A", 10001278,
+                        "system_shared_package.A"),
+                constructPackageManagerPackageInfo("third_party_package.B", 10056790,
+                        /* sharedUserId= */ null),
+                constructPackageManagerPackageInfo("system_package.non_critical.B", 10007345,
+                        "system_shared_package.B")));
+
+        injectIoOveruseStatsForPackages(
+                mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
+                /* shouldNotifyPackages= */ new ArraySet<>());
+
+        disableUserPackage("third_party_package.A", 100);
+        disableUserPackage("vendor_package.critical.A", 100);
+        disableUserPackage("vendor_package.critical.B", 100);
+
+        mWatchdogPerfHandler.resetResourceOveruseStats(new ArraySet<>(
+                Arrays.asList("third_party_package.A", "shared:vendor_shared_package.A",
+                        "shared:system_shared_package.A", "third_party_package.B")));
+
+        // Resetting resource overuse stats is done on the CarWatchdogService service handler
+        // thread. Wait until the below message is processed before returning, so the resource
+        // overuse stats resetting is completed.
+        CarServiceUtils.runEmptyRunnableOnLooperSync(CAR_WATCHDOG_SERVICE_NAME);
+
+        verify(mSpiedPackageManager, times(2))
+                .getApplicationEnabledSetting("third_party_package.A", 100);
+        verify(mSpiedPackageManager, times(2))
+                .getApplicationEnabledSetting("vendor_package.critical.A", 100);
+        verify(mSpiedPackageManager, times(2))
+                .getApplicationEnabledSetting("vendor_package.critical.B", 100);
+        verify(mSpiedPackageManager, never())
+                .getApplicationEnabledSetting("system_package.critical.A", 100);
+        verify(mSpiedPackageManager, never())
+                .getApplicationEnabledSetting("third_party_package.B", 100);
+
+        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package.A"),
+                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(100), anyString());
+        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("vendor_package.critical.A"),
+                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(100), anyString());
+        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("vendor_package.critical.B"),
+                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(100), anyString());
+    }
+
+    @Test
+    public void testResetResourceOveruseStatsResetsUserPackageSettings() throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 100, 101);
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo("third_party_package.A", 10001278, null),
+                constructPackageManagerPackageInfo("third_party_package.A", 10101278, null),
+                constructPackageManagerPackageInfo("third_party_package.B", 10003346, null),
+                constructPackageManagerPackageInfo("third_party_package.B", 10103346, null)));
+        injectIoOveruseStatsForPackages(mGenericPackageNameByUid,
+                /* killablePackages= */ Set.of("third_party_package.A", "third_party_package.B"),
+                /* shouldNotifyPackages= */ new ArraySet<>());
+
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.A",
+                UserHandle.ALL, /* isKillable= */false);
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.B",
+                UserHandle.ALL, /* isKillable= */false);
+
+        mWatchdogPerfHandler.resetResourceOveruseStats(
+                Collections.singleton("third_party_package.A"));
+
+        // Resetting resource overuse stats is done on the CarWatchdogService service handler
+        // thread. Wait until the below message is processed before returning, so the resource
+        // overuse stats resetting is completed.
+        CarServiceUtils.runEmptyRunnableOnLooperSync(CAR_WATCHDOG_SERVICE_NAME);
+
+        PackageKillableStateSubject.assertThat(
+                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                        UserHandle.ALL)).containsExactly(
+                new PackageKillableState("third_party_package.A", 100,
+                        PackageKillableState.KILLABLE_STATE_YES),
+                new PackageKillableState("third_party_package.A", 101,
+                        PackageKillableState.KILLABLE_STATE_YES),
+                new PackageKillableState("third_party_package.B", 100,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("third_party_package.B", 101,
+                        PackageKillableState.KILLABLE_STATE_NO)
+        );
+
+        verify(mSpiedWatchdogStorage, times(2)).deleteUserPackage(anyInt(),
+                eq("third_party_package.A"));
+    }
+
+    private void disableUserPackage(String packageName, int... userIds) throws Exception {
+        for (int i = 0; i < userIds.length; i++) {
+            int userId = userIds[i];
+
+            mWatchdogPerfHandler.disablePackageForUser(packageName, userId);
+
+            verify(mSpiedPackageManager, atLeastOnce())
+                    .getApplicationEnabledSetting(packageName, userId);
+
+            verify(mSpiedPackageManager).setApplicationEnabledSetting(eq(packageName),
+                    eq(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED), eq(0),
+                    eq(userId), anyString());
+
+            assertThat(mDisabledUserPackages).contains(userId + ":" + packageName);
+
+            doReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED).when(mSpiedPackageManager)
+                    .getApplicationEnabledSetting(eq(packageName), eq(userId));
+        }
+    }
+
+    private static android.content.pm.PackageInfo constructPackageManagerPackageInfo(
+            String packageName, int uid, String sharedUserId) {
+        if (packageName.startsWith("system")) {
+            return constructPackageManagerPackageInfo(
+                    packageName, uid, sharedUserId, ApplicationInfo.FLAG_SYSTEM, 0);
+        }
+        if (packageName.startsWith("vendor")) {
+            return constructPackageManagerPackageInfo(
+                    packageName, uid, sharedUserId, ApplicationInfo.FLAG_SYSTEM,
+                    ApplicationInfo.PRIVATE_FLAG_OEM);
+        }
+        return constructPackageManagerPackageInfo(packageName, uid, sharedUserId, 0, 0);
+    }
+
+    private static android.content.pm.PackageInfo constructPackageManagerPackageInfo(
+            String packageName, int uid, String sharedUserId, int flags, int privateFlags) {
+        android.content.pm.PackageInfo packageInfo = new android.content.pm.PackageInfo();
+        packageInfo.packageName = packageName;
+        packageInfo.sharedUserId = sharedUserId;
+        packageInfo.applicationInfo = new ApplicationInfo();
+        packageInfo.applicationInfo.packageName = packageName;
+        packageInfo.applicationInfo.uid = uid;
+        packageInfo.applicationInfo.flags = flags;
+        packageInfo.applicationInfo.privateFlags = privateFlags;
+        return packageInfo;
+    }
+
+    private void injectPackageInfos(List<android.content.pm.PackageInfo> packageInfos) {
+        for (android.content.pm.PackageInfo packageInfo : packageInfos) {
+            String genericPackageName = packageInfo.packageName;
+            int uid = packageInfo.applicationInfo.uid;
+            int userId = UserHandle.getUserId(uid);
+            if (packageInfo.sharedUserId != null) {
+                genericPackageName =
+                        PackageInfoHandler.SHARED_PACKAGE_PREFIX + packageInfo.sharedUserId;
+                List<String> packages = mPackagesBySharedUid.get(uid);
+                if (packages == null) {
+                    packages = new ArrayList<>();
+                }
+                packages.add(packageInfo.packageName);
+                mPackagesBySharedUid.put(uid, packages);
+            }
+            String userPackageId = userId + USER_PACKAGE_SEPARATOR + packageInfo.packageName;
+            assertWithMessage("Duplicate package infos provided for user package id: %s",
+                    userPackageId).that(mPmPackageInfoByUserPackage.containsKey(userPackageId))
+                    .isFalse();
+            assertWithMessage("Mismatch generic package names for the same uid '%s'",
+                    uid).that(mGenericPackageNameByUid.get(uid, genericPackageName))
+                    .isEqualTo(genericPackageName);
+            mPmPackageInfoByUserPackage.put(userPackageId, packageInfo);
+            mGenericPackageNameByUid.put(uid, genericPackageName);
+        }
+    }
+
     private void verifyDisabledPackages(String userPackagesCsv) {
         verifyDisabledPackages(/* message= */ "", userPackagesCsv);
     }
@@ -1189,7 +1391,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
          * Database read is posted on a separate handler thread. Wait until the handler thread has
          * processed the database read request before verifying.
          */
-        CarServiceUtils.runEmptyRunnableOnLooperSync(CarWatchdogService.class.getSimpleName());
+        CarServiceUtils.runEmptyRunnableOnLooperSync(CAR_WATCHDOG_SERVICE_NAME);
         verify(mSpiedWatchdogStorage, times(wantedInvocations)).syncUsers(any());
         verify(mSpiedWatchdogStorage, times(wantedInvocations)).getUserPackageSettings();
         verify(mSpiedWatchdogStorage, times(wantedInvocations)).getTodayIoUsageStats();
@@ -1286,7 +1488,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         // Handling latest I/O overuse stats is done on the CarWatchdogService service handler
         // thread. Wait until the below message is processed before returning, so the
         // latestIoOveruseStats call is completed.
-        CarServiceUtils.runEmptyRunnableOnLooperSync(CarWatchdogService.class.getSimpleName());
+        CarServiceUtils.runEmptyRunnableOnLooperSync(CAR_WATCHDOG_SERVICE_NAME);
 
         // Resource overuse handling is done on the main thread by posting a new message with
         // OVERUSE_HANDLING_DELAY_MILLS delay. Wait until the below message is processed before

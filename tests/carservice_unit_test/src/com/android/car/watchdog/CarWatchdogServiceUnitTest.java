@@ -3111,7 +3111,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .containsExactlyElementsIn(Arrays.asList("third_party_package"));
     }
 
-
+    //TODO(b/262301082): Replace with a verify of WatchdogPerfHandler.resetResourceOveruseStats when
+    // a mock WatchdogPerfHandler is used.
     @Test
     public void testResetResourceOveruseStatsResetsStats() throws Exception {
         UserHandle user = UserHandle.getUserHandleForUid(10003346);
@@ -3142,99 +3143,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         ResourceOveruseStatsSubject.assertEquals(actualStats, expectedStats);
 
         verify(mSpiedWatchdogStorage).deleteUserPackage(eq(user.getIdentifier()), eq(packageName));
-    }
-
-    @Test
-    public void testResetResourceOveruseStatsEnablesPackage() throws Exception {
-        injectPackageInfos(Arrays.asList(
-                constructPackageManagerPackageInfo("third_party_package.A", 10012345,
-                        /* sharedUserId= */ null),
-                constructPackageManagerPackageInfo("vendor_package.critical.A", 10014567,
-                        "vendor_shared_package.A"),
-                constructPackageManagerPackageInfo("vendor_package.critical.B", 10014567,
-                        "vendor_shared_package.A"),
-                constructPackageManagerPackageInfo("system_package.critical.A", 10001278,
-                        "system_shared_package.A"),
-                constructPackageManagerPackageInfo("third_party_package.B", 10056790,
-                        /* sharedUserId= */ null),
-                constructPackageManagerPackageInfo("system_package.non_critical.B", 10007345,
-                        "system_shared_package.B")));
-
-        injectIoOveruseStatsForPackages(
-                mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
-                /* shouldNotifyPackages= */ new ArraySet<>());
-
-        disableUserPackage("third_party_package.A", 100);
-        disableUserPackage("vendor_package.critical.A", 100);
-        disableUserPackage("vendor_package.critical.B", 100);
-
-        mWatchdogServiceForSystemImpl.resetResourceOveruseStats(
-                Arrays.asList("third_party_package.A", "shared:vendor_shared_package.A",
-                        "shared:system_shared_package.A", "third_party_package.B"));
-
-        // Resetting resource overuse stats is done on the CarWatchdogService service handler
-        // thread. Wait until the below message is processed before returning, so the resource
-        // overuse stats resetting is completed.
-        CarServiceUtils.runEmptyRunnableOnLooperSync(CarWatchdogService.class.getSimpleName());
-
-        verify(mSpiedPackageManager, times(2))
-                .getApplicationEnabledSetting("third_party_package.A", 100);
-        verify(mSpiedPackageManager, times(2))
-                .getApplicationEnabledSetting("vendor_package.critical.A", 100);
-        verify(mSpiedPackageManager, times(2))
-                .getApplicationEnabledSetting("vendor_package.critical.B", 100);
-        verify(mSpiedPackageManager, never())
-                .getApplicationEnabledSetting("system_package.critical.A", 100);
-        verify(mSpiedPackageManager, never())
-                .getApplicationEnabledSetting("third_party_package.B", 100);
-
-        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package.A"),
-                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(100), anyString());
-        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("vendor_package.critical.A"),
-                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(100), anyString());
-        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("vendor_package.critical.B"),
-                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(100), anyString());
-    }
-
-    @Test
-    public void testResetResourceOveruseStatsResetsUserPackageSettings() throws Exception {
-        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 100, 101);
-        injectPackageInfos(Arrays.asList(
-                constructPackageManagerPackageInfo("third_party_package.A", 10001278, null),
-                constructPackageManagerPackageInfo("third_party_package.A", 10101278, null),
-                constructPackageManagerPackageInfo("third_party_package.B", 10003346, null),
-                constructPackageManagerPackageInfo("third_party_package.B", 10103346, null)));
-        injectIoOveruseStatsForPackages(mGenericPackageNameByUid,
-                /* killablePackages= */ Set.of("third_party_package.A", "third_party_package.B"),
-                /* shouldNotifyPackages= */ new ArraySet<>());
-
-        mCarWatchdogService.setKillablePackageAsUser("third_party_package.A",
-                UserHandle.ALL, /* isKillable= */false);
-        mCarWatchdogService.setKillablePackageAsUser("third_party_package.B",
-                UserHandle.ALL, /* isKillable= */false);
-
-        mWatchdogServiceForSystemImpl.resetResourceOveruseStats(
-                Collections.singletonList("third_party_package.A"));
-
-        // Resetting resource overuse stats is done on the CarWatchdogService service handler
-        // thread. Wait until the below message is processed before returning, so the resource
-        // overuse stats resetting is completed.
-        CarServiceUtils.runEmptyRunnableOnLooperSync(CarWatchdogService.class.getSimpleName());
-
-        PackageKillableStateSubject.assertThat(
-                mCarWatchdogService.getPackageKillableStatesAsUser(UserHandle.ALL)).containsExactly(
-                new PackageKillableState("third_party_package.A", 100,
-                        PackageKillableState.KILLABLE_STATE_YES),
-                new PackageKillableState("third_party_package.A", 101,
-                        PackageKillableState.KILLABLE_STATE_YES),
-                new PackageKillableState("third_party_package.B", 100,
-                        PackageKillableState.KILLABLE_STATE_NO),
-                new PackageKillableState("third_party_package.B", 101,
-                        PackageKillableState.KILLABLE_STATE_NO)
-        );
-
-        verify(mSpiedWatchdogStorage, times(2)).deleteUserPackage(anyInt(),
-                eq("third_party_package.A"));
     }
 
     @Test
@@ -4157,6 +4065,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         return packageIoOveruseStatsByUid;
     }
 
+    // TODO(b/262301082): Remove when all relevant tests have moved to WatchdogPerfHandlerUnitTest.
     private void injectPackageInfos(List<android.content.pm.PackageInfo> packageInfos) {
         for (android.content.pm.PackageInfo packageInfo : packageInfos) {
             String genericPackageName = packageInfo.packageName;
@@ -4309,6 +4218,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .getApplicationEnabledSetting(eq(packageName), eq(userId));
     }
 
+    // TODO(b/262301082): Remove when all relevant tests have moved to WatchdogPerfHandlerUnitTest.
     private void disableUserPackage(String packageName, int... userIds) throws Exception {
         for (int i = 0; i < userIds.length; i++) {
             int userId = userIds[i];
@@ -4988,6 +4898,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         return lhs.name.equals(rhs.name) && lhs.uid == rhs.uid;
     }
 
+    // TODO(b/262301082): Remove when all relevant tests have moved to WatchdogPerfHandlerUnitTest.
     private static android.content.pm.PackageInfo constructPackageManagerPackageInfo(
             String packageName, int uid, String sharedUserId) {
         if (packageName.startsWith("system")) {
