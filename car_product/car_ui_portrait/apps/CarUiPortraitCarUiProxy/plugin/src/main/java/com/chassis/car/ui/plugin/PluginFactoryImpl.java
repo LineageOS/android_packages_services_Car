@@ -46,7 +46,6 @@ import com.android.car.ui.plugin.oemapis.toolbar.ToolbarControllerOEMV2;
 import com.android.car.ui.recyclerview.CarUiListItem;
 import com.android.car.ui.recyclerview.CarUiListItemAdapter;
 import com.android.car.ui.recyclerview.CarUiRecyclerViewImpl;
-import com.android.car.ui.toolbar.ToolbarControllerImpl;
 import com.android.car.ui.utils.CarUiUtils;
 
 import com.chassis.car.ui.plugin.appstyledview.AppStyledViewControllerAdapterProxy;
@@ -54,7 +53,9 @@ import com.chassis.car.ui.plugin.preference.PreferenceAdapterProxy;
 import com.chassis.car.ui.plugin.recyclerview.CarListItemAdapterAdapterProxy;
 import com.chassis.car.ui.plugin.recyclerview.ListItemUtils;
 import com.chassis.car.ui.plugin.recyclerview.RecyclerViewAdapterProxy;
+import com.chassis.car.ui.plugin.toolbar.BaseLayoutInstaller;
 import com.chassis.car.ui.plugin.toolbar.ToolbarAdapterProxy;
+import com.chassis.car.ui.plugin.toolbar.ToolbarControllerImpl;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -70,6 +71,10 @@ import java.util.WeakHashMap;
 public class PluginFactoryImpl implements PluginFactoryOEMV6 {
 
     private final Context mPluginContext;
+    @Nullable
+    private Function<Context, FocusParkingViewOEMV1> mFocusParkingViewFactory;
+    @Nullable
+    private Function<Context, FocusAreaOEMV1> mFocusAreaFactory;
     private WeakReference<Context> mRecentUiContext;
     Map<Context, Context> mAppToPluginContextMap = new WeakHashMap<>();
 
@@ -81,6 +86,8 @@ public class PluginFactoryImpl implements PluginFactoryOEMV6 {
     public void setRotaryFactories(
             Function<Context, FocusParkingViewOEMV1> focusParkingViewFactory,
             Function<Context, FocusAreaOEMV1> focusAreaFactory) {
+        mFocusParkingViewFactory = focusParkingViewFactory;
+        mFocusAreaFactory = focusAreaFactory;
     }
 
     @Nullable
@@ -88,18 +95,28 @@ public class PluginFactoryImpl implements PluginFactoryOEMV6 {
     public ToolbarControllerOEMV2 installBaseLayoutAround(
             @NonNull Context sourceContext,
             @NonNull View contentView,
-            @Nullable Consumer<InsetsOEMV1> insetsChangedListener,
+            Consumer<InsetsOEMV1> insetsChangedListener,
             boolean toolbarEnabled,
-            boolean fullScreen) {
+            boolean fullscreen) {
         Context pluginContext = getPluginUiContext(sourceContext);
-        ToolbarControllerImpl toolbarController =
-                new ToolbarControllerImpl(pluginContext, contentView);
-        return new ToolbarAdapterProxy(pluginContext, toolbarController);
+        ToolbarControllerOEMV2 toolbarControllerOEMV2 = null;
+        ToolbarControllerImpl toolbarController = BaseLayoutInstaller.installBaseLayoutAround(
+                pluginContext,
+                contentView,
+                insetsChangedListener,
+                toolbarEnabled,
+                fullscreen,
+                mFocusParkingViewFactory,
+                mFocusAreaFactory);
+        if (toolbarController != null) {
+            toolbarControllerOEMV2 = new ToolbarAdapterProxy(pluginContext, toolbarController);
+        }
+        return toolbarControllerOEMV2;
     }
 
     @Override
     public boolean customizesBaseLayout() {
-        return false;
+        return true;
     }
 
     @Override

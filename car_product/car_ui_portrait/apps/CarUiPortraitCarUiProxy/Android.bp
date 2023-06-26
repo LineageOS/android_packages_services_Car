@@ -19,7 +19,6 @@ package {
 android_app {
     name: "car-ui-lib-portrait-proxyplugin",
 
-    min_sdk_version: "34",
     aaptflags: ["--shared-lib"],
     sdk_version: "current",
 
@@ -28,11 +27,15 @@ android_app {
     libs: [
         "android.car-stubs",
     ],
+    resource_dirs: ["plugin/res"],
     optimize: {
         enabled: false,
     },
     static_libs: [
+        "androidx-constraintlayout_constraintlayout-solver",
+        "androidx-constraintlayout_constraintlayout",
         "androidx.annotation_annotation",
+        "car-portrait-ui-common",
         "car-ui-lib",
         "car-ui-lib-oem-apis",
     ],
