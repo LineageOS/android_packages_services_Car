@@ -37,6 +37,7 @@ public final class Constants {
             "session.createdAtSinceBootMillis";
     public static final String ANNOTATION_BUNDLE_KEY_CREATED_AT_MILLIS = "session.createdAtMillis";
     public static final String ANNOTATION_BUNDLE_KEY_BOOT_REASON = "session.bootReason";
+    public static final String ANNOTATION_BUNDLE_KEY_BOOT_COUNT = "session.bootCount";
 
     // StatsPublisher
     public static final String STATS_BUNDLE_KEY_PREFIX = "stats.";

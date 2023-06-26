@@ -19,8 +19,11 @@ package com.android.car;
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 import static android.car.hardware.property.CarPropertyManager.SENSOR_RATE_ONCHANGE;
 
+import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
+
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -37,15 +40,18 @@ import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.CarInternalErrorException;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.ICarProperty;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 
 import com.google.common.collect.ImmutableList;
 
@@ -136,6 +142,11 @@ public final class CarPropertyManagerUnitTest {
                 ImmutableList.of(mOnChangeCarPropertyConfig));
         when(mICarProperty.getPropertyConfigList(new int[]{STATIC_PROPERTY})).thenReturn(
                 ImmutableList.of(mStaticCarPropertyConfig));
+        mCarPropertyManager = new CarPropertyManager(mCar, mICarProperty);
+    }
+
+    private void setAppTargetSdk(int appTargetSdk) {
+        mApplicationInfo.targetSdkVersion = appTargetSdk;
         mCarPropertyManager = new CarPropertyManager(mCar, mICarProperty);
     }
 
@@ -462,4 +473,51 @@ public final class CarPropertyManagerUnitTest {
 
         return carPropertyEventListenerArgumentCaptor.getValue();
     }
+
+    @Test
+    public void testGetProperty_syncOpTryAgain() throws RemoteException {
+        CarPropertyValue<Float> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
+
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(SYNC_OP_LIMIT_TRY_AGAIN)).thenReturn(value);
+
+        assertThat(mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0)).isEqualTo(value);
+        verify(mICarProperty, times(2)).getProperty(HVAC_TEMPERATURE_SET, 0);
+    }
+
+    @Test
+    public void testGetProperty_syncOpTryAgain_exceedRetryCountLimit() throws RemoteException {
+        setAppTargetSdk(Build.VERSION_CODES.R);
+
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(SYNC_OP_LIMIT_TRY_AGAIN));
+
+        assertThrows(CarInternalErrorException.class, () ->
+                mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+        verify(mICarProperty, times(10)).getProperty(HVAC_TEMPERATURE_SET, 0);
+    }
+
+    @Test
+    public void testSetProperty_syncOpTryAgain() throws RemoteException {
+        doThrow(new ServiceSpecificException(SYNC_OP_LIMIT_TRY_AGAIN)).doNothing()
+                .when(mICarProperty).setProperty(any(), any());
+
+        mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f);
+
+        verify(mICarProperty, times(2)).setProperty(any(), any());
+    }
+
+    @Test
+    public void testIsPropertyAvailable_syncOpTryAgain() throws Exception {
+        CarPropertyValue<Integer> expectedValue = new CarPropertyValue<>(HVAC_TEMPERATURE_SET,
+                /* areaId= */ 0, CarPropertyValue.STATUS_AVAILABLE, /* timestamp= */ 0,
+                /* value= */ 1);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(SYNC_OP_LIMIT_TRY_AGAIN)).thenReturn(expectedValue);
+
+        assertThat(mCarPropertyManager.isPropertyAvailable(HVAC_TEMPERATURE_SET, /* areaId= */ 0))
+                .isTrue();
+        verify(mICarProperty, times(2)).getProperty(HVAC_TEMPERATURE_SET, 0);
+    }
+
 }

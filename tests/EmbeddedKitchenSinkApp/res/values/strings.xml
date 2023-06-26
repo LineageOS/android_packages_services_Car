@@ -401,6 +401,7 @@
     <string name="stats_and_connectivity_config" translatable="false">stats and connectivity:</string>
     <string name="memory_config" translatable="false">memory:</string>
     <string name="process_memory_snapshot_config" translatable="false">process_memory_snapshot:</string>
+    <string name="process_start_time_config" translatable="false">process_start_time:</string>
     <string name="add_metrics_config" translatable="false">Add MetricsConfig</string>
     <string name="remove_metrics_config" translatable="false">Remove MetricsConfig</string>
     <string name="download_data" translatable="false">Download Data</string>

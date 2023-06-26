@@ -16,6 +16,8 @@
 
 package com.android.car.audio;
 
+import static android.media.AudioAttributes.USAGE_MEDIA;
+
 import static com.android.car.audio.CarAudioContext.AudioContext;
 import static com.android.car.audio.FocusInteraction.INTERACTION_CONCURRENT;
 import static com.android.car.audio.FocusInteraction.INTERACTION_EXCLUSIVE;
@@ -51,6 +53,12 @@ public class FocusInteractionTest {
     private static final int UNDEFINED_CONTEXT_VALUE = -10;
     private static final int TEST_USER_ID = 100;
 
+    private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
+            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+    private static final @AudioContext int TEST_MEDIA_CONTEXT =
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(
+                    CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
+
     @Mock
     private CarAudioSettings mMockCarAudioSettings;
     @Mock
@@ -71,7 +79,10 @@ public class FocusInteractionTest {
 
     @Test
     public void getInteractionMatrix_returnsNByNMatrix() {
-        int n = CarAudioContext.CONTEXTS.length + 1; // One extra for CarAudioContext.INVALID
+        // One extra for CarAudioContext.getInvalidContext()
+        CarAudioContext carAudioContext =
+                new CarAudioContext(CarAudioContext.getAllContextsInfo());
+        int n = carAudioContext.getAllContextsIds().size() + 1;
 
         int[][] interactionMatrix = mFocusInteraction.getInteractionMatrix();
 
@@ -100,10 +111,10 @@ public class FocusInteractionTest {
 
     @Test
     public void evaluateResult_forRejectPair_returnsFailed() {
-        FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.INVALID);
+        FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.getInvalidContext());
 
-        int result = mFocusInteraction.evaluateRequest(CarAudioContext.INVALID, focusEntry, mLosers,
-                false, false);
+        int result = mFocusInteraction.evaluateRequest(CarAudioContext.getInvalidContext(),
+                focusEntry, mLosers, false, false);
 
         assertThat(result).isEqualTo(AudioManager.AUDIOFOCUS_REQUEST_FAILED);
     }
@@ -139,10 +150,10 @@ public class FocusInteractionTest {
 
     @Test
     public void evaluateResult_forRejectPair_doesNotAddToLosers() {
-        FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.INVALID);
+        FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.getInvalidContext());
 
         mFocusInteraction
-                .evaluateRequest(CarAudioContext.INVALID, focusEntry, mLosers, false,
+                .evaluateRequest(CarAudioContext.getInvalidContext(), focusEntry, mLosers, false,
                         false);
 
         assertThat(mLosers).isEmpty();
@@ -150,9 +161,9 @@ public class FocusInteractionTest {
 
     @Test
     public void evaluateRequest_forExclusivePair_returnsGranted() {
-        FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.MUSIC);
+        FocusEntry focusEntry = newMockFocusEntryWithContext(TEST_MEDIA_CONTEXT);
 
-        int result = mFocusInteraction.evaluateRequest(CarAudioContext.MUSIC, focusEntry, mLosers,
+        int result = mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers,
                 false, false);
 
         assertThat(result).isEqualTo(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
@@ -160,10 +171,10 @@ public class FocusInteractionTest {
 
     @Test
     public void evaluateRequest_forExclusivePair_addsEntryToLosers() {
-        FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.MUSIC);
+        FocusEntry focusEntry = newMockFocusEntryWithContext(TEST_MEDIA_CONTEXT);
 
         mFocusInteraction
-                .evaluateRequest(CarAudioContext.MUSIC, focusEntry, mLosers, false,
+                .evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers, false,
                         false);
 
         assertThat(mLosers).containsExactly(focusEntry);
@@ -173,7 +184,7 @@ public class FocusInteractionTest {
     public void evaluateResult_forConcurrentPair_returnsGranted() {
         FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.NAVIGATION);
 
-        int result = mFocusInteraction.evaluateRequest(CarAudioContext.MUSIC, focusEntry, mLosers,
+        int result = mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers,
                 false, false);
 
         assertThat(result).isEqualTo(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
@@ -185,7 +196,7 @@ public class FocusInteractionTest {
                 newMockFocusEntryWithDuckingBehavior(false, false);
 
         mFocusInteraction
-                .evaluateRequest(CarAudioContext.MUSIC, focusEntry, mLosers, false, false);
+                .evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers, false, false);
 
         assertThat(mLosers).containsExactly(focusEntry);
     }
@@ -196,7 +207,7 @@ public class FocusInteractionTest {
                 newMockFocusEntryWithDuckingBehavior(true, false);
 
         mFocusInteraction
-                .evaluateRequest(CarAudioContext.MUSIC, focusEntry, mLosers, true, false);
+                .evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers, true, false);
 
         assertThat(mLosers).containsExactly(focusEntry);
     }
@@ -207,7 +218,7 @@ public class FocusInteractionTest {
                 newMockFocusEntryWithDuckingBehavior(false, true);
 
         mFocusInteraction
-                .evaluateRequest(CarAudioContext.MUSIC, focusEntry, mLosers, true, false);
+                .evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers, true, false);
 
         assertThat(mLosers).containsExactly(focusEntry);
     }
@@ -218,7 +229,7 @@ public class FocusInteractionTest {
                 newMockFocusEntryWithDuckingBehavior(false, true);
 
         mFocusInteraction
-                .evaluateRequest(CarAudioContext.MUSIC, focusEntry, mLosers, true,
+                .evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers, true,
                         false);
 
         assertThat(mLosers).containsExactly(focusEntry);
@@ -238,15 +249,15 @@ public class FocusInteractionTest {
         FocusEntry focusEntry = newMockFocusEntryWithContext(UNDEFINED_CONTEXT_VALUE);
 
         assertThrows(IllegalArgumentException.class,
-                () -> mFocusInteraction.evaluateRequest(CarAudioContext.MUSIC, focusEntry,
+                () -> mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry,
                         mLosers, false, false));
     }
 
     @Test
     public void evaluateRequest_forExclusivePair_withDelayedFocus_returnsGranted() {
-        FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.MUSIC);
+        FocusEntry focusEntry = newMockFocusEntryWithContext(TEST_MEDIA_CONTEXT);
 
-        int result = mFocusInteraction.evaluateRequest(CarAudioContext.MUSIC, focusEntry, mLosers,
+        int result = mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers,
                 false, true);
 
         assertThat(result).isEqualTo(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
@@ -256,7 +267,7 @@ public class FocusInteractionTest {
     public void evaluateRequest_forRejectPair_withDelayedFocus_returnsDelayed() {
         FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.CALL);
 
-        int result = mFocusInteraction.evaluateRequest(CarAudioContext.MUSIC, focusEntry, mLosers,
+        int result = mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers,
                 false, true);
 
         assertThat(result).isEqualTo(AudioManager.AUDIOFOCUS_REQUEST_DELAYED);
@@ -266,7 +277,7 @@ public class FocusInteractionTest {
     public void evaluateRequest_forRejectPair_withoutDelayedFocus_returnsReject() {
         FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.CALL);
 
-        int result = mFocusInteraction.evaluateRequest(CarAudioContext.MUSIC, focusEntry, mLosers,
+        int result = mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers,
                 false, false);
 
         assertThat(result).isEqualTo(AudioManager.AUDIOFOCUS_REQUEST_FAILED);

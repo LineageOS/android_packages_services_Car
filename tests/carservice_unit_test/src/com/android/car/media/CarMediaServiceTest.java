@@ -282,6 +282,21 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(mCarMediaService.isMediaService(MEDIA_COMPONENT)).isFalse();
     }
 
+    /**
+     * Tests that PlaybackState changing to PlaybackState#isActive
+     * will result the media source changing
+     */
+    @Test
+    public void testActiveSessionListener_StateActiveChangesSource() {
+        mockPlaybackStateChange(createPlaybackState(PlaybackState.STATE_BUFFERING));
+
+        initMediaService(MEDIA_CLASS, MEDIA_CLASS2);
+
+        assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK))
+                .isEqualTo(MEDIA_COMPONENT2);
+        verify(mContext, times(2)).startForegroundService(any());
+    }
+
     // Tests that PlaybackState changing to STATE_PLAYING will result the media source changing
     @Test
     public void testActiveSessionListener_StatePlayingChangesSource() {

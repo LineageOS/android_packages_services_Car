@@ -117,6 +117,12 @@ final class FocusEntry {
         writer.printf("Receives Duck Events: %b, ", receivesDuckEvents());
         writer.printf("Wants Pause Instead of Ducking: %b, ", wantsPauseInsteadOfDucking());
         writer.printf("Is Ducked: %b\n", isDucked());
+        writer.printf("Is Unblocked: %b\n", isUnblocked());
+        writer.increaseIndent();
+        for (int index = 0; index < mBlockers.size(); index++) {
+            writer.printf("Blocker[%d]: %s\n", index, mBlockers.get(index));
+        }
+        writer.decreaseIndent();
         writer.decreaseIndent();
     }
 }

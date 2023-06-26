@@ -23,6 +23,7 @@ import static com.android.car.telemetry.AtomsProto.Atom.APP_START_MEMORY_STATE_C
 import static com.android.car.telemetry.AtomsProto.Atom.PROCESS_CPU_TIME_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.Atom.PROCESS_MEMORY_SNAPSHOT_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.Atom.PROCESS_MEMORY_STATE_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.Atom.PROCESS_START_TIME_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.Atom.WTF_OCCURRED_FIELD_NUMBER;
 import static com.android.car.telemetry.CarTelemetryService.DEBUG;
 
@@ -104,6 +105,10 @@ public class StatsPublisher extends AbstractPublisher {
     static final long PROCESS_MEMORY_SNAPSHOT_ATOM_MATCHER_ID = 15;
     @VisibleForTesting
     static final long PROCESS_MEMORY_SNAPSHOT_GAUGE_METRIC_ID = 16;
+    @VisibleForTesting
+    static final long PROCESS_START_TIME_ATOM_MATCHER_ID = 17;
+    @VisibleForTesting
+    static final long PROCESS_START_TIME_EVENT_METRIC_ID = 18;
 
     // TODO(b/202115033): Flatten the load spike by pulling reports for each MetricsConfigs
     //                    using separate periodical timers.
@@ -277,6 +282,9 @@ public class StatsPublisher extends AbstractPublisher {
                 break;
             case PROCESS_MEMORY_SNAPSHOT:
                 metricId = PROCESS_MEMORY_SNAPSHOT_GAUGE_METRIC_ID;
+                break;
+            case PROCESS_START_TIME:
+                metricId = PROCESS_START_TIME_EVENT_METRIC_ID;
                 break;
             default:
                 return;
@@ -586,6 +594,8 @@ public class StatsPublisher extends AbstractPublisher {
                 return buildWtfOccurredStatsdConfig(builder);
             case PROCESS_MEMORY_SNAPSHOT:
                 return buildProcessMemorySnapshotStatsdConfig(builder);
+            case PROCESS_START_TIME:
+                return buildProcessStartTimeStatsdConfig(builder);
             default:
                 throw new IllegalArgumentException("Unsupported metric " + metric.name());
         }
@@ -767,6 +777,22 @@ public class StatsPublisher extends AbstractPublisher {
                 .addPullAtomPackages(StatsdConfigProto.PullAtomPackages.newBuilder()
                         .setAtomId(PROCESS_MEMORY_SNAPSHOT_FIELD_NUMBER)
                         .addPackages("AID_SYSTEM"))
+                .build();
+    }
+
+    @NonNull
+    private static StatsdConfig buildProcessStartTimeStatsdConfig(
+            @NonNull StatsdConfig.Builder builder) {
+        return builder
+                .addAtomMatcher(StatsdConfigProto.AtomMatcher.newBuilder()
+                        // The id must be unique within StatsdConfig/matchers
+                        .setId(PROCESS_START_TIME_ATOM_MATCHER_ID)
+                        .setSimpleAtomMatcher(StatsdConfigProto.SimpleAtomMatcher.newBuilder()
+                                .setAtomId(PROCESS_START_TIME_FIELD_NUMBER)))
+                .addEventMetric(StatsdConfigProto.EventMetric.newBuilder()
+                        // The id must be unique within StatsdConfig/metrics
+                        .setId(PROCESS_START_TIME_EVENT_METRIC_ID)
+                        .setWhat(PROCESS_START_TIME_ATOM_MATCHER_ID))
                 .build();
     }
 

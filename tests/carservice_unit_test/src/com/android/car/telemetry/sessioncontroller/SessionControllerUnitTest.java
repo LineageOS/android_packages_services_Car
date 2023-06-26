@@ -28,11 +28,15 @@ import static org.mockito.Mockito.when;
 import android.car.AbstractExtendedMockitoCarServiceTestCase;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
+import android.content.Context;
 import android.os.Handler;
 import android.os.RemoteException;
+import android.provider.Settings;
+import android.test.mock.MockContentResolver;
 
 import com.android.car.CarLocalServices;
 import com.android.car.power.CarPowerManagementService;
+import com.android.internal.util.test.FakeSettingsProvider;
 
 import org.junit.After;
 import org.junit.Before;
@@ -52,6 +56,8 @@ public class SessionControllerUnitTest
         extends AbstractExtendedMockitoCarServiceTestCase {
     private static final int CALLBACK_TIMEOUT_SEC = 10;
 
+    @Mock
+    private Context mMockContext;
     @Mock
     private Handler mDirectHandler; // Runs the messages on the current thread immediately
     @Mock
@@ -96,7 +102,11 @@ public class SessionControllerUnitTest
             runnable.run();
             return true;
         });
-        mSessionController = new SessionController(mMockCarPowerManagementService, mDirectHandler);
+        MockContentResolver mockContentResolver = new MockContentResolver();
+        mockContentResolver.addProvider(Settings.AUTHORITY, new FakeSettingsProvider());
+        when(mMockContext.getContentResolver()).thenReturn(mockContentResolver);
+        mSessionController = new SessionController(
+                mMockContext, mMockCarPowerManagementService, mDirectHandler);
         verify(mMockCarPowerManagementService).registerInternalListener(
                 mPowerStateListenerCaptor.capture());
     }
@@ -174,6 +184,7 @@ public class SessionControllerUnitTest
         assertThat(annotation.sessionState).isEqualTo(SessionController.STATE_EXIT_DRIVING_SESSION);
         assertThat(annotation.sessionId).isEqualTo(0);
         assertThat(annotation.bootReason).isNull();
+        assertThat(annotation.bootCount).isEqualTo(0);
     }
 
     @Test
@@ -197,5 +208,4 @@ public class SessionControllerUnitTest
         // the result of the call is @NonNull.
         assertThat(mSessionController.getSessionAnnotation().bootReason).isNotNull();
     }
-
 }

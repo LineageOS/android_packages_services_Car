@@ -301,6 +301,11 @@ void EvsServiceContext::stopVideoStream() {
 }
 
 void EvsServiceContext::acquireCameraAndDisplayLocked() {
+    if (!mCamera) {
+        LOG(DEBUG) << "A target camera is not available.";
+        return;
+    }
+
     // Acquires the display ownership.  Because EVS awards this to the single
     // client, no other clients can use EvsDisplay as long as CarEvsManager
     // alives.
@@ -324,6 +329,11 @@ void EvsServiceContext::acquireCameraAndDisplayLocked() {
 void EvsServiceContext::doneWithFrame(int bufferId) {
     {
         std::lock_guard<std::mutex> lock(mLock);
+        if (!mStreamHandler) {
+            LOG(DEBUG) << "A stream handler is not available.";
+            return;
+        }
+
         auto it = mBufferRecords.find(bufferId);
         if (it == mBufferRecords.end()) {
             LOG(WARNING) << "Unknown buffer is requested to return.";

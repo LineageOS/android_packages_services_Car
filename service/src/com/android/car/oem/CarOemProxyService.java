@@ -20,7 +20,9 @@ import android.annotation.Nullable;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.util.Slogf;
+import android.car.oem.IOemCarAudioDuckingService;
 import android.car.oem.IOemCarAudioFocusService;
+import android.car.oem.IOemCarAudioVolumeService;
 import android.car.oem.IOemCarService;
 import android.car.oem.IOemCarServiceCallback;
 import android.content.ComponentName;
@@ -102,6 +104,11 @@ public final class CarOemProxyService implements CarServiceBase {
     private IOemCarService mOemCarService;
     @GuardedBy("mLock")
     private CarOemAudioFocusProxyService mCarOemAudioFocusProxyService;
+    @GuardedBy("mLock")
+    private CarOemAudioVolumeProxyService mCarOemAudioVolumeProxyService;
+    @GuardedBy("mLock")
+    private CarOemAudioDuckingProxyService mCarOemAudioDuckingProxyService;
+
 
     private final ServiceConnection mCarOemServiceConnection = new ServiceConnection() {
 
@@ -307,8 +314,9 @@ public final class CarOemProxyService implements CarServiceBase {
                 writer.printf("OEM callstack\n");
                 int timeoutMs = 2000;
                 try {
+                    IOemCarService oemCarService = getOemService();
                     writer.printf(mHelper.doBinderTimedCallWithTimeout(CALL_TAG,
-                            () -> getOemService().getAllStackTraces(), timeoutMs));
+                            () -> oemCarService.getAllStackTraces(), timeoutMs));
                 } catch (TimeoutException e) {
                     writer.printf("Didn't received OEM stack within %d milliseconds.\n", timeoutMs);
                 }
@@ -346,9 +354,10 @@ public final class CarOemProxyService implements CarServiceBase {
 
         waitForOemService();
 
-        // TODO(b/240615622): Domain owner to decide if retry or default or crash.
+        // Defaults to returning null service and try again next time the service is requested.
+        IOemCarService oemCarService = getOemService();
         IOemCarAudioFocusService oemAudioFocusService = mHelper.doBinderTimedCallWithDefaultValue(
-                CALL_TAG, () -> getOemService().getOemAudioFocusService(),
+                CALL_TAG, () -> oemCarService.getOemAudioFocusService(),
                 /* defaultValue= */ null);
 
         if (oemAudioFocusService == null) {
@@ -372,14 +381,107 @@ public final class CarOemProxyService implements CarServiceBase {
     }
 
     /**
+     * Gets OEM audio volume service.
+     */
+    @Nullable
+    public CarOemAudioVolumeProxyService getCarOemAudioVolumeService() {
+        if (!mIsFeatureEnabled) {
+            if (DBG) {
+                Slogf.d(TAG, "Oem Car Service is disabled, returning null for"
+                        + " getCarOemAudioVolumeService");
+            }
+            return null;
+        }
+
+        synchronized (mLock) {
+            if (mCarOemAudioVolumeProxyService != null) {
+                return mCarOemAudioVolumeProxyService;
+            }
+        }
+
+        waitForOemService();
+        IOemCarService oemCarService = getOemService();
+        IOemCarAudioVolumeService oemAudioVolumeService = mHelper.doBinderTimedCallWithDefaultValue(
+                CALL_TAG, () -> oemCarService.getOemAudioVolumeService(),
+                /* defaultValue= */ null);
+
+        if (oemAudioVolumeService == null) {
+            if (DBG) {
+                Slogf.d(TAG, "Oem Car Service doesn't implement AudioVolumeService,"
+                        + "returning null for getCarOemAudioDuckingService");
+            }
+            return null;
+        }
+
+        CarOemAudioVolumeProxyService carOemAudioVolumeProxyService =
+                new CarOemAudioVolumeProxyService(mHelper, oemAudioVolumeService);
+        synchronized (mLock) {
+            if (mCarOemAudioVolumeProxyService != null) {
+                return mCarOemAudioVolumeProxyService;
+            }
+            mCarOemAudioVolumeProxyService = carOemAudioVolumeProxyService;
+            Slogf.i(TAG, "CarOemAudioVolumeProxyService is ready.");
+        }
+        return carOemAudioVolumeProxyService;
+    }
+
+    /**
+     * Gets OEM audio ducking service.
+     */
+    @Nullable
+    public CarOemAudioDuckingProxyService getCarOemAudioDuckingService() {
+        if (!mIsFeatureEnabled) {
+            if (DBG) {
+                Slogf.d(TAG, "Oem Car Service is disabled, returning null for"
+                        + " getCarOemAudioDuckingService");
+            }
+            return null;
+        }
+
+        synchronized (mLock) {
+            if (mCarOemAudioDuckingProxyService != null) {
+                return mCarOemAudioDuckingProxyService;
+            }
+        }
+
+        waitForOemService();
+
+        IOemCarService oemCarService = getOemService();
+        IOemCarAudioDuckingService oemAudioDuckingService =
+                mHelper.doBinderTimedCallWithDefaultValue(
+                CALL_TAG, () -> oemCarService.getOemAudioDuckingService(),
+                /* defaultValue= */ null);
+
+        if (oemAudioDuckingService == null) {
+            if (DBG) {
+                Slogf.d(TAG, "Oem Car Service doesn't implement AudioDuckingService,"
+                        + "returning null for getCarOemAudioDuckingService");
+            }
+            return null;
+        }
+
+        CarOemAudioDuckingProxyService carOemAudioDuckingProxyService =
+                new CarOemAudioDuckingProxyService(mHelper, oemAudioDuckingService);
+        synchronized (mLock) {
+            if (mCarOemAudioDuckingProxyService != null) {
+                return mCarOemAudioDuckingProxyService;
+            }
+            mCarOemAudioDuckingProxyService = carOemAudioDuckingProxyService;
+            Slogf.i(TAG, "CarOemAudioDuckingProxyService is ready.");
+        }
+        return carOemAudioDuckingProxyService;
+    }
+
+    /**
      * Should be called when CarService is ready for communication. It updates the OEM service that
      * CarService is ready.
      */
     public void onCarServiceReady() {
         waitForOemServiceConnected();
+        IOemCarService oemCarService = getOemService();
         mHelper.doBinderOneWayCall(CALL_TAG, () -> {
             try {
-                getOemService().onCarServiceReady(mOemCarServiceCallback);
+                oemCarService.onCarServiceReady(mOemCarServiceCallback);
             } catch (RemoteException ex) {
                 Slogf.e(TAG, "Binder call received RemoteException, calling to crash CarService",
                         ex);
@@ -494,6 +596,9 @@ public final class CarOemProxyService implements CarServiceBase {
         mHandler.post(() -> onCarServiceReady());
     }
 
+    /**
+     * Gets OEM service latest binder. Don't pass the method to helper as it can cause deadlock.
+     */
     private IOemCarService getOemService() {
         synchronized (mLock) {
             return mOemCarService;
@@ -511,7 +616,8 @@ public final class CarOemProxyService implements CarServiceBase {
             Slogf.i(TAG, "OEM Car service is ready and running. Process ID of OEM Car Service is:"
                     + " %d", pid);
             mHelper.updateOemPid(pid);
-            mHelper.updateOemStackCall(() -> getOemService().getAllStackTraces());
+            IOemCarService oemCarService = getOemService();
+            mHelper.updateOemStackCall(() -> oemCarService.getAllStackTraces());
             // Initialize other components on handler thread so that main thread is not
             // blocked
             mHandler.post(() -> initOemServiceComponents());

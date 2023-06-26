@@ -16,6 +16,7 @@
 package android.car;
 
 import android.annotation.NonNull;
+import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
 import android.car.annotation.ApiRequirements.PlatformVersion;
 import android.os.Build;
@@ -62,6 +63,18 @@ public final class CarVersion extends ApiVersion<CarVersion> implements Parcelab
         @NonNull
         public static final CarVersion TIRAMISU_2 =
                 new CarVersion("TIRAMISU_2", Build.VERSION_CODES.TIRAMISU, 2);
+
+        /**
+         * Helper object for third minor upgrade of Android 13.
+         *
+         * @hide
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
+                minPlatformVersion = PlatformVersion.TIRAMISU_0)
+        @SystemApi
+        @NonNull
+        public static final CarVersion TIRAMISU_3 =
+                new CarVersion("TIRAMISU_3", Build.VERSION_CODES.TIRAMISU, 3);
 
         private VERSION_CODES() {
             throw new UnsupportedOperationException("Only provide constants");

@@ -33,10 +33,11 @@ public class SessionAnnotationUnitTest {
     private static final long CREATED_AT_SINCE_BOOT_MILLIS = 123;
     private static final long CREATED_AT_MILLIS = 123123;
     private static final String BOOT_REASON = "reboot";
+    private static final int BOOT_COUNT = 12;
 
     private static final SessionAnnotation sAnnotation = new SessionAnnotation(SESSION_ID,
             SESSION_STATE,
-            CREATED_AT_SINCE_BOOT_MILLIS, CREATED_AT_MILLIS, BOOT_REASON);
+            CREATED_AT_SINCE_BOOT_MILLIS, CREATED_AT_MILLIS, BOOT_REASON, BOOT_COUNT);
 
     @Test
     public void testAddAnnotationsToBundle_addsPopulatedBundle() {
@@ -56,5 +57,7 @@ public class SessionAnnotationUnitTest {
                 CREATED_AT_MILLIS);
         assertThat(data.getString(Constants.ANNOTATION_BUNDLE_KEY_BOOT_REASON)).isEqualTo(
                 BOOT_REASON);
+        assertThat(data.getInt(Constants.ANNOTATION_BUNDLE_KEY_BOOT_COUNT)).isEqualTo(
+                BOOT_COUNT);
     }
 }

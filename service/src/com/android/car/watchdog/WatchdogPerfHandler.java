@@ -817,6 +817,13 @@ public final class WatchdogPerfHandler {
 
     /** Processes the latest I/O overuse stats */
     public void latestIoOveruseStats(List<PackageIoOveruseStats> packageIoOveruseStats) {
+        // Long running operation, such as DB operations, must not be performed on binder threads,
+        // even if they are one way binder call, because it may block other one way binder threads.
+        // Hence, we handle the latest I/O overuse stats on the service handler thread.
+        mServiceHandler.post(() -> latestIoOveruseStatsInternal(packageIoOveruseStats));
+    }
+
+    private void latestIoOveruseStatsInternal(List<PackageIoOveruseStats> packageIoOveruseStats) {
         int[] uids = new int[packageIoOveruseStats.size()];
         for (int i = 0; i < packageIoOveruseStats.size(); ++i) {
             uids[i] = packageIoOveruseStats.get(i).uid;

@@ -24,8 +24,11 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
+import android.car.media.CarVolumeGroupInfo;
+import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.os.UserHandle;
+import android.util.ArrayMap;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
@@ -38,9 +41,8 @@ import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 
 /**
  * A class encapsulates a volume group in car.
@@ -63,9 +65,10 @@ import java.util.Map;
     private final int mStepSize;
     private final int mZoneId;
     private final SparseArray<String> mContextToAddress;
-    private final Map<String, CarAudioDeviceInfo> mAddressToCarAudioDeviceInfo;
+    private final ArrayMap<String, CarAudioDeviceInfo> mAddressToCarAudioDeviceInfo;
 
     private final Object mLock = new Object();
+    private final CarAudioContext mCarAudioContext;
 
     @GuardedBy("mLock")
     private int mStoredGainIndex;
@@ -111,12 +114,15 @@ import java.util.Map;
      */
     private List<Integer> mReasons = new ArrayList<>();
 
-    private CarVolumeGroup(int zoneId, int id, CarAudioSettings settingsManager, int stepSize,
-            int defaultGain, int minGain, int maxGain, SparseArray<String> contextToAddress,
-            Map<String, CarAudioDeviceInfo> addressToCarAudioDeviceInfo,
-            boolean useCarVolumeGroupMute) {
+    private CarVolumeGroup(CarAudioContext carAudioContext, CarAudioSettings settingsManager,
+            SparseArray<String> contextToAddress, ArrayMap<String,
+            CarAudioDeviceInfo> addressToCarAudioDeviceInfo, int zoneId, int id, int stepSize,
+            int defaultGain, int minGain, int maxGain, boolean useCarVolumeGroupMute) {
 
         mSettingsManager = settingsManager;
+        mContextToAddress = contextToAddress;
+        mAddressToCarAudioDeviceInfo = addressToCarAudioDeviceInfo;
+        mCarAudioContext = carAudioContext;
         mZoneId = zoneId;
         mId = id;
         mStepSize = stepSize;
@@ -124,11 +130,16 @@ import java.util.Map;
         mMinGain = minGain;
         mMaxGain = maxGain;
         mLimitedGainIndex = getIndexForGain(mMaxGain);
-        mContextToAddress = contextToAddress;
-        mAddressToCarAudioDeviceInfo = addressToCarAudioDeviceInfo;
         mUseCarVolumeGroupMute = useCarVolumeGroupMute;
+        List<AudioAttributes> volumeAttributes = new ArrayList<>();
+        for (int index = 0; index <  contextToAddress.size(); index++) {
+            int context = contextToAddress.keyAt(index);
+            List<AudioAttributes> audioAttributes =
+                    Arrays.asList(mCarAudioContext.getAudioAttributesForContext(context));
+            volumeAttributes.addAll(audioAttributes);
+        }
 
-        mHasCriticalAudioContexts = containsCriticalAudioContext(contextToAddress);
+        mHasCriticalAudioContexts = containsCriticalAttributes(volumeAttributes);
     }
 
     void init() {
@@ -386,8 +397,8 @@ import java.util.Map;
     @GuardedBy("mLock")
     private void setCurrentGainIndexLocked(int gainIndex) {
         int gainInMillibels = getGainForIndex(gainIndex);
-        for (String address : mAddressToCarAudioDeviceInfo.keySet()) {
-            CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
+        for (int index = 0; index < mAddressToCarAudioDeviceInfo.size(); index++) {
+            CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.valueAt(index);
             info.setCurrentGain(gainInMillibels);
         }
         storeGainIndexForUserLocked(gainIndex, mUserId);
@@ -425,7 +436,7 @@ import java.util.Map;
                     getMinGainIndex(), getMaxGainIndex(), getDefaultGainIndex(), mCurrentGainIndex);
             for (int i = 0; i < mContextToAddress.size(); i++) {
                 writer.printf("Context: %s -> Address: %s\n",
-                        CarAudioContext.toString(mContextToAddress.keyAt(i)),
+                        mCarAudioContext.toString(mContextToAddress.keyAt(i)),
                         mContextToAddress.valueAt(i));
             }
             mAddressToCarAudioDeviceInfo.keySet().stream()
@@ -491,10 +502,9 @@ import java.util.Map;
         }
     }
 
-    private static boolean containsCriticalAudioContext(SparseArray<String> contextToAddress) {
-        for (int i = 0; i < contextToAddress.size(); i++) {
-            int audioContext = contextToAddress.keyAt(i);
-            if (CarAudioContext.isCriticalAudioContext(audioContext)) {
+    private static boolean containsCriticalAttributes(List<AudioAttributes> volumeAttributes) {
+        for (int index = 0; index < volumeAttributes.size(); index++) {
+            if (CarAudioContext.isCriticalAudioAudioAttribute(volumeAttributes.get(index))) {
                 return true;
             }
         }
@@ -567,8 +577,7 @@ import java.util.Map;
 
     void onAudioGainChanged(List<Integer> halReasons, CarAudioGainConfigInfo gain) {
         if (getCarAudioDeviceInfoForAddress(gain.getDeviceAddress()) == null) {
-            Slogf.e(
-                    CarLog.TAG_AUDIO,
+            Slogf.e(CarLog.TAG_AUDIO,
                     "onAudioGainChanged no port found for address %s on group %d",
                     gain.getDeviceAddress(),
                     mId);
@@ -610,6 +619,38 @@ import java.util.Map;
         }
     }
 
+    CarVolumeGroupInfo getCarVolumeGroupInfo() {
+        int gainIndex;
+        boolean isMuted;
+        boolean isBlocked;
+        boolean isAttenuated;
+        synchronized (mLock) {
+            gainIndex = mCurrentGainIndex;
+            isMuted = mIsMuted;
+            isBlocked = isBlockedLocked();
+            isAttenuated = isAttenuatedLocked();
+        }
+
+        return new CarVolumeGroupInfo.Builder("group id " + mId, mZoneId, mId)
+                .setVolumeGainIndex(gainIndex).setMaxVolumeGainIndex(getMaxGainIndex())
+                .setMinVolumeGainIndex(getMinGainIndex()).setMuted(isMuted).setBlocked(isBlocked)
+                .setAttenuated(isAttenuated).build();
+    }
+
+    List<AudioAttributes> getAudioAttributes() {
+        List<AudioAttributes> audioAttributes = new ArrayList<>();
+        for (int index = 0; index < mContextToAddress.size(); index++) {
+            int context = mContextToAddress.keyAt(index);
+            AudioAttributes[] contextAttributes =
+                    mCarAudioContext.getAudioAttributesForContext(context);
+            for (int attrIndex = 0; attrIndex < contextAttributes.length; attrIndex++) {
+                audioAttributes.add(contextAttributes[attrIndex]);
+            }
+        }
+
+        return audioAttributes;
+    }
+
     static final class Builder {
         private static final int UNSET_STEP_SIZE = -1;
 
@@ -618,8 +659,9 @@ import java.util.Map;
         private final boolean mUseCarVolumeGroupMute;
         private final CarAudioSettings mCarAudioSettings;
         private final SparseArray<String> mContextToAddress = new SparseArray<>();
-        private final Map<String, CarAudioDeviceInfo> mAddressToCarAudioDeviceInfo =
-                new HashMap<>();
+        private final CarAudioContext mCarAudioContext;
+        private final ArrayMap<String, CarAudioDeviceInfo> mAddressToCarAudioDeviceInfo =
+                new ArrayMap<>();
 
         @VisibleForTesting
         int mStepSize = UNSET_STEP_SIZE;
@@ -630,19 +672,22 @@ import java.util.Map;
         @VisibleForTesting
         int mMinGain = Integer.MAX_VALUE;
 
-        Builder(int zoneId, int id, CarAudioSettings carAudioSettings,
-                boolean useCarVolumeGroupMute) {
+        Builder(CarAudioSettings carAudioSettings, CarAudioContext carAudioContext,
+                int zoneId, int id, boolean useCarVolumeGroupMute) {
+            mCarAudioSettings = Objects.requireNonNull(carAudioSettings,
+                    "Car audio settings can not be null");
+            mCarAudioContext = Objects.requireNonNull(carAudioContext,
+                    "Car audio context can not be null");
             mZoneId = zoneId;
             mId = id;
-            mCarAudioSettings = carAudioSettings;
             mUseCarVolumeGroupMute = useCarVolumeGroupMute;
         }
 
-        Builder setDeviceInfoForContext(int carAudioContext, CarAudioDeviceInfo info) {
-            Preconditions.checkArgument(mContextToAddress.get(carAudioContext) == null,
+        Builder setDeviceInfoForContext(int carAudioContextId, CarAudioDeviceInfo info) {
+            Preconditions.checkArgument(mContextToAddress.get(carAudioContextId) == null,
                     "Context %s has already been set to %s",
-                    CarAudioContext.toString(carAudioContext),
-                    mContextToAddress.get(carAudioContext));
+                    mCarAudioContext.toString(carAudioContextId),
+                    mContextToAddress.get(carAudioContextId));
 
             if (mAddressToCarAudioDeviceInfo.isEmpty()) {
                 mStepSize = info.getStepValue();
@@ -653,7 +698,7 @@ import java.util.Map;
             }
 
             mAddressToCarAudioDeviceInfo.put(info.getAddress(), info);
-            mContextToAddress.put(carAudioContext, info.getAddress());
+            mContextToAddress.put(carAudioContextId, info.getAddress());
 
             if (info.getDefaultGain() > mDefaultGain) {
                 // We're arbitrarily selecting the highest
@@ -673,9 +718,9 @@ import java.util.Map;
         CarVolumeGroup build() {
             Preconditions.checkArgument(mStepSize != UNSET_STEP_SIZE,
                     "setDeviceInfoForContext has to be called at least once before building");
-            CarVolumeGroup group = new CarVolumeGroup(mZoneId, mId, mCarAudioSettings, mStepSize,
-                    mDefaultGain, mMinGain, mMaxGain, mContextToAddress,
-                    mAddressToCarAudioDeviceInfo, mUseCarVolumeGroupMute);
+            CarVolumeGroup group = new CarVolumeGroup(mCarAudioContext, mCarAudioSettings,
+                    mContextToAddress, mAddressToCarAudioDeviceInfo, mZoneId, mId, mStepSize,
+                    mDefaultGain, mMinGain, mMaxGain, mUseCarVolumeGroupMute);
             group.init();
             return group;
         }

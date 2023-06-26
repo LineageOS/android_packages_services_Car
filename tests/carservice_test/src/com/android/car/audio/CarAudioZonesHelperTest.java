@@ -16,11 +16,15 @@
 package com.android.car.audio;
 
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+import static android.media.AudioAttributes.USAGE_ANNOUNCEMENT;
+import static android.media.AudioAttributes.USAGE_EMERGENCY;
+import static android.media.AudioAttributes.USAGE_SAFETY;
+import static android.media.AudioAttributes.USAGE_VEHICLE_STATUS;
 import static android.media.AudioDeviceInfo.TYPE_BUILTIN_MIC;
 import static android.media.AudioDeviceInfo.TYPE_BUS;
 import static android.media.AudioDeviceInfo.TYPE_FM_TUNER;
 
-import static com.android.car.audio.CarAudioService.DEFAULT_AUDIO_CONTEXT;
+import static com.android.car.audio.CarAudioService.CAR_DEFAULT_AUDIO_ATTRIBUTE;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -29,6 +33,7 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.expectThrows;
 
 import android.content.Context;
+import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.util.SparseArray;
@@ -55,6 +60,23 @@ import java.util.stream.Collectors;
 
 @RunWith(AndroidJUnit4.class)
 public class CarAudioZonesHelperTest {
+
+    public static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
+            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+    public static final int TEST_DEFAULT_CONTEXT_ID = TEST_CAR_AUDIO_CONTEXT
+            .getContextForAudioAttribute(CAR_DEFAULT_AUDIO_ATTRIBUTE);
+    public static final int TEST_EMERGENCY_CONTEXT_ID = TEST_CAR_AUDIO_CONTEXT
+            .getContextForAudioAttribute(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_EMERGENCY));
+    public static final int TEST_SAFETY_CONTEXT_ID = TEST_CAR_AUDIO_CONTEXT
+            .getContextForAudioAttribute(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_SAFETY));
+    public static final int TEST_VEHICLE_STATUS_CONTEXT_ID = TEST_CAR_AUDIO_CONTEXT
+            .getContextForAudioAttribute(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_VEHICLE_STATUS));
+    public static final int TEST_ANNOUNCEMENT_CONTEXT_ID = TEST_CAR_AUDIO_CONTEXT
+            .getContextForAudioAttribute(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_ANNOUNCEMENT));
     private List<CarAudioDeviceInfo> mCarAudioOutputDeviceInfos;
     private AudioDeviceInfo[] mInputAudioDeviceInfos;
     private InputStream mInputStream;
@@ -250,13 +272,13 @@ public class CarAudioZonesHelperTest {
         CarAudioZone primaryZone = zones.get(0);
         CarVolumeGroup volumeGroup = primaryZone.getVolumeGroups()[0];
         assertThat(volumeGroup.getContextsForAddress(BUS_0_ADDRESS))
-                .containsExactly(CarAudioContext.MUSIC);
+                .containsExactly(TEST_CAR_AUDIO_CONTEXT.getContextForAttributes(CarAudioContext
+                        .getAudioAttributeFromUsage(AudioAttributes.USAGE_MEDIA)));
 
         CarAudioZone rearSeatEntertainmentZone = zones.get(2);
         CarVolumeGroup rseVolumeGroup = rearSeatEntertainmentZone.getVolumeGroups()[0];
         List<Integer> contextForBus100List = rseVolumeGroup.getContextsForAddress(BUS_100_ADDRESS);
-        List<Integer> contextsList =
-                Arrays.stream(CarAudioContext.CONTEXTS).boxed().collect(Collectors.toList());
+        List<Integer> contextsList = TEST_CAR_AUDIO_CONTEXT.getAllContextsIds();
         assertThat(contextForBus100List).containsExactlyElementsIn(contextsList);
     }
 
@@ -275,10 +297,9 @@ public class CarAudioZonesHelperTest {
             List<Integer> audioContexts = Arrays.stream(volumeGroup.getContexts()).boxed()
                     .collect(Collectors.toList());
 
-            assertThat(audioContexts).containsAtLeast(DEFAULT_AUDIO_CONTEXT,
-                    CarAudioContext.EMERGENCY,
-                    CarAudioContext.SAFETY, CarAudioContext.VEHICLE_STATUS,
-                    CarAudioContext.ANNOUNCEMENT);
+            assertThat(audioContexts).containsAtLeast(TEST_DEFAULT_CONTEXT_ID,
+                    TEST_EMERGENCY_CONTEXT_ID, TEST_SAFETY_CONTEXT_ID,
+                    TEST_VEHICLE_STATUS_CONTEXT_ID, TEST_ANNOUNCEMENT_CONTEXT_ID);
         }
     }
 

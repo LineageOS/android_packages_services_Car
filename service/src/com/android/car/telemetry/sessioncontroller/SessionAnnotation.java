@@ -36,25 +36,28 @@ public class SessionAnnotation {
     // to capture situations in later analysis when the data might be affected by a sudden reboot
     // due to a crash. Populated from sys.boot.reason property.
     public final String bootReason;
+    public final int bootCount;
 
     public SessionAnnotation(
             int sessionId,
             @SessionController.SessionControllerState int sessionState,
             long createdAtSinceBootMillis,
             long createdAtMillis,
-            String bootReason) {
+            String bootReason,
+            int bootCount) {
         this.sessionId = sessionId;
         this.sessionState = sessionState;
         // including deep sleep, similar to SystemClock.elapsedRealtime()
         this.createdAtSinceBootMillis = createdAtSinceBootMillis;
         this.createdAtMillis = createdAtMillis; // unix time
         this.bootReason = bootReason;
+        this.bootCount = bootCount;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(sessionId, sessionState, createdAtSinceBootMillis, createdAtMillis,
-                bootReason);
+                bootReason, bootCount);
     }
 
     @Override
@@ -71,6 +74,8 @@ public class SessionAnnotation {
                 .append(createdAtMillis).append(", ")
                 .append(Constants.ANNOTATION_BUNDLE_KEY_BOOT_REASON).append(": ")
                 .append(bootReason)
+                .append(Constants.ANNOTATION_BUNDLE_KEY_BOOT_COUNT).append(": ")
+                .append(bootCount)
                 .append("}")
                 .toString();
     }
@@ -93,7 +98,8 @@ public class SessionAnnotation {
                 && sessionState == other.sessionState
                 && createdAtSinceBootMillis == other.createdAtSinceBootMillis
                 && createdAtMillis == other.createdAtMillis
-                && Objects.equals(bootReason, other.bootReason);
+                && Objects.equals(bootReason, other.bootReason)
+                && bootCount == other.bootCount;
     }
 
     /**
@@ -108,6 +114,7 @@ public class SessionAnnotation {
                 createdAtSinceBootMillis);
         bundle.putLong(Constants.ANNOTATION_BUNDLE_KEY_CREATED_AT_MILLIS, createdAtMillis);
         bundle.putString(Constants.ANNOTATION_BUNDLE_KEY_BOOT_REASON, bootReason);
+        bundle.putInt(Constants.ANNOTATION_BUNDLE_KEY_BOOT_COUNT, bootCount);
     }
 
 }
