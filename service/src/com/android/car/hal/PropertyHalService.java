@@ -113,6 +113,7 @@ public class PropertyHalService extends HalServiceBase {
     // it should be considered a success. If we get the initial value successfully and the
     // initial value is the same as the target value, we treat the async set as success.
     private static final int GET_INITIAL_VALUE_FOR_SET = 2;
+    private static final float UPDATE_RATE_ERROR = -1f;
 
     // Different type of async get/set property requests.
     @IntDef({GET, SET, GET_INITIAL_VALUE_FOR_SET})
@@ -337,10 +338,12 @@ public class PropertyHalService extends HalServiceBase {
             new LongPendingRequestPool<>(mHandler.getLooper(), mTimeoutCallback);
     @GuardedBy("mLock")
     private PropertyHalListener mPropertyHalListener;
-    // A map from subscribed PropertyHalService property IDs to their current update rate.
-    // This value will be updated by {@link #subscribeProperty} or {@link #unsubscribeProperty}.
+    // A map from subscribed PropertyHalService property IDs to areaId to their current update rate
+    // in Hz. This value will be updated by {@link #subscribeProperty} or
+    // {@link #unsubscribeProperty}.
     @GuardedBy("mLock")
-    private final SparseArray<Float> mSubscribedHalPropIdToUpdateRateHz = new SparseArray<>();
+    private final SparseArray<SparseArray<Float>> mSubscribedHalPropIdToAreaIdToUpdateRateHz =
+            new SparseArray<>();
     // A map to store pending async set request info that are currently waiting for property update
     // events.
     @GuardedBy("mLock")
@@ -857,8 +860,8 @@ public class PropertyHalService extends HalServiceBase {
      * be updated for the specific property because we no longer need to monitor this property
      * any more internally.
      *
-     * The {@code updatedHalPropIds} will store the affected property IDs if their subscription
-     * rate need to be recalculated.
+     * The {@code updatedAreaIdsByHalPropIds} will store the affected area Ids and property IDs if
+     * their subscription rate need to be recalculated.
      */
     @GuardedBy("mLock")
     private void removePendingAsyncPropRequestInfoLocked(
@@ -989,17 +992,48 @@ public class PropertyHalService extends HalServiceBase {
         }
     }
 
+    // TODO(b/272811366): Remove this once CarPropertyService gets updated to use
+    //  getSubscribedUpdateRateHz with areaId
     /**
-     * Returns update rate in HZ for the subscribed property, or -1 if not subscribed.
+     * Returns update rate in Hz for the first found areaId for this property, or UPDATE_RATE_ERROR
+     * if not subscribed.
      *
-     * The update rate returned here only consideres the subscription originated from
+     * The update rate returned here only considers the subscription originated from
      * {@link PropertyHalService#subscribeProperty} and does not consider the internal subscription
      * for async set value requests.
      */
     public float getSubscribedUpdateRateHz(int mgrPropId) {
+        int[] areaIds;
+        synchronized (mLock) {
+            areaIds = getAllAreaIdsLocked(mgrPropId);
+        }
+        if (areaIds.length == 0) {
+            return UPDATE_RATE_ERROR;
+        }
+        return getSubscribedUpdateRateHz(mgrPropId, areaIds[0]);
+    }
+
+    /**
+     * Returns update rate in Hz for the propertyId and areaId, or UPDATE_RATE_ERROR if not
+     * subscribed.
+     *
+     * The update rate returned here only considers the subscription originated from
+     * {@link PropertyHalService#subscribeProperty} and does not consider the internal subscription
+     * for async set value requests.
+     *
+     * @param mgrPropId PropertyId to get
+     * @param areaId AreaId to get
+     * @return Subscription rate
+     */
+    public float getSubscribedUpdateRateHz(int mgrPropId, int areaId) {
         int halPropId = managerToHalPropId(mgrPropId);
         synchronized (mLock) {
-            return mSubscribedHalPropIdToUpdateRateHz.get(halPropId, Float.valueOf(-1f));
+            SparseArray<Float> areaIdToUpdateRateHz = mSubscribedHalPropIdToAreaIdToUpdateRateHz
+                    .get(halPropId);
+            if (areaIdToUpdateRateHz == null) {
+                return UPDATE_RATE_ERROR;
+            }
+            return areaIdToUpdateRateHz.get(areaId, UPDATE_RATE_ERROR);
         }
     }
 
@@ -1067,12 +1101,28 @@ public class PropertyHalService extends HalServiceBase {
         mVehicleHal.set(valueToSet);
     }
 
+    // TODO(b/272811366): Remove this once CarPropertyService gets updated to use
+    // subscribeProperty with areaIds
     /**
-     * Subscribe to this property at the specified update updateRateHz.
+     * Subscribe to this property at the specified updateRateHz for all supported areaIds.
      *
      * @throws IllegalArgumentException thrown if property is not supported by VHAL.
      */
     public void subscribeProperty(int mgrPropId, float updateRateHz)
+            throws IllegalArgumentException {
+        int[] areaIds;
+        synchronized (mLock) {
+            areaIds = getAllAreaIdsLocked(mgrPropId);
+        }
+        subscribeProperty(mgrPropId, updateRateHz, areaIds);
+    }
+
+    /**
+     * Subscribe to this property at the specified updateRateHz and areaId.
+     *
+     * @throws IllegalArgumentException thrown if property is not supported by VHAL.
+     */
+    public void subscribeProperty(int mgrPropId, float updateRateHz, int[] areaIds)
             throws IllegalArgumentException {
         if (DBG) {
             Slogf.d(TAG, "subscribeProperty propertyId: %s, updateRateHz=%f",
@@ -1083,7 +1133,13 @@ public class PropertyHalService extends HalServiceBase {
             // Even though this involves binder call, this must be done inside the lock so that
             // the state in {@code mSubscribedHalPropIdToUpdateRateHz} is consistent with the
             // state in VHAL.
-            mSubscribedHalPropIdToUpdateRateHz.put(halPropId, updateRateHz);
+            if (!mSubscribedHalPropIdToAreaIdToUpdateRateHz.contains(halPropId)) {
+                mSubscribedHalPropIdToAreaIdToUpdateRateHz.put(halPropId, new SparseArray<>());
+            }
+            for (int i = 0; i < areaIds.length; i++) {
+                mSubscribedHalPropIdToAreaIdToUpdateRateHz.get(halPropId).put(areaIds[i],
+                        updateRateHz);
+            }
             updateSubscriptionRateForHalPropIdLocked(halPropId);
         }
     }
@@ -1101,14 +1157,29 @@ public class PropertyHalService extends HalServiceBase {
             // Even though this involves binder call, this must be done inside the lock so that
             // the state in {@code mSubscribedHalPropIdToUpdateRateHz} is consistent with the
             // state in VHAL.
-            if (mSubscribedHalPropIdToUpdateRateHz.get(halPropId) == null) {
+            if (mSubscribedHalPropIdToAreaIdToUpdateRateHz.get(halPropId) == null) {
                 Slogf.w(TAG, "property: %s is not subscribed.",
                         VehiclePropertyIds.toString(mgrPropId));
                 return;
             }
-            mSubscribedHalPropIdToUpdateRateHz.remove(halPropId);
+            mSubscribedHalPropIdToAreaIdToUpdateRateHz.remove(halPropId);
             updateSubscriptionRateForHalPropIdLocked(halPropId);
         }
+    }
+
+    @GuardedBy("mLock")
+    private int[] getAllAreaIdsLocked(int mgrPropId) {
+        int[] areaIds = new int[0];
+        HalPropConfig halPropConfig = mHalPropIdToPropConfig.get(managerToHalPropId(mgrPropId));
+        if (halPropConfig == null) {
+            if (DBG) {
+                Slogf.d(TAG, "Unable to get any areaIds from %s",
+                        VehiclePropertyIds.toString(mgrPropId));
+            }
+            return areaIds;
+        }
+        areaIds = halPropConfig.toCarPropertyConfig(mgrPropId).getAreaIds();
+        return areaIds;
     }
 
     @Override
@@ -1124,11 +1195,11 @@ public class PropertyHalService extends HalServiceBase {
             Slogf.d(TAG, "release()");
         }
         synchronized (mLock) {
-            for (int i = 0; i < mSubscribedHalPropIdToUpdateRateHz.size(); i++) {
-                int halPropId = mSubscribedHalPropIdToUpdateRateHz.keyAt(i);
+            for (int i = 0; i < mSubscribedHalPropIdToAreaIdToUpdateRateHz.size(); i++) {
+                int halPropId = mSubscribedHalPropIdToAreaIdToUpdateRateHz.keyAt(i);
                 mVehicleHal.unsubscribeProperty(this, halPropId);
             }
-            mSubscribedHalPropIdToUpdateRateHz.clear();
+            mSubscribedHalPropIdToAreaIdToUpdateRateHz.clear();
             mHalPropIdToPropConfig.clear();
             mMgrPropIdToPermissions.clear();
             mPropertyHalListener = null;
@@ -1248,19 +1319,47 @@ public class PropertyHalService extends HalServiceBase {
      */
     @GuardedBy("mLock")
     private void updateSubscriptionRateForHalPropIdLocked(int halPropId) {
-        Float newUpdateRateHz = calcNewUpdateRateHzLocked(halPropId);
+        ArrayMap<Float, ArrayList<Integer>> updateRateHzToAreaIds = new ArrayMap<>();
+        if (DBG) {
+            Slogf.d(TAG, "updated subscription rate locked for hal prop ID: %s",
+                    halPropIdToName(halPropId));
+        }
         String propertyName = halPropIdToName(halPropId);
-        if (newUpdateRateHz == null) {
+        int[] areaIds = getAllAreaIdsLocked(halToManagerPropId(halPropId));
+        boolean shouldUnsubscribe = true;
+        for (int i = 0; i < areaIds.length; i++) {
+            Float newUpdateRateHz = calcNewUpdateRateHzLocked(halPropId, areaIds[i]);
+            if (newUpdateRateHz == null) {
+                if (DBG) {
+                    Slogf.d(TAG, "Update rate for halPropId %s and areaId %d is null",
+                            halPropIdToName(halPropId), areaIds[i]);
+                }
+                continue;
+            }
+            shouldUnsubscribe = false;
+            if (!updateRateHzToAreaIds.containsKey(newUpdateRateHz)) {
+                updateRateHzToAreaIds.put(newUpdateRateHz, new ArrayList<Integer>());
+            }
+            updateRateHzToAreaIds.get(newUpdateRateHz).add(areaIds[i]);
+        }
+        if (shouldUnsubscribe) {
             if (DBG) {
                 Slogf.d(TAG, "unsubscribeProperty for property ID: %s", propertyName);
             }
             mVehicleHal.unsubscribeProperty(this, halPropId);
-        } else {
+            return;
+        }
+        for (int i = 0; i < updateRateHzToAreaIds.size(); i++) {
+            int[] filteredAreaIds = CarServiceUtils.toIntArray(updateRateHzToAreaIds.valueAt(i));
+            Float newUpdateRateHz = updateRateHzToAreaIds.keyAt(i);
             if (DBG) {
                 Slogf.d(TAG, "subscribeProperty for property ID: %s, new sample rate: %f hz",
                         propertyName, newUpdateRateHz);
+                for (int j = 0; j < filteredAreaIds.length; j++) {
+                    Slogf.d(TAG, "Filtered areaIds: %d", filteredAreaIds[j]);
+                }
             }
-            mVehicleHal.subscribeProperty(this, halPropId, newUpdateRateHz);
+            mVehicleHal.subscribeProperty(this, halPropId, newUpdateRateHz, filteredAreaIds);
         }
     }
 
@@ -1537,18 +1636,27 @@ public class PropertyHalService extends HalServiceBase {
 
     @GuardedBy("mLock")
     @Nullable
-    private Float calcNewUpdateRateHzLocked(int halPropId) {
+    private Float calcNewUpdateRateHzLocked(int halPropId, int areaId) {
         Float maxUpdateRateHz = null;
         List<AsyncPropRequestInfo> requests = mHalPropIdToWaitingUpdateRequestInfo.get(halPropId);
+
         if (requests != null) {
             for (int i = 0; i < requests.size(); i++) {
+                if (requests.get(i).getAreaId() != areaId) {
+                    continue;
+                }
                 float currentUpdateRateHz = requests.get(i).getUpdateRateHz();
                 if (maxUpdateRateHz == null || currentUpdateRateHz > maxUpdateRateHz) {
                     maxUpdateRateHz = currentUpdateRateHz;
                 }
             }
         }
-        Float subscribedUpdateRateHz = mSubscribedHalPropIdToUpdateRateHz.get(halPropId);
+        SparseArray<Float> areaIdToUpdateRateHz = mSubscribedHalPropIdToAreaIdToUpdateRateHz
+                .get(halPropId);
+        if (areaIdToUpdateRateHz == null) {
+            return maxUpdateRateHz;
+        }
+        Float subscribedUpdateRateHz = areaIdToUpdateRateHz.get(areaId);
         if (subscribedUpdateRateHz != null && (
                 maxUpdateRateHz == null || subscribedUpdateRateHz > maxUpdateRateHz)) {
             maxUpdateRateHz = subscribedUpdateRateHz;
@@ -1596,11 +1704,11 @@ public class PropertyHalService extends HalServiceBase {
                 if (mHalPropIdToWaitingUpdateRequestInfo.get(halPropId) == null) {
                     mHalPropIdToWaitingUpdateRequestInfo.put(halPropId, new ArrayList<>());
                 }
-
                 mHalPropIdToWaitingUpdateRequestInfo.get(halPropId).add(setRequestInfo);
 
                 updatedHalPropIds.add(halPropId);
             }
+            Slogf.d(TAG, "update HalPropIds is : " + updatedHalPropIds);
             updateSubscriptionRateLocked(updatedHalPropIds);
         }
 

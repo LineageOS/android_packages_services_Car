@@ -117,11 +117,17 @@ public class PropertyHalServiceTest {
     private ArgumentCaptor<GetSetValueResultList> mAsyncResultCaptor;
     @Captor
     private ArgumentCaptor<IBinder.DeathRecipient> mDeathRecipientCaptor;
+    @Mock
+    private CarPropertyConfig mMockCarPropertyConfig1;
+    @Mock
+    private CarPropertyConfig mMockCarPropertyConfig2;
 
     private PropertyHalService mPropertyHalService;
     private static final int REQUEST_ID_1 = 1;
     private static final int REQUEST_ID_2 = 2;
     private static final int REQUEST_ID_3 = 3;
+    private static final int REQUEST_ID_4 = 4;
+    private static final int REQUEST_ID_5 = 5;
     private static final int RECEIVED_REQUEST_ID_1 = 0;
     private static final int RECEIVED_REQUEST_ID_2 = 1;
     private static final int RECEIVED_REQUEST_ID_3 = 2;
@@ -143,6 +149,12 @@ public class PropertyHalServiceTest {
     private static final AsyncPropertyServiceRequest SET_PROPERTY_SERVICE_REQUEST_3 =
             new AsyncPropertyServiceRequest(REQUEST_ID_3, PERF_VEHICLE_SPEED, /* areaId= */ 0,
             new CarPropertyValue(PERF_VEHICLE_SPEED, /* areaId= */ 0, 17.0f));
+    private static final AsyncPropertyServiceRequest SET_VEHICLE_SPEED_AREA_ID_1_REQUEST =
+            new AsyncPropertyServiceRequest(REQUEST_ID_4, PERF_VEHICLE_SPEED, /* areaId= */ 1,
+                    new CarPropertyValue(PERF_VEHICLE_SPEED, /* areaId= */ 1, 17.0f));
+    private static final AsyncPropertyServiceRequest SET_VEHICLE_SPEED_AREA_ID_2_REQUEST =
+            new AsyncPropertyServiceRequest(REQUEST_ID_5, PERF_VEHICLE_SPEED, /* areaId= */ 2,
+                    new CarPropertyValue(PERF_VEHICLE_SPEED, /* areaId= */ 2, 17.0f));
 
     private static final long TEST_UPDATE_TIMESTAMP_NANOS = 1234;
     private final HalPropValueBuilder mPropValueBuilder = new HalPropValueBuilder(
@@ -169,21 +181,29 @@ public class PropertyHalServiceTest {
         mPropertyHalService.init();
 
         HalPropConfig mockPropConfig1 = mock(HalPropConfig.class);
-        CarPropertyConfig mockCarPropConfig1 = mock(CarPropertyConfig.class);
-        when(mockPropConfig1.toCarPropertyConfig(VehicleProperty.HVAC_TEMPERATURE_SET))
-                .thenReturn(mockCarPropConfig1);
         when(mockPropConfig1.getPropId()).thenReturn(VehicleProperty.HVAC_TEMPERATURE_SET);
-        when(mockCarPropConfig1.getChangeMode()).thenReturn(VehiclePropertyChangeMode.ON_CHANGE);
+        when(mockPropConfig1.getChangeMode()).thenReturn(VehiclePropertyChangeMode.ON_CHANGE);
+        when(mockPropConfig1.toCarPropertyConfig(VehicleProperty.HVAC_TEMPERATURE_SET))
+                .thenReturn(mMockCarPropertyConfig1);
+        when(mMockCarPropertyConfig1.getChangeMode())
+                .thenReturn(VehiclePropertyChangeMode.ON_CHANGE);
+        when(mMockCarPropertyConfig1.getAreaIds()).thenReturn(new int[]{0});
 
         HalPropConfig mockPropConfig2 = mock(HalPropConfig.class);
-        CarPropertyConfig mockCarPropConfig2 = mock(CarPropertyConfig.class);
-        when(mockPropConfig2.toCarPropertyConfig(VehicleProperty.PERF_VEHICLE_SPEED))
-                .thenReturn(mockCarPropConfig2);
         when(mockPropConfig2.getPropId()).thenReturn(VehicleProperty.PERF_VEHICLE_SPEED);
-        when(mockCarPropConfig2.getChangeMode()).thenReturn(VehiclePropertyChangeMode.CONTINUOUS);
-        when(mockCarPropConfig2.getMinSampleRate()).thenReturn(20.0f);
-        when(mockCarPropConfig2.getMaxSampleRate()).thenReturn(100.0f);
+        when(mockPropConfig2.getChangeMode()).thenReturn(VehiclePropertyChangeMode.CONTINUOUS);
+        when(mockPropConfig2.getMinSampleRate()).thenReturn(20.0f);
+        when(mockPropConfig2.getMaxSampleRate()).thenReturn(100.0f);
+        when(mockPropConfig2.toCarPropertyConfig(VehicleProperty.PERF_VEHICLE_SPEED))
+                .thenReturn(mMockCarPropertyConfig2);
+        when(mMockCarPropertyConfig2.getChangeMode())
+                .thenReturn(VehiclePropertyChangeMode.CONTINUOUS);
+        when(mMockCarPropertyConfig2.getMinSampleRate()).thenReturn(20.0f);
+        when(mMockCarPropertyConfig2.getMaxSampleRate()).thenReturn(100.0f);
+        when(mMockCarPropertyConfig2.getAreaIds()).thenReturn(new int[]{0});
+
         mPropertyHalService.takeProperties(List.of(mockPropConfig1, mockPropConfig2));
+        mPropertyHalService.getPropertyList();
     }
 
     @After
@@ -828,7 +848,8 @@ public class PropertyHalServiceTest {
                 mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
         // Must not subscribe to the property for update events.
-        verify(mVehicleHal, never()).subscribeProperty(any(), anyInt(), anyFloat());
+        verify(mVehicleHal, never()).subscribeProperty(any(), anyInt(), anyFloat(),
+                eq(new int[] {0}));
         // Must not send get initial value request.
         verify(mVehicleHal, never()).getAsync(any(), any());
         assertThat(setInvocationWrap).hasSize(1);
@@ -842,6 +863,53 @@ public class PropertyHalServiceTest {
         assertThat(result.getErrorCode()).isEqualTo(STATUS_OK);
         // This should be the time when the request is successfully sent.
         assertThat(result.getUpdateTimestampNanos()).isGreaterThan(0);
+
+        verifyNoPendingRequest();
+    }
+
+    @Test
+    public void testSetCarPropertyValuesAsync_noWaitForPropertyUpdateWithMultipleAreaRequests()
+            throws Exception {
+        List<InvocationOnMock> setInvocationWrap = new ArrayList<>();
+
+        doAnswer((invocation) -> {
+            setInvocationWrap.add(invocation);
+            return null;
+        }).when(mVehicleHal).setAsync(any(List.class), any(VehicleStubCallbackInterface.class));
+        doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
+
+        AsyncPropertyServiceRequest request1 = copyRequest(SET_VEHICLE_SPEED_AREA_ID_1_REQUEST);
+        AsyncPropertyServiceRequest request2 = copyRequest(SET_VEHICLE_SPEED_AREA_ID_2_REQUEST);
+        request1.setWaitForPropertyUpdate(false);
+        request2.setWaitForPropertyUpdate(false);
+
+        mPropertyHalService.setCarPropertyValuesAsync(List.of(request1, request2),
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
+
+        // Must not subscribe to the property for update events.
+        verify(mVehicleHal, never()).subscribeProperty(any(), anyInt(), anyFloat(),
+                eq(new int[] {1}));
+        verify(mVehicleHal, never()).subscribeProperty(any(), anyInt(), anyFloat(),
+                eq(new int[] {2}));
+        // Must not send get initial value request.
+        verify(mVehicleHal, never()).getAsync(any(), any());
+        assertThat(setInvocationWrap).hasSize(1);
+
+        // Returns the set value result.
+        deliverOkaySetResult(setInvocationWrap.get(0));
+
+        verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
+        GetSetValueResult result1 = mAsyncResultCaptor.getValue().getList().get(0);
+        assertThat(result1.getRequestId()).isEqualTo(REQUEST_ID_4);
+        assertThat(result1.getErrorCode()).isEqualTo(STATUS_OK);
+        verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
+        GetSetValueResult result2 = mAsyncResultCaptor.getValue().getList().get(1);
+        assertThat(result2.getRequestId()).isEqualTo(REQUEST_ID_5);
+        assertThat(result2.getErrorCode()).isEqualTo(STATUS_OK);
+
+        // This should be the time when the request is successfully sent.
+        assertThat(result1.getUpdateTimestampNanos()).isGreaterThan(0);
+        assertThat(result2.getUpdateTimestampNanos()).isGreaterThan(0);
 
         verifyNoPendingRequest();
     }
@@ -863,7 +931,7 @@ public class PropertyHalServiceTest {
         doAnswer((invocation) -> {
             serviceWrap.add(invocation.getArgument(0));
             return null;
-        }).when(mVehicleHal).subscribeProperty(any(), anyInt(), anyFloat());
+        }).when(mVehicleHal).subscribeProperty(any(), anyInt(), anyFloat(), any(int[].class));
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 
         AsyncPropertyServiceRequest request1 = copyRequest(SET_PROPERTY_SERVICE_REQUEST);
@@ -873,7 +941,8 @@ public class PropertyHalServiceTest {
         mPropertyHalService.setCarPropertyValuesAsync(List.of(request1, request2),
                 mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
-        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f),
+                eq(new int[] {0}));
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
 
@@ -940,7 +1009,8 @@ public class PropertyHalServiceTest {
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
                 mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
-        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f),
+                eq(new int[] {0}));
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
 
@@ -986,7 +1056,8 @@ public class PropertyHalServiceTest {
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
                 mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
-        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f),
+                eq(new int[] {0}));
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
 
@@ -1032,7 +1103,8 @@ public class PropertyHalServiceTest {
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
                 mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
-        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f),
+                eq(new int[] {0}));
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
 
@@ -1082,7 +1154,8 @@ public class PropertyHalServiceTest {
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
                 mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 100);
 
-        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f),
+                eq(new int[] {0}));
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
 
@@ -1125,7 +1198,8 @@ public class PropertyHalServiceTest {
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
                 mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
-        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f),
+                eq(new int[] {0}));
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
 
@@ -1166,7 +1240,8 @@ public class PropertyHalServiceTest {
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
                 mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
-        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f),
+                eq(new int[] {0}));
         deliverErrorSetResult(setInvocationWrap.get(0),
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
 
@@ -1202,7 +1277,8 @@ public class PropertyHalServiceTest {
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
                 mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 100);
 
-        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f),
+                eq(new int[] {0}));
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
 
@@ -1243,7 +1319,7 @@ public class PropertyHalServiceTest {
         doAnswer((invocation) -> {
             serviceWrap.add(invocation.getArgument(0));
             return null;
-        }).when(mVehicleHal).subscribeProperty(any(), anyInt(), anyFloat());
+        }).when(mVehicleHal).subscribeProperty(any(), anyInt(), anyFloat(), any(int[].class));
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 
         AsyncPropertyServiceRequest request2 = copyRequest(SET_PROPERTY_SERVICE_REQUEST_2);
@@ -1262,7 +1338,8 @@ public class PropertyHalServiceTest {
         // Returns the set value result.
         deliverOkaySetResult(setInvocationWrap.get(0));
 
-        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f),
+                eq(new int[] {0}));
 
         // Notify the property is updated to the target value.
         assertThat(serviceWrap).hasSize(2);
@@ -1302,7 +1379,8 @@ public class PropertyHalServiceTest {
         doAnswer((invocation) -> {
             serviceWrap.add(invocation.getArgument(0));
             return null;
-        }).when(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
+        }).when(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f),
+                any(int[].class));
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
@@ -1317,7 +1395,8 @@ public class PropertyHalServiceTest {
         // Returns the set value result.
         deliverOkaySetResult(setInvocationWrap.get(0));
 
-        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f),
+                eq(new int[] {0}));
 
         // Generate a property update event with non-target value.
         serviceWrap.get(0).onHalEvents(List.of(mNonTargetPropValue));
@@ -1362,25 +1441,29 @@ public class PropertyHalServiceTest {
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
 
-        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(20.0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(20.0f),
+                eq(new int[] {0}));
         clearInvocations(mVehicleHal);
 
         mPropertyHalService.subscribeProperty(PERF_VEHICLE_SPEED, /* updateRateHz= */ 40.0f);
 
         // Subscription rate has to be updated according to client subscription.
-        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(40.0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(40.0f),
+                eq(new int[] {0}));
         clearInvocations(mVehicleHal);
 
         // After client unsubscribe, revert back to the internal subscription rate.
         mPropertyHalService.unsubscribeProperty(PERF_VEHICLE_SPEED);
 
-        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(20.0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(20.0f),
+                eq(new int[] {0}));
         clearInvocations(mVehicleHal);
 
         // New client subscription must overwrite the internal rate.
         mPropertyHalService.subscribeProperty(PERF_VEHICLE_SPEED, /* updateRateHz= */ 50.0f);
 
-        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(50.0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(50.0f),
+                eq(new int[] {0}));
         clearInvocations(mVehicleHal);
 
         // Finish the async set request.
@@ -1392,7 +1475,236 @@ public class PropertyHalServiceTest {
                 STATUS_OK);
 
         // After the internal subscription is finished, the client subscription must be kept.
-        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(50.0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(50.0f),
+                eq(new int[] {0}));
+
+        mPropertyHalService.unsubscribeProperty(PERF_VEHICLE_SPEED);
+
+        // After both client and internal unsubscription, the property must be unsubscribed.
+        verify(mVehicleHal).unsubscribeProperty(any(), eq(PERF_VEHICLE_SPEED));
+
+        verifyNoPendingRequest();
+    }
+
+    @Test
+    public void testMultipleSetCarPropertyValuesAsync_updateSubscriptionRateWithDifferentAreaIds()
+            throws Exception {
+        when(mMockCarPropertyConfig2.getAreaIds()).thenReturn(new int[]{0, 1, 2});
+        List<InvocationOnMock> setInvocationWrap = new ArrayList<>();
+        List<InvocationOnMock> getInvocationWrap = new ArrayList<>();
+
+        doAnswer((invocation) -> {
+            setInvocationWrap.add(invocation);
+            return null;
+        }).when(mVehicleHal).setAsync(any(List.class), any(VehicleStubCallbackInterface.class));
+        doAnswer((invocation) -> {
+            getInvocationWrap.add(invocation);
+            return null;
+        }).when(mVehicleHal).getAsync(any(List.class), any(VehicleStubCallbackInterface.class));
+        doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
+
+        AsyncPropertyServiceRequest request1 = copyRequest(SET_VEHICLE_SPEED_AREA_ID_1_REQUEST);
+        request1.setUpdateRateHz(20.0f);
+        AsyncPropertyServiceRequest request2 = copyRequest(SET_VEHICLE_SPEED_AREA_ID_2_REQUEST);
+        request2.setUpdateRateHz(21.0f);
+        mPropertyHalService.setCarPropertyValuesAsync(List.of(request1, request2),
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
+
+        assertThat(setInvocationWrap).hasSize(1);
+        assertThat(getInvocationWrap).hasSize(1);
+
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(20.0f),
+                /* areaId= */ eq(new int[] {1}));
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(21.0f),
+                /* areaId= */ eq(new int[] {2}));
+        clearInvocations(mVehicleHal);
+
+        mPropertyHalService.subscribeProperty(PERF_VEHICLE_SPEED, /* updateRateHz= */ 40.0f,
+                new int[] {1});
+        mPropertyHalService.subscribeProperty(PERF_VEHICLE_SPEED, /* updateRateHz= */ 41.0f,
+                new int[] {2});
+
+        // This subscribes two times because updateSubscriptionRateForHalPropIdLocked subscribe
+        // to the property when subscribe to areaId of 2 is called
+        verify(mVehicleHal, times(2)).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(40.0f),
+                eq(new int[] {1}));
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(41.0f),
+                eq(new int[] {2}));
+        clearInvocations(mVehicleHal);
+
+        mPropertyHalService.unsubscribeProperty(PERF_VEHICLE_SPEED);
+
+        // After client unsubscribe, revert back to the internal subscription rate
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(20.0f),
+                /* areaId= */ eq(new int[] {1}));
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(21.0f),
+                /* areaId= */ eq(new int[] {2}));
+        clearInvocations(mVehicleHal);
+
+        mPropertyHalService.subscribeProperty(PERF_VEHICLE_SPEED, /* updateRateHz= */ 30.0f,
+                new int[] {1});
+        mPropertyHalService.subscribeProperty(PERF_VEHICLE_SPEED, /* updateRateHz= */ 31.0f,
+                new int[] {2});
+
+        // This subscribes two times because updateSubscriptionRateForHalPropIdLocked subscribe
+        // to the property when subscribe to areaId of 2 is called
+        verify(mVehicleHal, times(2)).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(30.0f),
+                eq(new int[] {1}));
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(31.0f),
+                eq(new int[] {2}));
+        clearInvocations(mVehicleHal);
+
+        deliverOkaySetResult(setInvocationWrap.get(0));
+        deliverOkayGetResult(getInvocationWrap.get(0), mPropValue2);
+
+        // After the internal subscription is finished, the client subscription must be kept.
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(30.0f),
+                eq(new int[] {1}));
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(31.0f),
+                eq(new int[] {2}));
+
+        verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
+        assertThat(mAsyncResultCaptor.getValue().getList().get(0).getErrorCode()).isEqualTo(
+                STATUS_OK);
+        assertThat(mAsyncResultCaptor.getValue().getList().get(1).getErrorCode()).isEqualTo(
+                STATUS_OK);
+
+        mPropertyHalService.unsubscribeProperty(PERF_VEHICLE_SPEED);
+
+        // After both client and internal unsubscription, the property must be unsubscribed.
+        verify(mVehicleHal).unsubscribeProperty(any(), eq(PERF_VEHICLE_SPEED));
+
+        verifyNoPendingRequest();
+    }
+
+    @Test
+    public void testMultipleSetCarPropertyValuesAsync_overlappingSetAsync()
+            throws Exception {
+        when(mMockCarPropertyConfig2.getAreaIds()).thenReturn(new int[]{0, 1, 2});
+        List<InvocationOnMock> setInvocationWrap = new ArrayList<>();
+        List<InvocationOnMock> getInvocationWrap = new ArrayList<>();
+
+        doAnswer((invocation) -> {
+            setInvocationWrap.add(invocation);
+            return null;
+        }).when(mVehicleHal).setAsync(any(List.class), any(VehicleStubCallbackInterface.class));
+        doAnswer((invocation) -> {
+            getInvocationWrap.add(invocation);
+            return null;
+        }).when(mVehicleHal).getAsync(any(List.class), any(VehicleStubCallbackInterface.class));
+        doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
+
+        AsyncPropertyServiceRequest request1 = copyRequest(SET_VEHICLE_SPEED_AREA_ID_1_REQUEST);
+        request1.setUpdateRateHz(20.0f);
+        AsyncPropertyServiceRequest request2 = copyRequest(SET_VEHICLE_SPEED_AREA_ID_2_REQUEST);
+        request2.setUpdateRateHz(21.0f);
+        mPropertyHalService.setCarPropertyValuesAsync(List.of(request1),
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
+        mPropertyHalService.setCarPropertyValuesAsync(List.of(request2),
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
+
+        assertThat(setInvocationWrap).hasSize(2);
+        assertThat(getInvocationWrap).hasSize(2);
+
+        // This subscribes two times because updateSubscriptionRateForHalPropIdLocked subscribe
+        // to the property when SET_PROPERTY_SERVICE_REQUEST_5 gets called
+        verify(mVehicleHal, times(2)).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(20.0f),
+                /* areaId= */ eq(new int[] {1}));
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(21.0f),
+                /* areaId= */ eq(new int[] {2}));
+        clearInvocations(mVehicleHal);
+
+        mPropertyHalService.subscribeProperty(PERF_VEHICLE_SPEED, /* updateRateHz= */ 40.0f,
+                new int[] {1});
+        mPropertyHalService.subscribeProperty(PERF_VEHICLE_SPEED, /* updateRateHz= */ 41.0f,
+                new int[] {2});
+        clearInvocations(mVehicleHal);
+
+        deliverOkaySetResult(setInvocationWrap.get(0));
+        deliverOkayGetResult(getInvocationWrap.get(0), mPropValue2);
+
+        // Subscription rate has to be updated according to client subscription.
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(40.0f),
+                eq(new int[] {1}));
+        clearInvocations(mVehicleHal);
+
+        mPropertyHalService.unsubscribeProperty(PERF_VEHICLE_SPEED);
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(21.0f),
+                /* areaId= */ eq(new int[] {2}));
+        clearInvocations(mVehicleHal);
+
+        deliverOkaySetResult(setInvocationWrap.get(1));
+        deliverOkayGetResult(getInvocationWrap.get(1), mPropValue2);
+
+        // Subscription rate has to be updated according to client subscription.
+        verify(mVehicleHal).unsubscribeProperty(any(), eq(PERF_VEHICLE_SPEED));
+
+        verifyNoPendingRequest();
+    }
+
+    @Test
+    public void testSetCarPropertyValuesAsync_withSubscriptionFromDifferentAreaIds()
+            throws Exception {
+        when(mMockCarPropertyConfig2.getAreaIds()).thenReturn(new int[]{0, 1});
+        List<InvocationOnMock> setInvocationWrap = new ArrayList<>();
+        List<InvocationOnMock> getInvocationWrap = new ArrayList<>();
+
+        doAnswer((invocation) -> {
+            setInvocationWrap.add(invocation);
+            return null;
+        }).when(mVehicleHal).setAsync(any(List.class), any(VehicleStubCallbackInterface.class));
+        doAnswer((invocation) -> {
+            getInvocationWrap.add(invocation);
+            return null;
+        }).when(mVehicleHal).getAsync(any(List.class), any(VehicleStubCallbackInterface.class));
+        doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
+
+        AsyncPropertyServiceRequest request = copyRequest(SET_VEHICLE_SPEED_AREA_ID_1_REQUEST);
+        request.setUpdateRateHz(20.0f);
+        mPropertyHalService.setCarPropertyValuesAsync(List.of(request),
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
+
+        assertThat(setInvocationWrap).hasSize(1);
+        assertThat(getInvocationWrap).hasSize(1);
+
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(20.0f),
+                /* areaId= */ eq(new int[] {1}));
+        clearInvocations(mVehicleHal);
+
+        mPropertyHalService.subscribeProperty(PERF_VEHICLE_SPEED, /* updateRateHz= */ 40.0f);
+
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(40.0f),
+                eq(new int[] {0, 1}));
+        clearInvocations(mVehicleHal);
+
+        // After client unsubscribe, revert back to the internal subscription rate.
+        mPropertyHalService.unsubscribeProperty(PERF_VEHICLE_SPEED);
+
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(20.0f),
+                /* areaId= */ eq(new int[] {1}));
+        verify(mVehicleHal, never()).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), anyInt(),
+                /* areaId= */ eq(new int[] {0}));
+        clearInvocations(mVehicleHal);
+
+        // New client subscription must overwrite the internal rate.
+        mPropertyHalService.subscribeProperty(PERF_VEHICLE_SPEED, /* updateRateHz= */ 50.0f,
+                /* areaId= */ new int[] {1});
+
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(50.0f),
+                /* areaId= */ eq(new int[] {1}));
+        clearInvocations(mVehicleHal);
+
+        // Finish the async set request.
+        deliverOkaySetResult(setInvocationWrap.get(0));
+        deliverOkayGetResult(getInvocationWrap.get(0), mPropValue2);
+
+        verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
+        assertThat(mAsyncResultCaptor.getValue().getList().get(0).getErrorCode()).isEqualTo(
+                STATUS_OK);
+
+        // After the internal subscription is finished, the client subscription must be kept.
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(50.0f),
+                /* areaId= */ eq(new int[] {1}));
 
         mPropertyHalService.unsubscribeProperty(PERF_VEHICLE_SPEED);
 
@@ -1425,7 +1737,42 @@ public class PropertyHalServiceTest {
         assertThat(getInvocationWrap).hasSize(1);
 
         // Default sample rate is set to max sample rate.
-        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(100.0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(100.0f),
+                eq(new int[] {0}));
+
+        // Finish the async set request.
+        deliverOkaySetResult(setInvocationWrap.get(0));
+        deliverOkayGetResult(getInvocationWrap.get(0), mPropValue2);
+    }
+
+    @Test
+    public void testSetCarPropertyValuesAsync_defaultSubscriptionRateDifferentAreaIds() {
+        when(mMockCarPropertyConfig2.getAreaIds()).thenReturn(new int[]{0, 1});
+        List<InvocationOnMock> setInvocationWrap = new ArrayList<>();
+        List<InvocationOnMock> getInvocationWrap = new ArrayList<>();
+
+        doAnswer((invocation) -> {
+            setInvocationWrap.add(invocation);
+            return null;
+        }).when(mVehicleHal).setAsync(any(List.class), any(VehicleStubCallbackInterface.class));
+        doAnswer((invocation) -> {
+            getInvocationWrap.add(invocation);
+            return null;
+        }).when(mVehicleHal).getAsync(any(List.class), any(VehicleStubCallbackInterface.class));
+        doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
+
+        mPropertyHalService.setCarPropertyValuesAsync(
+                List.of(SET_VEHICLE_SPEED_AREA_ID_1_REQUEST, SET_PROPERTY_SERVICE_REQUEST),
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 10);
+
+        assertThat(setInvocationWrap).hasSize(1);
+        assertThat(getInvocationWrap).hasSize(1);
+
+        // Default sample rate is set to max sample rate.
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(100.0f),
+                /* areaId= */ eq(new int[] {1}));
+        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f),
+                /* areaId= */ eq(new int[] {0}));
 
         // Finish the async set request.
         deliverOkaySetResult(setInvocationWrap.get(0));
@@ -1450,7 +1797,8 @@ public class PropertyHalServiceTest {
 
         mPropertyHalService.subscribeProperty(PERF_VEHICLE_SPEED, /* updateRateHz= */ 22.0f);
 
-        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(22.0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(22.0f),
+                eq(new int[] {0}));
         clearInvocations(mVehicleHal);
 
         AsyncPropertyServiceRequest request1 = copyRequest(SET_PROPERTY_SERVICE_REQUEST_2);
@@ -1462,7 +1810,8 @@ public class PropertyHalServiceTest {
 
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
-        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(23.2f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(23.2f),
+                eq(new int[] {0}));
 
         // Finish the async set request.
         deliverOkaySetResult(setInvocationWrap.get(0));
@@ -1477,7 +1826,8 @@ public class PropertyHalServiceTest {
                 STATUS_OK);
 
         // After internal subscription complete, the client subscription rate must be kept.
-        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(22.0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(22.0f),
+                eq(new int[] {0}));
 
         verifyNoPendingRequest();
     }
@@ -1501,7 +1851,8 @@ public class PropertyHalServiceTest {
         doAnswer((invocation) -> {
             serviceWrap.add(invocation.getArgument(0));
             return null;
-        }).when(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
+        }).when(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f),
+                any(int[].class));
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
@@ -1513,7 +1864,8 @@ public class PropertyHalServiceTest {
         // Returns the set value result.
         deliverOkaySetResult(setInvocationWrap.get(0));
 
-        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f),
+                eq(new int[] {0}));
 
         // Cancel the ongoing request.
         mPropertyHalService.cancelRequests(new int[]{REQUEST_ID_1});
@@ -1546,7 +1898,8 @@ public class PropertyHalServiceTest {
         doAnswer((invocation) -> {
             serviceWrap.add(invocation.getArgument(0));
             return null;
-        }).when(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
+        }).when(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f),
+                any(int[].class));
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
@@ -1558,7 +1911,8 @@ public class PropertyHalServiceTest {
         // Returns the set value result.
         deliverOkaySetResult(setInvocationWrap.get(0));
 
-        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
+        verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f),
+                eq(new int[] {0}));
 
         List<AsyncGetSetRequest> setAsyncRequests = setInvocationWrap.get(0).getArgument(0);
         VehicleStubCallbackInterface callback = setInvocationWrap.get(0).getArgument(1);
@@ -1581,6 +1935,7 @@ public class PropertyHalServiceTest {
     // fail the pending request.
     @Test
     public void testSetCarPropertyValuesAsync_onPropertySetError() throws RemoteException {
+        when(mMockCarPropertyConfig1.getAreaIds()).thenReturn(new int[]{1});
         List<HalServiceBase> serviceWrap = new ArrayList<>();
         AsyncPropertyServiceRequest setPropertyRequest =
                 new AsyncPropertyServiceRequest(1, HVAC_TEMPERATURE_SET, /* areaId= */ 1);
@@ -1592,7 +1947,8 @@ public class PropertyHalServiceTest {
         doAnswer((invocation) -> {
             serviceWrap.add(invocation.getArgument(0));
             return null;
-        }).when(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
+        }).when(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f),
+                /* areaId= */ eq(new int[] {1}));
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 
         mPropertyHalService.setCarPropertyValuesAsync(List.of(setPropertyRequest),

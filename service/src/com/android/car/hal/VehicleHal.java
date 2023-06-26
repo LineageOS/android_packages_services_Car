@@ -44,6 +44,7 @@ import android.os.SystemClock;
 import android.os.Trace;
 import android.util.ArrayMap;
 import android.util.ArraySet;
+import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 
@@ -77,7 +78,7 @@ import java.util.stream.Collectors;
  */
 public class VehicleHal implements VehicleHalCallback, CarSystemService {
 
-    private static final boolean DBG = false;
+    private static final boolean DBG = Slogf.isLoggable(CarLog.TAG_HAL, Log.DEBUG);;
     private static final long TRACE_TAG = TraceHelper.TRACE_TAG_CAR_SERVICE;
 
     /**
@@ -535,16 +536,23 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             SubscribeOptions opts = new SubscribeOptions();
             opts.propId = property;
             opts.sampleRate = samplingRateHz;
-            int[] filteredAreaIds = checkAlreadySubscribed(property, areaIds, samplingRateHz);
+            int[] filteredAreaIds = filterAlreadySubscribedAreasForSampleRate(property, areaIds,
+                    samplingRateHz);
             opts.areaIds = filteredAreaIds;
             if (opts.areaIds.length == 0) {
-                Slogf.w(CarLog.TAG_HAL, "property: " + VehiclePropertyIds.toString(property)
-                        + " is already subscribed at rate: " + samplingRateHz + " hz");
+                if (DBG) {
+                    Slogf.d(CarLog.TAG_HAL, "property: " + VehiclePropertyIds.toString(property)
+                            + " is already subscribed at rate: " + samplingRateHz + " hz");
+                }
                 return;
             }
             synchronized (mLock) {
                 assertServiceOwnerLocked(service, property);
                 for (int i = 0; i < filteredAreaIds.length; i++) {
+                    Slogf.i(CarLog.TAG_HAL, "Update subscription rate for propertyId:"
+                            + " %s, areaId: %d, SampleRateHz: %f",
+                            VehiclePropertyIds.toString(opts.propId), filteredAreaIds[i],
+                            samplingRateHz);
                     mUpdateRateByPropIdAreadId.put(Pair.create(property,
                                     filteredAreaIds[i]), samplingRateHz);
                 }
@@ -560,7 +568,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         }
     }
 
-    private int[] checkAlreadySubscribed(int property, int[] areaIds, float sampleRateHz) {
+    private int[] filterAlreadySubscribedAreasForSampleRate(int property, int[] areaIds,
+            float sampleRateHz) {
         List<Integer> areaIdList = new ArrayList<>();
         synchronized (mLock) {
             for (int i = 0; i < areaIds.length; i++) {
@@ -613,8 +622,19 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             synchronized (mLock) {
                 assertServiceOwnerLocked(service, property);
                 int[] areaIds = getAllAreaIdsFromPropertyId(config);
+                boolean isSubscribed = false;
                 for (int i = 0; i < areaIds.length; i++) {
-                    mUpdateRateByPropIdAreadId.remove(Pair.create(property, areaIds[i]));
+                    if (mUpdateRateByPropIdAreadId.remove(Pair.create(property, areaIds[i]))
+                            != null) {
+                        isSubscribed = true;
+                    }
+                }
+                if (!isSubscribed) {
+                    if (DBG) {
+                        Slogf.d(CarLog.TAG_HAL, "Property " + toCarPropertyLog(property)
+                                + " was not subscribed, do nothing");
+                    }
+                    return;
                 }
             }
             try {
