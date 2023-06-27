@@ -63,7 +63,6 @@ import android.view.Display;
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarUxRestrictionsManagerService;
-import com.android.car.systeminterface.SystemInterface;
 
 import org.junit.After;
 import org.junit.Before;
@@ -87,6 +86,9 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     private static final int IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES = 500 * 1024 * 1024;
     private static final long STATS_DURATION_SECONDS = 3 * 60 * 60;
     private static final int OVERUSE_HANDLING_DELAY_MILLS = 1000;
+    private static final String WATCHDOG_DIR_NAME = "watchdog";
+    private static final String CANONICAL_NAME =
+            WatchdogPerfHandlerUnitTest.class.getCanonicalName();
     @Mock
     private Context mMockContext;
     @Mock
@@ -99,8 +101,6 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     private CarUxRestrictionsManagerService mMockCarUxRestrictionsManagerService;
     @Mock
     private Resources mMockResources;
-    @Mock
-    private SystemInterface mMockSystemInterface;
     @Mock
     private PackageManager mMockPackageManager;
     @Mock
@@ -135,8 +135,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
         when(mMockContext.getResources()).thenReturn(mMockResources);
         when(mMockContext.getSystemService(StatsManager.class)).thenReturn(mMockStatsManager);
-        when(mMockContext.getPackageName()).thenReturn(
-                CarWatchdogServiceUnitTest.class.getCanonicalName());
+        when(mMockContext.getPackageName()).thenReturn(CANONICAL_NAME);
         when(mMockResources.getInteger(
                 com.android.car.R.integer.recurringResourceOverusePeriodInDays))
                 .thenReturn(RECURRING_OVERUSE_PERIOD_IN_DAYS);
@@ -158,7 +157,8 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                 args -> mGenericPackageNameByUid);
 
         mTempSystemCarDir = Files.createTempDirectory("watchdog_test").toFile();
-        when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempSystemCarDir);
+        doReturn(new File(mTempSystemCarDir.getAbsolutePath(), WATCHDOG_DIR_NAME)).when(
+                CarWatchdogService::getWatchdogDirFile);
 
         File tempDbFile = new File(mTempSystemCarDir.getPath(), DATABASE_NAME);
         when(mMockContext.createDeviceProtectedStorageContext()).thenReturn(mMockContext);
@@ -208,7 +208,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
     @Test
     public void testResourceOveruseListener() throws Exception {
-        mGenericPackageNameByUid.put(Binder.getCallingUid(), mMockContext.getPackageName());
+        mGenericPackageNameByUid.put(Binder.getCallingUid(), CANONICAL_NAME);
 
         IResourceOveruseListener mockListener = createMockResourceOveruseListener();
         IBinder mockBinder = mockListener.asBinder();
@@ -221,7 +221,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         injectIoOveruseStatsForPackages(
                 mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
                 /* shouldNotifyPackages= */ new ArraySet<>(
-                        Collections.singleton(mMockContext.getPackageName())));
+                        Collections.singleton(CANONICAL_NAME)));
 
         verify(mockListener).onOveruse(any());
 
@@ -233,14 +233,14 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         injectIoOveruseStatsForPackages(
                 mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
                 /* shouldNotifyPackages= */ new ArraySet<>(
-                        Collections.singletonList(mMockContext.getPackageName())));
+                        Collections.singletonList(CANONICAL_NAME)));
 
         verifyNoMoreInteractions(mockListener);
     }
 
     @Test
     public void testDuplicateAddResourceOveruseListener() throws Exception {
-        mGenericPackageNameByUid.put(Binder.getCallingUid(), mMockContext.getPackageName());
+        mGenericPackageNameByUid.put(Binder.getCallingUid(), CANONICAL_NAME);
 
         IResourceOveruseListener mockListener = createMockResourceOveruseListener();
         IBinder mockBinder = mockListener.asBinder();
@@ -264,7 +264,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
     @Test
     public void testAddMultipleResourceOveruseListeners() throws Exception {
-        mGenericPackageNameByUid.put(Binder.getCallingUid(), mMockContext.getPackageName());
+        mGenericPackageNameByUid.put(Binder.getCallingUid(), CANONICAL_NAME);
 
         IResourceOveruseListener firstMockListener = createMockResourceOveruseListener();
         IBinder firstMockBinder = firstMockListener.asBinder();
@@ -282,7 +282,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         injectIoOveruseStatsForPackages(
                 mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
                 /* shouldNotifyPackages= */ new ArraySet<>(
-                        Collections.singleton(mMockContext.getPackageName())));
+                        Collections.singleton(CANONICAL_NAME)));
 
         verify(firstMockListener).onOveruse(any());
 
@@ -294,7 +294,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         injectIoOveruseStatsForPackages(
                 mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
                 /* shouldNotifyPackages= */ new ArraySet<>(
-                        Collections.singletonList(mMockContext.getPackageName())));
+                        Collections.singletonList(CANONICAL_NAME)));
 
         verify(secondMockListener, times(2)).onOveruse(any());
 
@@ -306,7 +306,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         injectIoOveruseStatsForPackages(
                 mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
                 /* shouldNotifyPackages= */ new ArraySet<>(
-                        Collections.singletonList(mMockContext.getPackageName())));
+                        Collections.singletonList(CANONICAL_NAME)));
 
         verifyNoMoreInteractions(firstMockListener);
         verifyNoMoreInteractions(secondMockListener);
