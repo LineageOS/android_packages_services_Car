@@ -16,4 +16,5 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_title">Car launcher reference</string>
+    <string name="background_panel_failure_recovery_text">Please launch a navigation app</string>
 </resources>
