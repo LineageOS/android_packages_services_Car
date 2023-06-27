@@ -607,8 +607,8 @@ public final class CarActivityService extends ICarActivityService.Stub
     /**
      * Attempts to restart a task.
      *
-     * <p>Restarts a task by sending an empty intent with flag
-     * {@link Intent#FLAG_ACTIVITY_CLEAR_TASK} to its root activity. If the task does not exist, do
+     * <p>Restarts a task by removing the task and sending an empty intent with flag
+     * {@link Intent#FLAG_ACTIVITY_NEW_TASK} to its root activity. If the task does not exist, do
      * nothing.
      *
      * @param taskId id of task to be restarted.
@@ -624,10 +624,14 @@ public final class CarActivityService extends ICarActivityService.Stub
         }
 
         Intent intent = (Intent) task.baseIntent.clone();
-        // Clear the task the root activity is running in and start it in a new task.
-        // Effectively restart root activity.
-        intent.addFlags(
-                Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        // Remove the task the root activity is running in and start it in a new task.
+        // This effectively leads to restarting of the root activity and removal all the other
+        // activities in the task.
+        // FLAG_ACTIVITY_CLEAR_TASK was being used earlier, but it has the side effect where the
+        // last activity in the existing task is visible for a moment until the root activity is
+        // started again.
+        ActivityManagerHelper.removeTask(taskId);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         int userId = TaskInfoHelper.getUserId(task);
         if (Slogf.isLoggable(CarLog.TAG_AM, Log.INFO)) {
