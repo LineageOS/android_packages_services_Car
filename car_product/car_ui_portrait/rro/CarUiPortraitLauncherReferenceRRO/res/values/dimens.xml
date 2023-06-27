@@ -73,8 +73,8 @@
     <dimen name="seekbar_padding">0dp</dimen>
     <dimen name="seekbar_marginHorizontal">@dimen/control_bar_image_container_margin</dimen>
     <dimen name="seekbar_marginVertical">8dp</dimen>
-    <dimen name="seekbar_margin_end">44dp</dimen>
-    <dimen name="seekbar_times_width">180dp</dimen>
+    <dimen name="seekbar_margin_end">24dp</dimen>
+    <dimen name="seekbar_times_width">140dp</dimen>
     <dimen name="seekbar_with_times_height">28dp</dimen>
     <dimen name="seekbar_with_times_margin_bottom">6dp</dimen>
     <dimen name="seekbar_with_times_margin_top">30dp</dimen>
