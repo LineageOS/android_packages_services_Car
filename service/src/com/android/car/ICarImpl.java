@@ -58,6 +58,7 @@ import android.os.RemoteException;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.util.Log;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.admin.CarDevicePolicyService;
@@ -176,7 +177,7 @@ public class ICarImpl extends ICar.Stub {
 
     private final CarSystemService[] mAllServices;
 
-    private static final boolean DBG = true; // TODO(b/154033860): STOPSHIP if true
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private final Object mLock = new Object();
 
