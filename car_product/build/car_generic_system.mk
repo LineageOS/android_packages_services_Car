@@ -78,15 +78,6 @@ PRODUCT_COPY_FILES += \
     packages/services/Car/cpp/evs/manager/aidl/init.evs.rc:$(TARGET_COPY_OUT_SYSTEM)/etc/init/init.evs.rc
 endif
 
-ifeq ($(ENABLE_EVS_SAMPLE), true)
-# ENABLE_EVS_SAMPLE should set be true or their vendor specific equivalents should be included in
-# the device.mk with the corresponding selinux policies
-PRODUCT_PACKAGES += evs_app \
-                    android.hardware.automotive.evs-default \
-                    cardisplayproxyd
-include packages/services/Car/cpp/evs/apps/sepolicy/evsapp.mk
-endif  # ENABLE_EVS_SAMPLE
-
 ifeq ($(ENABLE_CAREVSSERVICE_SAMPLE), true)
 PRODUCT_PACKAGES += CarEvsCameraPreviewApp
 endif
@@ -103,16 +94,16 @@ ifeq ($(ENABLE_CARTELEMETRY_SERVICE), true)
 PRODUCT_PACKAGES += android.automotive.telemetryd@1.0
 endif
 
-ifeq ($(ENABLE_EVS_SAMPLE), true)
-# ENABLE_EVS_SAMPLE should set be true or their vendor specific equivalents should be included in
+# ENABLE_EVS_SAMPLE should be set true or their vendor specific equivalents should be included in
 # the device.mk with the corresponding selinux policies
+ifeq ($(ENABLE_EVS_SAMPLE), true)
 PRODUCT_PACKAGES += evs_app
-include packages/services/Car/cpp/evs/apps/sepolicy/evsapp.mk
-
 # A reference EVS HAL implementation will be added in car_vendor.mk and require AIDL version of
 # the automotive display service implementation.
 USE_AIDL_DISPLAY_SERVICE := true
-endif  # ENABLE_EVS_SAMPLE
+else ifeq ($(ENABLE_SAMPLE_EVS_APP), true)
+PRODUCT_PACKAGES += evs_app
+endif
 
 ifeq ($(USE_AIDL_DISPLAY_SERVICE), true)
 PRODUCT_PACKAGES += cardisplayproxyd
