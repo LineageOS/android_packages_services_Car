@@ -25,12 +25,14 @@
 
     <application
         android:supportsRtl="true">
-        <uses-library android:name="com.android.car.ui.sharedlibrary" android:required="true" />
+        <library android:name="com.chassis.car.ui.plugin" />
+        <!-- TODO(b/288620970): remove once all apps are migrated to use shared library directly-->
         <provider
             android:name="com.android.car.ui.plugin.PluginNameProvider"
             android:authorities="com.android.car.ui.plugin"
+            android:directBootAware="true"
             android:enabled="false"
-            android:exported="false"
+            android:exported="true"
             tools:ignore="MissingClass"/>
     </application>
 </manifest>

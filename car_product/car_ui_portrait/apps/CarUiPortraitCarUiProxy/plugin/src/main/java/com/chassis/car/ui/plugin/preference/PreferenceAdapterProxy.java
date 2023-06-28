@@ -30,6 +30,7 @@ import static com.android.car.ui.preference.CarUiPreferenceViewStub.TWO_ACTION_T
 import static com.android.car.ui.preference.CarUiPreferenceViewStub.TWO_ACTION_TEXT_BORDERLESS;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,8 +38,8 @@ import android.view.View;
 import com.android.car.ui.plugin.oemapis.preference.PreferenceOEMV1;
 import com.android.car.ui.plugin.oemapis.preference.PreferenceViewAttributesOEMV1;
 import com.android.car.ui.preference.CarUiPreferenceViewStub.PreferenceType;
-import com.android.car.ui.sharedlibrary.R;
 
+import com.chassis.car.ui.plugin.R;
 
 /**
  * Adapter to load preference from plugin.
@@ -150,7 +151,7 @@ public class PreferenceAdapterProxy implements PreferenceOEMV1 {
     private int getSharedLibViewId(String resName) {
         Resources res = mPluginContext.getResources();
         return res.getIdentifier(resName, "id",
-                "com.android.car.ui.sharedlibrary");
+                ((ContextWrapper) mPluginContext).getBaseContext().getPackageName());
     }
 
     private int getAppViewId(String resName) {

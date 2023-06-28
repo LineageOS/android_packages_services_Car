@@ -39,6 +39,7 @@
             android:layout_height="@dimen/control_bar_image_size"
             android:background="@drawable/control_bar_image_background"
             android:layout_marginTop="@dimen/control_bar_image_container_margin"
+            android:layout_marginStart="@dimen/control_bar_image_container_margin"
             android:layout_alignParentStart="true"
             android:layout_alignBottom="@id/content_container">
             <com.android.car.apps.common.CrossfadeImageView

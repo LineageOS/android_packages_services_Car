@@ -72,13 +72,13 @@ PORTRAIT_RRO_PACKAGES := com.android.car.calendar.googlecaruiportrait.rro; \
     com.android.car.themeplayground.googlecaruiportrait.rro; \
     com.android.car.ui.paintbooth.googlecaruiportrait.rro; \
     com.android.car.ui.paintbooth.googlecaruiportrait.rro; \
-    com.android.car.ui.sharedlibrary.googlecaruiportrait.rro; \
     com.android.car.voicecontrol.googlecaruiportrait.rro; \
     com.android.htmlviewer.googlecaruiportrait.rro; \
     com.android.managedprovisioning.googlecaruiportrait.rro; \
     com.android.permissioncontroller.googlecaruiportrait.rro; \
     com.android.settings.intelligence.googlecaruiportrait.rro; \
     com.android.vending.googlecaruiportrait.rro; \
+    com.chassis.car.ui.plugin.googlecaruiportrait.rro; \
     com.google.android.apps.automotive.inputmethod.dev.googlecaruiportrait.rro; \
     com.google.android.apps.automotive.inputmethod.googlecaruiportrait.rro; \
     com.google.android.apps.automotive.templates.host.googlecaruiportrait.rro; \

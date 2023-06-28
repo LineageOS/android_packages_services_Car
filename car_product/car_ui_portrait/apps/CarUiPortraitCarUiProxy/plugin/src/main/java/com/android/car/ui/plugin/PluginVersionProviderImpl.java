@@ -38,7 +38,6 @@ import java.util.List;
  */
 public class PluginVersionProviderImpl implements PluginVersionProviderOEMV1 {
     public static final String TAG = "PluginVersionProvider";
-    public static final String SHARED_LIBRARY_PACKAGE = "com.android.car.ui.sharedlibrary";
 
     private static final List<String> DENIED_PACKAGES = new ArrayList<>(List.of(
             // TODO(b/260267959) remove.
@@ -59,9 +58,9 @@ public class PluginVersionProviderImpl implements PluginVersionProviderOEMV1 {
             if (id == 0x01 || id == 0x7f) {
                 continue;
             }
-            if (SHARED_LIBRARY_PACKAGE.equals(r.valueAt(i))) {
+            if (context.getPackageName().equals(r.valueAt(i))) {
                 Log.d(TAG, "PluginVersionProviderImpl : getPluginFactory: rewriting R prefix"
-                        + " values for " + SHARED_LIBRARY_PACKAGE + " to: "
+                        + " values for " + context.getPackageName() + " to: "
                         + Integer.toHexString(id));
                 rewriteRValues(context.getClassLoader(), r.valueAt(i), id);
             }

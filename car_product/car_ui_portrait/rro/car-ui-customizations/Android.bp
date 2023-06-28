@@ -194,9 +194,9 @@ override_runtime_resource_overlay {
 }
 
 override_runtime_resource_overlay {
-    name: "generated_caruiportrait_customization-com-google-car-ui-lib-sharedlibrary",
+    name: "generated_caruiportrait_customization-com-chassis-car-ui-plugin",
     base: "GoogleCarUiPortraitBase",
-    package_name: "com.android.car.ui.sharedlibrary.googlecaruiportrait.rro",
-    target_package_name: "com.android.car.ui.sharedlibrary",
-    category: "caruiportrait.caruisharedlib",
+    package_name: "com.chassis.car.ui.plugin.googlecaruiportrait.rro",
+    target_package_name: "com.chassis.car.ui.plugin",
+    category: "caruiportrait.caruiplugin",
 }

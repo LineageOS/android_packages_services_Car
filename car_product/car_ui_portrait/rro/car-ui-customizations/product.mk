@@ -38,7 +38,7 @@ PRODUCT_PACKAGES += \
     generated_caruiportrait_customization-com-android-htmlviewer \
     generated_caruiportrait_customization-com-android-permissioncontroller \
     generated_caruiportrait_customization-com-google-android-car-portraitlauncher \
-    generated_caruiportrait_customization-com-google-car-ui-lib-sharedlibrary \
+    generated_caruiportrait_customization-com-chassis-car-ui-plugin \
 
 # This system property is used to enable the RROs on startup via
 # the requiredSystemPropertyName/Value attributes in the manifest
