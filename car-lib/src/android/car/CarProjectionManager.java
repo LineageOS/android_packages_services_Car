@@ -288,7 +288,7 @@ public final class CarProjectionManager extends CarManagerBase {
      * Register listener to monitor projection. Only one listener can be registered and
      * registering multiple times will lead into only the last listener to be active.
      *
-     * @param listener
+     * @param listener the listener to get projected notifications
      * @param voiceSearchFilter Flags of voice search requests to get notification.
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)

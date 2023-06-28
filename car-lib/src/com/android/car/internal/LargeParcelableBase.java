@@ -34,7 +34,7 @@ import java.io.Closeable;
 import java.nio.ByteBuffer;
 
 /**
- * Base class to allow passing (@code Parcelable} over binder directly or through shared memory if
+ * Base class to allow passing {@code Parcelable} over binder directly or through shared memory if
  * payload size is too big.
  *
  * <p>Child class should inherit this to use this or use {@link LargeParcelable} class.
