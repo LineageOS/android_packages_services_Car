@@ -17,48 +17,26 @@ package {
 }
 
 android_app {
-    name: "car-ui-lib-portrait-sharedlibrary",
-    manifest: "sharedlibrary/src/main/AndroidManifest.xml",
-    aaptflags: ["--shared-lib"],
-    sdk_version: "current",
-    optimize: {
-        enabled: false,
-    },
-    // car-ui-lib-oem-apis is added such that at runtime those classes will be available
-    // to the car-ui-lib code which only compiles against them
-    static_libs: [
-        "car-ui-lib",
-        "car-ui-lib-oem-apis",
-    ],
-    export_package_resources: true,
-    overrides: [
-        "car-ui-lib-sharedlibrary-vendor",
-    ]
-}
-
-android_app {
     name: "car-ui-lib-portrait-proxyplugin",
-    certificate: "platform",
 
     min_sdk_version: "34",
+    aaptflags: ["--shared-lib"],
     sdk_version: "current",
 
     manifest: "plugin/src/main/AndroidManifest.xml",
     srcs: ["plugin/src/main/java/**/*.java"],
     libs: [
-        "car-ui-lib-portrait-sharedlibrary",
         "android.car-stubs",
     ],
-    static_libs: [
-        "car-ui-lib-oem-apis",
-        "androidx.annotation_annotation",
-    ],
-
     optimize: {
         enabled: false,
     },
-    enforce_uses_libs: false,
-        overrides: [
-            "car-ui-lib-proxyplugin",
-        ]
+    static_libs: [
+        "androidx.annotation_annotation",
+        "car-ui-lib",
+        "car-ui-lib-oem-apis",
+    ],
+    overrides: [
+        "car-ui-lib-proxyplugin",
+    ]
 }
