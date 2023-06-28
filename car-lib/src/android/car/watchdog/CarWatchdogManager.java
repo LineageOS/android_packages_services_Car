@@ -827,6 +827,7 @@ public final class CarWatchdogManager extends CarManagerBase {
         }
     }
 
+    @GuardedBy("mLock")
     private boolean checkConditionLocked() {
         if (mRemainingConditions < 0) {
             Log.wtf(TAG, "Remaining condition is less than zero: should not happen");
@@ -1049,12 +1050,14 @@ public final class CarWatchdogManager extends CarManagerBase {
         }
 
         public int resourceOveruseFlag() {
-            int flag = 0;
-            for (int i = 0; i < mNumListenersByResource.size(); ++i) {
-                flag |= mNumListenersByResource.valueAt(i) > 0 ? mNumListenersByResource.keyAt(i)
-                        : 0;
+            synchronized (mLock) {
+                int flag = 0;
+                for (int i = 0; i < mNumListenersByResource.size(); ++i) {
+                    flag |= mNumListenersByResource.valueAt(i) > 0 ? mNumListenersByResource.keyAt(
+                            i) : 0;
+                }
+                return flag;
             }
-            return flag;
         }
     }
 

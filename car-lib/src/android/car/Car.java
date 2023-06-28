@@ -2247,7 +2247,8 @@ public final class Car {
     @GuardedBy("mLock")
     private void handleCarDisconnectLocked() {
         if (mConnectionState == STATE_DISCONNECTED) {
-            // can happen when client calls disconnect with onServiceDisconnected already called.
+            // can happen when client calls disconnect with onServiceDisconnected already
+            // called.
             return;
         }
         mEventHandler.removeCallbacks(mConnectionRetryRunnable);
@@ -2756,7 +2757,9 @@ public final class Car {
                 // Experimental or non-existing
                 String className = null;
                 try {
-                    className = mService.getCarManagerClassForFeature(serviceName);
+                    synchronized (mLock) {
+                        className = mService.getCarManagerClassForFeature(serviceName);
+                    }
                 } catch (RemoteException e) {
                     handleRemoteExceptionFromCarService(e);
                     return null;
@@ -2813,9 +2816,10 @@ public final class Car {
         }
     }
 
+    @GuardedBy("mLock")
     private void tearDownCarManagersLocked() {
         // All disconnected handling should be only doing its internal cleanup.
-        for (CarManagerBase manager: mServiceMap.values()) {
+        for (CarManagerBase manager : mServiceMap.values()) {
             manager.onCarDisconnected();
         }
         mServiceMap.clear();

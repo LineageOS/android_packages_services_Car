@@ -363,12 +363,14 @@ public final class PowerComponentHandler {
 
         try (BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
-            for (int i = 0; i < mComponentsOffByPolicy.size(); i++) {
-                if (!mComponentsOffByPolicy.valueAt(i)) {
-                    continue;
+            synchronized (mLock) {
+                for (int i = 0; i < mComponentsOffByPolicy.size(); i++) {
+                    if (!mComponentsOffByPolicy.valueAt(i)) {
+                        continue;
+                    }
+                    writer.write(powerComponentToString(mComponentsOffByPolicy.keyAt(i)));
+                    writer.newLine();
                 }
-                writer.write(powerComponentToString(mComponentsOffByPolicy.keyAt(i)));
-                writer.newLine();
             }
             writer.flush();
             mOffComponentsByUserFile.finishWrite(fos);

@@ -987,8 +987,10 @@ public class ICarImpl extends ICar.Stub {
                 dumpService(service, writer);
             }
         }
-        if (mCarTestService != null) {
-            dumpService(mCarTestService, writer);
+        synchronized (mLock) {
+            if (mCarTestService != null) {
+                dumpService(mCarTestService, writer);
+            }
         }
     }
 

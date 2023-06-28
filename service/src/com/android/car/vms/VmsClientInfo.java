@@ -125,14 +125,13 @@ final class VmsClientInfo {
         }
     }
 
+    @GuardedBy("mLock")
     Collection<VmsLayersOffering> getAllOfferings() {
         List<VmsLayersOffering> result = new ArrayList<>(mOfferings.size());
-        synchronized (mLock) {
-            for (int i = 0; i < mOfferings.size(); i++) {
-                int providerId = mOfferings.keyAt(i);
-                Set<VmsLayerDependency> providerOfferings = mOfferings.valueAt(i);
-                result.add(new VmsLayersOffering(new ArraySet<>(providerOfferings), providerId));
-            }
+        for (int i = 0; i < mOfferings.size(); i++) {
+            int providerId = mOfferings.keyAt(i);
+            Set<VmsLayerDependency> providerOfferings = mOfferings.valueAt(i);
+            result.add(new VmsLayersOffering(new ArraySet<>(providerOfferings), providerId));
         }
         return result;
     }
