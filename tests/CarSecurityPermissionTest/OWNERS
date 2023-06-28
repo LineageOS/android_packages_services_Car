@@ -15,3 +15,6 @@ per-file src/com/android/car/power/* = ericjeong@google.com
 
 # Watchdog
 per-file src/com/android/car/watchdog/* = lakshmana@google.com
+
+# Property
+per-file src/com/android/car/CarProperty* = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
