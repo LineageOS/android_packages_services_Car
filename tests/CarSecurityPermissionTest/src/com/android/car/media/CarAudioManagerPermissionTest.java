@@ -19,7 +19,6 @@ package com.android.car.media;
 import static android.car.Car.AUDIO_SERVICE;
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS;
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME;
-import static android.car.Car.createCar;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 
@@ -27,36 +26,30 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import android.car.Car;
 import android.car.media.CarAudioManager;
-import android.content.Context;
-import android.os.Handler;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
+
+import com.android.car.AbstractCarManagerPermissionTest;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Objects;
-
 /**
  * This class contains security permission tests for the {@link CarAudioManager}'s system APIs.
  */
 @RunWith(AndroidJUnit4.class)
-public final class CarAudioManagerPermissionTest {
+public final class CarAudioManagerPermissionTest extends AbstractCarManagerPermissionTest {
     private static final int GROUP_ID = 0;
     private static final int UID = 10;
 
     private CarAudioManager mCarAudioManager;
-    private Context mContext;
 
     @Before
     public void setUp() {
-        mContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        Car car = Objects.requireNonNull(createCar(mContext, (Handler) null));
-        mCarAudioManager = (CarAudioManager) car.getCarManager(AUDIO_SERVICE);
+        super.connectCar();
+        mCarAudioManager = (CarAudioManager) mCar.getCarManager(AUDIO_SERVICE);
     }
 
     @Test

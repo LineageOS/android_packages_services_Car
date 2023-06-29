@@ -23,36 +23,30 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import android.car.Car;
 import android.car.os.CarPerformanceManager;
 import android.car.os.ThreadPolicyWithPriority;
-import android.content.Context;
-import android.os.Handler;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
+
+import com.android.car.AbstractCarManagerPermissionTest;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.Objects;
 
 /**
  * This class contains security permission tests for the
  * {@link android.car.os#CarPerformanceManager}'s system APIs.
  */
 @RunWith(AndroidJUnit4.class)
-public final class CarPerformanceManagerPermissionTest {
-    private final Context mContext =
-            InstrumentationRegistry.getInstrumentation().getTargetContext();
-
+public final class CarPerformanceManagerPermissionTest extends AbstractCarManagerPermissionTest {
     private CarPerformanceManager mCarPerformanceManager;
 
     @Before
     public void setUp() {
-        Car car = Objects.requireNonNull(Car.createCar(mContext, (Handler) null));
-        mCarPerformanceManager = (CarPerformanceManager) car.getCarManager(CAR_PERFORMANCE_SERVICE);
+        super.connectCar();
+        mCarPerformanceManager =
+                (CarPerformanceManager) mCar.getCarManager(CAR_PERFORMANCE_SERVICE);
     }
 
     @Test

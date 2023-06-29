@@ -26,9 +26,7 @@ import android.car.Car;
 import android.car.CarOccupantZoneManager;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,28 +37,21 @@ import java.util.List;
  * This class contains security permission tests for {@link CarOccupantZoneManager}.
  */
 @RunWith(AndroidJUnit4.class)
-public class CarOccupantZoneManagerPermissionTest {
+public class CarOccupantZoneManagerPermissionTest extends AbstractCarManagerPermissionTest {
 
     private static final int ANY_ZONE_ID = 0;
-
-    private Car mCar;
     private CarOccupantZoneManager mCarOccupantZoneManager;
     private OccupantZoneInfo mAnyOccupantZone;
 
     @Before
     public void setUp() throws Exception {
-        mCar = Car.createCar(InstrumentationRegistry.getInstrumentation().getTargetContext());
+        super.connectCar();
         mCarOccupantZoneManager = (CarOccupantZoneManager) mCar.getCarManager(
                 Car.CAR_OCCUPANT_ZONE_SERVICE);
 
         List<OccupantZoneInfo> occupantZones = mCarOccupantZoneManager.getAllOccupantZones();
         assertThat(occupantZones).isNotEmpty();
         mAnyOccupantZone = occupantZones.get(0);
-    }
-
-    @After
-    public void tearDown() {
-        mCar.disconnect();
     }
 
     @Test

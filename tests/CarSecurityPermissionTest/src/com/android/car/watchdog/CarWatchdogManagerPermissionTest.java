@@ -24,7 +24,6 @@ import static org.junit.Assert.fail;
 import android.app.UiAutomation;
 import android.car.Car;
 import android.car.watchdog.CarWatchdogManager;
-import android.content.Context;
 import android.os.Process;
 import android.os.SystemProperties;
 import android.os.UserHandle;
@@ -32,7 +31,8 @@ import android.os.UserHandle;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import org.junit.After;
+import com.android.car.AbstractCarManagerPermissionTest;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
@@ -48,24 +48,16 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link android.car.watchdog.CarWatchdogManager}'s system APIs.
  */
 @RunWith(AndroidJUnit4.class)
-public class CarWatchdogManagerPermissionTest {
-    private final Context mContext =
-            InstrumentationRegistry.getInstrumentation().getTargetContext();
+public class CarWatchdogManagerPermissionTest extends AbstractCarManagerPermissionTest  {
     private final UiAutomation mUiAutomation =
             InstrumentationRegistry.getInstrumentation().getUiAutomation();
 
-    private Car mCar;
     private CarWatchdogManager mCarWatchdogManager;
 
     @Before
     public void setUp() throws Exception {
-        mCar = Car.createCar(InstrumentationRegistry.getInstrumentation().getTargetContext());
+        super.connectCar();
         mCarWatchdogManager = (CarWatchdogManager) mCar.getCarManager(Car.CAR_WATCHDOG_SERVICE);
-    }
-
-    @After
-    public void tearDown() {
-        mCar.disconnect();
     }
 
     @Test

@@ -18,12 +18,9 @@ package com.android.car;
 import static org.junit.Assert.assertThrows;
 
 import android.car.Car;
-import android.os.Handler;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,18 +29,11 @@ import org.junit.runner.RunWith;
  * This class contains security permission tests for the {@link Car}'s system APIs.
  */
 @RunWith(AndroidJUnit4.class)
-public class CarPermisisonTest {
-    private Car mCar = null;
+public class CarPermissionTest extends AbstractCarManagerPermissionTest {
 
     @Before
-    public void setUp() throws Exception {
-        mCar = Car.createCar(
-                InstrumentationRegistry.getInstrumentation().getTargetContext(), (Handler) null);
-    }
-
-    @After
-    public void tearDown() {
-        mCar.disconnect();
+    public void setUp() {
+        super.connectCar();
     }
 
     @Test

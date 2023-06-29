@@ -21,7 +21,6 @@ import static android.Manifest.permission.INTERACT_ACROSS_USERS;
 import static android.Manifest.permission.INTERACT_ACROSS_USERS_FULL;
 import static android.Manifest.permission.MANAGE_USERS;
 import static android.car.Car.CAR_USER_SERVICE;
-import static android.car.Car.createCar;
 import static android.hardware.automotive.vehicle.UserIdentificationAssociationType.CUSTOM_1;
 
 import static com.android.compatibility.common.util.ShellIdentityUtils.invokeMethodWithShellPermissions;
@@ -31,8 +30,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import android.app.Instrumentation;
-import android.car.Car;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserHandleSwitchUiCallback;
 import android.car.user.CarUserManager.UserLifecycleListener;
@@ -40,36 +37,29 @@ import android.car.user.CarUserManager.UserSwitchUiCallback;
 import android.car.user.UserCreationRequest;
 import android.car.user.UserRemovalRequest;
 import android.car.user.UserSwitchRequest;
-import android.content.Context;
 import android.content.pm.UserInfo;
-import android.os.Handler;
 import android.os.UserHandle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
+
+import com.android.car.AbstractCarManagerPermissionTest;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Objects;
-
 /**
  * This class contains security permission tests for the {@link CarUserManager}'s system APIs.
  */
 @RunWith(AndroidJUnit4.class)
-public final class CarUserManagerPermissionTest {
+public final class CarUserManagerPermissionTest extends AbstractCarManagerPermissionTest {
 
     private CarUserManager mCarUserManager;
-    private Context mContext;
-    private Instrumentation mInstrumentation;
 
     @Before
     public void setUp() {
-        mInstrumentation = InstrumentationRegistry.getInstrumentation();
-        mContext = mInstrumentation.getTargetContext();
-        Car car = Objects.requireNonNull(createCar(mContext, (Handler) null));
-        mCarUserManager = (CarUserManager) car.getCarManager(CAR_USER_SERVICE);
+        super.connectCar();
+        mCarUserManager = (CarUserManager) mCar.getCarManager(CAR_USER_SERVICE);
     }
 
     @Test

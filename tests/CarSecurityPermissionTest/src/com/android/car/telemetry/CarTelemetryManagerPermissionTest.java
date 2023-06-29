@@ -22,17 +22,15 @@ import static org.junit.Assert.assertThrows;
 
 import android.car.Car;
 import android.car.telemetry.CarTelemetryManager;
-import android.content.Context;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 
-import org.junit.After;
+import com.android.car.AbstractCarManagerPermissionTest;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -40,26 +38,17 @@ import java.util.concurrent.Executors;
  * This class contains security permission tests for {@link CarTelemetryManager}'s system APIs.
  */
 @RunWith(AndroidJUnit4.class)
-public class CarTelemetryManagerPermissionTest {
+public class CarTelemetryManagerPermissionTest extends AbstractCarManagerPermissionTest {
     private static final String METRICS_CONFIG_NAME = "name";
 
     private final byte[] mMetricsConfigBytes = "metricsConfig".getBytes();
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
-    private final Context mContext =
-            InstrumentationRegistry.getInstrumentation().getTargetContext();
-
-    private Car mCar;
     private CarTelemetryManager mCarTelemetryManager;
 
     @Before
     public void setUp() {
-        mCar = Objects.requireNonNull(Car.createCar(mContext));
+        super.connectCar();
         mCarTelemetryManager = (CarTelemetryManager) mCar.getCarManager(Car.CAR_TELEMETRY_SERVICE);
-    }
-
-    @After
-    public void tearDown() {
-        mCar.disconnect();
     }
 
     @Test

@@ -25,11 +25,10 @@ import static org.junit.Assert.assertThrows;
 import android.car.Car;
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioManager.CarVolumeCallback;
-import android.content.Context;
-import android.os.Handler;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
+
+import com.android.car.AbstractCarManagerPermissionTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,14 +38,13 @@ import org.junit.runner.RunWith;
  * This class contains security permission tests for the {@link CarAudioManager}'s public APIs.
  */
 @RunWith(AndroidJUnit4.class)
-public final class CarAudioManagerPublicPermissionTest {
+public final class CarAudioManagerPublicPermissionTest extends AbstractCarManagerPermissionTest {
     private CarAudioManager mCarAudioManager;
 
     @Before
     public void setUp() throws Exception {
-        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        Car car = Car.createCar(context, (Handler) null);
-        mCarAudioManager = (CarAudioManager) car.getCarManager(Car.AUDIO_SERVICE);
+        super.connectCar();
+        mCarAudioManager = (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE);
     }
 
     @Test

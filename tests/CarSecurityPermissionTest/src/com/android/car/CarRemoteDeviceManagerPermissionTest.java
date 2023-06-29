@@ -33,8 +33,6 @@ import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.CarRemoteDeviceManager;
 import android.car.CarRemoteDeviceManager.StateCallback;
-import android.content.Context;
-import android.os.Handler;
 
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -45,27 +43,22 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * This class contains security permission tests for {@link CarRemoteDeviceManager}' system
  * APIs.
  */
 @RunWith(AndroidJUnit4.class)
-public final class CarRemoteDeviceManagerPermissionTest {
-    private final Context mContext =
-            InstrumentationRegistry.getInstrumentation().getTargetContext();
+public final class CarRemoteDeviceManagerPermissionTest extends AbstractCarManagerPermissionTest {
     private final UiAutomation mUiAutomation =
             InstrumentationRegistry.getInstrumentation().getUiAutomation();
-
-    private Car mCar;
     private CarRemoteDeviceManager mCarRemoteDeviceManager;
     private OccupantZoneInfo mReceiverZone;
     private StateCallback mStateCallback;
 
     @Before
     public void setUp() {
-        mCar = Objects.requireNonNull(Car.createCar(mContext, (Handler) null));
+        super.connectCar();
         mCarRemoteDeviceManager = mCar.getCarManager(CarRemoteDeviceManager.class);
         // CarRemoteDeviceManager is available on multi-display builds only.
         // TODO(b/265091454): annotate the test with @RequireMultipleUsersOnMultipleDisplays.

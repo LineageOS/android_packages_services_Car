@@ -28,7 +28,7 @@ import android.car.cluster.ClusterHomeManager;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.test.platform.app.InstrumentationRegistry;
+import com.android.car.AbstractCarManagerPermissionTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -46,12 +46,11 @@ import java.util.concurrent.Executor;
  * Test will skip when {@link ClusterHomeManager} is not available.
  */
 @RunWith(MockitoJUnitRunner.class)
-public final class ClusterHomeManagerPermissionTest {
+public final class ClusterHomeManagerPermissionTest extends AbstractCarManagerPermissionTest {
     public static final String EXPECTED_ERROR_MESSAGE =
             "requires permission android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL";
     public static final String EXPECTED_ERROR_MESSAGE_MISSING_MONITOR_NAVIGATION_STATE_PERMISSION =
             "requires permission android.car.permission.CAR_MONITOR_CLUSTER_NAVIGATION_STATE";
-    private Car mCar;
 
     private ClusterHomeManager mClusterHomeManager;
 
@@ -66,10 +65,7 @@ public final class ClusterHomeManagerPermissionTest {
 
     @Before
     public void setUp() {
-        mCar = Car.createCar(
-                InstrumentationRegistry.getInstrumentation().getTargetContext());
-        assertThat(mCar).isNotNull();
-
+        super.connectCar();
         mClusterHomeManager = (ClusterHomeManager) mCar.getCarManager(Car.CLUSTER_HOME_SERVICE);
         assumeNotNull(mClusterHomeManager);
     }
