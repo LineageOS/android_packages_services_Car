@@ -38,11 +38,11 @@ per-file src/com/android/car/storagemonitoring/* = lakshmana@google.com
 per-file src/com/android/car/systeminterface/* = ericjeong@google.com
 
 # Watchdog
-per-file assets/os/* = lakshmana@google.com
-per-file src/android/car/os/* = lakshmana@google.com
-per-file src/android/car/watchdoglib/* = lakshmana@google.com
-per-file src/com/android/car/os/* = lakshmana@google.com
-per-file src/com/android/car/watchdog/* = lakshmana@google.com
+per-file assets/os/* = lakshmana@google.com, jahdiel@google.com
+per-file src/android/car/os/* = lakshmana@google.com, jahdiel@google.com
+per-file src/android/car/watchdoglib/* = lakshmana@google.com, jahdiel@google.com
+per-file src/com/android/car/os/* = lakshmana@google.com, jahdiel@google.com
+per-file src/com/android/car/watchdog/* = lakshmana@google.com, jahdiel@google.com
 
 # View
 per-file src/android/car/builtin/view/* = ycheo@google.com
