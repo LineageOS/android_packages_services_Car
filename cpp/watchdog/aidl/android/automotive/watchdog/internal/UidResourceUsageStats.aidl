@@ -33,7 +33,7 @@ parcelable UidResourceUsageStats {
     /**
      * Milliseconds since the package started.
      */
-    long uidStartUptimeMillis;
+    long uidUptimeMillis;
 
     /**
      * CPU usage stats for the UID.
