@@ -31,7 +31,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
@@ -425,6 +427,88 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         // Send the finished signal
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
+    }
+
+    // need to test SHUTDOWN_PREPARE -> CANCEL scenario
+    @Test
+    public void testUserManagerOnResumeCallAfterCancel() throws Exception {
+        grantPowerPolicyPermission();
+        mPowerSignalListener.addEventListener(PowerHalService.SET_SHUTDOWN_START);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_SHUTDOWN_CANCELLED);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
+        assertThat(mService.getCurrentPowerPolicy().getPolicyId())
+                .isEqualTo(SYSTEM_POWER_POLICY_INITIAL_ON);
+        mPowerHal.setCurrentPowerState(
+                new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY));
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_SHUTDOWN_START);
+        mPowerSignalListener.waitFor(PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_MS);
+
+        mPowerHal.setCurrentPowerState(
+                new PowerState(VehicleApPowerStateReq.CANCEL_SHUTDOWN, /* param= */ 0));
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_SHUTDOWN_CANCELLED);
+
+        mPowerSignalListener.waitFor(PowerHalService.SET_SHUTDOWN_CANCELLED, WAIT_TIMEOUT_MS);
+
+        verify(mUserService).onSuspend();
+
+        assertThat(mService.getCurrentPowerPolicy().getPolicyId())
+                .isEqualTo(SYSTEM_POWER_POLICY_INITIAL_ON);
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, /* param= */ 0));
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_ON);
+
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
+
+        // onResume is being called after notification to VHAL, so there is possibility that
+        // test will check mock before it is actually called, to avoid failure, timeout used.
+        verify(mUserService, timeout(WAIT_TIMEOUT_LONG_MS)).onResume();
+
+    }
+
+    @Test
+    public void testUserManagerOnResumeCallAfterSuspend() throws Exception {
+        mPowerSignalListener.addEventListener(PowerHalService.SET_DEEP_SLEEP_ENTRY);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_DEEP_SLEEP_EXIT);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY));
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY, 0);
+        mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_MS);
+        verify(mUserService).onSuspend();
+
+        // Send the finished signal
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
+        mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
+        assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
+        mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_EXIT, WAIT_TIMEOUT_MS);
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
+
+        // onResume is being called after notification to VHAL, so there is possibility that
+        // test will check mock before it is actually called, to avoid failure, timeout used.
+        verify(mUserService, timeout(WAIT_TIMEOUT_LONG_MS)).onResume();
+
+        // suspend and resume again
+        clearInvocations(mUserService);
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY));
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY, 0);
+        mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_MS);
+
+        verify(mUserService).onSuspend();
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
+        mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
+        assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
+        mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_EXIT, WAIT_TIMEOUT_MS);
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
+        verify(mUserService, timeout(WAIT_TIMEOUT_LONG_MS)).onResume();
     }
 
     @Test
