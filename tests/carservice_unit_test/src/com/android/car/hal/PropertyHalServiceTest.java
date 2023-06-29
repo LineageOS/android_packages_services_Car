@@ -77,7 +77,6 @@ import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -2143,20 +2142,6 @@ public class PropertyHalServiceTest {
     }
 
     @Test
-    public void isDisplayUnitsProperty_returnsTrueForAllDisplayUnitProperties() {
-        for (int propId : List.of(VehiclePropertyIds.DISTANCE_DISPLAY_UNITS,
-                VehiclePropertyIds.FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME,
-                VehiclePropertyIds.FUEL_VOLUME_DISPLAY_UNITS,
-                VehiclePropertyIds.TIRE_PRESSURE_DISPLAY_UNITS,
-                VehiclePropertyIds.EV_BATTERY_DISPLAY_UNITS,
-                VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS)) {
-            Assert.assertTrue(mPropertyHalService.isDisplayUnitsProperty(propId));
-        }
-
-        verifyNoPendingRequest();
-    }
-
-    @Test
     public void setProperty_handlesHalAndMgrPropIdMismatch() {
         HalPropConfig mockPropConfig = mock(HalPropConfig.class);
         CarPropertyValue mockCarPropertyValue = mock(CarPropertyValue.class);
@@ -2403,10 +2388,10 @@ public class PropertyHalServiceTest {
         mPropertyHalService.takeProperties(List.of(vendor1Config));
 
         // By default we require PERMISSION_VENDOR_EXTENSION for getting/setting vendor props.
-        assertThat(mPropertyHalService.getReadPermission(VENDOR_PROPERTY_1)).isEqualTo(
-                PERMISSION_VENDOR_EXTENSION);
-        assertThat(mPropertyHalService.getWritePermission(VENDOR_PROPERTY_1)).isEqualTo(
-                PERMISSION_VENDOR_EXTENSION);
+        assertThat(mPropertyHalService.getReadPermission(VENDOR_PROPERTY_1))
+                .isEqualTo(PERMISSION_VENDOR_EXTENSION);
+        assertThat(mPropertyHalService.getWritePermission(VENDOR_PROPERTY_1))
+                .isEqualTo(PERMISSION_VENDOR_EXTENSION);
     }
 
     @Test
@@ -2436,16 +2421,16 @@ public class PropertyHalServiceTest {
         mPropertyHalService.takeProperties(List.of(vendor1Config, vendor2Config,
                 vendor3Config));
 
-        assertThat(mPropertyHalService.getReadPermission(VENDOR_PROPERTY_1)).isEqualTo(
-                PERMISSION_VENDOR_EXTENSION);
+        assertThat(mPropertyHalService.getReadPermission(VENDOR_PROPERTY_1))
+                .isEqualTo(PERMISSION_VENDOR_EXTENSION);
         assertThat(mPropertyHalService.getWritePermission(VENDOR_PROPERTY_1)).isNull();
-        assertThat(mPropertyHalService.getReadPermission(VENDOR_PROPERTY_2)).isEqualTo(
-                PERMISSION_GET_CAR_VENDOR_CATEGORY_ENGINE);
-        assertThat(mPropertyHalService.getWritePermission(VENDOR_PROPERTY_2)).isEqualTo(
-                PERMISSION_SET_CAR_VENDOR_CATEGORY_ENGINE);
-        assertThat(mPropertyHalService.getReadPermission(VENDOR_PROPERTY_3)).isEqualTo(
-                PERMISSION_GET_CAR_VENDOR_CATEGORY_INFO);
-        assertThat(mPropertyHalService.getWritePermission(VENDOR_PROPERTY_3)).isEqualTo(
-                PERMISSION_VENDOR_EXTENSION);
+        assertThat(mPropertyHalService.getReadPermission(VENDOR_PROPERTY_2))
+                .isEqualTo(PERMISSION_GET_CAR_VENDOR_CATEGORY_ENGINE);
+        assertThat(mPropertyHalService.getWritePermission(VENDOR_PROPERTY_2))
+                .isEqualTo(PERMISSION_SET_CAR_VENDOR_CATEGORY_ENGINE);
+        assertThat(mPropertyHalService.getReadPermission(VENDOR_PROPERTY_3))
+                .isEqualTo(PERMISSION_GET_CAR_VENDOR_CATEGORY_INFO);
+        assertThat(mPropertyHalService.getWritePermission(VENDOR_PROPERTY_3))
+                .isEqualTo(PERMISSION_VENDOR_EXTENSION);
     }
 }

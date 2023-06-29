@@ -24,7 +24,6 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.car.Car;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
@@ -48,7 +47,6 @@ import android.os.ServiceSpecificException;
 import android.os.Trace;
 import android.util.ArrayMap;
 import android.util.Log;
-import android.util.Pair;
 import android.util.SparseArray;
 import android.util.proto.ProtoOutputStream;
 
@@ -184,8 +182,6 @@ public class CarPropertyService extends ICarProperty.Stub
     @GuardedBy("mLock")
     private SparseArray<CarPropertyConfig<?>> mPropertyIdToCarPropertyConfig = new SparseArray<>();
     @GuardedBy("mLock")
-    private SparseArray<Pair<String, String>> mPropToPermission = new SparseArray<>();
-    @GuardedBy("mLock")
     private int mSyncGetSetPropertyOpCount;
 
     public CarPropertyService(Context context, PropertyHalService propertyHalService) {
@@ -302,9 +298,8 @@ public class CarPropertyService extends ICarProperty.Stub
     @Override
     public void init() {
         synchronized (mLock) {
-            // Cache the configs list and permissions to avoid subsequent binder calls
+            // Cache the configs list to avoid subsequent binder calls
             mPropertyIdToCarPropertyConfig = mPropertyHalService.getPropertyList();
-            mPropToPermission = mPropertyHalService.getPermissionsForAllProperties();
             if (DBG) {
                 Slogf.d(TAG, "cache CarPropertyConfigs " + mPropertyIdToCarPropertyConfig.size());
             }
@@ -568,26 +563,16 @@ public class CarPropertyService extends ICarProperty.Stub
     @NonNull
     @Override
     public CarPropertyConfigList getPropertyConfigList(int[] propIds) {
-        // Cache the granted permissions
-        Set<String> grantedPermission = new HashSet<>();
         List<CarPropertyConfig> availableProp = new ArrayList<>();
         if (propIds == null) {
             return new CarPropertyConfigList(availableProp);
         }
         for (int propId : propIds) {
-            String readPermission = getReadPermission(propId);
-            String writePermission = getWritePermission(propId);
-            if (readPermission == null && writePermission == null) {
-                continue;
-            }
-
-            // Check if context already granted permission first
-            if (checkAndUpdateGrantedPermissionSet(mContext, grantedPermission, readPermission)
-                    || checkAndUpdateGrantedWritePermissionSet(mContext, grantedPermission,
-                            writePermission, propId)
-                    || checkAndUpdateGrantedTemperatureDisplayUnitsPermissionSet(mContext,
-                            grantedPermission, propId)) {
-                synchronized (mLock) {
+            synchronized (mLock) {
+                // Check if context already granted permission first
+                if ((mPropertyHalService.isReadable(propId, mContext)
+                        || mPropertyHalService.isWritable(propId, mContext))
+                        && mPropertyIdToCarPropertyConfig.contains(propId)) {
                     availableProp.add(mPropertyIdToCarPropertyConfig.get(propId));
                 }
             }
@@ -596,36 +581,6 @@ public class CarPropertyService extends ICarProperty.Stub
             Slogf.d(TAG, "getPropertyList returns " + availableProp.size() + " configs");
         }
         return new CarPropertyConfigList(availableProp);
-    }
-
-    private boolean checkAndUpdateGrantedWritePermissionSet(Context context,
-            Set<String> grantedPermissions, @Nullable String permission, int propertyId) {
-        if (!checkAndUpdateGrantedPermissionSet(context, grantedPermissions, permission)) {
-            return false;
-        }
-        if (mPropertyHalService.isDisplayUnitsProperty(propertyId) && permission != null
-                && permission.equals(Car.PERMISSION_CONTROL_DISPLAY_UNITS)) {
-            return checkAndUpdateGrantedPermissionSet(context, grantedPermissions,
-                    Car.PERMISSION_VENDOR_EXTENSION);
-        }
-        return true;
-    }
-
-    private static boolean checkAndUpdateGrantedTemperatureDisplayUnitsPermissionSet(
-            Context context, Set<String> grantedPermissions, int propertyId) {
-        return propertyId == VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS
-                && checkAndUpdateGrantedPermissionSet(context, grantedPermissions,
-                Car.PERMISSION_READ_DISPLAY_UNITS);
-    }
-
-    private static boolean checkAndUpdateGrantedPermissionSet(Context context,
-            Set<String> grantedPermissions, @Nullable String permission) {
-        if (permission != null && (grantedPermissions.contains(permission)
-                || CarServiceUtils.hasPermission(context, permission))) {
-            grantedPermissions.add(permission);
-            return true;
-        }
-        return false;
     }
 
     @Nullable
@@ -693,36 +648,32 @@ public class CarPropertyService extends ICarProperty.Stub
         }
     }
 
+    /**
+     * Return read permission string for given property ID. The format of the return value of this
+     * function has changed over time and thus should not be relied on.
+     *
+     * @param propId the property ID to query
+     * @return the permission needed to read this property, {@code null} if the property ID is not
+     * available
+     */
     @Nullable
     @Override
     public String getReadPermission(int propId) {
-        Pair<String, String> permissions;
-        synchronized (mLock) {
-            permissions = mPropToPermission.get(propId);
-        }
-        if (permissions == null) {
-            // Property ID does not exist
-            Slogf.e(TAG, "getReadPermission: propId is not in config list:0x"
-                    + toHexString(propId));
-            return null;
-        }
-        return permissions.first;
+        return mPropertyHalService.getReadPermission(propId);
     }
 
+    /**
+     * Return write permission string for given property ID. The format of the return value of this
+     * function has changed over time and thus should not be relied on.
+     *
+     * @param propId the property ID to query
+     * @return the permission needed to write this property, {@code null} if the property ID is not
+     * available
+     */
     @Nullable
     @Override
     public String getWritePermission(int propId) {
-        Pair<String, String> permissions;
-        synchronized (mLock) {
-            permissions = mPropToPermission.get(propId);
-        }
-        if (permissions == null) {
-            // Property ID does not exist
-            Slogf.e(TAG, "getWritePermission: propId is not in config list:0x"
-                    + toHexString(propId));
-            return null;
-        }
-        return permissions.second;
+        return mPropertyHalService.getWritePermission(propId);
     }
 
     @Override
@@ -981,18 +932,11 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     private void assertReadPermissionGranted(int propertyId) {
-        String readPermission = mPropertyHalService.getReadPermission(propertyId);
-        if (readPermission == null) {
+        if (!mPropertyHalService.isReadable(propertyId, mContext)) {
             throw new SecurityException(
                     "Platform does not have permission to read value for property ID: "
                             + VehiclePropertyIds.toString(propertyId));
         }
-        if (propertyId == VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS) {
-            CarServiceUtils.assertAnyPermission(mContext, readPermission,
-                    Car.PERMISSION_READ_DISPLAY_UNITS);
-            return;
-        }
-        CarServiceUtils.assertPermission(mContext, readPermission);
     }
 
     private void validateRegisterParameter(int propertyId) {
@@ -1027,16 +971,10 @@ public class CarPropertyService extends ICarProperty.Stub
                 VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()));
 
         // Assert write permission is granted.
-        String writePermission = mPropertyHalService.getWritePermission(propertyId);
-        if (writePermission == null) {
+        if (!mPropertyHalService.isWritable(propertyId, mContext)) {
             throw new SecurityException(
                     "Platform does not have permission to write value for property ID: "
                             + VehiclePropertyIds.toString(propertyId));
-        }
-        CarServiceUtils.assertPermission(mContext, writePermission);
-        // need an extra permission for writing display units properties.
-        if (mPropertyHalService.isDisplayUnitsProperty(propertyId)) {
-            CarServiceUtils.assertPermission(mContext, Car.PERMISSION_VENDOR_EXTENSION);
         }
 
         assertAreaIdIsSupported(areaId, carPropertyConfig);

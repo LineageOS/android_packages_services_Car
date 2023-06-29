@@ -29,7 +29,7 @@ public final class CarPropertyHelperUnitTest {
 
     private static final int SYSTEM_ERROR_CODE = 0x0123;
     private static final int VENDOR_ERROR_CODE = 0x1234;
-    private static final int COMBINDED_ERROR_CODE = 0x12340123;
+    private static final int COMBINED_ERROR_CODE = 0x12340123;
     private static final int TEST_PROPERTY_ID1 = 0x234;
     private static final int TEST_PROPERTY_ID2 = 0x54321;
 
@@ -51,13 +51,13 @@ public final class CarPropertyHelperUnitTest {
 
     @Test
     public void testGetVhalSystemErrorcode() {
-        assertThat(CarPropertyHelper.getVhalSystemErrorCode(COMBINDED_ERROR_CODE)).isEqualTo(
+        assertThat(CarPropertyHelper.getVhalSystemErrorCode(COMBINED_ERROR_CODE)).isEqualTo(
                 SYSTEM_ERROR_CODE);
     }
 
     @Test
     public void testGetVhalVendorErrorCode() {
-        assertThat(CarPropertyHelper.getVhalVendorErrorCode(COMBINDED_ERROR_CODE)).isEqualTo(
+        assertThat(CarPropertyHelper.getVhalVendorErrorCode(COMBINED_ERROR_CODE)).isEqualTo(
                 VENDOR_ERROR_CODE);
     }
 
@@ -67,5 +67,12 @@ public final class CarPropertyHelperUnitTest {
                         .propertyIdsToString(List.of(TEST_PROPERTY_ID1, TEST_PROPERTY_ID2,
                                 VehiclePropertyIds.INFO_VIN)))
                 .isEqualTo("[0x234, 0x54321, INFO_VIN]");
+    }
+
+    @Test
+    public void testIsVendorProperty() {
+        assertThat(CarPropertyHelper.isVendorProperty(0x21100001)).isTrue();
+        assertThat(CarPropertyHelper.isVendorProperty(
+                VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS)).isFalse();
     }
 }

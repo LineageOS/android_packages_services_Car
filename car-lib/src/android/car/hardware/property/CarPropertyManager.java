@@ -1446,7 +1446,8 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * Return read permission string for given property ID.
+     * Return read permission string for given property ID. The format of the return value of this
+     * function has changed over time and thus should not be relied on.
      *
      * @param propId the property ID to query
      * @return the permission needed to read this property, {@code null} if the property ID is not
@@ -1470,7 +1471,8 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * Return write permission string for given property ID.
+     * Return write permission string for given property ID. The format of the return value of this
+     * function has changed over time and thus should not be relied on.
      *
      * @param propId the property ID to query
      * @return the permission needed to write this property, {@code null} if the property ID is not

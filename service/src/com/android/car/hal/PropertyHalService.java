@@ -39,7 +39,6 @@ import static com.android.car.internal.property.GetSetValueResult.newGetValueRes
 import static com.android.car.internal.property.InputSanitizationUtils.sanitizeUpdateRateHz;
 
 import android.annotation.IntDef;
-import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.os.BuildHelper;
@@ -51,6 +50,7 @@ import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.CarPropertyAsyncErrorCode;
 import android.car.hardware.property.CarPropertyManager.CarSetPropertyErrorCode;
 import android.car.hardware.property.VehicleHalStatusCode.VehicleHalStatusCodeInt;
+import android.content.Context;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
@@ -74,6 +74,7 @@ import com.android.car.VehicleStub.AsyncGetSetRequest;
 import com.android.car.VehicleStub.GetVehicleStubAsyncResult;
 import com.android.car.VehicleStub.SetVehicleStubAsyncResult;
 import com.android.car.VehicleStub.VehicleStubCallbackInterface;
+import com.android.car.hal.PropertyPermissionInfo.PermissionCondition;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.LongPendingRequestPool;
 import com.android.car.internal.LongPendingRequestPool.TimeoutCallback;
@@ -379,6 +380,7 @@ public class PropertyHalService extends HalServiceBase {
     @GuardedBy("mLock")
     private final SparseArray<List<AsyncPropRequestInfo>> mHalPropIdToWaitingUpdateRequestInfo =
             new SparseArray<>();
+    private final PropertyPermissionInfo mPropertyPermissionInfo = new PropertyPermissionInfo();
 
     private class AsyncRequestTimeoutCallback implements TimeoutCallback {
         @Override
@@ -1137,50 +1139,43 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     /**
-     * Get the read permission string for the property.
+     * Get the read permission string for the property. The format of the return value of this
+     * function has changed over time and thus should not be relied on.
      */
     @Nullable
     public String getReadPermission(int mgrPropId) {
-        int halPropId = managerToHalPropId(mgrPropId);
-        return mPropertyHalServiceIds.getReadPermission(halPropId);
+        PermissionCondition readPermission =
+                mPropertyPermissionInfo.getReadPermission(managerToHalPropId(mgrPropId));
+        if (readPermission == null) {
+            Slogf.w(TAG, "readPermission is null for mgrPropId: "
+                    + VehiclePropertyIds.toString(mgrPropId));
+            return null;
+        }
+        return readPermission.toString();
     }
 
     /**
-     * Get the write permission string for the property.
+     * Get the write permission string for the property. The format of the return value of this
+     * function has changed over time and thus should not be relied on.
      */
     @Nullable
     public String getWritePermission(int mgrPropId) {
-        int halPropId = managerToHalPropId(mgrPropId);
-        return mPropertyHalServiceIds.getWritePermission(halPropId);
-    }
-
-    /**
-     * Get permissions for all properties in the vehicle.
-     *
-     * @return a SparseArray. key: propertyId, value: Pair(readPermission, writePermission).
-     */
-    @NonNull
-    public SparseArray<Pair<String, String>> getPermissionsForAllProperties() {
-        synchronized (mLock) {
-            if (mMgrPropIdToPermissions.size() != 0) {
-                return mMgrPropIdToPermissions;
-            }
-            for (int i = 0; i < mHalPropIdToPropConfig.size(); i++) {
-                int halPropId = mHalPropIdToPropConfig.keyAt(i);
-                mMgrPropIdToPermissions.put(halToManagerPropId(halPropId),
-                        new Pair<>(mPropertyHalServiceIds.getReadPermission(halPropId),
-                                mPropertyHalServiceIds.getWritePermission(halPropId)));
-            }
-            return mMgrPropIdToPermissions;
+        PermissionCondition writePermission =
+                mPropertyPermissionInfo.getWritePermission(managerToHalPropId(mgrPropId));
+        if (writePermission == null) {
+            Slogf.w(TAG, "writePermission is null for mgrPropId: "
+                    + VehiclePropertyIds.toString(mgrPropId));
+            return null;
         }
+        return writePermission.toString();
     }
 
-    /**
-     * Return true if property is a display_units property
-     */
-    public boolean isDisplayUnitsProperty(int mgrPropId) {
-        int halPropId = managerToHalPropId(mgrPropId);
-        return mPropertyHalServiceIds.isPropertyToChangeUnits(halPropId);
+    public boolean isReadable(int mgrPropId, Context context) {
+        return mPropertyPermissionInfo.isReadable(managerToHalPropId(mgrPropId), context);
+    }
+
+    public boolean isWritable(int mgrPropId, Context context) {
+        return mPropertyPermissionInfo.isWritable(managerToHalPropId(mgrPropId), context);
     }
 
     /**
@@ -1300,7 +1295,6 @@ public class PropertyHalService extends HalServiceBase {
             }
             mSubscribedHalPropIdToAreaIdToUpdateRateHz.clear();
             mHalPropIdToPropConfig.clear();
-            mMgrPropIdToPermissions.clear();
             mPropertyHalListener = null;
         }
         mHandlerThread.quitSafely();
@@ -1308,7 +1302,7 @@ public class PropertyHalService extends HalServiceBase {
 
     @Override
     public boolean isSupportedProperty(int halPropId) {
-        return mPropertyHalServiceIds.isSupportedProperty(halPropId)
+        return mPropertyPermissionInfo.isSupportedProperty(halPropId)
                 && CarPropertyHelper.isSupported(halToManagerPropId(halPropId));
     }
 
@@ -1343,7 +1337,7 @@ public class PropertyHalService extends HalServiceBase {
         HalPropConfig customizePermission = mVehicleHal.getPropConfig(
                 VehicleProperty.SUPPORT_CUSTOMIZE_VENDOR_PERMISSION);
         if (customizePermission != null) {
-            mPropertyHalServiceIds.customizeVendorPermission(customizePermission.getConfigArray());
+            mPropertyPermissionInfo.customizeVendorPermission(customizePermission.getConfigArray());
         } else {
             if (DBG) {
                 Slogf.d(TAG, "No custom vendor permission defined in VHAL");
