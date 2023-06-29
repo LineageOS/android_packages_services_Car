@@ -679,6 +679,31 @@ public final class CarInputManagerTest extends MockedCarTestBase {
     }
 
     @Test
+    public void testInjectingVoiceAssistKeyEventAndExecutor() throws Exception {
+        // Arrange executors to process events
+        Executor keyEventExecutor = spy(Executors.newSingleThreadExecutor());
+
+        // Arrange: register callback
+        CarInputManager carInputManager = createAnotherCarInputManager();
+        int r = carInputManager.requestInputEventCapture(
+                CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                new int[]{CarInputManager.INPUT_TYPE_SYSTEM_NAVIGATE_KEYS}, 0, keyEventExecutor,
+                mCallback0);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
+
+        // Act: inject KeyEvent
+        injectKeyEvent(false, KeyEvent.KEYCODE_VOICE_ASSIST);
+
+        // Assert: ensure KeyEvent was delivered
+        waitAndAssertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, false,
+                KeyEvent.KEYCODE_VOICE_ASSIST, mCallback0);
+
+        // Assert: ensure that Key event was dispatched using the assigned executor
+        verify(keyEventExecutor).execute(any(Runnable.class));
+    }
+
+
+    @Test
     public void testInjectingCustomInputEventAndExecutor() throws Exception {
         // Arrange executors to process events
         Executor customInputEventExecutor = spy(Executors.newSingleThreadExecutor());

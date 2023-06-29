@@ -90,7 +90,8 @@ public class InputCaptureClientController {
             entry(KeyEvent.KEYCODE_SYSTEM_NAVIGATION_LEFT,
                     CarInputManager.INPUT_TYPE_SYSTEM_NAVIGATE_KEYS),
             entry(KeyEvent.KEYCODE_SYSTEM_NAVIGATION_RIGHT,
-                    CarInputManager.INPUT_TYPE_SYSTEM_NAVIGATE_KEYS)
+                    CarInputManager.INPUT_TYPE_SYSTEM_NAVIGATE_KEYS),
+            entry(KeyEvent.KEYCODE_VOICE_ASSIST, CarInputManager.INPUT_TYPE_SYSTEM_NAVIGATE_KEYS)
     );
 
     private static final Set<Integer> VALID_INPUT_TYPES = Set.of(

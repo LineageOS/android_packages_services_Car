@@ -477,7 +477,9 @@ public class CarInputService extends ICarInput.Stub
         // Special case key code that have special "long press" handling for automotive
         switch (event.getKeyCode()) {
             case KeyEvent.KEYCODE_VOICE_ASSIST:
-                handleVoiceAssistKey(event);
+                // TODO: b/288107028 - Pass target display type to handleVoiceAssistKey()
+                //  when passenger displays support voice assist keys
+                handleVoiceAssistKey(event, targetDisplayType);
                 return;
             case KeyEvent.KEYCODE_CALL:
                 handleCallKey(event);
@@ -740,7 +742,7 @@ public class CarInputService extends ICarInput.Stub
         }
     }
 
-    private void handleVoiceAssistKey(KeyEvent event) {
+    private void handleVoiceAssistKey(KeyEvent event, @DisplayTypeEnum int targetDisplayType) {
         int action = event.getAction();
         if (action == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
             mVoiceKeyTimer.keyDown();
@@ -756,6 +758,12 @@ public class CarInputService extends ICarInput.Stub
 
             if (dispatchProjectionKeyEvent(
                     CarProjectionManager.KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP)) {
+                return;
+            }
+
+            // TODO: b/288107028 - Pass the actual target display type to onKeyEvent
+            //  when passenger displays support voice assist keys
+            if (mCaptureController.onKeyEvent(targetDisplayType, event)) {
                 return;
             }
 
