@@ -253,6 +253,11 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                     }
 
                     Display display = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
+                    if (mCurrentDisplayState == display.getState()) {
+                        // We already handled this display state change.
+                        return;
+                    }
+
                     switch (display.getState()) {
                         case Display.STATE_ON:
                             // We may want to request the system viewer.
@@ -278,6 +283,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                             // Nothing to do for all other state changes
                             break;
                     }
+
+                    mCurrentDisplayState = display.getState();
                 }
             };
 
@@ -650,6 +657,9 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     @GuardedBy("mLock")
     private IBinder mSessionToken = null;
 
+    // The latest display state we have processed.
+    private int mCurrentDisplayState = Display.STATE_OFF;
+
     // This boolean flag is true if CarEvsService uses GEAR_SELECTION VHAL property instead of
     // EVS_SERVICE_REQUEST.
     private boolean mUseGearSelection = true;
@@ -707,6 +717,16 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         if (!mStateEngine.checkCurrentStateRequiresSystemActivity() &&
                 (mLastEvsHalEvent == null || !mLastEvsHalEvent.isRequestingToStartActivity())) {
             return false;
+        }
+
+        boolean alreadyRequested = mHandler.hasCallbacks(mActivityRequestTimeoutRunnable);
+        if (mEvsCameraActivity == null || alreadyRequested) {
+            if (DBG) {
+                Slogf.d(TAG_EVS,
+                        "No need to request an activity, mEvsCameraActivity=%s, " +
+                        "alreadyRequested=%s", mEvsCameraActivity, alreadyRequested);
+            }
+            return true;
         }
 
         // Request to launch an activity again after cleaning up
@@ -1313,6 +1333,11 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
     @GuardedBy("mLock")
     private void handlePropertyEventLocked(CarPropertyEvent event) {
+        if (mEvsCameraActivity == null) {
+            // Nothing to do because we do not have an activity to manage.
+            return;
+        }
+
         if (event.getEventType() != CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE) {
             // CarEvsService is interested only in the property change event.
             return;
