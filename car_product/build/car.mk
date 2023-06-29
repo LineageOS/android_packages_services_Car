@@ -165,6 +165,7 @@ PRODUCT_PACKAGES += \
 # RROs
 PRODUCT_PACKAGES += \
     CarPermissionControllerRRO \
+    CarSystemUIRRO \
 
 # CarSystemUIPassengerOverlay is an RRO package required for enabling unique look
 # and feel for Passenger(Secondary) User.
