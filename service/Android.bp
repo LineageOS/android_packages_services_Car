@@ -60,7 +60,7 @@ gensrcs {
 filegroup {
     name: "car-service-dump-proto-srcs",
     srcs: [
-        "proto/android/car/dump/*.proto",
+        "proto/android/car/**/*_dump.proto",
     ],
 }
 
