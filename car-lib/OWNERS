@@ -32,5 +32,5 @@ per-file src/android/car/hardware/power/* = ericjeong@google.com
 per-file src/android/car/storagemonitoring/* = lakshmana@google.com
 
 # Watchdog
-per-file src/android/car/watchdog/* = lakshmana@google.com
-per-file src/android/car/os/* = lakshmana@google.com
+per-file src/android/car/watchdog/* = lakshmana@google.com, jahdiel@google.com
+per-file src/android/car/os/* = lakshmana@google.com, jahdiel@google.com
