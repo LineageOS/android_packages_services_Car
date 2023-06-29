@@ -34,7 +34,7 @@
 package android.automotive.watchdog.internal;
 parcelable UidResourceUsageStats {
   android.automotive.watchdog.internal.PackageIdentifier packageIdentifier;
-  long uidStartUptimeMillis;
+  long uidUptimeMillis;
   android.automotive.watchdog.internal.CpuUsageStats cpuUsageStats;
   List<android.automotive.watchdog.internal.ProcessCpuUsageStats> processCpuUsageStats;
   android.automotive.watchdog.internal.UidIoUsageStats ioUsageStats;
