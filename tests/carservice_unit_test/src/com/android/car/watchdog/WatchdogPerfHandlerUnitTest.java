@@ -2408,6 +2408,214 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                 .containsExactlyElementsIn(Arrays.asList("third_party_package"));
     }
 
+    @Test
+    public void testLatestIoOveruseStats() throws Exception {
+        setRequiresDistractionOptimization(/* isRequires= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        int criticalSysPkgUid = Binder.getCallingUid();
+        int nonCriticalSysPkgUid = 10001056;
+        int nonCriticalVndrPkgUid = 10002564;
+        int thirdPartyPkgUid = 10002044;
+
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo(
+                        "system_package.critical", criticalSysPkgUid, null),
+                constructPackageManagerPackageInfo(
+                        "system_package.non_critical", nonCriticalSysPkgUid, null),
+                constructPackageManagerPackageInfo(
+                        "vendor_package.non_critical", nonCriticalVndrPkgUid, null),
+                constructPackageManagerPackageInfo(
+                        "third_party_package", thirdPartyPkgUid, null)));
+
+        IResourceOveruseListener mockSystemListener = createMockResourceOveruseListener();
+        mWatchdogPerfHandler.addResourceOveruseListenerForSystem(
+                FLAG_RESOURCE_OVERUSE_IO, mockSystemListener);
+
+        IResourceOveruseListener mockListener = createMockResourceOveruseListener();
+        mWatchdogPerfHandler.addResourceOveruseListener(
+                FLAG_RESOURCE_OVERUSE_IO, mockListener);
+
+        List<PackageIoOveruseStats> packageIoOveruseStats = Arrays.asList(
+                /* Overuse occurred but cannot be killed/disabled. */
+                constructPackageIoOveruseStats(criticalSysPkgUid, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 200, 300),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ false,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 3)),
+                /* No overuse occurred but should be notified. */
+                constructPackageIoOveruseStats(nonCriticalSysPkgUid, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(50, 100, 150),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(20, 30, 40),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 3)),
+                /* Neither overuse occurred nor be notified. */
+                constructPackageIoOveruseStats(nonCriticalVndrPkgUid, /* shouldNotify= */ false,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(25, 50, 75),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(200, 300, 400),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 3)),
+                /* Overuse occurred and can be killed/disabled. */
+                constructPackageIoOveruseStats(thirdPartyPkgUid, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 200, 300),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
+                                /* totalOveruses= */ 3)));
+
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        verifyDisabledPackages(/* userPackagesCsv= */ "100:third_party_package");
+
+        List<ResourceOveruseStats> expectedStats = new ArrayList<>();
+
+        expectedStats.add(constructResourceOveruseStats(criticalSysPkgUid,
+                "system_package.critical", packageIoOveruseStats.get(0).ioOveruseStats));
+
+        verifyOnOveruseCalled(expectedStats, mockListener);
+
+        expectedStats.add(constructResourceOveruseStats(nonCriticalSysPkgUid,
+                "system_package.non_critical", packageIoOveruseStats.get(1).ioOveruseStats));
+
+        /*
+         * When the package receives overuse notification, the package is not yet killed so the
+         * totalTimesKilled counter is not yet incremented.
+         */
+        expectedStats.add(constructResourceOveruseStats(thirdPartyPkgUid, "third_party_package",
+                packageIoOveruseStats.get(3).ioOveruseStats));
+
+        verifyOnOveruseCalled(expectedStats, mockSystemListener);
+
+        List<AtomsProto.CarWatchdogIoOveruseStatsReported> expectedReportedOveruseStats =
+                new ArrayList<>();
+        expectedReportedOveruseStats.add(constructIoOveruseStatsReported(criticalSysPkgUid,
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(10, 20, 30),
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300)));
+        expectedReportedOveruseStats.add(constructIoOveruseStatsReported(thirdPartyPkgUid,
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+
+        captureAndVerifyIoOveruseStatsReported(expectedReportedOveruseStats);
+
+        List<AtomsProto.CarWatchdogKillStatsReported> expectedReportedKillStats =
+                Collections.singletonList(constructIoOveruseKillStatsReported(thirdPartyPkgUid,
+                        CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
+                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+
+        captureAndVerifyKillStatsReported(expectedReportedKillStats);
+    }
+
+    @Test
+    public void testLatestIoOveruseStatsWithSharedUid() throws Exception {
+        setRequiresDistractionOptimization(/* isRequires= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        int criticalSysSharedUid = Binder.getCallingUid();
+        int nonCriticalVndrSharedUid = 10002564;
+        int thirdPartySharedUid = 10002044;
+
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo(
+                        "system_package.A", criticalSysSharedUid, "system_shared_package"),
+                constructPackageManagerPackageInfo(
+                        "system_package.B", criticalSysSharedUid, "system_shared_package"),
+                constructPackageManagerPackageInfo("vendor_package.non_critical",
+                        nonCriticalVndrSharedUid, "vendor_shared_package"),
+                constructPackageManagerPackageInfo(
+                        "third_party_package.A", thirdPartySharedUid, "third_party_shared_package"),
+                constructPackageManagerPackageInfo(
+                        "third_party_package.B", thirdPartySharedUid, "third_party_shared_package")
+        ));
+
+        IResourceOveruseListener mockSystemListener = createMockResourceOveruseListener();
+        mWatchdogPerfHandler.addResourceOveruseListenerForSystem(
+                FLAG_RESOURCE_OVERUSE_IO, mockSystemListener);
+
+        IResourceOveruseListener mockListener = createMockResourceOveruseListener();
+        mWatchdogPerfHandler.addResourceOveruseListener(
+                FLAG_RESOURCE_OVERUSE_IO, mockListener);
+
+        List<PackageIoOveruseStats> packageIoOveruseStats = Arrays.asList(
+                /* Overuse occurred but cannot be killed/disabled. */
+                constructPackageIoOveruseStats(criticalSysSharedUid, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 200, 300),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ false,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 3)),
+                /* No overuse occurred but should be notified. */
+                constructPackageIoOveruseStats(nonCriticalVndrSharedUid, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(50, 100, 150),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(200, 300, 400),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 3)),
+                /* Overuse occurred and can be killed/disabled. */
+                constructPackageIoOveruseStats(thirdPartySharedUid, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 200, 300),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
+                                /* totalOveruses= */ 3)));
+
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        verifyDisabledPackages(
+                /* userPackagesCsv= */ "100:third_party_package.A,100:third_party_package.B");
+
+        List<ResourceOveruseStats> expectedStats = new ArrayList<>();
+
+        expectedStats.add(constructResourceOveruseStats(criticalSysSharedUid,
+                "shared:system_shared_package", packageIoOveruseStats.get(0).ioOveruseStats));
+
+        verifyOnOveruseCalled(expectedStats, mockListener);
+
+        expectedStats.add(constructResourceOveruseStats(nonCriticalVndrSharedUid,
+                "shared:vendor_shared_package", packageIoOveruseStats.get(1).ioOveruseStats));
+
+        /*
+         * When the package receives overuse notification, the package is not yet killed so the
+         * totalTimesKilled counter is not yet incremented.
+         */
+        expectedStats.add(constructResourceOveruseStats(thirdPartySharedUid,
+                "shared:third_party_shared_package", packageIoOveruseStats.get(2).ioOveruseStats));
+
+        verifyOnOveruseCalled(expectedStats, mockSystemListener);
+
+        List<AtomsProto.CarWatchdogIoOveruseStatsReported> expectedReportedOveruseStats =
+                new ArrayList<>();
+        expectedReportedOveruseStats.add(constructIoOveruseStatsReported(criticalSysSharedUid,
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(10, 20, 30),
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300)));
+        expectedReportedOveruseStats.add(constructIoOveruseStatsReported(thirdPartySharedUid,
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+
+        captureAndVerifyIoOveruseStatsReported(expectedReportedOveruseStats);
+
+        List<AtomsProto.CarWatchdogKillStatsReported> expectedReportedKillStats =
+                Collections.singletonList(constructIoOveruseKillStatsReported(thirdPartySharedUid,
+                        CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
+                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+
+        captureAndVerifyKillStatsReported(expectedReportedKillStats);
+    }
+
+    private static void verifyOnOveruseCalled(List<ResourceOveruseStats> expectedStats,
+            IResourceOveruseListener mockListener) throws Exception {
+        ArgumentCaptor<ResourceOveruseStats> resourceOveruseStatsCaptor =
+                ArgumentCaptor.forClass(ResourceOveruseStats.class);
+
+        verify(mockListener, times(expectedStats.size()))
+                .onOveruse(resourceOveruseStatsCaptor.capture());
+
+        ResourceOveruseStatsSubject.assertThat(resourceOveruseStatsCaptor.getAllValues())
+                .containsExactlyElementsIn(expectedStats);
+    }
+
     private void setupUsers() {
         when(mMockContext.getSystemService(UserManager.class)).thenReturn(mMockUserManager);
         mockUmGetAllUsers(mMockUserManager, new UserHandle[0]);
