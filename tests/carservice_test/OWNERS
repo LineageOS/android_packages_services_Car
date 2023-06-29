@@ -27,4 +27,4 @@ per-file src/com/android/car/power/* = ericjeong@google.com
 per-file src/com/android/car/CarStorageMonitoringTest.java = lakshmana@google.com
 
 # Watchdog
-per-file src/com/android/car/watchdog/* = lakshmana@google.com
+per-file src/com/android/car/watchdog/* = lakshmana@google.com, jahdiel@google.com
