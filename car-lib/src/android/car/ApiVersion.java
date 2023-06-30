@@ -66,14 +66,13 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
     /**
      * Checks if this API version meets the required version.
      *
-     * @param requiredApiVersionMajor Required major version number.
-     * @param requiredApiVersionMinor Required minor version number.
+     * @param requiredVersion required major and minor version number
      * @return {@code true} if the {@link #getMajorVersion() major version} is newer than the
      *         {@code requiredVersion}'s major or if the {@link #getMajorVersion() major version} is
      *         the same as {@code requiredVersion}'s major with the {@link #getMinorVersion() minor
-     *         version} the same or newer than {@code requiredVersion}'s minor.
+     *         version} the same or newer than {@code requiredVersion}'s minor
      * @throws IllegalArgumentException if {@code requiredVersion} is not an instance of the same
-     *         class as this object.
+     *         class as this object
      */
     @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
             minPlatformVersion = PlatformVersion.TIRAMISU_0)

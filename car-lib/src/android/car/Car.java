@@ -1582,8 +1582,8 @@ public final class Car {
          * @param car {@code Car} object that was originally associated with this lister from
          *            {@link #createCar(Context, Handler, long, Car.CarServiceLifecycleListener)}
          *            call.
-         * @param ready When {@code true, car service is ready and all accesses are ok.
-         *              Otherwise car service has crashed or killed and will be restarted.
+         * @param ready when {@code true}, car service is ready and all accesses are ok
+         *              Otherwise car service has crashed or killed and will be restarted
          */
         @AddedInOrBefore(majorVersion = 33)
         void onLifecycleChanged(@NonNull Car car, boolean ready);
@@ -1663,8 +1663,6 @@ public final class Car {
     })
     @Target({ElementType.TYPE_USE})
     public @interface FeaturerRequestEnum {}
-
-    private static final boolean DBG = false;
 
     private final Context mContext;
 
@@ -2018,7 +2016,7 @@ public final class Car {
             }
         }
         // Can be accessed from mServiceConnectionListener in main thread.
-        synchronized (car) {
+        synchronized (car.mLock) {
             if (car.mService == null) {
                 car.mService = ICar.Stub.asInterface(service);
                 Log.w(TAG_CAR,
@@ -2246,6 +2244,7 @@ public final class Car {
         }
     }
 
+    @GuardedBy("mLock")
     private void handleCarDisconnectLocked() {
         if (mConnectionState == STATE_DISCONNECTED) {
             // can happen when client calls disconnect with onServiceDisconnected already called.
@@ -2296,7 +2295,7 @@ public final class Car {
     /**
      * Tells if it is connected to the service or not. This will return false if it is still
      * connecting.
-     * @return
+     * @return {@code true} if service is connected
      */
     @AddedInOrBefore(majorVersion = 33)
     public boolean isConnected() {
@@ -2307,7 +2306,7 @@ public final class Car {
 
     /**
      * Tells if this instance is already connecting to car service or not.
-     * @return
+     * @return {@code true} if instance is connecting to a service
      */
     @AddedInOrBefore(majorVersion = 33)
     public boolean isConnecting() {
