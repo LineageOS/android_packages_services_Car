@@ -19,6 +19,7 @@ package com.android.car.hal;
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.AdditionalMatchers.not;
@@ -38,6 +39,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.hardware.property.CarPropertyManager;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.SubscribeOptions;
@@ -78,7 +80,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
-public class VehicleHalTest {
+public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
 
     private static final int WAIT_TIMEOUT_MS = 1000;
 
@@ -89,7 +91,7 @@ public class VehicleHalTest {
     private static final int SOME_INT32_VEC_PROPERTY = VehiclePropertyType.INT32_VEC | 0x05;
     private static final int SOME_FLOAT_PROPERTY = VehiclePropertyType.FLOAT | 0x06;
     private static final int SOME_FLOAT_VEC_PROPERTY = VehiclePropertyType.FLOAT_VEC | 0x07;
-    private static final int SOME_INT64_PROPERTY = VehiclePropertyType.INT32 | 0x10;
+    private static final int SOME_INT64_PROPERTY = VehiclePropertyType.INT64 | 0x10;
     private static final int SOME_INT64_VEC_PROPERTY = VehiclePropertyType.INT64_VEC | 0x11;
     private static final int UNSUPPORTED_PROPERTY = -1;
     private static final int GLOBAL_AREA_ID = 0;
@@ -1789,7 +1791,7 @@ public class VehicleHalTest {
         HalPropValue prop = values.get(0);
         assertThat(prop.getPropId()).isEqualTo(SOME_INT64_PROPERTY);
         assertThat(prop.getAreaId()).isEqualTo(VehicleHal.NO_AREA);
-        assertThat(prop.getInt32Value(0)).isEqualTo(1);
+        assertThat(prop.getInt64Value(0)).isEqualTo(1);
         assertThat(prop.getTimestamp()).isGreaterThan(time);
     }
 
@@ -1945,5 +1947,96 @@ public class VehicleHalTest {
         mVehicleHal.cancelRequests(requestIds);
 
         verify(mVehicle).cancelRequests(requestIds);
+    }
+
+    @Test
+    public void testIsAidlVhal() {
+        when(mVehicle.isAidlVhal()).thenReturn(true);
+
+        assertWithMessage("Enabled aidl vhal").that(mVehicleHal.isAidlVhal()).isTrue();
+    }
+
+    @Test
+    public void testIsFakeModeEnabled() {
+        when(mVehicle.isFakeModeEnabled()).thenReturn(true);
+
+        assertWithMessage("Fake Mode Enabled").that(mVehicleHal.isFakeModeEnabled())
+                .isTrue();
+    }
+
+    @Test
+    public void testSetPropertyFromCommandBoolean() throws Exception {
+        mVehicleHal.setPropertyFromCommand(SOME_BOOL_PROPERTY, GLOBAL_AREA_ID, "true", null);
+        ArgumentCaptor<HalPropValue> captor =
+                ArgumentCaptor.forClass(HalPropValue.class);
+
+        verify(mVehicle).set(captor.capture());
+        HalPropValue halPropValue = captor.getValue();
+        expectWithMessage("Boolean property Id").that(halPropValue.getPropId())
+                .isEqualTo(SOME_BOOL_PROPERTY);
+        expectWithMessage("Global area Id").that(halPropValue.getAreaId())
+                .isEqualTo(GLOBAL_AREA_ID);
+        expectWithMessage("Boolean property value").that(halPropValue.getInt32Value(0))
+                .isEqualTo(1);
+    }
+
+    @Test
+    public void testSetPropertyFromCommandInt32() throws Exception {
+        mVehicleHal.setPropertyFromCommand(SOME_INT32_PROPERTY, GLOBAL_AREA_ID, "55", null);
+        ArgumentCaptor<HalPropValue> captor =
+                ArgumentCaptor.forClass(HalPropValue.class);
+
+        verify(mVehicle).set(captor.capture());
+        HalPropValue halPropValue = captor.getValue();
+        expectWithMessage("Int32 property Id").that(halPropValue.getPropId())
+                .isEqualTo(SOME_INT32_PROPERTY);
+        expectWithMessage("Global area Id").that(halPropValue.getAreaId())
+                .isEqualTo(GLOBAL_AREA_ID);
+        expectWithMessage("Int32 property value").that(halPropValue.getInt32Value(0))
+                .isEqualTo(55);
+    }
+
+    @Test
+    public void testSetPropertyFromCommandInt64() throws Exception {
+        mVehicleHal.setPropertyFromCommand(SOME_INT64_PROPERTY, GLOBAL_AREA_ID,
+                Long.toString((long) Integer.MAX_VALUE + 1) , null);
+        ArgumentCaptor<HalPropValue> captor =
+                ArgumentCaptor.forClass(HalPropValue.class);
+
+        verify(mVehicle).set(captor.capture());
+        HalPropValue halPropValue = captor.getValue();
+        expectWithMessage("Int64 property Id").that(halPropValue.getPropId())
+                .isEqualTo(SOME_INT64_PROPERTY);
+        expectWithMessage("Global area Id").that(halPropValue.getAreaId())
+                .isEqualTo(GLOBAL_AREA_ID);
+        expectWithMessage("Int64 property value").that(halPropValue.getInt64Value(0))
+                .isEqualTo((long) Integer.MAX_VALUE + 1);
+    }
+
+    @Test
+    public void testSetPropertyFromCommandFloat() throws Exception {
+        mVehicleHal.setPropertyFromCommand(SOME_FLOAT_PROPERTY, GLOBAL_AREA_ID,
+                "555.55f" , null);
+        ArgumentCaptor<HalPropValue> captor =
+                ArgumentCaptor.forClass(HalPropValue.class);
+
+        verify(mVehicle).set(captor.capture());
+        HalPropValue halPropValue = captor.getValue();
+        expectWithMessage("Float property value").that(halPropValue.getPropId())
+                .isEqualTo(SOME_FLOAT_PROPERTY);
+        expectWithMessage("Global area Id").that(halPropValue.getAreaId())
+                .isEqualTo(GLOBAL_AREA_ID);
+        expectWithMessage("Float property value").that(halPropValue.getFloatValue(0))
+                .isEqualTo(555.55f);
+    }
+
+    @Test
+    public void testSetPropertyFromCommandMixedTypes_throwsIllegalArgument() {
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
+                mVehicleHal.setPropertyFromCommand(SOME_FLOAT_VEC_PROPERTY
+                        | SOME_INT64_VEC_PROPERTY, GLOBAL_AREA_ID, "6234" , null));
+
+        assertWithMessage("Multiple property types").that(thrown).hasMessageThat()
+                .contains("Unsupported property type: property");
     }
 }

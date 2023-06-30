@@ -218,7 +218,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         }
         HalPropConfig[] configs;
         try {
-            configs = mVehicleStub.getAllPropConfigs();
+            configs = getAllPropConfigs();
             if (configs == null || configs.length == 0) {
                 Slogf.e(CarLog.TAG_HAL, "getAllPropConfigs returned empty configs");
                 return;
