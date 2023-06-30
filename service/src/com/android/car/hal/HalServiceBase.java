@@ -97,8 +97,10 @@ public abstract class HalServiceBase {
     /**
      * Handles errors and pass error codes  when setting properties.
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public void onPropertySetError(ArrayList<VehiclePropError> errors) {
-        for (VehiclePropError error : errors) {
+        for (int i = 0; i < errors.size(); i++) {
+            VehiclePropError error = errors.get(i);
             Slogf.d(MY_TAG, getClass().getSimpleName() + ".onPropertySetError(): property="
                     + error.propId + ", area=" + error.areaId + " , errorCode = "
                     + error.errorCode);
