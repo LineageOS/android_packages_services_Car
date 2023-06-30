@@ -16,6 +16,8 @@
 
 package com.android.car.internal.property;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.Nullable;
 import android.car.annotation.ApiRequirements;
 import android.car.annotation.ApiRequirements.CarVersion;
@@ -25,6 +27,7 @@ import android.car.hardware.property.CarPropertyManager.GetPropertyRequest;
 import android.car.hardware.property.CarPropertyManager.SetPropertyRequest;
 import android.os.Parcelable;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.DataClass;
 
 /**
@@ -34,6 +37,7 @@ import com.android.car.internal.util.DataClass;
  * @hide
  */
 @DataClass(genConstructor = false)
+@ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
 public final class AsyncPropertyServiceRequest implements Parcelable {
     private final int mRequestId;
     private final int mPropertyId;
