@@ -50,13 +50,16 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.ArraySet;
+import android.util.SparseIntArray;
 import android.util.Log;
 
 import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarServiceUtils;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.evs.CarEvsUtils;
 import com.android.car.internal.evs.EvsHalWrapper;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
@@ -84,23 +87,43 @@ final class StateMachine {
     private static final String CALLBACK_RUNNABLE_TOKEN = StateMachine.class.getSimpleName();
     private static final String DEFAULT_CAMERA_ALIAS = "default";
 
-    private final ArraySet mBufferRecords = new ArraySet();
+    private final SparseIntArray mBufferRecords = new SparseIntArray();
     private final CarEvsService mService;
     private final ComponentName mActivityName;
     private final Context mContext;
     private final EvsHalWrapper mHalWrapper;
-    private final HalCallback mHalCallback = new HalCallback();
+    private final HalCallback mHalCallback;
     private final Handler mHandler;
     private final HandlerThread mHandlerThread =
             CarServiceUtils.getHandlerThread(getClass().getSimpleName());
     private final Object mLock = new Object();
     private final Runnable mActivityRequestTimeoutRunnable = () -> handleActivityRequestTimeout();
+    private final String mLogTag;
+    private final @CarEvsServiceType int mServiceType;
+
+    private final class StreamCallbackList extends RemoteCallbackList<ICarEvsStreamCallback> {
+        @Override
+        public void onCallbackDied(ICarEvsStreamCallback callback) {
+            if (callback == null) {
+                return;
+            }
+
+            Slogf.w(mLogTag, "StreamCallback %s has died.", callback.asBinder());
+            synchronized (mLock) {
+                if (StateMachine.this.needToStartActivityLocked()) {
+                    if (StateMachine.this.startActivity(/* resetState= */ true) != ERROR_NONE) {
+                        Slogf.e(mLogTag, "Failed to request the acticity.");
+                    }
+                } else {
+                    // Ensure we stops streaming.
+                    StateMachine.this.handleClientDisconnected(callback);
+                }
+            }
+        }
+    }
 
     @GuardedBy("mLock")
     private String mCameraId;
-
-    @GuardedBy("mLock")
-    private ICarEvsStreamCallback mStreamCallback;
 
     // Current state.
     @GuardedBy("mLock")
@@ -114,25 +137,29 @@ final class StateMachine {
     @GuardedBy("mLock")
     private IBinder mSessionToken = null;
 
+    // A callback associated with current session token.
+    @GuardedBy("mLock")
+    private ICarEvsStreamCallback mPrivilegedCallback;
+
     // This is a device name to override initial camera id.
     private String mCameraIdOverride = null;
 
     @VisibleForTesting
     final class HalCallback implements EvsHalWrapper.HalEventCallback {
 
-        private WeakReference<ICarEvsStreamCallback> mCallback;
+        private final StreamCallbackList mCallbacks = new StreamCallbackList();
 
         /** EVS stream event handler called after a native handler. */
         @Override
         public void onHalEvent(int event) {
-            mHandler.postDelayed(() -> processStreamEvent(mCallback, event),
+            mHandler.postDelayed(() -> processStreamEvent(event),
                     CALLBACK_RUNNABLE_TOKEN, /* delayMillis= */ 0);
         }
 
         /** EVS frame handler called after a native handler. */
         @Override
         public void onFrameEvent(int id, HardwareBuffer buffer) {
-            mHandler.postDelayed(() -> processNewFrame(mCallback, id, buffer),
+            mHandler.postDelayed(() -> processNewFrame(id, buffer),
                     CALLBACK_RUNNABLE_TOKEN, /* delayMillis= */ 0);
         }
 
@@ -144,15 +171,116 @@ final class StateMachine {
             connectToHalServiceIfNecessary(EVS_HAL_SERVICE_BIND_RETRY_INTERVAL_MS);
         }
 
-        /** Sets a callback to forward events. */
-        boolean setStreamCallback(ICarEvsStreamCallback callback) {
-            if (mCallback != null && mCallback.get() != null) {
-                Slogf.d(TAG_EVS, "Replacing an existing stream callback object %s with %s",
-                        mCallback.get(), callback);
-            }
+        boolean register(ICarEvsStreamCallback callback, IBinder token) {
+            return mCallbacks.register(callback, token);
+        }
 
-            mCallback = new WeakReference<>(callback);
-            return true;
+        boolean unregister(ICarEvsStreamCallback callback) {
+            return mCallbacks.unregister(callback);
+        }
+
+        boolean contains(ICarEvsStreamCallback target) {
+            boolean found = false;
+            synchronized (mCallbacks) {
+                int idx = mCallbacks.beginBroadcast();
+                while (!found && idx-- > 0) {
+                    ICarEvsStreamCallback callback = mCallbacks.getBroadcastItem(idx);
+                    found = target.asBinder() == callback.asBinder();
+                }
+                mCallbacks.finishBroadcast();
+            }
+            return found;
+        }
+
+        boolean isEmpty() {
+            return mCallbacks.getRegisteredCallbackCount() == 0;
+        }
+
+        RemoteCallbackList get() {
+            return mCallbacks;
+        }
+
+        int size() {
+            return mCallbacks.getRegisteredCallbackCount();
+        }
+
+        void stop() {
+            synchronized (mCallbacks) {
+                int idx = mCallbacks.beginBroadcast();
+                while (idx-- > 0) {
+                    ICarEvsStreamCallback callback = mCallbacks.getBroadcastItem(idx);
+                    requestStopVideoStream(callback);
+                }
+                mCallbacks.finishBroadcast();
+            }
+        }
+
+        @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+        void dump(IndentingPrintWriter writer) {
+            writer.printf("Active clients:\n");
+            writer.increaseIndent();
+            synchronized (mCallbacks) {
+                int idx = mCallbacks.beginBroadcast();
+                while (idx-- > 0) {
+                    writer.printf("%s\n", mCallbacks.getBroadcastItem(idx).asBinder());
+                }
+                mCallbacks.finishBroadcast();
+            }
+            writer.decreaseIndent();
+        }
+
+        /** Processes a streaming event and propagates it to registered clients */
+        private void processStreamEvent(@CarEvsStreamEvent int event) {
+            synchronized (mCallbacks) {
+                int idx = mCallbacks.beginBroadcast();
+                while (idx-- > 0) {
+                    ICarEvsStreamCallback callback = mCallbacks.getBroadcastItem(idx);
+                    try {
+                        int taggedEvent = CarEvsUtils.putTag(mServiceType, event);
+                        callback.onStreamEvent(taggedEvent);
+                    } catch (RemoteException e) {
+                        Slogf.w(mLogTag, "Failed to forward an event to %s", callback);
+                    }
+                }
+                mCallbacks.finishBroadcast();
+            }
+        }
+
+        /**
+         * Processes a streaming event and propagates it to registered clients.
+         *
+         * @return Number of successful callbacks.
+         */
+        private int processNewFrame(int id, @NonNull HardwareBuffer buffer) {
+            Objects.requireNonNull(buffer);
+
+            // Counts how many callbacks are successfully done.
+            int refcount = 0;
+            synchronized (mCallbacks) {
+                int idx = mCallbacks.beginBroadcast();
+                while (idx-- > 0) {
+                    ICarEvsStreamCallback callback = mCallbacks.getBroadcastItem(idx);
+                    try {
+                        int bufferId = CarEvsUtils.putTag(mServiceType, id);
+                        callback.onNewFrame(new CarEvsBufferDescriptor(bufferId, buffer));
+                        refcount += 1;
+                    } catch (RemoteException e) {
+                        Slogf.w(mLogTag, "Failed to forward a frame to %s", callback);
+                    }
+                }
+                mCallbacks.finishBroadcast();
+            }
+            buffer.close();
+
+            if (refcount > 0) {
+                synchronized (mLock) {
+                    mBufferRecords.put(id, refcount);
+                }
+            } else {
+                Slogf.i(mLogTag, "No client is actively listening.");
+                mHalWrapper.doneWithFrame(id);
+            }
+            return refcount;
         }
     }
 
@@ -173,17 +301,20 @@ final class StateMachine {
 
     // Constructor
     StateMachine(Context context, Context builtinContext, CarEvsService service,
-            ComponentName activityName, String cameraId) {
-        this(context, builtinContext, service, activityName, cameraId, /* handler= */ null);
+            ComponentName activityName, @CarEvsServiceType int type, String cameraId) {
+        this(context, builtinContext, service, activityName, type, cameraId, /* handler= */ null);
     }
 
     StateMachine(Context context, Context builtinContext, CarEvsService service,
-            ComponentName activityName, String cameraId, Handler handler) {
+            ComponentName activityName, @CarEvsServiceType int type, String cameraId,
+                    Handler handler) {
+        String postfix = "." + CarEvsUtils.convertToString(type);
+        mLogTag = TAG_EVS + postfix;
         mContext = context;
         mCameraId = cameraId;
         mActivityName = activityName;
         if (DBG) {
-            Slogf.d(TAG_EVS, "Camera Activity=%s", mActivityName);
+            Slogf.d(mLogTag, "Camera Activity=%s", mActivityName);
         }
 
         if (handler == null) {
@@ -191,8 +322,11 @@ final class StateMachine {
         } else {
             mHandler = handler;
         }
+
+        mHalCallback = new HalCallback();
         mHalWrapper = StateMachine.createHalWrapper(builtinContext, mHalCallback);
         mService = service;
+        mServiceType = type;
     }
 
     /***** Visible instance method section. *****/
@@ -248,18 +382,22 @@ final class StateMachine {
      * @param id An identifier of a frame buffer we have consumed.
      */
     void doneWithFrame(int id) {
+        int bufferId = CarEvsUtils.getValue(id);
         synchronized (mLock) {
-            if (!mBufferRecords.contains(id)) {
-                Slogf.w(TAG_EVS, "Ignores a request to return a buffer with unknown id = "
-                        + id);
+            int refcount = mBufferRecords.get(bufferId) - 1;
+            if (refcount > 0) {
+                if (DBG) {
+                    Slogf.d(mLogTag, "Buffer %d has %d references.", id, refcount);
+                }
+                mBufferRecords.put(bufferId, refcount);
                 return;
             }
 
-            mBufferRecords.remove(id);
+            mBufferRecords.delete(bufferId);
         }
 
         // This may throw a NullPointerException if the native EVS service handle is invalid.
-        mHalWrapper.doneWithFrame(id);
+        mHalWrapper.doneWithFrame(bufferId);
     }
 
     /**
@@ -276,10 +414,16 @@ final class StateMachine {
      */
     @CarEvsError int requestStartActivity(int priority) {
         if (mContext == null) {
+            Slogf.e(mLogTag, "Context is not valid.");
             return ERROR_UNAVAILABLE;
         }
 
-        return mActivityName == null ? ERROR_NONE : execute(priority, SERVICE_STATE_REQUESTED);
+        if (mActivityName == null) {
+            Slogf.d(mLogTag, "No activity is set.");
+            return ERROR_NONE;
+        }
+
+        return execute(priority, SERVICE_STATE_REQUESTED);
     }
 
     /**
@@ -307,10 +451,8 @@ final class StateMachine {
      *         ERROR_BUSY if current activity has a higher priority than a given priority.
      */
     @CarEvsError int requestStopActivity(int priority) {
-        if (mStreamCallback == null || mActivityName == null) {
-            Slogf.d(TAG_EVS,
-                    "Ignore a request to stop activity mStreaCallback=%s, mActivityName=%s",
-                            mStreamCallback, mActivityName);
+        if (mActivityName == null) {
+            Slogf.d(mLogTag, "Ignore a request to stop activity mActivityName=%s", mActivityName);
             return ERROR_NONE;
         }
 
@@ -325,7 +467,7 @@ final class StateMachine {
         }
 
         if (execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE) != ERROR_NONE) {
-            Slogf.w(TAG_EVS, "Failed to transition to INACTIVE state.");
+            Slogf.w(mLogTag, "Failed to transition to INACTIVE state.");
         }
     }
 
@@ -336,8 +478,8 @@ final class StateMachine {
 
     /** Shuts down the service and enters INACTIVE state. */
     void stopService() {
-        // Stop all clients.
-        requestStopVideoStream(/* callback= */ null);
+        // Stop all active clients.
+        mHalCallback.stop();
     }
 
     /**
@@ -371,23 +513,13 @@ final class StateMachine {
      * @param callback A callback client who want to stop listening.
      */
     void requestStopVideoStream(ICarEvsStreamCallback callback) {
-        ICarEvsStreamCallback existingCallback;
-        synchronized (mLock) {
-            existingCallback = mStreamCallback;
-        }
-
-        if (existingCallback == null) {
-            Slogf.i(TAG_EVS, "No active client exists.");
-            return;
-        }
-
-        if (callback != null && callback.asBinder() != existingCallback.asBinder()) {
-            Slogf.d(TAG_EVS, "Ignores a video stream request not from current stream client.");
+        if (!mHalCallback.contains(callback)) {
+            Slogf.d(mLogTag, "Ignores a video stream stop request not from current stream client.");
             return;
         }
 
         if (execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE, callback) != ERROR_NONE) {
-            Slogf.w(TAG_EVS, "Failed to stop a video stream");
+            Slogf.w(mLogTag, "Failed to stop a video stream");
         }
     }
 
@@ -406,13 +538,18 @@ final class StateMachine {
      * Returns a String that describes a current session token.
      */
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    void dumpSessionToken(IndentingPrintWriter writer) {
-        String msg;
+    void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
-            msg = mSessionToken.toString();
+            writer.printf("StateMachine 0x%s is providing %s.\n",
+                    Integer.toHexString(System.identityHashCode(this)),
+                            CarEvsUtils.convertToString(mServiceType));
+            writer.printf("SessionToken = %s.\n",
+                    mSessionToken == null ? "Not exist" : mSessionToken);
+            writer.increaseIndent();
+            mHalCallback.dump(writer);
+            writer.decreaseIndent();
+            writer.printf("\n");
         }
-
-        writer.printf("Current session token = %s\n", msg);
     }
 
     /**
@@ -464,17 +601,9 @@ final class StateMachine {
         int result = ERROR_NONE;
         int previousState, newState;
         synchronized (mLock) {
-            // TODO(b/188970686): Reduce this lock duration.
-            if (mState == destination && priority < mLastRequestPriority &&
-                    destination != SERVICE_STATE_REQUESTED) {
-                // Nothing to do
-                return ERROR_NONE;
-            }
-
             previousState = mState;
-            Slogf.i(TAG_EVS, "Transition requested: %s -> %s", stateToString(previousState),
+            Slogf.i(mLogTag, "Transition requested: %s -> %s", stateToString(previousState),
                     stateToString(destination));
-
             switch (destination) {
                 case SERVICE_STATE_UNAVAILABLE:
                     result = handleTransitionToUnavailableLocked();
@@ -501,12 +630,14 @@ final class StateMachine {
         }
 
         if (result == ERROR_NONE) {
-            Slogf.i(TAG_EVS, "Transition completed: %s", stateToString(destination));
             if (previousState != newState) {
+                Slogf.i(mLogTag, "Transition completed: %s", stateToString(destination));
                 mService.broadcastStateTransition(CarEvsManager.SERVICE_TYPE_REARVIEW, newState);
+            } else {
+                Slogf.i(mLogTag, "Stay at %s", stateToString(newState));
             }
         } else {
-            Slogf.e(TAG_EVS, "Transition failed: error = %d", result);
+            Slogf.e(mLogTag, "Transition failed: error = %d", result);
         }
 
         return result;
@@ -521,7 +652,7 @@ final class StateMachine {
     private boolean needToStartActivity() {
         if (mActivityName == null || mHandler.hasCallbacks(mActivityRequestTimeoutRunnable)) {
             // No activity has been registered yet or it is already requested.
-            Slogf.d(TAG_EVS,
+            Slogf.d(mLogTag,
                     "No need to start an activity: mActivityName=%s, mHandler.hasCallbacks()=%s",
                             mActivityName, mHandler.hasCallbacks(mActivityRequestTimeoutRunnable));
             return false;
@@ -544,7 +675,7 @@ final class StateMachine {
     private boolean needToStartActivityLocked() {
         if (mActivityName == null || mHandler.hasCallbacks(mActivityRequestTimeoutRunnable)) {
             // No activity has been registered yet or it is already requested.
-            Slogf.d(TAG_EVS,
+            Slogf.d(mLogTag,
                     "No need to start an activity: mActivityName=%s, mHandler.hasCallbacks()=%s",
                             mActivityName, mHandler.hasCallbacks(mActivityRequestTimeoutRunnable));
             return false;
@@ -614,14 +745,20 @@ final class StateMachine {
 
     /** Stops a registered activity if it's running and enters INACTIVE state. */
     private void stopActivity() {
+        IBinder token;
         ICarEvsStreamCallback callback;
         synchronized (mLock) {
-            callback = mStreamCallback;
+            token = mSessionToken;
+            callback = mPrivilegedCallback;
         }
 
-        // We'll attempt to enter INACTIVE state.
+        if (token == null || callback == null) {
+            Slogf.d(mLogTag, "No activity is running.");
+            return;
+        }
+
         if (execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE, callback) != ERROR_NONE) {
-            Slogf.w(TAG_EVS, "Failed to transition to INACTIVE state.");
+            Slogf.w(mLogTag, "Failed to stop a video stream");
         }
     }
 
@@ -645,13 +782,15 @@ final class StateMachine {
      *
      * @param callback A callback object we're about to stop forwarding frmae buffers and events.
      */
-    private static void notifyStreamStopped(ICarEvsStreamCallback callback) {
+    private void notifyStreamStopped(ICarEvsStreamCallback callback) {
         if (callback == null) {
             return;
         }
 
         try {
-            callback.onStreamEvent(CarEvsManager.STREAM_EVENT_STREAM_STOPPED);
+            int taggedEvent = CarEvsUtils.putTag(mServiceType,
+                    CarEvsManager.STREAM_EVENT_STREAM_STOPPED);
+            callback.onStreamEvent(taggedEvent);
         } catch (RemoteException e) {
             // Likely the binder death incident
             Slogf.w(TAG_EVS, Log.getStackTraceString(e));
@@ -669,7 +808,7 @@ final class StateMachine {
      */
     @GuardedBy("mLock")
     private boolean isSessionTokenLocked(IBinder token) {
-        return token != null && token == mSessionToken;
+        return token != null && mService.isSessionToken(token);
     }
 
     /**
@@ -716,8 +855,10 @@ final class StateMachine {
                 if (callback != null) {
                     // We get a request to stop a video stream after losing a native EVS
                     // service.  Simply unregister a callback and return.
-                    unlinkToDeathStreamCallbackLocked(callback);
-                    mStreamCallback = null;
+                    if (!mHalCallback.unregister(callback)) {
+                        Slogf.d(mLogTag, "Ignored a request to unregister unknown callback %s",
+                                callback);
+                    }
                     return ERROR_NONE;
                 } else {
                     // Requested to connect to the Extended View System service
@@ -749,21 +890,33 @@ final class StateMachine {
                 break;
 
             case SERVICE_STATE_ACTIVE:
-                // Requested to stop a current video stream
-                if (priority < mLastRequestPriority) {
-                    Slogf.d(TAG_EVS,
-                            "Ignore a request to stop a video stream with a lower priority");
-                    return ERROR_BUSY;
+                // Remove pending callbacks and notify a client.
+                if (callback != null) {
+                    mHandler.postAtFrontOfQueue(() -> notifyStreamStopped(callback));
+                    if (!mHalCallback.unregister(callback)) {
+                        Slogf.e(mLogTag, "Ignored a request to unregister unknown callback %s",
+                                callback);
+                    }
+
+                    if (mPrivilegedCallback != null &&
+                            callback.asBinder() == mPrivilegedCallback.asBinder()) {
+                        mPrivilegedCallback = null;
+                        invalidateSessionTokenLocked();
+                    }
                 }
 
-                // Remove pending callbacks and notify a client.
-                mHandler.postAtFrontOfQueue(() -> notifyStreamStopped(callback));
-                mHandler.removeCallbacksAndMessages(CALLBACK_RUNNABLE_TOKEN);
+                if (!mHalCallback.isEmpty()) {
+                    Slogf.i(mLogTag, "%s streaming client(s) is/are alive.", mHalCallback.size());
+                    return ERROR_NONE;
+                }
 
-                unlinkToDeathStreamCallbackLocked(callback);
-                mStreamCallback = null;
+                Slogf.i(mLogTag, "Last streaming client has been disconnected.");
+                for (int i = 0; i < mBufferRecords.size(); i++) {
+                    mHalWrapper.doneWithFrame(mBufferRecords.keyAt(i));
+                }
 
                 mHalWrapper.requestToStopVideoStream();
+                mBufferRecords.clear();
                 break;
 
             default:
@@ -771,7 +924,6 @@ final class StateMachine {
         }
 
         mState = SERVICE_STATE_INACTIVE;
-        mSessionToken = null;
         return ERROR_NONE;
     }
 
@@ -786,6 +938,10 @@ final class StateMachine {
      */
     @GuardedBy("mLock")
     private @CarEvsError int handleTransitionToRequestedLocked(int priority) {
+        if (mActivityName == null) {
+            Slogf.e(mLogTag, "No activity is registered.");
+            return ERROR_UNAVAILABLE;
+        }
 
         switch (mState) {
             case SERVICE_STATE_UNAVAILABLE:
@@ -808,7 +964,7 @@ final class StateMachine {
                     return ERROR_BUSY;
                 }
 
-                // Reset a timer for this new request
+                // Reset a timer for this new request if it exists.
                 mHandler.removeCallbacks(mActivityRequestTimeoutRunnable);
                 break;
 
@@ -816,15 +972,8 @@ final class StateMachine {
                 if (priority < mLastRequestPriority) {
                     // We decline a request because CarEvsService is busy with a higher priority
                     // client.
+                    Slogf.e(TAG_EVS, "CarEvsService is busy with a higher priority client.");
                     return ERROR_BUSY;
-                } else if (priority == mLastRequestPriority) {
-                    // We do not need to transit to the REQUESTED state because CarEvsService
-                    // was transited to the ACTIVE state by a request that has the same priority
-                    // with current request.
-                    return ERROR_NONE;
-                } else {
-                    // Stop stream on all lower priority clients.
-                    mHalCallback.onHalEvent(CarEvsManager.STREAM_EVENT_STREAM_STOPPED);
                 }
                 break;
 
@@ -832,30 +981,31 @@ final class StateMachine {
                 throw new IllegalStateException("CarEvsService is in the unknown state.");
         }
 
-        // Arms the timer for the high-priority request
-        if (priority == REQUEST_PRIORITY_HIGH) {
-            mHandler.postDelayed(
-                    mActivityRequestTimeoutRunnable, STREAM_START_REQUEST_TIMEOUT_MS);
-        }
-
         mState = SERVICE_STATE_REQUESTED;
         mLastRequestPriority = priority;
 
-        if (mActivityName != null) {
-            Intent evsIntent = new Intent(Intent.ACTION_MAIN)
-                    .setComponent(mActivityName)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
-                    .addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-                    .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-            if (priority == REQUEST_PRIORITY_HIGH) {
-                mSessionToken = new Binder();
-                Bundle bundle = new Bundle();
-                bundle.putBinder(CarEvsManager.EXTRA_SESSION_TOKEN, mSessionToken);
-                evsIntent.replaceExtras(bundle);
-            }
-            mContext.startActivity(evsIntent);
+        Intent evsIntent = new Intent(Intent.ACTION_MAIN)
+                .setComponent(mActivityName)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
+                .addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+        // Stores a token and arms the timer for the high-priority request.
+        Bundle bundle = new Bundle();
+        if (priority == REQUEST_PRIORITY_HIGH) {
+            bundle.putBinder(CarEvsManager.EXTRA_SESSION_TOKEN,
+                    mService.generateSessionTokenInternal());
+            mHandler.postDelayed(
+                    mActivityRequestTimeoutRunnable, STREAM_START_REQUEST_TIMEOUT_MS);
         }
+        // Temporary, we use CarEvsManager.SERVICE_TYPE_REARVIEW as the key for a service type
+        // value.
+        bundle.putShort(Integer.toString(CarEvsManager.SERVICE_TYPE_REARVIEW),
+                (short) mServiceType);
+        evsIntent.replaceExtras(bundle);
+
+        mContext.startActivity(evsIntent);
         return ERROR_NONE;
     }
 
@@ -875,7 +1025,10 @@ final class StateMachine {
         switch (mState) {
             case SERVICE_STATE_UNAVAILABLE:
                 // We do not have a valid connection to the Extended View System service.
-                return ERROR_UNAVAILABLE;
+                if (!mHalWrapper.connectToHalServiceIfNecessary()) {
+                    return ERROR_UNAVAILABLE;
+                }
+                // fallthrough
 
             case SERVICE_STATE_INACTIVE:
                 // CarEvsService receives a low priority request to start a video stream.
@@ -902,7 +1055,7 @@ final class StateMachine {
                 // CarEvsManager will transfer an active video stream to a new client with a
                 // higher or equal priority.
                 if (priority < mLastRequestPriority) {
-                    Slogf.i(TAG_EVS, "Declines a service request with a lower priority.");
+                    Slogf.i(mLogTag, "Declines a service request with a lower priority.");
                     break;
                 }
 
@@ -910,106 +1063,34 @@ final class StateMachine {
                 if (result != ERROR_NONE) {
                     return result;
                 }
-
-                if (mStreamCallback != null) {
-                    // keep old reference for Runnable.
-                    ICarEvsStreamCallback previousCallback = mStreamCallback;
-                    mStreamCallback = null;
-
-                    // Notify a current client of losing a video stream.
-                    mHandler.post(() -> notifyStreamStopped(previousCallback));
-                }
                 break;
 
             default:
                 throw new IllegalStateException("CarEvsService is in the unknown state.");
         }
 
-        result = startVideoStream(callback);
+        result = startVideoStream(callback, token);
         if (result == ERROR_NONE) {
             mState = SERVICE_STATE_ACTIVE;
             mLastRequestPriority = priority;
+            if (isSessionTokenLocked(token)) {
+                mSessionToken = token;
+                mPrivilegedCallback = callback;
+            }
         }
         return result;
-    }
-
-    /** A stream callback death recipient. */
-    private final IBinder.DeathRecipient mStreamCallbackDeathRecipient =
-            new IBinder.DeathRecipient() {
-        @Override
-        public void binderDied() {
-            Slogf.w(TAG_EVS, "StreamCallback has died.");
-            synchronized (mLock) {
-                if (needToStartActivityLocked()) {
-                    if (startActivity(/* resetState= */ true) != ERROR_NONE) {
-                        Slogf.w(TAG_EVS, "Failed to request the activity.");
-                        mHandler.postDelayed(mActivityRequestTimeoutRunnable,
-                                STREAM_START_REQUEST_TIMEOUT_MS);
-                    }
-                } else {
-                    // Ensure we stops streaming.
-                    handleClientDisconnected(mStreamCallback);
-                }
-            }
-        }
-    };
-
-    /** Processes a streaming event and propagates it to registered clients */
-    private void processStreamEvent(WeakReference<ICarEvsStreamCallback> callbackRef,
-            @CarEvsStreamEvent int event) {
-        ICarEvsStreamCallback callback = callbackRef.get();
-        if (callback == null) {
-            Slogf.d(TAG_EVS, "Ignore an event as a client is not alive.");
-            return;
-        }
-
-        try {
-            callback.onStreamEvent(event);
-        } catch (RemoteException e) {
-            // Likely the binder death incident
-            Slogf.e(TAG_EVS, Log.getStackTraceString(e));
-        }
-    }
-
-    /**
-     * Processes a streaming event and propagates it to registered clients.
-     *
-     * @return True if this buffer is hold and used by the client, false otherwise.
-     */
-    private void processNewFrame(WeakReference<ICarEvsStreamCallback> callbackRef, int id,
-            @NonNull HardwareBuffer buffer) {
-        Objects.requireNonNull(buffer);
-
-        ICarEvsStreamCallback callback = callbackRef.get();
-        if (callback == null) {
-            Slogf.d(TAG_EVS, "Skip a frame %d because a client is not alive.", id);
-            mHalWrapper.doneWithFrame(id);
-            return;
-        }
-
-        try {
-            callback.onNewFrame(new CarEvsBufferDescriptor(id, buffer));
-            synchronized (mLock) {
-                mBufferRecords.add(id);
-            }
-        } catch (RemoteException e) {
-            // Likely the binder death incident
-            Slogf.d(TAG_EVS, "Failed to forward a frame %s\n%s", id, Log.getStackTraceString(e));
-            mHalWrapper.doneWithFrame(id);
-        } finally {
-            buffer.close();
-        }
     }
 
     /** Connects to the native EVS service if necessary and opens a target camera device. */
     private @CarEvsError int startService() {
         if (!mHalWrapper.connectToHalServiceIfNecessary()) {
-            Slogf.e(TAG_EVS, "Failed to connect to EVS service.");
+            Slogf.e(mLogTag, "Failed to connect to EVS service.");
             return ERROR_UNAVAILABLE;
         }
 
-        if (!mHalWrapper.openCamera(mCameraId)) {
-            Slogf.e(TAG_EVS, "Failed to open a targer camera device, %s", mCameraId);
+        String cameraId = mCameraIdOverride != null ? mCameraIdOverride : mCameraId;
+        if (!mHalWrapper.openCamera(cameraId)) {
+            Slogf.e(mLogTag, "Failed to open a targer camera device, %s", cameraId);
             return ERROR_UNAVAILABLE;
         }
 
@@ -1017,57 +1098,18 @@ final class StateMachine {
     }
 
     /** Registers a callback and requests a video stream. */
-    private @CarEvsError int startVideoStream(ICarEvsStreamCallback callback) {
-        if (!mHalCallback.setStreamCallback(callback)) {
-            Slogf.e(TAG_EVS, "Failed to set a stream callback.");
+    private @CarEvsError int startVideoStream(ICarEvsStreamCallback callback, IBinder token) {
+        if (!mHalCallback.register(callback, token)) {
+            Slogf.e(mLogTag, "Failed to set a stream callback.");
             return ERROR_UNAVAILABLE;
         }
 
         if (!mHalWrapper.requestToStartVideoStream()) {
-            Slogf.e(TAG_EVS, "Failed to start a video stream.");
+            Slogf.e(mLogTag, "Failed to start a video stream.");
             return ERROR_UNAVAILABLE;
         }
 
-        // We are ready to start streaming events and frame buffers.
-        synchronized (mLock) {
-            linkToDeathStreamCallbackLocked(callback);
-            mStreamCallback = callback;
-        }
-
         return ERROR_NONE;
-    }
-
-    /** Links a death recipient to a given callback. */
-    @GuardedBy("mLock")
-    private void linkToDeathStreamCallbackLocked(ICarEvsStreamCallback callback) {
-        if (callback == null) {
-            return;
-        }
-
-        IBinder binder = callback.asBinder();
-        if (binder == null) {
-            Slogf.w(TAG_EVS, "Linking to a binder death recipient skipped");
-            return;
-        }
-
-        try {
-            binder.linkToDeath(mStreamCallbackDeathRecipient, 0);
-        } catch (RemoteException e) {
-            Slogf.w(TAG_EVS, "Failed to link a binder death recipient: " + e);
-        }
-    }
-
-    /** Disconnects a death recipient from a given callback. */
-    @GuardedBy("mLock")
-    private void unlinkToDeathStreamCallbackLocked(ICarEvsStreamCallback callback) {
-        if (callback == null) {
-            return;
-        }
-
-        IBinder binder = mStreamCallback.asBinder();
-        if (binder != null) {
-            binder.unlinkToDeath(mStreamCallbackDeathRecipient, 0);
-        }
     }
 
     /** Waits for a video stream request from the System UI with a valid token. */
@@ -1075,10 +1117,17 @@ final class StateMachine {
         // No client has responded to a state transition to the REQUESTED
         // state before the timer expires.  CarEvsService sends a
         // notification again if it's still needed.
-        Slogf.d(TAG_EVS, "Timer expired.  Request to launch the activity again.");
+        Slogf.d(mLogTag, "Timer expired.  Request to launch the activity again.");
         if (startActivityIfNecessary(/* resetState= */ true) != ERROR_NONE) {
-            Slogf.w(TAG_EVS, "Failed to request an activity.");
+            Slogf.w(mLogTag, "Failed to request an activity.");
         }
+    }
+
+    /** Invalidates current session token. */
+    @GuardedBy("mLock")
+    private void invalidateSessionTokenLocked() {
+        mService.invalidateSessionToken(mSessionToken);
+        mSessionToken = null;
     }
 
     /** Checks whether or not we need to request a registered camera activity. */
@@ -1117,7 +1166,7 @@ final class StateMachine {
     @VisibleForTesting
     void setState(@CarEvsServiceState int  newState) {
         synchronized (mLock) {
-            Slogf.d(TAG_EVS, "StateMachine(%s)'s state has been changed from %d to %d.",
+            Slogf.d(mLogTag, "StateMachine(%s)'s state has been changed from %s to %s.",
                     this, mState, newState);
             mState = newState;
         }
@@ -1126,12 +1175,9 @@ final class StateMachine {
     /** Overrides a current callback object. */
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
     @VisibleForTesting
-    void setStreamCallback(ICarEvsStreamCallback callback) {
-        synchronized (mLock) {
-            Slogf.d(TAG_EVS, "StreamCallback %s is replaced with %s", mStreamCallback, callback);
-            mStreamCallback = callback;
-        }
-        mHalCallback.setStreamCallback(callback);
+    void addStreamCallback(ICarEvsStreamCallback callback) {
+        Slogf.d(mLogTag, "Register additional callback %s", callback);
+        mHalCallback.register(callback, /* token= */ null);
     }
 
     /** Overrides a current valid session token. */
@@ -1139,7 +1185,7 @@ final class StateMachine {
     @VisibleForTesting
     void setSessionToken(IBinder token) {
         synchronized (mLock) {
-            Slogf.d(TAG_EVS, "SessionToken %s is replaced with %s", mSessionToken, token);
+            Slogf.d(mLogTag, "SessionToken %s is replaced with %s", mSessionToken, token);
             mSessionToken = token;
         }
     }

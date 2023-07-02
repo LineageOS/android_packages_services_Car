@@ -108,6 +108,7 @@
           <item type="integer" name="config_noUserScreenOffTimeout"/>
           <item type="string" name="config_evsRearviewCameraId" translatable="false"/>
           <item type="string" name="config_evsCameraActivity" translatable="false"/>
+          <item type="array" name="config_carEvsService" translatable="false" />
           <item type="bool" name="config_wifiAdjustmentForSuspend"/>
           <item type="bool" name="config_enableCarLocationServiceGnssControlsForPowerManagement"/>
           <item type="bool" name="config_preventTemplatedAppsFromShowingDialog"/>
