@@ -15,10 +15,24 @@
  */
 package com.android.car.evs;
 
+import static android.car.evs.CarEvsManager.SERVICE_TYPE_REARVIEW;
+import static android.car.evs.CarEvsManager.SERVICE_TYPE_SURROUNDVIEW;
+import static android.car.evs.CarEvsManager.SERVICE_TYPE_FRONTVIEW;
+import static android.car.evs.CarEvsManager.SERVICE_TYPE_LEFTVIEW;
+import static android.car.evs.CarEvsManager.SERVICE_TYPE_RIGHTVIEW;
+import static android.car.evs.CarEvsManager.SERVICE_TYPE_DRIVERVIEW;
+import static android.car.evs.CarEvsManager.SERVICE_TYPE_FRONT_PASSENGERSVIEW;
+import static android.car.evs.CarEvsManager.SERVICE_TYPE_REAR_PASSENGERSVIEW;
+import static android.car.evs.CarEvsManager.SERVICE_TYPE_USER_DEFINED;
+
 import android.annotation.SystemApi;
+import android.content.ComponentName;
 import android.car.builtin.util.Slogf;
 import android.car.evs.CarEvsManager;
+import android.car.evs.CarEvsManager.CarEvsServiceType;
 import android.car.evs.CarEvsManager.CarEvsStreamEvent;
+
+import com.android.car.internal.evs.CarEvsUtils;
 
 /**
  * Utility class for CarEvsService
@@ -28,6 +42,11 @@ import android.car.evs.CarEvsManager.CarEvsStreamEvent;
 @SystemApi
 public final class CarEvsServiceUtils {
     private static final String TAG = CarEvsServiceUtils.class.getSimpleName();
+
+    private static final int INVALID_SERVICE_TYPE = -1;
+
+    private static String INVALID_CAMERA_ID = "";
+
     private CarEvsServiceUtils() {}
 
     /**
@@ -66,5 +85,76 @@ public final class CarEvsServiceUtils {
         }
 
         return outputStatus;
+    }
+
+    final static class Parameters {
+        private final @CarEvsServiceType int mServiceType;
+        private final ComponentName mActivityName;
+        private String mCameraId;
+
+        private Parameters(int type, String cameraId, String activityName) {
+            mServiceType = type;
+            mCameraId = cameraId;
+            if (activityName != null && !activityName.isEmpty()) {
+                mActivityName = ComponentName.unflattenFromString(activityName);
+            } else {
+                mActivityName = null;
+            }
+        }
+
+        static Parameters create(int type, String cameraId, String activityName) {
+            return new Parameters(type, cameraId, activityName);
+        }
+
+        @CarEvsServiceType int getType() { return mServiceType; }
+        String getCameraId() { return mCameraId; }
+        void setCameraId(String cameraId) { mCameraId = cameraId; }
+        ComponentName getActivityComponentName() { return mActivityName; }
+
+        @Override
+        public String toString() {
+            return "Parameter serviceType=" + CarEvsUtils.convertToString(mServiceType) +
+                   ", cameraId=" + mCameraId + ", activityName=" + mActivityName;
+        }
+    }
+
+    static Parameters parse(String rawString) {
+        @CarEvsServiceType int serviceType = INVALID_SERVICE_TYPE;
+        String activityName = null;
+        String cameraId = INVALID_CAMERA_ID;
+
+        // Example a service configuration string:
+        // <item>serviceType=REARVIEW,cameraId=/dev/video0,
+        //    activityName=com.android.car/com.google.android.car.evs.CarEvsCameraPreviewActivity
+        // </item>
+        // <item>serviceType=FRONTVIEW,cameraId=/dev/video1</item>
+        String[] tokens = rawString.split(",");
+        for (String token : tokens) {
+            String[] keyValuePair = token.split("=");
+            if (keyValuePair.length != 2) {
+                Slogf.w(TAG, "Skip a key-value pair in incorrect format, " + token);
+                continue;
+            }
+
+            switch (keyValuePair[0]) {
+                case "serviceType":
+                    serviceType = CarEvsUtils.convertToServiceType(keyValuePair[1]);
+                    break;
+
+                case "cameraId":
+                    cameraId = keyValuePair[1];
+                    break;
+
+                case "activityName":
+                    activityName = keyValuePair[1];
+                    break;
+
+                default:
+                    Slogf.e(TAG, "Unknown parameter: " + token);
+                    break;
+            }
+        }
+
+        return Parameters.create(serviceType, cameraId, activityName);
     }
 }

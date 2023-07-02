@@ -259,6 +259,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
     private static final String COMMAND_SET_REARVIEW_CAMERA_ID = "set-rearview-camera-id";
     private static final String COMMAND_GET_REARVIEW_CAMERA_ID = "get-rearview-camera-id";
+    private static final String COMMAND_SET_CAMERA_ID = "set-camera-id";
+    private static final String COMMAND_GET_CAMERA_ID = "get-camera-id";
 
     private static final String COMMAND_WATCHDOG_CONTROL_PACKAGE_KILLABLE_STATE =
             "watchdog-control-package-killable-state";
@@ -845,7 +847,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.printf("\t%s [%s] [%s]\n", COMMAND_POWER_OFF, PARAM_SKIP_GARAGEMODE, PARAM_REBOOT);
         pw.println("\t  Powers off the car.");
 
-        pw.printf("\t%s <CAMERA_ID>\n", COMMAND_SET_REARVIEW_CAMERA_ID);
+        pw.printf("\t%s <REARVIEW_CAMERA_ID>\n", COMMAND_SET_REARVIEW_CAMERA_ID);
         pw.println("\t  Configures a target camera device CarEvsService to use.");
         pw.println("\t  If CAMEAR_ID is \"default\", this command will configure CarEvsService ");
         pw.println("\t  to use its default camera device.");
@@ -853,6 +855,20 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.printf("\t%s\n", COMMAND_GET_REARVIEW_CAMERA_ID);
         pw.println("\t  Gets the name of the camera device CarEvsService is using for " +
                 "the rearview.");
+
+        pw.printf("\t%s <SERVICE_TYPE> <CAMERA_ID>\n", COMMAND_SET_CAMERA_ID);
+        pw.println("\t Configures a target camera device CarEvsService will use for a specified ");
+        pw.println("\t service type.");
+        pw.println("\t Possible SERVICE_TYPEs are REARVIEW, FRONTVIEW, LEFTVIEW, RIGHTVIEW, ");
+        pw.println("\t DRIVERVIEW, FRONT_PASSENGERSVIEW, REAR_PASSENGERSVIEW, or USER_DEFINED");
+        pw.println("\t (* of CarEvsManager.SERVICE_TYPE_* to specify a service type).");
+
+        pw.printf("\t%s <SERVICE_TYPE>\n", COMMAND_GET_CAMERA_ID);
+        pw.println("\t Gets the name of the camera device that is assigned to a specified ");
+        pw.println("\t service type.");
+        pw.println("\t Possible SERVICE_TYPEs are REARVIEW, FRONTVIEW, LEFTVIEW, RIGHTVIEW, ");
+        pw.println("\t DRIVERVIEW, FRONT_PASSENGERSVIEW, REAR_PASSENGERSVIEW, or USER_DEFINED");
+        pw.println("\t (* of CarEvsManager.SERVICE_TYPE_* to specify a service type).");
 
         pw.printf("\t%s true|false <PACKAGE_NAME>\n",
                 COMMAND_WATCHDOG_CONTROL_PACKAGE_KILLABLE_STATE);
@@ -1390,6 +1406,12 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             case COMMAND_GET_REARVIEW_CAMERA_ID:
                 getRearviewCameraId(writer);
+                break;
+            case COMMAND_SET_CAMERA_ID:
+                setCameraId(args, writer);
+                break;
+            case COMMAND_GET_CAMERA_ID:
+                getCameraId(args, writer);
                 break;
             case COMMAND_WATCHDOG_CONTROL_PACKAGE_KILLABLE_STATE:
                 controlWatchdogPackageKillableState(args, writer);
@@ -3149,6 +3171,19 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
     }
 
+    private void setCameraId(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 3) {
+            showInvalidArguments(writer);
+            return;
+        }
+
+        if (!mCarEvsService.setCameraIdFromCommand(args[1], args[2])) {
+            writer.printf("Failed to set CarEvsService camera device id for %s.", args[1]);
+        } else {
+            writer.printf("CarEvsService is set to use %s for %s.\n", args[2], args[1]);
+        }
+    }
+
     private void setDrivingSafetyRegion(String[] args, IndentingPrintWriter writer) {
         if (args.length != 1 && args.length != 2) {
             showInvalidArguments(writer);
@@ -3163,6 +3198,16 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private void getRearviewCameraId(IndentingPrintWriter writer) {
         writer.printf("CarEvsService is using %s for the rearview.\n",
                 mCarEvsService.getRearviewCameraIdFromCommand());
+    }
+
+    private void getCameraId(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 2) {
+            showInvalidArguments(writer);
+            return;
+        }
+
+        writer.printf("CarEvsService is using %s for %s.\n",
+                mCarEvsService.getCameraIdFromCommand(args[1]), args[1]);
     }
 
     private void controlWatchdogPackageKillableState(String[] args, IndentingPrintWriter writer) {

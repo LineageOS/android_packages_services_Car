@@ -126,6 +126,7 @@ public class CarEvsCameraPreviewActivity extends Activity
     private IBinder mSessionToken;
 
     private boolean mUseSystemWindow;
+    private int mServiceType;
 
     /** Callback to listen to EVS stream */
     private final CarEvsManager.CarEvsStreamCallback mStreamHandler =
@@ -310,10 +311,14 @@ public class CarEvsCameraPreviewActivity extends Activity
         Bundle extras = intent.getExtras();
         if (extras == null) {
             mSessionToken = null;
+            mServiceType = CarEvsManager.SERVICE_TYPE_REARVIEW;
+            mUseSystemWindow = false;
             return;
         }
+
         mSessionToken = extras.getBinder(CarEvsManager.EXTRA_SESSION_TOKEN);
         mUseSystemWindow = mSessionToken != null;
+        mServiceType = extras.getShort(Integer.toString(CarEvsManager.SERVICE_TYPE_REARVIEW));
     }
 
     @Override
@@ -400,8 +405,8 @@ public class CarEvsCameraPreviewActivity extends Activity
             case STREAM_STATE_VISIBLE:
                 // Starts a video stream
                 if (mEvsManager != null) {
-                    int result = mEvsManager.startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW,
-                            mSessionToken, mCallbackExecutor, mStreamHandler);
+                    int result = mEvsManager.startVideoStream(mServiceType, mSessionToken,
+                            mCallbackExecutor, mStreamHandler);
                     if (result != ERROR_NONE) {
                         Log.e(TAG, "Failed to start a video stream, error = " + result);
                     } else {

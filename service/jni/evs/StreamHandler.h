@@ -74,7 +74,10 @@ private:
 
     std::list<::aidl::android::hardware::automotive::evs::BufferDesc> mReceivedBuffers
             GUARDED_BY(mLock);
-    int mMaxNumFramesInFlight;
+    int mMaxNumFramesInFlightPerClient;
+
+    // Track number of active streaming clients.
+    int mNumClients GUARDED_BY(mLock);
 };
 
 }  // namespace android::automotive::evs

@@ -81,7 +81,8 @@ namespace android::automotive::evs {
 
 StreamHandler::StreamHandler(const std::shared_ptr<IEvsCamera>& camObj,
                              EvsServiceCallback* callback, int maxNumFramesInFlight) :
-      mEvsCamera(camObj), mCallback(callback), mMaxNumFramesInFlight(maxNumFramesInFlight) {
+      mEvsCamera(camObj), mCallback(callback), mMaxNumFramesInFlightPerClient(maxNumFramesInFlight),
+      mNumClients(0) {
     if (!camObj) {
         LOG(ERROR) << "IEvsCamera is invalid.";
     } else {
@@ -129,6 +130,18 @@ bool StreamHandler::startStream() {
 
         // Marks ourselves as running
         mRunning = true;
+    } else {
+        // Increase a number of active clients and the max. number of frames in
+        // flight.
+        int desired = (++mNumClients) * mMaxNumFramesInFlightPerClient;
+        auto status = mEvsCamera->setMaxFramesInFlight(desired);
+        if (!status.isOk()) {
+            LOG(ERROR) << "Failed to adjust the maximum number of frames in flight for "
+                       << mNumClients << " clients. Error: " << status.getServiceSpecificError();
+            // Decrease a number of clients back.
+            mNumClients -= 1;
+            return false;
+        }
     }
 
     return true;
@@ -144,6 +157,10 @@ bool StreamHandler::asyncStopStream() {
     // this event to confirm the closure.
     {
         std::lock_guard<std::mutex> lock(mLock);
+        if (!mRunning) {
+            return true;
+        }
+
         auto it = mReceivedBuffers.begin();
         while (it != mReceivedBuffers.end()) {
             // Packages a returned buffer and sends it back to the camera
@@ -177,6 +194,9 @@ void StreamHandler::blockingStopStream() {
         // EVS service may die so no stream-stop event occurs.
         std::lock_guard<std::mutex> lock(mLock);
         mRunning = false;
+
+        // Decrease a number of active clients.
+        --mNumClients;
         return;
     }
 
@@ -235,7 +255,7 @@ void StreamHandler::doneWithFrame(const BufferDesc& buffer) {
         numBuffersInUse = mReceivedBuffers.size();
     }
 
-    if (numBuffersInUse >= mMaxNumFramesInFlight) {
+    if (numBuffersInUse >= mMaxNumFramesInFlightPerClient) {
         // We're holding more than what allowed; returns this buffer
         // immediately.
         doneWithFrame(bufferToUse);
@@ -285,6 +305,7 @@ void StreamHandler::doneWithFrame(const BufferDesc& buffer) {
             [[fallthrough]];
         case EvsEventType::TIMEOUT:
             LOG(INFO) << "Event 0x" << std::hex << static_cast<int32_t>(event.aType)
+                      << " from " << (event.deviceId.empty() ? "Unknown" : event.deviceId)
                       << " is received but ignored";
             break;
         default:

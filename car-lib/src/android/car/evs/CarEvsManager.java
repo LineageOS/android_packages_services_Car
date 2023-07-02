@@ -35,8 +35,10 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.evs.CarEvsUtils;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.annotation.Retention;
@@ -62,8 +64,9 @@ public final class CarEvsManager extends CarManagerBase {
     private final ICarEvsService mService;
     private final Object mStreamLock = new Object();
 
+    // This array maintains mappings between service type and its client.
     @GuardedBy("mStreamLock")
-    private CarEvsStreamCallback mStreamCallback;
+    private SparseArray<CarEvsStreamCallback> mStreamCallbacks = new SparseArray<>();
 
     @GuardedBy("mStreamLock")
     private Executor mStreamCallbackExecutor;
@@ -329,8 +332,7 @@ public final class CarEvsManager extends CarManagerBase {
         }
 
         synchronized (mStreamLock) {
-            mStreamCallback = null;
-            mStreamCallbackExecutor = null;
+            stopVideoStreamLocked();
         }
     }
 
@@ -528,12 +530,12 @@ public final class CarEvsManager extends CarManagerBase {
         final CarEvsStreamCallback callback;
         final Executor executor;
         synchronized (mStreamLock) {
-            callback = mStreamCallback;
+            callback = mStreamCallbacks.get(CarEvsUtils.getTag(event));
             executor = mStreamCallbackExecutor;
         }
 
         if (callback != null) {
-            executor.execute(() -> callback.onStreamEvent(event));
+            executor.execute(() -> callback.onStreamEvent(CarEvsUtils.getValue(event)));
         } else if (DBG) {
             Slogf.w(TAG, "No client seems active; a current stream event is ignored.");
         }
@@ -555,7 +557,7 @@ public final class CarEvsManager extends CarManagerBase {
         final CarEvsStreamCallback callback;
         final Executor executor;
         synchronized (mStreamLock) {
-            callback = mStreamCallback;
+            callback = mStreamCallbacks.get(CarEvsUtils.getTag(buffer.getId()));
             executor = mStreamCallbackExecutor;
         }
 
@@ -567,6 +569,27 @@ public final class CarEvsManager extends CarManagerBase {
                         + "clients exist.");
             }
             returnFrameBuffer(buffer);
+        }
+    }
+
+
+    /** Stops all active stream callbacks. */
+    @GuardedBy("mStreamLock")
+    private void stopVideoStreamLocked() {
+        if (mStreamCallbacks.size() < 1) {
+            Slogf.i(TAG, "No stream to stop.");
+            return;
+        }
+
+        // We're not interested in frames and events anymore.  The client can safely assume
+        // the service is stopped properly.
+        mStreamCallbacks.clear();
+        mStreamCallbackExecutor = null;
+
+        try {
+            mService.stopVideoStream(mStreamListenerToService);
+        } catch (RemoteException err) {
+            handleRemoteExceptionFromCarService(err);
         }
     }
 
@@ -659,7 +682,7 @@ public final class CarEvsManager extends CarManagerBase {
         Objects.requireNonNull(callback);
 
         synchronized (mStreamLock) {
-            mStreamCallback = callback;
+            mStreamCallbacks.put(type, callback);
             mStreamCallbackExecutor = executor;
         }
 
@@ -681,21 +704,7 @@ public final class CarEvsManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public void stopVideoStream() {
         synchronized (mStreamLock) {
-            if (mStreamCallback == null) {
-                Slogf.e(TAG, "The service has not started yet.");
-                return;
-            }
-
-            // We're not interested in frames and events anymore.  The client can safely assume
-            // the service is stopped properly.
-            mStreamCallback = null;
-            mStreamCallbackExecutor = null;
-        }
-
-        try {
-            mService.stopVideoStream(mStreamListenerToService);
-        } catch (RemoteException err) {
-            handleRemoteExceptionFromCarService(err);
+            stopVideoStreamLocked();
         }
     }
 

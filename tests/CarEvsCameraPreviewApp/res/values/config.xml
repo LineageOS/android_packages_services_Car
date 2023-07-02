@@ -20,4 +20,7 @@
 
     <!-- In-plane rotation angle of the rearview camera device in degree -->
     <integer name="config_evsRearviewCameraInPlaneRotationAngle">0</integer>
+
+    <!-- CarEvsService type this application is going to use. -->
+    <string name="config_evsCameraType">REARVIEW</string>
 </resources>
