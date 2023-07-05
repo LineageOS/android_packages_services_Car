@@ -40,6 +40,7 @@ import android.media.MediaFormat;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -63,6 +64,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Random;
 
@@ -111,6 +113,7 @@ public class BugReportActivity extends Activity {
     private ProgressBar mProgressBar;
     private TextView mProgressText;
     private TextView mAddAudioText;
+    private TextView mTimerText;
     private VoiceRecordingView mVoiceRecordingView;
     private View mVoiceRecordingFinishedView;
     private View mSubmitBugReportLayout;
@@ -135,6 +138,7 @@ public class BugReportActivity extends Activity {
     private AudioManager mAudioManager;
     private AudioFocusRequest mLastAudioFocusRequest;
     private Config mConfig;
+    private CountDownTimer mCountDownTimer;
 
     /** Defines callbacks for service binding, passed to bindService() */
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -216,9 +220,6 @@ public class BugReportActivity extends Activity {
 
     @Override
     public void onDestroy() {
-        if (mRecorder != null) {
-            mHandler.removeCallbacksAndMessages(/* token= */ mRecorder);
-        }
         if (mBound) {
             unbindService(mConnection);
             mBound = false;
@@ -275,6 +276,7 @@ public class BugReportActivity extends Activity {
         mProgressText = findViewById(R.id.progress_text);
         mAddAudioText = findViewById(R.id.bug_report_add_audio_to_existing);
         mVoiceRecordingView = findViewById(R.id.voice_recording_view);
+        mTimerText = findViewById(R.id.voice_recording_timer_text_view);
         mVoiceRecordingFinishedView = findViewById(R.id.voice_recording_finished_text_view);
         mSubmitBugReportLayout = findViewById(R.id.submit_bug_report_layout);
         mInProgressLayout = findViewById(R.id.in_progress_layout);
@@ -328,9 +330,11 @@ public class BugReportActivity extends Activity {
         if (isRecording) {
             mVoiceRecordingFinishedView.setVisibility(View.GONE);
             mVoiceRecordingView.setVisibility(View.VISIBLE);
+            mTimerText.setVisibility(View.VISIBLE);
         } else {
             mVoiceRecordingFinishedView.setVisibility(View.VISIBLE);
             mVoiceRecordingView.setVisibility(View.GONE);
+            mTimerText.setVisibility(View.GONE);
         }
         // NOTE: mShowBugReportsButton visibility is also handled in #onCarDrivingStateChanged().
         mShowBugReportsButton.setVisibility(View.GONE);
@@ -626,22 +630,35 @@ public class BugReportActivity extends Activity {
             return;
         }
 
+        mCountDownTimer = createCountDownTimer();
+        mCountDownTimer.start();
+
         mRecorder.start();
         mVoiceRecordingView.setRecorder(mRecorder);
         mAudioRecordingIsRunning = true;
+    }
 
-        // Messages with token mRecorder are cleared when the activity finishes or recording stops.
-        mHandler.postDelayed(() -> {
-            Log.i(TAG, "Timed out while recording voice message, cancelling.");
-            stopAudioRecording();
-            showSubmitBugReportUi(/* isRecording= */ false);
-        }, /* token= */ mRecorder, VOICE_MESSAGE_MAX_DURATION_MILLIS);
+    private CountDownTimer createCountDownTimer() {
+        return new CountDownTimer(VOICE_MESSAGE_MAX_DURATION_MILLIS, 1000) {
+            public void onTick(long millisUntilFinished) {
+                long secondsRemaining = millisUntilFinished / 1000;
+                String secondText = secondsRemaining > 1 ? "seconds" : "second";
+                mTimerText.setText(String.format(Locale.US, "%d %s remaining", secondsRemaining,
+                        secondText));
+            }
+
+            public void onFinish() {
+                Log.i(TAG, "Timed out while recording voice message.");
+                stopAudioRecording();
+                showSubmitBugReportUi(/* isRecording= */ false);
+            }
+        };
     }
 
     private void stopAudioRecording() {
+        mCountDownTimer.cancel();
         if (mRecorder != null) {
             Log.i(TAG, "Recording ended, stopping the MediaRecorder.");
-            mHandler.removeCallbacksAndMessages(/* token= */ mRecorder);
             try {
                 mRecorder.stop();
             } catch (RuntimeException e) {
