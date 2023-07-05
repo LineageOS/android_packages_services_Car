@@ -15,6 +15,7 @@
  */
 package com.android.car.hal;
 
+import static android.car.hardware.CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_STATIC;
 import static android.car.hardware.property.CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED;
 import static android.car.hardware.property.CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG;
 import static android.car.hardware.property.CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE;
@@ -33,6 +34,7 @@ import static android.car.hardware.property.VehicleHalStatusCode.STATUS_TRY_AGAI
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
+import static com.android.car.internal.property.CarPropertyHelper.isSystemProperty;
 import static com.android.car.internal.property.InputSanitizationUtils.sanitizeUpdateRateHz;
 
 import android.annotation.IntDef;
@@ -115,6 +117,9 @@ public class PropertyHalService extends HalServiceBase {
     // initial value is the same as the target value, we treat the async set as success.
     private static final int GET_INITIAL_VALUE_FOR_SET = 2;
     private static final float UPDATE_RATE_ERROR = -1f;
+    @GuardedBy("mLock")
+    private final ArrayMap<Pair<Integer, Integer>, CarPropertyValue> mStaticPropertyIdAreaIdCache =
+            new ArrayMap<>();
 
     private static final Histogram sGetAsyncEndToEndLatencyHistogram = new Histogram(
             "automotive_os.value_get_async_end_to_end_latency",
@@ -1041,14 +1046,32 @@ public class PropertyHalService extends HalServiceBase {
             throws IllegalArgumentException, ServiceSpecificException {
         int halPropId = managerToHalPropId(mgrPropId);
         // CarPropertyManager catches and rethrows exception, no need to handle here.
-        HalPropValue halPropValue = mVehicleHal.get(halPropId, areaId);
+        HalPropValue halPropValue;
         HalPropConfig halPropConfig;
+        boolean isStaticAndSystemProperty;
         synchronized (mLock) {
             halPropConfig = mHalPropIdToPropConfig.get(halPropId);
+            isStaticAndSystemProperty = halPropConfig.getChangeMode()
+                    == VEHICLE_PROPERTY_CHANGE_MODE_STATIC && isSystemProperty(mgrPropId);
+            if (isStaticAndSystemProperty) {
+                CarPropertyValue carPropertyValue = mStaticPropertyIdAreaIdCache.get(Pair.create(
+                        mgrPropId, areaId));
+                if (carPropertyValue != null) {
+                    return carPropertyValue;
+                }
+            }
         }
+        halPropValue = mVehicleHal.get(halPropId, areaId);
         checkHalPropValueStatus(halPropValue, mgrPropId, areaId);
         try {
-            return halPropValue.toCarPropertyValue(mgrPropId, halPropConfig);
+            CarPropertyValue result = halPropValue.toCarPropertyValue(mgrPropId, halPropConfig);
+            if (!isStaticAndSystemProperty) {
+                return result;
+            }
+            synchronized (mLock) {
+                mStaticPropertyIdAreaIdCache.put(Pair.create(mgrPropId, areaId), result);
+                return result;
+            }
         } catch (IllegalStateException e) {
             throw new ServiceSpecificException(STATUS_INTERNAL_ERROR,
                     "Cannot convert halPropValue to carPropertyValue, property: "
