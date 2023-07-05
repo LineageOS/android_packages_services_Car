@@ -88,7 +88,7 @@ public class FileUtils {
                 + "-" + lookupCode + "-message." + extension);
     }
 
-    private static String extractLookupCode(MetaBugReport bug) {
+    public static String extractLookupCode(MetaBugReport bug) {
         Preconditions.checkArgument(bug.getTitle().startsWith("["),
                 "Invalid bugreport title, doesn't contain lookup code. ");
         return bug.getTitle().substring(1, BugReportActivity.LOOKUP_STRING_LENGTH + 1);
