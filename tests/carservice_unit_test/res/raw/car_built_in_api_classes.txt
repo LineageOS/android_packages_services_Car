@@ -34,8 +34,8 @@ android.car.builtin.os.UserManagerHelper
 android.car.builtin.power.PowerManagerHelper
 android.car.builtin.provider.SettingsHelper
 android.car.builtin.util.AssistUtilsHelper
-android.car.builtin.util.AssistUtilsHelper$VoiceInteractionSessionShowCallbackHelper
 android.car.builtin.util.AssistUtilsHelper$VoiceInteractionSessionListenerHelper
+android.car.builtin.util.AssistUtilsHelper$VoiceInteractionSessionShowCallbackHelper
 android.car.builtin.util.AtomicFileHelper
 android.car.builtin.util.EventLogHelper
 android.car.builtin.util.Slogf
