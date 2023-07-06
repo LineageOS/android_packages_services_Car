@@ -35,6 +35,7 @@ import static android.car.hardware.property.VehicleHalStatusCode.STATUS_TRY_AGAI
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
 import static com.android.car.internal.property.CarPropertyHelper.isSystemProperty;
+import static com.android.car.internal.property.GetSetValueResult.newGetValueResult;
 import static com.android.car.internal.property.InputSanitizationUtils.sanitizeUpdateRateHz;
 
 import android.annotation.IntDef;
@@ -219,7 +220,7 @@ public class PropertyHalService extends HalServiceBase {
         }
 
         GetSetValueResult toGetValueResult(CarPropertyValue value) {
-            return GetSetValueResult.newGetValueResult(getManagerRequestId(), value);
+            return newGetValueResult(getManagerRequestId(), value);
         }
 
         GetSetValueResult toSetValueResult(long updateTimestampNanos) {
@@ -628,9 +629,18 @@ public class PropertyHalService extends HalServiceBase {
 
                     GetSetValueResult result = parseGetAsyncResults(getVehicleStubAsyncResult,
                             clientRequestInfo);
+                    CarPropertyValue carPropertyValue = result.getCarPropertyValue();
                     if (clientRequestInfo.getRequestType() != GET_INITIAL_VALUE_FOR_SET) {
                         getValueResults.add(new GetSetValueResultWrapper(result,
                                 clientRequestInfo.getAsyncRequestStartTime()));
+                        if (carPropertyValue != null) {
+                            int propertyId = carPropertyValue.getPropertyId();
+                            int areaId = carPropertyValue.getAreaId();
+                            if (isStaticAndSystemProperty(propertyId)) {
+                                mStaticPropertyIdAreaIdCache.put(Pair.create(propertyId, areaId),
+                                        carPropertyValue);
+                            }
+                        }
                         continue;
                     }
 
@@ -655,7 +665,7 @@ public class PropertyHalService extends HalServiceBase {
                         continue;
                     }
                     GetSetValueResult maybeSetResult = maybeFinishPendingSetValueRequestLocked(
-                            assocSetValueRequestInfo, result.getCarPropertyValue());
+                            assocSetValueRequestInfo, carPropertyValue);
                     if (maybeSetResult != null) {
                         if (DBG) {
                             Slogf.d(TAG, "The initial value is the same as target value for "
@@ -1048,15 +1058,16 @@ public class PropertyHalService extends HalServiceBase {
         // CarPropertyManager catches and rethrows exception, no need to handle here.
         HalPropValue halPropValue;
         HalPropConfig halPropConfig;
-        boolean isStaticAndSystemProperty;
         synchronized (mLock) {
             halPropConfig = mHalPropIdToPropConfig.get(halPropId);
-            isStaticAndSystemProperty = halPropConfig.getChangeMode()
-                    == VEHICLE_PROPERTY_CHANGE_MODE_STATIC && isSystemProperty(mgrPropId);
-            if (isStaticAndSystemProperty) {
+            if (isStaticAndSystemProperty(mgrPropId)) {
                 CarPropertyValue carPropertyValue = mStaticPropertyIdAreaIdCache.get(Pair.create(
                         mgrPropId, areaId));
                 if (carPropertyValue != null) {
+                    if (DBG) {
+                        Slogf.d(TAG, "Get Sync Property: %s retrieved from cache",
+                                VehiclePropertyIds.toString(mgrPropId));
+                    }
                     return carPropertyValue;
                 }
             }
@@ -1065,7 +1076,7 @@ public class PropertyHalService extends HalServiceBase {
         checkHalPropValueStatus(halPropValue, mgrPropId, areaId);
         try {
             CarPropertyValue result = halPropValue.toCarPropertyValue(mgrPropId, halPropConfig);
-            if (!isStaticAndSystemProperty) {
+            if (!isStaticAndSystemProperty(mgrPropId)) {
                 return result;
             }
             synchronized (mLock) {
@@ -1648,10 +1659,24 @@ public class PropertyHalService extends HalServiceBase {
         //  allocation/release cycle
         List<AsyncGetSetRequest> vehicleStubRequests = new ArrayList<>();
         List<AsyncPropRequestInfo> pendingRequestInfo = new ArrayList<>();
-        Long nowUptimeMs = SystemClock.uptimeMillis();
+        List<GetSetValueResultWrapper> staticGetValueRequests = new ArrayList<>();
+        long nowUptimeMs = SystemClock.uptimeMillis();
         synchronized (mLock) {
             for (int i = 0; i < serviceRequests.size(); i++) {
                 AsyncPropertyServiceRequest serviceRequest = serviceRequests.get(i);
+                int propertyId = serviceRequest.getPropertyId();
+                int areaId = serviceRequest.getAreaId();
+                if (requestType == GET && mStaticPropertyIdAreaIdCache.get(Pair.create(propertyId,
+                        areaId)) != null) {
+                    if (DBG) {
+                        Slogf.d(TAG, "Get Async property: %s retrieved from cache",
+                                VehiclePropertyIds.toString(propertyId));
+                    }
+                    staticGetValueRequests.add(new GetSetValueResultWrapper(newGetValueResult(
+                            serviceRequest.getRequestId(), mStaticPropertyIdAreaIdCache.get(Pair
+                                    .create(propertyId, areaId))), asyncRequestStartTime));
+                    continue;
+                }
                 AsyncPropRequestInfo pendingRequest = new AsyncPropRequestInfo(requestType,
                         serviceRequest, nowUptimeMs + timeoutInMs, vehicleStubCallback,
                         asyncRequestStartTime);
@@ -1669,6 +1694,9 @@ public class PropertyHalService extends HalServiceBase {
                 }
             }
             mPendingAsyncRequests.addPendingRequests(pendingRequestInfo);
+        }
+        if (!staticGetValueRequests.isEmpty()) {
+            vehicleStubCallback.sendGetValueResults(staticGetValueRequests);
         }
         return vehicleStubRequests;
     }
@@ -1722,6 +1750,9 @@ public class PropertyHalService extends HalServiceBase {
                 GET, serviceRequests, timeoutInMs, vehicleStubCallback,
                 /* assocSetValueRequestInfo= */ null, /* outRequestInfo= */ null,
                 asyncRequestStartTime);
+        if (vehicleStubRequests.isEmpty()) {
+            return;
+        }
         sendVehicleStubRequests(GET, vehicleStubRequests, vehicleStubCallback);
     }
 
@@ -1942,5 +1973,12 @@ public class PropertyHalService extends HalServiceBase {
             default:
                 return "UNKNOWN";
         }
+    }
+
+    @GuardedBy("mLock")
+    private boolean isStaticAndSystemProperty(int propertyId) {
+        return mHalPropIdToPropConfig.get(managerToHalPropId(propertyId))
+                .getChangeMode() == VEHICLE_PROPERTY_CHANGE_MODE_STATIC
+                && isSystemProperty(propertyId);
     }
 }
