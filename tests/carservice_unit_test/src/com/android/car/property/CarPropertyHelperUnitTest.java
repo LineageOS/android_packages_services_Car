@@ -17,16 +17,21 @@
 package com.android.car.internal.property;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.car.VehiclePropertyIds;
 
 import org.junit.Test;
+
+import java.util.List;
 
 public final class CarPropertyHelperUnitTest {
 
     private static final int SYSTEM_ERROR_CODE = 0x0123;
     private static final int VENDOR_ERROR_CODE = 0x1234;
     private static final int COMBINDED_ERROR_CODE = 0x12340123;
+    private static final int TEST_PROPERTY_ID1 = 0x234;
+    private static final int TEST_PROPERTY_ID2 = 0x54321;
 
     @Test
     public void testIsSupported() {
@@ -54,5 +59,13 @@ public final class CarPropertyHelperUnitTest {
     public void testGetVhalVendorErrorCode() {
         assertThat(CarPropertyHelper.getVhalVendorErrorCode(COMBINDED_ERROR_CODE)).isEqualTo(
                 VENDOR_ERROR_CODE);
+    }
+
+    @Test
+    public void testPropertyIdsToString() {
+        assertWithMessage("String of multiple propertyIds").that(CarPropertyHelper
+                        .propertyIdsToString(List.of(TEST_PROPERTY_ID1, TEST_PROPERTY_ID2,
+                                VehiclePropertyIds.INFO_VIN)))
+                .isEqualTo("[0x234, 0x54321, INFO_VIN]");
     }
 }

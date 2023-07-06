@@ -16,11 +16,15 @@
 
 package com.android.car.internal.property;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
+
 import android.annotation.SuppressLint;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.property.VehicleHalStatusCode.VehicleHalStatusCodeInt;
 import android.util.Log;
 import android.util.SparseArray;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -66,6 +70,7 @@ public final class CarPropertyHelper {
     /**
      * CarPropertyHelper only contains static fields and methods and must never be instantiated.
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
     private CarPropertyHelper() {
         throw new IllegalArgumentException("Must never be called");
     }
