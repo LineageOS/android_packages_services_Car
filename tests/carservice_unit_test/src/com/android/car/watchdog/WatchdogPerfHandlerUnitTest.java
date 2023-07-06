@@ -18,6 +18,7 @@ package com.android.car.watchdog;
 
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_BASELINE;
 import static android.car.settings.CarSettings.Secure.KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE;
+import static android.car.test.mocks.AndroidMockitoHelper.mockAmGetCurrentUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAllUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
 import static android.car.watchdog.CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO;
@@ -31,6 +32,8 @@ import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYST
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
+import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
+import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
 import static com.android.car.watchdog.CarWatchdogServiceUnitTest.constructUserPackageIoUsageStats;
 import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
 import static com.android.car.watchdog.WatchdogPerfHandler.MAX_WAIT_TIME_MILLS;
@@ -62,6 +65,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import android.app.ActivityManager;
 import android.app.ActivityThread;
 import android.app.StatsManager;
 import android.automotive.watchdog.internal.ApplicationCategoryType;
@@ -108,10 +112,12 @@ import android.util.ArraySet;
 import android.util.SparseArray;
 import android.view.Display;
 
+import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarStatsLog;
 import com.android.car.CarUxRestrictionsManagerService;
+import com.android.car.admin.NotificationHelper;
 
 import com.google.common.truth.Correspondence;
 
@@ -145,6 +151,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     private static final int OVERUSE_HANDLING_DELAY_MILLS = 1000;
     private static final int PACKAGE_KILLABLE_STATE_RESET_DAYS = 90;
     private static final long SYSTEM_DAILY_IO_USAGE_SUMMARY_MULTIPLIER = 10_000;
+    private static final int CURRENT_USER_ID = 100;
     private static final String WATCHDOG_DIR_NAME = "watchdog";
     private static final String CANONICAL_NAME =
             WatchdogPerfHandlerUnitTest.class.getCanonicalName();
@@ -163,14 +170,17 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     private Resources mMockResources;
     @Mock
     private PackageManager mMockPackageManager;
+    @Mock private ClassLoader mMockClassLoader;
     @Mock
     private UserManager mMockUserManager;
     @Mock
     private StatsManager mMockStatsManager;
+    @Mock
+    private NotificationHelper mMockNotificationHelper;
 
     @Captor
     private ArgumentCaptor<ICarUxRestrictionsChangeListener>
-            mICarUxRestrictionsChangeListener;
+            mICarUxRestrictionsChangeListenerCaptor;
     @Captor
     private ArgumentCaptor<StatsManager.StatsPullAtomCallback> mStatsPullAtomCallbackCaptor;
     @Captor
@@ -185,6 +195,9 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     @Captor private ArgumentCaptor<Integer> mUidStateCaptor;
     @Captor private ArgumentCaptor<Integer> mSystemStateCaptor;
     @Captor private ArgumentCaptor<Integer> mKillReasonCaptor;
+    @Captor private ArgumentCaptor<UserHandle> mUserHandleCaptor;
+    @Captor private ArgumentCaptor<SparseArray<String>> mHeadsUpPackagesCaptor;
+    @Captor private ArgumentCaptor<SparseArray<String>> mNotificationCenterPackagesCaptor;
 
     private ICarUxRestrictionsChangeListener mCarUxRestrictionsChangeListener;
     private StatsManager.StatsPullAtomCallback mStatsPullAtomCallback;
@@ -218,8 +231,10 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         mMockSettings = new MockSettings(builder);
         builder.spyStatic(PackageManagerHelper.class)
                 .spyStatic(CarServiceUtils.class)
+                .spyStatic(ActivityManager.class)
                 .spyStatic(ActivityThread.class)
                 .spyStatic(CarStatsLog.class)
+                .spyStatic(BuiltinPackageDependency.class)
                 .spyStatic(CarLocalServices.class);
     }
 
@@ -252,6 +267,11 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                         UX_RESTRICTIONS_BASELINE, /* time= */ 0).build());
         when(mMockCarWatchdogDaemonHelper.getResourceOveruseConfigurations()).thenReturn(
                 sampleInternalResourceOveruseConfigurations());
+        when(mMockBuiltinPackageContext.getClassLoader()).thenReturn(mMockClassLoader);
+        doReturn(NotificationHelper.class).when(mMockClassLoader).loadClass(any());
+        doReturn(mMockNotificationHelper)
+                .when(() -> BuiltinPackageDependency.createNotificationHelper(
+                        mMockBuiltinPackageContext));
 
         mTempSystemCarDir = Files.createTempDirectory("watchdog_test").toFile();
         doReturn(new File(mTempSystemCarDir.getAbsolutePath(), WATCHDOG_DIR_NAME)).when(
@@ -2772,6 +2792,368 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         verify(mSpiedWatchdogStorage, never()).forgiveHistoricalOveruses(any(), anyInt());
     }
 
+    @Test
+    public void testNoUserNotificationWithNoRecurrentOveruse() throws Exception {
+        mockAmGetCurrentUser(CURRENT_USER_ID);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
+        setRequiresDistractionOptimization(false);
+
+        setUpSampleUserAndPackages();
+
+        pushLatestIoOveruseStatsAndWait(
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ false));
+
+        // Verify no notification is sent
+        captureAndVerifyUserNotifications(Collections.emptyList());
+    }
+
+    @Test
+    public void testNoUserNotificationOnRecurrentOveruseWithDistractionOptimization()
+            throws Exception {
+        mockAmGetCurrentUser(CURRENT_USER_ID);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
+        setRequiresDistractionOptimization(true);
+
+        setUpSampleUserAndPackages();
+
+        pushLatestIoOveruseStatsAndWait(
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true));
+
+        // Verify no notification is sent
+        captureAndVerifyUserNotifications(Collections.emptyList());
+    }
+
+    @Test
+    public void testUserNotificationOnRecurrentOveruseAfterNoDistractionOptimization()
+            throws Exception {
+        mockAmGetCurrentUser(CURRENT_USER_ID);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
+        setRequiresDistractionOptimization(true);
+
+        setUpSampleUserAndPackages();
+
+        pushLatestIoOveruseStatsAndWait(
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true));
+
+        setRequiresDistractionOptimization(false);
+
+        captureAndVerifyUserNotifications(
+                Collections.singletonList(
+                        new UserNotificationReflectionCall(
+                                UserHandle.of(100),
+                                constructPackagesByNotificationId(/* idOffset= */ 0,
+                                        "vendor_package.non_critical", "third_party_package.A",
+                                        "third_party_package.B"), /* hasHeadsUpNotification= */
+                                true)));
+    }
+
+    @Test
+    public void testNoDuplicateUserNotificationOnRepeatedRecurrentOveruse()
+            throws Exception {
+        mockAmGetCurrentUser(CURRENT_USER_ID);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
+        setRequiresDistractionOptimization(false);
+
+        setUpSampleUserAndPackages();
+
+        List<PackageIoOveruseStats> ioOveruseStats =
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
+
+        pushLatestIoOveruseStatsAndWait(ioOveruseStats);
+        // Should not produce resource overuse notifications.
+        pushLatestIoOveruseStatsAndWait(ioOveruseStats);
+
+        captureAndVerifyUserNotifications(
+                Collections.singletonList(
+                        new UserNotificationReflectionCall(
+                                UserHandle.of(100),
+                                constructPackagesByNotificationId(/* idOffset= */ 0,
+                                        "vendor_package.non_critical", "third_party_package.A",
+                                        "third_party_package.B"), /* hasHeadsUpNotification= */
+                                true)));
+    }
+
+    @Test
+    public void testImmediateUserNotificationOnRecurrentOveruseWhenNoDistractionOptimization()
+            throws Exception {
+        mockAmGetCurrentUser(CURRENT_USER_ID);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
+        setRequiresDistractionOptimization(false);
+
+        setUpSampleUserAndPackages();
+
+        pushLatestIoOveruseStatsAndWait(
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true));
+
+        pushLatestIoOveruseStatsAndWait(Collections.singletonList(
+                constructPackageIoOveruseStats(/* uid= */ 10010002, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 200, 300),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
+                                /* totalOveruses= */ 3))));
+
+        List<UserNotificationReflectionCall>
+                userNotificationReflectionCalls = Arrays.asList(
+                new UserNotificationReflectionCall(UserHandle.of(100),
+                        constructPackagesByNotificationId(/* idOffset= */ 0,
+                                "vendor_package.non_critical", "third_party_package.A",
+                                "third_party_package.B"), /* hasHeadsUpNotification= */ true),
+                new UserNotificationReflectionCall(UserHandle.of(100),
+                        constructPackagesByNotificationId(/* idOffset= */ 3,
+                                "system_package.non_critical"),
+                        /* hasHeadsUpNotification= */ false));
+
+        captureAndVerifyUserNotifications(userNotificationReflectionCalls);
+    }
+
+    @Test
+    public void testNoUserNotificationOnRecurrentOveruseByPrePrioritizedApp() throws Exception {
+        mockAmGetCurrentUser(CURRENT_USER_ID);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
+        setRequiresDistractionOptimization(true);
+
+        setUpSampleUserAndPackages();
+
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.A",
+                UserHandle.of(100), /* isKillable= */ false);
+
+        pushLatestIoOveruseStatsAndWait(Collections.singletonList(
+                constructPackageIoOveruseStats(/* uid= */ 10010005, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 200, 300),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
+                                /* totalOveruses= */ 3))));
+
+        setRequiresDistractionOptimization(false);
+
+        // Verify no notification is sent
+        captureAndVerifyUserNotifications(Collections.emptyList());
+    }
+
+    @Test
+    public void testNoUserNotificationOnRecurrentOveruseByPostPrioritizedApp() throws Exception {
+        mockAmGetCurrentUser(CURRENT_USER_ID);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
+        setRequiresDistractionOptimization(true);
+
+        setUpSampleUserAndPackages();
+
+        pushLatestIoOveruseStatsAndWait(Collections.singletonList(
+                constructPackageIoOveruseStats(/* uid= */ 10010005, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 200, 300),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
+                                /* totalOveruses= */ 3))));
+
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.A",
+                UserHandle.of(100), /* isKillable= */ false);
+
+        setRequiresDistractionOptimization(false);
+
+        // Verify no notification is sent
+        captureAndVerifyUserNotifications(Collections.emptyList());
+    }
+
+    @Test
+    public void testUserNotificationOnRecurrentOveruseByPriorityResettedApp() throws Exception {
+        mockAmGetCurrentUser(CURRENT_USER_ID);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
+        setRequiresDistractionOptimization(true);
+
+        setUpSampleUserAndPackages();
+
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.A", UserHandle.of(100),
+                /* isKillable= */ false);
+
+        pushLatestIoOveruseStatsAndWait(Collections.singletonList(
+                constructPackageIoOveruseStats(/* uid= */ 10010005, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 200, 300),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
+                                /* totalOveruses= */ 3))));
+
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.A", UserHandle.of(100),
+                /* isKillable= */ true);
+
+        setRequiresDistractionOptimization(false);
+
+        captureAndVerifyUserNotifications(Collections.singletonList(
+                new UserNotificationReflectionCall(UserHandle.of(100),
+                        constructPackagesByNotificationId(/* idOffset= */ 0,
+                                "third_party_package.A", "third_party_package.B"),
+                        /* hasHeadsUpNotification= */ true)));
+    }
+
+    @Test
+    public void testUserNotificationOnHistoricalRecurrentOveruse() throws Exception {
+        doReturn(Arrays.asList(new WatchdogStorage.NotForgivenOverusesEntry(100,
+                "system_package.non_critical", 2)))
+                .when(mSpiedWatchdogStorage)
+                .getNotForgivenHistoricalIoOveruses(RECURRING_OVERUSE_PERIOD_IN_DAYS);
+
+        // Force CarWatchdogService to fetch historical not forgiven overuses.
+        restartService(/* totalRestarts= */ 1, /* wantedDbWrites= */ 0);
+        mockAmGetCurrentUser(CURRENT_USER_ID);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
+        setRequiresDistractionOptimization(false);
+
+        setUpSampleUserAndPackages();
+
+        pushLatestIoOveruseStatsAndWait(Collections.singletonList(
+                constructPackageIoOveruseStats(/* uid= */ 10010002, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 200, 300),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
+                                /* totalOveruses= */ 1))));
+
+        captureAndVerifyUserNotifications(Collections.singletonList(
+                new UserNotificationReflectionCall(UserHandle.of(100),
+                        constructPackagesByNotificationId(/* idOffset= */ 0,
+                                "system_package.non_critical"),
+                        /* hasHeadsUpNotification= */ true)));
+    }
+
+    @Test
+    public void testUserNotificationWithDisabledDisplay() throws Exception {
+        mockAmGetCurrentUser(CURRENT_USER_ID);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        setRequiresDistractionOptimization(false);
+
+        setUpSampleUserAndPackages();
+
+        pushLatestIoOveruseStatsAndWait(Collections.singletonList(
+                constructPackageIoOveruseStats(/* uid= */ 10010002, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 200, 300),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
+                                /* totalOveruses= */ 3))));
+
+        captureAndVerifyUserNotifications(Collections.singletonList(
+                new UserNotificationReflectionCall(UserHandle.of(100),
+                        constructPackagesByNotificationId(/* idOffset= */ 0,
+                                "system_package.non_critical"),
+                        /* hasHeadsUpNotification= */ false)));
+    }
+
+    @Test
+    public void testNoDisableWithNoRecurrentOveruse() throws Exception {
+        setUpSampleUserAndPackages();
+        setRequiresDistractionOptimization(false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
+
+        List<PackageIoOveruseStats> packageIoOveruseStats =
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ false);
+
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        verify(() -> CarStatsLog.write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
+                anyInt(), anyInt(), anyInt(), anyInt(), any(), any()), never());
+
+        verifyNoDisabledPackages();
+    }
+
+    @Test
+    public void testNoDisableRecurrentlyOverusingAppWithDistractionOptimization() throws Exception {
+        setUpSampleUserAndPackages();
+        setRequiresDistractionOptimization(true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
+
+        List<PackageIoOveruseStats> packageIoOveruseStats =
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
+
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        verify(() -> CarStatsLog.write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
+                anyInt(), anyInt(), anyInt(), anyInt(), any(), any()), never());
+
+        verifyNoDisabledPackages();
+    }
+
+    private static SparseArray<String> constructPackagesByNotificationId(int idOffset,
+            String... packages) {
+        SparseArray<String> packagesById = new SparseArray<>();
+        idOffset = idOffset < 0 ? 0 : idOffset % RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
+        for (String packageName : packages) {
+            packagesById.put(RESOURCE_OVERUSE_NOTIFICATION_BASE_ID + idOffset, packageName);
+            idOffset = ++idOffset % RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
+        }
+        return packagesById;
+    }
+
+    private void captureAndVerifyUserNotifications(
+            List<UserNotificationReflectionCall> expectedNotifications) {
+        // Recurring overuse notification handling task is posted on a separate handler thread and
+        // this task sends the user notifications. Wait for this task to complete.
+        CarServiceUtils.runEmptyRunnableOnLooperSync(CarWatchdogService.class.getSimpleName());
+
+        verify(mMockNotificationHelper, times(expectedNotifications.size()))
+                .showResourceOveruseNotificationsAsUser(mUserHandleCaptor.capture(),
+                        mHeadsUpPackagesCaptor.capture(),
+                        mNotificationCenterPackagesCaptor.capture());
+
+        if (expectedNotifications.isEmpty()) {
+            return;
+        }
+
+        assertWithMessage("Number of notification does not match").that(
+                mUserHandleCaptor.getAllValues().size()).isEqualTo(expectedNotifications.size());
+        for (int i = 0; i < expectedNotifications.size(); i++) {
+            UserNotificationReflectionCall expectedNotification =
+                    expectedNotifications.get(i);
+
+            UserHandle userHandle = mUserHandleCaptor.getAllValues().get(i);
+            SparseArray<String> actualHeadsUpNotificationPackagesById = mHeadsUpPackagesCaptor
+                    .getAllValues().get(i);
+            SparseArray<String> actualPackagesById = mNotificationCenterPackagesCaptor
+                    .getAllValues().get(i);
+
+            assertWithMessage("Current user id for resource overuse notifications")
+                    .that(userHandle).isEqualTo(expectedNotification.userHandle);
+
+            int expectedHeadsUpSize = expectedNotification.hasHeadsUpNotification ? 1 : 0;
+
+            assertWithMessage("Resource overuse heads up packages size")
+                    .that(actualHeadsUpNotificationPackagesById.size())
+                    .isEqualTo(expectedHeadsUpSize);
+
+            if (expectedNotification.hasHeadsUpNotification) {
+                int headsUpNotificationId = actualHeadsUpNotificationPackagesById.keyAt(0);
+                actualPackagesById.put(headsUpNotificationId,
+                        actualHeadsUpNotificationPackagesById.valueAt(0));
+            }
+
+            int expectedSize = expectedNotification.packagesById.size();
+
+            assertWithMessage("Resource overuse notification size")
+                    .that(actualPackagesById.size()).isEqualTo(expectedSize);
+
+            ArraySet<String> expectedPackages = new ArraySet<>(expectedSize);
+            ArraySet<String> actualPackages = new ArraySet<>(expectedSize);
+            for (int j = 0; j < expectedNotification.packagesById.size(); j++) {
+                int expectedNotificationId = expectedNotification.packagesById.keyAt(j);
+
+                assertWithMessage("Resource overuse notification id")
+                        .that(actualPackagesById.get(expectedNotificationId)).isNotNull();
+
+                expectedPackages.add(expectedNotification.packagesById.valueAt(j));
+                actualPackages.add(actualPackagesById.valueAt(j));
+            }
+
+            assertWithMessage("Resource overuse notification package names")
+                    .that(actualPackages).isEqualTo(expectedPackages);
+        }
+    }
+
     private static void verifyOnOveruseCalled(List<ResourceOveruseStats> expectedStats,
             IResourceOveruseListener mockListener) throws Exception {
         ArgumentCaptor<ResourceOveruseStats> resourceOveruseStatsCaptor =
@@ -3538,9 +3920,10 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         verify(mMockCarUxRestrictionsManagerService, times(wantedInvocations))
                 .getCurrentUxRestrictions();
         verify(mMockCarUxRestrictionsManagerService, times(wantedInvocations))
-                .registerUxRestrictionsChangeListener(mICarUxRestrictionsChangeListener.capture(),
+                .registerUxRestrictionsChangeListener(
+                        mICarUxRestrictionsChangeListenerCaptor.capture(),
                         eq(Display.DEFAULT_DISPLAY));
-        mCarUxRestrictionsChangeListener = mICarUxRestrictionsChangeListener.getValue();
+        mCarUxRestrictionsChangeListener = mICarUxRestrictionsChangeListenerCaptor.getValue();
         assertWithMessage("UX restrictions change listener").that(mCarUxRestrictionsChangeListener)
                 .isNotNull();
     }
@@ -3664,6 +4047,19 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
         if (mGenericPackageNameByUid.size() > 0) {
             verify(mSpiedWatchdogStorage, atLeastOnce()).markDirty();
+        }
+    }
+
+    private static final class UserNotificationReflectionCall {
+        public final UserHandle userHandle;
+        public final SparseArray<String> packagesById;
+        public final boolean hasHeadsUpNotification;
+
+        UserNotificationReflectionCall(UserHandle userHandle, SparseArray<String> packagesById,
+                boolean hasHeadsUpNotification) {
+            this.userHandle = userHandle;
+            this.packagesById = packagesById;
+            this.hasHeadsUpNotification = hasHeadsUpNotification;
         }
     }
 }
