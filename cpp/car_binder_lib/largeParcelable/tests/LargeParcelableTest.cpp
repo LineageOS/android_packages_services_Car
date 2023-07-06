@@ -118,17 +118,16 @@ TEST(LargeParcelableTest, WrapStableAidlReuseSharedMemoryFile) {
 
     ASSERT_EQ(status, STATUS_OK);
 
-    AParcel_setDataPosition(parcel.get(), 0);
-    // Write to the parcel again should reuse the cached memory file.
-    status = sendData.writeToParcel(parcel.get());
+    ScopedAParcel parcel2(AParcel_create());
+    status = sendData.writeToParcel(parcel2.get());
 
     ASSERT_EQ(status, STATUS_OK);
 
     // Set the parcel to start from 0 because we need to read from 0.
-    AParcel_setDataPosition(parcel.get(), 0);
+    AParcel_setDataPosition(parcel2.get(), 0);
 
     LargeParcelable<TestStableParcelable> receiveData;
-    status = receiveData.readFromParcel(parcel.get());
+    status = receiveData.readFromParcel(parcel2.get());
 
     ASSERT_EQ(status, STATUS_OK);
 
