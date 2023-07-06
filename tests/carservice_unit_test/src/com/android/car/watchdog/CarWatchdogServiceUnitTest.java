@@ -2025,6 +2025,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         verify(mSpiedWatchdogStorage, times(3)).markDirty();
     }
 
+    // TODO(b/262301082): Update with mMockWatchdogPerfHandler when tests have all been moved to
+    // WatchdogPerfHandlerUnitTest.
     @Test
     public void testSetResourceOveruseConfigurations() throws Exception {
         assertThat(mCarWatchdogService.setResourceOveruseConfigurations(
@@ -2041,182 +2043,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         /* Expect two calls, the first is made at car watchdog service init */
         verify(mMockCarWatchdogDaemon, times(2)).getResourceOveruseConfigurations();
-    }
-
-    @Test
-    public void testSetResourceOveruseConfigurationsRetriedWithDisconnectedDaemon()
-            throws Exception {
-        crashWatchdogDaemon();
-
-        assertThat(mCarWatchdogService.setResourceOveruseConfigurations(
-                sampleResourceOveruseConfigurations(), FLAG_RESOURCE_OVERUSE_IO))
-                .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
-
-        restartWatchdogDaemonAndAwait();
-
-        InternalResourceOveruseConfigurationSubject
-                .assertThat(captureOnSetResourceOveruseConfigurations())
-                .containsExactlyElementsIn(sampleInternalResourceOveruseConfigurations());
-    }
-
-    @Test
-    public void testSetResourceOveruseConfigurationsRetriedWithRepeatedRemoteException()
-            throws Exception {
-        CountDownLatch crashLatch = new CountDownLatch(2);
-        doAnswer(args -> {
-            crashWatchdogDaemon();
-            crashLatch.countDown();
-            throw new RemoteException();
-        }).when(mMockCarWatchdogDaemon).updateResourceOveruseConfigurations(anyList());
-
-        assertThat(mCarWatchdogService.setResourceOveruseConfigurations(
-                sampleResourceOveruseConfigurations(), FLAG_RESOURCE_OVERUSE_IO))
-                .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
-
-        restartWatchdogDaemonAndAwait();
-
-        /*
-         * Wait until the daemon is crashed again during the latest
-         * updateResourceOveruseConfigurations call so the test is deterministic.
-         */
-        crashLatch.await(MAX_WAIT_TIME_MS, TimeUnit.MILLISECONDS);
-
-        /* The below final restart should set the resource overuse configurations successfully. */
-        List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> actualConfigs =
-                new ArrayList<>();
-        doAnswer(args -> {
-            List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> configs =
-                    args.getArgument(0);
-            synchronized (actualConfigs) {
-                actualConfigs.addAll(configs);
-                actualConfigs.notifyAll();
-            }
-            return null;
-        }).when(mMockCarWatchdogDaemon).updateResourceOveruseConfigurations(anyList());
-
-        restartWatchdogDaemonAndAwait();
-
-        /* Wait until latest updateResourceOveruseConfigurations call is issued on reconnection. */
-        synchronized (actualConfigs) {
-            actualConfigs.wait(MAX_WAIT_TIME_MS);
-            InternalResourceOveruseConfigurationSubject.assertThat(actualConfigs)
-                    .containsExactlyElementsIn(sampleInternalResourceOveruseConfigurations());
-        }
-
-        verify(mMockCarWatchdogDaemon, times(3)).updateResourceOveruseConfigurations(anyList());
-    }
-
-    @Test
-    public void testFailsSetResourceOveruseConfigurationsWithPendingRequest()
-            throws Exception {
-        crashWatchdogDaemon();
-
-        assertThat(mCarWatchdogService.setResourceOveruseConfigurations(
-                sampleResourceOveruseConfigurations(), FLAG_RESOURCE_OVERUSE_IO))
-                .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
-
-        assertThrows(IllegalStateException.class,
-                () -> mCarWatchdogService.setResourceOveruseConfigurations(
-                        sampleResourceOveruseConfigurations(),
-                        FLAG_RESOURCE_OVERUSE_IO));
-    }
-
-    @Test
-    public void testFailsSetResourceOveruseConfigurationsOnInvalidArgs() throws Exception {
-        assertThrows(NullPointerException.class,
-                () -> mCarWatchdogService.setResourceOveruseConfigurations(null,
-                        FLAG_RESOURCE_OVERUSE_IO));
-
-        assertThrows(IllegalArgumentException.class,
-                () -> mCarWatchdogService.setResourceOveruseConfigurations(new ArrayList<>(),
-                        FLAG_RESOURCE_OVERUSE_IO));
-
-        List<ResourceOveruseConfiguration> resourceOveruseConfigs = Collections.singletonList(
-                sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
-                        sampleIoOveruseConfigurationBuilder(ComponentType.SYSTEM).build())
-                        .build());
-        assertThrows(IllegalArgumentException.class,
-                () -> mCarWatchdogService.setResourceOveruseConfigurations(resourceOveruseConfigs,
-                        0));
-    }
-
-    @Test
-    public void testFailsSetResourceOveruseConfigurationsOnDuplicateComponents() throws Exception {
-        ResourceOveruseConfiguration config =
-                sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
-                        sampleIoOveruseConfigurationBuilder(ComponentType.SYSTEM).build()).build();
-        List<ResourceOveruseConfiguration> resourceOveruseConfigs = Arrays.asList(config, config);
-        assertThrows(IllegalArgumentException.class,
-                () -> mCarWatchdogService.setResourceOveruseConfigurations(resourceOveruseConfigs,
-                        FLAG_RESOURCE_OVERUSE_IO));
-    }
-
-    @Test
-    public void testFailsSetResourceOveruseConfigurationsOnZeroComponentLevelIoOveruseThresholds()
-            throws Exception {
-        List<ResourceOveruseConfiguration> resourceOveruseConfigs =
-                Collections.singletonList(
-                        sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
-                                sampleIoOveruseConfigurationBuilder(ComponentType.SYSTEM)
-                                        .setComponentLevelThresholds(new PerStateBytes(200, 0, 200))
-                                        .build())
-                                .build());
-        assertThrows(IllegalArgumentException.class,
-                () -> mCarWatchdogService.setResourceOveruseConfigurations(resourceOveruseConfigs,
-                        FLAG_RESOURCE_OVERUSE_IO));
-    }
-
-    @Test
-    public void testFailsSetResourceOveruseConfigurationsOnEmptyIoOveruseSystemWideThresholds()
-            throws Exception {
-        List<ResourceOveruseConfiguration> resourceOveruseConfigs =
-                Collections.singletonList(
-                        sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
-                                sampleIoOveruseConfigurationBuilder(ComponentType.SYSTEM)
-                                        .setSystemWideThresholds(new ArrayList<>())
-                                        .build())
-                                .build());
-        assertThrows(IllegalArgumentException.class,
-                () -> mCarWatchdogService.setResourceOveruseConfigurations(resourceOveruseConfigs,
-                        FLAG_RESOURCE_OVERUSE_IO));
-    }
-
-    @Test
-    public void testFailsSetResourceOveruseConfigurationsOnIoOveruseInvalidSystemWideThreshold()
-            throws Exception {
-        List<ResourceOveruseConfiguration> resourceOveruseConfigs = new ArrayList<>();
-        resourceOveruseConfigs.add(sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
-                sampleIoOveruseConfigurationBuilder(ComponentType.SYSTEM)
-                        .setSystemWideThresholds(Collections.singletonList(
-                                new IoOveruseAlertThreshold(30, 0)))
-                        .build())
-                .build());
-        assertThrows(IllegalArgumentException.class,
-                () -> mCarWatchdogService.setResourceOveruseConfigurations(
-                        resourceOveruseConfigs,
-                        FLAG_RESOURCE_OVERUSE_IO));
-
-        resourceOveruseConfigs.set(0,
-                sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
-                        sampleIoOveruseConfigurationBuilder(ComponentType.SYSTEM)
-                                .setSystemWideThresholds(Collections.singletonList(
-                                        new IoOveruseAlertThreshold(0, 300)))
-                                .build())
-                        .build());
-        assertThrows(IllegalArgumentException.class,
-                () -> mCarWatchdogService.setResourceOveruseConfigurations(
-                        resourceOveruseConfigs,
-                        FLAG_RESOURCE_OVERUSE_IO));
-    }
-
-    @Test
-    public void testFailsSetResourceOveruseConfigurationsOnNullIoOveruseConfiguration()
-            throws Exception {
-        List<ResourceOveruseConfiguration> resourceOveruseConfigs = Collections.singletonList(
-                sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM, null).build());
-        assertThrows(IllegalArgumentException.class,
-                () -> mCarWatchdogService.setResourceOveruseConfigurations(resourceOveruseConfigs,
-                        FLAG_RESOURCE_OVERUSE_IO));
     }
 
     @Test
@@ -4418,6 +4244,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         captureAndVerifyRegistrationWithDaemon(/* waitOnMain= */ false);
     }
 
+    //TODO(b/262301082): Remove when all relevant tests have moved to WatchdogPerfHandlerUnitTest.
     private List<android.automotive.watchdog.internal.ResourceOveruseConfiguration>
             captureOnSetResourceOveruseConfigurations() throws Exception {
         verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS))
@@ -4789,6 +4616,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .containsExactlyElementsIn(expectedStats);
     }
 
+    //TODO(b/262301082): Remove when all relevant tests have moved to WatchdogPerfHandlerUnitTest.
     private static List<ResourceOveruseConfiguration> sampleResourceOveruseConfigurations() {
         return Arrays.asList(
                 sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
@@ -4800,6 +4628,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         .build());
     }
 
+    //TODO(b/262301082): Remove when all relevant tests have moved to WatchdogPerfHandlerUnitTest.
     private static List<android.automotive.watchdog.internal.ResourceOveruseConfiguration>
             sampleInternalResourceOveruseConfigurations() {
         return Arrays.asList(
@@ -4811,6 +4640,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         sampleInternalIoOveruseConfiguration(ComponentType.THIRD_PARTY)));
     }
 
+    //TODO(b/209701184): Remove when all relevant tests have moved to WatchdogPerfHandlerUnitTest.
     private static ResourceOveruseConfiguration.Builder sampleResourceOveruseConfigurationBuilder(
             @ComponentType int componentType, IoOveruseConfiguration ioOveruseConfig) {
         String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType).toLowerCase();
@@ -4833,6 +4663,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         return configBuilder;
     }
 
+    //TODO(b/209701184): Remove when all relevant tests have moved to WatchdogPerfHandlerUnitTest.
     private static IoOveruseConfiguration.Builder sampleIoOveruseConfigurationBuilder(
             @ComponentType int componentType) {
         String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType).toLowerCase();
@@ -4929,6 +4760,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         return metadata;
     }
 
+    //TODO(b/209701184): Remove when all relevant tests have moved to WatchdogPerfHandlerUnitTest.
     private static PerStateIoOveruseThreshold constructPerStateIoOveruseThreshold(String name,
             long fgBytes, long bgBytes, long gmBytes) {
         PerStateIoOveruseThreshold threshold = new PerStateIoOveruseThreshold();
