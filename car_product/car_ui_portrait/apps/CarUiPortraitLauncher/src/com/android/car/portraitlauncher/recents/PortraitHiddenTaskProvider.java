@@ -35,8 +35,8 @@ public class PortraitHiddenTaskProvider implements RecentTasksViewModel.HiddenTa
 
     public PortraitHiddenTaskProvider(Context context) {
         // TODO(b/280647032): use TaskCategoryManager instead of accessing resources directly
-        mBackgroundComponentSet = Arrays.stream(context.getResources()
-                        .getStringArray(R.array.config_backgroundActivities))
+        mBackgroundComponentSet = Arrays.stream(context.getApplicationContext()
+                        .getResources().getStringArray(R.array.config_backgroundActivities))
                 .map(ComponentName::unflattenFromString)
                 .collect(Collectors.toSet());
     }
