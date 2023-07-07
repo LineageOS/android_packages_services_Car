@@ -39,12 +39,14 @@ import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.Process;
 import android.os.SystemClock;
@@ -739,6 +741,7 @@ public final class CarServiceUtils {
         if (!isPlatformVersionAtLeastU()) {
             return false;
         }
+        if (DBG) Slogf.d(TAG, "Start SystemUI for user: %d", userId);
         Preconditions.checkArgument(userId != UserHandle.SYSTEM.getIdentifier(),
                 "Cannot start SystemUI for the system user");
         Preconditions.checkArgument(userId != ActivityManager.getCurrentUser(),
@@ -748,8 +751,8 @@ public final class CarServiceUtils {
         ComponentName sysuiComponent = PackageManagerHelper.getSystemUiServiceComponent(context);
         Intent sysUIIntent = new Intent().setComponent(sysuiComponent);
         try {
-            context.createContextAsUser(UserHandle.of(userId), /* flags= */ 0).startService(
-                    sysUIIntent);
+            context.bindServiceAsUser(sysUIIntent, sEmptyServiceConnection,
+                    Context.BIND_AUTO_CREATE | Context.BIND_IMPORTANT, UserHandle.of(userId));
             return true;
         } catch (Exception e) {
             Slogf.w(TAG, e, "Cannot start SysUI component %s for user %d", sysuiComponent,
@@ -757,6 +760,15 @@ public final class CarServiceUtils {
             return false;
         }
     }
+
+    // The callbacks are not called actually, because SystemUI returns null for IBinder.
+    private static final ServiceConnection sEmptyServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {}
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {}
+    };
 
     /**
      * Stops the SystemUI component for a particular user - this function should not be called
