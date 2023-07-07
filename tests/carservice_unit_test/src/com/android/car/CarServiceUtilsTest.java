@@ -26,6 +26,7 @@ import static android.os.Process.INVALID_UID;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -128,7 +129,6 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testStartSystemUiForUser() {
         int userId = NON_CURRENT_USER_ID;
-        mockContextCreateContextAsUser(mMockContext, mMockUserContext, userId);
         Resources resources = mock(Resources.class);
         String systemUiComponent = "test.systemui/test.systemui.TestSystemUIService";
         when(resources.getString(com.android.internal.R.string.config_systemUIServiceComponent))
@@ -138,7 +138,7 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
 
         CarServiceUtils.startSystemUiForUser(mMockContext, userId);
 
-        verify(mMockUserContext).startService(intentCaptor.capture());
+        verify(mMockContext).bindServiceAsUser(intentCaptor.capture(), any(), anyInt(), any());
         assertThat(intentCaptor.getValue().getComponent()).isEqualTo(
                 ComponentName.unflattenFromString(systemUiComponent));
     }
