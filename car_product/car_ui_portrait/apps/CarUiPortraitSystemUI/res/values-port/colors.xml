@@ -67,9 +67,35 @@
     <color name="car_user_switching_dialog_background_color">@color/car_neutral_0</color>
     <color name="car_user_switching_dialog_loading_text_color">@color/car_neutral_90</color>
 
+    <!-- ****** Alert dialog colors ***** -->
     <color name="car_alert_dialog_action_button_color">@color/car_secondary_container</color>
     <color name="car_alert_dialog_background_color">@color/car_surface_2</color>
     <color name="car_alert_dialog_message_text_color">@color/car_on_surface</color>
     <color name="car_alert_dialog_button_text_color">@color/car_on_secondary_container</color>
     <color name="car_alert_dialog_button1_text_color">@color/car_on_primary</color>
+
+    <!-- ****** Seekbar colors ***** -->
+    <color name="car_seekbar_background_color">@color/car_secondary_container</color>
+    <color name="car_seekbar_primary_color">@color/car_primary</color>
+    <color name="car_seekbar_secondary_color">@color/car_secondary</color>
+
+    <!-- ****** Toggle button colors ***** -->
+    <color name="car_button_toggle_background_checked">@color/car_primary</color>
+    <color name="car_button_toggle_background_unchecked">@color/car_secondary_container</color>
+    <color name="car_button_toggle_foreground_checked">@color/car_on_primary</color>
+    <color name="car_button_toggle_foreground_unchecked">@color/car_on_secondary_container</color>
+
+    <!-- ****** Button colors ***** -->
+    <color name="car_button_background">@color/car_primary_container</color>
+    <color name="car_button_foreground">@color/car_on_primary_container</color>
+
+    <!-- ****** Switch colors ***** -->
+    <color name="car_switch_thumb_checked">@color/car_primary_container</color>
+    <color name="car_switch_thumb_unchecked">@color/car_secondary_container</color>
+    <color name="car_switch_track_checked">@color/car_primary</color>
+    <color name="car_switch_track_unchecked">@color/car_secondary</color>
+
+    <!-- Quick Controls -->
+    <color name="qc_start_icon_color">@color/car_on_surface</color>
+
 </resources>
