@@ -28,6 +28,6 @@
     <string name="contacts_title" msgid="1240631807791315855">"সম্পৰ্ক"</string>
     <string name="favorites_title" msgid="8714933097892306747">"প্ৰিয়"</string>
     <string name="dialpad_title" msgid="8608224919862313238">"ডায়েলপেড"</string>
-    <string name="search_title" msgid="148494519593103958">"সন্ধান"</string>
+    <string name="search_title" msgid="148494519593103958">"সন্ধান কৰক"</string>
     <string name="setting_title" msgid="3060304451826880116">"ছেটিং"</string>
 </resources>
