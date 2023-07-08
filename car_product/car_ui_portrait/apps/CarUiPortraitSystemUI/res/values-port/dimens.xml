@@ -89,4 +89,7 @@
     <dimen name="car_status_icon_panel_padding_bottom">18dp</dimen>
 
     <dimen name="dialog_button_bar_top_padding">0dp</dimen>
+
+    <dimen name="pin_view_container_maxHeight">380dp</dimen>
+    <dimen name="pattern_view_container_maxHeight">800dp</dimen>
 </resources>
