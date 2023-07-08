@@ -74,7 +74,6 @@ import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
@@ -2045,6 +2044,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         verify(mMockCarWatchdogDaemon, times(2)).getResourceOveruseConfigurations();
     }
 
+    // TODO(b/262301082): Update with mMockWatchdogPerfHandler when tests have all been moved to
+    // WatchdogPerfHandlerUnitTest.
     @Test
     public void testGetResourceOveruseConfigurations() throws Exception {
         List<ResourceOveruseConfiguration> actualConfigs =
@@ -2053,78 +2054,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         ResourceOveruseConfigurationSubject.assertThat(actualConfigs)
                 .containsExactlyElementsIn(sampleResourceOveruseConfigurations());
-    }
-
-    @Test
-    public void testGetResourceOveruseConfigurationsWithDisconnectedDaemon() throws Exception {
-        crashWatchdogDaemon();
-
-        assertThrows(IllegalStateException.class,
-                () -> mCarWatchdogService.getResourceOveruseConfigurations(
-                        FLAG_RESOURCE_OVERUSE_IO));
-
-        /* Method initially called in CarWatchdogService init */
-        verify(mMockCarWatchdogDaemon).getResourceOveruseConfigurations();
-    }
-
-    @Test
-    public void testGetResourceOveruseConfigurationsWithReconnectedDaemon() throws Exception {
-        /*
-         * Emulate daemon crash and restart during the get request. The below get request should be
-         * waiting for daemon connection before the first call to ServiceManager.checkService. But
-         * to make sure the test is deterministic emulate daemon restart only on the second call to
-         * ServiceManager.checkService.
-         */
-        doReturn(null)
-                .doReturn(mMockBinder)
-                .when(() -> ServiceManager.checkService(CAR_WATCHDOG_DAEMON_INTERFACE));
-        mCarWatchdogDaemonBinderDeathRecipient.binderDied();
-
-        List<ResourceOveruseConfiguration> actualConfigs =
-                mCarWatchdogService.getResourceOveruseConfigurations(
-                        FLAG_RESOURCE_OVERUSE_IO);
-
-        ResourceOveruseConfigurationSubject.assertThat(actualConfigs)
-                .containsExactlyElementsIn(sampleResourceOveruseConfigurations());
-    }
-
-    @Test
-    public void testConcurrentSetGetResourceOveruseConfigurationsWithReconnectedDaemon()
-            throws Exception {
-        /*
-         * Emulate daemon crash and restart during the get and set requests. The below get request
-         * should be waiting for daemon connection before the first call to
-         * ServiceManager.checkService. But to make sure the test is deterministic emulate daemon
-         * restart only on the second call to ServiceManager.checkService.
-         */
-        doReturn(null)
-                .doReturn(mMockBinder)
-                .when(() -> ServiceManager.checkService(CAR_WATCHDOG_DAEMON_INTERFACE));
-        mCarWatchdogDaemonBinderDeathRecipient.binderDied();
-
-        /* Capture and respond with the configuration received in the set request. */
-        List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> internalConfigs =
-                new ArrayList<>();
-        doAnswer(args -> {
-            List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> configs =
-                    args.getArgument(0);
-            internalConfigs.addAll(configs);
-            return null;
-        }).when(mMockCarWatchdogDaemon).updateResourceOveruseConfigurations(anyList());
-        when(mMockCarWatchdogDaemon.getResourceOveruseConfigurations()).thenReturn(internalConfigs);
-
-        /* Start a set request that will become pending and a blocking get request. */
-        List<ResourceOveruseConfiguration> setConfigs = sampleResourceOveruseConfigurations();
-        assertThat(mCarWatchdogService.setResourceOveruseConfigurations(
-                setConfigs, FLAG_RESOURCE_OVERUSE_IO))
-                .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
-
-        List<ResourceOveruseConfiguration> getConfigs =
-                mCarWatchdogService.getResourceOveruseConfigurations(
-                        FLAG_RESOURCE_OVERUSE_IO);
-
-        ResourceOveruseConfigurationSubject.assertThat(getConfigs)
-                .containsExactlyElementsIn(setConfigs);
     }
 
     @Test

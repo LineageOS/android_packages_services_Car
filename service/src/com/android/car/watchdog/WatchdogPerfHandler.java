@@ -178,7 +178,7 @@ public final class WatchdogPerfHandler {
     private static final String UID_IO_USAGE_SUMMARY_REPORTED_DATE =
             "uidIoUsageSummaryReportedDate";
     private static final long OVERUSE_HANDLING_DELAY_MILLS = 10_000;
-    private static final long MAX_WAIT_TIME_MILLS = 3_000;
+    static final long MAX_WAIT_TIME_MILLS = 3_000;
 
     private static final PullAtomMetadata PULL_ATOM_METADATA =
             new PullAtomMetadata.Builder()
