@@ -23,6 +23,7 @@ import static android.car.watchdog.CarWatchdogManager.RETURN_CODE_SUCCESS;
 
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
+import static com.android.car.watchdog.CarWatchdogServiceUnitTest.constructUserPackageIoUsageStats;
 import static com.android.car.watchdog.WatchdogPerfHandler.MAX_WAIT_TIME_MILLS;
 import static com.android.car.watchdog.WatchdogStorage.WatchdogDbHelper.DATABASE_NAME;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -54,6 +56,7 @@ import android.automotive.watchdog.internal.PackageMetadata;
 import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
 import android.automotive.watchdog.internal.ResourceStats;
+import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
@@ -83,6 +86,8 @@ import android.view.Display;
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarUxRestrictionsManagerService;
+
+import com.google.common.truth.Correspondence;
 
 import org.junit.After;
 import org.junit.Before;
@@ -654,6 +659,121 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         mMainHandler.postAtTime(
                 () -> mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ true),
                 MAX_WAIT_TIME_MILLS - 1000);
+    }
+
+    @Test
+    public void testAsyncFetchTodayIoUsageStats() throws Exception {
+        List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = Arrays.asList(
+                WatchdogStorageUnitTest.constructIoUsageStatsEntry(
+                        /* userId= */ 100, "system_package", /* startTime */ 0,
+                        /* duration= */1234,
+                        /* remainingWriteBytes= */ constructPerStateBytes(200, 300, 400),
+                        /* writtenBytes= */ constructPerStateBytes(1000, 2000, 3000),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 2, /* forgivenOveruses= */ 0,
+                        /* totalTimesKilled= */ 1),
+                WatchdogStorageUnitTest.constructIoUsageStatsEntry(
+                        /* userId= */ 101, "vendor_package", /* startTime */ 0,
+                        /* duration= */ 1234,
+                        /* remainingWriteBytes= */ constructPerStateBytes(500, 600, 700),
+                        /* writtenBytes= */ constructPerStateBytes(1100, 2300, 4300),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 4, /* forgivenOveruses= */ 1,
+                        /* totalTimesKilled= */ 10));
+        when(mSpiedWatchdogStorage.getTodayIoUsageStats()).thenReturn(ioUsageStatsEntries);
+
+        mWatchdogPerfHandler.asyncFetchTodayIoUsageStats();
+
+        ArgumentCaptor<List<UserPackageIoUsageStats>> userPackageIoUsageStatsCaptor =
+                ArgumentCaptor.forClass(List.class);
+
+        verify(mMockCarWatchdogDaemonHelper, timeout(MAX_WAIT_TIME_MILLS))
+                .onTodayIoUsageStatsFetched(userPackageIoUsageStatsCaptor.capture());
+
+        List<UserPackageIoUsageStats> expectedStats = Arrays.asList(
+                constructUserPackageIoUsageStats(/* userId= */ 100, "system_package",
+                        /* writtenBytes= */ constructPerStateBytes(1000, 2000, 3000),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 2),
+                constructUserPackageIoUsageStats(/* userId= */ 101, "vendor_package",
+                        /* writtenBytes= */ constructPerStateBytes(1100, 2300, 4300),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 4));
+
+        assertThat(userPackageIoUsageStatsCaptor.getValue())
+                .comparingElementsUsing(Correspondence.from(
+                        CarWatchdogServiceUnitTest::isUserPackageIoUsageStatsEquals,
+                        "is user package I/O usage stats equal to"))
+                .containsExactlyElementsIn(expectedStats);
+    }
+
+    @Test
+    public void testAsyncFetchTodayIoUsageStatsWithDaemonRemoteException() throws Exception {
+        List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = Arrays.asList(
+                WatchdogStorageUnitTest.constructIoUsageStatsEntry(
+                        /* userId= */ 100, "system_package", /* startTime */ 0,
+                        /* duration= */1234,
+                        /* remainingWriteBytes= */ constructPerStateBytes(200, 300, 400),
+                        /* writtenBytes= */ constructPerStateBytes(1000, 2000, 3000),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 2, /* forgivenOveruses= */ 0,
+                        /* totalTimesKilled= */ 1),
+                WatchdogStorageUnitTest.constructIoUsageStatsEntry(
+                        /* userId= */ 101, "vendor_package", /* startTime */ 0,
+                        /* duration= */ 1234,
+                        /* remainingWriteBytes= */ constructPerStateBytes(500, 600, 700),
+                        /* writtenBytes= */ constructPerStateBytes(1100, 2300, 4300),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 4, /* forgivenOveruses= */ 1,
+                        /* totalTimesKilled= */ 10));
+        when(mSpiedWatchdogStorage.getTodayIoUsageStats()).thenReturn(ioUsageStatsEntries);
+        doThrow(RemoteException.class)
+                .when(mMockCarWatchdogDaemonHelper).onTodayIoUsageStatsFetched(any());
+
+        mWatchdogPerfHandler.asyncFetchTodayIoUsageStats();
+
+        verify(mMockCarWatchdogDaemonHelper,
+                timeout(MAX_WAIT_TIME_MILLS)).onTodayIoUsageStatsFetched(any());
+    }
+
+    @Test
+    public void testGetTodayIoUsageStats() throws Exception {
+        List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = Arrays.asList(
+                WatchdogStorageUnitTest.constructIoUsageStatsEntry(
+                        /* userId= */ 100, "system_package", /* startTime */ 0,
+                        /* duration= */1234,
+                        /* remainingWriteBytes= */ constructPerStateBytes(200, 300, 400),
+                        /* writtenBytes= */ constructPerStateBytes(1000, 2000, 3000),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 2, /* forgivenOveruses= */ 0,
+                        /* totalTimesKilled= */ 1),
+                WatchdogStorageUnitTest.constructIoUsageStatsEntry(
+                        /* userId= */ 101, "vendor_package", /* startTime */ 0,
+                        /* duration= */ 1234,
+                        /* remainingWriteBytes= */ constructPerStateBytes(500, 600, 700),
+                        /* writtenBytes= */ constructPerStateBytes(1100, 2300, 4300),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 4, /* forgivenOveruses= */ 1,
+                        /* totalTimesKilled= */ 10));
+        when(mSpiedWatchdogStorage.getTodayIoUsageStats()).thenReturn(ioUsageStatsEntries);
+
+        List<UserPackageIoUsageStats> actualStats =
+                mWatchdogPerfHandler.getTodayIoUsageStats();
+
+        List<UserPackageIoUsageStats> expectedStats = Arrays.asList(
+                constructUserPackageIoUsageStats(/* userId= */ 100, "system_package",
+                        /* writtenBytes= */ constructPerStateBytes(1000, 2000, 3000),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 2),
+                constructUserPackageIoUsageStats(/* userId= */ 101, "vendor_package",
+                        /* writtenBytes= */ constructPerStateBytes(1100, 2300, 4300),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 4));
+
+        assertThat(actualStats).comparingElementsUsing(Correspondence.from(
+                        CarWatchdogServiceUnitTest::isUserPackageIoUsageStatsEquals,
+                        "is user package I/O usage stats equal to"))
+                .containsExactlyElementsIn(expectedStats);
     }
 
     private static List<android.automotive.watchdog.internal.ResourceOveruseConfiguration>
