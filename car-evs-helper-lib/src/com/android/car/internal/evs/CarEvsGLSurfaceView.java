@@ -26,13 +26,22 @@ import android.view.MotionEvent;
 import com.android.internal.util.Preconditions;
 import com.android.car.internal.evs.GLES20CarEvsBufferRenderer;
 
+import java.util.ArrayList;
+
 /**
  * GPU-backed SurfaceView to render a hardware buffer described by {@link CarEvsBufferDescriptor}.
  */
 public final class CarEvsGLSurfaceView extends GLSurfaceView {
     private static final String TAG = CarEvsGLSurfaceView.class.getSimpleName();
     private static final int DEFAULT_IN_PLANE_ROTATION_ANGLE = 0;
-
+    private static final float DEFAULT_1X1_POSITION[][] = {
+            {
+                -1.0f,  1.0f, 0.0f,
+                 1.0f,  1.0f, 0.0f,
+                -1.0f, -1.0f, 0.0f,
+                 1.0f, -1.0f, 0.0f,
+            },
+    };
     private final GLES20CarEvsBufferRenderer mRenderer;
 
     /** An interface to pull and return {@code CarEvsBufferDescriptor} object to render. */
@@ -55,11 +64,12 @@ public final class CarEvsGLSurfaceView extends GLSurfaceView {
         void onBufferProcessed(@NonNull CarEvsBufferDescriptor buffer);
     }
 
-    private CarEvsGLSurfaceView(Context context, BufferCallback callback, int angleInDegree) {
+    private CarEvsGLSurfaceView(Context context, ArrayList<BufferCallback> callbacks,
+            int angleInDegree, float[][] positions) {
         super(context);
         setEGLContextClientVersion(2);
 
-        mRenderer = new GLES20CarEvsBufferRenderer(context, callback, angleInDegree);
+        mRenderer = new GLES20CarEvsBufferRenderer(callbacks, angleInDegree, positions);
         setRenderer(mRenderer);
 
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
@@ -75,27 +85,66 @@ public final class CarEvsGLSurfaceView extends GLSurfaceView {
     /**
      * Creates a {@link CarEvsGLSurfaceView} object with the default in-plane rotation angle.
      *
-     * @param context Current appliation context.
-     * @param callback {@link CarEvsGLSurfaceView.BufferCallback} object.
+     * @param context The Context this view is running in, through which it can access resources,
+     *                etc.
+     * @param callbacks An array of {@link CarEvsGLSurfaceView.BufferCallback} objects.
      *
      */
-    public static CarEvsGLSurfaceView create(Context context, BufferCallback callback) {
-        return create(context, callback, DEFAULT_IN_PLANE_ROTATION_ANGLE);
+    public static CarEvsGLSurfaceView create(Context context,
+            ArrayList<BufferCallback> callbacks) {
+        return create(context, callbacks, DEFAULT_IN_PLANE_ROTATION_ANGLE, DEFAULT_1X1_POSITION);
     }
 
     /**
      * Creates a {@link CarEvsGLSurfaceView} object with a given in-plane rotation angle in degree.
      *
-     * @param context Current appliation context.
-     * @param callback {@link CarEvsGLSurfaceView.BufferCallback} object.
+     * @param context The Context this view is running in, through which it can access resources,
+     *                etc.
+     * @param callbacks An array of {@link CarEvsGLSurfaceView.BufferCallback} objects.
      * @param angleInDegree In-plane counter-clockwise rotation angle in degree.
+     *
      */
-    public static CarEvsGLSurfaceView create(Context context, BufferCallback callback,
+    public static CarEvsGLSurfaceView create(Context context, ArrayList<BufferCallback> callbacks,
             int angleInDegree) {
+        return create(context, callbacks, angleInDegree, DEFAULT_1X1_POSITION);
+    }
+
+    /**
+     * Creates a {@link CarEvsGLSurfaceView} object with the default in-plane rotation angle and a
+     * gridview with given rows and columns.
+     *
+     * @param context The Context this view is running in, through which it can access resources,
+     *                etc.
+     * @param callbacks An array of {@link CarEvsGLSurfaceView.BufferCallback} objects.
+     * @param positions Matrices that define an area where each buffer will be rendered.
+     *
+     */
+    public static CarEvsGLSurfaceView create(Context context, ArrayList<BufferCallback> callbacks,
+            float positions[][]) {
+        return create(context, callbacks, DEFAULT_IN_PLANE_ROTATION_ANGLE, positions);
+    }
+
+    /**
+     * Creates a {@link CarEvsGLSurfaceView} object with a given in-plane rotation angle in degree
+     * and a gridview with given rows and columns.
+     *
+     * @param context The Context this view is running in, through which it can access resources,
+     *                etc.
+     * @param callbacks An array of {@link CarEvsGLSurfaceView.BufferCallback} objects.
+     * @param angleInDegree In-plane counter-clockwise rotation angle in degree.
+     * @param positions Matrices that define an area where each buffer will be rendered.
+     *
+     */
+    public static CarEvsGLSurfaceView create(Context context, ArrayList<BufferCallback> callbacks,
+            int angleInDegree, float positions[][]) {
 
         Preconditions.checkArgument(context != null, "Context cannot be null.");
-        Preconditions.checkArgument(callback != null, "BufferCallback cannot be null.");
+        Preconditions.checkArgument(callbacks != null, "BufferCallback cannot be null.");
+        Preconditions.checkArgument(callbacks.size() > 0,
+                "At least one BufferCallback object must exist.");
+        Preconditions.checkArgument(callbacks.size() <= positions.length,
+                "At least " + callbacks.size() + " positions are needed.");
 
-        return new CarEvsGLSurfaceView(context, callback, angleInDegree);
+        return new CarEvsGLSurfaceView(context, callbacks, angleInDegree, positions);
     }
 }

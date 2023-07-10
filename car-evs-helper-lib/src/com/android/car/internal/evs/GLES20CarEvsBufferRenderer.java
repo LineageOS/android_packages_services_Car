@@ -20,7 +20,6 @@ import static android.opengl.GLU.gluErrorString;
 
 import android.annotation.NonNull;
 import android.car.evs.CarEvsBufferDescriptor;
-import android.content.Context;
 import android.hardware.HardwareBuffer;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -32,6 +31,7 @@ import com.android.internal.util.Preconditions;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -46,13 +46,13 @@ public final class GLES20CarEvsBufferRenderer implements GLSurfaceView.Renderer 
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
     private static final int FLOAT_SIZE_BYTES = 4;
 
-    private static final float[] sVertCarPosData = {
+    private static final float[] sVertPosData = {
             -1.0f,  1.0f, 0.0f,
              1.0f,  1.0f, 0.0f,
             -1.0f, -1.0f, 0.0f,
              1.0f, -1.0f, 0.0f };
 
-    private static final float[] sVertCarTexData = {
+    private static final float[] sVertTexData = {
            -0.5f, -0.5f,
             0.5f, -0.5f,
            -0.5f,  0.5f,
@@ -64,7 +64,7 @@ public final class GLES20CarEvsBufferRenderer implements GLSurfaceView.Renderer 
             0.0f, 0.0f, 1.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 1.0f };
 
-    private final String mVertexShader =
+    private static final String mVertexShader =
         "attribute vec4 pos;                    \n" +
         "attribute vec2 tex;                    \n" +
         "uniform mat4 cameraMat;                \n" +
@@ -75,7 +75,7 @@ public final class GLES20CarEvsBufferRenderer implements GLSurfaceView.Renderer 
         "   uv = tex;                           \n" +
         "}                                      \n";
 
-    private final String mFragmentShader =
+    private static final String mFragmentShader =
         "precision mediump float;               \n" +
         "uniform sampler2D tex;                 \n" +
         "varying vec2 uv;                       \n" +
@@ -84,154 +84,169 @@ public final class GLES20CarEvsBufferRenderer implements GLSurfaceView.Renderer 
         "    gl_FragColor = texture2D(tex, uv); \n" +
         "}                                      \n";
 
+    private static final int INDEX_TO_X_STRIDE = 0;
+    private static final int INDEX_TO_Y_STRIDE = 1;
+
     private final Object mLock = new Object();
-    private final CarEvsGLSurfaceView.BufferCallback mCallback;
-    private final Context mContext;
-    private final FloatBuffer mVertCarPos;
-    private final FloatBuffer mVertCarTex;
+    private final ArrayList<CarEvsGLSurfaceView.BufferCallback> mCallbacks;
+    private final FloatBuffer mVertPos;
+    private final FloatBuffer mVertTex;
+    private final int mTextureId[];
+    private final float mPositions[][];
 
     private int mProgram;
-    private int mTextureId;
     private int mWidth;
     private int mHeight;
 
-    // Native method to update the texture with a received frame buffer
+    // Hold buffers currently in use.
     @GuardedBy("mLock")
-    private CarEvsBufferDescriptor mBufferInUse;
+    private final CarEvsBufferDescriptor mBufferInUse[];
 
     /** Load jni on initialization. */
     static {
         System.loadLibrary("carevsglrenderer_jni");
     }
 
-    public GLES20CarEvsBufferRenderer(@NonNull Context context,
-            @NonNull CarEvsGLSurfaceView.BufferCallback callback, int angleInDegree) {
+    public GLES20CarEvsBufferRenderer(ArrayList<CarEvsGLSurfaceView.BufferCallback> callbacks,
+            int angleInDegree, float[][] positions) {
 
-        Preconditions.checkArgument(context != null, "Context cannot be null.");
-        Preconditions.checkArgument(callback != null, "Callback cannot be null.");
+        Preconditions.checkArgument(callbacks != null, "Callback cannot be null.");
+        Preconditions.checkArgument(callbacks.size() <= positions.length,
+                "At least " + callbacks.size() + " positions are needed.");
 
-        mContext = context;
-        mCallback = callback;
+        mCallbacks = callbacks;
 
-        mVertCarPos = ByteBuffer.allocateDirect(sVertCarPosData.length * FLOAT_SIZE_BYTES)
-                .order(ByteOrder.nativeOrder()).asFloatBuffer();
-        mVertCarPos.put(sVertCarPosData).position(0);
+        mTextureId = new int[callbacks.size()];
+        mPositions = positions;
+        mBufferInUse = new CarEvsBufferDescriptor[callbacks.size()];
+
+        mVertPos = ByteBuffer.allocateDirect(sVertPosData.length * FLOAT_SIZE_BYTES)
+            .order(ByteOrder.nativeOrder()).asFloatBuffer();
+        mVertPos.put(sVertPosData).position(0);
 
         double angleInRadian = Math.toRadians(angleInDegree);
         float[] rotated = {0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f};
         float sin = (float)Math.sin(angleInRadian);
         float cos = (float)Math.cos(angleInRadian);
 
-        rotated[0] += cos * sVertCarTexData[0] - sin * sVertCarTexData[1];
-        rotated[1] += sin * sVertCarTexData[0] + cos * sVertCarTexData[1];
-        rotated[2] += cos * sVertCarTexData[2] - sin * sVertCarTexData[3];
-        rotated[3] += sin * sVertCarTexData[2] + cos * sVertCarTexData[3];
-        rotated[4] += cos * sVertCarTexData[4] - sin * sVertCarTexData[5];
-        rotated[5] += sin * sVertCarTexData[4] + cos * sVertCarTexData[5];
-        rotated[6] += cos * sVertCarTexData[6] - sin * sVertCarTexData[7];
-        rotated[7] += sin * sVertCarTexData[6] + cos * sVertCarTexData[7];
+        rotated[0] += cos * sVertTexData[0] - sin * sVertTexData[1];
+        rotated[1] += sin * sVertTexData[0] + cos * sVertTexData[1];
+        rotated[2] += cos * sVertTexData[2] - sin * sVertTexData[3];
+        rotated[3] += sin * sVertTexData[2] + cos * sVertTexData[3];
+        rotated[4] += cos * sVertTexData[4] - sin * sVertTexData[5];
+        rotated[5] += sin * sVertTexData[4] + cos * sVertTexData[5];
+        rotated[6] += cos * sVertTexData[6] - sin * sVertTexData[7];
+        rotated[7] += sin * sVertTexData[6] + cos * sVertTexData[7];
 
-        mVertCarTex = ByteBuffer.allocateDirect(sVertCarTexData.length * FLOAT_SIZE_BYTES)
+        mVertTex = ByteBuffer.allocateDirect(sVertTexData.length * FLOAT_SIZE_BYTES)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
-        mVertCarTex.put(rotated).position(0);
+        mVertTex.put(rotated).position(0);
     }
 
     public void clearBuffer() {
-        CarEvsBufferDescriptor bufferToReturn = null;
-        synchronized (mLock) {
-            if (mBufferInUse == null) {
-                return;
+        for (int i = 0; i < mCallbacks.size(); i++) {
+            CarEvsBufferDescriptor bufferToReturn = null;
+            synchronized (mLock) {
+                if (mBufferInUse[i] == null) {
+                    continue;
+                }
+
+                bufferToReturn = mBufferInUse[i];
+                mBufferInUse[i] = null;
             }
 
-            bufferToReturn = mBufferInUse;
-            mBufferInUse = null;
+            // bufferToReturn is not null here.
+            mCallbacks.get(i).onBufferProcessed(bufferToReturn);
         }
-
-        // bufferToReturn is not null here.
-        mCallback.onBufferProcessed(bufferToReturn);
     }
 
     @Override
     public void onDrawFrame(GL10 glUnused) {
         // Use the GLES20 class's static methods instead of a passed GL10 interface.
+        for (int i = 0; i < mCallbacks.size(); i++) {
+            CarEvsBufferDescriptor bufferToRender = null;
+            CarEvsBufferDescriptor bufferToReturn = null;
+            CarEvsBufferDescriptor newFrame = mCallbacks.get(i).onBufferRequested();
 
-        CarEvsBufferDescriptor bufferToRender = null;
-        CarEvsBufferDescriptor bufferToReturn = null;
-        CarEvsBufferDescriptor newFrame = mCallback.onBufferRequested();
-
-        synchronized (mLock) {
-            if (newFrame != null) {
-                // If a new frame has not been delivered yet, we're using a previous frame.
-                if (mBufferInUse != null) {
-                    bufferToReturn = mBufferInUse;
+            synchronized (mLock) {
+                if (newFrame != null) {
+                    if (mBufferInUse[i] != null) {
+                        bufferToReturn = mBufferInUse[i];
+                    }
+                    mBufferInUse[i] = newFrame;
                 }
-                mBufferInUse = newFrame;
+                bufferToRender = mBufferInUse[i];
             }
-            bufferToRender = mBufferInUse;
-        }
 
-        if (bufferToRender == null) {
-            if (DBG) {
-                Log.d(TAG, "No buffer to draw.");
+            if (bufferToRender == null) {
+                if (DBG) {
+                    Log.d(TAG, "No buffer to draw from a callback " + i);
+                }
+                continue;
             }
-            return;
+
+            if (bufferToReturn != null) {
+                mCallbacks.get(i).onBufferProcessed(bufferToReturn);
+            }
+
+            // Specify a shader program to use
+            GLES20.glUseProgram(mProgram);
+
+            // Set a cameraMat as 4x4 identity matrix
+            int matrix = GLES20.glGetUniformLocation(mProgram, "cameraMat");
+            if (matrix < 0) {
+                throw new RuntimeException("Could not get a attribute location for cameraMat");
+            }
+            GLES20.glUniformMatrix4fv(/* location= */ matrix, /* count= */ 1,
+                    /* transpose= */ false, /* value= */ sIdentityMatrix, 0);
+
+            // Retrieve a hardware buffer from a descriptor and update the texture
+            HardwareBuffer buffer = bufferToRender.getHardwareBuffer();
+
+            // Update the texture with a given hardware buffer
+            if (!nUpdateTexture(buffer, mTextureId[i])) {
+                throw new RuntimeException(
+                        "Failed to update the texture with the preview frame");
+            }
         }
-
-        if (bufferToReturn != null) {
-            mCallback.onBufferProcessed(bufferToReturn);
-        }
-
-        // Specify a shader program to use
-        GLES20.glUseProgram(mProgram);
-
-        // Set a cameraMat as 4x4 identity matrix
-        int matrix = GLES20.glGetUniformLocation(mProgram, "cameraMat");
-        if (matrix < 0) {
-            throw new RuntimeException("Could not get a attribute location for cameraMat");
-        }
-        GLES20.glUniformMatrix4fv(matrix, 1, false, sIdentityMatrix, 0);
-
-        // Retrieve a hardware buffer from a descriptor and update the texture
-        HardwareBuffer buffer = bufferToRender.getHardwareBuffer();
-
-        // Update the texture with a given hardware buffer
-        if (!nUpdateTexture(buffer, mTextureId)) {
-            throw new RuntimeException(
-                    "Failed to update the texture with the preview frame");
-        }
-
-        GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-        GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
 
         // Select active texture unit
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 
-        // Bind a named texture to the target
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureId);
+        // Render Hardware buffers
+        for (int i = 0; i < mTextureId.length; i++) {
+            mVertPos.put(mPositions[i]).position(0);
 
-        // Use a texture slot 0 as the source
-        int sampler = GLES20.glGetUniformLocation(mProgram, "tex");
-        if (sampler < 0) {
-            throw new RuntimeException("Could not get a attribute location for tex");
+            // Bind a named texture to the target
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureId[i]);
+
+            // Use a texture slot 0 as the source
+            int sampler = GLES20.glGetUniformLocation(mProgram, "tex");
+            if (sampler < 0) {
+                throw new RuntimeException("Could not get a attribute location for tex");
+            }
+            GLES20.glUniform1i(sampler, 0);
+
+            // We'll ignore the alpha value
+            GLES20.glDisable(GLES20.GL_BLEND);
+
+            // Bind a named texture to the target
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureId[i]);
+
+            // Define an array of generic vertex attribute data
+            GLES20.glVertexAttribPointer(0, 3, GLES20.GL_FLOAT, false, 0, mVertPos);
+            GLES20.glVertexAttribPointer(1, 2, GLES20.GL_FLOAT, false, 0, mVertTex);
+
+            // Enable a generic vertex attribute array
+            GLES20.glEnableVertexAttribArray(0);
+            GLES20.glEnableVertexAttribArray(1);
+
+            // Render primitives from array data
+            GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+
+            GLES20.glDisableVertexAttribArray(0);
+            GLES20.glDisableVertexAttribArray(1);
         }
-        GLES20.glUniform1i(sampler, 0);
-
-        // We'll ignore the alpha value
-        GLES20.glDisable(GLES20.GL_BLEND);
-
-        // Define an array of generic vertex attribute data
-        GLES20.glVertexAttribPointer(0, 3, GLES20.GL_FLOAT, false, 0, mVertCarPos);
-        GLES20.glVertexAttribPointer(1, 2, GLES20.GL_FLOAT, false, 0, mVertCarTex);
-
-        // Enable a generic vertex attribute array
-        GLES20.glEnableVertexAttribArray(0);
-        GLES20.glEnableVertexAttribArray(1);
-
-        // Render primitives from array data
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
-
-        GLES20.glDisableVertexAttribArray(0);
-        GLES20.glDisableVertexAttribArray(1);
 
         // Wait until all GL execution is complete
         GLES20.glFinish();
@@ -256,26 +271,26 @@ public final class GLES20CarEvsBufferRenderer implements GLSurfaceView.Renderer 
         }
 
         // Generate texture name
-        int[] textures = new int[1];
-        GLES20.glGenTextures(1, textures, 0);
-        mTextureId = textures[0];
-        if (mTextureId <= 0) {
-            Log.e(TAG, "Did not get a texture handle");
-            return;
-        }
+        GLES20.glGenTextures(/* n= */ mTextureId.length, mTextureId, /* offset= */ 0);
+        for (var id : mTextureId) {
+            if (id <= 0) {
+                Log.e(TAG, "Did not get a texture handle, id=" + id);
+                continue;
+            }
 
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureId);
-        // Use a linear interpolation to upscale the texture
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER,
-                GLES20.GL_LINEAR);
-        // Use a nearest-neighbor to downscale the texture
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER,
-                GLES20.GL_NEAREST);
-        // Clamp s, t coordinates at the edges
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S,
-                GLES20.GL_CLAMP_TO_EDGE);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T,
-                GLES20.GL_CLAMP_TO_EDGE);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, id);
+            // Use a linear interpolation to upscale the texture
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER,
+                    GLES20.GL_LINEAR);
+            // Use a nearest-neighbor to downscale the texture
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER,
+                    GLES20.GL_NEAREST);
+            // Clamp s, t coordinates at the edges
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S,
+                    GLES20.GL_CLAMP_TO_EDGE);
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T,
+                    GLES20.GL_CLAMP_TO_EDGE);
+        }
     }
 
     private int loadShader(int shaderType, String source) {
