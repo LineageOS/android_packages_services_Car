@@ -18,6 +18,7 @@ package com.android.car;
 import static android.car.CarOccupantZoneManager.INVALID_USER_ID;
 import static android.car.CarOccupantZoneManager.OccupantZoneInfo.INVALID_ZONE_ID;
 import static android.car.builtin.os.UserManagerHelper.getMaxRunningUsers;
+import static android.car.media.CarMediaIntents.EXTRA_MEDIA_COMPONENT;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_BROWSE;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_PLAYBACK;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE;
@@ -444,6 +445,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
 
         maybeInitSharedPrefs(userId);
 
+        ComponentName playbackSource;
         synchronized (mLock) {
             UserMediaPlayContext userMediaContext = getOrCreateUserMediaPlayContextLocked(userId);
             if (userMediaContext.mContext != null) {
@@ -460,9 +462,11 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                         defaultMediaSource;
                 userMediaContext.mPrimaryMediaComponents[MEDIA_SOURCE_MODE_BROWSE] =
                         defaultMediaSource;
+                playbackSource = defaultMediaSource;
             } else {
+                playbackSource = getLastMediaSource(MEDIA_SOURCE_MODE_PLAYBACK, userId);
                 userMediaContext.mPrimaryMediaComponents[MEDIA_SOURCE_MODE_PLAYBACK] =
-                        getLastMediaSource(MEDIA_SOURCE_MODE_PLAYBACK, userId);
+                        playbackSource;
                 userMediaContext.mPrimaryMediaComponents[MEDIA_SOURCE_MODE_BROWSE] =
                         getLastMediaSource(MEDIA_SOURCE_MODE_BROWSE, userId);
             }
@@ -473,7 +477,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         notifyListeners(MEDIA_SOURCE_MODE_PLAYBACK, userId);
         notifyListeners(MEDIA_SOURCE_MODE_BROWSE, userId);
 
-        startMediaConnectorService(shouldStartPlayback(mPlayOnBootConfig, userId), userId);
+        startMediaConnectorService(playbackSource,
+                shouldStartPlayback(mPlayOnBootConfig, userId), userId);
     }
 
     @GuardedBy("mLock")
@@ -516,7 +521,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
      * resume playback using the MediaSession obtained via the media browser connection, which
      * is more reliable than using active MediaSessions from MediaSessionManager.
      */
-    private void startMediaConnectorService(boolean startPlayback, @UserIdInt int userId) {
+    private void startMediaConnectorService(@Nullable ComponentName playbackMediaSource,
+            boolean startPlayback, @UserIdInt int userId) {
         synchronized (mLock) {
             Context userContext = getOrCreateUserMediaPlayContextLocked(userId).mContext;
             if (userContext == null) {
@@ -529,7 +535,13 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
             serviceStart.setPackage(
                     mContext.getResources().getString(R.string.serviceMediaConnection));
             serviceStart.putExtra(EXTRA_AUTOPLAY, startPlayback);
-            userContext.startForegroundService(serviceStart);
+            if (playbackMediaSource != null) {
+                serviceStart.putExtra(EXTRA_MEDIA_COMPONENT, playbackMediaSource.flattenToString());
+            }
+
+            ComponentName result = userContext.startForegroundService(serviceStart);
+            Slogf.i(TAG, "startMediaConnectorService user: %d, source: %s, result: %s", userId,
+                    playbackMediaSource, result);
         }
     }
 
@@ -1252,7 +1264,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                 getRemovedMediaSourceComponentsForUser(userId)[MEDIA_SOURCE_MODE_PLAYBACK] = null;
             }
             notifyListeners(MEDIA_SOURCE_MODE_PLAYBACK, userId);
-            startMediaConnectorService(
+            startMediaConnectorService(playbackMediaSource,
                     shouldStartPlayback(mPlayOnMediaSourceChangedConfig, userId), userId);
         } else {
             Slogf.i(TAG, "Media source is null for user %d, skip starting media "
