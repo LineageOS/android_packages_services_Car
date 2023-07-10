@@ -76,7 +76,6 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -3597,6 +3596,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         verify(mMockWatchdogProcessHandler).controlProcessHealthCheck(eq(false));
     }
 
+    //TODO(b/262301082): Replace with a verify of WatchdogPerfHandler.disablePackageForUser when
+    // a mock WatchdogPerfHandler is used.
     @Test
     public void testDisablePackageForUser() throws Exception {
         assertWithMessage("Performed resource overuse kill")
@@ -3604,30 +3605,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         /* userId= */ 100)).isTrue();
 
         verifyDisabledPackages(/* userPackagesCsv= */ "100:third_party_package");
-    }
-
-    @Test
-    public void testDisablePackageForUserWithDisabledPackage() throws Exception {
-        doReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED).when(mSpiedPackageManager)
-                .getApplicationEnabledSetting(anyString(), anyInt());
-
-        assertWithMessage("Performed resource overuse kill")
-                .that(mCarWatchdogService.performResourceOveruseKill("third_party_package",
-                        /* userId= */ 100)).isFalse();
-
-        verifyNoDisabledPackages();
-    }
-
-    @Test
-    public void testDisablePackageForUserWithNonexistentPackage() throws Exception {
-        doThrow(IllegalArgumentException.class).when(mSpiedPackageManager)
-                .getApplicationEnabledSetting(anyString(), anyInt());
-
-        assertWithMessage("Performed resource overuse kill")
-                .that(mCarWatchdogService.performResourceOveruseKill("fake_package",
-                        /* userId= */ 100)).isFalse();
-
-        verifyNoDisabledPackages();
     }
 
     @Test
@@ -3993,6 +3970,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 });
     }
 
+    // TODO(b/262301082): Remove when all relevant tests have moved to WatchdogPerfHandlerUnitTest.
     private void mockSettingsStringCalls() {
         doAnswer(args -> {
             ContentResolver contentResolver = mock(ContentResolver.class);
@@ -4023,6 +4001,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 });
     }
 
+    // TODO(b/262301082): Remove when all relevant tests have moved to WatchdogPerfHandlerUnitTest.
     private void mockPackageManager() throws Exception {
         when(mMockPackageManager.getNamesForUids(any())).thenAnswer(args -> {
             int[] uids = args.getArgument(0);
@@ -4350,6 +4329,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         }
     }
 
+    // TODO(b/262301082): Remove when all relevant tests have moved to WatchdogPerfHandlerUnitTest.
+    // Remove all related verify* methods as well.
     private void verifyDisabledPackages(String userPackagesCsv) {
         verifyDisabledPackages(/* message= */ "", userPackagesCsv);
     }
@@ -4705,6 +4686,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .setIoOveruseStats(ioOveruseStats).build();
     }
 
+    // TODO(b/262301082): Remove when all relevant tests have moved to WatchdogPerfHandlerUnitTest.
     static UserPackageIoUsageStats constructUserPackageIoUsageStats(
             int userId, String packageName, android.automotive.watchdog.PerStateBytes writtenBytes,
             android.automotive.watchdog.PerStateBytes forgivenWriteBytes, int totalOveruses) {

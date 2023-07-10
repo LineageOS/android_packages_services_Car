@@ -17,14 +17,19 @@
 package com.android.car.watchdog;
 
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_BASELINE;
+import static android.car.settings.CarSettings.Secure.KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAllUsers;
 import static android.car.watchdog.CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO;
 import static android.car.watchdog.CarWatchdogManager.RETURN_CODE_SUCCESS;
+import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED;
+import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
 
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
 import static com.android.car.watchdog.CarWatchdogServiceUnitTest.constructUserPackageIoUsageStats;
 import static com.android.car.watchdog.WatchdogPerfHandler.MAX_WAIT_TIME_MILLS;
+import static com.android.car.watchdog.WatchdogPerfHandler.PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR;
+import static com.android.car.watchdog.WatchdogPerfHandler.USER_PACKAGE_SEPARATOR;
 import static com.android.car.watchdog.WatchdogStorage.WatchdogDbHelper.DATABASE_NAME;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
@@ -37,6 +42,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doNothing;
@@ -48,6 +54,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import android.app.ActivityThread;
 import android.app.StatsManager;
 import android.automotive.watchdog.internal.ApplicationCategoryType;
 import android.automotive.watchdog.internal.ComponentType;
@@ -57,9 +64,11 @@ import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
 import android.automotive.watchdog.internal.ResourceStats;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
+import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.mocks.MockSettings;
 import android.car.watchdog.CarWatchdogManager;
 import android.car.watchdog.IResourceOveruseListener;
 import android.car.watchdog.IoOveruseAlertThreshold;
@@ -67,7 +76,9 @@ import android.car.watchdog.IoOveruseConfiguration;
 import android.car.watchdog.PerStateBytes;
 import android.car.watchdog.ResourceOveruseConfiguration;
 import android.car.watchdoglib.CarWatchdogDaemonHelper;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.IPackageManager;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Binder;
@@ -78,6 +89,8 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseArray;
@@ -151,11 +164,20 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     private WatchdogStorage mSpiedWatchdogStorage;
     private WatchdogPerfHandler mWatchdogPerfHandler;
     private File mTempSystemCarDir;
+    // Not used directly, but sets proper mockStatic() expectations on Settings
+    @SuppressWarnings("UnusedVariable")
+    private MockSettings mMockSettings;
 
     private final SparseArray<String> mGenericPackageNameByUid = new SparseArray<>();
     private final CarWatchdogServiceUnitTest.TestTimeSource mTimeSource =
             new CarWatchdogServiceUnitTest.TestTimeSource();
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
+    private final SparseArray<List<String>> mPackagesBySharedUid = new SparseArray<>();
+    private final ArrayMap<String, android.content.pm.PackageInfo> mPmPackageInfoByUserPackage =
+            new ArrayMap<>();
+    private final ArraySet<String> mDisabledUserPackages = new ArraySet<>();
+    private final SparseArray<String> mDisabledPackagesSettingsStringByUserid = new SparseArray<>();
+    private final IPackageManager mSpiedPackageManager = spy(ActivityThread.getPackageManager());
 
     public WatchdogPerfHandlerUnitTest() {
         super(CarWatchdogService.TAG);
@@ -163,7 +185,11 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
-        builder.spyStatic(CarLocalServices.class);
+        mMockSettings = new MockSettings(builder);
+        builder.spyStatic(PackageManagerHelper.class)
+                .spyStatic(CarServiceUtils.class)
+                .spyStatic(ActivityThread.class)
+                .spyStatic(CarLocalServices.class);
     }
 
     @Before
@@ -186,6 +212,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                 .thenReturn(IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES);
         doReturn(mMockCarUxRestrictionsManagerService)
                 .when(() -> CarLocalServices.getService(CarUxRestrictionsManagerService.class));
+        doReturn(mSpiedPackageManager).when(() -> ActivityThread.getPackageManager());
         when(mMockCarUxRestrictionsManagerService.getCurrentUxRestrictions())
                 .thenReturn(new CarUxRestrictions.Builder(/* reqOpt= */ false,
                         UX_RESTRICTIONS_BASELINE, /* time= */ 0).build());
@@ -208,6 +235,8 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                 mSpiedWatchdogStorage, mTimeSource);
 
         setupUsers();
+        mockSettingsStringCalls();
+        mockPackageManager();
         initService(/* wantedInvocations= */ 1);
     }
 
@@ -774,6 +803,193 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                         CarWatchdogServiceUnitTest::isUserPackageIoUsageStatsEquals,
                         "is user package I/O usage stats equal to"))
                 .containsExactlyElementsIn(expectedStats);
+    }
+
+    @Test
+    public void testDisablePackageForUser() throws Exception {
+        assertWithMessage("Performed resource overuse kill")
+                .that(mWatchdogPerfHandler.disablePackageForUser("third_party_package",
+                        /* userId= */ 100)).isTrue();
+
+        verifyDisabledPackages(/* userPackagesCsv= */ "100:third_party_package");
+    }
+
+    @Test
+    public void testDisablePackageForUserWithDisabledPackage() throws Exception {
+        doReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED).when(() -> PackageManagerHelper
+                .getApplicationEnabledSettingForUser(anyString(), anyInt()));
+
+        assertWithMessage("Performed resource overuse kill")
+                .that(mWatchdogPerfHandler.disablePackageForUser("third_party_package",
+                        /* userId= */ 100)).isFalse();
+
+        verifyNoDisabledPackages();
+    }
+
+    @Test
+    public void testDisablePackageForUserWithNonexistentPackage() throws Exception {
+        doThrow(IllegalArgumentException.class).when(mSpiedPackageManager)
+                .getApplicationEnabledSetting(anyString(), anyInt());
+
+        assertWithMessage("Performed resource overuse kill")
+                .that(mWatchdogPerfHandler.disablePackageForUser("fake_package",
+                        /* userId= */ 100)).isFalse();
+
+        verifyNoDisabledPackages();
+    }
+
+    private void verifyDisabledPackages(String userPackagesCsv) {
+        verifyDisabledPackages(/* message= */ "", userPackagesCsv);
+    }
+
+    private void verifyDisabledPackages(String message, String userPackagesCsv) {
+        assertWithMessage("Disabled user packages %s", message).that(mDisabledUserPackages)
+                .containsExactlyElementsIn(userPackagesCsv.split(","));
+
+        verifyDisabledPackagesSettingsKey(message, userPackagesCsv);
+    }
+
+    private void verifyDisabledPackagesSettingsKey(String message, String userPackagesCsv) {
+        List<String> userPackagesFromSettingsString = new ArrayList<>();
+        for (int i = 0; i < mDisabledPackagesSettingsStringByUserid.size(); ++i) {
+            int userId = mDisabledPackagesSettingsStringByUserid.keyAt(i);
+            String value = mDisabledPackagesSettingsStringByUserid.valueAt(i);
+            List<String> packages = TextUtils.isEmpty(value) ? new ArrayList<>()
+                    : new ArrayList<>(Arrays.asList(value.split(
+                            PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR)));
+            packages.forEach(element ->
+                    userPackagesFromSettingsString.add(userId + USER_PACKAGE_SEPARATOR + element));
+        }
+
+        assertWithMessage(
+                "KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE settings string user packages %s",
+                message).that(userPackagesFromSettingsString)
+                .containsExactlyElementsIn(userPackagesCsv.split(","));
+    }
+
+    private void verifyNoDisabledPackages() {
+        verifyNoDisabledPackages(/* message= */ "");
+    }
+
+    private void verifyNoDisabledPackages(String message) {
+        assertWithMessage("Disabled user packages %s", message).that(mDisabledUserPackages)
+                .isEmpty();
+        assertWithMessage(
+                "KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE settings string user packages %s",
+                message).that(mDisabledPackagesSettingsStringByUserid.size()).isEqualTo(0);
+    }
+
+    private void mockSettingsStringCalls() {
+        doAnswer(args -> {
+            ContentResolver contentResolver = mock(ContentResolver.class);
+            when(contentResolver.getUserId()).thenReturn(args.getArgument(1));
+            return contentResolver;
+        }).when(() -> CarServiceUtils.getContentResolverForUser(any(), anyInt()));
+
+        when(Settings.Secure.getString(any(ContentResolver.class),
+                eq(KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE))).thenAnswer(
+                    args -> {
+                        ContentResolver contentResolver = args.getArgument(0);
+                        int userId = contentResolver.getUserId();
+                        return mDisabledPackagesSettingsStringByUserid.get(userId);
+                    });
+
+        // Use any() instead of anyString() to consider when string arg is null.
+        when(Settings.Secure.putString(any(ContentResolver.class),
+                eq(KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE), any())).thenAnswer(args -> {
+                    ContentResolver contentResolver = args.getArgument(0);
+                    int userId = contentResolver.getUserId();
+                    String packageSettings = args.getArgument(2);
+                    if (packageSettings == null) {
+                        mDisabledPackagesSettingsStringByUserid.remove(userId);
+                    } else {
+                        mDisabledPackagesSettingsStringByUserid.put(userId, args.getArgument(2));
+                    }
+                    return null;
+                });
+    }
+
+    // TODO(b/262301082): Move to PackageInfoHandlerUnitTest.
+    private void mockPackageManager() throws Exception {
+        when(mMockPackageManager.getNamesForUids(any())).thenAnswer(args -> {
+            int[] uids = args.getArgument(0);
+            String[] names = new String[uids.length];
+            for (int i = 0; i < uids.length; ++i) {
+                names[i] = mGenericPackageNameByUid.get(uids[i], null);
+            }
+            return names;
+        });
+        when(mMockPackageManager.getPackagesForUid(anyInt())).thenAnswer(args -> {
+            int uid = args.getArgument(0);
+            List<String> packages = mPackagesBySharedUid.get(uid);
+            return packages.toArray(new String[0]);
+        });
+        when(mMockPackageManager.getApplicationInfoAsUser(anyString(), anyInt(), any()))
+                .thenAnswer(args -> {
+                    int userId = ((UserHandle) args.getArgument(2)).getIdentifier();
+                    String userPackageId = userId + USER_PACKAGE_SEPARATOR + args.getArgument(0);
+                    android.content.pm.PackageInfo packageInfo =
+                            mPmPackageInfoByUserPackage.get(userPackageId);
+                    if (packageInfo == null) {
+                        throw new PackageManager.NameNotFoundException(
+                                "User package id '" + userPackageId + "' not found");
+                    }
+                    return packageInfo.applicationInfo;
+                });
+        when(mMockPackageManager.getPackageInfoAsUser(anyString(), anyInt(), anyInt()))
+                .thenAnswer(args -> {
+                    String userPackageId = args.getArgument(2) + USER_PACKAGE_SEPARATOR
+                            + args.getArgument(0);
+                    android.content.pm.PackageInfo packageInfo =
+                            mPmPackageInfoByUserPackage.get(userPackageId);
+                    if (packageInfo == null) {
+                        throw new PackageManager.NameNotFoundException(
+                                "User package id '" + userPackageId + "' not found");
+                    }
+                    return packageInfo;
+                });
+        when(mMockPackageManager.getInstalledPackagesAsUser(anyInt(), anyInt()))
+                .thenAnswer(args -> {
+                    int userId = args.getArgument(1);
+                    List<android.content.pm.PackageInfo> packageInfos = new ArrayList<>();
+                    for (android.content.pm.PackageInfo packageInfo :
+                            mPmPackageInfoByUserPackage.values()) {
+                        if (UserHandle.getUserId(packageInfo.applicationInfo.uid) == userId) {
+                            packageInfos.add(packageInfo);
+                        }
+                    }
+                    return packageInfos;
+                });
+        when(mMockPackageManager.getPackageUidAsUser(anyString(), anyInt()))
+                .thenAnswer(args -> {
+                    String userPackageId = args.getArgument(1) + USER_PACKAGE_SEPARATOR
+                            + args.getArgument(0);
+                    android.content.pm.PackageInfo packageInfo =
+                            mPmPackageInfoByUserPackage.get(userPackageId);
+                    if (packageInfo == null) {
+                        throw new PackageManager.NameNotFoundException(
+                                "User package id '" + userPackageId + "' not found");
+                    }
+                    return packageInfo.applicationInfo.uid;
+                });
+        doAnswer((args) -> {
+            String value = args.getArgument(3) + USER_PACKAGE_SEPARATOR
+                    + args.getArgument(0);
+            mDisabledUserPackages.add(value);
+            return null;
+        }).when(mSpiedPackageManager).setApplicationEnabledSetting(
+                anyString(), eq(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED), anyInt(),
+                anyInt(), anyString());
+        doAnswer((args) -> {
+            String value = args.getArgument(3) + USER_PACKAGE_SEPARATOR
+                    + args.getArgument(0);
+            mDisabledUserPackages.remove(value);
+            return null;
+        }).when(mSpiedPackageManager).setApplicationEnabledSetting(
+                anyString(), eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(),
+                anyInt(), anyString());
+        doReturn(COMPONENT_ENABLED_STATE_ENABLED).when(mSpiedPackageManager)
+                .getApplicationEnabledSetting(anyString(), anyInt());
     }
 
     private static List<android.automotive.watchdog.internal.ResourceOveruseConfiguration>
