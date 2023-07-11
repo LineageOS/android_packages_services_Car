@@ -16,6 +16,7 @@
 
 package com.android.systemui.car.statusicon.ui;
 
+import static android.car.VehicleAreaSeat.SEAT_UNKNOWN;
 import static android.car.VehiclePropertyIds.ENV_OUTSIDE_TEMPERATURE;
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS;
 
@@ -77,8 +78,8 @@ public class StatusBarSensorInfoManager {
                         mSensorAvailabilityData.postValue(true);
                         mCarPropertyManager =
                                 (CarPropertyManager) car.getCarManager(Car.PROPERTY_SERVICE);
+                        initializeHvacProperties();
                         registerHvacPropertyEventListeners();
-
                     });
                 } catch (Exception e) {
                     Log.e(TAG, "Failed to connect to Vhal", e);
@@ -100,6 +101,18 @@ public class StatusBarSensorInfoManager {
                 R.string.statusbar_temperature_format_celsius);
         mTemperatureFormatFahrenheit = resources.getString(
                 R.string.statusbar_temperature_format_fahrenheit);
+    }
+
+    private void initializeHvacProperties() {
+        int temperatureAreaId =
+                mCarPropertyManager.getAreaId(ENV_OUTSIDE_TEMPERATURE, SEAT_UNKNOWN);
+        mTemperatureValueInCelsius =
+                mCarPropertyManager.getFloatProperty(ENV_OUTSIDE_TEMPERATURE, temperatureAreaId);
+        int unitAreaId =
+                mCarPropertyManager.getAreaId(HVAC_TEMPERATURE_DISPLAY_UNITS, SEAT_UNKNOWN);
+        mTemperatureUnit =
+                mCarPropertyManager.getIntProperty(HVAC_TEMPERATURE_DISPLAY_UNITS, unitAreaId);
+        updateHvacProperties();
     }
 
     private void registerHvacPropertyEventListeners() {
@@ -124,7 +137,10 @@ public class StatusBarSensorInfoManager {
                 return;
             }
         }
+        updateHvacProperties();
+    }
 
+    private void updateHvacProperties() {
         boolean displayInInFahrenheit = mTemperatureUnit == VehicleUnit.FAHRENHEIT;
         float tempToDisplay = displayInInFahrenheit ? celsiusToFahrenheit(
                 mTemperatureValueInCelsius)
