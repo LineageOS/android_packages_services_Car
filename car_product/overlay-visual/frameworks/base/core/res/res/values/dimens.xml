@@ -26,8 +26,10 @@
     <dimen name="navigation_bar_height">96dp</dimen>
     <dimen name="navigation_bar_height_landscape">96dp</dimen>
 
-    <!-- Notification icon size in the status bar. -->
+    <!-- Original dp unit notification icon size in the status bar. -->
     <dimen name="status_bar_icon_size">32dp</dimen>
+    <!-- New sp unit notification icon size in the status bar. -->
+    <dimen name="status_bar_icon_size_sp">32sp</dimen>
     <!-- System status icon size in the status bar. -->
     <dimen name="status_bar_system_icon_size">32dp</dimen>
 
