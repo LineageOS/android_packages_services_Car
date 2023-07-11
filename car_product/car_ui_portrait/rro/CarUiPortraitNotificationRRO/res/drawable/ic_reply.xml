@@ -16,11 +16,11 @@
 
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
         android:autoMirrored="true"
-        android:viewportWidth="24"
-        android:viewportHeight="24"
+        android:viewportWidth="36"
+        android:viewportHeight="36"
         android:width="@dimen/reply_icon_width"
         android:height="@dimen/reply_icon_height">
     <path
         android:fillColor="@color/icon_tint"
-        android:pathData="M16,10H6.83L9,7.83l1.41,-1.41L9,5l-6,6 6,6 1.41,-1.41L9,14.17 6.83,12H16c1.65,0 3,1.35 3,3v4h2v-4c0,-2.76 -2.24,-5 -5,-5z"/>
+        android:pathData="M24,15H10.245L13.5,11.745L15.615,9.63L13.5,7.5L4.5,16.5L13.5,25.5L15.615,23.385L13.5,21.255L10.245,18H24C26.475,18 28.5,20.025 28.5,22.5V28.5H31.5V22.5C31.5,18.36 28.14,15 24,15Z"/>
 </vector>
