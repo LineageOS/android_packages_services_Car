@@ -92,4 +92,19 @@
 
     <dimen name="pin_view_container_maxHeight">380dp</dimen>
     <dimen name="pattern_view_container_maxHeight">800dp</dimen>
+
+    <!-- ****** Alert dialog dimens ***** -->
+
+    <!-- Dialog corner radius -->
+    <dimen name="alert_dialog_corner_radius">32dp</dimen>
+    <!-- Dialog button corner radius -->
+    <dimen name="alert_dialog_button_corner_radius">24dp</dimen>
+    <!-- Dialog header size -->
+    <dimen name="car_card_header_height">88dp</dimen>
+    <!-- Dialog image size -->
+    <dimen name="car_alert_dialog_title_image_size">@dimen/car_card_header_height</dimen>
+    <!-- Dialog button layout height -->
+    <dimen name="button_layout_height">88dp</dimen>
+    <!-- Default dialog button margin -->
+    <dimen name="car_alert_dialog_button_margin">16dp</dimen>
 </resources>
