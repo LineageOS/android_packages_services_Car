@@ -49,6 +49,7 @@ import android.car.hardware.power.ICarPowerStateListener;
 import android.car.hardware.power.PowerComponent;
 import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.mocks.JavaMockitoHelper;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
@@ -106,6 +107,7 @@ import java.lang.annotation.Target;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -1351,6 +1353,30 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 canTurnOnDisplay).isTrue();
     }
 
+    @Test
+    public void testHandleDisplayChanged_displayOff() throws Exception {
+        int displayId = Display.DEFAULT_DISPLAY;
+        boolean displayOn = false;
+
+        mService.handleDisplayChanged(displayId, displayOn);
+
+        mScreenOffHandler.waitForDisplayHandled(WAIT_TIMEOUT_MS);
+        assertWithMessage("Display " + displayId + " with state 'off' handled status")
+                .that(mScreenOffHandler.isDisplayStateHandled(displayId, displayOn)).isTrue();
+    }
+
+    @Test
+    public void testHandleDisplayChanged_displayOn() throws Exception {
+        int displayId = 101;
+        boolean displayOn = true;
+
+        mService.handleDisplayChanged(displayId, displayOn);
+
+        mScreenOffHandler.waitForDisplayHandled(WAIT_TIMEOUT_MS);
+        assertWithMessage("Display " + displayId + " with state 'on' handled status")
+                .that(mScreenOffHandler.isDisplayStateHandled(displayId, displayOn)).isTrue();
+    }
+
     private void suspendDevice() throws Exception {
         mService.handleOn();
         mPowerSignalListener.addEventListener(PowerHalService.SET_DEEP_SLEEP_ENTRY);
@@ -1541,7 +1567,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private static void waitForSemaphore(Semaphore semaphore, long timeoutMs)
             throws InterruptedException {
         if (!semaphore.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS)) {
-            throw new IllegalStateException("timeout");
+            throw new IllegalStateException("semaphore timeout");
         }
     }
 
@@ -1689,8 +1715,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     private static final class FakeScreenOffHandler extends ScreenOffHandler {
         private boolean mIsAutoPowerSaving;
-        @GuardedBy("sLock")
-        private final SparseArray<FakeDisplayPowerInfo> mDisplayPowerInfos = new SparseArray<>();
         @Retention(RetentionPolicy.SOURCE)
         @IntDef(prefix = "DISPLAY_POWER_MODE_", value = {
                 DISPLAY_POWER_MODE_NONE,
@@ -1700,11 +1724,17 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         })
         @Target({ElementType.TYPE_USE})
         private @interface FakeDisplayPowerMode {}
+        private final CountDownLatch mDisplayHandledLatch = new CountDownLatch(1);
+        @GuardedBy("sLock")
+        private final SparseArray<FakeDisplayPowerInfo> mDisplayPowerInfos = new SparseArray<>();
+        @GuardedBy("sLock")
+        private final SparseBooleanArray mHandledDisplayStates = new SparseBooleanArray();
 
         FakeScreenOffHandler(Context context, SystemInterface systemInterface, Looper looper) {
             super(context, systemInterface, looper);
         }
 
+        @Override
         void init() {}
 
         private boolean isAutoPowerSaving() {
@@ -1736,6 +1766,28 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 return false;
             }
             return info.getMode() != DISPLAY_POWER_MODE_OFF;
+        }
+
+        @Override
+        void handleDisplayStateChange(int displayId, boolean on) {
+            synchronized (sLock) {
+                mHandledDisplayStates.put(displayId, on);
+            }
+            mDisplayHandledLatch.countDown();
+        }
+
+        private boolean isDisplayStateHandled(int displayId, boolean on) {
+            synchronized (sLock) {
+                // confirm that a value has actually been set for displayId in mHandledDisplayStates
+                if (mHandledDisplayStates.indexOfKey(displayId) < 0) {
+                    return false;
+                }
+                return mHandledDisplayStates.get(displayId) == on;
+            }
+        }
+
+        private void waitForDisplayHandled(long timeoutMs) throws Exception {
+            JavaMockitoHelper.await(mDisplayHandledLatch, timeoutMs);
         }
 
         private static final class FakeDisplayPowerInfo {
