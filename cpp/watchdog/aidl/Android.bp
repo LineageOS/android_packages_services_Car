@@ -76,5 +76,4 @@ aidl_interface {
 
     ],
     frozen: true,
-    owner: "google",
 }
