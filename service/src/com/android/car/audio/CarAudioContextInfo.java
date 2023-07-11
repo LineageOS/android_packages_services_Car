@@ -19,7 +19,11 @@ package com.android.car.audio;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.media.AudioAttributes;
+import android.util.proto.ProtoOutputStream;
 
+import com.android.car.audio.CarAudioDumpProto.CarAudioAttributesProto;
+import com.android.car.audio.CarAudioDumpProto.CarAudioContextInfoProto;
+import com.android.car.audio.CarAudioDumpProto.CarAudioContextProto;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.util.Preconditions;
@@ -80,5 +84,26 @@ final class CarAudioContextInfo {
             writer.println(mAudioAttributes[index]);
         }
         writer.decreaseIndent();
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dumpProto(ProtoOutputStream proto) {
+        long contextInfosToken = proto.start(CarAudioContextProto.CAR_AUDIO_CONTEXT_INFOS);
+        proto.write(CarAudioContextInfoProto.NAME, mName);
+        proto.write(CarAudioContextInfoProto.ID, mId);
+        for (int index = 0; index < mAudioAttributes.length; index++) {
+            dumpCarAudioAttributesProto(mAudioAttributes[index],
+                    CarAudioContextInfoProto.ATTRIBUTES, proto);
+        }
+        proto.end(contextInfosToken);
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    static void dumpCarAudioAttributesProto(AudioAttributes attributes, long fieldId,
+            ProtoOutputStream proto) {
+        long token = proto.start(fieldId);
+        proto.write(CarAudioAttributesProto.USAGE, attributes.getUsage());
+        proto.write(CarAudioAttributesProto.CONTENT_TYPE, attributes.getContentType());
+        proto.end(token);
     }
 }

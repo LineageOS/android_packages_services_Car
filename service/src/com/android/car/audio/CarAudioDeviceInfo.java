@@ -25,8 +25,11 @@ import android.car.builtin.media.AudioManagerHelper.AudioGainInfo;
 import android.car.builtin.util.Slogf;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
+import com.android.car.audio.CarAudioDumpProto.CarAudioDeviceInfoProto;
+import com.android.car.audio.CarAudioDumpProto.CarVolumeGroupProto;
 import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -232,5 +235,26 @@ import com.android.internal.annotations.GuardedBy;
                     mMinGain, mMaxGain, mDefaultGain, mCurrentGain);
             writer.decreaseIndent();
         }
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dumpProto(ProtoOutputStream proto) {
+        long carAudioDeviceInfosToken = proto.start(CarVolumeGroupProto.CAR_AUDIO_DEVICE_INFOS);
+        synchronized (mLock) {
+            proto.write(CarAudioDeviceInfoProto.ADDRESS, mAudioDeviceInfo.getAddress());
+            proto.write(CarAudioDeviceInfoProto.CAN_BE_ROUTED_WITH_DYNAMIC_POLICY_MIX_RULE,
+                    mCanBeRoutedWithDynamicPolicyMixRule);
+            proto.write(CarAudioDeviceInfoProto.SAMPLE_RATE, getSampleRate());
+            proto.write(CarAudioDeviceInfoProto.ENCODING_FORMAT, getEncodingFormat());
+            proto.write(CarAudioDeviceInfoProto.CHANNEL_COUNT, getChannelCount());
+
+            long volumeGainToken = proto.start(CarAudioDeviceInfoProto.VOLUME_GAIN);
+            proto.write(CarAudioDumpProto.CarVolumeGain.MIN_GAIN_INDEX, mMinGain);
+            proto.write(CarAudioDumpProto.CarVolumeGain.MAX_GAIN_INDEX, mMaxGain);
+            proto.write(CarAudioDumpProto.CarVolumeGain.DEFAULT_GAIN_INDEX, mDefaultGain);
+            proto.write(CarAudioDumpProto.CarVolumeGain.CURRENT_GAIN_INDEX, mCurrentGain);
+            proto.end(volumeGainToken);
+        }
+        proto.end(carAudioDeviceInfosToken);
     }
 }

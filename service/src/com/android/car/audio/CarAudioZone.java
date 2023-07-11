@@ -28,8 +28,10 @@ import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioPlaybackConfiguration;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
+import com.android.car.audio.CarAudioDumpProto.CarAudioZoneProto;
 import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -232,6 +234,23 @@ public class CarAudioZone {
         writer.decreaseIndent();
         writer.println();
         writer.decreaseIndent();
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dumpProto(ProtoOutputStream proto) {
+        long carAudioZonesToken = proto.start(CarAudioDumpProto.CAR_AUDIO_ZONES);
+        proto.write(CarAudioZoneProto.NAME, mName);
+        proto.write(CarAudioZoneProto.ID, mId);
+        proto.write(CarAudioZoneProto.PRIMARY_ZONE, isPrimaryZone());
+        proto.write(CarAudioZoneProto.CURRENT_ZONE_CONFIG_ID, getCurrentConfigId());
+        for (int index = 0; index < mInputAudioDevice.size(); index++) {
+            proto.write(CarAudioZoneProto.INPUT_AUDIO_DEVICE_ADDRESSES,
+                    mInputAudioDevice.get(index).getAddress());
+        }
+        for (int i = 0; i < mCarAudioZoneConfigs.size(); i++) {
+            mCarAudioZoneConfigs.valueAt(i).dumpProto(proto);
+        }
+        proto.end(carAudioZonesToken);
     }
 
     /**

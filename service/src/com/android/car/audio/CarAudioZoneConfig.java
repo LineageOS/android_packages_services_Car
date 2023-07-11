@@ -30,8 +30,11 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
+import com.android.car.audio.CarAudioDumpProto.CarAudioZoneConfigProto;
+import com.android.car.audio.CarAudioDumpProto.CarAudioZoneProto;
 import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -288,6 +291,19 @@ final class CarAudioZoneConfig {
             mVolumeGroups.get(index).dump(writer);
         }
         writer.decreaseIndent();
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dumpProto(ProtoOutputStream proto) {
+        long zoneConfigToken = proto.start(CarAudioZoneProto.ZONE_CONFIGS);
+        proto.write(CarAudioZoneConfigProto.NAME, mName);
+        proto.write(CarAudioZoneConfigProto.ID, mZoneConfigId);
+        proto.write(CarAudioZoneConfigProto.ZONE_ID, mZoneId);
+        proto.write(CarAudioZoneConfigProto.DEFAULT, mIsDefault);
+        for (int index = 0; index < mVolumeGroups.size(); index++) {
+            mVolumeGroups.get(index).dumpProto(proto);
+        }
+        proto.end(zoneConfigToken);
     }
 
     /**

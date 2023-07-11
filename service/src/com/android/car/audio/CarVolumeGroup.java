@@ -35,9 +35,14 @@ import android.media.AudioManager;
 import android.os.UserHandle;
 import android.util.ArrayMap;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
 import com.android.car.audio.CarAudioContext.AudioContext;
+import com.android.car.audio.CarAudioDumpProto.CarAudioZoneConfigProto;
+import com.android.car.audio.CarAudioDumpProto.CarVolumeGroupProto;
+import com.android.car.audio.CarAudioDumpProto.CarVolumeGroupProto.ContextToAddress;
+import com.android.car.audio.CarAudioDumpProto.CarVolumeGroupProto.GainInfo;
 import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -534,6 +539,66 @@ import java.util.Objects;
             writer.println();
             writer.decreaseIndent();
         }
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dumpProto(ProtoOutputStream proto) {
+        long volumeGroupToken = proto.start(CarAudioZoneConfigProto.VOLUME_GROUPS);
+        synchronized (mLock) {
+            proto.write(CarVolumeGroupProto.ID, mId);
+            proto.write(CarVolumeGroupProto.NAME, mName);
+            proto.write(CarVolumeGroupProto.ZONE_ID, mZoneId);
+            proto.write(CarVolumeGroupProto.CONFIG_ID, mConfigId);
+            proto.write(CarVolumeGroupProto.MUTED, isMutedLocked());
+            proto.write(CarVolumeGroupProto.USER_ID, mUserId);
+            proto.write(CarVolumeGroupProto.PERSIST_VOLUME_GROUP_MUTE_ENABLED,
+                    mSettingsManager.isPersistVolumeGroupMuteEnabled(mUserId));
+
+            long volumeGainToken = proto.start(CarVolumeGroupProto.VOLUME_GAIN);
+            proto.write(CarAudioDumpProto.CarVolumeGain.MIN_GAIN_INDEX, getMinGainIndex());
+            proto.write(CarAudioDumpProto.CarVolumeGain.MAX_GAIN_INDEX, getMaxGainIndex());
+            proto.write(CarAudioDumpProto.CarVolumeGain.DEFAULT_GAIN_INDEX, getDefaultGainIndex());
+            proto.write(CarAudioDumpProto.CarVolumeGain.CURRENT_GAIN_INDEX, mCurrentGainIndex);
+            proto.end(volumeGainToken);
+
+            for (int i = 0; i < mContextToAddress.size(); i++) {
+                long contextToAddressMappingToken = proto.start(CarVolumeGroupProto
+                        .CONTEXT_TO_ADDRESS_MAPPINGS);
+                proto.write(ContextToAddress.CONTEXT,
+                        mCarAudioContext.toString(mContextToAddress.keyAt(i)));
+                proto.write(ContextToAddress.ADDRESS, mContextToAddress.valueAt(i));
+                proto.end(contextToAddressMappingToken);
+            }
+
+            for (int i = 0; i < mAddressToCarAudioDeviceInfo.size(); i++) {
+                String address = mAddressToCarAudioDeviceInfo.keyAt(i);
+                CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
+                info.dumpProto(proto);
+            }
+
+            for (int index = 0; index < mReasons.size(); index++) {
+                int reason = mReasons.get(index);
+                proto.write(CarVolumeGroupProto.REPORTED_REASONS, reasonToString(reason));
+            }
+
+            long gainInfoToken = proto.start(CarVolumeGroupProto.GAIN_INFOS);
+            proto.write(GainInfo.BLOCKED, isBlockedLocked());
+            if (isBlockedLocked()) {
+                proto.write(GainInfo.BLOCKED_GAIN_INDEX, mBlockedGainIndex);
+            }
+            proto.write(GainInfo.LIMITED, isLimitedLocked());
+            if (isLimitedLocked()) {
+                proto.write(GainInfo.LIMITED_GAIN_INDEX, mLimitedGainIndex);
+            }
+            proto.write(GainInfo.ATTENUATED, isAttenuatedLocked());
+            if (isAttenuatedLocked()) {
+                proto.write(GainInfo.ATTENUATED_GAIN_INDEX, mAttenuatedGainIndex);
+            }
+            proto.write(GainInfo.HAL_MUTED, isHalMutedLocked());
+            proto.end(gainInfoToken);
+
+        }
+        proto.end(volumeGroupToken);
     }
 
     void loadVolumesSettingsForUser(@UserIdInt int userId) {
