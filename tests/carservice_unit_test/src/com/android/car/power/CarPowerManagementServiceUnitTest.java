@@ -69,6 +69,7 @@ import android.util.AtomicFile;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
+import android.util.SparseIntArray;
 import android.util.SparseLongArray;
 import android.util.proto.ProtoOutputStream;
 import android.view.Display;
@@ -1428,6 +1429,25 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .that(mScreenOffHandler.isDisplayStateHandled(displayId, displayOn)).isTrue();
     }
 
+    @Test
+    public void testOnDisplayBrightnessChange_noDisplayId() throws Exception {
+        int brightness = 10;
+
+        mService.onDisplayBrightnessChange(brightness);
+
+        expectDisplayBrightnessChangeApplied(Display.DEFAULT_DISPLAY, brightness);
+    }
+
+    @Test
+    public void testOnDisplayBrightnessChange_withDisplayId() throws Exception {
+        int brightness = 100;
+        int displayId = 1;
+
+        mService.onDisplayBrightnessChange(displayId, brightness);
+
+        expectDisplayBrightnessChangeApplied(displayId, brightness);
+    }
+
     private void suspendDevice() throws Exception {
         mService.handleOn();
         mPowerSignalListener.addEventListener(PowerHalService.SET_DEEP_SLEEP_ENTRY);
@@ -1598,6 +1618,13 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         }
     }
 
+    private void expectDisplayBrightnessChangeApplied(int displayId, int brightness)
+            throws Exception {
+        mDisplayInterface.waitForDisplayBrightness(displayId, brightness, WAIT_TIMEOUT_MS);
+        expectWithMessage("Display " + displayId + " brightness").that(
+                mDisplayInterface.getDisplayBrightness(displayId)).isEqualTo(brightness);
+    }
+
     private void waitForPowerPolicy(String policyId) throws Exception {
         PollingCheck.check("Policy id is not " + policyId, WAIT_TIMEOUT_LONG_MS,
                 () -> {
@@ -1647,9 +1674,13 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     private static final class MockDisplayInterface implements DisplayInterface {
+        private static final int WAIT_FOR_DISPLAY_BRIGHTNESS_RETRIES = 5;
         @GuardedBy("sLock")
         private final SparseBooleanArray mDisplayOn = new SparseBooleanArray();
         private final Semaphore mDisplayStateWait = new Semaphore(0);
+        @GuardedBy("sLock")
+        private final SparseIntArray mDisplayBrightnessSet = new SparseIntArray();
+        private final Semaphore mDisplayBrightnessWait = new Semaphore(0);
 
         @Override
         public void init(CarPowerManagementService carPowerManagementService,
@@ -1660,10 +1691,42 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         }
 
         @Override
-        public void setDisplayBrightness(int brightness) {}
+        public void setDisplayBrightness(int brightness) {
+            setDisplayBrightness(Display.DEFAULT_DISPLAY, brightness);
+        }
 
         @Override
-        public void setDisplayBrightness(int displayId, int brightness) {}
+        public void setDisplayBrightness(int displayId, int percentBright) {
+            synchronized (sLock) {
+                if (percentBright == mDisplayBrightnessSet.get(displayId)) {
+                    return;
+                }
+                mDisplayBrightnessSet.put(displayId, percentBright);
+            }
+            mDisplayBrightnessWait.release();
+        }
+
+        private int getDisplayBrightness(int displayId) {
+            synchronized (sLock) {
+                return mDisplayBrightnessSet.get(displayId);
+            }
+        }
+
+        private void waitForDisplayBrightness(int displayId, int expectedBrightness, long timeoutMs)
+                throws Exception {
+            for (int tries = 0; tries < WAIT_FOR_DISPLAY_BRIGHTNESS_RETRIES; tries++) {
+                synchronized (sLock) {
+                    if (mDisplayBrightnessSet.get(displayId) == expectedBrightness) {
+                        return;
+                    }
+                }
+                if (tries < WAIT_FOR_DISPLAY_BRIGHTNESS_RETRIES - 1) {
+                    waitForSemaphore(mDisplayBrightnessWait, timeoutMs);
+                }
+            }
+            throw new IllegalStateException(
+                    "wait for display " + displayId + " brightness timeout");
+        }
 
         @Override
         public void setDisplayState(int displayId, boolean on) {
