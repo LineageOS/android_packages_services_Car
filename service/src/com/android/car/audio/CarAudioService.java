@@ -110,8 +110,11 @@ import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.audio.CarAudioContext.AudioContext;
+import com.android.car.audio.CarAudioDumpProto.AudioZoneToOccupantZone;
 import com.android.car.audio.CarAudioDumpProto.CarAudioConfiguration;
 import com.android.car.audio.CarAudioDumpProto.CarAudioState;
+import com.android.car.audio.CarAudioDumpProto.UidToAudioZone;
+import com.android.car.audio.CarAudioDumpProto.UserIdToAudioZone;
 import com.android.car.audio.CarAudioPolicyVolumeCallback.AudioPolicyVolumeCallbackInternal;
 import com.android.car.audio.hal.AudioControlFactory;
 import com.android.car.audio.hal.AudioControlWrapper;
@@ -602,6 +605,45 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             for (int i = 0; i < mCarAudioZones.size(); i++) {
                 CarAudioZone zone = mCarAudioZones.valueAt(i);
                 zone.dumpProto(proto);
+            }
+
+            for (int index = 0; index < mAudioZoneIdToUserIdMapping.size(); index++) {
+                long audioZoneIdToUserIdMappingToken = proto.start(CarAudioDumpProto
+                        .USER_ID_TO_AUDIO_ZONE_MAPPINGS);
+                int audioZoneId = mAudioZoneIdToUserIdMapping.keyAt(index);
+                proto.write(UserIdToAudioZone.USER_ID,
+                        mAudioZoneIdToUserIdMapping.get(audioZoneId));
+                proto.write(UserIdToAudioZone.AUDIO_ZONE_ID, audioZoneId);
+                proto.end(audioZoneIdToUserIdMappingToken);
+            }
+
+            for (int index = 0; index < mAudioZoneIdToOccupantZoneIdMapping.size(); index++) {
+                long audioZoneIdToOccupantZoneIdMappingToken = proto.start(
+                        CarAudioDumpProto.AUDIO_ZONE_TO_OCCUPANT_ZONE_MAPPINGS);
+                int audioZoneId = mAudioZoneIdToOccupantZoneIdMapping.keyAt(index);
+                proto.write(AudioZoneToOccupantZone.AUDIO_ZONE_ID, audioZoneId);
+                proto.write(AudioZoneToOccupantZone.OCCUPANT_ZONE_ID,
+                        mAudioZoneIdToOccupantZoneIdMapping.get(audioZoneId));
+                proto.end(audioZoneIdToOccupantZoneIdMappingToken);
+            }
+
+            for (int callingId : mUidToZoneMap.keySet()) {
+                long uidToZoneMapToken = proto.start(CarAudioDumpProto.UID_TO_AUDIO_ZONE_MAPPINGS);
+                proto.write(UidToAudioZone.UID, callingId);
+                proto.write(UidToAudioZone.AUDIO_ZONE_ID, mUidToZoneMap.get(callingId));
+                proto.end(uidToZoneMapToken);
+            }
+
+            mFocusHandler.dumpProto(proto);
+
+            if (mHalAudioFocus != null) {
+                mHalAudioFocus.dumpProto(proto);
+            }
+            if (mCarDucking != null) {
+                mCarDucking.dumpProto(proto);
+            }
+            if (mCarVolumeGroupMuting != null) {
+                mCarVolumeGroupMuting.dumpProto(proto);
             }
         }
     }

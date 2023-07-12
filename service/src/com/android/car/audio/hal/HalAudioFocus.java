@@ -36,10 +36,14 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
 import com.android.car.audio.CarAudioContext;
 import com.android.car.audio.CarAudioContext.AudioAttributesWrapper;
+import com.android.car.audio.CarAudioDumpProto;
+import com.android.car.audio.CarAudioDumpProto.HalAudioFocusProto;
+import com.android.car.audio.CarAudioDumpProto.HalAudioFocusProto.HalFocusRequestsByZoneAndUsage;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.annotation.AttributeUsage;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -205,6 +209,32 @@ public final class HalAudioFocus implements HalFocusListener {
         }
         writer.decreaseIndent();
         writer.decreaseIndent();
+    }
+
+    /**
+     * dumps proto of the current state of the HalAudioFocus
+     *
+     * @param proto proto stream to write current state
+     */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {
+        long halAudioFocusToken = proto.start(CarAudioDumpProto.HAL_AUDIO_FOCUS);
+        synchronized (mLock) {
+            for (int i = 0; i < mHalFocusRequestsByZoneAndUsage.size(); i++) {
+                int zoneId = mHalFocusRequestsByZoneAndUsage.keyAt(i);
+                long halFocusRequestToken = proto.start(
+                        HalAudioFocusProto.HAL_FOCUS_REQUESTS_BY_ZONE_AND_USAGE);
+                proto.write(HalFocusRequestsByZoneAndUsage.ZONE_ID, zoneId);
+                Map<AudioAttributesWrapper, HalAudioFocusRequest> requestsByAttributes =
+                        mHalFocusRequestsByZoneAndUsage.valueAt(i);
+                for (HalAudioFocusRequest request : requestsByAttributes.values()) {
+                    proto.write(HalFocusRequestsByZoneAndUsage.HAL_FOCUS_REQUESTS_BY_ATTRIBUTES,
+                            request.toString());
+                }
+                proto.end(halFocusRequestToken);
+            }
+        }
+        proto.end(halAudioFocusToken);
     }
 
     @GuardedBy("mLock")
