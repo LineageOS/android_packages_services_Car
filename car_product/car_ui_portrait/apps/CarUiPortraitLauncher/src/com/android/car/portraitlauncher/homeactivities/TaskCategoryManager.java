@@ -16,22 +16,30 @@
 
 package com.android.car.portraitlauncher.homeactivities;
 
+import android.annotation.MainThread;
 import android.app.ActivityManager;
 import android.app.TaskInfo;
 import android.car.media.CarMediaIntents;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Build;
-import android.os.UserHandle;
+import android.text.TextUtils;
 import android.util.ArraySet;
 import android.util.Log;
+
+import androidx.car.app.CarContext;
 
 import com.android.car.carlauncher.AppGridActivity;
 import com.android.car.portraitlauncher.R;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,6 +50,9 @@ import java.util.Set;
 class TaskCategoryManager {
     public static final String TAG = TaskCategoryManager.class.getSimpleName();
     private static final boolean DBG = Build.IS_DEBUGGABLE;
+    /** Stub geo data to help query navigation intent. */
+    private static final String STUB_GEO_DATA = "geo:0.0,0,0";
+
     private final ComponentName mBlankActivityComponent;
     private final ComponentName mAppGridActivityComponent;
     private final ComponentName mNotificationActivityComponent;
@@ -50,7 +61,9 @@ class TaskCategoryManager {
     private final Set<ComponentName> mFullScreenActivities;
     private final Set<ComponentName> mBackgroundActivities;
     private final Context mContext;
-
+    private final ApplicationInstallUninstallReceiver mApplicationInstallUninstallReceiver;
+    private final Set<OnApplicationInstallUninstallListener>
+            mOnApplicationInstallUninstallListeners;
     private ComponentName mCurrentBackgroundApp;
 
     TaskCategoryManager(Context context) {
@@ -69,23 +82,86 @@ class TaskCategoryManager {
         mRecentsActivityComponent = ComponentName.unflattenFromString(mContext.getResources()
                 .getString(com.android.internal.R.string.config_recentsComponentName));
 
+        mOnApplicationInstallUninstallListeners = new HashSet<>();
+
         updateVoicePlateActivityMap();
+        updateBackgroundActivityMap();
+
+        mApplicationInstallUninstallReceiver = registerApplicationInstallUninstallReceiver(
+                mContext);
+    }
+
+    static boolean isHomeIntent(TaskInfo taskInfo) {
+        return taskInfo.baseIntent != null
+                && taskInfo.baseIntent.getCategories() != null
+                && taskInfo.baseIntent.getCategories().contains(Intent.CATEGORY_HOME);
+    }
+
+    private static void logIfDebuggable(String message) {
+        if (DBG) {
+            Log.d(TAG, message);
+        }
+    }
+
+    /**
+     * @return {@code true} if current task in panel was launched using media intent.
+     */
+    public static boolean isMediaApp(TaskInfo taskInfo) {
+        return taskInfo != null && taskInfo.baseIntent != null
+                && CarMediaIntents.ACTION_MEDIA_TEMPLATE.equals(taskInfo.baseIntent.getAction());
+    }
+
+    private static ArraySet<ComponentName> convertToComponentNames(String[] componentStrings) {
+        ArraySet<ComponentName> componentNames = new ArraySet<>(componentStrings.length);
+        for (int i = componentStrings.length - 1; i >= 0; i--) {
+            componentNames.add(ComponentName.unflattenFromString(componentStrings[i]));
+        }
+        return componentNames;
     }
 
     void updateVoicePlateActivityMap() {
-        Context currentUserContext = mContext.createContextAsUser(
-                UserHandle.of(ActivityManager.getCurrentUser()), /* flags= */ 0);
-
+        mFullScreenActivities.clear();
         Intent voiceIntent = new Intent(Intent.ACTION_VOICE_ASSIST, /* uri= */ null);
-        List<ResolveInfo> result = currentUserContext.getPackageManager().queryIntentActivities(
-                voiceIntent, PackageManager.MATCH_ALL);
+        List<ResolveInfo> result = mContext.getPackageManager().queryIntentActivitiesAsUser(
+                voiceIntent, PackageManager.MATCH_ALL, ActivityManager.getCurrentUser());
 
         for (ResolveInfo info : result) {
+            if (info == null || info.activityInfo == null
+                    || info.activityInfo.getComponentName() == null) {
+                continue;
+            }
             if (mFullScreenActivities.add(info.activityInfo.getComponentName())) {
                 logIfDebuggable("adding the following component to show on fullscreen: "
                         + info.activityInfo.getComponentName());
             }
         }
+    }
+
+    void updateBackgroundActivityMap() {
+        mBackgroundActivities.clear();
+        Intent intent = new Intent(CarContext.ACTION_NAVIGATE, Uri.parse(STUB_GEO_DATA));
+        List<ResolveInfo> result = mContext.getPackageManager().queryIntentActivitiesAsUser(
+                intent, PackageManager.MATCH_ALL, ActivityManager.getCurrentUser());
+
+        for (ResolveInfo info : result) {
+            if (info == null || info.activityInfo == null
+                    || info.activityInfo.getComponentName() == null) {
+                continue;
+            }
+            mBackgroundActivities.add(info.getComponentInfo().getComponentName());
+        }
+        mBackgroundActivities.addAll(convertToComponentNames(mContext.getResources()
+                .getStringArray(R.array.config_backgroundActivities)));
+    }
+
+    void registerOnApplicationInstallUninstallListener(
+            OnApplicationInstallUninstallListener onApplicationInstallUninstallListener) {
+        mOnApplicationInstallUninstallListeners.add(onApplicationInstallUninstallListener);
+    }
+
+    void unregisterOnApplicationInstallUninstallListener(
+            OnApplicationInstallUninstallListener onApplicationInstallUninstallListener) {
+        mOnApplicationInstallUninstallListeners.remove(onApplicationInstallUninstallListener);
     }
 
     boolean isBackgroundApp(TaskInfo taskInfo) {
@@ -149,31 +225,78 @@ class TaskCategoryManager {
                 taskInfo.baseIntent.getComponent());
     }
 
-    static boolean isHomeIntent(TaskInfo taskInfo) {
-        return taskInfo.baseIntent != null
-                && taskInfo.baseIntent.getCategories() != null
-                && taskInfo.baseIntent.getCategories().contains(Intent.CATEGORY_HOME);
-    }
-
-    private static void logIfDebuggable(String message) {
-        if (DBG) {
-            Log.d(TAG, message);
-        }
+    public void onDestroy() {
+        mOnApplicationInstallUninstallListeners.clear();
+        mContext.unregisterReceiver(mApplicationInstallUninstallReceiver);
     }
 
     /**
-     * @return {@code true} if current task in panel was launched using media intent.
+     * Returns a list of activities that are tracked as background activities with given
+     * {@code packageName}.
      */
-    public static boolean isMediaApp(TaskInfo taskInfo) {
-        return taskInfo != null && taskInfo.baseIntent != null
-                && CarMediaIntents.ACTION_MEDIA_TEMPLATE.equals(taskInfo.baseIntent.getAction());
+    List<ComponentName> getBackgroundActivitiesFromPackage(String packageName) {
+        List<ComponentName> list = new ArrayList<>();
+        for (ComponentName componentName : mBackgroundActivities) {
+            if (componentName.getPackageName().equals(packageName)) {
+                list.add(componentName);
+            }
+        }
+        return list;
     }
 
-    private static ArraySet<ComponentName> convertToComponentNames(String[] componentStrings) {
-        ArraySet<ComponentName> componentNames = new ArraySet<>(componentStrings.length);
-        for (int i = componentStrings.length - 1; i >= 0; i--) {
-            componentNames.add(ComponentName.unflattenFromString(componentStrings[i]));
+    private ApplicationInstallUninstallReceiver registerApplicationInstallUninstallReceiver(
+            Context context) {
+        ApplicationInstallUninstallReceiver
+                installUninstallReceiver = new ApplicationInstallUninstallReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addDataScheme("package");
+        context.registerReceiver(installUninstallReceiver, filter);
+        return installUninstallReceiver;
+    }
+
+    /**
+     * Listener for application installation and uninstallation.
+     */
+    interface OnApplicationInstallUninstallListener {
+        /**
+         * Invoked when intent with {@link Intent.ACTION_PACKAGE_ADDED) is received.
+         */
+        void onAppInstalled(String packageName);
+        /**
+         * Invoked when intent with {@link Intent.ACTION_PACKAGE_REMOVED}} is received.
+         */
+        void onAppUninstall(String packageName);
+    }
+
+    private class ApplicationInstallUninstallReceiver extends BroadcastReceiver {
+        @MainThread
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String packageName = intent.getData().getSchemeSpecificPart();
+            String action = intent.getAction();
+            if (TextUtils.isEmpty(packageName) && TextUtils.isEmpty(action)) {
+                logIfDebuggable(
+                        "Invalid intent with packageName=" + packageName + ", action=" + action);
+                // Ignoring empty announcements
+                return;
+            }
+            updateBackgroundActivityMap();
+
+            if (Intent.ACTION_PACKAGE_ADDED.equals(action)) {
+                for (OnApplicationInstallUninstallListener listener :
+                        mOnApplicationInstallUninstallListeners) {
+                    listener.onAppInstalled(packageName);
+                }
+            } else if (Intent.ACTION_PACKAGE_REMOVED.equals(action)) {
+                for (OnApplicationInstallUninstallListener listener :
+                        mOnApplicationInstallUninstallListeners) {
+                    listener.onAppUninstall(packageName);
+                }
+            } else {
+                logIfDebuggable("Skip action " + action + " for package" + packageName);
+            }
         }
-        return componentNames;
     }
 }
