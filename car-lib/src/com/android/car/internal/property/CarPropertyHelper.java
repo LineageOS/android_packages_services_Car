@@ -122,6 +122,14 @@ public final class CarPropertyHelper {
         return vhalErrorCode >>> VENDOR_ERROR_CODE_SHIFT;
     }
 
+    /**
+     * Returns whether the property ID is defined as a system property.
+     */
+    public static boolean isSystemProperty(int propertyId) {
+        return propertyId != VehiclePropertyIds.INVALID
+                && cachePropertyIdsToNameMapping().contains(propertyId);
+    }
+
     private static SparseArray<String> cachePropertyIdsToNameMapping() {
         SparseArray<String> propertyIdsToNameMapping = sPropertyIdToPropertyNameHolder.get();
         if (propertyIdsToNameMapping == null) {
@@ -156,14 +164,6 @@ public final class CarPropertyHelper {
         // We only want public static final int values
         return field.getType() == int.class
             && field.getModifiers() == (Modifier.STATIC | Modifier.FINAL | Modifier.PUBLIC);
-    }
-
-    /**
-     * Returns whether the property ID is defined as a system property.
-     */
-    private static boolean isSystemProperty(int propertyId) {
-        return propertyId != VehiclePropertyIds.INVALID
-                && cachePropertyIdsToNameMapping().contains(propertyId);
     }
 
     /**

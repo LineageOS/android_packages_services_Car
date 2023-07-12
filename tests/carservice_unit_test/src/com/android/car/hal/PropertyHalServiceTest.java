@@ -43,6 +43,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -132,6 +133,7 @@ public class PropertyHalServiceTest {
     private static final int RECEIVED_REQUEST_ID_2 = 1;
     private static final int RECEIVED_REQUEST_ID_3 = 2;
     private static final int INT32_PROP = VehiclePropertyIds.INFO_FUEL_DOOR_LOCATION;
+    private static final int PROPERTY_VALUE = 123;
     private static final int VENDOR_ERROR_CODE = 1234;
     private static final int VENDOR_PROPERTY_1 = 0x21e01111;
     private static final int VENDOR_PROPERTY_2 = 0x21e01112;
@@ -140,6 +142,10 @@ public class PropertyHalServiceTest {
             new AsyncPropertyServiceRequest(REQUEST_ID_1, HVAC_TEMPERATURE_SET, /* areaId= */ 0);
     private static final AsyncPropertyServiceRequest GET_PROPERTY_SERVICE_REQUEST_2 =
             new AsyncPropertyServiceRequest(REQUEST_ID_2, HVAC_TEMPERATURE_SET, /* areaId= */ 0);
+    private static final AsyncPropertyServiceRequest GET_PROPERTY_SERVICE_REQUEST_STATIC_1 =
+            new AsyncPropertyServiceRequest(REQUEST_ID_1, INT32_PROP, /* areaId= */ 0);
+    private static final AsyncPropertyServiceRequest GET_PROPERTY_SERVICE_REQUEST_STATIC_2 =
+            new AsyncPropertyServiceRequest(REQUEST_ID_2, INT32_PROP, /* areaId= */ 0);
     private static final AsyncPropertyServiceRequest SET_PROPERTY_SERVICE_REQUEST =
             new AsyncPropertyServiceRequest(REQUEST_ID_1, HVAC_TEMPERATURE_SET, /* areaId= */ 0,
             new CarPropertyValue(HVAC_TEMPERATURE_SET, /* areaId= */ 0, 17.0f));
@@ -168,6 +174,9 @@ public class PropertyHalServiceTest {
     private final HalPropValue mPropValue2 = mPropValueBuilder.build(
             PERF_VEHICLE_SPEED, /* areaId= */ 0, TEST_UPDATE_TIMESTAMP_NANOS, /* status= */ 0,
             17.0f);
+    private final HalPropValue mPropValue3 = mPropValueBuilder.build(
+            INT32_PROP, /* areaId= */ 0, TEST_UPDATE_TIMESTAMP_NANOS, /* status= */ 0,
+            3);
 
     private AsyncPropertyServiceRequest copyRequest(AsyncPropertyServiceRequest request) {
         return new AsyncPropertyServiceRequest(request.getRequestId(), request.getPropertyId(),
@@ -202,7 +211,12 @@ public class PropertyHalServiceTest {
         when(mMockCarPropertyConfig2.getMaxSampleRate()).thenReturn(100.0f);
         when(mMockCarPropertyConfig2.getAreaIds()).thenReturn(new int[]{0});
 
-        mPropertyHalService.takeProperties(List.of(mockPropConfig1, mockPropConfig2));
+        HalPropConfig mockPropConfig3 = mock(HalPropConfig.class);
+        when(mockPropConfig3.getChangeMode()).thenReturn(VehiclePropertyChangeMode.STATIC);
+        when(mockPropConfig3.getPropId()).thenReturn(INT32_PROP);
+
+        mPropertyHalService.takeProperties(List.of(mockPropConfig1, mockPropConfig2,
+                mockPropConfig3));
         mPropertyHalService.getPropertyList();
     }
 
@@ -390,6 +404,40 @@ public class PropertyHalServiceTest {
         mPropertyHalService.cancelRequests(new int[]{REQUEST_ID_1, REQUEST_ID_2});
 
         verifyNoPendingRequest();
+    }
+
+    @Test
+    public void testGetCarPropertyValuesAsync_staticCacheMultipleRequests() throws Exception {
+        doAnswer((invocation) -> {
+            return deliverOkayGetResult(invocation, mPropValue3);
+        }).when(mVehicleHal).getAsync(any(List.class), any(VehicleStubCallbackInterface.class));
+
+        doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
+
+        mPropertyHalService.getCarPropertyValuesAsync(
+                List.of(GET_PROPERTY_SERVICE_REQUEST_STATIC_1), mGetAsyncPropertyResultCallback,
+                /* timeoutInMs= */ 1000, /* asyncRequestStartTime= */ 0);
+
+        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResults(
+                mAsyncResultCaptor.capture());
+        GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
+        assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
+        assertThat(result.getCarPropertyValue().getValue()).isEqualTo(3);
+        assertThat(result.getCarPropertyValue().getAreaId()).isEqualTo(0);
+        reset(mVehicleHal);
+        reset(mGetAsyncPropertyResultCallback);
+        doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
+
+        mPropertyHalService.getCarPropertyValuesAsync(
+                List.of(GET_PROPERTY_SERVICE_REQUEST_STATIC_1), mGetAsyncPropertyResultCallback,
+                /* timeoutInMs= */ 1000, /* asyncRequestStartTime= */ 0);
+        verify(mVehicleHal, never()).getAsync(any(), any());
+        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResults(
+                mAsyncResultCaptor.capture());
+        GetSetValueResult cachedResult = mAsyncResultCaptor.getValue().getList().get(0);
+        assertThat(cachedResult.getRequestId()).isEqualTo(REQUEST_ID_1);
+        assertThat(cachedResult.getCarPropertyValue().getValue()).isEqualTo(3);
+        assertThat(cachedResult.getCarPropertyValue().getAreaId()).isEqualTo(0);
     }
 
     @Test
@@ -2257,13 +2305,28 @@ public class PropertyHalServiceTest {
 
     @Test
     public void testGetPropertySync() throws Exception {
-        HalPropValue value = mPropValueBuilder.build(INT32_PROP, /* areaId= */ 0, /* value= */ 123);
+        HalPropValue value = mPropValueBuilder.build(INT32_PROP, /* areaId= */ 0, PROPERTY_VALUE);
         when(mVehicleHal.get(INT32_PROP, /* areaId= */ 0)).thenReturn(value);
 
         CarPropertyValue carPropValue = mPropertyHalService.getProperty(
                 INT32_PROP, /* areaId= */ 0);
 
-        assertThat(carPropValue.getValue()).isEqualTo(123);
+        assertThat(carPropValue.getValue()).isEqualTo(PROPERTY_VALUE);
+    }
+
+    @Test
+    public void testGetPropertySyncWithCache() throws Exception {
+        HalPropValue value = mPropValueBuilder.build(INT32_PROP, /* areaId= */ 0, PROPERTY_VALUE);
+        when(mVehicleHal.get(INT32_PROP, /* areaId= */ 0)).thenReturn(value);
+        mPropertyHalService.getProperty(INT32_PROP, /* areaId= */ 0);
+        reset(mVehicleHal);
+
+        CarPropertyValue carPropValue = mPropertyHalService.getProperty(
+                INT32_PROP, /* areaId= */ 0);
+
+        assertWithMessage("CarPropertyValue cached value").that(carPropValue.getValue())
+                .isEqualTo(PROPERTY_VALUE);
+        verify(mVehicleHal, never()).get(anyInt(), anyInt());
     }
 
     @Test
