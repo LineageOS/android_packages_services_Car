@@ -333,15 +333,16 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 context.getSystemService(UserManager.class),
                 carUserService, powerPolicyDaemon,
                 new PowerComponentHandler(context, systemInterface),
-                /* silentModeHwStatePath= */ null, /* silentModeKernelStatePath= */ null,
-                /* bootReason= */ null);
+                /* screenOffHandler= */ null, /* silentModeHwStatePath= */ null,
+                /* silentModeKernelStatePath= */ null, /* bootReason= */ null);
     }
 
     @VisibleForTesting
     public CarPowerManagementService(Context context, Resources resources, PowerHalService powerHal,
             SystemInterface systemInterface, UserManager userManager, CarUserService carUserService,
             ICarPowerPolicySystemNotification powerPolicyDaemon,
-            PowerComponentHandler powerComponentHandler, @Nullable String silentModeHwStatePath,
+            PowerComponentHandler powerComponentHandler,
+            @Nullable ScreenOffHandler screenOffHandler, @Nullable String silentModeHwStatePath,
             @Nullable String silentModeKernelStatePath, @Nullable String bootReason) {
         mContext = context;
         mHal = powerHal;
@@ -376,7 +377,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 silentModeKernelStatePath, bootReason);
         mMaxSuspendWaitDurationMs = Math.max(MIN_SUSPEND_WAIT_DURATION_MS,
                 Math.min(getMaxSuspendWaitDurationConfig(), MAX_SUSPEND_WAIT_DURATION_MS));
-        mScreenOffHandler = new ScreenOffHandler(mContext, mSystemInterface, mHandler.getLooper());
+        mScreenOffHandler = Objects.requireNonNullElseGet(screenOffHandler, () ->
+                new ScreenOffHandler(mContext, mSystemInterface, mHandler.getLooper()));
     }
 
     /**

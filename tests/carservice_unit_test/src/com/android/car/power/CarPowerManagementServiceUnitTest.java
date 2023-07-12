@@ -35,6 +35,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
+import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.Car;
@@ -58,6 +59,8 @@ import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
 import android.net.TetheringManager;
 import android.net.wifi.WifiManager;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.UserManager;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.AtomicFile;
@@ -96,6 +99,10 @@ import org.mockito.Spy;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
@@ -138,6 +145,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private TemporaryFile mFileKernelSilentMode;
     private FakeCarPowerPolicyDaemon mPowerPolicyDaemon;
     private boolean mVoiceInteractionEnabled;
+    private FakeScreenOffHandler mScreenOffHandler;
+
 
     @Mock
     private UserManager mUserManager;
@@ -174,6 +183,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
             .withSystemStateInterface(mSystemStateInterface)
             .withWakeLockInterface(mWakeLockInterface)
             .withIOInterface(mIOInterface).build();
+        HandlerThread handlerThread = CarServiceUtils.getHandlerThread(TAG);
+        mScreenOffHandler = new FakeScreenOffHandler(
+                mContext, mSystemInterface, handlerThread.getLooper());
 
         setCurrentUser(CURRENT_USER_ID, /* isGuest= */ false);
         setService();
@@ -221,7 +233,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 new AtomicFile(mComponentStateFile.getFile()));
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal, mSystemInterface,
                 mUserManager, mUserService, mPowerPolicyDaemon, mPowerComponentHandler,
-                mFileHwStateMonitoring.getFile().getPath(),
+               mScreenOffHandler, mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class, mService);
@@ -1063,7 +1075,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         when(mWifiManager.isWifiApEnabled()).thenReturn(true);
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal, mSystemInterface,
                 mUserManager, mUserService, mPowerPolicyDaemon, mPowerComponentHandler,
-                mFileHwStateMonitoring.getFile().getPath(),
+                mScreenOffHandler, mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class, mService);
@@ -1299,6 +1311,44 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         CarPowerDumpProto carPowerDumpProto = CarPowerDumpProto.parseFrom(proto.getBytes());
         assertThat(carPowerDumpProto.getShutdownPollingIntervalMs()).isEqualTo(pollingIntervalMs);
         assertThat(carPowerDumpProto.getShutdownPrepareTimeMs()).isEqualTo(prepareTimeMs);
+    }
+
+    @Test
+    public void testCanTurnOnDisplay_isNotPowerSaving() throws Exception {
+        boolean isPowerSaving = false;
+        mScreenOffHandler.setIsAutoPowerSaving(isPowerSaving);
+        int displayId = 123;
+
+        boolean canTurnOnDisplay = mService.canTurnOnDisplay(displayId);
+
+        assertWithMessage("Turn on display status while not power saving").that(
+                canTurnOnDisplay).isTrue();
+    }
+
+    @Test
+    public void testCanTurnOnDisplay_displayOff() throws Exception {
+        boolean isPowerSaving = true;
+        mScreenOffHandler.setIsAutoPowerSaving(isPowerSaving);
+        int displayId = 321;
+        mScreenOffHandler.setDisplayPowerInfo(displayId, ScreenOffHandler.DISPLAY_POWER_MODE_OFF);
+
+        boolean canTurnOnDisplay = mService.canTurnOnDisplay(displayId);
+
+        assertWithMessage("Turn on display status when power mode is 'off'").that(
+                canTurnOnDisplay).isFalse();
+    }
+
+    @Test
+    public void testCanTurnOnDisplay_displayOn() throws Exception {
+        boolean isPowerSaving = true;
+        mScreenOffHandler.setIsAutoPowerSaving(isPowerSaving);
+        int displayId = 333;
+        mScreenOffHandler.setDisplayPowerInfo(displayId, ScreenOffHandler.DISPLAY_POWER_MODE_ON);
+
+        boolean canTurnOnDisplay = mService.canTurnOnDisplay(displayId);
+
+        assertWithMessage("Turn on display status when power mode is 'on'").that(
+                canTurnOnDisplay).isTrue();
     }
 
     private void suspendDevice() throws Exception {
@@ -1633,6 +1683,74 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         public boolean isDisplayEnabled(int displayId) {
             synchronized (sLock) {
                 return mDisplayOn.get(displayId);
+            }
+        }
+    }
+
+    private static final class FakeScreenOffHandler extends ScreenOffHandler {
+        private boolean mIsAutoPowerSaving;
+        @GuardedBy("sLock")
+        private final SparseArray<FakeDisplayPowerInfo> mDisplayPowerInfos = new SparseArray<>();
+        @Retention(RetentionPolicy.SOURCE)
+        @IntDef(prefix = "DISPLAY_POWER_MODE_", value = {
+                DISPLAY_POWER_MODE_NONE,
+                DISPLAY_POWER_MODE_OFF,
+                DISPLAY_POWER_MODE_ON,
+                DISPLAY_POWER_MODE_ALWAYS_ON,
+        })
+        @Target({ElementType.TYPE_USE})
+        private @interface FakeDisplayPowerMode {}
+
+        FakeScreenOffHandler(Context context, SystemInterface systemInterface, Looper looper) {
+            super(context, systemInterface, looper);
+        }
+
+        void init() {}
+
+        private boolean isAutoPowerSaving() {
+            return mIsAutoPowerSaving;
+        }
+
+        private void setIsAutoPowerSaving(boolean isPowerSaving) {
+            mIsAutoPowerSaving = isPowerSaving;
+        }
+
+        private void setDisplayPowerInfo(int displayId, @FakeDisplayPowerMode int powerMode) {
+            FakeDisplayPowerInfo info = new FakeDisplayPowerInfo(powerMode);
+            mDisplayPowerInfos.put(displayId, info);
+        }
+
+        boolean canTurnOnDisplay(int displayId) {
+            if (!mIsAutoPowerSaving) {
+                return true;
+            }
+            synchronized (sLock) {
+                return canTurnOnDisplayLocked(displayId);
+            }
+        }
+
+        @GuardedBy("sLock")
+        private boolean canTurnOnDisplayLocked(int displayId) {
+            FakeDisplayPowerInfo info = mDisplayPowerInfos.get(displayId);
+            if (info == null) {
+                return false;
+            }
+            return info.getMode() != DISPLAY_POWER_MODE_OFF;
+        }
+
+        private static final class FakeDisplayPowerInfo {
+            private @FakeDisplayPowerMode int mMode;
+
+            FakeDisplayPowerInfo(@FakeDisplayPowerMode int mode) {
+                mMode = mode;
+            }
+
+            private void setMode(@FakeDisplayPowerMode int mode) {
+                mMode = mode;
+            }
+
+            private @FakeDisplayPowerMode int getMode() {
+                return mMode;
             }
         }
     }

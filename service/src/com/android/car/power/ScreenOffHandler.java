@@ -62,7 +62,7 @@ import java.lang.ref.WeakReference;
 import java.time.Duration;
 import java.util.List;
 
-final class ScreenOffHandler {
+class ScreenOffHandler {
     private static final String TAG = CarLog.tagFor(ScreenOffHandler.class);
 
     // Minimum and maximum timeout in milliseconds when there is no user.

@@ -450,8 +450,8 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
                 new AtomicFile(mComponentStateFile.getFile()));
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal, mSystemInterface,
                 mUserManager, mCarUserService, mPowerPolicyDaemon, mPowerComponentHandler,
-                /* silentModeHwStatePath= */ null, /* silentModeKernelStatePath= */ null,
-                /* bootReason= */ null);
+                /* screenOffHandler= */ null, /* silentModeHwStatePath= */ null,
+                /* silentModeKernelStatePath= */ null, /* bootReason= */ null);
         mService.init();
         mService.setShutdownTimersForTest(0, 0);
         assertStateReceived(PowerHalService.SET_WAIT_FOR_VHAL, 0);
