@@ -403,8 +403,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                                 /* showToolBar= */ true, mNavBarHeight);
                         setUnhandledImmersiveModeRequest(/* componentName= */ null,
                                 /* timestamp= */ 0, /* requested= */ false);
-                    } else
-                        if (mAppGridTaskViewPanel.isOpen()) {
+                    } else if (mAppGridTaskViewPanel.isOpen()) {
                         mRootTaskViewPanel.expandPanel();
                     } else {
                         mRootTaskViewPanel.openPanel();
@@ -621,6 +620,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
         mRootTaskViewPanel.post(() -> mRootTaskViewPanel.refresh(getTheme()));
         mAppGridTaskViewPanel.post(() -> mAppGridTaskViewPanel.refresh(getTheme()));
+        updateBackgroundTaskViewInsets();
     }
 
     @Override
@@ -733,9 +733,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             return;
         }
 
-        int bottomOverlap = Math.min(mControlBarView.getTop(),
-                mRootTaskViewPanel.getTop());
-        bottomOverlap = Math.min(bottomOverlap, mAppGridTaskViewPanel.getTop());
+        int bottomOverlap = mControlBarView.getTop();
+        if (mRootTaskViewPanel.isVisible()) {
+            bottomOverlap = mRootTaskViewPanel.getTop();
+        } else if (mAppGridTaskViewPanel.isVisible()) {
+            bottomOverlap = mAppGridTaskViewPanel.getTop();
+        }
 
         Rect appAreaBounds = new Rect();
         mBackgroundTaskView.getBoundsOnScreen(appAreaBounds);
