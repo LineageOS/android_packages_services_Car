@@ -42,9 +42,9 @@
     <dimen name="progress_bar_top_margin">8dp</dimen>
     <dimen name="progress_bar_start_margin">24dp</dimen>
 
-    <dimen name="play_arrow_width">30dp</dimen>
+    <dimen name="play_arrow_width">37dp</dimen>
     <dimen name="play_arrow_height">36dp</dimen>
-    <dimen name="reply_icon_height">30dp</dimen>
+    <dimen name="reply_icon_height">36dp</dimen>
     <dimen name="reply_icon_width">36dp</dimen>
     <dimen name="mute_icon_height">36dp</dimen>
     <dimen name="mute_icon_width">36dp</dimen>
