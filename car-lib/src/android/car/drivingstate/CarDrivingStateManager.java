@@ -261,7 +261,7 @@ public final class CarDrivingStateManager extends CarManagerBase {
             return;
         }
         CarDrivingStateEventListener listener;
-        synchronized (this) {
+        synchronized (mLock) {
             listener = mDrvStateEventListener;
         }
         if (listener != null) {

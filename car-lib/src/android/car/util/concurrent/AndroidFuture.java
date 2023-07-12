@@ -233,10 +233,12 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
 
     private void callListenerAsync(BiConsumer<? super T, ? super Throwable> listener,
             @Nullable T res, @Nullable Throwable err) {
-        if (mListenerExecutor == DIRECT_EXECUTOR) {
-            callListener(listener, res, err);
-        } else {
-            mListenerExecutor.execute(() -> callListener(listener, res, err));
+        synchronized (mLock) {
+            if (mListenerExecutor == DIRECT_EXECUTOR) {
+                callListener(listener, res, err);
+            } else {
+                mListenerExecutor.execute(() -> callListener(listener, res, err));
+            }
         }
     }
 

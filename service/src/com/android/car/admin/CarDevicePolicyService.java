@@ -95,7 +95,7 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
     })
     public @interface NewUserDisclaimerStatus {}
 
-    @GuardedBy("sLock")
+    @GuardedBy("mLock")
     private final SparseIntArray mUserDisclaimerStatusPerUser = new SparseIntArray();
 
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {

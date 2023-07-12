@@ -2781,11 +2781,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private void notifyLegacyUserSwitch(@UserIdInt int fromUserId, @UserIdInt int toUserId) {
-        if (DBG) {
-            Slogf.d(TAG, "notifyLegacyUserSwitch(%d, %d): mUserIdForUserSwitchInProcess=%d",
-                    fromUserId, toUserId, mUserIdForUserSwitchInProcess);
-        }
         synchronized (mLockUser) {
+            if (DBG) {
+                Slogf.d(TAG, "notifyLegacyUserSwitch(%d, %d): mUserIdForUserSwitchInProcess=%d",
+                        fromUserId, toUserId, mUserIdForUserSwitchInProcess);
+            }
             if (mUserIdForUserSwitchInProcess != USER_NULL) {
                 if (mUserIdForUserSwitchInProcess == toUserId) {
                     if (DBG) {

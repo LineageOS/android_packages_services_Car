@@ -417,11 +417,10 @@ public final class CarEvsManager extends CarManagerBase {
         Objects.requireNonNull(listener);
         Objects.requireNonNull(executor);
 
-        if (mStatusListener != null) {
-            throw new IllegalStateException("A status listener is already registered.");
-        }
-
         synchronized (mStatusLock) {
+            if (mStatusListener != null) {
+                throw new IllegalStateException("A status listener is already registered.");
+            }
             mStatusListener = listener;
             mStatusListenerExecutor = executor;
         }
