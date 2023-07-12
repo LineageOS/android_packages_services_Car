@@ -59,13 +59,12 @@
         <item name="android:textColor">@color/car_on_surface</item>
     </style>
 
-    <style name="TextAppearance.QC.Title">
-        <item name="android:textSize">@dimen/car_ui_body1_size</item>
+    <style name="TextAppearance.QC.Title" parent="TextAppearance.Car.Body.Large">
+        <item name="android:textColor">@color/car_on_surface</item>
     </style>
 
-    <style name="TextAppearance.QC.Subtitle">
-        <item name="android:textColor">@color/car_primary</item>
-        <item name="android:textSize">@dimen/car_ui_body3_size</item>
+    <style name="TextAppearance.QC.Subtitle" parent="TextAppearance.Car.Body.Small">
+        <item name="android:textColor">@color/car_on_surface_variant</item>
     </style>
 
     <style name="QuickControlEntryPointButton">

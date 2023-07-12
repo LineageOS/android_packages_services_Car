@@ -35,7 +35,6 @@ PRODUCT_PACKAGES += \
     CarUiPortraitNotificationRRO \
     CarUiPortraitRadioRRO \
     CarUiPortraitSettingsRRO \
-    CarUiPortraitSystemUIQcRRO \
 
 ifneq ($(INCLUDE_SEAHAWK_ONLY_RROS),)
 PRODUCT_PACKAGES += \

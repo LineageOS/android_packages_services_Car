@@ -30,8 +30,8 @@
     <color name="car_button_foreground">@color/car_on_secondary_container</color>
 
     <!-- ****** Switch colors ***** -->
-    <color name="car_switch_thumb_checked">@color/car_primary</color>
+    <color name="car_switch_thumb_checked">@color/car_on_primary</color>
     <color name="car_switch_thumb_unchecked">@color/car_secondary</color>
-    <color name="car_switch_track_checked">@color/car_on_primary</color>
+    <color name="car_switch_track_checked">@color/car_primary</color>
     <color name="car_switch_track_unchecked">@color/car_secondary_container</color>
 </resources>
