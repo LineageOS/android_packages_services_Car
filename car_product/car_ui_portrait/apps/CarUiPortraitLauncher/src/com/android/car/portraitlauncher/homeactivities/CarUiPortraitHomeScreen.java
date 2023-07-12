@@ -403,8 +403,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                                 /* showToolBar= */ true, mNavBarHeight);
                         setUnhandledImmersiveModeRequest(/* componentName= */ null,
                                 /* timestamp= */ 0, /* requested= */ false);
-                    } else
-                        if (mAppGridTaskViewPanel.isOpen()) {
+                    } else if (mAppGridTaskViewPanel.isOpen()) {
                         mRootTaskViewPanel.expandPanel();
                     } else {
                         mRootTaskViewPanel.openPanel();
@@ -621,6 +620,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
         mRootTaskViewPanel.post(() -> mRootTaskViewPanel.refresh(getTheme()));
         mAppGridTaskViewPanel.post(() -> mAppGridTaskViewPanel.refresh(getTheme()));
+        updateBackgroundTaskViewInsets();
     }
 
     @Override
@@ -639,6 +639,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         mRootTaskViewPanel.onDestroy();
         mBackgroundTaskView = null;
         mFullScreenTaskView = null;
+        mTaskCategoryManager.onDestroy();
         TaskStackChangeListeners.getInstance().unregisterTaskStackListener(mTaskStackListener);
         doUnbindService();
         super.onDestroy();
@@ -733,9 +734,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             return;
         }
 
-        int bottomOverlap = Math.min(mControlBarView.getTop(),
-                mRootTaskViewPanel.getTop());
-        bottomOverlap = Math.min(bottomOverlap, mAppGridTaskViewPanel.getTop());
+        int bottomOverlap = mControlBarView.getTop();
+        if (mRootTaskViewPanel.isVisible()) {
+            bottomOverlap = mRootTaskViewPanel.getTop();
+        } else if (mAppGridTaskViewPanel.isVisible()) {
+            bottomOverlap = mAppGridTaskViewPanel.getTop();
+        }
 
         Rect appAreaBounds = new Rect();
         mBackgroundTaskView.getBoundsOnScreen(appAreaBounds);
@@ -838,10 +842,31 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                         mBackgroundAppAreaSurfaceView.setFixedColorAndText(R.color.car_background,
                                 getString(R.string.background_panel_failure_recovery_text));
                         mBackgroundAppAreaSurfaceView.setZOrderOnTop(false);
+
+                        registerOnBackgroundApplicationInstallUninstallListener();
                     }
                 }
         );
     }
+
+    private void registerOnBackgroundApplicationInstallUninstallListener() {
+        mTaskCategoryManager.registerOnApplicationInstallUninstallListener(
+                new TaskCategoryManager.OnApplicationInstallUninstallListener() {
+                    @Override
+                    public void onAppInstalled(String packageName) {
+                        mTaskViewManager.setAllowListedActivities(
+                                mBackgroundTaskView,
+                                mTaskCategoryManager.getBackgroundActivities().stream().toList());
+                    }
+
+                    @Override
+                    public void onAppUninstall(String packageName) {
+                        mTaskViewManager.setAllowListedActivities(
+                                mBackgroundTaskView,
+                                mTaskCategoryManager.getBackgroundActivities().stream().toList());
+                    }
+                });
+    };
 
     private void setControlBarVisibility(boolean isVisible, boolean animate) {
         float translationY = isVisible ? 0 : mContainer.getHeight() - mControlBarView.getTop();

@@ -59,13 +59,12 @@
         <item name="android:textColor">@color/car_on_surface</item>
     </style>
 
-    <style name="TextAppearance.QC.Title">
-        <item name="android:textSize">@dimen/car_ui_body1_size</item>
+    <style name="TextAppearance.QC.Title" parent="TextAppearance.Car.Body.Large">
+        <item name="android:textColor">@color/car_on_surface</item>
     </style>
 
-    <style name="TextAppearance.QC.Subtitle">
-        <item name="android:textColor">@color/car_primary</item>
-        <item name="android:textSize">@dimen/car_ui_body3_size</item>
+    <style name="TextAppearance.QC.Subtitle" parent="TextAppearance.Car.Body.Small">
+        <item name="android:textColor">@color/car_on_surface_variant</item>
     </style>
 
     <style name="QuickControlEntryPointButton">
@@ -73,5 +72,37 @@
         <item name="android:background">@drawable/status_icon_background</item>
         <item name="android:layout_width">@dimen/top_system_bar_icon_size</item>
         <item name="android:layout_height">@dimen/top_system_bar_icon_size</item>
+    </style>
+
+    <style name="CarDialogActionButton" parent="TextAppearance.Car.Button.Medium">
+        <item name="android:fontFamily">roboto-regular</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:lineHeight">40dp</item>
+        <item name="android:background">@drawable/car_dialog_button_background</item>
+        <item name="android:textColor">@color/car_alert_dialog_button_text_color</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <style name="CarDialogActionButton1" parent="CarDialogActionButton">
+        <item name="android:textColor">@color/car_alert_dialog_button1_text_color</item>
+    </style>
+
+    <style name="CarDialogMessage" parent="TextAppearance.Car.Body.Medium">
+        <item name="android:textStyle">normal</item>
+        <item name="android:lineHeight">40dp</item>
+        <item name="android:textColor">@color/car_on_surface</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <style name="Theme.SystemUI.Dialog" parent="@style/Theme.SystemUI.DayNightDialog">
+        <item name="android:buttonCornerRadius">28dp</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/Widget.Dialog.Button</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/Widget.Dialog.Button.BorderButton</item>
+        <item name="android:buttonBarNeutralButtonStyle">@style/Widget.Dialog.Button.BorderButton</item>
+        <!-- Rounded corners need a transparent background -->
+        <item name="android:colorBackground">@android:color/transparent</item>
+        <item name="android:alertDialogStyle">@style/ScrollableAlertDialogStyle</item>
+        <item name="android:buttonBarStyle">@style/ButtonBarStyle</item>
+        <item name="android:buttonBarButtonStyle">@style/Widget.Dialog.Button.Large</item>
     </style>
 </resources>

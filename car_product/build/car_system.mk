@@ -238,6 +238,7 @@ PRODUCT_PACKAGES += \
 # RROs
 PRODUCT_PACKAGES += \
     CarPermissionControllerRRO \
+    CarSystemUIRRO \
 
 # System Server components
 # Order is important: if X depends on Y, then Y should precede X on the list.

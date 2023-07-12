@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Android Open Source Project
+// Copyright (C) 2023 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,15 +14,12 @@
 package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
-
-runtime_resource_overlay {
-    name: "CarUiPortraitSystemUIQcRRO",
-    manifest: "AndroidManifest.xml",
+android_app {
+    name: "CarSystemUIRRO",
     resource_dirs: ["res"],
-    static_libs: [
-        "car-portrait-ui-common"
+    sdk_version: "current",
+    aaptflags: [
+        "--no-resource-deduping",
+        "--no-resource-removal"
     ],
-    package_name: "com.android.systemui.caruiportrait.qc.rro",
-    target_package_name: "com.android.systemui",
 }
-

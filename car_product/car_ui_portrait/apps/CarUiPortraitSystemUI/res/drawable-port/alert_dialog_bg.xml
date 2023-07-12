@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (C) 2022 The Android Open Source Project
+  ~ Copyright (C) 2023 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,14 +15,7 @@
   ~ limitations under the License.
   -->
 
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-        android:autoMirrored="true"
-        android:viewportWidth="37"
-        android:viewportHeight="36"
-        android:width="@dimen/play_arrow_width"
-        android:height="@dimen/play_arrow_height">
-    <path
-        android:fillColor="@color/play_icon_tint"
-        android:pathData="M30.333,18L9.333,31.5V4.5L30.333,18ZM23.223,18L13.158,11.52V24.48L23.223,18Z"
-        android:fillType="evenOdd"/>
-</vector>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/car_alert_dialog_background_color"/>
+    <corners android:radius="@dimen/car_portrait_ui_window_rounded_corner_radius"/>
+</shape>
