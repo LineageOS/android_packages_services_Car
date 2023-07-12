@@ -23,6 +23,7 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.AudioPlaybackConfiguration;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.audio.CarAudioService.SystemClockWrapper;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -74,6 +75,15 @@ final class CarAudioPlaybackCallback extends AudioManager.AudioPlaybackCallback 
         for (int i = 0; i < mCarAudioZonesToZonePlaybackCallback.size(); i++) {
             mCarAudioZonesToZonePlaybackCallback.valueAt(i).dump(writer);
         }
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dumpProto(ProtoOutputStream proto) {
+        long callbackToken = proto.start(CarAudioDumpProto.CAR_AUDIO_PLAYBACK_CALLBACK);
+        for (int i = 0; i < mCarAudioZonesToZonePlaybackCallback.size(); i++) {
+            mCarAudioZonesToZonePlaybackCallback.valueAt(i).dumpProto(proto);
+        }
+        proto.end(callbackToken);
     }
 
     @Override

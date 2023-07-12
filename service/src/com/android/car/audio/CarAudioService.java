@@ -645,6 +645,9 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             if (mCarVolumeGroupMuting != null) {
                 mCarVolumeGroupMuting.dumpProto(proto);
             }
+            if (mCarAudioPlaybackCallback != null) {
+                mCarAudioPlaybackCallback.dumpProto(proto);
+            }
         }
     }
 

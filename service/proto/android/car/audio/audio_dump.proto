@@ -215,4 +215,22 @@ message CarAudioDumpProto {
     repeated CarMutingInfo last_muting_information = 2;
   }
   optional CarVolumeGroupMutingProto car_volume_group_muting = 12;
+
+  message CarAudioPlaybackCallbackProto {
+    message ZoneAudioPlaybackCallbackProto {
+      message AudioDeviceAddressToConfig {
+        optional string address = 1;
+        optional string config = 2;
+      }
+      message AudioAttributesToStartTime {
+        optional CarAudioAttributesProto audio_attributes = 1;
+        optional int64 start_time = 2;
+      }
+      optional int32 zone_id = 1;
+      repeated AudioDeviceAddressToConfig last_active_configs = 2;
+      repeated AudioAttributesToStartTime audio_attributes_to_start_times = 3;
+    }
+    repeated ZoneAudioPlaybackCallbackProto zone_audio_playback_callbacks = 1;
+  }
+  optional CarAudioPlaybackCallbackProto car_audio_playback_callback = 13;
 }
