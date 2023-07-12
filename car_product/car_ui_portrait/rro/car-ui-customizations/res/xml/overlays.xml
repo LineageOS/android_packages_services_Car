@@ -69,6 +69,8 @@
     <item target="style/TextAppearance.CarUi.Widget.Toolbar" value="@style/TextAppearance.CarUi.Widget.Toolbar" />
     <item target="style/TextAppearance.CarUi.Widget.Toolbar.Title" value="@style/TextAppearance.CarUi.Widget.Toolbar.Title" />
 
+    <item target="style/Widget.CarUi.SeekbarPreference.Seekbar" value="@style/Widget.CarUi.SeekbarPreference.Seekbar" />
+
     <item target="attr/state_ux_restricted" value="@attr/state_ux_restricted"/>
 
     <!-- Toolbar -->
