@@ -233,4 +233,38 @@ message CarAudioDumpProto {
     repeated ZoneAudioPlaybackCallbackProto zone_audio_playback_callbacks = 1;
   }
   optional CarAudioPlaybackCallbackProto car_audio_playback_callback = 13;
+
+  message CarAudioMirrorRequestHandlerProto {
+    message RequestIdToZones {
+      optional int64 request_id = 1;
+      repeated int32 zone_ids = 2;
+    }
+    message RequestIdToMirrorDevice {
+      optional CarAudioDeviceInfoProto mirror_device = 1;
+      optional int64 request_id = 2;
+    }
+    optional bool is_mirror_audio_enabled = 1;
+    repeated CarAudioDeviceInfoProto mirror_device_infos = 2;
+    optional int32 register_count = 3;
+    repeated RequestIdToZones mirroring_configurations = 4;
+    repeated RequestIdToMirrorDevice mirror_device_mappings = 5;
+  }
+  optional CarAudioMirrorRequestHandlerProto car_audio_mirror_request_handler = 14;
+
+  message MediaRequestHandlerProto {
+    message MediaRequestIdToCallback {
+      optional int64 request_id = 1;
+      optional string callback = 2;
+    }
+    message MediaRequestIdToApprover {
+      optional int64 request_id = 1;
+      optional string approver = 2;
+    }
+    optional int32 media_request_callback_count = 1;
+    repeated string media_request_callbacks = 2;
+    repeated string assigned_occupants = 3;
+    repeated MediaRequestIdToCallback request_id_to_callback_mappings = 4;
+    repeated MediaRequestIdToApprover request_id_to_approver_mappings = 5;
+  }
+  optional MediaRequestHandlerProto media_request_handler = 15;
 }

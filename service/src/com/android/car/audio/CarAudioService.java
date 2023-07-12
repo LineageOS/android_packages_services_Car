@@ -648,6 +648,9 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             if (mCarAudioPlaybackCallback != null) {
                 mCarAudioPlaybackCallback.dumpProto(proto);
             }
+
+            mCarAudioMirrorRequestHandler.dumpProto(proto);
+            mMediaRequestHandler.dumpProto(proto);
         }
     }
 

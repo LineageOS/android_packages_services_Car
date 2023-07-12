@@ -34,9 +34,12 @@ import android.os.RemoteException;
 import android.util.ArraySet;
 import android.util.LongSparseArray;
 import android.util.SparseLongArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
+import com.android.car.audio.CarAudioDumpProto.CarAudioMirrorRequestHandlerProto;
+import com.android.car.audio.CarAudioDumpProto.CarAudioMirrorRequestHandlerProto.RequestIdToZones;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
@@ -348,6 +351,65 @@ import java.util.Objects;
             writer.increaseIndent();
             mMirrorDevices.get(index).dump(writer);
             writer.decreaseIndent();
+        }
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dumpProto(ProtoOutputStream proto) {
+        long mirrorRequestHandlerToken = proto.start(CarAudioDumpProto
+                .CAR_AUDIO_MIRROR_REQUEST_HANDLER);
+        proto.write(CarAudioMirrorRequestHandlerProto.IS_MIRROR_AUDIO_ENABLED,
+                isMirrorAudioEnabled());
+        if (!isMirrorAudioEnabled()) {
+            proto.end(mirrorRequestHandlerToken);
+            return;
+        }
+
+        int registeredCount = mAudioZonesMirrorStatusCallbacks.getRegisteredCallbackCount();
+        synchronized (mLock) {
+            dumpProtoMirrorDeviceInfosLocked(proto);
+            proto.write(CarAudioMirrorRequestHandlerProto.REGISTER_COUNT, registeredCount);
+            dumpProtoMirroringConfigurationsLocked(proto);
+            dumpProtoMirrorDeviceMappingLocked(proto);
+        }
+        proto.end(mirrorRequestHandlerToken);
+    }
+
+    @GuardedBy("mLock")
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpProtoMirrorDeviceInfosLocked(ProtoOutputStream proto) {
+        for (int index = 0; index < mMirrorDevices.size(); index++) {
+            mMirrorDevices.get(index).dumpProto(CarAudioMirrorRequestHandlerProto
+                    .MIRROR_DEVICE_INFOS, proto);
+        }
+    }
+
+    @GuardedBy("mLock")
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpProtoMirroringConfigurationsLocked(ProtoOutputStream proto) {
+        for (int index = 0; index < mRequestIdToZones.size(); index++) {
+            long configurationToken = proto.start(
+                    CarAudioMirrorRequestHandlerProto.MIRRORING_CONFIGURATIONS);
+            proto.write(RequestIdToZones.REQUEST_ID, mRequestIdToZones.keyAt(index));
+            for (int zoneIndex = 0; zoneIndex < mRequestIdToZones.valueAt(index).length;
+                    zoneIndex++) {
+                proto.write(RequestIdToZones.ZONE_IDS, mRequestIdToZones.valueAt(index)[zoneIndex]);
+            }
+            proto.end(configurationToken);
+        }
+    }
+
+    @GuardedBy("mLock")
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpProtoMirrorDeviceMappingLocked(ProtoOutputStream proto) {
+        for (int index = 0; index < mRequestIdToMirrorDevice.size(); index++) {
+            long mirrorDeviceMappingToken = proto.start(
+                    CarAudioMirrorRequestHandlerProto.MIRROR_DEVICE_MAPPINGS);
+            mRequestIdToMirrorDevice.valueAt(index).dumpProto(CarAudioMirrorRequestHandlerProto
+                    .RequestIdToMirrorDevice.MIRROR_DEVICE, proto);
+            proto.write(CarAudioMirrorRequestHandlerProto.RequestIdToMirrorDevice.REQUEST_ID,
+                    mRequestIdToMirrorDevice.keyAt(index));
+            proto.end(mirrorDeviceMappingToken);
         }
     }
 

@@ -34,9 +34,13 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.ArrayMap;
 import android.util.ArraySet;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
+import com.android.car.audio.CarAudioDumpProto.MediaRequestHandlerProto;
+import com.android.car.audio.CarAudioDumpProto.MediaRequestHandlerProto.MediaRequestIdToApprover;
+import com.android.car.audio.CarAudioDumpProto.MediaRequestHandlerProto.MediaRequestIdToCallback;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
@@ -391,11 +395,10 @@ final class MediaRequestHandler {
         synchronized (mLock) {
             writer.println("Media request handler:");
             writer.increaseIndent();
-            int n = mPrimaryZoneMediaAudioRequestCallbacks.beginBroadcast();
-            writer.printf("Media request callbacks[%d]:\n", n);
+            int callbackCount = mPrimaryZoneMediaAudioRequestCallbacks.beginBroadcast();
+            writer.printf("Media request callbacks[%d]:\n", callbackCount);
             writer.increaseIndent();
-            for (int index = 0; index < mPrimaryZoneMediaAudioRequestCallbacks
-                    .getRegisteredCallbackCount(); index++) {
+            for (int index = 0; index < callbackCount; index++) {
                 writer.printf("Callback[%d]: %s\n", index,
                         mPrimaryZoneMediaAudioRequestCallbacks.getBroadcastItem(index).asBinder());
             }
@@ -426,6 +429,47 @@ final class MediaRequestHandler {
             writer.decreaseIndent();
             writer.decreaseIndent();
         }
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dumpProto(ProtoOutputStream proto) {
+        long mirrorRequestHandlerToken = proto.start(CarAudioDumpProto.MEDIA_REQUEST_HANDLER);
+        synchronized (mLock) {
+            int callbackCount = mPrimaryZoneMediaAudioRequestCallbacks.beginBroadcast();
+            proto.write(MediaRequestHandlerProto.MEDIA_REQUEST_CALLBACK_COUNT, callbackCount);
+            for (int index = 0; index < callbackCount; index++) {
+                proto.write(MediaRequestHandlerProto.MEDIA_REQUEST_CALLBACKS,
+                        mPrimaryZoneMediaAudioRequestCallbacks.getBroadcastItem(index).asBinder()
+                                .toString());
+            }
+            mPrimaryZoneMediaAudioRequestCallbacks.finishBroadcast();
+
+            for (int index = 0; index < mAssignedOccupants.size(); index++) {
+                proto.write(MediaRequestHandlerProto.ASSIGNED_OCCUPANTS,
+                        mAssignedOccupants.valueAt(index).toString());
+            }
+
+            for (int index = 0; index < mMediaAudioRequestIdToCallback.size(); index++) {
+                long key = mMediaAudioRequestIdToCallback.keyAt(index);
+                InternalMediaAudioRequest value = mMediaAudioRequestIdToCallback.valueAt(index);
+                long requestIdToCallbackToken = proto.start(
+                        MediaRequestHandlerProto.REQUEST_ID_TO_CALLBACK_MAPPINGS);
+                proto.write(MediaRequestIdToCallback.REQUEST_ID, key);
+                proto.write(MediaRequestIdToCallback.CALLBACK, value.toString());
+                proto.end(requestIdToCallbackToken);
+            }
+
+            for (int index = 0; index < mRequestIdToApprover.size(); index++) {
+                long key = mRequestIdToApprover.keyAt(index);
+                IBinder value = mRequestIdToApprover.valueAt(index);
+                long requestIdToApproverToken = proto.start(
+                        MediaRequestHandlerProto.REQUEST_ID_TO_APPROVER_MAPPINGS);
+                proto.write(MediaRequestIdToApprover.REQUEST_ID, key);
+                proto.write(MediaRequestIdToApprover.APPROVER, value.toString());
+                proto.end(requestIdToApproverToken);
+            }
+        }
+        proto.end(mirrorRequestHandlerToken);
     }
 
     private static class InternalMediaAudioRequest {
