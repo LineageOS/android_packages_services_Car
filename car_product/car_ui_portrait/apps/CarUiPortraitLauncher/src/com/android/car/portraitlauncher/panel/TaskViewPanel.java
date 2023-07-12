@@ -559,24 +559,21 @@ public class TaskViewPanel extends RelativeLayout {
             if (!toState.hasToolBar()) {
                 mToolBarView.setVisibility(GONE);
             }
-            post(() -> {
-                animator.animate(() -> {
-                            mGripBar.setVisibility(toState.hasGripBar() ? VISIBLE : GONE);
-                            mToolBarView.setVisibility(toState.hasToolBar() ? VISIBLE : GONE);
-                            mBackgroundSurfaceView.setVisibility(
-                                    toState.hasBackgroundSurfaceView() ? VISIBLE : GONE);
-                            updateBounds(mActiveState.mBounds);
-                            onStateChangeEnd(fromState, toState, /* animated= */ true);
-                        }
-                );
-            });
+            post(() -> animator.animate(() -> {
+                mGripBar.setVisibility(mActiveState.hasGripBar() ? VISIBLE : GONE);
+                mToolBarView.setVisibility(mActiveState.hasToolBar() ? VISIBLE : GONE);
+                mBackgroundSurfaceView.setVisibility(
+                        mActiveState.hasBackgroundSurfaceView() ? VISIBLE : GONE);
+                updateBounds(mActiveState.mBounds);
+                onStateChangeEnd(fromState, mActiveState, /* animated= */ true);
+            }));
         } else {
-            mGripBar.setVisibility(toState.hasGripBar() ? VISIBLE : GONE);
-            mToolBarView.setVisibility(toState.hasToolBar()  ? VISIBLE : GONE);
+            mGripBar.setVisibility(mActiveState.hasGripBar() ? VISIBLE : GONE);
+            mToolBarView.setVisibility(mActiveState.hasToolBar()  ? VISIBLE : GONE);
             mBackgroundSurfaceView.setVisibility(
-                    toState.hasBackgroundSurfaceView() ? VISIBLE : GONE);
+                    mActiveState.hasBackgroundSurfaceView() ? VISIBLE : GONE);
             updateBounds(mActiveState.mBounds);
-            onStateChangeEnd(fromState, toState, /* animated= */ false);
+            onStateChangeEnd(fromState, mActiveState, /* animated= */ false);
         }
     }
 
