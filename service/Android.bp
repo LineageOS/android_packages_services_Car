@@ -57,10 +57,89 @@ gensrcs {
     output_extension: "srcjar",
 }
 
+gensrcs {
+    name: "dump-cppstream-protos",
+
+    tools: [
+        "aprotoc",
+        "protoc-gen-cppstream",
+    ],
+
+    cmd: "mkdir -p $(genDir) " +
+            "&& $(location aprotoc) " +
+            "  --plugin=$(location protoc-gen-cppstream) " +
+            "  --cppstream_out=$(genDir)/packages/services/Car/service/proto/android/car/watchdog " +
+            "  --cppstream_opt=experimental_allow_proto3_optional " +
+            "  -Iexternal/protobuf/src " +
+            "  -Ipackages/services/Car/service/proto/android/car/watchdog" +
+            "  $(in) ",
+
+    srcs: [
+        "proto/android/car/watchdog/carwatchdog_daemon_dump.proto",
+        "proto/android/car/watchdog/performance_stats.proto",
+        "proto/android/car/watchdog/health_check_client_info.proto",
+    ],
+
+    data: [
+        ":libprotobuf-internal-protos",
+    ],
+
+    output_extension: "proto.h",
+}
+
+genrule {
+    name: "watchdog-protos-headers",
+    tools: [
+        "aprotoc",
+    ],
+    cmd: "mkdir -p $(genDir) " +
+            "&& $(location aprotoc) " +
+            "  --cpp_out=$(genDir) " +
+            "  --proto_path=external/protobuf/src/google/protobuf " +
+            "  --proto_path=packages/services/Car/service/proto/android/car/watchdog " +
+            "  $(in) ",
+    srcs: [
+        "proto/android/car/watchdog/carwatchdog_daemon_dump.proto",
+        "proto/android/car/watchdog/performance_stats.proto",
+        "proto/android/car/watchdog/health_check_client_info.proto",
+    ],
+    out: [
+        "carwatchdog_daemon_dump.pb.h",
+        "performance_stats.pb.h",
+        "health_check_client_info.pb.h",
+    ],
+}
+
+genrule {
+    name: "watchdog-protos-srcs",
+    tools: [
+        "aprotoc",
+    ],
+    cmd: "mkdir -p $(genDir) " +
+            "&& $(location aprotoc) " +
+            "  --cpp_out=$(genDir) " +
+            "  --proto_path=external/protobuf/src/google/protobuf " +
+            "  --proto_path=packages/services/Car/service/proto/android/car/watchdog " +
+            "  $(in) ",
+    srcs: [
+        "proto/android/car/watchdog/carwatchdog_daemon_dump.proto",
+        "proto/android/car/watchdog/performance_stats.proto",
+        "proto/android/car/watchdog/health_check_client_info.proto",
+    ],
+    out: [
+        "carwatchdog_daemon_dump.pb.cc",
+        "performance_stats.pb.cc",
+        "health_check_client_info.pb.cc",
+    ],
+}
+
 filegroup {
     name: "car-service-dump-proto-srcs",
     srcs: [
         "proto/android/car/**/*_dump.proto",
+    ],
+    exclude_srcs: [
+        "proto/android/car/watchdog/carwatchdog_daemon_dump.proto",
     ],
 }
 
@@ -68,7 +147,7 @@ filegroup {
     name: "car-service-non-dump-proto-srcs",
     srcs: [
         "proto/android/car/telemetry/*.proto",
-        "proto/android/car/watchdog/*.proto",
+        "proto/android/car/watchdog/atoms.proto",
     ],
 }
 
