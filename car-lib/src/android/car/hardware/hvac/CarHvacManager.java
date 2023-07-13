@@ -40,10 +40,9 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * @deprecated Use {@link CarPropertyManager} instead.
- *
  * API for controlling HVAC system in cars
  * @hide
+ * @deprecated Use {@link CarPropertyManager} instead.
  */
 @Deprecated
 @SystemApi

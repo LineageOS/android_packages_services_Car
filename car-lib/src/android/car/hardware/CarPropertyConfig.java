@@ -488,14 +488,14 @@ public final class CarPropertyConfig<T> implements Parcelable {
     }
 
     /**
-     * @deprecated This API is deprecated in favor of {@link
-     * android.car.hardware.property.AreaIdConfig} which allows properties to specify which enum
-     * values are supported. This API will be marked as {@code @removed} in the next API release and
-     * then fully removed in two API releases.
+     * Represents min/max value of car property.
      *
-     * <p>Represents min/max value of car property.
      * @param <T> The property type
      * @hide
+     * @deprecated This API is deprecated in favor of {@link
+     * android.car.hardware.property.AreaIdConfig} which allows properties to specify which enum
+     * values are supported. This API will be marked as {@code @removed} in the next major release
+     * and hard removed in the release after that.
      */
     @Deprecated
     public static class AreaConfig<T> implements Parcelable {
@@ -614,11 +614,10 @@ public final class CarPropertyConfig<T> implements Parcelable {
         }
 
         /**
-         * @deprecated - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
-         *
          * Add supported areas parameter to {@link CarPropertyConfig}
          *
          * @return Builder<T>
+         * @deprecated - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
          */
         @Deprecated
         @AddedInOrBefore(majorVersion = 33)
@@ -630,11 +629,10 @@ public final class CarPropertyConfig<T> implements Parcelable {
         }
 
         /**
-         * @deprecated - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
-         *
          * Add {@code areaId} to {@link CarPropertyConfig}
          *
          * @return Builder<T>
+         * @deprecated - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
          */
         @Deprecated
         @AddedInOrBefore(majorVersion = 33)
@@ -644,11 +642,10 @@ public final class CarPropertyConfig<T> implements Parcelable {
         }
 
         /**
-         * @deprecated - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
-         *
          * Add {@code areaConfig} to {@link CarPropertyConfig}
          *
          * @return Builder<T>
+         * @deprecated - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
          */
         @Deprecated
         @AddedInOrBefore(majorVersion = 33)

@@ -39,8 +39,6 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * @deprecated Use {@link CarPropertyManager} instead.
- *
  * API for controlling Cabin system in cars.
  * Most Car Cabin properties have both a MOVE and POSITION parameter associated with them.
  *
@@ -56,6 +54,7 @@ import java.util.List;
  * One or both of the MOVE/POSITION parameters may be implemented depending upon the
  * capability of the hardware.
  * @hide
+ * @deprecated Use {@link CarPropertyManager} instead.
  */
 @Deprecated
 @SystemApi
