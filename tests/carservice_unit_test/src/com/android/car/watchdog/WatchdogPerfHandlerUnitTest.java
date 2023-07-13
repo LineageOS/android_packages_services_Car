@@ -263,9 +263,10 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         captureCarUxRestrictionsChangeListener(wantedInvocations);
         verifyDatabaseInit(wantedInvocations);
         captureStatsPullAtomCallback(wantedInvocations);
-        mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ true);
         when(mMockCarWatchdogDaemonHelper.getResourceOveruseConfigurations()).thenReturn(
                 sampleInternalResourceOveruseConfigurations());
+        mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ true);
+
     }
 
     @Test
@@ -1344,6 +1345,229 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                 eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(102), anyString());
         verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package.B"),
                 eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(102), anyString());
+    }
+
+    @Test
+    public void testGetPackageKillableStatesAsUser() throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101, 102);
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo("third_party_package", 10103456, null),
+                constructPackageManagerPackageInfo("vendor_package.critical", 10101278, null),
+                constructPackageManagerPackageInfo("third_party_package", 10203456, null),
+                constructPackageManagerPackageInfo("vendor_package.critical", 10201278, null)));
+
+        PackageKillableStateSubject.assertThat(
+                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.of(101)))
+                .containsExactly(
+                        new PackageKillableState("third_party_package", 101,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("vendor_package.critical", 101,
+                                PackageKillableState.KILLABLE_STATE_NEVER));
+
+        verify(mSpiedWatchdogStorage, times(2)).markDirty();
+    }
+
+    @Test
+    public void testGetPackageKillableStatesAsUserWithSafeToKillPackages() throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 100, 101);
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo("system_package.non_critical.A", 10002459, null),
+                constructPackageManagerPackageInfo("third_party_package", 10003456, null),
+                constructPackageManagerPackageInfo("vendor_package.critical.B", 10001278, null),
+                constructPackageManagerPackageInfo("vendor_package.non_critical.A", 10005573, null),
+                constructPackageManagerPackageInfo("third_party_package", 10103456, null),
+                constructPackageManagerPackageInfo("vendor_package.critical.B", 10101278, null)));
+
+        PackageKillableStateSubject.assertThat(
+                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.ALL))
+                .containsExactly(
+                        new PackageKillableState("system_package.non_critical.A", 100,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("third_party_package", 100,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("vendor_package.critical.B", 100,
+                                PackageKillableState.KILLABLE_STATE_NEVER),
+                        new PackageKillableState("vendor_package.non_critical.A", 100,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("third_party_package", 101,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("vendor_package.critical.B", 101,
+                                PackageKillableState.KILLABLE_STATE_NEVER));
+
+        verify(mSpiedWatchdogStorage, times(6)).markDirty();
+    }
+
+    @Test
+    public void testGetPackageKillableStatesAsUserWithVendorPackagePrefixes() throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 100);
+        injectPackageInfos(Collections.singletonList(constructPackageManagerPackageInfo(
+                "some_pkg_as_vendor_pkg", 10002459, /* sharedUserId= */ null, /* flags= */ 0,
+                ApplicationInfo.PRIVATE_FLAG_SYSTEM_EXT)));
+
+        List<PackageKillableState> killableStates =
+                mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.of(100));
+
+        // The vendor package prefixes in the resource overuse configs help identify vendor
+        // packages. The safe-to-kill list in the vendor configs helps identify safe-to-kill vendor
+        // packages. |system_package_as_vendor| is a critical system package by default but with
+        // the resource overuse configs, this package should be classified as a safe-to-kill vendor
+        // package.
+        PackageKillableStateSubject.assertThat(killableStates)
+                .containsExactly(new PackageKillableState("some_pkg_as_vendor_pkg", 100,
+                        PackageKillableState.KILLABLE_STATE_YES));
+
+        verify(mSpiedWatchdogStorage).markDirty();
+    }
+
+    @Test
+    public void testGetPackageKillableStatesAsUserWithSharedUids() throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101, 102);
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo(
+                        "system_package.A", 10103456, "vendor_shared_package.A"),
+                constructPackageManagerPackageInfo(
+                        "vendor_package.B", 10103456, "vendor_shared_package.A"),
+                constructPackageManagerPackageInfo(
+                        "third_party_package.C", 10105678, "third_party_shared_package"),
+                constructPackageManagerPackageInfo(
+                        "third_party_package.D", 10105678, "third_party_shared_package"),
+                constructPackageManagerPackageInfo(
+                        "system_package.A", 10203456, "vendor_shared_package.A"),
+                constructPackageManagerPackageInfo(
+                        "vendor_package.B", 10203456, "vendor_shared_package.A")));
+
+        PackageKillableStateSubject.assertThat(
+                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.of(101)))
+                .containsExactly(
+                        new PackageKillableState("system_package.A", 101,
+                                PackageKillableState.KILLABLE_STATE_NEVER),
+                        new PackageKillableState("vendor_package.B", 101,
+                                PackageKillableState.KILLABLE_STATE_NEVER),
+                        new PackageKillableState("third_party_package.C", 101,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("third_party_package.D", 101,
+                                PackageKillableState.KILLABLE_STATE_YES));
+
+        verify(mSpiedWatchdogStorage, times(2)).markDirty();
+    }
+
+    @Test
+    public void testGetPackageKillableStatesAsUserWithSharedUidsAndSafeToKillPackages()
+            throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 100);
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo(
+                        "vendor_package.non_critical.A", 10003456, "vendor_shared_package.A"),
+                constructPackageManagerPackageInfo(
+                        "system_package.A", 10003456, "vendor_shared_package.A"),
+                constructPackageManagerPackageInfo(
+                        "vendor_package.B", 10003456, "vendor_shared_package.A"),
+                constructPackageManagerPackageInfo(
+                        "third_party_package.C", 10005678, "third_party_shared_package"),
+                constructPackageManagerPackageInfo(
+                        "third_party_package.D", 10005678, "third_party_shared_package")));
+
+        PackageKillableStateSubject.assertThat(
+                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.of(100)))
+                .containsExactly(
+                        new PackageKillableState("vendor_package.non_critical.A", 100,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("system_package.A", 100,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("vendor_package.B", 100,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("third_party_package.C", 100,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("third_party_package.D", 100,
+                                PackageKillableState.KILLABLE_STATE_YES));
+
+        verify(mSpiedWatchdogStorage, times(2)).markDirty();
+    }
+
+    @Test
+    public void testGetPackageKillableStatesAsUserWithSharedUidsAndSafeToKillSharedPackage()
+            throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 100);
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo(
+                        "vendor_package.A", 10003456, "vendor_shared_package.non_critical.B"),
+                constructPackageManagerPackageInfo(
+                        "system_package.A", 10003456, "vendor_shared_package.non_critical.B"),
+                constructPackageManagerPackageInfo(
+                        "vendor_package.B", 10003456, "vendor_shared_package.non_critical.B")));
+
+
+        PackageKillableStateSubject.assertThat(
+                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.of(100)))
+                .containsExactly(
+                        new PackageKillableState("vendor_package.A", 100,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("system_package.A", 100,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("vendor_package.B", 100,
+                                PackageKillableState.KILLABLE_STATE_YES));
+
+        verify(mSpiedWatchdogStorage).markDirty();
+    }
+
+    @Test
+    public void testGetPackageKillableStatesAsUserForAllUsers() throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101, 102);
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo("third_party_package", 10103456, null),
+                constructPackageManagerPackageInfo("vendor_package.critical", 10101278, null),
+                constructPackageManagerPackageInfo("third_party_package", 10203456, null),
+                constructPackageManagerPackageInfo("vendor_package.critical", 10201278, null)));
+
+        PackageKillableStateSubject.assertThat(
+                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                        UserHandle.ALL)).containsExactly(
+                new PackageKillableState("third_party_package", 101,
+                        PackageKillableState.KILLABLE_STATE_YES),
+                new PackageKillableState("vendor_package.critical", 101,
+                        PackageKillableState.KILLABLE_STATE_NEVER),
+                new PackageKillableState("third_party_package", 102,
+                        PackageKillableState.KILLABLE_STATE_YES),
+                new PackageKillableState("vendor_package.critical", 102,
+                        PackageKillableState.KILLABLE_STATE_NEVER));
+
+        verify(mSpiedWatchdogStorage, times(4)).markDirty();
+    }
+
+    @Test
+    public void testGetPackageKillableStatesAsUserForAllUsersWithSharedUids() throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101, 102);
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo(
+                        "system_package.A", 10103456, "vendor_shared_package.A"),
+                constructPackageManagerPackageInfo(
+                        "vendor_package.B", 10103456, "vendor_shared_package.A"),
+                constructPackageManagerPackageInfo(
+                        "third_party_package.C", 10105678, "third_party_shared_package"),
+                constructPackageManagerPackageInfo(
+                        "third_party_package.D", 10105678, "third_party_shared_package"),
+                constructPackageManagerPackageInfo(
+                        "system_package.A", 10203456, "vendor_shared_package.A"),
+                constructPackageManagerPackageInfo(
+                        "vendor_package.B", 10203456, "vendor_shared_package.A")));
+
+        PackageKillableStateSubject.assertThat(
+                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.ALL))
+                .containsExactly(
+                        new PackageKillableState("system_package.A", 101,
+                                PackageKillableState.KILLABLE_STATE_NEVER),
+                        new PackageKillableState("vendor_package.B", 101,
+                                PackageKillableState.KILLABLE_STATE_NEVER),
+                        new PackageKillableState("third_party_package.C", 101,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("third_party_package.D", 101,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("system_package.A", 102,
+                                PackageKillableState.KILLABLE_STATE_NEVER),
+                        new PackageKillableState("vendor_package.B", 102,
+                                PackageKillableState.KILLABLE_STATE_NEVER));
+
+        verify(mSpiedWatchdogStorage, times(3)).markDirty();
     }
 
     private void disableUserPackage(String packageName, int... userIds) throws Exception {
