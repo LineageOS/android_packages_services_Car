@@ -25,9 +25,7 @@ import android.car.content.pm.CarPackageManager;
 import android.content.ComponentName;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,19 +34,13 @@ import org.junit.runner.RunWith;
  * This class contains security permission tests for {@link CarPackageManager}.
  */
 @RunWith(AndroidJUnit4.class)
-public class CarPackageManagerPermissionTest {
-    private Car mCar;
+public class CarPackageManagerPermissionTest extends AbstractCarManagerPermissionTest {
     private CarPackageManager mPm;
 
     @Before
     public void setUp() throws Exception {
-        mCar = Car.createCar(InstrumentationRegistry.getInstrumentation().getTargetContext());
+        super.connectCar();
         mPm = (CarPackageManager) mCar.getCarManager(Car.PACKAGE_SERVICE);
-    }
-
-    @After
-    public void tearDown() {
-        mCar.disconnect();
     }
 
     @Test

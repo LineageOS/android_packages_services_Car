@@ -26,9 +26,8 @@ import android.car.input.CarInputManager;
 import android.os.SystemClock;
 import android.view.KeyEvent;
 
-import androidx.test.platform.app.InstrumentationRegistry;
+import com.android.car.AbstractCarManagerPermissionTest;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,8 +40,7 @@ import java.util.concurrent.Executor;
  * This class contains security permission tests for the {@link CarInputManager}'s system APIs.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class CarInputManagerPermisisonTest {
-    private Car mCar;
+public class CarInputManagerPermissionTest extends AbstractCarManagerPermissionTest {
 
     private CarInputManager mCarInputManager;
 
@@ -51,16 +49,9 @@ public class CarInputManagerPermisisonTest {
 
     @Before
     public void setUp() {
-        mCar = Car.createCar(
-                InstrumentationRegistry.getInstrumentation().getTargetContext());
-        assertThat(mCar).isNotNull();
+        super.connectCar();
         mCarInputManager = (CarInputManager) mCar.getCarManager(Car.CAR_INPUT_SERVICE);
         assertThat(mCarInputManager).isNotNull();
-    }
-
-    @After
-    public void tearDown() {
-        mCar.disconnect();
     }
 
     @Test

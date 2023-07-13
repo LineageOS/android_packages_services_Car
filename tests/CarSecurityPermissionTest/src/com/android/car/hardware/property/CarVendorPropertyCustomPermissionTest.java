@@ -30,17 +30,15 @@ import android.car.VehicleAreaWindow;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.CarPropertyManager;
-import android.content.Context;
-import android.os.Handler;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.android.car.AbstractCarManagerPermissionTest;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.Objects;
 
 /**
  * This class contains tests for custom vendor permission for {@link CarPropertyManager}.
@@ -59,7 +57,7 @@ import java.util.Objects;
  *     "VehicleVendorPermission::PERMISSION_DEFAULT"
  */
 @RunWith(AndroidJUnit4.class)
-public final class CarVendorPropertyCustomPermissionTest {
+public final class CarVendorPropertyCustomPermissionTest extends AbstractCarManagerPermissionTest {
     private static final int MIXED_TYPE_PROPERTY_FOR_TEST = 0x21e01111;
     private static final int VENDOR_EXTENSION_INT_PROPERTY = 0x23400103;
     private static final int VENDOR_EXTENSION_FLOAT_PROPERTY = 0x25600102;
@@ -67,8 +65,6 @@ public final class CarVendorPropertyCustomPermissionTest {
     private static final int HVAC_LEFT = VehicleAreaSeat.SEAT_ROW_1_LEFT
             | VehicleAreaSeat.SEAT_ROW_2_LEFT | VehicleAreaSeat.SEAT_ROW_2_CENTER;
 
-    private final Context mContext =
-            InstrumentationRegistry.getInstrumentation().getTargetContext();
     private final UiAutomation mUiAutomation =
             InstrumentationRegistry.getInstrumentation().getUiAutomation();
 
@@ -76,8 +72,8 @@ public final class CarVendorPropertyCustomPermissionTest {
 
     @Before
     public void setUp() {
-        Car car = Objects.requireNonNull(Car.createCar(mContext, (Handler) null));
-        mCarPropertyManager = (CarPropertyManager) car.getCarManager(Car.PROPERTY_SERVICE);
+        super.connectCar();
+        mCarPropertyManager = (CarPropertyManager) mCar.getCarManager(Car.PROPERTY_SERVICE);
     }
 
     private void assumePropertyIsSupported(String permission, int property) {

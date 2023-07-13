@@ -33,9 +33,9 @@ import android.view.Display;
 import android.window.DisplayAreaOrganizer;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 
-import org.junit.After;
+import com.android.car.AbstractCarManagerPermissionTest;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,20 +47,14 @@ import java.util.concurrent.Executor;
  * This class contains security permission tests for {@link CarActivityManager}.
  */
 @RunWith(AndroidJUnit4.class)
-public class CarActivityManagerPermissionTest {
+public class CarActivityManagerPermissionTest extends AbstractCarManagerPermissionTest {
 
-    private Car mCar;
     private CarActivityManager mCarActivityManager;
 
     @Before
     public void setUp() throws Exception {
-        mCar = Car.createCar(InstrumentationRegistry.getInstrumentation().getTargetContext());
+        super.connectCar();
         mCarActivityManager = (CarActivityManager) mCar.getCarManager(Car.CAR_ACTIVITY_SERVICE);
-    }
-
-    @After
-    public void tearDown() {
-        mCar.disconnect();
     }
 
     @Test

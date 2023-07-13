@@ -25,36 +25,36 @@ import android.car.Car;
 import android.car.diagnostic.CarDiagnosticEvent;
 import android.car.diagnostic.CarDiagnosticManager;
 import android.car.diagnostic.CarDiagnosticManager.OnDiagnosticEventListener;
-import android.content.Context;
-import android.os.Handler;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.android.car.AbstractCarManagerPermissionTest;
+
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.Objects;
 
 /**
  * This class contains security permission tests for {@link CarDiagnosticManager}.
  */
 @RunWith(AndroidJUnit4.class)
-public class CarDiagnosticManagerPermissionTest {
-    private final Context mContext =
-            InstrumentationRegistry.getInstrumentation().getTargetContext();
+public class CarDiagnosticManagerPermissionTest extends AbstractCarManagerPermissionTest {
     private final UiAutomation mUiAutomation =
             InstrumentationRegistry.getInstrumentation().getUiAutomation();
 
+    @Before
+    public void setUp() {
+        super.connectCar();
+    }
+
     @Test
     public void testGetCarDiagnosticManager() {
-        Car car = Objects.requireNonNull(Car.createCar(mContext, (Handler) null));
-        assertThrows(SecurityException.class, () -> car.getCarManager(DIAGNOSTIC_SERVICE));
+        assertThrows(SecurityException.class, () -> mCar.getCarManager(DIAGNOSTIC_SERVICE));
     }
 
     private CarDiagnosticManager getCarDiagnosticManager() {
-        Car car = Objects.requireNonNull(Car.createCar(mContext, (Handler) null));
-        return (CarDiagnosticManager) car.getCarManager(DIAGNOSTIC_SERVICE);
+        return (CarDiagnosticManager) mCar.getCarManager(DIAGNOSTIC_SERVICE);
     }
 
     @Test

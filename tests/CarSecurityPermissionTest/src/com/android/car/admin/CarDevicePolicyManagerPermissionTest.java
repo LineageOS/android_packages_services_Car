@@ -19,44 +19,34 @@ package com.android.car.admin;
 import static android.Manifest.permission.CREATE_USERS;
 import static android.Manifest.permission.MANAGE_USERS;
 import static android.car.Car.CAR_DEVICE_POLICY_SERVICE;
-import static android.car.Car.createCar;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import android.app.Instrumentation;
-import android.car.Car;
 import android.car.admin.CarDevicePolicyManager;
-import android.content.Context;
-import android.os.Handler;
 import android.os.UserHandle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
+
+import com.android.car.AbstractCarManagerPermissionTest;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Objects;
-
 /**
  * This class contains security permission tests for the {@link CarDevicePolicyManager}'s APIs.
  */
 @RunWith(AndroidJUnit4.class)
-public final class CarDevicePolicyManagerPermissionTest {
+public final class CarDevicePolicyManagerPermissionTest extends AbstractCarManagerPermissionTest {
 
     private CarDevicePolicyManager mManager;
-    private Context mContext;
-    private Instrumentation mInstrumentation;
 
     @Before
     public void setUp() {
-        mInstrumentation = InstrumentationRegistry.getInstrumentation();
-        mContext = mInstrumentation.getTargetContext();
-        Car car = Objects.requireNonNull(createCar(mContext, (Handler) null));
-        mManager = (CarDevicePolicyManager) car.getCarManager(CAR_DEVICE_POLICY_SERVICE);
+        super.connectCar();
+        mManager = (CarDevicePolicyManager) mCar.getCarManager(CAR_DEVICE_POLICY_SERVICE);
     }
 
     @Test

@@ -31,30 +31,27 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.occupantconnection.CarOccupantConnectionManager;
 import android.car.occupantconnection.CarOccupantConnectionManager.ConnectionRequestCallback;
 import android.car.occupantconnection.Payload;
-import android.content.Context;
-import android.os.Handler;
 
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.android.car.AbstractCarManagerPermissionTest;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.Objects;
 
 /**
  * This class contains security permission tests for {@link CarOccupantConnectionManager}' system
  * APIs.
  */
 @RunWith(AndroidJUnit4.class)
-public final class CarOccupantConnectionManagerPermissionTest {
+public final class CarOccupantConnectionManagerPermissionTest extends
+        AbstractCarManagerPermissionTest {
 
     private static final String RECEIVER_ID = "receiver_id";
 
-    private final Context mContext =
-            InstrumentationRegistry.getInstrumentation().getTargetContext();
     private final UiAutomation mUiAutomation =
             InstrumentationRegistry.getInstrumentation().getUiAutomation();
 
@@ -64,8 +61,8 @@ public final class CarOccupantConnectionManagerPermissionTest {
 
     @Before
     public void setUp() {
-        Car car = Objects.requireNonNull(Car.createCar(mContext, (Handler) null));
-        mCarOccupantConnectionManager = car.getCarManager(CarOccupantConnectionManager.class);
+        super.connectCar();
+        mCarOccupantConnectionManager = mCar.getCarManager(CarOccupantConnectionManager.class);
         // CarOccupantConnectionManager is available on multi-display builds only.
         // TODO(b/265091454): annotate the test with @RequireMultipleUsersOnMultipleDisplays.
         assumeNotNull(

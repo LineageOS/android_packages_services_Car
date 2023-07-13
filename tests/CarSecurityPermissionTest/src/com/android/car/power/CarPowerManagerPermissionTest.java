@@ -26,22 +26,19 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import android.car.Car;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerPolicyFilter;
-import android.content.Context;
 import android.frameworks.automotive.powerpolicy.PowerComponent;
-import android.os.Handler;
 import android.view.Display;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
+
+import com.android.car.AbstractCarManagerPermissionTest;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -49,16 +46,13 @@ import java.util.concurrent.Executor;
  * {@link android.car.hardware.power#CarPowerManager}'s system APIs.
  */
 @RunWith(AndroidJUnit4.class)
-public final class CarPowerManagerPermissionTest {
-    private final Context mContext =
-            InstrumentationRegistry.getInstrumentation().getTargetContext();
-
+public final class CarPowerManagerPermissionTest extends AbstractCarManagerPermissionTest {
     private CarPowerManager mCarPowerManager;
 
     @Before
     public void setUp() {
-        Car car = Objects.requireNonNull(Car.createCar(mContext, (Handler) null));
-        mCarPowerManager = (CarPowerManager) car.getCarManager(POWER_SERVICE);
+        super.connectCar();
+        mCarPowerManager = (CarPowerManager) mCar.getCarManager(POWER_SERVICE);
     }
 
     @Test
