@@ -306,7 +306,8 @@ public class TaskViewPanel extends RelativeLayout {
     /** Transitions the panel into the close state using the fade-out animation. */
     public void fadeOutPanel() {
         PanelAnimator animator =
-                new FadeOutPanelAnimator(this, mTaskViewOverlay, mTaskView, mCloseState.mBounds);
+                new FadeOutPanelAnimator(this, mTaskViewOverlay, mTaskView, mCloseState.mBounds,
+                        mCloseState.mBounds.top);
         setActiveState(mCloseState, animator);
     }
 
