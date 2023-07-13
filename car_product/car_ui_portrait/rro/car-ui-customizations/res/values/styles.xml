@@ -77,6 +77,13 @@
         <item name="android:tint">@color/car_on_surface</item>
         <item name="android:background">@drawable/car_ui_toolbar_menu_item_icon_ripple</item>
     </style>
+    <style name="Widget.CarUi.SeekbarPreference"/>
+    <style name="Widget.CarUi.SeekbarPreference.Seekbar">
+        <item name="android:minHeight">76dp</item>
+        <item name="android:background">@null</item>
+        <item name="android:clickable">false</item>
+        <item name="android:focusable">false</item>
+    </style>
 
     <style name="PreferenceCarUiIcon"/>
 
