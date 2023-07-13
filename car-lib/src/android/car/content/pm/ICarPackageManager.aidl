@@ -37,4 +37,5 @@ interface ICarPackageManager {
             String activityClassName, int userId) = 9;
     CarVersion getTargetCarVersion(String packageName) = 10;
     CarVersion getSelfTargetCarVersion(in String packageName) = 11;
+    boolean requiresDisplayCompat(in String packageName) = 12;
 }

@@ -1275,6 +1275,15 @@ public final class Car {
             "android.car.permission.MANAGE_CAR_SYSTEM_UI";
 
     /**
+     * Permission necessary to query if a package requires launching in automotive compatibility
+     * mode or not
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_QUERY_DISPLAY_COMPATIBILITY =
+            "android.car.permission.QUERY_DISPLAY_COMPATIBILITY";
+
+    /**
      * Intent for connecting to the template renderer. Services that handle this intent must also
      * hold {@link #PERMISSION_TEMPLATE_RENDERER}. Applications would not bind to this service
      * directly, but instead they would use

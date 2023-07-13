@@ -17,6 +17,7 @@
 package android.car.content.pm;
 
 import static android.car.Car.PERMISSION_CONTROL_APP_BLOCKING;
+import static android.car.Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY;
 import static android.car.CarLibLog.TAG_CAR;
 
 import android.Manifest;
@@ -504,6 +505,37 @@ public final class CarPackageManager extends CarManagerBase {
             e.rethrowFromSystemServer();
             return null;
         }
+    }
+
+    /**
+     * @return true if a package requires launching in automotive display compatibility mode.
+     * false otherwise.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(allOf = {PERMISSION_QUERY_DISPLAY_COMPATIBILITY,
+            android.Manifest.permission.QUERY_ALL_PACKAGES})
+    public boolean requiresDisplayCompat(@NonNull String packageName) throws NameNotFoundException {
+        try {
+            return mService.requiresDisplayCompat(packageName);
+        } catch (ServiceSpecificException e) {
+            Log.w(TAG_CAR, "Car service threw exception calling requiresDisplayCompat("
+                    + packageName + ")", e);
+            if (e.errorCode == ERROR_CODE_NO_PACKAGE) {
+                throw new NameNotFoundException("cannot find " + packageName);
+            }
+            throw new RuntimeException(e);
+        } catch (SecurityException e) {
+            Log.w(TAG_CAR, "Car service threw exception calling requiresDisplayCompat("
+                    + packageName + ")", e);
+            throw e;
+        } catch (RemoteException e) {
+            Log.w(TAG_CAR, "Car service threw exception calling requiresDisplayCompat("
+                    + packageName + ")", e);
+            e.rethrowFromSystemServer();
+        }
+        return false;
     }
 
     private void handleServiceSpecificFromCarService(ServiceSpecificException e,
