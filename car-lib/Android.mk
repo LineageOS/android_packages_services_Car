@@ -31,7 +31,7 @@ car_api_xmls := $(addprefix $(TARGET_OUT_COMMON_INTERMEDIATES)/,car-api.xml car-
 $(car_api_xmls): $(TARGET_OUT_COMMON_INTERMEDIATES)/car-%api.xml : packages/services/Car/car-lib/api/%current.txt $(APICHECK)
 	$(hide) echo "Converting API file to XML: $@"
 	$(hide) mkdir -p $(dir $@)
-	$(hide) $(APICHECK_COMMAND) -convert2xml $< $@
+	$(hide) $(APICHECK_COMMAND) signature-to-jdiff --strip $< $@
 
 $(call dist-for-goals, dist_files, $(car_api_xmls))
 car_api_xmls :=
