@@ -289,7 +289,6 @@
          is no longer foreground.
      -->
     <string-array translatable="false" name="config_earlyStartupServices">
-        <item>com.android.car.messenger/.MessengerService#bind=startForeground,user=foreground,trigger=userUnlocked</item>
     </string-array>
 
     <!-- The consent activity that must be shown for every unknown mobile device before projection
