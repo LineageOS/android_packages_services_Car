@@ -27,7 +27,8 @@
         android:singleLine="true"
         android:layout_marginTop="@dimen/in_call_title_margin"
         android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentTop="true"
+        style="@style/TextAppearance.DialNumber" />
 
     <Chronometer
         android:id="@+id/call_state"
@@ -37,7 +38,8 @@
         android:singleLine="true"
         android:layout_marginTop="@dimen/in_call_state_margin"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/title" />
+        android:layout_below="@id/title"
+        style="@style/TextAppearance.InCallState" />
 
     <com.android.car.ui.FocusArea
         android:id="@+id/dialpad_focus_area"
