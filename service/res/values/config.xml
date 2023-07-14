@@ -284,6 +284,9 @@
                userPostUnlocked - start service later after user unlocked. This is used when the
                                   service is not urgent and can wait to start.
                The default value is 'userUnlocked'
+         maxRetries: the maximum number of attempts to rebind/restart a disconnected service.
+               Retries start with 4 second initial delay, being doubled after each failed attempt.
+               The default value is 6.
 
          If the service bound/started for foreground user it will be unbound/stopped when user
          is no longer foreground.
