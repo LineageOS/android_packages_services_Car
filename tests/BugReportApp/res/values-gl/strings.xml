@@ -29,7 +29,7 @@
     <string name="bugreport_dialog_show_bugreports" msgid="6964385141627170297">"Mostrar informes de erros"</string>
     <string name="bugreport_dialog_close" msgid="289925437277364266">"Pechar"</string>
     <string name="bugreport_dialog_title" msgid="3315160684205929910">"Fala e describe o problema"</string>
-    <string name="bugreport_dialog_add_audio_to_existing" msgid="4958460267276935700">"Mensaxe de audio para o informe de erro (%s)"</string>
+    <string name="bugreport_dialog_add_audio_to_existing" msgid="4958460267276935700">"Mensaxe de audio para o informe de erros (%s)"</string>
     <string name="bugreport_dialog_recording_finished" msgid="3982335902169398758">"A gravación rematou"</string>
     <string name="bugreport_dialog_in_progress_title" msgid="1663500052146177338">"Recompilando informe de erros"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"Recompilouse un informe de erros"</string>
