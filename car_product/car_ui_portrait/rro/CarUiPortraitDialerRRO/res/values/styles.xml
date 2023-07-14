@@ -135,4 +135,8 @@
     <style name="TextAppearance.ContactDetailsListSubtitle" parent="TextAppearance.Car.Body.Small" >
         <item name="android:textColor">@color/car_on_surface_variant</item>
     </style>
+
+    <style name="TextAppearance.InCallState" parent="TextAppearance.Car.Body.Small" >
+        <item name="android:textColor">@color/car_on_surface_variant</item>
+    </style>
 </resources>
