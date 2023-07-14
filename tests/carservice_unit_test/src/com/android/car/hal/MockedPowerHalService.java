@@ -18,15 +18,19 @@ package com.android.car.hal;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.car.test.mocks.JavaMockitoHelper;
 import android.content.Context;
 import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
 import android.util.Log;
+import android.util.SparseIntArray;
+import android.view.Display;
 
 import com.android.car.CarServiceUtils;
 import com.android.car.VehicleStub;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.LinkedList;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 
 public class MockedPowerHalService extends PowerHalService {
@@ -36,6 +40,7 @@ public class MockedPowerHalService extends PowerHalService {
     private final boolean mIsTimedWakeupAllowed;
 
     private final Object mLock = new Object();
+    private final CountDownLatch mBrightnessSendLatch = new CountDownLatch(1);
 
     @GuardedBy("mLock")
     private PowerState mCurrentPowerState = new PowerState(VehicleApPowerStateReq.ON, 0);
@@ -48,6 +53,9 @@ public class MockedPowerHalService extends PowerHalService {
 
     @GuardedBy("mLock")
     private final LinkedList<int[]> mSentStates = new LinkedList<>();
+
+    @GuardedBy("mLock")
+    private final SparseIntArray mDisplayBrightnessSet = new SparseIntArray();
 
     private boolean mIsDeepSleepAllowed;
     private boolean mIsHibernationAllowed;
@@ -159,6 +167,33 @@ public class MockedPowerHalService extends PowerHalService {
     public void sendHibernationExit() {
         Log.i(TAG, "sendHibernationExit");
         doSendState(SET_HIBERNATION_EXIT, 0);
+    }
+
+    @Override
+    public void sendDisplayBrightness(int brightness) {
+        sendDisplayBrightness(Display.DEFAULT_DISPLAY, brightness);
+    }
+
+    @Override
+    public void sendDisplayBrightness(int displayId, int brightness) {
+        synchronized (mLock) {
+            mDisplayBrightnessSet.put(displayId, brightness);
+        }
+        mBrightnessSendLatch.countDown();
+    }
+
+    public int getDisplayBrightness(int displayId) {
+        synchronized (mLock) {
+            return mDisplayBrightnessSet.get(displayId, -1);
+        }
+    }
+
+    public void waitForBrightnessSent(int displayId, int brightness, long timeoutMs)
+            throws Exception {
+        if (getDisplayBrightness(displayId) == brightness) {
+            return;
+        }
+        JavaMockitoHelper.await(mBrightnessSendLatch, timeoutMs);
     }
 
     @Override

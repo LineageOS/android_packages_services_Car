@@ -1191,6 +1191,30 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 mService.isSuspendAvailable(/* isHibernation= */ false)).isFalse();
     }
 
+    @Test
+    public void testSendDisplayBrightness_noDisplayId() throws Exception {
+        int brightness = 25;
+        int displayId = Display.DEFAULT_DISPLAY;
+
+        mService.sendDisplayBrightness(brightness);
+
+        mPowerHal.waitForBrightnessSent(displayId, brightness, WAIT_TIMEOUT_MS);
+        assertWithMessage("Display " + displayId + " brightness sent with no display ID").that(
+                mPowerHal.getDisplayBrightness(displayId)).isEqualTo(brightness);
+    }
+
+    @Test
+    public void testSendDisplayBrightness_withDisplayId() throws Exception {
+        int brightness = 50;
+        int displayId = 222;
+
+        mService.sendDisplayBrightness(displayId, brightness);
+
+        mPowerHal.waitForBrightnessSent(displayId, brightness, WAIT_TIMEOUT_MS);
+        assertWithMessage("Display " + displayId + " brightness sent with the display ID").that(
+                mPowerHal.getDisplayBrightness(displayId)).isEqualTo(brightness);
+    }
+
 
     @Test
     public void testPowerPolicyNotificationCustomComponents() throws Exception {
