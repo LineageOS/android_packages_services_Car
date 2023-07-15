@@ -50,6 +50,25 @@ public interface CarTaskViewHost {
             @Nullable Rect launchBounds);
 
     /**
+     * Creates the root task, which will be embedded inside this task view.
+     *
+     * @hide
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
+    void createRootTask(int displayId);
+
+    /**
+     * Creates the launch root task, which will be embedded inside this task view.
+     *
+     * @hide
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
+    void createLaunchRootTask(int displayId, boolean embedHomeTask,
+            boolean embedRecentsTask, boolean embedAssistantTask);
+
+    /**
      * Notifies the host side that the client surface has been created.
      *
      * @param control the {@link SurfaceControl} of the surface that has been created.
