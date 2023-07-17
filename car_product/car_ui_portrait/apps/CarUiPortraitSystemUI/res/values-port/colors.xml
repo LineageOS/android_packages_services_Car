@@ -53,8 +53,8 @@
     <color name="title_bar_display_area_background_color">#ffffff</color>
     <color name="immersive_chevron_icon_color">@color/title_bar_display_area_handle_bar_color</color>
 
-    <color name="privacy_chip_light_icon_color">@color/car_neutral_90</color>
-    <color name="privacy_chip_dark_icon_color">@color/car_neutral_10</color>
+    <color name="privacy_chip_light_icon_color">@color/car_on_surface</color>
+    <color name="privacy_chip_dark_icon_color">@color/car_inverse_on_surface</color>
 
     <color name="car_quick_controls_footer_button_color">@color/car_secondary_container</color>
     <color name="car_quick_controls_footer_button_text_color">@color/car_on_secondary_container</color>
