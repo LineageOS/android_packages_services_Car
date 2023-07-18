@@ -199,7 +199,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private final IntentHandler mMediaIntentHandler = new IntentHandler() {
         @Override
         public void handleIntent(Intent intent) {
-            if (TaskCategoryManager.isMediaApp(mRootTaskViewPanel.getCurrentTask())) {
+            if (TaskCategoryManager.isMediaApp(mTaskViewManager.getTopTaskInLaunchRootTask())) {
                 mRootTaskViewPanel.closePanel();
                 return;
             }
@@ -292,7 +292,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     mRootTaskViewPanel.closePanel(/* animated= */ false);
                 }
                 setFocusToBackgroundApp();
-                mRootTaskViewPanel.setCurrentTask(taskInfo);
                 return;
             }
 
@@ -302,7 +301,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
             if (shouldTaskShowOnRootTaskView(taskInfo)) {
                 logIfDebuggable("Opening in root task view: ");
-                mRootTaskViewPanel.setCurrentTask(taskInfo);
 
                 // Open immersive mode if there is unhandled immersive mode request.
                 if (shouldOpenFullScreenPanel(taskInfo)) {
@@ -1104,7 +1102,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
         // Only handles the immersive mode request here if requesting component has the same package
         // name as the current top task.
-        if (!mRootTaskViewPanel.isPackageOnTop(componentName)) {
+        if (!isPackageVisibleOnRootTask(componentName)) {
             // Save the component and timestamp of the latest immersive mode request, in case any
             // race condition with TaskStackListener.
             setUnhandledImmersiveModeRequest(componentName, System.currentTimeMillis(), requested);
@@ -1117,6 +1115,18 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         } else {
             mRootTaskViewPanel.openPanel();
         }
+    }
+
+    private boolean isPackageVisibleOnRootTask(ComponentName componentName) {
+        ActivityManager.RunningTaskInfo taskInfo = mTaskViewManager.getTopTaskInLaunchRootTask();
+        if (taskInfo == null) {
+            return false;
+        }
+        ComponentName visibleComponentName =
+                taskInfo.topActivity == null ? taskInfo.baseActivity : taskInfo.topActivity;
+
+        return visibleComponentName != null
+                && componentName.getPackageName().equals(visibleComponentName.getPackageName());
     }
 
     private void setUnhandledImmersiveModeRequest(ComponentName componentName, long timestamp,
