@@ -35,6 +35,7 @@
     <item target="id/card_background_image" value="@id/card_background_image" />
     <item target="id/card_icon" value="@id/card_icon" />
     <item target="id/card_name" value="@id/card_name" />
+    <item target="id/tos_banner" value="@id/tos_banner" />
     <item target="id/card_view" value="@id/card_view" />
     <item target="id/descriptive_text_layout" value="@id/descriptive_text_layout" />
     <item target="id/text_block_layout" value="@id/text_block_layout" />

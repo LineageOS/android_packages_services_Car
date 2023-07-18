@@ -27,6 +27,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center">
+        <com.android.car.carlauncher.Banner
+            android:id="@+id/tos_banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
         <com.android.car.carlauncher.AppGridRecyclerView
             android:id="@+id/apps_grid"
             android:layout_width="match_parent"
