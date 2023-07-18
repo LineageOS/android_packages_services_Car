@@ -18,7 +18,6 @@ package com.android.car.portraitlauncher.panel;
 
 import android.annotation.SuppressLint;
 import android.app.TaskInfo;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Insets;
@@ -485,31 +484,6 @@ public class TaskViewPanel extends RelativeLayout {
      */
     public void setToolBarViewVisibility(boolean isVisible) {
         mToolBarView.updateToolBarContentVisibility(mActiveState.hasToolBar() && isVisible);
-    }
-
-    /**
-     * Set current {@link TaskInfo} for the panel.
-     */
-    public void setCurrentTask(TaskInfo task) {
-        mCurrentTask = task;
-    }
-
-    /**
-     * Returns true if given component has the same package name as current task.
-     */
-    public boolean isPackageOnTop(ComponentName componentName) {
-        if (componentName == null || mCurrentTask == null || mCurrentTask.baseActivity == null) {
-            return false;
-        }
-        return componentName.getPackageName().equals(mCurrentTask.baseActivity.getPackageName());
-    }
-
-    /**
-     * Get current {@link TaskInfo} from the panel.
-     */
-    @Nullable
-    public TaskInfo getCurrentTask() {
-        return mActiveState.isVisible() ? mCurrentTask : null;
     }
 
     private void recalculateBounds() {
