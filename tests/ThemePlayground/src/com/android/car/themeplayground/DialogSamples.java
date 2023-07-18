@@ -55,7 +55,7 @@ public class DialogSamples extends AbstractSampleActivity {
 
         if (showCheckbox) {
             // Set Custom Title
-            TextView title = new TextView(this);
+            TextView title = new TextView(builder.getContext());
             // Title Properties
             title.setText("Custom Dialog Box");
             builder.setCustomTitle(title);
