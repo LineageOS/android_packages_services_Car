@@ -1161,7 +1161,14 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 }
                 boolean enableBlocking = Boolean.valueOf(args[1]);
                 if (mCarPackageManagerService != null) {
-                    mCarPackageManagerService.setEnableActivityBlocking(enableBlocking);
+                    // Need to clear the binder identity if calling process is root since
+                    // signature will not match with that of car service.
+                    final long identity = Binder.clearCallingIdentity();
+                    try {
+                        mCarPackageManagerService.setEnableActivityBlocking(enableBlocking);
+                    } finally {
+                        Binder.restoreCallingIdentity(identity);
+                    }
                 }
                 break;
             case COMMAND_GET_DO_ACTIVITIES:
