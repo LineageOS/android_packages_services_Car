@@ -147,6 +147,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     }
 
     private final Context mContext;
+    private final Context mBuiltinContext;
     private final EvsHalService mEvsHalService;
     private final CarPropertyService mPropertyService;
     private final DisplayManager mDisplayManager;  // To monitor the default display's state
@@ -289,6 +290,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     public CarEvsService(Context context, Context builtinContext, EvsHalService halService,
             CarPropertyService propertyService) {
         mContext = context;
+        mBuiltinContext = builtinContext;
         mPropertyService = propertyService;
         mEvsHalService = halService;
 
@@ -814,6 +816,58 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         }
 
         return instance.getCameraId();
+    }
+
+    /**
+     * Enables a given service type with a specified camera device.
+     *
+     * <p>Requires {@link android.car.Car.PERMISSION_USE_CAR_EVS_CAMERA} permissions to access.
+     *
+     * @param typeString A service type to get a camera identifier. Please use "*" part of
+     *             CarEvsManager.SERVICE_TYPE_* constants.
+     * @param cameraId A string identifier of a target camera device. A camera associated with this
+     *                 id must not be assigned to any service type.
+     * @return false if a requested service type is already enabled or a specific camera id is
+     *               already assigned to other service types.
+     *         true otherwise.
+     */
+    public boolean enableServiceTypeFromCommand(@NonNull String typeString,
+            @NonNull String cameraId) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_CAMERA);
+
+        @CarEvsServiceType int serviceType = CarEvsUtils.convertToServiceType(typeString);
+        for (int i = 0; i < mServiceInstances.size(); i++) {
+            int type = mServiceInstances.keyAt(i);
+            StateMachine instance = mServiceInstances.valueAt(i);
+
+            if (type == serviceType || cameraId.equals(instance.getCameraId())) {
+                Slogf.e(TAG_EVS, "A requested service type is already provided by " +
+                        " or a given camera id is used by %s.", instance);
+                return false;
+            }
+        }
+
+        StateMachine s = new StateMachine(mContext, mBuiltinContext, this, null,
+                serviceType, cameraId);
+        mServiceInstances.put(serviceType, s);
+        return true;
+    }
+
+    /**
+     * Checks whether or not a given service type is enabled.
+     *
+     * <p>Requires {@link android.car.Car.PERMISSION_MONITOR_CAR_EVS_STATUS} permissions to
+     * access.
+     *
+     * @param type A service type to get a camera identifier. Please use "*" part of
+     *             CarEvsManager.SERVICE_TYPE_* constants.
+     * @return true if a given service type is available.
+     *         false otherwise.
+     */
+    public boolean isServiceTypeEnabledFromCommand(@NonNull String type) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_MONITOR_CAR_EVS_STATUS);
+        @CarEvsServiceType int serviceType = CarEvsUtils.convertToServiceType(type);
+        return mServiceInstances.get(serviceType) != null;
     }
 
     /** Checks whether or not a given token is valid. */

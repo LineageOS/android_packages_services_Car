@@ -261,6 +261,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_GET_REARVIEW_CAMERA_ID = "get-rearview-camera-id";
     private static final String COMMAND_SET_CAMERA_ID = "set-camera-id";
     private static final String COMMAND_GET_CAMERA_ID = "get-camera-id";
+    private static final String COMMAND_ENABLE_CAMERA_SERVICE_TYPE = "enable-camera-service-type";
+    private static final String COMMAND_CHECK_CAMERA_SERVICE_TYPE_ENABLED =
+            "check-camera-service-type-enabled";
 
     private static final String COMMAND_WATCHDOG_CONTROL_PACKAGE_KILLABLE_STATE =
             "watchdog-control-package-killable-state";
@@ -870,6 +873,15 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t DRIVERVIEW, FRONT_PASSENGERSVIEW, REAR_PASSENGERSVIEW, or USER_DEFINED");
         pw.println("\t (* of CarEvsManager.SERVICE_TYPE_* to specify a service type).");
 
+        pw.printf("\t%s <SERVICE_TYPE> <CAMERA_ID>\n", COMMAND_ENABLE_CAMERA_SERVICE_TYPE);
+        pw.println("\t Enables a specified service type with a camera associated with a given ");
+        pw.println("\t camera id.");
+        pw.println("\t Use * of CarEvsManager.SERVICE_TYPE_* to specify a service type.");
+
+        pw.printf("\t%s <SERVICE_TYPE>\n", COMMAND_CHECK_CAMERA_SERVICE_TYPE_ENABLED);
+        pw.println("\t Checks whether or not a given service type is enabled.");
+        pw.println("\t Use * of CarEvsManager.SERVICE_TYPE_* to specify a service type.");
+
         pw.printf("\t%s true|false <PACKAGE_NAME>\n",
                 COMMAND_WATCHDOG_CONTROL_PACKAGE_KILLABLE_STATE);
         pw.println("\t  Marks PACKAGE_NAME as killable or not killable on resource overuse ");
@@ -1412,6 +1424,12 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             case COMMAND_GET_CAMERA_ID:
                 getCameraId(args, writer);
+                break;
+            case COMMAND_ENABLE_CAMERA_SERVICE_TYPE:
+                enableCameraServiceType(args, writer);
+                break;
+            case COMMAND_CHECK_CAMERA_SERVICE_TYPE_ENABLED:
+                checkCameraServiceTypeEnabled(args, writer);
                 break;
             case COMMAND_WATCHDOG_CONTROL_PACKAGE_KILLABLE_STATE:
                 controlWatchdogPackageKillableState(args, writer);
@@ -3184,6 +3202,22 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
     }
 
+    private void enableCameraServiceType(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 3) {
+            showInvalidArguments(writer);
+            return;
+        }
+
+        if (!mCarEvsService.enableServiceTypeFromCommand(args[1], args[2])) {
+            writer.printf("Failed to enable %s with a camera %s.\n",
+                    args[1], args[2]);
+            return;
+        }
+
+        writer.printf("%s is successfully enabled and set to use a camera %s.\n",
+                args[1], args[2]);
+    }
+
     private void setDrivingSafetyRegion(String[] args, IndentingPrintWriter writer) {
         if (args.length != 1 && args.length != 2) {
             showInvalidArguments(writer);
@@ -3208,6 +3242,21 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
         writer.printf("CarEvsService is using %s for %s.\n",
                 mCarEvsService.getCameraIdFromCommand(args[1]), args[1]);
+    }
+
+    private void checkCameraServiceTypeEnabled(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 2) {
+            showInvalidArguments(writer);
+            return;
+        }
+
+        if (!mCarEvsService.isServiceTypeEnabledFromCommand(args[1])) {
+            writer.printf("%s is not enabled.\n", args[1]);
+            return;
+        }
+
+        String cameraId = mCarEvsService.getCameraIdFromCommand(args[1]);
+        writer.printf("%s is enabled and set to use %s.\n", args[1], cameraId);
     }
 
     private void controlWatchdogPackageKillableState(String[] args, IndentingPrintWriter writer) {
