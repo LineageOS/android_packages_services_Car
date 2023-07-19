@@ -188,6 +188,8 @@ android.car.hardware.property.PropertyAccessDeniedSecurityException
 android.car.hardware.property.PropertyNotAvailableAndRetryException
 android.car.hardware.property.PropertyNotAvailableErrorCode
 android.car.hardware.property.PropertyNotAvailableException
+android.car.hardware.property.SubscriptionOption
+android.car.hardware.property.SubscriptionOption$Builder
 android.car.hardware.property.TrailerState
 android.car.hardware.property.VehicleElectronicTollCollectionCardStatus
 android.car.hardware.property.VehicleElectronicTollCollectionCardType
