@@ -65,7 +65,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.HardwareBuffer;
-import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleGear;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.display.DisplayManager;
@@ -114,13 +113,13 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
     private static final int SERVICE_STATE_UNKNOWN = -1;
     private static final String SYSTEMUI_PACKAGE_NAME = "com.android.systemui";
     private static final CarPropertyValue<Integer> GEAR_SELECTION_PROPERTY_NEUTRAL =
-        new CarPropertyValue<>(VehicleProperty.GEAR_SELECTION, VehicleArea.GLOBAL,
+        new CarPropertyValue<>(VehicleProperty.GEAR_SELECTION, /* areaId= */ 0,
                                VehicleGear.GEAR_NEUTRAL);
     private static final CarPropertyValue<Integer> GEAR_SELECTION_PROPERTY_REVERSE =
-        new CarPropertyValue<>(VehicleProperty.GEAR_SELECTION, VehicleArea.GLOBAL,
+        new CarPropertyValue<>(VehicleProperty.GEAR_SELECTION, /* areaId= */ 0,
                                VehicleGear.GEAR_REVERSE);
     private static final CarPropertyValue<Integer> CURRENT_GEAR_PROPERTY_REVERSE =
-        new CarPropertyValue<>(VehicleProperty.CURRENT_GEAR, VehicleArea.GLOBAL,
+        new CarPropertyValue<>(VehicleProperty.CURRENT_GEAR, /* areaId= */ 0,
                                VehicleGear.GEAR_REVERSE);
     private static final String VALID_EVS_CAMERA_ACTIVITY_COMPONENT_NAME =
             "com.android.car.evs/com.android.car.evs.MockActivity";
