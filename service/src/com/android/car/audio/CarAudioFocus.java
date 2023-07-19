@@ -663,15 +663,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
             if (deadEntry != null) {
                 removeBlockerAndRestoreUnblockedWaitersLocked(deadEntry);
-            } else {
-                removeDelayedAudioFocusRequestLocked(afi);
             }
-        }
-    }
-
-    private void removeDelayedAudioFocusRequestLocked(AudioFocusInfo afi) {
-        if (mDelayedRequest != null && afi.getClientId().equals(mDelayedRequest.getClientId())) {
-            mDelayedRequest = null;
         }
     }
 
@@ -683,7 +675,11 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     @GuardedBy("mLock")
     private FocusEntry removeFocusEntryLocked(AudioFocusInfo afi) {
         Slogf.i(TAG, "removeFocusEntry " + afi.getClientId());
-
+        if (mDelayedRequest != null && afi.getClientId().equals(mDelayedRequest.getClientId())) {
+            logFocusEvent("Audio focus abandoned for delayed focus entry " + afi.getClientId());
+            mDelayedRequest = null;
+            return null;
+        }
         // Remove this entry from our active or pending list
         FocusEntry deadEntry = mFocusHolders.remove(afi.getClientId());
         if (deadEntry == null) {
