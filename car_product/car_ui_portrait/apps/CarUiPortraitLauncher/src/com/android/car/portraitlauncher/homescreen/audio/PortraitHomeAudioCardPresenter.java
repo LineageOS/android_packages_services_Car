@@ -20,6 +20,7 @@ import android.view.View;
 
 import com.android.car.carlauncher.homescreen.CardPresenter;
 import com.android.car.carlauncher.homescreen.HomeCardInterface;
+import com.android.car.carlauncher.homescreen.audio.AudioModel;
 import com.android.car.carlauncher.homescreen.audio.AudioPresenter;
 import com.android.car.carlauncher.homescreen.audio.InCallModel;
 import com.android.car.media.common.PlaybackControlsActionBar;
@@ -32,7 +33,7 @@ import java.util.List;
 public class PortraitHomeAudioCardPresenter extends CardPresenter implements AudioPresenter{
     private PortraitMediaViewModel mPortraitMediaViewModel;
     private List<HomeCardInterface.Model> mModelList;
-    private HomeCardInterface.Model mCurrentModel;
+    private AudioModel mCurrentModel;
 
     @Override
     public void setModels(List<HomeCardInterface.Model> models) {
@@ -104,7 +105,7 @@ public class PortraitHomeAudioCardPresenter extends CardPresenter implements Aud
             // if the model trying to update View is NOT a phone call.
             return;
         }
-        mCurrentModel = model;
+        mCurrentModel = (AudioModel) model;
         super.onModelUpdated(model);
     }
 
