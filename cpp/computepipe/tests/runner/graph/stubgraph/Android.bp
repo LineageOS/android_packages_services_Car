@@ -25,6 +25,11 @@ cc_prebuilt_library_shared {
         android_arm: {
             srcs: ["arm/libstubgraphimpl.so"],
         },
+        // TODO(b/291108108): Build libstubgraphimpl.so for riscv64. For now,
+        // resolve the build error by pointing to an existing prebuilt.
+        android_riscv64: {
+            srcs: ["arm/libstubgraphimpl.so"],
+        },
         android_x86: {
             srcs: ["x86/libstubgraphimpl.so"],
         },
