@@ -19,6 +19,7 @@ package android.car.hardware;
 import android.annotation.IntDef;
 import android.annotation.SystemApi;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -54,9 +55,18 @@ public final class CarHvacFanDirection {
     /** Constant for defrost direction. */
     @AddedInOrBefore(majorVersion = 33)
     public static final int DEFROST = 0x04;
+    /** Constant for face and defrost direction. */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int FACE_AND_DEFROST = 0x05; // FACE_AND_DEFROST= FACE | DEFROST
     /** Constant for defrost and floor direction.*/
     @AddedInOrBefore(majorVersion = 33)
     public static final int DEFROST_AND_FLOOR = 0x06; // DEFROST_AND_FLOOR = DEFROST | FLOOR
+    /** Constant for face, defrost and floor direction.*/
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int FACE_DEFROST_AND_FLOOR = 0x07; // FACE_DEFROST_AND_FLOOR = FACE |
+                                                           // DEFROST | FLOOR
 
     /**@hide*/
     @IntDef(value = {
@@ -65,7 +75,9 @@ public final class CarHvacFanDirection {
             FLOOR,
             FACE_AND_FLOOR,
             DEFROST,
-            DEFROST_AND_FLOOR
+            FACE_AND_DEFROST,
+            DEFROST_AND_FLOOR,
+            FACE_DEFROST_AND_FLOOR
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface Enum {}
