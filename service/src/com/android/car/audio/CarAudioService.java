@@ -110,6 +110,8 @@ import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.audio.CarAudioContext.AudioContext;
+import com.android.car.audio.CarAudioDumpProto.CarAudioConfiguration;
+import com.android.car.audio.CarAudioDumpProto.CarAudioState;
 import com.android.car.audio.CarAudioPolicyVolumeCallback.AudioPolicyVolumeCallbackInternal;
 import com.android.car.audio.hal.AudioControlFactory;
 import com.android.car.audio.hal.AudioControlWrapper;
@@ -563,7 +565,46 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    public void dumpProto(ProtoOutputStream proto) {}
+    public void dumpProto(ProtoOutputStream proto) {
+        synchronized (mImplLock) {
+            long currentStateToken = proto.start(CarAudioDumpProto.CURRENT_STATE);
+            proto.write(CarAudioState.MASTER_MUTED, isMasterMute(mAudioManager));
+            if (mCarAudioPowerListener != null) {
+                proto.write(CarAudioState.AUDIO_ENABLED, mCarAudioPowerListener.isAudioEnabled());
+            }
+            proto.end(currentStateToken);
+
+            long configurationToken = proto.start(CarAudioDumpProto.CONFIGURATION);
+            proto.write(CarAudioConfiguration.USE_DYNAMIC_ROUTING, !mUseDynamicRouting);
+            proto.write(CarAudioConfiguration.USE_CORE_AUDIO_VOLUME, mUseCoreAudioVolume);
+            proto.write(CarAudioConfiguration.USE_CORE_AUDIO_ROUTING, mUseCoreAudioRouting);
+            proto.write(CarAudioConfiguration.PATCH_API_ENABLED, areAudioPatchAPIsEnabled());
+            proto.write(CarAudioConfiguration.PERSIST_MASTER_MUTE_STATE, mPersistMasterMuteState);
+            proto.write(CarAudioConfiguration.USE_HAL_DUCKING_SIGNALS, mUseHalDuckingSignals);
+            proto.write(CarAudioConfiguration.KEY_EVENT_TIMEOUT_MS, mKeyEventTimeoutMs);
+            if (mCarAudioConfigurationPath != null) {
+                proto.write(CarAudioConfiguration.CAR_AUDIO_CONFIGURATION_PATH,
+                        mCarAudioConfigurationPath);
+            }
+            if (!mUseDynamicRouting) {
+                proto.end(configurationToken);
+                return;
+            }
+            proto.write(CarAudioConfiguration.USE_CAR_VOLUME_GROUP_MUTING,
+                    mUseCarVolumeGroupMuting);
+            proto.write(CarAudioConfiguration.USE_CAR_VOLUME_GROUP_EVENTS,
+                    mUseCarVolumeGroupEvents);
+            proto.end(configurationToken);
+
+            mCarVolume.dumpProto(proto);
+            mCarAudioContext.dumpProto(proto);
+
+            for (int i = 0; i < mCarAudioZones.size(); i++) {
+                CarAudioZone zone = mCarAudioZones.valueAt(i);
+                zone.dumpProto(proto);
+            }
+        }
+    }
 
     @Override
     public boolean isAudioFeatureEnabled(@CarAudioFeature int audioFeatureType) {

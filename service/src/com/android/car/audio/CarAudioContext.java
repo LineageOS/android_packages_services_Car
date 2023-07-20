@@ -26,6 +26,7 @@ import android.media.AudioAttributes;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -621,6 +622,15 @@ public final class CarAudioContext {
             mCarAudioContextInfos.get(index).dump(writer);
         }
         writer.decreaseIndent();
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dumpProto(ProtoOutputStream proto) {
+        long carAudioContextInfosToken = proto.start(CarAudioDumpProto.CAR_AUDIO_CONTEXT);
+        for (int index = 0; index < mCarAudioContextInfos.size(); index++) {
+            mCarAudioContextInfos.get(index).dumpProto(proto);
+        }
+        proto.end(carAudioContextInfosToken);
     }
 
     static boolean isNotificationAudioAttribute(AudioAttributes attributes) {
