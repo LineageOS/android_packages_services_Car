@@ -169,7 +169,7 @@ public final class CarPropertyHelper {
     /**
      * Returns whether the property ID is defined as a vendor property.
      */
-    private static boolean isVendorProperty(int propertyId) {
+    public static boolean isVendorProperty(int propertyId) {
         return (propertyId & VEHICLE_PROPERTY_GROUP_MASK) == VEHICLE_PROPERTY_GROUP_VENDOR;
     }
 }
