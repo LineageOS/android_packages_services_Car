@@ -16,6 +16,7 @@
 package com.android.car.audio;
 
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+import static android.car.media.CarAudioManager.AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS;
 import static android.media.AudioAttributes.USAGE_ANNOUNCEMENT;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_ASSISTANT;
@@ -26,10 +27,12 @@ import static android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
 import static android.media.AudioAttributes.USAGE_VEHICLE_STATUS;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN;
+import static android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
 import static android.media.AudioManager.AUDIOFOCUS_LOSS;
 import static android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
+import static android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_DELAYED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_FAILED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
@@ -58,6 +61,7 @@ import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.Build;
+import android.os.Bundle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -966,6 +970,89 @@ public class CarAudioFocusUnitTest {
     }
 
     @Test
+    public void onAudioFocus_transientDuckablyLoss() {
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+        AudioFocusInfo musicReceivingDuckEvent = getInfoThatReceivesDuckingEvents(USAGE_MEDIA,
+                FIRST_CLIENT_ID, AUDIOFOCUS_GAIN, /* acceptsDelayedFocus= */ false);
+        AudioFocusInfo navFocusInfo = getInfo(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
+                SECOND_CLIENT_ID, AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK,
+                /* acceptsDelayedFocus= */ false);
+        carAudioFocus.onAudioFocusRequest(musicReceivingDuckEvent, AUDIOFOCUS_REQUEST_GRANTED);
+
+        // Music loses focus transiently duckably
+        carAudioFocus.onAudioFocusRequest(navFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        verify(mMockAudioManager).dispatchAudioFocusChange(musicReceivingDuckEvent,
+                AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK, mAudioPolicy);
+    }
+
+    @Test
+    public void onAudioFocus_transientDuckablyLoss_thenRegained() {
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+        AudioFocusInfo musicReceivingDuckEvent = getInfoThatReceivesDuckingEvents(USAGE_MEDIA,
+                FIRST_CLIENT_ID, AUDIOFOCUS_GAIN, /* acceptsDelayedFocus= */ false);
+        AudioFocusInfo navFocusInfo = getInfo(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
+                SECOND_CLIENT_ID, AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK,
+                /* acceptsDelayedFocus= */ false);
+        carAudioFocus.onAudioFocusRequest(musicReceivingDuckEvent,
+                AUDIOFOCUS_REQUEST_GRANTED);
+        carAudioFocus.onAudioFocusRequest(navFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        // End of focus requested that leaded to duck music
+        carAudioFocus.onAudioFocusAbandon(navFocusInfo);
+
+        verify(mMockAudioManager).dispatchAudioFocusChange(musicReceivingDuckEvent,
+                AUDIOFOCUS_GAIN, mAudioPolicy);
+    }
+
+    @Test
+    public void onAudioFocus_transientDuckablyLoss_thenRegained_andLossTransient() {
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+        AudioFocusInfo musicReceivingDuckEvent = getInfoThatReceivesDuckingEvents(USAGE_MEDIA,
+                FIRST_CLIENT_ID, AUDIOFOCUS_GAIN, /* acceptsDelayedFocus= */ false);
+        AudioFocusInfo navFocusInfo = getInfo(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
+                SECOND_CLIENT_ID, AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK,
+                /* acceptsDelayedFocus= */ false);
+        AudioFocusInfo callRingFocusInfo = getInfo(USAGE_NOTIFICATION_RINGTONE, CALL_CLIENT_ID,
+                AUDIOFOCUS_GAIN_TRANSIENT, /* acceptsDelayedFocus= */ false);
+        carAudioFocus.onAudioFocusRequest(musicReceivingDuckEvent,
+                AUDIOFOCUS_REQUEST_GRANTED);
+        carAudioFocus.onAudioFocusRequest(navFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+        carAudioFocus.onAudioFocusAbandon(navFocusInfo);
+
+        // Ring requests focus, leading to loss transient
+        carAudioFocus.onAudioFocusRequest(callRingFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        verify(mMockAudioManager).dispatchAudioFocusChange(musicReceivingDuckEvent,
+                AUDIOFOCUS_LOSS_TRANSIENT, mAudioPolicy);
+    }
+
+    @Test
+    public void onAudioFocus_transientDuckablyLoss_thenRegainedAndLossTransientByTwoBlockers() {
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+        AudioFocusInfo musicReceivingDuckEvent = getInfoThatReceivesDuckingEvents(USAGE_MEDIA,
+                FIRST_CLIENT_ID, AUDIOFOCUS_GAIN, /* acceptsDelayedFocus= */ false);
+        AudioFocusInfo navFocusInfo = getInfo(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
+                SECOND_CLIENT_ID, AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, false);
+        AudioFocusInfo callRingFocusInfo = getInfo(USAGE_NOTIFICATION_RINGTONE, CALL_CLIENT_ID,
+                AUDIOFOCUS_GAIN_TRANSIENT, /* acceptsDelayedFocus= */ false);
+        AudioFocusInfo callFocusInfo = getInfo(USAGE_VOICE_COMMUNICATION, CALL_CLIENT_ID,
+                AUDIOFOCUS_GAIN_TRANSIENT, /* acceptsDelayedFocus= */ false);
+        carAudioFocus.onAudioFocusRequest(musicReceivingDuckEvent,
+                AUDIOFOCUS_REQUEST_GRANTED);
+        carAudioFocus.onAudioFocusRequest(navFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+        carAudioFocus.onAudioFocusAbandon(navFocusInfo);
+        carAudioFocus.onAudioFocusRequest(callRingFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        // Ring is replaced by call, adding another blocker
+        carAudioFocus.onAudioFocusRequest(callFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        // Music has already lost focus transiently, no spurious loss transient expected
+        verify(mMockAudioManager).dispatchAudioFocusChange(musicReceivingDuckEvent,
+                AUDIOFOCUS_LOSS_TRANSIENT, mAudioPolicy);
+    }
+
+    @Test
     public void getAudioFocusHolders_withNoFocusHolders_returnsEmptyList() {
         CarAudioFocus carAudioFocus = getCarAudioFocus();
 
@@ -1491,6 +1578,15 @@ public class CarAudioFocusUnitTest {
         return new AudioFocusInfo(audioAttributes, uid, clientId, PACKAGE_NAME,
                 gainType, AudioManager.AUDIOFOCUS_NONE,
                 flags, Build.VERSION.SDK_INT);
+    }
+
+    private AudioFocusInfo getInfoThatReceivesDuckingEvents(@AttributeUsage int usage,
+             String clientId, int gainType, boolean acceptsDelayedFocus) {
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS, true);
+        AudioAttributes audioAttributes = new AudioAttributes.Builder().setUsage(usage)
+                .addBundle(bundle).build();
+        return getInfo(audioAttributes, clientId, gainType, acceptsDelayedFocus);
     }
 
     private CarAudioFocus getCarAudioFocus() {
