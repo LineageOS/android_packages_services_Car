@@ -62,12 +62,14 @@ import android.net.TetheringManager;
 import android.net.wifi.WifiManager;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.os.UserManager;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.AtomicFile;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
+import android.util.SparseLongArray;
 import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
@@ -975,6 +977,31 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         assertThat(mService.getCurrentPowerPolicy().isComponentEnabled(customComponent3)).isTrue();
     }
 
+    @Test
+    public void testNotifyUserActivity_withoutTimestamp() throws Exception {
+        int displayId = 42;
+
+        mService.notifyUserActivity(displayId);
+
+        assertWithMessage(
+                "Display " + displayId + " user activity update time without timestamp").that(
+                mScreenOffHandler.getDisplayUserActivityTime(displayId)).isAtMost(
+                        SystemClock.uptimeMillis());
+    }
+
+    @Test
+    public void testNotifyUserActivity_withTimestamp() throws Exception {
+        int displayId = 24;
+        long timestamp = 50;
+
+        mService.notifyUserActivity(displayId, timestamp);
+
+        assertWithMessage(
+                "Display " + displayId + " user activity update time with timestamp").that(
+                        mScreenOffHandler.getDisplayUserActivityTime(displayId)).isEqualTo(
+                                timestamp);
+    }
+
     /**
      * This test case increases the code coverage to cover methods
      * {@code describeContents()} and {@code newArray()}. They are public APIs
@@ -1738,6 +1765,13 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     private static final class FakeScreenOffHandler extends ScreenOffHandler {
+        @GuardedBy("sLock")
+        private final SparseArray<FakeDisplayPowerInfo> mDisplayPowerInfos = new SparseArray<>();
+        @GuardedBy("sLock")
+        private final SparseLongArray mDisplayUserActivityTime = new SparseLongArray();
+        @GuardedBy("sLock")
+        private final SparseBooleanArray mHandledDisplayStates = new SparseBooleanArray();
+        private final CountDownLatch mDisplayHandledLatch = new CountDownLatch(1);
         private boolean mIsAutoPowerSaving;
         @Retention(RetentionPolicy.SOURCE)
         @IntDef(prefix = "DISPLAY_POWER_MODE_", value = {
@@ -1748,11 +1782,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         })
         @Target({ElementType.TYPE_USE})
         private @interface FakeDisplayPowerMode {}
-        private final CountDownLatch mDisplayHandledLatch = new CountDownLatch(1);
-        @GuardedBy("sLock")
-        private final SparseArray<FakeDisplayPowerInfo> mDisplayPowerInfos = new SparseArray<>();
-        @GuardedBy("sLock")
-        private final SparseBooleanArray mHandledDisplayStates = new SparseBooleanArray();
 
         FakeScreenOffHandler(Context context, SystemInterface systemInterface, Looper looper) {
             super(context, systemInterface, looper);
@@ -1812,6 +1841,23 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
         private void waitForDisplayHandled(long timeoutMs) throws Exception {
             JavaMockitoHelper.await(mDisplayHandledLatch, timeoutMs);
+        }
+
+        @Override
+        void updateUserActivity(int displayId, long eventTime) {
+            synchronized (sLock) {
+                mDisplayUserActivityTime.put(displayId, eventTime);
+            }
+        }
+
+        public long getDisplayUserActivityTime(int displayId) throws IllegalArgumentException {
+            synchronized (sLock) {
+                if (mDisplayUserActivityTime.indexOfKey(displayId) > -1) {
+                    return mDisplayUserActivityTime.get(displayId);
+                }
+                throw new IllegalArgumentException(
+                        "Display " + displayId + " has no user activity timestamp.");
+            }
         }
 
         private static final class FakeDisplayPowerInfo {
