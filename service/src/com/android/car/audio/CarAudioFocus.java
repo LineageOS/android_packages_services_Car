@@ -774,7 +774,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                 // Pull this entry out of the focus losers list
                 it.remove();
 
-                // Clear ducked status to prevent spurius LOSS_TRANSIENT to be sent while checking
+                // Clear ducked status to prevent spurious LOSS_TRANSIENT to be sent while checking
                 // blocked entries and converting duckable loss to non-duckable
                 entry.setDucked(false);
 
