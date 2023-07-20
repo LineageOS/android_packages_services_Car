@@ -63,8 +63,9 @@ public class PortraitHomeAudioCardPresenter extends CardPresenter {
                     for (HomeCardInterface.Model model : mModelList) {
                         if (model.getClass() == MediaViewModel.class) {
                             mMediaViewModel = (MediaViewModel) model;
+                            mMediaViewModel.setOnProgressUpdateListener(mOnProgressUpdateListener);
                         }
-                        model.setPresenter(PortraitHomeAudioCardPresenter.this);
+                        model.setOnModelUpdateListener(mOnModelUpdateListener);
                         model.onCreate(getFragment().requireContext());
                     }
                 }
@@ -90,6 +91,59 @@ public class PortraitHomeAudioCardPresenter extends CardPresenter {
                 }
             };
 
+    private HomeCardInterface.Model.OnModelUpdateListener mOnModelUpdateListener =
+            new HomeCardInterface.Model.OnModelUpdateListener() {
+                @Override
+                public void onModelUpdate(HomeCardInterface.Model model) {
+                    AudioModel audioModel = (AudioModel) model;
+                    // Null card header indicates the model has no content to display
+                    if (audioModel.getCardHeader() == null) {
+                        if (mCurrentModel != null
+                                && audioModel.getClass() == mCurrentModel.getClass()) {
+                            // If the model currently on display is updating to empty content,
+                            // check if there
+                            // is media content to display. If there is no media content the
+                            // super method is
+                            // called with empty content, which hides the card.
+                            if (mMediaViewModel != null
+                                    && mMediaViewModel.getCardHeader() != null) {
+                                mCurrentModel = mMediaViewModel;
+                                updateCurrentModelInFragment();
+                                return;
+                            }
+                        } else {
+                            // Otherwise, another model is already on display, so don't update
+                            // with this
+                            // empty content since that would hide the card.
+                            return;
+                        }
+                    } else if (mCurrentModel != null
+                            && mCurrentModel.getClass() == InCallModel.class
+                            && audioModel.getClass() != InCallModel.class) {
+                        // If the Model has content, check if currentModel on display is an
+                        // ongoing phone call.
+                        // If there is any ongoing phone call, do not update the View
+                        // if the model trying to update View is NOT a phone call.
+                        return;
+                    }
+                    mCurrentModel = audioModel;
+                    updateCurrentModelInFragment();
+                }
+            };
+
+    private AudioModel.OnProgressUpdateListener mOnProgressUpdateListener =
+            new AudioModel.OnProgressUpdateListener() {
+                @Override
+                public void onProgressUpdate(AudioModel model, boolean updateProgress) {
+                    if (model == null || model.getCardContent() == null
+                            || model.getCardHeader() == null) {
+                        return;
+                    }
+                    mAudioFragment.updateContentView(model.getCardContent(), updateProgress);
+                }
+            };
+
+
     @Override
     public void setModels(List<HomeCardInterface.Model> models) {
         mModelList = models;
@@ -108,33 +162,14 @@ public class PortraitHomeAudioCardPresenter extends CardPresenter {
         mAudioFragment.setOnMediaViewInitializedListener(mOnMediaViewInitializedListener);
     }
 
-    @Override
-    public void onModelUpdated(HomeCardInterface.Model model) {
-        // Null card header indicates the model has no content to display
-        if (model.getCardHeader() == null) {
-            if (mCurrentModel != null && model.getClass() == mCurrentModel.getClass()) {
-                // If the model currently on display is updating to empty content, check if there
-                // is media content to display. If there is no media content the super method is
-                // called with empty content, which hides the card.
-                if (mMediaViewModel != null
-                        && mMediaViewModel.getCardHeader() != null) {
-                    mCurrentModel = mMediaViewModel;
-                    super.onModelUpdated(mMediaViewModel);
-                    return;
-                }
-            } else {
-                // Otherwise, another model is already on display, so don't update with this
-                // empty content since that would hide the card.
-                return;
+    private void updateCurrentModelInFragment() {
+        if (mCurrentModel != null && mCurrentModel.getCardHeader() != null) {
+            mAudioFragment.updateHeaderView(mCurrentModel.getCardHeader());
+            if (mCurrentModel.getCardContent() != null) {
+                mAudioFragment.updateContentView(mCurrentModel.getCardContent());
             }
-        } else if (mCurrentModel != null && mCurrentModel.getClass() == InCallModel.class
-                && model.getClass() != InCallModel.class) {
-            // If the Model has content, check if currentModel on display is an ongoing phone call.
-            // If there is any ongoing phone call, do not update the View
-            // if the model trying to update View is NOT a phone call.
-            return;
+        } else {
+            mAudioFragment.hideCard();
         }
-        mCurrentModel = (AudioModel) model;
-        super.onModelUpdated(model);
     }
 }
