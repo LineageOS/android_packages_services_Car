@@ -50,9 +50,12 @@
     <string name="toast_status_failed">Bug report failed</string>
     <string name="toast_status_screencap_failed">Screen capture failed</string>
     <string name="toast_status_dump_state_failed">Dumpstate failed</string>
+    <string name="toast_screenshot_finished">Saved screenshot(s)</string>
 
     <!-- Notification strings -->
     <string name="notification_bugreport_in_progress">Bug report is in progress</string>
     <string name="notification_bugreport_finished_title">Bug report has been collected</string>
     <string name="notification_bugreport_channel_name">Bug report status channel</string>
+    <string name="notification_screenshot_message">Taking a screenshot</string>
+    <string name="notification_screenshot_channel_name">Bug report screenshot channel</string>
 </resources>
