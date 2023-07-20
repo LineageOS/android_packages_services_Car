@@ -22,7 +22,7 @@
 
 
     <style name="TextAppearance.Car.Display">
-        <item name="android:fontFamily">groboto-regular</item>
+        <item name="android:fontFamily">roboto-regular</item>
         <item name="android:textFontWeight">500</item>
         <item name="android:textSize">72sp</item>
     </style>
