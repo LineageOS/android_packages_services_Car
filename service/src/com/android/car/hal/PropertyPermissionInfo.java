@@ -186,6 +186,8 @@ public class PropertyPermissionInfo {
             new SinglePermission(ACCESS_FINE_LOCATION);
     private static final SinglePermission PERMISSION_VENDOR_EXTENSION =
             new SinglePermission(Car.PERMISSION_VENDOR_EXTENSION);
+    private static final AnyOfPermissions PERMISSION_ENERGY_OR_CONTROL_CAR_ENERGY =
+            new AnyOfPermissions(PERMISSION_ENERGY, PERMISSION_CONTROL_CAR_ENERGY);
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private final SparseArray<PropertyPermissions> mHalPropIdToPermissions = new SparseArray<>();
@@ -1259,7 +1261,7 @@ public class PropertyPermissionInfo {
                             .build());
             mHalPropIdToPermissions.put(VehicleProperty.EV_CHARGE_SWITCH,
                     new PropertyPermissions.Builder()
-                            .setReadPermission(PERMISSION_ENERGY)
+                            .setReadPermission(PERMISSION_ENERGY_OR_CONTROL_CAR_ENERGY)
                             .setWritePermission(PERMISSION_CONTROL_CAR_ENERGY)
                             .build());
             mHalPropIdToPermissions.put(VehicleProperty.EV_CHARGE_TIME_REMAINING,
