@@ -322,6 +322,8 @@ TEST_F(WatchdogProcessServiceTest, TestTerminate) {
     // TODO(b/217405065): Verify looper removes all MSG_VHAL_HEALTH_CHECK messages.
 }
 
+// TODO(b/292121369): Add a test to verify proto dump format.
+
 // TODO(b/217405065): Add test to verify the handleVhalDeath method.
 
 TEST_F(WatchdogProcessServiceTest, TestRegisterClient) {

@@ -249,9 +249,12 @@ ScopedAStatus WatchdogProcessService::registerClient(
     }
     pid_t callingPid = IPCThreadState::self()->getCallingPid();
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
+    userid_t callingUserId = multiuser_get_user_id(callingUid);
+    sp<PackageInfoResolverInterface> packageInfoResolver = PackageInfoResolver::getInstance();
+    std::string packageName = packageInfoResolver->getPackageNamesForUids({callingUid})[callingUid];
 
-    ClientInfo clientInfo(client, callingPid, callingUid, kGetStartTimeForPidFunc(callingPid),
-                          *this);
+    ClientInfo clientInfo(client, callingPid, callingUserId, packageName,
+                          kGetStartTimeForPidFunc(callingPid), *this);
     return toScopedAStatus(registerClient(clientInfo, timeout));
 }
 
@@ -269,13 +272,16 @@ ScopedAStatus WatchdogProcessService::registerCarWatchdogService(
         const SpAIBinder& binder, const sp<WatchdogServiceHelperInterface>& helper) {
     pid_t callingPid = IPCThreadState::self()->getCallingPid();
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
+    userid_t callingUserId = multiuser_get_user_id(callingUid);
+    sp<PackageInfoResolverInterface> packageInfoResolver = PackageInfoResolver::getInstance();
+    std::string packageName = packageInfoResolver->getPackageNamesForUids({callingUid})[callingUid];
 
     if (helper == nullptr) {
         return ScopedAStatus::
                 fromExceptionCodeWithMessage(EX_ILLEGAL_ARGUMENT,
                                              "Watchdog service helper instance is null");
     }
-    ClientInfo clientInfo(helper, binder, callingPid, callingUid,
+    ClientInfo clientInfo(helper, binder, callingPid, callingUserId, packageName,
                           kGetStartTimeForPidFunc(callingPid), *this);
     if (auto result = registerClient(clientInfo, kCarWatchdogServiceTimeoutDelay); !result.ok()) {
         return toScopedAStatus(result);
