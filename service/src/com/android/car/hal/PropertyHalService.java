@@ -81,6 +81,7 @@ import com.android.car.internal.LongPendingRequestPool.TimeoutCallback;
 import com.android.car.internal.LongRequestIdWithTimeout;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.CarPropertyHelper;
+import com.android.car.internal.property.CarSubscribeOption;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
@@ -1467,7 +1468,11 @@ public class PropertyHalService extends HalServiceBase {
                     Slogf.d(TAG, "Filtered areaIds: %d", filteredAreaIds[j]);
                 }
             }
-            mVehicleHal.subscribeProperty(this, halPropId, newUpdateRateHz, filteredAreaIds);
+            CarSubscribeOption options = new CarSubscribeOption();
+            options.propertyId = halPropId;
+            options.areaIds = filteredAreaIds;
+            options.updateRateHz = newUpdateRateHz;
+            mVehicleHal.subscribeProperty(this, List.of(options));
         }
     }
 
