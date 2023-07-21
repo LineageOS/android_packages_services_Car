@@ -1,6 +1,5 @@
 # Project owners
 include platform/packages/services/Car:/OWNERS
-kevinme@google.com
 
 # ActivityManager
 per-file src/com/android/car/SystemActivityMonitoringService.java = ycheo@google.com
@@ -8,6 +7,7 @@ per-file src/com/android/car/am/* = ycheo@google.com
 per-file src/com/android/car/systeminterface/ActivityManagerInterface.java = ycheo@google.com
 
 # Audio
+per-file proto/android/car/audio/* = oscarazu@google.com, ericjeong@google.com
 per-file src/com/android/car/audio/* = oscarazu@google.com, ericjeong@google.com
 per-file src/com/android/car/audio/hal/* = oscarazu@google.com, ericjeong@google.com
 
