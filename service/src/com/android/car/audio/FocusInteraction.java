@@ -42,9 +42,11 @@ import android.media.AudioAttributes;
 import android.net.Uri;
 import android.provider.Settings;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
 import com.android.car.audio.CarAudioContext.AudioContext;
+import com.android.car.audio.CarAudioDumpProto.CarAudioZoneFocusProto.CarAudioFocusProto;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
@@ -496,17 +498,29 @@ final class FocusInteraction {
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
+        boolean rejectNavigationOnCall = getRejectNavigationOnCall();
+        writer.printf("Reject Navigation on Call: %b\n", rejectNavigationOnCall);
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {
+        long focusInteractionToken = proto.start(CarAudioFocusProto.FOCUS_INTERACTION);
+        boolean rejectNavigationOnCall = getRejectNavigationOnCall();
+        proto.write(CarAudioFocusProto.FocusInteractionProto.REJECT_NAVIGATION_ON_CALL,
+                rejectNavigationOnCall);
+        proto.end(focusInteractionToken);
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private boolean getRejectNavigationOnCall() {
         int callContext =
                 mCarAudioContext.getContextForAttributes(CarAudioContext.getAudioAttributeFromUsage(
                         AudioAttributes.USAGE_VOICE_COMMUNICATION));
         int navContext =
                 mCarAudioContext.getContextForAttributes(CarAudioContext.getAudioAttributeFromUsage(
                         AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
-        boolean rejectNavigationOnCall;
         synchronized (mLock) {
-            rejectNavigationOnCall =
-                    mInteractionMatrix.get(callContext).get(navContext) == INTERACTION_REJECT;
+            return mInteractionMatrix.get(callContext).get(navContext) == INTERACTION_REJECT;
         }
-        writer.printf("Reject Navigation on Call: %b\n", rejectNavigationOnCall);
     }
 }

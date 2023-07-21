@@ -130,4 +130,107 @@ message CarAudioDumpProto {
   }
 
   repeated CarAudioZoneProto car_audio_zones = 5;
+
+  message UserIdToAudioZone {
+    optional int32 user_id = 1;
+    optional int32 audio_zone_id = 2;
+  }
+
+  repeated UserIdToAudioZone user_id_to_audio_zone_mappings = 6;
+
+  message AudioZoneToOccupantZone {
+    optional int32 audio_zone_id = 1;
+    optional int32 occupant_zone_id = 2;
+  }
+  repeated AudioZoneToOccupantZone audio_zone_to_occupant_zone_mappings = 7;
+
+  message UidToAudioZone {
+    optional int32 uid = 1;
+    optional int32 audio_zone_id = 2;
+  }
+
+  repeated UidToAudioZone uid_to_audio_zone_mappings = 8;
+
+  message CarAudioZoneFocusProto {
+    message CarAudioFocusProto {
+      message FocusInteractionProto {
+        optional bool reject_navigation_on_call = 1;
+      }
+      message FocusEntryProto {
+        optional string client_id = 1;
+        optional CarAudioAttributesProto attributes = 2;
+        optional bool receives_duck_events = 3;
+        optional bool wants_pause_instead_of_ducking = 4;
+        optional bool is_ducked = 5;
+        optional bool is_unblocked = 6;
+        repeated FocusEntryProto blockers = 7;
+      }
+      optional int32 zone_id = 1;
+      optional bool focus_restricted = 2;
+      optional bool external_focus_enabled = 3;
+      optional FocusInteractionProto focus_interaction = 4;
+      repeated FocusEntryProto focus_holders = 5;
+      repeated FocusEntryProto focus_losers = 6;
+      optional string delayed_focus = 7;
+    }
+    optional bool hasFocusCallback = 1;
+    repeated CarAudioFocusProto car_audio_focuses = 2;
+  }
+
+  optional CarAudioZoneFocusProto focus_handler = 9;
+
+  message HalAudioFocusProto {
+    message HalFocusRequestsByZoneAndUsage {
+      optional int32 zone_id = 1;
+      repeated string hal_focus_requests_by_attributes = 2;
+    }
+    repeated HalFocusRequestsByZoneAndUsage hal_focus_requests_by_zone_and_usage = 1;
+  }
+  optional HalAudioFocusProto hal_audio_focus = 10;
+
+  message CarDuckingProto {
+    repeated string tags = 1;
+    message CarDuckingInfoProto {
+      message PlaybackTrackMetaData {
+        optional string usage = 1;
+        optional int32 content_type = 2;
+        repeated string tags = 3;
+      }
+      optional int32 zone_id = 1;
+      repeated string addresses_to_duck = 2;
+      repeated string addresses_to_unduck = 3;
+      repeated PlaybackTrackMetaData playback_meta_data_holding_focus = 4;
+    }
+    repeated CarDuckingInfoProto current_ducking_infos = 2;
+  }
+  optional CarDuckingProto car_ducking = 11;
+
+  message CarVolumeGroupMutingProto {
+    message CarMutingInfo {
+      optional int32 zone_id = 1;
+      repeated string device_addresses_to_mute = 2;
+      repeated string device_addresses_to_unmute = 3;
+    }
+    optional bool is_muting_restricted = 1;
+    repeated CarMutingInfo last_muting_information = 2;
+  }
+  optional CarVolumeGroupMutingProto car_volume_group_muting = 12;
+
+  message CarAudioPlaybackCallbackProto {
+    message ZoneAudioPlaybackCallbackProto {
+      message AudioDeviceAddressToConfig {
+        optional string address = 1;
+        optional string config = 2;
+      }
+      message AudioAttributesToStartTime {
+        optional CarAudioAttributesProto audio_attributes = 1;
+        optional int64 start_time = 2;
+      }
+      optional int32 zone_id = 1;
+      repeated AudioDeviceAddressToConfig last_active_configs = 2;
+      repeated AudioAttributesToStartTime audio_attributes_to_start_times = 3;
+    }
+    repeated ZoneAudioPlaybackCallbackProto zone_audio_playback_callbacks = 1;
+  }
+  optional CarAudioPlaybackCallbackProto car_audio_playback_callback = 13;
 }

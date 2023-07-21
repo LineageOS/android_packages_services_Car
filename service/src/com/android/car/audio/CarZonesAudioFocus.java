@@ -31,9 +31,11 @@ import android.media.audiopolicy.AudioPolicy;
 import android.os.Bundle;
 import android.util.ArraySet;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
+import com.android.car.audio.CarAudioDumpProto.CarAudioZoneFocusProto;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.oem.CarOemProxyService;
@@ -296,6 +298,16 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         }
         writer.decreaseIndent();
         writer.decreaseIndent();
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {
+        long focusHandlerToken = proto.start(CarAudioDumpProto.FOCUS_HANDLER);
+        proto.write(CarAudioZoneFocusProto.HAS_FOCUS_CALLBACK, mCarFocusCallback != null);
+        for (int i = 0; i < mFocusZones.size(); i++) {
+            mFocusZones.valueAt(i).dumpProto(proto);
+        }
+        proto.end(focusHandlerToken);
     }
 
     public void updateUserForZoneId(int audioZoneId, @UserIdInt int userId) {

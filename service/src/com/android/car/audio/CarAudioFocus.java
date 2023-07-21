@@ -47,9 +47,12 @@ import android.media.audiopolicy.AudioPolicy;
 import android.os.UserHandle;
 import android.util.ArrayMap;
 import android.util.Log;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
+import com.android.car.audio.CarAudioDumpProto.CarAudioZoneFocusProto;
+import com.android.car.audio.CarAudioDumpProto.CarAudioZoneFocusProto.CarAudioFocusProto;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.LocalLog;
@@ -909,6 +912,31 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
             writer.decreaseIndent();
         }
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {
+        long carAudioFocusToken = proto.start(CarAudioZoneFocusProto.CAR_AUDIO_FOCUSES);
+        synchronized (mLock) {
+            proto.write(CarAudioFocusProto.ZONE_ID, mAudioZoneId);
+            proto.write(CarAudioFocusProto.FOCUS_RESTRICTED, mIsFocusRestricted);
+            proto.write(CarAudioFocusProto.EXTERNAL_FOCUS_ENABLED, isExternalFocusEnabled());
+
+            mFocusInteraction.dumpProto(proto);
+
+            for (String clientId : mFocusHolders.keySet()) {
+                mFocusHolders.get(clientId).dumpProto(CarAudioFocusProto.FOCUS_HOLDERS, proto);
+            }
+
+            for (String clientId : mFocusLosers.keySet()) {
+                mFocusLosers.get(clientId).dumpProto(CarAudioFocusProto.FOCUS_LOSERS, proto);
+            }
+
+            if (mDelayedRequest != null) {
+                proto.write(CarAudioFocusProto.DELAYED_FOCUS, mDelayedRequest.getClientId());
+            }
+        }
+        proto.end(carAudioFocusToken);
     }
 
     private static String focusEventToString(int focusEvent) {

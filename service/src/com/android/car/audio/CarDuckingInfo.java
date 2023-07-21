@@ -23,7 +23,10 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.annotation.NonNull;
 import android.hardware.audio.common.PlaybackTrackMetadata;
+import android.util.proto.ProtoOutputStream;
 
+import com.android.car.audio.CarAudioDumpProto.CarDuckingProto;
+import com.android.car.audio.CarAudioDumpProto.CarDuckingProto.CarDuckingInfoProto;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 
@@ -92,5 +95,34 @@ public final class CarDuckingInfo {
         writer.decreaseIndent();
         writer.println();
         writer.decreaseIndent();
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dumpProto(ProtoOutputStream proto) {
+        long carDuckingInfoToken = proto.start(CarDuckingProto.CURRENT_DUCKING_INFOS);
+        proto.write(CarDuckingInfoProto.ZONE_ID, mZoneId);
+        for (int index = 0; index < mAddressesToDuck.size(); index++) {
+            proto.write(CarDuckingInfoProto.ADDRESSES_TO_DUCK, mAddressesToDuck.get(index));
+        }
+        for (int index = 0; index < mAddressesToUnduck.size(); index++) {
+            proto.write(CarDuckingInfoProto.ADDRESSES_TO_UNDUCK, mAddressesToUnduck.get(index));
+        }
+        for (int index = 0; index < mPlaybackMetaDataHoldingFocus.size(); index++) {
+            PlaybackTrackMetadata playbackTrackMetaData = mPlaybackMetaDataHoldingFocus.get(index);
+            long playbackMetaDataToken = proto.start(CarDuckingInfoProto
+                    .PLAYBACK_META_DATA_HOLDING_FOCUS);
+            proto.write(CarDuckingInfoProto.PlaybackTrackMetaData.USAGE,
+                    usageToXsdString(playbackTrackMetaData.usage));
+            if (playbackTrackMetaData.contentType != UNKNOWN) {
+                proto.write(CarDuckingInfoProto.PlaybackTrackMetaData.CONTENT_TYPE,
+                        playbackTrackMetaData.contentType);
+            }
+            for (int tagIndex = 0; tagIndex < playbackTrackMetaData.tags.length; tagIndex++) {
+                proto.write(CarDuckingInfoProto.PlaybackTrackMetaData.TAGS,
+                        playbackTrackMetaData.tags[tagIndex]);
+            }
+            proto.end(playbackMetaDataToken);
+        }
+        proto.end(carDuckingInfoToken);
     }
 }
