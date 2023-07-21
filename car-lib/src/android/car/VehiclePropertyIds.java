@@ -24,9 +24,35 @@ import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
+import android.car.hardware.CarHvacFanDirection;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.AutomaticEmergencyBrakingState;
+import android.car.hardware.property.BlindSpotWarningState;
+import android.car.hardware.property.CruiseControlCommand;
+import android.car.hardware.property.CruiseControlState;
+import android.car.hardware.property.CruiseControlType;
+import android.car.hardware.property.EmergencyLaneKeepAssistState;
+import android.car.hardware.property.ErrorState;
+import android.car.hardware.property.EvChargeState;
+import android.car.hardware.property.EvRegenerativeBrakingState;
+import android.car.hardware.property.EvStoppingMode;
+import android.car.hardware.property.ForwardCollisionWarningState;
+import android.car.hardware.property.HandsOnDetectionDriverState;
+import android.car.hardware.property.HandsOnDetectionWarning;
+import android.car.hardware.property.LaneCenteringAssistCommand;
+import android.car.hardware.property.LaneCenteringAssistState;
+import android.car.hardware.property.LaneDepartureWarningState;
+import android.car.hardware.property.LaneKeepAssistState;
+import android.car.hardware.property.LocationCharacterization;
+import android.car.hardware.property.TrailerState;
 import android.car.hardware.property.VehicleElectronicTollCollectionCardStatus;
 import android.car.hardware.property.VehicleElectronicTollCollectionCardType;
+import android.car.hardware.property.VehicleLightState;
+import android.car.hardware.property.VehicleLightSwitch;
+import android.car.hardware.property.VehicleOilLevel;
+import android.car.hardware.property.VehicleTurnSignal;
+import android.car.hardware.property.WindshieldWipersState;
+import android.car.hardware.property.WindshieldWipersSwitch;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.property.CarPropertyHelper;
@@ -178,6 +204,8 @@ public final class VehiclePropertyIds {
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link FuelType}
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     @AddedInOrBefore(majorVersion = 33)
@@ -224,6 +252,8 @@ public final class VehiclePropertyIds {
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link EvConnectorType}
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     @AddedInOrBefore(majorVersion = 33)
@@ -244,6 +274,8 @@ public final class VehiclePropertyIds {
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link PortLocationType}
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     @AddedInOrBefore(majorVersion = 33)
@@ -264,6 +296,8 @@ public final class VehiclePropertyIds {
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link PortLocationType}
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     @AddedInOrBefore(majorVersion = 33)
@@ -284,6 +318,8 @@ public final class VehiclePropertyIds {
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link PortLocationType}
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     @AddedInOrBefore(majorVersion = 33)
@@ -307,6 +343,8 @@ public final class VehiclePropertyIds {
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link VehicleAreaSeat}
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     @AddedInOrBefore(majorVersion = 33)
@@ -499,6 +537,8 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link VehicleOilLevel}
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_CAR_ENGINE_DETAILED))
     @AddedInOrBefore(majorVersion = 33)
@@ -912,6 +952,8 @@ public final class VehiclePropertyIds {
      * </ul>
      *
      * <p>Requires permission: {@link Car#PERMISSION_POWERTRAIN}.
+     *
+     * @data_enum {@link VehicleGear}
      */
     @RequiresPermission(Car.PERMISSION_POWERTRAIN)
     @AddedInOrBefore(majorVersion = 33)
@@ -969,6 +1011,8 @@ public final class VehiclePropertyIds {
      *  <li>Normal permission {@link Car#PERMISSION_POWERTRAIN} to read property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link VehicleGear}
      */
     @RequiresPermission(Car.PERMISSION_POWERTRAIN)
     @AddedInOrBefore(majorVersion = 33)
@@ -1080,6 +1124,8 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_POWERTRAIN" to write
      *  property.
      * </ul>
+     *
+     * @data_enum {@link EvStoppingMode}
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_POWERTRAIN))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_POWERTRAIN))
@@ -1158,6 +1204,8 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link VehicleTurnSignal}
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
     @AddedInOrBefore(majorVersion = 33)
@@ -1180,6 +1228,8 @@ public final class VehiclePropertyIds {
      *  <li>Normal permission {@link Car#PERMISSION_POWERTRAIN} to read property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link VehicleIgnitionState}
      */
     @RequiresPermission(Car.PERMISSION_POWERTRAIN)
     @AddedInOrBefore(majorVersion = 33)
@@ -1264,6 +1314,8 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  and write property.
      * </ul>
+     *
+     * @data_enum {@link CarHvacFanDirection}
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
     @AddedInOrBefore(majorVersion = 33)
@@ -1630,6 +1682,8 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to write
      *  property.
      * </ul>
+     *
+     * @data_enum {@link VehicleUnit}
      */
     @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_READ_DISPLAY_UNITS,
             Car.PERMISSION_CONTROL_CAR_CLIMATE}))
@@ -1700,6 +1754,8 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link CarHvacFanDirection}
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
     @AddedInOrBefore(majorVersion = 33)
@@ -1798,6 +1854,8 @@ public final class VehiclePropertyIds {
      *  <li>Normal permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} and Signature|Privileged
      *  permission "android.car.permission.CAR_VENDOR_EXTENSION" to write property.
      * </ul>
+     *
+     * @data_enum {@link VehicleUnit}
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
     @RequiresPermission.Write(@RequiresPermission(allOf = {Car.PERMISSION_CONTROL_DISPLAY_UNITS,
@@ -1831,6 +1889,8 @@ public final class VehiclePropertyIds {
      *  <li>Normal permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} and Signature|Privileged
      *  permission "android.car.permission.CAR_VENDOR_EXTENSION" to write property.
      * </ul>
+     *
+     * @data_enum {@link VehicleUnit}
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
     @RequiresPermission.Write(@RequiresPermission(allOf = {Car.PERMISSION_CONTROL_DISPLAY_UNITS,
@@ -1865,6 +1925,8 @@ public final class VehiclePropertyIds {
      *  <li>Normal permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} and Signature|Privileged
      *  permission "android.car.permission.CAR_VENDOR_EXTENSION" to write property.
      * </ul>
+     *
+     * @data_enum {@link VehicleUnit}
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
     @RequiresPermission.Write(@RequiresPermission(allOf = {Car.PERMISSION_CONTROL_DISPLAY_UNITS,
@@ -1899,6 +1961,8 @@ public final class VehiclePropertyIds {
      *  <li>Normal permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} and Signature|Privileged
      *  permission "android.car.permission.CAR_VENDOR_EXTENSION" to write property.
      * </ul>
+     *
+     * @data_enum {@link VehicleUnit}
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
     @RequiresPermission.Write(@RequiresPermission(allOf = {Car.PERMISSION_CONTROL_DISPLAY_UNITS,
@@ -1933,6 +1997,8 @@ public final class VehiclePropertyIds {
      *  <li>Normal permission {@link Car#PERMISSION_CONTROL_DISPLAY_UNITS} and Signature|Privileged
      *  permission "android.car.permission.CAR_VENDOR_EXTENSION" to write property.
      * </ul>
+     *
+     * @data_enum {@link VehicleUnit}
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
     @RequiresPermission.Write(@RequiresPermission(allOf = {Car.PERMISSION_CONTROL_DISPLAY_UNITS,
@@ -3421,6 +3487,8 @@ public final class VehiclePropertyIds {
      *  read property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightState}
      */
     @RequiresPermission(Car.PERMISSION_READ_INTERIOR_LIGHTS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -3458,6 +3526,8 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS" to
      *  read and write property.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightSwitch}
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_INTERIOR_LIGHTS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -3723,6 +3793,8 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link VehicleSeatOccupancyState}
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
     @AddedInOrBefore(majorVersion = 33)
@@ -3889,6 +3961,8 @@ public final class VehiclePropertyIds {
      *  <li>Property is not writable.
      * </ul>
      *
+     * @data_enum {@link WindshieldWipersState}
+     *
      * @hide
      */
     @SystemApi
@@ -3930,6 +4004,8 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_WINDSHIELD_WIPERS} to
      *  write property.
      * </ul>
+     *
+     * @data_enum {@link WindshieldWipersSwitch}
      *
      * @hide
      */
@@ -4195,9 +4271,9 @@ public final class VehiclePropertyIds {
      * android.location.LocationManager#GPS_PROVIDER}.
      *
      * <p>The value returned is a collection of bit flags. The bit flags are defined in {@link
-     * android.car.hardware.property.LocationCharacterization}. The value will also include exactly
-     * one of {@link android.car.hardware.property.LocationCharacterization#DEAD_RECKONED} or {@link
-     * android.car.hardware.property.LocationCharacterization#RAW_GNSS_ONLY} among its collection of
+     * LocationCharacterization}. The value will also include exactly
+     * one of {@link LocationCharacterization#DEAD_RECKONED} or {@link
+     * LocationCharacterization#RAW_GNSS_ONLY} among its collection of
      * bit flags.
      *
      * <p>When this property is not supported, it is assumed that no additional sensor inputs are
@@ -4219,6 +4295,8 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_flag {@link LocationCharacterization}
      */
     @RequiresPermission(ACCESS_FINE_LOCATION)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -4289,6 +4367,8 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightState}
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
     @AddedInOrBefore(majorVersion = 33)
@@ -4310,6 +4390,8 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightState}
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
     @AddedInOrBefore(majorVersion = 33)
@@ -4352,6 +4434,8 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightState}
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
     @AddedInOrBefore(majorVersion = 33)
@@ -4373,6 +4457,8 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightState}
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
     @AddedInOrBefore(majorVersion = 33)
@@ -4394,6 +4480,8 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS" to
      *  read and write property.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightSwitch}
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS)
     @AddedInOrBefore(majorVersion = 33)
@@ -4415,6 +4503,8 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS" to
      *  read and write property.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightSwitch}
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS)
     @AddedInOrBefore(majorVersion = 33)
@@ -4459,6 +4549,8 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS" to
      *  read and write property.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightSwitch}
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS)
     @AddedInOrBefore(majorVersion = 33)
@@ -4480,6 +4572,8 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS" to
      *  read and write property.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightSwitch}
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS)
     @AddedInOrBefore(majorVersion = 33)
@@ -4501,6 +4595,8 @@ public final class VehiclePropertyIds {
      *  read property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightState}
      */
     @RequiresPermission(Car.PERMISSION_READ_INTERIOR_LIGHTS)
     @AddedInOrBefore(majorVersion = 33)
@@ -4522,6 +4618,8 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS" to
      *  read and write property.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightSwitch}
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_INTERIOR_LIGHTS)
     @AddedInOrBefore(majorVersion = 33)
@@ -4543,6 +4641,8 @@ public final class VehiclePropertyIds {
      *  read property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightState}
      */
     @RequiresPermission(Car.PERMISSION_READ_INTERIOR_LIGHTS)
     @AddedInOrBefore(majorVersion = 33)
@@ -4564,6 +4664,8 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS" to
      *  read and write property.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightSwitch}
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_INTERIOR_LIGHTS)
     @AddedInOrBefore(majorVersion = 33)
@@ -4601,6 +4703,8 @@ public final class VehiclePropertyIds {
      *  read property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightState}
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_INTERIOR_LIGHTS))
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -4639,6 +4743,8 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS" to
      *  read and write property.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightSwitch}
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_INTERIOR_LIGHTS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -4994,6 +5100,8 @@ public final class VehiclePropertyIds {
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link VehicleElectronicTollCollectionCardType}
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     @AddedInOrBefore(majorVersion = 33)
@@ -5020,6 +5128,8 @@ public final class VehiclePropertyIds {
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link VehicleElectronicTollCollectionCardStatus}
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     @AddedInOrBefore(majorVersion = 33)
@@ -5044,6 +5154,8 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightState}
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
     @AddedInOrBefore(majorVersion = 33)
@@ -5068,6 +5180,8 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS" to
      *  read and write property.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightSwitch}
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS)
     @AddedInOrBefore(majorVersion = 33)
@@ -5092,6 +5206,8 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightState}
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
     @AddedInOrBefore(majorVersion = 33)
@@ -5116,6 +5232,8 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS" to
      *  read and write property.
      * </ul>
+     *
+     * @data_enum {@link VehicleLightSwitch}
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS)
     @AddedInOrBefore(majorVersion = 33)
@@ -5204,6 +5322,8 @@ public final class VehiclePropertyIds {
      *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link EvChargeState}
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
     @AddedInOrBefore(majorVersion = 33)
@@ -5282,6 +5402,8 @@ public final class VehiclePropertyIds {
      *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link EvRegenerativeBrakingState}
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
     @AddedInOrBefore(majorVersion = 33)
@@ -5332,6 +5454,8 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link TrailerState}
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_PRIVILEGED_CAR_INFO))
     @AddedInOrBefore(majorVersion = 33)
@@ -5356,6 +5480,8 @@ public final class VehiclePropertyIds {
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link GsrComplianceType}
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_CAR_INFO))
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
@@ -5428,6 +5554,9 @@ public final class VehiclePropertyIds {
      *  <li>Property is not writable.
      * </ul>
      *
+     * @data_enum {@link AutomaticEmergencyBrakingState}
+     * @data_enum {@link ErrorState}
+     *
      * @hide
      */
     @SystemApi
@@ -5498,6 +5627,9 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link ForwardCollisionWarningState}
+     * @data_enum {@link ErrorState}
      *
      * @hide
      */
@@ -5571,6 +5703,9 @@ public final class VehiclePropertyIds {
      *  <li>Property is not writable.
      * </ul>
      *
+     * @data_enum {@link BlindSpotWarningState}
+     * @data_enum {@link ErrorState}
+     *
      * @hide
      */
     @SystemApi
@@ -5642,6 +5777,9 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link LaneDepartureWarningState}
+     * @data_enum {@link ErrorState}
      *
      * @hide
      */
@@ -5721,6 +5859,9 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link LaneKeepAssistState}
+     * @data_enum {@link ErrorState}
      *
      * @hide
      */
@@ -5808,6 +5949,8 @@ public final class VehiclePropertyIds {
      *  property.
      * </ul>
      *
+     * @data_enum {@link LaneCenteringAssistCommand}
+     *
      * @hide
      */
     @SystemApi
@@ -5846,6 +5989,9 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link LaneCenteringAssistState}
+     * @data_enum {@link ErrorState}
      *
      * @hide
      */
@@ -5921,6 +6067,9 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link EmergencyLaneKeepAssistState}
+     * @data_enum {@link ErrorState}
      *
      * @hide
      */
@@ -6006,6 +6155,9 @@ public final class VehiclePropertyIds {
      *  property.
      * </ul>
      *
+     * @data_enum {@link CruiseControlType}
+     * @data_enum {@link ErrorState}
+     *
      * @hide
      */
     @SystemApi
@@ -6045,6 +6197,9 @@ public final class VehiclePropertyIds {
      *  <li>Property is not writable.
      * </ul>
      *
+     * @data_enum {@link CruiseControlState}
+     * @data_enum {@link ErrorState}
+     *
      * @hide
      */
     @SystemApi
@@ -6082,6 +6237,8 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_STATES} to write
      *  property.
      * </ul>
+     *
+     * @data_enum {@link CruiseControlCommand}
      *
      * @hide
      */
@@ -6288,6 +6445,9 @@ public final class VehiclePropertyIds {
      *  <li>Property is not writable.
      * </ul>
      *
+     * @data_enum {@link HandsOnDetectionDriverState}
+     * @data_enum {@link ErrorState}
+     *
      * @hide
      */
     @SystemApi
@@ -6327,6 +6487,9 @@ public final class VehiclePropertyIds {
      *  read property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @data_enum {@link HandsOnDetectionWarning}
+     * @data_enum {@link ErrorState}
      *
      * @hide
      */

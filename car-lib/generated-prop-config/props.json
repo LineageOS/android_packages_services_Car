@@ -53,7 +53,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
-      }
+      },
+      "dataEnums": [
+        "android.car.FuelType"
+      ]
     },
     "INFO_EV_BATTERY_CAPACITY": {
       "propertyName": "INFO_EV_BATTERY_CAPACITY",
@@ -71,7 +74,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
-      }
+      },
+      "dataEnums": [
+        "android.car.EvConnectorType"
+      ]
     },
     "INFO_FUEL_DOOR_LOCATION": {
       "propertyName": "INFO_FUEL_DOOR_LOCATION",
@@ -80,7 +86,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
-      }
+      },
+      "dataEnums": [
+        "android.car.PortLocationType"
+      ]
     },
     "INFO_EV_PORT_LOCATION": {
       "propertyName": "INFO_EV_PORT_LOCATION",
@@ -89,7 +98,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
-      }
+      },
+      "dataEnums": [
+        "android.car.PortLocationType"
+      ]
     },
     "INFO_MULTI_EV_PORT_LOCATIONS": {
       "propertyName": "INFO_MULTI_EV_PORT_LOCATIONS",
@@ -98,7 +110,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
-      }
+      },
+      "dataEnums": [
+        "android.car.PortLocationType"
+      ]
     },
     "INFO_DRIVER_SEAT": {
       "propertyName": "INFO_DRIVER_SEAT",
@@ -107,7 +122,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
-      }
+      },
+      "dataEnums": [
+        "android.car.VehicleAreaSeat"
+      ]
     },
     "INFO_EXTERIOR_DIMENSIONS": {
       "propertyName": "INFO_EXTERIOR_DIMENSIONS",
@@ -179,7 +197,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENGINE_DETAILED"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleOilLevel"
+      ]
     },
     "ENGINE_OIL_TEMP": {
       "propertyName": "ENGINE_OIL_TEMP",
@@ -331,7 +352,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_POWERTRAIN"
-      }
+      },
+      "dataEnums": [
+        "android.car.VehicleGear"
+      ]
     },
     "CURRENT_GEAR": {
       "propertyName": "CURRENT_GEAR",
@@ -340,7 +364,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_POWERTRAIN"
-      }
+      },
+      "dataEnums": [
+        "android.car.VehicleGear"
+      ]
     },
     "PARKING_BRAKE_ON": {
       "propertyName": "PARKING_BRAKE_ON",
@@ -384,7 +411,10 @@
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_POWERTRAIN"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.EvStoppingMode"
+      ]
     },
     "FUEL_LEVEL_LOW": {
       "propertyName": "FUEL_LEVEL_LOW",
@@ -411,7 +441,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleTurnSignal"
+      ]
     },
     "IGNITION_STATE": {
       "propertyName": "IGNITION_STATE",
@@ -420,7 +453,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_POWERTRAIN"
-      }
+      },
+      "dataEnums": [
+        "android.car.VehicleIgnitionState"
+      ]
     },
     "ABS_ACTIVE": {
       "propertyName": "ABS_ACTIVE",
@@ -464,7 +500,10 @@
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.CarHvacFanDirection"
+      ]
     },
     "HVAC_TEMPERATURE_CURRENT": {
       "propertyName": "HVAC_TEMPERATURE_CURRENT",
@@ -651,7 +690,10 @@
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
-      }
+      },
+      "dataEnums": [
+        "android.car.VehicleUnit"
+      ]
     },
     "HVAC_ACTUAL_FAN_SPEED_RPM": {
       "propertyName": "HVAC_ACTUAL_FAN_SPEED_RPM",
@@ -682,7 +724,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.CarHvacFanDirection"
+      ]
     },
     "HVAC_AUTO_RECIRC_ON": {
       "propertyName": "HVAC_AUTO_RECIRC_ON",
@@ -744,7 +789,10 @@
             "value": "android.car.permission.CAR_VENDOR_EXTENSION"
           }
         ]
-      }
+      },
+      "dataEnums": [
+        "android.car.VehicleUnit"
+      ]
     },
     "FUEL_VOLUME_DISPLAY_UNITS": {
       "propertyName": "FUEL_VOLUME_DISPLAY_UNITS",
@@ -766,7 +814,10 @@
             "value": "android.car.permission.CAR_VENDOR_EXTENSION"
           }
         ]
-      }
+      },
+      "dataEnums": [
+        "android.car.VehicleUnit"
+      ]
     },
     "TIRE_PRESSURE_DISPLAY_UNITS": {
       "propertyName": "TIRE_PRESSURE_DISPLAY_UNITS",
@@ -788,7 +839,10 @@
             "value": "android.car.permission.CAR_VENDOR_EXTENSION"
           }
         ]
-      }
+      },
+      "dataEnums": [
+        "android.car.VehicleUnit"
+      ]
     },
     "EV_BATTERY_DISPLAY_UNITS": {
       "propertyName": "EV_BATTERY_DISPLAY_UNITS",
@@ -810,7 +864,10 @@
             "value": "android.car.permission.CAR_VENDOR_EXTENSION"
           }
         ]
-      }
+      },
+      "dataEnums": [
+        "android.car.VehicleUnit"
+      ]
     },
     "VEHICLE_SPEED_DISPLAY_UNITS": {
       "propertyName": "VEHICLE_SPEED_DISPLAY_UNITS",
@@ -833,7 +890,10 @@
           }
         ]
       },
-      "vhalPropertyId": 289408517
+      "vhalPropertyId": 289408517,
+      "dataEnums": [
+        "android.car.VehicleUnit"
+      ]
     },
     "FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME": {
       "propertyName": "FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME",
@@ -1445,7 +1505,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_CAR_INTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightState"
+      ]
     },
     "SEAT_FOOTWELL_LIGHTS_SWITCH": {
       "propertyName": "SEAT_FOOTWELL_LIGHTS_SWITCH",
@@ -1458,7 +1521,10 @@
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightSwitch"
+      ]
     },
     "SEAT_EASY_ACCESS_ENABLED": {
       "propertyName": "SEAT_EASY_ACCESS_ENABLED",
@@ -1565,7 +1631,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
-      }
+      },
+      "dataEnums": [
+        "android.car.VehicleSeatOccupancyState"
+      ]
     },
     "WINDOW_POS": {
       "propertyName": "WINDOW_POS",
@@ -1624,7 +1693,10 @@
         "type": "single",
         "value": "android.car.permission.READ_WINDSHIELD_WIPERS"
       },
-      "systemApi": true
+      "systemApi": true,
+      "dataEnums": [
+        "android.car.hardware.property.WindshieldWipersState"
+      ]
     },
     "WINDSHIELD_WIPERS_SWITCH": {
       "propertyName": "WINDSHIELD_WIPERS_SWITCH",
@@ -1638,7 +1710,10 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_WINDSHIELD_WIPERS"
       },
-      "systemApi": true
+      "systemApi": true,
+      "dataEnums": [
+        "android.car.hardware.property.WindshieldWipersSwitch"
+      ]
     },
     "STEERING_WHEEL_DEPTH_POS": {
       "propertyName": "STEERING_WHEEL_DEPTH_POS",
@@ -1751,7 +1826,8 @@
       "readPermission": {
         "type": "single",
         "value": "android.permission.ACCESS_FINE_LOCATION"
-      }
+      },
+      "dataFlag": "android.car.hardware.property.LocationCharacterization"
     },
     "OBD2_LIVE_FRAME": {
       "propertyName": "OBD2_LIVE_FRAME",
@@ -1784,7 +1860,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightState"
+      ]
     },
     "HIGH_BEAM_LIGHTS_STATE": {
       "propertyName": "HIGH_BEAM_LIGHTS_STATE",
@@ -1793,7 +1872,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightState"
+      ]
     },
     "FOG_LIGHTS_STATE": {
       "propertyName": "FOG_LIGHTS_STATE",
@@ -1802,7 +1884,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightState"
+      ]
     },
     "HAZARD_LIGHTS_STATE": {
       "propertyName": "HAZARD_LIGHTS_STATE",
@@ -1811,7 +1896,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightState"
+      ]
     },
     "HEADLIGHTS_SWITCH": {
       "propertyName": "HEADLIGHTS_SWITCH",
@@ -1824,7 +1912,10 @@
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightSwitch"
+      ]
     },
     "HIGH_BEAM_LIGHTS_SWITCH": {
       "propertyName": "HIGH_BEAM_LIGHTS_SWITCH",
@@ -1837,7 +1928,10 @@
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightSwitch"
+      ]
     },
     "FOG_LIGHTS_SWITCH": {
       "propertyName": "FOG_LIGHTS_SWITCH",
@@ -1850,7 +1944,10 @@
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightSwitch"
+      ]
     },
     "HAZARD_LIGHTS_SWITCH": {
       "propertyName": "HAZARD_LIGHTS_SWITCH",
@@ -1863,7 +1960,10 @@
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightSwitch"
+      ]
     },
     "CABIN_LIGHTS_STATE": {
       "propertyName": "CABIN_LIGHTS_STATE",
@@ -1872,7 +1972,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_CAR_INTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightState"
+      ]
     },
     "CABIN_LIGHTS_SWITCH": {
       "propertyName": "CABIN_LIGHTS_SWITCH",
@@ -1885,7 +1988,10 @@
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightSwitch"
+      ]
     },
     "READING_LIGHTS_STATE": {
       "propertyName": "READING_LIGHTS_STATE",
@@ -1894,7 +2000,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_CAR_INTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightState"
+      ]
     },
     "READING_LIGHTS_SWITCH": {
       "propertyName": "READING_LIGHTS_SWITCH",
@@ -1907,7 +2016,10 @@
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightSwitch"
+      ]
     },
     "STEERING_WHEEL_LIGHTS_STATE": {
       "propertyName": "STEERING_WHEEL_LIGHTS_STATE",
@@ -1916,7 +2028,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_CAR_INTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightState"
+      ]
     },
     "STEERING_WHEEL_LIGHTS_SWITCH": {
       "propertyName": "STEERING_WHEEL_LIGHTS_SWITCH",
@@ -1929,7 +2044,10 @@
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightSwitch"
+      ]
     },
     "EPOCH_TIME": {
       "propertyName": "EPOCH_TIME",
@@ -1947,7 +2065,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleElectronicTollCollectionCardType"
+      ]
     },
     "ELECTRONIC_TOLL_COLLECTION_CARD_STATUS": {
       "propertyName": "ELECTRONIC_TOLL_COLLECTION_CARD_STATUS",
@@ -1956,7 +2077,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleElectronicTollCollectionCardStatus"
+      ]
     },
     "FRONT_FOG_LIGHTS_STATE": {
       "propertyName": "FRONT_FOG_LIGHTS_STATE",
@@ -1965,7 +2089,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightState"
+      ]
     },
     "FRONT_FOG_LIGHTS_SWITCH": {
       "propertyName": "FRONT_FOG_LIGHTS_SWITCH",
@@ -1978,7 +2105,10 @@
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightSwitch"
+      ]
     },
     "REAR_FOG_LIGHTS_STATE": {
       "propertyName": "REAR_FOG_LIGHTS_STATE",
@@ -1987,7 +2117,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightState"
+      ]
     },
     "REAR_FOG_LIGHTS_SWITCH": {
       "propertyName": "REAR_FOG_LIGHTS_SWITCH",
@@ -2000,7 +2133,10 @@
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.VehicleLightSwitch"
+      ]
     },
     "EV_CHARGE_CURRENT_DRAW_LIMIT": {
       "propertyName": "EV_CHARGE_CURRENT_DRAW_LIMIT",
@@ -2035,7 +2171,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENERGY"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.EvChargeState"
+      ]
     },
     "EV_CHARGE_SWITCH": {
       "propertyName": "EV_CHARGE_SWITCH",
@@ -2075,7 +2214,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENERGY"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.EvRegenerativeBrakingState"
+      ]
     },
     "VEHICLE_CURB_WEIGHT": {
       "propertyName": "VEHICLE_CURB_WEIGHT",
@@ -2093,7 +2235,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.PRIVILEGED_CAR_INFO"
-      }
+      },
+      "dataEnums": [
+        "android.car.hardware.property.TrailerState"
+      ]
     },
     "GENERAL_SAFETY_REGULATION_COMPLIANCE": {
       "propertyName": "GENERAL_SAFETY_REGULATION_COMPLIANCE",
@@ -2102,7 +2247,10 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
-      }
+      },
+      "dataEnums": [
+        "android.car.GsrComplianceType"
+      ]
     },
     "AUTOMATIC_EMERGENCY_BRAKING_ENABLED": {
       "propertyName": "AUTOMATIC_EMERGENCY_BRAKING_ENABLED",
@@ -2126,7 +2274,11 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true
+      "systemApi": true,
+      "dataEnums": [
+        "android.car.hardware.property.AutomaticEmergencyBrakingState",
+        "android.car.hardware.property.ErrorState"
+      ]
     },
     "FORWARD_COLLISION_WARNING_ENABLED": {
       "propertyName": "FORWARD_COLLISION_WARNING_ENABLED",
@@ -2150,7 +2302,11 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true
+      "systemApi": true,
+      "dataEnums": [
+        "android.car.hardware.property.ForwardCollisionWarningState",
+        "android.car.hardware.property.ErrorState"
+      ]
     },
     "BLIND_SPOT_WARNING_ENABLED": {
       "propertyName": "BLIND_SPOT_WARNING_ENABLED",
@@ -2174,7 +2330,11 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true
+      "systemApi": true,
+      "dataEnums": [
+        "android.car.hardware.property.BlindSpotWarningState",
+        "android.car.hardware.property.ErrorState"
+      ]
     },
     "LANE_DEPARTURE_WARNING_ENABLED": {
       "propertyName": "LANE_DEPARTURE_WARNING_ENABLED",
@@ -2198,7 +2358,11 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true
+      "systemApi": true,
+      "dataEnums": [
+        "android.car.hardware.property.LaneDepartureWarningState",
+        "android.car.hardware.property.ErrorState"
+      ]
     },
     "LANE_KEEP_ASSIST_ENABLED": {
       "propertyName": "LANE_KEEP_ASSIST_ENABLED",
@@ -2222,7 +2386,11 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true
+      "systemApi": true,
+      "dataEnums": [
+        "android.car.hardware.property.LaneKeepAssistState",
+        "android.car.hardware.property.ErrorState"
+      ]
     },
     "LANE_CENTERING_ASSIST_ENABLED": {
       "propertyName": "LANE_CENTERING_ASSIST_ENABLED",
@@ -2246,7 +2414,10 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_STATES"
       },
-      "systemApi": true
+      "systemApi": true,
+      "dataEnums": [
+        "android.car.hardware.property.LaneCenteringAssistCommand"
+      ]
     },
     "LANE_CENTERING_ASSIST_STATE": {
       "propertyName": "LANE_CENTERING_ASSIST_STATE",
@@ -2256,7 +2427,11 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true
+      "systemApi": true,
+      "dataEnums": [
+        "android.car.hardware.property.LaneCenteringAssistState",
+        "android.car.hardware.property.ErrorState"
+      ]
     },
     "EMERGENCY_LANE_KEEP_ASSIST_ENABLED": {
       "propertyName": "EMERGENCY_LANE_KEEP_ASSIST_ENABLED",
@@ -2280,7 +2455,11 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true
+      "systemApi": true,
+      "dataEnums": [
+        "android.car.hardware.property.EmergencyLaneKeepAssistState",
+        "android.car.hardware.property.ErrorState"
+      ]
     },
     "CRUISE_CONTROL_ENABLED": {
       "propertyName": "CRUISE_CONTROL_ENABLED",
@@ -2308,7 +2487,11 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_STATES"
       },
-      "systemApi": true
+      "systemApi": true,
+      "dataEnums": [
+        "android.car.hardware.property.CruiseControlType",
+        "android.car.hardware.property.ErrorState"
+      ]
     },
     "CRUISE_CONTROL_STATE": {
       "propertyName": "CRUISE_CONTROL_STATE",
@@ -2318,7 +2501,11 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true
+      "systemApi": true,
+      "dataEnums": [
+        "android.car.hardware.property.CruiseControlState",
+        "android.car.hardware.property.ErrorState"
+      ]
     },
     "CRUISE_CONTROL_COMMAND": {
       "propertyName": "CRUISE_CONTROL_COMMAND",
@@ -2328,7 +2515,10 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_STATES"
       },
-      "systemApi": true
+      "systemApi": true,
+      "dataEnums": [
+        "android.car.hardware.property.CruiseControlCommand"
+      ]
     },
     "CRUISE_CONTROL_TARGET_SPEED": {
       "propertyName": "CRUISE_CONTROL_TARGET_SPEED",
@@ -2386,7 +2576,11 @@
         "type": "single",
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
       },
-      "systemApi": true
+      "systemApi": true,
+      "dataEnums": [
+        "android.car.hardware.property.HandsOnDetectionDriverState",
+        "android.car.hardware.property.ErrorState"
+      ]
     },
     "HANDS_ON_DETECTION_WARNING": {
       "propertyName": "HANDS_ON_DETECTION_WARNING",
@@ -2396,7 +2590,11 @@
         "type": "single",
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
       },
-      "systemApi": true
+      "systemApi": true,
+      "dataEnums": [
+        "android.car.hardware.property.HandsOnDetectionWarning",
+        "android.car.hardware.property.ErrorState"
+      ]
     }
   }
 }
