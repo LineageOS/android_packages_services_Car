@@ -5226,11 +5226,15 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permission:
      * <ul>
-     *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_ENERGY" to read and
-     *  write property.
+     *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_ENERGY" or
+     *  dangerous permission {@link Car#PERMISSION_ENERGY} to read.
+     *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_ENERGY" to write
+     *  property.
      * </ul>
      */
-    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_ENERGY)
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_ENERGY,
+            Car.PERMISSION_CONTROL_CAR_ENERGY}))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_CAR_ENERGY))
     @AddedInOrBefore(majorVersion = 33)
     public static final int EV_CHARGE_SWITCH = 287313730;
 
