@@ -390,6 +390,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mCarPackageManagerService = carPackageManagerService;
         mIsVisibleBackgroundUsersOnDefaultDisplaySupported =
                 isVisibleBackgroundUsersOnDefaultDisplaySupported(mUserManager);
+        // Set the initial capacity of the user creation queue to avoid potential resizing.
+        // The max number of running users can be a good estimate because CreateUser request comes
+        // from a running user.
         mCreateUserQueue = new ArrayDeque<>(UserManagerHelper.getMaxRunningUsers(context));
         mCarOccupantZoneService = carOccupantZoneService;
     }
