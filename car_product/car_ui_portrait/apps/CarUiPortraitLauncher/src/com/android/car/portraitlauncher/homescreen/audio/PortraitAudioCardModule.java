@@ -21,17 +21,18 @@ import android.util.Log;
 
 import com.android.car.carlauncher.homescreen.CardPresenter;
 import com.android.car.carlauncher.homescreen.HomeCardFragment;
-import com.android.car.carlauncher.homescreen.audio.AudioCard;
+import com.android.car.carlauncher.homescreen.audio.AudioCardModule;
 import com.android.car.carlauncher.homescreen.audio.AudioFragment;
 import com.android.car.carlauncher.homescreen.audio.InCallModel;
+import com.android.car.carlauncher.homescreen.audio.MediaViewModel;
 
 import java.util.Arrays;
 import java.util.Collections;
 
 /**
- * A portrait UI version of {@link AudioCard}
+ * A portrait UI version of {@link AudioCardModule}
  */
-public class PortraitAudioCard extends AudioCard {
+public class PortraitAudioCardModule extends AudioCardModule {
 
     private static final String TAG = "PortraitAudioCard";
     private PortraitHomeAudioCardPresenter mAudioCardPresenter;
@@ -48,7 +49,7 @@ public class PortraitAudioCard extends AudioCard {
                                 new InCallModel(SystemClock.elapsedRealtimeClock()))));
             } else {
                 mAudioCardPresenter.setModels(Collections.unmodifiableList(
-                        Arrays.asList(getViewModelProvider().get(PortraitMediaViewModel.class),
+                        Arrays.asList(getViewModelProvider().get(MediaViewModel.class),
                                 new InCallModel(SystemClock.elapsedRealtimeClock()))));
             }
         }
@@ -60,7 +61,6 @@ public class PortraitAudioCard extends AudioCard {
         if (mAudioCardView == null) {
             mAudioCardView = new AudioFragment();
             getCardPresenter().setView(mAudioCardView);
-            mAudioCardView.setPresenter(getCardPresenter());
         }
         return mAudioCardView;
     }

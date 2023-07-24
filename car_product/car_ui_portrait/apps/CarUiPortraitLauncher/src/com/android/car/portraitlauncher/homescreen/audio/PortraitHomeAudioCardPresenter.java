@@ -16,24 +16,79 @@
 
 package com.android.car.portraitlauncher.homescreen.audio;
 
-import android.view.View;
+import android.app.ActivityOptions;
+import android.content.Intent;
+import android.view.Display;
 
 import com.android.car.carlauncher.homescreen.CardPresenter;
+import com.android.car.carlauncher.homescreen.HomeCardFragment;
 import com.android.car.carlauncher.homescreen.HomeCardInterface;
+import com.android.car.carlauncher.homescreen.audio.AudioFragment;
 import com.android.car.carlauncher.homescreen.audio.AudioModel;
-import com.android.car.carlauncher.homescreen.audio.AudioPresenter;
 import com.android.car.carlauncher.homescreen.audio.InCallModel;
-import com.android.car.media.common.PlaybackControlsActionBar;
+import com.android.car.carlauncher.homescreen.audio.MediaViewModel;
 
 import java.util.List;
 
 /**
  * A portrait UI version of {@link HomeAudioCardPresenter}
  */
-public class PortraitHomeAudioCardPresenter extends CardPresenter implements AudioPresenter{
-    private PortraitMediaViewModel mPortraitMediaViewModel;
+public class PortraitHomeAudioCardPresenter extends CardPresenter {
+
+    private AudioFragment mAudioFragment;
+    private MediaViewModel mMediaViewModel;
     private List<HomeCardInterface.Model> mModelList;
     private AudioModel mCurrentModel;
+    public final MediaIntentRouter mMediaIntentRouter = MediaIntentRouter.getInstance();
+
+    private HomeCardFragment.OnViewClickListener mOnViewClickListener =
+            new HomeCardFragment.OnViewClickListener() {
+                @Override
+                public void onViewClicked() {
+                    Intent intent = mCurrentModel.getIntent();
+                    if (intent != null && mCurrentModel instanceof InCallModel) {
+                        ActivityOptions options = ActivityOptions.makeBasic();
+                        options.setLaunchDisplayId(Display.DEFAULT_DISPLAY);
+                        mAudioFragment.getContext().startActivity(intent, options.toBundle());
+                    } else {
+                        mMediaIntentRouter.handleMediaIntent(intent);
+                    }
+                }
+            };
+
+    private HomeCardFragment.OnViewLifecycleChangeListener mOnViewLifecycleChangeListener =
+            new HomeCardFragment.OnViewLifecycleChangeListener() {
+                @Override
+                public void onViewCreated() {
+                    for (HomeCardInterface.Model model : mModelList) {
+                        if (model.getClass() == MediaViewModel.class) {
+                            mMediaViewModel = (MediaViewModel) model;
+                        }
+                        model.setPresenter(PortraitHomeAudioCardPresenter.this);
+                        model.onCreate(getFragment().requireContext());
+                    }
+                }
+
+                @Override
+                public void onViewDestroyed() {
+                    if (mModelList != null) {
+                        for (HomeCardInterface.Model model : mModelList) {
+                            model.onDestroy(getFragment().requireContext());
+                        }
+                    }
+                }
+            };
+
+    private AudioFragment.OnMediaViewInitializedListener mOnMediaViewInitializedListener =
+            new AudioFragment.OnMediaViewInitializedListener() {
+                @Override
+                public void onMediaViewInitialized() {
+                    // set playbackviewmodel on playback control actions view
+                    mAudioFragment.getPlaybackControlsActionBar().setModel(
+                            mMediaViewModel.getPlaybackViewModel(),
+                            mAudioFragment.getViewLifecycleOwner());
+                }
+            };
 
     @Override
     public void setModels(List<HomeCardInterface.Model> models) {
@@ -44,39 +99,13 @@ public class PortraitHomeAudioCardPresenter extends CardPresenter implements Aud
         return mModelList;
     }
 
-
-    /**
-     * Called when the View is created
-     */
     @Override
-    public void onViewCreated() {
-        for (HomeCardInterface.Model model : getModels()) {
-            if (model.getClass() == PortraitMediaViewModel.class) {
-                mPortraitMediaViewModel = (PortraitMediaViewModel) model;
-            }
-            model.setPresenter(this);
-            model.onCreate(getFragment().requireContext());
-        }
-    }
-
-    /**
-     * Called when the View is destroyed
-     */
-    @Override
-    public void onViewDestroyed() {
-        if (mModelList != null) {
-            for (HomeCardInterface.Model model : mModelList) {
-                model.onDestroy(getFragment().requireContext());
-            }
-        }
-    }
-
-    /**
-     * Called when the View is clicked
-     */
-    @Override
-    public void onViewClicked(View v) {
-        mCurrentModel.onClick(v);
+    public void setView(HomeCardInterface.View view) {
+        super.setView(view);
+        mAudioFragment = (AudioFragment) view;
+        mAudioFragment.setOnViewLifecycleChangeListener(mOnViewLifecycleChangeListener);
+        mAudioFragment.setOnViewClickListener(mOnViewClickListener);
+        mAudioFragment.setOnMediaViewInitializedListener(mOnMediaViewInitializedListener);
     }
 
     @Override
@@ -87,10 +116,10 @@ public class PortraitHomeAudioCardPresenter extends CardPresenter implements Aud
                 // If the model currently on display is updating to empty content, check if there
                 // is media content to display. If there is no media content the super method is
                 // called with empty content, which hides the card.
-                if (mPortraitMediaViewModel != null
-                        && mPortraitMediaViewModel.getCardHeader() != null) {
-                    mCurrentModel = mPortraitMediaViewModel;
-                    super.onModelUpdated(mPortraitMediaViewModel);
+                if (mMediaViewModel != null
+                        && mMediaViewModel.getCardHeader() != null) {
+                    mCurrentModel = mMediaViewModel;
+                    super.onModelUpdated(mMediaViewModel);
                     return;
                 }
             } else {
@@ -107,11 +136,5 @@ public class PortraitHomeAudioCardPresenter extends CardPresenter implements Aud
         }
         mCurrentModel = (AudioModel) model;
         super.onModelUpdated(model);
-    }
-
-    public void initializeControlsActionBar(View actionBar) {
-        ((PlaybackControlsActionBar) actionBar).setModel(
-                mPortraitMediaViewModel.getPlaybackViewModel(),
-                getFragment().getViewLifecycleOwner());
     }
 }
