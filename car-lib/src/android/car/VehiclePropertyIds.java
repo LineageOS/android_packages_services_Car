@@ -331,7 +331,7 @@ public final class VehiclePropertyIds {
      *  <li>Integer[4] = wheel base
      *  <li>Integer[5] = track width front
      *  <li>Integer[6] = track width rear
-     *  <li>Integer[7] = curb to curb turning radius
+     *  <li>Integer[7] = curb to curb turning diameter
      * </ul>
      *
      * <p>Required Permission:
