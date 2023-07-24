@@ -27,6 +27,7 @@ import com.android.car.carlauncher.homescreen.audio.AudioFragment;
 import com.android.car.carlauncher.homescreen.audio.AudioModel;
 import com.android.car.carlauncher.homescreen.audio.InCallModel;
 import com.android.car.carlauncher.homescreen.audio.MediaViewModel;
+import com.android.car.carlauncher.homescreen.ui.DescriptiveTextWithControlsView;
 
 import java.util.List;
 
@@ -139,7 +140,11 @@ public class PortraitHomeAudioCardPresenter extends CardPresenter {
                             || model.getCardHeader() == null) {
                         return;
                     }
-                    mAudioFragment.updateContentView(model.getCardContent(), updateProgress);
+                    DescriptiveTextWithControlsView descriptiveTextWithControlsContent =
+                            (DescriptiveTextWithControlsView) model.getCardContent();
+                    mAudioFragment.updateProgress(
+                            descriptiveTextWithControlsContent.getSeekBarViewModel(),
+                            updateProgress);
                 }
             };
 
