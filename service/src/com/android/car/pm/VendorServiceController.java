@@ -594,11 +594,11 @@ final class VendorServiceController implements UserLifecycleListener {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            mBound = false;
             if (DBG) {
                 Slogf.d(TAG, "onServiceDisconnected, name: " + name);
             }
-            tryToRebind();
+            // A binding is persistent, and the service will be reconnected by the binder.
+            // Therefore, there is no need to attempt to rebind or reconnect here.
         }
 
         @Override
