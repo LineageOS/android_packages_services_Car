@@ -25,6 +25,10 @@ import static android.car.watchdog.CarWatchdogManager.RETURN_CODE_SUCCESS;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
 
+import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__KILL_REASON__KILLED_ON_IO_OVERUSE;
+import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__GARAGE_MODE;
+import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE;
+import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
 import static com.android.car.watchdog.CarWatchdogServiceUnitTest.constructUserPackageIoUsageStats;
@@ -35,6 +39,7 @@ import static com.android.car.watchdog.WatchdogStorage.WatchdogDbHelper.DATABASE
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doThrow;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -52,7 +57,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
@@ -60,11 +64,11 @@ import android.app.ActivityThread;
 import android.app.StatsManager;
 import android.automotive.watchdog.internal.ApplicationCategoryType;
 import android.automotive.watchdog.internal.ComponentType;
+import android.automotive.watchdog.internal.GarageMode;
 import android.automotive.watchdog.internal.PackageIoOveruseStats;
 import android.automotive.watchdog.internal.PackageMetadata;
 import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
-import android.automotive.watchdog.internal.ResourceStats;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.drivingstate.CarUxRestrictions;
@@ -104,6 +108,7 @@ import android.view.Display;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceUtils;
+import com.android.car.CarStatsLog;
 import com.android.car.CarUxRestrictionsManagerService;
 
 import com.google.common.truth.Correspondence;
@@ -166,6 +171,14 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     private ArgumentCaptor<List<
             android.automotive.watchdog.internal.ResourceOveruseConfiguration>>
             mResourceOveruseConfigurationsCaptor;
+    @Captor private ArgumentCaptor<SparseArray<List<String>>> mPackagesByUserIdCaptor;
+    @Captor private ArgumentCaptor<byte[]> mOveruseStatsCaptor;
+    @Captor private ArgumentCaptor<byte[]> mKilledStatsCaptor;
+    @Captor private ArgumentCaptor<Integer> mOverusingUidCaptor;
+    @Captor private ArgumentCaptor<Integer> mKilledUidCaptor;
+    @Captor private ArgumentCaptor<Integer> mUidStateCaptor;
+    @Captor private ArgumentCaptor<Integer> mSystemStateCaptor;
+    @Captor private ArgumentCaptor<Integer> mKillReasonCaptor;
 
     private ICarUxRestrictionsChangeListener mCarUxRestrictionsChangeListener;
     private StatsManager.StatsPullAtomCallback mStatsPullAtomCallback;
@@ -197,6 +210,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         builder.spyStatic(PackageManagerHelper.class)
                 .spyStatic(CarServiceUtils.class)
                 .spyStatic(ActivityThread.class)
+                .spyStatic(CarStatsLog.class)
                 .spyStatic(CarLocalServices.class);
     }
 
@@ -259,40 +273,6 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         if (mTempSystemCarDir != null) {
             FileUtils.deleteContentsAndDir(mTempSystemCarDir);
         }
-    }
-
-    private void setupUsers() {
-        when(mMockContext.getSystemService(UserManager.class)).thenReturn(mMockUserManager);
-        mockUmGetAllUsers(mMockUserManager, new UserHandle[0]);
-    }
-
-    private void initService(int wantedInvocations) throws Exception {
-        mWatchdogPerfHandler.init();
-        captureCarUxRestrictionsChangeListener(wantedInvocations);
-        verifyDatabaseInit(wantedInvocations);
-        captureStatsPullAtomCallback(wantedInvocations);
-        mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ true);
-
-    }
-
-    private void restartService(int totalRestarts, int wantedDbWrites, boolean isWriteIoStats)
-            throws Exception {
-        mWatchdogPerfHandler.writeMetadataFile();
-        mWatchdogPerfHandler.writeToDatabase();
-        mWatchdogPerfHandler.release();
-        mSpiedWatchdogStorage.release();
-        verify(mSpiedWatchdogStorage, times(totalRestarts)).startWrite();
-        verify(mSpiedWatchdogStorage, times(isWriteIoStats ? wantedDbWrites : 0))
-                .saveIoUsageStats(any());
-        verify(mSpiedWatchdogStorage, times(wantedDbWrites)).saveUserPackageSettings(any());
-        verify(mSpiedWatchdogStorage, times(wantedDbWrites)).markWriteSuccessful();
-        verify(mSpiedWatchdogStorage, times(wantedDbWrites)).endWrite();
-        mSpiedWatchdogStorage.release();
-        mWatchdogPerfHandler = new WatchdogPerfHandler(mMockContext,
-                mMockBuiltinPackageContext, mMockCarWatchdogDaemonHelper,
-                new PackageInfoHandler(mMockContext.getPackageManager()),
-                mSpiedWatchdogStorage, mTimeSource);
-        initService(/* wantedInvocations= */ totalRestarts + 1);
     }
 
     @Test
@@ -1959,6 +1939,962 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                 .containsExactlyElementsIn(expectedStats);
     }
 
+    @Test
+    public void testGetResourceOveruseStatsForUserPackage() throws Exception {
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo("third_party_package", 1103456, null),
+                constructPackageManagerPackageInfo("vendor_package.critical", 1201278, null)));
+
+        List<PackageIoOveruseStats> packageIoOveruseStats = Arrays.asList(
+                constructPackageIoOveruseStats(1103456,
+                        /* shouldNotify= */ false,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(80, 170, 260),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(20, 20, 20),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 3)),
+                constructPackageIoOveruseStats(1201278,
+                        /* shouldNotify= */ false,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(300, 400, 700),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ false,
+                                /* remainingWriteBytes= */ constructPerStateBytes(450, 120, 340),
+                                /* writtenBytes= */ constructPerStateBytes(500, 600, 900),
+                                /* totalOveruses= */ 3)));
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        ResourceOveruseStats expectedStats =
+                constructResourceOveruseStats(1201278, "vendor_package.critical",
+                        packageIoOveruseStats.get(1).ioOveruseStats);
+
+        ResourceOveruseStats actualStats =
+                mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage(
+                        "vendor_package.critical", UserHandle.of(12),
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                        CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
+
+        ResourceOveruseStatsSubject.assertEquals(actualStats, expectedStats);
+    }
+
+    @Test
+    public void testGetResourceOveruseStatsForUserPackageForPast7days() throws Exception {
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo("third_party_package", 1103456, null),
+                constructPackageManagerPackageInfo("vendor_package.critical", 1201278, null)));
+
+        List<PackageIoOveruseStats> packageIoOveruseStats = Arrays.asList(
+                constructPackageIoOveruseStats(1103456,
+                        /* shouldNotify= */ false,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(80, 170, 260),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(20, 20, 20),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 3)),
+                constructPackageIoOveruseStats(1201278,
+                        /* shouldNotify= */ false,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(300, 400, 700),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ false,
+                                /* remainingWriteBytes= */ constructPerStateBytes(450, 120, 340),
+                                /* writtenBytes= */ constructPerStateBytes(500, 600, 900),
+                                /* totalOveruses= */ 3)));
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        ZonedDateTime now = mTimeSource.getCurrentDateTime();
+        long startTime = now.minusDays(4).toEpochSecond();
+        IoOveruseStats vendorPkgOldStats = new IoOveruseStats.Builder(
+                startTime, now.toEpochSecond() - startTime).setTotalOveruses(2)
+                .setTotalTimesKilled(0).setTotalBytesWritten(6_900_000).build();
+
+        doReturn(vendorPkgOldStats).when(mSpiedWatchdogStorage)
+                .getHistoricalIoOveruseStats(12, "vendor_package.critical", 6);
+
+        ResourceOveruseStats actualStats =
+                mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage(
+                        "vendor_package.critical", UserHandle.of(12),
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                        CarWatchdogManager.STATS_PERIOD_PAST_7_DAYS);
+
+        IoOveruseStats vendorIoStats = new IoOveruseStats.Builder(
+                vendorPkgOldStats.getStartTime(),
+                vendorPkgOldStats.getDurationInSeconds() + STATS_DURATION_SECONDS)
+                .setKillableOnOveruse(false).setTotalOveruses(5).setTotalBytesWritten(6_902_000)
+                .setTotalTimesKilled(0).setRemainingWriteBytes(new PerStateBytes(450, 120, 340))
+                .build();
+
+        ResourceOveruseStats expectedStats = new ResourceOveruseStats.Builder(
+                "vendor_package.critical", UserHandle.of(12)).setIoOveruseStats(vendorIoStats)
+                .build();
+
+        ResourceOveruseStatsSubject.assertEquals(actualStats, expectedStats);
+    }
+
+    @Test
+    public void testGetResourceOveruseStatsForUserPackageWithSharedUids() throws Exception {
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo(
+                        "third_party_package", 1103456, "vendor_shared_package"),
+                constructPackageManagerPackageInfo(
+                        "vendor_package", 1103456, "vendor_shared_package"),
+                constructPackageManagerPackageInfo("system_package", 1101100,
+                        "shared_system_package")));
+
+        SparseArray<PackageIoOveruseStats> packageIoOveruseStatsByUid =
+                injectIoOveruseStatsForPackages(
+                        mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(
+                                Collections.singleton("shared:vendor_shared_package")),
+                        /* shouldNotifyPackages= */ new ArraySet<>());
+
+        ResourceOveruseStats expectedStats =
+                constructResourceOveruseStats(1103456, "shared:vendor_shared_package",
+                        packageIoOveruseStatsByUid.get(1103456).ioOveruseStats);
+
+        ResourceOveruseStats actualStats =
+                mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage(
+                        "vendor_package", UserHandle.of(11),
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                        CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
+
+        ResourceOveruseStatsSubject.assertEquals(actualStats, expectedStats);
+    }
+
+    @Test
+    public void testFailsGetResourceOveruseStatsForUserPackageWithInvalidArgs() throws Exception {
+        assertThrows(NullPointerException.class,
+                () -> mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage(
+                        /* packageName= */ null, UserHandle.of(100),
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                        CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
+
+        assertThrows(NullPointerException.class,
+                () -> mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage("some_package",
+                        /* userHandle= */ null, CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                        CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage("some_package",
+                        UserHandle.ALL, CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                        CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage("some_package",
+                        UserHandle.of(100), /* resourceOveruseFlag= */ 0,
+                        CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage("some_package",
+                        UserHandle.of(100), CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                        /* maxStatsPeriod= */ 0));
+    }
+
+    @Test
+    public void testNoDisableRecurrentlyOverusingAppWhenDisplayEnabled() throws Exception {
+        setUpSampleUserAndPackages();
+        setRequiresDistractionOptimization(false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
+
+        List<PackageIoOveruseStats> packageIoOveruseStats =
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
+
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        verify(() -> CarStatsLog.write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED), anyInt(),
+                anyInt(), anyInt(), anyInt(), any(), any()), never());
+
+        verifyNoDisabledPackages();
+    }
+
+    @Test
+    public void testDisableRecurrentlyOverusingAppAfterDisplayDisabled() throws Exception {
+        setUpSampleUserAndPackages();
+        setRequiresDistractionOptimization(true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
+
+        List<PackageIoOveruseStats> packageIoOveruseStats =
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
+
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        verifyNoDisabledPackages();
+
+        setRequiresDistractionOptimization(false);
+
+        verifyNoDisabledPackages();
+
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
+
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        captureAndVerifyKillStatsReported(sampleReportedKillStats(
+                CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
+                /* killedUids= */ new int[]{10010004, 10110004, 10010005, 10110005}));
+
+        verifyDisabledPackages(/* userPackagesCsv= */ "100:vendor_package.non_critical,"
+                + "101:vendor_package.non_critical,100:third_party_package.A,"
+                + "101:third_party_package.A,100:third_party_package.B,"
+                + "101:third_party_package.B");
+    }
+
+    @Test
+    public void testImmediateDisableRecurrentlyOverusingAppDuringDisabledDisplay()
+            throws Exception {
+        setUpSampleUserAndPackages();
+        setRequiresDistractionOptimization(false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
+
+        List<PackageIoOveruseStats> packageIoOveruseStats =
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
+
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        captureAndVerifyKillStatsReported(sampleReportedKillStats(
+                CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
+                /* killedUids= */ new int[]{10010004, 10110004, 10010005, 10110005}));
+
+        verifyDisabledPackages(/* userPackagesCsv= */ "100:vendor_package.non_critical,"
+                + "101:vendor_package.non_critical,100:third_party_package.A,"
+                + "101:third_party_package.A,100:third_party_package.B,"
+                + "101:third_party_package.B");
+    }
+
+    @Test
+    public void testDisableRecurrentlyOverusingAppWhenDisplayDisabledAfterDateChange()
+            throws Exception {
+        mTimeSource.updateNow(/* numDaysAgo= */ 1);
+        setUpSampleUserAndPackages();
+        setRequiresDistractionOptimization(true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
+
+        List<PackageIoOveruseStats> packageIoOveruseStats =
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
+
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        verifyNoDisabledPackages();
+
+        mTimeSource.updateNow(/* numDaysAgo= */ 0);
+
+        setRequiresDistractionOptimization(false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
+
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        captureAndVerifyKillStatsReported(sampleReportedKillStats(
+                CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
+                /* killedUids= */ new int[]{10010004, 10110004, 10010005, 10110005}));
+
+        verifyDisabledPackages(/* userPackagesCsv= */ "100:vendor_package.non_critical,"
+                + "101:vendor_package.non_critical,100:third_party_package.A,"
+                + "101:third_party_package.A,100:third_party_package.B,"
+                + "101:third_party_package.B");
+    }
+
+    @Test
+    public void testNoDisableRecurrentlyOverusingPrePrioritizedApp() throws Exception {
+        setUpSampleUserAndPackages();
+        setRequiresDistractionOptimization(true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
+
+        mWatchdogPerfHandler.setKillablePackageAsUser(
+                "vendor_package.non_critical", new UserHandle(100), /* isKillable= */ false);
+        mWatchdogPerfHandler.setKillablePackageAsUser(
+                "third_party_package.A", new UserHandle(101), /* isKillable= */ false);
+
+        List<PackageIoOveruseStats> packageIoOveruseStats =
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
+
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        verifyNoDisabledPackages();
+
+        setRequiresDistractionOptimization(false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
+
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        captureAndVerifyKillStatsReported(sampleReportedKillStats(
+                CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
+                /* killedUids= */ new int[]{10110004, 10010005}));
+
+        verifyDisabledPackages(/* userPackagesCsv= */ "101:vendor_package.non_critical,"
+                + "100:third_party_package.A,100:third_party_package.B");
+    }
+
+    @Test
+    public void testNoDisableRecurrentlyOverusingPostPrioritizedApp() throws Exception {
+        setUpSampleUserAndPackages();
+        setRequiresDistractionOptimization(true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
+
+        List<PackageIoOveruseStats> packageIoOveruseStats =
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
+
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        verifyNoDisabledPackages();
+
+        mWatchdogPerfHandler.setKillablePackageAsUser(
+                "vendor_package.non_critical", new UserHandle(100), /* isKillable= */ false);
+        mWatchdogPerfHandler.setKillablePackageAsUser(
+                "third_party_package.A", new UserHandle(101), /* isKillable= */ false);
+
+        setRequiresDistractionOptimization(false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
+
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        captureAndVerifyKillStatsReported(sampleReportedKillStats(
+                CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
+                /* killedUids= */ new int[]{10110004, 10010005}));
+
+        verifyDisabledPackages(/* userPackagesCsv= */ "101:vendor_package.non_critical,"
+                + "100:third_party_package.A,100:third_party_package.B");
+    }
+
+    @Test
+    public void testDisableRecurrentlyOverusingPriorityResettedApp() throws Exception {
+        setUpSampleUserAndPackages();
+        setRequiresDistractionOptimization(true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
+
+        mWatchdogPerfHandler.setKillablePackageAsUser(
+                "vendor_package.non_critical", new UserHandle(100), /* isKillable= */ false);
+
+        List<PackageIoOveruseStats> packageIoOveruseStats =
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
+
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        verifyNoDisabledPackages();
+
+        mWatchdogPerfHandler.setKillablePackageAsUser(
+                "vendor_package.non_critical", new UserHandle(100), /* isKillable= */ true);
+
+        setRequiresDistractionOptimization(false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
+
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        captureAndVerifyKillStatsReported(sampleReportedKillStats(
+                CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
+                /* killedUids= */ new int[]{10010004, 10110004, 10010005, 10110005}));
+
+        verifyDisabledPackages(/* userPackagesCsv= */ "100:vendor_package.non_critical,"
+                + "101:vendor_package.non_critical,100:third_party_package.A,"
+                + "101:third_party_package.A,100:third_party_package.B,"
+                + "101:third_party_package.B");
+    }
+
+    @Test
+    public void testImmediateDisableRecurrentlyOverusingAppDuringGarageMode()
+            throws Exception {
+        setUpSampleUserAndPackages();
+        setRequiresDistractionOptimization(false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        mWatchdogPerfHandler.onGarageModeChange(GarageMode.GARAGE_MODE_ON);
+
+        List<PackageIoOveruseStats> packageIoOveruseStats =
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
+
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        captureAndVerifyKillStatsReported(sampleReportedKillStats(
+                CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__GARAGE_MODE,
+                /* killedUids= */ new int[]{10010004, 10110004, 10010005, 10110005}));
+
+        verifyDisabledPackages(/* userPackagesCsv= */ "100:vendor_package.non_critical,"
+                + "101:vendor_package.non_critical,100:third_party_package.A,"
+                + "101:third_party_package.A,100:third_party_package.B,"
+                + "101:third_party_package.B");
+    }
+
+    @Test
+    public void testDisableHistoricalRecurrentlyOverusingApp() throws Exception {
+        doReturn(Arrays.asList(new WatchdogStorage.NotForgivenOverusesEntry(100,
+                "third_party_package", 2))).when(mSpiedWatchdogStorage)
+                .getNotForgivenHistoricalIoOveruses(RECURRING_OVERUSE_PERIOD_IN_DAYS);
+
+        // Force CarWatchdogService to fetch historical not forgiven overuses.
+        restartService(/* totalRestarts= */ 1, /* wantedDbWrites= */ 0);
+        setRequiresDistractionOptimization(true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        int thirdPartyPkgUid = UserHandle.getUid(100, 10005);
+
+        injectPackageInfos(Collections.singletonList(constructPackageManagerPackageInfo(
+                "third_party_package", thirdPartyPkgUid, null)));
+
+        pushLatestIoOveruseStatsAndWait(
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ false));
+
+        // Third party package is disabled given the two historical overuses and one current
+        // overuse.
+        verifyDisabledPackages(/* message= */ "after recurring overuse with history",
+                /* userPackagesCsv= */ "100:third_party_package");
+
+        // Package was enabled again.
+        doReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED).when(mSpiedPackageManager)
+                .getApplicationEnabledSetting("third_party_package", 100);
+        enableUserPackage("third_party_package", 100, true);
+
+        PackageIoOveruseStats packageIoOveruseStats =
+                constructPackageIoOveruseStats(thirdPartyPkgUid, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(200, 400, 600),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(200, 400, 600),
+                                /* totalOveruses= */ 3));
+
+        pushLatestIoOveruseStatsAndWait(Collections.singletonList(packageIoOveruseStats));
+
+        // From the 3 total overuses, one overuse was forgiven previously.
+        verifyNoDisabledPackages(/* message= */ "after non-recurring overuse");
+
+        // Add one overuse.
+        packageIoOveruseStats.ioOveruseStats.totalOveruses = 4;
+
+        pushLatestIoOveruseStatsAndWait(Collections.singletonList(packageIoOveruseStats));
+
+        // Third party package is disabled again given the three current overuses. From the 4 total
+        // overuses, one overuse was forgiven previously.
+        verifyDisabledPackages(/* message= */ "after recurring overuse from the same day",
+                /* userPackagesCsv= */ "100:third_party_package");
+
+        // Force write to database
+        restartService(/* totalRestarts= */ 2, /* wantedDbWrites= */ 1);
+
+        verify(mSpiedWatchdogStorage).forgiveHistoricalOveruses(mPackagesByUserIdCaptor.capture(),
+                eq(RECURRING_OVERUSE_PERIOD_IN_DAYS));
+
+        assertWithMessage("Forgiven packages")
+                .that(mPackagesByUserIdCaptor.getValue().get(100))
+                .containsExactlyElementsIn(Arrays.asList("third_party_package"));
+    }
+
+    @Test
+    public void testDisableHistoricalRecurrentlyOverusingAppAfterDateChange() throws Exception {
+        doReturn(Arrays.asList(new WatchdogStorage.NotForgivenOverusesEntry(100,
+                "third_party_package", 2))).when(mSpiedWatchdogStorage)
+                .getNotForgivenHistoricalIoOveruses(RECURRING_OVERUSE_PERIOD_IN_DAYS);
+
+        mTimeSource.updateNow(/* numDaysAgo= */ 1);
+        setRequiresDistractionOptimization(true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        int thirdPartyPkgUid = UserHandle.getUid(100, 10005);
+
+        injectPackageInfos(Collections.singletonList(constructPackageManagerPackageInfo(
+                "third_party_package", thirdPartyPkgUid, /* sharedUserId */ null)));
+
+        List<PackageIoOveruseStats> ioOveruseStats =
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ false);
+        pushLatestIoOveruseStatsAndWait(ioOveruseStats);
+
+        // Third party package is disabled given the two historical overuses and one current
+        // overuse.
+        verifyDisabledPackages(/* userPackagesCsv= */ "100:third_party_package");
+
+        // Force write to database by pushing non-overusing I/O overuse stats.
+        mTimeSource.updateNow(/* numDaysAgo= */ 0);
+        pushLatestIoOveruseStatsAndWait(Collections.singletonList(ioOveruseStats.get(0)));
+
+        verify(mSpiedWatchdogStorage).forgiveHistoricalOveruses(mPackagesByUserIdCaptor.capture(),
+                eq(RECURRING_OVERUSE_PERIOD_IN_DAYS));
+
+        assertWithMessage("Forgiven packages")
+                .that(mPackagesByUserIdCaptor.getValue().get(100))
+                .containsExactlyElementsIn(Arrays.asList("third_party_package"));
+    }
+
+    @Test
+    public void testLatestIoOveruseStats() throws Exception {
+        setRequiresDistractionOptimization(/* isRequires= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        int criticalSysPkgUid = Binder.getCallingUid();
+        int nonCriticalSysPkgUid = 10001056;
+        int nonCriticalVndrPkgUid = 10002564;
+        int thirdPartyPkgUid = 10002044;
+
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo(
+                        "system_package.critical", criticalSysPkgUid, null),
+                constructPackageManagerPackageInfo(
+                        "system_package.non_critical", nonCriticalSysPkgUid, null),
+                constructPackageManagerPackageInfo(
+                        "vendor_package.non_critical", nonCriticalVndrPkgUid, null),
+                constructPackageManagerPackageInfo(
+                        "third_party_package", thirdPartyPkgUid, null)));
+
+        IResourceOveruseListener mockSystemListener = createMockResourceOveruseListener();
+        mWatchdogPerfHandler.addResourceOveruseListenerForSystem(
+                FLAG_RESOURCE_OVERUSE_IO, mockSystemListener);
+
+        IResourceOveruseListener mockListener = createMockResourceOveruseListener();
+        mWatchdogPerfHandler.addResourceOveruseListener(
+                FLAG_RESOURCE_OVERUSE_IO, mockListener);
+
+        List<PackageIoOveruseStats> packageIoOveruseStats = Arrays.asList(
+                /* Overuse occurred but cannot be killed/disabled. */
+                constructPackageIoOveruseStats(criticalSysPkgUid, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 200, 300),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ false,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 3)),
+                /* No overuse occurred but should be notified. */
+                constructPackageIoOveruseStats(nonCriticalSysPkgUid, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(50, 100, 150),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(20, 30, 40),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 3)),
+                /* Neither overuse occurred nor be notified. */
+                constructPackageIoOveruseStats(nonCriticalVndrPkgUid, /* shouldNotify= */ false,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(25, 50, 75),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(200, 300, 400),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 3)),
+                /* Overuse occurred and can be killed/disabled. */
+                constructPackageIoOveruseStats(thirdPartyPkgUid, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 200, 300),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
+                                /* totalOveruses= */ 3)));
+
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        verifyDisabledPackages(/* userPackagesCsv= */ "100:third_party_package");
+
+        List<ResourceOveruseStats> expectedStats = new ArrayList<>();
+
+        expectedStats.add(constructResourceOveruseStats(criticalSysPkgUid,
+                "system_package.critical", packageIoOveruseStats.get(0).ioOveruseStats));
+
+        verifyOnOveruseCalled(expectedStats, mockListener);
+
+        expectedStats.add(constructResourceOveruseStats(nonCriticalSysPkgUid,
+                "system_package.non_critical", packageIoOveruseStats.get(1).ioOveruseStats));
+
+        /*
+         * When the package receives overuse notification, the package is not yet killed so the
+         * totalTimesKilled counter is not yet incremented.
+         */
+        expectedStats.add(constructResourceOveruseStats(thirdPartyPkgUid, "third_party_package",
+                packageIoOveruseStats.get(3).ioOveruseStats));
+
+        verifyOnOveruseCalled(expectedStats, mockSystemListener);
+
+        List<AtomsProto.CarWatchdogIoOveruseStatsReported> expectedReportedOveruseStats =
+                new ArrayList<>();
+        expectedReportedOveruseStats.add(constructIoOveruseStatsReported(criticalSysPkgUid,
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(10, 20, 30),
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300)));
+        expectedReportedOveruseStats.add(constructIoOveruseStatsReported(thirdPartyPkgUid,
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+
+        captureAndVerifyIoOveruseStatsReported(expectedReportedOveruseStats);
+
+        List<AtomsProto.CarWatchdogKillStatsReported> expectedReportedKillStats =
+                Collections.singletonList(constructIoOveruseKillStatsReported(thirdPartyPkgUid,
+                        CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
+                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+
+        captureAndVerifyKillStatsReported(expectedReportedKillStats);
+    }
+
+    @Test
+    public void testLatestIoOveruseStatsWithSharedUid() throws Exception {
+        setRequiresDistractionOptimization(/* isRequires= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        int criticalSysSharedUid = Binder.getCallingUid();
+        int nonCriticalVndrSharedUid = 10002564;
+        int thirdPartySharedUid = 10002044;
+
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo(
+                        "system_package.A", criticalSysSharedUid, "system_shared_package"),
+                constructPackageManagerPackageInfo(
+                        "system_package.B", criticalSysSharedUid, "system_shared_package"),
+                constructPackageManagerPackageInfo("vendor_package.non_critical",
+                        nonCriticalVndrSharedUid, "vendor_shared_package"),
+                constructPackageManagerPackageInfo(
+                        "third_party_package.A", thirdPartySharedUid, "third_party_shared_package"),
+                constructPackageManagerPackageInfo(
+                        "third_party_package.B", thirdPartySharedUid, "third_party_shared_package")
+        ));
+
+        IResourceOveruseListener mockSystemListener = createMockResourceOveruseListener();
+        mWatchdogPerfHandler.addResourceOveruseListenerForSystem(
+                FLAG_RESOURCE_OVERUSE_IO, mockSystemListener);
+
+        IResourceOveruseListener mockListener = createMockResourceOveruseListener();
+        mWatchdogPerfHandler.addResourceOveruseListener(
+                FLAG_RESOURCE_OVERUSE_IO, mockListener);
+
+        List<PackageIoOveruseStats> packageIoOveruseStats = Arrays.asList(
+                /* Overuse occurred but cannot be killed/disabled. */
+                constructPackageIoOveruseStats(criticalSysSharedUid, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 200, 300),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ false,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 3)),
+                /* No overuse occurred but should be notified. */
+                constructPackageIoOveruseStats(nonCriticalVndrSharedUid, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(50, 100, 150),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(200, 300, 400),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 3)),
+                /* Overuse occurred and can be killed/disabled. */
+                constructPackageIoOveruseStats(thirdPartySharedUid, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 200, 300),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
+                                /* totalOveruses= */ 3)));
+
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        verifyDisabledPackages(
+                /* userPackagesCsv= */ "100:third_party_package.A,100:third_party_package.B");
+
+        List<ResourceOveruseStats> expectedStats = new ArrayList<>();
+
+        expectedStats.add(constructResourceOveruseStats(criticalSysSharedUid,
+                "shared:system_shared_package", packageIoOveruseStats.get(0).ioOveruseStats));
+
+        verifyOnOveruseCalled(expectedStats, mockListener);
+
+        expectedStats.add(constructResourceOveruseStats(nonCriticalVndrSharedUid,
+                "shared:vendor_shared_package", packageIoOveruseStats.get(1).ioOveruseStats));
+
+        /*
+         * When the package receives overuse notification, the package is not yet killed so the
+         * totalTimesKilled counter is not yet incremented.
+         */
+        expectedStats.add(constructResourceOveruseStats(thirdPartySharedUid,
+                "shared:third_party_shared_package", packageIoOveruseStats.get(2).ioOveruseStats));
+
+        verifyOnOveruseCalled(expectedStats, mockSystemListener);
+
+        List<AtomsProto.CarWatchdogIoOveruseStatsReported> expectedReportedOveruseStats =
+                new ArrayList<>();
+        expectedReportedOveruseStats.add(constructIoOveruseStatsReported(criticalSysSharedUid,
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(10, 20, 30),
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300)));
+        expectedReportedOveruseStats.add(constructIoOveruseStatsReported(thirdPartySharedUid,
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+
+        captureAndVerifyIoOveruseStatsReported(expectedReportedOveruseStats);
+
+        List<AtomsProto.CarWatchdogKillStatsReported> expectedReportedKillStats =
+                Collections.singletonList(constructIoOveruseKillStatsReported(thirdPartySharedUid,
+                        CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
+                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+
+        captureAndVerifyKillStatsReported(expectedReportedKillStats);
+    }
+
+    private static void verifyOnOveruseCalled(List<ResourceOveruseStats> expectedStats,
+            IResourceOveruseListener mockListener) throws Exception {
+        ArgumentCaptor<ResourceOveruseStats> resourceOveruseStatsCaptor =
+                ArgumentCaptor.forClass(ResourceOveruseStats.class);
+
+        verify(mockListener, times(expectedStats.size()))
+                .onOveruse(resourceOveruseStatsCaptor.capture());
+
+        ResourceOveruseStatsSubject.assertThat(resourceOveruseStatsCaptor.getAllValues())
+                .containsExactlyElementsIn(expectedStats);
+    }
+
+    private void setupUsers() {
+        when(mMockContext.getSystemService(UserManager.class)).thenReturn(mMockUserManager);
+        mockUmGetAllUsers(mMockUserManager, new UserHandle[0]);
+    }
+
+    private void initService(int wantedInvocations) throws Exception {
+        mWatchdogPerfHandler.setOveruseHandlingDelay(OVERUSE_HANDLING_DELAY_MILLS);
+        mWatchdogPerfHandler.init();
+        captureCarUxRestrictionsChangeListener(wantedInvocations);
+        verifyDatabaseInit(wantedInvocations);
+        captureStatsPullAtomCallback(wantedInvocations);
+        mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ true);
+
+    }
+
+    private void restartService(int totalRestarts, int wantedDbWrites) throws Exception {
+        restartService(totalRestarts, wantedDbWrites, /* isWriteIoStats= */ true);
+    }
+
+    private void restartService(int totalRestarts, int wantedDbWrites, boolean isWriteIoStats)
+            throws Exception {
+        mWatchdogPerfHandler.writeMetadataFile();
+        mWatchdogPerfHandler.writeToDatabase();
+        mWatchdogPerfHandler.release();
+        mSpiedWatchdogStorage.release();
+        verify(mSpiedWatchdogStorage, times(totalRestarts)).startWrite();
+        verify(mSpiedWatchdogStorage, times(isWriteIoStats ? wantedDbWrites : 0))
+                .saveIoUsageStats(any());
+        verify(mSpiedWatchdogStorage, times(wantedDbWrites)).saveUserPackageSettings(any());
+        verify(mSpiedWatchdogStorage, times(wantedDbWrites)).markWriteSuccessful();
+        verify(mSpiedWatchdogStorage, times(wantedDbWrites)).endWrite();
+        mWatchdogPerfHandler = new WatchdogPerfHandler(mMockContext,
+                mMockBuiltinPackageContext, mMockCarWatchdogDaemonHelper,
+                new PackageInfoHandler(mMockContext.getPackageManager()),
+                mSpiedWatchdogStorage, mTimeSource);
+        initService(/* wantedInvocations= */ totalRestarts + 1);
+    }
+
+    private void setRequiresDistractionOptimization(boolean isRequires) throws Exception {
+        CarUxRestrictions.Builder builder = new CarUxRestrictions.Builder(
+                isRequires, UX_RESTRICTIONS_BASELINE, /* time= */ 0);
+        mCarUxRestrictionsChangeListener.onUxRestrictionsChanged(builder.build());
+    }
+
+    private List<PackageIoOveruseStats> sampleIoOveruseStats(boolean requireRecurrentOveruseStats)
+            throws Exception {
+        int[] users = new int[]{100, 101};
+        int totalOveruses = requireRecurrentOveruseStats ? RECURRING_OVERUSE_TIMES + 1 : 1;
+        List<PackageIoOveruseStats> packageIoOveruseStats = new ArrayList<>();
+        android.automotive.watchdog.PerStateBytes zeroRemainingBytes =
+                constructPerStateBytes(0, 0, 0);
+        android.automotive.watchdog.PerStateBytes nonZeroRemainingBytes =
+                constructPerStateBytes(20, 30, 40);
+        android.automotive.watchdog.PerStateBytes writtenBytes =
+                constructPerStateBytes(100, 200, 300);
+        for (int i = 0; i < users.length; ++i) {
+            // Overuse occurred but cannot be killed/disabled.
+            packageIoOveruseStats.add(constructPackageIoOveruseStats(
+                    UserHandle.getUid(users[i], 10001), /* shouldNotify= */ true,
+                    /* forgivenWriteBytes= */ writtenBytes,
+                    constructInternalIoOveruseStats(
+                            /* killableOnOveruse= */ false, zeroRemainingBytes, writtenBytes,
+                            totalOveruses)));
+            // No overuse occurred but the package should be notified.
+            packageIoOveruseStats.add(constructPackageIoOveruseStats(
+                    UserHandle.getUid(users[i], 10002), /* shouldNotify= */ true,
+                    /* forgivenWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                    constructInternalIoOveruseStats(
+                            /* killableOnOveruse= */ true, nonZeroRemainingBytes, writtenBytes,
+                            totalOveruses)));
+            // Neither overuse occurred nor be notified.
+            packageIoOveruseStats.add(constructPackageIoOveruseStats(
+                    UserHandle.getUid(users[i], 10003), /* shouldNotify= */ false,
+                    /* forgivenWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                    constructInternalIoOveruseStats(
+                            /* killableOnOveruse= */ false, nonZeroRemainingBytes, writtenBytes,
+                            totalOveruses)));
+            // Overuse occurred and can be killed/disabled.
+            packageIoOveruseStats.add(constructPackageIoOveruseStats(
+                    UserHandle.getUid(users[i], 10004), /* shouldNotify= */ false,
+                    /* forgivenWriteBytes= */ writtenBytes,
+                    constructInternalIoOveruseStats(
+                            /* killableOnOveruse= */ true, zeroRemainingBytes, writtenBytes,
+                            totalOveruses)));
+            // Overuse occurred and can be killed/disabled.
+            packageIoOveruseStats.add(constructPackageIoOveruseStats(
+                    UserHandle.getUid(users[i], 10005), /* shouldNotify= */ true,
+                    /* forgivenWriteBytes= */ writtenBytes,
+                    constructInternalIoOveruseStats(
+                            /* killableOnOveruse= */ true, zeroRemainingBytes, writtenBytes,
+                            totalOveruses)));
+        }
+        return packageIoOveruseStats;
+    }
+
+    private void setUpSampleUserAndPackages() {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 100, 101);
+        int[] users = new int[]{100, 101};
+        List<android.content.pm.PackageInfo> packageInfos = new ArrayList<>();
+        for (int i = 0; i < users.length; ++i) {
+            packageInfos.add(constructPackageManagerPackageInfo(
+                    "system_package.critical", UserHandle.getUid(users[i], 10001), null));
+            packageInfos.add(constructPackageManagerPackageInfo(
+                    "system_package.non_critical", UserHandle.getUid(users[i], 10002), null));
+            packageInfos.add(constructPackageManagerPackageInfo(
+                    "vendor_package.critical", UserHandle.getUid(users[i], 10003), null));
+            packageInfos.add(constructPackageManagerPackageInfo(
+                    "vendor_package.non_critical", UserHandle.getUid(users[i], 10004), null));
+            packageInfos.add(constructPackageManagerPackageInfo(
+                    "third_party_package.A", UserHandle.getUid(users[i], 10005),
+                    "third_party_shared_package"));
+            packageInfos.add(constructPackageManagerPackageInfo(
+                    "third_party_package.B", UserHandle.getUid(users[i], 10005),
+                    "third_party_shared_package"));
+        }
+        injectPackageInfos(packageInfos);
+    }
+
+    private static List<AtomsProto.CarWatchdogIoOveruseStatsReported> sampleReportedOveruseStats() {
+        // The below thresholds are from {@link sampleInternalResourceOveruseConfiguration} and
+        // UID/stat are from {@link sampleIoOveruseStats}.
+        AtomsProto.CarWatchdogPerStateBytes systemThreshold =
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(10, 20, 30);
+        AtomsProto.CarWatchdogPerStateBytes vendorThreshold =
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(20, 40, 60);
+        AtomsProto.CarWatchdogPerStateBytes thirdPartyThreshold =
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90);
+        AtomsProto.CarWatchdogPerStateBytes writtenBytes =
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300);
+        List<AtomsProto.CarWatchdogIoOveruseStatsReported> reportedOveruseStats = new ArrayList<>();
+        reportedOveruseStats.add(constructIoOveruseStatsReported(
+                10010001, systemThreshold, writtenBytes));
+        reportedOveruseStats.add(constructIoOveruseStatsReported(
+                10110001, systemThreshold, writtenBytes));
+        reportedOveruseStats.add(constructIoOveruseStatsReported(
+                10010004, vendorThreshold, writtenBytes));
+        reportedOveruseStats.add(constructIoOveruseStatsReported(
+                10110004, vendorThreshold, writtenBytes));
+        reportedOveruseStats.add(constructIoOveruseStatsReported(
+                10010005, thirdPartyThreshold, writtenBytes));
+        reportedOveruseStats.add(constructIoOveruseStatsReported(
+                10110005, thirdPartyThreshold, writtenBytes));
+        return reportedOveruseStats;
+    }
+
+    private static List<AtomsProto.CarWatchdogKillStatsReported> sampleReportedKillStats(
+            int systemState, int[] killedUids) {
+        // The below thresholds are from {@link sampleInternalResourceOveruseConfiguration} and
+        // UID/stat are from {@link sampleIoOveruseStats}.
+        AtomsProto.CarWatchdogPerStateBytes vendorThreshold =
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(20, 40, 60);
+        AtomsProto.CarWatchdogPerStateBytes thirdPartyThreshold =
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90);
+        AtomsProto.CarWatchdogPerStateBytes writtenBytes =
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300);
+        List<AtomsProto.CarWatchdogKillStatsReported> reportedKillStats = new ArrayList<>();
+        for (int uid : killedUids) {
+            AtomsProto.CarWatchdogPerStateBytes threshold =
+                    UserHandle.getAppId(uid) == 10004 ? vendorThreshold : thirdPartyThreshold;
+            reportedKillStats.add(constructIoOveruseKillStatsReported(
+                    uid, systemState, threshold, writtenBytes));
+        }
+        return reportedKillStats;
+    }
+
+    private static AtomsProto.CarWatchdogIoOveruseStatsReported
+            constructIoOveruseStatsReported(int uid, AtomsProto.CarWatchdogPerStateBytes threshold,
+            AtomsProto.CarWatchdogPerStateBytes writtenBytes) {
+        return constructCarWatchdogIoOveruseStatsReported(
+                uid, WatchdogPerfHandler.constructCarWatchdogIoOveruseStats(
+                        AtomsProto.CarWatchdogIoOveruseStats.Period.DAILY, threshold, writtenBytes)
+        );
+    }
+
+    private void captureAndVerifyIoOveruseStatsReported(
+            List<AtomsProto.CarWatchdogIoOveruseStatsReported> expected) throws Exception {
+        verify(() -> CarStatsLog.write(eq(CarStatsLog.CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED),
+                mOverusingUidCaptor.capture(), mOveruseStatsCaptor.capture()),
+                times(expected.size()));
+
+        List<Integer> allUidValues = mOverusingUidCaptor.getAllValues();
+        List<byte[]> allOveruseStatsValues = mOveruseStatsCaptor.getAllValues();
+        List<AtomsProto.CarWatchdogIoOveruseStatsReported> actual = new ArrayList<>();
+        for (int i = 0; i < expected.size(); ++i) {
+            actual.add(constructCarWatchdogIoOveruseStatsReported(allUidValues.get(i),
+                    AtomsProto.CarWatchdogIoOveruseStats.parseFrom(allOveruseStatsValues.get(i))));
+        }
+        assertWithMessage("I/O overuse stats reported to statsd").that(actual)
+                .containsExactlyElementsIn(expected);
+    }
+
+    private void captureAndVerifyKillStatsReported(
+            List<AtomsProto.CarWatchdogKillStatsReported> expected) throws Exception {
+        // Overuse handling task is posted on the main thread and this task performs disabling and
+        // uploading metrics. Wait for this task to complete.
+        CarServiceUtils.runOnMainSync(() -> {});
+
+        verify(() -> CarStatsLog.write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
+                mKilledUidCaptor.capture(), mUidStateCaptor.capture(),
+                mSystemStateCaptor.capture(), mKillReasonCaptor.capture(), eq(null),
+                mKilledStatsCaptor.capture()), times(expected.size()));
+
+        List<Integer> allUidValues = mKilledUidCaptor.getAllValues();
+        List<Integer> allUidStateValues = mUidStateCaptor.getAllValues();
+        List<Integer> allSystemStateValues = mSystemStateCaptor.getAllValues();
+        List<Integer> allKillReasonValues = mKillReasonCaptor.getAllValues();
+        List<byte[]> allIoOveruseStatsValues = mKilledStatsCaptor.getAllValues();
+        List<AtomsProto.CarWatchdogKillStatsReported> actual = new ArrayList<>();
+        for (int i = 0; i < expected.size(); ++i) {
+            actual.add(constructCarWatchdogKillStatsReported(allUidValues.get(i),
+                    allUidStateValues.get(i), allSystemStateValues.get(i),
+                    allKillReasonValues.get(i),
+                    AtomsProto.CarWatchdogIoOveruseStats.parseFrom(
+                            allIoOveruseStatsValues.get(i))));
+        }
+        assertWithMessage("I/O overuse kill stats reported to statsd").that(actual)
+                .containsExactlyElementsIn(expected);
+    }
+
+    private static AtomsProto.CarWatchdogIoOveruseStatsReported
+            constructCarWatchdogIoOveruseStatsReported(
+            int uid, AtomsProto.CarWatchdogIoOveruseStats ioOveruseStats) {
+        return AtomsProto.CarWatchdogIoOveruseStatsReported.newBuilder()
+                .setUid(uid)
+                .setIoOveruseStats(ioOveruseStats)
+                .build();
+    }
+
+    private static AtomsProto.CarWatchdogKillStatsReported constructIoOveruseKillStatsReported(
+            int uid, int systemState, AtomsProto.CarWatchdogPerStateBytes threshold,
+            AtomsProto.CarWatchdogPerStateBytes writtenBytes) {
+        return constructCarWatchdogKillStatsReported(uid,
+                CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE, systemState,
+                CAR_WATCHDOG_KILL_STATS_REPORTED__KILL_REASON__KILLED_ON_IO_OVERUSE,
+                WatchdogPerfHandler.constructCarWatchdogIoOveruseStats(
+                        AtomsProto.CarWatchdogIoOveruseStats.Period.DAILY, threshold, writtenBytes)
+        );
+    }
+
+    private static AtomsProto.CarWatchdogKillStatsReported constructCarWatchdogKillStatsReported(
+            int uid, int uidState, int systemState, int killReason,
+            AtomsProto.CarWatchdogIoOveruseStats ioOveruseStats) {
+        return AtomsProto.CarWatchdogKillStatsReported.newBuilder()
+                .setUid(uid)
+                .setUidState(AtomsProto.CarWatchdogKillStatsReported.UidState.forNumber(uidState))
+                .setSystemState(AtomsProto.CarWatchdogKillStatsReported.SystemState.forNumber(
+                        systemState))
+                .setKillReason(AtomsProto.CarWatchdogKillStatsReported.KillReason.forNumber(
+                        killReason))
+                .setIoOveruseStats(ioOveruseStats)
+                .build();
+    }
+
+    private void enableUserPackage(String packageName, int userId, boolean isKillable)
+            throws Exception {
+        UserHandle userHandle = UserHandle.of(userId);
+
+        // Set package killable state to not killable, which enable the user package
+        mWatchdogPerfHandler.setKillablePackageAsUser(packageName, userHandle,
+                /* isKillable= */ false);
+
+        if (isKillable) {
+            mWatchdogPerfHandler.setKillablePackageAsUser(packageName, userHandle,
+                    /* isKillable= */ true);
+        }
+
+        verify(mSpiedPackageManager, atLeastOnce())
+                .getApplicationEnabledSetting(packageName, userId);
+
+        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq(packageName),
+                eq(COMPONENT_ENABLED_STATE_ENABLED), eq(0),
+                eq(userId), anyString());
+
+        assertThat(mDisabledUserPackages).doesNotContain(userId + ":" + packageName);
+
+        doReturn(COMPONENT_ENABLED_STATE_ENABLED).when(mSpiedPackageManager)
+                .getApplicationEnabledSetting(eq(packageName), eq(userId));
+    }
+
     private void disableUserPackage(String packageName, int... userIds) throws Exception {
         for (int i = 0; i < userIds.length; i++) {
             int userId = userIds[i];
@@ -2480,13 +3416,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
     private void pushLatestIoOveruseStatsAndWait(List<PackageIoOveruseStats> packageIoOveruseStats)
             throws Exception {
-        ResourceStats resourceStats = new ResourceStats();
-        resourceStats.resourceOveruseStats =
-                new android.automotive.watchdog.internal.ResourceOveruseStats();
-        resourceStats.resourceOveruseStats.packageIoOveruseStats = packageIoOveruseStats;
-
-        mWatchdogPerfHandler.latestIoOveruseStats(
-                resourceStats.resourceOveruseStats.packageIoOveruseStats);
+        mWatchdogPerfHandler.latestIoOveruseStats(packageIoOveruseStats);
 
         // Handling latest I/O overuse stats is done on the CarWatchdogService service handler
         // thread. Wait until the below message is processed before returning, so the
