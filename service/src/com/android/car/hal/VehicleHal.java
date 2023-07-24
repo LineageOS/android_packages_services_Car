@@ -54,7 +54,6 @@ import com.android.car.CarSystemService;
 import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.SubscriptionClient;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.car.internal.property.CarSubscribeOption;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.Lists;
 import com.android.internal.annotations.GuardedBy;
@@ -139,6 +138,64 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
 
     // Used by injectVHALEvent for testing purposes.  Delimiter for an array of data
     private static final String DATA_DELIMITER = ",";
+
+    /* package */ static final class HalSubscribeOptions {
+        private final int mHalPropId;
+        private final int[] mAreaIds;
+        private final float mUpdateRateHz;
+
+        HalSubscribeOptions(int halPropId, int[] areaId, float updateRateHz) {
+            mHalPropId = halPropId;
+            mAreaIds = areaId;
+            mUpdateRateHz = updateRateHz;
+        }
+
+        int getHalPropId() {
+            return mHalPropId;
+        }
+
+        int[] getAreaId() {
+            return mAreaIds;
+        }
+
+        float getUpdateRateHz() {
+            return mUpdateRateHz;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (other == this) {
+                return true;
+            }
+
+            if (!(other instanceof VehicleHal.HalSubscribeOptions)) {
+                return false;
+            }
+
+            VehicleHal.HalSubscribeOptions o = (VehicleHal.HalSubscribeOptions) other;
+
+            return mHalPropId == o.getHalPropId() && mUpdateRateHz == o.getUpdateRateHz()
+                    && Arrays.equals(mAreaIds, o.getAreaId());
+        }
+
+        @Override
+        public String toString() {
+            return "HalSubscribeOptions{"
+                    + "PropertyId: " + mHalPropId
+                    + ", AreaId: " + Arrays.toString(mAreaIds)
+                    + ", UpdateRateHz: " + mUpdateRateHz + "}";
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + mHalPropId;
+            result = prime * result + Float.hashCode(mUpdateRateHz);
+            result = prime * result + ((mAreaIds == null) ? 0 : Arrays.hashCode(mAreaIds));
+            return result;
+        }
+    }
 
     /**
      * Constructs a new {@link VehicleHal} object given the {@link Context} and {@link IVehicle}
@@ -502,10 +559,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     public void subscribeProperty(HalServiceBase service, int property, float samplingRateHz)
             throws IllegalArgumentException {
-        CarSubscribeOption options = new CarSubscribeOption();
-        options.propertyId = property;
-        options.areaIds = new int[0];
-        options.updateRateHz = samplingRateHz;
+        HalSubscribeOptions options = new HalSubscribeOptions(property, new int[0], samplingRateHz);
         subscribeProperty(service, List.of(options));
     }
 
@@ -513,13 +567,13 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * Subscribe given property. Only Hal service owning the property can subscribe it.
      *
      * @param service HalService that owns this property
-     * @param carSubscribeOptions Information needed to subscribe to VHAL
+     * @param halSubscribeOptions Information needed to subscribe to VHAL
      * @throws IllegalArgumentException thrown if property is not supported by VHAL
      */
-    public void subscribeProperty(HalServiceBase service, List<CarSubscribeOption>
-            carSubscribeOptions) {
+    public void subscribeProperty(HalServiceBase service, List<HalSubscribeOptions>
+            halSubscribeOptions) {
         SubscribeOptions[] subscribeOptions = createSubscribeOptions(service,
-                carSubscribeOptions);
+                halSubscribeOptions);
         if (subscribeOptions.length == 0) {
             if (DBG) {
                 Slogf.d(CarLog.TAG_HAL, "Failed to subscribe, SubscribeOptions is length 0");
@@ -534,17 +588,17 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     }
 
     private SubscribeOptions[] createSubscribeOptions(HalServiceBase service,
-            List<CarSubscribeOption> carSubscribeOptions) {
+            List<HalSubscribeOptions> halSubscribeOptions) {
         if (DBG) {
             Slogf.d(CarLog.TAG_HAL, "creating subscribeOptions from CarSubscribeOptions of size: "
-                    + carSubscribeOptions.size());
+                    + halSubscribeOptions.size());
         }
         List<SubscribeOptions> subscribeOptionsList = new ArrayList<>();
         synchronized (mLock) {
-            for (int i = 0; i < carSubscribeOptions.size(); i++) {
-                int property = carSubscribeOptions.get(i).propertyId;
-                int[] areaIds = carSubscribeOptions.get(i).areaIds;
-                float samplingRateHz = carSubscribeOptions.get(i).updateRateHz;
+            for (int i = 0; i < halSubscribeOptions.size(); i++) {
+                int property = halSubscribeOptions.get(i).getHalPropId();
+                int[] areaIds = halSubscribeOptions.get(i).getAreaId();
+                float samplingRateHz = halSubscribeOptions.get(i).getUpdateRateHz();
 
                 HalPropConfig config;
                 config = mAllProperties.get(property);

@@ -18,8 +18,6 @@ package com.android.car.hal;
 
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 
-import static com.android.car.hal.PropertyHalServiceTest.createCarSubscriptionOption;
-
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -61,7 +59,7 @@ import android.os.SystemClock;
 import com.android.car.CarServiceUtils;
 import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.AsyncGetSetRequest;
-import com.android.car.internal.property.CarSubscribeOption;
+import com.android.car.hal.VehicleHal.HalSubscribeOptions;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 
@@ -621,7 +619,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testSubscribeProperty_subscribeWithAreaId() throws Exception {
         int[] areaIds = new int[] {AREA_ID_1};
-        CarSubscribeOption option = createCarSubscriptionOption(SOME_READ_ON_CHANGE_PROPERTY,
+        HalSubscribeOptions option = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 areaIds, ANY_SAMPLING_RATE_1);
         mVehicleHal.subscribeProperty(mPowerHalService, List.of(option));
 
@@ -636,9 +634,9 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         // Arrange
         int[] areaIds1 = new int[] {AREA_ID_1};
         int[] areaIds2 = new int[] {AREA_ID_2};
-        CarSubscribeOption options1 = createCarSubscriptionOption(SOME_READ_ON_CHANGE_PROPERTY,
+        HalSubscribeOptions options1 = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 areaIds1, ANY_SAMPLING_RATE_1);
-        CarSubscribeOption options2 = createCarSubscriptionOption(SOME_READ_ON_CHANGE_PROPERTY,
+        HalSubscribeOptions options2 = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 areaIds2, ANY_SAMPLING_RATE_1);
 
         // Act
@@ -660,9 +658,9 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         // Arrange
         int[] areaIds1 = new int[] {AREA_ID_1, AREA_ID_2};
         int[] areaIds2 = new int[] {AREA_ID_2, AREA_ID_3};
-        CarSubscribeOption options1 = createCarSubscriptionOption(SOME_READ_ON_CHANGE_PROPERTY,
+        HalSubscribeOptions options1 = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 areaIds1, ANY_SAMPLING_RATE_1);
-        CarSubscribeOption options2 = createCarSubscriptionOption(SOME_READ_ON_CHANGE_PROPERTY,
+        HalSubscribeOptions options2 = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 areaIds2, ANY_SAMPLING_RATE_1);
 
         // Act
@@ -684,9 +682,9 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         // Arrange
         int[] areaIds1 = new int[] {AREA_ID_1};
         int[] areaIds2 = new int[] {AREA_ID_1, AREA_ID_2};
-        CarSubscribeOption options1 = createCarSubscriptionOption(SOME_READ_ON_CHANGE_PROPERTY,
+        HalSubscribeOptions options1 = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 areaIds1, ANY_SAMPLING_RATE_1);
-        CarSubscribeOption options2 = createCarSubscriptionOption(SOME_READ_ON_CHANGE_PROPERTY,
+        HalSubscribeOptions options2 = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 areaIds2, ANY_SAMPLING_RATE_1);
 
         // Act
@@ -708,9 +706,9 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         // Arrange
         int[] areaIds1 = new int[] {AREA_ID_1, AREA_ID_2};
         int[] areaIds2 = new int[] {AREA_ID_1};
-        CarSubscribeOption options1 = createCarSubscriptionOption(SOME_READ_ON_CHANGE_PROPERTY,
+        HalSubscribeOptions options1 = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 areaIds1, ANY_SAMPLING_RATE_1);
-        CarSubscribeOption options2 = createCarSubscriptionOption(SOME_READ_ON_CHANGE_PROPERTY,
+        HalSubscribeOptions options2 = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 areaIds2, ANY_SAMPLING_RATE_2);
 
         // Act
@@ -732,13 +730,13 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     public void testSubscribeProperty_precisionThresholdMetOverThreshold() throws Exception {
         // Arrange
         int[] areaIds1 = new int[] {AREA_ID_1, AREA_ID_2};
-        CarSubscribeOption options1 = createCarSubscriptionOption(SOME_READ_ON_CHANGE_PROPERTY,
+        HalSubscribeOptions options1 = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 areaIds1, ANY_SAMPLING_RATE_1);
 
         mVehicleHal.subscribeProperty(mPowerHalService, List.of(options1));
         reset(mSubscriptionClient);
 
-        CarSubscribeOption options2 = createCarSubscriptionOption(SOME_READ_ON_CHANGE_PROPERTY,
+        HalSubscribeOptions options2 = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 areaIds1, ANY_SAMPLING_RATE_1 + 0.001f);
 
         // Assert
@@ -752,13 +750,13 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     public void testSubscribeProperty_precisionThresholdMetUnderThreshold() throws Exception {
         // Arrange
         int[] areaIds1 = new int[] {AREA_ID_1, AREA_ID_2};
-        CarSubscribeOption options1 = createCarSubscriptionOption(SOME_READ_ON_CHANGE_PROPERTY,
+        HalSubscribeOptions options1 = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 areaIds1, ANY_SAMPLING_RATE_1);
 
         mVehicleHal.subscribeProperty(mPowerHalService, List.of(options1));
         reset(mSubscriptionClient);
 
-        CarSubscribeOption options2 = createCarSubscriptionOption(SOME_READ_ON_CHANGE_PROPERTY,
+        HalSubscribeOptions options2 = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 areaIds1, ANY_SAMPLING_RATE_1 - 0.001f);
         // Assert
         // Sampling rate is 59.9990005
@@ -771,13 +769,13 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     public void testSubscribeProperty_precisionThresholdNotMet() throws Exception {
         // Arrange
         int[] areaIds1 = new int[] {AREA_ID_1, AREA_ID_2};
-        CarSubscribeOption options1 = createCarSubscriptionOption(SOME_READ_ON_CHANGE_PROPERTY,
+        HalSubscribeOptions options1 = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 areaIds1, ANY_SAMPLING_RATE_1);
 
         mVehicleHal.subscribeProperty(mPowerHalService, List.of(options1));
         reset(mSubscriptionClient);
 
-        CarSubscribeOption options2 = createCarSubscriptionOption(SOME_READ_ON_CHANGE_PROPERTY,
+        HalSubscribeOptions options2 = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 areaIds1, ANY_SAMPLING_RATE_1 + 0.0011f);
 
         // Assert
@@ -792,9 +790,9 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         // Arrange
         int[] areaIds1 = new int[] {AREA_ID_1, AREA_ID_2};
         int[] areaIds2 = new int[] {AREA_ID_1, AREA_ID_2};
-        CarSubscribeOption options1 = createCarSubscriptionOption(SOME_READ_ON_CHANGE_PROPERTY,
+        HalSubscribeOptions options1 = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 areaIds1, ANY_SAMPLING_RATE_1);
-        CarSubscribeOption options2 = createCarSubscriptionOption(SOME_READ_ON_CHANGE_PROPERTY,
+        HalSubscribeOptions options2 = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 areaIds1, ANY_SAMPLING_RATE_2);
 
         // Act
@@ -817,9 +815,9 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         int[] areaIds1 = new int[] {AREA_ID_1, AREA_ID_2};
         int[] areaIds2 = new int[] {AREA_ID_3};
 
-        CarSubscribeOption options1 = createCarSubscriptionOption(SOME_READ_ON_CHANGE_PROPERTY,
+        HalSubscribeOptions options1 = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 areaIds1, ANY_SAMPLING_RATE_1);
-        CarSubscribeOption options2 = createCarSubscriptionOption(SOME_READ_ON_CHANGE_PROPERTY,
+        HalSubscribeOptions options2 = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 areaIds2, ANY_SAMPLING_RATE_2);
 
         // Act
