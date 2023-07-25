@@ -1517,7 +1517,7 @@ public final class Car {
     public static final String CAR_REMOTEACCESS_REMOTE_TASK_CLIENT_SERVICE =
             "android.car.remoteaccess.RemoteTaskClientService";
 
-    /*
+    /**
      * Intent for binding the implementation of {@link
      * android.car.occupantconnection.AbstractReceiverService} in the app.
      *
