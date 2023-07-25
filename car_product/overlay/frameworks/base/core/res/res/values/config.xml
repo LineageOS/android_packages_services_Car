@@ -205,4 +205,8 @@
     <string name="config_recentsComponentName" translatable="false">
         com.android.car.carlauncher/.recents.CarRecentsActivity
     </string>
+
+    <!-- Disable the "Share" action item shown in the context menu that appears upon long-pressing
+        on selected text. -->
+    <bool name="config_textShareSupported">false</bool>
 </resources>
