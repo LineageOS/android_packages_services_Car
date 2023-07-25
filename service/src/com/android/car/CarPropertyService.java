@@ -943,6 +943,11 @@ public class CarPropertyService extends ICarProperty.Stub
                     Car.PERMISSION_READ_DISPLAY_UNITS);
             return;
         }
+        if (propertyId == VehiclePropertyIds.EV_CHARGE_SWITCH) {
+            CarServiceUtils.assertAnyPermission(mContext, readPermission,
+                    Car.PERMISSION_CONTROL_CAR_ENERGY);
+            return;
+        }
         CarServiceUtils.assertPermission(mContext, readPermission);
     }
 
