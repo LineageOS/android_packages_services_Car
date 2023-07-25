@@ -32,7 +32,6 @@ import com.android.car.ui.toolbar.MenuItem;
 import com.android.car.ui.toolbar.NavButtonMode;
 import com.android.car.ui.toolbar.SearchMode;
 import com.android.car.ui.toolbar.Tab;
-import com.android.car.ui.toolbar.ToolbarControllerImpl;
 
 import java.util.List;
 import java.util.Objects;
@@ -169,15 +168,13 @@ public final class ToolbarAdapterProxy implements ToolbarControllerOEMV2 {
         if (menuItemOEMV1.isCheckable()) menuItemBuilder.setCheckable();
 
         menuItemBuilder
-                .setActivated(menuItemOEMV1.isActivated())
-                .setChecked(menuItemOEMV1.isChecked())
                 .setEnabled(menuItemOEMV1.isEnabled())
                 .setVisible(menuItemOEMV1.isVisible())
                 .setPrimary(menuItemOEMV1.isPrimary())
                 .setTinted(menuItemOEMV1.isTinted())
                 .setTitle(menuItemOEMV1.getTitle())
                 .setIcon(menuItemOEMV1.getIcon())
-                .setDisplayBehavior(menuItemOEMV1.getDisplayBehavior() == 1
+                .setDisplayBehavior(menuItemOEMV1.getDisplayBehavior() == 0
                         ? MenuItem.DisplayBehavior.ALWAYS : MenuItem.DisplayBehavior.NEVER)
                 .setShowIconAndTitle(menuItemOEMV1.isShowingIconAndTitle())
                 .setOnClickListener(menuItem -> {
@@ -186,6 +183,19 @@ public final class ToolbarAdapterProxy implements ToolbarControllerOEMV2 {
                     }
                 })
                 .setId(menuItemOEMV1.getKey());
+
+        if (menuItemOEMV1.isActivatable()) {
+            menuItemBuilder.setActivatable();
+        }
+        if (menuItemOEMV1.isCheckable()) {
+            menuItemBuilder.setCheckable();
+        }
+        if (menuItemOEMV1.isActivated()) {
+            menuItemBuilder.setActivated(menuItemOEMV1.isActivated());
+        }
+        if (menuItemOEMV1.isChecked()) {
+            menuItemBuilder.setChecked(menuItemOEMV1.isChecked());
+        }
 
         menuItemBuilder.setUxRestrictions(menuItemOEMV1.isRestricted()
                 ? CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED
