@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.hal;
+package com.android.car.hal.property;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -26,6 +26,9 @@ import android.os.SystemClock;
 
 import androidx.test.runner.AndroidJUnit4;
 
+import com.android.car.hal.HalPropValue;
+import com.android.car.hal.HalPropValueBuilder;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,12 +37,12 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 @RunWith(AndroidJUnit4.class)
-public class PropertyHalServiceIdsTest {
+public class PropertyHalServiceConfigsTest {
     @Rule
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
 
-    private PropertyHalServiceIds mPropertyHalServiceIds;
-    private static final String TAG = PropertyHalServiceIdsTest.class.getSimpleName();
+    private PropertyHalServiceConfigs mPropertyHalServiceConfigs;
+    private static final String TAG = PropertyHalServiceConfigsTest.class.getSimpleName();
     private static final HalPropValueBuilder PROP_VALUE_BUILDER =
             new HalPropValueBuilder(/*isAidl=*/true);
     //payload test
@@ -70,19 +73,19 @@ public class PropertyHalServiceIdsTest {
 
     @Before
     public void setUp() {
-        mPropertyHalServiceIds = new PropertyHalServiceIds();
+        mPropertyHalServiceConfigs = PropertyHalServiceConfigs.getInstance();
     }
 
     /**
-     * Test {@link PropertyHalServiceIds#checkPayload(HalPropValue)}
+     * Test {@link PropertyHalServiceConfigs#checkPayload(HalPropValue)}
      */
     @Test
     public void testPayload() {
-        assertThat(mPropertyHalServiceIds.checkPayload(GEAR_WITH_VALID_VALUE)).isTrue();
-        assertThat(mPropertyHalServiceIds.checkPayload(GEAR_WITH_EXTRA_VALUE)).isFalse();
-        assertThat(mPropertyHalServiceIds.checkPayload(GEAR_WITH_INVALID_VALUE)).isFalse();
-        assertThat(mPropertyHalServiceIds.checkPayload(GEAR_WITH_INVALID_TYPE_VALUE)).isFalse();
-        assertThat(mPropertyHalServiceIds.checkPayload(HVAC_FAN_DIRECTIONS_VALID)).isTrue();
-        assertThat(mPropertyHalServiceIds.checkPayload(HVAC_FAN_DIRECTIONS_INVALID)).isFalse();
+        assertThat(mPropertyHalServiceConfigs.checkPayload(GEAR_WITH_VALID_VALUE)).isTrue();
+        assertThat(mPropertyHalServiceConfigs.checkPayload(GEAR_WITH_EXTRA_VALUE)).isFalse();
+        assertThat(mPropertyHalServiceConfigs.checkPayload(GEAR_WITH_INVALID_VALUE)).isFalse();
+        assertThat(mPropertyHalServiceConfigs.checkPayload(GEAR_WITH_INVALID_TYPE_VALUE)).isFalse();
+        assertThat(mPropertyHalServiceConfigs.checkPayload(HVAC_FAN_DIRECTIONS_VALID)).isTrue();
+        assertThat(mPropertyHalServiceConfigs.checkPayload(HVAC_FAN_DIRECTIONS_INVALID)).isFalse();
     }
 }

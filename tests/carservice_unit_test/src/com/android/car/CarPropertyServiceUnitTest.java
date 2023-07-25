@@ -133,21 +133,21 @@ public final class CarPropertyServiceUnitTest {
                 null).setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).setChangeMode(
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS).setMaxSampleRate(
                 100).setMinSampleRate(1).build());
-        when(mHalService.isReadable(SPEED_ID, mContext)).thenReturn(true);
+        when(mHalService.isReadable(mContext, SPEED_ID)).thenReturn(true);
         // HVAC_TEMP is actually not a global property, but for simplicity, make it global here.
         configs.put(HVAC_TEMP, CarPropertyConfig.newBuilder(Float.class, HVAC_TEMP,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
                 .addAreaConfig(GLOBAL_AREA_ID, null, null)
                 .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ)
                 .build());
-        when(mHalService.isReadable(HVAC_TEMP, mContext)).thenReturn(true);
+        when(mHalService.isReadable(mContext, HVAC_TEMP)).thenReturn(true);
         configs.put(VehiclePropertyIds.GEAR_SELECTION,
                 CarPropertyConfig.newBuilder(Integer.class, VehiclePropertyIds.GEAR_SELECTION,
                                 VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
                         .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ)
                         .build());
         // Property with read or read/write access
-        when(mHalService.isReadable(CONTINUOUS_READ_ONLY_PROPERTY_ID, mContext))
+        when(mHalService.isReadable(mContext, CONTINUOUS_READ_ONLY_PROPERTY_ID))
                 .thenReturn(true);
         configs.put(CONTINUOUS_READ_ONLY_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
                 CONTINUOUS_READ_ONLY_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
@@ -155,41 +155,41 @@ public final class CarPropertyServiceUnitTest {
                 CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).setChangeMode(
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS).setMinSampleRate(
                 MIN_SAMPLE_RATE).setMaxSampleRate(MAX_SAMPLE_RATE).build());
-        when(mHalService.isWritable(WRITE_ONLY_INT_PROPERTY_ID, mContext))
+        when(mHalService.isWritable(mContext, WRITE_ONLY_INT_PROPERTY_ID))
                 .thenReturn(true);
         configs.put(WRITE_ONLY_INT_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
                 WRITE_ONLY_INT_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
                 1).addAreaConfig(GLOBAL_AREA_ID, MIN_INT_VALUE, MAX_INT_VALUE).setAccess(
                 CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build());
-        when(mHalService.isWritable(WRITE_ONLY_LONG_PROPERTY_ID, mContext))
+        when(mHalService.isWritable(mContext, WRITE_ONLY_LONG_PROPERTY_ID))
                 .thenReturn(true);
         configs.put(WRITE_ONLY_LONG_PROPERTY_ID, CarPropertyConfig.newBuilder(Long.class,
                 WRITE_ONLY_LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
                 1).addAreaConfig(GLOBAL_AREA_ID, MIN_LONG_VALUE, MAX_LONG_VALUE).setAccess(
                 CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build());
-        when(mHalService.isWritable(WRITE_ONLY_FLOAT_PROPERTY_ID, mContext))
+        when(mHalService.isWritable(mContext, WRITE_ONLY_FLOAT_PROPERTY_ID))
                 .thenReturn(true);
         configs.put(WRITE_ONLY_FLOAT_PROPERTY_ID, CarPropertyConfig.newBuilder(Float.class,
                 WRITE_ONLY_FLOAT_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
                 1).addAreaConfig(GLOBAL_AREA_ID, MIN_FLOAT_VALUE, MAX_FLOAT_VALUE).setAccess(
                 CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build());
-        when(mHalService.isWritable(WRITE_ONLY_ENUM_PROPERTY_ID, mContext))
+        when(mHalService.isWritable(mContext, WRITE_ONLY_ENUM_PROPERTY_ID))
                 .thenReturn(true);
         configs.put(WRITE_ONLY_ENUM_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
                 WRITE_ONLY_ENUM_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
                 1).addAreaIdConfig(new AreaIdConfig.Builder(GLOBAL_AREA_ID).setSupportedEnumValues(
                 SUPPORTED_ENUM_VALUES).build()).setAccess(
                 CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build());
-        when(mHalService.isWritable(WRITE_ONLY_OTHER_ENUM_PROPERTY_ID, mContext))
+        when(mHalService.isWritable(mContext, WRITE_ONLY_OTHER_ENUM_PROPERTY_ID))
                 .thenReturn(true);
         configs.put(WRITE_ONLY_OTHER_ENUM_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
                 WRITE_ONLY_OTHER_ENUM_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
                 1).addAreaIdConfig(new AreaIdConfig.Builder(GLOBAL_AREA_ID).setSupportedEnumValues(
                 SUPPORTED_ENUM_VALUES).build()).setAccess(
                 CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build());
-        when(mHalService.isReadable(ON_CHANGE_READ_WRITE_PROPERTY_ID, mContext))
+        when(mHalService.isReadable(mContext, ON_CHANGE_READ_WRITE_PROPERTY_ID))
                 .thenReturn(true);
-        when(mHalService.isWritable(ON_CHANGE_READ_WRITE_PROPERTY_ID, mContext))
+        when(mHalService.isWritable(mContext, ON_CHANGE_READ_WRITE_PROPERTY_ID))
                 .thenReturn(true);
         configs.put(ON_CHANGE_READ_WRITE_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
                 ON_CHANGE_READ_WRITE_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
@@ -201,9 +201,9 @@ public final class CarPropertyServiceUnitTest {
                 1).addAreaConfig(GLOBAL_AREA_ID, null, null).setAccess(
                 CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE).build());
 
-        when(mHalService.isReadable(READ_WRITE_INT_PROPERTY_ID, mContext))
+        when(mHalService.isReadable(mContext, READ_WRITE_INT_PROPERTY_ID))
                 .thenReturn(true);
-        when(mHalService.isWritable(READ_WRITE_INT_PROPERTY_ID, mContext))
+        when(mHalService.isWritable(mContext, READ_WRITE_INT_PROPERTY_ID))
                 .thenReturn(true);
         configs.put(READ_WRITE_INT_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
                 READ_WRITE_INT_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
@@ -257,7 +257,7 @@ public final class CarPropertyServiceUnitTest {
     public void testGetPropertiesAsync_noReadPermission() {
         AsyncPropertyServiceRequest getPropertyServiceRequest = new AsyncPropertyServiceRequest(0,
                 SPEED_ID, 0);
-        when(mHalService.isReadable(SPEED_ID, mContext)).thenReturn(false);
+        when(mHalService.isReadable(mContext, SPEED_ID)).thenReturn(false);
 
         assertThrows(SecurityException.class, () -> mService.getPropertiesAsync(
                 new AsyncPropertyServiceRequestList(List.of(getPropertyServiceRequest)),
@@ -426,7 +426,7 @@ public final class CarPropertyServiceUnitTest {
     public void testSetPropertiesAsync_noWritePermission() {
         AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
                 0, READ_WRITE_INT_PROPERTY_ID, 0, TEST_PROPERTY_VALUE);
-        when(mHalService.isWritable(READ_WRITE_INT_PROPERTY_ID, mContext))
+        when(mHalService.isWritable(mContext, READ_WRITE_INT_PROPERTY_ID))
                 .thenReturn(false);
 
         assertThrows(SecurityException.class, () -> mService.setPropertiesAsync(
@@ -449,7 +449,7 @@ public final class CarPropertyServiceUnitTest {
     public void testSetPropertiesAsync_noReadPermission() {
         AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
                 0, READ_WRITE_INT_PROPERTY_ID, 0, TEST_PROPERTY_VALUE);
-        when(mHalService.isReadable(READ_WRITE_INT_PROPERTY_ID, mContext))
+        when(mHalService.isReadable(mContext, READ_WRITE_INT_PROPERTY_ID))
                 .thenReturn(false);
 
         assertThrows(SecurityException.class, () -> mService.setPropertiesAsync(
@@ -701,7 +701,7 @@ public final class CarPropertyServiceUnitTest {
 
     @Test
     public void getProperty_throwsSecurityExceptionIfAppDoesNotHavePermissionToRead() {
-        when(mHalService.isReadable(VehiclePropertyIds.GEAR_SELECTION, mContext))
+        when(mHalService.isReadable(mContext, VehiclePropertyIds.GEAR_SELECTION))
                 .thenReturn(false);
         assertThrows(SecurityException.class,
                 () -> mService.getProperty(VehiclePropertyIds.GEAR_SELECTION, 0));
@@ -750,7 +750,7 @@ public final class CarPropertyServiceUnitTest {
 
     @Test
     public void setProperty_throwsSecurityExceptionIfAppDoesNotHavePermissionToWrite() {
-        when(mHalService.isWritable(NO_PERMISSION_PROPERTY_ID, mContext))
+        when(mHalService.isWritable(mContext, NO_PERMISSION_PROPERTY_ID))
                 .thenReturn(false);
         assertThrows(SecurityException.class, () -> mService.setProperty(
                 new CarPropertyValue(NO_PERMISSION_PROPERTY_ID, GLOBAL_AREA_ID, Integer.MAX_VALUE),
@@ -871,7 +871,7 @@ public final class CarPropertyServiceUnitTest {
 
     @Test
     public void registerListener_throwsSecurityExceptionIfAppDoesNotHavePermissionToRead() {
-        when(mHalService.isReadable(NO_PERMISSION_PROPERTY_ID, mContext))
+        when(mHalService.isReadable(mContext, NO_PERMISSION_PROPERTY_ID))
                 .thenReturn(false);
         assertThrows(SecurityException.class,
                 () -> mService.registerListener(NO_PERMISSION_PROPERTY_ID, 0,
@@ -948,7 +948,7 @@ public final class CarPropertyServiceUnitTest {
 
     @Test
     public void unregisterListener_throwsSecurityExceptionIfAppDoesNotHavePermissionToRead() {
-        when(mHalService.isReadable(NO_PERMISSION_PROPERTY_ID, mContext))
+        when(mHalService.isReadable(mContext, NO_PERMISSION_PROPERTY_ID))
                 .thenReturn(false);
         assertThrows(SecurityException.class,
                 () -> mService.unregisterListener(NO_PERMISSION_PROPERTY_ID,

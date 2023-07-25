@@ -74,7 +74,8 @@ import com.android.car.VehicleStub.AsyncGetSetRequest;
 import com.android.car.VehicleStub.GetVehicleStubAsyncResult;
 import com.android.car.VehicleStub.SetVehicleStubAsyncResult;
 import com.android.car.VehicleStub.VehicleStubCallbackInterface;
-import com.android.car.hal.PropertyPermissionInfo.PermissionCondition;
+import com.android.car.hal.property.PropertyHalServiceConfigs;
+import com.android.car.hal.property.PropertyPermissionInfo.PermissionCondition;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.LongPendingRequestPool;
 import com.android.car.internal.LongPendingRequestPool.TimeoutCallback;
@@ -86,6 +87,7 @@ import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.modules.expresslog.Histogram;
 
 import java.io.PrintWriter;
@@ -120,6 +122,11 @@ public class PropertyHalService extends HalServiceBase {
     // initial value is the same as the target value, we treat the async set as success.
     private static final int GET_INITIAL_VALUE_FOR_SET = 2;
     private static final float UPDATE_RATE_ERROR = -1f;
+
+    // Only changed in testing.
+    private PropertyHalServiceConfigs mPropertyHalServiceConfigs =
+            PropertyHalServiceConfigs.getInstance();
+
     @GuardedBy("mLock")
     private final ArrayMap<Pair<Integer, Integer>, CarPropertyValue> mStaticPropertyIdAreaIdCache =
             new ArrayMap<>();
@@ -362,7 +369,6 @@ public class PropertyHalService extends HalServiceBase {
                     new int[]{VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS,
                             VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS});
     private final VehicleHal mVehicleHal;
-    private final PropertyHalServiceIds mPropertyHalServiceIds = new PropertyHalServiceIds();
     private final HalPropValueBuilder mPropValueBuilder;
     private final HandlerThread mHandlerThread =
             CarServiceUtils.getHandlerThread(getClass().getSimpleName());
@@ -396,7 +402,6 @@ public class PropertyHalService extends HalServiceBase {
     @GuardedBy("mLock")
     private final SparseArray<List<AsyncPropRequestInfo>> mHalPropIdToWaitingUpdateRequestInfo =
             new SparseArray<>();
-    private final PropertyPermissionInfo mPropertyPermissionInfo = new PropertyPermissionInfo();
 
     private class AsyncRequestTimeoutCallback implements TimeoutCallback {
         @Override
@@ -1043,6 +1048,15 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     /**
+     * Used for resetting the configs state during unit testing. The real implementation uses a
+     * static instance of configs so one test will affect the state of another.
+     */
+    @VisibleForTesting
+    void setPropertyHalServiceConfigs(PropertyHalServiceConfigs configs) {
+        mPropertyHalServiceConfigs = configs;
+    }
+
+    /**
      * @return SparseArray<CarPropertyConfig> List of configs available.
      */
     public SparseArray<CarPropertyConfig<?>> getPropertyList() {
@@ -1160,7 +1174,7 @@ public class PropertyHalService extends HalServiceBase {
     @Nullable
     public String getReadPermission(int mgrPropId) {
         PermissionCondition readPermission =
-                mPropertyPermissionInfo.getReadPermission(managerToHalPropId(mgrPropId));
+                mPropertyHalServiceConfigs.getReadPermission(managerToHalPropId(mgrPropId));
         if (readPermission == null) {
             Slogf.w(TAG, "readPermission is null for mgrPropId: "
                     + VehiclePropertyIds.toString(mgrPropId));
@@ -1176,7 +1190,7 @@ public class PropertyHalService extends HalServiceBase {
     @Nullable
     public String getWritePermission(int mgrPropId) {
         PermissionCondition writePermission =
-                mPropertyPermissionInfo.getWritePermission(managerToHalPropId(mgrPropId));
+                mPropertyHalServiceConfigs.getWritePermission(managerToHalPropId(mgrPropId));
         if (writePermission == null) {
             Slogf.w(TAG, "writePermission is null for mgrPropId: "
                     + VehiclePropertyIds.toString(mgrPropId));
@@ -1185,12 +1199,18 @@ public class PropertyHalService extends HalServiceBase {
         return writePermission.toString();
     }
 
-    public boolean isReadable(int mgrPropId, Context context) {
-        return mPropertyPermissionInfo.isReadable(managerToHalPropId(mgrPropId), context);
+    /**
+     * Checks whether the property is readable.
+     */
+    public boolean isReadable(Context context, int mgrPropId) {
+        return mPropertyHalServiceConfigs.isReadable(context, managerToHalPropId(mgrPropId));
     }
 
-    public boolean isWritable(int mgrPropId, Context context) {
-        return mPropertyPermissionInfo.isWritable(managerToHalPropId(mgrPropId), context);
+    /**
+     * Checks whether the property is writable.
+     */
+    public boolean isWritable(Context context, int mgrPropId) {
+        return mPropertyHalServiceConfigs.isWritable(context, managerToHalPropId(mgrPropId));
     }
 
     /**
@@ -1317,7 +1337,7 @@ public class PropertyHalService extends HalServiceBase {
 
     @Override
     public boolean isSupportedProperty(int halPropId) {
-        return mPropertyPermissionInfo.isSupportedProperty(halPropId)
+        return mPropertyHalServiceConfigs.isSupportedProperty(halPropId)
                 && CarPropertyHelper.isSupported(halToManagerPropId(halPropId));
     }
 
@@ -1352,7 +1372,8 @@ public class PropertyHalService extends HalServiceBase {
         HalPropConfig customizePermission = mVehicleHal.getPropConfig(
                 VehicleProperty.SUPPORT_CUSTOMIZE_VENDOR_PERMISSION);
         if (customizePermission != null) {
-            mPropertyPermissionInfo.customizeVendorPermission(customizePermission.getConfigArray());
+            mPropertyHalServiceConfigs.customizeVendorPermission(
+                    customizePermission.getConfigArray());
         } else {
             if (DBG) {
                 Slogf.d(TAG, "No custom vendor permission defined in VHAL");
@@ -1527,8 +1548,8 @@ public class PropertyHalService extends HalServiceBase {
                     continue;
                 }
                 // Check payload if it is an userdebug build.
-                if (BuildHelper.isDebuggableBuild() && !mPropertyHalServiceIds.checkPayload(
-                        halPropValue)) {
+                if (BuildHelper.isDebuggableBuild()
+                        && !mPropertyHalServiceConfigs.checkPayload(halPropValue)) {
                     Slogf.w(TAG,
                             "Drop event for property: %s because it is failed "
                                     + "in payload checking.", halPropValue);

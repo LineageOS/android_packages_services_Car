@@ -515,8 +515,8 @@ public class CarPropertyService extends ICarProperty.Stub
         for (int propId : propIds) {
             synchronized (mLock) {
                 // Check if context already granted permission first
-                if ((mPropertyHalService.isReadable(propId, mContext)
-                        || mPropertyHalService.isWritable(propId, mContext))
+                if ((mPropertyHalService.isReadable(mContext, propId)
+                        || mPropertyHalService.isWritable(mContext, propId))
                         && mPropertyIdToCarPropertyConfig.contains(propId)) {
                     availableProp.add(mPropertyIdToCarPropertyConfig.get(propId));
                 }
@@ -898,7 +898,7 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     private void assertReadPermissionGranted(int propertyId) {
-        if (!mPropertyHalService.isReadable(propertyId, mContext)) {
+        if (!mPropertyHalService.isReadable(mContext, propertyId)) {
             throw new SecurityException(
                     "Platform does not have permission to read value for property ID: "
                             + VehiclePropertyIds.toString(propertyId));
@@ -937,7 +937,7 @@ public class CarPropertyService extends ICarProperty.Stub
                 VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()));
 
         // Assert write permission is granted.
-        if (!mPropertyHalService.isWritable(propertyId, mContext)) {
+        if (!mPropertyHalService.isWritable(mContext, propertyId)) {
             throw new SecurityException(
                     "Platform does not have permission to write value for property ID: "
                             + VehiclePropertyIds.toString(propertyId));

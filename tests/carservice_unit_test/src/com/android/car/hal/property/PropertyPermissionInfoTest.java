@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.hal;
+package com.android.car.hal.property;
 
 import static com.android.car.CarServiceUtils.toIntArray;
 
@@ -32,9 +32,9 @@ import android.util.Log;
 
 import androidx.test.runner.AndroidJUnit4;
 
-import com.android.car.hal.PropertyPermissionInfo.AllOfPermissions;
-import com.android.car.hal.PropertyPermissionInfo.AnyOfPermissions;
-import com.android.car.hal.PropertyPermissionInfo.SinglePermission;
+import com.android.car.hal.property.PropertyPermissionInfo.AllOfPermissions;
+import com.android.car.hal.property.PropertyPermissionInfo.AnyOfPermissions;
+import com.android.car.hal.property.PropertyPermissionInfo.SinglePermission;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -143,66 +143,66 @@ public class PropertyPermissionInfoTest {
     }
 
     /**
-     * Test {@link PropertyPermissionInfo#isReadable(int, Context)}
-     * and {@link PropertyPermissionInfo#isWritable(int, Context)} for system properties
+     * Test {@link PropertyPermissionInfo#isReadable(Context, int)}
+     * and {@link PropertyPermissionInfo#isWritable(Context, int)} for system properties
      */
     @Test
     public void testIsReadableWritableForSystemProperty() {
         assertThat(mPropertyPermissionInfo
-                .isReadable(VehiclePropertyIds.ENGINE_OIL_LEVEL, mContext)).isTrue();
+                .isReadable(mContext, VehiclePropertyIds.ENGINE_OIL_LEVEL)).isTrue();
         assertThat(mPropertyPermissionInfo
-                .isWritable(VehiclePropertyIds.ENGINE_OIL_LEVEL, mContext)).isFalse();
+                .isWritable(mContext, VehiclePropertyIds.ENGINE_OIL_LEVEL)).isFalse();
         assertThat(mPropertyPermissionInfo
-                .isReadable(VehiclePropertyIds.HVAC_FAN_SPEED, mContext)).isTrue();
+                .isReadable(mContext, VehiclePropertyIds.HVAC_FAN_SPEED)).isTrue();
         assertThat(mPropertyPermissionInfo
-                .isWritable(VehiclePropertyIds.HVAC_FAN_SPEED, mContext)).isTrue();
+                .isWritable(mContext, VehiclePropertyIds.HVAC_FAN_SPEED)).isTrue();
         assertThat(mPropertyPermissionInfo
-                .isReadable(VehiclePropertyIds.WINDSHIELD_WIPERS_SWITCH, mContext)).isFalse();
+                .isReadable(mContext, VehiclePropertyIds.WINDSHIELD_WIPERS_SWITCH)).isFalse();
         assertThat(mPropertyPermissionInfo
-                .isWritable(VehiclePropertyIds.WINDSHIELD_WIPERS_SWITCH, mContext)).isTrue();
+                .isWritable(mContext, VehiclePropertyIds.WINDSHIELD_WIPERS_SWITCH)).isTrue();
         assertThat(mPropertyPermissionInfo
-                .isReadable(VehiclePropertyIds.CRUISE_CONTROL_COMMAND, mContext)).isFalse();
+                .isReadable(mContext, VehiclePropertyIds.CRUISE_CONTROL_COMMAND)).isFalse();
         assertThat(mPropertyPermissionInfo
-                .isWritable(VehiclePropertyIds.CRUISE_CONTROL_COMMAND, mContext)).isFalse();
+                .isWritable(mContext, VehiclePropertyIds.CRUISE_CONTROL_COMMAND)).isFalse();
         assertThat(mPropertyPermissionInfo
-                .isReadable(VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS, mContext)).isTrue();
+                .isReadable(mContext, VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS)).isTrue();
         assertThat(mPropertyPermissionInfo
-                .isWritable(VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS, mContext)).isTrue();
+                .isWritable(mContext, VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS)).isTrue();
         assertThat(mPropertyPermissionInfo
-                .isReadable(VehiclePropertyIds.DISTANCE_DISPLAY_UNITS, mContext)).isFalse();
+                .isReadable(mContext, VehiclePropertyIds.DISTANCE_DISPLAY_UNITS)).isFalse();
         assertThat(mPropertyPermissionInfo
-                .isWritable(VehiclePropertyIds.DISTANCE_DISPLAY_UNITS, mContext)).isTrue();
+                .isWritable(mContext, VehiclePropertyIds.DISTANCE_DISPLAY_UNITS)).isTrue();
 
         when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE))
                 .thenReturn(PackageManager.PERMISSION_DENIED);
         when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_VENDOR_EXTENSION))
                 .thenReturn(PackageManager.PERMISSION_DENIED);
         assertThat(mPropertyPermissionInfo
-                .isReadable(VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS, mContext)).isFalse();
+                .isReadable(mContext, VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS)).isFalse();
         assertThat(mPropertyPermissionInfo
-                .isWritable(VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS, mContext)).isFalse();
+                .isWritable(mContext, VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS)).isFalse();
         assertThat(mPropertyPermissionInfo
-                .isReadable(VehiclePropertyIds.DISTANCE_DISPLAY_UNITS, mContext)).isFalse();
+                .isReadable(mContext, VehiclePropertyIds.DISTANCE_DISPLAY_UNITS)).isFalse();
         assertThat(mPropertyPermissionInfo
-                .isWritable(VehiclePropertyIds.DISTANCE_DISPLAY_UNITS, mContext)).isFalse();
+                .isWritable(mContext, VehiclePropertyIds.DISTANCE_DISPLAY_UNITS)).isFalse();
     }
 
     /**
-     * Test {@link PropertyPermissionInfo#isReadable(int, Context)}
-     * and {@link PropertyPermissionInfo#isWritable(int, Context)} for vendor properties
+     * Test {@link PropertyPermissionInfo#isReadable(Context, int)}
+     * and {@link PropertyPermissionInfo#isWritable(Context, int)} for vendor properties
      */
     @Test
     public void testIsReadableWritableForVendorProperty() {
         for (int vendorProp : VENDOR_PROPERTY_IDS) {
-            assertThat(mPropertyPermissionInfo.isReadable(vendorProp, mContext)).isTrue();
-            assertThat(mPropertyPermissionInfo.isWritable(vendorProp, mContext)).isTrue();
+            assertThat(mPropertyPermissionInfo.isReadable(mContext, vendorProp)).isTrue();
+            assertThat(mPropertyPermissionInfo.isWritable(mContext, vendorProp)).isTrue();
         }
 
         when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_VENDOR_EXTENSION))
                 .thenReturn(PackageManager.PERMISSION_DENIED);
         for (int vendorProp : VENDOR_PROPERTY_IDS) {
-            assertThat(mPropertyPermissionInfo.isReadable(vendorProp, mContext)).isFalse();
-            assertThat(mPropertyPermissionInfo.isWritable(vendorProp, mContext)).isFalse();
+            assertThat(mPropertyPermissionInfo.isReadable(mContext, vendorProp)).isFalse();
+            assertThat(mPropertyPermissionInfo.isWritable(mContext, vendorProp)).isFalse();
         }
     }
 
@@ -281,14 +281,14 @@ public class PropertyPermissionInfoTest {
                         .PERMISSION_GET_CAR_VENDOR_CATEGORY_INFO))
                 .thenReturn(PackageManager.PERMISSION_DENIED);
 
-        assertThat(mPropertyPermissionInfo.isReadable(VENDOR_PROPERTY_1, mContext)).isTrue();
-        assertThat(mPropertyPermissionInfo.isWritable(VENDOR_PROPERTY_1, mContext)).isFalse();
-        assertThat(mPropertyPermissionInfo.isReadable(VENDOR_PROPERTY_2, mContext)).isTrue();
-        assertThat(mPropertyPermissionInfo.isWritable(VENDOR_PROPERTY_2, mContext)).isTrue();
-        assertThat(mPropertyPermissionInfo.isReadable(VENDOR_PROPERTY_3, mContext)).isFalse();
-        assertThat(mPropertyPermissionInfo.isWritable(VENDOR_PROPERTY_3, mContext)).isTrue();
-        assertThat(mPropertyPermissionInfo.isReadable(VENDOR_PROPERTY_4, mContext)).isTrue();
-        assertThat(mPropertyPermissionInfo.isWritable(VENDOR_PROPERTY_4, mContext)).isTrue();
+        assertThat(mPropertyPermissionInfo.isReadable(mContext, VENDOR_PROPERTY_1)).isTrue();
+        assertThat(mPropertyPermissionInfo.isWritable(mContext, VENDOR_PROPERTY_1)).isFalse();
+        assertThat(mPropertyPermissionInfo.isReadable(mContext, VENDOR_PROPERTY_2)).isTrue();
+        assertThat(mPropertyPermissionInfo.isWritable(mContext, VENDOR_PROPERTY_2)).isTrue();
+        assertThat(mPropertyPermissionInfo.isReadable(mContext, VENDOR_PROPERTY_3)).isFalse();
+        assertThat(mPropertyPermissionInfo.isWritable(mContext, VENDOR_PROPERTY_3)).isTrue();
+        assertThat(mPropertyPermissionInfo.isReadable(mContext, VENDOR_PROPERTY_4)).isTrue();
+        assertThat(mPropertyPermissionInfo.isWritable(mContext, VENDOR_PROPERTY_4)).isTrue();
 
         // test that trying to overwrite a system property throws an error.
         try {

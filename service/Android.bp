@@ -231,6 +231,10 @@ java_defaults {
     java_resources: [
         ":VehicleHalDefaultProperties_JSON",
     ],
+
+    required: [
+        "car-service-prop-config",
+    ],
 }
 
 java_defaults {
