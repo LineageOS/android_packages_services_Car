@@ -49,6 +49,11 @@ public final class ToolbarAdapterProxy implements ToolbarControllerOEMV2 {
             @NonNull Context pluginContext, @NonNull ToolbarControllerImpl toolbarController) {
         mPluginContext = pluginContext;
         mToolbarController = toolbarController;
+        // Set to true so that this toolbar will show menu items when in search mode if appropriate.
+        // For example, the plugin adapter will call setMenuItems with null when its corresponding
+        // toolbar's showMenuItemsWhileSearching is false, and call setMenuItems with menu items
+        // (not null) when showMenuItemsWhileSearching is true.
+        mToolbarController.setShowMenuItemsWhileSearching(true);
     }
 
     @Override
