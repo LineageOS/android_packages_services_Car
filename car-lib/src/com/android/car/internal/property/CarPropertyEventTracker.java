@@ -16,78 +16,52 @@
 
 package com.android.car.internal.property;
 
-import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyValue;
-import android.car.hardware.property.CarPropertyEvent;
-import android.util.ArrayMap;
 import android.util.Log;
-import android.util.SparseLongArray;
 
 import java.time.Duration;
 
 /**
- * Tracks when the next {@link CarPropertyEvent} can be sent for each area ID.
+ * Tracks the next update timestamp for vehicle property listeners.
  * This class is not thread-safe.
- *
- * @param <T> The type of key for each list of area IDs.
  *
  * @hide
  */
-public final class CarPropertyEventTracker<T> {
+public final class CarPropertyEventTracker {
     private static final String TAG = "CarPropertyEventTracker";
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     private static final float NANOSECONDS_PER_SECOND = Duration.ofSeconds(1).toNanos();
 
-    private final ArrayMap<T, SparseLongArray> mKeyToAreaIdToNextUpdateTimeNanos = new ArrayMap<>();
+    private final float mUpdateRateHz;
+    private final long mUpdatePeriodNanos;
+    private long mNextUpdateTimeNanos = 0L;
 
-    /** Add {@code key} and {@code value} pair to map. */
-    public SparseLongArray put(T key, SparseLongArray value) {
-        return mKeyToAreaIdToNextUpdateTimeNanos.put(key, value);
+    public CarPropertyEventTracker(float updateRateHz) {
+        mUpdateRateHz = updateRateHz;
+        mUpdatePeriodNanos = mUpdateRateHz > 0
+                ? ((long) ((1.0 / mUpdateRateHz) * NANOSECONDS_PER_SECOND))
+                : 0L;
     }
 
-    /** Remove {@code key} from map. */
-    public SparseLongArray remove(T key) {
-        return mKeyToAreaIdToNextUpdateTimeNanos.remove(key);
+    public float getUpdateRateHz() {
+        return mUpdateRateHz;
     }
 
-    /**
-     * Returns true if the timestamp of the event is greater than timestamp of
-     * the next update timestamp for a key and area ID pair.
-     */
-    public boolean shouldCallbackBeInvoked(T key, CarPropertyEvent carPropertyEvent,
-            @Nullable Float updateRateHz) {
-        CarPropertyValue<?> carPropertyValue = carPropertyEvent.getCarPropertyValue();
+    /** Returns true if the timestamp of the event is greater than the next update timestamp. */
+    public boolean hasNextUpdateTimeArrived(CarPropertyValue<?> carPropertyValue) {
         int propertyId = carPropertyValue.getPropertyId();
-        int areaId = carPropertyValue.getAreaId();
-        SparseLongArray areaIdToNextUpdateTimeNanos = mKeyToAreaIdToNextUpdateTimeNanos.get(key);
-        if (areaIdToNextUpdateTimeNanos == null || updateRateHz == null) {
-            Slogf.w(TAG, "shouldCallbackBeInvoked: callback was not found for propertyId=%s,"
-                            + " areaId=0x%x, timestampNanos=%d",
-                    VehiclePropertyIds.toString(propertyId), areaId,
-                    carPropertyValue.getTimestamp());
+        if (carPropertyValue.getTimestamp() < mNextUpdateTimeNanos) {
+            if (DBG) {
+                Slogf.d(TAG, "hasNextUpdateTimeArrived: Dropping carPropertyEvent - propertyId=%s,"
+                        + " areaId=0x%x, because getTimestamp()=%d < nextUpdateTimeNanos=%d",
+                        VehiclePropertyIds.toString(propertyId), carPropertyValue.getAreaId(),
+                        carPropertyValue.getTimestamp(), mNextUpdateTimeNanos);
+            }
             return false;
         }
-
-        long nextUpdateTimeNanos = areaIdToNextUpdateTimeNanos.get(areaId,
-                /* valueIfKeyNotFound= */ 0L);
-
-        if (carPropertyValue.getTimestamp() >= nextUpdateTimeNanos) {
-            long updatePeriodNanos = updateRateHz > 0
-                    ? ((long) ((1.0 / updateRateHz) * NANOSECONDS_PER_SECOND))
-                    : 0L;
-            areaIdToNextUpdateTimeNanos.put(areaId,
-                    carPropertyValue.getTimestamp() + updatePeriodNanos);
-            return true;
-        }
-
-        if (DBG) {
-            Slogf.d(TAG, "shouldCallbackBeInvokedLocked: Dropping carPropertyEvent - propertyId=%s,"
-                            + " areaId=0x%x, because getTimestamp()=%d < nextUpdateTimeNanos=%d",
-                    VehiclePropertyIds.toString(propertyId), areaId,
-                    carPropertyValue.getTimestamp(), nextUpdateTimeNanos);
-        }
-        return false;
+        mNextUpdateTimeNanos = carPropertyValue.getTimestamp() + mUpdatePeriodNanos;
+        return true;
     }
 }

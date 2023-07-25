@@ -235,7 +235,8 @@ public class CarPropertyService extends ICarProperty.Stub
                         + " is registered by " + clients.size() + " client(s).");
                 writer.increaseIndent();
                 for (int j = 0; j < clients.size(); j++) {
-                    float subscribedRate = clients.get(j).getUpdateRateHz(propId);
+                    int firstAreaId = getCarPropertyConfig(propId).getAreaIds()[0];
+                    float subscribedRate = clients.get(j).getUpdateRateHz(propId, firstAreaId);
                     writer.println("Client " + clients.get(j).hashCode() + ": Subscribed at "
                             + subscribedRate + " hz");
                 }
@@ -294,7 +295,7 @@ public class CarPropertyService extends ICarProperty.Stub
                 }
                 mClientMap.put(listenerBinder, client);
             }
-            client.addProperty(propertyId, sanitizedUpdateRateHz);
+            client.addProperty(propertyId, carPropertyConfig.getAreaIds(), sanitizedUpdateRateHz);
             // Insert the client into the propertyId --> clients map
             List<CarPropertyServiceClient> clients = mPropIdClientMap.get(propertyId);
             if (clients == null) {
@@ -402,8 +403,8 @@ public class CarPropertyService extends ICarProperty.Stub
             return;
         }
         if (propertyClients.remove(client)) {
-            int propLeft = client.removeProperty(propId);
-            if (propLeft == 0) {
+            boolean allPropertiesRemoved = client.removeProperty(propId);
+            if (allPropertiesRemoved) {
                 mClientMap.remove(listenerBinder);
             }
             clearSetOperationRecorderLocked(propId, client);
@@ -424,7 +425,8 @@ public class CarPropertyService extends ICarProperty.Stub
         // Other listeners are still subscribed.  Calculate the new rate
         for (int i = 0; i < propertyClients.size(); i++) {
             CarPropertyServiceClient c = propertyClients.get(i);
-            float rate = c.getUpdateRateHz(propId);
+            int firstAreaId = getCarPropertyConfig(propId).getAreaIds()[0];
+            float rate = c.getUpdateRateHz(propId, firstAreaId);
             updateMaxRate = Math.max(rate, updateMaxRate);
         }
         if (Float.compare(updateMaxRate,

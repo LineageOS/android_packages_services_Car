@@ -16,17 +16,15 @@
 
 package com.android.car.property;
 
-import static android.car.hardware.property.CarPropertyEvent.PROPERTY_EVENT_ERROR;
-
 import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
+import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
-import android.util.SparseLongArray;
 
 import com.android.car.CarLog;
 import com.android.car.CarPropertyService;
@@ -46,10 +44,8 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
     private final UnregisterCallback mUnregisterCallback;
     private final Object mLock = new Object();
     @GuardedBy("mLock")
-    private final SparseArray<Float> mPropertyIdToUpdateRateHz = new SparseArray<>();
-    @GuardedBy("mLock")
-    private final CarPropertyEventTracker<Integer> mCarPropertyEventTracker =
-            new CarPropertyEventTracker<>();
+    private final SparseArray<SparseArray<CarPropertyEventTracker>> mPropIdToAreaIdToCpeTracker =
+            new SparseArray<>();
     @GuardedBy("mLock")
     private boolean mIsDead;
 
@@ -80,26 +76,44 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
         }
     }
 
-    /** Store a property ID and the update rate in hz that it's subscribed at. */
-    public void addProperty(int propertyId, float updateRateHz) {
+    /**
+     * Store a property ID and area IDs with the update rate in hz that this
+     * client is subscribed at.
+     */
+    public void addProperty(int propertyId, int[] areaIds, float updateRateHz) {
         synchronized (mLock) {
             if (mIsDead) {
                 return;
             }
-            mPropertyIdToUpdateRateHz.put(propertyId, updateRateHz);
-            mCarPropertyEventTracker.put(propertyId, new SparseLongArray());
+
+            SparseArray<CarPropertyEventTracker> areaIdToCpeTracker =
+                    mPropIdToAreaIdToCpeTracker.get(propertyId);
+            if (areaIdToCpeTracker == null) {
+                areaIdToCpeTracker = new SparseArray<>(areaIds.length);
+                mPropIdToAreaIdToCpeTracker.put(propertyId, areaIdToCpeTracker);
+            }
+
+            for (int i = 0; i < areaIds.length; i++) {
+                areaIdToCpeTracker.put(areaIds[i], new CarPropertyEventTracker(updateRateHz));
+            }
         }
     }
 
-    /** Return the update rate in hz that the property ID is subscribed at. */
-    public float getUpdateRateHz(int propertyId) {
+    /**
+     * Return the update rate in hz that the property ID and area ID pair
+     * is subscribed at.
+     */
+    public float getUpdateRateHz(int propertyId, int areaId) {
         synchronized (mLock) {
-            if (!mPropertyIdToUpdateRateHz.contains(propertyId)) {
+            SparseArray<CarPropertyEventTracker> areaIdToCpeTracker =
+                    mPropIdToAreaIdToCpeTracker.get(propertyId);
+            if (areaIdToCpeTracker == null || areaIdToCpeTracker.get(areaId) == null) {
                 Slogf.e(TAG, "getUpdateRateHz: update rate hz not found for propertyId=%s",
                         VehiclePropertyIds.toString(propertyId));
+                // Return 0 if property not found, since that is the slowest rate.
+                return 0f;
             }
-            // Return 0 if property not found, since that is the slowest rate.
-            return mPropertyIdToUpdateRateHz.get(propertyId, /* valueIfKeyNotFound= */ 0f);
+            return areaIdToCpeTracker.get(areaId).getUpdateRateHz();
         }
     }
 
@@ -109,16 +123,15 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
      * Once all property IDs are removed, this client instance must be removed because
      * {@link #mListenerBinder} will no longer be receiving death notifications.
      *
-     * @return the remaining number of properties registered to this client
+     * @return {@code true} if there are no properties registered to this client
      */
-    public int removeProperty(int propertyId) {
+    public boolean removeProperty(int propertyId) {
         synchronized (mLock) {
-            mCarPropertyEventTracker.remove(propertyId);
-            mPropertyIdToUpdateRateHz.remove(propertyId);
-            if (mPropertyIdToUpdateRateHz.size() == 0) {
+            mPropIdToAreaIdToCpeTracker.delete(propertyId);
+            if (mPropIdToAreaIdToCpeTracker.size() == 0) {
                 mListenerBinder.unlinkToDeath(this, /* flags= */ 0);
             }
-            return mPropertyIdToUpdateRateHz.size();
+            return mPropIdToAreaIdToCpeTracker.size() == 0;
         }
     }
 
@@ -140,8 +153,8 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
             // Because we set mIsDead to true here, we are sure mPropertyIdToUpdateRateHz will not
             // have new elements. The property IDs here cover all the properties that we need to
             // unregister.
-            for (int i = 0; i < mPropertyIdToUpdateRateHz.size(); i++) {
-                propertyIds.add(mPropertyIdToUpdateRateHz.keyAt(i));
+            for (int i = 0; i < mPropIdToAreaIdToCpeTracker.size(); i++) {
+                propertyIds.add(mPropIdToAreaIdToCpeTracker.keyAt(i));
             }
         }
         mUnregisterCallback.onUnregister(propertyIds, mListenerBinder);
@@ -160,12 +173,22 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
                 return;
             }
             for (int i = 0; i < events.size(); i++) {
-                CarPropertyEvent event = events.get(i);
-                int propertyId = event.getCarPropertyValue().getPropertyId();
-                Float updateRateHz = mPropertyIdToUpdateRateHz.get(propertyId);
-                if (event.getEventType() == PROPERTY_EVENT_ERROR
-                        || mCarPropertyEventTracker.shouldCallbackBeInvoked(
-                                propertyId, event, updateRateHz)) {
+                CarPropertyValue<?> carPropertyValue = events.get(i).getCarPropertyValue();
+                int propertyId = carPropertyValue.getPropertyId();
+                int areaId = carPropertyValue.getAreaId();
+                SparseArray<CarPropertyEventTracker> areaIdToCpeTracker =
+                        mPropIdToAreaIdToCpeTracker.get(propertyId);
+
+                if (areaIdToCpeTracker == null || areaIdToCpeTracker.get(areaId) == null) {
+                    Slogf.w(TAG, "onEvent: Client not registered to propertyId=%s, areaId=0x%x,"
+                            + " timestampNanos=%d", VehiclePropertyIds.toString(propertyId), areaId,
+                            carPropertyValue.getTimestamp());
+                    continue;
+                }
+
+                CarPropertyEventTracker cpeTracker = areaIdToCpeTracker.get(areaId);
+                if (events.get(i).getEventType() == CarPropertyEvent.PROPERTY_EVENT_ERROR
+                        || cpeTracker.hasNextUpdateTimeArrived(carPropertyValue)) {
                     filteredEvents.add(events.get(i));
                 }
             }

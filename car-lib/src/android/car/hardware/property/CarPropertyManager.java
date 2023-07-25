@@ -1211,7 +1211,7 @@ public class CarPropertyManager extends CarManagerBase {
             }
 
             registerSuccessful = carPropertyEventCallbackController.add(carPropertyEventCallback,
-                    sanitizedUpdateRateHz);
+                    carPropertyConfig.getAreaIds(), sanitizedUpdateRateHz);
             if (registerSuccessful && isNewInstance) {
                 mPropertyIdToCarPropertyEventCallbackController.put(propertyId,
                         carPropertyEventCallbackController);

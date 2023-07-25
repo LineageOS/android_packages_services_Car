@@ -53,6 +53,7 @@ import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.CarInternalErrorException;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
@@ -189,10 +190,13 @@ public final class CarPropertyManagerUnitTest {
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS);
         when(mContinuousCarPropertyConfig.getMinSampleRate()).thenReturn(MIN_UPDATE_RATE_HZ);
         when(mContinuousCarPropertyConfig.getMaxSampleRate()).thenReturn(MAX_UPDATE_RATE_HZ);
+        when(mContinuousCarPropertyConfig.getAreaIds()).thenReturn(new int[] {0});
         when(mOnChangeCarPropertyConfig.getChangeMode()).thenReturn(
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE);
+        when(mOnChangeCarPropertyConfig.getAreaIds()).thenReturn(new int[] {0});
         when(mStaticCarPropertyConfig.getChangeMode()).thenReturn(
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_STATIC);
+        when(mStaticCarPropertyConfig.getAreaIds()).thenReturn(new int[] {0});
         when(mICarProperty.getPropertyConfigList(new int[]{VENDOR_CONTINUOUS_PROPERTY})).thenReturn(
                 new CarPropertyConfigList(
                         ImmutableList.of(mContinuousCarPropertyConfig)));
@@ -1817,7 +1821,8 @@ public final class CarPropertyManagerUnitTest {
         List<CarPropertyEvent> eventList = createCarPropertyEventList();
         List<CarPropertyConfig> configs = List.of(
                 CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
-                        VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).build());
+                                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                        .addAreaIdConfig(new AreaIdConfig.Builder<Float>(0).build()).build());
         when(mICarProperty.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET})).thenReturn(
                 new CarPropertyConfigList(configs));
         ICarPropertyEventListener listener = getCarPropertyEventListener();
