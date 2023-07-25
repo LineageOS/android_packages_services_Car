@@ -573,7 +573,7 @@ import java.util.Objects;
             for (int i = 0; i < mAddressToCarAudioDeviceInfo.size(); i++) {
                 String address = mAddressToCarAudioDeviceInfo.keyAt(i);
                 CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
-                info.dumpProto(proto);
+                info.dumpProto(CarVolumeGroupProto.CAR_AUDIO_DEVICE_INFOS, proto);
             }
 
             for (int index = 0; index < mReasons.size(); index++) {

@@ -29,7 +29,6 @@ import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
 import com.android.car.audio.CarAudioDumpProto.CarAudioDeviceInfoProto;
-import com.android.car.audio.CarAudioDumpProto.CarVolumeGroupProto;
 import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -238,8 +237,8 @@ import com.android.internal.annotations.GuardedBy;
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    void dumpProto(ProtoOutputStream proto) {
-        long carAudioDeviceInfosToken = proto.start(CarVolumeGroupProto.CAR_AUDIO_DEVICE_INFOS);
+    void dumpProto(long fieldId, ProtoOutputStream proto) {
+        long token = proto.start(fieldId);
         synchronized (mLock) {
             proto.write(CarAudioDeviceInfoProto.ADDRESS, mAudioDeviceInfo.getAddress());
             proto.write(CarAudioDeviceInfoProto.CAN_BE_ROUTED_WITH_DYNAMIC_POLICY_MIX_RULE,
@@ -255,6 +254,6 @@ import com.android.internal.annotations.GuardedBy;
             proto.write(CarAudioDumpProto.CarVolumeGain.CURRENT_GAIN_INDEX, mCurrentGain);
             proto.end(volumeGainToken);
         }
-        proto.end(carAudioDeviceInfosToken);
+        proto.end(token);
     }
 }
