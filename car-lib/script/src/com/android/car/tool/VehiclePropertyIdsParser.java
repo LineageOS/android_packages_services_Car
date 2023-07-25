@@ -20,7 +20,6 @@ import androidx.annotation.Nullable;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
@@ -28,14 +27,23 @@ import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.ArrayInitializerExpr;
 import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.NormalAnnotationExpr;
 import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr;
+import com.github.javaparser.ast.expr.UnaryExpr;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.javadoc.Javadoc;
 import com.github.javaparser.javadoc.JavadocBlockTag;
 import com.github.javaparser.javadoc.description.JavadocDescription;
 import com.github.javaparser.javadoc.description.JavadocDescriptionElement;
 import com.github.javaparser.javadoc.description.JavadocInlineTag;
+import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
+import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
+import com.github.javaparser.symbolsolver.JavaSymbolSolver;
+import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserFieldDeclaration;
+import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -62,8 +70,9 @@ public final class VehiclePropertyIdsParser {
     private static final int CONFIG_FILE_SCHEMA_VERSION = 1;
 
     private static final String USAGE =
-            "VehiclePropertyIdsParser [path_to_VehiclePropertyIds.java] [path_to_Car.java] "
-            + "[output]";
+            "VehiclePropertyIdsParser [path_to_CarLibSrcFolder] [output]";
+    private static final String VEHICLE_PROPERTY_IDS_JAVA_PATH =
+            "/android/car/VehiclePropertyIds.java";
 
     private static final String ACCESS_MODE_READ_LINK =
             "{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}";
@@ -95,8 +104,8 @@ public final class VehiclePropertyIdsParser {
         public boolean systemApi;
         public boolean hide;
         public int vhalPropertyId;
-        public List<String> dataEnums;
-        public String dataFlag;
+        public List<Integer> dataEnums;
+        public List<Integer> dataFlag;
 
         @Override
         public String toString() {
@@ -145,6 +154,9 @@ public final class VehiclePropertyIdsParser {
         }
     };
 
+    /**
+     * Sets the read/write permission for the config.
+     */
     private static void setPermission(PropertyConfig config, ACCESS_MODE accessMode,
             PermissionType permission, boolean forRead, boolean forWrite) {
         if (forRead) {
@@ -159,9 +171,134 @@ public final class VehiclePropertyIdsParser {
         }
     }
 
+    // A hacky way to make the key in-order in the JSON object.
+    private static final class OrderedJSONObject extends JSONObject {
+        OrderedJSONObject() {
+            try {
+                Field map = JSONObject.class.getDeclaredField("nameValuePairs");
+                map.setAccessible(true);
+                map.set(this, new LinkedHashMap<>());
+                map.setAccessible(false);
+            } catch (IllegalAccessException | NoSuchFieldException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    /**
+     * Parses the enum field declaration as an int value.
+     */
+    private static int parseIntEnumField(FieldDeclaration fieldDecl) {
+        VariableDeclarator valueDecl = fieldDecl.getVariables().get(0);
+        Expression expr = valueDecl.getInitializer().get();
+        if (expr.isIntegerLiteralExpr()) {
+            return expr.asIntegerLiteralExpr().asInt();
+        }
+        // For case like -123
+        if (expr.isUnaryExpr()
+                && expr.asUnaryExpr().getOperator() == UnaryExpr.Operator.MINUS) {
+            return -expr.asUnaryExpr().getExpression().asIntegerLiteralExpr().asInt();
+        }
+        System.out.println("Unsupported expression: " + expr);
+        System.exit(1);
+        return 0;
+    }
+
+    private static String getFieldName(FieldDeclaration fieldDecl) {
+        VariableDeclarator valueDecl = fieldDecl.getVariables().get(0);
+        return valueDecl.getName().asString();
+    }
+
+    /**
+     * Whether this field is an internal-only hidden field.
+     */
+    private static boolean isInternal(FieldDeclaration fieldDecl) {
+        Optional<Comment> maybeComment = fieldDecl.getComment();
+        boolean hide = false;
+        boolean systemApi = false;
+        if (maybeComment.isPresent()) {
+            Javadoc doc = maybeComment.get().asJavadocComment().parse();
+            for (JavadocBlockTag tag : doc.getBlockTags()) {
+                if (tag.getTagName().equals("hide")) {
+                    hide = true;
+                    break;
+                }
+            }
+        }
+        List<AnnotationExpr> annotations = fieldDecl.getAnnotations();
+        for (AnnotationExpr annotation : annotations) {
+            if (annotation.getName().asString().equals("SystemApi")) {
+                systemApi = true;
+                break;
+            }
+        }
+        return hide && !systemApi;
+    }
+
+    /**
+     * Gets all the int enum values for this enum type.
+     */
+    private static List<Integer> getEnumValues(ResolvedReferenceTypeDeclaration typeDecl) {
+        List<Integer> enumValues = new ArrayList<>();
+        for (ResolvedFieldDeclaration resolvedFieldDecl : typeDecl.getAllFields()) {
+            if (!resolvedFieldDecl.isField()) {
+                continue;
+            }
+            FieldDeclaration fieldDecl = ((JavaParserFieldDeclaration) resolvedFieldDecl.asField())
+                    .getWrappedNode();
+            if (!isPublicAndStatic(fieldDecl) || isInternal(fieldDecl)) {
+                continue;
+            }
+            enumValues.add(parseIntEnumField(fieldDecl));
+        }
+        return enumValues;
+    }
+
+    private static boolean isPublicAndStatic(FieldDeclaration fieldDecl) {
+        return fieldDecl.isPublic() && fieldDecl.isStatic();
+    }
+
+    private final CompilationUnit mCu;
+    private final Map<String, String> mCarPermissionMap = new HashMap<>();
+
+    VehiclePropertyIdsParser(CompilationUnit cu) {
+        this.mCu = cu;
+        populateCarPermissionMap();
+    }
+
+    /**
+     * Parses the Car.java class and stores all car specific permission into a map.
+     */
+    private void populateCarPermissionMap() {
+        ResolvedReferenceTypeDeclaration typeDecl = parseClassName("Car");
+        for (ResolvedFieldDeclaration resolvedFieldDecl : typeDecl.getAllFields()) {
+            if (!resolvedFieldDecl.isField()) {
+                continue;
+            }
+            FieldDeclaration fieldDecl = ((JavaParserFieldDeclaration) resolvedFieldDecl.asField())
+                    .getWrappedNode();
+            if (!isPublicAndStatic(fieldDecl)) {
+                continue;
+            }
+            if (!isPublicAndStatic(fieldDecl) || isInternal(fieldDecl)) {
+                continue;
+            }
+            String fieldName = getFieldName(fieldDecl);
+            if (!fieldName.startsWith("PERMISSION_")) {
+                continue;
+            }
+            VariableDeclarator valueDecl = fieldDecl.getVariables().get(0);
+            mCarPermissionMap.put("Car." + fieldName,
+                    valueDecl.getInitializer().get().asStringLiteralExpr().asString());
+        }
+    }
+
+    /**
+     * Maps the permission class to the actual permission string.
+     */
     @Nullable
-    private static String permNameToValue(String permName, Map<String, String> carPermissionMap) {
-        String permStr = carPermissionMap.get(permName);
+    private String permNameToValue(String permName) {
+        String permStr = mCarPermissionMap.get(permName);
         if (permStr != null) {
             return permStr;
         }
@@ -174,16 +311,48 @@ public final class VehiclePropertyIdsParser {
         return null;
     }
 
+    /**
+     * Parses a class name and returns the class declaration.
+     */
+    private ResolvedReferenceTypeDeclaration parseClassName(String className) {
+        ClassOrInterfaceType type = StaticJavaParser.parseClassOrInterfaceType(className);
+        // Must associate the type with a compilation unit.
+        type.setParentNode(mCu);
+        return type.resolve().getTypeDeclaration();
+    }
+
+    /**
+     * Parses a javadoc {@link XXX} annotation.
+     */
     @Nullable
-    private static PermissionType parsePermAnnotation(AnnotationExpr annotation,
-            Map<String, String> carPermissionMap) {
+    private ResolvedReferenceTypeDeclaration parseClassLink(JavadocDescription linkElement) {
+        List<JavadocDescriptionElement> elements = linkElement.getElements();
+        if (elements.size() != 1) {
+            System.out.println("expected one doc element in: " + linkElement);
+            return null;
+        }
+        JavadocInlineTag tag = (JavadocInlineTag) elements.get(0);
+        String className = tag.getContent().strip();
+        try {
+            return parseClassName(className);
+        } catch (Exception e) {
+            System.out.println("failed to parse class name: " + className);
+            return null;
+        }
+    }
+
+    /**
+     * Parses a permission annotation.
+     */
+    @Nullable
+    private PermissionType parsePermAnnotation(AnnotationExpr annotation) {
         PermissionType permission = new PermissionType();
         if (annotation.isSingleMemberAnnotationExpr()) {
             permission.type = "single";
             SingleMemberAnnotationExpr single =
                     annotation.asSingleMemberAnnotationExpr();
             Expression member = single.getMemberValue();
-            String permName = permNameToValue(member.toString(), carPermissionMap);
+            String permName = permNameToValue(member.toString());
             if (permName == null) {
                 return null;
             }
@@ -205,7 +374,7 @@ public final class VehiclePropertyIdsParser {
             for (Expression permExpr : expr.getValues()) {
                 PermissionType subPermission = new PermissionType();
                 subPermission.type = "single";
-                String permName = permNameToValue(permExpr.toString(), carPermissionMap);
+                String permName = permNameToValue(permExpr.toString());
                 if (permName == null) {
                     return null;
                 }
@@ -218,13 +387,15 @@ public final class VehiclePropertyIdsParser {
         return null;
     }
 
-    private static void parseAndSetPermAnnotation(AnnotationExpr annotation, PropertyConfig config,
-            ACCESS_MODE accessMode, boolean forRead, boolean forWrite,
-            Map<String, String> carPermissionMap) {
+    /**
+     * Parses the permission annotation and sets the config's permission accordingly.
+     */
+    private void parseAndSetPermAnnotation(AnnotationExpr annotation, PropertyConfig config,
+            ACCESS_MODE accessMode, boolean forRead, boolean forWrite) {
         if (accessMode == null) {
             return;
         }
-        PermissionType permission = parsePermAnnotation(annotation, carPermissionMap);
+        PermissionType permission = parsePermAnnotation(annotation);
         if (permission == null) {
             System.out.println("Invalid RequiresPermission annotation: "
                         + annotation + " for property: " + config.propertyName);
@@ -233,95 +404,13 @@ public final class VehiclePropertyIdsParser {
         setPermission(config, accessMode, permission, forRead, forWrite);
     }
 
-    // A hacky way to make the key in-order in the JSON object.
-    private static final class OrderedJSONObject extends JSONObject{
-        OrderedJSONObject() {
-            super();
-            try {
-                Field map = JSONObject.class.getDeclaredField("nameValuePairs");
-                map.setAccessible(true);
-                map.set(this, new LinkedHashMap<>());
-                map.setAccessible(false);
-            } catch (IllegalAccessException | NoSuchFieldException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    @Nullable
-    private static String parseClassLink(JavadocDescription linkElement,
-            Map<String, String> importMap) {
-        List<JavadocDescriptionElement> elements = linkElement.getElements();
-        if (elements.size() != 1) {
-            System.out.println("expected one doc element in: " + linkElement);
-            return null;
-        }
-        JavadocInlineTag tag = (JavadocInlineTag) elements.get(0);
-        String className = tag.getContent().strip();
-        if (className.contains(".")) {
-            return className;
-        }
-        // If the className is a simple name, try to find it in imports.
-        String fullName = importMap.get(className);
-        if (fullName == null) {
-            // If not found, assume it is from android.car package
-            return "android.car." + className;
-        }
-        return fullName;
-    }
-
-    private static Map<String, String> getImports(CompilationUnit cu) {
-        Map<String, String> importMap = new HashMap<>();
-        List<ImportDeclaration> imports = cu.getImports();
-        for (int i = 0; i < imports.size(); i++) {
-            ImportDeclaration importDecl = imports.get(i);
-            // Our style guide does not allow the using of *.
-            if (importDecl.isAsterisk()) {
-                continue;
-            }
-            Name className = importDecl.getName();
-            importMap.put(className.getIdentifier(), className.asString());
-        }
-        return importMap;
-    }
-
     /**
-     * Main function.
+     * Main logic for parsing VehiclePropertyIds.java to a list of property configs.
      */
-    public static void main(final String[] args) throws Exception {
-        if (args.length < 3) {
-            System.out.println(USAGE);
-            System.exit(1);
-        }
-        String vehiclePropertyIdsJava = args[0];
-        String carJava = args[1];
-        String output = args[2];
+    private List<PropertyConfig> parse() {
         List<PropertyConfig> propertyConfigs = new ArrayList<>();
-
-        CompilationUnit cu = StaticJavaParser.parse(new File(carJava));
-        ClassOrInterfaceDeclaration carClass = cu.getClassByName("Car").get();
-
-        List<FieldDeclaration> carFields = carClass.findAll(FieldDeclaration.class);
-        Map<String, String> carPermissionMap = new HashMap<>();
-        for (int i = 0; i < carFields.size(); i++) {
-            FieldDeclaration fieldDecl = carFields.get(i).asFieldDeclaration();
-            if (!fieldDecl.isPublic() || !fieldDecl.isStatic()) {
-                continue;
-            }
-            VariableDeclarator valueDecl = fieldDecl.getVariables().get(0);
-            String fieldName = valueDecl.getName().asString();
-            if (!fieldName.startsWith("PERMISSION_")) {
-                continue;
-            }
-            carPermissionMap.put("Car." + fieldName,
-                    valueDecl.getInitializer().get().asStringLiteralExpr().asString());
-        }
-
-        cu = StaticJavaParser.parse(new File(vehiclePropertyIdsJava));
         ClassOrInterfaceDeclaration vehiclePropertyIdsClass =
-                cu.getClassByName("VehiclePropertyIds").get();
-
-        Map<String, String> importMap = getImports(cu);
+                mCu.getClassByName("VehiclePropertyIds").get();
 
         List<FieldDeclaration> variables = vehiclePropertyIdsClass.findAll(FieldDeclaration.class);
         for (int i = 0; i < variables.size(); i++) {
@@ -329,17 +418,15 @@ public final class VehiclePropertyIdsParser {
             PropertyConfig propertyConfig = new PropertyConfig();
 
             FieldDeclaration propertyDef = variables.get(i).asFieldDeclaration();
-            if (!propertyDef.isPublic() || !propertyDef.isStatic()) {
+            if (!isPublicAndStatic(propertyDef)) {
                 continue;
             }
-            VariableDeclarator valueDecl = propertyDef.getVariables().get(0);
-            String propertyName = valueDecl.getName().asString();
-
+            String propertyName = getFieldName(propertyDef);
             if (propertyName.equals("INVALID")) {
                 continue;
             }
 
-            int propertyId = valueDecl.getInitializer().get().asIntegerLiteralExpr().asInt();
+            int propertyId = parseIntEnumField(propertyDef);
             propertyConfig.propertyName = propertyName;
             propertyConfig.propertyId = propertyId;
 
@@ -357,8 +444,8 @@ public final class VehiclePropertyIdsParser {
             List<JavadocBlockTag> blockTags = doc.getBlockTags();
             boolean deprecated = false;
             boolean hide = false;
-            List<String> dataEnums = new ArrayList<>();
-            String dataFlag = null;
+            List<Integer> dataEnums = new ArrayList<>();
+            List<Integer> dataFlag = new ArrayList<>();
             for (int j = 0; j < blockTags.size(); j++) {
                 String commentTagName = blockTags.get(j).getTagName();
                 if (commentTagName.equals("deprecated")) {
@@ -368,25 +455,25 @@ public final class VehiclePropertyIdsParser {
                     hide = true;
                 }
                 String commentTagContent = blockTags.get(j).getContent().toText();
-                String enumClass = null;
+                ResolvedReferenceTypeDeclaration enumType = null;
                 if (commentTagName.equals("data_enum") || commentTagName.equals("data_flag")) {
-                    enumClass = parseClassLink(blockTags.get(j).getContent(), importMap);
-                    if (enumClass == null) {
+                    enumType = parseClassLink(blockTags.get(j).getContent());
+                    if (enumType == null) {
                         System.out.println("Invalid comment block: " + commentTagContent
                                 + " for property: " + propertyName);
                         System.exit(1);
                     }
                 }
                 if (commentTagName.equals("data_enum")) {
-                    dataEnums.add(enumClass);
+                    dataEnums.addAll(getEnumValues(enumType));
                 }
                 if (commentTagName.equals("data_flag")) {
-                    if (dataFlag != null) {
+                    if (dataFlag.size() != 0) {
                         System.out.println("Duplicated data_flag annotation for one property: "
                                 + propertyName);
                         System.exit(1);
                     }
-                    dataFlag = enumClass;
+                    dataFlag = getEnumValues(enumType);
                 }
             }
             String docText = doc.toText();
@@ -415,19 +502,19 @@ public final class VehiclePropertyIdsParser {
                 String annotationName = annotation.getName().asString();
                 if (annotationName.equals("RequiresPermission")) {
                     parseAndSetPermAnnotation(annotation, propertyConfig, accessMode,
-                            /* forRead= */ true, /* forWrite= */ true, carPermissionMap);
+                            /* forRead= */ true, /* forWrite= */ true);
                 }
                 if (annotationName.equals("RequiresPermission.Read")) {
                     AnnotationExpr requireAnnotation = annotation.asSingleMemberAnnotationExpr()
                             .getMemberValue().asAnnotationExpr();
                     parseAndSetPermAnnotation(requireAnnotation, propertyConfig, accessMode,
-                            /* forRead= */ true, /* forWrite= */ false, carPermissionMap);
+                            /* forRead= */ true, /* forWrite= */ false);
                 }
                 if (annotationName.equals("RequiresPermission.Write")) {
                     AnnotationExpr requireAnnotation = annotation.asSingleMemberAnnotationExpr()
                             .getMemberValue().asAnnotationExpr();
                     parseAndSetPermAnnotation(requireAnnotation, propertyConfig, accessMode,
-                            /* forRead= */ false, /* forWrite= */ true, carPermissionMap);
+                            /* forRead= */ false, /* forWrite= */ true);
                 }
                 if (annotationName.equals("SystemApi")) {
                     propertyConfig.systemApi = true;
@@ -438,6 +525,28 @@ public final class VehiclePropertyIdsParser {
                 propertyConfigs.add(propertyConfig);
             }
         }
+        return propertyConfigs;
+    }
+
+    /**
+     * Main function.
+     */
+    public static void main(final String[] args) throws Exception {
+        if (args.length < 2) {
+            System.out.println(USAGE);
+            System.exit(1);
+        }
+        String carLib = args[0];
+        String output = args[1];
+        String vehiclePropertyIdsJava = carLib + VEHICLE_PROPERTY_IDS_JAVA_PATH;
+
+        TypeSolver typeSolver = new CombinedTypeSolver(
+                new ReflectionTypeSolver(),
+                new JavaParserTypeSolver(carLib));
+        StaticJavaParser.getConfiguration().setSymbolResolver(new JavaSymbolSolver(typeSolver));
+
+        CompilationUnit cu = StaticJavaParser.parse(new File(vehiclePropertyIdsJava));
+        List<PropertyConfig> propertyConfigs = new VehiclePropertyIdsParser(cu).parse();
 
         JSONObject root = new JSONObject();
         root.put("version", CONFIG_FILE_SCHEMA_VERSION);
@@ -467,8 +576,8 @@ public final class VehiclePropertyIdsParser {
             if (config.dataEnums.size() != 0) {
                 jsonProp.put("dataEnums", new JSONArray(config.dataEnums));
             }
-            if (config.dataFlag != null) {
-                jsonProp.put("dataFlag", config.dataFlag);
+            if (config.dataFlag.size() != 0) {
+                jsonProp.put("dataFlag", new JSONArray(config.dataFlag));
             }
             jsonProps.put(config.propertyName, jsonProp);
         }

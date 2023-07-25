@@ -24,6 +24,7 @@ java_binary_host {
     manifest: "manifest.txt",
     static_libs: [
         "javaparser",
+        "javaparser-symbol-solver",
         "json-prebuilt",
         "androidx.annotation_annotation",
     ],
