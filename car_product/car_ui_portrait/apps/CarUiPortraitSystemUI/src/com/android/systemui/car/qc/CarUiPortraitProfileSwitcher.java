@@ -51,6 +51,15 @@ public class CarUiPortraitProfileSwitcher extends ProfileSwitcher {
         return super.createUserProfileRow(userInfo);
     }
 
+    @Override
+    protected QCRow createGuestProfileRow() {
+        if (mUserTracker.getUserInfo() != null && mUserTracker.getUserInfo().isGuest()) {
+            return createGuestProfileRowForCurrentProfile();
+        } else {
+            return super.createGuestProfileRow();
+        }
+    }
+
     private QCRow createUserProfileRowForCurrentProfile(UserInfo userInfo) {
         QCItem.ActionHandler actionHandler = (item, context, intent) -> {
             if (mPendingUserAdd) {
@@ -60,6 +69,23 @@ public class CarUiPortraitProfileSwitcher extends ProfileSwitcher {
         };
         return createUserProfileRowForCurrentProfile(userInfo.name,
                 mUserIconProvider.getDrawableWithBadge(mContext, userInfo), actionHandler);
+    }
+
+    private QCRow createGuestProfileRowForCurrentProfile() {
+        QCItem.ActionHandler actionHandler = (item, context, intent) -> {
+            if (mPendingUserAdd) {
+                return;
+            }
+            UserInfo guest = createNewOrFindExistingGuest(mContext);
+            if (guest != null) {
+                switchUser(guest.id);
+            }
+        };
+
+        return createUserProfileRowForCurrentProfile(
+                mContext.getString(com.android.internal.R.string.guest_name),
+                mUserIconProvider.getRoundedGuestDefaultIcon(mContext),
+                actionHandler);
     }
 
     private QCRow createUserProfileRowForCurrentProfile(String title, Drawable iconDrawable,
