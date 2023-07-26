@@ -19,7 +19,7 @@
     <string name="app_name" msgid="6963366455471441257">"Controlador USB"</string>
     <string name="usb_saved_devices" msgid="2829442070749964872">"Dispositivos guardados"</string>
     <string name="usb_pref_delete_title" msgid="3885061814853467483">"Remova a aplicação de processamento para o dispositivo USB"</string>
-    <string name="usb_pref_delete_message" msgid="5849493572520646218">"Tem a certeza de que pretende eliminar a aplicação de processamento predefinida para %1$s?"</string>
+    <string name="usb_pref_delete_message" msgid="5849493572520646218">"Tem a certeza de que quer eliminar a aplicação de processamento predefinida para %1$s?"</string>
     <string name="usb_pref_delete_yes" msgid="7803356145103146036">"Sim"</string>
     <string name="usb_pref_delete_cancel" msgid="5999791462730255929">"Cancelar"</string>
     <string name="usb_resolving_handlers" msgid="1943100136172948686">"A obter os controladores suportados…"</string>
