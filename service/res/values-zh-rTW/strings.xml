@@ -174,8 +174,8 @@
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"算繪範本。"</string>
     <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"控制要啟動的應用程式"</string>
     <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"控制要啟動的應用程式。"</string>
-    <string name="car_permission_label_manage_thread_priority" msgid="6775846409863509575">"管理會話串優先順序"</string>
-    <string name="car_permission_desc_manage_thread_priority" msgid="3833845502119615929">"管理會話串優先順序。"</string>
+    <string name="car_permission_label_manage_thread_priority" msgid="6775846409863509575">"管理討論串優先順序"</string>
+    <string name="car_permission_desc_manage_thread_priority" msgid="3833845502119615929">"管理討論串優先順序。"</string>
     <string name="car_permission_label_manage_occupant_zone" msgid="1390420387640478679">"管理乘客區域"</string>
     <string name="car_permission_desc_manage_occupant_zone" msgid="1641484205694436465">"管理乘客區域。"</string>
     <string name="car_permission_label_use_remote_access" msgid="4192095854784769805">"使用遠端存取權"</string>
