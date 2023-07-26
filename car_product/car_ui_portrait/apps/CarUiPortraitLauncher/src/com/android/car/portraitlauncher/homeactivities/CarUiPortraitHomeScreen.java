@@ -90,7 +90,6 @@ import com.android.car.caruiportrait.common.service.CarUiPortraitService;
 import com.android.car.portraitlauncher.R;
 import com.android.car.portraitlauncher.common.IntentHandler;
 import com.android.car.portraitlauncher.homescreen.audio.MediaIntentRouter;
-import com.android.car.portraitlauncher.panel.BackgroundSurfaceView;
 import com.android.car.portraitlauncher.panel.TaskViewPanel;
 
 import java.lang.reflect.InvocationTargetException;
@@ -178,8 +177,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private ComponentName mUnhandledImmersiveModeRequestComponent;
     private long mUnhandledImmersiveModeRequestTimestamp;
     private boolean mUnhandledImmersiveModeRequest;
-
-    private BackgroundSurfaceView mBackgroundAppAreaSurfaceView;
 
     /** Messenger for communicating with {@link CarUiPortraitService}. */
     private Messenger mService = null;
@@ -510,8 +507,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         mControlBarView = findViewById(R.id.control_bar_area);
         mControlBarView.addOnLayoutChangeListener(mControlBarOnLayoutChangeListener);
 
-        mBackgroundAppAreaSurfaceView = findViewById(R.id.background_panel_failure_recovery_view);
-
         // Setting as trusted overlay to let touches pass through.
         getWindow().addPrivateFlags(PRIVATE_FLAG_TRUSTED_OVERLAY);
         // To pass touches to the underneath task.
@@ -812,6 +807,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 ? CarLauncherUtils.getMapsIntent(getApplicationContext())
                 : (new Intent()).setComponent(mTaskCategoryManager.getCurrentBackgroundApp());
 
+        Intent failureRecoveryIntent =
+                BackgroundPanelBaseActivity.createIntent(getApplicationContext());
+        Intent[] intents = {failureRecoveryIntent, backgroundIntent};
+
         mTaskViewManager.createSemiControlledTaskView(getMainExecutor(),
                 mTaskCategoryManager.getBackgroundActivities().stream().toList(),
                 new SemiControlledCarTaskViewCallbacks() {
@@ -834,13 +833,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                         mIsBackgroundTaskViewReady = true;
                         onTaskViewReadinessUpdated();
                         updateBackgroundTaskViewInsets();
-                        startActivity(backgroundIntent);
-
-                        // TODO(b/288492322): draw a better failure recover page
-                        mBackgroundAppAreaSurfaceView.setFixedColorAndText(R.color.car_background,
-                                getString(R.string.background_panel_failure_recovery_text));
-                        mBackgroundAppAreaSurfaceView.setZOrderOnTop(false);
-
+                        startActivities(intents);
                         registerOnBackgroundApplicationInstallUninstallListener();
                     }
                 }

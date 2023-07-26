@@ -18,6 +18,7 @@
 <resources>
     <string-array name="config_backgroundActivities" translatable="false">
         <item>com.google.android.apps.maps/com.google.android.maps.MapsActivity</item>
+        <item>com.android.car.portraitlauncher/com.android.car.portraitlauncher.homeactivities.BackgroundPanelBaseActivity</item>
     </string-array>
 
     <string name="config_notificationActivity" translatable="false">
@@ -41,7 +42,7 @@
 
     <!-- A list of package names that provide the cards to display on the home screen -->
     <string-array name="config_homeCardModuleClasses" translatable="false">
-        <item>com.android.car.portraitlauncher.homescreen.audio.PortraitAudioCard</item>
+        <item>com.android.car.portraitlauncher.homescreen.audio.PortraitAudioCardModule</item>
     </string-array>
 
     <!--
