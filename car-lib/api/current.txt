@@ -177,6 +177,7 @@ package android.car {
     field @NonNull public static final android.car.CarVersion TIRAMISU_2;
     field @NonNull public static final android.car.CarVersion TIRAMISU_3;
     field @NonNull public static final android.car.CarVersion UPSIDE_DOWN_CAKE_0;
+    field @NonNull public static final android.car.CarVersion UPSIDE_DOWN_CAKE_1;
     field @NonNull public static final android.car.CarVersion VANILLA_ICE_CREAM_0;
   }
 
@@ -231,6 +232,7 @@ package android.car {
     field @NonNull public static final android.car.PlatformVersion TIRAMISU_2;
     field @NonNull public static final android.car.PlatformVersion TIRAMISU_3;
     field @NonNull public static final android.car.PlatformVersion UPSIDE_DOWN_CAKE_0;
+    field @NonNull public static final android.car.PlatformVersion UPSIDE_DOWN_CAKE_1;
     field @NonNull public static final android.car.PlatformVersion VANILLA_ICE_CREAM_0;
   }
 

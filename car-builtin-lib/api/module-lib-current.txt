@@ -19,6 +19,7 @@ package android.car.builtin.annotation {
     enum_constant public static final android.car.builtin.annotation.PlatformVersion TIRAMISU_2;
     enum_constant public static final android.car.builtin.annotation.PlatformVersion TIRAMISU_3;
     enum_constant public static final android.car.builtin.annotation.PlatformVersion UPSIDE_DOWN_CAKE_0;
+    enum_constant public static final android.car.builtin.annotation.PlatformVersion UPSIDE_DOWN_CAKE_1;
     enum_constant public static final android.car.builtin.annotation.PlatformVersion VANILLA_ICE_CREAM_0;
   }
 

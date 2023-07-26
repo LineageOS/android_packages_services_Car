@@ -81,6 +81,15 @@ public final class CarVersion extends ApiVersion<CarVersion> implements Parcelab
         public static final CarVersion UPSIDE_DOWN_CAKE_0 =
                 new CarVersion("UPSIDE_DOWN_CAKE_0", Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 0);
 
+       /**
+         * Helper object for first minor upgrade of Android 14.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
+                minPlatformVersion = PlatformVersion.TIRAMISU_0)
+        @NonNull
+        public static final CarVersion UPSIDE_DOWN_CAKE_1 =
+                new CarVersion("UPSIDE_DOWN_CAKE_1", Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 1);
+
         /**
          * Helper object for main version of Android 15.
          */

@@ -83,6 +83,15 @@ public final class PlatformVersion extends ApiVersion<PlatformVersion> implement
         public static final PlatformVersion UPSIDE_DOWN_CAKE_0 =
                 new PlatformVersion("UPSIDE_DOWN_CAKE_0", Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 0);
 
+        /**
+         * Helper object for first minor upgrade of Android 14.
+         */
+        @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_1,
+                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        @NonNull
+        public static final PlatformVersion UPSIDE_DOWN_CAKE_1 =
+                new PlatformVersion("UPSIDE_DOWN_CAKE_1", Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 1);
+
         // DO NOT ADD minor UPSIDE_DOWN_CAKE version until lint tool is working. (b/275125924)
 
         /**
