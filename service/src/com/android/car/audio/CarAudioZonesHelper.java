@@ -208,11 +208,11 @@ import java.util.stream.Collectors;
         // Get all zones configured under <zones> tag
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
-            if (TAG_OEM_CONTEXTS.equals(parser.getName())) {
+            if (Objects.equals(parser.getName(), TAG_OEM_CONTEXTS)) {
                 parseCarAudioContexts(parser);
-            } else if (TAG_MIRRORING_DEVICES.equals(parser.getName())) {
+            } else if (Objects.equals(parser.getName(), TAG_MIRRORING_DEVICES)) {
                 parseMirroringDevices(parser);
-            } else if (TAG_AUDIO_ZONES.equals(parser.getName())) {
+            } else if (Objects.equals(parser.getName(), TAG_AUDIO_ZONES)) {
                 loadCarAudioContexts();
                 return parseAudioZones(parser);
             } else {
@@ -236,7 +236,7 @@ import java.util.stream.Collectors;
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
-            if (TAG_MIRRORING_DEVICE.equals(parser.getName())) {
+            if (Objects.equals(parser.getName(), TAG_MIRRORING_DEVICE)) {
                 parseMirroringDevice(parser);
             }
             skip(parser);
@@ -273,7 +273,7 @@ import java.util.stream.Collectors;
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
-            if (TAG_OEM_CONTEXT.equals(parser.getName())) {
+            if (Objects.equals(parser.getName(), TAG_OEM_CONTEXT)) {
                 parseCarAudioContext(parser, contextId);
                 contextId++;
             } else {
@@ -290,7 +290,7 @@ import java.util.stream.Collectors;
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
-            if (TAG_AUDIO_ATTRIBUTES.equals(parser.getName())) {
+            if (Objects.equals(parser.getName(), TAG_AUDIO_ATTRIBUTES)) {
                 List<AudioAttributes> attributes = parseAudioAttributes(parser, contextName);
                 if (mUseCoreAudioRouting) {
                     contextId = CoreAudioHelper.getStrategyForAudioAttributes(attributes.get(0));
@@ -334,12 +334,12 @@ import java.util.stream.Collectors;
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
-            if (TAG_USAGE.equals(parser.getName())) {
+            if (Objects.equals(parser.getName(), TAG_USAGE)) {
                 AudioAttributes.Builder attributesBuilder = new AudioAttributes.Builder();
                 parseUsage(parser, attributesBuilder, ATTR_USAGE_VALUE);
                 AudioAttributes attributes = attributesBuilder.build();
                 supportedAttributes.add(attributes);
-            } else if (TAG_AUDIO_ATTRIBUTE.equals(parser.getName())) {
+            } else if (Objects.equals(parser.getName(), TAG_AUDIO_ATTRIBUTE)) {
                 AudioAttributes.Builder attributesBuilder = new AudioAttributes.Builder();
                 // Usage, ContentType and tags are optional but at least one value must be
                 // provided to build a valid audio attributes
@@ -418,7 +418,7 @@ import java.util.stream.Collectors;
 
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
-            if (TAG_AUDIO_ZONE.equals(parser.getName())) {
+            if (Objects.equals(parser.getName(), TAG_AUDIO_ZONE)) {
                 CarAudioZone zone = parseAudioZone(parser);
                 verifyOnlyOnePrimaryZone(zone, carAudioZones);
                 carAudioZones.put(zone.getId(), zone);
@@ -469,9 +469,9 @@ import java.util.stream.Collectors;
             while (parser.next() != XmlPullParser.END_TAG) {
                 if (parser.getEventType() != XmlPullParser.START_TAG) continue;
                 // Expect at least one <volumeGroups> in one audio zone
-                if (TAG_VOLUME_GROUPS.equals(parser.getName())) {
+                if (Objects.equals(parser.getName(), TAG_VOLUME_GROUPS)) {
                     parseVolumeGroups(parser, zoneConfigBuilder);
-                } else if (TAG_INPUT_DEVICES.equals(parser.getName())) {
+                } else if (Objects.equals(parser.getName(), TAG_INPUT_DEVICES)) {
                     parseInputAudioDevices(parser, zone);
                 } else {
                     skip(parser);
@@ -483,9 +483,9 @@ import java.util.stream.Collectors;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             // Expect at least one <zoneConfigs> in one audio zone
-            if (TAG_AUDIO_ZONE_CONFIGS.equals(parser.getName())) {
+            if (Objects.equals(parser.getName(), TAG_AUDIO_ZONE_CONFIGS)) {
                 parseZoneConfigs(parser, zone);
-            } else if (TAG_INPUT_DEVICES.equals(parser.getName())) {
+            } else if (Objects.equals(parser.getName(), TAG_INPUT_DEVICES)) {
                 parseInputAudioDevices(parser, zone);
             } else {
                 skip(parser);
@@ -561,7 +561,7 @@ import java.util.stream.Collectors;
         }
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
-            if (TAG_INPUT_DEVICE.equals(parser.getName())) {
+            if (Objects.equals(parser.getName(), TAG_INPUT_DEVICE)) {
                 String audioDeviceAddress =
                         parser.getAttributeValue(NAMESPACE, ATTR_DEVICE_ADDRESS);
                 validateInputAudioDeviceAddress(audioDeviceAddress);
@@ -610,7 +610,7 @@ import java.util.stream.Collectors;
         int zoneConfigId = 0;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
-            if (TAG_AUDIO_ZONE_CONFIG.equals(parser.getName())) {
+            if (Objects.equals(parser.getName(), TAG_AUDIO_ZONE_CONFIG)) {
                 if (zone.getId() == PRIMARY_AUDIO_ZONE && zoneConfigId > 0) {
                     throw new IllegalArgumentException(
                             "Primary zone cannot have multiple zone configurations");
@@ -634,7 +634,7 @@ import java.util.stream.Collectors;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             // Expect at least one <volumeGroups> in one audio zone config
-            if (TAG_VOLUME_GROUPS.equals(parser.getName())) {
+            if (Objects.equals(parser.getName(), TAG_VOLUME_GROUPS)) {
                 parseVolumeGroups(parser, zoneConfigBuilder);
             } else {
                 skip(parser);
@@ -662,7 +662,7 @@ import java.util.stream.Collectors;
         int groupId = 0;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
-            if (TAG_VOLUME_GROUP.equals(parser.getName())) {
+            if (Objects.equals(parser.getName(), TAG_VOLUME_GROUP)) {
                 String groupName = parser.getAttributeValue(NAMESPACE, ATTR_NAME);
                 Preconditions.checkArgument(!mUseCoreAudioVolume || groupName != null,
                         "%s %s attribute can not be empty when relying on core volume groups",
@@ -689,7 +689,7 @@ import java.util.stream.Collectors;
                 mUseCarVolumeGroupMute);
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
-            if (TAG_AUDIO_DEVICE.equals(parser.getName())) {
+            if (Objects.equals(parser.getName(), TAG_AUDIO_DEVICE)) {
                 String address = parser.getAttributeValue(NAMESPACE, ATTR_DEVICE_ADDRESS);
                 validateOutputDeviceExist(address);
                 parseVolumeGroupContexts(parser, groupFactory, address);
@@ -713,7 +713,7 @@ import java.util.stream.Collectors;
             throws XmlPullParserException, IOException {
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
-            if (TAG_CONTEXT.equals(parser.getName())) {
+            if (Objects.equals(parser.getName(), TAG_CONTEXT)) {
                 @AudioContext int carAudioContextId = parseCarAudioContextId(
                         parser.getAttributeValue(NAMESPACE, ATTR_CONTEXT_NAME));
                 validateCarAudioContextSupport(carAudioContextId);
