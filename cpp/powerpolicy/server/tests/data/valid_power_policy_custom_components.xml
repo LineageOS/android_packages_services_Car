@@ -15,13 +15,6 @@
 -->
 
 <powerPolicy version="1.0">
-
-  <customComponents>
-          <customComponent value="1000">CUSTOM_COMPONENT_1000</customComponent>
-          <customComponent value="1003">CUSTOM_COMPONENT_SPECIAL_SENSOR</customComponent>
-          <customComponent value="1002">CUSTOM_COMPONENT_AUX_INPUT</customComponent>
-    </customComponents>
-
     <policyGroups>
         <policyGroup id="basic_policy_group">
             <defaultPolicy state="WaitForVHAL" id="policy_id_other_on"/>
@@ -94,4 +87,9 @@
         </policy>
     </systemPolicyOverrides>
 
+    <customComponents>
+        <customComponent value="1000">CUSTOM_COMPONENT_1000</customComponent>
+        <customComponent value="1003">CUSTOM_COMPONENT_SPECIAL_SENSOR</customComponent>
+        <customComponent value="1002">CUSTOM_COMPONENT_AUX_INPUT</customComponent>
+    </customComponents>
 </powerPolicy>
