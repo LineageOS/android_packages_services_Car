@@ -3,9 +3,9 @@
 <!--
 This XML allows OEMs to configure a driving state to UX restrictions.  There are 2 major classes
 of configuration:
-1. Restriction Mapping as defined by the <restrictionMapping> tag.
+1. Restriction Mapping as defined by the <RestrictionMapping> tag.
 2. Restriction Parameters for restrictions that can be parametrized as defined by
-   <restrictionParameters> tag.
+   <RestrictionParameters> tag.
 
 Note:
    The tags and attributes are declared in
@@ -61,7 +61,14 @@ Note:
              name, for example, "passenger". "baseline" is the default value. Note: "passenger"
              mode can be generically supported by specifying UxR for passenger displays using
              'physicalPort' or the combination of 'occupantZoneId' and 'displayType'.
-       - RestrictionParameters (Tag 2. Some of UX restrictions can be parametrized)
+       - RestrictionParameters (Tag 2. Some of UX restrictions can be parameterized)
+             - the restriction parameters can be local or global to all the UX restrictions. A local
+             restriction parameters tag is within a <RestrictionMapping> container which is applied
+             to all the driving states in that container. A global restriction parameters tag is
+             within a <UxRestrictions> tag which is applied to all the <RestrictionMapping>
+             containers which do not have a local <RestrictionParameters> tag associated with them.
+             If the local <RestrictionParameters> tag is not defined for any RestrictionMapping, the
+             global <RestrictionParameters> is applied.
        - StringRestrictions (Tag 2.a. Parameters to express displayed String related restrictions)
              - maxLength (Attribute. Max allowed length of general purpose strings when
              limit_string_length is imposed)
