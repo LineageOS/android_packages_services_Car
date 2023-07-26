@@ -23,12 +23,6 @@
     android:clipToPadding="false"
     android:clipChildren="false">
 
-    <com.android.car.portraitlauncher.panel.BackgroundSurfaceView
-        android:id="@+id/background_panel_failure_recovery_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="@*android:dimen/status_bar_height"/>
-
     <FrameLayout
         android:id="@+id/background_app_area"
         android:layout_width="match_parent"

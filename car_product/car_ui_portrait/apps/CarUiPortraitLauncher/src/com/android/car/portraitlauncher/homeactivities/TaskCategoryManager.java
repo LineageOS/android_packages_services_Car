@@ -69,10 +69,8 @@ class TaskCategoryManager {
     TaskCategoryManager(Context context) {
         mContext = context;
 
-        mFullScreenActivities = convertToComponentNames(mContext.getResources()
-                .getStringArray(R.array.config_fullScreenActivities));
-        mBackgroundActivities = convertToComponentNames(mContext.getResources()
-                .getStringArray(R.array.config_backgroundActivities));
+        mFullScreenActivities = new HashSet<>();
+        mBackgroundActivities = new HashSet<>();
         mIgnoreOpeningRootTaskViewComponentsSet = convertToComponentNames(mContext.getResources()
                 .getStringArray(R.array.config_ignoreOpeningForegroundDA));
         mAppGridActivityComponent = new ComponentName(context, AppGridActivity.class);
@@ -135,6 +133,9 @@ class TaskCategoryManager {
                         + info.activityInfo.getComponentName());
             }
         }
+
+        mFullScreenActivities.addAll(convertToComponentNames(mContext.getResources()
+                .getStringArray(R.array.config_fullScreenActivities)));
     }
 
     void updateBackgroundActivityMap() {
