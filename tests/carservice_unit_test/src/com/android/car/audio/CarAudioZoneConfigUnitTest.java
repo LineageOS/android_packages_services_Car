@@ -28,6 +28,7 @@ import static com.android.car.audio.CarAudioContext.AudioContext;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -266,13 +267,56 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
         CarAudioZoneConfig zoneConfig = buildZoneConfig(
                 List.of(mockMusicGroup, mockNavGroupRoutingOnMusic));
 
-        zoneConfig.validateCanUseDynamicMixRouting(/* useCoreAudioRouting= */ true);
-
-        verify(musicCarAudioDeviceInfo).resetCanBeRoutedWithDynamicPolicyMix();
+        expectWithMessage("Zone configuration does not validate when not using core routing "
+                + "and usage is shared among context")
+                .that(zoneConfig.validateCanUseDynamicMixRouting(/* useCoreAudioRouting= */ false))
+                .isFalse();
     }
 
     @Test
-    public void validateZoneWhenUsageSharedAmongContext_usingCoreRouting_forbidUseDynamicRouting() {
+    public void validateCanUseDynamicMixRouting_whenUseCoreRouting_disablesDynamicRouting() {
+        CarAudioDeviceInfo musicCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS)
+                .addCarAudioDeviceInfoMock(musicCarAudioDeviceInfo).build();
+        CarVolumeGroup mockNavGroupRoutingOnMusic = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_NAVIGATION_CONTEXT, MUSIC_ADDRESS)
+                .addCarAudioDeviceInfoMock(musicCarAudioDeviceInfo).build();
+        CarAudioZoneConfig zoneConfig = buildZoneConfig(
+                List.of(mockMusicGroup, mockNavGroupRoutingOnMusic));
+
+        expectWithMessage("Zone configuration validates when using core routing and addresses "
+                + "shared among volume groups")
+                .that(zoneConfig.validateCanUseDynamicMixRouting(/* useCoreAudioRouting= */ true))
+                .isTrue();
+        verify(musicCarAudioDeviceInfo, times(2)).resetCanBeRoutedWithDynamicPolicyMix();
+    }
+
+    @Test
+    public void validateZoneWhenUsageSharedAmongContext_forbidUseDynamicRouting() {
+        CarAudioDeviceInfo musicCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        CarAudioDeviceInfo navCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        when(musicCarAudioDeviceInfo.getAddress()).thenReturn(MUSIC_ADDRESS);
+        when(navCarAudioDeviceInfo.getAddress()).thenReturn(NAV_ADDRESS);
+        CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS)
+                .addDeviceAddressAndUsages(USAGE_MEDIA, MUSIC_ADDRESS)
+                .addCarAudioDeviceInfoMock(musicCarAudioDeviceInfo).build();
+        CarVolumeGroup mockNavGroupRoutingOnMusic = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, NAV_ADDRESS)
+                .addDeviceAddressAndUsages(USAGE_MEDIA, NAV_ADDRESS)
+                .addCarAudioDeviceInfoMock(navCarAudioDeviceInfo).build();
+        CarAudioZoneConfig zoneConfig = buildZoneConfig(
+                List.of(mockMusicGroup, mockNavGroupRoutingOnMusic));
+
+        expectWithMessage("Zone configuration does not validate when not using core routing and "
+                + "usage is shared among context")
+                .that(zoneConfig.validateCanUseDynamicMixRouting(/* useCoreAudioRouting= */ false))
+                .isFalse();
+    }
+
+    @Test
+    public void validateZoneWhenUsageSharedAmongContext_usingCoreRouting_disablesDynamicRouting() {
         CarAudioDeviceInfo musicCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
         CarAudioDeviceInfo navCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
         when(musicCarAudioDeviceInfo.getAddress()).thenReturn(MUSIC_ADDRESS);
@@ -292,7 +336,7 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
                 + "shared among context")
                 .that(zoneConfig.validateCanUseDynamicMixRouting(/* useCoreAudioRouting= */ true))
                 .isTrue();
-        verify(musicCarAudioDeviceInfo).resetCanBeRoutedWithDynamicPolicyMix();
+        verify(musicCarAudioDeviceInfo, times(2)).resetCanBeRoutedWithDynamicPolicyMix();
         verify(navCarAudioDeviceInfo).resetCanBeRoutedWithDynamicPolicyMix();
     }
 

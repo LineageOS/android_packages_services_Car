@@ -178,8 +178,7 @@ public class CarAudioZonesValidatorTest {
             when(zoneMock.getId()).thenReturn(mZoneId);
             when(zoneMock.validateZoneConfigs(/* useCoreAudioRouting= */ false))
                     .thenReturn(mHasValidZoneConfigs);
-            when(zoneMock
-                    .validateCanUseDynamicMixRouting(/* useCoreAudioRouting= */ false))
+            when(zoneMock.validateCanUseDynamicMixRouting(/* useCoreAudioRouting= */ false))
                     .thenReturn(mHasValidZoneConfigs);
             when(zoneMock.getAllCarAudioZoneConfigs()).thenReturn(mZoneConfigs);
             when(zoneMock.getInputAudioDevices()).thenReturn(mInputDevices);
