@@ -477,8 +477,13 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         notifyListeners(MEDIA_SOURCE_MODE_PLAYBACK, userId);
         notifyListeners(MEDIA_SOURCE_MODE_BROWSE, userId);
 
-        startMediaConnectorService(playbackSource,
-                shouldStartPlayback(mPlayOnBootConfig, userId), userId);
+        try {
+            startMediaConnectorService(playbackSource,
+                    shouldStartPlayback(mPlayOnBootConfig, userId), userId);
+        } catch (Exception e) {
+            Slogf.e(TAG, e, "Failed to startMediaConnectorService. Source:%s user:%d",
+                    playbackSource, userId);
+        }
     }
 
     @GuardedBy("mLock")
