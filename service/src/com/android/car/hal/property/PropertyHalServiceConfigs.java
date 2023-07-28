@@ -16,7 +16,10 @@
 
 package com.android.car.hal.property;
 
+import static android.car.Car.PERMISSION_VENDOR_EXTENSION;
+
 import android.annotation.Nullable;
+import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.CarHvacFanDirection;
 import android.content.Context;
@@ -59,20 +62,34 @@ import android.hardware.automotive.vehicle.VehicleTurnSignal;
 import android.hardware.automotive.vehicle.VehicleUnit;
 import android.hardware.automotive.vehicle.WindshieldWipersState;
 import android.hardware.automotive.vehicle.WindshieldWipersSwitch;
+import android.util.ArraySet;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 
 import com.android.car.CarLog;
+import com.android.car.hal.BidirectionalSparseIntArray;
 import com.android.car.hal.HalPropValue;
+import com.android.car.hal.property.PropertyPermissionInfo.AllOfPermissions;
+import com.android.car.hal.property.PropertyPermissionInfo.AnyOfPermissions;
 import com.android.car.hal.property.PropertyPermissionInfo.PermissionCondition;
+import com.android.car.hal.property.PropertyPermissionInfo.PropertyPermissions;
+import com.android.car.hal.property.PropertyPermissionInfo.SinglePermission;
+import com.android.car.internal.property.CarPropertyHelper;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -80,10 +97,87 @@ import java.util.Set;
  * This class binds the read and write permissions to the property ID.
  */
 public class PropertyHalServiceConfigs {
+    // TODO(b/293354967): Change this to true once we verify using runtime config is okay.
     private static final boolean USE_RUNTIME_CONFIG_FILE = false;
     private static final Object sLock = new Object();
     @GuardedBy("sLock")
     private static PropertyHalServiceConfigs sPropertyHalServiceConfigs;
+    private static final PermissionCondition SINGLE_PERMISSION_VENDOR_EXTENSION =
+            new SinglePermission(PERMISSION_VENDOR_EXTENSION);
+    // Only contains property ID if value is different for the CarPropertyManager and the HAL.
+    private static final BidirectionalSparseIntArray MGR_PROP_ID_TO_HAL_PROP_ID =
+            BidirectionalSparseIntArray.create(
+                    new int[]{VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS,
+                            VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS});
+
+    /**
+     * Represents one VHAL property that is exposed through
+     * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * Note that the property ID is defined in {@link android.car.VehiclePropertyIds} and it might
+     * be different than the property ID used by VHAL, defined in {@link VehicleProperty}.
+     * The latter is represented by {@code halPropId}.
+     *
+     * If the property is an {@code Integer} enum property, its supported enum values are listed
+     * in {@code dataEnums}. If the property is a flag-combination property, its valid bit flag is
+     * listed in {@code validBitFlag}.
+     */
+    @VisibleForTesting
+    /* package */ static final class CarSvcPropertyConfig {
+        public int propertyId;
+        public int halPropId;
+        public String propertyName;
+        public String description;
+        public PropertyPermissions permissions;
+        public Set<Integer> dataEnums;
+        public Integer validBitFlag;
+
+        @Override
+        public boolean equals(Object object) {
+            if (object == this) {
+                return true;
+            }
+            // instanceof will return false if object is null.
+            if (!(object instanceof CarSvcPropertyConfig)) {
+                return false;
+            }
+            CarSvcPropertyConfig other = (CarSvcPropertyConfig) object;
+            return (propertyId == other.propertyId
+                    && halPropId == other.halPropId
+                    && Objects.equals(propertyName, other.propertyName)
+                    && Objects.equals(description, other.description)
+                    && Objects.equals(permissions, other.permissions)
+                    && Objects.equals(dataEnums, other.dataEnums)
+                    && Objects.equals(validBitFlag, other.validBitFlag));
+        }
+
+        @Override
+        public int hashCode() {
+            return propertyId + halPropId + Objects.hashCode(propertyName)
+                    + Objects.hashCode(description) + Objects.hashCode(permissions)
+                    + Objects.hashCode(dataEnums) + Objects.hashCode(validBitFlag);
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder stringBuffer = new StringBuilder().append("CarSvcPropertyConfig{");
+            stringBuffer.append("propertyId: ").append(propertyId)
+                    .append(", halPropId: ").append(halPropId)
+                    .append(", propertyName: ").append(propertyName)
+                    .append(", description: ").append(description)
+                    .append(", permissions: ").append(permissions);
+            if (dataEnums != null) {
+                stringBuffer.append(", dataEnums: ").append(dataEnums);
+            }
+            if (validBitFlag != null) {
+                stringBuffer.append(", validBitFlag: ").append(validBitFlag);
+            }
+            return stringBuffer.append("}").toString();
+        }
+    };
+
+    private static final String CONFIG_RESOURCE_NAME = "CarSvcProps.json";
+    private static final String JSON_FIELD_NAME_PROPERTIES = "properties";
 
     private final boolean mUseRuntimeConfigFile;
     /**
@@ -95,118 +189,65 @@ public class PropertyHalServiceConfigs {
     private final SparseIntArray mHalPropIdToValidBitFlag = new SparseIntArray();
     private final PropertyPermissionInfo mPropertyPermissionInfo = new PropertyPermissionInfo();
     private static final String TAG = CarLog.tagFor(PropertyHalServiceConfigs.class);
-    // Enums are used as return value in Vehicle HAL.
-    private static final Set<Integer> FUEL_TYPE =
-            new HashSet<>(getIntegersFromDataEnums(FuelType.class));
-    private static final Set<Integer> EV_CONNECTOR_TYPE =
-            new HashSet<>(getIntegersFromDataEnums(EvConnectorType.class));
-    private static final Set<Integer> PORT_LOCATION =
-            new HashSet<>(getIntegersFromDataEnums(PortLocationType.class));
-    private static final Set<Integer> VEHICLE_SEAT =
-            new HashSet<>(getIntegersFromDataEnums(VehicleAreaSeat.class));
-    private static final Set<Integer> OIL_LEVEL =
-            new HashSet<>(getIntegersFromDataEnums(VehicleOilLevel.class));
-    private static final Set<Integer> VEHICLE_GEAR =
-            new HashSet<>(getIntegersFromDataEnums(VehicleGear.class));
-    private static final Set<Integer> TURN_SIGNAL =
-            new HashSet<>(getIntegersFromDataEnums(VehicleTurnSignal.class));
-    private static final Set<Integer> IGNITION_STATE =
-            new HashSet<>(getIntegersFromDataEnums(VehicleIgnitionState.class));
-    private static final Set<Integer> VEHICLE_UNITS =
-            new HashSet<>(getIntegersFromDataEnums(VehicleUnit.class));
-    private static final Set<Integer> SEAT_OCCUPANCY_STATE =
-            new HashSet<>(getIntegersFromDataEnums(VehicleSeatOccupancyState.class));
-    private static final Set<Integer> VEHICLE_LIGHT_STATE =
-            new HashSet<>(getIntegersFromDataEnums(VehicleLightState.class));
-    private static final Set<Integer> VEHICLE_LIGHT_SWITCH =
-            new HashSet<>(getIntegersFromDataEnums(VehicleLightSwitch.class));
-    private static final Set<Integer> HVAC_FAN_DIRECTION =
-            new HashSet<>(getIntegersFromDataEnums(CarHvacFanDirection.class));
-    private static final Set<Integer> ETC_CARD_TYPE =
-            new HashSet<>(getIntegersFromDataEnums(ElectronicTollCollectionCardType.class));
-    private static final Set<Integer> ETC_CARD_STATUS =
-            new HashSet<>(getIntegersFromDataEnums(ElectronicTollCollectionCardStatus.class));
-    private static final Set<Integer> EV_CHARGE_STATE =
-            new HashSet<>(getIntegersFromDataEnums(EvChargeState.class));
-    private static final Set<Integer> EV_REGENERATIVE_BREAKING_STATE =
-            new HashSet<>(getIntegersFromDataEnums(EvRegenerativeBrakingState.class));
-    private static final Set<Integer> EV_STOPPING_MODE =
-            new HashSet<>(getIntegersFromDataEnums(EvStoppingMode.class));
-    private static final Set<Integer> TRAILER_PRESENT =
-            new HashSet<>(getIntegersFromDataEnums(TrailerState.class));
-    private static final Set<Integer> GSR_COMP_TYPE =
-            new HashSet<>(getIntegersFromDataEnums(GsrComplianceRequirementType.class));
-    private static final int LOCATION_CHARACTERIZATION =
-            generateAllCombination(LocationCharacterization.class);
-    private static final Set<Integer> WINDSHIELD_WIPERS_STATE =
-            new HashSet<>(getIntegersFromDataEnums(WindshieldWipersState.class));
-    private static final Set<Integer> WINDSHIELD_WIPERS_SWITCH =
-            new HashSet<>(getIntegersFromDataEnums(WindshieldWipersSwitch.class));
-    private static final Set<Integer> EMERGENCY_LANE_KEEP_ASSIST_STATE =
-            new HashSet<>(getIntegersFromDataEnums(
-                    EmergencyLaneKeepAssistState.class, ErrorState.class));
-    private static final Set<Integer> CRUISE_CONTROL_TYPE =
-            new HashSet<>(getIntegersFromDataEnums(
-                    CruiseControlType.class, ErrorState.class));
-    private static final Set<Integer> CRUISE_CONTROL_STATE =
-            new HashSet<>(getIntegersFromDataEnums(
-                    CruiseControlState.class, ErrorState.class));
-    private static final Set<Integer> CRUISE_CONTROL_COMMAND =
-            new HashSet<>(getIntegersFromDataEnums(CruiseControlCommand.class));
-    private static final Set<Integer> HANDS_ON_DETECTION_DRIVER_STATE =
-            new HashSet<>(getIntegersFromDataEnums(
-                    HandsOnDetectionDriverState.class, ErrorState.class));
-    private static final Set<Integer> HANDS_ON_DETECTION_WARNING =
-            new HashSet<>(getIntegersFromDataEnums(
-                    HandsOnDetectionWarning.class, ErrorState.class));
-    private static final Set<Integer> AUTOMATIC_EMERGENCY_BRAKING_STATE =
-            new HashSet<>(getIntegersFromDataEnums(
-                AutomaticEmergencyBrakingState.class, ErrorState.class));
-    private static final Set<Integer> FORWARD_COLLISION_WARNING_STATE =
-            new HashSet<>(getIntegersFromDataEnums(
-                ForwardCollisionWarningState.class, ErrorState.class));
-    private static final Set<Integer> BLIND_SPOT_WARNING_STATE =
-            new HashSet<>(getIntegersFromDataEnums(
-                BlindSpotWarningState.class, ErrorState.class));
-    private static final Set<Integer> LANE_DEPARTURE_WARNING_STATE =
-            new HashSet<>(getIntegersFromDataEnums(
-                LaneDepartureWarningState.class, ErrorState.class));
-    private static final Set<Integer> LANE_KEEP_ASSIST_STATE =
-            new HashSet<>(getIntegersFromDataEnums(
-                LaneKeepAssistState.class, ErrorState.class));
-    private static final Set<Integer> LANE_CENTERING_ASSIST_COMMAND =
-            new HashSet<>(getIntegersFromDataEnums(LaneCenteringAssistCommand.class));
-    private static final Set<Integer> LANE_CENTERING_ASSIST_STATE =
-            new HashSet<>(getIntegersFromDataEnums(
-                LaneCenteringAssistState.class, ErrorState.class));
 
     private final SparseArray<Set<Integer>> mHalPropIdToEnumSet = new SparseArray<>();
+    private final SparseArray<CarSvcPropertyConfig> mHalPropIdToCarSvcConfig;
+    private final BidirectionalSparseIntArray mMgrPropIdToHalPropId;
 
-    private PropertyHalServiceConfigs(boolean useRuntimeConfigFile) {
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private final SparseArray<PropertyPermissions> mVendorHalPropIdToPermissions =
+            new SparseArray<>();
+
+    /**
+     * Should only be used in unit tests. Use {@link getInsance} instead.
+     */
+    @VisibleForTesting
+    /* package */ PropertyHalServiceConfigs(boolean useRuntimeConfigFile) {
         mUseRuntimeConfigFile = useRuntimeConfigFile;
         if (mUseRuntimeConfigFile) {
-            // TODO(293354967): Support runtime config file.
+            InputStream defaultConfigInputStream = this.getClass().getClassLoader()
+                    .getResourceAsStream(CONFIG_RESOURCE_NAME);
+            mHalPropIdToCarSvcConfig = parseJsonConfig(defaultConfigInputStream,
+                    "defaultResource");
+            List<Integer> halPropIdMgrIds = new ArrayList<>();
+            for (int i = 0; i < mHalPropIdToCarSvcConfig.size(); i++) {
+                CarSvcPropertyConfig config = mHalPropIdToCarSvcConfig.valueAt(i);
+                if (config.halPropId != config.propertyId) {
+                    halPropIdMgrIds.add(config.propertyId);
+                    halPropIdMgrIds.add(config.halPropId);
+                }
+            }
+            int[] halPropIdMgrIdArray = new int[halPropIdMgrIds.size()];
+            for (int i = 0; i < halPropIdMgrIds.size(); i++) {
+                halPropIdMgrIdArray[i] = halPropIdMgrIds.get(i);
+            }
+            mMgrPropIdToHalPropId = BidirectionalSparseIntArray.create(halPropIdMgrIdArray);
             return;
         }
 
+        mHalPropIdToCarSvcConfig = null;
+        mMgrPropIdToHalPropId = null;
         populateEnumSet();
-        // mPropToValidBitFlag contains all properties which return values are combinations of bits
-        mHalPropIdToValidBitFlag.put(VehicleProperty.LOCATION_CHARACTERIZATION,
-                LOCATION_CHARACTERIZATION);
-
-    }
-
-    public static PropertyHalServiceConfigs getInstance() {
-        return getInstance(USE_RUNTIME_CONFIG_FILE);
     }
 
     /**
-     * Get the singleton instance for {@link PropertyHalServiceConfigs}.
+     * Gets the hard-coded HAL property ID to enum value set. For unit test only.
+     *
+     * TODO(b/293354967): Remove this once we migrate to runtime config.
      */
-    public static PropertyHalServiceConfigs getInstance(boolean useRuntimeConfigFile) {
+    @VisibleForTesting
+    /* package */ SparseArray<Set<Integer>> getHalPropIdToEnumSet() {
+        return mHalPropIdToEnumSet;
+    }
+
+    /**
+     * Gets the singleton instance for {@link PropertyHalServiceConfigs}.
+     */
+    public static PropertyHalServiceConfigs getInstance() {
         synchronized (sLock) {
             if (sPropertyHalServiceConfigs == null) {
-                sPropertyHalServiceConfigs = new PropertyHalServiceConfigs(useRuntimeConfigFile);
+                sPropertyHalServiceConfigs = new PropertyHalServiceConfigs(USE_RUNTIME_CONFIG_FILE);
             }
             return sPropertyHalServiceConfigs;
         }
@@ -226,6 +267,13 @@ public class PropertyHalServiceConfigs {
      */
     @Nullable
     public Set<Integer> getAllPossibleSupportedEnumValues(int halPropId) {
+        if (mUseRuntimeConfigFile) {
+            if (!mHalPropIdToCarSvcConfig.contains(halPropId)) {
+                return null;
+            }
+            Set<Integer> dataEnums = mHalPropIdToCarSvcConfig.get(halPropId).dataEnums;
+            return dataEnums != null ? Collections.unmodifiableSet(dataEnums) : null;
+        }
         return mHalPropIdToEnumSet.contains(halPropId)
                 ? Collections.unmodifiableSet(mHalPropIdToEnumSet.get(halPropId)) : null;
     }
@@ -246,14 +294,28 @@ public class PropertyHalServiceConfigs {
             return true;
         }
         if (!checkFormatForAllProperties(propValue)) {
-            Slogf.e(TAG, "Property value" + propValue + "has an invalid data format");
+            Slogf.e(TAG, "Property value: " + propValue + " has an invalid data format");
             return false;
         }
+        if (mUseRuntimeConfigFile) {
+            CarSvcPropertyConfig carSvcPropertyConfig = mHalPropIdToCarSvcConfig.get(propId);
+            if (carSvcPropertyConfig == null) {
+                // This is not a system property.
+                return true;
+            }
+            if (carSvcPropertyConfig.dataEnums != null) {
+                return checkDataEnum(propValue, carSvcPropertyConfig.dataEnums);
+            }
+            if (carSvcPropertyConfig.validBitFlag != null) {
+                return checkValidBitFlag(propValue, carSvcPropertyConfig.validBitFlag);
+            }
+            return true;
+        }
         if (mHalPropIdToEnumSet.contains(propId)) {
-            return checkDataEnum(propValue);
+            return checkDataEnum(propValue, mHalPropIdToEnumSet.get(propId));
         }
         if (mHalPropIdToValidBitFlag.indexOfKey(propId) >= 0) {
-            return checkValidBitFlag(propValue);
+            return checkValidBitFlag(propValue, mHalPropIdToValidBitFlag.get(propId));
         }
         return true;
     }
@@ -266,7 +328,38 @@ public class PropertyHalServiceConfigs {
      */
     @Nullable
     public PermissionCondition getReadPermission(int halPropId) {
+        if (mUseRuntimeConfigFile) {
+            if (CarPropertyHelper.isVendorProperty(halPropId)) {
+                return getVendorReadPermission(halPropId);
+            }
+            CarSvcPropertyConfig carSvcPropertyConfig = mHalPropIdToCarSvcConfig.get(
+                    halPropId);
+            if (carSvcPropertyConfig == null) {
+                Slogf.w(TAG, "halPropId: "  + halPropIdToName(halPropId) + " is not supported,"
+                        + " no read permission");
+                return null;
+            }
+            return carSvcPropertyConfig.permissions.getReadPermission();
+        }
         return mPropertyPermissionInfo.getReadPermission(halPropId);
+    }
+
+    @Nullable
+    private PermissionCondition getVendorReadPermission(int halPropId) {
+        String halPropIdName = halPropIdToName(halPropId);
+        synchronized (mLock) {
+            PropertyPermissions propertyPermissions = mVendorHalPropIdToPermissions.get(halPropId);
+            if (propertyPermissions == null) {
+                Slogf.v(TAG, "no custom vendor read permission for: " + halPropIdName
+                        + ", default to PERMISSION_VENDOR_EXTENSION");
+                return SINGLE_PERMISSION_VENDOR_EXTENSION;
+            }
+            PermissionCondition readPermission = propertyPermissions.getReadPermission();
+            if (readPermission == null) {
+                Slogf.v(TAG, "vendor propId is not available for reading: " + halPropIdName);
+            }
+            return readPermission;
+        }
     }
 
     /**
@@ -277,7 +370,38 @@ public class PropertyHalServiceConfigs {
      */
     @Nullable
     public PermissionCondition getWritePermission(int halPropId) {
+        if (mUseRuntimeConfigFile) {
+            if (CarPropertyHelper.isVendorProperty(halPropId)) {
+                return getVendorWritePermission(halPropId);
+            }
+            CarSvcPropertyConfig carSvcPropertyConfig = mHalPropIdToCarSvcConfig.get(
+                    halPropId);
+            if (carSvcPropertyConfig == null) {
+                Slogf.w(TAG, "halPropId: "  + halPropIdToName(halPropId) + " is not supported,"
+                        + " no write permission");
+                return null;
+            }
+            return carSvcPropertyConfig.permissions.getWritePermission();
+        }
         return mPropertyPermissionInfo.getWritePermission(halPropId);
+    }
+
+    @Nullable
+    private PermissionCondition getVendorWritePermission(int halPropId) {
+        String halPropIdName = halPropIdToName(halPropId);
+        synchronized (mLock) {
+            PropertyPermissions propertyPermissions = mVendorHalPropIdToPermissions.get(halPropId);
+            if (propertyPermissions == null) {
+                Slogf.v(TAG, "no custom vendor write permission for: " + halPropIdName
+                        + ", default to PERMISSION_VENDOR_EXTENSION");
+                return SINGLE_PERMISSION_VENDOR_EXTENSION;
+            }
+            PermissionCondition writePermission = propertyPermissions.getWritePermission();
+            if (writePermission == null) {
+                Slogf.v(TAG, "vendor propId is not available for writing: " + halPropIdName);
+            }
+            return writePermission;
+        }
     }
 
     /**
@@ -288,7 +412,13 @@ public class PropertyHalServiceConfigs {
      * @return readPermission is granted or not.
      */
     public boolean isReadable(Context context, int halPropId) {
-        return mPropertyPermissionInfo.isReadable(context, halPropId);
+        PermissionCondition readPermission = getReadPermission(halPropId);
+        if (readPermission == null) {
+            Slogf.v(TAG, "propId is not readable or is a system property but does not exist "
+                    + "in PropertyPermissionInfo: " + halPropIdToName(halPropId));
+            return false;
+        }
+        return readPermission.isMet(context);
     }
 
     /**
@@ -299,13 +429,23 @@ public class PropertyHalServiceConfigs {
      * @return writePermission is granted or not.
      */
     public boolean isWritable(Context context, int halPropId) {
-        return mPropertyPermissionInfo.isWritable(context, halPropId);
+        PermissionCondition writePermission = getWritePermission(halPropId);
+        if (writePermission == null) {
+            Slogf.v(TAG, "propId is not writable or is a system property but does not exist "
+                    + "in PropertyPermissionInfo: " + halPropIdToName(halPropId));
+            return false;
+        }
+        return writePermission.isMet(context);
     }
 
     /**
      * Checks if property ID is in the list of known IDs that PropertyHalService is interested it.
      */
     public boolean isSupportedProperty(int propId) {
+        if (mUseRuntimeConfigFile) {
+            return mHalPropIdToCarSvcConfig.get(propId) != null
+                    || CarPropertyHelper.isVendorProperty(propId);
+        }
         return mPropertyPermissionInfo.isSupportedProperty(propId);
     }
 
@@ -316,10 +456,166 @@ public class PropertyHalServiceConfigs {
      * {@link VehicleProperty#SUPPORT_CUSTOMIZE_VENDOR_PERMISSION}
      */
     public void customizeVendorPermission(int[] configArray) {
-        mPropertyPermissionInfo.customizeVendorPermission(configArray);
+        if (configArray == null || configArray.length % 3 != 0) {
+            throw new IllegalArgumentException(
+                    "ConfigArray for SUPPORT_CUSTOMIZE_VENDOR_PERMISSION is wrong");
+        }
+        int index = 0;
+        while (index < configArray.length) {
+            int propId = configArray[index++];
+            if (!CarPropertyHelper.isVendorProperty(propId)) {
+                throw new IllegalArgumentException("Property Id: " + propId
+                        + " is not in vendor range");
+            }
+            int readPermission = configArray[index++];
+            int writePermission = configArray[index++];
+            String readPermissionStr = PropertyPermissionInfo.toPermissionString(
+                    readPermission, propId);
+            String writePermissionStr = PropertyPermissionInfo.toPermissionString(
+                    writePermission, propId);
+            if (!mUseRuntimeConfigFile) {
+                mPropertyPermissionInfo.addPermissions(
+                        propId, readPermissionStr, writePermissionStr);
+                continue;
+            }
+            synchronized (mLock) {
+                if (mVendorHalPropIdToPermissions.get(propId) != null) {
+                    Slogf.e(TAG, "propId is a vendor property that already exists in "
+                            + "mVendorHalPropIdToPermissions and thus cannot have its "
+                            + "permissions overwritten: " + halPropIdToName(propId));
+                    continue;
+                }
+
+                PropertyPermissions.Builder propertyPermissionBuilder =
+                        new PropertyPermissions.Builder();
+                if (readPermissionStr != null) {
+                    propertyPermissionBuilder.setReadPermission(
+                            new SinglePermission(readPermissionStr));
+                }
+                if (writePermissionStr != null) {
+                    propertyPermissionBuilder.setWritePermission(
+                            new SinglePermission(writePermissionStr));
+                }
+
+                mVendorHalPropIdToPermissions.put(propId, propertyPermissionBuilder.build());
+            }
+        }
+    }
+
+    /**
+     * Converts manager property ID to Vehicle HAL property ID.
+     */
+    public int managerToHalPropId(int mgrPropId) {
+        if (!mUseRuntimeConfigFile) {
+            return MGR_PROP_ID_TO_HAL_PROP_ID.getValue(mgrPropId, mgrPropId);
+        }
+        return mMgrPropIdToHalPropId.getValue(mgrPropId, mgrPropId);
+    }
+
+    /**
+     * Converts Vehicle HAL property ID to manager property ID.
+     */
+    public int halToManagerPropId(int halPropId) {
+        if (!mUseRuntimeConfigFile) {
+            return MGR_PROP_ID_TO_HAL_PROP_ID.getKey(halPropId, halPropId);
+        }
+        return mMgrPropIdToHalPropId.getKey(halPropId, halPropId);
+    }
+
+    /**
+     * Print out the name for a VHAL property Id.
+     *
+     * For debugging only.
+     */
+    public String halPropIdToName(int halPropId) {
+        return VehiclePropertyIds.toString(halToManagerPropId(halPropId));
     }
 
     private void populateEnumSet() {
+        Set<Integer> FUEL_TYPE =
+                new HashSet<>(getIntegersFromDataEnums(FuelType.class));
+        Set<Integer> EV_CONNECTOR_TYPE =
+                new HashSet<>(getIntegersFromDataEnums(EvConnectorType.class));
+        Set<Integer> PORT_LOCATION =
+                new HashSet<>(getIntegersFromDataEnums(PortLocationType.class));
+        Set<Integer> VEHICLE_SEAT =
+                new HashSet<>(getIntegersFromDataEnums(VehicleAreaSeat.class));
+        Set<Integer> OIL_LEVEL =
+                new HashSet<>(getIntegersFromDataEnums(VehicleOilLevel.class));
+        Set<Integer> VEHICLE_GEAR =
+                new HashSet<>(getIntegersFromDataEnums(VehicleGear.class));
+        Set<Integer> TURN_SIGNAL =
+                new HashSet<>(getIntegersFromDataEnums(VehicleTurnSignal.class));
+        Set<Integer> IGNITION_STATE =
+                new HashSet<>(getIntegersFromDataEnums(VehicleIgnitionState.class));
+        Set<Integer> VEHICLE_UNITS =
+                new HashSet<>(getIntegersFromDataEnums(VehicleUnit.class));
+        Set<Integer> SEAT_OCCUPANCY_STATE =
+                new HashSet<>(getIntegersFromDataEnums(VehicleSeatOccupancyState.class));
+        Set<Integer> VEHICLE_LIGHT_STATE =
+                new HashSet<>(getIntegersFromDataEnums(VehicleLightState.class));
+        Set<Integer> VEHICLE_LIGHT_SWITCH =
+                new HashSet<>(getIntegersFromDataEnums(VehicleLightSwitch.class));
+        Set<Integer> HVAC_FAN_DIRECTION =
+                new HashSet<>(getIntegersFromDataEnums(CarHvacFanDirection.class));
+        Set<Integer> ETC_CARD_TYPE =
+                new HashSet<>(getIntegersFromDataEnums(ElectronicTollCollectionCardType.class));
+        Set<Integer> ETC_CARD_STATUS =
+                new HashSet<>(getIntegersFromDataEnums(ElectronicTollCollectionCardStatus.class));
+        Set<Integer> EV_CHARGE_STATE =
+                new HashSet<>(getIntegersFromDataEnums(EvChargeState.class));
+        Set<Integer> EV_REGENERATIVE_BREAKING_STATE =
+                new HashSet<>(getIntegersFromDataEnums(EvRegenerativeBrakingState.class));
+        Set<Integer> EV_STOPPING_MODE =
+                new HashSet<>(getIntegersFromDataEnums(EvStoppingMode.class));
+        Set<Integer> TRAILER_PRESENT =
+                new HashSet<>(getIntegersFromDataEnums(TrailerState.class));
+        Set<Integer> GSR_COMP_TYPE =
+                new HashSet<>(getIntegersFromDataEnums(GsrComplianceRequirementType.class));
+        int LOCATION_CHARACTERIZATION =
+                generateAllCombination(LocationCharacterization.class);
+        Set<Integer> WINDSHIELD_WIPERS_STATE =
+                new HashSet<>(getIntegersFromDataEnums(WindshieldWipersState.class));
+        Set<Integer> WINDSHIELD_WIPERS_SWITCH =
+                new HashSet<>(getIntegersFromDataEnums(WindshieldWipersSwitch.class));
+        Set<Integer> EMERGENCY_LANE_KEEP_ASSIST_STATE =
+                new HashSet<>(getIntegersFromDataEnums(
+                        EmergencyLaneKeepAssistState.class, ErrorState.class));
+        Set<Integer> CRUISE_CONTROL_TYPE =
+                new HashSet<>(getIntegersFromDataEnums(
+                        CruiseControlType.class, ErrorState.class));
+        Set<Integer> CRUISE_CONTROL_STATE =
+                new HashSet<>(getIntegersFromDataEnums(
+                        CruiseControlState.class, ErrorState.class));
+        Set<Integer> CRUISE_CONTROL_COMMAND =
+                new HashSet<>(getIntegersFromDataEnums(CruiseControlCommand.class));
+        Set<Integer> HANDS_ON_DETECTION_DRIVER_STATE =
+                new HashSet<>(getIntegersFromDataEnums(
+                        HandsOnDetectionDriverState.class, ErrorState.class));
+        Set<Integer> HANDS_ON_DETECTION_WARNING =
+                new HashSet<>(getIntegersFromDataEnums(
+                        HandsOnDetectionWarning.class, ErrorState.class));
+        Set<Integer> AUTOMATIC_EMERGENCY_BRAKING_STATE =
+                new HashSet<>(getIntegersFromDataEnums(
+                    AutomaticEmergencyBrakingState.class, ErrorState.class));
+        Set<Integer> FORWARD_COLLISION_WARNING_STATE =
+                new HashSet<>(getIntegersFromDataEnums(
+                    ForwardCollisionWarningState.class, ErrorState.class));
+        Set<Integer> BLIND_SPOT_WARNING_STATE =
+                new HashSet<>(getIntegersFromDataEnums(
+                    BlindSpotWarningState.class, ErrorState.class));
+        Set<Integer> LANE_DEPARTURE_WARNING_STATE =
+                new HashSet<>(getIntegersFromDataEnums(
+                    LaneDepartureWarningState.class, ErrorState.class));
+        Set<Integer> LANE_KEEP_ASSIST_STATE =
+                new HashSet<>(getIntegersFromDataEnums(
+                    LaneKeepAssistState.class, ErrorState.class));
+        Set<Integer> LANE_CENTERING_ASSIST_COMMAND =
+                new HashSet<>(getIntegersFromDataEnums(LaneCenteringAssistCommand.class));
+        Set<Integer> LANE_CENTERING_ASSIST_STATE =
+                new HashSet<>(getIntegersFromDataEnums(
+                    LaneCenteringAssistState.class, ErrorState.class));
+
         // mHalPropIdToEnumSet should contain all properties which have @data_enum in
         // VehicleProperty.aidl
         mHalPropIdToEnumSet.put(VehicleProperty.INFO_FUEL_TYPE, FUEL_TYPE);
@@ -406,10 +702,13 @@ public class PropertyHalServiceConfigs {
         mHalPropIdToEnumSet.put(VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE,
                 HVAC_FAN_DIRECTION);
         mHalPropIdToEnumSet.put(VehicleProperty.HVAC_FAN_DIRECTION, HVAC_FAN_DIRECTION);
+
+        // mPropToValidBitFlag contains all properties which return values are combinations of bits
+        mHalPropIdToValidBitFlag.put(VehicleProperty.LOCATION_CHARACTERIZATION,
+                LOCATION_CHARACTERIZATION);
     }
 
-    private boolean checkValidBitFlag(HalPropValue propValue) {
-        int flagCombination = mHalPropIdToValidBitFlag.get(propValue.getPropId());
+    private static boolean checkValidBitFlag(HalPropValue propValue, int flagCombination) {
         for (int i = 0; i < propValue.getInt32ValuesSize(); i++) {
             int value = propValue.getInt32Value(i);
             if ((value & flagCombination) != value) {
@@ -417,6 +716,107 @@ public class PropertyHalServiceConfigs {
             }
         }
         return true;
+    }
+
+    /**
+     * Parses a car service JSON config file. Only exposed for testing.
+     */
+    @VisibleForTesting
+    /* package */ SparseArray<CarSvcPropertyConfig> parseJsonConfig(InputStream configFile,
+            String path) {
+        String configString;
+        try {
+            configString = new String(configFile.readAllBytes());
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Cannot read from config file: " + path, e);
+        }
+        JSONObject configJsonObject;
+        try {
+            configJsonObject = new JSONObject(configString);
+        } catch (JSONException e) {
+            throw new IllegalArgumentException("Config file: " + path
+                    + " does not contain a valid JSONObject.", e);
+        }
+        JSONObject properties;
+        SparseArray<CarSvcPropertyConfig> configs = new SparseArray<>();
+        try {
+            properties = configJsonObject.getJSONObject(JSON_FIELD_NAME_PROPERTIES);
+            for (String propertyName : properties.keySet()) {
+                JSONObject propertyObj = properties.getJSONObject(propertyName);
+                CarSvcPropertyConfig config = new CarSvcPropertyConfig();
+                if (propertyObj.optBoolean("deprecated")) {
+                    continue;
+                }
+                config.propertyId = propertyObj.getInt("propertyId");
+                int halPropId = config.propertyId;
+                if (propertyObj.has("vhalPropertyId")) {
+                    halPropId = propertyObj.getInt("vhalPropertyId");
+                }
+                config.halPropId = halPropId;
+                config.propertyName = propertyName;
+                config.description = propertyObj.getString("description");
+                JSONArray enumJsonArray = propertyObj.optJSONArray("dataEnums");
+                if (enumJsonArray != null) {
+                    config.dataEnums = new ArraySet<Integer>();
+                    for (int i = 0; i < enumJsonArray.length(); i++) {
+                        config.dataEnums.add(enumJsonArray.getInt(i));
+                    }
+                }
+                JSONArray flagJsonArray = propertyObj.optJSONArray("dataFlags");
+                if (flagJsonArray != null) {
+                    List<Integer> dataFlags = new ArrayList<>();
+                    for (int i = 0; i < flagJsonArray.length(); i++) {
+                        dataFlags.add(flagJsonArray.getInt(i));
+                    }
+                    config.validBitFlag = generateAllCombination(dataFlags);
+                }
+                config.permissions = parsePermission(propertyName, propertyObj);
+                configs.put(config.halPropId, config);
+            }
+            return configs;
+        } catch (JSONException e) {
+            throw new IllegalArgumentException("Config file: " + path
+                    + " has invalid JSON format.", e);
+        }
+    }
+
+    private static PropertyPermissions parsePermission(String propertyName, JSONObject propertyObj)
+            throws JSONException {
+        PropertyPermissions.Builder builder = new PropertyPermissions.Builder();
+        JSONObject jsonReadPermission = propertyObj.optJSONObject("readPermission");
+        if (jsonReadPermission != null) {
+            builder.setReadPermission(parsePermissionCondition(jsonReadPermission));
+        }
+        JSONObject jsonWritePermission = propertyObj.optJSONObject("writePermission");
+        if (jsonWritePermission != null) {
+            builder.setWritePermission(parsePermissionCondition(jsonWritePermission));
+        }
+        if (jsonReadPermission == null && jsonWritePermission == null) {
+            throw new IllegalArgumentException(
+                    "No read or write permission specified for: " + propertyName);
+        }
+        return builder.build();
+    }
+
+    private static PermissionCondition parsePermissionCondition(JSONObject permissionObj)
+            throws JSONException {
+        String type = permissionObj.getString("type");
+        if (type.equals("single")) {
+            return new SinglePermission(permissionObj.getString("value"));
+        }
+        if (!type.equals("anyOf") && !type.equals("allOf")) {
+            throw new IllegalArgumentException("Unknown permission type: " + type
+                    + ", only support single, anyOf or allOf");
+        }
+        JSONArray jsonSubPermissions = permissionObj.getJSONArray("value");
+        PermissionCondition[] subPermissions = new PermissionCondition[jsonSubPermissions.length()];
+        for (int i = 0; i < jsonSubPermissions.length(); i++) {
+            subPermissions[i] = parsePermissionCondition(jsonSubPermissions.getJSONObject(i));
+        }
+        if (type.equals("anyOf")) {
+            return new AnyOfPermissions(subPermissions);
+        }
+        return new AllOfPermissions(subPermissions);
     }
 
     private static boolean checkFormatForAllProperties(HalPropValue propValue) {
@@ -452,11 +852,9 @@ public class PropertyHalServiceConfigs {
                         + Integer.toHexString(propId));
         }
     }
-    private boolean checkDataEnum(HalPropValue propValue) {
-        int propId = propValue.getPropId();
-        Set<Integer> validValue = mHalPropIdToEnumSet.get(propId);
+    private static boolean checkDataEnum(HalPropValue propValue, Set<Integer> enums) {
         for (int i = 0; i < propValue.getInt32ValuesSize(); i++) {
-            if (!validValue.contains(propValue.getInt32Value(i))) {
+            if (!enums.contains(propValue.getInt32Value(i))) {
                 return false;
             }
         }

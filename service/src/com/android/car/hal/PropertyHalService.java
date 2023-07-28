@@ -363,11 +363,6 @@ public class PropertyHalService extends HalServiceBase {
     // ServiceRequestId and pass it to underlying layer (VehicleHal and VehicleStub).
     // Internally, we will map ManagerRequestId to ServiceRequestId.
     private final AtomicInteger mServiceRequestIdCounter = new AtomicInteger(0);
-    // Only contains property ID if value is different for the CarPropertyManager and the HAL.
-    private static final BidirectionalSparseIntArray MGR_PROP_ID_TO_HAL_PROP_ID =
-            BidirectionalSparseIntArray.create(
-                    new int[]{VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS,
-                            VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS});
     private final VehicleHal mVehicleHal;
     private final HalPropValueBuilder mPropValueBuilder;
     private final HandlerThread mHandlerThread =
@@ -854,20 +849,6 @@ public class PropertyHalService extends HalServiceBase {
             sendGetValueResults(timeoutGetResults);
             sendSetValueResults(timeoutSetResults);
         }
-    }
-
-    /**
-     * Converts manager property ID to Vehicle HAL property ID.
-     */
-    private static int managerToHalPropId(int mgrPropId) {
-        return MGR_PROP_ID_TO_HAL_PROP_ID.getValue(mgrPropId, mgrPropId);
-    }
-
-    /**
-     * Converts Vehicle HAL property ID to manager property ID.
-     */
-    private static int halToManagerPropId(int halPropId) {
-        return MGR_PROP_ID_TO_HAL_PROP_ID.getKey(halPropId, halPropId);
     }
 
     /**
@@ -1971,10 +1952,6 @@ public class PropertyHalService extends HalServiceBase {
         return mPropValueBuilder.build(carPropertyValue, halPropId, halPropConfig);
     }
 
-    private String halPropIdToName(int halPropId) {
-        return VehiclePropertyIds.toString(halToManagerPropId(halPropId));
-    }
-
     /**
      * Get the pending async requests size.
      *
@@ -2015,5 +1992,17 @@ public class PropertyHalService extends HalServiceBase {
         return mHalPropIdToPropConfig.get(managerToHalPropId(propertyId))
                 .getChangeMode() == VEHICLE_PROPERTY_CHANGE_MODE_STATIC
                 && isSystemProperty(propertyId);
+    }
+
+    private int managerToHalPropId(int mgrPropId) {
+        return mPropertyHalServiceConfigs.managerToHalPropId(mgrPropId);
+    }
+
+    private int halToManagerPropId(int mgrPropId) {
+        return mPropertyHalServiceConfigs.halToManagerPropId(mgrPropId);
+    }
+
+    private String halPropIdToName(int halPropId) {
+        return mPropertyHalServiceConfigs.halPropIdToName(halPropId);
     }
 }

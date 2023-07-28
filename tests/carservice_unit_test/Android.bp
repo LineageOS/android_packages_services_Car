@@ -89,6 +89,7 @@ android_test {
         "truth-prebuilt",
         "WindowManager-Shell",  // for CarActivityServiceTaskMonitorUnitTest
         "vehicle-hal-support-lib",
+        "guava-android-testlib",
     ],
 
     test_suites: [

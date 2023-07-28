@@ -27,15 +27,15 @@ import android.car.hardware.property.VehicleVendorPermission;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.VehicleProperty;
+import android.util.ArraySet;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.car.internal.property.CarPropertyHelper;
 import com.android.internal.annotations.GuardedBy;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.Objects;
 
 /**
  * This class stores all the permission information for each vehicle property. Permission
@@ -253,6 +253,33 @@ public class PropertyPermissionInfo {
                 return new PropertyPermissions(mReadPermission, mWritePermission);
             }
         }
+
+        @Override
+        public boolean equals(Object object) {
+            if (this == object) {
+                return true;
+            }
+            // instanceof will return false if object is null.
+            if (!(object instanceof PropertyPermissions)) {
+                return false;
+            }
+            PropertyPermissions other = (PropertyPermissions) object;
+            return Objects.equals(mReadPermission, other.getReadPermission())
+                    && Objects.equals(mWritePermission, other.getWritePermission());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(mReadPermission) + Objects.hashCode(mWritePermission);
+        }
+
+        @Override
+        public String toString() {
+            return new StringBuilder().append("{")
+                    .append("readPermission: ").append(mReadPermission)
+                    .append("writePermission: ").append(mWritePermission)
+                    .append("}").toString();
+        }
     }
 
     /**
@@ -282,19 +309,19 @@ public class PropertyPermissionInfo {
      * <p>
      * <p>This implementation of {@link PermissionCondition} stores the permissions that a property
      * would require all of in order to be granted. AllOfPermissions stores the permissions as a
-     * {@code List<PermissionCondition>}, so singular permissions in AllOfPermissions will be stored
-     * as {@link SinglePermission} objects in the list, and a set of anyOf permissions will be
-     * stored as {@link AnyOfPermissions} objects.
+     * {@code ArraySet<PermissionCondition>}, so singular permissions in AllOfPermissions will be
+     * stored as {@link SinglePermission} objects in the list, and a set of anyOf permissions will
+     * be stored as {@link AnyOfPermissions} objects.
      */
     public static final class AllOfPermissions implements PermissionCondition {
-        private final List<PermissionCondition> mPermissionsList;
+        private final ArraySet<PermissionCondition> mPermissionsList;
 
         public AllOfPermissions(PermissionCondition... permissions) {
             if (permissions.length <= 1) {
                 throw new IllegalArgumentException("Input parameter should contain at least 2 "
                         + "PermissionCondition objects");
             }
-            mPermissionsList = new ArrayList<>();
+            mPermissionsList = new ArraySet<>();
             Collections.addAll(mPermissionsList, permissions);
         }
 
@@ -307,7 +334,7 @@ public class PropertyPermissionInfo {
          */
         public boolean isMet(Context context) {
             for (int i = 0; i < mPermissionsList.size(); i++) {
-                if (!mPermissionsList.get(i).isMet(context)) {
+                if (!mPermissionsList.valueAt(i).isMet(context)) {
                     return false;
                 }
             }
@@ -318,11 +345,28 @@ public class PropertyPermissionInfo {
         public String toString() {
             StringBuilder stringBuffer = new StringBuilder().append('(');
             for (int i = 0; i < mPermissionsList.size() - 1; i++) {
-                stringBuffer.append(mPermissionsList.get(i).toString());
+                stringBuffer.append(mPermissionsList.valueAt(i).toString());
                 stringBuffer.append(" && ");
             }
-            stringBuffer.append(mPermissionsList.get(mPermissionsList.size() - 1)).append(')');
+            stringBuffer.append(mPermissionsList.valueAt(mPermissionsList.size() - 1)).append(')');
             return stringBuffer.toString();
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            if (this == object) {
+                return true;
+            }
+            // instanceof will return false if object is null.
+            if (!(object instanceof AllOfPermissions)) {
+                return false;
+            }
+            return mPermissionsList.equals(((AllOfPermissions) object).mPermissionsList);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(mPermissionsList) + "all".hashCode();
         }
     }
 
@@ -331,19 +375,19 @@ public class PropertyPermissionInfo {
      * <p>
      * <p>This implementation of {@link PermissionCondition} stores the permissions that a property
      * would require any of in order to be granted. AnyOfPermissions stores the permissions as a
-     * {@code List<PermissionCondition>}, so singular permissions in AnyOfPermissions will be stored
-     * as {@link SinglePermission} objects in the list, and a set of allOf permissions will be
-     * stored as {@link AllOfPermissions} objects.
+     * {@code ArraySet<PermissionCondition>}, so singular permissions in AnyOfPermissions will be
+     * stored as {@link SinglePermission} objects in the list, and a set of allOf permissions will
+     * be stored as {@link AllOfPermissions} objects.
      */
     public static final class AnyOfPermissions implements PermissionCondition {
-        private final List<PermissionCondition> mPermissionsList;
+        private final ArraySet<PermissionCondition> mPermissionsList;
 
         public AnyOfPermissions(PermissionCondition... permissions) {
             if (permissions.length <= 1) {
                 throw new IllegalArgumentException("Input parameter should contain at least 2 "
                         + "PermissionCondition objects");
             }
-            mPermissionsList = new ArrayList<>();
+            mPermissionsList = new ArraySet<>();
             Collections.addAll(mPermissionsList, permissions);
         }
 
@@ -356,7 +400,7 @@ public class PropertyPermissionInfo {
          */
         public boolean isMet(Context context) {
             for (int i = 0; i < mPermissionsList.size(); i++) {
-                if (mPermissionsList.get(i).isMet(context)) {
+                if (mPermissionsList.valueAt(i).isMet(context)) {
                     return true;
                 }
             }
@@ -367,11 +411,28 @@ public class PropertyPermissionInfo {
         public String toString() {
             StringBuilder stringBuffer = new StringBuilder().append('(');
             for (int i = 0; i < mPermissionsList.size() - 1; i++) {
-                stringBuffer.append(mPermissionsList.get(i).toString());
+                stringBuffer.append(mPermissionsList.valueAt(i).toString());
                 stringBuffer.append(" || ");
             }
-            stringBuffer.append(mPermissionsList.get(mPermissionsList.size() - 1)).append(')');
+            stringBuffer.append(mPermissionsList.valueAt(mPermissionsList.size() - 1)).append(')');
             return stringBuffer.toString();
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            if (this == object) {
+                return true;
+            }
+            // instanceof will return false if object is null.
+            if (!(object instanceof AnyOfPermissions)) {
+                return false;
+            }
+            return mPermissionsList.equals(((AnyOfPermissions) object).mPermissionsList);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(mPermissionsList) + "any".hashCode();
         }
     }
 
@@ -403,6 +464,23 @@ public class PropertyPermissionInfo {
         @Override
         public String toString() {
             return mPermission;
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            if (this == object) {
+                return true;
+            }
+            // instanceof will return false if object is null.
+            if (!(object instanceof SinglePermission)) {
+                return false;
+            }
+            return mPermission.equals(((SinglePermission) object).mPermission);
+        }
+
+        @Override
+        public int hashCode() {
+            return mPermission.hashCode() + "single".hashCode();
         }
     }
 
@@ -442,7 +520,7 @@ public class PropertyPermissionInfo {
      */
     @Nullable
     public PermissionCondition getWritePermission(int halPropId) {
-        PropertyPermissions propertyPermissions;
+        PropertyPermissions propertyPermissions = null;
         synchronized (mLock) {
             propertyPermissions = mHalPropIdToPermissions.get(halPropId);
         }
@@ -463,47 +541,13 @@ public class PropertyPermissionInfo {
     }
 
     /**
-     * Checks if readPermission is granted for a HAL-level propertyId in a given context.
-     *
-     * @param context Context to check
-     * @param halPropId HAL-level propertyId
-     * @return readPermission is granted or not.
-     */
-    public boolean isReadable(Context context, int halPropId) {
-        PermissionCondition readPermission = getReadPermission(halPropId);
-        if (readPermission == null) {
-            Slogf.v(TAG, "propId is not readable or is a system property but does not exist "
-                    + "in PropertyPermissionInfo: " + VehiclePropertyIds.toString(halPropId));
-            return false;
-        }
-        return readPermission.isMet(context);
-    }
-
-    /**
-     * Checks if writePermission is granted for a HAL-level propertyId in a given context.
-     *
-     * @param context Context to check
-     * @param halPropId HAL-level propertyId
-     * @return writePermission is granted or not.
-     */
-    public boolean isWritable(Context context, int halPropId) {
-        PermissionCondition writePermission = getWritePermission(halPropId);
-        if (writePermission == null) {
-            Slogf.v(TAG, "propId is not writable or is a system property but does not exist "
-                    + "in PropertyPermissionInfo: " + VehiclePropertyIds.toString(halPropId));
-            return false;
-        }
-        return writePermission.isMet(context);
-    }
-
-    /**
      * Adds vendor property permissions to property-permission map using a HAL-level propertyId.
      *
      * @param halPropId HAL-level propertyId
      * @param readPermissionString new read permission
      * @param writePermissionString new write permission
      */
-    private void addPermissions(int halPropId, String readPermissionString,
+    public void addPermissions(int halPropId, String readPermissionString,
             String writePermissionString) {
         if (!CarPropertyHelper.isVendorProperty(halPropId)) {
             throw new IllegalArgumentException(
@@ -538,37 +582,12 @@ public class PropertyPermissionInfo {
     }
 
     /**
-     * Overrides the permission map for vendor properties
-     *
-     * @param configArray the configArray for
-     * {@link VehicleProperty#SUPPORT_CUSTOMIZE_VENDOR_PERMISSION}
-     */
-    public void customizeVendorPermission(@NonNull int[] configArray) {
-        if (configArray == null || configArray.length % 3 != 0) {
-            throw new IllegalArgumentException(
-                    "ConfigArray for SUPPORT_CUSTOMIZE_VENDOR_PERMISSION is wrong");
-        }
-        int index = 0;
-        while (index < configArray.length) {
-            int propId = configArray[index++];
-            if (!CarPropertyHelper.isVendorProperty(propId)) {
-                throw new IllegalArgumentException("Property Id: " + propId
-                        + " is not in vendor range");
-            }
-            int readPermission = configArray[index++];
-            int writePermission = configArray[index++];
-            addPermissions(propId, toPermissionString(readPermission, propId),
-                    toPermissionString(writePermission, propId));
-        }
-    }
-
-    /**
      * Maps VehicleVendorPermission enums in VHAL to android permissions.
      *
      * @return permission string, return null if vendor property is not available.
      */
     @Nullable
-    private static String toPermissionString(int permissionEnum, int propId) {
+    public static String toPermissionString(int permissionEnum, int propId) {
         switch (permissionEnum) {
             case PERMISSION_CAR_VENDOR_DEFAULT:
                 return Car.PERMISSION_VENDOR_EXTENSION;
