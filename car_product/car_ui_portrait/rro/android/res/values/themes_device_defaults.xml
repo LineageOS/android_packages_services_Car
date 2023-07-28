@@ -105,8 +105,15 @@
         <item name="android:colorButtonNormal">@color/btn_device_default</item>
         <item name="android:background">@android:color/transparent</item>
         <item name="android:textColorPrimary">@color/car_alert_dialog_message_text_color</item>
+        <item name="android:textColorSecondary">@color/car_alert_dialog_message_text_color</item>
+        <item name="android:textColorTertiary">@color/car_alert_dialog_message_text_color</item>
 
         <item name="android:windowBackground">@android:color/transparent</item>
+
+        <!-- Checkbox styling -->
+        <item name="android:listPreferredItemHeightSmall">@*android:dimen/car_single_line_list_item_height</item>
+        <item name="android:colorControlNormal">@color/btn_device_default</item>
+        <item name="android:colorControlActivated">@color/car_control_highlight</item>
     </style>
 
     <style name="Theme.DeviceDefault.Settings.Dialog" parent="android:Theme.DeviceDefault.Dialog.Alert">
