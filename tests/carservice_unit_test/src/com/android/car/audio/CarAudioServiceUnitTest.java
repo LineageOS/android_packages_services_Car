@@ -90,6 +90,7 @@ import static com.android.car.R.bool.audioUseHalDuckingSignals;
 import static com.android.car.R.integer.audioVolumeAdjustmentContextsVersion;
 import static com.android.car.R.integer.audioVolumeKeyEventTimeoutMs;
 import static com.android.car.audio.CarAudioService.CAR_DEFAULT_AUDIO_ATTRIBUTE;
+import static com.android.car.audio.CarHalAudioUtils.usageToMetadata;
 import static com.android.car.audio.GainBuilder.DEFAULT_GAIN;
 import static com.android.car.audio.GainBuilder.MAX_GAIN;
 import static com.android.car.audio.GainBuilder.MIN_GAIN;
@@ -4738,7 +4739,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 ArgumentCaptor.forClass(HalFocusListener.class);
         verify(mAudioControlWrapperAidl).registerFocusListener(captor.capture());
         HalFocusListener halFocusListener = captor.getValue();
-        halFocusListener.requestAudioFocus(usage, PRIMARY_AUDIO_ZONE,
+        halFocusListener.requestAudioFocus(usageToMetadata(usage), PRIMARY_AUDIO_ZONE,
                 AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
     }
 

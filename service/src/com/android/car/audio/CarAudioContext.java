@@ -603,6 +603,17 @@ public final class CarAudioContext {
         return new AudioAttributesWrapper(getAudioAttributeFromUsage(usage));
     }
 
+    /**
+     * Returns an audio attribute wrapper for a given {@code AudioAttributes}
+     * @param attributes input {@code AudioAttributes}
+     */
+    public AudioAttributesWrapper getAudioAttributeWrapperFromAttributes(
+            AudioAttributes attributes) {
+        return mUseCoreAudioRouting
+                ? new AudioAttributesWrapper(attributes, getContextForAudioAttribute(attributes))
+                : new AudioAttributesWrapper(attributes);
+    }
+
     Set<Integer> getUniqueContextsForAudioAttributes(List<AudioAttributes> audioAttributes) {
         Objects.requireNonNull(audioAttributes, "Audio attributes can not be null");
         Set<Integer> uniqueContexts = new ArraySet<>();
@@ -761,7 +772,7 @@ public final class CarAudioContext {
         }
 
         for (int index = 0; index < supportedAudioAttributes.size(); index++) {
-            AudioAttributesWrapper wrapper =  supportedAudioAttributes.valueAt(index);
+            AudioAttributesWrapper wrapper = supportedAudioAttributes.valueAt(index);
             Slogf.e(CarLog.TAG_AUDIO,
                     "AudioAttribute %s not supported in current configuration", wrapper);
         }
@@ -780,16 +791,31 @@ public final class CarAudioContext {
     /**
      * Class wraps an audio attributes object. This can be used for comparing audio attributes.
      * Current the audio attributes class compares all the attributes in the two objects.
+     *
      * In automotive only the audio attribute usage is currently used, thus this class can be used
      * to compare that audio attribute usage.
+     *
+     * When core routing is enabled, rules are based on all attributes fields, thus makes more
+     * sense to compare associated audio context id.
      */
     public static final class AudioAttributesWrapper {
 
         private final AudioAttributes mAudioAttributes;
+        // Legacy wrapper does not make use of context id to match, keep it uninitialized.
+        private final int mCarAudioContextId;
 
         @VisibleForTesting
         AudioAttributesWrapper(AudioAttributes audioAttributes) {
             mAudioAttributes = audioAttributes;
+            mCarAudioContextId = INVALID;
+        }
+
+        @VisibleForTesting
+        AudioAttributesWrapper(AudioAttributes audioAttributes, int carAudioContextId) {
+            Preconditions.checkArgument(!isInvalidContextId(carAudioContextId),
+                    "Car audio contexts can not be invalid");
+            mAudioAttributes = audioAttributes;
+            mCarAudioContextId = carAudioContextId;
         }
 
         static boolean audioAttributeMatches(AudioAttributes audioAttributes,
@@ -805,13 +831,17 @@ public final class CarAudioContext {
             }
 
             AudioAttributesWrapper that = (AudioAttributesWrapper) object;
-
-            return audioAttributeMatches(mAudioAttributes, that.mAudioAttributes);
+            // Wrapping on context: equality is based on associated context, otherwise based on
+            // attributes matching (limited to usage matching).
+            return (mCarAudioContextId != INVALID || that.mCarAudioContextId != INVALID)
+                    ? mCarAudioContextId == that.mCarAudioContextId
+                    : audioAttributeMatches(mAudioAttributes, that.mAudioAttributes);
         }
 
         @Override
         public int hashCode() {
-            return Integer.hashCode(mAudioAttributes.getSystemUsage());
+            return Integer.hashCode(mCarAudioContextId == INVALID
+                    ? mAudioAttributes.getSystemUsage() : mCarAudioContextId);
         }
 
         @Override
@@ -824,6 +854,13 @@ public final class CarAudioContext {
          */
         public AudioAttributes getAudioAttributes() {
             return mAudioAttributes;
+        }
+
+        /**
+         * Returns the id of the {@code CarAudioContextInfo} for the wrapper
+         */
+        public int getCarAudioContextId() {
+            return mCarAudioContextId;
         }
     }
 }
