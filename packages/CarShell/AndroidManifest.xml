@@ -40,9 +40,6 @@
     <uses-permission android:name="android.car.permission.CAR_DIAGNOSTICS" />
     <!-- Permission required for 'adb shell cmd car_service silent-mode' -->
     <uses-permission android:name="android.car.permission.CAR_POWER" />
-    <!-- Permission required for ATS tests - AtsCarTests#CarPowerManagerTest-->
-    <uses-permission android:name="android.car.permission.CONTROL_CAR_POWER_POLICY" />
-    <uses-permission android:name="android.car.permission.CONTROL_SHUTDOWN_PROCESS" />
     <!-- Permissions required for ATS tests - AtsCarTests#CarWatchdogManagerTest-->
     <uses-permission android:name="android.car.permission.USE_CAR_WATCHDOG" />
     <uses-permission android:name="android.car.permission.COLLECT_CAR_WATCHDOG_METRICS" />
@@ -64,6 +61,8 @@
     <uses-permission android:name="android.car.permission.USE_CAR_TELEMETRY_SERVICE" />
     <!-- Permission required for CTS test - LocationManagerFineTest -->
     <uses-permission android:name="android.permission.LOCATION_BYPASS" />
+    <!-- Permission required for CTS test - CarPowerManagerTest-->
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_POWER_POLICY" />
     <!-- Permissions required for CTS test - CarPropertyManagerTest -->
     <uses-permission android:name="android.car.permission.READ_DRIVER_MONITORING_SETTINGS"/>
     <uses-permission android:name="android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"/>
