@@ -35,7 +35,6 @@ package android.car {
     field public static final String CAR_EXTRA_BROWSE_SERVICE_FOR_SESSION = "android.media.session.BROWSE_SERVICE";
     field @Deprecated public static final String CAR_EXTRA_MEDIA_COMPONENT = "android.car.intent.extra.MEDIA_COMPONENT";
     field @Deprecated public static final String CAR_INTENT_ACTION_MEDIA_TEMPLATE = "android.car.intent.action.MEDIA_TEMPLATE";
-    field public static final String CAR_INTENT_ACTION_RECEIVER_SERVICE = "android.car.intent.action.RECEIVER_SERVICE";
     field public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
     field public static final String CAR_OCCUPANT_ZONE_SERVICE = "car_occupant_zone_service";
     field public static final String CAR_UX_RESTRICTION_SERVICE = "uxrestriction";
@@ -178,6 +177,7 @@ package android.car {
     field @NonNull public static final android.car.CarVersion TIRAMISU_2;
     field @NonNull public static final android.car.CarVersion TIRAMISU_3;
     field @NonNull public static final android.car.CarVersion UPSIDE_DOWN_CAKE_0;
+    field @NonNull public static final android.car.CarVersion UPSIDE_DOWN_CAKE_1;
   }
 
   @Deprecated public final class EvConnectorType {
@@ -231,6 +231,7 @@ package android.car {
     field @NonNull public static final android.car.PlatformVersion TIRAMISU_2;
     field @NonNull public static final android.car.PlatformVersion TIRAMISU_3;
     field @NonNull public static final android.car.PlatformVersion UPSIDE_DOWN_CAKE_0;
+    field @NonNull public static final android.car.PlatformVersion UPSIDE_DOWN_CAKE_1;
   }
 
   public final class PlatformVersionMismatchException extends java.lang.UnsupportedOperationException implements android.os.Parcelable {
