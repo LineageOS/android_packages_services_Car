@@ -189,6 +189,7 @@ java_defaults {
         "framework-bluetooth",
         "framework-connectivity",
         "framework-connectivity-t.stubs.module_lib",
+        "framework-location",
         "framework-statsd",
         "framework-tethering",
         "framework-wifi",
