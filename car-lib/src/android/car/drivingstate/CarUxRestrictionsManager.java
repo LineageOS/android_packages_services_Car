@@ -131,9 +131,11 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
     }
     /**
      * @hide
+     * @deprecated use {@link CarUxRestrictionsManager#registerListener} instead.
      */
     @AddedInOrBefore(majorVersion = 33)
     @SystemApi
+    @Deprecated
     public void setListener(int displayId, @NonNull OnUxRestrictionsChangedListener listener) {
         CarUxRestrictionsChangeListenerToService serviceListener;
         synchronized (mLock) {
