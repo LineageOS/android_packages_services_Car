@@ -142,10 +142,10 @@ class SimpleUploaderAsyncTask extends AsyncTask<Void, Void, Boolean> {
         Storage storage = new Storage.Builder(httpTransport, jsonFactory, credential)
                 .setApplicationName("Bugreportupload/1.0").build();
 
-        File tmpBugReportFile = zipBugReportFiles(bugReport);
+        File zipFileToUpload = zipBugReportFiles(bugReport);
         String uploadName = bugReport.getBugReportFileName();
-        Log.d(TAG, "Uploading file " + tmpBugReportFile + " as " + uploadName);
-        try (FileInputStream inputStream = new FileInputStream(tmpBugReportFile)) {
+        Log.d(TAG, "Uploading file " + zipFileToUpload + " as " + uploadName);
+        try (FileInputStream inputStream = new FileInputStream(zipFileToUpload)) {
             StorageObject object = uploadSimple(storage, bugReport, uploadName, inputStream);
             Log.v(TAG, "finished uploading object " + object.getName());
             File pendingDir = FileUtils.getPendingDir(mContext);
@@ -159,10 +159,21 @@ class SimpleUploaderAsyncTask extends AsyncTask<Void, Void, Boolean> {
                 deleteFileQuietly(new File(pendingDir, bugReport.getBugReportFileName()));
             }
         } finally {
-            Log.v(TAG, "Deleting file " + tmpBugReportFile);
             // No need to throw exception even if it fails to delete the file, as the task
             // shouldn't retry the upload again.
-            deleteFileQuietly(tmpBugReportFile);
+            Log.v(TAG, "Deleting file " + zipFileToUpload);
+            deleteFileQuietly(zipFileToUpload);
+
+            // Deletes unlinked wav files from MetaBugReport because of re-recording.
+            String lookupCode = FileUtils.extractLookupCode(bugReport).toLowerCase();
+            File pendingDir = FileUtils.getPendingDir(mContext);
+            File[] files = pendingDir.listFiles();
+            for (File file : files) {
+                if (file.getName().toLowerCase().contains(lookupCode)) {
+                    Log.v(TAG, "Deleting file " + file.getCanonicalPath());
+                    deleteFileQuietly(file);
+                }
+            }
         }
     }
 
