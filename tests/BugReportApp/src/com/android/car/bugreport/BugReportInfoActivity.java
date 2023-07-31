@@ -75,7 +75,6 @@ public class BugReportInfoActivity extends Activity {
     private BugInfoAdapter.BugInfoViewHolder mLastSelectedBugInfoViewHolder;
     private BugStorageObserver mBugStorageObserver;
     private Config mConfig;
-    private boolean mAudioRecordingStarted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,12 +146,8 @@ public class BugReportInfoActivity extends Activity {
             startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE),
                     SELECT_DIRECTORY_REQUEST_CODE);
         } else if (buttonType == BugInfoAdapter.BUTTON_TYPE_ADD_AUDIO) {
-            // Check mAudioRecordingStarted to prevent double click to BUTTON_TYPE_ADD_AUDIO.
-            if (!mAudioRecordingStarted) {
-                mAudioRecordingStarted = true;
-                startActivityForResult(BugReportActivity.buildAddAudioIntent(this, bugReport),
-                        ADD_AUDIO_MESSAGE_REQUEST_CODE);
-            }
+            startActivityForResult(BugReportActivity.buildAddAudioIntent(this, bugReport.getId()),
+                    ADD_AUDIO_MESSAGE_REQUEST_CODE);
         } else {
             throw new IllegalStateException("unreachable");
         }
@@ -176,7 +171,7 @@ public class BugReportInfoActivity extends Activity {
             mBugInfoAdapter.updateBugReportInDataSet(
                     updatedBugReport, mLastSelectedBugInfoViewHolder.getAdapterPosition());
             new AsyncMoveFilesTask(
-                this,
+                    this,
                     mBugInfoAdapter,
                     updatedBugReport,
                     mLastSelectedBugInfoViewHolder,
@@ -197,10 +192,10 @@ public class BugReportInfoActivity extends Activity {
      * you run "adb shell dumpsys activity BugReportInfoActivity".
      *
      * @param prefix Desired prefix to prepend at each line of output.
-     * @param fd The raw file descriptor that the dump is being sent to.
+     * @param fd     The raw file descriptor that the dump is being sent to.
      * @param writer The PrintWriter to which you should dump your state.  This will be
-     * closed for you after you return.
-     * @param args additional arguments to the dump request.
+     *               closed for you after you return.
+     * @param args   additional arguments to the dump request.
      */
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
         super.dump(prefix, fd, writer, args);
@@ -242,8 +237,8 @@ public class BugReportInfoActivity extends Activity {
                 Log.e(TAG, "Failed to copy bugreport "
                         + mBugReport.getTimestamp() + " to USB", e);
                 return BugStorageUtils.setBugReportStatus(
-                    mActivity, mBugReport,
-                    com.android.car.bugreport.Status.STATUS_MOVE_FAILED, e);
+                        mActivity, mBugReport,
+                        com.android.car.bugreport.Status.STATUS_MOVE_FAILED, e);
             }
         }
 
@@ -370,7 +365,7 @@ public class BugReportInfoActivity extends Activity {
          * Creates a content observer.
          *
          * @param activity A {@link BugReportInfoActivity} instance.
-         * @param handler The handler to run {@link #onChange} on, or null if none.
+         * @param handler  The handler to run {@link #onChange} on, or null if none.
          */
         BugStorageObserver(BugReportInfoActivity activity, Handler handler) {
             super(handler);

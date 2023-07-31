@@ -43,7 +43,6 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -86,11 +85,11 @@ public class BugReportService extends Service {
     /**
      * Extra data from intent - current bug report.
      */
-    static final String EXTRA_META_BUG_REPORT = "meta_bug_report";
+    static final String EXTRA_META_BUG_REPORT_ID = "meta_bug_report_id";
 
     /**
      * Collects bugreport for the existing {@link MetaBugReport}, which must be provided using
-     * {@link EXTRA_META_BUG_REPORT}.
+     * {@link EXTRA_META_BUG_REPORT_ID}.
      */
     static final String ACTION_COLLECT_BUGREPORT =
             "com.android.car.bugreport.action.COLLECT_BUGREPORT";
@@ -257,8 +256,9 @@ public class BugReportService extends Service {
             mMetaBugReport =
                     BugReportActivity.createBugReport(this, MetaBugReport.TYPE_AUDIO_LATER);
         } else if (ACTION_COLLECT_BUGREPORT.equals(action)) {
-            Bundle extras = intent.getExtras();
-            mMetaBugReport = extras.getParcelable(EXTRA_META_BUG_REPORT);
+            int bugReportId = intent.getIntExtra(EXTRA_META_BUG_REPORT_ID, /* defaultValue= */ -1);
+            mMetaBugReport = BugStorageUtils.findBugReport(this, bugReportId).orElseThrow(
+                    () -> new RuntimeException("Failed to find bug report with id " + bugReportId));
         } else {
             Log.w(TAG, "No action provided, ignoring");
             return START_NOT_STICKY;
@@ -314,7 +314,7 @@ public class BugReportService extends Service {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent startBugReportInfoActivity =
                 PendingIntent.getActivity(getApplicationContext(), /* requestCode= */ 0, intent,
-                                          PendingIntent.FLAG_IMMUTABLE);
+                        PendingIntent.FLAG_IMMUTABLE);
         return new Notification.Builder(this, PROGRESS_CHANNEL_ID)
                 .setContentTitle(getText(R.string.notification_bugreport_in_progress))
                 .setContentText(mMetaBugReport.getTitle())
@@ -412,7 +412,7 @@ public class BugReportService extends Service {
         try (ParcelFileDescriptor outFd = ParcelFileDescriptor.open(outputFile,
                 ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_READ_WRITE);
              ParcelFileDescriptor extraOutFd = ParcelFileDescriptor.open(extraOutputFile,
-                ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_READ_WRITE)) {
+                     ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_READ_WRITE)) {
             requestBugReport(outFd, extraOutFd);
         } catch (IOException | RuntimeException e) {
             Log.e(TAG, "Failed to grab dump state", e);
@@ -527,9 +527,12 @@ public class BugReportService extends Service {
 
     /**
      * Zips the temp directory, writes to the system user's {@link FileUtils#getPendingDir} and
-     * updates the bug report status.
+     * updates the bug report status. Note that audio file is always stored in cache directory and
+     * moved by {@link com.android.car.bugreport.BugReportActivity.AddAudioToBugReportAsyncTask}, so
+     * not zipped by this method.
      *
-     * <p>For {@link MetaBugReport#TYPE_AUDIO_FIRST}: Sets status to either STATUS_UPLOAD_PENDING or
+     * <p>For {@link MetaBugReport#TYPE_AUDIO_FIRST}: Sets status to either STATUS_UPLOAD_PENDING
+     * or
      * STATUS_PENDING_USER_ACTION and shows a regular notification.
      *
      * <p>For {@link MetaBugReport#TYPE_AUDIO_LATER}: Sets status to STATUS_AUDIO_PENDING and shows
@@ -557,7 +560,7 @@ public class BugReportService extends Service {
             BugStorageUtils.setBugReportStatus(BugReportService.this,
                     mMetaBugReport, Status.STATUS_AUDIO_PENDING, /* message= */ "");
             playNotificationSound();
-            startActivity(BugReportActivity.buildAddAudioIntent(this, mMetaBugReport));
+            startActivity(BugReportActivity.buildAddAudioIntent(this, mMetaBugReport.getId()));
         } else {
             // NOTE: If bugreport is TYPE_AUDIO_FIRST, it will already contain an audio message.
             Status status = mConfig.isAutoUpload()
