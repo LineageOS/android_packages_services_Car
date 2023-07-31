@@ -829,6 +829,7 @@ public class CarPropertyService extends ICarProperty.Stub
     /**
      * Gets CarPropertyValues asynchronously.
      */
+    @Override
     public void getPropertiesAsync(
             AsyncPropertyServiceRequestList getPropertyServiceRequestsParcelable,
             IAsyncPropertyResultCallback asyncPropertyResultCallback, long timeoutInMs) {
@@ -850,6 +851,7 @@ public class CarPropertyService extends ICarProperty.Stub
      * Sets CarPropertyValues asynchronously.
      */
     @SuppressWarnings("FormatString")
+    @Override
     public void setPropertiesAsync(AsyncPropertyServiceRequestList setPropertyServiceRequests,
             IAsyncPropertyResultCallback asyncPropertyResultCallback,
             long timeoutInMs) {
@@ -895,6 +897,7 @@ public class CarPropertyService extends ICarProperty.Stub
      *
      * @param serviceRequestIds A list of async get/set property request IDs.
      */
+    @Override
     public void cancelRequests(int[] serviceRequestIds) {
         mPropertyHalService.cancelRequests(serviceRequestIds);
     }
