@@ -38,19 +38,19 @@ public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoV
     static final int BUTTON_TYPE_MOVE = 1;
     static final int BUTTON_TYPE_ADD_AUDIO = 2;
 
-     /** If bugreport TTL points go below this number, show a notice message. */
+    /** If bugreport TTL points go below this number, show a notice message. */
     private static final int MIN_TTL_POINTS_TO_SHOW_NOTICE = 10;
 
-    /** Provides a handler for click events*/
+    /** Provides a handler for click events. */
     interface ItemClickedListener {
         /**
          * Handles click events differently depending on provided buttonType and
          * uses additional information provided in metaBugReport.
          *
-         * @param buttonType One of {@link #BUTTON_TYPE_UPLOAD}, {@link #BUTTON_TYPE_MOVE} or
-         *                   {@link #BUTTON_TYPE_ADD_AUDIO}.
+         * @param buttonType    One of {@link #BUTTON_TYPE_UPLOAD}, {@link #BUTTON_TYPE_MOVE} or
+         *                      {@link #BUTTON_TYPE_ADD_AUDIO}.
          * @param metaBugReport Selected bugreport.
-         * @param holder ViewHolder of the clicked item.
+         * @param holder        ViewHolder of the clicked item.
          */
         void onItemClicked(int buttonType, MetaBugReport metaBugReport, BugInfoViewHolder holder);
     }
@@ -114,57 +114,95 @@ public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoV
 
     @Override
     public void onBindViewHolder(BugInfoViewHolder holder, int position) {
-        MetaBugReport bugreport = mDataset.get(position);
-        holder.mTitleView.setText(bugreport.getTitle());
-        holder.mStatusView.setText(Status.toString(bugreport.getStatus()));
-        holder.mMessageView.setText(bugreport.getStatusMessage());
-        if (bugreport.getStatusMessage().isEmpty()) {
+        MetaBugReport bugReport = mDataset.get(position);
+        holder.mTitleView.setText(bugReport.getTitle());
+        holder.mStatusView.setText(Status.toString(bugReport.getStatus()));
+
+        showOrHideMessageView(bugReport, holder);
+        showOrHideExpirationNotice(bugReport, holder);
+        showOrHideUploadButton(bugReport, holder);
+        showOrHideMoveButton(bugReport, holder);
+        showOrHideAddAudioButton(bugReport, holder);
+    }
+
+    private boolean pendingUserAction(MetaBugReport bugReport) {
+        int bugReportStatus = bugReport.getStatus();
+        return bugReportStatus == Status.STATUS_PENDING_USER_ACTION.getValue()
+                || bugReportStatus == Status.STATUS_MOVE_FAILED.getValue()
+                || bugReportStatus == Status.STATUS_UPLOAD_FAILED.getValue();
+    }
+
+    private boolean pendingAudioRecording(MetaBugReport bugReport) {
+        return bugReport.getStatus() == Status.STATUS_AUDIO_PENDING.getValue();
+    }
+
+    private void showOrHideMessageView(MetaBugReport bugReport, BugInfoViewHolder holder) {
+        holder.mMessageView.setText(bugReport.getStatusMessage());
+        if (bugReport.getStatusMessage().isEmpty()) {
             holder.mMessageView.setVisibility(View.GONE);
         } else {
             holder.mMessageView.setVisibility(View.VISIBLE);
         }
-        if (bugreport.getTtlPoints() <= MIN_TTL_POINTS_TO_SHOW_NOTICE
-                && BugStorageUtils.canBugReportBeExpired(bugreport.getStatus())) {
+    }
+
+    private void showOrHideExpirationNotice(MetaBugReport bugReport, BugInfoViewHolder holder) {
+        if (bugReport.getTtlPoints() <= MIN_TTL_POINTS_TO_SHOW_NOTICE
+                && BugStorageUtils.canBugReportBeExpired(bugReport.getStatus())) {
             holder.mExpirationNoticeView.setVisibility(View.VISIBLE);
         } else {
             holder.mExpirationNoticeView.setVisibility(View.GONE);
         }
-        boolean enableUserActionButtons =
-                bugreport.getStatus() == Status.STATUS_PENDING_USER_ACTION.getValue()
-                        || bugreport.getStatus() == Status.STATUS_MOVE_FAILED.getValue()
-                        || bugreport.getStatus() == Status.STATUS_UPLOAD_FAILED.getValue();
-        if (enableUserActionButtons) {
-            holder.mMoveButton.setEnabled(true);
-            holder.mMoveButton.setVisibility(View.VISIBLE);
-            holder.mMoveButton.setOnClickListener(
-                    view -> mItemClickedListener.onItemClicked(BUTTON_TYPE_MOVE, bugreport,
-                            holder));
-        } else {
-            holder.mMoveButton.setEnabled(false);
-            holder.mMoveButton.setVisibility(View.GONE);
-        }
+    }
+
+    private void showOrHideUploadButton(MetaBugReport bugReport, BugInfoViewHolder holder) {
         // Enable the upload button only for userdebug/eng builds.
-        if (enableUserActionButtons && Build.IS_DEBUGGABLE) {
+        if (pendingUserAction(bugReport) && Build.IS_DEBUGGABLE) {
             holder.mUploadButton.setText(R.string.bugreport_upload_gcs_button_text);
             holder.mUploadButton.setEnabled(true);
             holder.mUploadButton.setVisibility(View.VISIBLE);
             holder.mUploadButton.setOnClickListener(
-                    view -> mItemClickedListener.onItemClicked(BUTTON_TYPE_UPLOAD, bugreport,
+                    view -> mItemClickedListener.onItemClicked(BUTTON_TYPE_UPLOAD, bugReport,
                             holder));
         } else {
             holder.mUploadButton.setVisibility(View.GONE);
             holder.mUploadButton.setEnabled(false);
         }
-        if (bugreport.getStatus() == Status.STATUS_AUDIO_PENDING.getValue()) {
+    }
+
+    private void showOrHideMoveButton(MetaBugReport bugReport, BugInfoViewHolder holder) {
+        if (pendingUserAction(bugReport)) {
+            holder.mMoveButton.setEnabled(true);
+            holder.mMoveButton.setVisibility(View.VISIBLE);
+            holder.mMoveButton.setOnClickListener(
+                    view -> mItemClickedListener.onItemClicked(BUTTON_TYPE_MOVE, bugReport,
+                            holder));
+        } else {
+            holder.mMoveButton.setEnabled(false);
+            holder.mMoveButton.setVisibility(View.GONE);
+        }
+    }
+
+    private void showOrHideAddAudioButton(MetaBugReport bugReport, BugInfoViewHolder holder) {
+        boolean showButton = true;
+
+        if (pendingAudioRecording(bugReport)) {
             if (mConfig.isAutoUpload()) {
-                holder.mAddAudioButton.setText(R.string.bugreport_add_audio_upload_button_text);
+                holder.mAddAudioButton.setText(
+                        R.string.bugreport_add_audio_upload_button_text);
             } else {
                 holder.mAddAudioButton.setText(R.string.bugreport_add_audio_button_text);
             }
+        } else if (pendingUserAction(bugReport)) {
+            holder.mAddAudioButton.setText(R.string.bugreport_replace_audio_button_text);
+        } else {
+            showButton = false;
+        }
+
+        if (showButton) {
             holder.mAddAudioButton.setEnabled(true);
             holder.mAddAudioButton.setVisibility(View.VISIBLE);
             holder.mAddAudioButton.setOnClickListener(view ->
-                    mItemClickedListener.onItemClicked(BUTTON_TYPE_ADD_AUDIO, bugreport, holder));
+                    mItemClickedListener.onItemClicked(BUTTON_TYPE_ADD_AUDIO, bugReport, holder));
         } else {
             holder.mAddAudioButton.setEnabled(false);
             holder.mAddAudioButton.setVisibility(View.GONE);
