@@ -73,6 +73,15 @@ public class CarEvsCameraPreviewActivity extends Activity
     private final static int STREAM_STATE_INVISIBLE = 2;
     private final static int STREAM_STATE_LOST = 3;
 
+    private final static float DEFAULT_1X1_POSITION[][] = {
+        {
+            -1.0f,  1.0f, 0.0f,
+             1.0f,  1.0f, 0.0f,
+            -1.0f, -1.0f, 0.0f,
+             1.0f, -1.0f, 0.0f,
+        },
+    };
+
     private static String streamStateToString(int state) {
         switch (state) {
             case STREAM_STATE_STOPPED:
@@ -261,8 +270,12 @@ public class CarEvsCameraPreviewActivity extends Activity
         Car.createCar(getApplicationContext(), /* handler = */ null,
                 Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER, mCarServiceLifecycleListener);
 
-        mEvsView = CarEvsGLSurfaceView.create(getApplication(), this, getApplicationContext()
-                .getResources().getInteger(R.integer.config_evsRearviewCameraInPlaneRotationAngle));
+        // Packaging parameters to create CarEvsGLSurfaceView.
+        ArrayList callbacks = new ArrayList<>(1);
+        callbacks.add(CarEvsManager.SERVICE_TYPE_REARVIEW, this);
+        mEvsView = CarEvsGLSurfaceView.create(getApplication(), callbacks, getApplicationContext()
+                .getResources().getInteger(R.integer.config_evsRearviewCameraInPlaneRotationAngle),
+                DEFAULT_1X1_POSITION);
         mRootView = (ViewGroup) LayoutInflater.from(this).inflate(
                 R.layout.evs_preview_activity, /* root= */ null);
         mPreviewContainer = mRootView.findViewById(R.id.evs_preview_container);
