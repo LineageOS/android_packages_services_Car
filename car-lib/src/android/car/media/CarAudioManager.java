@@ -1688,8 +1688,15 @@ public final class CarAudioManager extends CarManagerBase {
     @Override
     @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
-        if (mService != null && !mCarVolumeCallbacks.isEmpty()) {
+        if (mService == null) {
+            return;
+        }
+
+        if (!mCarVolumeCallbacks.isEmpty()) {
             unregisterVolumeCallback();
+        }
+        if (!mCarVolumeEventCallbacks.isEmpty()) {
+            unregisterVolumeGroupEventCallback();
         }
     }
 
