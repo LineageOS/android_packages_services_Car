@@ -97,8 +97,7 @@ import java.util.Set;
  * This class binds the read and write permissions to the property ID.
  */
 public class PropertyHalServiceConfigs {
-    // TODO(b/293354967): Change this to true once we verify using runtime config is okay.
-    private static final boolean USE_RUNTIME_CONFIG_FILE = false;
+    private static final boolean USE_RUNTIME_CONFIG_FILE = true;
     private static final Object sLock = new Object();
     @GuardedBy("sLock")
     private static PropertyHalServiceConfigs sPropertyHalServiceConfigs;
