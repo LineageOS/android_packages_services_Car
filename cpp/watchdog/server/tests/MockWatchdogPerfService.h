@@ -22,6 +22,7 @@
 
 #include <aidl/android/automotive/watchdog/internal/UserState.h>
 #include <android-base/result.h>
+#include <android/util/ProtoOutputStream.h>
 #include <gmock/gmock.h>
 #include <utils/String16.h>
 #include <utils/Vector.h>
@@ -42,14 +43,15 @@ public:
     MOCK_METHOD(void, onCarWatchdogServiceRegistered, (), (override));
     MOCK_METHOD(android::base::Result<void>, onBootFinished, (), (override));
     MOCK_METHOD(android::base::Result<void>, onUserStateChange,
-                (userid_t userId,
-                 const aidl::android::automotive::watchdog::internal::UserState& userState),
+                (userid_t userId, const aidl::android::automotive::watchdog::internal::UserState&),
                 (override));
     MOCK_METHOD(android::base::Result<void>, onSuspendExit, (), (override));
     MOCK_METHOD(android::base::Result<void>, onShutdownEnter, (), (override));
-    MOCK_METHOD(android::base::Result<void>, onCustomCollection,
-                (int fd, const char** args, uint32_t numArgs), (override));
-    MOCK_METHOD(android::base::Result<void>, onDump, (int fd), (const, override));
+    MOCK_METHOD(android::base::Result<void>, onCustomCollection, (int fd, const char**, uint32_t),
+                (override));
+    MOCK_METHOD(android::base::Result<void>, onDump, (int), (const, override));
+    MOCK_METHOD(android::base::Result<void>, onDumpProto, (android::util::ProtoOutputStream&),
+                (const, override));
     MOCK_METHOD(bool, dumpHelpText, (int fd), (const, override));
     MOCK_METHOD(void, handleMessage, (const Message&), (override));
 };

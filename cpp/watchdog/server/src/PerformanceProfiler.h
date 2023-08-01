@@ -24,6 +24,7 @@
 
 #include <android-base/chrono_utils.h>
 #include <android-base/result.h>
+#include <android/util/ProtoOutputStream.h>
 #include <cutils/multiuser.h>
 #include <gtest/gtest_prod.h>
 #include <utils/Errors.h>
@@ -249,6 +250,10 @@ public:
 
     android::base::Result<void> onDump(int fd) const override;
 
+    android::base::Result<void> onDumpProto(
+            const CollectionIntervals& collectionIntervals,
+            android::util::ProtoOutputStream& outProto) const override;
+
     android::base::Result<void> onCustomCollectionDump(int fd) override;
 
 protected:
@@ -284,6 +289,14 @@ private:
     android::base::Result<void> onUserSwitchCollectionDump(int fd) const;
 
     void clearExpiredSystemEventCollections(time_t now);
+
+    // Populate UserPackageSummaryStats in onDumpProto.
+    void dumpStatsRecordsProto(const CollectionInfo& collection,
+                               android::util::ProtoOutputStream& outProto) const;
+
+    // Populate PackageCpuStats in onDumpProto.
+    void dumpPackageCpuStatsProto(const UserPackageSummaryStats& userPackageSummaryStats,
+                                  android::util::ProtoOutputStream& outProto) const;
 
     std::function<int64_t()> kGetElapsedTimeSinceBootMillisFunc;
 
