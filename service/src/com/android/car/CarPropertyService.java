@@ -223,27 +223,35 @@ public class CarPropertyService extends ICarProperty.Stub
         writer.println("*CarPropertyService*");
         writer.increaseIndent();
         synchronized (mLock) {
-            writer.println(String.format("There are %d clients using CarPropertyService.",
-                    mClientMap.size()));
+            writer.println("There are " + mClientMap.size() + " clients that have registered"
+                    + " listeners in CarPropertyService.");
             writer.println("Current sync operation count: " + mSyncGetSetPropertyOpCount);
             writer.println("Properties registered: ");
             writer.increaseIndent();
             for (int i = 0; i < mPropIdClientMap.size(); i++) {
                 int propId = mPropIdClientMap.keyAt(i);
-                writer.println("propId: 0x" + toHexString(propId)
-                        + " is registered by " + mPropIdClientMap.valueAt(i).size()
-                        + " client(s).");
+                List<CarPropertyServiceClient> clients = mPropIdClientMap.valueAt(i);
+                writer.println("propId: " + VehiclePropertyIds.toString(propId)
+                        + " is registered by " + clients.size() + " client(s).");
+                writer.increaseIndent();
+                for (int j = 0; j < clients.size(); j++) {
+                    float subscribedRate = clients.get(j).getUpdateRateHz(propId);
+                    writer.println("Client " + clients.get(j).hashCode() + ": Subscribed at "
+                            + subscribedRate + " hz");
+                }
+                writer.decreaseIndent();
             }
             writer.decreaseIndent();
-            writer.println("Properties changed by CarPropertyService: ");
+            writer.println("Properties that have a listener registered for setProperty:");
             writer.increaseIndent();
             for (int i = 0; i < mSetOperationClientMap.size(); i++) {
                 int propId = mSetOperationClientMap.keyAt(i);
                 SparseArray areaIdToClient = mSetOperationClientMap.valueAt(i);
                 for (int j = 0; j < areaIdToClient.size(); j++) {
                     int areaId = areaIdToClient.keyAt(j);
-                    writer.println(String.format("propId: 0x%s areaId: 0x%s by client: %s",
-                            toHexString(propId), toHexString(areaId), areaIdToClient.valueAt(j)));
+                    writer.println("Client: " + areaIdToClient.valueAt(j).hashCode() + " propId: "
+                            + VehiclePropertyIds.toString(propId)  + " areaId: 0x"
+                            + toHexString(areaId));
                 }
             }
             writer.decreaseIndent();
