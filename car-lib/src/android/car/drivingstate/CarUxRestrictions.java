@@ -337,7 +337,7 @@ public final class CarUxRestrictions implements Parcelable {
      * Please refer to this and {@link #getMaxCumulativeContentItems()} to know the upper bounds on
      * the content display when the restriction is in place.
      *
-     * @return maximum number of cumulative items that can be displayed
+     * @return maximum levels deep that the user can navigate to
      */
     @AddedInOrBefore(majorVersion = 33)
     public int getMaxContentDepth() {
