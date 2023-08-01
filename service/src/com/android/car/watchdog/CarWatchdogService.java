@@ -283,13 +283,14 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     public CarWatchdogService(Context context, Context carServiceBuiltinPackageContext,
             WatchdogStorage watchdogStorage, TimeSource timeSource) {
         this(context, carServiceBuiltinPackageContext, watchdogStorage,
-                timeSource, /*watchdogProcessHandler=*/ null);
+                timeSource, /*watchdogProcessHandler=*/ null, /*watchdogPerfHandler=*/ null);
     }
 
     @VisibleForTesting
     CarWatchdogService(Context context, Context carServiceBuiltinPackageContext,
             WatchdogStorage watchdogStorage, TimeSource timeSource,
-            WatchdogProcessHandler watchdogProcessHandler) {
+            WatchdogProcessHandler watchdogProcessHandler,
+            WatchdogPerfHandler watchdogPerfHandler) {
         mContext = context;
         mWatchdogStorage = watchdogStorage;
         mPackageInfoHandler = new PackageInfoHandler(mContext.getPackageManager());
@@ -297,8 +298,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mWatchdogServiceForSystem = new ICarWatchdogServiceForSystemImpl(this);
         mWatchdogProcessHandler = watchdogProcessHandler != null ? watchdogProcessHandler
                 : new WatchdogProcessHandler(mWatchdogServiceForSystem, mCarWatchdogDaemonHelper);
-        mWatchdogPerfHandler = new WatchdogPerfHandler(mContext, carServiceBuiltinPackageContext,
-                mCarWatchdogDaemonHelper, mPackageInfoHandler, mWatchdogStorage, timeSource);
+        mWatchdogPerfHandler =
+                watchdogPerfHandler != null ? watchdogPerfHandler : new WatchdogPerfHandler(
+                        mContext, carServiceBuiltinPackageContext,
+                        mCarWatchdogDaemonHelper, mPackageInfoHandler, mWatchdogStorage,
+                        timeSource);
         mConnectionListener = (isConnected) -> {
             mWatchdogPerfHandler.onDaemonConnectionChange(isConnected);
             synchronized (mLock) {
