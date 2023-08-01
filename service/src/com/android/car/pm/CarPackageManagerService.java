@@ -338,7 +338,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             }
         }
         if (!bypass) { // block top activities if bypassing is disabled.
-            blockTopActivitiesOnAllDisplaysIfNecessary();
+            mHandler.post(this::blockTopActivitiesOnAllDisplaysIfNecessary);
         }
     }
 
@@ -807,7 +807,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
 
         // Generate allowlist and denylist mapping for the package
         updateActivityAllowlistAndDenylistMap(packageName);
-        blockTopActivitiesOnAllDisplaysIfNecessary();
+        mHandler.post(this::blockTopActivitiesOnAllDisplaysIfNecessary);
     }
 
     private void doHandleRelease() {
@@ -848,7 +848,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 Slogf.d(TAG, "policy set:" + dumpPoliciesLocked(false));
             }
         }
-        blockTopActivitiesOnAllDisplaysIfNecessary();
+        mHandler.post(this::blockTopActivitiesOnAllDisplaysIfNecessary);
     }
 
     @Nullable
@@ -1949,8 +1949,8 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             if (shouldCheck) {
                 // Each UxRestrictionsListener is only responsible for blocking activities on their
                 // own display.
-                blockTopActivitiesOnDisplayIfNecessary(mActivityService.getVisibleTasksInternal(),
-                        mDisplayId);
+                mHandler.post(() -> blockTopActivitiesOnDisplayIfNecessary(
+                        mActivityService.getVisibleTasksInternal(), mDisplayId));
             }
         }
 
