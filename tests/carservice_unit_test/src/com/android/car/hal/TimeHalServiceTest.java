@@ -32,7 +32,6 @@ import android.app.time.TimeManager;
 import android.car.test.util.FakeContext;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 
 import com.android.car.R;
@@ -114,7 +113,7 @@ public final class TimeHalServiceTest {
         verify(mVehicleHal).set(captor.capture());
         HalPropValue propValue = captor.getValue();
         assertThat(propValue.getPropId()).isEqualTo(ANDROID_EPOCH_TIME);
-        assertThat(propValue.getAreaId()).isEqualTo(VehicleArea.GLOBAL);
+        assertThat(propValue.getAreaId()).isEqualTo(0);
         assertThat(propValue.getStatus()).isEqualTo(VehiclePropertyStatus.AVAILABLE);
         assertThat(propValue.getTimestamp()).isAtLeast(sysTimeMillis);
         assertThat(propValue.getInt64ValuesSize()).isEqualTo(1);
@@ -202,7 +201,7 @@ public final class TimeHalServiceTest {
         verify(mVehicleHal).set(captor.capture());
         HalPropValue propValue = captor.getValue();
         assertThat(propValue.getPropId()).isEqualTo(ANDROID_EPOCH_TIME);
-        assertThat(propValue.getAreaId()).isEqualTo(VehicleArea.GLOBAL);
+        assertThat(propValue.getAreaId()).isEqualTo(0);
         assertThat(propValue.getStatus()).isEqualTo(VehiclePropertyStatus.AVAILABLE);
         assertThat(propValue.getTimestamp()).isAtLeast(sysTimeMillis);
         assertThat(propValue.getInt64ValuesSize()).isEqualTo(1);
@@ -227,7 +226,7 @@ public final class TimeHalServiceTest {
     }
 
     private HalPropValue newExternalCarTimeValue(long timeMicros) {
-        return mPropValueBuilder.build(EXTERNAL_CAR_TIME, VehicleArea.GLOBAL,
+        return mPropValueBuilder.build(EXTERNAL_CAR_TIME, /* areaId= */ 0,
                 timeMicros, VehiclePropertyStatus.AVAILABLE, timeMicros);
     }
 }

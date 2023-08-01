@@ -31,7 +31,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 
 import com.android.car.CarLog;
@@ -200,7 +199,7 @@ public final class TimeHalService extends HalServiceBase {
 
     @GuardedBy("mLock")
     private void updateAndroidEpochTimePropertyLocked(long timeMillis) {
-        HalPropValue propValue = mPropValueBuilder.build(ANDROID_EPOCH_TIME, VehicleArea.GLOBAL,
+        HalPropValue propValue = mPropValueBuilder.build(ANDROID_EPOCH_TIME, /* areaId= */ 0,
                 /*timestamp=*/timeMillis, VehiclePropertyStatus.AVAILABLE,
                 /*value=*/timeMillis);
 
