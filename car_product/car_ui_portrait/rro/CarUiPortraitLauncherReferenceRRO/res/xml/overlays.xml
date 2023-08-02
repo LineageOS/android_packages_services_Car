@@ -136,4 +136,6 @@
           value="@integer/car_app_selector_column_number" />
     <item target="integer/car_app_selector_row_number"
           value="@integer/car_app_selector_row_number" />
+    <item target="integer/config_recents_columns_per_page"
+          value="@integer/config_recents_columns_per_page" />
 </overlay>
