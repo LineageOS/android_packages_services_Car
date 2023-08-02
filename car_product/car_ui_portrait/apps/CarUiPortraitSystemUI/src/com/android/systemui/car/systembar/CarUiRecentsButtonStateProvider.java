@@ -32,7 +32,7 @@ public class CarUiRecentsButtonStateProvider extends RecentsButtonStateProvider 
 
     public CarUiRecentsButtonStateProvider(Context context, CarSystemBarButton carSystemBarButton) {
         super(context, carSystemBarButton);
-        mContext = carSystemBarButton.getContext();
+        mContext = context;
     }
 
     @Override
@@ -42,14 +42,14 @@ public class CarUiRecentsButtonStateProvider extends RecentsButtonStateProvider 
     }
 
     @Override
-    protected void toggleRecents() {
+    protected boolean toggleRecents() {
         if (getIsRecentsActive()) {
             Intent intent = new Intent(REQUEST_FROM_SYSTEM_UI);
             intent.putExtra(INTENT_EXTRA_COLLAPSE_RECENTS_PANEL, true);
             mContext.getApplicationContext().sendBroadcastAsUser(intent,
                     new UserHandle(ActivityManager.getCurrentUser()));
-            return;
+            return true;
         }
-        super.toggleRecents();
+        return super.toggleRecents();
     }
 }

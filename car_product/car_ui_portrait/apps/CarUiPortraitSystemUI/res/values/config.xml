@@ -27,4 +27,6 @@
          CarService. CarUiPortrait uses LaunchRootCarTaskView and hence should not register
          CarSystemUIProxy. -->
     <bool name="config_registerCarSystemUIProxy">false</bool>
+    <!-- Determines whether Recents entry point should be shown / should trigger to open Recents -->
+    <bool name="config_enableRecentsEntryPoint">true</bool>
 </resources>
