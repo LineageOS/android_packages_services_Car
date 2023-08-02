@@ -737,8 +737,10 @@ TEST_F(WatchdogProcessServiceTest, TestOnDumpProto) {
     util::ProtoOutputStream proto;
     mWatchdogProcessService->onDumpProto(proto);
 
-    HealthCheckServiceDump healthCheckServiceDump;
-    ASSERT_TRUE(healthCheckServiceDump.ParseFromString(toString(&proto)));
+    CarWatchdogDaemonDump carWatchdogDaemonDump;
+    ASSERT_TRUE(carWatchdogDaemonDump.ParseFromString(toString(&proto)));
+    HealthCheckServiceDump healthCheckServiceDump =
+            carWatchdogDaemonDump.health_check_service_dump();
     EXPECT_EQ(healthCheckServiceDump.is_enabled(), true);
     EXPECT_EQ(healthCheckServiceDump.is_monitor_registered(), false);
     EXPECT_EQ(healthCheckServiceDump.is_system_shut_down_in_progress(), false);

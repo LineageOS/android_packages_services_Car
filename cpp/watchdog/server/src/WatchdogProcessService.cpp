@@ -535,6 +535,9 @@ void WatchdogProcessService::onDump(int fd) {
 void WatchdogProcessService::onDumpProto(ProtoOutputStream& outProto) {
     Mutex::Autolock lock(mMutex);
 
+    uint64_t healthCheckServiceDumpToken =
+            outProto.start(CarWatchdogDaemonDump::HEALTH_CHECK_SERVICE_DUMP);
+
     outProto.write(HealthCheckServiceDump::IS_ENABLED, mIsEnabled);
     outProto.write(HealthCheckServiceDump::IS_MONITOR_REGISTERED, mMonitor != nullptr);
     outProto.write(HealthCheckServiceDump::IS_SYSTEM_SHUT_DOWN_IN_PROGRESS, isSystemShuttingDown());
@@ -605,6 +608,8 @@ void WatchdogProcessService::onDumpProto(ProtoOutputStream& outProto) {
             outProto.end(healthCheckClientInfoToken);
         }
     }
+
+    outProto.end(healthCheckServiceDumpToken);
 }
 
 void WatchdogProcessService::doHealthCheck(int what) {
