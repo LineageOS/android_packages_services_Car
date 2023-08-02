@@ -28,6 +28,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.car.builtin.util.Slogf;
 import android.car.test.AbstractExpectableTestCase;
 import android.os.Binder;
 import android.os.Handler;
@@ -37,7 +38,6 @@ import android.os.Trace;
 import android.os.UserManager;
 import android.util.ArraySet;
 import android.util.Log;
-import android.util.Slog;
 import android.util.TimingsTraceLog;
 
 import com.android.dx.mockito.inline.extended.StaticMockitoSessionBuilder;
@@ -68,9 +68,9 @@ import java.util.Set;
  * Base class for tests that must use {@link com.android.dx.mockito.inline.extended.ExtendedMockito}
  * to mock static classes and final methods.
  *
- * <p><b>Note: </b> this class automatically spy on {@link Log} and {@link Slog} and fail tests that
- * all any of their {@code wtf()} methods. If a test is expect to call {@code wtf()}, it should be
- * annotated with {@link ExpectWtf}.
+ * <p><b>Note: </b> this class automatically spies on {@link Log} and {@link Slogf} and fail tests
+ * that all any of their {@code wtf()} methods. If a test is expect to call {@code wtf()}, it should
+ * be annotated with {@link ExpectWtf}.
  *
  * <p><b>Note: </b>when using this class, you must include the following
  * dependencies on {@code Android.bp} (or {@code Android.mk}:
@@ -191,7 +191,7 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
         CustomMockitoSessionBuilder customBuilder =
                 new CustomMockitoSessionBuilder(builder, mStaticSpiedClasses, mStaticMockedClasses)
                     .spyStatic(Log.class)
-                    .spyStatic(Slog.class);
+                    .spyStatic(Slogf.class);
 
         beginTrace("onSessionBuilder()");
         onSessionBuilder(customBuilder);
@@ -520,13 +520,13 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
             }).when(() -> Log.wtf(anyString(), anyString(), any(Throwable.class)));
             doAnswer((invocation) -> {
                 return addWtf(invocation);
-            }).when(() -> Slog.wtf(anyString(), anyString()));
+            }).when(() -> Slogf.wtf(anyString(), anyString()));
             doAnswer((invocation) -> {
                 return addWtf(invocation);
-            }).when(() -> Slog.wtf(anyString(), any(Throwable.class)));
+            }).when(() -> Slogf.wtf(anyString(), any(Throwable.class)));
             doAnswer((invocation) -> {
                 return addWtf(invocation);
-            }).when(() -> Slog.wtf(anyString(), anyString(), any(Throwable.class)));
+            }).when(() -> Slogf.wtf(anyString(), anyString(), any(Throwable.class)));
             // NOTE: android.car.builtin.util.Slogf calls android.util.Slog behind the scenes, so no
             // need to check for calls of the former...
         } catch (Throwable t) {
