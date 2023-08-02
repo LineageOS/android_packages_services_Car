@@ -1311,6 +1311,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         tempValue.value = new RawPropValues();
         tempValue.value.floatValues = new float[]{INIT_TEMP_VALUE};
         tempValue.prop = VehicleProperty.HVAC_TEMPERATURE_SET;
+        tempValue.areaId = DRIVER_SIDE_AREA_ID;
         addAidlProperty(VehicleProperty.HVAC_TEMPERATURE_SET, tempValue)
                 .addAreaConfig(DRIVER_SIDE_AREA_ID, /* minValue = */ 10, /* maxValue = */ 20)
                 .addAreaConfig(PASSENGER_SIDE_AREA_ID, /* minValue = */ 10, /* maxValue = */ 20);
