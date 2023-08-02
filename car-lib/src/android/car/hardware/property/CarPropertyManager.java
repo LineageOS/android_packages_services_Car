@@ -1154,11 +1154,13 @@ public class CarPropertyManager extends CarManagerBase {
      * <p>
      * <b>Note:</b> If listener registers a callback for updates for a property for the first time,
      * it will receive the property's current value via a change event upon registration if the
-     * property is currently available for reading.
+     * property's value is currently available for reading. If the property is currently not
+     * available for reading or in error state, a property change event with a unavailable or
+     * error status will be generated.
      *
-     * <p>For properties that might be unavailable for reading because their power state is off,
-     * property change events containing the property's initial value will be generated once their
-     * power state is on.
+     * <p>For properties that might be unavailable for reading because their power state
+     * is off, property change events containing the property's initial value will be generated
+     * once their power state is on.
      *
      * <p>If {@code updateRateHz} is higher than {@link CarPropertyConfig#getMaxSampleRate()}, it
      * will be registered with max sample {@code updateRateHz}.
@@ -1167,11 +1169,18 @@ public class CarPropertyManager extends CarManagerBase {
      * will be registered with min sample {@code updateRateHz}.
      *
      * <p>
-     * <b>Note:</b> A property change event will only happen when the property is available. Caller
-     * must never depend on the change event to check property's availability. For properties that
-     * might be unavailable because they depend on certain power state, caller should subscribe
-     * to the power state property (e.g. {@link VehiclePropertyIds#HVAC_POWER_ON} for hvac dependant
-     * properties) to decide this property's availability.
+     * <b>Note:</b>Caller must check the value of {@link CarPropertyValue#getStatus()} for property
+     * change events and only use {@link CarPropertyValue#getValue()} when
+     * {@link CarPropertyValue#getStatus()} is {@link CarPropertyValue#STATUS_AVAILABLE}. If not,
+     * the {@link CarPropertyValue#getValue()} is meaningless.
+     *
+     * <p>
+     * <b>Note:</b>A property change event may/may not happen when the property's status
+     * changes. Caller should not depend on the change event to check property's status. For
+     * properties that might be unavailable because they depend on certain power state, caller
+     * should subscribe to the power state property (e.g.
+     * {@link VehiclePropertyIds#HVAC_POWER_ON} for hvac power dependent properties) to decide this
+     * property's availability.
      *
      * @param carPropertyEventCallback the CarPropertyEventCallback to be registered
      * @param propertyId               the property ID to subscribe
@@ -1525,7 +1534,8 @@ public class CarPropertyManager extends CarManagerBase {
                 }
                 return mService.getProperty(propertyId, areaId);
             });
-            return propValue != null;
+            return (propValue != null
+                    && propValue.getStatus() == CarPropertyValue.STATUS_AVAILABLE);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, false);
         } catch (ServiceSpecificException e) {
@@ -1582,7 +1592,7 @@ public class CarPropertyManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public boolean getBooleanProperty(int propertyId, int areaId) {
         CarPropertyValue<Boolean> carProp = getProperty(Boolean.class, propertyId, areaId);
-        return carProp != null ? carProp.getValue() : false;
+        return handleNullAndPropertyStatus(carProp, areaId, false);
     }
 
     /**
@@ -1611,7 +1621,7 @@ public class CarPropertyManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public float getFloatProperty(int propertyId, int areaId) {
         CarPropertyValue<Float> carProp = getProperty(Float.class, propertyId, areaId);
-        return carProp != null ? carProp.getValue() : 0f;
+        return handleNullAndPropertyStatus(carProp, areaId, 0f);
     }
 
     /**
@@ -1640,7 +1650,7 @@ public class CarPropertyManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public int getIntProperty(int propertyId, int areaId) {
         CarPropertyValue<Integer> carProp = getProperty(Integer.class, propertyId, areaId);
-        return carProp != null ? carProp.getValue() : 0;
+        return handleNullAndPropertyStatus(carProp, areaId, 0);
     }
 
     /**
@@ -1670,7 +1680,8 @@ public class CarPropertyManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public int[] getIntArrayProperty(int propertyId, int areaId) {
         CarPropertyValue<Integer[]> carProp = getProperty(Integer[].class, propertyId, areaId);
-        return carProp != null ? toIntArray(carProp.getValue()) : new int[0];
+        Integer[] res = handleNullAndPropertyStatus(carProp, areaId, new Integer[0]);
+        return toIntArray(res);
     }
 
     private static int[] toIntArray(Integer[] input) {
@@ -1680,6 +1691,30 @@ public class CarPropertyManager extends CarManagerBase {
             arr[i] = input[i];
         }
         return arr;
+    }
+
+    private <T> T handleNullAndPropertyStatus(CarPropertyValue<T> propertyValue, int areaId,
+            T defaultValue) {
+        if (propertyValue == null) {
+            return defaultValue;
+        }
+
+        // Keeps the same behavior as android R.
+        if (mAppTargetSdk < Build.VERSION_CODES.S) {
+            return propertyValue.getStatus() == CarPropertyValue.STATUS_AVAILABLE
+                    ? propertyValue.getValue() : defaultValue;
+        }
+
+        // throws new exceptions in android S.
+        switch (propertyValue.getStatus()) {
+            case CarPropertyValue.STATUS_ERROR:
+                throw new CarInternalErrorException(propertyValue.getPropertyId(), areaId);
+            case CarPropertyValue.STATUS_UNAVAILABLE:
+                throw new PropertyNotAvailableException(propertyValue.getPropertyId(),
+                        areaId, /*vendorErrorCode=*/0);
+            default:
+                return propertyValue.getValue();
+        }
     }
 
     @FunctionalInterface
@@ -1836,9 +1871,24 @@ public class CarPropertyManager extends CarManagerBase {
 
         Trace.beginSection("getProperty-" + propertyId + "/" + areaId);
         try {
-            return (CarPropertyValue<E>) (runSyncOperation(() -> {
+            CarPropertyValue<E> carPropertyValue = (CarPropertyValue<E>) (runSyncOperation(() -> {
                 return mService.getProperty(propertyId, areaId);
             }));
+            if (carPropertyValue == null) {
+                return null;
+            }
+            if (mAppTargetSdk >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                if (carPropertyValue.getStatus() == CarPropertyValue.STATUS_UNAVAILABLE) {
+                    throw new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE,
+                            "getProperty returned value with UNAVAILABLE status: "
+                                    + carPropertyValue);
+                } else if (carPropertyValue.getStatus() != CarPropertyValue.STATUS_AVAILABLE) {
+                    throw new ServiceSpecificException(VehicleHalStatusCode.STATUS_INTERNAL_ERROR,
+                            "getProperty returned value with error or unknown status: "
+                                    + carPropertyValue);
+                }
+            }
+            return carPropertyValue;
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, null);
         } catch (ServiceSpecificException e) {

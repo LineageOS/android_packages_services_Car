@@ -51,6 +51,7 @@ public final class CarPropertyValue<T> implements Parcelable {
 
     private final int mPropertyId;
     private final int mAreaId;
+    private final int mStatus;
     private final long mTimestampNanos;
     private final T mValue;
 
@@ -123,10 +124,7 @@ public final class CarPropertyValue<T> implements Parcelable {
      * @hide
      */
     public CarPropertyValue(int propertyId, int areaId, long timestampNanos, T value) {
-        mPropertyId = propertyId;
-        mAreaId = areaId;
-        mTimestampNanos = timestampNanos;
-        mValue = value;
+        this(propertyId, areaId, CarPropertyValue.STATUS_AVAILABLE, timestampNanos, value);
     }
 
     /**
@@ -136,14 +134,9 @@ public final class CarPropertyValue<T> implements Parcelable {
      */
     @Deprecated
     public CarPropertyValue(int propertyId, int areaId, int status, long timestampNanos, T value) {
-        if (status != STATUS_AVAILABLE) {
-            throw new IllegalArgumentException(
-                    "car property value with property ID: "
-                    + VehiclePropertyIds.toString(propertyId) + ", areaID: " + areaId
-                    + " must have available status, this should not happen.");
-        }
         mPropertyId = propertyId;
         mAreaId = areaId;
+        mStatus = status;
         mTimestampNanos = timestampNanos;
         mValue = value;
     }
@@ -158,6 +151,7 @@ public final class CarPropertyValue<T> implements Parcelable {
     public CarPropertyValue(Parcel in) {
         mPropertyId = in.readInt();
         mAreaId = in.readInt();
+        mStatus = in.readInt();
         mTimestampNanos = in.readLong();
         String valueClassName = in.readString();
         Class<?> valueClass;
@@ -202,6 +196,7 @@ public final class CarPropertyValue<T> implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(mPropertyId);
         dest.writeInt(mAreaId);
+        dest.writeInt(mStatus);
         dest.writeLong(mTimestampNanos);
 
         Class<?> valueClass = mValue == null ? null : mValue.getClass();
@@ -245,12 +240,10 @@ public final class CarPropertyValue<T> implements Parcelable {
 
     /**
      * @return Status of {@code CarPropertyValue}
-     *
-     * @deprecated This will always return {@link #STATUS_AVAILABLE}.
      */
     @AddedInOrBefore(majorVersion = 33)
     public @PropertyStatus int getStatus() {
-        return STATUS_AVAILABLE;
+        return mStatus;
     }
 
     /**
@@ -268,7 +261,12 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
-     * @return Value of {@code CarPropertyValue}
+     * Returns the value for {@code CarPropertyValue}.
+     *
+     * <p>
+     * <b>Note:</b>Caller must check the value of {@link #getStatus()}. Only use
+     * {@link #getValue()} when {@link #getStatus()} is {@link #STATUS_AVAILABLE}. If not,
+     * {@link #getValue()} is meaningless.
      */
     @NonNull
     @AddedInOrBefore(majorVersion = 33)
@@ -283,6 +281,7 @@ public final class CarPropertyValue<T> implements Parcelable {
                 + "mPropertyId=0x" + toHexString(mPropertyId)
                 + ", propertyName=" + VehiclePropertyIds.toString(mPropertyId)
                 + ", mAreaId=0x" + toHexString(mAreaId)
+                + ", mStatus=" + mStatus
                 + ", mTimestampNanos=" + mTimestampNanos
                 + ", mValue=" + mValue
                 + '}';
@@ -291,7 +290,7 @@ public final class CarPropertyValue<T> implements Parcelable {
     /** Generates hash code for this instance. */
     @Override
     public int hashCode() {
-        return Objects.hash(mPropertyId, mAreaId, mTimestampNanos, mValue);
+        return Objects.hash(mPropertyId, mAreaId, mStatus, mTimestampNanos, mValue);
     }
 
     /** Checks equality with passed {@code object}. */
@@ -305,6 +304,7 @@ public final class CarPropertyValue<T> implements Parcelable {
         }
         CarPropertyValue<?> carPropertyValue = (CarPropertyValue<?>) object;
         return mPropertyId == carPropertyValue.mPropertyId && mAreaId == carPropertyValue.mAreaId
+                && mStatus == carPropertyValue.mStatus
                 && mTimestampNanos == carPropertyValue.mTimestampNanos
                 && Objects.equals(mValue, carPropertyValue.mValue);
     }
