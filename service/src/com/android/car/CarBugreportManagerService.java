@@ -126,7 +126,8 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
 
     @Override
     public void release() {
-        // nothing to do
+        // To stop any pending tasks in HandlerThread
+        mIsServiceRunning.set(false);
     }
 
     @Override
