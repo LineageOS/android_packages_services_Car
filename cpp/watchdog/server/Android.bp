@@ -30,6 +30,7 @@ cc_defaults {
     include_dirs: [
         "system/libbase/include",
     ],
+    generated_headers: ["watchdog-protos-headers", "dump-cppstream-protos"],
     shared_libs: [
         "libbase",
         "libbinder",
@@ -37,6 +38,7 @@ cc_defaults {
         "liblog",
         "libutils",
         "packagemanager_aidl-cpp",
+        "libprotoutil",
     ],
     static_libs: [
         "android.automotive.watchdog.internal-V3-ndk",
@@ -116,6 +118,16 @@ cc_library {
     export_include_dirs: [
         "src",
     ],
+    target: {
+        android: {
+            proto: {
+                type: "lite",
+            },
+            shared_libs: [
+                "libprotobuf-cpp-full",
+            ],
+        },
+    },
 }
 
 filegroup {
@@ -133,6 +145,7 @@ cc_test {
         "libwatchdog_process_service_defaults",
         "libwatchdog_service_manager_defaults",
     ],
+    generated_sources: ["watchdog-protos-srcs"],
     test_suites: [
         "general-tests",
         "automotive-tests",
@@ -179,6 +192,16 @@ cc_test {
         "libwatchdog_service_manager",
     ],
     data: [":watchdog_test_xml_files"],
+    target: {
+        android: {
+            proto: {
+                type: "lite",
+            },
+            shared_libs: [
+                "libprotobuf-cpp-full",
+            ],
+        },
+    },
 }
 
 cc_defaults {
