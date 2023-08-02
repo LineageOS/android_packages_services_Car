@@ -835,13 +835,14 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
 
     @Test
     public void onCarDisconnected() throws Exception {
-        ArgumentCaptor<IBinder> captor = ArgumentCaptor.forClass(IBinder.class);
-        mCarAudioManager.registerCarVolumeCallback(mVolumeCallbackMock1);
-        verify(mServiceMock).registerVolumeCallback(captor.capture());
+        ICarVolumeCallback serviceVolCallback = getCarVolumeCallbackImpl(mVolumeCallbackMock1);
+        ICarVolumeEventCallback serviceVolEventCallback = getCarVolumeEventCallbackImpl(
+                mVolumeGroupEventCallbackMock1);
 
         mCarAudioManager.onCarDisconnected();
 
-        verify(mServiceMock).unregisterVolumeCallback(captor.getValue());
+        verify(mServiceMock).unregisterVolumeCallback(serviceVolCallback.asBinder());
+        verify(mServiceMock).unregisterCarVolumeEventCallback(serviceVolEventCallback);
     }
 
     @Test
@@ -1709,6 +1710,7 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
 
     private ICarVolumeEventCallback getCarVolumeEventCallbackImpl(CarVolumeGroupEventCallback
             callbackMock) throws Exception {
+        when(mServiceMock.registerCarVolumeEventCallback(any())).thenReturn(true);
         mCarAudioManager.registerCarVolumeGroupEventCallback(DIRECT_EXECUTOR, callbackMock);
         ArgumentCaptor<ICarVolumeEventCallback> captor = ArgumentCaptor.forClass(
                 ICarVolumeEventCallback.class);
