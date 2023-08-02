@@ -54,7 +54,8 @@ public final class PreInstalledPackagesTest extends CarLessApiTestBase {
         String mode =  enforceMode ? " --mode 1" : "";
         String result = runShellCommand(cmd, mode);
         if (!TextUtils.isEmpty(result)) {
-            fail("Command '" + String.format(cmd, mode) + "' reported errors:\n" + result);
+            fail("Command '" + String.format(cmd, mode) + "' reported errors:\n" + result
+                    + "\nPlease check go/aaos-packages-allowlisting to fix the test!");
         }
     }
 }
