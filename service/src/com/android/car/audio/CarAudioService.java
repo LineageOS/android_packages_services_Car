@@ -1112,8 +1112,11 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         requireAudioMirroring();
         long requestId = mCarAudioMirrorRequestHandler.getRequestIdForAudioZone(zoneId);
 
-        return requestId == INVALID_REQUEST_ID ? new int[0] :
-                mCarAudioMirrorRequestHandler.getMirrorAudioZonesForRequest(requestId);
+        if (requestId == INVALID_REQUEST_ID) {
+            return new int[0];
+        }
+        int[] config = mCarAudioMirrorRequestHandler.getMirrorAudioZonesForRequest(requestId);
+        return config == null ? new int[0] : config;
     }
 
     /**
