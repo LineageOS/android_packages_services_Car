@@ -1162,19 +1162,25 @@ public class PropertyHalService extends HalServiceBase {
                 if (DBG) {
                     Slogf.d(TAG, "takeSupportedProperties: %s", halPropIdToName(halPropId));
                 }
+            } else {
+                if (DBG) {
+                    Slogf.d(TAG, "takeProperties: Property: %s is not supported, ignore",
+                            halPropIdToName(halPropId));
+                }
             }
         }
         if (DBG) {
             Slogf.d(TAG, "takeSupportedProperties() took %d properties", halPropConfigs.size());
         }
         // If vehicle hal support to select permission for vendor properties.
-        HalPropConfig customizePermission;
-        synchronized (mLock) {
-            customizePermission = mHalPropIdToPropConfig.get(
-                    VehicleProperty.SUPPORT_CUSTOMIZE_VENDOR_PERMISSION);
-        }
+        HalPropConfig customizePermission = mVehicleHal.getPropConfig(
+                VehicleProperty.SUPPORT_CUSTOMIZE_VENDOR_PERMISSION);
         if (customizePermission != null) {
             mPropertyHalServiceIds.customizeVendorPermission(customizePermission.getConfigArray());
+        } else {
+            if (DBG) {
+                Slogf.d(TAG, "No custom vendor permission defined in VHAL");
+            }
         }
     }
 
