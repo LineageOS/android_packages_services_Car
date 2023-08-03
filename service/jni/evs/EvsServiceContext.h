@@ -214,7 +214,7 @@ private:
 
     // Maximum number of frames CarEvsService can hold.  This number has been
     // chosen heuristically.
-    static constexpr int kMaxNumFramesInFlight = 6;
+    static constexpr int kMaxNumFramesInFlight = 10;
 
     // EVS service reserves a display ID 255 to allow the clients to open the main
     // display exclusively.

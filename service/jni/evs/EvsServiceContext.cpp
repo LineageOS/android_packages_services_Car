@@ -15,6 +15,7 @@
  */
 
 #include "EvsServiceContext.h"
+#include "NoOpEvsDisplay.h"
 
 #include <aidl/android/hardware/automotive/evs/EvsResult.h>
 #include <aidl/android/hardware/common/NativeHandle.h>
@@ -337,9 +338,7 @@ void EvsServiceContext::stopVideoStream() {
         return;
     }
 
-    if (!mStreamHandler->asyncStopStream()) {
-        LOG(WARNING) << "Failed to stop a video stream.  EVS service may die.";
-    }
+    mStreamHandler->blockingStopStream();
 }
 
 void EvsServiceContext::acquireCameraAndDisplayLocked() {
@@ -358,6 +357,10 @@ void EvsServiceContext::acquireCameraAndDisplayLocked() {
         LOG(WARNING) << "Failed to acquire the display ownership.  "
                      << "CarEvsManager may not be able to render "
                      << "the contents on the screen.";
+
+        // We hold a no-op IEvsDisplay object to avoid attempting to open a
+        // display repeatedly.
+        mDisplay = ndk::SharedRefBase::make<NoOpEvsDisplay>();
         return;
     }
 
