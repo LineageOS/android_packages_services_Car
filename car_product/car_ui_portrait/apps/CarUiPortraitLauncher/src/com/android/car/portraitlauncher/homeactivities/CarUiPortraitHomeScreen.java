@@ -89,7 +89,7 @@ import com.android.car.carlauncher.taskstack.TaskStackChangeListeners;
 import com.android.car.caruiportrait.common.service.CarUiPortraitService;
 import com.android.car.portraitlauncher.R;
 import com.android.car.portraitlauncher.common.IntentHandler;
-import com.android.car.portraitlauncher.homescreen.audio.MediaIntentRouter;
+import com.android.car.portraitlauncher.controlbar.media.MediaIntentRouter;
 import com.android.car.portraitlauncher.panel.TaskViewPanel;
 
 import java.lang.reflect.InvocationTargetException;
@@ -585,7 +585,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         for (HomeCardModule cardModule : homeCardModules) {
-            transaction.replace(cardModule.getCardResId(), cardModule.getCardView());
+            transaction.replace(cardModule.getCardResId(), cardModule.getCardView().getFragment());
         }
         transaction.commitNow();
     }
