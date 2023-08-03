@@ -1893,7 +1893,7 @@ public final class Car {
      * A factory method that creates Car instance for all Car API access.
      *
      * <p>Instance created with this should be disconnected from car service by calling
-     * {@link #disconnect()} before the passed {code Context} is released.
+     * {@link #disconnect()} before the passed {@code Context} is released.
      *
      * @param context This should not be {@code null}. If you are passing {@link ContextWrapper},
      *                make sure that its {@link ContextWrapper#getBaseContext() base context} is not
@@ -1930,7 +1930,7 @@ public final class Car {
      * Looper}.
      *
      * <p>Instance created with this should be disconnected from car service by calling
-     * {@link #disconnect()} before the passed {code Context} is released.
+     * {@link #disconnect()} before the passed {@code Context} is released.
      *
      * @see #createCar(Context, ServiceConnection, Handler)
      *
@@ -1946,7 +1946,7 @@ public final class Car {
      * Creates new {@link Car} object which connected synchronously to Car Service and ready to use.
      *
      * <p>Instance created with this should be disconnected from car service by calling
-     * {@link #disconnect()} before the passed {code Context} is released.
+     * {@link #disconnect()} before the passed {@code Context} is released.
      *
      * @param context application's context
      *
@@ -1962,7 +1962,7 @@ public final class Car {
      * Creates new {@link Car} object which connected synchronously to Car Service and ready to use.
      *
      * <p>Instance created with this should be disconnected from car service by calling
-     * {@link #disconnect()} before the passed {code Context} is released.
+     * {@link #disconnect()} before the passed {@code Context} is released.
      *
      * @param context This should not be {@code null}. If you are passing {@link ContextWrapper},
      *                make sure that its {@link ContextWrapper#getBaseContext() base context} is not
@@ -2034,7 +2034,7 @@ public final class Car {
      * Creates new {@link Car} object with {@link CarServiceLifecycleListener}.
      *
      * <p>Instance created with this should be disconnected from car service by calling
-     * {@link #disconnect()} before the passed {code Context} is released.
+     * {@link #disconnect()} before the passed {@code Context} is released.
      *
      * <p> If car service is ready inside this call and if the caller is running in the main thread,
      * {@link CarServiceLifecycleListener#onLifecycleChanged(Car, boolean)} will be called
@@ -2400,7 +2400,7 @@ public final class Car {
     }
 
     /**
-     * Checks if {code featureName} is enabled in this car.
+     * Checks if {@code featureName} is enabled in this car.
      *
      * <p>For optional features, this can return false if the car cannot support it. Optional
      * features should be used only when they are supported.</p>
