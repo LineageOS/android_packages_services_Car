@@ -31,9 +31,4 @@ android_app {
     ],
     libs: ["android.car-system-stubs"],
     required: ["allowed_privapp_com.android.car.activityresolver"],
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
 }
