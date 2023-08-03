@@ -2117,13 +2117,11 @@ public final class VehiclePropertyIds {
     /**
      * Property to feed H/W input events to android.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Integer[]} property type
-     * </ul>
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     *
+     * Deprecated, use {@link android.car.input.CarInputManager} instead.
      */
     @AddedInOrBefore(majorVersion = 33)
     public static final int HW_KEY_INPUT = 289475088;
