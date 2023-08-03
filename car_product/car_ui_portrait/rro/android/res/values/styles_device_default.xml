@@ -85,13 +85,7 @@
     </style>
 
     <style name="TextAppearance.DeviceDefault.DialogWindowTitle"
-           parent="android:TextAppearance.Material.DialogWindowTitle">
-        <item name="android:fontFamily">@string/config_headlineFontFamilyMedium</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textSize">@*android:dimen/car_body2_size</item>
-        <item name="android:textColor">@*android:color/car_body2</item>
-    </style>
-
+            parent="TextAppearance.DeviceDefault.WindowTitle" />
 
     <style name="TextAppearance.DeviceDefault.Widget.Button"
            parent="TextAppearance.Car.Button.Medium">
@@ -117,6 +111,16 @@
     <style name="TextAppearance.DeviceDefault.Widget.Button.Toggle"
            parent="TextAppearance.DeviceDefault.Widget.Button">
         <item name="android:textColor">@color/car_button_toggle_text_color</item>
+    </style>
+
+    <style name="TextAppearance.DeviceDefault.WindowTitle" parent="TextAppearance.Car.Subhead.Large">
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontWeight">500</item>
+        <item name="android:lineHeight">44dp</item>
+        <item name="android:textColor">@color/car_on_surface</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">none</item>
+        <item name="android:stateListAnimator">@null</item>
     </style>
 
     <style name="Widget.DeviceDefault.TextView" parent="android:Widget.Material.TextView">

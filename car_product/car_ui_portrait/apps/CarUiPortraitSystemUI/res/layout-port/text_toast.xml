@@ -19,26 +19,30 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:maxWidth="@*android:dimen/toast_width"
-    android:background="@android:drawable/toast_frame"
-    android:elevation="@*android:dimen/toast_elevation"
-    android:paddingStart="@dimen/car_portrait_ui_toast_margin"
-    android:paddingEnd="@dimen/car_portrait_ui_toast_margin"
-    android:paddingTop="@dimen/car_portrait_ui_toast_margin"
-    android:paddingBottom="@dimen/car_portrait_ui_toast_margin"
     android:layout_marginBottom="@dimen/car_portrait_ui_toast_bottom_margin">
-
-    <ImageView
-        android:id="@+id/icon"
-        android:layout_width="@dimen/car_portrait_ui_toast_icon_size"
-        android:layout_height="@dimen/car_portrait_ui_toast_icon_size"
-        android:layout_marginEnd="@dimen/car_portrait_ui_toast_margin"/>
-    <TextView
-        android:id="@+id/text"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="@*android:dimen/toast_width"
         android:layout_height="wrap_content"
-        android:maxLines="2"
-        android:textAppearance="@style/TextAppearance.Car.Toast"/>
+        android:gravity="center">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="@*android:dimen/toast_width"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@android:drawable/toast_frame"
+            android:elevation="@*android:dimen/toast_elevation"
+            android:padding="@dimen/car_portrait_ui_toast_margin">
+            <ImageView
+                android:id="@+id/icon"
+                android:layout_width="@dimen/car_portrait_ui_toast_icon_size"
+                android:layout_height="@dimen/car_portrait_ui_toast_icon_size"
+                android:layout_marginEnd="@dimen/car_portrait_ui_toast_icon_margin"/>
+            <TextView
+                android:id="@+id/text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/TextAppearance.Car.Toast"/>
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>

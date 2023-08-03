@@ -42,14 +42,14 @@
     <!-- ****** Toast dimens ***** -->
 
     <!-- Toast corner radius -->
-    <dimen name="toast_corner_radius">24dp</dimen>
+    <dimen name="toast_corner_radius">48dp</dimen>
     <!-- Toast margin -->
     <dimen name="car_portrait_ui_toast_margin">24dp</dimen>
     <!-- Toast elevation -->
-    <dimen name="toast_elevation">2dp</dimen>
+    <dimen name="toast_elevation">0dp</dimen>
     <!-- Toast max width -->
-    <dimen name="toast_width">760dp</dimen>
-    <dimen name="toast_y_offset">168dp</dimen>
+    <dimen name="toast_width">1050dp</dimen>
+    <dimen name="toast_y_offset">268dp</dimen>
     <dimen name="car_portrait_ui_toast_bottom_margin">32dp</dimen>
 
     <!-- ****** Buttons dimens ***** -->
