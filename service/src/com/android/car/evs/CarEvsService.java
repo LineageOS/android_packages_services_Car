@@ -295,7 +295,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         // Reads the service configuration and initializes service instances.
         String[] rawConfigurationStrings = mContext.getResources()
                 .getStringArray(R.array.config_carEvsService);
-        if (rawConfigurationStrings != null) {
+        if (rawConfigurationStrings != null && rawConfigurationStrings.length > 0) {
             mServiceInstances = new SparseArray<>(rawConfigurationStrings.length);
             for (String rawString : rawConfigurationStrings) {
                 CarEvsServiceUtils.Parameters params = CarEvsServiceUtils.parse(rawString);
