@@ -42,7 +42,7 @@
 
     <dimen name="car_ui_list_item_text_no_icon_start_margin">0dp</dimen>
 
-    <dimen name="car_ui_dialog_icon_size">50dp</dimen>
+    <dimen name="car_ui_dialog_icon_size">64dp</dimen>
 
     <dimen name="car_ui_preference_content_margin_top">16dp</dimen>
     <dimen name="car_ui_preference_content_margin_bottom">16dp</dimen>
