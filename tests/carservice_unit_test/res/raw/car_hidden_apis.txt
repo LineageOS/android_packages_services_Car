@@ -193,6 +193,7 @@ android.car.app RemoteCarRootTaskView ActivityManager.RunningTaskInfo getTaskInf
 android.car.app RemoteCarRootTaskView ActivityManager.RunningTaskInfo getTopTaskInfo()
 android.car.app RemoteCarRootTaskView String toString()
 android.car.app RemoteCarRootTaskView boolean isInitialized()
+android.car.app RemoteCarRootTaskView void updateAllowListedActivities(List<ComponentName> list)
 android.car.app RemoteCarRootTaskViewCallback void onTaskViewCreated(RemoteCarRootTaskView taskView)
 android.car.app RemoteCarRootTaskViewCallback void onTaskViewInitialized()
 android.car.app RemoteCarRootTaskViewCallback void onTaskViewReleased()
