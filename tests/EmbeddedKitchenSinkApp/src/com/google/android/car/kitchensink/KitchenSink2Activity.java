@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -33,6 +34,7 @@ import com.android.car.ui.recyclerview.CarUiContentListItem;
 import com.android.car.ui.recyclerview.CarUiRecyclerView;
 import com.android.car.ui.toolbar.MenuItem;
 import com.android.car.ui.toolbar.NavButtonMode;
+import com.android.car.ui.toolbar.SearchMode;
 import com.android.car.ui.toolbar.ToolbarController;
 
 import java.util.ArrayList;
@@ -45,11 +47,25 @@ public class KitchenSink2Activity extends FragmentActivity {
     @Nullable
     private Fragment mLastFragment;
     private static final int NO_INDEX = -1;
+    private static final String EMPTY_STRING = "";
     private HighlightableAdapter mAdapter;
     private final FragmentItemClickHandler mItemClickHandler = new FragmentItemClickHandler();
+
+    /**
+     * List of all the original menu items.
+     */
     private List<FragmentListItem> mData;
+
+    /**
+     * Dynamic list of menu items that needs to be given to the adapter. Useful while searching.
+     */
+    private List<FragmentListItem> mFilteredData;
     private boolean mIsSinglePane = false;
     private ToolbarController mGlobalToolbar, mMiniToolbar;
+    private View mMenuContainer;
+    private CarUiRecyclerView mRV;
+    private String mLastFragmentTitle;
+
 
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
@@ -61,8 +77,8 @@ public class KitchenSink2Activity extends FragmentActivity {
     }
 
     private int getFragmentIndexFromTitle(String title) {
-        for (int i = 0; i < mData.size(); i++) {
-            String targetText = mData.get(i).getTitle().getPreferredText().toString();
+        for (int i = 0; i < mFilteredData.size(); i++) {
+            String targetText = mFilteredData.get(i).getTitle().getPreferredText().toString();
             if (targetText.equalsIgnoreCase(title)) {
                 return i;
             }
@@ -71,8 +87,8 @@ public class KitchenSink2Activity extends FragmentActivity {
     }
 
     public void onFragmentItemClick(int fragIndex) {
-        if (fragIndex < 0 || fragIndex > mData.size()) return;
-        FragmentListItem fragmentListItem = mData.get(fragIndex);
+        if (fragIndex < 0 || fragIndex >= mFilteredData.size()) return;
+        FragmentListItem fragmentListItem = mFilteredData.get(fragIndex);
         Fragment fragment = fragmentListItem.getFragment();
         if (mLastFragment != fragment) {
             Log.v(TAG, "onFragmentItemClick(): from " + mLastFragment + " to " + fragment);
@@ -84,26 +100,24 @@ public class KitchenSink2Activity extends FragmentActivity {
                 .replace(R.id.fragment_container, fragment)
                 .commit();
         mLastFragment = fragment;
-
-        mMiniToolbar.setTitle(fragmentListItem.getTitle().getPreferredText());
-
-        View view = findViewById(R.id.top_level_menu_container);
-        CarUiRecyclerView rv = findViewById(R.id.list_pane);
-        mAdapter.requestHighlight(view, rv, fragIndex);
+        mLastFragmentTitle = fragmentListItem.getTitle().getPreferredText().toString();
+        mMiniToolbar.setTitle(mLastFragmentTitle);
+        mAdapter.requestHighlight(mLastFragmentTitle, fragIndex);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_2pane);
+        mMenuContainer = findViewById(R.id.top_level_menu_container);
+        mRV = findViewById(R.id.list_pane);
 
         setUpToolbars();
 
         mData = getProcessedData();
-        mAdapter = new HighlightableAdapter(this, mData);
-
-        CarUiRecyclerView carUiRecyclerView = findViewById(R.id.list_pane);
-        carUiRecyclerView.setAdapter(mAdapter);
+        mFilteredData = new ArrayList<>(mData);
+        mAdapter = new HighlightableAdapter(this, mFilteredData, mRV);
+        mRV.setAdapter(mAdapter);
 
         // showing Default
         showDefaultFragment();
@@ -120,12 +134,23 @@ public class KitchenSink2Activity extends FragmentActivity {
 
         MenuItem searchButton = new MenuItem.Builder(this)
                 .setToSearch()
+                .setOnClickListener(menuItem -> onSearchButtonClicked())
                 .setUxRestrictions(CarUxRestrictions.UX_RESTRICTIONS_NO_KEYBOARD)
                 .setId(R.id.toolbar_menu_item_search)
                 .build();
 
-        // TODO: b/289280411 - Implement the search functionality
-//        mGlobalToolbar.setMenuItems(List.of(searchButton));
+        mGlobalToolbar.setMenuItems(List.of(searchButton));
+        mGlobalToolbar.registerBackListener(() -> {
+            mGlobalToolbar.setSearchMode(SearchMode.DISABLED);
+            mGlobalToolbar.setNavButtonMode(NavButtonMode.DISABLED);
+            mGlobalToolbar.unregisterOnSearchListener(this::onQueryChanged);
+            EditText mSearchText = findViewById(R.id.car_ui_toolbar_search_bar);
+            mSearchText.getText().clear();
+            onQueryChanged(EMPTY_STRING);
+            mAdapter.onSearchEnded();
+            return true;
+        });
+
         mGlobalToolbar.setTitle(getString(R.string.app_title));
         mGlobalToolbar.setNavButtonMode(NavButtonMode.DISABLED);
         mGlobalToolbar.setLogo(R.drawable.ic_launcher);
@@ -142,6 +167,27 @@ public class KitchenSink2Activity extends FragmentActivity {
                         insets.getBottom()), /* hasToolbar= */ true);
 
         mMiniToolbar.setNavButtonMode(NavButtonMode.BACK);
+    }
+
+    private void onSearchButtonClicked() {
+        mGlobalToolbar.setSearchMode(SearchMode.SEARCH);
+        mGlobalToolbar.setNavButtonMode(NavButtonMode.BACK);
+        mGlobalToolbar.registerOnSearchListener(this::onQueryChanged);
+    }
+
+    private void onQueryChanged(String query) {
+        mFilteredData.clear();
+        if (query.isEmpty()) {
+            mFilteredData.addAll(mData);
+        } else {
+            for (FragmentListItem item : mData) {
+                if (item.getTitle().getPreferredText().toString().toLowerCase().contains(
+                        query.toLowerCase())) {
+                    mFilteredData.add(item);
+                }
+            }
+        }
+        mAdapter.afterTextChanged();
     }
 
     List<FragmentListItem> getProcessedData() {
