@@ -50,10 +50,12 @@ public final class FragmentListItem<T extends Fragment> extends CarUiContentList
     }
 
     private final FragmentClassOrInstance<T> mFragment;
+    private boolean mIsFavourite;
 
-    public FragmentListItem(String text, Class<T> clazz, OnClickListener listener) {
+    public FragmentListItem(String text, boolean isFavourite, Class<T> clazz,
+            OnClickListener listener) {
         super(Action.NONE);
-
+        mIsFavourite = isFavourite;
         mFragment = new FragmentClassOrInstance<>(clazz);
         setTitle(text.toUpperCase());
         setOnItemClickedListener(listener);
@@ -61,6 +63,14 @@ public final class FragmentListItem<T extends Fragment> extends CarUiContentList
 
     public Fragment getFragment() {
         return mFragment.getFragment();
+    }
+
+    public boolean isFavourite() {
+        return mIsFavourite;
+    }
+
+    public void toggleFavourite() {
+        mIsFavourite = !mIsFavourite;
     }
 
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {

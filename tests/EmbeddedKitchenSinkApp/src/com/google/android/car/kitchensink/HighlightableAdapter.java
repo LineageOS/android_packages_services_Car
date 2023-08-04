@@ -17,6 +17,7 @@
 package com.google.android.car.kitchensink;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.View;
@@ -41,6 +42,8 @@ public class HighlightableAdapter extends CarUiListItemAdapter {
     @DrawableRes
     private final int mHighlightBackgroundRes;
     private final int mItemHeight;
+    private final Drawable mPinIconDrawable;
+    private final int mPinIconPadding;
     private String mHighlightTitle = EMPTY_STRING;
     private final List<FragmentListItem> mListItems;
     private final CarUiRecyclerView mRecyclerView;
@@ -70,6 +73,9 @@ public class HighlightableAdapter extends CarUiListItemAdapter {
 
         mItemHeight = context.getResources().getDimensionPixelSize(
                 R.dimen.top_level_preference_height);
+        mPinIconDrawable = context.getDrawable(R.drawable.ic_item_pin);
+        mPinIconPadding = context.getResources().getDimensionPixelSize(
+                R.dimen.top_level_pin_icon_padding);
     }
 
     @Override
@@ -83,6 +89,13 @@ public class HighlightableAdapter extends CarUiListItemAdapter {
         if (titleView != null) {
             titleView.setEllipsize(TextUtils.TruncateAt.END);
             titleView.setSingleLine(true);
+            if (mListItems.get(position).isFavourite()) {
+                titleView.setCompoundDrawablesWithIntrinsicBounds(null, null, mPinIconDrawable,
+                        null);
+                titleView.setPaddingRelative(0, 0, mPinIconPadding, 0);
+            } else {
+                titleView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+            }
         }
         updateBackground(holder, position);
     }
@@ -95,7 +108,6 @@ public class HighlightableAdapter extends CarUiListItemAdapter {
             removeHighlightBackground(v);
         }
     }
-
 
     /**
      * Requests that a particular list item be highlighted. This will remove the highlight from
@@ -160,5 +172,12 @@ public class HighlightableAdapter extends CarUiListItemAdapter {
      */
     public void onSearchEnded() {
         mRecyclerView.getView().post(() -> mRecyclerView.scrollToPosition(mHighlightPosition));
+    }
+
+    public void afterFavClicked(int from, int to) {
+        mHighlightPosition = to;
+        notifyItemMoved(from, to);
+        notifyItemChanged(to);
+        mRecyclerView.scrollToPosition(to);
     }
 }
