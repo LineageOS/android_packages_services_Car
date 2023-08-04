@@ -53,6 +53,7 @@ import com.android.internal.util.Preconditions;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Helper for Audio related operations.
@@ -547,6 +548,19 @@ public final class AudioManagerHelper {
     public static String getFormattedTags(@NonNull AudioAttributes attributes) {
         Preconditions.checkNotNull(attributes, "Audio Attributes must not be null");
         return TextUtils.join(AUDIO_ATTRIBUTE_TAG_SEPARATOR, attributes.getTags());
+    }
+
+    /**
+     * Gets a set of string of tags associated to given {@link AudioAttributes}
+     *
+     * @param attributes {@link AudioAttributes} to be considered
+     * @return the tags of the given {@link AudioAttributes} as a Set of Strings.
+     */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static Set<String> getTags(@NonNull AudioAttributes attributes) {
+        Preconditions.checkNotNull(attributes, "Audio Attributes must not be null");
+        return attributes.getTags();
     }
 
     private static final Map<String, Integer> XSD_STRING_TO_CONTENT_TYPE = Map.of(

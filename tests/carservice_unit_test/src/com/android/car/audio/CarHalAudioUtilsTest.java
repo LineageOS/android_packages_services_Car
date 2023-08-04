@@ -16,8 +16,17 @@
 
 package com.android.car.audio;
 
+import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
+import static android.media.AudioAttributes.CONTENT_TYPE_SPEECH;
+import static android.media.AudioAttributes.CONTENT_TYPE_UNKNOWN;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION;
+import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
+
+import static com.android.car.audio.CoreAudioRoutingUtils.MUSIC_ATTRIBUTES;
+import static com.android.car.audio.CoreAudioRoutingUtils.OEM_ATTRIBUTES;
+import static com.android.car.audio.CoreAudioRoutingUtils.OEM_DEVICE_ADDRESS;
+import static com.android.car.audio.CoreAudioRoutingUtils.OEM_FORMATTED_TAGS;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -30,11 +39,14 @@ import android.audio.policy.configuration.V7_0.AudioUsage;
 import android.hardware.audio.common.PlaybackTrackMetadata;
 import android.hardware.automotive.audiocontrol.DuckingInfo;
 import android.media.AudioAttributes;
+import android.media.audio.common.AudioChannelLayout;
 import android.media.audio.common.AudioDevice;
 import android.media.audio.common.AudioDeviceAddress;
 import android.media.audio.common.AudioDeviceDescription;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import com.android.car.audio.CarAudioContext.AudioAttributesWrapper;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,8 +65,7 @@ public class CarHalAudioUtilsTest {
     private static final String NOTIFICATION_ADDRESS = "NOTIFICATION_ADDRESS";
     private static final List<String> ADDRESSES_TO_DUCK = List.of("address1", "address2");
     private static final List<String> ADDRESSES_TO_UNDUCK = List.of("address3", "address4");
-    private static final AudioAttributes MEDIA_AUDIO_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA);
+    private static final AudioAttributes MEDIA_AUDIO_ATTRIBUTE = MUSIC_ATTRIBUTES;
     private static final AudioAttributes NOTIFICATION_AUDIO_ATTRIBUTE =
             CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION);
     private static final List<AudioAttributes> AUDIO_ATTRIBUTES_HOLDING_FOCUS = List.of(
@@ -134,14 +145,130 @@ public class CarHalAudioUtilsTest {
 
     @Test
     public void audioAttributeToMetadata_succeeds() {
+        PlaybackTrackMetadata metadata =
+                CarHalAudioUtils.audioAttributeToMetadata(MEDIA_AUDIO_ATTRIBUTE);
+
+        assertWithMessage("Attributes to Playback Track Metadata usage").that(metadata.usage)
+                .isEqualTo(USAGE_MEDIA);
+        assertWithMessage("Attributes to Playback Track Metadata content type")
+                .that(metadata.contentType).isEqualTo(CONTENT_TYPE_MUSIC);
+        assertWithMessage("Attributes to Playback Track Metadata source device address w/o zone")
+                .that(metadata.sourceDevice.address.getId()).isEmpty();
+    }
+
+    @Test
+    public void audioAttributeToMetadata_withOemTags_succeeds() {
+        PlaybackTrackMetadata metadata = CarHalAudioUtils.audioAttributeToMetadata(OEM_ATTRIBUTES);
+
+        assertWithMessage("OEM Attributes to Playback Track Metadata usage").that(metadata.usage)
+                .isEqualTo(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
+        assertWithMessage("OEM Attributes to Playback Track Metadata content type")
+                .that(metadata.contentType).isEqualTo(CONTENT_TYPE_SPEECH);
+        String[] tags = metadata.tags;
+        assertWithMessage("OEM Attributes to Playback Track Metadata tags size").that(tags.length)
+                .isEqualTo(1);
+        assertWithMessage("OEM Attributes to Playback Track Metadata tag").that(tags[0])
+                .isEqualTo(OEM_FORMATTED_TAGS);
+        assertWithMessage("OEM Attributes to Playback Track Metadata source device address")
+                .that(metadata.sourceDevice.address.getId()).isEmpty();
+    }
+
+    @Test
+    public void audioAttributesWrapperToMetadata_succeeds() {
+        AudioAttributesWrapper audioAttributesWrapper =
+                CarAudioContext.getAudioAttributeWrapperFromUsage(USAGE_MEDIA);
+
+        PlaybackTrackMetadata metadata = CarHalAudioUtils.audioAttributesWrapperToMetadata(
+                audioAttributesWrapper);
+
+        assertWithMessage("Attributes Wrapper to Playback Track Metadata usage")
+                .that(metadata.usage).isEqualTo(USAGE_MEDIA);
+        assertWithMessage("Attributes Wrapper to Playback Track Metadata content type")
+                .that(metadata.contentType).isEqualTo(CONTENT_TYPE_UNKNOWN);
+        String[] tags = metadata.tags;
+        assertWithMessage("Attributes Wrapper to Playback Track Metadata tags size")
+                .that(tags.length).isEqualTo(0);
+        assertWithMessage("Attributes Wrapper to Playback Track Metadata source device address")
+                .that(metadata.sourceDevice.address.getId()).isEmpty();
+    }
+
+    @Test
+    public void usageToMetadata_succeeds() {
+        PlaybackTrackMetadata metadata = CarHalAudioUtils.usageToMetadata(USAGE_MEDIA);
+
+        assertWithMessage("Usage to Playback Track Metadata usage").that(metadata.usage)
+                .isEqualTo(USAGE_MEDIA);
+        assertWithMessage("Usage to Playback Track Metadata content type")
+                .that(metadata.contentType).isEqualTo(CONTENT_TYPE_UNKNOWN);
+        String[] tags = metadata.tags;
+        assertWithMessage("Usage to Playback Track Metadata tags size").that(tags.length)
+                .isEqualTo(0);
+        assertWithMessage("Usage to Playback Track Metadata source device address")
+                .that(metadata.sourceDevice.address.getId()).isEmpty();
+    }
+
+    @Test
+    public void usageToMetadata_withZone_succeeds() {
+        PlaybackTrackMetadata playbackTrackMetadata =
+                CarHalAudioUtils.usageToMetadata(USAGE_MEDIA, mCarAudioZone);
+
+        assertWithMessage("Usage with zone to Playback Track Metadata usage")
+                .that(playbackTrackMetadata.usage).isEqualTo(USAGE_MEDIA);
+        assertWithMessage("Usage with zone to Playback Track Metadata source device address")
+                .that(playbackTrackMetadata.sourceDevice.address.getId()).isEqualTo(MEDIA_ADDRESS);
+    }
+
+    @Test
+    public void metadataToAudioAttribute_withMusic_succeeds() {
+        PlaybackTrackMetadata metadata = new PlaybackTrackMetadata();
+        metadata.usage = USAGE_MEDIA;
+        metadata.contentType = CONTENT_TYPE_MUSIC;
+        metadata.tags = new String[0];
+        metadata.channelMask = AudioChannelLayout.none(0);
+        AudioDeviceDescription audioDeviceDescription = new AudioDeviceDescription();
+        audioDeviceDescription.connection = new String();
+        AudioDevice audioDevice = new AudioDevice();
+        audioDevice.type = audioDeviceDescription;
+        audioDevice.address = AudioDeviceAddress.id("");
+        metadata.sourceDevice = audioDevice;
+
+        AudioAttributes audioAttributes = CarHalAudioUtils.metadataToAudioAttribute(metadata);
+
+        assertWithMessage("AudioAttributes converted from meta data").that(audioAttributes)
+                .isEqualTo(MUSIC_ATTRIBUTES);
+    }
+
+    @Test
+    public void metadataToAudioAttributes_withOemTags_succeeds() {
+        PlaybackTrackMetadata metadata = new PlaybackTrackMetadata();
+        metadata.usage = USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
+        metadata.contentType = CONTENT_TYPE_SPEECH;
+        String[] tagsArray = new String[1];
+        tagsArray[0] = OEM_FORMATTED_TAGS;
+        metadata.tags = tagsArray;
+        metadata.channelMask = AudioChannelLayout.none(0);
+        AudioDeviceDescription audioDeviceDescription = new AudioDeviceDescription();
+        audioDeviceDescription.connection = new String();
+        AudioDevice audioDevice = new AudioDevice();
+        audioDevice.type = audioDeviceDescription;
+        audioDevice.address = AudioDeviceAddress.id("");
+        metadata.sourceDevice = audioDevice;
+
+        AudioAttributes audioAttributes = CarHalAudioUtils.metadataToAudioAttribute(metadata);
+
+        assertWithMessage("OEM AudioAttributes converted from meta data").that(audioAttributes)
+                .isEqualTo(OEM_ATTRIBUTES);
+    }
+
+    @Test
+    public void audioAttributeToMetadata_withZone_succeeds() {
         PlaybackTrackMetadata playbackTrackMetadata =
                 CarHalAudioUtils.audioAttributeToMetadata(MEDIA_AUDIO_ATTRIBUTE, mCarAudioZone);
-        assertWithMessage("Playback Track Metadata usage")
-                .that(playbackTrackMetadata.usage)
-                .isEqualTo(USAGE_MEDIA);
-        assertWithMessage("Playback Track Metadata source device address")
-                .that(playbackTrackMetadata.sourceDevice.address.getId())
-                .isEqualTo(MEDIA_ADDRESS);
+
+        assertWithMessage("Attributes with zone to Playback Track Metadata usage")
+                .that(playbackTrackMetadata.usage).isEqualTo(USAGE_MEDIA);
+        assertWithMessage("Attributes with zone to Playback Track Metadata source device address")
+                .that(playbackTrackMetadata.sourceDevice.address.getId()).isEqualTo(MEDIA_ADDRESS);
     }
 
     @Test
@@ -158,12 +285,36 @@ public class CarHalAudioUtilsTest {
     @Test
     public void audioAttributesToMetadatas_succeeds() {
         List<PlaybackTrackMetadata> playbackTrackMetadataList =
-                CarHalAudioUtils.audioAttributesToMetadatas(AUDIO_ATTRIBUTES_HOLDING_FOCUS,
-                        mCarAudioZone);
+                CarHalAudioUtils.audioAttributesToMetadatas(AUDIO_ATTRIBUTES_HOLDING_FOCUS);
 
         assertWithMessage(
                         "Converted PlaybackTrackMetadata size for usages holding focus size %s",
                         AUDIO_ATTRIBUTES_HOLDING_FOCUS.size())
+                .that(playbackTrackMetadataList.size())
+                .isEqualTo(AUDIO_ATTRIBUTES_HOLDING_FOCUS.size());
+
+        int[] usages = new int[playbackTrackMetadataList.size()];
+        for (int index = 0; index < playbackTrackMetadataList.size(); index++) {
+            PlaybackTrackMetadata playbackTrackMetadata = playbackTrackMetadataList.get(index);
+            usages[index] = playbackTrackMetadata.usage;
+            assertWithMessage("Converted usages to PlaybackTrackMetadata addresses without zone")
+                    .that(playbackTrackMetadata.sourceDevice.address.getId()).isEmpty();
+        }
+        assertWithMessage("Converted usages to PlaybackTrackMetadata usage")
+                .that(usages)
+                .asList()
+                .containsExactly(USAGE_MEDIA, USAGE_NOTIFICATION);
+    }
+
+    @Test
+    public void audioAttributesToMetadatas_withZone_succeeds() {
+        List<PlaybackTrackMetadata> playbackTrackMetadataList =
+                CarHalAudioUtils.audioAttributesToMetadatas(AUDIO_ATTRIBUTES_HOLDING_FOCUS,
+                        mCarAudioZone);
+
+        assertWithMessage(
+                "Converted PlaybackTrackMetadata size for usages holding focus size %s",
+                AUDIO_ATTRIBUTES_HOLDING_FOCUS.size())
                 .that(playbackTrackMetadataList.size())
                 .isEqualTo(AUDIO_ATTRIBUTES_HOLDING_FOCUS.size());
 
@@ -211,7 +362,7 @@ public class CarHalAudioUtilsTest {
     }
 
     @Test
-    public void metadataToAudioAttributes_succeeds() {
+    public void metadatasToAudioAttributes_succeeds() {
         List<AudioAttributes> audioAttributesList =
                 CarHalAudioUtils.metadataToAudioAttributes(mPlaybackTrackMetadataHoldingFocus);
 
