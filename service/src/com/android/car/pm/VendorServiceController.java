@@ -552,8 +552,13 @@ final class VendorServiceController implements UserLifecycleListener {
 
             Intent intent = mVendorServiceInfo.getIntent();
             if (mVendorServiceInfo.shouldBeBound()) {
-                return mUserContext.bindService(intent, BIND_AUTO_CREATE, /* executor= */ this,
-                        /* conn= */ this);
+                boolean canBind = mUserContext.bindService(intent, BIND_AUTO_CREATE,
+                        /* executor= */ this, /* conn= */ this);
+                if (!canBind) {
+                    // Still need to unbind when an attempt to bind fails.
+                    unbindService();
+                }
+                return canBind;
             } else if (mVendorServiceInfo.shouldBeStartedInForeground()) {
                 mStarted = mUserContext.startForegroundService(intent) != null;
                 return mStarted;
@@ -570,10 +575,14 @@ final class VendorServiceController implements UserLifecycleListener {
                 mUserContext.stopService(mVendorServiceInfo.getIntent());
                 mStarted = false;
             } else if (mBound) {
-                if (DBG) Slogf.d(TAG, "Unbinding %s", this);
-                mUserContext.unbindService(this);
+                unbindService();
                 mBound = false;
             }
+        }
+
+        private void unbindService() {
+            if (DBG) Slogf.d(TAG, "Unbinding %s", this);
+            mUserContext.unbindService(this);
         }
 
         @Override // From Executor
@@ -607,7 +616,19 @@ final class VendorServiceController implements UserLifecycleListener {
             if (DBG) {
                 Slogf.d(TAG, "onBindingDied, name: " + name);
             }
+            // When a binding died, first unbind the connection and then rebind.
+            unbindService();
             tryToRebind();
+        }
+
+        @Override
+        public void onNullBinding(ComponentName name) {
+            // Null binding means that the attempted service will never become usable.
+            if (DBG) {
+                Slogf.d(TAG, "onNullBinding, name: " + name);
+            }
+            // Still need to unbind to release resource associated with the connection.
+            unbindService();
         }
 
         private void tryToRebind() {
