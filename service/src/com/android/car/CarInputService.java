@@ -194,7 +194,8 @@ public class CarInputService extends ICarInput.Stub
         }
     }
 
-    private final VoiceInteractionSessionShowCallbackHelper mShowCallback =
+    private final VoiceInteractionSessionShowCallbackHelper mShowCallback;
+    static final VoiceInteractionSessionShowCallbackHelper sDefaultShowCallback =
             new VoiceInteractionSessionShowCallbackHelper() {
                 @Override
                 public void onFailed() {
@@ -322,7 +323,7 @@ public class CarInputService extends ICarInput.Stub
                 /* longPressDelaySupplier= */ () -> getViewLongPressDelay(context),
                 /* shouldCallButtonEndOngoingCallSupplier= */ () -> context.getResources()
                         .getBoolean(R.bool.config_callButtonEndsOngoingCall),
-                new InputCaptureClientController(context), userManager);
+                new InputCaptureClientController(context), userManager, sDefaultShowCallback);
     }
 
     @VisibleForTesting
@@ -333,8 +334,8 @@ public class CarInputService extends ICarInput.Stub
             KeyEventListener defaultKeyHandler, MotionEventListener defaultMotionHandler,
             Supplier<String> lastCalledNumberSupplier, IntSupplier longPressDelaySupplier,
             BooleanSupplier shouldCallButtonEndOngoingCallSupplier,
-            InputCaptureClientController captureController,
-            UserManager userManager) {
+            InputCaptureClientController captureController, UserManager userManager,
+            VoiceInteractionSessionShowCallbackHelper showCallback) {
         mContext = context;
         mCaptureController = captureController;
         mInputHalService = inputHalService;
@@ -349,6 +350,7 @@ public class CarInputService extends ICarInput.Stub
         mLastCalledNumberSupplier = lastCalledNumberSupplier;
         mLongPressDelaySupplier = longPressDelaySupplier;
         mUserManager = userManager;
+        mShowCallback = showCallback;
 
         mVoiceKeyTimer =
                 new KeyPressTimer(

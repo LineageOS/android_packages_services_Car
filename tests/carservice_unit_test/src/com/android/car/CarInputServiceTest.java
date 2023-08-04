@@ -45,6 +45,7 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.CarProjectionManager;
 import android.car.VehicleAreaSeat;
 import android.car.builtin.util.AssistUtilsHelper;
+import android.car.builtin.util.AssistUtilsHelper.VoiceInteractionSessionShowCallbackHelper;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.ICarInputCallback;
@@ -131,6 +132,14 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
     private static final int DRIVER_SEAT = VehicleAreaSeat.SEAT_ROW_1_LEFT;
     private static final int PASSENGER_SEAT = VehicleAreaSeat.SEAT_ROW_1_RIGHT;
 
+    // CarInputService#sDefaultShowCallback() prints out some Slog message which can be conflicted
+    // with AbstractExtendedMockitoTestCase#interceptWtfCalls (b/294138315).
+    private static final VoiceInteractionSessionShowCallbackHelper sShowCallback =
+            new VoiceInteractionSessionShowCallbackHelper() {
+                @Override public void onFailed() {}
+                @Override public void onShown() {}
+            };
+
     public CarInputServiceTest() {
         super(CarInputService.TAG);
     }
@@ -141,7 +150,8 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
                 mCarOccupantZoneService, mCarBluetoothService, mCarPowerManagementService,
                 mSystemInterface, mHandler, mTelecomManager, mDefaultKeyEventMainListener,
                 mDefaultMotionEventMainListener, mLastCallSupplier, mLongPressDelaySupplier,
-                mShouldCallButtonEndOngoingCallSupplier, mCaptureController, mUserManager);
+                mShouldCallButtonEndOngoingCallSupplier, mCaptureController, mUserManager,
+                sShowCallback);
 
         mCarInputService.setInstrumentClusterKeyListener(mInstrumentClusterKeyListener);
 
