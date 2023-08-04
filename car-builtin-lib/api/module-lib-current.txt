@@ -213,6 +213,7 @@ package android.car.builtin.media {
     method public static android.car.builtin.media.AudioManagerHelper.AudioGainInfo getAudioGainInfo(@NonNull android.media.AudioDeviceInfo);
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static String getFormattedTags(@NonNull android.media.AudioAttributes);
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static int getLastAudibleVolumeGroupVolume(@NonNull android.media.AudioManager, int);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static java.util.Set<java.lang.String> getTags(@NonNull android.media.AudioAttributes);
     method public static int getUsageVirtualSource();
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static int getVolumeGroupIdForAudioAttributes(@NonNull android.media.audiopolicy.AudioProductStrategy, @NonNull android.media.AudioAttributes);
     method public static boolean isCallFocusRequestClientId(String);

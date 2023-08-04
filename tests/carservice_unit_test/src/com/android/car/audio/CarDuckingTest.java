@@ -24,6 +24,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -356,6 +357,7 @@ public final class CarDuckingTest {
 
         CarAudioZone passengerZone = mock(CarAudioZone.class);
         when(passengerZone.getId()).thenReturn(PASSENGER_ZONE_ID);
+        when(passengerZone.getAddressForContext(anyInt())).thenReturn("");
         when(passengerZone.getCarAudioContext()).thenReturn(TEST_CAR_AUDIO_CONTEXT);
         zones.append(PASSENGER_ZONE_ID, passengerZone);
 
