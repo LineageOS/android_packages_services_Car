@@ -34,6 +34,7 @@ import com.android.car.internal.PropertyPermissionMapping;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarPropertyConfigList;
+import com.android.car.internal.property.CarSubscribeOption;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
@@ -74,6 +75,12 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
         }
 
         propListeners.add(new ListenerInfo(listener));
+    }
+
+    @Override
+    public void registerListenerWithSubscribeOptions(List<CarSubscribeOption> subscribeOptions,
+            ICarPropertyEventListener iCarPropertyEventListener) {
+        // TODO(b/291975137): Change mListeners to propertyId, areaId mapping to listener
     }
 
     @Override

@@ -24,6 +24,7 @@ import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
+import com.android.car.internal.property.CarSubscribeOption;
 
 /**
  * @hide
@@ -66,4 +67,7 @@ interface ICarProperty {
     void setPropertiesAsync(in AsyncPropertyServiceRequestList asyncPropertyServiceRequests,
                 in IAsyncPropertyResultCallback asyncPropertyResultCallback,
                 long timeoutInMs) = 10;
+
+    void registerListenerWithSubscribeOptions(in List<CarSubscribeOption> subscribeOptions,
+                in ICarPropertyEventListener callback) = 11;
 }

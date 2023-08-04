@@ -57,6 +57,7 @@ import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.internal.property.CarPropertyHelper;
+import com.android.car.internal.property.CarSubscribeOption;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
 import com.android.car.internal.util.ArrayUtils;
@@ -317,6 +318,13 @@ public class CarPropertyService extends ICarProperty.Stub
         // propertyConfig and client are NonNull.
         mHandler.post(() ->
                 getAndDispatchPropertyInitValue(carPropertyConfig, finalClient));
+    }
+
+    @Override
+    public void registerListenerWithSubscribeOptions(List<CarSubscribeOption> subscribeOptions,
+            ICarPropertyEventListener iCarPropertyEventListener) {
+        // TODO(b/291975137): Check if parameters are valid, create a client for the subscription
+        //  values, and call into PropertyHalService
     }
 
     /**

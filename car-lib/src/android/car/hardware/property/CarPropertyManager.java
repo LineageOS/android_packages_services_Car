@@ -1130,10 +1130,10 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * Register {@link CarPropertyEventCallback} to get property updates. Multiple callbacks
-     * can be registered for a single property or the same callback can be used for different
-     * properties. If the same callback is registered again for the same property, it will be
-     * updated to new {@code updateRateHz}.
+     * Registers {@link CarPropertyEventCallback} to get property updates.
+     * Multiple callbacks can be registered for a single property or the same callback can be used
+     * for different properties. If the same callback is registered again for the same property,
+     * it will be updated to new {@code updateRateHz}.
      *
      * <p>Rate could be one of the following:
      * <ul>
@@ -1152,9 +1152,9 @@ public class CarPropertyManager extends CarManagerBase {
      * </ul>
      *
      * <p>
-     * <b>Note:</b> If listener registers a callback for updates for a property for the first time,
-     * it will receive the property's current value via a change event upon registration if the
-     * property's value is currently available for reading. If the property is currently not
+     * <b>Note:</b> If the client registers a callback for updates for a property for the first
+     * time, it will receive the property's current value via a change event upon registration if
+     * the property's value is currently available for reading. If the property is currently not
      * available for reading or in error state, a property change event with a unavailable or
      * error status will be generated.
      *
@@ -1192,6 +1192,7 @@ public class CarPropertyManager extends CarManagerBase {
     @SuppressWarnings("FormatString")
     public boolean registerCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback,
             int propertyId, @FloatRange(from = 0.0, to = 100.0) float updateRateHz) {
+        // TODO(b/293201348): Call subscribePropertyEvents once the API is fully implemented.
         if (DBG) {
             Log.d(TAG, String.format("registerCallback, callback: %s propertyId: %s, "
                     + "updateRateHz: %f", carPropertyEventCallback,
@@ -1227,6 +1228,76 @@ public class CarPropertyManager extends CarManagerBase {
             }
         }
         return registerSuccessful;
+    }
+
+    /**
+     * Registers {@link CarPropertyEventCallback} to get PropertyId updates. Multiple callbacks can
+     * be registered for a single [PropertyId, areaId] or the same callback can be used for
+     * different [PropertyId, areaId]s. If the same callback is registered again for the same
+     * [PropertyId, areaId], it will be updated to new {@code updateRateHz}. If the
+     * {@code callbackExecutor} is {@code null}, the callback will be executed on the default event
+     * handler thread. If no areaIds are specified, then it will subscribe to all areaIds for that
+     * PropertyId.
+     *
+     * <p>
+     * <b>Note:</b>Rate has no effect if the PropertyId has change mode
+     * {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *
+     * <p> If a property has the change mode
+     * {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC},
+     * {@link IllegalArgumentException} will be thrown.
+     *
+     * <p>
+     * <b>Note:</b> When a client registers to receive updates for a PropertyId for the
+     * first time, it will receive the current value of the PropertyId through a change
+     * event for the specified areaId if the PropertyId is currently available to be
+     * reading. If the PropertyId is currently not available for reading or in error state,
+     * a PropertyId change event with a unavailable or error status will be generated
+     *
+     * <p>For properties that might be unavailable for reading because their power state is off,
+     * PropertyId change events containing the PropertyId's initial value will be
+     * generated once their power state is on.
+     *
+     * <p>If the update rate specified in the {@code SubscribeOptions} for a given PropertyId is
+     * higher than the PropertyId's maximum sample rate, the subscription will be registered at the
+     * PropertyId's maximum sample rate specified by {@link CarPropertyConfig#getMaxSampleRate()}.
+
+     * <p>If the update rate specified in the {@code SubscribeOptions} for a given PropertyId is
+     * lower than the PropertyId's minimum sample rate, the subscription will be registered at the
+     * PropertyId's minimum sample rate specified by {@link CarPropertyConfig#getMinSampleRate()}.
+     *
+     * <p>It is allowed to have the same PropertyId in different {@link SubscriptionOption}s
+     * provided in one call. However, they must have non-overlapping areaIds. A.k.a., one
+     * [PropertyId, areaId] must only be associated with one {@link SubscriptionOption}. Otherwise,
+     * {@link IllegalArgumentException} will be thrown.
+     *
+     * <p>
+     * <b>Note:</b>Caller must check the value of {@link CarPropertyValue#getStatus()} for
+     * PropertyId change events and only use {@link CarPropertyValue#getValue()} when
+     * {@link CarPropertyValue#getStatus()} is {@link CarPropertyValue#STATUS_AVAILABLE}. If not,
+     * the {@link CarPropertyValue#getValue()} is meaningless.
+     *
+     * <p>
+     * <b>Note:</b>A PropertyId change event may/may not happen when the PropertyId's status
+     * changes. Caller should not depend on the change event to check PropertyId's status. For
+     * properties that might be unavailable because they depend on certain power state, caller
+     * should subscribe to the power state PropertyId (e.g. {@link VehiclePropertyIds#HVAC_POWER_ON}
+     * for hvac power dependent properties) to decide this PropertyId's availability.
+     *
+     * @param subscribeOptions The subscribe options, which includes propertyID, areaID, and
+     *                         updateRateHz.
+     * @param carPropertyEventCallback The callback to deliver property update events.
+     * @return {@code true} if the listener is successfully registered
+     * @throws SecurityException if missing the appropriate permission.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.VANILLA_ICE_CREAM_0)
+    public boolean subscribePropertyEvents(@NonNull List<SubscriptionOption> subscribeOptions,
+            @Nullable Executor callbackExecutor,
+            @NonNull CarPropertyEventCallback carPropertyEventCallback) {
+        // TODO(b/291975137): Call CarPropertyEventCallbackController
+        // TODO(b/292620314): Guard this API with a flag
+        return false;
     }
 
     private static class CarPropertyEventListenerToService extends ICarPropertyEventListener.Stub {
