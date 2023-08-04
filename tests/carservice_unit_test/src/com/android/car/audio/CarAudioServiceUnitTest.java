@@ -191,7 +191,6 @@ import com.android.car.test.utils.TemporaryFile;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -4153,7 +4152,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    @Ignore("TODO(b/294137351): Fix mirror config callback sequence")
     public void disableAudioMirrorForZone_forMirroringZones_forFirstMirroringConfig()
             throws Exception {
         mCarAudioService.init();
@@ -4248,7 +4246,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    @Ignore("TODO(b/294137351): Fix mirror config callback sequence")
     public void disableAudioMirror_forMirroringZones() throws Exception {
         mCarAudioService.init();
         TestAudioZonesMirrorStatusCallbackCallback callback =
