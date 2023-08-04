@@ -21,6 +21,7 @@ package android.car.remoteaccess;
  *
  * @hide
  */
+@JavaDerive(equals = true, toString = true)
 parcelable TaskScheduleInfo {
     // The unique ID for this schedule.
     String scheduleId;

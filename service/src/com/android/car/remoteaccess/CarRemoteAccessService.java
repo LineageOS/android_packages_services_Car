@@ -34,6 +34,7 @@ import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.remoteaccess.ICarRemoteAccessCallback;
 import android.car.remoteaccess.ICarRemoteAccessService;
 import android.car.remoteaccess.RemoteTaskClientRegistrationInfo;
+import android.car.remoteaccess.TaskScheduleInfo;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserLifecycleEventFilter;
 import android.content.ComponentName;
@@ -582,6 +583,57 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         Slogf.i(TAG, "All active tasks removed for uid: %s, after %d ms, check whether we should "
                 + "shutdown", uidName, mTaskUnbindDelayMs);
         mHandler.postMaybeShutdown(/* delayMs= */ mTaskUnbindDelayMs);
+    }
+
+    /**
+     * {@link android.car.remoteaccess.CarRemoteAccessManager#isTaskScheduleSupported}
+     */
+    @Override
+    public boolean isTaskScheduleSupported() {
+        // TODO(282792374): Implement this.
+        return false;
+    }
+
+    /**
+     * {@link android.car.remoteaccess.CarRemoteAccessManager#scheduleTask}
+     */
+    @Override
+    public void scheduleTask(TaskScheduleInfo scheduleInfo) {
+        // TODO(282792374): Implement this.
+    }
+
+    /**
+     * {@link android.car.remoteaccess.CarRemoteAccessManager#unscheduleTask}
+     */
+    @Override
+    public void unscheduleTask(String scheduleId) {
+        // TODO(282792374): Implement this.
+    }
+
+    /**
+     * {@link android.car.remoteaccess.CarRemoteAccessManager#unscheduleAllTasks}
+     */
+    @Override
+    public void unscheduleAllTasks() {
+        // TODO(282792374): Implement this.
+    }
+
+    /**
+     * {@link android.car.remoteaccess.CarRemoteAccessManager#isTaskScheduled}
+     */
+    @Override
+    public boolean isTaskScheduled(String scheduleId) {
+        // TODO(282792374): Implement this.
+        return false;
+    }
+
+    /**
+     * {@link android.car.remoteaccess.CarRemoteAccessManager#getAllScheduledTasks}
+     */
+    @Override
+    public List<TaskScheduleInfo> getAllScheduledTasks() {
+        // TODO(282792374): Implement this.
+        return null;
     }
 
     @GuardedBy("mLock")
