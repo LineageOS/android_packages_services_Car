@@ -17,6 +17,7 @@
 package com.google.android.car.kitchensink;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.View;
 
@@ -26,34 +27,39 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.car.ui.recyclerview.CarUiListItemAdapter;
 import com.android.car.ui.recyclerview.CarUiRecyclerView;
+import com.android.car.ui.widget.CarUiTextView;
 
 import java.util.List;
 
 /** RecyclerView adapter that supports single-preference highlighting. */
 public class HighlightableAdapter extends CarUiListItemAdapter {
 
+    public static final int NO_NORMAL_BACKGROUND = -1;
     @DrawableRes
     private final int mNormalBackgroundRes;
     @DrawableRes
     private final int mHighlightBackgroundRes;
+    private Context mContext;
     private int mHighlightPosition = RecyclerView.NO_POSITION;
     private final List<FragmentListItem> mListItems;
 
     public HighlightableAdapter(Context context, List<FragmentListItem> data) {
-        super(data);
-        mListItems = data;
-        TypedValue outValue = new TypedValue();
-        context.getTheme().resolveAttribute(android.R.attr.selectableItemBackground,
-                outValue, /* resolveRefs= */ true);
-        mNormalBackgroundRes = outValue.resourceId;
-        mHighlightBackgroundRes = R.drawable.preference_highlight_default;
+        this(context, data, NO_NORMAL_BACKGROUND, R.drawable.preference_highlight_default);
     }
 
     public HighlightableAdapter(Context context, List<FragmentListItem> data,
             @DrawableRes int normalBackgroundRes, @DrawableRes int highlightBackgroundRes) {
         super(data);
+        mContext = context;
         mListItems = data;
-        mNormalBackgroundRes = normalBackgroundRes;
+        if (normalBackgroundRes == NO_NORMAL_BACKGROUND) {
+            TypedValue outValue = new TypedValue();
+            context.getTheme().resolveAttribute(android.R.attr.selectableItemBackground,
+                    outValue, /* resolveRefs= */ true);
+            mNormalBackgroundRes = outValue.resourceId;
+        } else {
+            mNormalBackgroundRes = normalBackgroundRes;
+        }
         mHighlightBackgroundRes = highlightBackgroundRes;
     }
 
@@ -61,6 +67,14 @@ public class HighlightableAdapter extends CarUiListItemAdapter {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         holder.itemView.setSelected(mHighlightPosition == position);
+        holder.itemView.getLayoutParams().height = mContext.getResources().getDimensionPixelSize(
+                R.dimen.top_level_preference_height);
+
+        CarUiTextView titleView = holder.itemView.findViewById(R.id.car_ui_list_item_title);
+        if (titleView != null) {
+            titleView.setEllipsize(TextUtils.TruncateAt.END);
+            titleView.setSingleLine(true);
+        }
         updateBackground(holder, position);
     }
 
@@ -75,24 +89,23 @@ public class HighlightableAdapter extends CarUiListItemAdapter {
 
 
     /**
-     * Requests that a particular preference be highlighted. This will remove the highlight from
-     * the previously highlighted preference.
+     * Requests that a particular list item be highlighted. This will remove the highlight from
+     * the previously highlighted item.
      */
-    public void requestHighlight(View root, CarUiRecyclerView recyclerView, int position) {
+    public void requestHighlight(View root, CarUiRecyclerView recyclerView, int newPosition) {
         if (root == null || recyclerView == null) {
             return;
         }
-        if (position < 0) {
+        if (newPosition < 0) {
             // Item is not in the list - clearing the previous highlight without setting a new one.
             clearHighlight(root);
             return;
         }
         root.post(() -> {
-            recyclerView.scrollToPosition(position);
-            int oldPosition = mHighlightPosition;
-            mHighlightPosition = position;
-            notifyItemChanged(oldPosition);
-            notifyItemChanged(position);
+            notifyItemChanged(mHighlightPosition);
+            recyclerView.scrollToPosition(newPosition);
+            notifyItemChanged(newPosition);
+            mHighlightPosition = newPosition;
         });
     }
 

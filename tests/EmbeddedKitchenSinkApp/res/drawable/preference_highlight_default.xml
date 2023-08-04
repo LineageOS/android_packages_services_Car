@@ -14,5 +14,11 @@
   ~ limitations under the License.
   -->
 
-<color xmlns:android="http://schemas.android.com/apk/res/android"
-       android:color="@*android:color/car_card_ripple_background"/>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/car_top_level_highlight"/>
+            <corners android:radius="@dimen/top_level_preference_corner_radius"/>
+        </shape>
+    </item>
+</selector>
