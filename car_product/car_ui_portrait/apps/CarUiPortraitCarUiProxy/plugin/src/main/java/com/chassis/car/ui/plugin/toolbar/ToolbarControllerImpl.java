@@ -150,6 +150,8 @@ public class ToolbarControllerImpl implements ToolbarController {
         updateOverflowDialog(item);
         update();
     };
+    private Consumer<TextView> mSearchTextViewConsumer = null;
+    private BiConsumer<String, Bundle> mOnPrivateImeCommandListener = null;
 
 
     public ToolbarControllerImpl(View view, Context pluginContext) {
@@ -734,16 +736,30 @@ public class ToolbarControllerImpl implements ToolbarController {
     }
 
     private void createOverflowDialog() {
+        // Need to check if overflow dialog is showing before the new AlertDialog is created
+        // because it will return false when checked after
+        boolean isShowing = mOverflowDialog == null ? false : mOverflowDialog.isShowing();
+
         mUiOverflowItems.clear();
         for (MenuItem menuItem : mOverflowItems) {
             if (menuItem.isVisible()) {
                 mUiOverflowItems.add(toCarUiContentListItem(menuItem));
             }
         }
-
         mOverflowDialog = new AlertDialogBuilder(getContext())
                 .setAdapter(mOverflowAdapter)
                 .create();
+
+        // When show() is called on a dialog, it is created from scratch. This means the underlying
+        // list of the dialog is instantiated and the corresponding adapter is set on it. So, any
+        // changes to the data of the dialog's list's adapter prior to the call to show() will be
+        // be shown on screen. Previously, if the dialog was being shown and the data of the adapter
+        // was changed (i.e., setMenuItems ->  setMenuItemsInternal -> createOverflowDialog), the
+        // data of the adapter would change without show() being called, causing the updated data to
+        // not be reflected on screen. So, call notifyDataSetChanged if the dialog is being shown.
+        if (isShowing) {
+            mOverflowAdapter.notifyDataSetChanged();
+        }
     }
 
     private void updateOverflowDialog(MenuItem changedItem) {
@@ -979,6 +995,16 @@ public class ToolbarControllerImpl implements ToolbarController {
         searchView.setSearchConfig(mSearchConfigForWidescreen);
 
         mSearchView = searchView;
+
+        // These consumers should only be set once search view has been inflated
+        if (mSearchTextViewConsumer != null) {
+            mSearchView.setSearchTextViewConsumer(
+                    (TextView tv) -> mSearchTextViewConsumer.accept(tv));
+        }
+        if (mOnPrivateImeCommandListener != null) {
+            mSearchView.setOnPrivateImeCommandListener(
+                    (String s, Bundle b) -> mOnPrivateImeCommandListener.accept(s, b));
+        }
     }
 
     /**
@@ -1174,29 +1200,13 @@ public class ToolbarControllerImpl implements ToolbarController {
             @Override
             public void setSearchTextViewConsumer(
                     @Nullable com.android.car.ui.plugin.oemapis.Consumer<TextView> consumer) {
-                if (mSearchView == null) {
-                    return;
-                }
-                mSearchView.setSearchTextViewConsumer(new Consumer<TextView>() {
-                    @Override
-                    public void accept(TextView textView) {
-                        consumer.accept(textView);
-                    }
-                });
+                mSearchTextViewConsumer = (TextView tv) -> consumer.accept(tv);
             }
 
             @Override
             public void setOnPrivateImeCommandListener(@Nullable
                     com.android.car.ui.plugin.oemapis.BiConsumer<String, Bundle> biConsumer) {
-                if (mSearchView == null) {
-                    return;
-                }
-                mSearchView.setOnPrivateImeCommandListener(new BiConsumer<String, Bundle>() {
-                    @Override
-                    public void accept(String s, Bundle b) {
-                        biConsumer.accept(s, b);
-                    }
-                });
+                mOnPrivateImeCommandListener = (String s, Bundle b) -> biConsumer.accept(s, b);
             }
         };
     }

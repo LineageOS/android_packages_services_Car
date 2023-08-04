@@ -24,6 +24,7 @@ import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.android.car.ui.plugin.oemapis.Consumer;
@@ -31,25 +32,92 @@ import com.android.car.ui.plugin.oemapis.FocusAreaOEMV1;
 import com.android.car.ui.plugin.oemapis.FocusParkingViewOEMV1;
 import com.android.car.ui.plugin.oemapis.Function;
 import com.android.car.ui.plugin.oemapis.InsetsOEMV1;
-import com.android.car.ui.plugin.oemapis.PluginFactoryOEMV4;
+import com.android.car.ui.plugin.oemapis.toolbar.ToolbarControllerOEMV1;
+import com.android.car.ui.plugin.oemapis.toolbar.ToolbarControllerOEMV2;
+import com.android.car.ui.plugin.oemapis.toolbar.ToolbarControllerOEMV3;
 
 import com.chassis.car.ui.plugin.R;
 
 /**
- * A helper class for implementing installBaseLayoutAround from {@link PluginFactoryOEMV4}
+ * A helper class for implementing installBaseLayoutAround from {@code PluginFactory}
  */
 public class BaseLayoutInstaller {
 
     private static int sBaseLayoutId = 0;
 
     /**
-     * Implementation of installBaseLayoutAround from
-     * {@link PluginFactoryOEMV4}
+     * Installs the base layout around the contentView. Optionally installs a toolbar and returns
+     * an implementation of {@code ToolbarControllerOEMV1} if the toolbar is enabled.
      */
-    public static ToolbarControllerImpl installBaseLayoutAround(
-            Context pluginContext,
-            View contentView,
-            Consumer<InsetsOEMV1> insetsChangedListener,
+    @Nullable
+    public static ToolbarControllerOEMV1 installBaseLayoutAroundV1(
+            @NonNull Context pluginContext,
+            @NonNull View contentView,
+            @Nullable java.util.function.Consumer<InsetsOEMV1> insetsChangedListener,
+            boolean toolbarEnabled,
+            boolean fullscreen,
+            @Nullable java.util.function.Function<Context, FocusParkingViewOEMV1>
+                    focusParkingViewFactory,
+            @Nullable java.util.function.Function<Context, FocusAreaOEMV1> focusAreaFactory) {
+        ToolbarControllerImpl toolbarControllerImpl = installBaseLayoutAround(
+                pluginContext, contentView, insetsChangedListener != null
+                        ? (Consumer<InsetsOEMV1>) insets -> insetsChangedListener.accept(insets)
+                        : null, toolbarEnabled, fullscreen,
+                focusParkingViewFactory != null ? ((Function<Context, FocusParkingViewOEMV1>)
+                context -> focusParkingViewFactory.apply(context)) : null,
+                focusAreaFactory != null ? ((Function<Context, FocusAreaOEMV1>)
+                context -> focusAreaFactory.apply(context)) : null);
+        return !toolbarEnabled ? null : new ToolbarAdapterProxyV1(pluginContext,
+                toolbarControllerImpl);
+    }
+
+    /**
+     * Installs the base layout around the contentView. Optionally installs a toolbar and returns
+     * an implementation of {@code ToolbarControllerOEMV2} if the toolbar is enabled.
+     */
+    @Nullable
+    public static ToolbarControllerOEMV2 installBaseLayoutAroundV2(
+            @NonNull Context pluginContext,
+            @NonNull View contentView,
+            @Nullable Consumer<InsetsOEMV1> insetsChangedListener,
+            boolean toolbarEnabled,
+            boolean fullscreen,
+            @Nullable Function<Context, FocusParkingViewOEMV1> focusParkingViewFactory,
+            @Nullable Function<Context, FocusAreaOEMV1> focusAreaFactory) {
+        ToolbarControllerImpl toolbarControllerImpl = installBaseLayoutAround(
+                pluginContext, contentView, insetsChangedListener, toolbarEnabled, fullscreen,
+                focusParkingViewFactory, focusAreaFactory);
+        return !toolbarEnabled ? null : new ToolbarAdapterProxyV2(pluginContext,
+                toolbarControllerImpl);
+    }
+
+    /**
+     * Installs the base layout around the contentView. Optionally installs a toolbar and returns
+     * an implementation of {@code ToolbarControllerOEMV3} if the toolbar is enabled.
+     */
+    @Nullable
+    public static ToolbarControllerOEMV3 installBaseLayoutAroundV3(
+            @NonNull Context pluginContext,
+            @NonNull View contentView,
+            @Nullable Consumer<InsetsOEMV1> insetsChangedListener,
+            boolean toolbarEnabled,
+            boolean fullscreen,
+            @Nullable Function<Context, FocusParkingViewOEMV1> focusParkingViewFactory,
+            @Nullable Function<Context, FocusAreaOEMV1> focusAreaFactory) {
+        ToolbarControllerImpl toolbarControllerImpl = installBaseLayoutAround(
+                pluginContext, contentView, insetsChangedListener, toolbarEnabled, fullscreen,
+                focusParkingViewFactory, focusAreaFactory);
+        return !toolbarEnabled ? null : new ToolbarAdapterProxyV3(pluginContext,
+                toolbarControllerImpl);
+    }
+
+    /**
+     * Implementation of installBaseLayoutAround from {@code PluginFactory}
+     */
+    private static ToolbarControllerImpl installBaseLayoutAround(
+            @NonNull Context pluginContext,
+            @NonNull View contentView,
+            @Nullable Consumer<InsetsOEMV1> insetsChangedListener,
             boolean toolbarEnabled,
             boolean fullScreen,
             @Nullable Function<Context, FocusParkingViewOEMV1> focusParkingViewFactory,
