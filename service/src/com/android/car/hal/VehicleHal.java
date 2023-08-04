@@ -54,6 +54,7 @@ import com.android.car.CarSystemService;
 import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.SubscriptionClient;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.property.CarSubscribeOption;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.Lists;
 import com.android.internal.annotations.GuardedBy;
@@ -501,72 +502,94 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     public void subscribeProperty(HalServiceBase service, int property, float samplingRateHz)
             throws IllegalArgumentException {
-        subscribeProperty(service, property, samplingRateHz, new int[0]);
+        CarSubscribeOption options = new CarSubscribeOption();
+        options.propertyId = property;
+        options.areaIds = new int[0];
+        options.updateRateHz = samplingRateHz;
+        subscribeProperty(service, List.of(options));
     }
 
     /**
      * Subscribe given property. Only Hal service owning the property can subscribe it.
      *
      * @param service HalService that owns this property
-     * @param property property id (VehicleProperty)
-     * @param samplingRateHz sampling rate in Hz for continuous properties
-     * @param areaIds The areaId that is being subscribed to, if empty subscribe to all areas
+     * @param carSubscribeOptions Information needed to subscribe to VHAL
      * @throws IllegalArgumentException thrown if property is not supported by VHAL
      */
-    public void subscribeProperty(HalServiceBase service, int property, float samplingRateHz,
-            int[] areaIds) {
-        if (DBG) {
-            Slogf.d(CarLog.TAG_HAL, "subscribeProperty, service, areaIds, SamplingRateHz:"
-                    + toCarPropertyLog(property) + ", " + service + ", "
-                    + CarServiceUtils.asList(areaIds) + ", " + samplingRateHz);
+    public void subscribeProperty(HalServiceBase service, List<CarSubscribeOption>
+            carSubscribeOptions) {
+        SubscribeOptions[] subscribeOptions = createSubscribeOptions(service,
+                carSubscribeOptions);
+        if (subscribeOptions.length == 0) {
+            if (DBG) {
+                Slogf.d(CarLog.TAG_HAL, "Failed to subscribe, SubscribeOptions is length 0");
+            }
+            return;
         }
-        HalPropConfig config;
-        synchronized (mLock) {
-            config = mAllProperties.get(property);
+        try {
+            mSubscriptionClient.subscribe(subscribeOptions);
+        } catch (RemoteException | ServiceSpecificException e) {
+            Slogf.w(CarLog.TAG_HAL, "Failed to subscribe", e);
         }
+    }
 
-        if (config == null) {
-            throw new IllegalArgumentException(
-                    String.format("subscribe error: config is null for property 0x%x", property));
-        } else if (isPropertySubscribable(config)) {
-            if (areaIds.length == 0) {
-                areaIds = getAllAreaIdsFromPropertyId(config);
-            }
-            SubscribeOptions opts = new SubscribeOptions();
-            opts.propId = property;
-            opts.sampleRate = samplingRateHz;
-            int[] filteredAreaIds = filterAlreadySubscribedAreasForSampleRate(property, areaIds,
-                    samplingRateHz);
-            opts.areaIds = filteredAreaIds;
-            if (opts.areaIds.length == 0) {
-                if (DBG) {
-                    Slogf.d(CarLog.TAG_HAL, "property: " + VehiclePropertyIds.toString(property)
-                            + " is already subscribed at rate: " + samplingRateHz + " hz");
+    private SubscribeOptions[] createSubscribeOptions(HalServiceBase service,
+            List<CarSubscribeOption> carSubscribeOptions) {
+        if (DBG) {
+            Slogf.d(CarLog.TAG_HAL, "creating subscribeOptions from CarSubscribeOptions of size: "
+                    + carSubscribeOptions.size());
+        }
+        List<SubscribeOptions> subscribeOptionsList = new ArrayList<>();
+        synchronized (mLock) {
+            for (int i = 0; i < carSubscribeOptions.size(); i++) {
+                int property = carSubscribeOptions.get(i).propertyId;
+                int[] areaIds = carSubscribeOptions.get(i).areaIds;
+                float samplingRateHz = carSubscribeOptions.get(i).updateRateHz;
+
+                HalPropConfig config;
+                config = mAllProperties.get(property);
+
+                if (config == null) {
+                    throw new IllegalArgumentException("subscribe error: "
+                            + toCarPropertyLog(property) + " is not supported");
                 }
-                return;
-            }
-            synchronized (mLock) {
+
+                if (!isPropertySubscribable(config)) {
+                    Slogf.w(CarLog.TAG_HAL, "Cannot subscribe to " + toCarPropertyLog(property));
+                    continue;
+                }
+
+                if (areaIds.length == 0) {
+                    areaIds = getAllAreaIdsFromPropertyId(config);
+                }
+                SubscribeOptions opts = new SubscribeOptions();
+                opts.propId = property;
+                opts.sampleRate = samplingRateHz;
+                int[] filteredAreaIds = filterAlreadySubscribedAreasForSampleRate(property, areaIds,
+                        samplingRateHz);
+                opts.areaIds = filteredAreaIds;
+                if (opts.areaIds.length == 0) {
+                    if (DBG) {
+                        Slogf.d(CarLog.TAG_HAL, "property: " + VehiclePropertyIds.toString(property)
+                                + " is already subscribed at rate: " + samplingRateHz + " hz");
+                    }
+                    continue;
+                }
                 assertServiceOwnerLocked(service, property);
-                for (int i = 0; i < filteredAreaIds.length; i++) {
+                for (int j = 0; j < filteredAreaIds.length; j++) {
                     if (DBG) {
                         Slogf.d(CarLog.TAG_HAL, "Update subscription rate for propertyId:"
                                         + " %s, areaId: %d, SampleRateHz: %f",
-                                VehiclePropertyIds.toString(opts.propId), filteredAreaIds[i],
+                                VehiclePropertyIds.toString(opts.propId), filteredAreaIds[j],
                                 samplingRateHz);
                     }
                     mUpdateRateByPropIdAreadId.put(Pair.create(property,
-                                    filteredAreaIds[i]), samplingRateHz);
+                            filteredAreaIds[j]), samplingRateHz);
                 }
+                subscribeOptionsList.add(opts);
             }
-            try {
-                mSubscriptionClient.subscribe(new SubscribeOptions[]{opts});
-            } catch (RemoteException | ServiceSpecificException e) {
-                Slogf.w(CarLog.TAG_HAL, "Failed to subscribe to " + toCarPropertyLog(property),
-                        e);
-            }
-        } else {
-            Slogf.w(CarLog.TAG_HAL, "Cannot subscribe to " + toCarPropertyLog(property));
         }
+        return subscribeOptionsList.toArray(new SubscribeOptions[0]);
     }
 
     private int[] filterAlreadySubscribedAreasForSampleRate(int property, int[] areaIds,
