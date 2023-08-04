@@ -73,6 +73,9 @@
         <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
         <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
         <item name="android:buttonStyle">@*android:style/Widget.DeviceDefault.Button</item>
+        <item name="android:buttonBarPositiveButtonStyle">@*android:style/Widget.DeviceDefault.Button.Colored</item>
+        <item name="android:buttonBarNegativeButtonStyle">@*android:style/Widget.DeviceDefault.Button</item>
+        <item name="android:buttonBarNeutralButtonStyle">@*android:style/Widget.DeviceDefault.Button</item>
         <item name="android:selectableItemBackground">@*android:drawable/item_background</item>
         <item name="android:windowTitleStyle">?android:attr/textAppearanceLarge</item>
         <!-- Color palette -->

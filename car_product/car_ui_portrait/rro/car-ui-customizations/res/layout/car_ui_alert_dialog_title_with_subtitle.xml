@@ -31,7 +31,7 @@
         android:id="@+id/car_ui_alert_icon"
         android:layout_width="@dimen/car_ui_dialog_icon_size"
         android:layout_height="@dimen/car_ui_dialog_icon_size"
-        android:layout_marginTop="@dimen/car_alert_dialog_vertical_margin"
+        android:layout_marginBottom="@dimen/car_alert_dialog_padding"
         android:scaleType="fitCenter"
         android:tint="@color/car_ui_text_color_primary"
         android:visibility="gone"
@@ -40,25 +40,21 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/alert_dialog_margin"
-        android:layout_marginEnd="@dimen/alert_dialog_margin"
-        android:layout_marginTop="@dimen/car_alert_dialog_vertical_margin"
         android:orientation="vertical">
         <TextView
             android:id="@+id/car_ui_alert_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:layout_marginBottom="@dimen/car_alert_dialog_vertical_margin"
-            android:textAppearance="@style/TextAppearance.CarUi.AlertDialog.Title" />
+            style="@style/TextAppearance.CarUi.AlertDialog.Title" />
 
         <TextView
             android:id="@+id/car_ui_alert_subtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="start"
-            android:layout_marginBottom="@dimen/car_alert_dialog_vertical_margin"
-            android:textAppearance="@style/TextAppearance.CarUi.AlertDialog.Subtitle"/>
+            android:layout_marginTop="@dimen/car_alert_dialog_padding"
+            style="@style/TextAppearance.CarUi.AlertDialog.Subtitle"/>
     </LinearLayout>
 
     <View
