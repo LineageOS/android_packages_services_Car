@@ -16,20 +16,29 @@
 
 package android.car.app;
 
+import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresApi;
+import android.annotation.RequiresPermission;
 import android.app.ActivityManager;
+import android.car.Car;
 import android.car.annotation.ApiRequirements;
 import android.car.builtin.app.TaskInfoHelper;
 import android.car.builtin.view.ViewHelper;
+import android.content.ComponentName;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.view.SurfaceControl;
 
+import com.android.internal.annotations.GuardedBy;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -55,9 +64,17 @@ public final class RemoteCarRootTaskView extends RemoteCarTaskView {
     private final RemoteCarRootTaskViewCallback mCallback;
     private final ICarActivityService mCarActivityService;
     private final CarTaskViewController mCarTaskViewController;
-    private final RemoteCarRootTaskViewConfig mConfig;
     private final Rect mTmpRect = new Rect();
     private final RootTaskStackManager mRootTaskStackManager = new RootTaskStackManager();
+    private final Object mLock = new Object();
+    private final int mDisplayId;
+    /**
+     * List of activities that appear in this {@link RemoteCarRootTaskView}. It's initialized
+     * with the value from {@link RemoteCarRootTaskViewConfig#getAllowListedActivities()} and
+     * can be updated by {@link #updateAllowListedActivities(List)}.
+     */
+    @GuardedBy("mLock")
+    private final ArrayList<ComponentName> mAllowListedActivities;
 
     private ActivityManager.RunningTaskInfo mRootTask;
 
@@ -66,16 +83,9 @@ public final class RemoteCarRootTaskView extends RemoteCarTaskView {
         public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo, SurfaceControl leash) {
             if (mRootTask == null) {
                 mRootTask = taskInfo;
-
-                try {
-                    mCarActivityService.setPersistentActivitiesOnRootTask(
-                            mConfig.getAllowListedActivities(), TaskInfoHelper.getToken(taskInfo));
-                } catch (IllegalArgumentException | IllegalStateException | SecurityException e) {
-                    throw e;
-                } catch (ServiceSpecificException e) {
-                    throw new IllegalStateException("Car service looks crashed");
-                } catch (RemoteException | RuntimeException e) {
-                    throw new IllegalStateException("Car service looks crashed");
+                synchronized (mLock) {
+                    setPersistentActivitiesOnRootTask(mAllowListedActivities,
+                            TaskInfoHelper.getToken(taskInfo));
                 }
 
                 // If onTaskAppeared() is called, it implicitly means that super.isInitialized()
@@ -131,11 +141,14 @@ public final class RemoteCarRootTaskView extends RemoteCarTaskView {
             CarTaskViewController carTaskViewController,
             @NonNull ICarActivityService carActivityService) {
         super(context);
-        mConfig = config;
         mCallbackExecutor = callbackExecutor;
         mCallback = callback;
         mCarTaskViewController = carTaskViewController;
         mCarActivityService = carActivityService;
+        synchronized (mLock) {
+            mAllowListedActivities = new ArrayList<>(config.getAllowListedActivities());
+        }
+        mDisplayId = config.getDisplayId();
 
         mCallbackExecutor.execute(() -> mCallback.onTaskViewCreated(this));
     }
@@ -156,7 +169,7 @@ public final class RemoteCarRootTaskView extends RemoteCarTaskView {
     void onInitialized() {
         // A signal when the surface and host-side are ready. This task view initialization
         // completes after root task has been created.
-        createRootTask(mConfig.getDisplayId());
+        createRootTask(mDisplayId);
     }
 
     @Override
@@ -176,24 +189,92 @@ public final class RemoteCarRootTaskView extends RemoteCarTaskView {
         return mRootTask;
     }
 
-    RemoteCarRootTaskViewConfig getConfig() {
-        return mConfig;
-    }
-
     @Override
     public String toString() {
         return toString(/* withBounds= */ false);
+    }
+
+    /**
+     * Updates the list of activities that appear inside this {@link RemoteCarRootTaskView}.
+     *
+     * <p>Note:
+     * If an activity is already associated with another {@link RemoteCarRootTaskView}, its
+     * designation will be overridden.
+     *
+     * @param list list of {@link ComponentName} of activities to be designated to this
+     *                   {@link RemoteCarRootTaskView}
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)
+    @MainThread
+    public void updateAllowListedActivities(List<ComponentName> list) {
+        synchronized (mLock) {
+            if (mRootTask != null) {
+                List<ComponentName> activitiesToRemove = findDifferences(mAllowListedActivities,
+                        list);
+                List<ComponentName> activitiesToAdd = findDifferences(list, mAllowListedActivities);
+                setPersistentActivitiesOnRootTask(activitiesToRemove, /* launchCookie= */ null);
+                setPersistentActivitiesOnRootTask(activitiesToAdd,
+                        TaskInfoHelper.getToken(mRootTask));
+            }
+
+            mAllowListedActivities.clear();
+            mAllowListedActivities.addAll(list);
+        }
+    }
+
+    /**
+     * Returns all the {@link ComponentName}s in {@code firstList} which are not in
+     * {@code secondList}.
+     */
+    private List<ComponentName> findDifferences(List<ComponentName> firstList,
+            List<ComponentName> secondList) {
+        ArrayList<ComponentName> result = new ArrayList<>(firstList);
+        result.removeAll(secondList);
+        return result;
+    }
+
+    private void setPersistentActivitiesOnRootTask(List<ComponentName> activities,
+            IBinder launchCookie) {
+        try {
+            mCarActivityService.setPersistentActivitiesOnRootTask(activities, launchCookie);
+        } catch (IllegalArgumentException | IllegalStateException | SecurityException e) {
+            throw e;
+        } catch (ServiceSpecificException e) {
+            throw new IllegalStateException(
+                "Car service looks crashed on ServiceSpecificException " + e);
+        } catch (RemoteException | RuntimeException e) {
+            throw new IllegalStateException("Car service looks crashed on RemoteException " + e);
+        }
     }
 
     String toString(boolean withBounds) {
         if (withBounds) {
             ViewHelper.getBoundsOnScreen(this, mTmpRect);
         }
-        return TAG + " {\n"
-                + "  config=" + mConfig + "\n"
-                + "  taskId=" + (getTaskInfo() == null ? "null" : getTaskInfo().taskId) + "\n"
-                + (withBounds ? ("  boundsOnScreen=" + mTmpRect) : "")
-                + "}\n";
 
+        StringBuilder b = new StringBuilder(TAG).append(" {\n");
+
+        b.append("  mDisplayId=").append(mDisplayId);
+        b.append("\n");
+
+        b.append("  taskId=").append((getTaskInfo() == null ? "null" : getTaskInfo().taskId));
+        b.append("\n");
+
+        if (withBounds) {
+            b.append("  boundsOnScreen=").append(mTmpRect);
+            b.append("\n");
+        }
+
+        b.append("  mAllowListedActivities= [");
+        synchronized (mLock) {
+            for (ComponentName componentName : mAllowListedActivities) {
+                b.append("\n    ").append(componentName);
+            }
+        }
+        b.append("  ]}\n");
+
+        return b.toString();
     }
 }
