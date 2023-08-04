@@ -46,6 +46,7 @@ import android.car.hardware.power.ICarPowerStateListener;
 import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.remoteaccess.ICarRemoteAccessCallback;
 import android.car.remoteaccess.RemoteTaskClientRegistrationInfo;
+import android.car.test.AbstractExpectableTestCase;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.ComponentName;
@@ -57,13 +58,16 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
+import android.content.res.XmlResourceParser;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
+import android.util.Xml;
 
 import androidx.test.InstrumentationRegistry;
 
@@ -88,8 +92,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.xmlpull.v1.XmlPullParser;
 
 import java.io.File;
+import java.io.StringReader;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,7 +103,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @RunWith(MockitoJUnitRunner.class)
-public final class CarRemoteAccessServiceUnitTest {
+public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTestCase {
 
     private static final String TAG = CarRemoteAccessServiceUnitTest.class.getSimpleName();
     private static final long WAIT_TIMEOUT_MS = 5000;
@@ -109,9 +115,14 @@ public final class CarRemoteAccessServiceUnitTest {
     private static final String PERMISSION_NOT_GRANTED_PACKAGE = "life.is.beautiful";
     private static final String PERMISSION_GRANTED_PACKAGE_ONE = "we.are.the.world";
     private static final String PERMISSION_GRANTED_PACKAGE_TWO = "android.automotive.os";
+    private static final String SERVERLESS_PACKAGE = "android.car.app1";
     private static final int UID_PERMISSION_NOT_GRANTED_PACKAGE = 1;
     private static final int UID_PERMISSION_GRANTED_PACKAGE_ONE = 2;
     private static final int UID_PERMISSION_GRANTED_PACKAGE_TWO = 3;
+    private static final int UID_SERVERLESS_PACKAGE = 4;
+    private static final String CLIENT_ID_SERVERLESS = "serverless_client_1234";
+    // UID name does not necessarily equal to package name.
+    private static final String UID_NAME_SERVERLESS_PACKAGE = "android.car.app1:u1234";
     private static final String CLASS_NAME_ONE = "Hello";
     private static final String CLASS_NAME_TWO = "Best";
     private static final List<PackagePrepForTest> AVAILABLE_PACKAGES = List.of(
@@ -121,14 +132,49 @@ public final class CarRemoteAccessServiceUnitTest {
             createPackagePrepForTest(PERMISSION_GRANTED_PACKAGE_TWO,
                     CLASS_NAME_TWO, /* permissionGranted= */ true,
                     UID_PERMISSION_GRANTED_PACKAGE_TWO),
+            createPackagePrepForTest(SERVERLESS_PACKAGE,
+                    CLASS_NAME_TWO, /* permissionGranted= */ true,
+                    UID_SERVERLESS_PACKAGE),
             createPackagePrepForTest(PERMISSION_NOT_GRANTED_PACKAGE, "Happy",
                     /* permissionGranted= */ false,
                     UID_PERMISSION_NOT_GRANTED_PACKAGE)
     );
+    // Except for PERMISSION_NOT_GRANTED_PACKAGE, the other packages are valid.
+    private static final int VALID_PACKAGE_COUNT = 3;
     private static final List<ClientIdEntry> PERSISTENT_CLIENTS = List.of(
             new ClientIdEntry("12345", System.currentTimeMillis(), "we.are.the.world"),
             new ClientIdEntry("98765", System.currentTimeMillis(), "android.automotive.os")
     );
+    private static final String EMPTY_SERVERLESS_CLIENT_MAP_XML =
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+            + "<ServerlessClientMap xmlns:car=\"http://schemas.android.com/apk/res-auto\">"
+            + "</ServerlessClientMap>";
+    private static final String SERVERLESS_CLIENT_MAP_XML =
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+            + "<ServerlessClientMap xmlns:car=\"http://schemas.android.com/apk/res-auto\">"
+            + "  <ServerlessClient>"
+            + "    <ClientId>serverless_client_1234</ClientId>"
+            + "    <PackageName>android.car.app1</PackageName>"
+            + "  </ServerlessClient>"
+            + "  <ServerlessClient>"
+            + "    <ClientId>serverless_client_2345</ClientId>"
+            + "    <PackageName>android.car.app2</PackageName>"
+            + "  </ServerlessClient>"
+            + "</ServerlessClientMap>";
+    private static final String SERVERLESS_CLIENT_MAP_WITH_COMMENT_XML =
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+            + "\n"
+            + "<!-- comment -->"
+            + "<ServerlessClientMap xmlns:car=\"http://schemas.android.com/apk/res-auto\">"
+            + "  <ServerlessClient>"
+            + "    <ClientId>serverless_client_1234</ClientId>"
+            + "    <PackageName>android.car.app1</PackageName>"
+            + "  </ServerlessClient>"
+            + "  <ServerlessClient>"
+            + "    <ClientId>serverless_client_2345</ClientId>"
+            + "    <PackageName>android.car.app2</PackageName>"
+            + "  </ServerlessClient>"
+            + "</ServerlessClientMap>";
 
     private CarRemoteAccessService mService;
     private ICarRemoteAccessCallbackImpl mRemoteAccessCallback;
@@ -162,7 +208,7 @@ public final class CarRemoteAccessServiceUnitTest {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         mOldCarPowerManagementService = CarLocalServices.getService(
                 CarPowerManagementService.class);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
@@ -187,6 +233,10 @@ public final class CarRemoteAccessServiceUnitTest {
         when(mResources.getInteger(R.integer.config_notifyApStateChange_max_retry)).thenReturn(10);
         when(mResources.getInteger(R.integer.config_notifyApStateChange_retry_sleep_ms))
                 .thenReturn(100);
+        XmlResourceParser fakeXmlResourceParser = getFakeXmlResourceParser(
+                EMPTY_SERVERLESS_CLIENT_MAP_XML);
+        when(mResources.getXml(R.xml.remote_access_serverless_client_map)).thenReturn(
+                fakeXmlResourceParser);
         when(mRemoteAccessHalWrapper.getWakeupServiceName()).thenReturn(WAKEUP_SERVICE_NAME);
         when(mRemoteAccessHalWrapper.getVehicleId()).thenReturn(TEST_VEHICLE_ID);
         when(mRemoteAccessHalWrapper.getProcessorId()).thenReturn(TEST_PROCESSOR_ID);
@@ -204,6 +254,16 @@ public final class CarRemoteAccessServiceUnitTest {
                 PERMISSION_GRANTED_PACKAGE_ONE);
         when(mPackageManager.getNameForUid(UID_PERMISSION_GRANTED_PACKAGE_TWO)).thenReturn(
                 PERMISSION_GRANTED_PACKAGE_TWO);
+        when(mPackageManager.getNameForUid(UID_SERVERLESS_PACKAGE)).thenReturn(
+                UID_NAME_SERVERLESS_PACKAGE);
+        when(mPackageManager.getPackagesForUid(UID_PERMISSION_NOT_GRANTED_PACKAGE)).thenReturn(
+                new String[]{PERMISSION_NOT_GRANTED_PACKAGE});
+        when(mPackageManager.getPackagesForUid(UID_PERMISSION_GRANTED_PACKAGE_ONE)).thenReturn(
+                new String[]{PERMISSION_GRANTED_PACKAGE_ONE});
+        when(mPackageManager.getPackagesForUid(UID_PERMISSION_GRANTED_PACKAGE_TWO)).thenReturn(
+                new String[]{PERMISSION_GRANTED_PACKAGE_TWO});
+        when(mPackageManager.getPackagesForUid(UID_SERVERLESS_PACKAGE)).thenReturn(
+                new String[]{SERVERLESS_PACKAGE});
 
         mRemoteAccessCallback = new ICarRemoteAccessCallbackImpl();
         mRemoteAccessStorage = new RemoteAccessStorage(mContext, mSystemInterface,
@@ -248,29 +308,29 @@ public final class CarRemoteAccessServiceUnitTest {
     @Test
     public void testStartRemoteTaskClientService() {
         String[] packageNames = new String[]{PERMISSION_GRANTED_PACKAGE_ONE,
-                PERMISSION_GRANTED_PACKAGE_TWO};
-        String[] classNames = new String[]{CLASS_NAME_ONE, CLASS_NAME_TWO};
+                PERMISSION_GRANTED_PACKAGE_TWO, SERVERLESS_PACKAGE};
+        String[] classNames = new String[]{CLASS_NAME_ONE, CLASS_NAME_TWO, CLASS_NAME_TWO};
 
         mService.setAllowedTimeForRemoteTaskClientInitMs(100);
         runBootComplete();
         mService.init();
 
         verifyBindingStartedForPackages(packageNames, classNames);
-        verify(mContext, timeout(WAIT_TIMEOUT_MS).times(2)).unbindService(any());
+        verify(mContext, timeout(WAIT_TIMEOUT_MS).times(VALID_PACKAGE_COUNT)).unbindService(any());
     }
 
     @Test
     public void testStartRemoteTaskClientServiceUserLocked() {
         String[] packageNames = new String[]{PERMISSION_GRANTED_PACKAGE_ONE,
-                PERMISSION_GRANTED_PACKAGE_TWO};
-        String[] classNames = new String[]{CLASS_NAME_ONE, CLASS_NAME_TWO};
+                PERMISSION_GRANTED_PACKAGE_TWO, SERVERLESS_PACKAGE};
+        String[] classNames = new String[]{CLASS_NAME_ONE, CLASS_NAME_TWO, CLASS_NAME_TWO};
         when(mUserManager.isUserUnlocked(any())).thenReturn(false);
 
         runBootComplete();
         mService.init();
 
-        verify(mUserManager, times(2)).isUserUnlocked(eq(UserHandle.SYSTEM));
-        verify(mCarUserService, times(2)).addUserLifecycleListener(any(),
+        verify(mUserManager, times(VALID_PACKAGE_COUNT)).isUserUnlocked(eq(UserHandle.SYSTEM));
+        verify(mCarUserService, times(VALID_PACKAGE_COUNT)).addUserLifecycleListener(any(),
                 mUserLifecycleListenerCaptor.capture());
         verify(mContext, never()).bindServiceAsUser(any(), any(), anyInt(), any());
 
@@ -287,15 +347,13 @@ public final class CarRemoteAccessServiceUnitTest {
     // only one binding is going to happen.
     @Test
     public void testStartRemoteTaskClientServiceUserLocked_bindAgainAfterUnlock() throws Exception {
-        String[] packageNames = new String[]{PERMISSION_GRANTED_PACKAGE_ONE,
-                PERMISSION_GRANTED_PACKAGE_TWO};
         when(mUserManager.isUserUnlocked(any())).thenReturn(false);
 
         runBootComplete();
         mService.init();
 
-        verify(mUserManager, times(2)).isUserUnlocked(eq(UserHandle.SYSTEM));
-        verify(mCarUserService, times(2)).addUserLifecycleListener(any(),
+        verify(mUserManager, times(VALID_PACKAGE_COUNT)).isUserUnlocked(eq(UserHandle.SYSTEM));
+        verify(mCarUserService, times(VALID_PACKAGE_COUNT)).addUserLifecycleListener(any(),
                 mUserLifecycleListenerCaptor.capture());
         verify(mContext, never()).bindServiceAsUser(any(), any(), anyInt(), any());
 
@@ -311,13 +369,14 @@ public final class CarRemoteAccessServiceUnitTest {
         verify(mContext, never()).bindServiceAsUser(any(), any(), anyInt(), any());
 
         // Simulate user_unlock intent arrives.
-        for (int i = 0; i < packageNames.length; i++) {
+        for (int i = 0; i < VALID_PACKAGE_COUNT; i++) {
             UserLifecycleListener listener = mUserLifecycleListenerCaptor.getAllValues().get(i);
             listener.onEvent(new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED,
                     UserHandle.USER_SYSTEM));
         }
 
-        verify(mContext, times(2)).bindServiceAsUser(any(), any(), anyInt(), any());
+        verify(mContext, times(VALID_PACKAGE_COUNT)).bindServiceAsUser(
+                any(), any(), anyInt(), any());
     }
 
     @Test
@@ -327,14 +386,14 @@ public final class CarRemoteAccessServiceUnitTest {
         runBootComplete();
         mService.init();
 
-        verify(mUserManager, times(2)).isUserUnlocked(eq(UserHandle.SYSTEM));
-        verify(mCarUserService, times(2)).addUserLifecycleListener(any(), any());
+        verify(mUserManager, times(VALID_PACKAGE_COUNT)).isUserUnlocked(eq(UserHandle.SYSTEM));
+        verify(mCarUserService, times(VALID_PACKAGE_COUNT)).addUserLifecycleListener(any(), any());
         verify(mContext, never()).bindServiceAsUser(any(), any(), anyInt(), any());
 
         // Unbinding services should cancel the wait for user unlock.
         mService.unbindAllServices();
 
-        verify(mCarUserService, times(2)).removeUserLifecycleListener(any());
+        verify(mCarUserService, times(VALID_PACKAGE_COUNT)).removeUserLifecycleListener(any());
         verify(mContext, never()).unbindService(any());
 
         // Simulate a task arrives for PACKAGE_ONE which will try to start it.
@@ -345,7 +404,8 @@ public final class CarRemoteAccessServiceUnitTest {
         halCallback.onRemoteTaskRequested(clientId, data);
 
         // Should register a new receiver to wait for user unlock again.
-        verify(mCarUserService, times(3)).addUserLifecycleListener(any(), any());
+        verify(mCarUserService, times(VALID_PACKAGE_COUNT + 1))
+                .addUserLifecycleListener(any(), any());
     }
 
     @Test
@@ -418,6 +478,8 @@ public final class CarRemoteAccessServiceUnitTest {
                         && Objects.equals(mRemoteAccessCallback.getVehicleId(), TEST_VEHICLE_ID)
                         && Objects.equals(mRemoteAccessCallback.getProcessorId(), TEST_PROCESSOR_ID)
                         && mRemoteAccessCallback.getClientId() != null);
+        assertWithMessage("Non serverless client ID must be persisted in db").that(
+                mRemoteAccessStorage.getClientIdEntry(PERMISSION_GRANTED_PACKAGE_ONE)).isNotNull();
     }
 
     @Test
@@ -472,6 +534,27 @@ public final class CarRemoteAccessServiceUnitTest {
                         && Objects.equals(mRemoteAccessCallback.getVehicleId(), TEST_VEHICLE_ID)
                         && Objects.equals(mRemoteAccessCallback.getProcessorId(), TEST_PROCESSOR_ID)
                         && Objects.equals(mRemoteAccessCallback.getClientId(), expectedClientId));
+    }
+
+    @Test
+    public void testAddCarRemoteTaskClient_serverlessClient() throws Exception {
+        when(mDep.getCallingUid()).thenReturn(UID_SERVERLESS_PACKAGE);
+        XmlResourceParser fakeXmlResourceParser = getFakeXmlResourceParser(
+                SERVERLESS_CLIENT_MAP_XML);
+        when(mResources.getXml(R.xml.remote_access_serverless_client_map)).thenReturn(
+                fakeXmlResourceParser);
+
+        mService.init();
+        runBootComplete();
+
+        mService.addCarRemoteTaskClient(mRemoteAccessCallback);
+
+        PollingCheck.check("onServerlessClientRegistered should be called", WAIT_TIMEOUT_MS,
+                () -> mRemoteAccessCallback.isServerlessClientRegistered());
+        expectWithMessage("onClientRegistrationUpdated must not be called").that(
+                mRemoteAccessCallback.getClientId()).isNull();
+        expectWithMessage("Serverless remote task client ID must not be persisted in db").that(
+                mRemoteAccessStorage.getClientIdEntry(SERVERLESS_PACKAGE)).isNull();
     }
 
     @Test
@@ -808,12 +891,12 @@ public final class CarRemoteAccessServiceUnitTest {
                 /* isWakeupRequired= */ false);
         verify(mCarPowerManagementService).finished(eq(CarPowerManager.STATE_SHUTDOWN_PREPARE),
                 any());
-        verify(mContext, times(2)).unbindService(any());
+        verify(mContext, times(VALID_PACKAGE_COUNT)).unbindService(any());
 
         // Unbind service multiple times must do nothing.
         powerStateListener.onStateChanged(CarPowerManager.STATE_SHUTDOWN_PREPARE, 0);
 
-        verify(mContext, times(2)).unbindService(any());
+        verify(mContext, times(VALID_PACKAGE_COUNT)).unbindService(any());
     }
 
     @Test
@@ -1105,6 +1188,61 @@ public final class CarRemoteAccessServiceUnitTest {
                 () -> mRemoteAccessCallback.getTaskId() != null);
     }
 
+    private XmlResourceParser getFakeXmlResourceParser(String xmlContent) throws Exception {
+        XmlPullParser parser = Xml.newPullParser();
+        parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+        parser.setInput(new StringReader(xmlContent));
+        // XmlResourceParser has additional functions than XmlPullParser so we have to wrap it here.
+        XmlResourceParser fakeXmlResourceParser = mock(XmlResourceParser.class);
+        when(fakeXmlResourceParser.next()).thenAnswer(i -> parser.next());
+        when(fakeXmlResourceParser.nextTag()).thenAnswer(i -> parser.nextTag());
+        when(fakeXmlResourceParser.getEventType()).thenAnswer(i -> parser.getEventType());
+        when(fakeXmlResourceParser.getName()).thenAnswer(i -> parser.getName());
+        when(fakeXmlResourceParser.getText()).thenAnswer(i -> parser.getText());
+        doAnswer(i -> {
+            parser.require((int) i.getArguments()[0], (String) i.getArguments()[1],
+                    (String) i.getArguments()[2]);
+            return null;
+        }).when(fakeXmlResourceParser).require(anyInt(), any(), any());
+        return fakeXmlResourceParser;
+    }
+
+    @Test
+    public void testParseServerlessClientMap() throws Exception {
+        XmlResourceParser fakeXmlResourceParser = getFakeXmlResourceParser(
+                SERVERLESS_CLIENT_MAP_XML);
+        when(mResources.getXml(R.xml.remote_access_serverless_client_map)).thenReturn(
+                fakeXmlResourceParser);
+
+        mService.init();
+
+        ArrayMap<String, String> clientIdsByPackageName =
+                mService.getServerlessClientIdsByPackageName();
+        assertWithMessage("clientIdsByPackageName").that(clientIdsByPackageName).hasSize(2);
+        expectWithMessage("client ID for package 1").that(
+                clientIdsByPackageName.get("android.car.app1")).isEqualTo("serverless_client_1234");
+        expectWithMessage("client ID for package 2").that(
+                clientIdsByPackageName.get("android.car.app2")).isEqualTo("serverless_client_2345");
+    }
+
+    @Test
+    public void testParseServerlessClientMapWithComment() throws Exception {
+        XmlResourceParser fakeXmlResourceParser = getFakeXmlResourceParser(
+                SERVERLESS_CLIENT_MAP_WITH_COMMENT_XML);
+        when(mResources.getXml(R.xml.remote_access_serverless_client_map)).thenReturn(
+                fakeXmlResourceParser);
+
+        mService.init();
+
+        ArrayMap<String, String> clientIdsByPackageName =
+                mService.getServerlessClientIdsByPackageName();
+        assertWithMessage("clientIdsByPackageName").that(clientIdsByPackageName).hasSize(2);
+        expectWithMessage("client ID for package 1").that(
+                clientIdsByPackageName.get("android.car.app1")).isEqualTo("serverless_client_1234");
+        expectWithMessage("client ID for package 2").that(
+                clientIdsByPackageName.get("android.car.app2")).isEqualTo("serverless_client_2345");
+    }
+
     private ICarPowerStateListener getCarPowerStateListener() {
         ArgumentCaptor<ICarPowerStateListener> internalListenerCaptor =
                 ArgumentCaptor.forClass(ICarPowerStateListener.class);
@@ -1231,6 +1369,8 @@ public final class CarRemoteAccessServiceUnitTest {
         private boolean mShutdownStarting;
         @GuardedBy("mLock")
         private int mTaskMaxDurationInSec;
+        @GuardedBy("mLock")
+        private boolean mServerlessClientRegistered;
 
         @Override
         public void onClientRegistrationUpdated(RemoteTaskClientRegistrationInfo info) {
@@ -1239,6 +1379,13 @@ public final class CarRemoteAccessServiceUnitTest {
                 mVehicleId = info.getVehicleId();
                 mProcessorId = info.getProcessorId();
                 mClientId = info.getClientId();
+            }
+        }
+
+        @Override
+        public void onServerlessClientRegistered() {
+            synchronized (mLock) {
+                mServerlessClientRegistered = true;
             }
         }
 
@@ -1309,6 +1456,12 @@ public final class CarRemoteAccessServiceUnitTest {
         public boolean isShutdownStarting() {
             synchronized (mLock) {
                 return mShutdownStarting;
+            }
+        }
+
+        public boolean isServerlessClientRegistered() {
+            synchronized (mLock) {
+                return mServerlessClientRegistered;
             }
         }
     }
