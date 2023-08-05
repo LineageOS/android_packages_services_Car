@@ -1992,22 +1992,11 @@ public final class VehiclePropertyIds {
     /**
      * Property to control power state of application processor.
      *
-     * <p>It is assumed that AP's power state is controller by separate power
-     * controller.
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Integer[]} property type
-     * </ul>
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * <p>Required Permission:
-     * <ul>
-     *  <li>Signature|Privileged permission "android.car.permission.CAR_POWER" to read property.
-     *  <li>Property is not writable.
-     * </ul>
+     * Deprecated, use {@link android.car.hardware.power.CarPowerManager} instead.
      */
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
     @AddedInOrBefore(majorVersion = 33)
@@ -2015,22 +2004,11 @@ public final class VehiclePropertyIds {
     /**
      * Property to report power state of application processor.
      *
-     * <p>It is assumed that AP's power state is controller by separate power
-     * controller.
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Integer[]} property type
-     * </ul>
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * <p>Required Permission:
-     * <ul>
-     *  <li>Signature|Privileged permission "android.car.permission.CAR_POWER" to read and write
-     *  property.
-     * </ul>
+     * Deprecated, use {@link android.car.hardware.power.CarPowerManager} instead.
      */
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
     @AddedInOrBefore(majorVersion = 33)
@@ -2038,23 +2016,11 @@ public final class VehiclePropertyIds {
     /**
      * Property to report bootup reason for the current power on.
      *
-     * <p>This is a static property that will not change for the whole duration until power off. For
-     * example, even if user presses power on button after automatic power on with door unlock,
-     * bootup reason must stay with {@code VehicleApPowerBootupReason#USER_UNLOCK}.
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
-     *  <li>{@code Integer} property type
-     * </ul>
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * <p>Required Permission:
-     * <ul>
-     *  <li>Signature|Privileged permission "android.car.permission.CAR_POWER" to read property.
-     *  <li>Property is not writable.
-     * </ul>
+     * Deprecated, use {@link android.car.hardware.power.CarPowerManager} instead.
      */
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
     @AddedInOrBefore(majorVersion = 33)
@@ -2062,26 +2028,11 @@ public final class VehiclePropertyIds {
     /**
      * Property to represent brightness of the display.
      *
-     * <p>Some cars have single control for the brightness of all displays and this property is to
-     * share change in that control. In cars which have displays whose brightness is controlled
-     * separately, they must use {@link #PER_DISPLAY_BRIGHTNESS}.
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Only one of {@code DISPLAY_BRIGHTNESS} and {@link #PER_DISPLAY_BRIGHTNESS} should be
-     * implemented. If both are available, {@link #PER_DISPLAY_BRIGHTNESS} is used by AAOS.
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Integer} property type
-     * </ul>
-     *
-     * <p>Required Permission:
-     * <ul>
-     *  <li>Signature|Privileged permission "android.car.permission.CAR_POWER" to read and write
-     *  property.
-     * </ul>
+     * Deprecated, use {@link android.car.hardware.power.CarPowerManager} instead.
      */
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
     @AddedInOrBefore(majorVersion = 33)
@@ -2089,26 +2040,11 @@ public final class VehiclePropertyIds {
     /**
      * Property to represent brightness of the displays which are controlled separately.
      *
-     * <p>Some cars have one or more displays whose brightness is controlled separately and this
-     * property is to inform the brightness of each passenger display. In cars where all displays'
-     * brightness is controlled together, they must use {@link #DISPLAY_BRIGHTNESS}.
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Only one of {@link #DISPLAY_BRIGHTNESS} and {@code PER_DISPLAY_BRIGHTNESS} should be
-     * implemented. If both are available, {@code PER_DISPLAY_BRIGHTNESS} is used by AAOS.
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Integer[]} property type
-     * </ul>
-     *
-     * <p>Required Permission:
-     * <ul>
-     *  <li>Signature|Privileged permission "android.car.permission.CAR_POWER" to read and write
-     *  property.
-     * </ul>
+     * Deprecated, use {@link android.car.hardware.power.CarPowerManager} instead.
      */
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -2117,13 +2053,11 @@ public final class VehiclePropertyIds {
     /**
      * Property to feed H/W input events to android.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Integer[]} property type
-     * </ul>
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     *
+     * Deprecated, use {@link android.car.input.CarInputManager} instead.
      */
     @AddedInOrBefore(majorVersion = 33)
     public static final int HW_KEY_INPUT = 289475088;
@@ -4289,22 +4223,11 @@ public final class VehiclePropertyIds {
     /**
      * OBD2 Live Sensor Data.
      *
-     * <p>Reports a snapshot of the current (live) values of the OBD2 sensors available.
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Object[]} property type
-     * </ul>
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * <p>Required Permission:
-     * <ul>
-     *  <li>Signature|Privileged permission "android.car.permission.CAR_DIAGNOSTICS" to read
-     *  property.
-     *  <li>Property is not writable.
-     * </ul>
+     * Deprecated, use {@link android.car.diagnostic.CarDiagnosticManager} instead.
      */
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
     @AddedInOrBefore(majorVersion = 33)
@@ -4312,23 +4235,11 @@ public final class VehiclePropertyIds {
     /**
      * OBD2 Freeze Frame Sensor Data.
      *
-     * <p>Reports a snapshot of the value of the OBD2 sensors available at the time that a fault
-     * occurred and was detected.
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Object[]} property type
-     * </ul>
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * <p>Required Permission:
-     * <ul>
-     *  <li>Signature|Privileged permission "android.car.permission.CAR_DIAGNOSTICS" to read
-     *  property.
-     *  <li>Property is not writable.
-     * </ul>
+     * Deprecated, use {@link android.car.diagnostic.CarDiagnosticManager} instead.
      */
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
     @AddedInOrBefore(majorVersion = 33)
@@ -4336,20 +4247,11 @@ public final class VehiclePropertyIds {
     /**
      * OBD2 Freeze Frame Information.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Object[]} property type
-     * </ul>
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Required Permission:
-     * <ul>
-     *  <li>Signature|Privileged permission "android.car.permission.CAR_DIAGNOSTICS" to read
-     *  property.
-     *  <li>Property is not writable.
-     * </ul>
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     *
+     * Deprecated, use {@link android.car.diagnostic.CarDiagnosticManager} instead.
      */
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
     @AddedInOrBefore(majorVersion = 33)
@@ -4357,23 +4259,11 @@ public final class VehiclePropertyIds {
     /**
      * OBD2 Freeze Frame Clear.
      *
-     * <p>This property allows deletion of any of the freeze frames stored in
-     * vehicle memory, as described by {@link #OBD2_FREEZE_FRAME_INFO}.
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Object[]} property type
-     * </ul>
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * <p>Required Permission:
-     * <ul>
-     *  <li>Property is not readable.
-     *  <li>Signature|Privileged permission "android.car.permission.CLEAR_CAR_DIAGNOSTICS" to write
-     *  property.
-     * </ul>
+     * Deprecated, use {@link android.car.diagnostic.CarDiagnosticManager} instead.
      */
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR)
     @AddedInOrBefore(majorVersion = 33)
