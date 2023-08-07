@@ -1538,7 +1538,8 @@ public class PropertyHalServiceTest {
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
-        mPropertyHalService.subscribeProperty(PERF_VEHICLE_SPEED, /* updateRateHz= */ 40.0f);
+        mPropertyHalService.subscribeProperty(List.of(createCarSubscriptionOption(
+                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f)));
 
         // Subscription rate has to be updated according to client subscription.
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
@@ -1557,7 +1558,8 @@ public class PropertyHalServiceTest {
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
         // New client subscription must overwrite the internal rate.
-        mPropertyHalService.subscribeProperty(PERF_VEHICLE_SPEED, /* updateRateHz= */ 50.0f);
+        mPropertyHalService.subscribeProperty(List.of(createCarSubscriptionOption(
+                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 50.0f)));
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
@@ -1813,7 +1815,8 @@ public class PropertyHalServiceTest {
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
-        mPropertyHalService.subscribeProperty(PERF_VEHICLE_SPEED, /* updateRateHz= */ 40.0f);
+        mPropertyHalService.subscribeProperty(List.of(createCarSubscriptionOption(
+                PERF_VEHICLE_SPEED, new int[]{0, 1}, /* updateRateHz= */ 40.0f)));
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getAllValues().get(0)).containsExactly(
@@ -1948,7 +1951,8 @@ public class PropertyHalServiceTest {
         }).when(mVehicleHal).getAsync(anyList(), any(VehicleStubCallbackInterface.class));
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 
-        mPropertyHalService.subscribeProperty(PERF_VEHICLE_SPEED, /* updateRateHz= */ 22.0f);
+        mPropertyHalService.subscribeProperty(List.of(createCarSubscriptionOption(
+                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 22.0f)));
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getAllValues().get(0)).containsExactly(

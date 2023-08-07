@@ -1104,27 +1104,6 @@ public class PropertyHalService extends HalServiceBase {
         }
     }
 
-    // TODO(b/272811366): Remove this once CarPropertyService gets updated to use
-    //  getSubscribedUpdateRateHz with areaId
-    /**
-     * Returns update rate in Hz for the first found areaId for this property, or UPDATE_RATE_ERROR
-     * if not subscribed.
-     *
-     * The update rate returned here only considers the subscription originated from
-     * {@link PropertyHalService#subscribeProperty} and does not consider the internal subscription
-     * for async set value requests.
-     */
-    public float getSubscribedUpdateRateHz(int mgrPropId) {
-        int[] areaIds;
-        synchronized (mLock) {
-            areaIds = getAllAreaIdsLocked(mgrPropId);
-        }
-        if (areaIds.length == 0) {
-            return UPDATE_RATE_ERROR;
-        }
-        return getSubscribedUpdateRateHz(mgrPropId, areaIds[0]);
-    }
-
     /**
      * Returns update rate in Hz for the propertyId and areaId, or UPDATE_RATE_ERROR if not
      * subscribed.
@@ -1210,26 +1189,6 @@ public class PropertyHalService extends HalServiceBase {
 
         // CarPropertyManager catches and rethrows exception, no need to handle here.
         mVehicleHal.set(valueToSet);
-    }
-
-    // TODO(b/272811366): Remove this once CarPropertyService gets updated to use
-    // subscribeProperty with areaIds
-    /**
-     * Subscribe to this property at the specified updateRateHz for all supported areaIds.
-     *
-     * @throws IllegalArgumentException thrown if property is not supported by VHAL.
-     */
-    public void subscribeProperty(int mgrPropId, float updateRateHz)
-            throws IllegalArgumentException {
-        int[] areaIds;
-        synchronized (mLock) {
-            areaIds = getAllAreaIdsLocked(mgrPropId);
-        }
-        CarSubscribeOption options = new CarSubscribeOption();
-        options.propertyId = mgrPropId;
-        options.areaIds = areaIds;
-        options.updateRateHz = updateRateHz;
-        subscribeProperty(List.of(options));
     }
 
     /**

@@ -498,7 +498,7 @@ public final class CarPropertyServiceUnitTest {
         when(mMockHandler1.asBinder()).thenReturn(mBinder1);
         when(mMockHandler2.asBinder()).thenReturn(mBinder2);
         // Initially SPEED_ID is not subscribed, so should return -1.
-        when(mHalService.getSubscribedUpdateRateHz(SPEED_ID)).thenReturn(-1f);
+        when(mHalService.getSubscribedUpdateRateHz(SPEED_ID, /* areaId= */ 0)).thenReturn(-1f);
         long timestampNanos = Duration.ofSeconds(1).toNanos();
         CarPropertyValue<Float> mValue =
                 new CarPropertyValue<>(SPEED_ID, 0, timestampNanos, 0f);
@@ -516,7 +516,7 @@ public final class CarPropertyServiceUnitTest {
 
         // Clean up invocation state.
         clearInvocations(mHalService);
-        when(mHalService.getSubscribedUpdateRateHz(SPEED_ID)).thenReturn(10f);
+        when(mHalService.getSubscribedUpdateRateHz(SPEED_ID, /* areaId= */ 0)).thenReturn(10f);
 
         // Register the second listener.
         mService.registerListener(SPEED_ID, /* rate= */ 20, mMockHandler2);
@@ -530,7 +530,7 @@ public final class CarPropertyServiceUnitTest {
 
         // Clean up invocation state.
         clearInvocations(mHalService);
-        when(mHalService.getSubscribedUpdateRateHz(SPEED_ID)).thenReturn(20f);
+        when(mHalService.getSubscribedUpdateRateHz(SPEED_ID, /* areaId= */ 0)).thenReturn(20f);
 
         // Unregister the second listener, the first listener must still be registered.
         mService.unregisterListener(SPEED_ID, mMockHandler2);
@@ -540,7 +540,7 @@ public final class CarPropertyServiceUnitTest {
         // The subscription rate must be updated.
         verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(SPEED_ID,
                 new int[]{0}, 10f)));
-        when(mHalService.getSubscribedUpdateRateHz(SPEED_ID)).thenReturn(10f);
+        when(mHalService.getSubscribedUpdateRateHz(SPEED_ID, /* areaId= */ 0)).thenReturn(10f);
 
         // Unregister the first listener. We have no more listeners, must cause unsubscription.
         mService.unregisterListener(SPEED_ID, mMockHandler1);
@@ -694,7 +694,7 @@ public final class CarPropertyServiceUnitTest {
         mService.init();
 
         // Initially HVAC_TEMP is not subscribed, so should return -1.
-        when(mHalService.getSubscribedUpdateRateHz(HVAC_TEMP)).thenReturn(-1f);
+        when(mHalService.getSubscribedUpdateRateHz(HVAC_TEMP, /* areaId= */ 0)).thenReturn(-1f);
         CarPropertyValue<Float> value = new CarPropertyValue<Float>(HVAC_TEMP, 0, 1.0f);
         when(mHalService.getProperty(HVAC_TEMP, 0)).thenReturn(value);
         EventListener listener = new EventListener(mService);
