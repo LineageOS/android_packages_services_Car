@@ -63,11 +63,4 @@ android_app {
     ],
 
     required: ["allowed_privapp_com.google.android.car.kitchensink"],
-
-    product_variables: {
-        pdk: {
-            //disble build in PDK, missing ui-lib breaks build
-            enabled: false,
-        },
-    },
 }
