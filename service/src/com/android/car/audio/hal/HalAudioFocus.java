@@ -21,6 +21,9 @@ import static android.media.AudioManager.AUDIOFOCUS_REQUEST_DELAYED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_FAILED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
+import static com.android.car.audio.CarAudioDumpProto.HalAudioFocusProto.HAL_FOCUS_REQUESTS_BY_ZONE_AND_ATTRIBUTES;
+import static com.android.car.audio.CarAudioDumpProto.HalAudioFocusProto.HalFocusRequestsByZoneAndAttributes.HAL_FOCUS_REQUESTS_BY_ATTRIBUTES;
+import static com.android.car.audio.CarAudioDumpProto.HalAudioFocusProto.HalFocusRequestsByZoneAndAttributes.ZONE_ID;
 import static com.android.car.audio.CarHalAudioUtils.audioAttributesWrapperToMetadata;
 import static com.android.car.audio.CarHalAudioUtils.metadataToAudioAttribute;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
@@ -44,8 +47,6 @@ import com.android.car.CarLog;
 import com.android.car.audio.CarAudioContext;
 import com.android.car.audio.CarAudioContext.AudioAttributesWrapper;
 import com.android.car.audio.CarAudioDumpProto;
-import com.android.car.audio.CarAudioDumpProto.HalAudioFocusProto;
-import com.android.car.audio.CarAudioDumpProto.HalAudioFocusProto.HalFocusRequestsByZoneAndUsage;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
@@ -228,14 +229,12 @@ public final class HalAudioFocus implements HalFocusListener {
         synchronized (mLock) {
             for (int i = 0; i < mHalFocusRequestsByZoneAndAttributes.size(); i++) {
                 int zoneId = mHalFocusRequestsByZoneAndAttributes.keyAt(i);
-                long halFocusRequestToken = proto.start(
-                        HalAudioFocusProto.HAL_FOCUS_REQUESTS_BY_ZONE_AND_USAGE);
-                proto.write(HalFocusRequestsByZoneAndUsage.ZONE_ID, zoneId);
+                long halFocusRequestToken = proto.start(HAL_FOCUS_REQUESTS_BY_ZONE_AND_ATTRIBUTES);
+                proto.write(ZONE_ID, zoneId);
                 Map<AudioAttributesWrapper, HalAudioFocusRequest> requestsByAttributes =
                         mHalFocusRequestsByZoneAndAttributes.valueAt(i);
                 for (HalAudioFocusRequest request : requestsByAttributes.values()) {
-                    proto.write(HalFocusRequestsByZoneAndUsage.HAL_FOCUS_REQUESTS_BY_ATTRIBUTES,
-                            request.toString());
+                    proto.write(HAL_FOCUS_REQUESTS_BY_ATTRIBUTES, request.toString());
                 }
                 proto.end(halFocusRequestToken);
             }
