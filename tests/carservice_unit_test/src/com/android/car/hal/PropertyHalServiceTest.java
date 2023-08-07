@@ -2535,7 +2535,7 @@ public class PropertyHalServiceTest {
                 .that(options1.hashCode()).isEqualTo(options2.hashCode());
     }
 
-    /* package */ static CarSubscribeOption createCarSubscriptionOption(int propertyId,
+    public static CarSubscribeOption createCarSubscriptionOption(int propertyId,
             int[] areaId, float updateRateHz) {
         CarSubscribeOption options = new CarSubscribeOption();
         options.propertyId = propertyId;

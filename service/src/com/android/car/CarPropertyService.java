@@ -269,28 +269,45 @@ public class CarPropertyService extends ICarProperty.Stub
 
     @Override
     public void registerListener(int propertyId, float updateRateHz,
-            ICarPropertyEventListener iCarPropertyEventListener) throws IllegalArgumentException {
-        requireNonNull(iCarPropertyEventListener);
-        validateRegisterParameter(propertyId);
-
+            ICarPropertyEventListener carPropertyEventListener) throws IllegalArgumentException {
+        CarSubscribeOption option = new CarSubscribeOption();
+        int[] areaIds = new int[0];
         CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
-
-        float sanitizedUpdateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(carPropertyConfig,
-                updateRateHz);
-        sSubscriptionUpdateRateHistogram.logSample(sanitizedUpdateRateHz);
-
-        if (DBG) {
-            Slogf.d(TAG, "registerListener: property ID=" + VehiclePropertyIds.toString(propertyId)
-                    + " updateRateHz=" + sanitizedUpdateRateHz);
+        // carPropertyConfig nullity check will be done in registerListenerWithSubscribeOptions
+        if (carPropertyConfig != null) {
+            areaIds = carPropertyConfig.getAreaIds();
         }
+        option.propertyId = propertyId;
+        option.updateRateHz = updateRateHz;
+        option.areaIds = areaIds;
+        registerListenerWithSubscribeOptions(List.of(option), carPropertyEventListener);
+    }
+
+    @Override
+    public void registerListenerWithSubscribeOptions(List<CarSubscribeOption> subscribeOptions,
+            ICarPropertyEventListener carPropertyEventListener) {
+        requireNonNull(carPropertyEventListener);
+        List<CarSubscribeOption> propertyHalSubscribeOptions = new ArrayList<>();
 
         CarPropertyServiceClient finalClient;
         synchronized (mLock) {
+            for (int i = 0; i < subscribeOptions.size(); i++) {
+                CarSubscribeOption option = subscribeOptions.get(i);
+                int propertyId = option.propertyId;
+                int[] areaIds = option.areaIds;
+                float updateRateHz = option.updateRateHz;
+
+                CarPropertyConfig<?> carPropertyConfig = validateRegisterParameterAndGetConfig(
+                        propertyId, areaIds);
+
+                option.updateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(carPropertyConfig,
+                        updateRateHz);
+            }
             // Get or create the client for this iCarPropertyEventListener
-            IBinder listenerBinder = iCarPropertyEventListener.asBinder();
+            IBinder listenerBinder = carPropertyEventListener.asBinder();
             CarPropertyServiceClient client = mClientMap.get(listenerBinder);
             if (client == null) {
-                client = new CarPropertyServiceClient(iCarPropertyEventListener,
+                client = new CarPropertyServiceClient(carPropertyEventListener,
                         this::unregisterListenerBinderForProps);
                 if (client.isDead()) {
                     Slogf.w(TAG, "the ICarPropertyEventListener is already dead");
@@ -298,33 +315,42 @@ public class CarPropertyService extends ICarProperty.Stub
                 }
                 mClientMap.put(listenerBinder, client);
             }
-            client.addProperty(propertyId, carPropertyConfig.getAreaIds(), sanitizedUpdateRateHz);
-            // Insert the client into the propertyId --> clients map
-            List<CarPropertyServiceClient> clients = mPropIdClientMap.get(propertyId);
-            if (clients == null) {
-                clients = new ArrayList<>();
-                mPropIdClientMap.put(propertyId, clients);
-            }
-            if (!clients.contains(client)) {
-                clients.add(client);
-            }
-            // Set the new updateRateHz
-            if (sanitizedUpdateRateHz > mPropertyHalService.getSubscribedUpdateRateHz(propertyId)) {
-                mPropertyHalService.subscribeProperty(propertyId, sanitizedUpdateRateHz);
+            for (int i = 0; i < subscribeOptions.size(); i++) {
+                CarSubscribeOption option = subscribeOptions.get(i);
+                int propertyId = option.propertyId;
+                int[] areaIds = option.areaIds;
+                float sanitizedUpdateRateHz = option.updateRateHz;
+                sSubscriptionUpdateRateHistogram.logSample(sanitizedUpdateRateHz);
+                if (DBG) {
+                    Slogf.d(TAG, "registerListener after update rate sanitization, options: "
+                            + subscribeOptions.get(i));
+                }
+                client.addProperty(propertyId, areaIds, sanitizedUpdateRateHz);
+                // Insert the client into the propertyId --> clients map
+                List<CarPropertyServiceClient> clients = mPropIdClientMap.get(propertyId);
+                if (clients == null) {
+                    clients = new ArrayList<>();
+                    mPropIdClientMap.put(propertyId, clients);
+                }
+                if (!clients.contains(client)) {
+                    clients.add(client);
+                }
+                CarSubscribeOption filteredOptions = filterSubscribeOptionAreaIds(option);
+                if (DBG) {
+                    Slogf.d(TAG, "The filtered subscribe options are: %s", filteredOptions);
+                }
+                if (filteredOptions != null) {
+                    propertyHalSubscribeOptions.add(filteredOptions);
+                }
             }
             finalClient = client;
         }
 
-        // propertyConfig and client are NonNull.
+        if (!propertyHalSubscribeOptions.isEmpty()) {
+            mPropertyHalService.subscribeProperty(propertyHalSubscribeOptions);
+        }
         mHandler.post(() ->
-                getAndDispatchPropertyInitValue(carPropertyConfig, finalClient));
-    }
-
-    @Override
-    public void registerListenerWithSubscribeOptions(List<CarSubscribeOption> subscribeOptions,
-            ICarPropertyEventListener iCarPropertyEventListener) {
-        // TODO(b/291975137): Check if parameters are valid, create a client for the subscription
-        //  values, and call into PropertyHalService
+                getAndDispatchPropertyInitValue(subscribeOptions, finalClient));
     }
 
     /**
@@ -342,41 +368,74 @@ public class CarPropertyService extends ICarProperty.Stub
         }
     }
 
-    private void getAndDispatchPropertyInitValue(CarPropertyConfig carPropertyConfig,
-            CarPropertyServiceClient client) {
-        List<CarPropertyEvent> events = new ArrayList<>();
-        int propertyId = carPropertyConfig.getPropertyId();
-        for (int areaId : carPropertyConfig.getAreaIds()) {
-            CarPropertyValue carPropertyValue = null;
-            try {
-                carPropertyValue = getProperty(propertyId, areaId);
-            } catch (ServiceSpecificException e) {
-                Slogf.w("Get initial carPropertyValue for registerCallback failed - property ID: "
-                                + "%s, area ID $s, exception: %s",
-                        VehiclePropertyIds.toString(propertyId), Integer.toHexString(areaId), e);
-                int errorCode = CarPropertyHelper.getVhalSystemErrorCode(e.errorCode);
-                long timestampNanos = SystemClock.elapsedRealtimeNanos();
-                Object defaultValue = CarPropertyHelper.getDefaultValue(
-                        carPropertyConfig.getPropertyType());
-                if (CarPropertyHelper.isNotAvailableVehicleHalStatusCode(errorCode)) {
-                    carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
-                            CarPropertyValue.STATUS_UNAVAILABLE, timestampNanos, defaultValue);
-                } else {
-                    carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
-                            CarPropertyValue.STATUS_ERROR, timestampNanos, defaultValue);
-                }
-            } catch (Exception e) {
-                // Do nothing.
-                Slogf.e("Get initial carPropertyValue for registerCallback failed - property ID: "
-                                + "%s, area ID $s, exception: %s",
-                        VehiclePropertyIds.toString(propertyId), Integer.toHexString(areaId), e);
-            }
-            if (carPropertyValue != null) {
-                CarPropertyEvent event = new CarPropertyEvent(
-                        CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, carPropertyValue);
-                events.add(event);
+    private CarSubscribeOption filterSubscribeOptionAreaIds(CarSubscribeOption option) {
+        CarSubscribeOption filteredOption = new CarSubscribeOption();
+        int[] areaIds = option.areaIds;
+        int propertyId = option.propertyId;
+        float sanitizedUpdateRateHz = option.updateRateHz;
+        List<Integer> filteredAreaIds = new ArrayList<>();
+        for (int areaId : areaIds) {
+            if (sanitizedUpdateRateHz > mPropertyHalService.getSubscribedUpdateRateHz(
+                    propertyId, areaId)) {
+                filteredAreaIds.add(areaId);
             }
         }
+        if (filteredAreaIds.isEmpty()) {
+            if (DBG) {
+                Slogf.d(TAG, "Filtered out %s because they are already subscribed at an equal or "
+                        + "higher rate.", option);
+            }
+            return null;
+        }
+        filteredOption.propertyId = propertyId;
+        filteredOption.areaIds = CarServiceUtils.toIntArray(filteredAreaIds);
+        filteredOption.updateRateHz = option.updateRateHz;
+        return filteredOption;
+    }
+
+    private void getAndDispatchPropertyInitValue(List<CarSubscribeOption> subscribeOptions,
+            CarPropertyServiceClient client) {
+        List<CarPropertyEvent> events = new ArrayList<>();
+        for (int i = 0; i < subscribeOptions.size(); i++) {
+            CarSubscribeOption option = subscribeOptions.get(i);
+            int propertyId = option.propertyId;
+            int[] areaIds = option.areaIds;
+            for (int areaId : areaIds) {
+                CarPropertyValue carPropertyValue = null;
+                try {
+                    carPropertyValue = getProperty(propertyId, areaId);
+                } catch (ServiceSpecificException e) {
+                    Slogf.w("Get initial carPropertyValue for registerCallback failed -"
+                                    + " property ID: %s, area ID $s, exception: %s",
+                            VehiclePropertyIds.toString(propertyId), Integer.toHexString(areaId),
+                            e);
+                    int errorCode = CarPropertyHelper.getVhalSystemErrorCode(e.errorCode);
+                    long timestampNanos = SystemClock.elapsedRealtimeNanos();
+                    CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
+                    Object defaultValue = CarPropertyHelper.getDefaultValue(
+                            carPropertyConfig.getPropertyType());
+                    if (CarPropertyHelper.isNotAvailableVehicleHalStatusCode(errorCode)) {
+                        carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
+                                CarPropertyValue.STATUS_UNAVAILABLE, timestampNanos, defaultValue);
+                    } else {
+                        carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
+                                CarPropertyValue.STATUS_ERROR, timestampNanos, defaultValue);
+                    }
+                } catch (Exception e) {
+                    // Do nothing.
+                    Slogf.e("Get initial carPropertyValue for registerCallback failed -"
+                                    + " property ID: %s, area ID $s, exception: %s",
+                            VehiclePropertyIds.toString(propertyId), Integer.toHexString(areaId),
+                            e);
+                }
+                if (carPropertyValue != null) {
+                    CarPropertyEvent event = new CarPropertyEvent(
+                            CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, carPropertyValue);
+                    events.add(event);
+                }
+            }
+        }
+
         if (events.isEmpty()) {
             return;
         }
@@ -393,7 +452,7 @@ public class CarPropertyService extends ICarProperty.Stub
     public void unregisterListener(int propertyId,
             ICarPropertyEventListener iCarPropertyEventListener) {
         requireNonNull(iCarPropertyEventListener);
-        validateRegisterParameter(propertyId);
+        validateRegisterParameterAndGetConfig(propertyId);
 
         if (DBG) {
             Slogf.d(TAG,
@@ -422,7 +481,6 @@ public class CarPropertyService extends ICarProperty.Stub
 
     @GuardedBy("mLock")
     private void unregisterListenerBinderLocked(int propId, IBinder listenerBinder) {
-        float updateMaxRate = 0f;
         CarPropertyServiceClient client = mClientMap.get(listenerBinder);
         List<CarPropertyServiceClient> propertyClients = mPropIdClientMap.get(propId);
         if (mPropertyIdToCarPropertyConfig.get(propId) == null) {
@@ -456,23 +514,54 @@ public class CarPropertyService extends ICarProperty.Stub
             mPropertyHalService.unsubscribeProperty(propId);
             return;
         }
+        ArrayMap<Float, List<Integer>> updateRateHzToAreaIds = new ArrayMap<>();
         // Other listeners are still subscribed.  Calculate the new rate
         for (int i = 0; i < propertyClients.size(); i++) {
             CarPropertyServiceClient c = propertyClients.get(i);
-            int firstAreaId = getCarPropertyConfig(propId).getAreaIds()[0];
-            float rate = c.getUpdateRateHz(propId, firstAreaId);
-            updateMaxRate = Math.max(rate, updateMaxRate);
-        }
-        if (Float.compare(updateMaxRate,
-                mPropertyHalService.getSubscribedUpdateRateHz(propId)) != 0) {
-            try {
-                // Only reset the sample rate if needed
-                mPropertyHalService.subscribeProperty(propId, updateMaxRate);
-            } catch (IllegalArgumentException e) {
-                Slogf.e(TAG, "failed to subscribe to propId=0x" + toHexString(propId)
-                        + ", error: " + e);
+            int[] areaIds = c.getAreaIds(propId);
+            for (int areaId : areaIds) {
+                float rate = c.getUpdateRateHz(propId, areaId);
+                if (Float.compare(rate,
+                        mPropertyHalService.getSubscribedUpdateRateHz(propId, areaId)) != 0) {
+                    if (!updateRateHzToAreaIds.containsKey(rate)) {
+                        updateRateHzToAreaIds.put(rate, new ArrayList<>());
+                    }
+                    updateRateHzToAreaIds.get(rate).add(areaId);
+                }
             }
         }
+        // Only reset the sample rate if needed
+        if (updateRateHzToAreaIds.isEmpty()) {
+            return;
+        }
+        if (DBG) {
+            Slogf.d(TAG, "updating subscription in CarPropertyService for propertyId %d", propId);
+            for (int i = 0; i < updateRateHzToAreaIds.size(); i++) {
+                Slogf.d(TAG, "updateRate %f, areaIds: %s", updateRateHzToAreaIds.keyAt(i),
+                        updateRateHzToAreaIds.valueAt(i));
+            }
+        }
+        List<CarSubscribeOption> propertyHalSubscribeOptions =
+                createPropertyHalSubscribeOptions(propId, updateRateHzToAreaIds);
+        try {
+            mPropertyHalService.subscribeProperty(propertyHalSubscribeOptions);
+        } catch (IllegalArgumentException e) {
+            Slogf.e(TAG, "failed to subscribe to propId=0x%s, error: %s",
+                    toHexString(propId), e);
+        }
+    }
+
+    private List<CarSubscribeOption> createPropertyHalSubscribeOptions(int propertyId,
+            ArrayMap<Float, List<Integer>> updateRateHzToAreaIds) {
+        List<CarSubscribeOption> propertyHalSubscribeOptions = new ArrayList<>();
+        for (int i = 0; i < updateRateHzToAreaIds.size(); i++) {
+            CarSubscribeOption option = new CarSubscribeOption();
+            option.propertyId = propertyId;
+            option.areaIds = CarServiceUtils.toIntArray(updateRateHzToAreaIds.valueAt(i));
+            option.updateRateHz = updateRateHzToAreaIds.keyAt(i);
+            propertyHalSubscribeOptions.add(option);
+        }
+        return propertyHalSubscribeOptions;
     }
 
     private void unregisterListenerBinderForProps(List<Integer> propIds, IBinder listenerBinder) {
@@ -905,11 +994,22 @@ public class CarPropertyService extends ICarProperty.Stub
         }
     }
 
-    private void validateRegisterParameter(int propertyId) {
+    private CarPropertyConfig validateRegisterParameterAndGetConfig(int propertyId) {
         CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
         assertConfigIsNotNull(propertyId, carPropertyConfig);
         assertPropertyIsReadable(carPropertyConfig);
         assertReadPermissionGranted(propertyId);
+        return carPropertyConfig;
+    }
+
+    private CarPropertyConfig validateRegisterParameterAndGetConfig(int propertyId,
+            int[] areaIds) {
+        CarPropertyConfig<?> carPropertyConfig = validateRegisterParameterAndGetConfig(propertyId);
+        Preconditions.checkArgument(areaIds != null, "AreaIds must not be null");
+        for (int i = 0; i < areaIds.length; i++) {
+            assertAreaIdIsSupported(areaIds[i], carPropertyConfig);
+        }
+        return carPropertyConfig;
     }
 
     private void validateGetParameters(int propertyId, int areaId) {
