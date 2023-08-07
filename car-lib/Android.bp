@@ -77,11 +77,6 @@ java_library {
         "framework-wifi",
         "framework-bluetooth",
     ],
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
     installable: true,
     sdk_version: "module_current",
 }
@@ -94,11 +89,6 @@ stubs_defaults {
     libs: [
         "android.car",
     ],
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
 }
 
 genrule {
@@ -211,11 +201,6 @@ droidstubs {
     api_filename: "api.txt",
     args: "--hide HiddenSuperclass --hide UnavailableSymbol --stub-packages android.car* ",
     installable: false,
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
 }
 
 // Generates stubs for API documentation.
@@ -293,21 +278,11 @@ java_defaults {
     name: "android.car-stubs.jar_defaults",
     java_version: "1.8",
     installable: false,
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
 }
 
 java_defaults {
     name: "android.car-stubs-dex.jar_defaults",
     compile_dex: true,
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
 }
 
 java_library {

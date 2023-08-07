@@ -39,10 +39,4 @@ android_app {
     dex_preopt: {
         enabled: false,
     },
-
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
 }
