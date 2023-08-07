@@ -64,6 +64,7 @@ import com.google.android.car.kitchensink.biometrics.BiometricPromptTestFragment
 import com.google.android.car.kitchensink.bluetooth.BluetoothHeadsetFragment;
 import com.google.android.car.kitchensink.bluetooth.BluetoothUuidFragment;
 import com.google.android.car.kitchensink.bluetooth.MapMceTestFragment;
+import com.google.android.car.kitchensink.camera2.Camera2TestFragment;
 import com.google.android.car.kitchensink.carboard.KeyboardTestFragment;
 import com.google.android.car.kitchensink.cluster.InstrumentClusterFragment;
 import com.google.android.car.kitchensink.connectivity.ConnectivityFragment;
@@ -301,7 +302,8 @@ public class KitchenSinkActivity extends FragmentActivity {
             new Pair<>("inject key", InjectKeyTestFragment.class),
             new Pair<>("window insets full screen",
                     WindowInsetsFullScreenFragment.class),
-            new Pair<>("oem car service", OemCarServiceTestFragment.class));
+            new Pair<>("oem car service", OemCarServiceTestFragment.class),
+            new Pair<>("Camera2", Camera2TestFragment.class));
 
     private Car mCarApi;
     private CarHvacManager mHvacManager;

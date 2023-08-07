@@ -233,6 +233,9 @@
     <!-- To view dumpsys output -->
     <uses-permission android:name="android.permission.DUMP"/>
 
+    <!-- To access Camera2 -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+
     <!-- Allow backup is set to false for KitchenSinkApp to avoid infinite loop during backup -->
     <application
         android:label="@string/app_title"
@@ -302,6 +305,15 @@
              android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".camera2.CameraSystemActivity"
+             android:label="@string/camera2_user0"
+             android:showForAllUsers="true"
+             android:exported="true">
+            <intent-filter>
+              <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>
 

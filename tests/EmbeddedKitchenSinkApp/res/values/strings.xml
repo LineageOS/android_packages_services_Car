@@ -493,4 +493,7 @@
     <string name="task_data">Task Data</string>
     <string name="remaining_time_sec">Remaining Time(s)</string>
 
+    <!-- Camera2 test -->
+    <string name="camera2_user0" translatable="false">Camera2 as User0</string>
+
 </resources>
