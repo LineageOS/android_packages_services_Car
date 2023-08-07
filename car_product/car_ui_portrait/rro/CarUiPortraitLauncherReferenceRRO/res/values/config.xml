@@ -20,6 +20,4 @@
     <string-array name="config_homeCardModuleClasses" translatable="false">
         <item>com.android.car.portraitlauncher.homescreen.audio.PortraitAudioCard</item>
     </string-array>
-    <!-- Number of columns in recents that should be included in a page when snapping -->
-    <integer name="config_recents_columns_per_page">2</integer>
 </resources>
