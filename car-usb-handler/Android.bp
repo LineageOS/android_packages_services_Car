@@ -38,10 +38,4 @@ android_app {
     libs: ["android.car-system-stubs"],
 
     required: ["allowed_privapp_android.car.usb.handler"],
-
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
 }
