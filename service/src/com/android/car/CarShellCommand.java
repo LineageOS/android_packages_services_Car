@@ -155,6 +155,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -296,7 +297,6 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
     private static final String COMMAND_GET_DISPLAY_BY_USER = "get-display-by-user";
     private static final String COMMAND_GET_USER_BY_DISPLAY = "get-user-by-display";
-
 
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
@@ -526,46 +526,39 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private final CarEvsService mCarEvsService;
     private final CarWatchdogService mCarWatchdogService;
     private final CarTelemetryService mCarTelemetryService;
+    private final Map<Class, CarSystemService> mAllServicesByClazz;
     private long mKeyDownTime;
     private long mMotionDownTime;
     private ServiceConnection mScriptExecutorConn;
     private IScriptExecutor mScriptExecutor;
     private AudioZoneMirrorStatusCallbackImpl mMirrorStatusCallback;
 
-    CarShellCommand(Context context,
-            VehicleHal hal,
-            CarAudioService carAudioService,
-            CarPackageManagerService carPackageManagerService,
-            CarProjectionService carProjectionService,
-            CarPowerManagementService carPowerManagementService,
-            FixedActivityService fixedActivityService,
-            CarFeatureController featureController,
-            CarInputService carInputService,
-            CarNightService carNightService,
-            SystemInterface systemInterface,
-            GarageModeService garageModeService,
-            CarUserService carUserService,
-            CarOccupantZoneService carOccupantZoneService,
-            CarEvsService carEvsService,
-            CarWatchdogService carWatchdogService,
-            CarTelemetryService carTelemetryService) {
+    CarShellCommand(Context context, VehicleHal hal, CarFeatureController featureController,
+            SystemInterface systemInterface, Map<Class, CarSystemService> allServicesByClazz) {
         mContext = context;
         mHal = hal;
-        mCarAudioService = carAudioService;
-        mCarPackageManagerService = carPackageManagerService;
-        mCarProjectionService = carProjectionService;
-        mCarPowerManagementService = carPowerManagementService;
-        mFixedActivityService = fixedActivityService;
         mFeatureController = featureController;
-        mCarInputService = carInputService;
-        mCarNightService = carNightService;
         mSystemInterface = systemInterface;
-        mGarageModeService = garageModeService;
-        mCarUserService = carUserService;
-        mCarOccupantZoneService = carOccupantZoneService;
-        mCarEvsService = carEvsService;
-        mCarWatchdogService = carWatchdogService;
-        mCarTelemetryService = carTelemetryService;
+        mCarAudioService = (CarAudioService) allServicesByClazz.get(CarAudioService.class);
+        mCarPackageManagerService = (CarPackageManagerService) allServicesByClazz.get(
+                CarPackageManagerService.class);
+        mCarProjectionService = (CarProjectionService) allServicesByClazz.get(
+                CarProjectionService.class);
+        mCarPowerManagementService = (CarPowerManagementService) allServicesByClazz.get(
+                CarPowerManagementService.class);
+        mFixedActivityService = (FixedActivityService) allServicesByClazz.get(
+                FixedActivityService.class);
+        mCarInputService = (CarInputService) allServicesByClazz.get(CarInputService.class);
+        mCarNightService = (CarNightService) allServicesByClazz.get(CarNightService.class);
+        mGarageModeService = (GarageModeService) allServicesByClazz.get(GarageModeService.class);
+        mCarUserService = (CarUserService) allServicesByClazz.get(CarUserService.class);
+        mCarOccupantZoneService = (CarOccupantZoneService)
+                allServicesByClazz.get(CarOccupantZoneService.class);
+        mCarEvsService = (CarEvsService) allServicesByClazz.get(CarEvsService.class);
+        mCarWatchdogService = (CarWatchdogService) allServicesByClazz.get(CarWatchdogService.class);
+        mCarTelemetryService = (CarTelemetryService)
+                allServicesByClazz.get(CarTelemetryService.class);
+        mAllServicesByClazz = allServicesByClazz;
     }
 
     @Override
