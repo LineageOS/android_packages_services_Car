@@ -512,7 +512,18 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    public void dumpProto(ProtoOutputStream proto) {}
+    public void dumpProto(ProtoOutputStream proto) {
+        synchronized (mLock) {
+            for (int i = 0; i < mServerlessClientIdsByPackageName.size(); i++) {
+                long fieldToken = proto.start(CarRemoteAccessDumpProto.SERVERLESS_CLIENTS);
+                proto.write(CarRemoteAccessDumpProto.ServerlessClientInfo.CLIENT_ID,
+                        mServerlessClientIdsByPackageName.valueAt(i));
+                proto.write(CarRemoteAccessDumpProto.ServerlessClientInfo.PACKAGE_NAME,
+                        mServerlessClientIdsByPackageName.keyAt(i));
+                proto.end(fieldToken);
+            }
+        }
+    }
 
     /**
      * Registers {@code ICarRemoteAccessCallback}.
@@ -1545,6 +1556,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                         .append("mClientId=").append(mClientId)
                         .append(", mIdCreationTimeInMs=").append(mIdCreationTimeInMs)
                         .append(", hasCallback=").append(mCallback != null)
+                        .append(", isServerless=").append(mIsServerless)
                         .append(']')
                         .toString();
             }
