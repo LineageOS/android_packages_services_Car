@@ -166,6 +166,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private int mNavBarHeight;
     private boolean mIsSUWInProgress;
     private TaskCategoryManager mTaskCategoryManager;
+    private boolean mIsBlankActivityOnTop;
     private boolean mIsNotificationCenterOnTop;
     private boolean mIsRecentsOnTop;
     private TaskInfoCache mTaskInfoCache;
@@ -279,6 +280,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
             mIsNotificationCenterOnTop = mTaskCategoryManager.isNotificationActivity(taskInfo);
             mIsRecentsOnTop = mTaskCategoryManager.isRecentsActivity(taskInfo);
+            mIsBlankActivityOnTop = mTaskCategoryManager.isBlankActivity(taskInfo);
             // Close the panel if the top application is a blank activity.
             // This is to prevent showing a blank panel to the user if an app crashes and reveals
             // the blank activity underneath.
@@ -342,6 +344,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             if (!wasVisible) {
                 return;
             }
+            mIsBlankActivityOnTop = mTaskCategoryManager.isBlankActivity(taskInfo);
 
             if (mTaskCategoryManager.isBackgroundApp(taskInfo)
                     || mTaskCategoryManager.isBlankActivity(taskInfo)) {
@@ -1001,7 +1004,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 // Hide the app grid task view behind the root task view.
                 if (newState.isVisible()) {
                     mAppGridTaskViewPanel.closePanel(/* animated = */ false);
-                } else {
+                } else if (!mIsBlankActivityOnTop) {
                     // Launch a blank activity to move the top activity to background.
                     startActivity(BlankActivity.createIntent(getApplicationContext()));
                 }
