@@ -311,6 +311,10 @@ public final class LauncherActivity extends FragmentActivity implements AppPicke
             return;
         }
         UserManager userManager = getSystemService(UserManager.class);
+        if (!userManager.isVisibleBackgroundUsersSupported()) {
+            Log.i(TAG, "No visible background users are supported");
+            return;
+        }
         // After this point, we either should launch user picker or home
         boolean shouldLaunchUserPicker = false;
         if (assignedUserId == UserHandle.USER_NULL) {
