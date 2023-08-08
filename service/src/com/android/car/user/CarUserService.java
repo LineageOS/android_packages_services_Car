@@ -416,9 +416,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         mCarUxRestrictionService.registerUxRestrictionsChangeListener(
                 mCarUxRestrictionsChangeListener, Display.DEFAULT_DISPLAY);
-
-        mCarOccupantZoneService.registerCallback(mOccupantZoneCallback);
-
+        // Currently mOccupantZoneCallback does the task to bring up UserPicker only when displays
+        // and user assignments are changed. So it's safe not to register if visible background
+        // users are disabled. But, if we'll add more functionalies in the callback, consider to
+        // move the condition into the callback.
+        if (mIsVisibleBackgroundUsersOnDefaultDisplaySupported) {
+            mCarOccupantZoneService.registerCallback(mOccupantZoneCallback);
+        }
         CarServiceHelperWrapper.getInstance().runOnConnection(() ->
                 setUxRestrictions(mCarUxRestrictionService.getCurrentUxRestrictions()));
     }
