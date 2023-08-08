@@ -42,7 +42,7 @@ class EvsCallbackThread final {
     std::queue<Task> mTaskQueue GUARDED_BY(mLock);
 
     // Main loop to handle enqueued tasks continuously
-    void threadLoop();
+    void threadLoop() EXCLUDES(mLock);
 
     DISALLOW_COPY_AND_ASSIGN(EvsCallbackThread);
 
@@ -51,10 +51,10 @@ public:
     virtual ~EvsCallbackThread();
 
     // Adds a new task to the queue
-    void enqueue(const Task& task) ACQUIRE(mLock);
+    void enqueue(const Task& task) EXCLUDES(mLock);
 
     // Stops a task handler thread
-    void stop();
+    void stop() EXCLUDES(mLock);
 };
 
 }  // namespace android::automotive::evs

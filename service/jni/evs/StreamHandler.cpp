@@ -34,6 +34,7 @@ using ::aidl::android::hardware::automotive::evs::EvsResult;
 using ::aidl::android::hardware::automotive::evs::IEvsCamera;
 using ::aidl::android::hardware::common::NativeHandle;
 using ::aidl::android::hardware::graphics::common::HardwareBuffer;
+using ::android::base::ScopedLockAssertion;
 
 NativeHandle dupNativeHandle(const NativeHandle& handle, bool doDup) {
     NativeHandle dup;
@@ -192,8 +193,9 @@ void StreamHandler::blockingStopStream() {
     // Now, we are waiting for the ack from EvsManager service.
     {
         std::unique_lock<std::mutex> lock(mLock);
+        ScopedLockAssertion lock_assertion(mLock);
         while (mRunning) {
-            if (!mCondition.wait_for(lock, 1s, [this]() { return !mRunning; })) {
+            if (!mCondition.wait_for(lock, 1s, [this]() REQUIRES(mLock) { return !mRunning; })) {
                 LOG(WARNING) << "STREAM_STOPPED event timer expired.  EVS service may die.";
                 break;
             }
