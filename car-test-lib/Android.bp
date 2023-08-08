@@ -21,11 +21,6 @@ java_library {
     srcs: [
         "src/android/car/testapi/*.java",
     ],
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
     static_libs: [
         "car-service-test-static-lib",
     ],

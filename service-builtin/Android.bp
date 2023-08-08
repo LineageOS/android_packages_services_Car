@@ -59,13 +59,6 @@ android_app {
     ],
 
     required: ["allowed_privapp_com.android.car"],
-
-    // Disable build in PDK, missing aidl import breaks build
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
 }
 
 android_library {
@@ -86,10 +79,4 @@ android_library {
             // to CarSystemUi
             "car-admin-ui-lib",
         ],
-
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
 }

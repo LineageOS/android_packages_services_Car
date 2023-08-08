@@ -44,10 +44,4 @@ android_app {
     required: ["allowed_privapp_com.android.car.settings"],
 
     dxflags: ["--multi-dex"],
-
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
 }
