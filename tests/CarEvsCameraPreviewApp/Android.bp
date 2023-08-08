@@ -55,11 +55,4 @@ android_app {
     // To make this app be able to re-installed
     use_embedded_native_libs: true,
     jni_libs: ["libcarevsglrenderer_jni"],
-
-    product_variables: {
-        pdk: {
-            // disable build in PDK
-            enabled: false,
-        },
-    },
 }
