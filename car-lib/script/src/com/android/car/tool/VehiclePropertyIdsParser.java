@@ -16,8 +16,11 @@
 
 package com.android.car.tool;
 
+import androidx.annotation.Nullable;
+
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
@@ -25,10 +28,14 @@ import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.ArrayInitializerExpr;
 import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.NormalAnnotationExpr;
 import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr;
 import com.github.javaparser.javadoc.Javadoc;
 import com.github.javaparser.javadoc.JavadocBlockTag;
+import com.github.javaparser.javadoc.description.JavadocDescription;
+import com.github.javaparser.javadoc.description.JavadocDescriptionElement;
+import com.github.javaparser.javadoc.description.JavadocInlineTag;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -88,6 +95,8 @@ public final class VehiclePropertyIdsParser {
         public boolean systemApi;
         public boolean hide;
         public int vhalPropertyId;
+        public List<String> dataEnums;
+        public String dataFlag;
 
         @Override
         public String toString() {
@@ -99,7 +108,9 @@ public final class VehiclePropertyIdsParser {
                     .append("\n    writePermission: ").append(writePermission)
                     .append("\n    deprecated: ").append(deprecated)
                     .append("\n    hide: ").append(hide)
-                    .append("\n    systemApi: ").append(systemApi);
+                    .append("\n    systemApi: ").append(systemApi)
+                    .append("\n    dataEnums: ").append(dataEnums)
+                    .append("\n    dataFlag: ").append(dataFlag);
 
             if (vhalPropertyId != 0) {
                 s.append("\n    vhalPropertyId: ").append(vhalPropertyId);
@@ -148,6 +159,7 @@ public final class VehiclePropertyIdsParser {
         }
     }
 
+    @Nullable
     private static String permNameToValue(String permName, Map<String, String> carPermissionMap) {
         String permStr = carPermissionMap.get(permName);
         if (permStr != null) {
@@ -162,6 +174,7 @@ public final class VehiclePropertyIdsParser {
         return null;
     }
 
+    @Nullable
     private static PermissionType parsePermAnnotation(AnnotationExpr annotation,
             Map<String, String> carPermissionMap) {
         PermissionType permission = new PermissionType();
@@ -235,6 +248,43 @@ public final class VehiclePropertyIdsParser {
         }
     }
 
+    @Nullable
+    private static String parseClassLink(JavadocDescription linkElement,
+            Map<String, String> importMap) {
+        List<JavadocDescriptionElement> elements = linkElement.getElements();
+        if (elements.size() != 1) {
+            System.out.println("expected one doc element in: " + linkElement);
+            return null;
+        }
+        JavadocInlineTag tag = (JavadocInlineTag) elements.get(0);
+        String className = tag.getContent().strip();
+        if (className.contains(".")) {
+            return className;
+        }
+        // If the className is a simple name, try to find it in imports.
+        String fullName = importMap.get(className);
+        if (fullName == null) {
+            // If not found, assume it is from android.car package
+            return "android.car." + className;
+        }
+        return fullName;
+    }
+
+    private static Map<String, String> getImports(CompilationUnit cu) {
+        Map<String, String> importMap = new HashMap<>();
+        List<ImportDeclaration> imports = cu.getImports();
+        for (int i = 0; i < imports.size(); i++) {
+            ImportDeclaration importDecl = imports.get(i);
+            // Our style guide does not allow the using of *.
+            if (importDecl.isAsterisk()) {
+                continue;
+            }
+            Name className = importDecl.getName();
+            importMap.put(className.getIdentifier(), className.asString());
+        }
+        return importMap;
+    }
+
     /**
      * Main function.
      */
@@ -270,6 +320,9 @@ public final class VehiclePropertyIdsParser {
         cu = StaticJavaParser.parse(new File(vehiclePropertyIdsJava));
         ClassOrInterfaceDeclaration vehiclePropertyIdsClass =
                 cu.getClassByName("VehiclePropertyIds").get();
+
+        Map<String, String> importMap = getImports(cu);
+
         List<FieldDeclaration> variables = vehiclePropertyIdsClass.findAll(FieldDeclaration.class);
         for (int i = 0; i < variables.size(); i++) {
             ACCESS_MODE accessMode = null;
@@ -304,6 +357,8 @@ public final class VehiclePropertyIdsParser {
             List<JavadocBlockTag> blockTags = doc.getBlockTags();
             boolean deprecated = false;
             boolean hide = false;
+            List<String> dataEnums = new ArrayList<>();
+            String dataFlag = null;
             for (int j = 0; j < blockTags.size(); j++) {
                 String commentTagName = blockTags.get(j).getTagName();
                 if (commentTagName.equals("deprecated")) {
@@ -312,11 +367,34 @@ public final class VehiclePropertyIdsParser {
                 if (commentTagName.equals("hide")) {
                     hide = true;
                 }
+                String commentTagContent = blockTags.get(j).getContent().toText();
+                String enumClass = null;
+                if (commentTagName.equals("data_enum") || commentTagName.equals("data_flag")) {
+                    enumClass = parseClassLink(blockTags.get(j).getContent(), importMap);
+                    if (enumClass == null) {
+                        System.out.println("Invalid comment block: " + commentTagContent
+                                + " for property: " + propertyName);
+                        System.exit(1);
+                    }
+                }
+                if (commentTagName.equals("data_enum")) {
+                    dataEnums.add(enumClass);
+                }
+                if (commentTagName.equals("data_flag")) {
+                    if (dataFlag != null) {
+                        System.out.println("Duplicated data_flag annotation for one property: "
+                                + propertyName);
+                        System.exit(1);
+                    }
+                    dataFlag = enumClass;
+                }
             }
             String docText = doc.toText();
             propertyConfig.description = (docText.split("\n"))[0];
             propertyConfig.deprecated = deprecated;
             propertyConfig.hide = hide;
+            propertyConfig.dataEnums = dataEnums;
+            propertyConfig.dataFlag = dataFlag;
 
             if (docText.indexOf(ACCESS_MODE_READ_WRITE_LINK) != -1) {
                 accessMode = ACCESS_MODE.READ_WRITE;
@@ -385,6 +463,12 @@ public final class VehiclePropertyIdsParser {
             }
             if (config.vhalPropertyId != 0) {
                 jsonProp.put("vhalPropertyId", config.vhalPropertyId);
+            }
+            if (config.dataEnums.size() != 0) {
+                jsonProp.put("dataEnums", new JSONArray(config.dataEnums));
+            }
+            if (config.dataFlag != null) {
+                jsonProp.put("dataFlag", config.dataFlag);
             }
             jsonProps.put(config.propertyName, jsonProp);
         }
