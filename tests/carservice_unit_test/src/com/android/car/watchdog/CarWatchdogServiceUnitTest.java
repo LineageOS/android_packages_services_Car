@@ -150,6 +150,8 @@ import android.util.SparseArray;
 import android.util.StatsEvent;
 import android.view.Display;
 
+import androidx.test.filters.FlakyTest;
+
 import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceHelperWrapper;
@@ -460,6 +462,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     @Test
+    @FlakyTest(bugId = 294137799)
     public void testWatchdogDaemonRestart() throws Exception {
         crashWatchdogDaemon();
 
