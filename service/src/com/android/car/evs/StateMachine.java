@@ -905,17 +905,13 @@ final class StateMachine {
                     }
                 }
 
+                mHalWrapper.requestToStopVideoStream();
                 if (!mHalCallback.isEmpty()) {
                     Slogf.i(mLogTag, "%s streaming client(s) is/are alive.", mHalCallback.size());
                     return ERROR_NONE;
                 }
 
                 Slogf.i(mLogTag, "Last streaming client has been disconnected.");
-                for (int i = 0; i < mBufferRecords.size(); i++) {
-                    mHalWrapper.doneWithFrame(mBufferRecords.keyAt(i));
-                }
-
-                mHalWrapper.requestToStopVideoStream();
                 mBufferRecords.clear();
                 break;
 
