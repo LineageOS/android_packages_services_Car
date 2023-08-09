@@ -36,6 +36,7 @@
     <application android:label="@string/app_title"
             android:debuggable="true" android:testOnly="true">
         <uses-library android:name="android.test.runner" />
+        <activity android:name="android.car.app.CarTaskViewControllerHostLifecycleFactoryTest$TestActivity"/>
         <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityA"/>
         <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityB"/>
         <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityC"/>

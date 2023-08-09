@@ -61,6 +61,9 @@ android.car.app.CarSystemUIProxy
 android.car.app.CarTaskViewClient
 android.car.app.CarTaskViewController
 android.car.app.CarTaskViewControllerCallback
+android.car.app.CarTaskViewControllerHostLifecycle
+android.car.app.CarTaskViewControllerHostLifecycle$CarTaskViewControllerHostLifecycleObserver
+android.car.app.CarTaskViewControllerHostLifecycleFactory
 android.car.app.CarTaskViewHost
 android.car.app.ControlledRemoteCarTaskView
 android.car.app.ControlledRemoteCarTaskViewCallback

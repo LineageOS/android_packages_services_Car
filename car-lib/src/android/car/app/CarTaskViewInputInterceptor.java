@@ -22,10 +22,8 @@ import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
 
 import android.annotation.MainThread;
 import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.annotation.RequiresApi;
-import android.app.Activity;
-import android.app.Application;
+import android.car.app.CarTaskViewControllerHostLifecycle.CarTaskViewControllerHostLifecycleObserver;
 import android.car.builtin.input.InputManagerHelper;
 import android.car.builtin.view.ViewHelper;
 import android.car.builtin.window.WindowManagerHelper;
@@ -34,7 +32,6 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.hardware.input.InputManager;
 import android.os.Build;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -64,23 +61,46 @@ final class CarTaskViewInputInterceptor {
 
     private static final Rect sTmpBounds = new Rect();
 
-    private final Activity mHostActivity;
+    private final Context mContext;
+    private final CarTaskViewControllerHostLifecycle mLifecycle;
     private final InputManager mInputManager;
     private final WindowManager mWm;
     private final GestureDetector mGestureDetector =
             new GestureDetector(new TaskViewGestureListener());
-    private final Application.ActivityLifecycleCallbacks mActivityLifecycleCallbacks =
-            new ActivityLifecycleHandler();
+    private final CarTaskViewControllerHostLifecycleObserver mLifeCycleObserver =
+            new CarTaskViewControllerHostLifecycleObserver() {
+                @Override
+                public void onHostDestroyed(CarTaskViewControllerHostLifecycle lifecycle) {
+                }
+
+                @Override
+                public void onHostAppeared(CarTaskViewControllerHostLifecycle lifecycle) {
+                    if (!mInitialized) {
+                        return;
+                    }
+                    startInterceptingGestures();
+                }
+
+                @Override
+                public void onHostDisappeared(CarTaskViewControllerHostLifecycle lifecycle) {
+                    if (!mInitialized) {
+                        return;
+                    }
+                    stopInterceptingGestures();
+                }
+            };
     private final CarTaskViewController mTaskViewController;
 
     private View mSpyWindow;
     private boolean mInitialized = false;
 
-    CarTaskViewInputInterceptor(Activity hostActivity, CarTaskViewController taskViewController) {
-        mHostActivity = hostActivity;
-        mInputManager = hostActivity.getSystemService(InputManager.class);
+    CarTaskViewInputInterceptor(Context context, CarTaskViewControllerHostLifecycle lifecycle,
+            CarTaskViewController taskViewController) {
+        mContext = context;
+        mLifecycle = lifecycle;
+        mInputManager = mContext.getSystemService(InputManager.class);
         mTaskViewController = taskViewController;
-        mWm = mHostActivity.getSystemService(WindowManager.class);
+        mWm = mContext.getSystemService(WindowManager.class);
     }
 
     private static boolean isIn(MotionEvent event, RemoteCarTaskView taskView) {
@@ -88,7 +108,9 @@ final class CarTaskViewInputInterceptor {
         return sTmpBounds.contains((int) event.getX(), (int) event.getY());
     }
 
-    /** Initializes & starts intercepting gestures. Does nothing if already initialized. */
+    /**
+     * Initializes & starts intercepting gestures. Does nothing if already initialized.
+     */
     @MainThread
     void init() {
         if (mInitialized) {
@@ -96,7 +118,7 @@ final class CarTaskViewInputInterceptor {
             return;
         }
         mInitialized = true;
-        mHostActivity.registerActivityLifecycleCallbacks(mActivityLifecycleCallbacks);
+        mLifecycle.registerObserver(mLifeCycleObserver);
         startInterceptingGestures();
     }
 
@@ -111,7 +133,7 @@ final class CarTaskViewInputInterceptor {
             return;
         }
         mInitialized = false;
-        mHostActivity.unregisterActivityLifecycleCallbacks(mActivityLifecycleCallbacks);
+        mLifecycle.unregisterObserver(mLifeCycleObserver);
         stopInterceptingGestures();
     }
 
@@ -138,7 +160,7 @@ final class CarTaskViewInputInterceptor {
     }
 
     private void createAndAddSpyWindow() {
-        mSpyWindow = new GestureSpyView(mHostActivity);
+        mSpyWindow = new GestureSpyView(mContext);
         WindowManager.LayoutParams p =
                 new WindowManager.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
@@ -166,8 +188,9 @@ final class CarTaskViewInputInterceptor {
     }
 
     private final class GestureSpyView extends View {
+
         private boolean mConsumingCurrentEventStream = false;
-        private boolean mActionDownInsideTaskView = false;
+        private RemoteCarTaskView mActionDownInsideTaskView = null;
         private float mTouchDownX;
         private float mTouchDownY;
 
@@ -181,7 +204,7 @@ final class CarTaskViewInputInterceptor {
             mGestureDetector.onTouchEvent(event);
 
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                mActionDownInsideTaskView = false;
+                mActionDownInsideTaskView = null;
 
                 List<ControlledRemoteCarTaskView> taskViewList =
                         mTaskViewController.getControlledRemoteCarTaskViews();
@@ -189,7 +212,7 @@ final class CarTaskViewInputInterceptor {
                     if (tv.getConfig().mShouldCaptureGestures && isIn(event, tv)) {
                         mTouchDownX = event.getX();
                         mTouchDownY = event.getY();
-                        mActionDownInsideTaskView = true;
+                        mActionDownInsideTaskView = tv;
                         break;
                     }
                 }
@@ -199,7 +222,7 @@ final class CarTaskViewInputInterceptor {
             }
 
             if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                if (!mConsumingCurrentEventStream && mActionDownInsideTaskView
+                if (!mConsumingCurrentEventStream && mActionDownInsideTaskView != null
                         && Float.compare(mTouchDownX, event.getX()) != 0
                         && Float.compare(mTouchDownY, event.getY()) != 0) {
                     // Start consuming on ACTION_MOVE when ACTION_DOWN happened inside TaskView
@@ -217,11 +240,10 @@ final class CarTaskViewInputInterceptor {
                         // is meant to be the first event in an event stream.
                         MotionEvent cloneEvent = MotionEvent.obtain(event);
                         cloneEvent.setAction(MotionEvent.ACTION_DOWN);
-                        CarTaskViewInputInterceptor.this.mHostActivity.dispatchTouchEvent(
-                                cloneEvent);
+                        dispatchEvent(mActionDownInsideTaskView, cloneEvent);
                         cloneEvent.recycle();
                     }
-                    CarTaskViewInputInterceptor.this.mHostActivity.dispatchTouchEvent(event);
+                    dispatchEvent(mActionDownInsideTaskView, event);
                 }
             }
 
@@ -230,11 +252,18 @@ final class CarTaskViewInputInterceptor {
                 if (mConsumingCurrentEventStream) {
                     // Disable the propagation when handling manually.
                     InputManagerHelper.pilferPointers(mInputManager, this);
-                    CarTaskViewInputInterceptor.this.mHostActivity.dispatchTouchEvent(event);
+                    dispatchEvent(mActionDownInsideTaskView, event);
                 }
                 mConsumingCurrentEventStream = false;
             }
             return false;
+        }
+
+        private static void dispatchEvent(RemoteCarTaskView taskView, MotionEvent event) {
+            if (taskView.getRootView() == null) {
+                return;
+            }
+            taskView.getRootView().dispatchTouchEvent(event);
         }
     }
 
@@ -256,46 +285,6 @@ final class CarTaskViewInputInterceptor {
             if (DBG) {
                 Log.d(TAG, "Long press not captured");
             }
-        }
-    }
-
-    private final class ActivityLifecycleHandler implements Application.ActivityLifecycleCallbacks {
-        @Override
-        public void onActivityCreated(
-                @NonNull Activity activity, @Nullable Bundle savedInstanceState) {
-        }
-
-        @Override
-        public void onActivityStarted(@NonNull Activity activity) {
-            if (!mInitialized) {
-                return;
-            }
-            startInterceptingGestures();
-        }
-
-        @Override
-        public void onActivityResumed(@NonNull Activity activity) {
-        }
-
-        @Override
-        public void onActivityPaused(@NonNull Activity activity) {
-        }
-
-        @Override
-        public void onActivityStopped(@NonNull Activity activity) {
-            if (!mInitialized) {
-                return;
-            }
-            stopInterceptingGestures();
-        }
-
-        @Override
-        public void onActivitySaveInstanceState(
-                @NonNull Activity activity, @NonNull Bundle outState) {
-        }
-
-        @Override
-        public void onActivityDestroyed(@NonNull Activity activity) {
         }
     }
 }
