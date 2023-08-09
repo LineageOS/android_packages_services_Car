@@ -57,6 +57,33 @@
         android:textAppearance="?android:textAppearanceLarge"/>
 
     <TextView
+        android:id="@+id/uxr_restriction_parameters_string_length"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/active_restriction_parameters_string_length"
+        android:padding="@dimen/section_padding"
+        android:textSize="@dimen/info_text_size"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:id="@+id/uxr_restriction_parameters_content_depth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/active_restriction_parameters_content_depth"
+        android:padding="@dimen/section_padding"
+        android:textSize="@dimen/info_text_size"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:id="@+id/uxr_restriction_parameters_cumulative_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/active_restriction_parameters_cumulative_content"
+        android:padding="@dimen/section_padding"
+        android:textSize="@dimen/info_text_size"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
         android:id="@+id/show_uxr_config"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
