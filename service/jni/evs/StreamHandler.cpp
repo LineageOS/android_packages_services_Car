@@ -128,6 +128,9 @@ bool StreamHandler::startStream() {
             return false;
         }
 
+        // This is the first client of this stream.
+        mNumClients = 1;
+
         // Marks ourselves as running
         mRunning = true;
     } else {
@@ -148,19 +151,24 @@ bool StreamHandler::startStream() {
 }
 
 /*
- * Requests to stop a video stream
+ * Requests to stop a video stream and waits for a confirmation
  */
-bool StreamHandler::asyncStopStream() {
-    bool success = true;
-
-    // This will result in STREAM_STOPPED event; the client may want to wait
-    // this event to confirm the closure.
+void StreamHandler::blockingStopStream() {
     {
-        std::lock_guard<std::mutex> lock(mLock);
+        std::lock_guard lock(mLock);
         if (!mRunning) {
-            return true;
+            // Nothing to do.
+            return;
         }
 
+        if (mNumClients > 1) {
+            // Decrease a number of active clients and return.
+            --mNumClients;
+            return;
+
+        }
+
+        // Return all buffers currently held by us.
         auto it = mReceivedBuffers.begin();
         while (it != mReceivedBuffers.end()) {
             // Packages a returned buffer and sends it back to the camera
@@ -170,7 +178,6 @@ bool StreamHandler::asyncStopStream() {
             if (!status.isOk()) {
                 LOG(WARNING) << "Failed to return a frame to EVS service; "
                              << "this may leak the memory: " << status.getServiceSpecificError();
-                success = false;
             }
 
             it = mReceivedBuffers.erase(it);
@@ -180,33 +187,20 @@ bool StreamHandler::asyncStopStream() {
     auto status = mEvsCamera->stopVideoStream();
     if (!status.isOk()) {
         LOG(WARNING) << "stopVideoStream() failed but ignored.";
-        success = false;
     }
 
-    return success;
-}
-
-/*
- * Requests to stop a video stream and waits for a confirmation
- */
-void StreamHandler::blockingStopStream() {
-    if (!asyncStopStream()) {
-        // EVS service may die so no stream-stop event occurs.
-        std::lock_guard<std::mutex> lock(mLock);
-        mRunning = false;
+    // Now, we are waiting for the ack from EvsManager service.
+    {
+        std::unique_lock<std::mutex> lock(mLock);
+        while (mRunning) {
+            if (!mCondition.wait_for(lock, 1s, [this]() { return !mRunning; })) {
+                LOG(WARNING) << "STREAM_STOPPED event timer expired.  EVS service may die.";
+                break;
+            }
+        }
 
         // Decrease a number of active clients.
         --mNumClients;
-        return;
-    }
-
-    // Waits until the stream has actually stopped
-    std::unique_lock<std::mutex> lock(mLock);
-    while (mRunning) {
-        if (!mCondition.wait_for(lock, 1s, [this]() { return !mRunning; })) {
-            LOG(WARNING) << "STREAM_STOPPED event timer expired.  EVS service may die.";
-            break;
-        }
     }
 }
 

@@ -45,7 +45,6 @@ public:
     virtual ~StreamHandler();
     void shutdown();
     bool startStream();
-    bool asyncStopStream();
     void blockingStopStream();
     bool isRunning();
     void doneWithFrame(const ::aidl::android::hardware::automotive::evs::BufferDesc& buffer);
