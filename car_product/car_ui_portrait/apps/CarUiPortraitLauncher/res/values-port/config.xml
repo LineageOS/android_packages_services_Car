@@ -62,5 +62,6 @@
         <item>android.view.surfacecontrol.cts/.TrustedPresentationCallbackTest$TestActivity</item>
         <item>android.view.surfacecontrol.cts/android.view.cts.surfacevalidator.CapturedActivityWithResource</item>
         <item>android.uirendering.cts/android.uirendering.cts.testinfrastructure.DrawActivity</item>
+        <item>android.display.cts/android.display.cts.DisplayManagerTest$TestActivity</item>
     </string-array>
 </resources>
