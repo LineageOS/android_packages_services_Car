@@ -173,7 +173,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private TaskInfoCache mTaskInfoCache;
     private TaskViewPanel mAppGridTaskViewPanel;
     private TaskViewPanel mRootTaskViewPanel;
-
     private InputManagerGlobal mInputManagerGlobal;
 
     private ComponentName mUnhandledImmersiveModeRequestComponent;
@@ -300,8 +299,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             }
 
             if (shouldTaskShowOnRootTaskView(taskInfo)) {
-                logIfDebuggable("Opening in root task view: ");
-
+                logIfDebuggable("Opening in root task view: " + taskInfo);
+                mRootTaskViewPanel.setComponentName(getVisibleActivity(taskInfo));
                 // Open immersive mode if there is unhandled immersive mode request.
                 if (shouldOpenFullScreenPanel(taskInfo)) {
                     mRootTaskViewPanel.openFullScreenPanel(/* animated= */ true,
@@ -376,6 +375,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     mAppGridTaskViewPanel.openPanel();
                 }
             } else if (shouldTaskShowOnRootTaskView(taskInfo)) {
+                mRootTaskViewPanel.setComponentName(getVisibleActivity(taskInfo));
                 if (mAppGridTaskViewPanel.isAnimating() && mAppGridTaskViewPanel.isOpen()) {
                     mAppGridTaskViewPanel.openPanel(/* animated = */ false);
                 }
@@ -1012,6 +1012,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 } else if (!mIsBlankActivityOnTop) {
                     // Launch a blank activity to move the top activity to background.
                     startActivity(BlankActivity.createIntent(getApplicationContext()));
+                    mIsBlankActivityOnTop = true;
                 }
             }
         });
@@ -1114,20 +1115,41 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             mRootTaskViewPanel.openFullScreenPanel(/* animated= */ true, /* showToolBar= */ true,
                     mNavBarHeight);
         } else {
-            mRootTaskViewPanel.openPanel();
+            mRootTaskViewPanel.openPanelWithIcon();
         }
     }
 
     private boolean isPackageVisibleOnRootTask(ComponentName componentName) {
         ActivityManager.RunningTaskInfo taskInfo = mTaskViewManager.getTopTaskInLaunchRootTask();
+        logIfDebuggable("Top task in launch root task is" + taskInfo);
         if (taskInfo == null) {
             return false;
         }
-        ComponentName visibleComponentName =
-                taskInfo.topActivity == null ? taskInfo.baseActivity : taskInfo.topActivity;
+
+        // To avoid race condition between getTopTaskInLaunchRootTask and the start of
+        // blankActivity on root panel hide. This race condition is typically triggered when the
+        // user opens the app grid while the app is in immersive mode, The CarUiPortraitHome may
+        // receive redundant immersive requests while the blankActivity is not yet the top task
+        // in the launch root task.
+        if (mIsBlankActivityOnTop) {
+            logIfDebuggable("BlankActivity is at top");
+            return false;
+        }
+
+        ComponentName visibleComponentName = getVisibleActivity(taskInfo);
 
         return visibleComponentName != null
                 && componentName.getPackageName().equals(visibleComponentName.getPackageName());
+    }
+
+    private ComponentName getVisibleActivity(ActivityManager.RunningTaskInfo taskInfo) {
+        if (taskInfo.topActivity != null) {
+            return taskInfo.topActivity;
+        } else if (taskInfo.baseActivity != null) {
+            return taskInfo.baseActivity;
+        } else {
+            return taskInfo.baseIntent.getComponent();
+        }
     }
 
     private void setUnhandledImmersiveModeRequest(ComponentName componentName, long timestamp,
@@ -1157,10 +1179,11 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     mIsSUWInProgress = intToBool(msg.arg1);
                     logIfDebuggable("Get intent about the SUW is " + mIsSUWInProgress);
                     if (mIsSUWInProgress) {
-                        mRootTaskViewPanel.openFullScreenPanel(/* animated= */
-                                false, /* showToolBar= */ false, /* bottomAdjustment= */ 0);
+                        mRootTaskViewPanel.openFullScreenPanel(/* animated= */false,
+                                /* showToolBar= */ false, /* bottomAdjustment= */ 0);
                     } else {
                         mRootTaskViewPanel.closePanel();
+                        mIsBlankActivityOnTop = true;
                     }
                     break;
                 case MSG_IMMERSIVE_MODE_CHANGE:
