@@ -27,13 +27,13 @@ import static android.car.hardware.property.CarPropertyManager.SENSOR_RATE_ONCHA
 import static android.car.hardware.property.CarPropertyManager.SetPropertyRequest;
 import static android.car.hardware.property.CarPropertyManager.SetPropertyResult;
 
+import static com.android.car.hal.PropertyHalServiceTest.createCarSubscriptionOption;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -63,6 +63,7 @@ import android.car.hardware.property.PropertyAccessDeniedSecurityException;
 import android.car.hardware.property.PropertyNotAvailableAndRetryException;
 import android.car.hardware.property.PropertyNotAvailableErrorCode;
 import android.car.hardware.property.PropertyNotAvailableException;
+import android.car.hardware.property.SubscriptionOption;
 import android.car.hardware.property.VehicleHalStatusCode;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -152,6 +153,8 @@ public final class CarPropertyManagerUnitTest {
     private ArgumentCaptor<Integer> mPropertyIdCaptor;
     @Captor
     private ArgumentCaptor<Float> mUpdateRateHzCaptor;
+    @Captor
+    private ArgumentCaptor<List> mCarSubscribeOptionCaptor;
     @Captor
     private ArgumentCaptor<AsyncPropertyServiceRequestList> mAsyncPropertyServiceRequestCaptor;
     @Captor
@@ -1592,7 +1595,7 @@ public final class CarPropertyManagerUnitTest {
             throws RemoteException {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VehiclePropertyIds.INVALID, FIRST_UPDATE_RATE_HZ)).isFalse();
-        verify(mICarProperty, never()).registerListener(anyInt(), anyFloat(),
+        verify(mICarProperty, never()).registerListenerWithSubscribeOptions(any(),
                 any(ICarPropertyEventListener.class));
     }
 
@@ -1600,8 +1603,9 @@ public final class CarPropertyManagerUnitTest {
     public void testRegisterCallback_registersWithServiceOnFirstCallback() throws RemoteException {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
-        verify(mICarProperty).registerListener(eq(VENDOR_CONTINUOUS_PROPERTY),
-                eq(FIRST_UPDATE_RATE_HZ), any(ICarPropertyEventListener.class));
+        verify(mICarProperty).registerListenerWithSubscribeOptions(eq(List.of(
+                createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
+                        FIRST_UPDATE_RATE_HZ))), any(ICarPropertyEventListener.class));
     }
 
     @Test
@@ -1609,8 +1613,9 @@ public final class CarPropertyManagerUnitTest {
             throws RemoteException {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_CONTINUOUS_PROPERTY, MAX_UPDATE_RATE_HZ + 1)).isTrue();
-        verify(mICarProperty).registerListener(eq(VENDOR_CONTINUOUS_PROPERTY),
-                eq(MAX_UPDATE_RATE_HZ), any(ICarPropertyEventListener.class));
+        verify(mICarProperty).registerListenerWithSubscribeOptions(eq(List.of(
+                createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
+                        MAX_UPDATE_RATE_HZ))), any(ICarPropertyEventListener.class));
     }
 
     @Test
@@ -1618,8 +1623,9 @@ public final class CarPropertyManagerUnitTest {
             throws RemoteException {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_CONTINUOUS_PROPERTY, MIN_UPDATE_RATE_HZ - 1)).isTrue();
-        verify(mICarProperty).registerListener(eq(VENDOR_CONTINUOUS_PROPERTY),
-                eq(MIN_UPDATE_RATE_HZ), any(ICarPropertyEventListener.class));
+        verify(mICarProperty).registerListenerWithSubscribeOptions(eq(List.of(
+                createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
+                        MIN_UPDATE_RATE_HZ))), any(ICarPropertyEventListener.class));
     }
 
     @Test
@@ -1627,8 +1633,10 @@ public final class CarPropertyManagerUnitTest {
             throws RemoteException {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_ON_CHANGE_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
-        verify(mICarProperty).registerListener(eq(VENDOR_ON_CHANGE_PROPERTY),
-                eq(CarPropertyManager.SENSOR_RATE_ONCHANGE), any(ICarPropertyEventListener.class));
+        verify(mICarProperty).registerListenerWithSubscribeOptions(eq(List.of(
+                createCarSubscriptionOption(VENDOR_ON_CHANGE_PROPERTY, new int[]{0},
+                        CarPropertyManager.SENSOR_RATE_ONCHANGE))),
+                any(ICarPropertyEventListener.class));
     }
 
     @Test
@@ -1636,15 +1644,19 @@ public final class CarPropertyManagerUnitTest {
             throws RemoteException {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_STATIC_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
-        verify(mICarProperty).registerListener(eq(VENDOR_STATIC_PROPERTY),
-                eq(CarPropertyManager.SENSOR_RATE_ONCHANGE), any(ICarPropertyEventListener.class));
+        verify(mICarProperty).registerListenerWithSubscribeOptions(eq(List.of(
+                createCarSubscriptionOption(VENDOR_STATIC_PROPERTY, new int[]{0},
+                        CarPropertyManager.SENSOR_RATE_ONCHANGE))),
+                any(ICarPropertyEventListener.class));
     }
 
     @Test
     public void testRegisterCallback_returnsFalseForRemoteException() throws RemoteException {
         RemoteException remoteException = new RemoteException();
-        doThrow(remoteException).when(mICarProperty).registerListener(eq(VENDOR_ON_CHANGE_PROPERTY),
-                eq(CarPropertyManager.SENSOR_RATE_ONCHANGE), any(ICarPropertyEventListener.class));
+        doThrow(remoteException).when(mICarProperty).registerListenerWithSubscribeOptions(
+                eq(List.of(createCarSubscriptionOption(VENDOR_ON_CHANGE_PROPERTY, new int[] {0},
+                        CarPropertyManager.SENSOR_RATE_ONCHANGE))),
+                any(ICarPropertyEventListener.class));
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_ON_CHANGE_PROPERTY, CarPropertyManager.SENSOR_RATE_ONCHANGE)).isFalse();
     }
@@ -1652,22 +1664,27 @@ public final class CarPropertyManagerUnitTest {
     @Test
     public void testRegisterCallback_recoversAfterFirstRemoteException() throws RemoteException {
         RemoteException remoteException = new RemoteException();
-        doThrow(remoteException).doNothing().when(mICarProperty).registerListener(
-                eq(VENDOR_ON_CHANGE_PROPERTY), eq(CarPropertyManager.SENSOR_RATE_ONCHANGE),
+        doThrow(remoteException).doNothing().when(mICarProperty)
+                .registerListenerWithSubscribeOptions(eq(List.of(
+                        createCarSubscriptionOption(VENDOR_ON_CHANGE_PROPERTY, new int[] {0},
+                        SENSOR_RATE_ONCHANGE))),
                 any(ICarPropertyEventListener.class));
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_ON_CHANGE_PROPERTY, CarPropertyManager.SENSOR_RATE_ONCHANGE)).isFalse();
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_ON_CHANGE_PROPERTY, CarPropertyManager.SENSOR_RATE_ONCHANGE)).isTrue();
-        verify(mICarProperty, times(2)).registerListener(eq(VENDOR_ON_CHANGE_PROPERTY),
-                eq(CarPropertyManager.SENSOR_RATE_ONCHANGE), any(ICarPropertyEventListener.class));
+        verify(mICarProperty, times(2)).registerListenerWithSubscribeOptions(
+                eq(List.of(createCarSubscriptionOption(VENDOR_ON_CHANGE_PROPERTY, new int[] {0},
+                        CarPropertyManager.SENSOR_RATE_ONCHANGE))),
+                any(ICarPropertyEventListener.class));
     }
 
     @Test
     public void testRegisterCallback_returnsFalseForIllegalArgumentException()
             throws RemoteException {
-        doThrow(IllegalArgumentException.class).when(mICarProperty).registerListener(
-                eq(VENDOR_ON_CHANGE_PROPERTY), eq(CarPropertyManager.SENSOR_RATE_ONCHANGE),
+        doThrow(IllegalArgumentException.class).when(mICarProperty)
+                .registerListenerWithSubscribeOptions(eq(List.of(createCarSubscriptionOption(
+                        VENDOR_ON_CHANGE_PROPERTY, new int[] {0}, SENSOR_RATE_ONCHANGE))),
                 any(ICarPropertyEventListener.class));
 
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
@@ -1676,8 +1693,9 @@ public final class CarPropertyManagerUnitTest {
 
     @Test
     public void testRegisterCallback_SecurityException() throws RemoteException {
-        doThrow(SecurityException.class).when(mICarProperty).registerListener(
-                eq(VENDOR_ON_CHANGE_PROPERTY), eq(CarPropertyManager.SENSOR_RATE_ONCHANGE),
+        doThrow(SecurityException.class).when(mICarProperty).registerListenerWithSubscribeOptions(
+                eq(List.of(createCarSubscriptionOption(VENDOR_ON_CHANGE_PROPERTY, new int[] {0},
+                        CarPropertyManager.SENSOR_RATE_ONCHANGE))),
                 any(ICarPropertyEventListener.class));
 
         assertThrows(SecurityException.class,
@@ -1691,12 +1709,13 @@ public final class CarPropertyManagerUnitTest {
                 VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback2,
                 VENDOR_CONTINUOUS_PROPERTY, LARGER_UPDATE_RATE_HZ)).isTrue();
-        verify(mICarProperty, times(2)).registerListener(mPropertyIdCaptor.capture(),
-                mUpdateRateHzCaptor.capture(), any(ICarPropertyEventListener.class));
-        assertThat(mPropertyIdCaptor.getAllValues()).containsExactly(VENDOR_CONTINUOUS_PROPERTY,
-                VENDOR_CONTINUOUS_PROPERTY);
-        assertThat(mUpdateRateHzCaptor.getAllValues()).containsExactly(FIRST_UPDATE_RATE_HZ,
-                LARGER_UPDATE_RATE_HZ);
+        verify(mICarProperty, times(2)).registerListenerWithSubscribeOptions(
+                mCarSubscribeOptionCaptor.capture(), any(ICarPropertyEventListener.class));
+        assertThat(mCarSubscribeOptionCaptor.getAllValues()).containsExactly(
+                List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[] {0},
+                        LARGER_UPDATE_RATE_HZ)),
+                List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[] {0},
+                        FIRST_UPDATE_RATE_HZ)));
     }
 
     @Test
@@ -1704,14 +1723,15 @@ public final class CarPropertyManagerUnitTest {
             throws RemoteException {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
-        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback2,
                 VENDOR_CONTINUOUS_PROPERTY, LARGER_UPDATE_RATE_HZ)).isTrue();
-        verify(mICarProperty, times(2)).registerListener(mPropertyIdCaptor.capture(),
-                mUpdateRateHzCaptor.capture(), any(ICarPropertyEventListener.class));
-        assertThat(mPropertyIdCaptor.getAllValues()).containsExactly(VENDOR_CONTINUOUS_PROPERTY,
-                VENDOR_CONTINUOUS_PROPERTY);
-        assertThat(mUpdateRateHzCaptor.getAllValues()).containsExactly(FIRST_UPDATE_RATE_HZ,
-                LARGER_UPDATE_RATE_HZ);
+        verify(mICarProperty, times(2)).registerListenerWithSubscribeOptions(
+                mCarSubscribeOptionCaptor.capture(), any(ICarPropertyEventListener.class));
+        assertThat(mCarSubscribeOptionCaptor.getAllValues()).containsExactly(
+                List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[] {0},
+                        LARGER_UPDATE_RATE_HZ)),
+                List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[] {0},
+                        FIRST_UPDATE_RATE_HZ)));
     }
 
     @Test
@@ -1721,12 +1741,13 @@ public final class CarPropertyManagerUnitTest {
                 VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_CONTINUOUS_PROPERTY, SMALLER_UPDATE_RATE_HZ)).isTrue();
-        verify(mICarProperty, times(2)).registerListener(mPropertyIdCaptor.capture(),
-                mUpdateRateHzCaptor.capture(), any(ICarPropertyEventListener.class));
-        assertThat(mPropertyIdCaptor.getAllValues()).containsExactly(VENDOR_CONTINUOUS_PROPERTY,
-                VENDOR_CONTINUOUS_PROPERTY);
-        assertThat(mUpdateRateHzCaptor.getAllValues()).containsExactly(FIRST_UPDATE_RATE_HZ,
-                SMALLER_UPDATE_RATE_HZ);
+        verify(mICarProperty, times(2)).registerListenerWithSubscribeOptions(
+                mCarSubscribeOptionCaptor.capture(), any(ICarPropertyEventListener.class));
+        assertThat(mCarSubscribeOptionCaptor.getAllValues()).containsExactly(
+                List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[] {0},
+                        FIRST_UPDATE_RATE_HZ)),
+                List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[] {0},
+                        SMALLER_UPDATE_RATE_HZ)));
     }
 
     @Test
@@ -1736,8 +1757,10 @@ public final class CarPropertyManagerUnitTest {
                 VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback2,
                 VENDOR_CONTINUOUS_PROPERTY, SMALLER_UPDATE_RATE_HZ)).isTrue();
-        verify(mICarProperty).registerListener(eq(VENDOR_CONTINUOUS_PROPERTY),
-                eq(FIRST_UPDATE_RATE_HZ), any(ICarPropertyEventListener.class));
+        verify(mICarProperty).registerListenerWithSubscribeOptions(eq(List.of(
+                createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
+                        FIRST_UPDATE_RATE_HZ))),
+                any(ICarPropertyEventListener.class));
     }
 
     @Test
@@ -1746,19 +1769,94 @@ public final class CarPropertyManagerUnitTest {
                 VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_ON_CHANGE_PROPERTY, CarPropertyManager.SENSOR_RATE_ONCHANGE)).isTrue();
-        verify(mICarProperty, times(2)).registerListener(mPropertyIdCaptor.capture(),
-                mUpdateRateHzCaptor.capture(), any(ICarPropertyEventListener.class));
-        assertThat(mPropertyIdCaptor.getAllValues()).containsExactly(VENDOR_CONTINUOUS_PROPERTY,
-                VENDOR_ON_CHANGE_PROPERTY);
-        assertThat(mUpdateRateHzCaptor.getAllValues()).containsExactly(FIRST_UPDATE_RATE_HZ,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+        verify(mICarProperty, times(2)).registerListenerWithSubscribeOptions(
+                mCarSubscribeOptionCaptor.capture(), any(ICarPropertyEventListener.class));
+        assertThat(mCarSubscribeOptionCaptor.getAllValues()).containsExactly(
+                List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[] {0},
+                        FIRST_UPDATE_RATE_HZ)),
+                List.of(createCarSubscriptionOption(VENDOR_ON_CHANGE_PROPERTY, new int[] {0},
+                        CarPropertyManager.SENSOR_RATE_ONCHANGE)));
+    }
+
+    @Test
+    public void testRegisterCallback_registerMultipleEvents() throws Exception {
+        assertThat(mCarPropertyManager.subscribePropertyEvents(List.of(
+                new SubscriptionOption.Builder(VENDOR_CONTINUOUS_PROPERTY).addAreaId(0)
+                        .setUpdateRateFast().build(),
+                new SubscriptionOption.Builder(VENDOR_ON_CHANGE_PROPERTY).addAreaId(0).build()),
+                /* callbackExecutor= */null, mCarPropertyEventCallback)).isTrue();
+
+        verify(mICarProperty).registerListenerWithSubscribeOptions(
+                eq(List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
+                        CarPropertyManager.SENSOR_RATE_FAST), createCarSubscriptionOption(
+                                VENDOR_ON_CHANGE_PROPERTY, new int[]{0},
+                        CarPropertyManager.SENSOR_RATE_ONCHANGE))),
+                any(ICarPropertyEventListener.class));
+    }
+
+    @Test
+    public void testRegisterCallback_registerMultipleEventsSameProperty() throws Exception {
+        assertThat(mCarPropertyManager.subscribePropertyEvents(List.of(
+                        new SubscriptionOption.Builder(VENDOR_CONTINUOUS_PROPERTY).addAreaId(0)
+                                .setUpdateRateFast().build(),
+                        new SubscriptionOption.Builder(VENDOR_CONTINUOUS_PROPERTY).addAreaId(0)
+                                .build()),
+                /* callbackExecutor= */null, mCarPropertyEventCallback)).isTrue();
+
+        verify(mICarProperty).registerListenerWithSubscribeOptions(
+                eq(List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
+                        CarPropertyManager.SENSOR_RATE_FAST), createCarSubscriptionOption(
+                        VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
+                        CarPropertyManager.SENSOR_RATE_FAST))),
+                any(ICarPropertyEventListener.class));
+    }
+
+    @Test
+    public void testRegisterCallback_registerMultipleEvents_unsubscribe() throws Exception {
+        assertThat(mCarPropertyManager.subscribePropertyEvents(List.of(
+                        new SubscriptionOption.Builder(VENDOR_CONTINUOUS_PROPERTY).addAreaId(0)
+                                .setUpdateRateFast().build(),
+                        new SubscriptionOption.Builder(VENDOR_ON_CHANGE_PROPERTY).addAreaId(0)
+                                .build()),
+                /* callbackExecutor= */null, mCarPropertyEventCallback)).isTrue();
+
+        mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback);
+        verify(mICarProperty).unregisterListener(eq(VENDOR_CONTINUOUS_PROPERTY),
+                any(ICarPropertyEventListener.class));
+        verify(mICarProperty).unregisterListener(eq(VENDOR_ON_CHANGE_PROPERTY),
+                any(ICarPropertyEventListener.class));
+    }
+
+    @Test
+    public void testSubscribePropertyEvents_registerMultipleEventsWithSameProperty_unsubscribe()
+            throws Exception {
+        assertThat(mCarPropertyManager.subscribePropertyEvents(List.of(
+                        new SubscriptionOption.Builder(VENDOR_CONTINUOUS_PROPERTY).addAreaId(0)
+                                .setUpdateRateFastest().build(),
+                        new SubscriptionOption.Builder(VENDOR_ON_CHANGE_PROPERTY).addAreaId(0)
+                                .build()),
+                /* callbackExecutor= */null, mCarPropertyEventCallback)).isTrue();
+        assertThat(mCarPropertyManager.subscribePropertyEvents(List.of(
+                        new SubscriptionOption.Builder(VENDOR_CONTINUOUS_PROPERTY).addAreaId(0)
+                                .setUpdateRateFast().build()),
+                /* callbackExecutor= */null, mCarPropertyEventCallback2)).isTrue();
+        mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback);
+
+        verify(mICarProperty).registerListenerWithSubscribeOptions(eq(List.of(
+                createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
+                        CarPropertyManager.SENSOR_RATE_FAST))),
+                any(ICarPropertyEventListener.class));
+        verify(mICarProperty).unregisterListener(eq(VENDOR_ON_CHANGE_PROPERTY),
+                any(ICarPropertyEventListener.class));
     }
 
     @Test
     public void testRegisterCallback_registersAgainIfTheFirstCallbackReturnsFalse()
             throws RemoteException {
-        doThrow(IllegalArgumentException.class).doNothing().when(mICarProperty).registerListener(
-                eq(VENDOR_CONTINUOUS_PROPERTY), eq(FIRST_UPDATE_RATE_HZ),
+        doThrow(IllegalArgumentException.class).doNothing().when(mICarProperty)
+                .registerListenerWithSubscribeOptions(eq(List.of(
+                                createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY,
+                                        new int[]{0}, FIRST_UPDATE_RATE_HZ))),
                 any(ICarPropertyEventListener.class));
 
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
@@ -1772,8 +1870,9 @@ public final class CarPropertyManagerUnitTest {
             throws RemoteException {
         Float smallerUpdate = 1F;
         Float largerUpdate = 2F;
-        doThrow(IllegalArgumentException.class).when(mICarProperty).registerListener(
-                eq(HVAC_TEMPERATURE_SET), eq(largerUpdate),
+        doThrow(IllegalArgumentException.class).when(mICarProperty)
+                .registerListenerWithSubscribeOptions(eq(List.of(createCarSubscriptionOption(
+                        HVAC_TEMPERATURE_SET, new int[]{0}, largerUpdate))),
                 any(ICarPropertyEventListener.class));
 
         CarPropertyValue<Float> goodValue = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0,
@@ -1802,8 +1901,8 @@ public final class CarPropertyManagerUnitTest {
                 HVAC_TEMPERATURE_SET, smallerUpdate)).isTrue();
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 HVAC_TEMPERATURE_SET, largerUpdate)).isFalse();
-        verify(mICarProperty, times(3)).registerListener(mPropertyIdCaptor.capture(),
-                mUpdateRateHzCaptor.capture(), any(ICarPropertyEventListener.class));
+        verify(mICarProperty, times(3)).registerListenerWithSubscribeOptions(
+                any(), any(ICarPropertyEventListener.class));
 
         listener.onEvent(eventList);
         verify(mCarPropertyEventCallback, timeout(5000)).onChangeEvent(valueCaptor.capture());
@@ -1918,12 +2017,16 @@ public final class CarPropertyManagerUnitTest {
         mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback2);
         verify(mICarProperty, never()).unregisterListener(anyInt(),
                 any(ICarPropertyEventListener.class));
-        verify(mICarProperty, times(3)).registerListener(mPropertyIdCaptor.capture(),
-                mUpdateRateHzCaptor.capture(), any(ICarPropertyEventListener.class));
-        assertThat(mPropertyIdCaptor.getAllValues()).containsExactly(VENDOR_CONTINUOUS_PROPERTY,
-                VENDOR_CONTINUOUS_PROPERTY, VENDOR_CONTINUOUS_PROPERTY);
-        assertThat(mUpdateRateHzCaptor.getAllValues()).containsExactly(FIRST_UPDATE_RATE_HZ,
-                LARGER_UPDATE_RATE_HZ, FIRST_UPDATE_RATE_HZ);
+        verify(mICarProperty, times(3)).registerListenerWithSubscribeOptions(
+                mCarSubscribeOptionCaptor.capture(), any(ICarPropertyEventListener.class));
+        assertThat(mCarSubscribeOptionCaptor.getAllValues()).containsExactly(
+                List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
+                        FIRST_UPDATE_RATE_HZ)),
+                List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
+                        LARGER_UPDATE_RATE_HZ)),
+                List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
+                        FIRST_UPDATE_RATE_HZ))
+        );
     }
 
     @Test
@@ -1937,12 +2040,13 @@ public final class CarPropertyManagerUnitTest {
         mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback);
         verify(mICarProperty, never()).unregisterListener(anyInt(),
                 any(ICarPropertyEventListener.class));
-        verify(mICarProperty, times(2)).registerListener(mPropertyIdCaptor.capture(),
-                mUpdateRateHzCaptor.capture(), any(ICarPropertyEventListener.class));
-        assertThat(mPropertyIdCaptor.getAllValues()).containsExactly(VENDOR_CONTINUOUS_PROPERTY,
-                VENDOR_CONTINUOUS_PROPERTY);
-        assertThat(mUpdateRateHzCaptor.getAllValues()).containsExactly(FIRST_UPDATE_RATE_HZ,
-                LARGER_UPDATE_RATE_HZ);
+        verify(mICarProperty, times(2)).registerListenerWithSubscribeOptions(
+                mCarSubscribeOptionCaptor.capture(), any(ICarPropertyEventListener.class));
+        assertThat(mCarSubscribeOptionCaptor.getAllValues()).containsExactly(
+                List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
+                        FIRST_UPDATE_RATE_HZ)),
+                List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
+                        LARGER_UPDATE_RATE_HZ)));
     }
 
     @Test
@@ -2042,7 +2146,9 @@ public final class CarPropertyManagerUnitTest {
         mCarPropertyManager.registerCallback(mCarPropertyEventCallback, HVAC_TEMPERATURE_SET,
                 SENSOR_RATE_ONCHANGE);
 
-        verify(mICarProperty).registerListener(eq(HVAC_TEMPERATURE_SET), eq(SENSOR_RATE_ONCHANGE),
+        verify(mICarProperty).registerListenerWithSubscribeOptions(eq(List.of(
+                createCarSubscriptionOption(HVAC_TEMPERATURE_SET, new int[]{0},
+                        SENSOR_RATE_ONCHANGE))),
                 carPropertyEventListenerArgumentCaptor.capture());
 
         return carPropertyEventListenerArgumentCaptor.getValue();
