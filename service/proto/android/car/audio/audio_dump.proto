@@ -180,11 +180,11 @@ message CarAudioDumpProto {
   optional CarAudioZoneFocusProto focus_handler = 9;
 
   message HalAudioFocusProto {
-    message HalFocusRequestsByZoneAndUsage {
+    message HalFocusRequestsByZoneAndAttributes {
       optional int32 zone_id = 1;
       repeated string hal_focus_requests_by_attributes = 2;
     }
-    repeated HalFocusRequestsByZoneAndUsage hal_focus_requests_by_zone_and_usage = 1;
+    repeated HalFocusRequestsByZoneAndAttributes hal_focus_requests_by_zone_and_attributes = 1;
   }
   optional HalAudioFocusProto hal_audio_focus = 10;
 
