@@ -19,6 +19,16 @@
         android:top="@dimen/car_switch_thumb_margin_size"
         android:bottom="@dimen/car_switch_thumb_margin_size">
         <shape android:shape="oval">
+            <solid android:color="@color/car_background"/>
+            <size
+                android:width="@dimen/car_switch_thumb_size"
+                android:height="@dimen/car_switch_thumb_size"/>
+        </shape>
+    </item>
+    <item android:gravity="center_vertical|fill_horizontal"
+        android:top="@dimen/car_switch_thumb_margin_size"
+        android:bottom="@dimen/car_switch_thumb_margin_size">
+        <shape android:shape="oval">
             <solid android:color="@color/car_switch_thumb"/>
             <size
                 android:width="@dimen/car_switch_thumb_size"
