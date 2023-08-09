@@ -69,6 +69,7 @@ import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.WindowCompat;
@@ -156,7 +157,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private int mCurrentBackgroundTaskId;
     private int mStatusBarHeight;
     private FrameLayout mContainer;
-    private View mControlBarView;
+    private LinearLayout mControlBarView;
     private TaskViewManager mTaskViewManager;
     // All the TaskViews & corresponding helper instance variables.
     private CarTaskView mBackgroundTaskView;
@@ -166,6 +167,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private int mNavBarHeight;
     private boolean mIsSUWInProgress;
     private TaskCategoryManager mTaskCategoryManager;
+    private boolean mIsBlankActivityOnTop;
     private boolean mIsNotificationCenterOnTop;
     private boolean mIsRecentsOnTop;
     private TaskInfoCache mTaskInfoCache;
@@ -279,6 +281,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
             mIsNotificationCenterOnTop = mTaskCategoryManager.isNotificationActivity(taskInfo);
             mIsRecentsOnTop = mTaskCategoryManager.isRecentsActivity(taskInfo);
+            mIsBlankActivityOnTop = mTaskCategoryManager.isBlankActivity(taskInfo);
             // Close the panel if the top application is a blank activity.
             // This is to prevent showing a blank panel to the user if an app crashes and reveals
             // the blank activity underneath.
@@ -342,6 +345,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             if (!wasVisible) {
                 return;
             }
+            mIsBlankActivityOnTop = mTaskCategoryManager.isBlankActivity(taskInfo);
 
             if (mTaskCategoryManager.isBackgroundApp(taskInfo)
                     || mTaskCategoryManager.isBlankActivity(taskInfo)) {
@@ -495,7 +499,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         logIfDebuggable("Navbar height: " + mNavBarHeight);
         mContainer = findViewById(R.id.container);
         mContainer.addOnLayoutChangeListener(mHomeScreenLayoutChangeListener);
-        setHomeScreenBottomPadding(mNavBarHeight);
 
         mAppGridTaskViewPanel = findViewById(R.id.app_grid_panel);
 
@@ -682,11 +685,14 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
     }
 
-    private void setHomeScreenBottomPadding(int bottomPadding) {
-        // Set padding instead of margin so the bottom area shows background of
-        // car_ui_portrait_launcher during immersive mode without nav bar, and panel states are
-        // calculated correctly.
-        mContainer.setPadding(/* left= */ 0, /* top= */ 0, /* right= */0, bottomPadding);
+    private void setBackgroundTaskViewBottomMargin(int bottomMargin) {
+        if (mBackgroundTaskView == null) {
+            return;
+        }
+        FrameLayout.LayoutParams params =
+                (FrameLayout.LayoutParams) mBackgroundTaskView.getLayoutParams();
+        params.setMargins(/* left= */ 0, /* top= */ 0, /* right= */ 0, bottomMargin);
+        mBackgroundTaskView.requestLayout();
     }
 
     // TODO(b/275633095): Add test to verify the region is set correctly in each mode
@@ -758,7 +764,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         Rect appAreaBounds = new Rect();
         mFullScreenTaskView.getBoundsOnScreen(appAreaBounds);
 
-        Rect bottomInsets = new Rect(appAreaBounds.left, appAreaBounds.height(),
+        Rect bottomInsets = new Rect(appAreaBounds.left, appAreaBounds.height() - mNavBarHeight,
                 appAreaBounds.right, appAreaBounds.bottom);
 
         Rect topInsets = new Rect(appAreaBounds.left, appAreaBounds.top, appAreaBounds.right,
@@ -946,7 +952,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     TaskViewPanel.State newState, boolean animated) {
                 boolean isFullScreen = newState.isFullScreen();
                 if (isFullScreen) {
-                    setHomeScreenBottomPadding(mIsSUWInProgress ? 0 : mNavBarHeight);
+                    setBackgroundTaskViewBottomMargin(mNavBarHeight);
+
                     if (!mIsSUWInProgress) {
                         notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, boolToInt(isFullScreen));
                     }
@@ -986,7 +993,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     setControlBarVisibility(/* isVisible= */ false, animated);
                 } else {
                     // Adjust the bottom margin to count for the nav bar.
-                    setHomeScreenBottomPadding(mNavBarHeight);
+                    setBackgroundTaskViewBottomMargin(/* bottomMargin= */ 0);
+
                     // Update the background task view insets to make sure their content is not
                     // covered with our panels. We only need to do this when we are not in
                     // fullscreen.
@@ -1001,7 +1009,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 // Hide the app grid task view behind the root task view.
                 if (newState.isVisible()) {
                     mAppGridTaskViewPanel.closePanel(/* animated = */ false);
-                } else {
+                } else if (!mIsBlankActivityOnTop) {
                     // Launch a blank activity to move the top activity to background.
                     startActivity(BlankActivity.createIntent(getApplicationContext()));
                 }
