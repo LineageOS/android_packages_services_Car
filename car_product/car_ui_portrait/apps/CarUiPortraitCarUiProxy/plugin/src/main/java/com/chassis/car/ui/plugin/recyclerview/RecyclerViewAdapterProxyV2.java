@@ -45,11 +45,11 @@ import java.util.List;
 /**
  *  Adapts a {@link RecyclerViewAdapterV1} into a {@link RecyclerViewOEMV2}.
  */
-public class RecyclerViewAdapterProxy implements RecyclerViewOEMV2 {
+public class RecyclerViewAdapterProxyV2 implements RecyclerViewOEMV2 {
     private Context mPluginContext;
     private CarUiRecyclerViewImpl mRecyclerView;
 
-    public RecyclerViewAdapterProxy(Context pluginContext, CarUiRecyclerViewImpl recyclerView,
+    public RecyclerViewAdapterProxyV2(Context pluginContext, CarUiRecyclerViewImpl recyclerView,
             RecyclerViewAttributesOEMV1 recyclerViewAttributesOEMV1) {
         mPluginContext = pluginContext;
         mRecyclerView = recyclerView;
@@ -65,7 +65,7 @@ public class RecyclerViewAdapterProxy implements RecyclerViewOEMV2 {
                 @Override
                 public void onScrolled(@NonNull CarUiRecyclerView recyclerView, int dx, int dy) {
                     for (OnScrollListenerOEMV2 listener : mScrollListeners) {
-                        listener.onScrolled(RecyclerViewAdapterProxy.this, dx, dy);
+                        listener.onScrolled(RecyclerViewAdapterProxyV2.this, dx, dy);
                     }
                 }
 
@@ -73,7 +73,7 @@ public class RecyclerViewAdapterProxy implements RecyclerViewOEMV2 {
                 public void onScrollStateChanged(@NonNull CarUiRecyclerView recyclerView,
                         int newState) {
                     for (OnScrollListenerOEMV2 listener : mScrollListeners) {
-                        listener.onScrollStateChanged(RecyclerViewAdapterProxy.this,
+                        listener.onScrollStateChanged(RecyclerViewAdapterProxyV2.this,
                                 toInternalScrollState(newState));
                     }
                 }
