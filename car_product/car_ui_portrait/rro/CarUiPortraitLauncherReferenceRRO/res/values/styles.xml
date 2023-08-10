@@ -34,7 +34,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:paddingTop">32dp</item>
-        <item name="android:paddingBottom">53dp</item>
+        <item name="android:paddingBottom">56dp</item>
         <item name="android:scrollbars">none</item>
         <item name="android:clipToPadding">false</item>
     </style>
@@ -42,7 +42,6 @@
     <style name="ClearAllRecentTasksButton" parent="@android:Widget.DeviceDefault.Button">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginBottom">53dp</item>
     </style>
 
     <style name="RecentTaskIcon">
