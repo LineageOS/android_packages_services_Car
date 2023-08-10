@@ -565,14 +565,18 @@ public class CarPropertyService extends ICarProperty.Stub
             throws IllegalArgumentException, ServiceSpecificException {
         validateGetParameters(propertyId, areaId);
         Trace.traceBegin(TRACE_TAG, "CarPropertyValue#getProperty");
-        float currentTimeMs = System.currentTimeMillis();
+        long currentTimeMs = System.currentTimeMillis();
         try {
             return runSyncOperationCheckLimit(() -> {
                 return mPropertyHalService.getProperty(propertyId, areaId);
             });
         } finally {
-            sGetPropertySyncLatencyHistogram.logSample((float) System.currentTimeMillis()
-                    - currentTimeMs);
+            if (DBG) {
+                Slogf.d(TAG, "Latency of getPropertySync is: %f", (float) (System
+                        .currentTimeMillis() - currentTimeMs));
+            }
+            sGetPropertySyncLatencyHistogram.logSample((float) (System.currentTimeMillis()
+                    - currentTimeMs));
             Trace.traceEnd(TRACE_TAG);
         }
     }
@@ -648,8 +652,12 @@ public class CarPropertyService extends ICarProperty.Stub
             mClientMap.put(listenerBinder, client);
             updateSetOperationRecorderLocked(carPropertyValue.getPropertyId(),
                     carPropertyValue.getAreaId(), client);
-            sSetPropertySyncLatencyHistogram.logSample((float) System.currentTimeMillis()
-                    - currentTimeMs);
+            if (DBG) {
+                Slogf.d(TAG, "Latency of setPropertySync is: %f", (float) (System
+                        .currentTimeMillis() - currentTimeMs));
+            }
+            sSetPropertySyncLatencyHistogram.logSample((float) (System.currentTimeMillis()
+                    - currentTimeMs));
         }
     }
 
@@ -791,7 +799,11 @@ public class CarPropertyService extends ICarProperty.Stub
         }
         mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
                 asyncPropertyResultCallback, timeoutInMs, currentTime);
-        sGetAsyncLatencyHistogram.logSample((float) System.currentTimeMillis() - currentTime);
+        if (DBG) {
+            Slogf.d(TAG, "Latency of getPropertyAsync is: %f", (float) (System
+                    .currentTimeMillis() - currentTime));
+        }
+        sGetAsyncLatencyHistogram.logSample((float) (System.currentTimeMillis() - currentTime));
     }
 
     /**
@@ -836,7 +848,11 @@ public class CarPropertyService extends ICarProperty.Stub
         }
         mPropertyHalService.setCarPropertyValuesAsync(setPropertyServiceRequestList,
                 asyncPropertyResultCallback, timeoutInMs, currentTime);
-        sSetAsyncLatencyHistogram.logSample((float) System.currentTimeMillis() - currentTime);
+        if (DBG) {
+            Slogf.d(TAG, "Latency of setPropertyAsync is: %f", (float) (System
+                    .currentTimeMillis() - currentTime));
+        }
+        sSetAsyncLatencyHistogram.logSample((float) (System.currentTimeMillis() - currentTime));
     }
 
     /**
