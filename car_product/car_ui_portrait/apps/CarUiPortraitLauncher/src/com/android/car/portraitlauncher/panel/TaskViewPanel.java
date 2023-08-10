@@ -18,6 +18,7 @@ package com.android.car.portraitlauncher.panel;
 
 import android.annotation.SuppressLint;
 import android.app.TaskInfo;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Insets;
@@ -27,7 +28,6 @@ import android.graphics.Region;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
@@ -42,6 +42,7 @@ import com.android.car.portraitlauncher.panel.animation.FadeInPanelAnimator;
 import com.android.car.portraitlauncher.panel.animation.FadeOutPanelAnimator;
 import com.android.car.portraitlauncher.panel.animation.FullScreenPanelAnimator;
 import com.android.car.portraitlauncher.panel.animation.OpenPanelAnimator;
+import com.android.car.portraitlauncher.panel.animation.OpenPanelWithIconAnimator;
 import com.android.car.portraitlauncher.panel.animation.PanelAnimator;
 
 /**
@@ -180,8 +181,8 @@ public class TaskViewPanel extends RelativeLayout {
     /** Internal container of the {@code CarTaskView}. */
     private ViewGroup mTaskViewContainer;
 
-    /** A view that is shown on top of the task view and used to fake the fade effect. */
-    private View mTaskViewOverlay;
+    /** A view that is shown on top of the task view and used to improve visual effects. */
+    private TaskViewPanelOverlay mTaskViewOverlay;
 
     /** The {@code CarTaskView} embedded in this panel. This is the main content of the panel. */
     private CarTaskView mTaskView;
@@ -276,6 +277,13 @@ public class TaskViewPanel extends RelativeLayout {
         setActiveState(mOpenState, animator);
     }
 
+    /** Transitions the panel into the open state with overlay and centered icon. */
+    public void openPanelWithIcon() {
+        PanelAnimator animator = new OpenPanelWithIconAnimator(this, mOpenState.mBounds,
+                mTaskViewOverlay);
+        setActiveState(mOpenState, animator);
+    }
+
     /** Transitions the panel into the close state. */
     public void closePanel() {
         closePanel(/* animated= */ true);
@@ -310,7 +318,10 @@ public class TaskViewPanel extends RelativeLayout {
         setActiveState(mCloseState, animator);
     }
 
-    /** Transitions the panel into the full screen state. */
+    /**
+     * Transitions the panel into the full screen state. During
+     * transition,{@link mTaskViewOverlay} shows with given {@code drawable} at the center.
+     */
     public void openFullScreenPanel(boolean animated, boolean showToolBar, int bottomAdjustment) {
         mFullScreenState.mHasToolBar = showToolBar;
         mFullScreenState.mBounds.bottom = ((ViewGroup) getParent()).getHeight() - bottomAdjustment;
@@ -320,6 +331,11 @@ public class TaskViewPanel extends RelativeLayout {
     /** Sets the state change listener for the panel. */
     public void setOnStateChangeListener(OnStateChangeListener listener) {
         mOnStateChangeListener = listener;
+    }
+
+    /** Sets the component that {@link mTaskViewOverlay} covers */
+    public void setComponentName(ComponentName componentName) {
+        mTaskViewOverlay.setComponentName(componentName);
     }
 
     /**
@@ -363,7 +379,7 @@ public class TaskViewPanel extends RelativeLayout {
     public void refresh(Resources.Theme theme) {
         int backgroundColor = getResources().getColor(R.color.car_background, theme);
         mTaskViewContainer.setBackgroundColor(backgroundColor);
-        mTaskViewOverlay.setBackgroundColor(backgroundColor);
+        mTaskViewOverlay.refresh();
         mGripBar.refresh(theme);
         mBackgroundSurfaceView.refresh(theme);
     }
@@ -529,11 +545,15 @@ public class TaskViewPanel extends RelativeLayout {
         updateTaskViewWindowBounds();
 
         if (animated) {
-            // Hide toolbar before animation if toState doesn't have toolbar for better
-            // animation
-            if (!toState.hasToolBar()) {
-                mToolBarView.setVisibility(GONE);
+            // Change toolbar and grip bar visibilities before the animation for better animation.
+            if (toState.hasToolBar() != fromState.hasToolBar()) {
+                mToolBarView.setVisibility(toState.hasToolBar() ? VISIBLE : GONE);
             }
+
+            if (toState.hasGripBar() != fromState.hasGripBar()) {
+                mGripBar.setVisibility(toState.hasGripBar() ? VISIBLE : GONE);
+            }
+
             post(() -> animator.animate(() -> {
                 mGripBar.setVisibility(mActiveState.hasGripBar() ? VISIBLE : GONE);
                 mToolBarView.setVisibility(mActiveState.hasToolBar() ? VISIBLE : GONE);
@@ -548,6 +568,7 @@ public class TaskViewPanel extends RelativeLayout {
             mBackgroundSurfaceView.setVisibility(
                     mActiveState.hasBackgroundSurfaceView() ? VISIBLE : GONE);
             updateBounds(mActiveState.mBounds);
+            mTaskViewOverlay.setVisibility(GONE);
             onStateChangeEnd(fromState, mActiveState, /* animated= */ false);
         }
     }
@@ -595,6 +616,6 @@ public class TaskViewPanel extends RelativeLayout {
     private FullScreenPanelAnimator createFullScreenPanelAnimator() {
         Point offset = new Point(mOpenState.mBounds.left, mOpenState.mBounds.top);
         Rect bounds = mFullScreenState.mBounds;
-        return new FullScreenPanelAnimator(this, bounds, offset);
+        return new FullScreenPanelAnimator(this, bounds, offset, mTaskViewOverlay);
     }
 }
