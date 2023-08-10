@@ -22,21 +22,21 @@ import android.view.WindowManager.LayoutParams;
 import androidx.annotation.NonNull;
 
 import com.android.car.ui.appstyledview.AppStyledDialogController.NavIcon;
-import com.android.car.ui.appstyledview.AppStyledDialogController.SceneType;
 import com.android.car.ui.appstyledview.AppStyledViewController;
-import com.android.car.ui.plugin.oemapis.appstyledview.AppStyledViewControllerOEMV3;
+import com.android.car.ui.plugin.oemapis.appstyledview.AppStyledViewControllerOEMV1;
 
 /**
- * Adapts a {@link AppStyledViewController} into a {@link AppStyledViewControllerOEMV3}.
+ * See {@code AppStyledViewControllerAdapterProxyV3}. This class is for backwards compatibility with
+ * apps that use an older version of car-ui-lib.
  */
-public class AppStyledViewControllerAdapterProxy implements AppStyledViewControllerOEMV3 {
+public class AppStyledViewControllerAdapterProxyV1 implements AppStyledViewControllerOEMV1 {
 
     @NonNull
     private final AppStyledViewController mStaticController;
     private View mContentView;
 
-    public AppStyledViewControllerAdapterProxy(@NonNull AppStyledViewController controllerOEMV3) {
-        mStaticController = controllerOEMV3;
+    public AppStyledViewControllerAdapterProxyV1(@NonNull AppStyledViewController controller) {
+        mStaticController = controller;
     }
 
     @Override
@@ -57,10 +57,10 @@ public class AppStyledViewControllerAdapterProxy implements AppStyledViewControl
     @Override
     public void setNavIcon(@NavIcon int navIcon) {
         switch (navIcon) {
-            case AppStyledViewControllerOEMV3.NAV_ICON_BACK:
+            case AppStyledViewControllerOEMV1.NAV_ICON_BACK:
                 mStaticController.setNavIcon(NavIcon.BACK);
                 break;
-            case AppStyledViewControllerOEMV3.NAV_ICON_CLOSE:
+            case AppStyledViewControllerOEMV1.NAV_ICON_CLOSE:
                 mStaticController.setNavIcon(NavIcon.CLOSE);
                 break;
             default:
@@ -69,37 +69,7 @@ public class AppStyledViewControllerAdapterProxy implements AppStyledViewControl
     }
 
     @Override
-    public void setSceneType(@SceneType int sceneType) {
-        switch (sceneType) {
-            case AppStyledViewControllerOEMV3.SCENE_TYPE_SINGLE:
-                mStaticController.setSceneType(SceneType.SINGLE);
-                break;
-            case AppStyledViewControllerOEMV3.SCENE_TYPE_ENTER:
-                mStaticController.setSceneType(SceneType.ENTER);
-                break;
-            case AppStyledViewControllerOEMV3.SCENE_TYPE_INTERMEDIATE:
-                mStaticController.setSceneType(SceneType.INTERMEDIATE);
-                break;
-            case AppStyledViewControllerOEMV3.SCENE_TYPE_EXIT:
-                mStaticController.setSceneType(SceneType.EXIT);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown nav icon style: " + sceneType);
-        }
-    }
-
-    @Override
     public LayoutParams getDialogWindowLayoutParam(LayoutParams params) {
         return mStaticController.getDialogWindowLayoutParam(params);
-    }
-
-    @Override
-    public int getContentAreaWidth() {
-        return mStaticController.getContentAreaWidth();
-    }
-
-    @Override
-    public int getContentAreaHeight() {
-        return mStaticController.getContentAreaHeight();
     }
 }
