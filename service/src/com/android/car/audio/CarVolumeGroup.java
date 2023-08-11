@@ -755,7 +755,9 @@ import java.util.Objects;
             isAttenuated = isAttenuatedLocked() || isLimitedLocked();
         }
 
-        return new CarVolumeGroupInfo.Builder("group id " + mId, mZoneId, mId)
+        String name = mName.isEmpty() ? "group id " + mId : mName;
+
+        return new CarVolumeGroupInfo.Builder(name, mZoneId, mId)
                 .setVolumeGainIndex(gainIndex).setMaxVolumeGainIndex(getMaxGainIndex())
                 .setMinVolumeGainIndex(getMinGainIndex()).setMuted(isMuted).setBlocked(isBlocked)
                 .setAttenuated(isAttenuated).setAudioAttributes(getAudioAttributes()).build();
