@@ -133,6 +133,14 @@ public final class CarRemoteAccessManager extends CarManagerBase {
     @Target({ElementType.TYPE_USE})
     public @interface NextPowerState {}
 
+    /**
+     * The error code for {@link android.os.ServiceSpecificException} used by {@link scheduleTask}.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final int SERVICE_ERROR_SCHEDULE_TASK = 1;
+
     private final ICarRemoteAccessService mService;
     private final Object mLock = new Object();
 
@@ -750,7 +758,8 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          *
          * @throws IllegalArgumentException if a pending schedule with the same {@code scheduleId}
          *      for this client exists.
-         * @throws ServiceSpecificException if unable to schedule the task.
+         * @throws ServiceSpecificException if unable to schedule the task. The error code will
+         *      always be {@link SERVICE_ERROR_SCHEDULE_TASK}.
          *
          * @hide
          */
@@ -759,7 +768,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
         public void scheduleTask(@NonNull ScheduleInfo scheduleInfo) {
             Preconditions.checkArgument(scheduleInfo != null, "scheduleInfo cannot be null");
             TaskScheduleInfo taskScheduleInfo = toTaskScheduleInfo(scheduleInfo);
-
             try {
                 mService.scheduleTask(taskScheduleInfo);
             } catch (RemoteException e) {
@@ -827,6 +835,9 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          * <p>The finished scheduled tasks will not be included.
          *
          * @return A list of schedule info.
+         *
+         * @throws ServiceSpecificException if unable to get the scheduled tasks. The error code
+         *      will always be {@link SERVICE_ERROR_SCHEDULE_TASK}.
          *
          * @hide
          */
