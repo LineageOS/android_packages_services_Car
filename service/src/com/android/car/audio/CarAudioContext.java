@@ -804,13 +804,11 @@ public final class CarAudioContext {
         // Legacy wrapper does not make use of context id to match, keep it uninitialized.
         private final int mCarAudioContextId;
 
-        @VisibleForTesting
         AudioAttributesWrapper(AudioAttributes audioAttributes) {
             mAudioAttributes = audioAttributes;
             mCarAudioContextId = INVALID;
         }
 
-        @VisibleForTesting
         AudioAttributesWrapper(AudioAttributes audioAttributes, int carAudioContextId) {
             Preconditions.checkArgument(!isInvalidContextId(carAudioContextId),
                     "Car audio contexts can not be invalid");
