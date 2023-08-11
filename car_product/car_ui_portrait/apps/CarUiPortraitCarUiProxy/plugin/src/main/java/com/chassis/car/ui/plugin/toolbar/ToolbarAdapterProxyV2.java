@@ -38,14 +38,14 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * Wrapper class that passes the data to car-ui via ToolbarControllerOEMV1 interface
+ * Wrapper class that passes the data to car-ui via ToolbarControllerOEMV2 interface
  */
-public final class ToolbarAdapterProxy implements ToolbarControllerOEMV2 {
+public final class ToolbarAdapterProxyV2 implements ToolbarControllerOEMV2 {
 
     private final Context mPluginContext;
     private final ToolbarControllerImpl mToolbarController;
 
-    public ToolbarAdapterProxy(
+    public ToolbarAdapterProxyV2(
             @NonNull Context pluginContext, @NonNull ToolbarControllerImpl toolbarController) {
         mPluginContext = pluginContext;
         mToolbarController = toolbarController;
@@ -208,6 +208,7 @@ public final class ToolbarAdapterProxy implements ToolbarControllerOEMV2 {
 
         return menuItemBuilder.build();
     }
+
     @Override
     public void setSearchListener(Consumer<String> consumer) {
         if (consumer != null) {

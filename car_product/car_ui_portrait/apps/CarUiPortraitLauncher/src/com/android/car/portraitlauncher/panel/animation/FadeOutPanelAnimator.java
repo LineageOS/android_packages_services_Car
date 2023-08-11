@@ -17,7 +17,6 @@
 package com.android.car.portraitlauncher.panel.animation;
 
 import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 
 import android.graphics.Rect;
 import android.view.View;
@@ -25,6 +24,8 @@ import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.Interpolator;
 import android.view.animation.PathInterpolator;
+
+import com.android.car.portraitlauncher.panel.TaskViewPanelOverlay;
 
 /**
  * A {@code PanelAnimator} to animate the panel into the open state using the fade-in animation.
@@ -40,7 +41,7 @@ public class FadeOutPanelAnimator extends PanelAnimator {
     private static final float FADE_OUT_ALPHA = 0;
     private static final float FADE_IN_ALPHA = 1;
 
-    private final View mOverlay;
+    private final TaskViewPanelOverlay mOverlay;
     private final View mTaskView;
     private final Rect mBounds;
     private final float mOffScreenYPosition;
@@ -58,7 +59,7 @@ public class FadeOutPanelAnimator extends PanelAnimator {
      * @param offScreenYPosition Y value that can be applied to a panel to get it off the screen.
      *                        This is needed to hide panels during the animation.
      */
-    public FadeOutPanelAnimator(ViewGroup panel, View overlay, View taskView,
+    public FadeOutPanelAnimator(ViewGroup panel, TaskViewPanelOverlay overlay, View taskView,
             Rect toBounds, float offScreenYPosition) {
         super(panel);
         mOverlay = overlay;
@@ -69,7 +70,7 @@ public class FadeOutPanelAnimator extends PanelAnimator {
 
     @Override
     public void animate(Runnable endAction) {
-        mOverlay.setVisibility(VISIBLE);
+        mOverlay.show(/* withIcon= */ false);
         mOverlay.setAlpha(FADE_OUT_ALPHA);
         // First fade in the overlay with scaling down the task view and then fade-out the whole
         // panel.
