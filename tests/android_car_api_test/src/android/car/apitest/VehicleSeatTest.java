@@ -28,7 +28,8 @@ import org.junit.Test;
 public final class VehicleSeatTest extends CarLessApiTestBase {
 
     @Test
-    @ApiTest(apis = {"android.car.VehicleAreaSeat#SEAT_ROW_1_LEFT",
+    @ApiTest(apis = {"android.car.VehicleAreaSeat#SEAT_UNKNOWN",
+            "android.car.VehicleAreaSeat#SEAT_ROW_1_LEFT",
             "android.car.VehicleAreaSeat#SEAT_ROW_1_CENTER",
             "android.car.VehicleAreaSeat#SEAT_ROW_1_RIGHT",
             "android.car.VehicleAreaSeat#SEAT_ROW_2_LEFT",
@@ -38,6 +39,8 @@ public final class VehicleSeatTest extends CarLessApiTestBase {
             "android.car.VehicleAreaSeat#SEAT_ROW_3_CENTER",
             "android.car.VehicleAreaSeat#SEAT_ROW_3_RIGHT"})
     public void testMatchWithVehicleHal() {
+        assertThat(VehicleAreaSeat.SEAT_UNKNOWN)
+                .isEqualTo(android.hardware.automotive.vehicle.VehicleAreaSeat.UNKNOWN);
         assertThat(VehicleAreaSeat.SEAT_ROW_1_LEFT)
                 .isEqualTo(android.hardware.automotive.vehicle.VehicleAreaSeat.ROW_1_LEFT);
         assertThat(VehicleAreaSeat.SEAT_ROW_1_CENTER)
