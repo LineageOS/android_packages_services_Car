@@ -83,7 +83,7 @@ Result<std::chrono::seconds> parseSecondsFlag(const Vector<String16>& args, size
         return Error() << "Value not provided";
     }
     uint64_t value;
-    if (std::string strValue = std::string(String8(args[pos]).string());
+    if (std::string strValue = std::string(String8(args[pos]).c_str());
         !ParseUint(strValue, &value)) {
         return Error() << "Invalid value " << strValue << ", must be an integer";
     }
@@ -482,15 +482,15 @@ Result<void> WatchdogPerfService::onCustomCollection(int fd, const Vector<String
                             << "Must provide value for '" << kFilterPackagesFlag << "' flag";
                 }
                 std::vector<std::string> packages =
-                        Split(std::string(String8(args[i + 1]).string()), ",");
+                        Split(std::string(String8(args[i + 1]).c_str()), ",");
                 std::copy(packages.begin(), packages.end(),
                           std::inserter(filterPackages, filterPackages.end()));
                 ++i;
                 continue;
             }
             ALOGW("Unknown flag %s provided to start custom performance data collection",
-                  String8(args[i]).string());
-            return Error(BAD_VALUE) << "Unknown flag " << String8(args[i]).string()
+                  String8(args[i]).c_str());
+            return Error(BAD_VALUE) << "Unknown flag " << String8(args[i]).c_str()
                                     << " provided to start custom performance data collection";
         }
         if (const auto& result = startCustomCollection(interval, maxDuration, filterPackages);
