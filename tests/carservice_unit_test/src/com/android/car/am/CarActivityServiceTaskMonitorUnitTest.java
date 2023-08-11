@@ -209,7 +209,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
 
     @Test
     public void testActivityBlocking() throws Exception {
-        Intent blockingIntent = new Intent();
+        Intent blockingIntent = new Intent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         blockingIntent.setComponent(mBlockingActivity);
 
         // start a black listed activity
