@@ -64,6 +64,7 @@ public class KitchenSink2Activity extends FragmentActivity {
     private static final String LAST_FRAGMENT_TAG = "lastFragmentTag";
     private static final String PREFERENCES_NAME = "fragment_item_prefs";
     private static final String KEY_PINNED_ITEMS_LIST = "key_pinned_items_list";
+    private static final String KEY_COLLAPSE_STATE = "key_collapse_state";
     private static final String DELIMITER = "::"; // A unique delimiter
     @Nullable
     private Fragment mLastFragment;
@@ -94,10 +95,11 @@ public class KitchenSink2Activity extends FragmentActivity {
     private List<FragmentListItem> mFilteredData;
     private boolean mIsSinglePane = false;
     private ToolbarController mGlobalToolbar, mMiniToolbar;
-    private View mMenuContainer;
+    private View mWrapper;
     private CarUiRecyclerView mRV;
     private CharSequence mLastFragmentTitle;
     private MenuItem mFavButton;
+    private MenuItem mCollapsibleButton;
     private boolean mIsSearching;
     private int mPinnedItemsCount;
     private SharedPreferences mSharedPreferences;
@@ -164,8 +166,9 @@ public class KitchenSink2Activity extends FragmentActivity {
             initCarApi();
         }
 
-        mMenuContainer = findViewById(R.id.top_level_menu_container);
         mRV = findViewById(R.id.list_pane);
+        mWrapper = findViewById(R.id.wrapper);
+        mWrapper.setVisibility(mSharedPreferences.getInt(KEY_COLLAPSE_STATE, View.VISIBLE));
 
         setUpToolbars();
 
@@ -227,7 +230,16 @@ public class KitchenSink2Activity extends FragmentActivity {
                 .setOnClickListener(i -> onFavClicked())
                 .setUxRestrictions(CarUxRestrictions.UX_RESTRICTIONS_NO_KEYBOARD)
                 .build();
-        mMiniToolbar.setMenuItems(List.of(mFavButton));
+
+        mCollapsibleButton = new MenuItem.Builder(this)
+                .setOnClickListener(i -> toggleMenuWrapper())
+                .setUxRestrictions(CarUxRestrictions.UX_RESTRICTIONS_NO_KEYBOARD)
+                .setIcon(mWrapper.getVisibility() == View.GONE
+                        ? R.drawable.ic_left_panel_open
+                        : R.drawable.ic_left_panel_close)
+                .build();
+
+        mMiniToolbar.setMenuItems(List.of(mFavButton, mCollapsibleButton));
         mMiniToolbar.setNavButtonMode(NavButtonMode.BACK);
     }
 
@@ -324,6 +336,25 @@ public class KitchenSink2Activity extends FragmentActivity {
         }
     }
 
+    private void toggleMenuWrapper() {
+        if (mWrapper.getVisibility() == View.VISIBLE) {
+            mWrapper.setVisibility(View.GONE);
+            mCollapsibleButton.setIcon(R.drawable.ic_left_panel_open);
+        } else {
+            mWrapper.setVisibility(View.VISIBLE);
+            mCollapsibleButton.setIcon(R.drawable.ic_left_panel_close);
+        }
+    }
+
+    private void saveVisibilityState() {
+        if (mSharedPreferences == null) {
+            mSharedPreferences = getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE);
+        }
+        mSharedPreferences.edit()
+                .putInt(KEY_COLLAPSE_STATE, mWrapper.getVisibility())
+                .apply();
+    }
+
     List<FragmentListItem> getProcessedData() {
 
         List<String> pinnedTitles = getPinnedTitlesFromPrefs();
@@ -373,6 +404,7 @@ public class KitchenSink2Activity extends FragmentActivity {
     protected void onPause() {
         super.onPause();
         savePinnedItemsToPreferences();
+        saveVisibilityState();
     }
 
     @Override
