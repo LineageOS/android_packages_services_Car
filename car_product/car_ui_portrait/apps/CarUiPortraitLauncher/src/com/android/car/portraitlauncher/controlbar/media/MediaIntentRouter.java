@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.portraitlauncher.homescreen.audio;
+package com.android.car.portraitlauncher.controlbar.media;
 
 import android.content.Intent;
 
