@@ -19,11 +19,13 @@ import static com.google.android.car.kitchensink.KitchenSinkActivity.MENU_ENTRIE
 
 import android.annotation.Nullable;
 import android.car.drivingstate.CarUxRestrictions;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -38,12 +40,15 @@ import com.android.car.ui.toolbar.SearchMode;
 import com.android.car.ui.toolbar.ToolbarController;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 // TODO: b/293660419 - Add CLI support i.e. onNewIntent and dump()
 public class KitchenSink2Activity extends FragmentActivity {
     static final String TAG = KitchenSink2Activity.class.getName();
-
+    private static final String PREFERENCES_NAME = "fragment_item_prefs";
+    private static final String KEY_PINNED_ITEMS_LIST = "key_pinned_items_list";
+    private static final String DELIMITER = "::"; // A unique delimiter
     @Nullable
     private Fragment mLastFragment;
     private static final int NO_INDEX = -1;
@@ -64,8 +69,11 @@ public class KitchenSink2Activity extends FragmentActivity {
     private ToolbarController mGlobalToolbar, mMiniToolbar;
     private View mMenuContainer;
     private CarUiRecyclerView mRV;
-    private String mLastFragmentTitle;
-
+    private CharSequence mLastFragmentTitle;
+    private MenuItem mFavButton;
+    private boolean mIsSearching;
+    private int mPinnedItemsCount;
+    private SharedPreferences mSharedPreferences;
 
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
@@ -76,6 +84,12 @@ public class KitchenSink2Activity extends FragmentActivity {
         onFragmentItemClick(0);
     }
 
+    /**
+     * Searches in dynamic list (Not the whole list)
+     *
+     * @param title - Searches the list whose fragment title matches
+     * @return index of the item
+     */
     private int getFragmentIndexFromTitle(String title) {
         for (int i = 0; i < mFilteredData.size(); i++) {
             String targetText = mFilteredData.get(i).getTitle().getPreferredText().toString();
@@ -100,14 +114,20 @@ public class KitchenSink2Activity extends FragmentActivity {
                 .replace(R.id.fragment_container, fragment)
                 .commit();
         mLastFragment = fragment;
-        mLastFragmentTitle = fragmentListItem.getTitle().getPreferredText().toString();
+        mLastFragmentTitle = fragmentListItem.getTitle().getPreferredText();
         mMiniToolbar.setTitle(mLastFragmentTitle);
-        mAdapter.requestHighlight(mLastFragmentTitle, fragIndex);
+        mAdapter.requestHighlight(mLastFragmentTitle.toString(), fragIndex);
+        mFavButton.setIcon(
+                fragmentListItem.isFavourite()
+                        ? getDrawable(R.drawable.ic_item_unpin)
+                        : getDrawable(R.drawable.ic_item_pin));
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mSharedPreferences = getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE);
+
         setContentView(R.layout.activity_2pane);
         mMenuContainer = findViewById(R.id.top_level_menu_container);
         mRV = findViewById(R.id.list_pane);
@@ -141,6 +161,7 @@ public class KitchenSink2Activity extends FragmentActivity {
 
         mGlobalToolbar.setMenuItems(List.of(searchButton));
         mGlobalToolbar.registerBackListener(() -> {
+            mIsSearching = false;
             mGlobalToolbar.setSearchMode(SearchMode.DISABLED);
             mGlobalToolbar.setNavButtonMode(NavButtonMode.DISABLED);
             mGlobalToolbar.unregisterOnSearchListener(this::onQueryChanged);
@@ -166,10 +187,16 @@ public class KitchenSink2Activity extends FragmentActivity {
                         insets.getLeft(), insets.getTop(), insets.getRight(),
                         insets.getBottom()), /* hasToolbar= */ true);
 
+        mFavButton = new MenuItem.Builder(this)
+                .setOnClickListener(i -> onFavClicked())
+                .setUxRestrictions(CarUxRestrictions.UX_RESTRICTIONS_NO_KEYBOARD)
+                .build();
+        mMiniToolbar.setMenuItems(List.of(mFavButton));
         mMiniToolbar.setNavButtonMode(NavButtonMode.BACK);
     }
 
     private void onSearchButtonClicked() {
+        mIsSearching = true;
         mGlobalToolbar.setSearchMode(SearchMode.SEARCH);
         mGlobalToolbar.setNavButtonMode(NavButtonMode.BACK);
         mGlobalToolbar.registerOnSearchListener(this::onQueryChanged);
@@ -190,21 +217,146 @@ public class KitchenSink2Activity extends FragmentActivity {
         mAdapter.afterTextChanged();
     }
 
-    List<FragmentListItem> getProcessedData() {
+    private void onFavClicked() {
+        int fromIndex = getOriginalIndexFromTitle(mLastFragmentTitle, 0, false);
+        int toIndex;
+        String text;
 
-        List<FragmentListItem> data = new ArrayList<>();
-
-        for (Pair<String, Class> entry : MENU_ENTRIES) {
-            data.add(new FragmentListItem(entry.first, entry.second, mItemClickHandler));
+        FragmentListItem fragmentListItem = mData.get(fromIndex);
+        if (fragmentListItem.isFavourite()) {
+            // Un-pinning: Moving the item to its lexicographic position
+            toIndex = getOriginalIndexFromTitle(
+                    fragmentListItem.getTitle().getPreferredText(), mPinnedItemsCount,
+                    true);
+            text = getString(R.string.toast_item_unpinned_message, mLastFragmentTitle);
+            mPinnedItemsCount--;
+        } else {
+            // Pinning: Moving the item to the top most position.
+            toIndex = 0;
+            text = getString(R.string.toast_item_pinned_message, mLastFragmentTitle);
+            mPinnedItemsCount++;
         }
 
-        data.sort((o1, o2) -> {
+        moveFragmentItem(fromIndex, toIndex);
+        fragmentListItem.toggleFavourite();
+
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+        mFavButton.setIcon(
+                fragmentListItem.isFavourite()
+                        ? getDrawable(R.drawable.ic_item_unpin)
+                        : getDrawable(R.drawable.ic_item_pin));
+
+    }
+
+    /**
+     * Finds index from the original data (Not from the dynamic list)
+     *
+     * @param fragmentTitle   - Finds by comparing the title
+     * @param startFrom       - the starting index it should search from
+     * @param isLexicographic - If set to true, finds lexicographical position by comparing
+     *                        strings. If false, finds the
+     *                        index with exact string match or -1.
+     */
+    private int getOriginalIndexFromTitle(CharSequence fragmentTitle, int startFrom,
+            boolean isLexicographic) {
+        if (fragmentTitle.toString().equalsIgnoreCase(EMPTY_STRING)) return NO_INDEX;
+        for (int i = startFrom; i < mData.size(); i++) {
+            String targetText = mData.get(i).getTitle().getPreferredText().toString();
+            if (isLexicographic && targetText.compareToIgnoreCase(fragmentTitle.toString()) > 0) {
+                return i - 1;
+            }
+            if (!isLexicographic && targetText.equalsIgnoreCase(fragmentTitle.toString())) {
+                return i;
+            }
+        }
+        return isLexicographic ? mData.size() - 1 : NO_INDEX;
+    }
+
+    /**
+     * Moves the fragmentItem from @param "from" to @param "to"
+     * Used for both pinning and unpinning an item.
+     *
+     * @param from - the current index of the item
+     * @param to   - the target index to move the item
+     */
+    private void moveFragmentItem(int from, int to) {
+        if (from < 0 || from >= mData.size() || to < 0 || to >= mData.size()) return;
+        mData.add(to, mData.remove(from));
+        if (!mIsSearching) {
+            mFilteredData.add(to, mFilteredData.remove(from));
+            mAdapter.afterFavClicked(from, to);
+        }
+    }
+
+    List<FragmentListItem> getProcessedData() {
+
+        List<String> pinnedTitles = getPinnedTitlesFromPrefs();
+
+        List<FragmentListItem> allItems = new ArrayList<>();
+        ArrayList<FragmentListItem> pinnedItems = new ArrayList<>();
+        mPinnedItemsCount = pinnedTitles.size();
+        for (int i = 0; i < mPinnedItemsCount; i++) {
+            pinnedItems.add(null);
+        }
+
+        for (Pair<String, Class> entry : MENU_ENTRIES) {
+            // Retrieves the pinned position and preserves it in the same order
+            int pinnedPosition = pinnedTitles.indexOf(entry.first.toLowerCase());
+            if (pinnedPosition >= 0) {
+                pinnedItems.set(pinnedPosition,
+                        new FragmentListItem(entry.first, true, entry.second, mItemClickHandler));
+            } else {
+                allItems.add(
+                        new FragmentListItem(entry.first, false, entry.second, mItemClickHandler));
+            }
+        }
+
+        allItems.sort((o1, o2) -> {
             String s1 = o1.getTitle().getPreferredText().toString();
             String s2 = o2.getTitle().getPreferredText().toString();
             return s1.compareToIgnoreCase(s2);
         });
 
-        return data;
+        allItems.addAll(0, pinnedItems);
+        return allItems;
+    }
+
+    @NonNull
+    List<String> getPinnedTitlesFromPrefs() {
+        if (mSharedPreferences == null) return new ArrayList<>();
+
+        String pinnedTitles = mSharedPreferences.getString(KEY_PINNED_ITEMS_LIST, "");
+        if (pinnedTitles.isEmpty()) {
+            return new ArrayList<>();
+        } else {
+            return Arrays.asList(pinnedTitles.split(DELIMITER));
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        savePinnedItemsToPreferences();
+    }
+
+    private void savePinnedItemsToPreferences() {
+        if (mSharedPreferences == null) {
+            mSharedPreferences = getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE);
+        }
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < mPinnedItemsCount; i++) {
+            sb.append(mData.get(i).getTitle().getPreferredText()).append(DELIMITER);
+        }
+
+        // Remove the last delimiter
+        if (sb.length() > 0) {
+            sb.setLength(sb.length() - DELIMITER.length());
+        }
+
+        editor.putString(KEY_PINNED_ITEMS_LIST, sb.toString().toLowerCase());
+        editor.apply();
     }
 
     private class FragmentItemClickHandler implements CarUiContentListItem.OnClickListener {
