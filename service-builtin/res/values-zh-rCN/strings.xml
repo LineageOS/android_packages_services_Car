@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"此应用已被禁止在后台运行。若要继续在后台使用此应用，请将其设为优先运行。"</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"关闭"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"优先运行应用"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"已停用“<xliff:g id="ID_1">^1</xliff:g>”。您可以在“设置”中重新启用该应用。"</string>
 </resources>

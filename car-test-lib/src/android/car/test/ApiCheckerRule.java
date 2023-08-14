@@ -28,12 +28,14 @@ import android.car.PlatformVersionMismatchException;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 import android.car.test.ApiCheckerRule.UnsupportedVersionTest.Behavior;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
 import com.android.compatibility.common.util.ApiTest;
 import com.android.compatibility.common.util.CddTest;
+import com.android.compatibility.common.util.NonApiTest;
 
 import org.junit.AssumptionViolatedException;
 import org.junit.rules.TestRule;
@@ -60,16 +62,20 @@ import java.util.List;
  *   <li>Properly behave on supported and unsupported versions.
  * </ol>
  *
- * <p>For the former, the test must be annoted with either {@link ApiTest} or {@link CddTest} (in
- * which case it also need to be annotated with {@link ApiRequirements}, otherwise the test will
- * fail (unless the rule was created with {@link Builder#disableAnnotationsCheck()}. An in the case
- * of {@link ApiTest}, the rule will also asser that the underlying APIs are annotated with either
+ * <p>For the former, the test must be annotated with either {@link ApiTest} or {@link CddTest} (in
+ * which case it also needs to be annotated with {@link ApiRequirements}, otherwise the test will
+ * fail (unless the rule was created with {@link Builder#disableAnnotationsCheck()}. In the case
+ * of {@link ApiTest}, the rule will also assert that the underlying APIs are annotated with either
  * {@link ApiRequirements} or {@link AddedInOrBefore}.
+ *
+ * <p><b>Note:</b> Usually, all CTS tests should be testing public or system APIs or CDD
+ * requirements. However, in the case that they don't (especially in {@code AndroidCarApiTest}),
+ * they should be annotated with {@link NonApiTest}. This usage should also be justified.
  *
  * <p>For the latter, if the API declares {@link ApiRequirements}, the rule by default will make
  * sure the test behaves properly in the supported and unsupported platform versions:
  * <ol>
- *   <li>If the platform is supported, the test shold pass as usual.
+ *   <li>If the platform is supported, the test should pass as usual.
  *   <li>If the platform is not supported, the rule will assert that the test throws a
  *   {@link PlatformVersionMismatchException}.
  * </ol>
@@ -78,7 +84,7 @@ import java.util.List;
  * <ol>
  *   <li>The test logic is too complex (or takes time) and should be simplified when running on
  *       unsupported versions.
- *   <li>The API being tested should behave different on supported or unsupported versions.
+ *   <li>The API being tested should behave differently on supported or unsupported versions.
  * </ol>
  *
  * <p>In these cases, the test should be split in 2 tests, one for the supported version and another
@@ -128,6 +134,21 @@ import java.util.List;
   }
 
  * </code></pre>
+ *
+ * For nested classes the following annotation should be used for methods:
+ * <pre><code>
+ @Test
+ @ApiTest(apis = {"com.acme.Car$Inner#methodName"})
+ public void testMethodName() {}
+
+ * </code></pre>
+ * For nested classes the following annotation should be used for fields:
+ * <pre><code>
+ @Test
+ @ApiTest(apis = {"com.acme.Car.Inner#fieldName"})
+ public void testFieldName() {}
+
+ * </code></pre>
  */
 public final class ApiCheckerRule implements TestRule {
 
@@ -136,12 +157,17 @@ public final class ApiCheckerRule implements TestRule {
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
 
     private final boolean mEnforceTestApiAnnotations;
+    private final boolean mEnforceApiRequirements;
+
+    @Nullable
+    private String mTestMethodName;
 
     /**
      * Builder.
      */
     public static final class Builder {
         private boolean mEnforceTestApiAnnotations = true;
+        private boolean mEnforceApiRequirements = true;
 
         /**
          * Creates a new rule.
@@ -157,10 +183,23 @@ public final class ApiCheckerRule implements TestRule {
             mEnforceTestApiAnnotations = false;
             return this;
         }
+
+        /**
+         * Don't fail the test if it could not infer its {@link ApiRequirements}.
+         *
+         * <p>Typically used on tests for built-in APIs.
+         */
+        public Builder disableApiRequirementsCheck() {
+            mEnforceApiRequirements = false;
+            return this;
+        }
     }
 
     private ApiCheckerRule(Builder builder) {
         mEnforceTestApiAnnotations = builder.mEnforceTestApiAnnotations;
+        mEnforceApiRequirements = mEnforceTestApiAnnotations
+                ? builder.mEnforceApiRequirements
+                : false;
     }
 
     /**
@@ -178,6 +217,14 @@ public final class ApiCheckerRule implements TestRule {
         }
 
         return isSupported(apiRequirements);
+    }
+
+    /**
+     * Gets the name of the test being executed.
+     */
+    @Nullable
+    public String getTestMethodName() {
+        return mTestMethodName;
     }
 
     private boolean isSupported(ApiRequirements apiRequirements) {
@@ -223,12 +270,29 @@ public final class ApiCheckerRule implements TestRule {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
+                mTestMethodName = description.getMethodName();
+                try {
+                    evaluateInternal();
+                } finally {
+                    mTestMethodName = null;
+                }
+            }
+
+            private void evaluateInternal() throws Throwable {
                 if (DBG) {
                     Log.d(TAG, "evaluating " + description.getDisplayName());
                 }
 
+                // Need to do a basic version check first, as the rule could be used on ATS tests
+                // running on pre-mainline versions
+                if (!isPlatformSupported(description)) {
+                    base.evaluate();
+                    return;
+                }
+
                 // Variables below are used to validate that all ApiRequirements are compatible
                 ApiTest apiTest = null;
+                NonApiTest nonApiTest = null;
                 ApiRequirements apiRequirementsOnApiUnderTest = null;
                 IgnoreInvalidApi ignoreInvalidApi = null;
 
@@ -249,6 +313,10 @@ public final class ApiCheckerRule implements TestRule {
                     }
                     if (annotation instanceof ApiTest) {
                         apiTest = (ApiTest) annotation;
+                        continue;
+                    }
+                    if (annotation instanceof  NonApiTest) {
+                        nonApiTest = (NonApiTest) annotation;
                         continue;
                     }
                     if (annotation instanceof ApiRequirements) {
@@ -277,6 +345,7 @@ public final class ApiCheckerRule implements TestRule {
                     Log.d(TAG, "Relevant annotations on test: "
                             + "ApiTest=" + apiTest
                             + " CddTest=" + cddTest
+                            + " NonApiTest= " + nonApiTest
                             + " ApiRequirements=" + apiRequirementsOnTest
                             + " SupportedVersionTest=" + supportedVersionTest
                             + " UnsupportedVersionTest=" + unsupportedVersionTest
@@ -286,17 +355,18 @@ public final class ApiCheckerRule implements TestRule {
                 validateOptionalAnnotations(description.getTestClass(), description.getMethodName(),
                         supportedVersionTest, unsupportedVersionTest);
 
-                if (apiTest == null && cddTest != null) {
-                    validateCddAnnotations(cddTest, apiRequirementsOnTest);
+                if (apiTest == null && (cddTest != null || nonApiTest != null)) {
+                    validateNonApiAnnotations(cddTest, nonApiTest, apiRequirementsOnTest);
                     effectiveApiRequirementsOnTest = apiRequirementsOnTest;
                 }
 
-                if (apiTest == null && cddTest == null) {
+                if (apiTest == null && cddTest == null && nonApiTest == null) {
                     if (mEnforceTestApiAnnotations) {
-                        throw new IllegalArgumentException("Test is missing @ApiTest or @CddTest "
-                                + "annotation");
+                        throw new IllegalArgumentException(
+                                "Test is missing @ApiTest, @NonApiTest, or @CddTest annotation");
                     } else {
-                        Log.w(TAG, "Test " + description + " doesn't have @ApiTest or @CddTest,"
+                        Log.w(TAG, "Test " + description
+                                + " doesn't have @ApiTest, @NonApiTest, or @CddTest,"
                                 + "but rule is not enforcing it");
                     }
                 }
@@ -336,7 +406,7 @@ public final class ApiCheckerRule implements TestRule {
                                     + "missing @ApiRequirements, but rule is not enforcing them");
                         }
                     } else if (addedInOrBefore == null) {
-                        if (mEnforceTestApiAnnotations) {
+                        if (mEnforceApiRequirements) {
                             throw new IllegalArgumentException("Missing @ApiRequirements "
                                     + "or @AddedInOrBefore");
                         } else {
@@ -357,8 +427,40 @@ public final class ApiCheckerRule implements TestRule {
         };
     } // apply
 
-    private void validateCddAnnotations(CddTest cddTest,
-            @Nullable ApiRequirements apiRequirements) {
+    protected boolean isPlatformSupported(Description description) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            Log.d(TAG, "Running " + description.getDisplayName() + " as-is on pre-TM platform build"
+                    + " (" + Build.VERSION.SDK_INT + ")");
+            return false;
+        }
+        if (!Car.isApiVersionAtLeast(Build.VERSION_CODES.TIRAMISU, /* minor= */ 1)) {
+            Log.d(TAG, "Running " + description.getDisplayName() + " as-is on pre-TM-QPR1 Car build"
+                    + " (major=" + Car.API_VERSION_MAJOR_INT
+                    + ", minor=" + Car.API_VERSION_MINOR_INT + ")");
+            return false;
+        }
+        return true;
+    }
+
+    private void validateNonApiAnnotations(CddTest cddTest, NonApiTest nonApiTest,
+            ApiRequirements apiRequirements) {
+        if (cddTest != null && nonApiTest != null) {
+            throw new IllegalArgumentException("Test contains both " + nonApiTest.annotationType()
+                    + " annotation (" + nonApiTest + ") and " + cddTest.annotationType()
+                    + " annotation (" + cddTest + ")");
+        }
+
+        if (cddTest != null) {
+            validateCddTestAnnotation(cddTest, apiRequirements);
+            return;
+        }
+
+        if (nonApiTest != null) {
+            validateNonApiTestAnnotation(nonApiTest, apiRequirements);
+        }
+    }
+
+    private void validateCddTestAnnotation(CddTest cddTest, ApiRequirements apiRequirements) {
         @SuppressWarnings("deprecation")
         String deprecatedRequirement = cddTest.requirement();
 
@@ -373,7 +475,8 @@ public final class ApiCheckerRule implements TestRule {
 
         if (requirements == null || requirements.length == 0) {
             throw new IllegalArgumentException("Test contains " + cddTest.annotationType()
-            + " annotation (" + cddTest + "), but it's 'requirements' field is empty (value="
+                    + " annotation (" + cddTest
+                    + "), but it's 'requirements' field is empty (value="
                     + Arrays.toString(requirements) + ")");
         }
         for (String requirement : requirements) {
@@ -389,6 +492,14 @@ public final class ApiCheckerRule implements TestRule {
         if (apiRequirements == null) {
             throw new IllegalArgumentException("Test contains " + cddTest.annotationType()
                     + " annotation (" + cddTest + "), but it's missing @ApiRequirements)");
+        }
+    }
+
+    public void validateNonApiTestAnnotation(NonApiTest nonApiTest,
+            ApiRequirements apiRequirements) {
+        if (apiRequirements == null) {
+            throw new IllegalArgumentException("Test contains " + nonApiTest.annotationType()
+                    + " annotation (" + nonApiTest + "), but it's missing @ApiRequirements)");
         }
     }
 
@@ -420,6 +531,10 @@ public final class ApiCheckerRule implements TestRule {
                     Log.d(TAG, "No @ApiRequirements on " + api + "; trying "
                             + "@AddedInOrBefore instead: " + addedInOrBefore);
                 }
+                continue;
+            }
+
+            if (apiRequirements == null) {
                 continue;
             }
             allApiRequirements.add(apiRequirements);

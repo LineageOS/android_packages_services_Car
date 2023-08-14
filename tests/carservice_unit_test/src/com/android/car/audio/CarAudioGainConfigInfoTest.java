@@ -25,6 +25,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Objects;
+
 @RunWith(AndroidJUnit4.class)
 public final class CarAudioGainConfigInfoTest {
     private static final int PRIMARY_ZONE_ID = 0;
@@ -53,6 +55,45 @@ public final class CarAudioGainConfigInfoTest {
                 .that(carGainInfo.getVolumeIndex())
                 .isEqualTo(666);
         assertWithMessage("Audio Gain Config Literal").that(carGainInfo.toString()).isNotNull();
+    }
+
+    @Test
+    public void hash_forTheSameAudioGainConfigs_equals() {
+        AudioGainConfigInfo gainInfo = new AudioGainConfigInfo();
+        gainInfo.zoneId = PRIMARY_ZONE_ID;
+        gainInfo.devicePortAddress = PRIMARY_MUSIC_ADDRESS;
+        gainInfo.volumeIndex = 666;
+        CarAudioGainConfigInfo carGainInfo1 = new CarAudioGainConfigInfo(gainInfo);
+
+        assertWithMessage("Audio Gain Configs")
+                .that(Objects.hash(PRIMARY_ZONE_ID, PRIMARY_MUSIC_ADDRESS, 666))
+                .isEqualTo(carGainInfo1.hashCode());
+    }
+
+    @Test
+    public void hash_withDifferentZoneIds_notEquals() {
+        AudioGainConfigInfo gainInfo = new AudioGainConfigInfo();
+        gainInfo.zoneId = PRIMARY_ZONE_ID;
+        gainInfo.devicePortAddress = PRIMARY_MUSIC_ADDRESS;
+        gainInfo.volumeIndex = 666;
+        CarAudioGainConfigInfo carGainInfo1 = new CarAudioGainConfigInfo(gainInfo);
+
+        assertWithMessage("Audio Gain Configs")
+                .that(Objects.hash(PRIMARY_ZONE_ID, PRIMARY_MUSIC_ADDRESS, 665))
+                .isNotEqualTo(carGainInfo1.hashCode());
+    }
+
+    @Test
+    public void hash_forTheSameObject_succeeds() {
+        AudioGainConfigInfo gainInfo = new AudioGainConfigInfo();
+        gainInfo.zoneId = PRIMARY_ZONE_ID;
+        gainInfo.devicePortAddress = PRIMARY_MUSIC_ADDRESS;
+        gainInfo.volumeIndex = 666;
+        CarAudioGainConfigInfo carGainInfo1 = new CarAudioGainConfigInfo(gainInfo);
+        CarAudioGainConfigInfo carGainInfo2 = new CarAudioGainConfigInfo(gainInfo);
+
+        assertWithMessage("Audio Gain Configs").that(carGainInfo1.hashCode())
+                .isEqualTo(carGainInfo2.hashCode());
     }
 
     @Test

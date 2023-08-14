@@ -16,6 +16,8 @@
 
 package android.car.drivingstate;
 
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
@@ -24,11 +26,13 @@ import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.AddedInOrBefore;
 import android.car.builtin.content.ContextHelper;
+import android.car.builtin.os.UserManagerHelper;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
+import android.os.UserManager;
 import android.util.Log;
 import android.view.Display;
 
@@ -63,6 +67,7 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
     private int mDisplayId = Display.INVALID_DISPLAY;
     private final ICarUxRestrictionsManager mUxRService;
     private final EventCallbackHandler mEventCallbackHandler;
+    private final UserManager mUserManager;
     @GuardedBy("mLock")
     private OnUxRestrictionsChangedListener mUxRListener;
     @GuardedBy("mLock")
@@ -74,6 +79,7 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
         mUxRService = ICarUxRestrictionsManager.Stub.asInterface(service);
         mEventCallbackHandler = new EventCallbackHandler(this,
                 getEventHandler().getLooper());
+        mUserManager = getContext().getSystemService(UserManager.class);
     }
 
     /** @hide */
@@ -414,12 +420,29 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
     }
 
     private int getDisplayId() {
+        if (!isPlatformVersionAtLeastU()) {
+            mDisplayId = Display.DEFAULT_DISPLAY;
+            Log.d(TAG, "Returning default display id=" + mDisplayId +
+                " on earlier than U platform.");
+            return mDisplayId;
+        }
+
         if (mDisplayId != Display.INVALID_DISPLAY) {
             return mDisplayId;
         }
 
-        mDisplayId = ContextHelper.getDisplayId(getContext());
-        Log.i(TAG, "Context returns display ID " + mDisplayId);
+        // First, attempt to get the id of the display asssociated with the context.
+        // For example, if it is an Activity context, a valid display id will already be obtained
+        // here. But if it is an Application context, it will return invalid display id.
+        mDisplayId = ContextHelper.getAssociatedDisplayId(getContext());
+        Log.d(TAG, "Context returns associated display ID " + mDisplayId);
+
+        if (mDisplayId == Display.INVALID_DISPLAY) {
+            // If there is no display id associated with the context, further obtain the display
+            // id by mapping the user to display id.
+            mDisplayId = UserManagerHelper.getMainDisplayIdAssignedToUser(mUserManager);
+            Log.d(TAG, "Display ID assigned to user is display " + mDisplayId);
+        }
 
         if (mDisplayId == Display.INVALID_DISPLAY) {
             mDisplayId = Display.DEFAULT_DISPLAY;

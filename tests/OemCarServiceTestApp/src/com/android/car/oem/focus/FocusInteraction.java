@@ -36,6 +36,7 @@ import android.util.Log;
 import android.util.Slog;
 
 import com.android.car.oem.utils.AudioAttributesWrapper;
+import com.android.car.oem.utils.AudioUtils;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -53,9 +54,20 @@ public final class FocusInteraction {
 
     // Values for the internal interaction matrix we use to make focus decisions
     private static final int INTERACTION_INVALID = -2; // Focus not granted
-    private static final int INTERACTION_REJECT = -1; // Focus not granted
-    private static final int INTERACTION_EXCLUSIVE = 1; // Focus granted, others loose focus
-    private static final int INTERACTION_CONCURRENT = 2; // Focus granted, others keep focus
+    /**
+     * Value for the interaction matrix for rejecting incoming focus request. Focus not granted.
+     */
+    public static final int INTERACTION_REJECT = -1;
+    /**
+     * Value for the interaction matrix for granting exclusive access to incoming focus request.
+     * Focus granted, others lose focus
+     */
+    public static final int INTERACTION_EXCLUSIVE = 1;
+    /**
+     * Value for the interaction matrix for concurrent focus, incoming focus request and current
+     * focus holders will concurrently hold focus. Focus granted, others keep focus.
+     */
+    public static final int INTERACTION_CONCURRENT = 2;
 
     static final AudioAttributes[] MUSIC_ATTRIBUTES = new AudioAttributes[] {
             getAudioAttributeFromUsage(AudioAttributes.USAGE_UNKNOWN),
@@ -518,22 +530,18 @@ public final class FocusInteraction {
         Set<AudioAttributesWrapper> audioAttributesWrapperSet =
                 mHolderToIncomingAttributesInteractions.keySet();
         for (AudioAttributesWrapper holder : audioAttributesWrapperSet) {
-            String holderUsageString = getUsageString(holder);
+            String holderUsageString = AudioUtils.getUsageString(holder.getAudioAttributes());
             writer.printf("%s%sHolder: %s\n", indent, indent, holderUsageString);
             for (AudioAttributesWrapper incoming : audioAttributesWrapperSet) {
-                String incomingUsageString = getUsageString(incoming);
+                String incomingUsageString = AudioUtils.getUsageString(incoming
+                        .getAudioAttributes());
                 String interaction = getInteractionString(
                         mHolderToIncomingAttributesInteractions.get(holder).get(incoming));
                 writer.printf("%s%s%sIncoming: %s interaction %s\n", indent, indent, indent,
                         incomingUsageString, interaction);
             }
+            writer.flush();
         }
-    }
-
-    private String getUsageString(AudioAttributesWrapper incoming) {
-        return AudioAttributes.usageToString(
-                        incoming.getAudioAttributes().getSystemUsage())
-                .replace(/* target= */ "USAGE_", /* replacement= */ "");
     }
 
     private static String getInteractionString(int interaction) {

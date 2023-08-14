@@ -34,7 +34,7 @@ import org.mockito.Mock;
 
 public final class OemCarServiceTest extends AbstractExtendedMockitoTestCase {
 
-    private final CarVersion mCarVersionForTesting = CarVersion.VERSION_CODES.TIRAMISU_2;
+    private final CarVersion mCarVersionForTesting = CarVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 
     private OemCarService mDefaultOemCarService = new DefaultOemCarService();
     private TestOemCarService mTestOemCarService = new TestOemCarService();

@@ -130,11 +130,12 @@ public final class ThreadPolicyWithPriority implements Parcelable {
     // DO NOT MODIFY!
     // CHECKSTYLE:OFF Generated code
     //
-    // The generated code is patched with adding "AddedIn" annotation to all public
+    // The generated code is patched with adding "apiRequirements" annotation to all public
     // methods/interfaces.
     //
     // To regenerate run:
     // $ codegen $ANDROID_BUILD_TOP/packages/services/Car/car-lib/src/android/car/os/ThreadPolicyWithPriority.java
+    // Added AddedInOrBefore or ApiRequirement Annotation manually
     //
     // To exclude the generated code from IntelliJ auto-formatting enable (one-time):
     //   Settings > Editor > Code Style > Formatter Control
@@ -154,6 +155,8 @@ public final class ThreadPolicyWithPriority implements Parcelable {
 
     /** @hide */
     @DataClass.Generated.Member
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
     public static String priorityToString(@Priority int value) {
         switch (value) {
             case PRIORITY_MIN:

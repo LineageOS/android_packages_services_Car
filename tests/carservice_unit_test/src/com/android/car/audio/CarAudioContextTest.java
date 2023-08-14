@@ -36,19 +36,24 @@ import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
 import static com.android.car.audio.CarAudioContext.isCriticalAudioAudioAttribute;
 import static com.android.car.audio.CarAudioContext.isNotificationAudioAttribute;
 import static com.android.car.audio.CarAudioContext.isRingerOrCallAudioAttribute;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
 
 import android.car.builtin.media.AudioManagerHelper;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.util.ArraySet;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.car.audio.CarAudioContext.AudioContext;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -60,7 +65,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RunWith(AndroidJUnit4.class)
-public class CarAudioContextTest {
+public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
+
+    private static final String TAG = CarAudioContextTest.class.getSimpleName();
 
     private static final int INVALID_CONTEXT_ID = 0;
     private static final int INVALID_CONTEXT = -5;
@@ -101,7 +108,8 @@ public class CarAudioContextTest {
             CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION_EVENT);
 
     public static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
-            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+            new CarAudioContext(CarAudioContext.getAllContextsInfo(),
+                    /* useCoreAudioRouting= */ false);
 
     public static final @CarAudioContext.AudioContext int TEST_MEDIA_CONTEXT =
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_MEDIA_ATTRIBUTE);
@@ -127,6 +135,77 @@ public class CarAudioContextTest {
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_VEHICLE_ATTRIBUTE);
     public static final @CarAudioContext.AudioContext int TEST_ASSISTANT_CONTEXT =
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE);
+
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
+        session
+                .spyStatic(CoreAudioHelper.class)
+                .spyStatic(AudioManager.class);
+    }
+
+    void setupMock() {
+        doReturn(CoreAudioRoutingUtils.getProductStrategies())
+                .when(() -> AudioManager.getAudioProductStrategies());
+        doReturn(CoreAudioRoutingUtils.getVolumeGroups())
+                .when(() -> AudioManager.getAudioVolumeGroups());
+
+        doReturn(CoreAudioRoutingUtils.MUSIC_STRATEGY_ID)
+                .when(() -> CoreAudioHelper.getStrategyForAudioAttributes(
+                        eq(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)));
+        doReturn(CoreAudioRoutingUtils.NAV_STRATEGY_ID)
+                .when(() -> CoreAudioHelper.getStrategyForAudioAttributes(
+                        eq(CoreAudioRoutingUtils.NAV_ATTRIBUTES)));
+        doReturn(CoreAudioRoutingUtils.OEM_STRATEGY_ID)
+                .when(() -> CoreAudioHelper.getStrategyForAudioAttributes(
+                        eq(CoreAudioRoutingUtils.OEM_ATTRIBUTES)));
+        doReturn(CoreAudioHelper.INVALID_STRATEGY)
+                .when(() -> CoreAudioHelper.getStrategyForAudioAttributes(
+                        eq(CoreAudioRoutingUtils.UNSUPPORTED_ATTRIBUTES)));
+    }
+
+    @Before
+    public void setUp() {
+        setupMock();
+    }
+
+    public CarAudioContextTest() {
+        super(CarAudioContextTest.TAG);
+    }
+
+    @Test
+    public void getContextForAudioAttribute_usingCoreRouting() {
+        CarAudioContext carAudioContextUsingCoreRouting = new CarAudioContext(
+                CoreAudioRoutingUtils.getCarAudioContextInfos(), /* useCoreAudioRouting= */ true);
+
+        assertWithMessage("Context for valid audio attributes")
+                .that(carAudioContextUsingCoreRouting.getContextForAttributes(
+                        CoreAudioRoutingUtils.MUSIC_ATTRIBUTES))
+                .isEqualTo(CoreAudioRoutingUtils.MUSIC_STRATEGY_ID);
+
+        assertWithMessage("Context for unsupported audio attributes")
+                .that(carAudioContextUsingCoreRouting.getContextForAttributes(
+                        CoreAudioRoutingUtils.UNSUPPORTED_ATTRIBUTES))
+                .isEqualTo(INVALID_CONTEXT_ID);
+    }
+
+    @Test
+    public void isOemExtensionAudioContext_whenUsingCoreRouting() {
+        CarAudioContext carAudioContextUsingCoreRouting = new CarAudioContext(
+                CoreAudioRoutingUtils.getCarAudioContextInfos(), /* useCoreAudioRouting= */ true);
+
+        assertWithMessage("Oem extension Context for music audio attributes")
+                .that(carAudioContextUsingCoreRouting.isOemExtensionAudioContext(
+                        CoreAudioRoutingUtils.MUSIC_STRATEGY_ID))
+                .isTrue();
+        assertWithMessage("Nav Context for USAGE_ASSISTANCE_NAVIGATION_GUIDANCE")
+                .that(carAudioContextUsingCoreRouting.isOemExtensionAudioContext(
+                        CoreAudioRoutingUtils.NAV_STRATEGY_ID))
+                .isFalse();
+        assertWithMessage("Oem extension Context for oem audio attributes")
+                .that(carAudioContextUsingCoreRouting.isOemExtensionAudioContext(
+                        CoreAudioRoutingUtils.OEM_STRATEGY_ID))
+                .isTrue();
+    }
 
     @Test
     public void getContextForAudioAttributes_forAttributeWithValidUsage_returnsContext() {
@@ -725,9 +804,38 @@ public class CarAudioContextTest {
     }
 
     @Test
+    public void audioAttributeMatches_onWrapper_withMatchingAudioAttributes() {
+        AudioAttributes mediaAudioAttribute =
+                new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+        AudioAttributes mediaAudioAttributeMatched =
+                new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+
+        assertWithMessage("Wrapper audio attribute's %s and %s matched results",
+                mediaAudioAttribute, mediaAudioAttributeMatched)
+                .that(CarAudioContext.AudioAttributesWrapper
+                        .audioAttributeMatches(mediaAudioAttribute, mediaAudioAttributeMatched))
+                .isTrue();
+    }
+
+    @Test
+    public void audioAttributeMatches_onWrapper_withNonMatchingAudioAttributes() {
+        AudioAttributes mediaAudioAttribute =
+                new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+        AudioAttributes gameAudioAttributeMatched =
+                new AudioAttributes.Builder().setUsage(USAGE_GAME).build();
+
+        assertWithMessage("Wrapper audio attribute's %s and %s non-matched results",
+                mediaAudioAttribute, gameAudioAttributeMatched)
+                .that(CarAudioContext.AudioAttributesWrapper
+                        .audioAttributeMatches(mediaAudioAttribute, gameAudioAttributeMatched))
+                .isFalse();
+    }
+
+    @Test
     public void constructor_withNullContextInfos_fails() {
         NullPointerException thrown = assertThrows(NullPointerException.class,
-                () -> new CarAudioContext(/* carAudioContexts= */ null));
+                () -> new CarAudioContext(/* carAudioContexts= */ null,
+                        /* useCoreAudioRouting= */ false));
 
         assertWithMessage("Constructor exception")
                 .that(thrown).hasMessageThat()
@@ -737,7 +845,8 @@ public class CarAudioContextTest {
     @Test
     public void constructor_withEmptyContextInfos_fails() {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-                () -> new CarAudioContext(/* carAudioContexts= */ Collections.EMPTY_LIST));
+                () -> new CarAudioContext(/* carAudioContexts= */ Collections.EMPTY_LIST,
+                        /* useCoreAudioRouting= */ false));
 
         assertWithMessage("Empty list constructor exception")
                 .that(thrown).hasMessageThat()
@@ -751,10 +860,10 @@ public class CarAudioContextTest {
 
         List<CarAudioContextInfo> carContextInfo = CarAudioContext.getAllCarSystemContextsInfo();
 
-        assertWithMessage("Car system context info size").that(carContextInfo)
+        expectWithMessage("Car system context info size").that(carContextInfo)
                 .hasSize(carContextIds.size());
         for (CarAudioContextInfo info : carContextInfo) {
-            assertWithMessage("Context info id for %s", info)
+            expectWithMessage("Context info id for %s", info)
                     .that(info.getId()).isIn(carContextIds);
         }
     }
@@ -767,10 +876,10 @@ public class CarAudioContextTest {
         List<CarAudioContextInfo> nonCarContextInfo =
                 CarAudioContext.getAllNonCarSystemContextsInfo();
 
-        assertWithMessage("Non car system context info size").that(nonCarContextInfo)
+        expectWithMessage("Non car system context info size").that(nonCarContextInfo)
                 .hasSize(nonCarContextIds.size());
         for (CarAudioContextInfo info : nonCarContextInfo) {
-            assertWithMessage("Context info id for %s", info)
+            expectWithMessage("Context info id for %s", info)
                     .that(info.getId()).isIn(nonCarContextIds);
         }
     }
@@ -782,7 +891,7 @@ public class CarAudioContextTest {
         List<AudioAttributes> attributesToDuck =
                 CarAudioContext.evaluateAudioAttributesToDuck(focusHolders);
 
-        assertWithMessage("Audio attributes to duck").that(attributesToDuck).isEmpty();
+        expectWithMessage("Audio attributes to duck").that(attributesToDuck).isEmpty();
     }
 
     @Test
@@ -792,7 +901,7 @@ public class CarAudioContextTest {
         List<AudioAttributes> attributesToDuck =
                 CarAudioContext.evaluateAudioAttributesToDuck(focusHolders);
 
-        assertWithMessage("Audio attributes to duck with media")
+        expectWithMessage("Audio attributes to duck with media")
                 .that(attributesToDuck).isEmpty();
     }
 
@@ -804,7 +913,16 @@ public class CarAudioContextTest {
         List<AudioAttributes> attributesToDuck =
                 CarAudioContext.evaluateAudioAttributesToDuck(focusHolders);
 
-        assertWithMessage("Audio attributes to duck with media and emergency")
+        expectWithMessage("Audio attributes to duck with media and emergency")
                 .that(attributesToDuck).containsExactly(TEST_CALL_ATTRIBUTE);
+    }
+
+    @Test
+    public void isOemExtensionAudioContext_returnsAlwaysFalse() {
+        for (@AudioContext int audioContext : TEST_CAR_AUDIO_CONTEXT.getAllContextsIds()) {
+            assertWithMessage("When using core audio routing, not oem extnesion expected")
+                    .that(TEST_CAR_AUDIO_CONTEXT.isOemExtensionAudioContext(audioContext))
+                    .isEqualTo(false);
+        }
     }
 }

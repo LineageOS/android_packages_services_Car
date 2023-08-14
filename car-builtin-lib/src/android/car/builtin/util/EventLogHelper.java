@@ -17,9 +17,11 @@
 package android.car.builtin.util;
 
 import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
+import android.os.Build;
 import android.util.EventLog;
 
 /**
@@ -302,6 +304,23 @@ public final class EventLogHelper {
                 result);
     }
 
+    /** Logs a {@code EventLogTags.CAR_USER_SVC_START_USER_VISIBLE_ON_DISPLAY_REQ} event. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void writeCarUserServiceStartUserVisibleOnDisplayReq(int userId, int displayId) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_START_USER_VISIBLE_ON_DISPLAY_REQ,
+                userId, displayId);
+    }
+
+    /** Logs a {@code EventLogTags.CAR_USER_SVC_START_USER_VISIBLE_ON_DISPLAY_RESP} event. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void writeCarUserServiceStartUserVisibleOnDisplayResp(
+            int userId, int displayId, int result) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_START_USER_VISIBLE_ON_DISPLAY_RESP,
+                userId, displayId, result);
+    }
+
     @AddedIn(PlatformVersion.TIRAMISU_0)
     public static void writeCarUserServiceStopUserReq(int userId) {
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_STOP_USER_REQ, userId);
@@ -329,6 +348,52 @@ public final class EventLogHelper {
             int userId, int flags, @Nullable String safeName, @Nullable String userLocales) {
         EventLog.writeEvent(EventLogTags.CAR_USER_HAL_INITIAL_USER_INFO_RESP, requestId, status,
                 action, userId, flags, safeName, userLocales);
+    }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void writeCarInitialUserStartFgUser(int userId) {
+        EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_START_FG_USER, userId);
+    }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void writeCarInitialUserInfo(int type, boolean replaceGuest,
+            int switchUserId, @Nullable String newUserName, int newUserFlags,
+            boolean supportsOverrideUserIdProperty, @Nullable String userLocales) {
+        EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_INFO, type, replaceGuest ? 1 : 0,
+                switchUserId,
+                newUserName, newUserFlags, supportsOverrideUserIdProperty ? 1 : 0, userLocales);
+    }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void writeCarInitialUserFallbackDefaultBehavior(@Nullable String reason) {
+        EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_FALLBACK_DEFAULT_BEHAVIOR, reason);
+    }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void writeCarInitialUserReplaceGuest(int userId) {
+        EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_REPLACE_GUEST, userId);
+    }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void writeCarInitialUserUnlockSystemUser() {
+        EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_UNLOCK_SYSTEM_USER);
+    }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void writeCarInitialUserSetLastActive(int userId) {
+        EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_SET_LAST_ACTIVE, userId);
+    }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void writeCarInitialUserResetGlobalProperty(@Nullable String name) {
+        EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_RESET_GLOBAL_PROPERTY, name);
     }
 
     @AddedIn(PlatformVersion.TIRAMISU_0)
@@ -490,6 +555,36 @@ public final class EventLogHelper {
     @AddedIn(PlatformVersion.TIRAMISU_0)
     public static void writeCarUserManagerRemoveUserResp(int uid, int status) {
         EventLog.writeEvent(EventLogTags.CAR_USER_MGR_REMOVE_USER_RESP, uid, status);
+    }
+
+    /** Logs a {@code EventLogTags.CAR_USER_MGR_START_USER_REQ} event. */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public static void writeCarUserManagerStartUserReq(int uid, int userId, int displayId) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_START_USER_REQ, uid, userId, displayId);
+    }
+
+    /** Logs a {@code EventLogTags.CAR_USER_MGR_START_USER_RESP} event. */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public static void writeCarUserManagerStartUserResp(
+            int uid, int userId, int displayId, int status) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_START_USER_RESP,
+                uid, userId, displayId, status);
+    }
+
+    /** Logs a {@code EventLogTags.CAR_USER_MGR_STOP_USER_REQ} event. */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public static void writeCarUserManagerStopUserReq(int uid, int userId) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_STOP_USER_REQ, uid, userId);
+    }
+
+    /** Logs a {@code EventLogTags.CAR_USER_MGR_STOP_USER_RESP} event. */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public static void writeCarUserManagerStopUserResp(int uid, int userId, int status) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_STOP_USER_RESP, uid, userId, status);
     }
 
     @AddedIn(PlatformVersion.TIRAMISU_0)

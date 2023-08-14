@@ -66,6 +66,12 @@ public final class ApiHelperTest {
     }
 
     @Test
+    public void testResolve_methodWithOneParameter_notOverloaded_methodNameOnly() {
+        assertMethod("android.car.test.ApiHelperTest#methodWithOneParameterAndroid",
+                ApiHelperTest.class, "methodWithOneParameterAndroid", Context.class);
+    }
+
+    @Test
     public void testResolve_methodWithOneParameterFromJavaLang() {
         assertMethod("android.car.test.ApiHelperTest#methodWithOneParameterJavaLang(String)",
                 ApiHelperTest.class, "methodWithOneParameterJavaLang", String.class);
@@ -89,8 +95,9 @@ public final class ApiHelperTest {
 
         assertWithMessage("method1").that(method1).isNotEqualTo(method2);
         assertWithMessage("method1").that(method1).isNotSameInstanceAs(method2);
-    }
 
+        assertInvalidApi("android.car.test.ApiHelperTest#methodWithOneParameterOverloaded");
+    }
 
     @Test
     public void testResolve_methodWithMultipleParameters() {

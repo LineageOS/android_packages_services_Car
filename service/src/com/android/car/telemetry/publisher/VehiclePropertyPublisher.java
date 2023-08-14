@@ -87,7 +87,8 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
         mCarPropertyService = carPropertyService;
         mTelemetryHandler = handler;
         // Load car property list once, as the list doesn't change runtime.
-        List<CarPropertyConfig> propertyList = mCarPropertyService.getPropertyList();
+        List<CarPropertyConfig> propertyList = mCarPropertyService.getPropertyList()
+                .getConfigs();
         mCarPropertyList = new SparseArray<>(propertyList.size());
         for (CarPropertyConfig property : propertyList) {
             mCarPropertyList.append(property.getPropertyId(), property);

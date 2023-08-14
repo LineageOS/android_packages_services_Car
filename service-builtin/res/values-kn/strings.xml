@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"ಹಿನ್ನೆಲೆಯಲ್ಲಿ ಈ ಆ್ಯಪ್ ರನ್ ಆಗದಂತೆ ತಡೆಯಲಾಗಿದೆ. ಹಿನ್ನೆಲೆ ಬಳಕೆಯನ್ನು ಮುಂದುವರಿಸಲು ಆ್ಯಪ್‌ಗೆ ಆದ್ಯತೆ ನೀಡಿ."</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"ಮುಚ್ಚಿ"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"ಆ್ಯಪ್ ಅನ್ನು ಆದ್ಯತೆಗೊಳಿಸಿ"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ. ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿ ನೀವು ಇದನ್ನು ಪುನಃ ಸಕ್ರಿಯಗೊಳಿಸಬಹುದು."</string>
 </resources>

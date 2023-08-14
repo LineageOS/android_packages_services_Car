@@ -35,7 +35,9 @@ public final class KeyEventHelper {
 
     /**
      * Sets the display id for the key event passed as argument.
+     * @deprecated Use {@link InputEventHelper} instead of this class.
      */
+    @Deprecated
     @AddedIn(PlatformVersion.TIRAMISU_0)
     public static void setDisplayId(@NonNull KeyEvent keyEvent, int newDisplayId) {
         keyEvent.setDisplayId(newDisplayId);

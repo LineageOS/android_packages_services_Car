@@ -21,7 +21,7 @@ import static android.car.Car.PERMISSION_MANAGE_THREAD_PRIORITY;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.testng.Assert.expectThrows;
+import static org.junit.Assert.assertThrows;
 
 import android.car.Car;
 import android.car.os.CarPerformanceManager;
@@ -59,7 +59,7 @@ public final class CarPerformanceManagerPermissionTest {
     public void testSetThreadPriority() throws Exception {
         ThreadPolicyWithPriority p = new ThreadPolicyWithPriority(
                 ThreadPolicyWithPriority.SCHED_FIFO, /* priority= */ 1);
-        Exception e = expectThrows(
+        Exception e = assertThrows(
                 SecurityException.class, () -> mCarPerformanceManager.setThreadPriority(p));
 
         assertThat(e.getMessage()).contains(PERMISSION_MANAGE_THREAD_PRIORITY);
@@ -67,7 +67,7 @@ public final class CarPerformanceManagerPermissionTest {
 
     @Test
     public void testGetThreadPriority() throws Exception {
-        Exception e = expectThrows(
+        Exception e = assertThrows(
                 SecurityException.class, () -> mCarPerformanceManager.getThreadPriority());
 
         assertThat(e.getMessage()).contains(PERMISSION_MANAGE_THREAD_PRIORITY);

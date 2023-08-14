@@ -20,7 +20,6 @@ package {
 // to learn how to use it.
 aidl_interface {
     name: "android.automotive.telemetry.internal",
-    owner: "google",
     srcs: [
         "android/automotive/telemetry/internal/*.aidl",
     ],
@@ -48,5 +47,11 @@ aidl_interface {
             version: "1",
             imports: [],
         },
+        {
+            version: "2",
+            imports: [],
+        },
+
     ],
+    frozen: true,
 }

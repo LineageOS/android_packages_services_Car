@@ -17,13 +17,15 @@
 package android.car.builtin.os;
 
 import android.annotation.NonNull;
-import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
 import android.content.Context;
 import android.content.pm.UserInfo;
+import android.os.Build;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 
@@ -78,8 +80,22 @@ public final class UserManagerHelper {
     public static final int FLAG_PROFILE = UserInfo.FLAG_PROFILE;
 
     /**
-     * Returns all users based on the boolean flags.
+     * Returns all user handles.
      */
+    @NonNull
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static List<UserHandle> getUserHandles(@NonNull UserManager userManager,
+            boolean excludeDying) {
+        return userManager.getUserHandles(excludeDying);
+    }
+
+    /**
+     * Returns all users based on the boolean flags.
+     *
+     * @deprecated Use {@link #getUserHandles(UserManager, boolean)} instead.
+     */
+    @Deprecated
     @NonNull
     @AddedIn(PlatformVersion.TIRAMISU_0)
     public static List<UserHandle> getUserHandles(@NonNull UserManager userManager,
@@ -103,6 +119,21 @@ public final class UserManagerHelper {
         return userManager.isUserEphemeral(user.getIdentifier());
     }
 
+    /** Checks if the user is guest. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static boolean isGuestUser(@NonNull UserManager userManager, @NonNull UserHandle user) {
+        return userManager.isGuestUser(user.getIdentifier());
+    }
+
+    /** Checks if the user is a full user. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static boolean isFullUser(@NonNull UserManager userManager, @NonNull UserHandle user) {
+        UserInfo info = userManager.getUserInfo(user.getIdentifier());
+        return info != null && info.isFull();
+    }
+
     /**
      * Checks if a user is enabled.
      */
@@ -110,15 +141,6 @@ public final class UserManagerHelper {
     public static boolean isEnabledUser(@NonNull UserManager userManager,
             @NonNull UserHandle user) {
         return userManager.getUserInfo(user.getIdentifier()).isEnabled();
-    }
-
-    /**
-     * Checks if a user is precreated.
-     */
-    @AddedIn(PlatformVersion.TIRAMISU_0)
-    public static boolean isPreCreatedUser(@NonNull UserManager userManager,
-            @NonNull UserHandle user) {
-        return userManager.getUserInfo(user.getIdentifier()).preCreated;
     }
 
     /**
@@ -136,16 +158,6 @@ public final class UserManagerHelper {
     @AddedIn(PlatformVersion.TIRAMISU_0)
     public static String getDefaultUserTypeForUserInfoFlags(int userInfoFlag) {
         return UserInfo.getDefaultUserType(userInfoFlag);
-    }
-
-    /**
-     * Precreates user based on user type
-     */
-    @Nullable
-    @AddedIn(PlatformVersion.TIRAMISU_0)
-    public static UserHandle preCreateUser(@NonNull UserManager userManager, @NonNull String type) {
-        UserInfo userInfo = userManager.preCreateUser(type);
-        return userInfo == null ? null : userInfo.getUserHandle();
     }
 
     /**
@@ -181,5 +193,36 @@ public final class UserManagerHelper {
     @AddedIn(PlatformVersion.TIRAMISU_0)
     public static @UserIdInt int getUserId(int uid) {
         return UserHandle.getUserId(uid);
+    }
+
+    /** Check {@link UserManager#isVisibleBackgroundUsersSupported()}. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static boolean isVisibleBackgroundUsersSupported(@NonNull UserManager userManager) {
+        return userManager.isVisibleBackgroundUsersSupported();
+    }
+
+    /** Check {@link UserManager#isVisibleBackgroundUsersOnDefaultDisplaySupported()}. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static boolean isVisibleBackgroundUsersOnDefaultDisplaySupported(
+            @NonNull UserManager userManager) {
+        return userManager.isVisibleBackgroundUsersOnDefaultDisplaySupported();
+    }
+
+    /** Check {@link UserManager#getMaxSupportedUsers()}. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static int getMaxSupportedUsers(@NonNull Context context) {
+        return Math.max(1, SystemProperties.getInt("fw.max_users",
+                context.getResources().getSystem().getInteger(
+                        com.android.internal.R.integer.config_multiuserMaximumUsers)));
+    }
+
+    /** Check {@link UserManager#getMainDisplayIdAssignedToUser()}. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static int getMainDisplayIdAssignedToUser(@NonNull UserManager userManager) {
+        return userManager.getMainDisplayIdAssignedToUser();
     }
 }

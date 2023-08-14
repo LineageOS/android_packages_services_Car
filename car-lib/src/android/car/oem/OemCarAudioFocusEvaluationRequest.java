@@ -159,8 +159,6 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -180,8 +178,6 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int hashCode() {
         return Objects.hash(mAudioFocusRequest, mFocusHolders, mFocusLosers, mMutedVolumeGroups,
                 mAudioZoneId);
@@ -211,8 +207,6 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public String toString() {
         return new StringBuilder().append("OemCarAudioFocusEvaluationRequest {audioZoneId = ")
                 .append(mAudioZoneId).append(", audioFocusInfo = ").append(mAudioFocusRequest)

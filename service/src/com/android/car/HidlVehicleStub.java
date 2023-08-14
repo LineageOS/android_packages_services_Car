@@ -20,6 +20,8 @@ import static com.android.car.CarServiceUtils.subscribeOptionsToHidl;
 
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
+import android.car.hardware.property.CarPropertyManager;
+import android.car.hardware.property.CarPropertyManager.CarPropertyAsyncErrorCode;
 import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
@@ -33,17 +35,19 @@ import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemProperties;
 
-import com.android.car.hal.HalClientCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.HidlHalPropConfig;
+import com.android.car.hal.VehicleHalCallback;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 final class HidlVehicleStub extends VehicleStub {
 
@@ -56,6 +60,7 @@ final class HidlVehicleStub extends VehicleStub {
 
     private final IVehicle mHidlVehicle;
     private final HalPropValueBuilder mPropValueBuilder;
+    private final Executor mExecutor = Executors.newFixedThreadPool(5);
 
     HidlVehicleStub() {
         this(getHidlVehicle());
@@ -134,7 +139,7 @@ final class HidlVehicleStub extends VehicleStub {
     public void unlinkToDeath(IVehicleDeathRecipient recipient) {
         try {
             mHidlVehicle.unlinkToDeath(recipient);
-        } catch (RemoteException e) {
+        } catch (RemoteException ignored) {
             // Ignore errors on shutdown path.
         }
     }
@@ -163,7 +168,7 @@ final class HidlVehicleStub extends VehicleStub {
             return vehiclePropConfigsToHalPropConfigs(mHidlVehicle.getAllPropConfigs());
         }
 
-         // If the VHAL_PROP_SUPPORTED_PROPERTY_IDS is supported, VHAL has
+        // If the VHAL_PROP_SUPPORTED_PROPERTY_IDS is supported, VHAL has
         // too many property configs that cannot be returned in getAllPropConfigs() in one binder
         // transaction.
         // We need to get the property list and then divide the list into smaller requests.
@@ -180,7 +185,7 @@ final class HidlVehicleStub extends VehicleStub {
      * @return a {@code SubscriptionClient} that could be used to subscribe/unsubscribe.
      */
     @Override
-    public SubscriptionClient newSubscriptionClient(HalClientCallback callback) {
+    public SubscriptionClient newSubscriptionClient(VehicleHalCallback callback) {
         return new HidlSubscriptionClient(callback, mPropValueBuilder);
     }
 
@@ -223,6 +228,85 @@ final class HidlVehicleStub extends VehicleStub {
         return getHalPropValueBuilder().build(result.value);
     }
 
+    @Override
+    public void getAsync(List<AsyncGetSetRequest> getVehicleStubAsyncRequests,
+            VehicleStubCallbackInterface getVehicleStubAsyncCallback) {
+        mExecutor.execute(() -> {
+            for (int i = 0; i < getVehicleStubAsyncRequests.size(); i++) {
+                AsyncGetSetRequest getVehicleStubAsyncRequest = getVehicleStubAsyncRequests.get(i);
+                int serviceRequestId = getVehicleStubAsyncRequest.getServiceRequestId();
+                HalPropValue halPropValue;
+                try {
+                    halPropValue = get(getVehicleStubAsyncRequest.getHalPropValue());
+                } catch (ServiceSpecificException e) {
+                    int[] errors = convertHalToCarPropertyManagerError(e.errorCode);
+                    callGetAsyncErrorCallback(errors[0], errors[1],
+                            serviceRequestId, getVehicleStubAsyncCallback);
+                    continue;
+                } catch (RemoteException e) {
+                    Slogf.w(CarLog.TAG_SERVICE,
+                            "Received RemoteException from VHAL. VHAL is likely dead.");
+                    callGetAsyncErrorCallback(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
+                            /* vendorErrorCode= */ 0,
+                            serviceRequestId, getVehicleStubAsyncCallback);
+                    continue;
+                }
+
+                if (halPropValue == null) {
+                    callGetAsyncErrorCallback(CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE,
+                            /* vendorErrorCode= */ 0,
+                            serviceRequestId, getVehicleStubAsyncCallback);
+                    continue;
+                }
+
+                getVehicleStubAsyncCallback.onGetAsyncResults(
+                        List.of(new GetVehicleStubAsyncResult(serviceRequestId, halPropValue)));
+            }
+        });
+    }
+
+    @Override
+    public void setAsync(List<AsyncGetSetRequest> setVehicleStubAsyncRequests,
+            VehicleStubCallbackInterface setVehicleStubAsyncCallback) {
+        mExecutor.execute(() -> {
+            for (int i = 0; i < setVehicleStubAsyncRequests.size(); i++) {
+                AsyncGetSetRequest setVehicleStubAsyncRequest = setVehicleStubAsyncRequests.get(i);
+                int serviceRequestId = setVehicleStubAsyncRequest.getServiceRequestId();
+                try {
+                    set(setVehicleStubAsyncRequest.getHalPropValue());
+                    setVehicleStubAsyncCallback.onSetAsyncResults(
+                            List.of(new SetVehicleStubAsyncResult(serviceRequestId)));
+                } catch (ServiceSpecificException e) {
+                    int[] errors = convertHalToCarPropertyManagerError(e.errorCode);
+                    callSetAsyncErrorCallback(errors[0], errors[1],
+                            serviceRequestId, setVehicleStubAsyncCallback);
+                } catch (RemoteException e) {
+                    Slogf.w(CarLog.TAG_SERVICE,
+                            "Received RemoteException from VHAL. VHAL is likely dead.");
+                    callSetAsyncErrorCallback(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
+                            /* vendorErrorCode= */ 0,
+                            serviceRequestId, setVehicleStubAsyncCallback);
+                }
+            }
+        });
+    }
+
+    private void callGetAsyncErrorCallback(
+            @CarPropertyAsyncErrorCode int errorCode, int vendorErrorCode, int serviceRequestId,
+            VehicleStubCallbackInterface callback) {
+        callback.onGetAsyncResults(
+                List.of(new GetVehicleStubAsyncResult(serviceRequestId, errorCode,
+                        vendorErrorCode)));
+    }
+
+    private void callSetAsyncErrorCallback(
+            @CarPropertyAsyncErrorCode int errorCode, int vendorErrorCode, int serviceRequestId,
+            VehicleStubCallbackInterface callback) {
+        callback.onSetAsyncResults(
+                List.of(new SetVehicleStubAsyncResult(serviceRequestId, errorCode,
+                        vendorErrorCode)));
+    }
+
     /**
      * Sets a property.
      *
@@ -241,8 +325,8 @@ final class HidlVehicleStub extends VehicleStub {
     }
 
     @Override
-    public void dump(FileDescriptor fd, ArrayList<String> args) throws RemoteException {
-        mHidlVehicle.debug(new NativeHandle(fd, /* own= */ false), args);
+    public void dump(FileDescriptor fd, List<String> args) throws RemoteException {
+        mHidlVehicle.debug(new NativeHandle(fd, /* own= */ false), new ArrayList<String>(args));
     }
 
     @Nullable
@@ -261,10 +345,10 @@ final class HidlVehicleStub extends VehicleStub {
 
     private class HidlSubscriptionClient extends IVehicleCallback.Stub
             implements SubscriptionClient {
-        private final HalClientCallback mCallback;
+        private final VehicleHalCallback mCallback;
         private final HalPropValueBuilder mBuilder;
 
-        HidlSubscriptionClient(HalClientCallback callback, HalPropValueBuilder builder) {
+        HidlSubscriptionClient(VehicleHalCallback callback, HalPropValueBuilder builder) {
             mCallback = callback;
             mBuilder = builder;
         }

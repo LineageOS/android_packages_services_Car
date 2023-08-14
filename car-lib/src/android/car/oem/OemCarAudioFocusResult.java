@@ -114,8 +114,6 @@ public final class OemCarAudioFocusResult implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public String toString() {
         return new StringBuilder().append("OemCarAudioFocusResult { audioFocusEntry = ")
                 .append(mAudioFocusEntry)
@@ -181,10 +179,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
                     /* newlyBlockedAudioFocusEntries= */ new ArrayList<>(/* initialCapacity= */ 0),
                     AUDIOFOCUS_REQUEST_FAILED);
 
-    // TODO(b/260757994): Remove ApiRequirements for overridden methods
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -203,10 +198,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
                 && mNewlyLostAudioFocusEntries.equals(that.mNewlyLostAudioFocusEntries);
     }
 
-    // TODO(b/260757994): Remove ApiRequirements for overridden methods
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int hashCode() {
         return Objects.hash(mAudioFocusEntry, mAudioFocusResult,
                 mNewlyBlockedAudioFocusEntries, mNewlyLostAudioFocusEntries);

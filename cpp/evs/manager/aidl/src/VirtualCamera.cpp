@@ -548,10 +548,11 @@ ScopedAStatus VirtualCamera::startVideoStream(const std::shared_ptr<IEvsCameraSt
 
         LOG(DEBUG) << "Exiting a capture thread";
         if (status != EvsResult::OK && mStream) {
-            EvsEventDesc event {
-                    .aType = status == EvsResult::RESOURCE_NOT_AVAILABLE ?
-                            EvsEventType::STREAM_ERROR : EvsEventType::TIMEOUT,
-                    .payload = { static_cast<int32_t>(status) },
+            EvsEventDesc event{
+                    .aType = status == EvsResult::RESOURCE_NOT_AVAILABLE
+                            ? EvsEventType::STREAM_ERROR
+                            : EvsEventType::TIMEOUT,
+                    .payload = {static_cast<int32_t>(status)},
             };
             if (!mStream->notify(std::move(event)).isOk()) {
                 LOG(WARNING) << "Error delivering a stream event"
@@ -575,11 +576,6 @@ ScopedAStatus VirtualCamera::stopVideoStream() {
             return ScopedAStatus::ok();
         }
 
-        if (!mStream || mStreamState != RUNNING) {
-            // Safely ignore a request to stop video stream
-            return ScopedAStatus::ok();
-        }
-
         // Tell the frame delivery pipeline we don't want any more frames
         mStreamState = STOPPING;
 
@@ -590,7 +586,7 @@ ScopedAStatus VirtualCamera::stopVideoStream() {
         EvsEventDesc event{
                 .aType = EvsEventType::STREAM_STOPPED,
         };
-        if (mStream && !mStream->notify(std::move(event)).isOk()) {
+        if (mStream && !mStream->notify(event).isOk()) {
             LOG(WARNING) << "Error delivering end of stream event";
         }
 
@@ -794,7 +790,7 @@ bool VirtualCamera::notify(const EvsEventDesc& event) {
     }
 
     // Forward a received event to the v1.1 client
-    if (!mStream->notify(event).isOk()) {
+    if (mStream && !mStream->notify(event).isOk()) {
         LOG(ERROR) << "Failed to forward an event";
         return false;
     }

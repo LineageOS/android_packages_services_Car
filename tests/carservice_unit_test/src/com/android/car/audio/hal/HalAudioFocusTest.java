@@ -29,6 +29,7 @@ import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -38,7 +39,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertThrows;
 
 import android.car.media.CarAudioManager;
 import android.media.AudioAttributes;
@@ -63,7 +63,7 @@ import org.mockito.junit.MockitoRule;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
-public class HalAudioFocusTest {
+public final class HalAudioFocusTest {
     private static final int[] AUDIO_ZONE_IDS = {0, 1, 2, 3};
     private static final int ZONE_ID = 0;
     private static final int SECOND_ZONE_ID = 1;
@@ -73,9 +73,9 @@ public class HalAudioFocusTest {
     public MockitoRule rule = MockitoJUnit.rule();
 
     @Mock
-    AudioManager mMockAudioManager;
+    private AudioManager mMockAudioManager;
     @Mock
-    AudioControlWrapper mAudioControlWrapper;
+    private AudioControlWrapper mAudioControlWrapper;
 
     private HalAudioFocus mHalAudioFocus;
 
@@ -89,6 +89,15 @@ public class HalAudioFocusTest {
         mHalAudioFocus.registerFocusListener();
 
         verify(mAudioControlWrapper).registerFocusListener(mHalAudioFocus);
+    }
+
+    @Test
+    public void unregisterFocusListener_succeeds() {
+        mHalAudioFocus.registerFocusListener();
+
+        mHalAudioFocus.unregisterFocusListener();
+
+        verify(mAudioControlWrapper).unregisterFocusListener();
     }
 
     @Test

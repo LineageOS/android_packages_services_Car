@@ -153,6 +153,8 @@ public class FastPairProvider {
                         stopGatt();
                     }
                     break;
+                default:
+                    break;
             }
         }
     };
@@ -218,6 +220,8 @@ public class FastPairProvider {
      */
     public void stop() {
         if (!mStarted) return;
+        stopGatt();
+        stopAdvertising();
         mContext.unregisterReceiver(mDiscoveryModeChanged);
         mStarted = false;
     }
@@ -254,7 +258,7 @@ public class FastPairProvider {
      * Dump current status of the Fast Pair provider
      *
      * This will get printed with the output of:
-     * adb shell dumpsys activity service com.android.car/.PerUserCarService
+     * adb shell dumpsys activity service com.android.car/.CarPerUserService
      *
      * @param writer
      */

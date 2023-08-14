@@ -18,8 +18,10 @@ package android.car.builtin.content.pm;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
+import android.app.ActivityManager;
 import android.app.ActivityThread;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
@@ -30,6 +32,7 @@ import android.content.pm.ComponentInfo;
 import android.content.pm.IPackageManager;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.RemoteException;
 import android.text.TextUtils;
 
@@ -92,7 +95,7 @@ public final class PackageManagerHelper {
         } catch (RuntimeException e) {
             throw new IllegalStateException("Invalid component name defined by "
                     + "com.android.internal.R.string.config_systemUIServiceComponent resource: "
-                    + flattenName);
+                    + flattenName, e);
         }
     }
 
@@ -181,5 +184,37 @@ public final class PackageManagerHelper {
     @AddedIn(PlatformVersion.TIRAMISU_0)
     public static ComponentName getComponentName(ComponentInfo info) {
         return info.getComponentName();
+    }
+
+    /** Check PackageManagerInternal#getSystemUiServiceComponent(). */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @NonNull
+    public static ComponentName getSystemUiServiceComponent(@NonNull Context context) {
+        String flattenName = context.getResources()
+                .getString(com.android.internal.R.string.config_systemUIServiceComponent);
+        if (TextUtils.isEmpty(flattenName)) {
+            throw new IllegalStateException("No "
+                    + "com.android.internal.R.string.config_systemUIServiceComponent resource");
+        }
+        return ComponentName.unflattenFromString(flattenName);
+    }
+
+    /** Check {@link ActivityManager#forceStopPackageAsUser}. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void forceStopPackageAsUser(@NonNull Context context, @NonNull String packageName,
+            @UserIdInt int userId) {
+        ActivityManager am = context.getSystemService(ActivityManager.class);
+        am.forceStopPackageAsUser(packageName, userId);
+    }
+
+    /** Check {@link ActivityManager#forceStopPackageAsUserEvenWhenStopping}. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void forceStopPackageAsUserEvenWhenStopping(@NonNull Context context,
+            @NonNull String packageName, @UserIdInt int userId) {
+        ActivityManager am = context.getSystemService(ActivityManager.class);
+        am.forceStopPackageAsUserEvenWhenStopping(packageName, userId);
     }
 }

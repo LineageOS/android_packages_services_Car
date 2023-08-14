@@ -30,8 +30,10 @@ import static org.junit.Assume.assumeTrue;
 import android.car.apitest.CarApiTestBase;
 import android.car.media.CarAudioManager;
 import android.car.media.CarVolumeGroupInfo;
+import android.car.test.ApiCheckerRule.Builder;
 import android.media.AudioDeviceInfo;
 import android.os.Process;
+import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -42,11 +44,20 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
-public class CarAudioManagerTest extends CarApiTestBase {
+public final class CarAudioManagerTest extends CarApiTestBase {
+
+    private static final String TAG  = CarAudioManagerTest.class.getSimpleName();
 
     private static final int TEST_FLAGS = 0;
 
     private CarAudioManager mCarAudioManager;
+
+    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
+    @Override
+    protected void configApiCheckerRule(Builder builder) {
+        Log.w(TAG, "Disabling API requirements check");
+        builder.disableAnnotationsCheck();
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -63,9 +74,9 @@ public class CarAudioManagerTest extends CarApiTestBase {
         for (int index = 0; index < groupCount; index++) {
             CarVolumeGroupInfo info =
                     mCarAudioManager.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE, index);
-            assertWithMessage("Car volume group info id for group %s", index)
+            expectWithMessage("Car volume group info id for group %s", index)
                     .that(info.getId()).isEqualTo(index);
-            assertWithMessage("Car volume group info zone for group %s", index)
+            expectWithMessage("Car volume group info zone for group %s", index)
                     .that(info.getZoneId()).isEqualTo(PRIMARY_AUDIO_ZONE);
         }
     }
@@ -79,12 +90,12 @@ public class CarAudioManagerTest extends CarApiTestBase {
         List<CarVolumeGroupInfo> infos =
                 mCarAudioManager.getVolumeGroupInfosForZone(PRIMARY_AUDIO_ZONE);
 
-        assertWithMessage("Car volume group infos for primary zone")
+        expectWithMessage("Car volume group infos for primary zone")
                 .that(infos).hasSize(groupCount);
         for (int index = 0; index < groupCount; index++) {
             CarVolumeGroupInfo info =
                     mCarAudioManager.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE, index);
-            assertWithMessage("Car volume group infos for primary zone and group %s", index)
+            expectWithMessage("Car volume group infos for primary zone and group %s", index)
                     .that(infos).contains(info);
         }
     }
@@ -204,15 +215,38 @@ public class CarAudioManagerTest extends CarApiTestBase {
     @Test
     public void setGroupVolume_whileMuted_unMutesVolumeGroup() throws Exception {
         assumeVolumeGroupMutingIsEnabled();
-        int groupId = 0;
-        boolean  muteState = mCarAudioManager.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, groupId);
-        int volume = mCarAudioManager.getGroupVolume(PRIMARY_AUDIO_ZONE, groupId);
+        int groupId = mCarAudioManager.getVolumeGroupIdForUsage(USAGE_MEDIA);
         int minVolume = mCarAudioManager.getGroupMinVolume(PRIMARY_AUDIO_ZONE, groupId);
+        assumeTrue("Mutable group shall have zero min index", minVolume == 0);
+        boolean muteState = mCarAudioManager.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, groupId);
+        int volume = mCarAudioManager.getGroupVolume(PRIMARY_AUDIO_ZONE, groupId);
 
         try {
-            mCarAudioManager.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, groupId, true, TEST_FLAGS);
-
+            mCarAudioManager.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, groupId, /* mute= */ true,
+                    TEST_FLAGS);
             mCarAudioManager.setGroupVolume(PRIMARY_AUDIO_ZONE, groupId, minVolume, TEST_FLAGS);
+
+            assertWithMessage("Un-muted volume group for group %s in zone %s", groupId,
+                    PRIMARY_AUDIO_ZONE).that(mCarAudioManager.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE,
+                    groupId)).isEqualTo(false);
+        } finally {
+            mCarAudioManager.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, groupId, muteState, TEST_FLAGS);
+            mCarAudioManager.setGroupVolume(PRIMARY_AUDIO_ZONE, groupId, volume, TEST_FLAGS);
+        }
+    }
+
+    @Test
+    public void setGroupVolumeToZero_doesNotMuteVolumeGroup() throws Exception {
+        assumeVolumeGroupMutingIsEnabled();
+        int groupId = mCarAudioManager.getVolumeGroupIdForUsage(USAGE_MEDIA);
+        int minVolume = mCarAudioManager.getGroupMinVolume(PRIMARY_AUDIO_ZONE, groupId);
+        assumeTrue("Mutable group shall have zero min index", minVolume == 0);
+        boolean muteState = mCarAudioManager.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, groupId);
+        int volume = mCarAudioManager.getGroupVolume(PRIMARY_AUDIO_ZONE, groupId);
+
+        try {
+            mCarAudioManager.setGroupVolume(PRIMARY_AUDIO_ZONE, groupId, minVolume, TEST_FLAGS);
+
             assertThat(mCarAudioManager.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, groupId))
                     .isEqualTo(false);
         } finally {

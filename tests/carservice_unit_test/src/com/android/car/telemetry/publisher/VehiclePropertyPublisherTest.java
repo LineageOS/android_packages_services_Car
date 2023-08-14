@@ -40,6 +40,7 @@ import android.os.Looper;
 import android.os.PersistableBundle;
 
 import com.android.car.CarPropertyService;
+import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.test.FakeHandlerWrapper;
 
@@ -274,7 +275,7 @@ public class VehiclePropertyPublisherTest {
         when(mMockBytesDataSubscriber.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_BYTES);
         when(mMockMixedDataSubscriber.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_MIXED);
         when(mMockCarPropertyService.getPropertyList())
-                .thenReturn(List.of(
+                .thenReturn(new CarPropertyConfigList(List.of(
                         PROP_STRING_CONFIG,
                         PROP_BOOLEAN_CONFIG,
                         PROP_INT_CONFIG,
@@ -285,7 +286,7 @@ public class VehiclePropertyPublisherTest {
                         PROP_FLOAT_VEC_CONFIG,
                         PROP_BYTES_CONFIG,
                         PROP_MIXED_CONFIG,
-                        PROP_CONFIG_2_WRITE_ONLY));
+                        PROP_CONFIG_2_WRITE_ONLY)));
         mVehiclePropertyPublisher = new VehiclePropertyPublisher(
                 mMockCarPropertyService,
                 mFakePublisherListener,

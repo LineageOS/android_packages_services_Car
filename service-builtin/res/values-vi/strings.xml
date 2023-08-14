@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Ứng dụng này đã bị ngăn chạy ở chế độ nền. Hãy thiết lập chế độ ưu tiên cho ứng dụng để tiếp tục dùng được ở chế độ nền."</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Đóng"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Ưu tiên ứng dụng"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"Đã vô hiệu hóa <xliff:g id="ID_1">^1</xliff:g>. Bạn có thể bật lại ứng dụng đó trong phần Cài đặt."</string>
 </resources>

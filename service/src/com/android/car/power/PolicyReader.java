@@ -21,7 +21,9 @@ import static android.car.hardware.power.PowerComponentUtil.INVALID_POWER_COMPON
 import static android.car.hardware.power.PowerComponentUtil.LAST_POWER_COMPONENT;
 import static android.car.hardware.power.PowerComponentUtil.powerComponentToString;
 import static android.car.hardware.power.PowerComponentUtil.toPowerComponent;
+import static android.frameworks.automotive.powerpolicy.PowerComponent.MINIMUM_CUSTOM_COMPONENT_VALUE;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
@@ -53,6 +55,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -99,6 +102,8 @@ public final class PolicyReader {
     private static final String TAG_OTHER_COMPONENTS = "otherComponents";
     private static final String TAG_COMPONENT = "component";
     private static final String TAG_SYSTEM_POLICY_OVERRIDES = "systemPolicyOverrides";
+    private static final String TAG_CUSTOM_COMPONENTS = "customComponents";
+    private static final String TAG_CUSTOM_COMPONENT = "customComponent";
     private static final String ATTR_DEFAULT_POLICY_GROUP = "defaultPolicyGroup";
     private static final String ATTR_VERSION = "version";
     private static final String ATTR_ID = "id";
@@ -158,6 +163,7 @@ public final class PolicyReader {
     private ArrayMap<String, SparseArray<String>> mPolicyGroups;
     private ArrayMap<String, CarPowerPolicy> mPreemptivePowerPolicies;
     private String mDefaultPolicyGroupId;
+    private ArrayMap<String, Integer> mCustomComponents = new ArrayMap<>();
 
     /**
      * Gets {@code CarPowerPolicy} corresponding to the given policy ID.
@@ -227,9 +233,11 @@ public final class PolicyReader {
     @PolicyOperationStatus.ErrorCode
     int definePowerPolicy(String policyId, String[] enabledComponents,
             String[] disabledComponents) {
-        if (policyId == null) {
+        // policyId cannot be empty or null
+        if (policyId == null || policyId.length() == 0) {
             int error = PolicyOperationStatus.ERROR_INVALID_POWER_POLICY_ID;
-            Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error, "policyId cannot be null"));
+            Slogf.w(TAG,
+                    PolicyOperationStatus.errorCodeToString(error, "policyId cannot be empty"));
             return error;
         }
         if (isSystemPowerPolicy(policyId)) {
@@ -289,26 +297,54 @@ public final class PolicyReader {
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     void dump(IndentingPrintWriter writer) {
-        writer.printf("Registered power policies:%s\n",
-                mRegisteredPowerPolicies.size() == 0 ? " none" : "");
-        writer.increaseIndent();
-        for (Map.Entry<String, CarPowerPolicy> entry : mRegisteredPowerPolicies.entrySet()) {
-            writer.println(toString(entry.getValue()));
-        }
-        writer.decreaseIndent();
-        writer.printf("Power policy groups:%s\n", mPolicyGroups.isEmpty() ? " none" : "");
-        writer.increaseIndent();
-        for (Map.Entry<String, SparseArray<String>> entry : mPolicyGroups.entrySet()) {
-            writer.printf("%s\n", entry.getKey());
+        int size = mCustomComponents.size();
+        writer.printf("Registered custom components:");
+        if (size == 0) {
+            writer.printf(" none\n");
+        } else {
+            writer.printf("\n");
             writer.increaseIndent();
-            SparseArray<String> group = entry.getValue();
-            for (int i = 0; i < group.size(); i++) {
-                writer.printf("- %s --> %s\n", vhalPowerStateToString(group.keyAt(i)),
-                        group.valueAt(i));
+            for (int i = 0; i < size; i++) {
+                Object key = mCustomComponents.keyAt(i);
+                writer.printf("Component name: %s, value: %s\n", key, mCustomComponents.get(key));
             }
             writer.decreaseIndent();
         }
-        writer.decreaseIndent();
+
+        size = mRegisteredPowerPolicies.size();
+        writer.printf("Registered power policies:");
+        if (size == 0) {
+            writer.printf(" none\n");
+        } else {
+            writer.printf("\n");
+            writer.increaseIndent();
+            for (int i = 0; i < size; i++) {
+                writer.println(toString(mRegisteredPowerPolicies.valueAt(i)));
+            }
+            writer.decreaseIndent();
+        }
+
+        size = mPolicyGroups.size();
+        writer.printf("Power policy groups:");
+        if (size == 0) {
+            writer.printf(" none\n");
+        } else {
+            writer.printf("\n");
+            writer.increaseIndent();
+            for (int i = 0; i < size; i++) {
+                String key = mPolicyGroups.keyAt(i);
+                writer.println(key);
+                writer.increaseIndent();
+                SparseArray<String> group = mPolicyGroups.get(key);
+                for (int j = 0; j < group.size(); j++) {
+                    writer.printf("- %s --> %s\n", vhalPowerStateToString(group.keyAt(j)),
+                            group.valueAt(j));
+                }
+                writer.decreaseIndent();
+            }
+            writer.decreaseIndent();
+        }
+
         writer.println("Preemptive power policy:");
         writer.increaseIndent();
         for (int i = 0; i < mPreemptivePowerPolicies.size(); i++) {
@@ -377,11 +413,15 @@ public final class PolicyReader {
                 case TAG_SYSTEM_POLICY_OVERRIDES:
                     systemPolicyOverride = parseSystemPolicyOverrides(parser);
                     break;
+                case TAG_CUSTOM_COMPONENTS:
+                    mCustomComponents = parseCustomComponents(parser);
+                    break;
                 default:
                     throw new PolicyXmlException("unknown tag: " + parser.getName() + " under "
                             + TAG_POWER_POLICY);
             }
         }
+        // TODO(b/273315694) add validation of custom components
         validatePolicyGroups(policyGroups, registeredPolicies, defaultGroupPolicyId);
 
         mDefaultPolicyGroupId = defaultGroupPolicyId;
@@ -389,6 +429,31 @@ public final class PolicyReader {
         registerBasicPowerPolicies();
         mPolicyGroups = policyGroups;
         reconstructSystemPowerPolicy(systemPolicyOverride);
+    }
+
+    private ArrayMap<String, Integer> parseCustomComponents(XmlPullParser parser)
+            throws XmlPullParserException, IOException, PolicyXmlException {
+        ArrayMap<String, Integer> customComponentsMap = new ArrayMap<>();
+        int type;
+        while ((type = parser.next()) != END_DOCUMENT && type != END_TAG) {
+            if (type != START_TAG) continue;
+            if (TAG_CUSTOM_COMPONENT.equals(parser.getName())) {
+                int componentValue = Integer.parseInt(parser.getAttributeValue(NAMESPACE, "value"));
+                String componentName = getText(parser);
+                customComponentsMap.put(componentName, componentValue);
+
+                if (componentValue < MINIMUM_CUSTOM_COMPONENT_VALUE) {
+                    throw new PolicyXmlException(
+                            "Invalid custom component value " + componentValue + " "
+                                    + componentName);
+                }
+                skip(parser);
+            } else {
+                throw new PolicyXmlException(
+                        "unknown tag: " + parser.getName() + " under " + TAG_POLICIES);
+            }
+        }
+        return customComponentsMap;
     }
 
     private ArrayMap<String, CarPowerPolicy> parsePolicies(XmlPullParser parser,
@@ -475,12 +540,17 @@ public final class PolicyReader {
                 String id = parser.getAttributeValue(NAMESPACE, ATTR_ID);
                 int powerComponent = toPowerComponent(id, true);
                 if (powerComponent == INVALID_POWER_COMPONENT) {
-                    throw new PolicyXmlException("invalid value(" + id + ") in |" + ATTR_ID
-                            + "| attribute of |" + TAG_COMPONENT + "| tag");
+                    powerComponent = toCustomPowerComponentId(id);
                 }
+                if (powerComponent == INVALID_POWER_COMPONENT) {
+                    throw new PolicyXmlException(" Unknown component id : " + id);
+                }
+
                 if (components.indexOfKey(powerComponent) >= 0) {
-                    throw new PolicyXmlException(id + " is specified more than once in |"
-                            + TAG_COMPONENT + "| tag");
+                    throw new PolicyXmlException(
+                            "invalid value(" + id + ") in |" + ATTR_ID + "| attribute of |"
+                                    + TAG_COMPONENT
+                                    + "| tag");
                 }
                 String state = getText(parser);
                 switch (state) {
@@ -526,13 +596,14 @@ public final class PolicyReader {
                         + TAG_POLICY);
             }
         }
-        boolean enabled = false;
+        boolean enabled;
         boolean untouched = false;
         if (POWER_ONOFF_ON.equals(behavior)) {
             enabled = true;
         } else if (POWER_ONOFF_OFF.equals(behavior)) {
             enabled = false;
         } else {
+            enabled = false;
             untouched = true;
         }
         if (!untouched) {
@@ -541,9 +612,21 @@ public final class PolicyReader {
                 if (components.indexOfKey(component) >= 0) continue;
                 components.put(component, enabled);
             }
+            for (int i = 0; i < mCustomComponents.size(); ++i) {
+                int componentId = mCustomComponents.valueAt(i);
+                if (components.indexOfKey(componentId) < 0) { // key not found
+                    components.put(componentId, enabled);
+                }
+            }
         }
         return new CarPowerPolicy(policyId, toIntArray(components, true),
                 toIntArray(components, false));
+    }
+
+    // this implementation rely on custom power policies to be parsed before policies
+    // TODO(b/273315697) - rewrite to make position independent
+    private int toCustomPowerComponentId(String id) {
+        return mCustomComponents.getOrDefault(id, INVALID_POWER_COMPONENT);
     }
 
     private SparseArray<String> parsePolicyGroup(XmlPullParser parser) throws PolicyXmlException,
@@ -687,6 +770,8 @@ public final class PolicyReader {
                 case START_TAG:
                     depth++;
                     break;
+                default:
+                    break;
             }
         }
     }
@@ -708,15 +793,18 @@ public final class PolicyReader {
     }
 
     boolean isOverridableComponent(int component) {
-        return SYSTEM_POLICY_CONFIGURABLE_COMPONENTS.contains(component);
+        return component >= MINIMUM_CUSTOM_COMPONENT_VALUE // custom components are overridable
+            || SYSTEM_POLICY_CONFIGURABLE_COMPONENTS.contains(component);
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private String toString(CarPowerPolicy policy) {
         return policy.getPolicyId() + "(enabledComponents: "
                 + componentsToString(policy.getEnabledComponents()) + " | disabledComponents: "
                 + componentsToString(policy.getDisabledComponents()) + ")";
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private String componentsToString(int[] components) {
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < components.length; i++) {
@@ -728,12 +816,22 @@ public final class PolicyReader {
 
     @PolicyOperationStatus.ErrorCode
     int parseComponents(String[] componentArr, boolean enabled, SparseBooleanArray components) {
+        ArrayList<Integer> customComponentIds = new ArrayList<>();
         for (int i = 0; i < componentArr.length; i++) {
             int component = toPowerComponent(componentArr[i], false);
             if (component == INVALID_POWER_COMPONENT) {
-                int error = PolicyOperationStatus.ERROR_INVALID_POWER_COMPONENT;
-                Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error, componentArr[i]));
-                return error;
+                try {
+                    component = Integer.parseInt(componentArr[i]);
+                } catch (NumberFormatException e) {
+                    Slogf.e(TAG, "Error parsing component ID " + e.toString());
+                    return PolicyOperationStatus.ERROR_INVALID_POWER_COMPONENT;
+                }
+
+                if (component < MINIMUM_CUSTOM_COMPONENT_VALUE) {
+                    int error = PolicyOperationStatus.ERROR_INVALID_POWER_COMPONENT;
+                    Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error, componentArr[i]));
+                    return error;
+                }
             }
             if (components.indexOfKey(component) >= 0) {
                 int error = PolicyOperationStatus.ERROR_DUPLICATED_POWER_COMPONENT;
@@ -741,6 +839,14 @@ public final class PolicyReader {
                 return error;
             }
             components.put(component, enabled);
+            customComponentIds.add(component);
+        }
+        for (int i = 0; i < customComponentIds.size(); ++i) {
+            int componentId = customComponentIds.get(i);
+            // Add only new components
+            if (!mCustomComponents.containsValue(componentId)) {
+                mCustomComponents.put(String.valueOf(componentId), componentId);
+            }
         }
         return PolicyOperationStatus.OK;
     }
@@ -795,6 +901,10 @@ public final class PolicyReader {
             if (element == component) return true;
         }
         return false;
+    }
+
+    ArrayMap<String, Integer> getCustomComponents() {
+        return mCustomComponents;
     }
 
     @VisibleForTesting

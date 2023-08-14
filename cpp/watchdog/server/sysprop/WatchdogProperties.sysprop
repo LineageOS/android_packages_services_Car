@@ -114,6 +114,15 @@ prop {
     prop_name: "ro.carwatchdog.max_user_switch_events"
 }
 
+# Duration in seconds that a system event's data is cached.
+prop {
+    api_name: "systemEventDataCacheDuration"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.system_event_data_cache_duration"
+}
+
 # Percentage of I/O overuse threshold.
 prop {
     api_name: "ioOveruseWarnPercentage"

@@ -889,7 +889,8 @@ public class CarTelemetryTestFragment extends Fragment {
             return new String(bytes);
         } catch (IOException e) {
             throw new RuntimeException(
-                    "Unable to send MetricsConfig, because reading Lua script from file failed.");
+                    "Unable to send MetricsConfig, because reading Lua script from file failed.",
+                    e);
         }
     }
 
@@ -1102,11 +1103,6 @@ public class CarTelemetryTestFragment extends Fragment {
         showOutput("MemoryInfo availMem=" + (info.availMem / 1024 / 1024) + "/"
                 + (info.totalMem / 1024 / 1024) + "mb, isLowMem=" + info.lowMemory
                 + ", threshold=" + (info.threshold / 1024 / 1024) + "mb");
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
     }
 
     /**

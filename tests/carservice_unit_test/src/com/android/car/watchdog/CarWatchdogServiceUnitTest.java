@@ -45,13 +45,14 @@ import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYST
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
+import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
+import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
+import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
-import static com.android.car.watchdog.CarWatchdogService.ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
+import static com.android.car.internal.common.CommonConstants.INVALID_PID;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_GARAGE_MODE_OFF;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_GARAGE_MODE_ON;
-import static com.android.car.watchdog.CarWatchdogService.ACTION_LAUNCH_APP_SETTINGS;
-import static com.android.car.watchdog.CarWatchdogService.ACTION_RESOURCE_OVERUSE_DISABLE_APP;
 import static com.android.car.watchdog.CarWatchdogService.MISSING_ARG_VALUE;
 import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
 import static com.android.car.watchdog.WatchdogPerfHandler.INTENT_EXTRA_NOTIFICATION_ID;
@@ -106,6 +107,7 @@ import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
 import android.automotive.watchdog.internal.PowerCycle;
 import android.automotive.watchdog.internal.ProcessIdentifier;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
+import android.automotive.watchdog.internal.ResourceStats;
 import android.automotive.watchdog.internal.StateType;
 import android.automotive.watchdog.internal.UidType;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
@@ -118,6 +120,7 @@ import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.hardware.power.PowerComponent;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.mocks.MockSettings;
 import android.car.user.CarUserManager;
 import android.car.watchdog.CarWatchdogManager;
 import android.car.watchdog.ICarWatchdogServiceCallback;
@@ -158,14 +161,15 @@ import android.view.Display;
 
 import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarLocalServices;
+import com.android.car.CarServiceHelperWrapper;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarStatsLog;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.admin.NotificationHelper;
+import com.android.car.internal.ICarServiceHelper;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
-import com.android.car.util.Utils;
 
 import com.google.common.truth.Correspondence;
 
@@ -212,6 +216,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private static final int IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES = 500 * 1024 * 1024;
     private static final long STATS_DURATION_SECONDS = 3 * 60 * 60;
     private static final long SYSTEM_DAILY_IO_USAGE_SUMMARY_MULTIPLIER = 10_000;
+    private static final int PACKAGE_KILLABLE_STATE_RESET_DAYS = 90;
+    private static final int CARWATCHDOG_DAEMON_INTERFACE_VERSION_UDC = 3;
 
     @Mock private Context mMockContext;
     @Mock private Context mMockBuiltinPackageContext;
@@ -227,6 +233,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Mock private IBinder mMockBinder;
     @Mock private ICarWatchdog mMockCarWatchdogDaemon;
     @Mock private NotificationHelper mMockNotificationHelper;
+    @Mock private ICarServiceHelper.Stub mMockCarServiceHelper;
 
     @Captor private ArgumentCaptor<ICarPowerStateListener> mICarPowerStateListenerCaptor;
     @Captor private ArgumentCaptor<ICarPowerPolicyListener> mICarPowerPolicyListenerCaptor;
@@ -269,6 +276,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private ICarUxRestrictionsChangeListener mCarUxRestrictionsChangeListener;
     private StatsPullAtomCallback mStatsPullAtomCallback;
     private File mTempSystemCarDir;
+    // Not used directly, but sets proper mockStatic() expectations on Settings
+    @SuppressWarnings("UnusedVariable")
+    private MockSettings mMockSettings;
 
     private final TestTimeSource mTimeSource = new TestTimeSource();
     private final SparseArray<String> mGenericPackageNameByUid = new SparseArray<>();
@@ -277,8 +287,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             new ArrayMap<>();
     private final ArraySet<String> mDisabledUserPackages = new ArraySet<>();
     private final SparseArray<String> mDisabledPackagesSettingsStringByUserid = new SparseArray<>();
-    private final List<WatchdogStorage.UserPackageSettingsEntry> mUserPackageSettingsEntries =
-            new ArrayList<>();
+    private final Set<WatchdogStorage.UserPackageSettingsEntry> mUserPackageSettingsEntries =
+            new ArraySet<>();
     private final List<WatchdogStorage.IoUsageStatsEntry> mIoUsageStatsEntries = new ArrayList<>();
     private final List<AtomsProto.CarWatchdogSystemIoUsageSummary> mPulledSystemIoUsageSummaries =
             new ArrayList<>();
@@ -292,6 +302,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
+        mMockSettings = new MockSettings(builder);
         builder
             .spyStatic(ServiceManager.class)
             .spyStatic(Binder.class)
@@ -301,7 +312,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             .spyStatic(CarStatsLog.class)
             .spyStatic(CarServiceUtils.class)
             .spyStatic(BuiltinPackageDependency.class)
-            .spyStatic(Utils.class)
             .spyStatic(SystemProperties.class);
     }
 
@@ -316,16 +326,19 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 CarWatchdogServiceUnitTest.class.getCanonicalName());
         when(mMockContext.getResources()).thenReturn(mMockResources);
         when(mMockResources.getInteger(
-                eq(com.android.car.R.integer.recurringResourceOverusePeriodInDays)))
+                com.android.car.R.integer.watchdogUserPackageSettingsResetDays))
+                .thenReturn(PACKAGE_KILLABLE_STATE_RESET_DAYS);
+        when(mMockResources.getInteger(
+                com.android.car.R.integer.recurringResourceOverusePeriodInDays))
                 .thenReturn(RECURRING_OVERUSE_PERIOD_IN_DAYS);
         when(mMockResources.getInteger(
-                eq(com.android.car.R.integer.recurringResourceOveruseTimes)))
+                com.android.car.R.integer.recurringResourceOveruseTimes))
                 .thenReturn(RECURRING_OVERUSE_TIMES);
         when(mMockResources.getInteger(
-                eq(com.android.car.R.integer.uidIoUsageSummaryTopCount)))
+                com.android.car.R.integer.uidIoUsageSummaryTopCount))
                 .thenReturn(UID_IO_USAGE_SUMMARY_TOP_COUNT);
         when(mMockResources.getInteger(
-                eq(com.android.car.R.integer.ioUsageSummaryMinSystemTotalWrittenBytes)))
+                com.android.car.R.integer.ioUsageSummaryMinSystemTotalWrittenBytes))
                 .thenReturn(IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES);
         doReturn(mMockSystemInterface)
                 .when(() -> CarLocalServices.getService(SystemInterface.class));
@@ -344,6 +357,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         doReturn(MISSING_INT_PROPERTY_VALUE).when(
                 () -> SystemProperties.getInt(PROPERTY_RO_CLIENT_HEALTHCHECK_INTERVAL,
                         MISSING_INT_PROPERTY_VALUE));
+
+        CarServiceHelperWrapper wrapper = CarServiceHelperWrapper.create();
+        wrapper.setCarServiceHelper(mMockCarServiceHelper);
 
         when(mMockCarUxRestrictionsManagerService.getCurrentUxRestrictions())
                 .thenReturn(new CarUxRestrictions.Builder(/* reqOpt= */ false,
@@ -388,6 +404,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         if (mTempSystemCarDir != null) {
             FileUtils.deleteContentsAndDir(mTempSystemCarDir);
         }
+        CarLocalServices.removeServiceForTest(CarServiceHelperWrapper.class);
     }
 
     @Test
@@ -433,6 +450,45 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Test
     public void testBadClientHealthCheck() throws Exception {
         testClientHealthCheck(new BadTestClient(), 1);
+    }
+
+    @Test
+    public void testRequestAidlVhalPid() throws Exception {
+        int vhalPid = 15687;
+        when(mMockCarWatchdogDaemon.getInterfaceVersion())
+                .thenReturn(CARWATCHDOG_DAEMON_INTERFACE_VERSION_UDC);
+        when(mMockCarServiceHelper.fetchAidlVhalPid()).thenReturn(vhalPid);
+
+        mWatchdogServiceForSystemImpl.requestAidlVhalPid();
+
+        verify(mMockCarServiceHelper, timeout(MAX_WAIT_TIME_MS)).fetchAidlVhalPid();
+        verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).onAidlVhalPidFetched(vhalPid);
+    }
+
+    @Test
+    public void testRequestAidlVhalPidWithInvalidPid() throws Exception {
+        when(mMockCarServiceHelper.fetchAidlVhalPid()).thenReturn(INVALID_PID);
+
+        mWatchdogServiceForSystemImpl.requestAidlVhalPid();
+
+        verify(mMockCarServiceHelper, timeout(MAX_WAIT_TIME_MS)).fetchAidlVhalPid();
+        // Shouldn't respond to car watchdog daemon when invalid pid is returned by
+        // the system_server.
+        verify(mMockCarWatchdogDaemon, never()).onAidlVhalPidFetched(INVALID_PID);
+    }
+
+    @Test
+    public void testRequestAidlVhalPidWithDaemonRemoteException() throws Exception {
+        int vhalPid = 15687;
+        when(mMockCarWatchdogDaemon.getInterfaceVersion())
+                .thenReturn(CARWATCHDOG_DAEMON_INTERFACE_VERSION_UDC);
+        when(mMockCarServiceHelper.fetchAidlVhalPid()).thenReturn(vhalPid);
+        doThrow(RemoteException.class).when(mMockCarWatchdogDaemon).onAidlVhalPidFetched(anyInt());
+
+        mWatchdogServiceForSystemImpl.requestAidlVhalPid();
+
+        verify(mMockCarServiceHelper, timeout(MAX_WAIT_TIME_MS)).fetchAidlVhalPid();
+        verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).onAidlVhalPidFetched(vhalPid);
     }
 
     // TODO(b/262301082): Add a unit test to verify the race condition that caused watchdog to
@@ -570,10 +626,11 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         String packageName = "system_package";
         UserHandle userHandle = UserHandle.of(100);
 
-        mBroadcastReceiver.onReceive(mMockContext, new Intent(ACTION_RESOURCE_OVERUSE_DISABLE_APP)
-                .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
-                .putExtra(Intent.EXTRA_USER, userHandle)
-                .putExtra(INTENT_EXTRA_NOTIFICATION_ID, RESOURCE_OVERUSE_NOTIFICATION_BASE_ID));
+        mBroadcastReceiver.onReceive(mMockContext, new Intent(
+                CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP).putExtra(
+                Intent.EXTRA_PACKAGE_NAME, packageName).putExtra(Intent.EXTRA_USER,
+                userHandle).putExtra(INTENT_EXTRA_NOTIFICATION_ID,
+                RESOURCE_OVERUSE_NOTIFICATION_BASE_ID));
 
         verify(mSpiedPackageManager).getApplicationEnabledSetting(packageName,
                 userHandle.getIdentifier());
@@ -596,7 +653,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         doReturn(COMPONENT_ENABLED_STATE_DISABLED).when(mSpiedPackageManager)
                 .getApplicationEnabledSetting(packageName, userHandle.getIdentifier());
 
-        mBroadcastReceiver.onReceive(mMockContext, new Intent(ACTION_RESOURCE_OVERUSE_DISABLE_APP)
+        mBroadcastReceiver.onReceive(mMockContext, new Intent(
+                CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP)
                 .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
                 .putExtra(Intent.EXTRA_USER, userHandle)
                 .putExtra(INTENT_EXTRA_NOTIFICATION_ID, RESOURCE_OVERUSE_NOTIFICATION_BASE_ID));
@@ -613,7 +671,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         String packageName = "system_package";
         UserHandle userHandle = UserHandle.of(100);
 
-        mBroadcastReceiver.onReceive(mMockContext, new Intent(ACTION_LAUNCH_APP_SETTINGS)
+        mBroadcastReceiver.onReceive(mMockContext, new Intent(
+                CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS)
                 .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
                 .putExtra(Intent.EXTRA_USER, userHandle)
                 .putExtra(INTENT_EXTRA_NOTIFICATION_ID, RESOURCE_OVERUSE_NOTIFICATION_BASE_ID));
@@ -642,7 +701,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         UserHandle userHandle = UserHandle.of(100);
 
         mBroadcastReceiver.onReceive(mMockContext,
-                new Intent(ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION)
+                new Intent(CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION)
                         .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
                         .putExtra(Intent.EXTRA_USER, userHandle)
                         .putExtra(INTENT_EXTRA_NOTIFICATION_ID,
@@ -654,8 +713,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testUserNotificationActionBroadcastsWithNullPackageName() throws Exception {
-        List<String> actions = Arrays.asList(ACTION_RESOURCE_OVERUSE_DISABLE_APP,
-                ACTION_LAUNCH_APP_SETTINGS, ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
+        List<String> actions = Arrays.asList(CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP,
+                CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS,
+                CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
 
         for (String action : actions) {
             mBroadcastReceiver.onReceive(mMockContext, new Intent(action)
@@ -670,8 +730,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testUserNotificationActionBroadcastsWithInvalidUserId() throws Exception {
-        List<String> actions = Arrays.asList(ACTION_RESOURCE_OVERUSE_DISABLE_APP,
-                ACTION_LAUNCH_APP_SETTINGS, ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
+        List<String> actions = Arrays.asList(CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP,
+                CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS,
+                CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
 
         for (String action : actions) {
             mBroadcastReceiver.onReceive(mMockContext, new Intent(action)
@@ -690,8 +751,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         String packageName = "system_package";
         UserHandle userHandle = UserHandle.of(100);
 
-        List<String> actions = Arrays.asList(ACTION_RESOURCE_OVERUSE_DISABLE_APP,
-                ACTION_LAUNCH_APP_SETTINGS, ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
+        List<String> actions = Arrays.asList(CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP,
+                CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS,
+                CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
 
         for (String action : actions) {
             mBroadcastReceiver.onReceive(mMockContext, new Intent(action)
@@ -1865,6 +1927,80 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     @Test
+    public void testResetPackageKillableStateDuringBootup() throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101);
+        injectPackageInfos(Collections.singletonList(
+                constructPackageManagerPackageInfo("third_party_package", 10103456, null)));
+
+        mTimeSource.updateNow(PACKAGE_KILLABLE_STATE_RESET_DAYS);
+        UserHandle userHandle = UserHandle.of(101);
+
+        mCarWatchdogService.setKillablePackageAsUser("third_party_package", userHandle,
+                /* isKillable= */ false);
+
+        PackageKillableStateSubject
+                .assertThat(mCarWatchdogService.getPackageKillableStatesAsUser(userHandle))
+                .containsExactly(new PackageKillableState("third_party_package", 101,
+                        PackageKillableState.KILLABLE_STATE_NO));
+
+        mTimeSource.updateNow(PACKAGE_KILLABLE_STATE_RESET_DAYS / 2);
+        restartService(/* totalRestarts= */ 1, /* wantedDbWrites= */ 1,
+                /* isWriteIoStats= */ false);
+
+        PackageKillableStateSubject
+                .assertThat(mCarWatchdogService.getPackageKillableStatesAsUser(userHandle))
+                .containsExactly(new PackageKillableState("third_party_package", 101,
+                        PackageKillableState.KILLABLE_STATE_NO));
+
+        mTimeSource.updateNow(/* numDaysAgo= */ 0);
+        restartService(/* totalRestarts= */ 2, /* wantedDbWrites= */ 2,
+                /* isWriteIoStats= */ false);
+
+        PackageKillableStateSubject
+                .assertThat(mCarWatchdogService.getPackageKillableStatesAsUser(userHandle))
+                .containsExactly(new PackageKillableState("third_party_package", 101,
+                        PackageKillableState.KILLABLE_STATE_YES));
+    }
+
+    @Test
+    public void testResetPackageKillableStateDuringDateChange() throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101);
+        injectPackageInfos(Collections.singletonList(
+                constructPackageManagerPackageInfo("third_party_package", 10103456, null)));
+
+        UserHandle userHandle = UserHandle.of(101);
+
+        // Reset the latest reported date
+        mTimeSource.updateNow(PACKAGE_KILLABLE_STATE_RESET_DAYS);
+        restartService(/* totalRestarts= */ 1, /* wantedDbWrites= */ 0);
+
+        mCarWatchdogService.setKillablePackageAsUser("third_party_package", userHandle,
+                /* isKillable= */ false);
+
+        PackageKillableStateSubject
+                .assertThat(mCarWatchdogService.getPackageKillableStatesAsUser(userHandle))
+                .containsExactly(new PackageKillableState("third_party_package", 101,
+                        PackageKillableState.KILLABLE_STATE_NO));
+
+        // Random I/O overuse stats
+        List<PackageIoOveruseStats> packageIoOveruseStats = Collections.singletonList(
+                constructPackageIoOveruseStats(123456, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(80, 170, 260),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(20, 20, 20),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 3)));
+
+        mTimeSource.updateNow(/* numDaysAgo= */ 0);
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        PackageKillableStateSubject
+                .assertThat(mCarWatchdogService.getPackageKillableStatesAsUser(userHandle))
+                .containsExactly(new PackageKillableState("third_party_package", 101,
+                        PackageKillableState.KILLABLE_STATE_YES));
+    }
+
+    @Test
     public void testGetPackageKillableStatesAsUser() throws Exception {
         mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101, 102);
         injectPackageInfos(Arrays.asList(
@@ -2150,7 +2286,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                     args.getArgument(0);
             synchronized (actualConfigs) {
                 actualConfigs.addAll(configs);
-                actualConfigs.notify();
+                actualConfigs.notifyAll();
             }
             return null;
         }).when(mMockCarWatchdogDaemon).updateResourceOveruseConfigurations(anyList());
@@ -2565,6 +2701,84 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     @Test
+    public void testRequestTodayIoUsageStats() throws Exception {
+        List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = Arrays.asList(
+                WatchdogStorageUnitTest.constructIoUsageStatsEntry(
+                        /* userId= */ 100, "system_package", /* startTime */ 0,
+                        /* duration= */1234,
+                        /* remainingWriteBytes= */ constructPerStateBytes(200, 300, 400),
+                        /* writtenBytes= */ constructPerStateBytes(1000, 2000, 3000),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 2, /* forgivenOveruses= */ 0,
+                        /* totalTimesKilled= */ 1),
+                WatchdogStorageUnitTest.constructIoUsageStatsEntry(
+                        /* userId= */ 101, "vendor_package", /* startTime */ 0,
+                        /* duration= */ 1234,
+                        /* remainingWriteBytes= */ constructPerStateBytes(500, 600, 700),
+                        /* writtenBytes= */ constructPerStateBytes(1100, 2300, 4300),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 4, /* forgivenOveruses= */ 1,
+                        /* totalTimesKilled= */ 10));
+        when(mSpiedWatchdogStorage.getTodayIoUsageStats()).thenReturn(ioUsageStatsEntries);
+        when(mMockCarWatchdogDaemon.getInterfaceVersion())
+                .thenReturn(CARWATCHDOG_DAEMON_INTERFACE_VERSION_UDC);
+
+        mWatchdogServiceForSystemImpl.requestTodayIoUsageStats();
+
+        ArgumentCaptor<List<UserPackageIoUsageStats>> userPackageIoUsageStatsCaptor =
+                ArgumentCaptor.forClass(List.class);
+
+        verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS))
+                .onTodayIoUsageStatsFetched(userPackageIoUsageStatsCaptor.capture());
+
+        List<UserPackageIoUsageStats> expectedStats = Arrays.asList(
+                constructUserPackageIoUsageStats(/* userId= */ 100, "system_package",
+                        /* writtenBytes= */ constructPerStateBytes(1000, 2000, 3000),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 2),
+                constructUserPackageIoUsageStats(/* userId= */ 101, "vendor_package",
+                        /* writtenBytes= */ constructPerStateBytes(1100, 2300, 4300),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 4));
+
+        assertThat(userPackageIoUsageStatsCaptor.getValue())
+                .comparingElementsUsing(Correspondence.from(
+                        CarWatchdogServiceUnitTest::isUserPackageIoUsageStatsEquals,
+                        "is user package I/O usage stats equal to"))
+                        .containsExactlyElementsIn(expectedStats);
+    }
+
+    @Test
+    public void testRequestTodayIoUsageStatsWithDaemonRemoteException() throws Exception {
+        List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = Arrays.asList(
+                WatchdogStorageUnitTest.constructIoUsageStatsEntry(
+                        /* userId= */ 100, "system_package", /* startTime */ 0,
+                        /* duration= */1234,
+                        /* remainingWriteBytes= */ constructPerStateBytes(200, 300, 400),
+                        /* writtenBytes= */ constructPerStateBytes(1000, 2000, 3000),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 2, /* forgivenOveruses= */ 0,
+                        /* totalTimesKilled= */ 1),
+                WatchdogStorageUnitTest.constructIoUsageStatsEntry(
+                        /* userId= */ 101, "vendor_package", /* startTime */ 0,
+                        /* duration= */ 1234,
+                        /* remainingWriteBytes= */ constructPerStateBytes(500, 600, 700),
+                        /* writtenBytes= */ constructPerStateBytes(1100, 2300, 4300),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 4, /* forgivenOveruses= */ 1,
+                        /* totalTimesKilled= */ 10));
+        when(mSpiedWatchdogStorage.getTodayIoUsageStats()).thenReturn(ioUsageStatsEntries);
+        when(mMockCarWatchdogDaemon.getInterfaceVersion())
+                .thenReturn(CARWATCHDOG_DAEMON_INTERFACE_VERSION_UDC);
+        doThrow(RemoteException.class)
+                .when(mMockCarWatchdogDaemon).onTodayIoUsageStatsFetched(any());
+
+        mWatchdogServiceForSystemImpl.requestTodayIoUsageStats();
+
+        verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).onTodayIoUsageStatsFetched(any());
+    }
+
+    @Test
     public void testGetTodayIoUsageStats() throws Exception {
         List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = Arrays.asList(
                 WatchdogStorageUnitTest.constructIoUsageStatsEntry(
@@ -2689,10 +2903,12 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 Arrays.asList(
                         new WatchdogStorage.UserPackageSettingsEntry(/* userId= */ 100,
                                 "system_package",
-                                /* killableState= */ PackageKillableState.KILLABLE_STATE_YES),
+                                /* killableState= */ PackageKillableState.KILLABLE_STATE_YES,
+                                /* lastModifiedKillableStateEpoch= */ 123456789),
                         new WatchdogStorage.UserPackageSettingsEntry(/* userId= */ 100,
                                 "third_party_package",
-                                /* killableState= */ PackageKillableState.KILLABLE_STATE_YES));
+                                /* killableState= */ PackageKillableState.KILLABLE_STATE_YES,
+                                /* lastModifiedKillableStateEpoch= */ 123456789));
 
         List<WatchdogStorage.IoUsageStatsEntry> expectedSavedIoUsageEntries = Arrays.asList(
                 new WatchdogStorage.IoUsageStatsEntry(/* userId= */ 100, "system_package",
@@ -3379,6 +3595,11 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         mWatchdogServiceForSystemImpl.resetResourceOveruseStats(
                 Collections.singletonList(packageName));
 
+        // Resetting resource overuse stats is done on the CarWatchdogService service handler
+        // thread. Wait until the below message is processed before returning, so the resource
+        // overuse stats resetting is completed.
+        CarServiceUtils.runEmptyRunnableOnLooperSync(CarWatchdogService.class.getSimpleName());
+
         ResourceOveruseStats actualStats =
                 mCarWatchdogService.getResourceOveruseStatsForUserPackage(
                         packageName, user,
@@ -3421,6 +3642,11 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 Arrays.asList("third_party_package.A", "shared:vendor_shared_package.A",
                         "shared:system_shared_package.A", "third_party_package.B"));
 
+        // Resetting resource overuse stats is done on the CarWatchdogService service handler
+        // thread. Wait until the below message is processed before returning, so the resource
+        // overuse stats resetting is completed.
+        CarServiceUtils.runEmptyRunnableOnLooperSync(CarWatchdogService.class.getSimpleName());
+
         verify(mSpiedPackageManager, times(2))
                 .getApplicationEnabledSetting("third_party_package.A", 100);
         verify(mSpiedPackageManager, times(2))
@@ -3459,6 +3685,11 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         mWatchdogServiceForSystemImpl.resetResourceOveruseStats(
                 Collections.singletonList("third_party_package.A"));
+
+        // Resetting resource overuse stats is done on the CarWatchdogService service handler
+        // thread. Wait until the below message is processed before returning, so the resource
+        // overuse stats resetting is completed.
+        CarServiceUtils.runEmptyRunnableOnLooperSync(CarWatchdogService.class.getSimpleName());
 
         PackageKillableStateSubject.assertThat(
                 mCarWatchdogService.getPackageKillableStatesAsUser(UserHandle.ALL)).containsExactly(
@@ -4029,7 +4260,12 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             }
             return ioUsageStatsEntries.size();
         }).when(mSpiedWatchdogStorage).saveIoUsageStats(any());
-        doReturn(mUserPackageSettingsEntries).when(mSpiedWatchdogStorage).getUserPackageSettings();
+        doAnswer((args) -> {
+            List<WatchdogStorage.UserPackageSettingsEntry> entries =
+                    new ArrayList<>(mUserPackageSettingsEntries.size());
+            entries.addAll(mUserPackageSettingsEntries);
+            return entries;
+        }).when(mSpiedWatchdogStorage).getUserPackageSettings();
         doReturn(mIoUsageStatsEntries).when(mSpiedWatchdogStorage).getTodayIoUsageStats();
         doReturn(List.of()).when(mSpiedWatchdogStorage)
                 .getNotForgivenHistoricalIoOveruses(RECURRING_OVERUSE_PERIOD_IN_DAYS);
@@ -4072,11 +4308,17 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     private void restartService(int totalRestarts, int wantedDbWrites) throws Exception {
+        restartService(totalRestarts, wantedDbWrites, /* isWriteIoStats= */ true);
+    }
+
+    private void restartService(int totalRestarts, int wantedDbWrites, boolean isWriteIoStats)
+            throws Exception {
         setCarPowerState(CarPowerManager.STATE_SHUTDOWN_PREPARE);
         setCarPowerState(CarPowerManager.STATE_SHUTDOWN_ENTER);
         mCarWatchdogService.release();
         verify(mSpiedWatchdogStorage, times(totalRestarts)).startWrite();
-        verify(mSpiedWatchdogStorage, times(wantedDbWrites)).saveIoUsageStats(any());
+        verify(mSpiedWatchdogStorage, times(isWriteIoStats ? wantedDbWrites : 0))
+                .saveIoUsageStats(any());
         verify(mSpiedWatchdogStorage, times(wantedDbWrites)).saveUserPackageSettings(any());
         verify(mSpiedWatchdogStorage, times(wantedDbWrites)).markWriteSuccessful();
         verify(mSpiedWatchdogStorage, times(wantedDbWrites)).endWrite();
@@ -4112,9 +4354,10 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         // When CarWatchdogService is restarted, registerReceiverForAllUsers will be called more
         // than 2 times. Thus, verify the filters only from the latest 2 calls.
         IntentFilter filter = filters.get(totalFilters - 2);
-        assertFilterHasActions(filter, ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION,
-                ACTION_GARAGE_MODE_ON, ACTION_GARAGE_MODE_OFF, ACTION_LAUNCH_APP_SETTINGS,
-                ACTION_RESOURCE_OVERUSE_DISABLE_APP, ACTION_USER_REMOVED);
+        assertFilterHasActions(filter, CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION,
+                ACTION_GARAGE_MODE_ON, ACTION_GARAGE_MODE_OFF,
+                CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS,
+                CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP, ACTION_USER_REMOVED);
         filter = filters.get(totalFilters - 1);
         assertFilterHasActions(filter, ACTION_PACKAGE_CHANGED);
         assertFilterHasDataScheme(filter, /* dataScheme= */ "package");
@@ -4173,8 +4416,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
          * Database read is posted on a separate handler thread. Wait until the handler thread has
          * processed the database read request before verifying.
          */
-        CarServiceUtils.runOnLooperSync(CarServiceUtils.getHandlerThread(CarWatchdogService.class
-                .getSimpleName()).getLooper(), () -> {});
+        CarServiceUtils.runEmptyRunnableOnLooperSync(CarWatchdogService.class.getSimpleName());
         verify(mSpiedWatchdogStorage, times(wantedInvocations)).syncUsers(any());
         verify(mSpiedWatchdogStorage, times(wantedInvocations)).getUserPackageSettings();
         verify(mSpiedWatchdogStorage, times(wantedInvocations)).getTodayIoUsageStats();
@@ -4227,7 +4469,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             ContentResolver contentResolver = mock(ContentResolver.class);
             when(contentResolver.getUserId()).thenReturn(args.getArgument(1));
             return contentResolver;
-        }).when(() -> Utils.getContentResolverForUser(any(), anyInt()));
+        }).when(() -> CarServiceUtils.getContentResolverForUser(any(), anyInt()));
 
         when(Settings.Secure.getString(any(ContentResolver.class),
                 eq(KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE))).thenAnswer(
@@ -4451,7 +4693,17 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     private void pushLatestIoOveruseStatsAndWait(List<PackageIoOveruseStats> packageIoOveruseStats)
             throws Exception {
-        mWatchdogServiceForSystemImpl.latestIoOveruseStats(packageIoOveruseStats);
+        ResourceStats resourceStats = new ResourceStats();
+        resourceStats.resourceOveruseStats =
+                new android.automotive.watchdog.internal.ResourceOveruseStats();
+        resourceStats.resourceOveruseStats.packageIoOveruseStats = packageIoOveruseStats;
+
+        mWatchdogServiceForSystemImpl.onLatestResourceStats(List.of(resourceStats));
+
+        // Handling latest I/O overuse stats is done on the CarWatchdogService service handler
+        // thread. Wait until the below message is processed before returning, so the
+        // latestIoOveruseStats call is completed.
+        CarServiceUtils.runEmptyRunnableOnLooperSync(CarWatchdogService.class.getSimpleName());
 
         // Resource overuse handling is done on the main thread by posting a new message with
         // OVERUSE_HANDLING_DELAY_MILLS delay. Wait until the below message is processed before
@@ -4566,7 +4818,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private void disableUserPackage(String packageName, int... userIds) throws Exception {
         for (int i = 0; i < userIds.length; i++) {
             int userId = userIds[i];
-            UserHandle userHandle = UserHandle.of(userId);
 
             mCarWatchdogService.performResourceOveruseKill(packageName, userId);
 
@@ -4629,8 +4880,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             List<UserNotificationReflectionCall> expectedNotifications) {
         // Recurring overuse notification handling task is posted on a separate handler thread and
         // this task sends the user notifications. Wait for this task to complete.
-        CarServiceUtils.runOnLooperSync(CarServiceUtils.getHandlerThread(CarWatchdogService.class
-                .getSimpleName()).getLooper(), () -> {});
+        CarServiceUtils.runEmptyRunnableOnLooperSync(CarWatchdogService.class.getSimpleName());
 
         verify(mMockNotificationHelper, times(expectedNotifications.size()))
                 .showResourceOveruseNotificationsAsUser(mUserHandle.capture(),
@@ -5201,13 +5451,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         packageInfo.appCategoryType = appCategoryType;
 
         return packageInfo;
-    }
-
-    private static ApplicationInfo constructApplicationInfo(int flags, int privateFlags) {
-        ApplicationInfo applicationInfo = new ApplicationInfo();
-        applicationInfo.flags = flags;
-        applicationInfo.privateFlags = privateFlags;
-        return applicationInfo;
     }
 
     private static String toPackageInfosString(List<PackageInfo> packageInfos) {

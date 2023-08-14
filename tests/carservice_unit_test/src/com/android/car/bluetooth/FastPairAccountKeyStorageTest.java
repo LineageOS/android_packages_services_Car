@@ -161,7 +161,7 @@ public class FastPairAccountKeyStorageTest {
         int i = 0;
         for (AccountKey key : expected) {
             String keyExpected = new BigInteger(key.toBytes()).toString();
-            String keyActual = mSharedPreferencesContent.getOrDefault("" + i++, null);
+            String keyActual = mSharedPreferencesContent.getOrDefault(Integer.toString(i++), null);
             assertThat(keyActual).isNotNull();
             assertThat(keyActual).isEqualTo(keyExpected);
         }

@@ -23,6 +23,7 @@ import android.automotive.watchdog.internal.ProcessIdentifier;
 import android.automotive.watchdog.internal.ResourceOveruseConfiguration;
 import android.automotive.watchdog.internal.StateType;
 import android.automotive.watchdog.internal.ThreadPolicyWithPriority;
+import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 
 /**
  * ICarWatchdog is an interface implemented by the watchdog server. This interface is used only by
@@ -83,7 +84,7 @@ interface ICarWatchdog {
    * @param sessionId            Session id given by watchdog server.
    */
   void tellCarWatchdogServiceAlive(in ICarWatchdogServiceForSystem service,
-          in List<ProcessIdentifier> processIdentifiers, in int sessionId);
+          in List<ProcessIdentifier> processIdentifiers, int sessionId);
 
   /**
    * Tell watchdog server that the monitor has finished dumping process information.
@@ -106,7 +107,7 @@ interface ICarWatchdog {
    * When type is USER_STATE, arg1 and arg2 should contain the user ID and the current user state.
    * When type is BOOT_PHASE, arg1 should contain the current boot phase.
    */
-  void notifySystemStateChange(in StateType type, in int arg1, in int arg2);
+  void notifySystemStateChange(in StateType type, int arg1, int arg2);
 
   /**
    * Update the given resource overuse configurations.
@@ -132,7 +133,7 @@ interface ICarWatchdog {
    * @param enable            When set to true, client health checking is enabled.
    *                          Otherwise, it is disabled.
    */
-  void controlProcessHealthCheck(in boolean enable);
+  void controlProcessHealthCheck(boolean enable);
 
   /**
    * Set thread scheduling policy and priority.
@@ -173,4 +174,22 @@ interface ICarWatchdog {
    * @return The policy with priority.
    */
    ThreadPolicyWithPriority getThreadPriority(int pid, int tid, int uid);
+
+  /**
+   * Updates the daemon with the AIDL VHAL {@code pid}.
+   *
+   * This call is a response to the {@link ICarWatchdogServiceForSystem.requestAidlVhalPid}
+   * call.
+   *
+   * @param pid The AIDL VHAL process ID. On error, the pid will be {@code -1}.
+   */
+   void onAidlVhalPidFetched(int pid);
+
+   /**
+    * Handles the current UTC calendar day's I/O usage stats for all packages collected during
+    * the previous boot. The I/O usage stats are provided by the CarWatchdogService.
+    *
+    * @param userPackageIoUsageStats I/O usage stats for all packages.
+    */
+   void onTodayIoUsageStatsFetched(in List<UserPackageIoUsageStats> userPackageIoUsageStats);
 }

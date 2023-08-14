@@ -112,7 +112,6 @@ public final class LifetimeWriteInfo implements Parcelable {
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public boolean equals(Object other) {
         if (other instanceof LifetimeWriteInfo) {
             LifetimeWriteInfo lifetime = (LifetimeWriteInfo) other;
@@ -125,7 +124,11 @@ public final class LifetimeWriteInfo implements Parcelable {
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
+    public int hashCode() {
+        return Objects.hash(partition, fstype, writtenBytes);
+    }
+
+    @Override
     public String toString() {
         return String.format("for partition %s of type %s, %d bytes were written",
                 partition, fstype, writtenBytes);

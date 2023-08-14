@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Es wurde verhindert, dass diese App im Hintergrund ausgeführt wird. Wenn die App im Hintergrund ausgeführt werden soll, priorisiere sie."</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Schließen"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"App priorisieren"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> wurde deaktiviert. Du kannst die App in den Einstellungen wieder aktivieren."</string>
 </resources>

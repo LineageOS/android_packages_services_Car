@@ -515,7 +515,7 @@ public class CarStorageMonitoringTest {
         assertThat(delta21.background.fsyncCalls).isEqualTo(10);
 
         try {
-            IoStatsEntry delta31 = statEntry3.delta(statEntry1);
+            statEntry3.delta(statEntry1);
             fail("delta only allowed on stats for matching user ID");
         } catch (IllegalArgumentException e) {
             // test passed

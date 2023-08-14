@@ -17,8 +17,8 @@
 #ifndef CPP_WATCHDOG_SERVER_SRC_THREADPRIORITYCONTROLLER_H_
 #define CPP_WATCHDOG_SERVER_SRC_THREADPRIORITYCONTROLLER_H_
 
+#include <aidl/android/automotive/watchdog/internal/ThreadPolicyWithPriority.h>
 #include <android-base/result.h>
-#include <android/automotive/watchdog/internal/ThreadPolicyWithPriority.h>
 
 #include <sched.h>
 
@@ -26,7 +26,17 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class ThreadPriorityController final {
+class ThreadPriorityControllerInterface {
+public:
+    virtual ~ThreadPriorityControllerInterface() = default;
+    virtual android::base::Result<void> setThreadPriority(int pid, int tid, int uid, int policy,
+                                                          int priority) = 0;
+    virtual android::base::Result<void> getThreadPriority(
+            int pid, int tid, int uid,
+            aidl::android::automotive::watchdog::internal::ThreadPolicyWithPriority* result) = 0;
+};
+
+class ThreadPriorityController final : public ThreadPriorityControllerInterface {
 public:
     // An interface for stubbing system calls in unit testing.
     class SystemCallsInterface {
@@ -45,10 +55,12 @@ public:
     explicit ThreadPriorityController(std::unique_ptr<SystemCallsInterface> s) :
           mSystemCallsInterface(std::move(s)) {}
 
-    android::binder::Status setThreadPriority(int pid, int tid, int uid, int policy, int priority);
-    android::binder::Status getThreadPriority(
+    android::base::Result<void> setThreadPriority(int pid, int tid, int uid, int policy,
+                                                  int priority) override;
+    android::base::Result<void> getThreadPriority(
             int pid, int tid, int uid,
-            android::automotive::watchdog::internal::ThreadPolicyWithPriority* result);
+            aidl::android::automotive::watchdog::internal::ThreadPolicyWithPriority* result)
+            override;
 
 private:
     class SystemCalls final : public SystemCallsInterface {
@@ -60,7 +72,7 @@ private:
 
     std::unique_ptr<SystemCallsInterface> mSystemCallsInterface;
 
-    android::binder::Status checkPidTidUid(pid_t pid, pid_t tid, uid_t uid);
+    android::base::Result<void> checkPidTidUid(pid_t pid, pid_t tid, uid_t uid);
 };
 
 }  // namespace watchdog

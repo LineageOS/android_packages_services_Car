@@ -16,12 +16,16 @@
 
 package android.car.test;
 
+import static android.car.test.JUnitHelper.newTestMethod;
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetCarVersion;
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
+import static android.car.test.mocks.AndroidMockitoHelper.mockCarIsApiVersionAtLeast;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 
 import android.car.Car;
 import android.car.CarVersion;
@@ -36,11 +40,15 @@ import android.car.test.ApiCheckerRule.PlatformVersionMismatchExceptionNotThrown
 import android.car.test.ApiCheckerRule.SupportedVersionTest;
 import android.car.test.ApiCheckerRule.UnsupportedVersionTest;
 import android.car.test.ApiCheckerRule.UnsupportedVersionTest.Behavior;
+import android.car.test.JUnitHelper.SimpleStatement;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.os.Build;
 import android.util.Log;
 
 import com.android.compatibility.common.util.ApiTest;
 import com.android.compatibility.common.util.CddTest;
+import com.android.compatibility.common.util.NonApiTest;
+import com.android.compatibility.common.util.ReasonType;
 
 import org.junit.Test;
 import org.junit.runner.Description;
@@ -89,6 +97,13 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     private static final String VALID_API_ADDED_IN_OR_BEFORE =
             "android.car.test.ApiCheckerRuleTest#annotatedWithAddedInOrBefore";
 
+    // Example justification for a NonApiTest.
+    private static final String NON_API_TEST_JUSTIFICATION = "METRIC";
+
+    // Example removal version annotations.
+    private static final int SOFT_REMOVAL_VERSION = 35;
+    private static final int HARD_REMOVAL_VERSION = 37;
+
     private final SimpleStatement<Exception> mBaseStatement = new SimpleStatement<>();
 
     @Override
@@ -106,7 +121,25 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         Log.d(TAG, "Exception: " + e);
 
         assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
-                .matches(".*missing.*@ApiTest.*@CddTest.*annotation.*");
+                .matches(".*missing.*@ApiTest.*@NonApiTest.*@CddTest.*annotation.*");
+    }
+
+    @Test
+    public void failWhenTestMethodHasNonApiTestAndCddTest() throws Throwable {
+        Description testMethod = newTestMethod(
+                new NonApiTestAnnotation(new ReasonType[]{}, NON_API_TEST_JUSTIFICATION),
+                CddTestAnnotation.forRequirement("Boot in 1s"),
+                new ApiRequirementsAnnotation(ApiRequirements.CarVersion.TIRAMISU_1,
+                        ApiRequirements.PlatformVersion.TIRAMISU_1, SOFT_REMOVAL_VERSION,
+                        HARD_REMOVAL_VERSION));
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> rule.apply(new SimpleStatement<>(), testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
+
+        assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
+                .matches(".*both.*NonApiTest.*CddTest.*annotation.*");
     }
 
     @Test
@@ -173,7 +206,8 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         Description testMethod = newTestMethod(new ApiTestAnnotation(methodName),
                 new IgnoreInvalidApiAnnotation("I validate, therefore am!"),
                 new ApiRequirementsAnnotation(ApiRequirements.CarVersion.TIRAMISU_1,
-                        ApiRequirements.PlatformVersion.TIRAMISU_1));
+                        ApiRequirements.PlatformVersion.TIRAMISU_1, SOFT_REMOVAL_VERSION,
+                        HARD_REMOVAL_VERSION));
 
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
 
@@ -212,7 +246,8 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         Description testMethod = newTestMethod(new ApiTestAnnotation(
                 VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1),
                 new ApiRequirementsAnnotation(ApiRequirements.CarVersion.TIRAMISU_1,
-                        ApiRequirements.PlatformVersion.TIRAMISU_1));
+                        ApiRequirements.PlatformVersion.TIRAMISU_1, SOFT_REMOVAL_VERSION,
+                        HARD_REMOVAL_VERSION));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
 
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
@@ -276,10 +311,40 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void failWhenTestMethodHasNonApiTestAnnotationButNoApiRequirements() throws Throwable {
+        Description testMethod = newTestMethod(
+                new NonApiTestAnnotation(new ReasonType[]{}, NON_API_TEST_JUSTIFICATION));
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> rule.apply(new SimpleStatement<>(), testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
+
+        assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
+                .matches(".*NonApiTest.*missing.*ApiRequirements.*");
+    }
+
+    @Test
+    public void passWhenTestMethodHasNonApiTestAnnotation() throws Throwable {
+        Description testMethod = newTestMethod(
+                new NonApiTestAnnotation(new ReasonType[]{}, NON_API_TEST_JUSTIFICATION),
+                new ApiRequirementsAnnotation(ApiRequirements.CarVersion.TIRAMISU_1,
+                        ApiRequirements.PlatformVersion.TIRAMISU_1, SOFT_REMOVAL_VERSION,
+                        HARD_REMOVAL_VERSION));
+
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        rule.apply(mBaseStatement, testMethod).evaluate();
+
+        mBaseStatement.assertEvaluated();
+    }
+
+    @Test
     public void passWhenTestMethodHasValidCddTestAnnotation() throws Throwable {
         Description testMethod = newTestMethod(CddTestAnnotation.forRequirements("Boot in 10m"),
                 new ApiRequirementsAnnotation(ApiRequirements.CarVersion.TIRAMISU_1,
-                        ApiRequirements.PlatformVersion.TIRAMISU_1));
+                        ApiRequirements.PlatformVersion.TIRAMISU_1, SOFT_REMOVAL_VERSION,
+                        HARD_REMOVAL_VERSION));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
 
         rule.apply(mBaseStatement, testMethod).evaluate();
@@ -298,6 +363,19 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         mBaseStatement.assertEvaluated();
     }
 
+    // NOTE: ideally we should test it for versions < T as all (for ATS), but unfortunately that's
+    // not possible because Build.VERSION.SDK_INT cannot be mocked
+    @Test
+    public void passWhenTestMethodIsMissingAnnotationsButPlatformIsNotSupported() throws Throwable {
+        mockCarIsApiVersionAtLeast(Build.VERSION_CODES.TIRAMISU, /* minor= */ 1, /* isIt =*/ false);
+        Description testMethod = newTestMethod();
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        rule.apply(mBaseStatement, testMethod).evaluate();
+
+        mBaseStatement.assertEvaluated();
+    }
+
     @Test
     public void passWhenTestMethodIsMissingAnnotationsButItsNotEnforced() throws Throwable {
         Description testMethod = newTestMethod();
@@ -309,10 +387,21 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void passWhenTestMethodIsMissingApiRequirementsButItsNotEnforced() throws Throwable {
+    public void passWhenTestMethodIsMissingApiRequirementsButItsNotEnforcedByDisableAnnotationsCheck() throws Throwable {
         String methodName = VALID_API_WITHOUT_ANNOTATIONS;
         Description testMethod = newTestMethod(new ApiTestAnnotation(methodName));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().disableAnnotationsCheck().build();
+
+        rule.apply(mBaseStatement, testMethod).evaluate();
+
+        mBaseStatement.assertEvaluated();
+    }
+
+    @Test
+    public void passWhenTestMethodIsMissingApiRequirementsButItsNotEnforcedByDisableApiRequirementsCheck() throws Throwable {
+        String methodName = VALID_API_WITHOUT_ANNOTATIONS;
+        Description testMethod = newTestMethod(new ApiTestAnnotation(methodName));
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().disableApiRequirementsCheck().build();
 
         rule.apply(mBaseStatement, testMethod).evaluate();
 
@@ -726,7 +815,8 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
             throws Throwable {
         Description testMethod = newTestMethod(CddTestAnnotation.forRequirements("Boot in 10m"),
                 new ApiRequirementsAnnotation(ApiRequirements.CarVersion.TIRAMISU_1,
-                        ApiRequirements.PlatformVersion.TIRAMISU_1));
+                        ApiRequirements.PlatformVersion.TIRAMISU_1, SOFT_REMOVAL_VERSION,
+                        HARD_REMOVAL_VERSION));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
         mockCarGetCarVersion(CarVersion.VERSION_CODES.TIRAMISU_1);
         mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
@@ -754,7 +844,8 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
             throws Throwable {
         Description testMethod = newTestMethod(CddTestAnnotation.forRequirements("Boot in 10m"),
                 new ApiRequirementsAnnotation(ApiRequirements.CarVersion.TIRAMISU_1,
-                        ApiRequirements.PlatformVersion.TIRAMISU_1));
+                        ApiRequirements.PlatformVersion.TIRAMISU_1, SOFT_REMOVAL_VERSION,
+                        HARD_REMOVAL_VERSION));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
         CarVersion carVersion = CarVersion.VERSION_CODES.TIRAMISU_1;
         PlatformVersion platformVersion = PlatformVersion.VERSION_CODES.TIRAMISU_0;
@@ -823,6 +914,27 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
                 api).that(rule.isApiSupported(api)).isTrue();
     }
 
+    @Test
+    public void testGetTestName() throws Throwable {
+        Description testMethod = newTestMethod();
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().disableAnnotationsCheck().build();
+        expectWithMessage("rule.getTestName() before test").that(rule.getTestMethodName()).isNull();
+
+        // Need to save the name while the Statements is being executed
+        StringBuilder testNameDuringTest = new StringBuilder();
+        Statement statement = mock(Statement.class);
+        doAnswer((i) -> {
+            testNameDuringTest.append(rule.getTestMethodName());
+            return null;
+        }).when(statement).evaluate();
+
+        rule.apply(statement, testMethod).evaluate();
+
+        expectWithMessage("rule.getTestName() during test").that(testNameDuringTest.toString())
+                .isEqualTo(TEST_METHOD_BEING_EXECUTED);
+        expectWithMessage("rule.getTestName() after test").that(rule.getTestMethodName()).isNull();
+    }
+
     ////////////////////////////////////
     // Start of members used on tests //
     ////////////////////////////////////
@@ -874,39 +986,6 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     ////////////////////////////////////
     // End of members used on tests //
     ////////////////////////////////////
-
-    private static Description newTestMethod(Annotation... annotations) {
-        return newTestMethod(TEST_METHOD_BEING_EXECUTED, annotations);
-    }
-
-    private static Description newTestMethod(String methodName, Annotation... annotations) {
-        return Description.createTestDescription(ApiCheckerRuleTest.class,
-                methodName, annotations);
-    }
-
-    private static class SimpleStatement<T extends Exception> extends Statement {
-
-        private boolean mEvaluated;
-        private Throwable mThrowable;
-
-        @Override
-        public void evaluate() throws Throwable {
-            Log.d(TAG, "evaluate() called");
-            mEvaluated = true;
-            if (mThrowable != null) {
-                Log.d(TAG, "Throwing " + mThrowable);
-                throw mThrowable;
-            }
-        }
-
-        public void failWith(Throwable t) {
-            mThrowable = t;
-        }
-
-        public void assertEvaluated() {
-            assertWithMessage("test method called").that(mEvaluated).isTrue();
-        }
-    }
 
     @SuppressWarnings("BadAnnotationImplementation") // We don't care about equals() / hashCode()
     private static final class UnsupportedVersionTestAnnotation implements UnsupportedVersionTest {
@@ -999,10 +1078,15 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
         private final CarVersion mCarVersion;
         private final PlatformVersion mPlatformVersion;
+        private final int mSoftRemovalVersion;
+        private final int mHardRemovalVersion;
 
-        ApiRequirementsAnnotation(CarVersion carVersion, PlatformVersion platformVersion) {
+        ApiRequirementsAnnotation(CarVersion carVersion, PlatformVersion platformVersion,
+                int softRemovalVersion, int hardRemovalVersion) {
             mCarVersion = Objects.requireNonNull(carVersion);
             mPlatformVersion = Objects.requireNonNull(platformVersion);
+            mSoftRemovalVersion = softRemovalVersion;
+            mHardRemovalVersion = hardRemovalVersion;
         }
 
         @Override
@@ -1021,9 +1105,16 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         }
 
         @Override
+        public int softRemovalVersion() { return mSoftRemovalVersion; }
+
+        @Override
+        public int hardRemovalVersion() { return mHardRemovalVersion; }
+
+        @Override
         public String toString() {
-            return "@ApiRequirementsAnnotation(carVersion=" + mCarVersion + ", platformVersion"
-                    + mPlatformVersion + ")";
+            return "@ApiRequirementsAnnotation(carVersion=" + mCarVersion + ", platformVersion="
+                    + mPlatformVersion + ", softRemovalVersion=" + mSoftRemovalVersion
+                    + ", hardRemovalVersion= " + mHardRemovalVersion + ")";
         }
     }
 
@@ -1067,6 +1158,39 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         public String toString() {
             return "@CddTestAnnotation(requirement='" + mRequirement + "', requirements="
                     + Arrays.toString(mRequirements) + ")";
+        }
+    }
+
+    @SuppressWarnings("BadAnnotationImplementation")// We don't care about equals() / hashCode()
+    private static final class NonApiTestAnnotation implements NonApiTest {
+
+        private final ReasonType[] mExemptionReasons;
+        private final String mJustification;
+
+        NonApiTestAnnotation(ReasonType[] exemptionReasons, String justification) {
+            mExemptionReasons = exemptionReasons;
+            mJustification = justification;
+        }
+
+        @Override
+        public Class<? extends Annotation> annotationType() {
+            return NonApiTest.class;
+        }
+
+        @Override
+        public ReasonType[] exemptionReasons() {
+            return mExemptionReasons;
+        }
+
+        @Override
+        public String justification() {
+            return mJustification;
+        }
+
+        @Override
+        public String toString() {
+            return "@NonApiTest(exemptionReasons=" + Arrays.toString(mExemptionReasons)
+                    + ", justification=" + mJustification + ")";
         }
     }
 

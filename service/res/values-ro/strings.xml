@@ -70,6 +70,12 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Permite citirea stării și a datelor de detectare pentru Sistemul de avertizare privind ocupanții"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Controlează graficul Sistemului de avertizare privind ocupanții"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Permite controlarea începerii și opririi graficului de detectare a Sistemului de avertizare privind ocupanții"</string>
+    <string name="car_permission_label_read_driver_monitoring_settings" msgid="5208935577581001710">"Să citească informațiile din setările pentru monitorizarea șoferului mașinii"</string>
+    <string name="car_permission_desc_read_driver_monitoring_settings" msgid="3721117607024237175">"Să citească informațiile din setările pentru monitorizarea șoferului mașinii."</string>
+    <string name="car_permission_label_control_driver_monitoring_settings" msgid="239453247872865455">"Să gestioneze informațiile din setările pentru monitorizarea șoferului mașinii"</string>
+    <string name="car_permission_desc_control_driver_monitoring_settings" msgid="7244804817277236221">"Să gestioneze informațiile din setările pentru monitorizarea șoferului mașinii."</string>
+    <string name="car_permission_label_read_driver_monitoring_states" msgid="1555412806741155523">"Să citească informațiile despre stările monitorizării șoferului mașinii"</string>
+    <string name="car_permission_desc_read_driver_monitoring_states" msgid="3124328827934661489">"Să citească informațiile despre stările monitorizării șoferului mașinii."</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"Citește datele de diagnosticare"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Citește datele de diagnosticare de la mașină."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"Șterge datele de diagnosticare"</string>
@@ -110,6 +116,8 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"Controlează oglinzile mașinii."</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"Controlează locurile din mașină"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"Controlează locurile din mașină."</string>
+    <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"să controleze airbagurile mașinii"</string>
+    <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"să controleze airbagurile mașinii."</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"Accesează informațiile de bază despre mașină"</string>
     <string name="car_permission_desc_car_info" msgid="2118081474543537653">"Accesează informațiile de bază despre mașină."</string>
     <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"să acceseze informațiile cu acces privilegiat ale mașinii"</string>
@@ -118,10 +126,10 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Accesează informațiile despre permisiuni ale furnizorului mașinii."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"Citește starea luminilor exterioare ale mașinii"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Accesează starea luminilor exterioare ale mașinii."</string>
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"să acceseze starea torpedoului mașinii"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"Să acceseze starea torpedoului mașinii."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"accesează datele temporale ale mașinii"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Accesează datele temporale ale mașinii."</string>
-    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"accesează sursa de legătură a criptării mașinii"</string>
-    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Accesează sursa de legătură a criptării mașinii."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"Citește starea luminilor exterioare ale mașinii"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Controlează luminile exterioare ale mașinii."</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"Citește starea luminilor interioare ale mașinii"</string>
@@ -138,6 +146,8 @@
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Citește ceasurile de bord."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"Controlează ceasurile de bord ale mașinii"</string>
     <string name="car_permission_desc_control_car_display_units" msgid="8744397195158556945">"Controlează ceasurile de bord."</string>
+    <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"controlează informațiile powertrain ale mașinii"</string>
+    <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"Controlează informațiile powertrain ale mașinii"</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"Citește informațiile powertrain ale mașinii"</string>
     <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"Accesează informațiile powertrain ale mașinii."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"Citește starea de încărcare a mașinii"</string>
@@ -166,6 +176,38 @@
     <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"Controlează aplicațiile lansate."</string>
     <string name="car_permission_label_manage_thread_priority" msgid="6775846409863509575">"gestionează prioritatea firelor"</string>
     <string name="car_permission_desc_manage_thread_priority" msgid="3833845502119615929">"Gestionează prioritatea firelor."</string>
+    <string name="car_permission_label_manage_occupant_zone" msgid="1390420387640478679">"gestionează zona pentru ocupanți"</string>
+    <string name="car_permission_desc_manage_occupant_zone" msgid="1641484205694436465">"Gestionează zona pentru ocupanți."</string>
+    <string name="car_permission_label_use_remote_access" msgid="4192095854784769805">"folosesc accesul la distanță"</string>
+    <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"Folosesc accesul la distanță."</string>
+    <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"controlează accesul la distanță"</string>
+    <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"Controlează accesul la distanță."</string>
+    <string name="car_permission_label_control_steering_wheel" msgid="6244908950907824488">"controlează volanul mașinii"</string>
+    <string name="car_permission_desc_control_steering_wheel" msgid="8408970211196600423">"Controlează volanul mașinii."</string>
+    <string name="car_permission_label_read_adas_settings" msgid="151296373212801328">"să citească informațiile din setările ADAS ale mașinii"</string>
+    <string name="car_permission_desc_read_adas_settings" msgid="8490545343454791279">"Să citească informațiile din setările ADAS ale mașinii."</string>
+    <string name="car_permission_label_control_adas_settings" msgid="2535088218472880855">"să gestioneze informațiile din setările ADAS ale mașinii"</string>
+    <string name="car_permission_desc_control_adas_settings" msgid="8781131640392345285">"Să gestioneze informațiile din setările ADAS ale mașinii."</string>
+    <string name="car_permission_label_read_adas_states" msgid="8968657466958098106">"să citească informațiile despre setările ADAS ale mașinii"</string>
+    <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Să citească informațiile despre setările ADAS ale mașinii."</string>
+    <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"să gestioneze informațiile despre stările ADAS ale mașinii"</string>
+    <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Să gestioneze informațiile despre stările ADAS ale mașinii."</string>
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"să citească datele despre ștergătoarele de parbriz ale mașinii"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Să citească datele despre ștergătoarele de parbriz ale mașinii."</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"să controleze ștergătoarele de parbriz ale mașinii"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Să controleze ștergătoarele de parbriz ale mașinii."</string>
+    <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"Să monitorizeze stările altor zone pentru ocupanți din mașină și ale aplicațiilor peer (aplicații care au același nume de pachet ca apelantul) instalate în zonele respective și să gestioneze alimentarea pentru acele zone."</string>
+    <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Să monitorizeze stările altor zone pentru ocupanți din mașină și ale aplicațiilor peer (aplicații care au același nume de pachet ca apelantul) instalate în zonele respective și să gestioneze alimentarea pentru acele zone."</string>
+    <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"Să stabilească o conexiune și să comunice cu aplicații peer (aplicații care au același nume de pachet ca apelantul) instalate în alte zone pentru ocupanți din mașină."</string>
+    <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Să stabilească o conexiune și să comunice cu aplicații peer (aplicații care au același nume de pachet ca apelantul) instalate în alte zone pentru ocupanți din mașină."</string>
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"să oglindească ecranul altor aplicații"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Să oglindească ecranul altor aplicații."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"să oglindească ecranul altor utilizatori"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Să oglindească ecranul altor utilizatori."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"Introdu un proxy pentru interfața de utilizare a sistemului care să poată fi folosit de alte aplicații pentru a gestiona interfața de utilizare a sistemului și pentru a crea vizualizări ale activităților."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Introdu un proxy pentru interfața de utilizare a sistemului care să poată fi folosit de alte aplicații pentru a gestiona interfața de utilizare a sistemului și pentru a crea vizualizări ale activităților."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Poți să comunici cu interfața de utilizare a sistemului mașinii pentru a crea vizualizări ale activităților sau pentru a primi notificări privind modificările interfeței de utilizare a sistemului."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Poți să comunici cu interfața de utilizare a sistemului mașinii pentru a crea vizualizări ale activităților sau pentru a primi notificări privind modificările interfeței de utilizare a sistemului."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Magistrala CAN nu a reușit"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Magistrala CAN nu răspunde. Deconectează și reconectează unitatea radio, apoi repornește mașina"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Dispozitivul meu"</string>

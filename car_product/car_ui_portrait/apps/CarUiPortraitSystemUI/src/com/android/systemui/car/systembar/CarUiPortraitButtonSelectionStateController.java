@@ -19,6 +19,7 @@ package com.android.systemui.car.systembar;
 import android.app.ActivityTaskManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.view.View;
 
 import com.android.systemui.dagger.SysUISingleton;
 
@@ -33,6 +34,9 @@ import com.android.systemui.dagger.SysUISingleton;
 @SysUISingleton
 public class CarUiPortraitButtonSelectionStateController extends ButtonSelectionStateController {
 
+    private CarUiPortraitAppGridButton mAppGridButton;
+    private CarUiPortraitNotificationButton mNotificationButton;
+
     public CarUiPortraitButtonSelectionStateController(Context context) {
         super(context);
     }
@@ -42,4 +46,35 @@ public class CarUiPortraitButtonSelectionStateController extends ButtonSelection
             ActivityTaskManager.RootTaskInfo validTaskInfo) {
         return validTaskInfo.topActivity;
     }
+
+    @Override
+    protected void addAllButtonsWithSelectionState(View v) {
+        if (v instanceof CarUiPortraitAppGridButton) {
+            mAppGridButton = (CarUiPortraitAppGridButton) v;
+        } else if (v instanceof CarUiPortraitNotificationButton) {
+            mNotificationButton = (CarUiPortraitNotificationButton) v;
+        } else {
+            super.addAllButtonsWithSelectionState(v);
+        }
+    }
+
+    /** Updates the selected state (for AppGrid activity) of the app grid button */
+    void setAppGridButtonSelected(boolean isSelected) {
+        if (mAppGridButton != null) {
+            mAppGridButton.setSelected(isSelected);
+        }
+    }
+
+    /** Updates the selected state (for Recents activity) of the app grid button */
+    void setRecentsButtonSelected(boolean isSelected) {
+        // no-op
+    }
+
+    /** Updates the selected state of the notification button */
+    void setNotificationButtonSelected(boolean isSelected) {
+        if (mNotificationButton != null) {
+            mNotificationButton.setSelected(isSelected);
+        }
+    }
+
 }

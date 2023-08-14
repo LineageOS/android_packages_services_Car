@@ -16,8 +16,7 @@
 
 package com.android.car.audio;
 
-import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
-
+import android.car.media.CarVolumeGroupEvent;
 import android.car.media.CarVolumeGroupInfo;
 import android.media.AudioAttributes;
 
@@ -32,13 +31,13 @@ final class CarVolumeInfoWrapper {
                 "Car Audio Service Can not be null");
     }
 
-    public int getSuggestedAudioContextForPrimaryZone() {
-        return mCarAudioService.getSuggestedAudioContextForPrimaryZone();
+    public int getSuggestedAudioContextForZone(int zoneId) {
+        return mCarAudioService.getSuggestedAudioContextForZone(zoneId);
     }
 
     public int getVolumeGroupIdForAudioZone(int zoneId) {
         return mCarAudioService.getVolumeGroupIdForAudioContext(zoneId,
-                getSuggestedAudioContextForPrimaryZone());
+                getSuggestedAudioContextForZone(zoneId));
     }
 
     public int getGroupVolume(int zoneId, int groupId) {
@@ -55,18 +54,6 @@ final class CarVolumeInfoWrapper {
 
     public boolean isVolumeGroupMuted(int zoneId, int groupId) {
         return mCarAudioService.isVolumeGroupMuted(zoneId, groupId);
-    }
-
-    public void setGroupVolume(int zoneId, int groupId, int minValue, int flags) {
-        mCarAudioService.setGroupVolume(zoneId, groupId, minValue, flags);
-    }
-
-    public void setVolumeGroupMute(int zoneId, int groupId, boolean mute, int flags) {
-        mCarAudioService.setVolumeGroupMute(zoneId, groupId, mute, flags);
-    }
-
-    public void setMasterMute(boolean mute, int flags) {
-        mCarAudioService.setMasterMute(mute, flags);
     }
 
     public List<CarVolumeGroupInfo> getMutedVolumeGroups(int zoneId) {
@@ -93,12 +80,11 @@ final class CarVolumeInfoWrapper {
         return mCarAudioService.getCallStateForZone(zoneId);
     }
 
-    public List<AudioAttributes> getActiveAudioAttributesForAudioZone(int zoneId) {
-        return mCarAudioService.getActiveAudioAttributesForZone(zoneId);
+    public void onAudioVolumeGroupChanged(int zoneId, String groupName, int flags) {
+        mCarAudioService.onAudioVolumeGroupChanged(zoneId, groupName, flags);
     }
 
-    public int getVolumeGroupIdForPrimaryZone() {
-        return mCarAudioService.getVolumeGroupIdForAudioContext(PRIMARY_AUDIO_ZONE,
-                getSuggestedAudioContextForPrimaryZone());
+    public void onVolumeGroupEvent(List<CarVolumeGroupEvent> events) {
+        mCarAudioService.onVolumeGroupEvent(events);
     }
 }

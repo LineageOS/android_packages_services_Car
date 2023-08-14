@@ -34,7 +34,7 @@ import java.util.Objects;
  *
  * <p>This class is needed because the standard Android SDK API versioning only supports major
  * releases, but {@code Car} APIs can now (starting on
- * {@link android.os.Build.Build.VERSION_CODES#TIRAMISU Android 13}) be updated on minor releases
+ * {@link android.os.Build.VERSION_CODES#TIRAMISU Android 13}) be updated on minor releases
  * as well.
  *
  * @param <T> implementation type
@@ -122,25 +122,19 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
      * @hide
      */
     @Override
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         @SuppressWarnings("unchecked")
         ApiVersion<T> other = (ApiVersion<T>) obj;
-        if (mMajorVersion != other.mMajorVersion) return false;
-        if (mMinorVersion != other.mMinorVersion) return false;
-        return true;
+        return (mMajorVersion == other.mMajorVersion) && (mMinorVersion == other.mMinorVersion);
     }
 
     /**
      * @hide
      */
     @Override
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     public int hashCode() {
         int prime = 31;
         int result = 1;
@@ -154,8 +148,6 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
      */
     @Override
     @NonNull
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     public final String toString() {
         StringBuilder builder = new StringBuilder(getClass().getSimpleName()).append('[');
         if (!TextUtils.isEmpty(mVersionName)) {
@@ -194,9 +186,9 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
     /**
      * @hide
      */
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     interface ApiVersionFactory<T extends ApiVersion<?>> {
+        @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
+                minPlatformVersion = PlatformVersion.TIRAMISU_0)
         T newInstance(String name, int major, int minor);
     }
 }
