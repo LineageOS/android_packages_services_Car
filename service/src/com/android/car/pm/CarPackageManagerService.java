@@ -1630,7 +1630,8 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             int displayId, String blockedActivity, int blockedTaskId, String taskRootActivity,
             boolean isRootDo) {
         Intent newActivityIntent = new Intent();
-        newActivityIntent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+        newActivityIntent.setFlags(
+                Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         newActivityIntent.setComponent(blockingActivity);
         newActivityIntent.putExtra(
                 BLOCKING_INTENT_EXTRA_DISPLAY_ID, displayId);
