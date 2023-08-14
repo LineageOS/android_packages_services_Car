@@ -152,19 +152,6 @@ public final class CarServiceHelperWrapper {
     /**
      * See {@code ICarServiceHelper}.
      */
-    public void setSourcePreferredComponents(
-            boolean enableSourcePreferred, List<ComponentName> sourcePreferredComponents) {
-        try {
-            waitForCarServiceHelper().setSourcePreferredComponents(enableSourcePreferred,
-                    sourcePreferredComponents);
-        } catch (RemoteException e) {
-            Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
-        }
-    }
-
-    /**
-     * See {@code ICarServiceHelper}.
-     */
     public void setSafetyMode(boolean safe) {
         try {
             waitForCarServiceHelper().setSafetyMode(safe);
