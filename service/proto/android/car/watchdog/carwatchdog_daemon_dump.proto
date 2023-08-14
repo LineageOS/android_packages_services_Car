@@ -70,5 +70,4 @@ message VhalHealthCheckInfo {
   optional CachingProgressState pid_caching_progress_state = 5;
   optional int32 pid = 6;
   optional int64 start_time_millis = 7;
-  optional HealthCheckTimeout health_check_timeout = 8;
 }

@@ -28,6 +28,7 @@
 #include <android-base/result.h>
 #include <android/binder_auto_utils.h>
 #include <android/hidl/manager/1.0/IServiceManager.h>
+#include <android/util/ProtoOutputStream.h>
 #include <cutils/multiuser.h>
 #include <utils/Looper.h>
 #include <utils/Mutex.h>
@@ -62,6 +63,7 @@ public:
     virtual android::base::Result<void> start() = 0;
     virtual void terminate() = 0;
     virtual void onDump(int fd) = 0;
+    virtual void onDumpProto(util::ProtoOutputStream& proto) = 0;
     virtual void doHealthCheck(int what) = 0;
     virtual void handleBinderDeath(void* cookie) = 0;
     virtual ndk::ScopedAStatus registerClient(
@@ -119,6 +121,7 @@ public:
     android::base::Result<void> start() override;
     void terminate() override;
     void onDump(int fd) override;
+    void onDumpProto(util::ProtoOutputStream& proto) override;
     void doHealthCheck(int what) override;
     void handleBinderDeath(void* cookie) override;
     ndk::ScopedAStatus registerClient(
