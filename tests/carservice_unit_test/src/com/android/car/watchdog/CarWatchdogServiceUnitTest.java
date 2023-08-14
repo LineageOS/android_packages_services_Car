@@ -103,6 +103,7 @@ import android.car.watchdog.CarWatchdogManager;
 import android.car.watchdog.ICarWatchdogServiceCallback;
 import android.car.watchdog.IResourceOveruseListener;
 import android.car.watchdog.ResourceOveruseConfiguration;
+import android.car.watchdoglib.CarWatchdogDaemonHelper;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -160,8 +161,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
 /**
@@ -200,6 +199,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Mock private ICarServiceHelper.Stub mMockCarServiceHelper;
     @Mock private WatchdogProcessHandler mMockWatchdogProcessHandler;
     @Mock private WatchdogPerfHandler mMockWatchdogPerfHandler;
+    @Mock private CarWatchdogDaemonHelper mMockCarWatchdogDaemonHelper;
 
     @Captor private ArgumentCaptor<ICarPowerStateListener> mICarPowerStateListenerCaptor;
     @Captor private ArgumentCaptor<ICarPowerPolicyListener> mICarPowerPolicyListenerCaptor;
@@ -207,19 +207,20 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Captor private ArgumentCaptor<IntentFilter> mIntentFilterCaptor;
     @Captor private ArgumentCaptor<CarUserManager.UserLifecycleListener>
             mUserLifecycleListenerCaptor;
-    @Captor private ArgumentCaptor<IBinder.DeathRecipient> mDeathRecipientCaptor;
     @Captor private ArgumentCaptor<ICarWatchdogServiceForSystem>
             mICarWatchdogServiceForSystemCaptor;
+    @Captor
+    private ArgumentCaptor<CarWatchdogDaemonHelper.OnConnectionChangeListener>
+            mOnConnectionChangeListenerArgumentCaptor;
 
     private CarWatchdogService mCarWatchdogService;
     private ICarWatchdogServiceForSystem mWatchdogServiceForSystemImpl;
-    private IBinder.DeathRecipient mCarWatchdogDaemonBinderDeathRecipient;
     private WatchdogStorage mSpiedWatchdogStorage;
     private BroadcastReceiver mBroadcastReceiver;
-    private boolean mIsDaemonCrashed;
     private ICarPowerStateListener mCarPowerStateListener;
     private ICarPowerPolicyListener mCarPowerPolicyListener;
     private CarUserManager.UserLifecycleListener mUserLifecycleListener;
+    private CarWatchdogDaemonHelper.OnConnectionChangeListener mOnConnectionChangeListener;
     private File mTempSystemCarDir;
     // Not used directly, but sets proper mockStatic() expectations on Settings
     @SuppressWarnings("UnusedVariable")
@@ -321,7 +322,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         mTimeSource));
 
         setupUsers();
-        mockWatchdogDaemon();
         mockWatchdogStorage();
         mockPackageManager();
         mockBuildStatsEventCalls();
@@ -331,6 +331,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         mCarWatchdogService = new CarWatchdogService(mMockContext, mMockBuiltinPackageContext,
                 mSpiedWatchdogStorage, mTimeSource, mMockWatchdogProcessHandler,
                 mMockWatchdogPerfHandler);
+        mCarWatchdogService.setCarWatchdogDaemonHelper(mMockCarWatchdogDaemonHelper);
         initService(/* wantedInvocations= */ 1);
     }
 
@@ -339,14 +340,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
      */
     @After
     public void tearDown() throws Exception {
-        if (mIsDaemonCrashed) {
-            /* Note: On daemon crash, CarWatchdogService retries daemon connection on the main
-             * thread. This retry outlives the test and impacts other test runs. Thus always call
-             * restartWatchdogDaemonAndAwait after crashing the daemon and before completing
-             * teardown.
-             */
-            restartWatchdogDaemonAndAwait();
-        }
         if (mTempSystemCarDir != null) {
             FileUtils.deleteContentsAndDir(mTempSystemCarDir);
         }
@@ -404,7 +397,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 new Intent().setAction(ACTION_GARAGE_MODE_ON));
 
         verify(mMockWatchdogPerfHandler).onGarageModeChange(GarageMode.GARAGE_MODE_ON);
-        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.GARAGE_MODE,
+        verify(mMockCarWatchdogDaemonHelper).notifySystemStateChange(StateType.GARAGE_MODE,
                 GarageMode.GARAGE_MODE_ON, MISSING_ARG_VALUE);
         verify(mSpiedWatchdogStorage).shrinkDatabase();
     }
@@ -417,32 +410,35 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         // GARAGE_MODE_OFF is notified twice: Once during the initial daemon connect and once when
         // the ACTION_GARAGE_MODE_OFF intent is received.
         verify(mMockWatchdogPerfHandler).onGarageModeChange(GarageMode.GARAGE_MODE_OFF);
-        verify(mMockCarWatchdogDaemon, times(2)).notifySystemStateChange(StateType.GARAGE_MODE,
+        verify(mMockCarWatchdogDaemonHelper, times(2)).notifySystemStateChange(
+                StateType.GARAGE_MODE,
                 GarageMode.GARAGE_MODE_OFF, MISSING_ARG_VALUE);
         verify(mSpiedWatchdogStorage, never()).shrinkDatabase();
     }
 
     @Test
     public void testWatchdogDaemonRestart() throws Exception {
-        crashWatchdogDaemon();
-
         mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ false, 101, 102);
         mockUmIsUserRunning(mMockUserManager, /* userId= */ 101, /* isRunning= */ false);
         mockUmIsUserRunning(mMockUserManager, /* userId= */ 102, /* isRunning= */ true);
-        setCarPowerState(CarPowerManager.STATE_SHUTDOWN_ENTER);
+        when(mMockCarPowerManagementService.getPowerState()).thenReturn(
+                CarPowerManager.STATE_SHUTDOWN_ENTER);
         mBroadcastReceiver.onReceive(mMockContext,
                 new Intent().setAction(ACTION_GARAGE_MODE_ON));
 
-        restartWatchdogDaemonAndAwait();
+        // Simulate WatchdogDaemon reconnecting after restarting.
+        mOnConnectionChangeListener.onConnectionChange(/* isConnected= */ true);
 
-        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.USER_STATE, 101,
+        verify(mMockCarWatchdogDaemonHelper).notifySystemStateChange(StateType.USER_STATE, 101,
                 UserState.USER_STATE_STOPPED);
-        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.USER_STATE, 102,
+        verify(mMockCarWatchdogDaemonHelper).notifySystemStateChange(StateType.USER_STATE, 102,
                 UserState.USER_STATE_STARTED);
-        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+        verify(mMockCarWatchdogDaemonHelper).notifySystemStateChange(StateType.POWER_CYCLE,
                 PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, MISSING_ARG_VALUE);
-        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.GARAGE_MODE,
-                GarageMode.GARAGE_MODE_ON, MISSING_ARG_VALUE);
+        // notifySystemStateChange is called once when ACTION_GARAGE_MODE_ON is set in the
+        // BroadcastReceiver and again when onConnectionChange is called.
+        verify(mMockCarWatchdogDaemonHelper, times(2)).notifySystemStateChange(
+                StateType.GARAGE_MODE, GarageMode.GARAGE_MODE_ON, MISSING_ARG_VALUE);
     }
 
     @Test
@@ -456,11 +452,11 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 new CarUserManager.UserLifecycleEvent(
                         USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED, 101));
 
-        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.USER_STATE, 101,
+        verify(mMockCarWatchdogDaemonHelper).notifySystemStateChange(StateType.USER_STATE, 101,
                 UserState.USER_STATE_SWITCHING);
-        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.USER_STATE, 101,
+        verify(mMockCarWatchdogDaemonHelper).notifySystemStateChange(StateType.USER_STATE, 101,
                 UserState.USER_STATE_UNLOCKING);
-        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.USER_STATE, 101,
+        verify(mMockCarWatchdogDaemonHelper).notifySystemStateChange(StateType.USER_STATE, 101,
                 UserState.USER_STATE_POST_UNLOCKED);
     }
 
@@ -470,7 +466,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 new Intent().setAction(Intent.ACTION_USER_REMOVED)
                         .putExtra(Intent.EXTRA_USER, TEST_USER_HANDLE));
 
-        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.USER_STATE, 100,
+        verify(mMockCarWatchdogDaemonHelper).notifySystemStateChange(StateType.USER_STATE, 100,
                 UserState.USER_STATE_REMOVED);
         verify(mMockWatchdogPerfHandler).deleteUser(eq(100));
     }
@@ -481,11 +477,11 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         setCarPowerState(CarPowerManager.STATE_SUSPEND_EXIT);
         setCarPowerState(CarPowerManager.STATE_ON);
 
-        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+        verify(mMockCarWatchdogDaemonHelper).notifySystemStateChange(StateType.POWER_CYCLE,
                 PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, MISSING_ARG_VALUE);
-        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+        verify(mMockCarWatchdogDaemonHelper).notifySystemStateChange(StateType.POWER_CYCLE,
                 PowerCycle.POWER_CYCLE_SUSPEND_EXIT, MISSING_ARG_VALUE);
-        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+        verify(mMockCarWatchdogDaemonHelper).notifySystemStateChange(StateType.POWER_CYCLE,
                 PowerCycle.POWER_CYCLE_RESUME, MISSING_ARG_VALUE);
     }
 
@@ -495,11 +491,11 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         setCarPowerState(CarPowerManager.STATE_HIBERNATION_EXIT);
         setCarPowerState(CarPowerManager.STATE_ON);
 
-        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+        verify(mMockCarWatchdogDaemonHelper).notifySystemStateChange(StateType.POWER_CYCLE,
                 PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, MISSING_ARG_VALUE);
-        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+        verify(mMockCarWatchdogDaemonHelper).notifySystemStateChange(StateType.POWER_CYCLE,
                 PowerCycle.POWER_CYCLE_SUSPEND_EXIT, MISSING_ARG_VALUE);
-        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+        verify(mMockCarWatchdogDaemonHelper).notifySystemStateChange(StateType.POWER_CYCLE,
                 PowerCycle.POWER_CYCLE_RESUME, MISSING_ARG_VALUE);
     }
 
@@ -508,7 +504,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         mBroadcastReceiver.onReceive(mMockContext,
                 new Intent().setAction(Intent.ACTION_REBOOT)
                         .setFlags(Intent.FLAG_RECEIVER_FOREGROUND));
-        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+        verify(mMockCarWatchdogDaemonHelper).notifySystemStateChange(StateType.POWER_CYCLE,
                 PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, /* arg2= */ 0);
     }
 
@@ -517,7 +513,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         mBroadcastReceiver.onReceive(mMockContext,
                 new Intent().setAction(Intent.ACTION_SHUTDOWN)
                         .setFlags(Intent.FLAG_RECEIVER_FOREGROUND));
-        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+        verify(mMockCarWatchdogDaemonHelper).notifySystemStateChange(StateType.POWER_CYCLE,
                 PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, /* arg2= */ 0);
     }
 
@@ -525,7 +521,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     public void testDeviceShutdownBroadcastWithoutFlagReceiverForeground() throws Exception {
         mBroadcastReceiver.onReceive(mMockContext,
                 new Intent().setAction(Intent.ACTION_SHUTDOWN));
-        verify(mMockCarWatchdogDaemon, never()).notifySystemStateChange(StateType.POWER_CYCLE,
+        verify(mMockCarWatchdogDaemonHelper, never()).notifySystemStateChange(StateType.POWER_CYCLE,
                 PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, /* arg2= */ 0);
     }
 
@@ -1109,7 +1105,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 mICarPowerPolicyListenerCaptor.capture());
         verify(mMockWatchdogPerfHandler).release();
         verify(mSpiedWatchdogStorage).release();
-        verify(mMockCarWatchdogDaemon).unregisterCarWatchdogService(
+        verify(mMockCarWatchdogDaemonHelper).unregisterCarWatchdogService(
                 mICarWatchdogServiceForSystemCaptor.capture());
     }
 
@@ -1121,16 +1117,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         perStateBytes.backgroundBytes = bgBytes;
         perStateBytes.garageModeBytes = gmBytes;
         return perStateBytes;
-    }
-
-    private void mockWatchdogDaemon() throws Exception {
-        when(mMockBinder.queryLocalInterface(anyString())).thenReturn(mMockCarWatchdogDaemon);
-        when(mMockCarWatchdogDaemon.asBinder()).thenReturn(mMockBinder);
-        doReturn(mMockBinder).when(
-                () -> ServiceManager.checkService(CAR_WATCHDOG_DAEMON_INTERFACE));
-        when(mMockCarWatchdogDaemon.getResourceOveruseConfigurations()).thenReturn(
-                sampleInternalResourceOveruseConfigurations());
-        mIsDaemonCrashed = false;
     }
 
     private void mockWatchdogStorage() {
@@ -1244,20 +1230,18 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             CarServiceUtils.runOnMainSync(() -> {});
         }
 
-        verify(mMockCarWatchdogDaemon, atLeastOnce()).asBinder();
+        verify(mMockCarWatchdogDaemonHelper).addOnConnectionChangeListener(
+                mOnConnectionChangeListenerArgumentCaptor.capture());
+        mOnConnectionChangeListener = mOnConnectionChangeListenerArgumentCaptor.getValue();
+        mOnConnectionChangeListener.onConnectionChange(/* isConnected= */ true);
 
-        verify(mMockBinder, atLeastOnce()).linkToDeath(mDeathRecipientCaptor.capture(), anyInt());
-        mCarWatchdogDaemonBinderDeathRecipient = mDeathRecipientCaptor.getValue();
-        assertWithMessage("Watchdog daemon binder death recipient")
-                .that(mCarWatchdogDaemonBinderDeathRecipient).isNotNull();
-
-        verify(mMockCarWatchdogDaemon, atLeastOnce()).registerCarWatchdogService(
+        verify(mMockCarWatchdogDaemonHelper, atLeastOnce()).registerCarWatchdogService(
                 mICarWatchdogServiceForSystemCaptor.capture());
         mWatchdogServiceForSystemImpl = mICarWatchdogServiceForSystemCaptor.getValue();
         assertWithMessage("Car watchdog service for system")
                 .that(mWatchdogServiceForSystemImpl).isNotNull();
 
-        verify(mMockCarWatchdogDaemon, atLeastOnce()).notifySystemStateChange(
+        verify(mMockCarWatchdogDaemonHelper, atLeastOnce()).notifySystemStateChange(
                 StateType.GARAGE_MODE, GarageMode.GARAGE_MODE_OFF, MISSING_ARG_VALUE);
     }
 
@@ -1403,25 +1387,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private void setCarPowerState(int powerState) throws Exception {
         when(mMockCarPowerManagementService.getPowerState()).thenReturn(powerState);
         mCarPowerStateListener.onStateChanged(powerState, /* timeoutMs= */ -1);
-    }
-
-    private void crashWatchdogDaemon() {
-        doReturn(null).when(() -> ServiceManager.checkService(CAR_WATCHDOG_DAEMON_INTERFACE));
-        mCarWatchdogDaemonBinderDeathRecipient.binderDied();
-        mIsDaemonCrashed = true;
-    }
-
-    private void restartWatchdogDaemonAndAwait() throws Exception {
-        CountDownLatch latch = new CountDownLatch(1);
-        doAnswer(args -> {
-            latch.countDown();
-            return null;
-        }).when(mMockCarWatchdogDaemon)
-                .notifySystemStateChange(eq(StateType.GARAGE_MODE), anyInt(), anyInt());
-        mockWatchdogDaemon();
-        // Wait for CarWatchdogService's onConnectionChange to handle when connection is true
-        latch.await(MAX_WAIT_TIME_MS, TimeUnit.MILLISECONDS);
-        captureAndVerifyRegistrationWithDaemon(/* waitOnMain= */ false);
     }
 
     private void injectPackageInfos(List<android.content.pm.PackageInfo> packageInfos) {
