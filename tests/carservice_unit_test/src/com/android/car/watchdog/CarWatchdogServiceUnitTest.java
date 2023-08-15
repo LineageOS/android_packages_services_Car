@@ -126,8 +126,6 @@ import android.util.ArraySet;
 import android.util.SparseArray;
 import android.util.StatsEvent;
 
-import androidx.test.filters.FlakyTest;
-
 import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceHelperWrapper;
@@ -425,7 +423,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     @Test
-    @FlakyTest(bugId = 294137799)
     public void testWatchdogDaemonRestart() throws Exception {
         crashWatchdogDaemon();
 
@@ -1419,8 +1416,10 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         doAnswer(args -> {
             latch.countDown();
             return null;
-        }).when(mMockBinder).linkToDeath(any(), anyInt());
+        }).when(mMockCarWatchdogDaemon)
+                .notifySystemStateChange(eq(StateType.GARAGE_MODE), anyInt(), anyInt());
         mockWatchdogDaemon();
+        // Wait for CarWatchdogService's onConnectionChange to handle when connection is true
         latch.await(MAX_WAIT_TIME_MS, TimeUnit.MILLISECONDS);
         captureAndVerifyRegistrationWithDaemon(/* waitOnMain= */ false);
     }
