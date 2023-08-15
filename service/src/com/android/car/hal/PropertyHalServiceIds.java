@@ -59,6 +59,7 @@ import android.hardware.automotive.vehicle.VehicleLightSwitch;
 import android.hardware.automotive.vehicle.VehicleOilLevel;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyGroup;
+import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.hardware.automotive.vehicle.VehicleSeatOccupancyState;
 import android.hardware.automotive.vehicle.VehicleTurnSignal;
@@ -1123,6 +1124,9 @@ public class PropertyHalServiceIds {
         // Mixed property uses config array to indicate the data format. Checked it when convert it
         // to CarPropertyValue.
         if ((propId & VehiclePropertyType.MASK) == VehiclePropertyType.MIXED) {
+            return true;
+        }
+        if (propValue.getStatus() != VehiclePropertyStatus.AVAILABLE) {
             return true;
         }
         if (!checkFormatForAllProperties(propValue)) {

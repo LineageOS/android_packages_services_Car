@@ -751,20 +751,6 @@ public class PropertyHalService extends HalServiceBase {
         return MGR_PROP_ID_TO_HAL_PROP_ID.getKey(halPropId, halPropId);
     }
 
-    private static void checkHalPropValueStatus(HalPropValue halPropValue, int mgrPropId,
-            int areaId) {
-        if (halPropValue.getStatus() == VehiclePropertyStatus.UNAVAILABLE) {
-            throw new ServiceSpecificException(STATUS_NOT_AVAILABLE,
-                    "VHAL returned property status as UNAVAILABLE for property: "
-                    + VehiclePropertyIds.toString(mgrPropId) + ", areaId: " + areaId);
-        }
-        if (halPropValue.getStatus() == VehiclePropertyStatus.ERROR) {
-            throw new ServiceSpecificException(STATUS_INTERNAL_ERROR,
-                    "VHAL returned property status as ERROR for property: "
-                    + VehiclePropertyIds.toString(mgrPropId) + ", areaId: " + areaId);
-        }
-    }
-
     /**
      * Maybe finish the pending set value request depending on the updated value.
      *
@@ -980,7 +966,7 @@ public class PropertyHalService extends HalServiceBase {
         synchronized (mLock) {
             halPropConfig = mHalPropIdToPropConfig.get(halPropId);
         }
-        checkHalPropValueStatus(halPropValue, mgrPropId, areaId);
+        halPropValue = mVehicleHal.get(halPropId, areaId);
         try {
             return halPropValue.toCarPropertyValue(mgrPropId, halPropConfig);
         } catch (IllegalStateException e) {
@@ -1326,9 +1312,9 @@ public class PropertyHalService extends HalServiceBase {
                     continue;
                 }
                 int mgrPropId = halToManagerPropId(halPropId);
-                if (halPropValue.getStatus() != VehiclePropertyStatus.AVAILABLE) {
-                    Slogf.w(TAG, "Drop event %s with status that is not AVAILABLE", halPropValue);
-                    continue;
+                if (DBG && halPropValue.getStatus() != VehiclePropertyStatus.AVAILABLE) {
+                    Slogf.d(TAG, "Received event %s with status that is not AVAILABLE",
+                            halPropValue);
                 }
                 try {
                     CarPropertyValue<?> carPropertyValue = halPropValue.toCarPropertyValue(
