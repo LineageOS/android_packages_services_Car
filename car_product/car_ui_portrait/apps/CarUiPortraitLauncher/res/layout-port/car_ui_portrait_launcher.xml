@@ -36,7 +36,6 @@
         android:id="@+id/control_bar_area"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@*android:dimen/navigation_bar_height"
         android:paddingTop="@dimen/car_panel_border_width"
         android:background="@drawable/control_bar_background"
         android:layout_gravity="bottom"
