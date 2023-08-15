@@ -1032,37 +1032,43 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         assertThat(mManager.registerCallback(callback, VehiclePropertyIds.TIRE_PRESSURE, 1f))
                 .isTrue();
 
+        long currentElapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos();
         // inject events in time order from newest to oldest
         getAidlMockedVehicleHal().injectEvent(
                 newTirePressureVehiclePropValue(VehicleAreaWheel.WHEEL_LEFT_FRONT,
-                        wheelLeftFrontValue, wheelLeftFrontTimestampNanos));
+                        wheelLeftFrontValue,
+                        currentElapsedRealtimeNanos + wheelLeftFrontTimestampNanos));
         getAidlMockedVehicleHal().injectEvent(
                 newTirePressureVehiclePropValue(VehicleAreaWheel.WHEEL_RIGHT_FRONT,
-                        wheelRightFrontValue, wheelRightFrontTimestampNanos));
+                        wheelRightFrontValue,
+                        currentElapsedRealtimeNanos + wheelRightFrontTimestampNanos));
         getAidlMockedVehicleHal().injectEvent(
                 newTirePressureVehiclePropValue(VehicleAreaWheel.WHEEL_LEFT_REAR,
-                        wheelLeftRearValue, wheelLeftRearTimestampNanos));
+                        wheelLeftRearValue,
+                        currentElapsedRealtimeNanos + wheelLeftRearTimestampNanos));
         getAidlMockedVehicleHal().injectEvent(
                 newTirePressureVehiclePropValue(VehicleAreaWheel.WHEEL_RIGHT_REAR,
-                        wheelRightRearValue, wheelRightRearTimestampNanos));
+                        wheelRightRearValue,
+                        currentElapsedRealtimeNanos + wheelRightRearTimestampNanos));
 
         List<CarPropertyValue> carPropertyValues = callback.waitAndGetChangeEvents();
         assertThat(carPropertyValues).hasSize(4);
 
         assertTirePressureCarPropertyValue(carPropertyValues.get(0),
                 VehicleAreaWheel.WHEEL_LEFT_FRONT, wheelLeftFrontValue,
-                wheelLeftFrontTimestampNanos);
+                currentElapsedRealtimeNanos + wheelLeftFrontTimestampNanos);
 
         assertTirePressureCarPropertyValue(carPropertyValues.get(1),
                 VehicleAreaWheel.WHEEL_RIGHT_FRONT, wheelRightFrontValue,
-                wheelRightFrontTimestampNanos);
+                currentElapsedRealtimeNanos + wheelRightFrontTimestampNanos);
 
         assertTirePressureCarPropertyValue(carPropertyValues.get(2),
-                VehicleAreaWheel.WHEEL_LEFT_REAR, wheelLeftRearValue, wheelLeftRearTimestampNanos);
+                VehicleAreaWheel.WHEEL_LEFT_REAR, wheelLeftRearValue,
+                currentElapsedRealtimeNanos + wheelLeftRearTimestampNanos);
 
         assertTirePressureCarPropertyValue(carPropertyValues.get(3),
                 VehicleAreaWheel.WHEEL_RIGHT_REAR, wheelRightRearValue,
-                wheelRightRearTimestampNanos);
+                currentElapsedRealtimeNanos + wheelRightRearTimestampNanos);
     }
 
     @Test
