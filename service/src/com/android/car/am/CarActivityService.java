@@ -38,7 +38,6 @@ import android.car.app.ICarSystemUIProxy;
 import android.car.app.ICarSystemUIProxyCallback;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.app.TaskInfoHelper;
-import android.car.builtin.content.ContextHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.SurfaceControlHelper;
@@ -672,8 +671,10 @@ public final class CarActivityService extends ICarActivityService.Stub
 
         ActivityOptions options = ActivityOptions.makeBasic();
         options.setLaunchDisplayId(displayId);
-        ContextHelper.startActivityAsUser(mContext, newActivityIntent, options.toBundle(),
-                UserHandle.of(TaskInfoHelper.getUserId(currentTask)));
+        // Starts ABA as User 0 consistenly since the target apps can be any users (User 0 -
+        // UserPicker, Driver/Passegners - general NDO apps) and launching ABA as passengers
+        // have some issue (b/294447050).
+        mContext.startActivity(newActivityIntent, options.toBundle());
         // Now make stack with new activity focused.
         findTaskAndGrantFocus(newActivityIntent.getComponent());
     }
