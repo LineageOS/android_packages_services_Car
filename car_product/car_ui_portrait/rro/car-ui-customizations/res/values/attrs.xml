@@ -75,4 +75,9 @@
         <enum name="spread_inside" value="1"/>
         <enum name="packed" value="2"/>
     </attr>
+    <attr name="layout_constraintVertical_chainStyle" format="enum">
+        <enum name="spread" value="0"/>
+        <enum name="spread_inside" value="1"/>
+        <enum name="packed" value="2"/>
+    </attr>
 </resources>

@@ -26,7 +26,7 @@
     android:minHeight="@dimen/car_portrait_ui_tab_height"
     android:tag="carUiPreference">
 
-    <ImageView
+    <com.android.car.ui.uxr.DrawableStateImageView
         android:id="@android:id/icon"
         android:layout_width="44dp"
         android:layout_height="44dp"
