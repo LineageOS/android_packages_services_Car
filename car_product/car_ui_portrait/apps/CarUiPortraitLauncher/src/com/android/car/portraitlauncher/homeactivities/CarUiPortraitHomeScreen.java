@@ -278,6 +278,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 return;
             }
 
+            adjustFullscreenSpacing(mTaskCategoryManager.isFullScreenActivity(taskInfo));
+
             mIsNotificationCenterOnTop = mTaskCategoryManager.isNotificationActivity(taskInfo);
             mIsRecentsOnTop = mTaskCategoryManager.isRecentsActivity(taskInfo);
             mIsBlankActivityOnTop = mTaskCategoryManager.isBlankActivity(taskInfo);
@@ -345,6 +347,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 return;
             }
             mIsBlankActivityOnTop = mTaskCategoryManager.isBlankActivity(taskInfo);
+
+            adjustFullscreenSpacing(mTaskCategoryManager.isFullScreenActivity(taskInfo));
 
             if (mTaskCategoryManager.isBackgroundApp(taskInfo)
                     || mTaskCategoryManager.isBlankActivity(taskInfo)) {
@@ -498,6 +502,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 com.android.internal.R.dimen.navigation_bar_height);
         logIfDebuggable("Navbar height: " + mNavBarHeight);
         mContainer = findViewById(R.id.container);
+        setHomeScreenBottomPadding(mNavBarHeight);
         mContainer.addOnLayoutChangeListener(mHomeScreenLayoutChangeListener);
 
         mAppGridTaskViewPanel = findViewById(R.id.app_grid_panel);
@@ -693,6 +698,32 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 (FrameLayout.LayoutParams) mBackgroundTaskView.getLayoutParams();
         params.setMargins(/* left= */ 0, /* top= */ 0, /* right= */ 0, bottomMargin);
         mBackgroundTaskView.requestLayout();
+    }
+
+    private void setControlBarSpacerVisibility(boolean isVisible) {
+        if (mControlBarView == null) {
+            return;
+        }
+        FrameLayout.LayoutParams params =
+                (FrameLayout.LayoutParams) mControlBarView.getLayoutParams();
+        params.setMargins(/* left= */ 0, /* top= */ 0, /* right= */ 0,
+                isVisible ? mNavBarHeight : 0);
+        mControlBarView.requestLayout();
+    }
+
+    private void setHomeScreenBottomPadding(int bottomPadding) {
+        // Set padding instead of margin so the bottom area shows background of
+        // car_ui_portrait_launcher during immersive mode without nav bar, and panel states are
+        // calculated correctly.
+        mContainer.setPadding(/* left= */ 0, /* top= */ 0, /* right= */ 0, bottomPadding);
+    }
+
+    private void adjustFullscreenSpacing(boolean isFullscreen) {
+        logIfDebuggable(isFullscreen
+                ? "Adjusting screen spacing for fullscreen task view"
+                : "Adjusting screen spacing for non-fullscreen task views");
+        setControlBarSpacerVisibility(isFullscreen);
+        setHomeScreenBottomPadding(isFullscreen ? 0 : mNavBarHeight);
     }
 
     // TODO(b/275633095): Add test to verify the region is set correctly in each mode
@@ -952,8 +983,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     TaskViewPanel.State newState, boolean animated) {
                 boolean isFullScreen = newState.isFullScreen();
                 if (isFullScreen) {
-                    setBackgroundTaskViewBottomMargin(mNavBarHeight);
-
                     if (!mIsSUWInProgress) {
                         notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, boolToInt(isFullScreen));
                     }
@@ -987,14 +1016,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             public void onStateChangeEnd(TaskViewPanel.State oldState,
                     TaskViewPanel.State newState, boolean animated) {
                 updateObscuredTouchRegion();
-
                 // Hide the control bar after the animation if in full screen.
                 if (newState.isFullScreen()) {
                     setControlBarVisibility(/* isVisible= */ false, animated);
                 } else {
-                    // Adjust the bottom margin to count for the nav bar.
-                    setBackgroundTaskViewBottomMargin(/* bottomMargin= */ 0);
-
                     // Update the background task view insets to make sure their content is not
                     // covered with our panels. We only need to do this when we are not in
                     // fullscreen.
