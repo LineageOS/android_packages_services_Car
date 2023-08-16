@@ -157,9 +157,9 @@ message PerformanceDump {
 
   enum ApplicationCategory {
     APPLICATION_CATEGORY_UNSPECIFIED = 0;
-    MAPS = 1;
-    MEDIA = 2;
-    OTHERS = 3;
+    OTHERS = 1;
+    MAPS = 2;
+    MEDIA = 3;
   }
 
   enum ComponentType {
