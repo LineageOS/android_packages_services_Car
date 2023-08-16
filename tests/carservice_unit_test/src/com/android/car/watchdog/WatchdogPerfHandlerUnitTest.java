@@ -344,6 +344,8 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         }
     }
 
+    //TODO(b/296123438): Add a test for testDumpProto
+
     @Test
     public void testAddResourceOveruseListenerThrowsWithInvalidFlag() throws Exception {
         IResourceOveruseListener mockListener = createMockResourceOveruseListener();
