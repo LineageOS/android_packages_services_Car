@@ -128,7 +128,7 @@ final class CarTaskViewControllerSupervisor {
         }
         hostActivity.registerObserver(mCarTaskViewControllerHostLifecycleObserver);
         ActivityHolder activityHolder = new ActivityHolder(context, hostActivity, callbackExecutor,
-                carTaskViewControllerCallback);
+                carTaskViewControllerCallback, mCarActivityService);
         mActivityHolders.put(hostActivity, activityHolder);
 
         if (mSystemUIProxyCallback != null && mICarSystemUI != null) {
@@ -192,18 +192,20 @@ final class CarTaskViewControllerSupervisor {
         private final CarTaskViewControllerHostLifecycle mActivity;
         private final Executor mCallbackExecutor;
         private final CarTaskViewControllerCallback mCarTaskViewControllerCallback;
+        private final ICarActivityService mCarActivityService;
 
         private CarTaskViewController mCarTaskViewController;
 
-        private ActivityHolder(
-                Context context,
+        private ActivityHolder(Context context,
                 CarTaskViewControllerHostLifecycle activity,
                 Executor callbackExecutor,
-                CarTaskViewControllerCallback carTaskViewControllerCallback) {
+                CarTaskViewControllerCallback carTaskViewControllerCallback,
+                ICarActivityService carActivityService) {
             mContext = context;
             mActivity = activity;
             mCallbackExecutor = callbackExecutor;
             mCarTaskViewControllerCallback = carTaskViewControllerCallback;
+            mCarActivityService = carActivityService;
         }
 
         private void showEmbeddedTasks() {
@@ -214,11 +216,11 @@ final class CarTaskViewControllerSupervisor {
         }
 
         private void onCarSystemUIConnected(ICarSystemUIProxy systemUIProxy) {
-            CarTaskViewController taskViewManager =
-                    new CarTaskViewController(mContext, mActivity, systemUIProxy);
-            mCarTaskViewController = taskViewManager;
+            mCarTaskViewController =
+                    new CarTaskViewController(mContext, mActivity, systemUIProxy,
+                            mCarActivityService);
             mCallbackExecutor.execute(() ->
-                    mCarTaskViewControllerCallback.onConnected(taskViewManager)
+                    mCarTaskViewControllerCallback.onConnected(mCarTaskViewController)
             );
         }
 
