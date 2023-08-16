@@ -15,5 +15,5 @@
   ~ limitations under the License.
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <color name="top_level_preference_text_color">@color/car_on_primary_container</color>
+    <color name="qc_default_icon_color">@color/car_on_surface_variant</color>
 </resources>

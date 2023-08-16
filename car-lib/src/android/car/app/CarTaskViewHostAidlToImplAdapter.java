@@ -45,6 +45,18 @@ final class CarTaskViewHostAidlToImplAdapter extends ICarTaskViewHost.Stub {
     }
 
     @Override
+    public void createRootTask(int displayId) {
+        mCarTaskViewHost.createRootTask(displayId);
+    }
+
+    @Override
+    public void createLaunchRootTask(int displayId, boolean embedHomeTask, boolean embedRecentsTask,
+            boolean embedAssistantTask) {
+        mCarTaskViewHost.createLaunchRootTask(displayId, embedHomeTask, embedRecentsTask,
+                embedAssistantTask);
+    }
+
+    @Override
     public void notifySurfaceCreated(SurfaceControl control) {
         mCarTaskViewHost.notifySurfaceCreated(control);
     }

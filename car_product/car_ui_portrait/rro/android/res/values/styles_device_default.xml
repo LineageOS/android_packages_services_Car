@@ -125,7 +125,6 @@
 
     <style name="Widget.DeviceDefault.TextView" parent="android:Widget.Material.TextView">
         <item name="android:ellipsize">none</item>
-        <item name="android:textSize">@*android:dimen/car_body1_size</item>
         <item name="android:requiresFadingEdge">horizontal</item>
         <item name="android:fadingEdgeLength">@*android:dimen/car_textview_fading_edge_length</item>
     </style>

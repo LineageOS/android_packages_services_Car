@@ -31,6 +31,9 @@ import android.view.SurfaceControl;
 oneway interface ICarTaskViewHost {
    void release();
    void startActivity(in PendingIntent pendingIntent, in Intent intent, in Bundle options, in Rect launchBounds);
+   void createRootTask(int displayId);
+   void createLaunchRootTask(int displayId, boolean embedHomeTask, boolean embedRecentsTask,
+     boolean embedAssistantTask);
    void notifySurfaceCreated(in SurfaceControl control);
    void setWindowBounds(in Rect bounds);
    void notifySurfaceDestroyed();
