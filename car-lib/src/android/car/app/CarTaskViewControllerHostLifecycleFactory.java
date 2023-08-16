@@ -20,7 +20,6 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.Activity;
 import android.app.Application;
-import android.car.annotation.ApiRequirements;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.os.Bundle;
 
@@ -40,8 +39,6 @@ public final class CarTaskViewControllerHostLifecycleFactory {
      * @param activity the activity which the {@link CarTaskViewControllerHostLifecycle} needs to
      *                 be created for.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     @NonNull
     public static CarTaskViewControllerHostLifecycle forActivity(@NonNull Activity activity) {
         return new CarTaskViewControllerHostActivityLifecycleAdapter(activity).getLifecycle();

@@ -23,16 +23,13 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import android.Manifest;
 import android.annotation.MainThread;
 import android.annotation.NonNull;
-import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.annotation.UiContext;
 import android.app.Activity;
 import android.car.Car;
-import android.car.annotation.ApiRequirements;
 import android.car.builtin.util.Slogf;
 import android.content.Context;
-import android.os.Build;
 import android.os.RemoteException;
 import android.os.UserManager;
 import android.util.Log;
@@ -47,7 +44,6 @@ import java.util.concurrent.Executor;
  * @hide
  */
 @SystemApi
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 public final class CarTaskViewController {
     private static final String TAG = CarTaskViewController.class.getSimpleName();
     static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
@@ -86,8 +82,6 @@ public final class CarTaskViewController {
      *                                            {@link ControlledRemoteCarTaskView} related
      *                                            events.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(allOf = {Manifest.permission.INJECT_EVENTS,
             Manifest.permission.INTERNAL_SYSTEM_WINDOW}, conditional = true)
     @MainThread
@@ -132,8 +126,6 @@ public final class CarTaskViewController {
      *                                      {@link RemoteCarRootTaskView} related events.
      * @hide
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)
     @MainThread
     public void createRemoteCarRootTaskView(
@@ -173,8 +165,6 @@ public final class CarTaskViewController {
      *                                             events.
      * @hide
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     @MainThread
     public void createRemoteCarDefaultRootTaskView(
             @NonNull RemoteCarDefaultRootTaskViewConfig remoteCarDefaultRootTaskViewConfig,
@@ -230,8 +220,6 @@ public final class CarTaskViewController {
      * {@link CarActivityManager#getCarTaskViewController(Activity, Executor,
      * CarTaskViewControllerCallback)}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
     public void release() {
         if (mReleased) {
@@ -258,8 +246,6 @@ public final class CarTaskViewController {
     /**
      * Brings all the embedded tasks to the front.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
     public void showEmbeddedTasks() {
         if (mReleased) {

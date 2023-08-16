@@ -15,7 +15,6 @@
  */
 package android.car;
 
-import android.car.annotation.AddedInOrBefore;
 
 /**
  * Used by Lights state properties to enumerate the current state of the lights.
@@ -29,11 +28,8 @@ import android.car.annotation.AddedInOrBefore;
  */
 @Deprecated
 public final class VehicleLightState {
-    @AddedInOrBefore(majorVersion = 33)
     public static final int OFF = 0;
-    @AddedInOrBefore(majorVersion = 33)
     public static final int ON = 1;
-    @AddedInOrBefore(majorVersion = 33)
     public static final int DAYTIME_RUNNING = 2;
 
     private VehicleLightState() {}

@@ -23,7 +23,6 @@ import static java.lang.Integer.toHexString;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.car.VehiclePropertyIds;
-import android.car.annotation.AddedInOrBefore;
 import android.car.builtin.os.ParcelHelper;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -66,19 +65,16 @@ public final class CarPropertyValue<T> implements Parcelable {
     /**
      * {@code CarPropertyValue} is available.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_AVAILABLE = 0;
 
     /**
      * {@code CarPropertyValue} is unavailable.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_UNAVAILABLE = 1;
 
     /**
      * {@code CarPropertyValue} has an error.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_ERROR = 2;
 
     /**
@@ -171,7 +167,6 @@ public final class CarPropertyValue<T> implements Parcelable {
         }
     }
 
-    @AddedInOrBefore(majorVersion = 33)
     public static final Creator<CarPropertyValue> CREATOR = new Creator<CarPropertyValue>() {
         @Override
         public CarPropertyValue createFromParcel(Parcel in) {
@@ -186,13 +181,11 @@ public final class CarPropertyValue<T> implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(mPropertyId);
         dest.writeInt(mAreaId);
@@ -216,7 +209,6 @@ public final class CarPropertyValue<T> implements Parcelable {
      * @return Property id of {@code CarPropertyValue}, must be one of enums in
      *   {@link android.car.VehiclePropertyIds}.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public int getPropertyId() {
         return mPropertyId;
     }
@@ -233,7 +225,6 @@ public final class CarPropertyValue<T> implements Parcelable {
      *   </ul>
      *   or 0 for global property.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public int getAreaId() {
         return mAreaId;
     }
@@ -241,7 +232,6 @@ public final class CarPropertyValue<T> implements Parcelable {
     /**
      * @return Status of {@code CarPropertyValue}
      */
-    @AddedInOrBefore(majorVersion = 33)
     public @PropertyStatus int getStatus() {
         return mStatus;
     }
@@ -255,7 +245,6 @@ public final class CarPropertyValue<T> implements Parcelable {
      * {@link android.location.Location} and {@link android.hardware.SensorEvent} instances).
      * Ideally, timestamp synchronization error should be below 1 millisecond.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public long getTimestamp() {
         return mTimestampNanos;
     }
@@ -269,7 +258,6 @@ public final class CarPropertyValue<T> implements Parcelable {
      * {@link #getValue()} is meaningless.
      */
     @NonNull
-    @AddedInOrBefore(majorVersion = 33)
     public T getValue() {
         return mValue;
     }

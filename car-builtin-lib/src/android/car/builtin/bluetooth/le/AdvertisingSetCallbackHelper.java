@@ -20,8 +20,6 @@ import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.bluetooth.le.AdvertisingSet;
 import android.bluetooth.le.AdvertisingSetCallback;
-import android.car.builtin.annotation.AddedIn;
-import android.car.builtin.annotation.PlatformVersion;
 
 /**
  * Provides access to {@code onOwnAddressRead} in
@@ -48,7 +46,6 @@ public final class AdvertisingSetCallbackHelper {
          * @param txPower tx power that will be used for this set.
          * @param status Status of the operation.
          */
-        @AddedIn(PlatformVersion.TIRAMISU_1)
         public void onAdvertisingSetStarted(AdvertisingSet advertisingSet, int txPower,
                 int status) {
         }
@@ -59,7 +56,6 @@ public final class AdvertisingSetCallbackHelper {
          *
          * @param advertisingSet The advertising set.
          */
-        @AddedIn(PlatformVersion.TIRAMISU_1)
         public void onAdvertisingSetStopped(AdvertisingSet advertisingSet) {
         }
 
@@ -71,7 +67,6 @@ public final class AdvertisingSetCallbackHelper {
          * @param advertisingSet The advertising set.
          * @param status Status of the operation.
          */
-        @AddedIn(PlatformVersion.TIRAMISU_1)
         public void onAdvertisingEnabled(AdvertisingSet advertisingSet, boolean enable,
                 int status) {
         }
@@ -83,7 +78,6 @@ public final class AdvertisingSetCallbackHelper {
          * @param advertisingSet The advertising set.
          * @param status Status of the operation.
          */
-        @AddedIn(PlatformVersion.TIRAMISU_1)
         public void onAdvertisingDataSet(AdvertisingSet advertisingSet, int status) {
         }
 
@@ -94,7 +88,6 @@ public final class AdvertisingSetCallbackHelper {
          * @param advertisingSet The advertising set.
          * @param status Status of the operation.
          */
-        @AddedIn(PlatformVersion.TIRAMISU_1)
         public void onScanResponseDataSet(AdvertisingSet advertisingSet, int status) {
         }
 
@@ -106,7 +99,6 @@ public final class AdvertisingSetCallbackHelper {
          * @param txPower tx power that will be used for this set.
          * @param status Status of the operation.
          */
-        @AddedIn(PlatformVersion.TIRAMISU_1)
         public void onAdvertisingParametersUpdated(AdvertisingSet advertisingSet,
                 int txPower, int status) {
         }
@@ -118,7 +110,6 @@ public final class AdvertisingSetCallbackHelper {
          * @param advertisingSet The advertising set.
          * @param status Status of the operation.
          */
-        @AddedIn(PlatformVersion.TIRAMISU_1)
         public void onPeriodicAdvertisingParametersUpdated(AdvertisingSet advertisingSet,
                 int status) {
         }
@@ -130,7 +121,6 @@ public final class AdvertisingSetCallbackHelper {
          * @param advertisingSet The advertising set.
          * @param status Status of the operation.
          */
-        @AddedIn(PlatformVersion.TIRAMISU_1)
         public void onPeriodicAdvertisingDataSet(AdvertisingSet advertisingSet,
                 int status) {
         }
@@ -142,7 +132,6 @@ public final class AdvertisingSetCallbackHelper {
          * @param advertisingSet The advertising set.
          * @param status Status of the operation.
          */
-        @AddedIn(PlatformVersion.TIRAMISU_1)
         public void onPeriodicAdvertisingEnabled(AdvertisingSet advertisingSet, boolean enable,
                 int status) {
         }
@@ -155,7 +144,6 @@ public final class AdvertisingSetCallbackHelper {
          * @param addressType type of address.
          * @param address advertising set bluetooth address.
          */
-        @AddedIn(PlatformVersion.TIRAMISU_1)
         public void onOwnAddressRead(AdvertisingSet advertisingSet, int addressType,
                 String address) {
         }
@@ -174,7 +162,6 @@ public final class AdvertisingSetCallbackHelper {
      *              real one.
      * @return A real {@link AdvertisingSetCallback}.
      */
-    @AddedIn(PlatformVersion.TIRAMISU_1)
     public static AdvertisingSetCallback createRealCallbackFromProxy(
             @NonNull Callback proxy) {
 

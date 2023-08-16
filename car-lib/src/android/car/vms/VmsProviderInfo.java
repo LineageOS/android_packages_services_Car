@@ -19,7 +19,6 @@ package android.car.vms;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.Nullable;
-import android.car.annotation.AddedInOrBefore;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -64,7 +63,6 @@ public class VmsProviderInfo implements Parcelable {
     }
 
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public @Nullable byte[] getDescription() {
         return mDescription;
     }
@@ -98,7 +96,6 @@ public class VmsProviderInfo implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@android.annotation.NonNull Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -112,7 +109,6 @@ public class VmsProviderInfo implements Parcelable {
     @Override
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -131,7 +127,6 @@ public class VmsProviderInfo implements Parcelable {
     }
 
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public static final @android.annotation.NonNull Parcelable.Creator<VmsProviderInfo> CREATOR
             = new Parcelable.Creator<VmsProviderInfo>() {
         @Override

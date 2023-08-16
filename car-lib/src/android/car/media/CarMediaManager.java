@@ -22,7 +22,6 @@ import android.annotation.SystemApi;
 import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.annotation.AddedInOrBefore;
 import android.content.ComponentName;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -42,9 +41,7 @@ import java.util.Map;
 @SystemApi
 public final class CarMediaManager extends CarManagerBase {
 
-    @AddedInOrBefore(majorVersion = 33)
     public static final int MEDIA_SOURCE_MODE_PLAYBACK = 0;
-    @AddedInOrBefore(majorVersion = 33)
     public static final int MEDIA_SOURCE_MODE_BROWSE = 1;
 
     /** @hide */
@@ -80,7 +77,6 @@ public final class CarMediaManager extends CarManagerBase {
         /**
          * Called when the primary media source is changed
          */
-        @AddedInOrBefore(majorVersion = 33)
         void onMediaSourceChanged(@NonNull ComponentName componentName);
     }
 
@@ -91,7 +87,6 @@ public final class CarMediaManager extends CarManagerBase {
      * @return the active media source in the provided mode, will be non-{@code null}.
      */
     @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
-    @AddedInOrBefore(majorVersion = 33)
     public @NonNull ComponentName getMediaSource(@MediaSourceMode int mode) {
         try {
             return mService.getMediaSource(mode, getContext().getUser().getIdentifier());
@@ -106,7 +101,6 @@ public final class CarMediaManager extends CarManagerBase {
      * @param mode the mode (playback or browse) for which the media source is active in.
      */
     @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
-    @AddedInOrBefore(majorVersion = 33)
     public void setMediaSource(@NonNull ComponentName componentName, @MediaSourceMode int mode) {
         try {
             mService.setMediaSource(componentName, mode, getContext().getUser().getIdentifier());
@@ -122,7 +116,6 @@ public final class CarMediaManager extends CarManagerBase {
      * @param mode the mode to receive updates for.
      */
     @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
-    @AddedInOrBefore(majorVersion = 33)
     public void addMediaSourceListener(@NonNull MediaSourceChangedListener callback,
             @MediaSourceMode int mode) {
         try {
@@ -149,7 +142,6 @@ public final class CarMediaManager extends CarManagerBase {
      * @param mode the mode that the callback was registered to receive updates for.
      */
     @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
-    @AddedInOrBefore(majorVersion = 33)
     public void removeMediaSourceListener(@NonNull MediaSourceChangedListener callback,
             @MediaSourceMode int mode) {
         try {
@@ -170,7 +162,6 @@ public final class CarMediaManager extends CarManagerBase {
      * @return non-{@code null} list of media sources, ordered by most recently used
      */
     @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
-    @AddedInOrBefore(majorVersion = 33)
     public @NonNull List<ComponentName> getLastMediaSources(@MediaSourceMode int mode) {
         try {
             return mService.getLastMediaSources(mode, getContext().getUser().getIdentifier());
@@ -181,7 +172,6 @@ public final class CarMediaManager extends CarManagerBase {
 
     /** @hide */
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         synchronized (mLock) {
             mCallbackMap.clear();
@@ -196,7 +186,6 @@ public final class CarMediaManager extends CarManagerBase {
      */
     @TestApi
     @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isIndependentPlaybackConfig() {
         try {
             return mService.isIndependentPlaybackConfig(getContext().getUser().getIdentifier());
@@ -212,7 +201,6 @@ public final class CarMediaManager extends CarManagerBase {
      */
     @TestApi
     @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
-    @AddedInOrBefore(majorVersion = 33)
     public void setIndependentPlaybackConfig(boolean independent) {
         try {
             mService.setIndependentPlaybackConfig(independent,

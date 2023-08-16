@@ -18,7 +18,6 @@ package android.car.app;
 
 
 import android.annotation.NonNull;
-import android.car.annotation.ApiRequirements;
 
 /**
  * This class provides the required configuration to create a {@link RemoteCarRootTaskView}.
@@ -42,29 +41,21 @@ public final class RemoteCarDefaultRootTaskViewConfig {
     }
 
     /** See {@link Builder#setDisplayId(int)}. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     public int getDisplayId() {
         return mDisplayId;
     }
 
     /** See {@link Builder#embedHomeTask(boolean)}. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     public boolean embedsHomeTask() {
         return mEmbedHomeTask;
     }
 
     /** See {@link Builder#embedRecentsTask(boolean)}. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     public boolean embedsRecentsTask() {
         return mEmbedRecentsTask;
     }
 
     /** See {@link Builder#embedAssistantTask(boolean)}. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     public boolean embedsAssistantTask() {
         return mEmbedAssistantTask;
     }
@@ -94,8 +85,6 @@ public final class RemoteCarDefaultRootTaskViewConfig {
         }
 
         /** Sets the display Id of the display which the root task will be created for. */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
         @NonNull
         public Builder setDisplayId(int displayId) {
             mDisplayId = displayId;
@@ -103,8 +92,6 @@ public final class RemoteCarDefaultRootTaskViewConfig {
         }
 
         /** Creates the {@link RemoteCarDefaultRootTaskViewConfig} object. */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
         @NonNull
         public RemoteCarDefaultRootTaskViewConfig build() {
             return new RemoteCarDefaultRootTaskViewConfig(mDisplayId, mEmbedHomeTask,
@@ -115,8 +102,6 @@ public final class RemoteCarDefaultRootTaskViewConfig {
          * Sets the flag indicating whether the tasks with {@code ACTIVITY_TYPE_HOME} should be
          * embedded in the root task.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
         @NonNull
         public Builder embedHomeTask(boolean embedHomeTask) {
             mEmbedHomeTask = embedHomeTask;
@@ -127,8 +112,6 @@ public final class RemoteCarDefaultRootTaskViewConfig {
          * Sets the flag indicating whether the tasks with {@code ACTIVITY_TYPE_RECENTS} should be
          * embedded in the root task.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
         @NonNull
         public Builder embedRecentsTask(boolean embedRecentsTask) {
             mEmbedRecentsTask = embedRecentsTask;
@@ -139,8 +122,6 @@ public final class RemoteCarDefaultRootTaskViewConfig {
          * Sets the flag indicating whether the tasks with {@code ACTIVITY_TYPE_ASSISTANT}
          * should be embedded in the root task.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
         @NonNull
         public Builder embedAssistantTask(boolean embedAssistantTask) {
             mEmbedAssistantTask = embedAssistantTask;

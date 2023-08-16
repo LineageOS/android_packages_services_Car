@@ -23,7 +23,6 @@ import android.annotation.UserIdInt;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.IExperimentalCarUserService;
-import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ExperimentalFeature;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.util.concurrent.AndroidFuture;
@@ -57,7 +56,6 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
      * supported.
      */
     @Deprecated
-    @AddedInOrBefore(majorVersion = 33, softRemovalVersion = 35, hardRemovalVersion = 37)
     public static final String TAG = ExperimentalCarUserManager.class.getSimpleName();
 
     /**
@@ -100,7 +98,6 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
      */
     @Deprecated
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
-    @AddedInOrBefore(majorVersion = 33, softRemovalVersion = 35, hardRemovalVersion = 37)
     public AndroidFuture<UserCreationResult> createDriver(@NonNull String name, boolean admin) {
         try {
             return mService.createDriver(name, admin);
@@ -127,7 +124,6 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
     @Deprecated
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     @Nullable
-    @AddedInOrBefore(majorVersion = 33, softRemovalVersion = 35, hardRemovalVersion = 37)
     public int createPassenger(@NonNull String name, @UserIdInt int driverId) {
         try {
             UserHandle ui = mService.createPassenger(name, driverId);
@@ -150,7 +146,6 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
      */
     @Deprecated
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
-    @AddedInOrBefore(majorVersion = 33, softRemovalVersion = 35, hardRemovalVersion = 37)
     public AndroidFuture<UserSwitchResult> switchDriver(@UserIdInt int driverId) {
         try {
             AndroidFuture<UserSwitchResult> future = new AndroidFuture<>() {
@@ -185,7 +180,6 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
     @Deprecated
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     @NonNull
-    @AddedInOrBefore(majorVersion = 33, softRemovalVersion = 35, hardRemovalVersion = 37)
     public List<Integer> getAllDrivers() {
         try {
             return getUserIdsFromUserHandles(mService.getAllDrivers());
@@ -207,7 +201,6 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
     @Deprecated
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     @NonNull
-    @AddedInOrBefore(majorVersion = 33, softRemovalVersion = 35, hardRemovalVersion = 37)
     public List<Integer> getPassengers(@UserIdInt int driverId) {
         try {
             return getUserIdsFromUserHandles(mService.getPassengers(driverId));
@@ -230,7 +223,6 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
      */
     @Deprecated
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
-    @AddedInOrBefore(majorVersion = 33, softRemovalVersion = 35, hardRemovalVersion = 37)
     public boolean startPassenger(@UserIdInt int passengerId, int zoneId) {
         try {
             return mService.startPassenger(passengerId, zoneId);
@@ -251,7 +243,6 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
      */
     @Deprecated
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
-    @AddedInOrBefore(majorVersion = 33, softRemovalVersion = 35, hardRemovalVersion = 37)
     public boolean stopPassenger(@UserIdInt int passengerId) {
         try {
             return mService.stopPassenger(passengerId);
@@ -266,7 +257,6 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
      */
     @Deprecated
     @Override
-    @AddedInOrBefore(majorVersion = 33, softRemovalVersion = 35, hardRemovalVersion = 37)
     public void onCarDisconnected() {
         // nothing to do
     }

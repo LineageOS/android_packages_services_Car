@@ -22,7 +22,6 @@ import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
-import android.car.annotation.AddedInOrBefore;
 import android.os.Parcelable;
 import android.os.UserManager;
 
@@ -48,7 +47,6 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      * When user switch is successful for both HAL and Android.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_SUCCESSFUL = CommonResults.STATUS_SUCCESSFUL;
 
     /**
@@ -56,14 +54,12 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      * message have been sent.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_ANDROID_FAILURE = CommonResults.STATUS_ANDROID_FAILURE;
 
     /**
      * When user switch fails for HAL. User switch for Android is not called.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_HAL_FAILURE = CommonResults.STATUS_HAL_FAILURE;
 
     /**
@@ -71,7 +67,6 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      * called.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_HAL_INTERNAL_FAILURE = CommonResults.STATUS_HAL_INTERNAL_FAILURE;
 
     /**
@@ -79,14 +74,12 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      * user switch is not requested.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_INVALID_REQUEST = CommonResults.STATUS_INVALID_REQUEST;
 
     /**
      * When user switch fails because of driving safety UX restrictions.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_UX_RESTRICTION_FAILURE =
             CommonResults.STATUS_UX_RESTRICTION_FAILURE;
 
@@ -94,7 +87,6 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      * When target user is same as current user.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_OK_USER_ALREADY_IN_FOREGROUND =
             CommonResults.LAST_COMMON_STATUS + 1;
 
@@ -102,7 +94,6 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      * When another user switch request for the same target user is in process.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO =
             CommonResults.LAST_COMMON_STATUS + 2;
 
@@ -111,7 +102,6 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      * request is abandoned.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST =
             CommonResults.LAST_COMMON_STATUS + 3;
 
@@ -119,7 +109,6 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      * When switching users is currently not allowed for the user this process is running under.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_NOT_SWITCHABLE =
             CommonResults.LAST_COMMON_STATUS + 4;
 
@@ -127,7 +116,6 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      * When logout was called but the current user was not switched by a device admin.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_NOT_LOGGED_IN =
             CommonResults.LAST_COMMON_STATUS + 5;
 
@@ -167,7 +155,6 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
     private final String mErrorMessage;
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isSuccess() {
         return mStatus == STATUS_SUCCESSFUL || mStatus == STATUS_OK_USER_ALREADY_IN_FOREGROUND;
     }
@@ -180,7 +167,6 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
     // NOTE: codegen generates this method, but without @ExcludeFromCodeCoverageGeneratedReport
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
@@ -220,7 +206,6 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
     public @interface Status {}
 
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     @NonNull
     public static String statusToString(@Status int value) {
@@ -333,7 +318,6 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      *         {@link UserSwitchResult#STATUS_NOT_LOGGED_IN}.
      */
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public @Status int getStatus() {
         return mStatus;
     }
@@ -346,7 +330,6 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      * {@code null} when the {@link #getStatus() status} is not {@link #STATUS_ANDROID_FAILURE}.
      */
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public @Nullable Integer getAndroidFailureStatus() {
         return mAndroidFailureStatus;
     }
@@ -355,7 +338,6 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      * Gets the error message, if any.
      */
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public @Nullable String getErrorMessage() {
         return mErrorMessage;
     }
@@ -375,7 +357,6 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
 
     @Override
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@android.annotation.NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -436,7 +417,6 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
     }
 
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public static final @android.annotation.NonNull Parcelable.Creator<UserSwitchResult> CREATOR
             = new Parcelable.Creator<UserSwitchResult>() {
         @Override

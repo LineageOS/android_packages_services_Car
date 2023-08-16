@@ -18,7 +18,6 @@ package android.car.app;
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 /**
  * Callback interface required to monitor the lifecycle of {@link CarTaskViewController}.
@@ -29,14 +28,10 @@ public interface CarTaskViewControllerCallback {
     /**
      * Called when the {@code carTaskViewController} is connected.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     void onConnected(@NonNull CarTaskViewController carTaskViewController);
 
     /**
      * Called when the {@code carTaskViewController} is disconnected.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     void onDisconnected(@NonNull CarTaskViewController carTaskViewController);
 }

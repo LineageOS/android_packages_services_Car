@@ -25,9 +25,6 @@ import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.annotation.ApiRequirements;
-import android.car.annotation.ApiRequirements.CarVersion;
-import android.car.annotation.ApiRequirements.PlatformVersion;
 import android.car.builtin.util.Slogf;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -63,8 +60,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int NEXT_POWER_STATE_ON = 1;
 
     /**
@@ -73,8 +68,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int NEXT_POWER_STATE_OFF = 2;
 
     /**
@@ -83,8 +76,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int NEXT_POWER_STATE_SUSPEND_TO_RAM = 3;
 
     /**
@@ -93,8 +84,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int NEXT_POWER_STATE_SUSPEND_TO_DISK = 4;
 
     /** @hide */
@@ -207,8 +196,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          * Tells {@link CarRemoteAccessManager} that the remote task client finalized the pending
          * remoate tasks.
          */
-        @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
         void complete();
     }
 
@@ -240,15 +227,11 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          * @param info {@link RemoteTaskClientRegistrationIfno} which contains wake-up service ID,
          *             vehicle ID, processor ID and client ID.
          */
-        @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
         void onRegistrationUpdated(@NonNull RemoteTaskClientRegistrationInfo info);
 
         /**
          * This is called when registering the remote task client fails.
          */
-        @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
         void onRegistrationFailed();
 
         /**
@@ -259,8 +242,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          * @param taskMaxDurationInSec The timeout before AAOS goes back to the previous power
          *                             state.
          */
-        @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
         void onRemoteTaskRequested(@NonNull String taskId, @Nullable byte[] data,
                 int taskMaxDurationInSec);
 
@@ -274,8 +255,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          * @param future {@link CompletableRemoteTaskFuture} used by the remote task client to
          *               notify CarRemoteAccessManager that all pending remote tasks are finalized.
          */
-        @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
         void onShutdownStarting(@NonNull CompletableRemoteTaskFuture future);
     }
 
@@ -287,8 +266,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
 
     /** @hide */
     @Override
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void onCarDisconnected() {
         // Nothing to do.
     }
@@ -302,8 +279,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @throws IllegalArgumentException When the given callback or the executor is {@code null}.
      */
     @RequiresPermission(Car.PERMISSION_USE_REMOTE_ACCESS)
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void setRemoteTaskClient(@NonNull @CallbackExecutor Executor executor,
             @NonNull RemoteTaskClientCallback callback) {
         Preconditions.checkArgument(executor != null, "Executor cannot be null");
@@ -339,8 +314,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @throws IllegalStateException if {@code callback} is not registered.
      */
     @RequiresPermission(Car.PERMISSION_USE_REMOTE_ACCESS)
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void clearRemoteTaskClient() {
         synchronized (mLock) {
             if (mRemoteTaskClientCallback == null) {
@@ -367,8 +340,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @throws IllegalStateException If the remote task client is not registered or not woken up.
      */
     @RequiresPermission(Car.PERMISSION_USE_REMOTE_ACCESS)
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void reportRemoteTaskDone(@NonNull String taskId) {
         Preconditions.checkArgument(taskId != null, "Task ID cannot be null");
 
@@ -406,8 +377,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void setPowerStatePostTaskExecution(@NextPowerState int nextPowerState,
             boolean runGarageMode) {
         try {

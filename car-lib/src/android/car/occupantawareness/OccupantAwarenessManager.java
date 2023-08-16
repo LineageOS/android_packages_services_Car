@@ -20,7 +20,6 @@ import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.RequiredFeature;
 import android.car.occupantawareness.OccupantAwarenessDetection.VehicleOccupantRole;
 import android.car.occupantawareness.SystemStatusEvent.DetectionTypeFlags;
@@ -74,7 +73,6 @@ public class OccupantAwarenessManager extends CarManagerBase {
 
     /** @hide */
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         synchronized (mLock) {
             mChangeCallback = null;
@@ -97,7 +95,6 @@ public class OccupantAwarenessManager extends CarManagerBase {
      *     the role.
      */
     @RequiresPermission(value = Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE)
-    @AddedInOrBefore(majorVersion = 33)
     public @DetectionTypeFlags int getCapabilityForRole(@VehicleOccupantRole int role) {
         try {
             return mOccupantAwarenessService.getCapabilityForRole(role);
@@ -116,7 +113,6 @@ public class OccupantAwarenessManager extends CarManagerBase {
          *
          * @param systemStatus The new system state as a {@link SystemStatusEvent}.
          */
-        @AddedInOrBefore(majorVersion = 33)
         public abstract void onSystemStateChanged(@NonNull SystemStatusEvent systemStatus);
 
         /**
@@ -124,7 +120,6 @@ public class OccupantAwarenessManager extends CarManagerBase {
          *
          * @param event The new detection state as a {@link OccupantAwarenessDetection}.
          */
-        @AddedInOrBefore(majorVersion = 33)
         public abstract void onDetectionEvent(@NonNull OccupantAwarenessDetection event);
     }
 
@@ -138,7 +133,6 @@ public class OccupantAwarenessManager extends CarManagerBase {
      * @throws IllegalStateException if an existing callback is already registered.
      */
     @RequiresPermission(value = Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE)
-    @AddedInOrBefore(majorVersion = 33)
     public void registerChangeCallback(@NonNull ChangeCallback callback) {
         if (DBG) {
             Log.d(TAG, "Registering change listener");
@@ -168,7 +162,6 @@ public class OccupantAwarenessManager extends CarManagerBase {
 
     /** Unregisters a previously registered {@link ChangeCallback}. */
     @RequiresPermission(value = Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE)
-    @AddedInOrBefore(majorVersion = 33)
     public void unregisterChangeCallback() {
         if (DBG) {
             Log.d(TAG, "Unregistering change listener");

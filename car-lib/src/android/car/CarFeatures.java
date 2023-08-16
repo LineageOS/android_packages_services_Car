@@ -17,7 +17,6 @@
 package android.car;
 
 import android.annotation.NonNull;
-import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.OptionalFeature;
 import android.os.RemoteException;
 import android.util.ArrayMap;
@@ -46,7 +45,6 @@ public final class CarFeatures {
      * Service to show initial user notice screen. This feature has no API and thus defined here.
      * @hide */
     @OptionalFeature
-    @AddedInOrBefore(majorVersion = 33)
     public static String FEATURE_CAR_USER_NOTICE_SERVICE =
             "com.android.car.user.CarUserNoticeService";
 

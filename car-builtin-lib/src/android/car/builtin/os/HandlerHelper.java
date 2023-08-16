@@ -17,11 +17,7 @@
 package android.car.builtin.os;
 
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
-import android.car.builtin.annotation.AddedIn;
-import android.car.builtin.annotation.PlatformVersion;
-import android.os.Build;
 import android.os.Handler;
 
 /**
@@ -36,8 +32,6 @@ public final class HandlerHelper {
     }
 
     /** Remove pending messages using equal. */
-    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    @AddedIn(PlatformVersion.VANILLA_ICE_CREAM_0)
     public static void removeEqualMessages(Handler handler, int what, @Nullable Object object) {
         handler.removeEqualMessages(what, object);
     }

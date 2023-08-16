@@ -25,7 +25,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseArray;
@@ -47,8 +46,6 @@ import java.util.concurrent.Executor;
  * @hide
  */
 @SystemApi
-@ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-        minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
 public final class CarVolumeGroupEvent implements Parcelable {
 
     /**
@@ -57,8 +54,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
      * {@link android.car.media.CarVolumeGroupInfo#getVolumeGainIndex} on the
      * list of {@link android.car.media.CarVolumeGroupInfo} received here.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED = 1 << 0;
 
     /**
@@ -67,8 +62,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
      * {@link android.car.media.CarVolumeGroupInfo#getMinVolumeGainIndex} on the
      * list of {@link android.car.media.CarVolumeGroupInfo} received here.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EVENT_TYPE_VOLUME_MIN_INDEX_CHANGED = 1 << 1;
 
     /**
@@ -77,8 +70,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
      * {@link android.car.media.CarVolumeGroupInfo#getMaxVolumeGainIndex} on the
      * list of {@link android.car.media.CarVolumeGroupInfo} received here.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EVENT_TYPE_VOLUME_MAX_INDEX_CHANGED = 1 << 2;
 
     /**
@@ -87,8 +78,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
      * {@link android.car.media.CarVolumeGroupInfo#isMuted} on the
      * list of {@link android.car.media.CarVolumeGroupInfo} received here.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EVENT_TYPE_MUTE_CHANGED = 1 << 3;
 
     /**
@@ -100,8 +89,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
      * <p><b> Note: </b> When the volume group is blocked, the car audio framework may
      * reject incoming volume and mute change requests from the users.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EVENT_TYPE_VOLUME_BLOCKED_CHANGED = 1 << 4;
 
     /**
@@ -113,8 +100,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
      * <p> <b> Note: </b> The attenuation could be transient or permanent. More
      * context can be obtained from the included extra information.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EVENT_TYPE_ATTENUATION_CHANGED = 1 << 5;
 
     /**
@@ -127,8 +112,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
      * <p><b> Note: </b> When the car audio zone configuration is switched, the volume groups
      * received here are completely new.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EVENT_TYPE_ZONE_CONFIGURATION_CHANGED = 1 << 6;
 
     /** @hide */
@@ -147,15 +130,11 @@ public final class CarVolumeGroupEvent implements Parcelable {
     /**
      * No additional information available
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EXTRA_INFO_NONE = 100;
 
     /**
      * Indicates volume index changed by Car UI or other user facing apps
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EXTRA_INFO_VOLUME_INDEX_CHANGED_BY_UI = 101;
 
     /**
@@ -163,8 +142,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
      * etc. Equivalent to {@link android.media.AudioManager#FLAG_FROM_KEY} but specifically
      * for volume index changes.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EXTRA_INFO_VOLUME_INDEX_CHANGED_BY_KEYEVENT = 102;
 
     /**
@@ -172,8 +149,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
      * asynchronously. This is typically in response to volume change requests from
      * car audio framework and needed to maintain sync.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EXTRA_INFO_VOLUME_INDEX_CHANGED_BY_AUDIO_SYSTEM = 103;
 
     /**
@@ -185,53 +160,39 @@ public final class CarVolumeGroupEvent implements Parcelable {
      *     <li>Current call volume level is lower than expected minimum activation volume</li>
      * </ul>
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EXTRA_INFO_ATTENUATION_ACTIVATION = 110;
 
     /**
      * Indicates volume is attenuated due to thermal throttling (overheating of amplifier
      * etc).
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EXTRA_INFO_TRANSIENT_ATTENUATION_THERMAL = 120;
 
     /**
      * Indicates volume is temporarily attenuated due to active ducking (general).
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EXTRA_INFO_TRANSIENT_ATTENUATION_DUCKED = 121;
 
     /**
      * Indicates volume is temporarily attenuated due to ducking initiated by
      * projection services.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EXTRA_INFO_TRANSIENT_ATTENUATION_PROJECTION = 122;
 
     /**
      * Indicates volume (typically for Media) is temporarily attenuated due to ducking for
      * navigation usecases.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EXTRA_INFO_TRANSIENT_ATTENUATION_NAVIGATION = 123;
 
     /**
      * Indicates volume is temporarily attenuated due to external (example: ADAS) events
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EXTRA_INFO_TRANSIENT_ATTENUATION_EXTERNAL = 124;
 
     /**
      * Indicates volume group mute toggled by UI
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EXTRA_INFO_MUTE_TOGGLED_BY_UI = 200;
 
     /**
@@ -239,16 +200,12 @@ public final class CarVolumeGroupEvent implements Parcelable {
      * etc). Equivalent to {@link android.media.AudioManager#FLAG_FROM_KEY} but specifically
      * for mute toggle.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EXTRA_INFO_MUTE_TOGGLED_BY_KEYEVENT = 201;
 
     /**
      * Indicates volume group mute toggled by TCU or due to emergency event
      * (example: European eCall) in progress
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EXTRA_INFO_MUTE_TOGGLED_BY_EMERGENCY = 202;
 
     /**
@@ -256,32 +213,24 @@ public final class CarVolumeGroupEvent implements Parcelable {
      * its internal states (shutdown, restart, recovery, sw update etc) or other concurrent high
      * prority audio activity.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EXTRA_INFO_MUTE_TOGGLED_BY_AUDIO_SYSTEM = 203;
 
     /**
      * Indicates volume group mute is locked
      * <p> <b>Note:</b> such a state may result in rejection of changes by the user
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EXTRA_INFO_MUTE_LOCKED = 210;
 
     /**
      * Indicates that the client should show an UI for the event(s). Equivalent to
      * {@link android.media.AudioManager#FLAG_SHOW_UI}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EXTRA_INFO_SHOW_UI = 300;
 
     /**
      * Indicates that the client should play sound for the event(s). Equivalent to
      * {@link android.media.AudioManager#FLAG_PLAY_SOUND}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EXTRA_INFO_PLAY_SOUND = 301;
 
     private final @EventTypeEnum int mEventTypes;
@@ -302,8 +251,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
      *
      * @return list of updated {@link android.car.media.CarVolumeGroupInfo}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public @NonNull List<CarVolumeGroupInfo> getCarVolumeGroupInfos() {
         return List.copyOf(mCarVolumeGroupInfos);
     }
@@ -323,8 +270,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
      *         {@link #EVENT_TYPE_ATTENUATION_CHANGED}
      *         {@link #EVENT_TYPE_ZONE_CONFIGURATION_CHANGED}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @EventTypeEnum
     public int getEventTypes() {
         return mEventTypes;
@@ -364,8 +309,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
      *         {@link #EXTRA_INFO_SHOW_UI},
      *         {@link #EXTRA_INFO_PLAY_SOUND}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public @NonNull List<Integer> getExtraInfos() {
         return List.copyOf(mExtraInfos);
     }
@@ -381,8 +324,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
      *         {@link android.media.AudioManager#FLAG_PLAY_SOUND},
      *         {@link android.media.AudioManager#FLAG_FROM_KEY}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static int convertExtraInfoToFlags(@NonNull List<Integer> extraInfos) {
         int flags = 0;
         if (extraInfos.contains(EXTRA_INFO_SHOW_UI)) {
@@ -411,8 +352,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
      *         {@link #EXTRA_INFO_SHOW_UI},
      *         {@link #EXTRA_INFO_PLAY_SOUND}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @NonNull
     public static List<Integer> convertFlagsToExtraInfo(int flags, int eventTypes) {
         List<Integer> extraInfos = new ArrayList<>();
@@ -465,8 +404,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
      * @param eventTypes {@code EventTypeEnum}
      * @return human-readable string
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @NonNull
     public static String eventTypeToString(@EventTypeEnum int eventTypes) {
         final StringBuilder sb = new StringBuilder();
@@ -528,8 +465,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
      * @param extraInfos list of extra-info
      * @return human-readable string
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @NonNull
     public static String extraInfosToString(@NonNull List<Integer> extraInfos) {
         final StringBuilder sb = new StringBuilder();
@@ -554,15 +489,11 @@ public final class CarVolumeGroupEvent implements Parcelable {
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public int describeContents() {
         return 0;
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeParcelableList(mCarVolumeGroupInfos, flags);
         dest.writeInt(mEventTypes);
@@ -604,8 +535,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
         this.mExtraInfos = extraInfos;
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @NonNull
     public static final Creator<CarVolumeGroupEvent> CREATOR = new Creator<>() {
         @Override
@@ -630,8 +559,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
      * A builder for {@link CarVolumeGroupEvent}
      */
     @SuppressWarnings("WeakerAccess")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final class Builder {
         private static final long IS_USED_FIELD_SET = 0x01;
         private @NonNull List<CarVolumeGroupInfo> mCarVolumeGroupInfos;
@@ -662,8 +589,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
         }
 
         /** @see CarVolumeGroupEvent#getCarVolumeGroupInfos() **/
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         @NonNull
         public Builder addCarVolumeGroupInfo(@NonNull CarVolumeGroupInfo volumeGroupInfo) {
             Preconditions.checkArgument(volumeGroupInfo != null,
@@ -673,8 +598,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
         }
 
         /** @see CarVolumeGroupEvent#getEventTypes()  **/
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         @NonNull
         public Builder addEventType(@EventTypeEnum int eventType) {
             mEventTypes |= eventType;
@@ -682,8 +605,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
         }
 
         /** @see CarVolumeGroupEvent#getExtraInfos **/
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         @NonNull
         public Builder setExtraInfos(@NonNull List<Integer> extraInfos) {
             Preconditions.checkArgument(extraInfos != null, "Extra infos can not be null");
@@ -692,8 +613,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
         }
 
         /** @see #setExtraInfos(List)  **/
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         @NonNull
         public Builder addExtraInfo(int extraInfo) {
             if (mExtraInfos == null) {
@@ -708,8 +627,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
         }
 
         /** Builds the instance. This builder should not be touched after calling this! */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         @NonNull
         public CarVolumeGroupEvent build() {
             checkNotUsed();

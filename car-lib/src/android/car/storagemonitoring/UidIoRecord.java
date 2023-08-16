@@ -16,7 +16,6 @@
 package android.car.storagemonitoring;
 
 import android.annotation.SystemApi;
-import android.car.annotation.AddedInOrBefore;
 
 /**
  * Record of data as extracted from /proc/uid_io/stats
@@ -26,29 +25,18 @@ import android.car.annotation.AddedInOrBefore;
 @SystemApi
 public final class UidIoRecord {
 
-    @AddedInOrBefore(majorVersion = 33)
     public final int uid;
 
-    @AddedInOrBefore(majorVersion = 33)
     public final long foreground_rchar;
-    @AddedInOrBefore(majorVersion = 33)
     public final long foreground_wchar;
-    @AddedInOrBefore(majorVersion = 33)
     public final long foreground_read_bytes;
-    @AddedInOrBefore(majorVersion = 33)
     public final long foreground_write_bytes;
-    @AddedInOrBefore(majorVersion = 33)
     public final long foreground_fsync;
 
-    @AddedInOrBefore(majorVersion = 33)
     public final long background_rchar;
-    @AddedInOrBefore(majorVersion = 33)
     public final long background_wchar;
-    @AddedInOrBefore(majorVersion = 33)
     public final long background_read_bytes;
-    @AddedInOrBefore(majorVersion = 33)
     public final long background_write_bytes;
-    @AddedInOrBefore(majorVersion = 33)
     public final long background_fsync;
 
     public UidIoRecord(int uid,
@@ -78,7 +66,6 @@ public final class UidIoRecord {
     }
 
     /** @hide */
-    @AddedInOrBefore(majorVersion = 33)
     public UidIoRecord delta(IoStatsEntry other) {
         if (uid != other.uid) {
             throw new IllegalArgumentException("cannot calculate delta between different user IDs");
@@ -98,7 +85,6 @@ public final class UidIoRecord {
     }
 
     /** @hide */
-    @AddedInOrBefore(majorVersion = 33)
     public UidIoRecord delta(UidIoRecord other) {
         if (uid != other.uid) {
             throw new IllegalArgumentException("cannot calculate delta between different user IDs");
