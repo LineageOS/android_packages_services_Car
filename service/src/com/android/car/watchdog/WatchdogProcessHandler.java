@@ -39,6 +39,7 @@ import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarServiceHelperWrapper;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -62,6 +63,7 @@ public final class WatchdogProcessHandler {
 
     private final ICarWatchdogServiceForSystem mWatchdogServiceForSystem;
     private final CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
+    private final PackageInfoHandler mPackageInfoHandler;
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
     private final Handler mServiceHandler = new Handler(getHandlerThread(
             CarWatchdogService.class.getSimpleName()).getLooper());
@@ -98,9 +100,10 @@ public final class WatchdogProcessHandler {
     private long mOverriddenClientHealthCheckWindowMs = MISSING_INT_PROPERTY_VALUE;
 
     public WatchdogProcessHandler(ICarWatchdogServiceForSystem serviceImpl,
-            CarWatchdogDaemonHelper daemonHelper) {
+            CarWatchdogDaemonHelper daemonHelper, PackageInfoHandler packageInfoHandler) {
         mWatchdogServiceForSystem = serviceImpl;
         mCarWatchdogDaemonHelper = daemonHelper;
+        mPackageInfoHandler = packageInfoHandler;
     }
 
     /** Initializes the handler. */
@@ -156,6 +159,36 @@ public final class WatchdogProcessHandler {
         }
     }
 
+    /** Dumps its state in proto format. */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {
+        synchronized (mLock) {
+            long systemHealthDumpToken = proto.start(
+                    CarWatchdogDumpProto.SYSTEM_HEALTH_DUMP);
+            for (int timeout : ALL_TIMEOUTS) {
+                ArrayList<ClientInfo> clients = mClientMap.get(timeout);
+                for (ClientInfo clientInfo : clients) {
+                    long registeredClientsToken = proto.start(
+                            CarWatchdogDumpProto.SystemHealthDump.REGISTERED_CLIENTS);
+                    proto.write(CarWatchdogDumpProto.RegisteredClient.PID, clientInfo.pid);
+                    long userPackageInfoToken = proto.start(
+                            CarWatchdogDumpProto.RegisteredClient.USER_PACKAGE_INFO);
+                    proto.write(UserPackageInfo.USER_ID, clientInfo.userId);
+                    proto.write(UserPackageInfo.PACKAGE_NAME, clientInfo.packageName);
+                    proto.end(userPackageInfoToken);
+                    proto.write(CarWatchdogDumpProto.RegisteredClient.HEALTH_CHECK_TIMEOUT,
+                            timeout + 1);
+                    proto.end(registeredClientsToken);
+                }
+            }
+            for (int i = 0; i < mStoppedUser.size(); i++) {
+                proto.write(CarWatchdogDumpProto.SystemHealthDump.STOPPED_USERS,
+                        mStoppedUser.keyAt(i));
+            }
+            proto.end(systemHealthDumpToken);
+        }
+    }
+
     /** Registers the client callback */
     public void registerClient(ICarWatchdogServiceCallback client, int timeout) {
         synchronized (mLock) {
@@ -170,13 +203,21 @@ public final class WatchdogProcessHandler {
                 if (binder == clientInfo.client.asBinder()) {
                     Slogf.w(CarWatchdogService.TAG,
                             "Cannot register the client: the client(pid: %d) has been already "
-                            + "registered", clientInfo.pid);
+                                    + "registered", clientInfo.pid);
                     return;
                 }
             }
             int pid = Binder.getCallingPid();
             int userId = Binder.getCallingUserHandle().getIdentifier();
+            int callingUid = Binder.getCallingUid();
             ClientInfo clientInfo = new ClientInfo(client, pid, userId, timeout);
+            // PackageInfoHandler may need to retrieve the packageName from system server
+            // using a binder call. Thus, retrieving the packageName from PackageInfoHandler is
+            // posted on the looper and is resolved asynchronously.
+            mServiceHandler.post(() -> {
+                clientInfo.packageName = mPackageInfoHandler.getNamesForUids(
+                        new int[]{callingUid}).get(callingUid, null);
+            });
             try {
                 clientInfo.linkToDeath();
             } catch (RemoteException e) {
@@ -502,6 +543,7 @@ public final class WatchdogProcessHandler {
         @UserIdInt public final int userId;
         public final int timeout;
         public volatile int sessionId;
+        public String packageName;
 
         ClientInfo(ICarWatchdogServiceCallback client, int pid, @UserIdInt int userId,
                 int timeout) {

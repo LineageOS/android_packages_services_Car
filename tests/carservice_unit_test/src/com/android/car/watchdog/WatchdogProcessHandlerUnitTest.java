@@ -17,8 +17,10 @@
 package com.android.car.watchdog;
 
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_CRITICAL;
+import static android.car.watchdog.CarWatchdogManager.TIMEOUT_NORMAL;
 
 import static com.android.car.internal.common.CommonConstants.INVALID_PID;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -38,10 +40,16 @@ import android.automotive.watchdog.internal.ProcessIdentifier;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.watchdog.ICarWatchdogServiceCallback;
 import android.car.watchdoglib.CarWatchdogDaemonHelper;
+import android.content.pm.PackageManager;
+import android.os.Binder;
 import android.os.RemoteException;
+import android.os.UserHandle;
+import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceHelperWrapper;
+import com.android.car.CarServiceUtils;
 import com.android.car.internal.ICarServiceHelper;
 
 import org.junit.After;
@@ -62,14 +70,21 @@ import java.util.List;
 public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     private static final int MAX_WAIT_TIME_MS = 3000;
     private static final int INVALID_SESSION_ID = -1;
+    private static final String CANONICAL_PACKAGE_NAME =
+            WatchdogProcessHandlerUnitTest.class.getCanonicalName();
+    private static final String CAR_WATCHDOG_SERVICE_NAME =
+            CarWatchdogService.class.getSimpleName();
     @Mock
     private CarWatchdogDaemonHelper mMockCarWatchdogDaemonHelper;
     @Mock
     private ICarServiceHelper.Stub mMockCarServiceHelper;
+    @Mock
+    private PackageManager mMockPackageManager;
     @Captor
     private ArgumentCaptor<List<ProcessIdentifier>> mProcessIdentifiersCaptor;
     private WatchdogProcessHandler mWatchdogProcessHandler;
     private ICarWatchdogServiceForSystem mWatchdogServiceForSystemImpl;
+    private final SparseArray<String> mGenericPackageNameByUid = new SparseArray<>();
 
     public WatchdogProcessHandlerUnitTest() {
         super(CarWatchdogService.TAG);
@@ -77,13 +92,17 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
-        builder.spyStatic(CarLocalServices.class);
+        builder
+                .spyStatic(Binder.class)
+                .spyStatic(CarLocalServices.class);
     }
 
     @Before
     public void setUp() throws Exception {
+        mockPackageManager();
         mWatchdogProcessHandler = new WatchdogProcessHandler(mWatchdogServiceForSystemImpl,
-                mMockCarWatchdogDaemonHelper);
+                mMockCarWatchdogDaemonHelper,
+                new PackageInfoHandler(mMockPackageManager));
         mWatchdogProcessHandler.init();
         CarServiceHelperWrapper wrapper = CarServiceHelperWrapper.create();
         wrapper.setCarServiceHelper(mMockCarServiceHelper);
@@ -218,6 +237,49 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
                 () -> mWatchdogProcessHandler.controlProcessHealthCheck(true));
     }
 
+    @Test
+    public void testDumpProto() throws Exception {
+        int uid = Binder.getCallingUid();
+        UserHandle userHandle = UserHandle.of(101);
+
+        doReturn(UserHandle.of(101)).when(Binder::getCallingUserHandle);
+        mGenericPackageNameByUid.put(uid, CANONICAL_PACKAGE_NAME);
+        TestClient client = new TestClient();
+        mWatchdogProcessHandler.registerClient(client, TIMEOUT_NORMAL);
+
+        // Setting the ClientInfo packageName in registerClient is done on the CarWatchdogService
+        // service handler thread. Wait until the below message is processed before
+        // returning, to the packageName is resolved in ClientInfo.
+        CarServiceUtils.runEmptyRunnableOnLooperSync(CAR_WATCHDOG_SERVICE_NAME);
+        mWatchdogProcessHandler.updateUserState(100, true);
+
+        ProtoOutputStream proto = new ProtoOutputStream();
+        mWatchdogProcessHandler.dumpProto(proto);
+
+        CarWatchdogDumpProto carWatchdogDumpProto = CarWatchdogDumpProto.parseFrom(
+                proto.getBytes());
+        CarWatchdogDumpProto.SystemHealthDump systemHealthDump =
+                carWatchdogDumpProto.getSystemHealthDump();
+        expectWithMessage("RegisteredClient Count").that(
+                systemHealthDump.getRegisteredClientsCount()).isEqualTo(1);
+
+        CarWatchdogDumpProto.RegisteredClient registeredClient =
+                systemHealthDump.getRegisteredClients(0);
+        expectWithMessage("Health Check Timeout").that(
+                registeredClient.getHealthCheckTimeout()).isEqualTo(
+                CarWatchdogDumpProto.HealthCheckTimeout.NORMAL);
+
+        UserPackageInfo userPackageInfo = registeredClient.getUserPackageInfo();
+        expectWithMessage("User Id").that(userPackageInfo.getUserId()).isEqualTo(
+                userHandle.getIdentifier());
+        expectWithMessage("Package Name").that(userPackageInfo.getPackageName()).isEqualTo(
+                CANONICAL_PACKAGE_NAME);
+
+        expectWithMessage("Stopped Users Count").that(
+                systemHealthDump.getStoppedUsersCount()).isEqualTo(1);
+        expectWithMessage("Stopped User").that(systemHealthDump.getStoppedUsers(0)).isEqualTo(100);
+    }
+
     private void testClientHealthCheck(TestClient client, int badClientCount) throws Exception {
         mWatchdogProcessHandler.registerClient(client, TIMEOUT_CRITICAL);
 
@@ -236,6 +298,17 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
                 eq(mWatchdogServiceForSystemImpl), mProcessIdentifiersCaptor.capture(), eq(987654));
 
         assertThat(mProcessIdentifiersCaptor.getValue().size()).isEqualTo(badClientCount);
+    }
+
+    private void mockPackageManager() {
+        when(mMockPackageManager.getNamesForUids(any())).thenAnswer(args -> {
+            int[] uids = args.getArgument(0);
+            String[] names = new String[uids.length];
+            for (int i = 0; i < uids.length; ++i) {
+                names[i] = mGenericPackageNameByUid.get(uids[i], null);
+            }
+            return names;
+        });
     }
 
     private class TestClient extends ICarWatchdogServiceCallback.Stub {
