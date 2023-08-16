@@ -206,10 +206,12 @@ final class CarTaskViewInputInterceptor {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 mActionDownInsideTaskView = null;
 
-                List<ControlledRemoteCarTaskView> taskViewList =
-                        mTaskViewController.getControlledRemoteCarTaskViews();
-                for (ControlledRemoteCarTaskView tv : taskViewList) {
-                    if (tv.getConfig().mShouldCaptureGestures && isIn(event, tv)) {
+                List<RemoteCarTaskView> taskViewList = mTaskViewController.getRemoteCarTaskViews();
+                for (int i = 0, length = taskViewList.size(); i < length; i++) {
+                    RemoteCarTaskView tv = taskViewList.get(i);
+                    if (tv instanceof ControlledRemoteCarTaskView
+                            && ((ControlledRemoteCarTaskView) tv).getConfig()
+                            .mShouldCaptureGestures && isIn(event, tv)) {
                         mTouchDownX = event.getX();
                         mTouchDownY = event.getY();
                         mActionDownInsideTaskView = tv;
@@ -270,10 +272,12 @@ final class CarTaskViewInputInterceptor {
     private final class TaskViewGestureListener extends GestureDetector.SimpleOnGestureListener {
         @Override
         public void onLongPress(@NonNull MotionEvent e) {
-            List<ControlledRemoteCarTaskView> taskViewList =
-                    mTaskViewController.getControlledRemoteCarTaskViews();
-            for (ControlledRemoteCarTaskView tv : taskViewList) {
-                if (tv.getConfig().mShouldCaptureLongPress && isIn(e, tv)) {
+            List<RemoteCarTaskView> taskViewList = mTaskViewController.getRemoteCarTaskViews();
+            for (int i = 0, length = taskViewList.size(); i < length; i++) {
+                RemoteCarTaskView tv = taskViewList.get(i);
+                if (tv instanceof ControlledRemoteCarTaskView
+                        && ((ControlledRemoteCarTaskView) tv).getConfig().mShouldCaptureGestures
+                        && isIn(e, tv)) {
                     if (DBG) {
                         Log.d(TAG, "Long press captured for taskView: " + tv);
                     }
