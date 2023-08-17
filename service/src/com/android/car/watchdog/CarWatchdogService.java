@@ -367,7 +367,13 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    public void dumpProto(ProtoOutputStream proto) {}
+    public void dumpProto(ProtoOutputStream proto) {
+        synchronized (mLock) {
+            proto.write(CarWatchdogDumpProto.CURRENT_GARAGE_MODE, mCurrentGarageMode);
+        }
+        mWatchdogProcessHandler.dumpProto(proto);
+        mWatchdogPerfHandler.dumpProto(proto);
+    }
 
     /**
      * Registers {@link android.car.watchdog.ICarWatchdogServiceCallback} to
