@@ -22,6 +22,7 @@ import android.app.job.JobScheduler;
 import android.app.job.JobSnapshot;
 import android.content.Context;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,37 +37,37 @@ public final class JobSchedulerHelper {
         throw new UnsupportedOperationException("contains only static members");
     }
 
-    /** Gets the number of running jobs which are executed when a device goes idle. */
-    public static int getNumberOfRunningJobsAtIdle(Context context) {
+    /** Gets the running jobs which are executed when a device goes idle. */
+    public static List<JobInfo> getRunningJobsAtIdle(Context context) {
         List<JobInfo> startedJobs = context.getSystemService(JobScheduler.class).getStartedJobs();
         if (startedJobs == null) {
-            return 0;
+            return new ArrayList<>();
         }
-        int jobCount = 0;
+        List<JobInfo> deviceIdleJobs = new ArrayList<>();
         for (int idx = 0; idx < startedJobs.size(); idx++) {
             JobInfo jobInfo = startedJobs.get(idx);
             if (jobInfo.isRequireDeviceIdle()) {
-                jobCount++;
+                deviceIdleJobs.add(jobInfo);
             }
         }
-        return jobCount;
+        return deviceIdleJobs;
     }
 
-    /** Gets the number of jobs which are scheduled for execution at idle but not finished. */
-    public static int getNumberOfPendingJobs(Context context) {
+    /** Gets the jobs which are scheduled for execution at idle but not finished. */
+    public static List<JobInfo> getPendingJobs(Context context) {
         List<JobSnapshot> allScheduledJobs =
                 context.getSystemService(JobScheduler.class).getAllJobSnapshots();
         if (allScheduledJobs == null) {
-            return 0;
+            return new ArrayList<>();
         }
-        int jobCount = 0;
-        for (int idx = 0; idx < jobCount; idx++) {
+        List<JobInfo> idleJobs = new ArrayList<>();
+        for (int idx = 0; idx < allScheduledJobs.size(); idx++) {
             JobSnapshot scheduledJob = allScheduledJobs.get(idx);
             JobInfo jobInfo = scheduledJob.getJobInfo();
             if (scheduledJob.isRunnable() && jobInfo.isRequireDeviceIdle()) {
-                jobCount++;
+                idleJobs.add(jobInfo);
             }
         }
-        return jobCount;
+        return idleJobs;
     }
 }
