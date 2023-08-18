@@ -26,4 +26,16 @@
     <string name="current_profile_subtitle">Current profile</string>
     <string name="loading_welcome_message">AAOS</string>
     <string name="loading_action_button_text">Continue</string>
+
+    <!-- Format for temperature in the temperature control view (No decimal) -->
+    <string name="hvac_temperature_format_fahrenheit" translatable="false">%.0f</string>
+
+    <!-- HVAC panel header [CHAR LIMIT=40]-->
+    <string name="hvac_panel_header">Comfort controls</string>
+
+    <!-- Format for temperature in the temperature control view (No decimal) in fahrenheit -->
+    <string name="statusbar_temperature_format_fahrenheit" translatable="false">%.0f\u00B0 F
+    </string>
+    <!-- Format for temperature in the temperature control view (No decimal) in celsius -->
+    <string name="statusbar_temperature_format_celsius" translatable="false">%.0f\u00B0 C</string>
 </resources>
