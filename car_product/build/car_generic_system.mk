@@ -79,7 +79,8 @@ PRODUCT_COPY_FILES += \
 endif
 
 ifeq ($(ENABLE_CAREVSSERVICE_SAMPLE), true)
-PRODUCT_PACKAGES += CarEvsCameraPreviewApp
+# TODO(b/293332636): Clean up below line when both apps are consolidated into a single app.
+PRODUCT_PACKAGES += CarEvsCameraPreviewApp CarEvsMultiCameraPreviewApp
 endif
 ifeq ($(ENABLE_REAR_VIEW_CAMERA_SAMPLE), true)
 PRODUCT_PACKAGES += SampleRearViewCamera
