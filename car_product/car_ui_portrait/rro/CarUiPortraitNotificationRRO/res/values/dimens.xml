@@ -76,5 +76,8 @@
     <dimen name="clear_all_button_width">218dp</dimen>
     <dimen name="clear_all_button_horizontal_padding">48dp</dimen>
     <dimen name="clear_all_button_vertical_padding">24dp</dimen>
+
+    <dimen name="headsup_container_height">400dp</dimen>
+    <dimen name="max_translation_headsup">@dimen/headsup_container_height</dimen>
 </resources>
 
