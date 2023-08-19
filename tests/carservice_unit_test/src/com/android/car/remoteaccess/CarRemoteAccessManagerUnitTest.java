@@ -16,7 +16,7 @@
 
 package com.android.car.remoteaccess;
 
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static android.car.remoteaccess.ICarRemoteAccessService.SERVICE_ERROR_CODE_GENERAL;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 import android.car.Car;
 import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.remoteaccess.CarRemoteAccessManager.CompletableRemoteTaskFuture;
+import android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
 import android.car.remoteaccess.CarRemoteAccessManager.RemoteTaskClientCallback;
 import android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo;
 import android.car.remoteaccess.ICarRemoteAccessCallback;
@@ -45,6 +46,7 @@ import android.car.test.mocks.JavaMockitoHelper;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -363,21 +365,21 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExtendedMockit
 
     @Test
     public void testIsTaskScheduleSupported() throws Exception {
-        doReturn(true).when(mService).isTaskScheduleSupported();
+        when(mService.isTaskScheduleSupported()).thenReturn(true);
 
         assertThat(mRemoteAccessManager.isTaskScheduleSupported()).isTrue();
     }
 
     @Test
     public void testGetInVehicleTaskScheduler() throws Exception {
-        doReturn(true).when(mService).isTaskScheduleSupported();
+        when(mService.isTaskScheduleSupported()).thenReturn(true);
 
         assertThat(mRemoteAccessManager.getInVehicleTaskScheduler()).isNotNull();
     }
 
     @Test
     public void testGetInVehicleTaskScheduler_notSupported() throws Exception {
-        doReturn(false).when(mService).isTaskScheduleSupported();
+        when(mService.isTaskScheduleSupported()).thenReturn(false);
 
         assertThat(mRemoteAccessManager.getInVehicleTaskScheduler()).isNull();
     }
@@ -394,7 +396,7 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExtendedMockit
 
     @Test
     public void testScheduleTask() throws Exception {
-        doReturn(true).when(mService).isTaskScheduleSupported();
+        when(mService.isTaskScheduleSupported()).thenReturn(true);
         ScheduleInfo.Builder builder = ScheduleInfo.builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
                 TEST_START_TIME);
         ScheduleInfo scheduleInfo = builder.setCount(TEST_TASK_COUNT).setPeriodic(TEST_PERIODIC)
@@ -407,15 +409,27 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExtendedMockit
 
     @Test
     public void testScheduleTask_nullScheduleInfo() throws Exception {
-        doReturn(true).when(mService).isTaskScheduleSupported();
+        when(mService.isTaskScheduleSupported()).thenReturn(true);
 
         assertThrows(IllegalArgumentException.class, () ->
                 mRemoteAccessManager.getInVehicleTaskScheduler().scheduleTask(null));
     }
 
     @Test
+    public void testScheduleTask_ServiceSpecificException() throws Exception {
+        when(mService.isTaskScheduleSupported()).thenReturn(true);
+        doThrow(new ServiceSpecificException(SERVICE_ERROR_CODE_GENERAL)).when(mService)
+                .scheduleTask(any());
+        ScheduleInfo scheduleInfo = ScheduleInfo.builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
+                TEST_START_TIME).setCount(TEST_TASK_COUNT).setPeriodic(TEST_PERIODIC).build();
+
+        assertThrows(InVehicleTaskSchedulerException.class, () ->
+                mRemoteAccessManager.getInVehicleTaskScheduler().scheduleTask(scheduleInfo));
+    }
+
+    @Test
     public void testUnscheduleTask() throws Exception {
-        doReturn(true).when(mService).isTaskScheduleSupported();
+        when(mService.isTaskScheduleSupported()).thenReturn(true);
 
         mRemoteAccessManager.getInVehicleTaskScheduler().unscheduleTask(TEST_SCHEDULE_ID);
 
@@ -424,16 +438,26 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExtendedMockit
 
     @Test
     public void testUnscheduleTask_nullScheduleId() throws Exception {
-        doReturn(true).when(mService).isTaskScheduleSupported();
+        when(mService.isTaskScheduleSupported()).thenReturn(true);
 
         assertThrows(IllegalArgumentException.class, () ->
                 mRemoteAccessManager.getInVehicleTaskScheduler().unscheduleTask(null));
     }
 
     @Test
+    public void testUnscheduleTask_ServiceSpecificException() throws Exception {
+        when(mService.isTaskScheduleSupported()).thenReturn(true);
+        doThrow(new ServiceSpecificException(SERVICE_ERROR_CODE_GENERAL)).when(mService)
+                .unscheduleTask(any());
+
+        assertThrows(InVehicleTaskSchedulerException.class, () ->
+                mRemoteAccessManager.getInVehicleTaskScheduler().unscheduleTask(TEST_SCHEDULE_ID));
+    }
+
+    @Test
     public void testGetAllScheduledTasks() throws Exception {
-        doReturn(true).when(mService).isTaskScheduleSupported();
-        doReturn(List.of(getTestTaskScheduleInfo())).when(mService).getAllScheduledTasks();
+        when(mService.isTaskScheduleSupported()).thenReturn(true);
+        when(mService.getAllScheduledTasks()).thenReturn(List.of(getTestTaskScheduleInfo()));
 
         List<ScheduleInfo> scheduleInfoList = mRemoteAccessManager.getInVehicleTaskScheduler()
                 .getAllScheduledTasks();
@@ -453,8 +477,18 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExtendedMockit
     }
 
     @Test
+    public void testGetAllScheduledTasks_ServiceSpecificException() throws Exception {
+        when(mService.isTaskScheduleSupported()).thenReturn(true);
+        doThrow(new ServiceSpecificException(SERVICE_ERROR_CODE_GENERAL)).when(mService)
+                .getAllScheduledTasks();
+
+        assertThrows(InVehicleTaskSchedulerException.class, () ->
+                mRemoteAccessManager.getInVehicleTaskScheduler().getAllScheduledTasks());
+    }
+
+    @Test
     public void testUnscheduleAllTasks() throws Exception {
-        doReturn(true).when(mService).isTaskScheduleSupported();
+        when(mService.isTaskScheduleSupported()).thenReturn(true);
 
         mRemoteAccessManager.getInVehicleTaskScheduler().unscheduleAllTasks();
 
@@ -462,9 +496,19 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExtendedMockit
     }
 
     @Test
+    public void testUnscheduleAllTasks_ServiceSpecificException() throws Exception {
+        when(mService.isTaskScheduleSupported()).thenReturn(true);
+        doThrow(new ServiceSpecificException(SERVICE_ERROR_CODE_GENERAL)).when(mService)
+                .unscheduleAllTasks();
+
+        assertThrows(InVehicleTaskSchedulerException.class, () ->
+                mRemoteAccessManager.getInVehicleTaskScheduler().unscheduleAllTasks());
+    }
+
+    @Test
     public void testIsTaskScheduled() throws Exception {
-        doReturn(true).when(mService).isTaskScheduleSupported();
-        doReturn(true).when(mService).isTaskScheduled(TEST_SCHEDULE_ID);
+        when(mService.isTaskScheduleSupported()).thenReturn(true);
+        when(mService.isTaskScheduled(TEST_SCHEDULE_ID)).thenReturn(true);
 
         assertThat(mRemoteAccessManager.getInVehicleTaskScheduler()
                 .isTaskScheduled(TEST_SCHEDULE_ID)).isTrue();
@@ -472,10 +516,20 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExtendedMockit
 
     @Test
     public void testIsTaskScheduled_nullScheduleId() throws Exception {
-        doReturn(true).when(mService).isTaskScheduleSupported();
+        when(mService.isTaskScheduleSupported()).thenReturn(true);
 
         assertThrows(IllegalArgumentException.class, () ->
                 mRemoteAccessManager.getInVehicleTaskScheduler().isTaskScheduled(null));
+    }
+
+    @Test
+    public void testIsTaskScheduled_ServiceSpecificException() throws Exception {
+        when(mService.isTaskScheduleSupported()).thenReturn(true);
+        when(mService.isTaskScheduled(any())).thenThrow(new ServiceSpecificException(
+                SERVICE_ERROR_CODE_GENERAL));
+
+        assertThrows(InVehicleTaskSchedulerException.class, () ->
+                mRemoteAccessManager.getInVehicleTaskScheduler().isTaskScheduled(TEST_SCHEDULE_ID));
     }
 
     private ICarRemoteAccessCallback setClientAndGetCallback(RemoteTaskClientCallback client)

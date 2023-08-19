@@ -22,6 +22,11 @@ import android.car.remoteaccess.TaskScheduleInfo;
 /** @hide */
 interface ICarRemoteAccessService {
     /**
+     * General service error code.
+     */
+    const int SERVICE_ERROR_CODE_GENERAL = 1;
+
+    /**
      * Adds the remote task client represented as {@link ICarRemoteAccessCallback} to listen to
      * remote access related events.
      */

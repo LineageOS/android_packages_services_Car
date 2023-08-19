@@ -47,6 +47,7 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.res.XmlResourceParser;
 import android.hardware.automotive.remoteaccess.IRemoteAccess;
+import android.hardware.automotive.remoteaccess.ScheduleInfo;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -54,6 +55,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -147,6 +149,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private long mMaxTaskPendingMs = MAX_TASK_PENDING_MS;
     private final AtomicLong mTaskCount = new AtomicLong(/* initialValue= */ 0);
     private final AtomicLong mClientCount = new AtomicLong(/* initialValue= */ 0);
+    // Whether in vehicle task scheduling is supported by remote access HAL. Only set during init.
+    private boolean mIsHalTaskScheduleSupported;
     @GuardedBy("mLock")
     private final ArrayMap<String, String> mUidByClientId = new ArrayMap<>();
     @GuardedBy("mLock")
@@ -426,6 +430,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         mPowerService = CarLocalServices.getService(CarPowerManagementService.class);
         populatePackageClientIdMapping();
         mRemoteAccessHalWrapper.init();
+        // This must be called after remoteAccessHalWrapper init complete.
+        mIsHalTaskScheduleSupported = mRemoteAccessHalWrapper.isTaskScheduleSupported();
         try {
             mWakeupServiceName = mRemoteAccessHalWrapper.getWakeupServiceName();
             mVehicleId = mRemoteAccessHalWrapper.getVehicleId();
@@ -526,6 +532,15 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
     }
 
+    private String getPackageNameForCallingUid(int callingUid) {
+        String[] packageNames = mPackageManager.getPackagesForUid(callingUid);
+        if (packageNames.length != 1) {
+            throw new IllegalStateException("Failed to get package name, "
+                    + "sharedUserId must not be used by app.");
+        }
+        return packageNames[0];
+    }
+
     /**
      * Registers {@code ICarRemoteAccessCallback}.
      *
@@ -554,12 +569,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 }
             } else {
                 // This is a new client.
-                String[] packageNames = mPackageManager.getPackagesForUid(callingUid);
-                if (packageNames.length != 1) {
-                    throw new IllegalStateException("Failed to get package name, "
-                            + "sharedUserId must not be used by app.");
-                }
-                String packageName = packageNames[0];
+                String packageName = getPackageNameForCallingUid(callingUid);
                 String clientId;
                 boolean isServerless;
                 if (mServerlessClientIdsByPackageName.containsKey(packageName)) {
@@ -713,8 +723,38 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
      */
     @Override
     public boolean isTaskScheduleSupported() {
-        // TODO(282792374): Implement this.
-        return false;
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_REMOTE_ACCESS);
+        if (!mIsHalTaskScheduleSupported) {
+            Slogf.i(TAG, "isTaskScheduleSupported returns false because remote access HAL does not"
+                    + " support task scheduling");
+            return false;
+        }
+        int callingUid = mDep.getCallingUid();
+        String packageName = getPackageNameForCallingUid(callingUid);
+        synchronized (mLock) {
+            if (!mServerlessClientIdsByPackageName.containsKey(packageName)) {
+                Slogf.i(TAG, "isTaskScheduleSupported returns false the client is not a serverless"
+                        + " remote task client");
+                return false;
+            }
+        }
+        Slogf.i(TAG, "isTaskScheduleSupported returns true");
+        return true;
+
+    }
+
+    private String getServerlessCallerClientId() throws IllegalStateException {
+        if (!mIsHalTaskScheduleSupported) {
+            throw new IllegalStateException("task schedule is not supported by HAL");
+        }
+        int callingUid = mDep.getCallingUid();
+        String packageName = getPackageNameForCallingUid(callingUid);
+        synchronized (mLock) {
+            if (mServerlessClientIdsByPackageName.containsKey(packageName)) {
+                return mServerlessClientIdsByPackageName.get(packageName);
+            }
+        }
+        throw new IllegalStateException("Caller is not a serverless remote task client");
     }
 
     /**
@@ -722,7 +762,30 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
      */
     @Override
     public void scheduleTask(TaskScheduleInfo scheduleInfo) {
-        // TODO(282792374): Implement this.
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_REMOTE_ACCESS);
+        Preconditions.checkArgument(scheduleInfo != null, "scheduleInfo must not be null");
+        Preconditions.checkArgument(scheduleInfo.scheduleId != null, "scheduleId must not be null");
+        Preconditions.checkArgument(scheduleInfo.taskData != null, "task data must not be null");
+        Preconditions.checkArgument(scheduleInfo.count >= 0, "count must >= 0");
+        Preconditions.checkArgument(scheduleInfo.startTimeInEpochSeconds > 0,
+                "startTimeInEpochSeconds must > 0");
+        Preconditions.checkArgument(scheduleInfo.periodicInSeconds >= 0,
+                "periodicInSeconds must >= 0");
+        ScheduleInfo halScheduleInfo = new ScheduleInfo();
+        String clientId = getServerlessCallerClientId();
+        halScheduleInfo.clientId = clientId;
+        halScheduleInfo.scheduleId = scheduleInfo.scheduleId;
+        halScheduleInfo.taskData = scheduleInfo.taskData;
+        halScheduleInfo.count = scheduleInfo.count;
+        halScheduleInfo.startTimeInEpochSeconds = scheduleInfo.startTimeInEpochSeconds;
+        halScheduleInfo.periodicInSeconds = scheduleInfo.periodicInSeconds;
+        try {
+            mRemoteAccessHalWrapper.scheduleTask(halScheduleInfo);
+        } catch (RemoteException | ServiceSpecificException e) {
+            throw new ServiceSpecificException(SERVICE_ERROR_CODE_GENERAL,
+                    "failed to call IRemoteAccess.scheduleTask with scheduleInfo: "
+                    + halScheduleInfo + ", error: " + e);
+        }
     }
 
     /**
@@ -730,7 +793,16 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
      */
     @Override
     public void unscheduleTask(String scheduleId) {
-        // TODO(282792374): Implement this.
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_REMOTE_ACCESS);
+        Preconditions.checkArgument(scheduleId != null, "scheduleId must not be null");
+        String clientId = getServerlessCallerClientId();
+        try {
+            mRemoteAccessHalWrapper.unscheduleTask(clientId, scheduleId);
+        } catch (RemoteException | ServiceSpecificException e) {
+            throw new ServiceSpecificException(SERVICE_ERROR_CODE_GENERAL,
+                    "failed to call IRemoteAccess.unscheduleTask with clientId: "
+                    + clientId + ", scheduleId: " + scheduleId+ ", error: " + e);
+        }
     }
 
     /**
@@ -738,7 +810,15 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
      */
     @Override
     public void unscheduleAllTasks() {
-        // TODO(282792374): Implement this.
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_REMOTE_ACCESS);
+        String clientId = getServerlessCallerClientId();
+        try {
+            mRemoteAccessHalWrapper.unscheduleAllTasks(clientId);
+        } catch (RemoteException | ServiceSpecificException e) {
+            throw new ServiceSpecificException(SERVICE_ERROR_CODE_GENERAL,
+                    "failed to call IRemoteAccess.unscheduleAllTasks with clientId: "
+                    + clientId + ", error: " + e);
+        }
     }
 
     /**
@@ -746,8 +826,16 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
      */
     @Override
     public boolean isTaskScheduled(String scheduleId) {
-        // TODO(282792374): Implement this.
-        return false;
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_REMOTE_ACCESS);
+        Preconditions.checkArgument(scheduleId != null, "scheduleId must not be null");
+        String clientId = getServerlessCallerClientId();
+        try {
+            return mRemoteAccessHalWrapper.isTaskScheduled(clientId, scheduleId);
+        } catch (RemoteException | ServiceSpecificException e) {
+            throw new ServiceSpecificException(SERVICE_ERROR_CODE_GENERAL,
+                    "failed to call IRemoteAccess.isTaskScheduled with clientId: "
+                    + clientId + ", scheduleId: " + scheduleId+ ", error: " + e);
+        }
     }
 
     /**
@@ -755,8 +843,28 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
      */
     @Override
     public List<TaskScheduleInfo> getAllScheduledTasks() {
-        // TODO(282792374): Implement this.
-        return null;
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_REMOTE_ACCESS);
+        String clientId = getServerlessCallerClientId();
+        List<TaskScheduleInfo> taskScheduleInfoList = new ArrayList<>();
+        try {
+            List<ScheduleInfo> halScheduleInfoList = mRemoteAccessHalWrapper.getAllScheduledTasks(
+                    clientId);
+            for (int i = 0; i < halScheduleInfoList.size(); i++) {
+                ScheduleInfo halScheduleInfo = halScheduleInfoList.get(i);
+                TaskScheduleInfo taskScheduleInfo = new TaskScheduleInfo();
+                taskScheduleInfo.scheduleId = halScheduleInfo.scheduleId;
+                taskScheduleInfo.taskData = halScheduleInfo.taskData;
+                taskScheduleInfo.count = halScheduleInfo.count;
+                taskScheduleInfo.startTimeInEpochSeconds = halScheduleInfo.startTimeInEpochSeconds;
+                taskScheduleInfo.periodicInSeconds = halScheduleInfo.periodicInSeconds;
+                taskScheduleInfoList.add(taskScheduleInfo);
+            }
+            return taskScheduleInfoList;
+        } catch (RemoteException | ServiceSpecificException e) {
+            throw new ServiceSpecificException(SERVICE_ERROR_CODE_GENERAL,
+                    "failed to call IRemoteAccess.getAllScheduledTasks with clientId: "
+                    + clientId + ", error: " + e);
+        }
     }
 
     @GuardedBy("mLock")
