@@ -17,7 +17,6 @@
 package android.car.view;
 
 import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeast;
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.MainThread;
 import android.annotation.NonNull;
@@ -132,7 +131,6 @@ public final class MirroredSurfaceView extends SurfaceView {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
     public boolean mirrorSurface(@NonNull IBinder token) {
-        assertPlatformVersionAtLeastU();
         if (mCarAM == null) {
             Slogf.e(TAG, "Failed to mirrorSurface because CarService isn't ready yet");
             return false;
@@ -165,7 +163,6 @@ public final class MirroredSurfaceView extends SurfaceView {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
     public void setObscuredTouchRegion(@Nullable Region obscuredRegion) {
-        assertPlatformVersionAtLeastU();
         mTouchableInsetsProvider.setObscuredTouchRegion(obscuredRegion);
     }
 
@@ -176,7 +173,6 @@ public final class MirroredSurfaceView extends SurfaceView {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
     public void release() {
-        assertPlatformVersionAtLeastU();
         getHolder().removeCallback(mSurfaceCallback);
         removeMirroredSurface();
     }
@@ -261,7 +257,6 @@ public final class MirroredSurfaceView extends SurfaceView {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     protected void onAttachedToWindow() {
-        assertPlatformVersionAtLeastU();
         super.onAttachedToWindow();
         mTouchableInsetsProvider.addToViewTreeObserver();
     }
@@ -270,7 +265,6 @@ public final class MirroredSurfaceView extends SurfaceView {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     protected void onDetachedFromWindow() {
-        assertPlatformVersionAtLeastU();
         mTouchableInsetsProvider.removeFromViewTreeObserver();
         super.onDetachedFromWindow();
     }

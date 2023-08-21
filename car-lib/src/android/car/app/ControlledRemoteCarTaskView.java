@@ -16,7 +16,6 @@
 
 package android.car.app;
 
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.MainThread;
 import android.annotation.NonNull;
@@ -139,7 +138,6 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
     public void startActivity() {
-        assertPlatformVersionAtLeastU();
         if (!mUserManager.isUserUnlocked()) {
             if (CarTaskViewController.DBG) {
                 Slogf.d(TAG, "Can't start activity due to user is isn't unlocked");
@@ -213,7 +211,6 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     @Override
     @MainThread
     public void showEmbeddedTask() {
-        assertPlatformVersionAtLeastU();
         super.showEmbeddedTask();
         if (getTaskInfo() == null) {
             if (CarTaskViewController.DBG) {
