@@ -1044,6 +1044,16 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
         }
 
         /**
+         * Sets max string length if not set. If already set, the method is a no-op.
+         */
+        public Builder setMaxStringLengthIfNotSet(int maxStringLength) {
+            if (mMaxStringLength == UX_RESTRICTIONS_UNKNOWN) {
+                mMaxStringLength = maxStringLength;
+            }
+            return this;
+        }
+
+        /**
          * Sets max cumulative content items.
          */
         @AddedInOrBefore(majorVersion = 33)
@@ -1053,11 +1063,31 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
         }
 
         /**
+         * Sets max cumulative content items if not set. If already set, the method is a no-op.
+         */
+        public Builder setMaxCumulativeContentItemsIfNotSet(int maxCumulativeContentItems) {
+            if (mMaxCumulativeContentItems == UX_RESTRICTIONS_UNKNOWN) {
+                mMaxCumulativeContentItems = maxCumulativeContentItems;
+            }
+            return this;
+        }
+
+        /**
          * Sets max content depth.
          */
         @AddedInOrBefore(majorVersion = 33)
         public Builder setMaxContentDepth(int maxContentDepth) {
             mMaxContentDepth = maxContentDepth;
+            return this;
+        }
+
+        /**
+         * Sets max content depth if not set. If already set, the method is a no-op.
+         */
+        public Builder setMaxContentDepthIfNotSet(int maxContentDepth) {
+            if (mMaxContentDepth == UX_RESTRICTIONS_UNKNOWN) {
+                mMaxContentDepth = maxContentDepth;
+            }
             return this;
         }
 

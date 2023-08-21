@@ -836,6 +836,50 @@ public final class CarUxRestrictionsConfigurationTest extends CarLessApiTestBase
     }
 
     @Test
+    public void testHasSameParameters_SameParameters_returnsTrue() {
+        CarUxRestrictionsConfiguration.Builder builder =
+                new CarUxRestrictionsConfiguration.Builder()
+                        .setMaxStringLengthIfNotSet(1)
+                        .setMaxCumulativeContentItemsIfNotSet(1)
+                        .setMaxContentDepthIfNotSet(1);
+
+        CarUxRestrictionsConfiguration one = builder.setMaxStringLengthIfNotSet(2)
+                .setMaxCumulativeContentItemsIfNotSet(1)
+                .setMaxContentDepthIfNotSet(1)
+                .build();
+
+        CarUxRestrictionsConfiguration other = new CarUxRestrictionsConfiguration.Builder()
+                .setMaxStringLength(1)
+                .setMaxCumulativeContentItems(1)
+                .setMaxContentDepth(1)
+                .build();
+
+        assertThat(one.hasSameParameters(other)).isTrue();
+    }
+
+    @Test
+    public void testHasSameParameters_DifferentParameters_returnsFalse() {
+        CarUxRestrictionsConfiguration.Builder builder =
+                new CarUxRestrictionsConfiguration.Builder()
+                        .setMaxStringLengthIfNotSet(2)
+                        .setMaxCumulativeContentItemsIfNotSet(1)
+                        .setMaxContentDepthIfNotSet(1);
+
+        CarUxRestrictionsConfiguration one = builder.setMaxStringLengthIfNotSet(1)
+                .setMaxCumulativeContentItemsIfNotSet(1)
+                .setMaxContentDepthIfNotSet(1)
+                .build();
+
+        CarUxRestrictionsConfiguration other = new CarUxRestrictionsConfiguration.Builder()
+                .setMaxStringLength(1)
+                .setMaxCumulativeContentItems(1)
+                .setMaxContentDepth(1)
+                .build();
+
+        assertThat(one.hasSameParameters(other)).isFalse();
+    }
+
+    @Test
     public void testParcelableConfiguration() {
         CarUxRestrictionsConfiguration config = new CarUxRestrictionsConfiguration.Builder()
                 .setPhysicalPort(1)
