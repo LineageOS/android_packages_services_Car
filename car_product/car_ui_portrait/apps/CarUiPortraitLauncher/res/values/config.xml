@@ -63,5 +63,11 @@
         <item>android.view.surfacecontrol.cts/android.view.cts.surfacevalidator.CapturedActivityWithResource</item>
         <item>android.uirendering.cts/android.uirendering.cts.testinfrastructure.DrawActivity</item>
         <item>android.display.cts/android.display.cts.DisplayManagerTest$TestActivity</item>
+        <!-- TODO(b/297060765): Remove AssistantActivity & AnimationTestActivity once find a proper
+                solution on AssistantStackTests test. The tests expects AssistantActivity to be
+                hidden when AnimationTestActivity shows. Without this assignment, the two activities
+                 will be in different tasks, which will cause the test to fail.-->
+        <item>android.server.wm.app/android.server.wm.app.AssistantActivity</item>
+        <item>android.server.wm.app/android.server.wm.app.AnimationTestActivity</item>
     </string-array>
 </resources>
