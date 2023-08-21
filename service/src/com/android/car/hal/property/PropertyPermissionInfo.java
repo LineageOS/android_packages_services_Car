@@ -17,8 +17,45 @@
 package com.android.car.hal.property;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_DEFAULT;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_1;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_10;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_2;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_3;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_4;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_5;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_6;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_7;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_8;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_9;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_DOOR;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_ENGINE;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_HVAC;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_INFO;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_LIGHT;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_MIRROR;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_SEAT;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_WINDOW;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_NOT_ACCESSIBLE;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_1;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_10;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_2;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_3;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_4;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_5;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_6;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_7;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_8;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_9;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_DOOR;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_ENGINE;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_HVAC;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_INFO;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_LIGHT;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_MIRROR;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_SEAT;
+import static android.hardware.automotive.vehicle.VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_WINDOW;
 
-import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.VehiclePropertyIds;
@@ -44,60 +81,6 @@ import java.util.Objects;
  */
 public class PropertyPermissionInfo {
     private static final String TAG = CarLog.tagFor(PropertyPermissionInfo.class);
-
-    // Vendor permission enums
-    // default vendor permission
-    private static final int PERMISSION_CAR_VENDOR_DEFAULT = 0x00000000;
-
-    // permissions for the property related with window
-    private static final int PERMISSION_SET_CAR_VENDOR_CATEGORY_WINDOW = 0X00000001;
-    private static final int PERMISSION_GET_CAR_VENDOR_CATEGORY_WINDOW = 0x00000002;
-    // permissions for the property related with door
-    private static final int PERMISSION_SET_CAR_VENDOR_CATEGORY_DOOR = 0x00000003;
-    private static final int PERMISSION_GET_CAR_VENDOR_CATEGORY_DOOR = 0x00000004;
-    // permissions for the property related with seat
-    private static final int PERMISSION_SET_CAR_VENDOR_CATEGORY_SEAT = 0x00000005;
-    private static final int PERMISSION_GET_CAR_VENDOR_CATEGORY_SEAT = 0x00000006;
-    // permissions for the property related with mirror
-    private static final int PERMISSION_SET_CAR_VENDOR_CATEGORY_MIRROR = 0x00000007;
-    private static final int PERMISSION_GET_CAR_VENDOR_CATEGORY_MIRROR = 0x00000008;
-
-    // permissions for the property related with car's information
-    private static final int PERMISSION_SET_CAR_VENDOR_CATEGORY_INFO = 0x00000009;
-    private static final int PERMISSION_GET_CAR_VENDOR_CATEGORY_INFO = 0x0000000A;
-    // permissions for the property related with car's engine
-    private static final int PERMISSION_SET_CAR_VENDOR_CATEGORY_ENGINE = 0x0000000B;
-    private static final int PERMISSION_GET_CAR_VENDOR_CATEGORY_ENGINE = 0x0000000C;
-    // permissions for the property related with car's HVAC
-    private static final int PERMISSION_SET_CAR_VENDOR_CATEGORY_HVAC = 0x0000000D;
-    private static final int PERMISSION_GET_CAR_VENDOR_CATEGORY_HVAC = 0x0000000E;
-    // permissions for the property related with car's light
-    private static final int PERMISSION_SET_CAR_VENDOR_CATEGORY_LIGHT = 0x0000000F;
-    private static final int PERMISSION_GET_CAR_VENDOR_CATEGORY_LIGHT = 0x00000010;
-
-    // permissions reserved for other vendor permission
-    private static final int PERMISSION_SET_CAR_VENDOR_CATEGORY_1 = 0x00010000;
-    private static final int PERMISSION_GET_CAR_VENDOR_CATEGORY_1 = 0x00011000;
-    private static final int PERMISSION_SET_CAR_VENDOR_CATEGORY_2 = 0x00020000;
-    private static final int PERMISSION_GET_CAR_VENDOR_CATEGORY_2 = 0x00021000;
-    private static final int PERMISSION_SET_CAR_VENDOR_CATEGORY_3 = 0x00030000;
-    private static final int PERMISSION_GET_CAR_VENDOR_CATEGORY_3 = 0x00031000;
-    private static final int PERMISSION_SET_CAR_VENDOR_CATEGORY_4 = 0x00040000;
-    private static final int PERMISSION_GET_CAR_VENDOR_CATEGORY_4 = 0x00041000;
-    private static final int PERMISSION_SET_CAR_VENDOR_CATEGORY_5 = 0x00050000;
-    private static final int PERMISSION_GET_CAR_VENDOR_CATEGORY_5 = 0x00051000;
-    private static final int PERMISSION_SET_CAR_VENDOR_CATEGORY_6 = 0x00060000;
-    private static final int PERMISSION_GET_CAR_VENDOR_CATEGORY_6 = 0x00061000;
-    private static final int PERMISSION_SET_CAR_VENDOR_CATEGORY_7 = 0x00070000;
-    private static final int PERMISSION_GET_CAR_VENDOR_CATEGORY_7 = 0x00071000;
-    private static final int PERMISSION_SET_CAR_VENDOR_CATEGORY_8 = 0x00080000;
-    private static final int PERMISSION_GET_CAR_VENDOR_CATEGORY_8 = 0x00081000;
-    private static final int PERMISSION_SET_CAR_VENDOR_CATEGORY_9 = 0x00090000;
-    private static final int PERMISSION_GET_CAR_VENDOR_CATEGORY_9 = 0x00091000;
-    private static final int PERMISSION_SET_CAR_VENDOR_CATEGORY_10 = 0x000A0000;
-    private static final int PERMISSION_GET_CAR_VENDOR_CATEGORY_10 = 0x000A1000;
-    // Not available for android
-    private static final int PERMISSION_CAR_VENDOR_NOT_ACCESSIBLE = 0xF0000000;
 
     // Create SinglePermission objects for each permission
     private static final SinglePermission PERMISSION_CONTROL_CAR_DOORS =
@@ -589,81 +572,81 @@ public class PropertyPermissionInfo {
     @Nullable
     public static String toPermissionString(int permissionEnum, int propId) {
         switch (permissionEnum) {
-            case PERMISSION_CAR_VENDOR_DEFAULT:
+            case PERMISSION_DEFAULT:
                 return Car.PERMISSION_VENDOR_EXTENSION;
-            case PERMISSION_SET_CAR_VENDOR_CATEGORY_WINDOW:
+            case PERMISSION_SET_VENDOR_CATEGORY_WINDOW:
                 return VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_WINDOW;
-            case PERMISSION_GET_CAR_VENDOR_CATEGORY_WINDOW:
+            case PERMISSION_GET_VENDOR_CATEGORY_WINDOW:
                 return VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_WINDOW;
-            case PERMISSION_SET_CAR_VENDOR_CATEGORY_DOOR:
+            case PERMISSION_SET_VENDOR_CATEGORY_DOOR:
                 return VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_DOOR;
-            case PERMISSION_GET_CAR_VENDOR_CATEGORY_DOOR:
+            case PERMISSION_GET_VENDOR_CATEGORY_DOOR:
                 return VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_DOOR;
-            case PERMISSION_SET_CAR_VENDOR_CATEGORY_SEAT:
+            case PERMISSION_SET_VENDOR_CATEGORY_SEAT:
                 return VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_SEAT;
-            case PERMISSION_GET_CAR_VENDOR_CATEGORY_SEAT:
+            case PERMISSION_GET_VENDOR_CATEGORY_SEAT:
                 return VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_SEAT;
-            case PERMISSION_SET_CAR_VENDOR_CATEGORY_MIRROR:
+            case PERMISSION_SET_VENDOR_CATEGORY_MIRROR:
                 return VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_MIRROR;
-            case PERMISSION_GET_CAR_VENDOR_CATEGORY_MIRROR:
+            case PERMISSION_GET_VENDOR_CATEGORY_MIRROR:
                 return VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_MIRROR;
-            case PERMISSION_SET_CAR_VENDOR_CATEGORY_INFO:
+            case PERMISSION_SET_VENDOR_CATEGORY_INFO:
                 return VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_INFO;
-            case PERMISSION_GET_CAR_VENDOR_CATEGORY_INFO:
+            case PERMISSION_GET_VENDOR_CATEGORY_INFO:
                 return VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_INFO;
-            case PERMISSION_SET_CAR_VENDOR_CATEGORY_ENGINE:
+            case PERMISSION_SET_VENDOR_CATEGORY_ENGINE:
                 return VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_ENGINE;
-            case PERMISSION_GET_CAR_VENDOR_CATEGORY_ENGINE:
+            case PERMISSION_GET_VENDOR_CATEGORY_ENGINE:
                 return VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_ENGINE;
-            case PERMISSION_SET_CAR_VENDOR_CATEGORY_HVAC:
+            case PERMISSION_SET_VENDOR_CATEGORY_HVAC:
                 return VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_HVAC;
-            case PERMISSION_GET_CAR_VENDOR_CATEGORY_HVAC:
+            case PERMISSION_GET_VENDOR_CATEGORY_HVAC:
                 return VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_HVAC;
-            case PERMISSION_SET_CAR_VENDOR_CATEGORY_LIGHT:
+            case PERMISSION_SET_VENDOR_CATEGORY_LIGHT:
                 return VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_LIGHT;
-            case PERMISSION_GET_CAR_VENDOR_CATEGORY_LIGHT:
+            case PERMISSION_GET_VENDOR_CATEGORY_LIGHT:
                 return VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_LIGHT;
-            case PERMISSION_SET_CAR_VENDOR_CATEGORY_1:
+            case PERMISSION_SET_VENDOR_CATEGORY_1:
                 return VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_1;
-            case PERMISSION_GET_CAR_VENDOR_CATEGORY_1:
+            case PERMISSION_GET_VENDOR_CATEGORY_1:
                 return VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_1;
-            case PERMISSION_SET_CAR_VENDOR_CATEGORY_2:
+            case PERMISSION_SET_VENDOR_CATEGORY_2:
                 return VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_2;
-            case PERMISSION_GET_CAR_VENDOR_CATEGORY_2:
+            case PERMISSION_GET_VENDOR_CATEGORY_2:
                 return VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_2;
-            case PERMISSION_SET_CAR_VENDOR_CATEGORY_3:
+            case PERMISSION_SET_VENDOR_CATEGORY_3:
                 return VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_3;
-            case PERMISSION_GET_CAR_VENDOR_CATEGORY_3:
+            case PERMISSION_GET_VENDOR_CATEGORY_3:
                 return VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_3;
-            case PERMISSION_SET_CAR_VENDOR_CATEGORY_4:
+            case PERMISSION_SET_VENDOR_CATEGORY_4:
                 return VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_4;
-            case PERMISSION_GET_CAR_VENDOR_CATEGORY_4:
+            case PERMISSION_GET_VENDOR_CATEGORY_4:
                 return VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_4;
-            case PERMISSION_SET_CAR_VENDOR_CATEGORY_5:
+            case PERMISSION_SET_VENDOR_CATEGORY_5:
                 return VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_5;
-            case PERMISSION_GET_CAR_VENDOR_CATEGORY_5:
+            case PERMISSION_GET_VENDOR_CATEGORY_5:
                 return VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_5;
-            case PERMISSION_SET_CAR_VENDOR_CATEGORY_6:
+            case PERMISSION_SET_VENDOR_CATEGORY_6:
                 return VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_6;
-            case PERMISSION_GET_CAR_VENDOR_CATEGORY_6:
+            case PERMISSION_GET_VENDOR_CATEGORY_6:
                 return VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_6;
-            case PERMISSION_SET_CAR_VENDOR_CATEGORY_7:
+            case PERMISSION_SET_VENDOR_CATEGORY_7:
                 return VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_7;
-            case PERMISSION_GET_CAR_VENDOR_CATEGORY_7:
+            case PERMISSION_GET_VENDOR_CATEGORY_7:
                 return VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_7;
-            case PERMISSION_SET_CAR_VENDOR_CATEGORY_8:
+            case PERMISSION_SET_VENDOR_CATEGORY_8:
                 return VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_8;
-            case PERMISSION_GET_CAR_VENDOR_CATEGORY_8:
+            case PERMISSION_GET_VENDOR_CATEGORY_8:
                 return VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_8;
-            case PERMISSION_SET_CAR_VENDOR_CATEGORY_9:
+            case PERMISSION_SET_VENDOR_CATEGORY_9:
                 return VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_9;
-            case PERMISSION_GET_CAR_VENDOR_CATEGORY_9:
+            case PERMISSION_GET_VENDOR_CATEGORY_9:
                 return VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_9;
-            case PERMISSION_SET_CAR_VENDOR_CATEGORY_10:
+            case PERMISSION_SET_VENDOR_CATEGORY_10:
                 return VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_10;
-            case PERMISSION_GET_CAR_VENDOR_CATEGORY_10:
+            case PERMISSION_GET_VENDOR_CATEGORY_10:
                 return VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_10;
-            case PERMISSION_CAR_VENDOR_NOT_ACCESSIBLE:
+            case PERMISSION_NOT_ACCESSIBLE:
                 return null;
             default:
                 throw new IllegalArgumentException("permission Id: " + permissionEnum
