@@ -270,6 +270,18 @@ public final class ApiCheckerRule implements TestRule {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
+                base.evaluate();
+            }
+        };
+    }
+
+    // TODO(b/285930588):ApiCheckerRule is no longer required. But the code can be useful,
+    // Currently disabling the rule. As part of the bug, more investigation is required how to
+    // clean up API Checker Rule.
+    public Statement applyOld(Statement base, Description description) {
+        return new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
                 mTestMethodName = description.getMethodName();
                 try {
                     evaluateInternal();
