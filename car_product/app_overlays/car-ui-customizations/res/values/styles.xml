@@ -111,6 +111,13 @@
         <item name="android:textColor">@color/car_ui_text_color_secondary</item>
     </style>
 
+    <style name="TextAppearance.CarUi.ListItem" parent="TextAppearance.CarUi.Body1"/>
+
+    <style name="TextAppearance.CarUi.ListItem.Body" parent="TextAppearance.CarUi.Body3">
+        <item name="android:textColor">@color/car_ui_text_color_secondary</item>
+    </style>
+
+
     <style name="Widget.CarUi.Toolbar.Container"></style>
     <style name="Widget.CarUi.Toolbar.LogoContainer">
         <item name="android:paddingEnd">@dimen/car_ui_toolbar_title_logo_padding</item>
