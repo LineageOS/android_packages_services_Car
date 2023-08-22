@@ -58,6 +58,14 @@
         <item>android.widget.cts/android.widget.cts.AdapterViewCtsActivity</item>
         <item>android.widget.cts/android.widget.cts.EditTextCtsActivity</item>
         <item>android.sdksandbox.webkit.cts/android.app.sdksandbox.testutils.testscenario.SdkSandboxCtsActivity</item>
+        <item>android.server.wm.app/android.server.wm.app.MaxAspectRatioActivity</item>
+        <item>android.server.wm.app/android.server.wm.app.MaxAspectRatioResizableActivity</item>
+        <item>android.server.wm.app/android.server.wm.app.MaxAspectRatioUnsetActivity</item>
+        <item>android.server.wm.app/android.server.wm.app.MetaDataMaxAspectRatioActivity</item>
+        <item>android.server.wm.app/android.server.wm.app.MinAspectRatioActivity</item>
+        <item>android.server.wm.app/android.server.wm.app.MinAspectRatioLandscapeActivity</item>
+        <item>android.server.wm.app/android.server.wm.app.MinAspectRatioPortraitActivity</item>
+        <item>android.server.wm.app/android.server.wm.app.MinAspectRatioUnsetActivity</item>
         <item>android.view.surfacecontrol.cts/android.view.cts.surfacevalidator.CapturedActivity</item>
         <item>android.view.surfacecontrol.cts/.TrustedPresentationCallbackTest$TestActivity</item>
         <item>android.view.surfacecontrol.cts/android.view.cts.surfacevalidator.CapturedActivityWithResource</item>
