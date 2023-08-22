@@ -61,6 +61,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -525,6 +527,30 @@ public class BugReportService extends Service {
                 .notify(BUGREPORT_FINISHED_NOTIF_ID, notification);
     }
 
+    /** Moves extra screenshots from a screenshot directory to a given directory. */
+    private void moveExtraScreenshots(File destinationDir) {
+        String screenshotDirPath = ScreenshotUtils.getScreenshotDir();
+        if (screenshotDirPath == null) {
+            return;
+        }
+        File screenshotDir = new File(screenshotDirPath);
+        if (!screenshotDir.isDirectory()) {
+            return;
+        }
+        for (File file : screenshotDir.listFiles()) {
+            if (file.isDirectory()) {
+                continue;
+            }
+            String destinationPath = destinationDir.getPath() + "/" + file.getName();
+            try {
+                Files.move(Paths.get(file.getPath()), Paths.get(destinationPath));
+                Log.i(TAG, "Move a screenshot" + file.getPath() + " to " + destinationPath);
+            } catch (IOException e) {
+                Log.e(TAG, "Cannot move a screenshot" + file.getName() + " to bugreport.", e);
+            }
+        }
+    }
+
     /**
      * Zips the temp directory, writes to the system user's {@link FileUtils#getPendingDir} and
      * updates the bug report status. Note that audio file is always stored in cache directory and
@@ -547,6 +573,10 @@ public class BugReportService extends Service {
             mMetaBugReport = BugStorageUtils.update(this,
                     mMetaBugReport.toBuilder().setBugReportFileName(bugreportFileName).build());
             File bugReportTempDir = FileUtils.getTempDir(this, mMetaBugReport.getTimestamp());
+
+            Log.d(TAG, "Adding extra screenshots into " + bugReportTempDir.getAbsolutePath());
+            moveExtraScreenshots(bugReportTempDir);
+
             zipDirectoryToOutputStream(bugReportTempDir,
                     BugStorageUtils.openBugReportFileToWrite(this, mMetaBugReport));
         } catch (IOException e) {

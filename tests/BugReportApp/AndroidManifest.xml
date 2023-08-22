@@ -81,6 +81,12 @@
             </intent-filter>
         </service>
 
+        <service android:name=".ScreenshotService"
+            android:foregroundServiceType="specialUse"
+            android:exported="true">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="com.android.car.bugreport" />
+        </service>
+
         <service android:name="com.android.car.bugreport.UploadJob"
                  android:permission="android.permission.BIND_JOB_SERVICE"
                  android:exported="false"/>
