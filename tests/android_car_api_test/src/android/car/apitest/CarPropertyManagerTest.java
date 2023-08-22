@@ -16,6 +16,8 @@
 
 package android.car.apitest;
 
+import static android.hardware.automotive.vehicle.TestVendorProperty.VENDOR_PROPERTY_FOR_ERROR_CODE_TESTING;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -49,8 +51,6 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 
 public final class CarPropertyManagerTest extends CarApiTestBase {
-    private static final int VENDOR_ERROR_CODE_PROPERTY_ID = 0x2a13 | VehiclePropertyGroup.VENDOR
-            | VehicleArea.GLOBAL | VehiclePropertyType.INT32;
     private static final int EXPECTED_VENDOR_ERROR_CODE = 0x00ab;
     private static final int NUMBER_OF_TEST_CODES = 0x2000;
     // 557862912
@@ -86,11 +86,12 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
     @Test
     public void testGetProperty_withVendorPropertyId_throws() {
         List<CarPropertyConfig> carPropertyConfigList = mCarPropertyManager.getPropertyList(
-                new ArraySet(List.of(VENDOR_ERROR_CODE_PROPERTY_ID)));
-        assumeTrue("VENDOR_ERROR_CODE_PROPERTY_ID is supported",
+                new ArraySet(List.of(VENDOR_PROPERTY_FOR_ERROR_CODE_TESTING)));
+        assumeTrue("VENDOR_PROPERTY_FOR_ERROR_CODE_TESTING is supported",
                 !carPropertyConfigList.isEmpty());
         CarInternalErrorException thrown = assertThrows(CarInternalErrorException.class, () ->
-                mCarPropertyManager.getProperty(VENDOR_ERROR_CODE_PROPERTY_ID, /* areaId = */ 0));
+                mCarPropertyManager.getProperty(VENDOR_PROPERTY_FOR_ERROR_CODE_TESTING,
+                        /* areaId = */ 0));
 
         assertThat(thrown.getVendorErrorCode()).isEqualTo(EXPECTED_VENDOR_ERROR_CODE);
     }
@@ -99,12 +100,12 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
     @Test
     public void testSetProperty_withVendorPropertyId_throws() {
         List<CarPropertyConfig> carPropertyConfigList = mCarPropertyManager.getPropertyList(
-                new ArraySet(List.of(VENDOR_ERROR_CODE_PROPERTY_ID)));
-        assumeTrue("VENDOR_ERROR_CODE_PROPERTY_ID is supported",
+                new ArraySet(List.of(VENDOR_PROPERTY_FOR_ERROR_CODE_TESTING)));
+        assumeTrue("VENDOR_PROPERTY_FOR_ERROR_CODE_TESTING is supported",
                 !carPropertyConfigList.isEmpty());
         CarInternalErrorException thrown = assertThrows(CarInternalErrorException.class,
-                () -> mCarPropertyManager.setProperty(Integer.class, VENDOR_ERROR_CODE_PROPERTY_ID,
-                        /* areaId = */ 0, /* val= */ 0));
+                () -> mCarPropertyManager.setProperty(Integer.class,
+                        VENDOR_PROPERTY_FOR_ERROR_CODE_TESTING, /* areaId = */ 0, /* val= */ 0));
 
         assertThat(thrown.getVendorErrorCode()).isEqualTo(EXPECTED_VENDOR_ERROR_CODE);
     }
