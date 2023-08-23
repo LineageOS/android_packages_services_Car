@@ -183,7 +183,7 @@ class CarTestService extends ICarTest.Stub implements CarServiceBase {
     }
 
     // A helper class to create a native pipe used in debug functions.
-    private static class NativePipe implements AutoCloseable {
+    /* package */ static class NativePipe implements AutoCloseable {
         private final ParcelFileDescriptor mWriter;
         private final ParcelFileDescriptor mReader;
         private Thread mThread;
