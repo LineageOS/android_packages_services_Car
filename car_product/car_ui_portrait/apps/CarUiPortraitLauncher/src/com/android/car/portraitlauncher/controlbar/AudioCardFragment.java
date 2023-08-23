@@ -39,6 +39,7 @@ public class AudioCardFragment extends Fragment implements HomeCardInterface.Vie
 
     private MediaCardFragment mMediaFragment;
     private DialerCardFragment mInCallFragment;
+    private boolean mViewCreated;
 
     private HomeCardFragment.OnViewLifecycleChangeListener mOnViewLifecycleChangeListener;
 
@@ -50,6 +51,9 @@ public class AudioCardFragment extends Fragment implements HomeCardInterface.Vie
     public void setOnViewLifecycleChangeListener(
             HomeCardFragment.OnViewLifecycleChangeListener onViewLifecycleChangeListener) {
         mOnViewLifecycleChangeListener = onViewLifecycleChangeListener;
+        if (mViewCreated) {
+            mOnViewLifecycleChangeListener.onViewCreated();
+        }
     }
 
     @Override
@@ -63,6 +67,7 @@ public class AudioCardFragment extends Fragment implements HomeCardInterface.Vie
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        mViewCreated = true;
         mMediaFragment = new MediaCardFragment();
         mInCallFragment = new DialerCardFragment();
 
@@ -71,12 +76,15 @@ public class AudioCardFragment extends Fragment implements HomeCardInterface.Vie
         ft.replace(R.id.in_call_fragment_container, mInCallFragment);
         ft.commitNow();
 
-        mOnViewLifecycleChangeListener.onViewCreated();
+        if (mOnViewLifecycleChangeListener != null) {
+            mOnViewLifecycleChangeListener.onViewCreated();
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mViewCreated = false;
         if (mOnViewLifecycleChangeListener != null) {
             mOnViewLifecycleChangeListener.onViewDestroyed();
         }
