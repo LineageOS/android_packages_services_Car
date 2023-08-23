@@ -16,7 +16,6 @@
 
 package android.car.app;
 
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.IntDef;
 import android.annotation.MainThread;
@@ -170,7 +169,6 @@ public final class CarActivityManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void setPersistentActivitiesOnRootTask(@NonNull List<ComponentName> activities,
             @Nullable IBinder rootTaskToken) {
-        assertPlatformVersionAtLeastU();
         try {
             mService.setPersistentActivitiesOnRootTask(activities, rootTaskToken);
         } catch (IllegalArgumentException | IllegalStateException | SecurityException e) {
@@ -342,7 +340,6 @@ public final class CarActivityManager extends CarManagerBase {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void startUserPickerOnDisplay(int displayId) {
-        assertPlatformVersionAtLeastU();
         try {
             mService.startUserPickerOnDisplay(displayId);
         } catch (RemoteException e) {
@@ -362,7 +359,6 @@ public final class CarActivityManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Nullable
     public IBinder createTaskMirroringToken(int taskId) {
-        assertPlatformVersionAtLeastU();
         try {
             return mService.createTaskMirroringToken(taskId);
         } catch (RemoteException e) {
@@ -382,7 +378,6 @@ public final class CarActivityManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Nullable
     public IBinder createDisplayMirroringToken(int displayId) {
-        assertPlatformVersionAtLeastU();
         try {
             return mService.createDisplayMirroringToken(displayId);
         } catch (RemoteException e) {
@@ -404,7 +399,6 @@ public final class CarActivityManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Nullable
     public Pair<SurfaceControl, Rect> getMirroredSurface(@NonNull IBinder token) {
-        assertPlatformVersionAtLeastU();
         try {
             Rect outBounds = new Rect();
             // SurfaceControl constructor is hidden api, so we can get it by the return value.
@@ -436,7 +430,6 @@ public final class CarActivityManager extends CarManagerBase {
             minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void registerCarSystemUIProxy(@NonNull CarSystemUIProxy carSystemUIProxy) {
-        assertPlatformVersionAtLeastU();
         try {
             mService.registerCarSystemUIProxy(new CarSystemUIProxyAidlWrapper(carSystemUIProxy));
         } catch (RemoteException e) {
@@ -454,7 +447,6 @@ public final class CarActivityManager extends CarManagerBase {
             minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public boolean isCarSystemUIProxyRegistered() {
-        assertPlatformVersionAtLeastU();
         try {
             return mService.isCarSystemUIProxyRegistered();
         } catch (RemoteException e) {
@@ -518,7 +510,6 @@ public final class CarActivityManager extends CarManagerBase {
             @NonNull CarTaskViewControllerHostLifecycle carTaskViewControllerHostLifecycle,
             @NonNull Executor callbackExecutor,
             @NonNull CarTaskViewControllerCallback carTaskViewControllerCallback) {
-        assertPlatformVersionAtLeastU();
         try {
             if (mCarTaskViewControllerSupervisor == null) {
                 // Same supervisor is used for multiple activities.
@@ -550,7 +541,6 @@ public final class CarActivityManager extends CarManagerBase {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void moveRootTaskToDisplay(int taskId, int displayId) {
-        assertPlatformVersionAtLeastU();
         try {
             mService.moveRootTaskToDisplay(taskId, displayId);
         } catch (RemoteException e) {

@@ -16,7 +16,6 @@
 
 package android.car.occupantconnection;
 
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -81,7 +80,6 @@ public final class Payload extends LargeParcelableBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Nullable
     public byte[] getBytes() {
-        assertPlatformVersionAtLeastU();
         return mBytes;
     }
 
@@ -90,7 +88,6 @@ public final class Payload extends LargeParcelableBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Nullable
     public IBinder getBinder() {
-        assertPlatformVersionAtLeastU();
         return mBinder;
     }
 
@@ -161,7 +158,6 @@ public final class Payload extends LargeParcelableBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     public void serialize(@NonNull Parcel dest, int flags) {
-        assertPlatformVersionAtLeastU();
         dest.writeBoolean(containsBinder());
         // writeByteArray() uses shared memory, so it cannot be called with writeStrongBinder()
         if (containsBinder()) {
@@ -176,7 +172,6 @@ public final class Payload extends LargeParcelableBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     public void serializeNullPayload(@NonNull Parcel dest) {
-        assertPlatformVersionAtLeastU();
         dest.writeBoolean(false);
         dest.writeByteArray(null);
     }
@@ -186,7 +181,6 @@ public final class Payload extends LargeParcelableBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     public void deserialize(@NonNull Parcel src) {
-        assertPlatformVersionAtLeastU();
         if (src.readBoolean()) {
             mBinder = src.readStrongBinder();
             mBytes = null;
@@ -213,7 +207,6 @@ public final class Payload extends LargeParcelableBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     public void close() {
-        assertPlatformVersionAtLeastU();
         super.close();
     }
 

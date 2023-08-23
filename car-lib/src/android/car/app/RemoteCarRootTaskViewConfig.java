@@ -16,7 +16,6 @@
 
 package android.car.app;
 
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.car.annotation.ApiRequirements;
@@ -103,7 +102,6 @@ public final class RemoteCarRootTaskViewConfig {
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
         @NonNull
         public RemoteCarRootTaskViewConfig build() {
-            assertPlatformVersionAtLeastU();
             return new RemoteCarRootTaskViewConfig(mDisplayId, mAllowListedActivities);
         }
     }

@@ -16,7 +16,6 @@
 
 package android.car;
 
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
@@ -270,7 +269,6 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void onCarDisconnected() {
-        assertPlatformVersionAtLeastU();
         synchronized (mLock) {
             mCallback = null;
             mCallbackExecutor = null;
@@ -293,7 +291,6 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
     public void registerStateCallback(@NonNull @CallbackExecutor Executor executor,
             @NonNull StateCallback callback) {
-        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(executor, "executor cannot be null");
         Objects.requireNonNull(callback, "callback cannot be null");
         synchronized (mLock) {
@@ -325,7 +322,6 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
     public void unregisterStateCallback() {
-        assertPlatformVersionAtLeastU();
         synchronized (mLock) {
             Preconditions.checkState(mCallback != null, "There is no StateCallback "
                     + "registered by this CarRemoteDeviceManager");
@@ -349,7 +345,6 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
     @Nullable
     public PackageInfo getEndpointPackageInfo(@NonNull OccupantZoneInfo occupantZone) {
-        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(occupantZone, "occupantZone cannot be null");
         try {
             return mService.getEndpointPackageInfo(occupantZone.zoneId, mPackageName);
@@ -374,7 +369,6 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(allOf = {Car.PERMISSION_CAR_POWER, Car.PERMISSION_MANAGE_REMOTE_DEVICE})
     public void setOccupantZonePower(@NonNull OccupantZoneInfo occupantZone, boolean powerOn) {
-        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(occupantZone, "occupantZone cannot be null");
         try {
             mService.setOccupantZonePower(occupantZone, powerOn);
@@ -392,7 +386,6 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
     public boolean isOccupantZonePowerOn(@NonNull OccupantZoneInfo occupantZone) {
-        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(occupantZone, "occupantZone cannot be null");
         try {
             return mService.isOccupantZonePowerOn(occupantZone);

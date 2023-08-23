@@ -18,7 +18,6 @@ package android.car.hardware.power;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
@@ -697,7 +696,6 @@ public class CarPowerManager extends CarManagerBase {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void setDisplayPowerState(int displayId, boolean enable) {
-        assertPlatformVersionAtLeastU();
         try {
             mService.setDisplayPowerState(displayId, enable);
         } catch (RemoteException e) {
@@ -715,7 +713,6 @@ public class CarPowerManager extends CarManagerBase {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void notifyUserActivity(int displayId) {
-        assertPlatformVersionAtLeastU();
         try {
             mService.notifyUserActivity(displayId);
         } catch (RemoteException e) {
