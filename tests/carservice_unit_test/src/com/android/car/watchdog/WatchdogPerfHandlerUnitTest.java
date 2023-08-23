@@ -158,7 +158,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     private static final int RECURRING_OVERUSE_PERIOD_IN_DAYS = 2;
     private static final int IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES = 500 * 1024 * 1024;
     private static final long STATS_DURATION_SECONDS = 3 * 60 * 60;
-    private static final long OVERUSE_HANDLING_DELAY_MILLS = 1000;
+    private static final long OVERUSE_HANDLING_DELAY_MILLS = 50;
     private static final int PACKAGE_KILLABLE_STATE_RESET_DAYS = 90;
     private static final long SYSTEM_DAILY_IO_USAGE_SUMMARY_MULTIPLIER = 10_000;
     private static final int CURRENT_USER_ID = 100;
