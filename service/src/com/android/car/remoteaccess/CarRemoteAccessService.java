@@ -116,8 +116,6 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private static final String CLIENT_PREFIX = "client";
     private static final int RANDOM_STRING_LENGTH = 12;
     private static final int MIN_SYSTEM_UPTIME_FOR_REMOTE_ACCESS_IN_SEC = 30;
-    // Client ID remains valid for 30 days since issued.
-    private static final long CLIENT_ID_EXPIRATION_IN_MILLIS = 30L * 24L * 60L * 60L * 1000L;
     private static final Duration PACKAGE_SEARCH_DELAY = Duration.ofSeconds(1);
     // Add some randomness to package search delay to avoid thundering herd issue.
     private static final Duration PACKAGE_SEARCH_DELAY_RAND_RANGE = Duration.ofMillis(100);
@@ -269,14 +267,6 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             }
             // Token must not be null if mUidByClientId contains clientId.
             token = mClientTokenByUidName.get(uidName);
-            if (!token.isClientIdValid()) {
-                // TODO(b/266371728): Handle client ID expiration.
-                Slogf.w(TAG, "Cannot notify task: clientID has expired: token = %s", token);
-                Slogf.w(TAG, "Removing all the pending tasks for client ID: %s", clientId);
-                // Remove all tasks for this client ID.
-                mTasksToBeNotifiedByClientId.remove(clientId);
-                return;
-            }
             serviceInfo = mClientServiceInfoByUid.get(uidName);
             if (serviceInfo == null) {
                 Slogf.w(TAG, "Notifying task is delayed: the remote client service information "
@@ -1455,7 +1445,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             }
             for (int i = 0; i < mClientTokenByUidName.size(); i++) {
                 ClientToken token = mClientTokenByUidName.valueAt(i);
-                if (token.getCallback() == null || !token.isClientIdValid()) {
+                if (token.getCallback() == null) {
                     Slogf.w(TAG, "Notifying client(%s) of shutdownStarting is skipped: invalid "
                             + "client token", token);
                     continue;
@@ -1697,12 +1687,6 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             synchronized (mTokenLock) {
                 return mCallback;
             }
-        }
-
-        public boolean isClientIdValid() {
-            long now = System.currentTimeMillis();
-            return mClientId != null
-                    && (now - mIdCreationTimeInMs) < CLIENT_ID_EXPIRATION_IN_MILLIS;
         }
 
         public void setCallback(ICarRemoteAccessCallback callback) {
