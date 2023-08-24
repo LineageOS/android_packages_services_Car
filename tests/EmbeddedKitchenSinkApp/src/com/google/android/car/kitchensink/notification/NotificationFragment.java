@@ -107,6 +107,7 @@ public class NotificationFragment extends Fragment {
         initCustomGroupSummaryButton(view);
         initGroupWithoutSummaryButton(view);
         initCustomizableMessageButton(view);
+        initButtonWithCustomActionIcon(view);
 
         return view;
     }
@@ -892,5 +893,37 @@ public class NotificationFragment extends Fragment {
                 mHandler.post(() -> mManager.notify(mCurrentNotificationId++, notification));
             }
         });
+    }
+
+    private void initButtonWithCustomActionIcon(View view) {
+        Intent intent = new Intent(mContext, KitchenSinkActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent,
+                PendingIntent.FLAG_IMMUTABLE);
+
+        Notification notification = new Notification
+                .Builder(mContext, IMPORTANCE_HIGH_ID)
+                .setContentTitle("Notification with custom button icon")
+                .setContentText(
+                        "Icons should be shown in the action buttons")
+                .setSmallIcon(R.drawable.car_ic_mode)
+                .addAction(
+                        new Notification.Action.Builder(
+                                R.drawable.architecture, "architecture", pendingIntent)
+                                .build())
+                .addAction(
+                        new Notification.Action.Builder(
+                                Icon.createWithResource(this.getContext(), R.drawable.archive),
+                                "archive", pendingIntent).build())
+                .addAction(
+                        new Notification.Action.Builder(
+                                Icon.createWithResource(this.getContext().getPackageName(),
+                                        R.drawable.audiotrack),
+                                "audio-track", pendingIntent).build())
+                .setColor(mContext.getColor(android.R.color.holo_red_light))
+                .build();
+
+        view.findViewById(R.id.actions_with_icons).setOnClickListener(
+                v -> mManager.notify(mCurrentNotificationId++, notification)
+        );
     }
 }
