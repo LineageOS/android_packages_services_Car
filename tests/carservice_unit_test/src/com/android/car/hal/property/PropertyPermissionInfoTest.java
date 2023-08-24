@@ -16,8 +16,6 @@
 
 package com.android.car.hal.property;
 
-import static com.android.car.CarServiceUtils.toIntArray;
-
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -27,14 +25,16 @@ import android.car.Car;
 import android.car.VehiclePropertyIds;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.hardware.automotive.vehicle.VehicleVendorPermission;
-import android.util.Log;
 
-import androidx.test.runner.AndroidJUnit4;
+import org.junit.runners.JUnit4;
 
 import com.android.car.hal.property.PropertyPermissionInfo.AllOfPermissions;
 import com.android.car.hal.property.PropertyPermissionInfo.AnyOfPermissions;
+import com.android.car.hal.property.PropertyPermissionInfo.PermissionCondition;
+import com.android.car.hal.property.PropertyPermissionInfo.PropertyPermissions;
 import com.android.car.hal.property.PropertyPermissionInfo.SinglePermission;
+
+import com.google.common.testing.EqualsTester;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,10 +44,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import java.util.ArrayList;
-import java.util.List;
-
-@RunWith(AndroidJUnit4.class)
+@RunWith(JUnit4.class)
 public class PropertyPermissionInfoTest {
     private static final String TAG = PropertyPermissionInfoTest.class.getSimpleName();
     private static final int VENDOR_PROPERTY_1 = 0x21e01111;
@@ -68,23 +65,6 @@ public class PropertyPermissionInfoTest {
     @Before
     public void setUp() {
         mPropertyPermissionInfo = new PropertyPermissionInfo();
-
-        when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_CAR_ENGINE_DETAILED))
-                .thenReturn(PackageManager.PERMISSION_GRANTED);
-        when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE))
-                .thenReturn(PackageManager.PERMISSION_GRANTED);
-        when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_READ_WINDSHIELD_WIPERS))
-                .thenReturn(PackageManager.PERMISSION_DENIED);
-        when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_CONTROL_WINDSHIELD_WIPERS))
-                .thenReturn(PackageManager.PERMISSION_GRANTED);
-        when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_CONTROL_ADAS_STATES))
-                .thenReturn(PackageManager.PERMISSION_DENIED);
-        when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
-                .thenReturn(PackageManager.PERMISSION_DENIED);
-        when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_CONTROL_DISPLAY_UNITS))
-                .thenReturn(PackageManager.PERMISSION_GRANTED);
-        when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_VENDOR_EXTENSION))
-                .thenReturn(PackageManager.PERMISSION_GRANTED);
     }
 
     /**
@@ -113,9 +93,10 @@ public class PropertyPermissionInfoTest {
                 .getWritePermission(VehiclePropertyIds.CRUISE_CONTROL_COMMAND).toString())
                 .isEqualTo(Car.PERMISSION_CONTROL_ADAS_STATES);
         assertThat(mPropertyPermissionInfo
-                .getReadPermission(VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS).toString())
-                .isEqualTo("(" + Car.PERMISSION_CONTROL_CAR_CLIMATE + " || "
-                        + Car.PERMISSION_READ_DISPLAY_UNITS + ")");
+                .getReadPermission(VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS))
+                .isEqualTo(new AnyOfPermissions(
+                        new SinglePermission(Car.PERMISSION_CONTROL_CAR_CLIMATE),
+                        new SinglePermission(Car.PERMISSION_READ_DISPLAY_UNITS)));
         assertThat(mPropertyPermissionInfo
                 .getWritePermission(VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS).toString())
                 .isEqualTo(Car.PERMISSION_CONTROL_CAR_CLIMATE);
@@ -123,9 +104,10 @@ public class PropertyPermissionInfoTest {
                 .getReadPermission(VehiclePropertyIds.DISTANCE_DISPLAY_UNITS).toString())
                 .isEqualTo(Car.PERMISSION_READ_DISPLAY_UNITS);
         assertThat(mPropertyPermissionInfo
-                .getWritePermission(VehiclePropertyIds.DISTANCE_DISPLAY_UNITS).toString())
-                .isEqualTo("(" + Car.PERMISSION_CONTROL_DISPLAY_UNITS + " && "
-                        + Car.PERMISSION_VENDOR_EXTENSION + ")");
+                .getWritePermission(VehiclePropertyIds.DISTANCE_DISPLAY_UNITS))
+                .isEqualTo(new AllOfPermissions(
+                        new SinglePermission(Car.PERMISSION_CONTROL_DISPLAY_UNITS),
+                        new SinglePermission(Car.PERMISSION_VENDOR_EXTENSION)));
     }
 
     /**
@@ -140,171 +122,6 @@ public class PropertyPermissionInfoTest {
             assertThat(mPropertyPermissionInfo.getWritePermission(vendorProp)
                     .toString()).isEqualTo(Car.PERMISSION_VENDOR_EXTENSION);
         }
-    }
-
-    /**
-     * Test {@link PropertyPermissionInfo#isReadable(Context, int)}
-     * and {@link PropertyPermissionInfo#isWritable(Context, int)} for system properties
-     */
-    @Test
-    public void testIsReadableWritableForSystemProperty() {
-        assertThat(mPropertyPermissionInfo
-                .isReadable(mContext, VehiclePropertyIds.ENGINE_OIL_LEVEL)).isTrue();
-        assertThat(mPropertyPermissionInfo
-                .isWritable(mContext, VehiclePropertyIds.ENGINE_OIL_LEVEL)).isFalse();
-        assertThat(mPropertyPermissionInfo
-                .isReadable(mContext, VehiclePropertyIds.HVAC_FAN_SPEED)).isTrue();
-        assertThat(mPropertyPermissionInfo
-                .isWritable(mContext, VehiclePropertyIds.HVAC_FAN_SPEED)).isTrue();
-        assertThat(mPropertyPermissionInfo
-                .isReadable(mContext, VehiclePropertyIds.WINDSHIELD_WIPERS_SWITCH)).isFalse();
-        assertThat(mPropertyPermissionInfo
-                .isWritable(mContext, VehiclePropertyIds.WINDSHIELD_WIPERS_SWITCH)).isTrue();
-        assertThat(mPropertyPermissionInfo
-                .isReadable(mContext, VehiclePropertyIds.CRUISE_CONTROL_COMMAND)).isFalse();
-        assertThat(mPropertyPermissionInfo
-                .isWritable(mContext, VehiclePropertyIds.CRUISE_CONTROL_COMMAND)).isFalse();
-        assertThat(mPropertyPermissionInfo
-                .isReadable(mContext, VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS)).isTrue();
-        assertThat(mPropertyPermissionInfo
-                .isWritable(mContext, VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS)).isTrue();
-        assertThat(mPropertyPermissionInfo
-                .isReadable(mContext, VehiclePropertyIds.DISTANCE_DISPLAY_UNITS)).isFalse();
-        assertThat(mPropertyPermissionInfo
-                .isWritable(mContext, VehiclePropertyIds.DISTANCE_DISPLAY_UNITS)).isTrue();
-
-        when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE))
-                .thenReturn(PackageManager.PERMISSION_DENIED);
-        when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_VENDOR_EXTENSION))
-                .thenReturn(PackageManager.PERMISSION_DENIED);
-        assertThat(mPropertyPermissionInfo
-                .isReadable(mContext, VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS)).isFalse();
-        assertThat(mPropertyPermissionInfo
-                .isWritable(mContext, VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS)).isFalse();
-        assertThat(mPropertyPermissionInfo
-                .isReadable(mContext, VehiclePropertyIds.DISTANCE_DISPLAY_UNITS)).isFalse();
-        assertThat(mPropertyPermissionInfo
-                .isWritable(mContext, VehiclePropertyIds.DISTANCE_DISPLAY_UNITS)).isFalse();
-    }
-
-    /**
-     * Test {@link PropertyPermissionInfo#isReadable(Context, int)}
-     * and {@link PropertyPermissionInfo#isWritable(Context, int)} for vendor properties
-     */
-    @Test
-    public void testIsReadableWritableForVendorProperty() {
-        for (int vendorProp : VENDOR_PROPERTY_IDS) {
-            assertThat(mPropertyPermissionInfo.isReadable(mContext, vendorProp)).isTrue();
-            assertThat(mPropertyPermissionInfo.isWritable(mContext, vendorProp)).isTrue();
-        }
-
-        when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_VENDOR_EXTENSION))
-                .thenReturn(PackageManager.PERMISSION_DENIED);
-        for (int vendorProp : VENDOR_PROPERTY_IDS) {
-            assertThat(mPropertyPermissionInfo.isReadable(mContext, vendorProp)).isFalse();
-            assertThat(mPropertyPermissionInfo.isWritable(mContext, vendorProp)).isFalse();
-        }
-    }
-
-    /**
-     * Test {@link PropertyPermissionInfo#addPermissions(int, String, String)} and {@link
-     * PropertyPermissionInfo#customizeVendorPermission(int[])}
-     */
-    @Test
-    public void testCustomizeVendorPermission() {
-        List<Integer> mConfigArray = new ArrayList<>();
-        // set up read permission and write permission to VENDOR_PROPERTY_1
-        mConfigArray.add(VENDOR_PROPERTY_1);
-        mConfigArray.add(VehicleVendorPermission.PERMISSION_DEFAULT);
-        mConfigArray.add(VehicleVendorPermission.PERMISSION_NOT_ACCESSIBLE);
-        // set up read permission and write permission to VENDOR_PROPERTY_2
-        mConfigArray.add(VENDOR_PROPERTY_2);
-        mConfigArray.add(VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_ENGINE);
-        mConfigArray.add(VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_ENGINE);
-        // set up read permission and write permission to VENDOR_PROPERTY_3
-        mConfigArray.add(VENDOR_PROPERTY_3);
-        mConfigArray.add(VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_INFO);
-        mConfigArray.add(VehicleVendorPermission.PERMISSION_DEFAULT);
-
-        List<Integer> mConfigArrayInvalidSystemProperty = new ArrayList<>();
-        // set an invalid config
-        mConfigArrayInvalidSystemProperty.add(VehiclePropertyIds.CURRENT_GEAR);
-        mConfigArrayInvalidSystemProperty.add(
-                VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_ENGINE);
-        mConfigArrayInvalidSystemProperty.add(
-                VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_ENGINE);
-
-        List<Integer> mConfigArrayInvalidExistingVendorProperty = new ArrayList<>();
-        // set an invalid config
-        mConfigArrayInvalidExistingVendorProperty.add(VENDOR_PROPERTY_1);
-        mConfigArrayInvalidExistingVendorProperty.add(
-                VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_ENGINE);
-        mConfigArrayInvalidExistingVendorProperty.add(
-                VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_ENGINE);
-
-        // test insert a valid config
-        mPropertyPermissionInfo.customizeVendorPermission(toIntArray(mConfigArray));
-        assertThat(mPropertyPermissionInfo.getReadPermission(VENDOR_PROPERTY_1)
-                .toString()).isEqualTo(Car.PERMISSION_VENDOR_EXTENSION);
-        assertThat(mPropertyPermissionInfo.getWritePermission(VENDOR_PROPERTY_1)).isNull();
-
-        assertThat(mPropertyPermissionInfo.getReadPermission(VENDOR_PROPERTY_2)
-                .toString()).isEqualTo(android.car.hardware.property
-                .VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_ENGINE);
-        assertThat(mPropertyPermissionInfo.getWritePermission(VENDOR_PROPERTY_2)
-                .toString()).isEqualTo(android.car.hardware.property
-                .VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_ENGINE);
-
-        assertThat(mPropertyPermissionInfo.getReadPermission(VENDOR_PROPERTY_3)
-                .toString()).isEqualTo(android.car.hardware.property
-                .VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_INFO);
-        assertThat(mPropertyPermissionInfo.getWritePermission(VENDOR_PROPERTY_3)
-                .toString()).isEqualTo(Car.PERMISSION_VENDOR_EXTENSION);
-
-        assertThat(mPropertyPermissionInfo.getReadPermission(VENDOR_PROPERTY_4)
-                .toString()).isEqualTo(Car.PERMISSION_VENDOR_EXTENSION);
-        assertThat(mPropertyPermissionInfo.getWritePermission(VENDOR_PROPERTY_4)
-                .toString()).isEqualTo(Car.PERMISSION_VENDOR_EXTENSION);
-
-        when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_VENDOR_EXTENSION))
-                .thenReturn(PackageManager.PERMISSION_GRANTED);
-        when(mContext.checkCallingOrSelfPermission(
-                android.car.hardware.property.VehicleVendorPermission
-                        .PERMISSION_GET_CAR_VENDOR_CATEGORY_ENGINE))
-                .thenReturn(PackageManager.PERMISSION_GRANTED);
-        when(mContext.checkCallingOrSelfPermission(
-                android.car.hardware.property.VehicleVendorPermission
-                        .PERMISSION_SET_CAR_VENDOR_CATEGORY_ENGINE))
-                .thenReturn(PackageManager.PERMISSION_GRANTED);
-        when(mContext.checkCallingOrSelfPermission(
-                android.car.hardware.property.VehicleVendorPermission
-                        .PERMISSION_GET_CAR_VENDOR_CATEGORY_INFO))
-                .thenReturn(PackageManager.PERMISSION_DENIED);
-
-        assertThat(mPropertyPermissionInfo.isReadable(mContext, VENDOR_PROPERTY_1)).isTrue();
-        assertThat(mPropertyPermissionInfo.isWritable(mContext, VENDOR_PROPERTY_1)).isFalse();
-        assertThat(mPropertyPermissionInfo.isReadable(mContext, VENDOR_PROPERTY_2)).isTrue();
-        assertThat(mPropertyPermissionInfo.isWritable(mContext, VENDOR_PROPERTY_2)).isTrue();
-        assertThat(mPropertyPermissionInfo.isReadable(mContext, VENDOR_PROPERTY_3)).isFalse();
-        assertThat(mPropertyPermissionInfo.isWritable(mContext, VENDOR_PROPERTY_3)).isTrue();
-        assertThat(mPropertyPermissionInfo.isReadable(mContext, VENDOR_PROPERTY_4)).isTrue();
-        assertThat(mPropertyPermissionInfo.isWritable(mContext, VENDOR_PROPERTY_4)).isTrue();
-
-        // test that trying to overwrite a system property throws an error.
-        try {
-            mPropertyPermissionInfo.customizeVendorPermission(
-                    toIntArray(mConfigArrayInvalidSystemProperty));
-            throw new AssertionError("Insert system properties with vendor permissions");
-        } catch (IllegalArgumentException e) {
-            Log.v(TAG, e.getMessage());
-        }
-
-        // test that trying to overwrite an already existing property has no effect.
-        mPropertyPermissionInfo.customizeVendorPermission(
-                toIntArray(mConfigArrayInvalidExistingVendorProperty));
-        assertThat(mPropertyPermissionInfo.getReadPermission(VENDOR_PROPERTY_1)
-                .toString()).isEqualTo(Car.PERMISSION_VENDOR_EXTENSION);
-        assertThat(mPropertyPermissionInfo.getWritePermission(VENDOR_PROPERTY_1)).isNull();
     }
 
     /**
@@ -373,5 +190,144 @@ public class PropertyPermissionInfoTest {
         when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_CONTROL_DISPLAY_UNITS))
                 .thenReturn(PackageManager.PERMISSION_DENIED);
         assertThat(testPermission.isMet(mContext)).isFalse();
+    }
+
+    @Test
+    public void testSinglePermissionEqual() {
+        PermissionCondition p1 = new SinglePermission("abc");
+        PermissionCondition p2 = new SinglePermission("bcd");
+        PermissionCondition p3 = new SinglePermission("bcd");
+
+        new EqualsTester().addEqualityGroup(p1).addEqualityGroup(p2, p3).testEquals();
+    }
+
+    @Test
+    public void testSinglePermissionHash() {
+        PermissionCondition p1 = new SinglePermission("abc");
+        PermissionCondition p2 = new SinglePermission("bcd");
+        PermissionCondition p3 = new SinglePermission("bcd");
+
+        assertThat(p1.hashCode()).isNotEqualTo(p2.hashCode());
+        assertThat(p1.hashCode()).isNotEqualTo(p3.hashCode());
+        assertThat(p2.hashCode()).isEqualTo(p3.hashCode());
+    }
+
+    @Test
+    public void testAnyPermissionEqual() {
+        PermissionCondition p1 = new AnyOfPermissions(new SinglePermission("abc"),
+                new SinglePermission("bcd"));
+        PermissionCondition p2 = new AnyOfPermissions(new SinglePermission("abc"),
+                new SinglePermission("bcd"));
+        // Order does not matter.
+        PermissionCondition p3 = new AnyOfPermissions(new SinglePermission("bcd"),
+                new SinglePermission("abc"));
+        PermissionCondition p4 = new AnyOfPermissions(new SinglePermission("bla"),
+                new SinglePermission("blah"));
+        PermissionCondition p5 = new AnyOfPermissions(new SinglePermission("abc"),
+                new SinglePermission("bcd"), new SinglePermission("cde"));
+
+        new EqualsTester().addEqualityGroup(p1, p2, p3).addEqualityGroup(p4)
+                .addEqualityGroup(p5).testEquals();
+    }
+
+    @Test
+    public void testAnyPermissionHash() {
+        PermissionCondition p1 = new AnyOfPermissions(new SinglePermission("abc"),
+                new SinglePermission("bcd"));
+        PermissionCondition p2 = new AnyOfPermissions(new SinglePermission("abc"),
+                new SinglePermission("bcd"));
+        // Order does not matter.
+        PermissionCondition p3 = new AnyOfPermissions(new SinglePermission("bcd"),
+                new SinglePermission("abc"));
+        PermissionCondition p4 = new AnyOfPermissions(new SinglePermission("bla"),
+                new SinglePermission("blah"));
+        PermissionCondition p5 = new AnyOfPermissions(new SinglePermission("abc"),
+                new SinglePermission("bcd"), new SinglePermission("cde"));
+
+        assertThat(p1.hashCode()).isEqualTo(p2.hashCode());
+        assertThat(p1.hashCode()).isEqualTo(p3.hashCode());
+        assertThat(p1.hashCode()).isNotEqualTo(p4.hashCode());
+        assertThat(p1.hashCode()).isNotEqualTo(p5.hashCode());
+    }
+
+    @Test
+    public void testAllPermissionEqual() {
+        PermissionCondition p1 = new AllOfPermissions(new SinglePermission("abc"),
+                new SinglePermission("bcd"));
+        PermissionCondition p2 = new AllOfPermissions(new SinglePermission("abc"),
+                new SinglePermission("bcd"));
+        // Order does not matter.
+        PermissionCondition p3 = new AllOfPermissions(new SinglePermission("bcd"),
+                new SinglePermission("abc"));
+        PermissionCondition p4 = new AllOfPermissions(new SinglePermission("bla"),
+                new SinglePermission("blah"));
+        PermissionCondition p5 = new AllOfPermissions(new SinglePermission("abc"),
+                new SinglePermission("bcd"), new SinglePermission("cde"));
+
+        new EqualsTester().addEqualityGroup(p1, p2, p3).addEqualityGroup(p4)
+                .addEqualityGroup(p5).testEquals();
+    }
+
+    @Test
+    public void testAllPermissionHash() {
+        PermissionCondition p1 = new AllOfPermissions(new SinglePermission("abc"),
+                new SinglePermission("bcd"));
+        PermissionCondition p2 = new AllOfPermissions(new SinglePermission("abc"),
+                new SinglePermission("bcd"));
+        // Order does not matter.
+        PermissionCondition p3 = new AllOfPermissions(new SinglePermission("bcd"),
+                new SinglePermission("abc"));
+        PermissionCondition p4 = new AllOfPermissions(new SinglePermission("bla"),
+                new SinglePermission("blah"));
+        PermissionCondition p5 = new AllOfPermissions(new SinglePermission("abc"),
+                new SinglePermission("bcd"), new SinglePermission("cde"));
+
+        assertThat(p1.hashCode()).isEqualTo(p2.hashCode());
+        assertThat(p1.hashCode()).isEqualTo(p3.hashCode());
+        assertThat(p1.hashCode()).isNotEqualTo(p4.hashCode());
+        assertThat(p1.hashCode()).isNotEqualTo(p5.hashCode());
+    }
+
+    @Test
+    public void testPropertyPermissionsEqual() {
+        PropertyPermissions p1 = new PropertyPermissions.Builder()
+                .setReadPermission(new SinglePermission("abc"))
+                .setWritePermission(new SinglePermission("bcd"))
+                .build();
+        PropertyPermissions p2 = new PropertyPermissions.Builder()
+                .setReadPermission(new SinglePermission("abc"))
+                .setWritePermission(new SinglePermission("bcd"))
+                .build();
+        PropertyPermissions p3 = new PropertyPermissions.Builder()
+                .setReadPermission(new SinglePermission("abc"))
+                .build();
+        PropertyPermissions p4 = new PropertyPermissions.Builder()
+                .setWritePermission(new SinglePermission("bcd"))
+                .build();
+
+       new EqualsTester().addEqualityGroup(p1, p2).addEqualityGroup(p3)
+                .addEqualityGroup(p4).testEquals();
+    }
+
+    @Test
+    public void tesPropertyPermissionsHash() {
+        PropertyPermissions p1 = new PropertyPermissions.Builder()
+                .setReadPermission(new SinglePermission("abc"))
+                .setWritePermission(new SinglePermission("bcd"))
+                .build();
+        PropertyPermissions p2 = new PropertyPermissions.Builder()
+                .setReadPermission(new SinglePermission("abc"))
+                .setWritePermission(new SinglePermission("bcd"))
+                .build();
+        PropertyPermissions p3 = new PropertyPermissions.Builder()
+                .setReadPermission(new SinglePermission("abc"))
+                .build();
+        PropertyPermissions p4 = new PropertyPermissions.Builder()
+                .setWritePermission(new SinglePermission("bcd"))
+                .build();
+
+        assertThat(p1.hashCode()).isEqualTo(p2.hashCode());
+        assertThat(p1.hashCode()).isNotEqualTo(p3.hashCode());
+        assertThat(p1.hashCode()).isNotEqualTo(p4.hashCode());
     }
 }

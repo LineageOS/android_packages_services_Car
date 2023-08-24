@@ -229,11 +229,8 @@ java_defaults {
     sdk_version: "module_current",
 
     java_resources: [
+        ":CarSvcProps_JSON",
         ":VehicleHalDefaultProperties_JSON",
-    ],
-
-    required: [
-        "car-service-prop-config",
     ],
 }
 

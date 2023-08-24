@@ -16,11 +16,12 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-prebuilt_etc {
-    name: "car-service-prop-config",
+filegroup {
+    name: "CarSvcProps_JSON",
     visibility: [
         "//packages/services/Car/service",
     ],
-    src: "props.json",
-    sub_dir: "automotive/carservice/",
+    srcs: [
+        "CarSvcProps.json",
+    ],
 }

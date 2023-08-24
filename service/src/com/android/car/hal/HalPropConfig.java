@@ -162,7 +162,10 @@ public abstract class HalPropConfig {
             if ((minInt32Value != 0 || maxInt32Value != 0)) {
                 areaIdConfigBuilder.setMinValue(minInt32Value).setMaxValue(maxInt32Value);
             }
-            if (getChangeMode() == VehiclePropertyChangeMode.ON_CHANGE) {
+            // The supported enum values for {@code HVAC_FAN_DIRECTION} are specified by
+            // {@code HVAC_FAN_DIRECTION_AVAILABLE} and the supportedEnumValues are never populated.
+            if (getChangeMode() == VehiclePropertyChangeMode.ON_CHANGE &&
+                    getPropId() != VehicleProperty.HVAC_FAN_DIRECTION) {
                 if (supportedEnumValues != null && supportedEnumValues.length > 0) {
                     List<Integer> managerSupportedEnumValues = new ArrayList<>(
                             supportedEnumValues.length);
