@@ -38,7 +38,7 @@ android_test {
         "vehicle-hal-support-lib",
         "androidx.test.rules",
         "android.hardware.automotive.vehicle-V2-java",
-        "android.hardware.automotive.vehicle.property-V2-java",
+        "android.hardware.automotive.vehicle.property-V3-java",
         "compatibility-device-util-axt",
         "truth-prebuilt",
     ],

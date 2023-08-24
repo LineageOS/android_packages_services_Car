@@ -27,7 +27,7 @@ android_test {
         "android.car",
         "android.frameworks.automotive.powerpolicy-V1-java",
         "android.hardware.automotive.vehicle-V2-java",
-        "android.hardware.automotive.vehicle.property-V2-java",
+        "android.hardware.automotive.vehicle.property-V3-java",
         "android.test.runner",
         "android.test.base",
         "android.test.mock",
