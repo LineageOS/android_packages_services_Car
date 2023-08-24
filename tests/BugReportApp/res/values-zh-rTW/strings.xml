@@ -46,7 +46,13 @@
     <string name="toast_status_failed" msgid="6365384202315043395">"錯誤報告發生問題"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"無法擷取螢幕畫面"</string>
     <string name="toast_status_dump_state_failed" msgid="3496460783060512078">"Dumpstate 失敗"</string>
+    <!-- no translation found for toast_screenshot_finished (539313383958984557) -->
+    <skip />
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"正在收集錯誤報告"</string>
     <string name="notification_bugreport_finished_title" msgid="1188447311929693472">"錯誤報告收集完成"</string>
     <string name="notification_bugreport_channel_name" msgid="776902295433824255">"錯誤報告狀態頻道"</string>
+    <!-- no translation found for notification_screenshot_message (4334354123333893911) -->
+    <skip />
+    <!-- no translation found for notification_screenshot_channel_name (147055389545365419) -->
+    <skip />
 </resources>
