@@ -243,7 +243,7 @@ final class CarTaskViewControllerSupervisor {
 
         private void releaseController() {
             if (mCarTaskViewController == null) {
-                Slogf.w(TAG, "car task view controller not found, not dispatching onDisconnected");
+                Slogf.w(TAG, "car task view controller not found, not releasing");
                 return;
             }
             mCarTaskViewController.release();
