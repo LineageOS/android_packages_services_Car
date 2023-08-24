@@ -24,9 +24,14 @@
 
 #include <android/binder_interface_utils.h>
 #include <android/hidl/manager/1.0/IServiceManager.h>
+#include <android/util/ProtoOutputStream.h>
 #include <gmock/gmock.h>
 
 #include <thread>  // NOLINT(build/c++11)
+
+#include <carwatchdog_daemon_dump.pb.h>
+#include <health_check_client_info.pb.h>
+#include <performance_stats.pb.h>
 
 namespace android {
 namespace automotive {
@@ -108,6 +113,34 @@ public:
     void expectNoVhalProcessIdentifier() {
         EXPECT_FALSE(mWatchdogProcessService->mVhalProcessIdentifier.has_value());
     }
+
+    void setWatchdogProcessServiceState(
+            bool isEnabled,
+            std::shared_ptr<aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor>
+                    monitor,
+            std::chrono::nanoseconds overriddenClientHealthCheckWindowNs,
+            std::unordered_set<userid_t> stoppedUserIds,
+            std::chrono::milliseconds vhalHealthCheckWindowMs,
+            const ProcessIdentifier& processIdentifier) {
+        Mutex::Autolock lock(mWatchdogProcessService->mMutex);
+        mWatchdogProcessService->mIsEnabled = isEnabled;
+        mWatchdogProcessService->mMonitor = monitor;
+        mWatchdogProcessService->mOverriddenClientHealthCheckWindowNs =
+                overriddenClientHealthCheckWindowNs;
+        mWatchdogProcessService->mStoppedUserIds = stoppedUserIds;
+        mWatchdogProcessService->mVhalHealthCheckWindowMs = vhalHealthCheckWindowMs;
+        mWatchdogProcessService->mVhalProcessIdentifier = processIdentifier;
+
+        WatchdogProcessService::ClientInfoMap clientInfoMap;
+        WatchdogProcessService::ClientInfo clientInfo(nullptr, 1, 1, "shell", 1000,
+                                                      WatchdogProcessService(nullptr));
+        clientInfoMap.insert({100, clientInfo});
+        mWatchdogProcessService->mClientsByTimeout.clear();
+        mWatchdogProcessService->mClientsByTimeout.insert(
+                {TimeoutLength::TIMEOUT_CRITICAL, clientInfoMap});
+    }
+
+    void clearClientsByTimeout() { mWatchdogProcessService->mClientsByTimeout.clear(); }
 
 private:
     sp<WatchdogProcessService> mWatchdogProcessService;
@@ -237,6 +270,16 @@ protected:
 
     void waitUntilVhalPidCachingAttemptsExhausted() {
         syncLooper((kMaxVhalPidCachingAttempts + 1) * kTestVhalPidCachingRetryDelayNs);
+    }
+
+    std::string toString(util::ProtoOutputStream* proto) {
+        std::string content;
+        content.reserve(proto->size());
+        sp<util::ProtoReader> reader = proto->data();
+        while (reader->hasNext()) {
+            content.push_back(reader->next());
+        }
+        return content;
     }
 
     sp<WatchdogProcessService> mWatchdogProcessService;
@@ -678,6 +721,54 @@ TEST_F(WatchdogProcessServiceTest, TestNoCacheHidlVhalPidWithUnsupportedVhalHear
     startService();
 
     ASSERT_NO_FATAL_FAILURE(mWatchdogProcessServicePeer->expectNoVhalProcessIdentifier());
+}
+
+TEST_F(WatchdogProcessServiceTest, TestOnDumpProto) {
+    ProcessIdentifier processIdentifier;
+    processIdentifier.pid = 1;
+    processIdentifier.startTimeMillis = 1000;
+
+    mWatchdogProcessServicePeer->setWatchdogProcessServiceState(true, nullptr,
+                                                                std::chrono::milliseconds(20000),
+                                                                {101, 102},
+                                                                std::chrono::milliseconds(10000),
+                                                                processIdentifier);
+
+    util::ProtoOutputStream proto;
+    mWatchdogProcessService->onDumpProto(proto);
+
+    HealthCheckServiceDump healthCheckServiceDump;
+    ASSERT_TRUE(healthCheckServiceDump.ParseFromString(toString(&proto)));
+    EXPECT_EQ(healthCheckServiceDump.is_enabled(), true);
+    EXPECT_EQ(healthCheckServiceDump.is_monitor_registered(), false);
+    EXPECT_EQ(healthCheckServiceDump.is_system_shut_down_in_progress(), false);
+    EXPECT_EQ(healthCheckServiceDump.stopped_users_size(), 2);
+    EXPECT_EQ(healthCheckServiceDump.critical_health_check_window_millis(), 20000);
+    EXPECT_EQ(healthCheckServiceDump.moderate_health_check_window_millis(), 20000);
+    EXPECT_EQ(healthCheckServiceDump.normal_health_check_window_millis(), 20000);
+
+    VhalHealthCheckInfo vhalHealthCheckInfo = healthCheckServiceDump.vhal_health_check_info();
+
+    EXPECT_EQ(vhalHealthCheckInfo.is_enabled(), true);
+    EXPECT_EQ(vhalHealthCheckInfo.health_check_window_millis(), 10000);
+    EXPECT_EQ(vhalHealthCheckInfo.pid_caching_progress_state(),
+              VhalHealthCheckInfo_CachingProgressState_SUCCESS);
+    EXPECT_EQ(vhalHealthCheckInfo.pid(), 1);
+    EXPECT_EQ(vhalHealthCheckInfo.start_time_millis(), 1000);
+
+    EXPECT_EQ(healthCheckServiceDump.registered_client_infos_size(), 1);
+    HealthCheckClientInfo healthCheckClientInfo = healthCheckServiceDump.registered_client_infos(0);
+    EXPECT_EQ(healthCheckClientInfo.pid(), 1);
+
+    UserPackageInfo userPackageInfo = healthCheckClientInfo.user_package_info();
+    EXPECT_EQ(userPackageInfo.user_id(), 1);
+    EXPECT_EQ(userPackageInfo.package_name(), "shell");
+
+    EXPECT_EQ(healthCheckClientInfo.client_type(), HealthCheckClientInfo_ClientType_REGULAR);
+    EXPECT_EQ(healthCheckClientInfo.start_time_millis(), 1000);
+    EXPECT_EQ(healthCheckClientInfo.health_check_timeout(), 0);
+
+    mWatchdogProcessServicePeer->clearClientsByTimeout();
 }
 
 }  // namespace watchdog
