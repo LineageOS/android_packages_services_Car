@@ -19,4 +19,5 @@
     <dimen name="camera_preview_height">600dp</dimen>
 
     <dimen name="close_button_text_size">30sp</dimen>
+    <dimen name="checkbox_text_size">25sp</dimen>
 </resources>

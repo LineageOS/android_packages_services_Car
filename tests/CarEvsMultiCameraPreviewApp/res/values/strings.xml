@@ -17,5 +17,12 @@
 
 <resources>
     <string name="app_name">EvsMultiCameraPreview</string>
-    <string name="close_button_text">Close</string>
+    <string type="string" name="close_button_text">Close</string>
+    <string type="string" name="apply_button_text">Apply</string>
+    <string type="string" name="textview_text_car0">Car0</string>
+    <string type="string" name="textview_text_car1">Car1</string>
+    <string type="string" name="checkbox_text_rearview">REARVIEW</string>
+    <string type="string" name="checkbox_text_frontview">FRONTVIEW</string>
+    <string type="string" name="checkbox_text_leftview">LEFTVIEW</string>
+    <string type="string" name="checkbox_text_rightview">RIGHTVIEW</string>
 </resources>
