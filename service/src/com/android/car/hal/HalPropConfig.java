@@ -24,6 +24,8 @@ import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 
+import com.android.car.hal.property.PropertyHalServiceConfigs;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -42,6 +44,10 @@ public abstract class HalPropConfig {
                     VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS,
                     VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS,
                     VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
+
+    private final PropertyHalServiceConfigs mPropertyHalServiceConfigs =
+            PropertyHalServiceConfigs.getInstance();
+
     /**
      * Get the property ID.
      */
@@ -164,10 +170,11 @@ public abstract class HalPropConfig {
                         managerSupportedEnumValues.add((int) supportedEnumValues[i]);
                     }
                     areaIdConfigBuilder.setSupportedEnumValues(managerSupportedEnumValues);
-                } else if (PropertyHalServiceIds.getAllPossibleSupportedEnumValues(getPropId())
+                } else if (mPropertyHalServiceConfigs.getAllPossibleSupportedEnumValues(getPropId())
                         != null) {
                     areaIdConfigBuilder.setSupportedEnumValues(new ArrayList(
-                            PropertyHalServiceIds.getAllPossibleSupportedEnumValues(getPropId())));
+                            mPropertyHalServiceConfigs.getAllPossibleSupportedEnumValues(
+                                    getPropId())));
                 }
             }
         } else if (classMatched(Float.class, clazz) && (minFloatValue != 0 || maxFloatValue != 0)) {

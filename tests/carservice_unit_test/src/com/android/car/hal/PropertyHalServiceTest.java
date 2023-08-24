@@ -69,6 +69,7 @@ import com.android.car.VehicleStub.AsyncGetSetRequest;
 import com.android.car.VehicleStub.GetVehicleStubAsyncResult;
 import com.android.car.VehicleStub.SetVehicleStubAsyncResult;
 import com.android.car.VehicleStub.VehicleStubCallbackInterface;
+import com.android.car.hal.property.PropertyHalServiceConfigs;
 import com.android.car.hal.test.AidlVehiclePropValueBuilder;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.CarSubscribeOption;
@@ -188,6 +189,7 @@ public class PropertyHalServiceTest {
     public void setUp() {
         when(mVehicleHal.getHalPropValueBuilder()).thenReturn(mPropValueBuilder);
         mPropertyHalService = new PropertyHalService(mVehicleHal);
+        mPropertyHalService.setPropertyHalServiceConfigs(PropertyHalServiceConfigs.newConfigs());
         mPropertyHalService.init();
 
         HalPropConfig mockPropConfig1 = mock(HalPropConfig.class);

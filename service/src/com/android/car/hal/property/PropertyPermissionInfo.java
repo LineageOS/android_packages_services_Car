@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.hal;
+package com.android.car.hal.property;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
@@ -217,22 +217,34 @@ public class PropertyPermissionInfo {
             return mWritePermission;
         }
 
+        /**
+         * The builder for {@link PropertyPermissions}.
+         */
         public static final class Builder {
             @Nullable
             private PermissionCondition mReadPermission;
             @Nullable
             private PermissionCondition mWritePermission;
 
+            /**
+             * Sets the read permission.
+             */
             public Builder setReadPermission(PermissionCondition readPermission) {
                 mReadPermission = readPermission;
                 return this;
             }
 
+            /**
+             * Sets the write permission.
+             */
             public Builder setWritePermission(PermissionCondition writePermission) {
                 mWritePermission = writePermission;
                 return this;
             }
 
+            /**
+             * Builds the permission.
+             */
             public PropertyPermissions build() {
                 if (mReadPermission == null && mWritePermission == null) {
                     throw new IllegalStateException("Both read and write permissions have not been "
@@ -453,11 +465,11 @@ public class PropertyPermissionInfo {
     /**
      * Checks if readPermission is granted for a HAL-level propertyId in a given context.
      *
-     * @param halPropId HAL-level propertyId
      * @param context Context to check
+     * @param halPropId HAL-level propertyId
      * @return readPermission is granted or not.
      */
-    public boolean isReadable(int halPropId, Context context) {
+    public boolean isReadable(Context context, int halPropId) {
         PermissionCondition readPermission = getReadPermission(halPropId);
         if (readPermission == null) {
             Slogf.v(TAG, "propId is not readable or is a system property but does not exist "
@@ -470,11 +482,11 @@ public class PropertyPermissionInfo {
     /**
      * Checks if writePermission is granted for a HAL-level propertyId in a given context.
      *
-     * @param halPropId HAL-level propertyId
      * @param context Context to check
+     * @param halPropId HAL-level propertyId
      * @return writePermission is granted or not.
      */
-    public boolean isWritable(int halPropId, Context context) {
+    public boolean isWritable(Context context, int halPropId) {
         PermissionCondition writePermission = getWritePermission(halPropId);
         if (writePermission == null) {
             Slogf.v(TAG, "propId is not writable or is a system property but does not exist "

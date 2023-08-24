@@ -55,7 +55,19 @@
         "value": "android.car.permission.CAR_INFO"
       },
       "dataEnums": [
-        "android.car.FuelType"
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
       ]
     },
     "INFO_EV_BATTERY_CAPACITY": {
@@ -76,7 +88,19 @@
         "value": "android.car.permission.CAR_INFO"
       },
       "dataEnums": [
-        "android.car.EvConnectorType"
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        101
       ]
     },
     "INFO_FUEL_DOOR_LOCATION": {
@@ -88,7 +112,13 @@
         "value": "android.car.permission.CAR_INFO"
       },
       "dataEnums": [
-        "android.car.PortLocationType"
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ]
     },
     "INFO_EV_PORT_LOCATION": {
@@ -100,7 +130,13 @@
         "value": "android.car.permission.CAR_INFO"
       },
       "dataEnums": [
-        "android.car.PortLocationType"
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ]
     },
     "INFO_MULTI_EV_PORT_LOCATIONS": {
@@ -112,7 +148,13 @@
         "value": "android.car.permission.CAR_INFO"
       },
       "dataEnums": [
-        "android.car.PortLocationType"
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ]
     },
     "INFO_DRIVER_SEAT": {
@@ -124,7 +166,16 @@
         "value": "android.car.permission.CAR_INFO"
       },
       "dataEnums": [
-        "android.car.VehicleAreaSeat"
+        0,
+        1,
+        2,
+        4,
+        16,
+        32,
+        64,
+        256,
+        512,
+        1024
       ]
     },
     "INFO_EXTERIOR_DIMENSIONS": {
@@ -199,7 +250,11 @@
         "value": "android.car.permission.CAR_ENGINE_DETAILED"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleOilLevel"
+        0,
+        1,
+        2,
+        3,
+        4
       ]
     },
     "ENGINE_OIL_TEMP": {
@@ -354,7 +409,20 @@
         "value": "android.car.permission.CAR_POWERTRAIN"
       },
       "dataEnums": [
-        "android.car.VehicleGear"
+        0,
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        128,
+        256,
+        512,
+        1024,
+        2048,
+        4096
       ]
     },
     "CURRENT_GEAR": {
@@ -366,7 +434,20 @@
         "value": "android.car.permission.CAR_POWERTRAIN"
       },
       "dataEnums": [
-        "android.car.VehicleGear"
+        0,
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        128,
+        256,
+        512,
+        1024,
+        2048,
+        4096
       ]
     },
     "PARKING_BRAKE_ON": {
@@ -413,7 +494,10 @@
         "value": "android.car.permission.CONTROL_CAR_POWERTRAIN"
       },
       "dataEnums": [
-        "android.car.hardware.property.EvStoppingMode"
+        0,
+        1,
+        2,
+        3
       ]
     },
     "FUEL_LEVEL_LOW": {
@@ -443,7 +527,9 @@
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleTurnSignal"
+        0,
+        1,
+        2
       ]
     },
     "IGNITION_STATE": {
@@ -455,7 +541,12 @@
         "value": "android.car.permission.CAR_POWERTRAIN"
       },
       "dataEnums": [
-        "android.car.VehicleIgnitionState"
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
       ]
     },
     "ABS_ACTIVE": {
@@ -502,7 +593,14 @@
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
       },
       "dataEnums": [
-        "android.car.hardware.property.CarHvacFanDirection"
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
       ]
     },
     "HVAC_TEMPERATURE_CURRENT": {
@@ -692,7 +790,38 @@
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
       },
       "dataEnums": [
-        "android.car.VehicleUnit"
+        0,
+        2,
+        3,
+        16,
+        80,
+        81,
+        83,
+        89,
+        97,
+        98,
+        99,
+        128,
+        32,
+        33,
+        35,
+        36,
+        48,
+        49,
+        50,
+        64,
+        65,
+        66,
+        67,
+        96,
+        100,
+        101,
+        112,
+        113,
+        114,
+        1,
+        144,
+        145
       ]
     },
     "HVAC_ACTUAL_FAN_SPEED_RPM": {
@@ -726,7 +855,14 @@
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
       },
       "dataEnums": [
-        "android.car.hardware.property.CarHvacFanDirection"
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
       ]
     },
     "HVAC_AUTO_RECIRC_ON": {
@@ -791,7 +927,38 @@
         ]
       },
       "dataEnums": [
-        "android.car.VehicleUnit"
+        0,
+        2,
+        3,
+        16,
+        80,
+        81,
+        83,
+        89,
+        97,
+        98,
+        99,
+        128,
+        32,
+        33,
+        35,
+        36,
+        48,
+        49,
+        50,
+        64,
+        65,
+        66,
+        67,
+        96,
+        100,
+        101,
+        112,
+        113,
+        114,
+        1,
+        144,
+        145
       ]
     },
     "FUEL_VOLUME_DISPLAY_UNITS": {
@@ -816,7 +983,38 @@
         ]
       },
       "dataEnums": [
-        "android.car.VehicleUnit"
+        0,
+        2,
+        3,
+        16,
+        80,
+        81,
+        83,
+        89,
+        97,
+        98,
+        99,
+        128,
+        32,
+        33,
+        35,
+        36,
+        48,
+        49,
+        50,
+        64,
+        65,
+        66,
+        67,
+        96,
+        100,
+        101,
+        112,
+        113,
+        114,
+        1,
+        144,
+        145
       ]
     },
     "TIRE_PRESSURE_DISPLAY_UNITS": {
@@ -841,7 +1039,38 @@
         ]
       },
       "dataEnums": [
-        "android.car.VehicleUnit"
+        0,
+        2,
+        3,
+        16,
+        80,
+        81,
+        83,
+        89,
+        97,
+        98,
+        99,
+        128,
+        32,
+        33,
+        35,
+        36,
+        48,
+        49,
+        50,
+        64,
+        65,
+        66,
+        67,
+        96,
+        100,
+        101,
+        112,
+        113,
+        114,
+        1,
+        144,
+        145
       ]
     },
     "EV_BATTERY_DISPLAY_UNITS": {
@@ -866,7 +1095,38 @@
         ]
       },
       "dataEnums": [
-        "android.car.VehicleUnit"
+        0,
+        2,
+        3,
+        16,
+        80,
+        81,
+        83,
+        89,
+        97,
+        98,
+        99,
+        128,
+        32,
+        33,
+        35,
+        36,
+        48,
+        49,
+        50,
+        64,
+        65,
+        66,
+        67,
+        96,
+        100,
+        101,
+        112,
+        113,
+        114,
+        1,
+        144,
+        145
       ]
     },
     "VEHICLE_SPEED_DISPLAY_UNITS": {
@@ -892,7 +1152,38 @@
       },
       "vhalPropertyId": 289408517,
       "dataEnums": [
-        "android.car.VehicleUnit"
+        0,
+        2,
+        3,
+        16,
+        80,
+        81,
+        83,
+        89,
+        97,
+        98,
+        99,
+        128,
+        32,
+        33,
+        35,
+        36,
+        48,
+        49,
+        50,
+        64,
+        65,
+        66,
+        67,
+        96,
+        100,
+        101,
+        112,
+        113,
+        114,
+        1,
+        144,
+        145
       ]
     },
     "FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME": {
@@ -1507,7 +1798,9 @@
         "value": "android.car.permission.READ_CAR_INTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightState"
+        0,
+        1,
+        2
       ]
     },
     "SEAT_FOOTWELL_LIGHTS_SWITCH": {
@@ -1523,7 +1816,10 @@
         "value": "android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightSwitch"
+        0,
+        1,
+        2,
+        256
       ]
     },
     "SEAT_EASY_ACCESS_ENABLED": {
@@ -1633,7 +1929,9 @@
         "value": "android.car.permission.CONTROL_CAR_SEATS"
       },
       "dataEnums": [
-        "android.car.VehicleSeatOccupancyState"
+        0,
+        1,
+        2
       ]
     },
     "WINDOW_POS": {
@@ -1695,7 +1993,10 @@
       },
       "systemApi": true,
       "dataEnums": [
-        "android.car.hardware.property.WindshieldWipersState"
+        0,
+        1,
+        2,
+        3
       ]
     },
     "WINDSHIELD_WIPERS_SWITCH": {
@@ -1712,7 +2013,21 @@
       },
       "systemApi": true,
       "dataEnums": [
-        "android.car.hardware.property.WindshieldWipersSwitch"
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
       ]
     },
     "STEERING_WHEEL_DEPTH_POS": {
@@ -1827,7 +2142,17 @@
         "type": "single",
         "value": "android.permission.ACCESS_FINE_LOCATION"
       },
-      "dataFlag": "android.car.hardware.property.LocationCharacterization"
+      "dataFlag": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        128,
+        256
+      ]
     },
     "OBD2_LIVE_FRAME": {
       "propertyName": "OBD2_LIVE_FRAME",
@@ -1862,7 +2187,9 @@
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightState"
+        0,
+        1,
+        2
       ]
     },
     "HIGH_BEAM_LIGHTS_STATE": {
@@ -1874,7 +2201,9 @@
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightState"
+        0,
+        1,
+        2
       ]
     },
     "FOG_LIGHTS_STATE": {
@@ -1886,7 +2215,9 @@
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightState"
+        0,
+        1,
+        2
       ]
     },
     "HAZARD_LIGHTS_STATE": {
@@ -1898,7 +2229,9 @@
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightState"
+        0,
+        1,
+        2
       ]
     },
     "HEADLIGHTS_SWITCH": {
@@ -1914,7 +2247,10 @@
         "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightSwitch"
+        0,
+        1,
+        2,
+        256
       ]
     },
     "HIGH_BEAM_LIGHTS_SWITCH": {
@@ -1930,7 +2266,10 @@
         "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightSwitch"
+        0,
+        1,
+        2,
+        256
       ]
     },
     "FOG_LIGHTS_SWITCH": {
@@ -1946,7 +2285,10 @@
         "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightSwitch"
+        0,
+        1,
+        2,
+        256
       ]
     },
     "HAZARD_LIGHTS_SWITCH": {
@@ -1962,7 +2304,10 @@
         "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightSwitch"
+        0,
+        1,
+        2,
+        256
       ]
     },
     "CABIN_LIGHTS_STATE": {
@@ -1974,7 +2319,9 @@
         "value": "android.car.permission.READ_CAR_INTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightState"
+        0,
+        1,
+        2
       ]
     },
     "CABIN_LIGHTS_SWITCH": {
@@ -1990,7 +2337,10 @@
         "value": "android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightSwitch"
+        0,
+        1,
+        2,
+        256
       ]
     },
     "READING_LIGHTS_STATE": {
@@ -2002,7 +2352,9 @@
         "value": "android.car.permission.READ_CAR_INTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightState"
+        0,
+        1,
+        2
       ]
     },
     "READING_LIGHTS_SWITCH": {
@@ -2018,7 +2370,10 @@
         "value": "android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightSwitch"
+        0,
+        1,
+        2,
+        256
       ]
     },
     "STEERING_WHEEL_LIGHTS_STATE": {
@@ -2030,7 +2385,9 @@
         "value": "android.car.permission.READ_CAR_INTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightState"
+        0,
+        1,
+        2
       ]
     },
     "STEERING_WHEEL_LIGHTS_SWITCH": {
@@ -2046,7 +2403,10 @@
         "value": "android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightSwitch"
+        0,
+        1,
+        2,
+        256
       ]
     },
     "EPOCH_TIME": {
@@ -2067,7 +2427,9 @@
         "value": "android.car.permission.CAR_INFO"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleElectronicTollCollectionCardType"
+        0,
+        1,
+        2
       ]
     },
     "ELECTRONIC_TOLL_COLLECTION_CARD_STATUS": {
@@ -2079,7 +2441,10 @@
         "value": "android.car.permission.CAR_INFO"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleElectronicTollCollectionCardStatus"
+        0,
+        1,
+        2,
+        3
       ]
     },
     "FRONT_FOG_LIGHTS_STATE": {
@@ -2091,7 +2456,9 @@
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightState"
+        0,
+        1,
+        2
       ]
     },
     "FRONT_FOG_LIGHTS_SWITCH": {
@@ -2107,7 +2474,10 @@
         "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightSwitch"
+        0,
+        1,
+        2,
+        256
       ]
     },
     "REAR_FOG_LIGHTS_STATE": {
@@ -2119,7 +2489,9 @@
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightState"
+        0,
+        1,
+        2
       ]
     },
     "REAR_FOG_LIGHTS_SWITCH": {
@@ -2135,7 +2507,10 @@
         "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
       },
       "dataEnums": [
-        "android.car.hardware.property.VehicleLightSwitch"
+        0,
+        1,
+        2,
+        256
       ]
     },
     "EV_CHARGE_CURRENT_DRAW_LIMIT": {
@@ -2173,7 +2548,11 @@
         "value": "android.car.permission.CAR_ENERGY"
       },
       "dataEnums": [
-        "android.car.hardware.property.EvChargeState"
+        0,
+        1,
+        2,
+        3,
+        4
       ]
     },
     "EV_CHARGE_SWITCH": {
@@ -2216,7 +2595,10 @@
         "value": "android.car.permission.CAR_ENERGY"
       },
       "dataEnums": [
-        "android.car.hardware.property.EvRegenerativeBrakingState"
+        0,
+        1,
+        2,
+        3
       ]
     },
     "VEHICLE_CURB_WEIGHT": {
@@ -2237,7 +2619,10 @@
         "value": "android.car.permission.PRIVILEGED_CAR_INFO"
       },
       "dataEnums": [
-        "android.car.hardware.property.TrailerState"
+        0,
+        1,
+        2,
+        3
       ]
     },
     "GENERAL_SAFETY_REGULATION_COMPLIANCE": {
@@ -2249,7 +2634,8 @@
         "value": "android.car.permission.CAR_INFO"
       },
       "dataEnums": [
-        "android.car.GsrComplianceType"
+        0,
+        1
       ]
     },
     "AUTOMATIC_EMERGENCY_BRAKING_ENABLED": {
@@ -2276,8 +2662,16 @@
       },
       "systemApi": true,
       "dataEnums": [
-        "android.car.hardware.property.AutomaticEmergencyBrakingState",
-        "android.car.hardware.property.ErrorState"
+        0,
+        1,
+        2,
+        3,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
       ]
     },
     "FORWARD_COLLISION_WARNING_ENABLED": {
@@ -2304,8 +2698,15 @@
       },
       "systemApi": true,
       "dataEnums": [
-        "android.car.hardware.property.ForwardCollisionWarningState",
-        "android.car.hardware.property.ErrorState"
+        0,
+        1,
+        2,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
       ]
     },
     "BLIND_SPOT_WARNING_ENABLED": {
@@ -2332,8 +2733,15 @@
       },
       "systemApi": true,
       "dataEnums": [
-        "android.car.hardware.property.BlindSpotWarningState",
-        "android.car.hardware.property.ErrorState"
+        0,
+        1,
+        2,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
       ]
     },
     "LANE_DEPARTURE_WARNING_ENABLED": {
@@ -2360,8 +2768,16 @@
       },
       "systemApi": true,
       "dataEnums": [
-        "android.car.hardware.property.LaneDepartureWarningState",
-        "android.car.hardware.property.ErrorState"
+        0,
+        1,
+        2,
+        3,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
       ]
     },
     "LANE_KEEP_ASSIST_ENABLED": {
@@ -2388,8 +2804,17 @@
       },
       "systemApi": true,
       "dataEnums": [
-        "android.car.hardware.property.LaneKeepAssistState",
-        "android.car.hardware.property.ErrorState"
+        0,
+        1,
+        2,
+        3,
+        4,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
       ]
     },
     "LANE_CENTERING_ASSIST_ENABLED": {
@@ -2416,7 +2841,8 @@
       },
       "systemApi": true,
       "dataEnums": [
-        "android.car.hardware.property.LaneCenteringAssistCommand"
+        1,
+        2
       ]
     },
     "LANE_CENTERING_ASSIST_STATE": {
@@ -2429,8 +2855,18 @@
       },
       "systemApi": true,
       "dataEnums": [
-        "android.car.hardware.property.LaneCenteringAssistState",
-        "android.car.hardware.property.ErrorState"
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
       ]
     },
     "EMERGENCY_LANE_KEEP_ASSIST_ENABLED": {
@@ -2457,8 +2893,19 @@
       },
       "systemApi": true,
       "dataEnums": [
-        "android.car.hardware.property.EmergencyLaneKeepAssistState",
-        "android.car.hardware.property.ErrorState"
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
       ]
     },
     "CRUISE_CONTROL_ENABLED": {
@@ -2489,8 +2936,16 @@
       },
       "systemApi": true,
       "dataEnums": [
-        "android.car.hardware.property.CruiseControlType",
-        "android.car.hardware.property.ErrorState"
+        0,
+        1,
+        2,
+        3,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
       ]
     },
     "CRUISE_CONTROL_STATE": {
@@ -2503,8 +2958,18 @@
       },
       "systemApi": true,
       "dataEnums": [
-        "android.car.hardware.property.CruiseControlState",
-        "android.car.hardware.property.ErrorState"
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
       ]
     },
     "CRUISE_CONTROL_COMMAND": {
@@ -2517,7 +2982,12 @@
       },
       "systemApi": true,
       "dataEnums": [
-        "android.car.hardware.property.CruiseControlCommand"
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ]
     },
     "CRUISE_CONTROL_TARGET_SPEED": {
@@ -2578,8 +3048,15 @@
       },
       "systemApi": true,
       "dataEnums": [
-        "android.car.hardware.property.HandsOnDetectionDriverState",
-        "android.car.hardware.property.ErrorState"
+        0,
+        1,
+        2,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
       ]
     },
     "HANDS_ON_DETECTION_WARNING": {
@@ -2592,8 +3069,15 @@
       },
       "systemApi": true,
       "dataEnums": [
-        "android.car.hardware.property.HandsOnDetectionWarning",
-        "android.car.hardware.property.ErrorState"
+        0,
+        1,
+        2,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
       ]
     }
   }
