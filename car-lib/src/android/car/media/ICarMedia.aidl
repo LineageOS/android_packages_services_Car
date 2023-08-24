@@ -27,17 +27,17 @@ import android.content.ComponentName;
  */
 interface ICarMedia {
     /** Gets the currently active media source for the provided mode */
-    ComponentName getMediaSource(int mode);
+    ComponentName getMediaSource(int mode, int userId);
     /** Sets the currently active media source for the provided mode */
-    void setMediaSource(in ComponentName mediaSource, int mode);
+    void setMediaSource(in ComponentName mediaSource, int mode, int userId);
     /** Register a callback that receives updates to the active media source */
-    void registerMediaSourceListener(in ICarMediaSourceListener callback, int mode);
+    void registerMediaSourceListener(in ICarMediaSourceListener callback, int mode, int userId);
     /** Unregister a callback that receives updates to the active media source */
-    void unregisterMediaSourceListener(in ICarMediaSourceListener callback, int mode);
+    void unregisterMediaSourceListener(in ICarMediaSourceListener callback, int mode, int userId);
     /** Retrieve a list of media sources, ordered by most recently used */
-    List<ComponentName> getLastMediaSources(int mode);
+    List<ComponentName> getLastMediaSources(int mode, int userId);
     /** Returns whether the browse and playback sources can be changed independently. */
-    boolean isIndependentPlaybackConfig();
+    boolean isIndependentPlaybackConfig(int userId);
     /** Sets whether the browse and playback sources can be changed independently. */
-    void setIndependentPlaybackConfig(boolean independent);
+    void setIndependentPlaybackConfig(boolean independent, int userId);
 }

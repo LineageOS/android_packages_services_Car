@@ -94,7 +94,7 @@ public final class CarMediaManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public @NonNull ComponentName getMediaSource(@MediaSourceMode int mode) {
         try {
-            return mService.getMediaSource(mode);
+            return mService.getMediaSource(mode, getContext().getUser().getIdentifier());
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, null);
         }
@@ -109,7 +109,7 @@ public final class CarMediaManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public void setMediaSource(@NonNull ComponentName componentName, @MediaSourceMode int mode) {
         try {
-            mService.setMediaSource(componentName, mode);
+            mService.setMediaSource(componentName, mode, getContext().getUser().getIdentifier());
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
@@ -135,7 +135,8 @@ public final class CarMediaManager extends CarManagerBase {
             synchronized (mLock) {
                 mCallbackMap.put(callback, binderCallback);
             }
-            mService.registerMediaSourceListener(binderCallback, mode);
+            mService.registerMediaSourceListener(binderCallback, mode,
+                    getContext().getUser().getIdentifier());
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
@@ -154,7 +155,8 @@ public final class CarMediaManager extends CarManagerBase {
         try {
             synchronized (mLock) {
                 ICarMediaSourceListener binderCallback = mCallbackMap.remove(callback);
-                mService.unregisterMediaSourceListener(binderCallback, mode);
+                mService.unregisterMediaSourceListener(binderCallback, mode,
+                        getContext().getUser().getIdentifier());
             }
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
@@ -171,7 +173,7 @@ public final class CarMediaManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public @NonNull List<ComponentName> getLastMediaSources(@MediaSourceMode int mode) {
         try {
-            return mService.getLastMediaSources(mode);
+            return mService.getLastMediaSources(mode, getContext().getUser().getIdentifier());
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, null);
         }
@@ -197,7 +199,7 @@ public final class CarMediaManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public boolean isIndependentPlaybackConfig() {
         try {
-            return mService.isIndependentPlaybackConfig();
+            return mService.isIndependentPlaybackConfig(getContext().getUser().getIdentifier());
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, false);
         }
@@ -213,7 +215,8 @@ public final class CarMediaManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public void setIndependentPlaybackConfig(boolean independent) {
         try {
-            mService.setIndependentPlaybackConfig(independent);
+            mService.setIndependentPlaybackConfig(independent,
+                    getContext().getUser().getIdentifier());
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }

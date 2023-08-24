@@ -753,25 +753,25 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
      */
     @Override
     public void setMediaSource(@NonNull ComponentName componentName,
-            @MediaSourceMode int mode) {
+            @MediaSourceMode int mode, @UserIdInt int userId) {
+        enforceValidCallingUser(userId);
         assertPermission(mContext,
                 android.Manifest.permission.MEDIA_CONTENT_CONTROL);
-        UserHandle callingUser = getCallingUserHandle();
         if (DEBUG) {
-            Slogf.d(TAG, "Changing media source to: %s for user %s",
-                    componentName.getPackageName(), callingUser);
+            Slogf.d(TAG, "Changing media source to: %s for user %d",
+                    componentName.getPackageName(), userId);
         }
-        setPrimaryMediaSource(componentName, mode, callingUser.getIdentifier());
+        setPrimaryMediaSource(componentName, mode, userId);
     }
 
     /**
      * @see {@link CarMediaManager#getMediaSource()}
      */
     @Override
-    public ComponentName getMediaSource(@CarMediaManager.MediaSourceMode int mode) {
-        assertPermission(mContext,
-                android.Manifest.permission.MEDIA_CONTENT_CONTROL);
-        int userId = getCallingUserHandle().getIdentifier();
+    public ComponentName getMediaSource(@CarMediaManager.MediaSourceMode int mode,
+            @UserIdInt int userId) {
+        enforceValidCallingUser(userId);
+        assertPermission(mContext, android.Manifest.permission.MEDIA_CONTENT_CONTROL);
         ComponentName componentName;
         synchronized (mLock) {
             componentName = getPrimaryMediaComponentsForUserLocked(userId)[mode];
@@ -788,8 +788,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
      */
     @Override
     public void registerMediaSourceListener(ICarMediaSourceListener callback,
-            @MediaSourceMode int mode) {
-        int userId = getCallingUserHandle().getIdentifier();
+            @MediaSourceMode int mode, @UserIdInt int userId) {
+        enforceValidCallingUser(userId);
         assertPermission(mContext,
                 android.Manifest.permission.MEDIA_CONTENT_CONTROL);
         UserMediaPlayContext userMediaContext;
@@ -804,8 +804,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
      */
     @Override
     public void unregisterMediaSourceListener(ICarMediaSourceListener callback,
-            @MediaSourceMode int mode) {
-        int userId = getCallingUserHandle().getIdentifier();
+            @MediaSourceMode int mode, @UserIdInt int userId) {
+        enforceValidCallingUser(userId);
         assertPermission(mContext,
                 android.Manifest.permission.MEDIA_CONTENT_CONTROL);
         UserMediaPlayContext userMediaContext;
@@ -816,10 +816,11 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     }
 
     @Override
-    public List<ComponentName> getLastMediaSources(@CarMediaManager.MediaSourceMode int mode) {
+    public List<ComponentName> getLastMediaSources(@CarMediaManager.MediaSourceMode int mode,
+            @UserIdInt int userId) {
+        enforceValidCallingUser(userId);
         assertPermission(mContext,
                 android.Manifest.permission.MEDIA_CONTENT_CONTROL);
-        int userId = getCallingUserHandle().getIdentifier();
         return getLastMediaSourcesInternal(mode, userId);
     }
 
@@ -844,17 +845,18 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     /** See {@link CarMediaManager#isIndependentPlaybackConfig}. */
     @Override
     @TestApi
-    public boolean isIndependentPlaybackConfig() {
+    public boolean isIndependentPlaybackConfig(@UserIdInt int userId) {
+        enforceValidCallingUser(userId);
         assertPermission(mContext,
                 android.Manifest.permission.MEDIA_CONTENT_CONTROL);
-        int callingUser = getCallingUserHandle().getIdentifier();
-        return isIndependentPlaybackConfigInternal(callingUser);
+        return isIndependentPlaybackConfigInternal(userId);
     }
 
     /**
      * Returns independent playback config for the specified {@code userId}.
      *
-     * <p>Anywhere in this file, do not use the public {@link isIndependentPlaybackConfig()} method.
+     * <p>Anywhere in this file, do not use the public {@link isIndependentPlaybackConfig(int)}
+     * method.
      */
     private boolean isIndependentPlaybackConfigInternal(@UserIdInt int userId) {
         synchronized (mLock) {
@@ -865,13 +867,23 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     /** See {@link CarMediaManager#setIndependentPlaybackConfig}. */
     @Override
     @TestApi
-    public void setIndependentPlaybackConfig(boolean independent) {
+    public void setIndependentPlaybackConfig(boolean independent, @UserIdInt int userId) {
+        enforceValidCallingUser(userId);
         assertPermission(mContext,
                 android.Manifest.permission.MEDIA_CONTENT_CONTROL);
-        int callingUser = getCallingUserHandle().getIdentifier();
         synchronized (mLock) {
-            getOrCreateUserMediaPlayContextLocked(callingUser).mIndependentPlaybackConfig =
-                    independent;
+            getOrCreateUserMediaPlayContextLocked(userId).mIndependentPlaybackConfig = independent;
+        }
+    }
+
+    private void enforceValidCallingUser(@UserIdInt int userId) throws SecurityException {
+        UserHandle callingUser = getCallingUserHandle();
+
+        // The calling user is valid if it is the system user or the specified userId matches
+        // the calling user.
+        if (!callingUser.isSystem() && callingUser.getIdentifier() != userId) {
+            throw new SecurityException("The calling user " + callingUser.getIdentifier()
+                    + " cannot access media data of user " + userId);
         }
     }
 
