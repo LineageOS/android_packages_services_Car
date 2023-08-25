@@ -34,7 +34,7 @@ import com.android.car.hal.property.PropertyPermissionInfo.PermissionCondition;
 import com.android.car.hal.property.PropertyPermissionInfo.PropertyPermissions;
 import com.android.car.hal.property.PropertyPermissionInfo.SinglePermission;
 
-import com.google.common.testing.EqualsTester;
+// import com.google.common.testing.EqualsTester;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -193,15 +193,6 @@ public class PropertyPermissionInfoTest {
     }
 
     @Test
-    public void testSinglePermissionEqual() {
-        PermissionCondition p1 = new SinglePermission("abc");
-        PermissionCondition p2 = new SinglePermission("bcd");
-        PermissionCondition p3 = new SinglePermission("bcd");
-
-        new EqualsTester().addEqualityGroup(p1).addEqualityGroup(p2, p3).testEquals();
-    }
-
-    @Test
     public void testSinglePermissionHash() {
         PermissionCondition p1 = new SinglePermission("abc");
         PermissionCondition p2 = new SinglePermission("bcd");
@@ -210,24 +201,6 @@ public class PropertyPermissionInfoTest {
         assertThat(p1.hashCode()).isNotEqualTo(p2.hashCode());
         assertThat(p1.hashCode()).isNotEqualTo(p3.hashCode());
         assertThat(p2.hashCode()).isEqualTo(p3.hashCode());
-    }
-
-    @Test
-    public void testAnyPermissionEqual() {
-        PermissionCondition p1 = new AnyOfPermissions(new SinglePermission("abc"),
-                new SinglePermission("bcd"));
-        PermissionCondition p2 = new AnyOfPermissions(new SinglePermission("abc"),
-                new SinglePermission("bcd"));
-        // Order does not matter.
-        PermissionCondition p3 = new AnyOfPermissions(new SinglePermission("bcd"),
-                new SinglePermission("abc"));
-        PermissionCondition p4 = new AnyOfPermissions(new SinglePermission("bla"),
-                new SinglePermission("blah"));
-        PermissionCondition p5 = new AnyOfPermissions(new SinglePermission("abc"),
-                new SinglePermission("bcd"), new SinglePermission("cde"));
-
-        new EqualsTester().addEqualityGroup(p1, p2, p3).addEqualityGroup(p4)
-                .addEqualityGroup(p5).testEquals();
     }
 
     @Test
@@ -251,24 +224,6 @@ public class PropertyPermissionInfoTest {
     }
 
     @Test
-    public void testAllPermissionEqual() {
-        PermissionCondition p1 = new AllOfPermissions(new SinglePermission("abc"),
-                new SinglePermission("bcd"));
-        PermissionCondition p2 = new AllOfPermissions(new SinglePermission("abc"),
-                new SinglePermission("bcd"));
-        // Order does not matter.
-        PermissionCondition p3 = new AllOfPermissions(new SinglePermission("bcd"),
-                new SinglePermission("abc"));
-        PermissionCondition p4 = new AllOfPermissions(new SinglePermission("bla"),
-                new SinglePermission("blah"));
-        PermissionCondition p5 = new AllOfPermissions(new SinglePermission("abc"),
-                new SinglePermission("bcd"), new SinglePermission("cde"));
-
-        new EqualsTester().addEqualityGroup(p1, p2, p3).addEqualityGroup(p4)
-                .addEqualityGroup(p5).testEquals();
-    }
-
-    @Test
     public void testAllPermissionHash() {
         PermissionCondition p1 = new AllOfPermissions(new SinglePermission("abc"),
                 new SinglePermission("bcd"));
@@ -286,27 +241,6 @@ public class PropertyPermissionInfoTest {
         assertThat(p1.hashCode()).isEqualTo(p3.hashCode());
         assertThat(p1.hashCode()).isNotEqualTo(p4.hashCode());
         assertThat(p1.hashCode()).isNotEqualTo(p5.hashCode());
-    }
-
-    @Test
-    public void testPropertyPermissionsEqual() {
-        PropertyPermissions p1 = new PropertyPermissions.Builder()
-                .setReadPermission(new SinglePermission("abc"))
-                .setWritePermission(new SinglePermission("bcd"))
-                .build();
-        PropertyPermissions p2 = new PropertyPermissions.Builder()
-                .setReadPermission(new SinglePermission("abc"))
-                .setWritePermission(new SinglePermission("bcd"))
-                .build();
-        PropertyPermissions p3 = new PropertyPermissions.Builder()
-                .setReadPermission(new SinglePermission("abc"))
-                .build();
-        PropertyPermissions p4 = new PropertyPermissions.Builder()
-                .setWritePermission(new SinglePermission("bcd"))
-                .build();
-
-       new EqualsTester().addEqualityGroup(p1, p2).addEqualityGroup(p3)
-                .addEqualityGroup(p4).testEquals();
     }
 
     @Test
@@ -330,4 +264,75 @@ public class PropertyPermissionInfoTest {
         assertThat(p1.hashCode()).isNotEqualTo(p3.hashCode());
         assertThat(p1.hashCode()).isNotEqualTo(p4.hashCode());
     }
+
+    /* TODO(b/232458264): The EqualsTest will automatically include several test classes that are
+    marked as ignore, this will cause test infra error.  Enable this test once test infra supports
+    ignore on class.
+
+    @Test
+    public void testSinglePermissionEqual() {
+        PermissionCondition p1 = new SinglePermission("abc");
+        PermissionCondition p2 = new SinglePermission("bcd");
+        PermissionCondition p3 = new SinglePermission("bcd");
+
+        new EqualsTester().addEqualityGroup(p1).addEqualityGroup(p2, p3).testEquals();
+    }
+
+    @Test
+    public void testAnyPermissionEqual() {
+        PermissionCondition p1 = new AnyOfPermissions(new SinglePermission("abc"),
+                new SinglePermission("bcd"));
+        PermissionCondition p2 = new AnyOfPermissions(new SinglePermission("abc"),
+                new SinglePermission("bcd"));
+        // Order does not matter.
+        PermissionCondition p3 = new AnyOfPermissions(new SinglePermission("bcd"),
+                new SinglePermission("abc"));
+        PermissionCondition p4 = new AnyOfPermissions(new SinglePermission("bla"),
+                new SinglePermission("blah"));
+        PermissionCondition p5 = new AnyOfPermissions(new SinglePermission("abc"),
+                new SinglePermission("bcd"), new SinglePermission("cde"));
+
+        new EqualsTester().addEqualityGroup(p1, p2, p3).addEqualityGroup(p4)
+                .addEqualityGroup(p5).testEquals();
+    }
+
+    @Test
+    public void testAllPermissionEqual() {
+        PermissionCondition p1 = new AllOfPermissions(new SinglePermission("abc"),
+                new SinglePermission("bcd"));
+        PermissionCondition p2 = new AllOfPermissions(new SinglePermission("abc"),
+                new SinglePermission("bcd"));
+        // Order does not matter.
+        PermissionCondition p3 = new AllOfPermissions(new SinglePermission("bcd"),
+                new SinglePermission("abc"));
+        PermissionCondition p4 = new AllOfPermissions(new SinglePermission("bla"),
+                new SinglePermission("blah"));
+        PermissionCondition p5 = new AllOfPermissions(new SinglePermission("abc"),
+                new SinglePermission("bcd"), new SinglePermission("cde"));
+
+        new EqualsTester().addEqualityGroup(p1, p2, p3).addEqualityGroup(p4)
+                .addEqualityGroup(p5).testEquals();
+    }
+
+    @Test
+    public void testPropertyPermissionsEqual() {
+        PropertyPermissions p1 = new PropertyPermissions.Builder()
+                .setReadPermission(new SinglePermission("abc"))
+                .setWritePermission(new SinglePermission("bcd"))
+                .build();
+        PropertyPermissions p2 = new PropertyPermissions.Builder()
+                .setReadPermission(new SinglePermission("abc"))
+                .setWritePermission(new SinglePermission("bcd"))
+                .build();
+        PropertyPermissions p3 = new PropertyPermissions.Builder()
+                .setReadPermission(new SinglePermission("abc"))
+                .build();
+        PropertyPermissions p4 = new PropertyPermissions.Builder()
+                .setWritePermission(new SinglePermission("bcd"))
+                .build();
+
+       new EqualsTester().addEqualityGroup(p1, p2).addEqualityGroup(p3)
+                .addEqualityGroup(p4).testEquals();
+    }
+    */
 }
