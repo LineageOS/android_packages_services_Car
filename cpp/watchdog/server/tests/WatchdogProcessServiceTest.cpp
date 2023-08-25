@@ -56,6 +56,7 @@ using ::android::frameworks::automotive::vhal::VhalClientError;
 using ::android::frameworks::automotive::vhal::VhalClientResult;
 using ::android::hidl::base::V1_0::DebugInfo;
 using ::android::hidl::manager::V1_0::IServiceManager;
+using ::android::util::ProtoReader;
 using ::ndk::ScopedAStatus;
 using ::ndk::SharedRefBase;
 using ::ndk::SpAIBinder;
@@ -275,7 +276,7 @@ protected:
     std::string toString(util::ProtoOutputStream* proto) {
         std::string content;
         content.reserve(proto->size());
-        sp<util::ProtoReader> reader = proto->data();
+        sp<ProtoReader> reader = proto->data();
         while (reader->hasNext()) {
             content.push_back(reader->next());
         }
@@ -364,8 +365,6 @@ TEST_F(WatchdogProcessServiceTest, TestTerminate) {
     mWatchdogProcessService->terminate();
     // TODO(b/217405065): Verify looper removes all MSG_VHAL_HEALTH_CHECK messages.
 }
-
-// TODO(b/292121369): Add a test to verify proto dump format.
 
 // TODO(b/217405065): Add test to verify the handleVhalDeath method.
 
@@ -768,6 +767,7 @@ TEST_F(WatchdogProcessServiceTest, TestOnDumpProto) {
     EXPECT_EQ(healthCheckClientInfo.start_time_millis(), 1000);
     EXPECT_EQ(healthCheckClientInfo.health_check_timeout(), 0);
 
+    // Clean up test clients before exiting.
     mWatchdogProcessServicePeer->clearClientsByTimeout();
 }
 
