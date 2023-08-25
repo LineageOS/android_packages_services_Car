@@ -45,7 +45,7 @@ public:
     MOCK_METHOD(android::base::Result<void>, start, (), (override));
     MOCK_METHOD(void, terminate, (), (override));
     MOCK_METHOD(void, onDump, (int), (override));
-    MOCK_METHOD(void, onDumpProto, (util::ProtoOutputStream&), (override));
+    MOCK_METHOD(void, onDumpProto, (android::util::ProtoOutputStream&), (override));
     MOCK_METHOD(void, doHealthCheck, (int), (override));
     MOCK_METHOD(void, handleBinderDeath, (void*), (override));
     MOCK_METHOD(ndk::ScopedAStatus, registerClient,

@@ -83,6 +83,7 @@ using ::android::hardware::interfacesEqual;
 using ::android::hardware::Return;
 using ::android::hidl::base::V1_0::IBase;
 using ::android::hidl::manager::V1_0::IServiceManager;
+using ::android::util::ProtoOutputStream;
 using ::ndk::ScopedAIBinder_DeathRecipient;
 using ::ndk::ScopedAStatus;
 using ::ndk::SpAIBinder;
@@ -531,15 +532,15 @@ void WatchdogProcessService::onDump(int fd) {
     }
 }
 
-void WatchdogProcessService::onDumpProto(util::ProtoOutputStream& proto) {
+void WatchdogProcessService::onDumpProto(ProtoOutputStream& outProto) {
     Mutex::Autolock lock(mMutex);
 
-    proto.write(HealthCheckServiceDump::IS_ENABLED, mIsEnabled);
-    proto.write(HealthCheckServiceDump::IS_MONITOR_REGISTERED, mMonitor != nullptr);
-    proto.write(HealthCheckServiceDump::IS_SYSTEM_SHUT_DOWN_IN_PROGRESS, isSystemShuttingDown());
+    outProto.write(HealthCheckServiceDump::IS_ENABLED, mIsEnabled);
+    outProto.write(HealthCheckServiceDump::IS_MONITOR_REGISTERED, mMonitor != nullptr);
+    outProto.write(HealthCheckServiceDump::IS_SYSTEM_SHUT_DOWN_IN_PROGRESS, isSystemShuttingDown());
 
     for (const auto& userId : mStoppedUserIds) {
-        proto.write(HealthCheckServiceDump::STOPPED_USERS, static_cast<int>(userId));
+        outProto.write(HealthCheckServiceDump::STOPPED_USERS, static_cast<int>(userId));
     }
     auto criticalHealthCheckWindowMs =
             std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -553,51 +554,55 @@ void WatchdogProcessService::onDumpProto(util::ProtoOutputStream& proto) {
             std::chrono::duration_cast<std::chrono::milliseconds>(
                      getTimeoutDurationNs(TimeoutLength::TIMEOUT_NORMAL))
                      .count();
-    proto.write(HealthCheckServiceDump::CRITICAL_HEALTH_CHECK_WINDOW_MILLIS,
-                criticalHealthCheckWindowMs);
-    proto.write(HealthCheckServiceDump::MODERATE_HEALTH_CHECK_WINDOW_MILLIS,
-                moderateHealthCheckWindowMs);
-    proto.write(HealthCheckServiceDump::NORMAL_HEALTH_CHECK_WINDOW_MILLIS,
-                normalHealthCheckWindowMs);
+    outProto.write(HealthCheckServiceDump::CRITICAL_HEALTH_CHECK_WINDOW_MILLIS,
+                   criticalHealthCheckWindowMs);
+    outProto.write(HealthCheckServiceDump::MODERATE_HEALTH_CHECK_WINDOW_MILLIS,
+                   moderateHealthCheckWindowMs);
+    outProto.write(HealthCheckServiceDump::NORMAL_HEALTH_CHECK_WINDOW_MILLIS,
+                   normalHealthCheckWindowMs);
 
     // Vhal Health Check Info
-    uint64_t vHalHealthCheckInfoToken = proto.start(HealthCheckServiceDump::VHAL_HEALTH_CHECK_INFO);
-    proto.write(VhalHealthCheckInfo::IS_ENABLED, mVhalService != nullptr);
-    proto.write(VhalHealthCheckInfo::HEALTH_CHECK_WINDOW_MILLIS, mVhalHealthCheckWindowMs.count());
-    proto.write(VhalHealthCheckInfo::LAST_HEARTBEAT_UPDATE_AGO_MILLIS,
-                uptimeMillis() - mVhalHeartBeat.eventTime);
+    uint64_t vHalHealthCheckInfoToken =
+            outProto.start(HealthCheckServiceDump::VHAL_HEALTH_CHECK_INFO);
+    outProto.write(VhalHealthCheckInfo::IS_ENABLED, mVhalService != nullptr);
+    outProto.write(VhalHealthCheckInfo::HEALTH_CHECK_WINDOW_MILLIS,
+                   mVhalHealthCheckWindowMs.count());
+    outProto.write(VhalHealthCheckInfo::LAST_HEARTBEAT_UPDATE_AGO_MILLIS,
+                   uptimeMillis() - mVhalHeartBeat.eventTime);
     int pidCachingProgressState = VhalHealthCheckInfo::FAILURE;
     if (mVhalProcessIdentifier.has_value()) {
         pidCachingProgressState = VhalHealthCheckInfo::SUCCESS;
     } else if (mTotalVhalPidCachingAttempts < kMaxVhalPidCachingAttempts) {
         pidCachingProgressState = VhalHealthCheckInfo::IN_PROGRESS;
     }
-    proto.write(VhalHealthCheckInfo::PID_CACHING_PROGRESS_STATE, pidCachingProgressState);
-    proto.write(VhalHealthCheckInfo::PID, mVhalProcessIdentifier.has_value() ?
-        mVhalProcessIdentifier->pid : -1);
-    proto.write(VhalHealthCheckInfo::START_TIME_MILLIS, mVhalProcessIdentifier.has_value() ?
-        mVhalProcessIdentifier->startTimeMillis : -1);
+    outProto.write(VhalHealthCheckInfo::PID_CACHING_PROGRESS_STATE, pidCachingProgressState);
+    outProto.write(VhalHealthCheckInfo::PID,
+                   mVhalProcessIdentifier.has_value() ? mVhalProcessIdentifier->pid : -1);
+    outProto.write(VhalHealthCheckInfo::START_TIME_MILLIS,
+                   mVhalProcessIdentifier.has_value() ? mVhalProcessIdentifier->startTimeMillis
+                                                      : -1);
 
-    proto.end(vHalHealthCheckInfoToken);
+    outProto.end(vHalHealthCheckInfoToken);
 
     // Health Check Client Info
     for (const auto& timeout : kTimeouts) {
         const ClientInfoMap& clients = mClientsByTimeout[timeout];
         for (auto it = clients.begin(); it != clients.end(); it++) {
             uint64_t healthCheckClientInfoToken =
-                    proto.start(HealthCheckServiceDump::REGISTERED_CLIENT_INFOS);
+                    outProto.start(HealthCheckServiceDump::REGISTERED_CLIENT_INFOS);
             const ClientInfo clientInfo = it->second;
-            proto.write(HealthCheckClientInfo::PID, clientInfo.kPid);
+            outProto.write(HealthCheckClientInfo::PID, clientInfo.kPid);
 
-            uint64_t userPackageInfoToken = proto.start(HealthCheckClientInfo::USER_PACKAGE_INFO);
-            proto.write(UserPackageInfo::USER_ID, static_cast<int>(clientInfo.kUserId));
-            proto.write(UserPackageInfo::PACKAGE_NAME, clientInfo.kPackageName);
-            proto.end(userPackageInfoToken);
+            uint64_t userPackageInfoToken =
+                    outProto.start(HealthCheckClientInfo::USER_PACKAGE_INFO);
+            outProto.write(UserPackageInfo::USER_ID, static_cast<int>(clientInfo.kUserId));
+            outProto.write(UserPackageInfo::PACKAGE_NAME, clientInfo.kPackageName);
+            outProto.end(userPackageInfoToken);
 
-            proto.write(HealthCheckClientInfo::CLIENT_TYPE, clientInfo.kType);
-            proto.write(HealthCheckClientInfo::START_TIME_MILLIS, clientInfo.kStartTimeMillis);
-            proto.write(HealthCheckClientInfo::HEALTH_CHECK_TIMEOUT, static_cast<int>(timeout));
-            proto.end(healthCheckClientInfoToken);
+            outProto.write(HealthCheckClientInfo::CLIENT_TYPE, clientInfo.kType);
+            outProto.write(HealthCheckClientInfo::START_TIME_MILLIS, clientInfo.kStartTimeMillis);
+            outProto.write(HealthCheckClientInfo::HEALTH_CHECK_TIMEOUT, static_cast<int>(timeout));
+            outProto.end(healthCheckClientInfoToken);
         }
     }
 }
