@@ -125,6 +125,7 @@ import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.HalCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
+import com.android.car.hal.HalPropertyIdDebugUtils;
 import com.android.car.hal.InputHalService;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.UserHalHelper;
@@ -411,7 +412,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String PARAM_DAY_MODE = "day";
     private static final String PARAM_NIGHT_MODE = "night";
     private static final String PARAM_SENSOR_MODE = "sensor";
-    private static final String PARAM_VEHICLE_PROPERTY_AREA_GLOBAL = "0";
+    private static final String PARAM_VEHICLE_PROPERTY_GLOBAL_AREA_ID = "0";
     private static final String PARAM_INJECT_EVENT_DEFAULT_RATE = "10";
     private static final String PARAM_INJECT_EVENT_DEFAULT_DURATION = "60";
     private static final String PARAM_ALL_PROPERTIES_OR_AREA = "-1";
@@ -598,7 +599,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t  Print this help text.");
         pw.println("\tday-night-mode [day|night|sensor]");
         pw.println("\t  Force into day/night mode or restore to auto.");
-        pw.println("\tinject-vhal-event <PROPERTY_ID in Hex or Decimal> [zone] "
+        pw.println("\tinject-vhal-event <PROPERTY_ID in String, Hex, or Decimal> [area ID] "
                 + "data(can be comma separated list) "
                 + "[-t delay_time_seconds]");
         pw.println("\t  Inject a vehicle property for testing.");
@@ -611,7 +612,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 + "[-z zone]  [-s SampleRate in Hz] [-d time duration in seconds]");
         pw.println("\t  Inject continuous vehicle events for testing.");
         pw.printf("\t  If not specified, CarService will inject fake events with areaId:%s "
-                        + "at sample rate %s for %s seconds.", PARAM_VEHICLE_PROPERTY_AREA_GLOBAL,
+                        + "at sample rate %s for %s seconds.",
+                PARAM_VEHICLE_PROPERTY_GLOBAL_AREA_ID,
                 PARAM_INJECT_EVENT_DEFAULT_RATE, PARAM_INJECT_EVENT_DEFAULT_DURATION);
         pw.println("\tenable-uxr true|false");
         pw.println("\t  Enable/Disable UX restrictions and App blocking.");
@@ -1150,33 +1152,13 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             }
             case COMMAND_INJECT_VHAL_EVENT:
-                String zone = PARAM_VEHICLE_PROPERTY_AREA_GLOBAL;
-                String data;
-                int argNum = args.length;
-                if (argNum < 3 || argNum > 6) {
-                    return showInvalidArguments(writer);
-                }
-                String delayTime = Objects.equals(args[argNum - 2], "-t") ?  args[argNum - 1] : "0";
-                if (argNum == 4 || argNum == 6) {
-                    // Zoned
-                    zone = args[2];
-                    data = args[3];
-                } else {
-                    // Global
-                    data = args[2];
-                }
-                injectVhalEvent(args[1], zone, data, false, delayTime, writer);
+                injectVhalEvent(args, writer);
                 break;
             case COMMAND_INJECT_CONTINUOUS_EVENT:
                 injectContinuousEvents(args, writer);
                 break;
             case COMMAND_INJECT_ERROR_EVENT:
-                if (args.length != 4) {
-                    return showInvalidArguments(writer);
-                }
-                String errorAreaId = args[2];
-                String errorCode = args[3];
-                injectVhalEvent(args[1], errorAreaId, errorCode, true, "0", writer);
+                injectErrorEvent(args, writer);
                 break;
             case COMMAND_ENABLE_UXR:
                 if (args.length != 2) {
@@ -1607,6 +1589,30 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
         }
         Binder.restoreCallingIdentity(id);
+    }
+
+    private static int decodeAreaId(String areaIdString) {
+        try {
+            return Integer.decode(areaIdString);
+        } catch (NumberFormatException e) {
+            throw new NumberFormatException(
+                    "Failed to decode area ID from: " + areaIdString + " - exception: "
+                            + e);
+        }
+    }
+
+    private static int decodePropertyId(String propertyIdString) {
+        if (HalPropertyIdDebugUtils.toId(propertyIdString) != null) {
+            return HalPropertyIdDebugUtils.toId(propertyIdString).intValue();
+        }
+
+        try {
+            return Integer.decode(propertyIdString);
+        } catch (NumberFormatException e) {
+            throw new NumberFormatException(
+                    "Failed to decode property ID from: " + propertyIdString + " - exception: "
+                            + e);
+        }
     }
 
     private void injectKey(String[] args, IndentingPrintWriter writer) {
@@ -3063,41 +3069,67 @@ final class CarShellCommand extends BasicShellCommandHandler {
     }
 
     /**
-     * Inject a fake  VHAL event
+     * Inject a fake VHAL event
      *
-     * @param property the Vehicle property Id as defined in the HAL
-     * @param zone     Zone that this event services
-     * @param isErrorEvent indicates the type of event
-     * @param value    Data value of the event
-     * @param delayTime the event timestamp is increased by delayTime
-     * @param writer   IndentingPrintWriter
+     * @param args   the command line arguments to parse for VHAL event details
+     * @param writer IndentingPrintWriter
      */
-    private void injectVhalEvent(String property, String zone, String value,
-            boolean isErrorEvent, String delayTime, IndentingPrintWriter writer) {
-        Slogf.i(TAG, "Injecting VHAL event: prop="  + property + ", zone=" + zone + ", value="
-                + value + ", isError=" + isErrorEvent
-                + (TextUtils.isEmpty(delayTime) ?  "" : ", delayTime=" + delayTime));
-        if (zone.equalsIgnoreCase(PARAM_VEHICLE_PROPERTY_AREA_GLOBAL)) {
-            if (!isPropertyAreaTypeGlobal(property)) {
-                writer.printf("Property area type inconsistent with given zone: %s \n", zone);
+    private void injectVhalEvent(String[] args, IndentingPrintWriter writer) {
+        int argNum = args.length;
+        if (argNum < 3 || argNum > 6) {
+            showInvalidArguments(writer);
+            return;
+        }
+        int propertyId = decodePropertyId(args[1]);
+        String delayTimeSeconds = Objects.equals(args[argNum - 2], "-t") ? args[argNum - 1] : "0";
+        int areaId;
+        String value;
+        if (argNum == 4 || argNum == 6) {
+            areaId = decodeAreaId(args[2]);
+            value = args[3];
+        } else {
+            // area ID is not specified, assume global area ID
+            if (!isPropertyAreaTypeGlobal(propertyId)) {
+                writer.println("Property " + HalPropertyIdDebugUtils.toDebugString(propertyId)
+                        + " is not a global area type property. The area ID must be specified. "
+                        + "Skipping injection.");
                 return;
             }
+            areaId = 0;
+            value = args[2];
         }
-        try {
-            if (isErrorEvent) {
-                VehiclePropError error = new VehiclePropError();
-                error.areaId = Integer.decode(zone);
-                error.propId = Integer.decode(property);
-                error.errorCode = Integer.decode(value);
-                mHal.onPropertySetError(new ArrayList<VehiclePropError>(Arrays.asList(error)));
-            } else {
-                mHal.injectVhalEvent(Integer.decode(property), Integer.decode(zone), value,
-                        Integer.decode(delayTime));
-            }
-        } catch (NumberFormatException e) {
-            writer.printf("Invalid property Id zone Id or value: %s \n", e);
-            showHelp(writer);
+        String debugOutput =
+                "Injecting VHAL event: property=" + HalPropertyIdDebugUtils.toDebugString(
+                        propertyId) + ", areaId=" + areaId + ", value=" + value + (
+                        TextUtils.isEmpty(delayTimeSeconds) ? ""
+                                : ", delayTimeSeconds=" + delayTimeSeconds);
+        Slogf.i(TAG, debugOutput);
+        writer.println(debugOutput);
+        mHal.injectVhalEvent(propertyId, areaId, value, Integer.decode(delayTimeSeconds));
+    }
+
+    /**
+     * Inject a fake VHAL error error event
+     *
+     * @param args   the command line arguments to parse for error event details
+     * @param writer IndentingPrintWriter
+     */
+    private void injectErrorEvent(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 4) {
+            showInvalidArguments(writer);
+            return;
         }
+        int propertyId = decodePropertyId(args[1]);
+        int areaId = decodeAreaId(args[2]);
+        int errorCode = Integer.decode(args[3]);
+        Slogf.i(TAG,
+                "Injecting VHAL error event: property=" + HalPropertyIdDebugUtils.toDebugString(
+                        propertyId) + ", areaId=" + areaId + ", errorCode=" + errorCode);
+        VehiclePropError vehiclePropError = new VehiclePropError();
+        vehiclePropError.propId = propertyId;
+        vehiclePropError.areaId = areaId;
+        vehiclePropError.errorCode = errorCode;
+        mHal.onPropertySetError(new ArrayList<VehiclePropError>(List.of(vehiclePropError)));
     }
 
     // Inject continuous vhal events.
@@ -3106,7 +3138,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             showInvalidArguments(writer);
             return;
         }
-        String areaId = PARAM_VEHICLE_PROPERTY_AREA_GLOBAL;
+        String areaId = PARAM_VEHICLE_PROPERTY_GLOBAL_AREA_ID;
         String sampleRate = PARAM_INJECT_EVENT_DEFAULT_RATE;
         String durationTime = PARAM_INJECT_EVENT_DEFAULT_DURATION;
         String propId = args[1];
@@ -3169,7 +3201,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
         Slogf.i(TAG, "Setting vehicle property: id=%s, areaId=%s, value=%s", strId, strAreaId,
                 value);
-        if (strAreaId.equalsIgnoreCase(PARAM_VEHICLE_PROPERTY_AREA_GLOBAL)
+        if (strAreaId.equalsIgnoreCase(PARAM_VEHICLE_PROPERTY_GLOBAL_AREA_ID)
                 && !isPropertyAreaTypeGlobal(strId)) {
             writer.printf("Property area type is inconsistent with given area ID: %s\n",
                     strAreaId);
@@ -4146,7 +4178,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
         if (property == null) {
             return false;
         }
-        return (Integer.decode(property) & VehicleArea.MASK) == VehicleArea.GLOBAL;
+        return isPropertyAreaTypeGlobal(Integer.decode(property));
+    }
+
+    private static boolean isPropertyAreaTypeGlobal(int propertyId) {
+        return (propertyId & VehicleArea.MASK) == VehicleArea.GLOBAL;
     }
 
     private static String getSuspendCommandUsage(String command) {
