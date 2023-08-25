@@ -22,4 +22,5 @@
     <string name="current_profile_subtitle" msgid="2466874755719023023">"Profilo corrente"</string>
     <string name="loading_welcome_message" msgid="2351582619179505398">"AAOS"</string>
     <string name="loading_action_button_text" msgid="1296096984805774507">"Continua"</string>
+    <string name="hvac_panel_header" msgid="1299061170810305529">"Controlli Comfort"</string>
 </resources>
