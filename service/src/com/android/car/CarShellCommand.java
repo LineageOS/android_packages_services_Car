@@ -1198,8 +1198,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 }
                 break;
             case COMMAND_GET_CARPROPERTYCONFIG:
-                String propertyId = args.length < 2 ? PARAM_ALL_PROPERTIES_OR_AREA_IDS : args[1];
-                mHal.dumpPropertyConfigs(writer, Integer.decode(propertyId));
+                getCarPropertyConfig(args, writer);
                 break;
             case COMMAND_GET_PROPERTY_VALUE:
                 getPropertyValue(args, writer);
@@ -3065,6 +3064,17 @@ final class CarShellCommand extends BasicShellCommandHandler {
             index++;
         }
         mCarPowerManagementService.powerOffFromCommand(skipGarageMode, reboot);
+    }
+
+    /**
+     * Get config for VHAL property
+     *
+     * @param args   the command line arguments to parse for VHAL property details
+     * @param writer IndentingPrintWriter
+     */
+    private void getCarPropertyConfig(String[] args, IndentingPrintWriter writer) {
+        String propertyIdString = args.length < 2 ? PARAM_ALL_PROPERTIES_OR_AREA_IDS : args[1];
+        mHal.dumpPropertyConfigs(writer, decodePropertyId(propertyIdString));
     }
 
     /**

@@ -19,6 +19,8 @@ package com.android.car.hal;
 import static android.os.SystemClock.uptimeMillis;
 
 import static com.android.car.hal.property.HalAreaIdDebugUtils.toDebugString;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toAccessString;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toChangeModeString;
 import static com.android.car.hal.property.HalPropertyIdDebugUtils.toDebugString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -1129,11 +1131,11 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
 
     /**
      * Dump VHAL property configs.
-     * Dump all properties if propid param is empty.
+     * Dump all properties if {@code propertyId} is equal to {@code -1}.
      *
-     * @param propId the property ID
+     * @param propertyId the property ID
      */
-    public void dumpPropertyConfigs(PrintWriter writer, int propId) {
+    public void dumpPropertyConfigs(PrintWriter writer, int propertyId) {
         HalPropConfig[] configs;
         synchronized (mLock) {
             configs = new HalPropConfig[mAllProperties.size()];
@@ -1142,7 +1144,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             }
         }
 
-        if (propId == -1) {
+        if (propertyId == -1) {
             writer.println("**All properties**");
             for (HalPropConfig config : configs) {
                 dumpPropertyConfigsHelp(writer, config);
@@ -1150,31 +1152,32 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             return;
         }
         for (HalPropConfig config : configs) {
-            if (config.getPropId() == propId) {
+            if (config.getPropId() == propertyId) {
                 dumpPropertyConfigsHelp(writer, config);
                 return;
             }
         }
-
     }
 
     /** Dumps VehiclePropertyConfigs */
     private static void dumpPropertyConfigsHelp(PrintWriter writer, HalPropConfig config) {
-        int propId = config.getPropId();
-        writer.printf("Property:0x%x, Property name:%s, access:0x%x, changeMode:0x%x, "
-                        + "config:%s, fs min:%f, fs max:%f\n",
-                propId, VehiclePropertyIds.toString(propId), config.getAccess(),
-                config.getChangeMode(), Arrays.toString(config.getConfigArray()),
-                config.getMinSampleRate(), config.getMaxSampleRate());
+        int propertyId = config.getPropId();
+        writer.printf(
+                "Property:%s, access:%s, changeMode:%s, configArray:%s, minSampleRateHz:%f, "
+                        + "maxSampleRateHz:%f\n",
+                toDebugString(propertyId), toAccessString(config.getAccess()),
+                toChangeModeString(config.getChangeMode()),
+                Arrays.toString(config.getConfigArray()), config.getMinSampleRate(),
+                config.getMaxSampleRate());
         if (config.getAreaConfigs() == null) {
             return;
         }
         for (HalAreaConfig area : config.getAreaConfigs()) {
-            writer.printf("\tareaId:0x%x, f min:%f, f max:%f, i min:%d, i max:%d,"
-                            + " i64 min:%d, i64 max:%d\n",
-                    area.getAreaId(), area.getMinFloatValue(), area.getMaxFloatValue(),
-                    area.getMinInt32Value(), area.getMaxInt32Value(), area.getMinInt64Value(),
-                    area.getMaxInt64Value());
+            writer.printf("\tareaId:%s, f min:%f, f max:%f, i min:%d, i max:%d,"
+                            + " i64 min:%d, i64 max:%d\n", toDebugString(propertyId,
+                            area.getAreaId()),
+                    area.getMinFloatValue(), area.getMaxFloatValue(), area.getMinInt32Value(),
+                    area.getMaxInt32Value(), area.getMinInt64Value(), area.getMaxInt64Value());
         }
     }
 
