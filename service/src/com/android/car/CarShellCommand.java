@@ -1223,7 +1223,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 }
                 break;
             case COMMAND_SET_PROPERTY_VALUE:
-                runSetVehiclePropertyValue(args, writer);
+                setPropertyValue(args, writer);
                 break;
             case COMMAND_PROJECTION_UI_MODE:
                 if (args.length != 2) {
@@ -3191,37 +3191,26 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
     }
 
-    // Handles set-property-value command.
-    private void runSetVehiclePropertyValue(String[] args, IndentingPrintWriter writer) {
+    private void setPropertyValue(String[] args, IndentingPrintWriter writer) {
         if (args.length != 4) {
             writer.println("Invalid command syntax:");
             writer.printf("Usage: %s\n", getSetPropertyValueUsage());
             return;
         }
-        String strId = args[1];
-        String strAreaId = args[2];
+        int propertyId = decodePropertyId(args[1]);
+        int areaId = decodeAreaId(args[2]);
         String value = args[3];
-        int id;
-        int areaId;
-        try {
-            id = Integer.decode(strId);
-            areaId = Integer.decode(strAreaId);
-        } catch (NumberFormatException e) {
-            writer.printf("Cannot set a property: Invalid property ID(%s) or area ID(%s) format\n",
-                    strId, strAreaId);
-            return;
-        }
-        Slogf.i(TAG, "Setting vehicle property: id=%s, areaId=%s, value=%s", strId, strAreaId,
-                value);
-        if (strAreaId.equalsIgnoreCase(PARAM_VEHICLE_PROPERTY_GLOBAL_AREA_ID)
-                && !isPropertyAreaTypeGlobal(strId)) {
+        Slogf.i(TAG, "Setting vehicle property ID= %s, areaId= %s, value= %s",
+                toDebugString(propertyId), toDebugString(propertyId, areaId), value);
+        if (areaId == 0 && !isPropertyAreaTypeGlobal(propertyId)) {
             writer.printf("Property area type is inconsistent with given area ID: %s\n",
-                    strAreaId);
+                    toDebugString(propertyId, areaId));
             return;
         }
         try {
-            mHal.setPropertyFromCommand(id, areaId, value, writer);
-            writer.printf("Property(%s) is set to %s successfully\n", strId, value);
+            mHal.setPropertyFromCommand(propertyId, areaId, value, writer);
+            writer.printf("Property %s area ID %s is set to %s successfully\n",
+                    toDebugString(propertyId), toDebugString(propertyId, areaId), value);
         } catch (Exception e) {
             writer.printf("Cannot set a property: %s\n", e);
         }
