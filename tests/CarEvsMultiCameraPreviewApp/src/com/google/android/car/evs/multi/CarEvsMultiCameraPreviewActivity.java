@@ -21,10 +21,8 @@ import static android.hardware.display.DisplayManager.DisplayListener;
 
 import android.app.Activity;
 import android.car.Car;
-import android.car.Car.CarServiceLifecycleListener;
-import android.car.CarNotConnectedException;
-import android.car.evs.CarEvsBufferDescriptor;
 import android.car.evs.CarEvsManager;
+import android.car.evs.CarEvsManager.CarEvsServiceType;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +31,7 @@ import android.graphics.PixelFormat;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
@@ -41,21 +40,33 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
+import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
 import androidx.annotation.GuardedBy;
 
 import com.android.car.internal.evs.CarEvsGLSurfaceView;
 import com.android.car.internal.evs.GLES20CarEvsBufferRenderer;
 
+import java.lang.CharSequence;
+import java.lang.Thread;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
-public class CarEvsMultiCameraPreviewActivity extends Activity
-        implements CarEvsGLSurfaceView.BufferCallback {
+public class CarEvsMultiCameraPreviewActivity extends Activity {
 
     private static final String TAG = CarEvsMultiCameraPreviewActivity.class.getSimpleName();
+
     /**
      * ActivityManagerService encodes the reason for a request to close system dialogs with this
      * key.
@@ -66,65 +77,36 @@ public class CarEvsMultiCameraPreviewActivity extends Activity
     /** This string literal is from com.android.server.policy.PhoneWindowManager class. */
     private final static String DIALOG_CLOSE_REASON_HOME_KEY = "homekey";
 
-    /**
-     * Defines internal states.
-     */
-    private final static int STREAM_STATE_STOPPED = 0;
-    private final static int STREAM_STATE_VISIBLE = 1;
-    private final static int STREAM_STATE_INVISIBLE = 2;
-    private final static int STREAM_STATE_LOST = 3;
+    private final static int CAMERA_CLIENT_ID_0 = 0;
+    private final static int CAMERA_CLIENT_ID_1 = 1;
+    private final static int CAMERA_CLIENT_ID_DEFAULT = CAMERA_CLIENT_ID_0;
 
-    private final static float DEFAULT_1X1_POSITION[][] = {
-        {
-            -1.0f,  1.0f, 0.0f,
-             1.0f,  1.0f, 0.0f,
-            -1.0f, -1.0f, 0.0f,
-             1.0f, -1.0f, 0.0f,
-        },
-    };
+    private final static int MAX_CONCURRENT_SERVICE_TYPES = 4;
 
-    private static String streamStateToString(int state) {
-        switch (state) {
-            case STREAM_STATE_STOPPED:
-                return "STOPPED";
+    private final static LinearLayout.LayoutParams LAYOUT_PARAMS_FOR_PREVIEW =
+            new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                1.0f
+            );
 
-            case STREAM_STATE_VISIBLE:
-                return "VISIBLE";
-
-            case STREAM_STATE_INVISIBLE:
-                return "INVISIBLE";
-
-            case STREAM_STATE_LOST:
-                return "LOST";
-
-            default:
-                return "UNKNOWN: " + state;
-        }
-    }
-
-    /** Buffer queue to store references of received frames */
-    @GuardedBy("mLock")
-    private final ArrayList<CarEvsBufferDescriptor> mBufferQueue = new ArrayList<>();
+    private final SparseArray<ArraySet<Integer>> mNextServiceTypes = new SparseArray<>();
+    private final SparseArray<SparseArray<CheckBox>> mCheckBoxes = new SparseArray<>();
+    private final SparseArray<CarEvsCameraClient> mCameraClients = new SparseArray<>();
 
     private final Object mLock = new Object();
-
-    /** Callback executors */
-    private final ExecutorService mCallbackExecutor = Executors.newFixedThreadPool(1);
 
     /** GL backed surface view to render the camera preview */
     private CarEvsGLSurfaceView mEvsView;
     private ViewGroup mRootView;
     private LinearLayout mPreviewContainer;
+    private ViewSwitcher mPreviewSwitcher;
 
     /** Display manager to monitor the display's state */
     private DisplayManager mDisplayManager;
 
     /** Current display state */
     private int mDisplayState = Display.STATE_OFF;
-
-    /** Tells whether or not a video stream is running */
-    @GuardedBy("mLock")
-    private int mStreamState = STREAM_STATE_STOPPED;
 
     /** The ID of the display we're associated with. */
     private int mDisplayId;
@@ -140,35 +122,6 @@ public class CarEvsMultiCameraPreviewActivity extends Activity
 
     private boolean mUseSystemWindow;
     private int mServiceType;
-
-    /** Callback to listen to EVS stream */
-    private final CarEvsManager.CarEvsStreamCallback mStreamHandler =
-            new CarEvsManager.CarEvsStreamCallback() {
-
-        @Override
-        public void onStreamEvent(int event) {
-            // This reference implementation only monitors a stream event without any action.
-            Log.i(TAG, "Received: " + event);
-            if (event == CarEvsManager.STREAM_EVENT_STREAM_STOPPED ||
-                event == CarEvsManager.STREAM_EVENT_TIMEOUT) {
-                finish();
-            }
-        }
-
-        @Override
-        public void onNewFrame(CarEvsBufferDescriptor buffer) {
-            synchronized (mLock) {
-                if (mStreamState == STREAM_STATE_INVISIBLE) {
-                    // When the activity becomes invisible (e.g. goes background), we immediately
-                    // returns received frame buffers instead of stopping a video stream.
-                    doneWithBufferLocked(buffer);
-                } else {
-                    // Enqueues a new frame and posts a rendering job
-                    mBufferQueue.add(buffer);
-                }
-            }
-        }
-    };
 
     /**
      * The Activity with showWhenLocked doesn't go to sleep even if the display sleeps.
@@ -192,38 +145,17 @@ public class CarEvsMultiCameraPreviewActivity extends Activity
                     Log.i(TAG, "Already in a target state " + state);
                     return;
                 }
-                mDisplayState = state;
-                handleVideoStreamLocked(state == Display.STATE_ON ?
-                        STREAM_STATE_VISIBLE : STREAM_STATE_INVISIBLE);
-            }
-        }
-    };
 
-    /** CarService status listener  */
-    private final CarServiceLifecycleListener mCarServiceLifecycleListener = (car, ready) -> {
-        try {
-            synchronized (mLock) {
-                mCar = ready ? car : null;
-                mEvsManager = ready ? (CarEvsManager) car.getCarManager(Car.CAR_EVS_SERVICE) : null;
-                if (!ready) {
-                    if (!mUseSystemWindow) {
-                        // If we were launched by the user manually, we enter the LOST state and
-                        // wait for the car service's restoration.
-                        handleVideoStreamLocked(STREAM_STATE_LOST);
+                mDisplayState = state;
+                for (int i = 0; i < mCameraClients.size(); i++) {
+                    CarEvsCameraClient client = mCameraClients.valueAt(i);
+                    if (state == Display.STATE_ON) {
+                        client.startVideoStream();
                     } else {
-                        // If we were launched by the system,we will clean up the states and
-                        // then finish; the car service will request a new instance when it comes
-                        // back from the incident while the system still requires the rearview.
-                        handleVideoStreamLocked(STREAM_STATE_STOPPED);
-                        finish();
+                        client.stopVideoStream();
                     }
-                } else {
-                    // We request to start a video stream if we get connected to the car service.
-                    handleVideoStreamLocked(STREAM_STATE_VISIBLE);
                 }
             }
-        } catch (CarNotConnectedException err) {
-            Log.e(TAG, "Failed to connect to the CarService ", err);
         }
     };
 
@@ -267,38 +199,57 @@ public class CarEvsMultiCameraPreviewActivity extends Activity
         registerBroadcastReceiver();
         parseExtra(getIntent());
 
+
         setShowWhenLocked(true);
         mDisplayManager = getSystemService(DisplayManager.class);
         mDisplayManager.registerDisplayListener(mDisplayListener, null);
         int state = decideViewVisibility();
-        synchronized (mLock) {
-            mDisplayState = state;
-        }
 
         mDisplayId = getDisplayId();
-
-        Car.createCar(getApplicationContext(), /* handler = */ null,
-                Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER, mCarServiceLifecycleListener);
-
-        // Packaging parameters to create CarEvsGLSurfaceView.
-        ArrayList callbacks = new ArrayList<>(1);
-        callbacks.add(this);
-        mEvsView = CarEvsGLSurfaceView.create(getApplication(), callbacks, getApplicationContext()
-                .getResources().getInteger(R.integer.config_evsRearviewCameraInPlaneRotationAngle),
-                DEFAULT_1X1_POSITION);
         mRootView = (ViewGroup) LayoutInflater.from(this).inflate(
                 R.layout.evs_preview_activity, /* root= */ null);
-        mPreviewContainer = mRootView.findViewById(R.id.evs_preview_container);
-        LinearLayout.LayoutParams viewParam = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                1.0f
-        );
-        mEvsView.setLayoutParams(viewParam);
+
+        addCheckBoxes();
+
+        // Create a default camera client that runs CarEvsManager.SERVICE_TYPE_REARVIEW;
+        ArraySet<Integer> types = new ArraySet<>();
+        types.add(CarEvsManager.SERVICE_TYPE_REARVIEW);
+        mCameraClients.put(CAMERA_CLIENT_ID_DEFAULT, new CarEvsCameraClient(this, types));
+
+        synchronized (mLock) {
+            mDisplayState = state;
+
+            // Packaging parameters to create CarEvsGLSurfaceView. On creation, we are running the
+            // rearview by default.
+            ArrayList<Integer> clients = new ArrayList<>();
+            clients.add(CAMERA_CLIENT_ID_DEFAULT);
+            ArraySet<Integer> serviceTypes = new ArraySet<>();
+            serviceTypes.add(CarEvsManager.SERVICE_TYPE_REARVIEW);
+            mNextServiceTypes.put(CAMERA_CLIENT_ID_DEFAULT, serviceTypes);
+            mEvsView = createCameraViewLocked(clients);
+        }
+
+        // Add a created camera view to the view switcher.
+        mPreviewContainer = mRootView.findViewById(R.id.evs_switcher_view);
         mPreviewContainer.addView(mEvsView, 0);
+        mPreviewSwitcher = mRootView.findViewById(R.id.evs_preview_switcher);
+
+        // Declare in and out animations and set.
+        Animation in = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
+        Animation out = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
+        mPreviewSwitcher.setInAnimation(in);
+        mPreviewSwitcher.setOutAnimation(out);
+
+        // Configure buttons.
+        View applyButton = mRootView.findViewById(R.id.apply_button);
+        if (applyButton != null) {
+            applyButton.setOnClickListener(v -> handleButtonClicked(v));
+        }
+
+        // Configure a close button.
         View closeButton = mRootView.findViewById(R.id.close_button);
         if (closeButton != null) {
-            closeButton.setOnClickListener(v -> handleCloseButtonTriggered());
+            closeButton.setOnClickListener(v -> handleButtonClicked(v));
         }
 
         int width = WindowManager.LayoutParams.MATCH_PARENT;
@@ -352,9 +303,11 @@ public class CarEvsMultiCameraPreviewActivity extends Activity
     protected void onRestart() {
         Log.d(TAG, "onRestart");
         super.onRestart();
-        synchronized (mLock) {
+
+        for (int i = 0; i < mCameraClients.size(); i++) {
+            CarEvsCameraClient client = mCameraClients.valueAt(i);
             // When we come back to the top task, we start rendering the view.
-            handleVideoStreamLocked(STREAM_STATE_VISIBLE);
+            client.startVideoStream();
         }
     }
 
@@ -373,8 +326,9 @@ public class CarEvsMultiCameraPreviewActivity extends Activity
                 return;
             }
 
-            synchronized (mLock) {
-                handleVideoStreamLocked(STREAM_STATE_STOPPED);
+            for (int i = 0; i < mCameraClients.size(); i++) {
+                CarEvsCameraClient client = mCameraClients.valueAt(i);
+                client.stopVideoStream();
             }
         } finally {
             super.onStop();
@@ -385,15 +339,10 @@ public class CarEvsMultiCameraPreviewActivity extends Activity
     protected void onDestroy() {
         Log.d(TAG, "onDestroy");
         try {
-            // Request to stop current service and unregister a status listener
-            synchronized (mLock) {
-                if (mEvsManager != null) {
-                    handleVideoStreamLocked(STREAM_STATE_STOPPED);
-                    mEvsManager.clearStatusListener();
-                }
-                if (mCar != null) {
-                    mCar.disconnect();
-                }
+            for (int i = 0; i < mCameraClients.size(); i++) {
+                CarEvsCameraClient client = mCameraClients.valueAt(i);
+                // Request to stop current service and unregister a status listener
+                client.release();
             }
 
             mDisplayManager.unregisterDisplayListener(mDisplayListener);
@@ -405,60 +354,6 @@ public class CarEvsMultiCameraPreviewActivity extends Activity
             unregisterReceiver(mBroadcastReceiver);
         } finally {
             super.onDestroy();
-        }
-    }
-
-    @GuardedBy("mLock")
-    private void handleVideoStreamLocked(int newState) {
-        Log.d(TAG, "Requested: " + streamStateToString(mStreamState) + " -> " +
-                streamStateToString(newState));
-        if (newState == mStreamState) {
-            // Safely ignore a request of transitioning to the current state.
-            return;
-        }
-
-        boolean needToUpdateState = false;
-        switch (newState) {
-            case STREAM_STATE_STOPPED:
-                if (mEvsManager != null) {
-                    mEvsManager.stopVideoStream();
-                    mBufferQueue.clear();
-                    needToUpdateState = true;
-                } else {
-                    Log.w(TAG, "EvsManager is not available");
-                }
-                break;
-
-            case STREAM_STATE_VISIBLE:
-                // Starts a video stream
-                if (mEvsManager != null) {
-                    int result = mEvsManager.startVideoStream(mServiceType, mSessionToken,
-                            mCallbackExecutor, mStreamHandler);
-                    if (result != ERROR_NONE) {
-                        Log.e(TAG, "Failed to start a video stream, error = " + result);
-                    } else {
-                        needToUpdateState = true;
-                    }
-                } else {
-                    Log.w(TAG, "EvsManager is not available");
-                }
-                break;
-
-            case STREAM_STATE_INVISIBLE:
-                needToUpdateState = true;
-                break;
-
-            case STREAM_STATE_LOST:
-                needToUpdateState = true;
-                break;
-
-            default:
-                throw new IllegalArgumentException();
-        }
-
-        if (needToUpdateState) {
-            mStreamState = newState;
-            Log.d(TAG, "Completed: " + streamStateToString(mStreamState));
         }
     }
 
@@ -477,43 +372,269 @@ public class CarEvsMultiCameraPreviewActivity extends Activity
         return state;
     }
 
-    @Override
-    public CarEvsBufferDescriptor onBufferRequested() {
-        synchronized (mLock) {
-            if (mBufferQueue.isEmpty()) {
-                return null;
-            }
+    private void handleButtonClicked(View v) {
+        switch (v.getId()) {
+            case R.id.close_button:
+                Toast toast = Toast.makeText(this, "Closing cameras...", Toast.LENGTH_LONG);
+                toast.addCallback(new Toast.Callback() {
+                    @Override
+                    public void onToastHidden() {
+                        // It is possible that we've been stopped but a video stream is still
+                        // active.
+                        for (int i = 0; i < mCameraClients.size(); i++) {
+                            CarEvsCameraClient client = mCameraClients.valueAt(i);
+                            client.release();
+                        }
 
-            // The renderer refreshes faster than 30fps so it's okay to fetch the frame from the
-            // front of the buffer queue always.
-            CarEvsBufferDescriptor newFrame = mBufferQueue.get(0);
-            mBufferQueue.remove(0);
+                        finish();
+                    }
 
-            return newFrame;
+                    @Override
+                    public void onToastShown() { /* Nothing to do. */ }
+                });
+
+                toast.show();
+                break;
+
+            case R.id.apply_button:
+                Toast.makeText(this, "Switching the view: " + mNextServiceTypes, Toast.LENGTH_SHORT)
+                        .show();
+                synchronized (mLock) {
+                    ArrayList<Integer> clients = new ArrayList<>();
+                    clients.add(CAMERA_CLIENT_ID_0);
+                    clients.add(CAMERA_CLIENT_ID_1);
+                    CarEvsGLSurfaceView view = createCameraViewLocked(clients);
+                    if (view == null) {
+                        // Show a blank view if createCameraViewLocked() returns null.
+                        mPreviewSwitcher.addView(new View(getApplication()), -1,
+                                LAYOUT_PARAMS_FOR_PREVIEW);
+                    } else {
+                        // Switch the view; we add a newly created view at the end, switch to it,
+                        // and then remove a previous view from ViewSwitcher.
+                        mPreviewSwitcher.addView(view, -1, LAYOUT_PARAMS_FOR_PREVIEW);
+                    }
+                    mEvsView = view;
+                    View currentView = mPreviewSwitcher.getCurrentView();
+                    mPreviewSwitcher.showNext();
+                    mPreviewSwitcher.removeView(currentView);
+                }
+                break;
+
+            default:
+                break;
         }
     }
 
-    @Override
-    public void onBufferProcessed(CarEvsBufferDescriptor buffer) {
-        synchronized (mLock) {
-            doneWithBufferLocked(buffer);
+    private void onCheckedChangeListener(View view, boolean isChecked) {
+        int index;
+        int type;
+        switch (view.getId()) {
+            case R.id.checkbox_rearview:
+                index = CAMERA_CLIENT_ID_0;
+                type = CarEvsManager.SERVICE_TYPE_REARVIEW;
+                break;
+
+            case R.id.checkbox_frontview:
+                index = CAMERA_CLIENT_ID_0;
+                type = CarEvsManager.SERVICE_TYPE_FRONTVIEW;
+                break;
+
+            case R.id.checkbox_leftview:
+                index = CAMERA_CLIENT_ID_0;
+                type = CarEvsManager.SERVICE_TYPE_LEFTVIEW;
+                break;
+
+            case R.id.checkbox_rightview:
+                index = CAMERA_CLIENT_ID_0;
+                type = CarEvsManager.SERVICE_TYPE_RIGHTVIEW;
+                break;
+
+            case R.id.checkbox1_rearview:
+                index = CAMERA_CLIENT_ID_1;
+                type = CarEvsManager.SERVICE_TYPE_REARVIEW;
+                break;
+
+            case R.id.checkbox1_frontview:
+                index = CAMERA_CLIENT_ID_1;
+                type = CarEvsManager.SERVICE_TYPE_FRONTVIEW;
+                break;
+
+            case R.id.checkbox1_leftview:
+                index = CAMERA_CLIENT_ID_1;
+                type = CarEvsManager.SERVICE_TYPE_LEFTVIEW;
+                break;
+
+            case R.id.checkbox1_rightview:
+                index = CAMERA_CLIENT_ID_1;
+                type = CarEvsManager.SERVICE_TYPE_RIGHTVIEW;
+                break;
+
+            default:
+                return;
         }
+
+        synchronized (mLock) {
+            if (!mNextServiceTypes.contains(index)) {
+                mNextServiceTypes.put(index, new ArraySet<>());
+            }
+
+            if (isChecked) {
+                mNextServiceTypes.get(index).add(type);
+            } else {
+                mNextServiceTypes.get(index).remove(type);
+            }
+        }
+    }
+
+    private void addCheckBoxes() {
+        // Configure checkboxes.
+        mCheckBoxes.put(CAMERA_CLIENT_ID_0, new SparseArray<CheckBox>(
+                /* capacity= */ MAX_CONCURRENT_SERVICE_TYPES));
+        CheckBox c = mRootView.findViewById(R.id.checkbox_rearview);
+        c.setOnCheckedChangeListener(this::onCheckedChangeListener);
+        mCheckBoxes.get(CAMERA_CLIENT_ID_0).put(CarEvsManager.SERVICE_TYPE_REARVIEW, c);
+
+        c = mRootView.findViewById(R.id.checkbox_frontview);
+        c.setOnCheckedChangeListener(this::onCheckedChangeListener);
+        mCheckBoxes.get(CAMERA_CLIENT_ID_0).put(CarEvsManager.SERVICE_TYPE_FRONTVIEW, c);
+
+        c = mRootView.findViewById(R.id.checkbox_leftview);
+        c.setOnCheckedChangeListener(this::onCheckedChangeListener);
+        mCheckBoxes.get(CAMERA_CLIENT_ID_0).put(CarEvsManager.SERVICE_TYPE_LEFTVIEW, c);
+
+        c = mRootView.findViewById(R.id.checkbox_rightview);
+        c.setOnCheckedChangeListener(this::onCheckedChangeListener);
+        mCheckBoxes.get(CAMERA_CLIENT_ID_0).put(CarEvsManager.SERVICE_TYPE_RIGHTVIEW, c);
+
+        mCheckBoxes.put(CAMERA_CLIENT_ID_1, new SparseArray<CheckBox>(
+                /* capacity= */ MAX_CONCURRENT_SERVICE_TYPES));
+        c = mRootView.findViewById(R.id.checkbox1_rearview);
+        c.setOnCheckedChangeListener(this::onCheckedChangeListener);
+        mCheckBoxes.get(CAMERA_CLIENT_ID_1).put(CarEvsManager.SERVICE_TYPE_REARVIEW, c);
+
+        c = mRootView.findViewById(R.id.checkbox1_frontview);
+        c.setOnCheckedChangeListener(this::onCheckedChangeListener);
+        mCheckBoxes.get(CAMERA_CLIENT_ID_1).put(CarEvsManager.SERVICE_TYPE_FRONTVIEW, c);
+
+        c = mRootView.findViewById(R.id.checkbox1_leftview);
+        c.setOnCheckedChangeListener(this::onCheckedChangeListener);
+        mCheckBoxes.get(CAMERA_CLIENT_ID_1).put(CarEvsManager.SERVICE_TYPE_LEFTVIEW, c);
+
+        c = mRootView.findViewById(R.id.checkbox1_rightview);
+        c.setOnCheckedChangeListener(this::onCheckedChangeListener);
+        mCheckBoxes.get(CAMERA_CLIENT_ID_1).put(CarEvsManager.SERVICE_TYPE_RIGHTVIEW, c);
     }
 
     @GuardedBy("mLock")
-    private void doneWithBufferLocked(CarEvsBufferDescriptor buffer) {
-        try {
-            mEvsManager.returnFrameBuffer(buffer);
-        } catch (Exception e) {
-            Log.w(TAG, "CarEvsService is not available.");
-        }
-    }
+    private CarEvsGLSurfaceView createCameraViewLocked(ArrayList<Integer> clientIds) {
 
-    private void handleCloseButtonTriggered() {
-        // It is possible that we've been stopped but a video stream is still active.
-        synchronized (mLock) {
-            handleVideoStreamLocked(STREAM_STATE_STOPPED);
+        // Initialize camera clients and stop video stream if it runs.
+        for (int i = 0; i < mNextServiceTypes.size(); i++) {
+            int id = mNextServiceTypes.keyAt(i);
+            CarEvsCameraClient client = mCameraClients.get(id);
+            if (client == null) {
+                client = new CarEvsCameraClient(this);
+                mCameraClients.put(id, client);
+            } else {
+                client.stopVideoStream();
+            }
         }
-        finish();
+
+        // TODO(b/291770725): To avoid contentions in video stream managements on our reference
+        //                    hardware, we intentionally put current thread in sleep.
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException ignored) {
+            // Nothing to do.
+        }
+
+        // Create a list of CarEvsGLSurfaceView.BufferCallback for the rendering.
+        int nrows = 0;
+        ArrayList<CarEvsGLSurfaceView.BufferCallback> callbacks =
+                new ArrayList<>(/* capacity= */ clientIds.size());
+        for (int i = 0; i < mNextServiceTypes.size(); i++) {
+            int id = mNextServiceTypes.keyAt(i);
+            ArraySet types = mNextServiceTypes.valueAt(i);
+            if (types.isEmpty()) {
+                // No type is selected for current client. Uncheck all check boxes.
+                SparseArray checkBoxes = mCheckBoxes.get(id);
+                for (int j = 0; j < checkBoxes.size(); j++) {
+                    ((CheckBox) checkBoxes.valueAt(j)).setChecked(false);
+                }
+                continue;
+            }
+
+            CarEvsCameraClient client = mCameraClients.get(id);
+            ArraySet<Integer> activated = client.startVideoStream(types);
+            if (activated.size() < 1) {
+                // We failed to start any service. Uncheck all check boxes.
+                SparseArray checkBoxes = mCheckBoxes.get(id);
+                for (int j = 0; j < checkBoxes.size(); j++) {
+                    ((CheckBox) checkBoxes.valueAt(j)).setChecked(false);
+                }
+                continue;
+            }
+
+            // Update check boxes.
+            SparseArray checkBoxes = mCheckBoxes.get(id);
+            for (int j = 0; j < checkBoxes.size(); j++) {
+                var key = checkBoxes.keyAt(j);
+                if (activated.contains(key)) {
+                    ((CheckBox) checkBoxes.get(key)).setChecked(true);
+                    mNextServiceTypes.get(id).add(key);
+                } else {
+                    ((CheckBox) checkBoxes.get(key)).setChecked(false);
+                    mNextServiceTypes.get(id).remove(key);
+                }
+            }
+
+            callbacks.addAll(client.getBufferCallbacks());
+            ++nrows;
+        }
+
+        ArrayList<float[]> positionList = new ArrayList<>();;
+        float stride_y = 2.0f / nrows;
+
+        nrows = 0;
+        for (int i = 0; i < mCameraClients.size(); i++) {
+            CarEvsCameraClient client = mCameraClients.valueAt(i);
+            int size = client.getBufferCallbacks().size();
+            if (size < 1) {
+                continue;
+            }
+
+            float stride_x = 2.0f / size;
+            for (int j = 0; j < size; j++) {
+                float[] m = {
+                      -1.0f + stride_x * j,       1.0f - stride_y * nrows,       0.0f,
+                      -1.0f + stride_x * (1 + j), 1.0f - stride_y * nrows,       0.0f,
+                      -1.0f + stride_x * j,       1.0f - stride_y * (1 + nrows), 0.0f,
+                      -1.0f + stride_x * (1 + j), 1.0f - stride_y * (1 + nrows), 0.0f
+                };
+                positionList.add(m);
+            }
+            nrows++;
+        }
+
+        // Convert ArrayList into float[][].
+        float[][] arr = new float[positionList.size()][];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = positionList.get(i).clone();
+        }
+        CarEvsGLSurfaceView view;
+        try {
+            view = CarEvsGLSurfaceView.create(getApplication(), callbacks,
+                    getApplicationContext().getResources().getInteger(
+                            R.integer.config_evsRearviewCameraInPlaneRotationAngle), arr);
+        } catch (IllegalArgumentException err) {
+            // A parameter is invalid for CarEvsGLSurfaceView instantiation.
+            Log.e(TAG, "Fail to create CarEvsGLSurfaceView.");
+            return null;
+        }
+
+        if (view != null) {
+            view.setLayoutParams(LAYOUT_PARAMS_FOR_PREVIEW);
+        }
+        return view;
     }
 }

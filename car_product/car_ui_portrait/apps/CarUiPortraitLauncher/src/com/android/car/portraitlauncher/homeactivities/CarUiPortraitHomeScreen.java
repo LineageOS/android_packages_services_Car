@@ -307,6 +307,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 if (shouldOpenFullScreenPanel(taskInfo)) {
                     mRootTaskViewPanel.openFullScreenPanel(/* animated= */ true,
                             /* showToolBar= */ true, mNavBarHeight);
+                    resetObscuredTouchRegion();
                     setUnhandledImmersiveModeRequest(/* componentName= */ null, /* timestamp= */ 0,
                             /* requested= */ false);
                 } else if (mAppGridTaskViewPanel.isOpen()) {
@@ -404,6 +405,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     if (shouldOpenFullScreenPanel(taskInfo)) {
                         mRootTaskViewPanel.openFullScreenPanel(/* animated= */ true,
                                 /* showToolBar= */ true, mNavBarHeight);
+                        resetObscuredTouchRegion();
                         setUnhandledImmersiveModeRequest(/* componentName= */ null,
                                 /* timestamp= */ 0, /* requested= */ false);
                     } else if (mAppGridTaskViewPanel.isOpen()) {
@@ -446,6 +448,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 if (mIsSUWInProgress) {
                     mRootTaskViewPanel.openFullScreenPanel(/* animated = */ false,
                             /* showToolBar = */ false, /* bottomAdjustment= */ 0);
+                    resetObscuredTouchRegion();
                 }
             };
 
@@ -757,6 +760,16 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         obscuredTouchRegion.union(statusBarRect);
         mBackgroundTaskView.setObscuredTouchRegion(obscuredTouchRegion);
         mFullScreenTaskView.setObscuredTouchRegion(obscuredTouchRegion);
+    }
+
+    private void resetObscuredTouchRegion() {
+        Rect resetRegion = new Rect(0, 0, 0, 0);
+        Region resetTouchRegion = new Region();
+        resetTouchRegion.union(resetRegion);
+        mRootTaskViewPanel.setObscuredTouchRegion(resetTouchRegion);
+        mAppGridTaskViewPanel.setObscuredTouchRegion(resetTouchRegion);
+        mBackgroundTaskView.setObscuredTouchRegion(resetTouchRegion);
+        mFullScreenTaskView.setObscuredTouchRegion(resetTouchRegion);
     }
 
     private void updateBackgroundTaskViewInsets() {
@@ -1109,7 +1122,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     }
 
     private void onImmersiveModeRequested(boolean requested, ComponentName componentName) {
-        logIfDebuggable("onImmersiveModeRequested = " + requested + " cmp="  + componentName);
+        logIfDebuggable("onImmersiveModeRequested = " + requested + " cmp=" + componentName);
 
         // Ignore the immersive mode request for app grid, since it's not in root task view panel.
         // Handle the app grid task in TaskStackListener.
@@ -1139,6 +1152,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         if (requested) {
             mRootTaskViewPanel.openFullScreenPanel(/* animated= */ true, /* showToolBar= */ true,
                     mNavBarHeight);
+            resetObscuredTouchRegion();
         } else {
             mRootTaskViewPanel.openPanelWithIcon();
         }
@@ -1206,6 +1220,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     if (mIsSUWInProgress) {
                         mRootTaskViewPanel.openFullScreenPanel(/* animated= */false,
                                 /* showToolBar= */ false, /* bottomAdjustment= */ 0);
+                        resetObscuredTouchRegion();
                     } else {
                         mRootTaskViewPanel.closePanel();
                         mIsBlankActivityOnTop = true;

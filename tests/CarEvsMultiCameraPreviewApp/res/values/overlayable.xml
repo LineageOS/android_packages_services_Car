@@ -23,7 +23,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="dimen" name="close_button_text_size"/>
       <item type="dimen" name="config_cameraBackgroundScrim"/>
       <item type="id" name="close_button"/>
-      <item type="id" name="evs_preview_container"/>
+      <item type="id" name="evs_preview_switcher"/>
       <item type="layout" name="evs_preview_activity"/>
       <item type="string" name="app_name"/>
       <item type="string" name="close_button_text"/>
