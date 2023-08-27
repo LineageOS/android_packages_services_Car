@@ -43,6 +43,10 @@ android_app {
     certificate: "platform",
     privileged: true,
 
+    // TODO(b/301283770): Compiling CarSystemUI should not require -J-Xmx8192M
+    javacflags: [
+        "-J-Xmx8192M",
+    ],
     optimize: {
         proguard_flags_files: [
             "proguard.flags",
