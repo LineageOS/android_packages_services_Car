@@ -1868,7 +1868,7 @@
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
-            tools:replace="android:exported">
+            tools:replace="android:exported, android:enabled">
             <intent-filter tools:node="removeAll"/>
         </activity>
 
