@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -40,109 +39,79 @@ public final class WindshieldWipersSwitch {
      * framework can use this field to remain backwards compatible if {@code WindshieldWipersSwitch}
      * is extended to include additional values.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int OTHER = 0;
 
     /**
      * The windshield wipers switch is set to the off position.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int OFF = 1;
 
     /**
      * {@code MIST} mode performs a single wipe, and then returns to the {@link #OFF} position.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int MIST = 2;
 
     /**
      * {@code INTERMITTENT_LEVEL_*} modes performs intermittent wiping. As the level increases, the
      * intermittent time period decreases.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int INTERMITTENT_LEVEL_1 = 3;
 
     /**
      * See {@link #INTERMITTENT_LEVEL_1}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int INTERMITTENT_LEVEL_2 = 4;
 
     /**
      * See {@link #INTERMITTENT_LEVEL_1}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int INTERMITTENT_LEVEL_3 = 5;
 
     /**
      * See {@link #INTERMITTENT_LEVEL_1}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int INTERMITTENT_LEVEL_4 = 6;
 
     /**
      * See {@link #INTERMITTENT_LEVEL_1}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int INTERMITTENT_LEVEL_5 = 7;
 
     /**
      * {@code CONTINUOUS_LEVEL_*} modes performs continuous wiping. As the level increases the speed
      * of the wiping increases as well.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int CONTINUOUS_LEVEL_1 = 8;
 
     /**
      * See {@link #CONTINUOUS_LEVEL_1}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int CONTINUOUS_LEVEL_2 = 9;
 
     /**
      * See {@link #CONTINUOUS_LEVEL_1}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int CONTINUOUS_LEVEL_3 = 10;
 
     /**
      * See {@link #CONTINUOUS_LEVEL_1}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int CONTINUOUS_LEVEL_4 = 11;
 
     /**
      * See {@link #CONTINUOUS_LEVEL_1}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int CONTINUOUS_LEVEL_5 = 12;
 
     /**
      * {@code AUTO} allows the vehicle to decide the required wiping level based on the exterior
      * weather conditions.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int AUTO = 13;
 
     /**
      * Windshield wipers are set to the service mode.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int SERVICE = 14;
 
     private WindshieldWipersSwitch() {}
@@ -151,8 +120,6 @@ public final class WindshieldWipersSwitch {
      * Returns a user-friendly representation of a {@code WindshieldWipersSwitch}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(
             @WindshieldWipersSwitchInt int windshieldWipersSwitch) {
         switch (windshieldWipersSwitch) {

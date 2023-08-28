@@ -19,7 +19,6 @@ package android.car.occupantawareness;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.NonNull;
-import android.car.annotation.AddedInOrBefore;
 import android.car.occupantawareness.OccupantAwarenessDetection.ConfidenceLevel;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -34,11 +33,9 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 public final class DriverMonitoringDetection implements Parcelable {
 
     /** {@link OccupantAwarenessDetection.ConfidenceLevel} for the driver monitoring detection. */
-    @AddedInOrBefore(majorVersion = 33)
     public final @ConfidenceLevel int confidenceLevel;
 
     /** Indicates whether the driver is looking on-road. */
-    @AddedInOrBefore(majorVersion = 33)
     public final boolean isLookingOnRoad;
 
     /**
@@ -48,7 +45,6 @@ public final class DriverMonitoringDetection implements Parcelable {
      * driver has been looking on-road (in milliseconds). Otherwise, this indicates the continuous
      * duration of time that the driver is looking off-road (in milliseconds).
      */
-    @AddedInOrBefore(majorVersion = 33)
     public final long gazeDurationMillis;
 
     public DriverMonitoringDetection() {
@@ -68,7 +64,6 @@ public final class DriverMonitoringDetection implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
@@ -85,14 +80,12 @@ public final class DriverMonitoringDetection implements Parcelable {
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeInt(confidenceLevel);
         dest.writeBoolean(isLookingOnRoad);
         dest.writeLong(gazeDurationMillis);
     }
 
-    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<DriverMonitoringDetection> CREATOR =
             new Parcelable.Creator<DriverMonitoringDetection>() {
                 public DriverMonitoringDetection createFromParcel(Parcel in) {

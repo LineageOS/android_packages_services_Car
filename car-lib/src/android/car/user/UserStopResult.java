@@ -19,7 +19,6 @@ package android.car.user;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.IntDef;
-import android.car.annotation.AddedInOrBefore;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -43,35 +42,30 @@ public final class UserStopResult implements Parcelable, OperationResult {
      * When user stop is successful.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_SUCCESSFUL = CommonResults.STATUS_SUCCESSFUL;
 
     /**
      * When user stop fails.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_ANDROID_FAILURE = CommonResults.STATUS_ANDROID_FAILURE;
 
     /**
      * When user to stop doesn't exits.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_USER_DOES_NOT_EXIST = CommonResults.LAST_COMMON_STATUS + 1;
 
     /**
      * When user to stop is the system user.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_FAILURE_SYSTEM_USER = CommonResults.LAST_COMMON_STATUS + 2;
 
     /**
      * When user to stop is the current user.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_FAILURE_CURRENT_USER = CommonResults.LAST_COMMON_STATUS + 3;
 
      /**
@@ -91,13 +85,11 @@ public final class UserStopResult implements Parcelable, OperationResult {
      * @param status to check
      * @return true for a success status
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static boolean isSuccess(@Status int status) {
         return status == STATUS_SUCCESSFUL;
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isSuccess() {
         return isSuccess(mStatus);
     }
@@ -132,7 +124,6 @@ public final class UserStopResult implements Parcelable, OperationResult {
 
     /** @hide */
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public static String statusToString(@Status int value) {
         switch (value) {
@@ -196,7 +187,6 @@ public final class UserStopResult implements Parcelable, OperationResult {
      * {@link UserStopResult#STATUS_FAILURE_CURRENT_USER}.
      */
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public @Status int getStatus() {
         return mStatus;
     }
@@ -214,7 +204,6 @@ public final class UserStopResult implements Parcelable, OperationResult {
 
     @Override
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@android.annotation.NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -225,7 +214,6 @@ public final class UserStopResult implements Parcelable, OperationResult {
     @Override
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -258,7 +246,6 @@ public final class UserStopResult implements Parcelable, OperationResult {
     }
 
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public static final @android.annotation.NonNull Parcelable.Creator<UserStopResult> CREATOR
             = new Parcelable.Creator<UserStopResult>() {
         @Override

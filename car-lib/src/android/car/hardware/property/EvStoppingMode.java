@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -36,29 +35,21 @@ public final class EvStoppingMode {
     /**
      * Other EV stopping mode. Ideally, this should never be used.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_OTHER = 0;
 
     /**
      * Vehicle slowly moves forward when the brake pedal is released.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_CREEP = 1;
 
     /**
      * Vehicle rolls freely when the brake pedal is released (similar to neutral gear).
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_ROLL = 2;
 
     /**
      * Vehicle stops and holds its position when the brake pedal is released.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_HOLD = 3;
 
     private EvStoppingMode() {}
@@ -67,8 +58,6 @@ public final class EvStoppingMode {
      * Returns a user-friendly representation of an EV stopping mode.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(@EvStoppingModeInt int evStoppingMode) {
         switch (evStoppingMode) {
             case STATE_OTHER:

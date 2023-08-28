@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -40,15 +39,11 @@ public final class LaneKeepAssistState {
      * framework can use this field to remain backwards compatible if {@code LaneKeepAssistState}
      * is extended to include additional states.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int OTHER = 0;
 
     /**
      * LKA is enabled and monitoring, but steering assist is not activated.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int ENABLED = 1;
 
     /**
@@ -57,8 +52,6 @@ public final class LaneKeepAssistState {
      * clockwise. This is usually in response to the vehicle drifting to the right. Once steering
      * assist is completed, LKA must return to the {@link #ENABLED} state.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int ACTIVATED_STEER_LEFT = 2;
 
     /**
@@ -67,8 +60,6 @@ public final class LaneKeepAssistState {
      * clockwise. This is usually in response to the vehicle drifting to the left. Once steering
      * assist is completed, LKA must return to the {@link #ENABLED} state.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int ACTIVATED_STEER_RIGHT = 3;
 
     /**
@@ -77,8 +68,6 @@ public final class LaneKeepAssistState {
      * This is often done for safety reasons and to ensure that the driver can always take control
      * of the vehicle. This state should be set when the user is actively overriding the LKA system.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int USER_OVERRIDE = 4;
 
     private LaneKeepAssistState() {}
@@ -87,8 +76,6 @@ public final class LaneKeepAssistState {
      * Returns a user-friendly representation of a {@code LaneKeepAssistState}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(
             @LaneKeepAssistStateInt int laneKeepAssistState) {
         switch (laneKeepAssistState) {

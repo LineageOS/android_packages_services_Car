@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -40,22 +39,16 @@ public final class ForwardCollisionWarningState {
      * The framework can use this field to remain backwards compatible if {@code
      * ForwardCollisionWarningState} is extended to include additional states.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int OTHER = 0;
 
     /**
      * FCW is enabled and monitoring safety, but no potential collision is detected.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int NO_WARNING = 1;
 
     /**
      * FCW is enabled, detects a potential collision, and is actively warning the user.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int WARNING = 2;
 
     private ForwardCollisionWarningState() {}
@@ -64,8 +57,6 @@ public final class ForwardCollisionWarningState {
      * Returns a user-friendly representation of a {@code ForwardCollisionWarningState}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(
             @ForwardCollisionWarningStateInt int forwardCollisionWarningState) {
         switch (forwardCollisionWarningState) {

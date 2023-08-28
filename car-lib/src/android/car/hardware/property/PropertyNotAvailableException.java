@@ -21,7 +21,6 @@ import static java.lang.Integer.toHexString;
 
 import android.annotation.SystemApi;
 import android.car.VehiclePropertyIds;
-import android.car.annotation.ApiRequirements;
 
 /**
  * Exception thrown when the vehicle property is not available because of the current state of the
@@ -57,8 +56,6 @@ public class PropertyNotAvailableException extends IllegalStateException {
      * {@link PropertyNotAvailableErrorCode}. The values in {@link PropertyNotAvailableErrorCode}
      * may be extended in the future to include additional error codes.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int getDetailedErrorCode() {
         return mDetailedErrorCode;
     }
@@ -72,8 +69,6 @@ public class PropertyNotAvailableException extends IllegalStateException {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public int getVendorErrorCode() {
         return mVendorErrorCode;
     }

@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -40,29 +39,21 @@ public final class ErrorState {
      * framework can use this field to remain backwards compatible if this enum is extended to
      * include additional states.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int OTHER_ERROR_STATE = -1;
 
     /**
      * Vehicle property is not available because the feature is disabled.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int NOT_AVAILABLE_DISABLED = -2;
 
     /**
      * Vehicle property is not available because the vehicle speed is too low to use this feature.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int NOT_AVAILABLE_SPEED_LOW = -3;
 
     /**
      * Vehicle property is not available because the vehicle speed is too high to use this feature.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int NOT_AVAILABLE_SPEED_HIGH = -4;
 
     /**
@@ -70,8 +61,6 @@ public final class ErrorState {
      * this feature. For example, this can be caused by bird poop blocking the camera, poor weather
      * conditions such as snow or fog, or by any object obstructing the required sensors.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int NOT_AVAILABLE_POOR_VISIBILITY = -5;
 
     /**
@@ -79,8 +68,6 @@ public final class ErrorState {
      * unavailable to use presently. For example, this can be caused by someone blocking the trunk
      * door while it is closing, or by the system being in a faulty state.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int NOT_AVAILABLE_SAFETY = -6;
 
     private ErrorState() {}
@@ -89,8 +76,6 @@ public final class ErrorState {
      * Returns a user-friendly representation of an {@code ErrorState}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(@ErrorStateInt int errorState) {
         switch (errorState) {
             case OTHER_ERROR_STATE:

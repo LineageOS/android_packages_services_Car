@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -39,22 +38,16 @@ public final class VehicleTurnSignal {
     /**
      * Neither right nor left signal in a vehicle are being used.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_NONE = 0;
 
     /**
      * Right turn signal in a vehicle is being used.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_RIGHT = 1;
 
     /**
      * Left turn signal in a vehicle is being used.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_LEFT = 2;
 
     private VehicleTurnSignal() {
@@ -64,8 +57,6 @@ public final class VehicleTurnSignal {
      * Gets a user-friendly representation of a turn signal state.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(@VehicleTurnSignalInt int vehicleTurnSignal) {
         switch (vehicleTurnSignal) {
             case STATE_NONE:

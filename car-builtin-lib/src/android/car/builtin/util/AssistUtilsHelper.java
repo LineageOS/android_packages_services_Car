@@ -21,8 +21,6 @@ import static android.service.voice.VoiceInteractionSession.SHOW_SOURCE_PUSH_TO_
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.app.ActivityManager;
-import android.car.builtin.annotation.AddedIn;
-import android.car.builtin.annotation.PlatformVersion;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -68,7 +66,6 @@ public final class AssistUtilsHelper {
      * @param context used to build the assist utils.
      * @return {@code true} if a session is running, {@code false} otherwise.
      */
-    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static boolean isSessionRunning(@NonNull Context context) {
         AssistUtils assistUtils = getAssistUtils(context);
 
@@ -80,7 +77,6 @@ public final class AssistUtilsHelper {
      *
      * @param context used to build the assist utils.
      */
-    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static void hideCurrentSession(@NonNull Context context) {
         AssistUtils assistUtils = getAssistUtils(context);
 
@@ -94,7 +90,6 @@ public final class AssistUtilsHelper {
      * @param sessionListener listener that will receive shown or hidden voice sessions callback.
      */
     // TODO(b/221604866) : Add unregister method
-    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static void registerVoiceInteractionSessionListenerHelper(@NonNull Context context,
             @NonNull VoiceInteractionSessionListenerHelper sessionListener) {
         Objects.requireNonNull(sessionListener, "Session listener must not be null.");
@@ -111,7 +106,6 @@ public final class AssistUtilsHelper {
      *
      * @return whether the assistant component is active for the current user.
      */
-    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static boolean showPushToTalkSessionForActiveService(@NonNull Context context,
             @NonNull VoiceInteractionSessionShowCallbackHelper callback) {
         Objects.requireNonNull(callback, "On shown callback must not be null.");
@@ -149,13 +143,11 @@ public final class AssistUtilsHelper {
         /**
          * See {@link IVoiceInteractionSessionShowCallback#onFailed()}
          */
-        @AddedIn(PlatformVersion.TIRAMISU_1)
         void onFailed();
 
         /**
          * See {@link IVoiceInteractionSessionShowCallback#onShow()}
          */
-        @AddedIn(PlatformVersion.TIRAMISU_1)
         void onShown();
     }
 
@@ -167,13 +159,11 @@ public final class AssistUtilsHelper {
         /**
          * See {@link IVoiceInteractionSessionListener#onVoiceSessionShown()}
          */
-        @AddedIn(PlatformVersion.TIRAMISU_1)
         void onVoiceSessionShown();
 
         /**
          * See {@link IVoiceInteractionSessionListener#onVoiceSessionHidden()}
          */
-        @AddedIn(PlatformVersion.TIRAMISU_1)
         void onVoiceSessionHidden();
     }
 

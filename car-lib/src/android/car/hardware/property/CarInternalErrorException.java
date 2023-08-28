@@ -21,7 +21,6 @@ import static java.lang.Integer.toHexString;
 
 import android.annotation.SystemApi;
 import android.car.VehiclePropertyIds;
-import android.car.annotation.ApiRequirements;
 
 /**
  * Exception thrown when something unexpected happened in cars.
@@ -51,8 +50,6 @@ public class CarInternalErrorException extends RuntimeException {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public int getVendorErrorCode() {
         return mVendorErrorCode;
     }

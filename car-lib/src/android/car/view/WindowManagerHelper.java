@@ -20,7 +20,6 @@ package android.car.view;
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 import android.view.WindowManager;
 
 /**
@@ -37,8 +36,6 @@ public final class WindowManagerHelper {
     /**
      * See {@link WindowManager.LayoutParams#setTrustedOverlay()}}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(android.Manifest.permission.INTERNAL_SYSTEM_WINDOW)
     public static void setTrustedOverlay(@NonNull WindowManager.LayoutParams p) {
         android.car.builtin.window.WindowManagerHelper.setTrustedOverlay(p);
@@ -48,8 +45,6 @@ public final class WindowManagerHelper {
      * See {@link WindowManager.LayoutParams#INPUT_FEATURE_SPY}}.
      * Requires the {@link android.Manifest.permission#MONITOR_INPUT} permission.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void setInputFeatureSpy(@NonNull WindowManager.LayoutParams p) {
         android.car.builtin.window.WindowManagerHelper.setInputFeatureSpy(p);
     }

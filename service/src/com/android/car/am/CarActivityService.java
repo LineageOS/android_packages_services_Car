@@ -27,7 +27,6 @@ import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeas
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.TaskInfo;
@@ -49,7 +48,6 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.display.DisplayManager;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -402,7 +400,6 @@ public final class CarActivityService extends ICarActivityService.Stub
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private final class TaskMirroringToken extends MirroringToken {
         private final int mTaskId;
         private TaskMirroringToken(int taskId) {
@@ -429,7 +426,6 @@ public final class CarActivityService extends ICarActivityService.Stub
         }
     };
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private final class DisplayMirroringToken extends MirroringToken {
         private final int mDisplayId;
         private DisplayMirroringToken(int displayId) {

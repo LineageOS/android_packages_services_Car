@@ -39,7 +39,6 @@ import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeas
 
 import android.annotation.IntDef;
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.car.Car;
@@ -61,7 +60,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager.DisplayListener;
 import android.os.Binder;
-import android.os.Build;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -489,7 +487,6 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private void registerDisplayListener() {
         DisplayManagerHelper.registerDisplayListener(mContext, new DisplayListener() {
             @Override

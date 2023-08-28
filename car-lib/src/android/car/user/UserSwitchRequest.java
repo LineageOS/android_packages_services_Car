@@ -18,7 +18,6 @@ package android.car.user;
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 import android.os.Parcelable;
 import android.os.UserHandle;
 
@@ -54,8 +53,6 @@ public final class UserSwitchRequest implements Parcelable {
         }
 
         /** Builds and returns a {@link UserSwitchRequest}. */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull UserSwitchRequest build() {
             return new UserSwitchRequest(this);
         }
@@ -77,16 +74,12 @@ public final class UserSwitchRequest implements Parcelable {
 
 
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public @NonNull UserHandle getUserHandle() {
         return mUserHandle;
     }
 
     @Override
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void writeToParcel(@NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -96,8 +89,6 @@ public final class UserSwitchRequest implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -117,20 +108,14 @@ public final class UserSwitchRequest implements Parcelable {
     }
 
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final @NonNull Parcelable.Creator<UserSwitchRequest> CREATOR
             = new Parcelable.Creator<UserSwitchRequest>() {
         @Override
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public UserSwitchRequest[] newArray(int size) {
             return new UserSwitchRequest[size];
         }
 
         @Override
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public UserSwitchRequest createFromParcel(@NonNull android.os.Parcel in) {
             return new UserSwitchRequest(in);
         }

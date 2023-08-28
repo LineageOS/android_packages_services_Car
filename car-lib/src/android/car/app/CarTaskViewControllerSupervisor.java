@@ -18,13 +18,11 @@ package android.car.app;
 import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.app.Activity;
 import android.car.app.CarTaskViewControllerHostLifecycle.CarTaskViewControllerHostLifecycleObserver;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.content.Context;
-import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArrayMap;
@@ -39,7 +37,6 @@ import java.util.concurrent.Executor;
  * - It is also responsible to dispatch {@link CarTaskViewControllerCallback} methods to the
  * clients.
  */
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 final class CarTaskViewControllerSupervisor {
     private static final String TAG = CarTaskViewControllerSupervisor.class.getSimpleName();
     private final Map<CarTaskViewControllerHostLifecycle, ActivityHolder> mActivityHolders =

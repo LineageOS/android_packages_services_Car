@@ -20,20 +20,17 @@ package android.car.app;
 import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.PendingIntent;
 import android.car.Car;
-import android.car.annotation.ApiRequirements;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.ViewHelper;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.UserManager;
 import android.view.Display;
 import android.view.SurfaceControl;
@@ -55,7 +52,6 @@ import java.util.concurrent.Executor;
  * @hide
  */
 @SystemApi
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     private static final String TAG = ControlledRemoteCarTaskView.class.getSimpleName();
 
@@ -134,8 +130,6 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
      * ControlledRemoteCarTaskViewCallback)}.
      */
     @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
     public void startActivity() {
         if (!mUserManager.isUserUnlocked()) {
@@ -206,8 +200,6 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     }
 
     @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     @MainThread
     public void showEmbeddedTask() {
@@ -238,8 +230,6 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
      * @return the {@link android.app.ActivityManager.RunningTaskInfo} of the task currently
      * running in the TaskView.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
     @Override
     @Nullable

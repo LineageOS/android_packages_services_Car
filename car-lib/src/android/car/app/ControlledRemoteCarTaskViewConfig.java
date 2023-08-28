@@ -19,7 +19,6 @@ package android.car.app;
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 import android.content.Intent;
 
 /**
@@ -48,30 +47,22 @@ public final class ControlledRemoteCarTaskViewConfig {
     }
 
     /** See {@link Builder#setActivityIntent(Intent)}. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @NonNull
     public Intent getActivityIntent() {
         return mActivityIntent;
     }
 
     /** See {@link Builder#setShouldAutoRestartOnTaskRemoval(boolean)}. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public boolean shouldAutoRestartOnCrash() {
         return mShouldAutoRestartOnTaskRemoval;
     }
 
     /** See {@link Builder#setShouldCaptureGestures(boolean)}. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public boolean shouldCaptureGestures() {
         return mShouldCaptureGestures;
     }
 
     /** See {@link Builder#setShouldCaptureLongPress(boolean)}. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public boolean shouldCaptureLongPress() {
         return mShouldCaptureLongPress;
     }
@@ -107,8 +98,6 @@ public final class ControlledRemoteCarTaskViewConfig {
          * @param activityIntent the intent of the activity that is meant to be started in this
          *                       task view.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         @NonNull
         public Builder setActivityIntent(@NonNull Intent activityIntent) {
             mActivityIntent = activityIntent;
@@ -130,8 +119,6 @@ public final class ControlledRemoteCarTaskViewConfig {
          * @param shouldAutoRestartOnTaskRemoval denotes if the auto restart functionality should be
          *                                 enabled or not.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         @NonNull
         public Builder setShouldAutoRestartOnTaskRemoval(boolean shouldAutoRestartOnTaskRemoval) {
             mShouldAutoRestartOnCrash = shouldAutoRestartOnTaskRemoval;
@@ -146,8 +133,6 @@ public final class ControlledRemoteCarTaskViewConfig {
          * @param shouldCaptureGestures denotes if the swipe gesture capturing should be enabled or
          *                              not.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         @NonNull
         public Builder setShouldCaptureGestures(boolean shouldCaptureGestures) {
             mShouldCaptureGestures = shouldCaptureGestures;
@@ -167,8 +152,6 @@ public final class ControlledRemoteCarTaskViewConfig {
          * @param shouldCaptureLongPress denotes if the long press capturing should be enabled or
          *                               not.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         @NonNull
         public Builder setShouldCaptureLongPress(boolean shouldCaptureLongPress) {
             mShouldCaptureLongPress = shouldCaptureLongPress;
@@ -176,8 +159,6 @@ public final class ControlledRemoteCarTaskViewConfig {
         }
 
         /** Creates the {@link ControlledRemoteCarTaskViewConfig} object. */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         @NonNull
         public ControlledRemoteCarTaskViewConfig build() {
             if (mActivityIntent == null) {

@@ -23,7 +23,6 @@ import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
-import android.car.annotation.AddedInOrBefore;
 import android.car.diagnostic.ICarDiagnosticEventListener.Stub;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -48,9 +47,7 @@ import java.util.function.Consumer;
  */
 @SystemApi
 public final class CarDiagnosticManager extends CarManagerBase {
-    @AddedInOrBefore(majorVersion = 33)
     public static final int FRAME_TYPE_LIVE = 0;
-    @AddedInOrBefore(majorVersion = 33)
     public static final int FRAME_TYPE_FREEZE = 1;
 
     @Retention(RetentionPolicy.SOURCE)
@@ -58,7 +55,6 @@ public final class CarDiagnosticManager extends CarManagerBase {
     public @interface FrameType {}
 
     /** @hide */
-    @AddedInOrBefore(majorVersion = 33)
     public static final @FrameType int[] FRAME_TYPES = {
         FRAME_TYPE_LIVE,
         FRAME_TYPE_FREEZE
@@ -99,7 +95,6 @@ public final class CarDiagnosticManager extends CarManagerBase {
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         synchronized (mActiveListeners) {
             mActiveListeners.clear();
@@ -113,7 +108,6 @@ public final class CarDiagnosticManager extends CarManagerBase {
          *
          * @param carDiagnosticEvent
          */
-        @AddedInOrBefore(majorVersion = 33)
         void onDiagnosticEvent(CarDiagnosticEvent carDiagnosticEvent);
     }
 
@@ -139,7 +133,6 @@ public final class CarDiagnosticManager extends CarManagerBase {
      * @throws IllegalArgumentException
      */
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
-    @AddedInOrBefore(majorVersion = 33)
     public boolean registerListener(
             OnDiagnosticEventListener listener, @FrameType int frameType, int rate) {
         assertFrameType(frameType);
@@ -170,7 +163,6 @@ public final class CarDiagnosticManager extends CarManagerBase {
     @RequiresPermission(anyOf = {
             Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
             Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR})
-    @AddedInOrBefore(majorVersion = 33)
     public void unregisterListener(OnDiagnosticEventListener listener) {
         synchronized (mActiveListeners) {
             for (@FrameType int frameType : FRAME_TYPES) {
@@ -220,7 +212,6 @@ public final class CarDiagnosticManager extends CarManagerBase {
     @RequiresPermission(anyOf = {
             Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
             Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR})
-    @AddedInOrBefore(majorVersion = 33)
     public @Nullable CarDiagnosticEvent getLatestLiveFrame() {
         try {
             return mService.getLatestLiveFrame();
@@ -241,7 +232,6 @@ public final class CarDiagnosticManager extends CarManagerBase {
     @RequiresPermission(anyOf = {
             Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
             Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR})
-    @AddedInOrBefore(majorVersion = 33)
     public long[] getFreezeFrameTimestamps() {
         try {
             return mService.getFreezeFrameTimestamps();
@@ -262,7 +252,6 @@ public final class CarDiagnosticManager extends CarManagerBase {
     @RequiresPermission(anyOf = {
             Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
             Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR})
-    @AddedInOrBefore(majorVersion = 33)
     public @Nullable CarDiagnosticEvent getFreezeFrame(long timestamp) {
         try {
             return mService.getFreezeFrame(timestamp);
@@ -282,7 +271,6 @@ public final class CarDiagnosticManager extends CarManagerBase {
      * its local knowledge of the vehicle diagnostic state.
      */
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
-    @AddedInOrBefore(majorVersion = 33)
     public boolean clearFreezeFrames(long... timestamps) {
         try {
             return mService.clearFreezeFrames(timestamps);
@@ -298,7 +286,6 @@ public final class CarDiagnosticManager extends CarManagerBase {
     @RequiresPermission(anyOf = {
             Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
             Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR})
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isLiveFrameSupported() {
         try {
             return mService.isLiveFrameSupported();
@@ -314,7 +301,6 @@ public final class CarDiagnosticManager extends CarManagerBase {
     @RequiresPermission(anyOf = {
             Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
             Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR})
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isFreezeFrameNotificationSupported() {
         try {
             return mService.isFreezeFrameNotificationSupported();
@@ -330,7 +316,6 @@ public final class CarDiagnosticManager extends CarManagerBase {
     @RequiresPermission(anyOf = {
             Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
             Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR})
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isGetFreezeFrameSupported() {
         try {
             return mService.isGetFreezeFrameSupported();
@@ -352,7 +337,6 @@ public final class CarDiagnosticManager extends CarManagerBase {
     @RequiresPermission(anyOf = {
             Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
             Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR})
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isClearFreezeFramesSupported() {
         try {
             return mService.isClearFreezeFramesSupported();
@@ -374,7 +358,6 @@ public final class CarDiagnosticManager extends CarManagerBase {
     @RequiresPermission(anyOf = {
             Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
             Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR})
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isSelectiveClearFreezeFramesSupported() {
         try {
             return mService.isSelectiveClearFreezeFramesSupported();

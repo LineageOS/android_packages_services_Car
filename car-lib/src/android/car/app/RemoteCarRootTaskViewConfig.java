@@ -18,7 +18,6 @@ package android.car.app;
 
 
 import android.annotation.NonNull;
-import android.car.annotation.ApiRequirements;
 import android.content.ComponentName;
 
 import java.util.List;
@@ -41,15 +40,11 @@ public final class RemoteCarRootTaskViewConfig {
     }
 
     /** See {@link Builder#setDisplayId(int)}. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     public int getDisplayId() {
         return mDisplayId;
     }
 
     /** See {@link Builder#setAllowListedActivities(List)}. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     public List<ComponentName> getAllowListedActivities() {
         return mAllowListedActivities;
     }
@@ -76,8 +71,6 @@ public final class RemoteCarRootTaskViewConfig {
         }
 
         /** Sets the display Id of the display which the root task will be created for. */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
         @NonNull
         public Builder setDisplayId(int displayId) {
             mDisplayId = displayId;
@@ -88,8 +81,6 @@ public final class RemoteCarRootTaskViewConfig {
          * Sets the initial list of all the allow listed activities which will be persisted on the
          * root task that is embedded inside the task view.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
         @NonNull
         public Builder setAllowListedActivities(
                 @NonNull List<ComponentName> allowListedActivities) {
@@ -98,8 +89,6 @@ public final class RemoteCarRootTaskViewConfig {
         }
 
         /** Creates the {@link RemoteCarRootTaskViewConfig} object. */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
         @NonNull
         public RemoteCarRootTaskViewConfig build() {
             return new RemoteCarRootTaskViewConfig(mDisplayId, mAllowListedActivities);

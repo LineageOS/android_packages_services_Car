@@ -19,7 +19,6 @@ package android.car.admin;
 import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
-import android.car.annotation.AddedInOrBefore;
 import android.car.user.UserCreationResult;
 import android.os.UserHandle;
 import android.util.Log;
@@ -43,19 +42,16 @@ public final class CreateUserResult {
     /**
      * User was created.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_SUCCESS = 1;
 
     /**
      * User was not created because arguments passed to the method were invalid.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_FAILURE_INVALID_ARGUMENTS = 2;
 
     /**
      * User was not created for some other reason not described above.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_FAILURE_GENERIC = 100;
 
     /** @hide */
@@ -111,7 +107,6 @@ public final class CreateUserResult {
      *
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static CreateUserResult forGenericError() {
         return new CreateUserResult(null);
     }
@@ -122,7 +117,6 @@ public final class CreateUserResult {
      * @return either {@link CreateUserResult#STATUS_SUCCESS} or
      *         {@link CreateUserResult#STATUS_FAILURE_GENERIC}.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public @Status int getStatus() {
         return mStatus;
     }
@@ -130,7 +124,6 @@ public final class CreateUserResult {
     /**
      * Gets whether the operation was successful or not.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isSuccess() {
         return mStatus == STATUS_SUCCESS;
     }
@@ -139,7 +132,6 @@ public final class CreateUserResult {
      * Gets the {@link UserHandle} of the created user (or {@code null} in case of failure).
      */
     @Nullable
-    @AddedInOrBefore(majorVersion = 33)
     public UserHandle getUserHandle() {
         return mUserHandle;
     }

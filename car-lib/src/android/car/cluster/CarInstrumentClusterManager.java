@@ -21,7 +21,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DE
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.annotation.AddedInOrBefore;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -49,7 +48,6 @@ public class CarInstrumentClusterManager extends CarManagerBase {
      */
     @Deprecated
     @SystemApi
-    @AddedInOrBefore(majorVersion = 33)
     public static final String CATEGORY_NAVIGATION = "android.car.cluster.NAVIGATION";
 
     /**
@@ -63,7 +61,6 @@ public class CarInstrumentClusterManager extends CarManagerBase {
      */
     @Deprecated
     @SystemApi
-    @AddedInOrBefore(majorVersion = 33)
     public static final String KEY_EXTRA_ACTIVITY_STATE =
             "android.car.cluster.ClusterActivityState";
 
@@ -76,7 +73,6 @@ public class CarInstrumentClusterManager extends CarManagerBase {
      */
     @Deprecated
     @SystemApi
-    @AddedInOrBefore(majorVersion = 33)
     public void startActivity(Intent intent) {
         // No-op
     }
@@ -95,7 +91,6 @@ public class CarInstrumentClusterManager extends CarManagerBase {
      */
     @Deprecated
     @SystemApi
-    @AddedInOrBefore(majorVersion = 33)
     public void registerCallback(String category, Callback callback) {
         // No-op
     }
@@ -111,7 +106,6 @@ public class CarInstrumentClusterManager extends CarManagerBase {
      */
     @Deprecated
     @SystemApi
-    @AddedInOrBefore(majorVersion = 33)
     public void unregisterCallback(Callback callback) {
         // No-op
     }
@@ -137,13 +131,11 @@ public class CarInstrumentClusterManager extends CarManagerBase {
          * @param category cluster activity category, see {@link #CATEGORY_NAVIGATION}
          * @param clusterActivityState see {@link ClusterActivityState} how to read this bundle.
          */
-        @AddedInOrBefore(majorVersion = 33)
         void onClusterActivityStateChanged(String category, Bundle clusterActivityState);
     }
 
     /** @hide */
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
     }
 }

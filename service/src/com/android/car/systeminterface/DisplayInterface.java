@@ -26,7 +26,6 @@ import static com.android.car.util.BrightnessUtils.GAMMA_SPACE_MAX;
 import static com.android.car.util.BrightnessUtils.convertGammaToLinear;
 import static com.android.car.util.BrightnessUtils.convertLinearToGamma;
 
-import android.annotation.RequiresApi;
 import android.car.builtin.display.DisplayManagerHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.power.PowerManagerHelper;
@@ -37,7 +36,6 @@ import android.content.Context;
 import android.database.ContentObserver;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManager.DisplayListener;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -247,7 +245,6 @@ public interface DisplayInterface {
             }
         }
 
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         private void refreshDisplayBrightnessFromDisplay(
                 CarPowerManagementService carPowerManagementService, int displayId) {
             int linear = BrightnessUtils.brightnessFloatToInt(

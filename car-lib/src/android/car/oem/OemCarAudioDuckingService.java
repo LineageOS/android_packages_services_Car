@@ -18,7 +18,6 @@ package android.car.oem;
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 import android.media.AudioAttributes;
 
 import java.util.List;
@@ -48,8 +47,6 @@ public interface OemCarAudioDuckingService extends OemCarServiceComponent {
      * @return the selected audio attribute which should be ducked.
      *
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     List<AudioAttributes> evaluateAttributesToDuck(@NonNull OemCarAudioVolumeRequest requestInfo);
 }

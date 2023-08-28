@@ -19,15 +19,12 @@ package android.car.media;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.car.CarOccupantZoneManager;
-import android.car.annotation.ApiRequirements;
 
 /**
  * Interface to listen for audio media requests in primary zone
  *
  * @hide
  */
-@ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-        minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
 @SystemApi
 public interface PrimaryZoneMediaAudioRequestCallback {
 
@@ -37,8 +34,6 @@ public interface PrimaryZoneMediaAudioRequestCallback {
      * @param info Occupant zone information that should be shared in car primary zone
      * @param requestId Unique id of the request that can be used to enable the audio sharing
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     void onRequestMediaOnPrimaryZone(@NonNull CarOccupantZoneManager.OccupantZoneInfo info,
             long requestId);
 
@@ -53,8 +48,6 @@ public interface PrimaryZoneMediaAudioRequestCallback {
      *                {@link android.car.media.CarAudioManager#AUDIO_REQUEST_STATUS_CANCELLED},
      *                {@link android.car.media.CarAudioManager#AUDIO_REQUEST_STATUS_STOPPED}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     void onMediaAudioRequestStatusChanged(@NonNull CarOccupantZoneManager.OccupantZoneInfo info,
             long requestId, @CarAudioManager.MediaAudioRequestStatus int status);
 }

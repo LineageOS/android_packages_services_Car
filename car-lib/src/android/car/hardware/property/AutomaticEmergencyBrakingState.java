@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -40,22 +39,16 @@ public final class AutomaticEmergencyBrakingState {
      * The framework can use this field to remain backwards compatible if {@code
      * AutomaticEmergencyBrakingState} is extended to include additional states.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int OTHER = 0;
 
     /**
      * AEB is enabled and monitoring safety, but brakes are not activated.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int ENABLED = 1;
 
     /**
      * AEB is enabled and currently has the brakes applied for the vehicle.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int ACTIVATED = 2;
 
     /**
@@ -64,8 +57,6 @@ public final class AutomaticEmergencyBrakingState {
      * often done for safety reasons and to ensure that the driver can always take control of the
      * vehicle. This state should be set when the user is actively overriding the AEB system.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int USER_OVERRIDE = 3;
 
     private AutomaticEmergencyBrakingState() {}
@@ -74,8 +65,6 @@ public final class AutomaticEmergencyBrakingState {
      * Returns a user-friendly representation of an {@code AutomaticEmergencyBrakingState}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(
             @AutomaticEmergencyBrakingStateInt int automaticEmergencyBrakingState) {
         switch (automaticEmergencyBrakingState) {
