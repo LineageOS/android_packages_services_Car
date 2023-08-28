@@ -250,6 +250,7 @@
         -->
 
         <activity android:name=".KitchenSink2Activity"
+            android:launchMode="singleTop"
             android:exported="true"
             android:theme="@style/Theme.CarUi.NoToolbar"
             android:label="@string/app_title">
