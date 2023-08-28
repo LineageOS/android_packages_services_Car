@@ -420,9 +420,12 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                     Slogf.d(TAG_EVS, "CarEvsService listens to GEAR_SELECTION property.");
                 }
 
-                mPropertyService.registerListenerSafe(
+                if (!mPropertyService.registerListenerSafe(
                         VehiclePropertyIds.GEAR_SELECTION, /*updateRateHz=*/0,
-                        mGearSelectionPropertyListener);
+                        mGearSelectionPropertyListener)) {
+                    Slogf.w(TAG_EVS, "Failed to register a listener for GEAR_SELECTION property.");
+                    mUseGearSelection = false;
+                }
             }
         }
 
