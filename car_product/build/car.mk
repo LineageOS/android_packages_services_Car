@@ -53,7 +53,7 @@ PRODUCT_PACKAGES += \
     CarHotwordDetectionServiceOne \
 
 # SEPolicy for test apps / services
-BOARD_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/test
+PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/test
 endif
 
 # ClusterOsDouble is the testing app to test Cluster2 framework and it can handle Cluster VHAL
