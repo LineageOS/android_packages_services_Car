@@ -173,7 +173,7 @@ public class CarSettings {
      *
      * @hide
      */
-    public static final int DEFAULT_GARAGE_MODE_MAINTENANCE_WINDOW = 10 * 60 * 1000; // 10 mins
+    public static final int DEFAULT_GARAGE_MODE_MAINTENANCE_WINDOW = 10 * 60 * 1000;
 
     /**
      * @hide
