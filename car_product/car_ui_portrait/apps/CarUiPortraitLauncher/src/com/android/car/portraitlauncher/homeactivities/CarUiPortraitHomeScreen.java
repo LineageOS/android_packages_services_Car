@@ -40,10 +40,12 @@ import android.app.ActivityOptions;
 import android.app.IActivityManager;
 import android.app.TaskInfo;
 import android.app.TaskStackListener;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Insets;
@@ -90,6 +92,7 @@ import com.android.car.carlauncher.taskstack.TaskStackChangeListeners;
 import com.android.car.caruiportrait.common.service.CarUiPortraitService;
 import com.android.car.portraitlauncher.R;
 import com.android.car.portraitlauncher.common.IntentHandler;
+import com.android.car.portraitlauncher.common.UserUnlockReceiver;
 import com.android.car.portraitlauncher.controlbar.media.MediaIntentRouter;
 import com.android.car.portraitlauncher.panel.TaskViewPanel;
 
@@ -193,6 +196,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private final List<Message> mMessageCache = new ArrayList<>();
 
     private CarUiPortraitDriveStateController mCarUiPortraitDriveStateController;
+    private PackageManager mPackageManager;
+    private UserUnlockReceiver mUserUnlockReceiver = new UserUnlockReceiver();
 
     private final IntentHandler mMediaIntentHandler = new IntentHandler() {
         @Override
@@ -297,6 +302,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             }
 
             if (mTaskCategoryManager.isBackgroundApp(taskInfo)) {
+                mTaskCategoryManager.setCurrentBackgroundApp(taskInfo.baseActivity);
                 return;
             }
 
@@ -485,6 +491,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
         setContentView(R.layout.car_ui_portrait_launcher);
 
+        mPackageManager = getPackageManager();
+        registerUserUnlockReceiver();
+
         mTaskCategoryManager = new TaskCategoryManager(getApplicationContext());
         if (savedInstanceState != null) {
             String savedBackgroundAppName = savedInstanceState.getString(
@@ -572,6 +581,14 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         mAppGridTaskViewPanel.closePanel();
     }
 
+    private void registerUserUnlockReceiver() {
+        UserUnlockReceiver.Callback callback = () -> {
+            logIfDebuggable("On user unlock");
+            initSemiControlledTaskViews();
+        };
+        mUserUnlockReceiver.register(this, callback);
+    }
+
     private void initializeCards() {
         Set<HomeCardModule> homeCardModules = new androidx.collection.ArraySet<>();
         for (String providerClassName : getResources().getStringArray(
@@ -644,6 +661,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         mBackgroundTaskView = null;
         mFullScreenTaskView = null;
         mTaskCategoryManager.onDestroy();
+        mUserUnlockReceiver.unregister(this);
         TaskStackChangeListeners.getInstance().unregisterTaskStackListener(mTaskStackListener);
         doUnbindService();
         super.onDestroy();
@@ -853,41 +871,63 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private void setUpBackgroundTaskView() {
         ViewGroup parent = findViewById(R.id.background_app_area);
 
-        Intent backgroundIntent = mTaskCategoryManager.getCurrentBackgroundApp() == null
-                ? CarLauncherUtils.getMapsIntent(getApplicationContext())
-                : (new Intent()).setComponent(mTaskCategoryManager.getCurrentBackgroundApp());
-
-        Intent failureRecoveryIntent =
-                BackgroundPanelBaseActivity.createIntent(getApplicationContext());
-        Intent[] intents = {failureRecoveryIntent, backgroundIntent};
-
         mTaskViewManager.createSemiControlledTaskView(getMainExecutor(),
                 mTaskCategoryManager.getBackgroundActivities().stream().toList(),
                 new SemiControlledCarTaskViewCallbacks() {
                     @Override
                     public void onTaskViewCreated(CarTaskView taskView) {
-                        logIfDebuggable("Background Task View is created with component = "
-                                + backgroundIntent.getComponent());
+                        logIfDebuggable("Background Task View is created");
                         taskView.setZOrderOnTop(false);
                         mBackgroundTaskView = taskView;
                         parent.addView(mBackgroundTaskView);
-                        // Set the background app here to avoid recreating
-                        // CarUiPortraitHomeScreen in onTaskCreated
-                        mTaskCategoryManager.setCurrentBackgroundApp(
-                                backgroundIntent.getComponent());
                     }
 
                     @Override
                     public void onTaskViewReady() {
                         logIfDebuggable("Background Task View is ready");
                         mIsBackgroundTaskViewReady = true;
+                        startBackgroundActivities();
                         onTaskViewReadinessUpdated();
                         updateBackgroundTaskViewInsets();
-                        startActivities(intents);
                         registerOnBackgroundApplicationInstallUninstallListener();
                     }
                 }
         );
+    }
+
+    private void startBackgroundActivities() {
+        logIfDebuggable("start background activities");
+        Intent backgroundIntent = mTaskCategoryManager.getCurrentBackgroundApp() == null
+                ? CarLauncherUtils.getMapsIntent(getApplicationContext())
+                : (new Intent()).setComponent(mTaskCategoryManager.getCurrentBackgroundApp());
+
+        Intent failureRecoveryIntent =
+                BackgroundPanelBaseActivity.createIntent(getApplicationContext());
+
+        Intent[] intents = {failureRecoveryIntent, backgroundIntent};
+
+        startActivitiesInternal(intents);
+
+        // Set the background app here to avoid recreating
+        // CarUiPortraitHomeScreen in onTaskCreated
+        mTaskCategoryManager.setCurrentBackgroundApp(backgroundIntent.getComponent());
+    }
+
+
+    /** Starts given {@code intents} in order. */
+    private void startActivitiesInternal(Intent[] intents) {
+        for (Intent intent: intents) {
+            startActivityInternal(intent);
+        }
+    }
+
+    /** Starts given {@code intent}. */
+    private void startActivityInternal(Intent intent) {
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Log.e(TAG, "Failed to launch", e);
+        }
     }
 
     private void registerOnBackgroundApplicationInstallUninstallListener() {
@@ -970,6 +1010,34 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 && mIsBackgroundTaskViewReady && mIsFullScreenTaskViewReady;
     }
 
+
+    /**
+     * Initialize {@link SemiControlledTaskView}s. Proceed after both {@link TaskCategoryManager}
+     * and {@code mRootTaskViewPanel} are ready.
+     *
+     * <p>Note: 1. After flashing device and FRX, {@link UserUnlockReceiver} doesn't receive
+     * {@link android.content.Intent.ACTION_USER_UNLOCKED}, but PackageManager already starts
+     * resolving intent right after {@link mRootTaskViewPanel} is ready. So initialize
+     * {@link SemiControlledTaskView}s directly. 2. For device boot later, PackageManager starts to
+     * resolving intent after {@link android.content.Intent.ACTION_USER_UNLOCKED}, so wait
+     * until {@link UserUnlockReceiver} notify {@link CarUiPortraitHomeScreen}.
+     */
+    private void initSemiControlledTaskViews() {
+        if (!mTaskCategoryManager.isReady() || !mRootTaskViewPanel.isReady()
+                || isAllTaskViewsReady()) {
+            return;
+        }
+
+        // BackgroundTaskView and Fu
+        //  llScreenTaskView are init with activities lists provided by
+        // mTaskCategoryManager. mTaskCategoryManager needs refresh to get up to date activities
+        // lists.
+        mTaskCategoryManager.refresh();
+        setUpBackgroundTaskView();
+        setUpAppGridTaskView();
+        setUpFullScreenTaskView();
+    }
+
     private void onTaskViewReadinessUpdated() {
         if (!isAllTaskViewsReady()) {
             return;
@@ -985,6 +1053,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 + "( visible: " + isControlBarVisible
                 + ", bounds:" + controlBarBounds
                 + ")");
+
+        mTaskInfoCache.startCachedTasks();
     }
 
     private void setUpRootTaskView() {
@@ -1069,12 +1139,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     public void onTaskViewReady() {
                         logIfDebuggable("Root Task View is ready");
                         mRootTaskViewPanel.setReady(true);
-                        mTaskInfoCache.startCachedTasks();
                         onTaskViewReadinessUpdated();
-
-                        setUpBackgroundTaskView();
-                        setUpAppGridTaskView();
-                        setUpFullScreenTaskView();
+                        initSemiControlledTaskViews();
                     }
                 });
     }

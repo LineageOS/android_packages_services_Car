@@ -132,9 +132,7 @@ public class DisplayAreaComponent implements CoreStartable {
         }
 
         logIfDebuggable("start:");
-        if (CarDisplayAreaUtils.isCustomDisplayPolicyDefined(mContext)) {
-            mCarDisplayAreaController.register();
-            doBindService();
-        }
+        mCarDisplayAreaController.register();
+        doBindService();
     }
 }

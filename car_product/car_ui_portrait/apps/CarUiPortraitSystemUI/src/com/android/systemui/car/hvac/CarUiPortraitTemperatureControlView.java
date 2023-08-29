@@ -155,8 +155,15 @@ public class CarUiPortraitTemperatureControlView extends LinearLayout implements
      */
     protected void updateTemperatureViewUiThread() {
         mTempTextView.setText(mTempInDisplay);
-        mTempTextView.setTextColor(mPowerOn && mTemperatureSetAvailable
-                ? mAvailableTextColor : mUnavailableTextColor);
+        if (mPowerOn && mTemperatureSetAvailable) {
+            mTempTextView.setTextColor(mAvailableTextColor);
+            mIncreaseButton.setVisibility(View.VISIBLE);
+            mDecreaseButton.setVisibility(View.VISIBLE);
+        } else {
+            mTempTextView.setTextColor(mUnavailableTextColor);
+            mIncreaseButton.setVisibility(View.INVISIBLE);
+            mDecreaseButton.setVisibility(View.INVISIBLE);
+        }
     }
 
     protected String getTempInDisplay() {
