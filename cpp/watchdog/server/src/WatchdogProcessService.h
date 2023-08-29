@@ -63,7 +63,7 @@ public:
     virtual android::base::Result<void> start() = 0;
     virtual void terminate() = 0;
     virtual void onDump(int fd) = 0;
-    virtual void onDumpProto(util::ProtoOutputStream& proto) = 0;
+    virtual void onDumpProto(android::util::ProtoOutputStream& outProto) = 0;
     virtual void doHealthCheck(int what) = 0;
     virtual void handleBinderDeath(void* cookie) = 0;
     virtual ndk::ScopedAStatus registerClient(
@@ -121,7 +121,7 @@ public:
     android::base::Result<void> start() override;
     void terminate() override;
     void onDump(int fd) override;
-    void onDumpProto(util::ProtoOutputStream& proto) override;
+    void onDumpProto(util::ProtoOutputStream& outProto) override;
     void doHealthCheck(int what) override;
     void handleBinderDeath(void* cookie) override;
     ndk::ScopedAStatus registerClient(
