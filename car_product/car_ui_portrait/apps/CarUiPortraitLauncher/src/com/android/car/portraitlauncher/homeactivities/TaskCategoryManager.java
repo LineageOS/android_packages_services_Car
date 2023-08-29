@@ -36,6 +36,7 @@ import android.util.Log;
 import androidx.car.app.CarContext;
 
 import com.android.car.carlauncher.AppGridActivity;
+import com.android.car.carlauncher.CarLauncherUtils;
 import com.android.car.portraitlauncher.R;
 
 import java.util.ArrayList;
@@ -87,6 +88,14 @@ class TaskCategoryManager {
 
         mApplicationInstallUninstallReceiver = registerApplicationInstallUninstallReceiver(
                 mContext);
+    }
+
+    /**
+     * Refresh {@code mFullScreenActivities} and {@code mBackgroundActivities}.
+     */
+    void refresh() {
+        updateVoicePlateActivityMap();
+        updateBackgroundActivityMap();
     }
 
     static boolean isHomeIntent(TaskInfo taskInfo) {
@@ -153,6 +162,15 @@ class TaskCategoryManager {
         }
         mBackgroundActivities.addAll(convertToComponentNames(mContext.getResources()
                 .getStringArray(R.array.config_backgroundActivities)));
+    }
+
+    /**
+     * Returns whether the {@code TaskCategoryManager} is ready. If maps intent can be resolved,
+     * the {@code TaskCategoryManager} is ready.
+     */
+    public boolean isReady() {
+        Intent intent = CarLauncherUtils.getMapsIntent(mContext);
+        return intent.resolveActivity(mContext.getPackageManager()) != null;
     }
 
     void registerOnApplicationInstallUninstallListener(
