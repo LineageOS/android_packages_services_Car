@@ -19,6 +19,9 @@ import static android.car.Car.PERMISSION_VENDOR_EXTENSION;
 import static android.car.hardware.property.VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_INFO;
 import static android.car.hardware.property.VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_SEAT;
 import static android.car.hardware.property.VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_INFO;
+import static android.hardware.automotive.vehicle.TestVendorProperty.MIXED_TYPE_PROPERTY_FOR_TEST;
+import static android.hardware.automotive.vehicle.TestVendorProperty.VENDOR_EXTENSION_FLOAT_PROPERTY;
+import static android.hardware.automotive.vehicle.TestVendorProperty.VENDOR_EXTENSION_INT_PROPERTY;
 
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assume.assumeTrue;
@@ -46,7 +49,7 @@ import org.junit.runner.RunWith;
  * This test is based on the following customize vendor permission config of the reference VHAL
  * implementation.
  *
- * kMixedTypePropertyForTest:
+ * MIXED_TYPE_PROPERTY_FOR_TEST:
  *     "VehicleVendorPermission::PERMISSION_GET_VENDOR_CATEGORY_INFO",
  *     "VehicleVendorPermission::PERMISSION_SET_VENDOR_CATEGORY_INFO",
  * VENDOR_EXTENSION_INT_PROPERTY:
@@ -58,10 +61,6 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public final class CarVendorPropertyCustomPermissionTest extends AbstractCarManagerPermissionTest {
-    private static final int MIXED_TYPE_PROPERTY_FOR_TEST = 0x21e01111;
-    private static final int VENDOR_EXTENSION_INT_PROPERTY = 0x23400103;
-    private static final int VENDOR_EXTENSION_FLOAT_PROPERTY = 0x25600102;
-
     private static final int HVAC_LEFT = VehicleAreaSeat.SEAT_ROW_1_LEFT
             | VehicleAreaSeat.SEAT_ROW_2_LEFT | VehicleAreaSeat.SEAT_ROW_2_CENTER;
 

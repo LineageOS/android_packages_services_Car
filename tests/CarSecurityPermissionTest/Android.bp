@@ -21,7 +21,10 @@ package {
 android_test {
     name: "CarSecurityPermissionTest",
 
-    srcs: ["src/**/*.java"],
+    srcs: [
+        "src/**/*.java",
+        ":VhalTestVendorProperties",
+    ],
 
     libs: [
         "android.car",

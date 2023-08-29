@@ -166,6 +166,7 @@ java_defaults {
         ":dump-javastream-protos",
         ":iscriptexecutor_aidl",
         ":statslog-Car-java-gen",
+        ":VhalTestVendorProperties",
         "src/**/*.java",
     ],
 
