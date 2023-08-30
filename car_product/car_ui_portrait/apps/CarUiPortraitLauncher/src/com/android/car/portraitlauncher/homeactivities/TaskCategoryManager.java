@@ -54,7 +54,6 @@ class TaskCategoryManager {
     /** Stub geo data to help query navigation intent. */
     private static final String STUB_GEO_DATA = "geo:0.0,0,0";
 
-    private final ComponentName mBlankActivityComponent;
     private final ComponentName mAppGridActivityComponent;
     private final ComponentName mNotificationActivityComponent;
     private final ComponentName mRecentsActivityComponent;
@@ -75,7 +74,6 @@ class TaskCategoryManager {
         mIgnoreOpeningRootTaskViewComponentsSet = convertToComponentNames(mContext.getResources()
                 .getStringArray(R.array.config_ignoreOpeningForegroundDA));
         mAppGridActivityComponent = new ComponentName(context, AppGridActivity.class);
-        mBlankActivityComponent = new ComponentName(context, BlankActivity.class);
         mNotificationActivityComponent = ComponentName.unflattenFromString(
                 mContext.getResources().getString(R.string.config_notificationActivity));
         mRecentsActivityComponent = ComponentName.unflattenFromString(mContext.getResources()
@@ -201,14 +199,6 @@ class TaskCategoryManager {
 
     void setCurrentBackgroundApp(ComponentName componentName) {
         mCurrentBackgroundApp = componentName;
-    }
-
-    boolean isBlankActivity(ActivityManager.RunningTaskInfo taskInfo) {
-        return mBlankActivityComponent.equals(taskInfo.baseActivity);
-    }
-
-    boolean isBlankActivity(ComponentName componentName) {
-        return mBlankActivityComponent.equals(componentName);
     }
 
     boolean isAppGridActivity(ComponentName componentName) {
