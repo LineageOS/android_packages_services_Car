@@ -152,8 +152,8 @@
     <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"Mengakses informasi powertrain mobil."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"membaca status daya mobil"</string>
     <string name="car_permission_desc_car_power" msgid="9202079903668652864">"Mengakses status daya mobil."</string>
-    <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Daftarkan Perangkat Dipercaya"</string>
-    <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Izinkan Pendaftaran Perangkat Dipercaya"</string>
+    <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Daftarkan Perangkat Tepercaya"</string>
+    <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Izinkan Pendaftaran Perangkat Tepercaya"</string>
     <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"Mode uji untuk mengontrol mobil"</string>
     <string name="car_permission_desc_car_test_service" msgid="7426844534110145843">"Mode uji untuk mengontrol mobil"</string>
     <string name="car_permission_label_control_car_features" msgid="3905791560378888286">"Aktifkan atau nonaktifkan fitur mobil"</string>
