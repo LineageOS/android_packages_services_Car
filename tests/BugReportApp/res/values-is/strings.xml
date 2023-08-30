@@ -46,13 +46,10 @@
     <string name="toast_status_failed" msgid="6365384202315043395">"Ekki tókst að útbúa villutilkynningu"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Skjámyndataka mistókst"</string>
     <string name="toast_status_dump_state_failed" msgid="3496460783060512078">"Dumpstate mistókst"</string>
-    <!-- no translation found for toast_screenshot_finished (539313383958984557) -->
-    <skip />
+    <string name="toast_screenshot_finished" msgid="539313383958984557">"Skjámynd(ir) sem búið er að vista"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Verið er að útbúa villutilkynningu"</string>
     <string name="notification_bugreport_finished_title" msgid="1188447311929693472">"Búið er að sækja villutilkynningu"</string>
     <string name="notification_bugreport_channel_name" msgid="776902295433824255">"Stöðurás villutilkynninga"</string>
-    <!-- no translation found for notification_screenshot_message (4334354123333893911) -->
-    <skip />
-    <!-- no translation found for notification_screenshot_channel_name (147055389545365419) -->
-    <skip />
+    <string name="notification_screenshot_message" msgid="4334354123333893911">"Skjámynd tekin"</string>
+    <string name="notification_screenshot_channel_name" msgid="147055389545365419">"Skjámyndarás villutilkynninga"</string>
 </resources>
