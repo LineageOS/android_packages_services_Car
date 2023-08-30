@@ -228,6 +228,14 @@
                 android:layout_margin="10dp"
                 android:text="Custom Group Without Summary of 6 (Should not group)"
                 android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/actions_with_icons"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Notification with custom action icons"
+                android:textSize="30sp"/>
         </LinearLayout>
 
         <LinearLayout
