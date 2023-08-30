@@ -51,7 +51,7 @@ def main():
                     'updated based on VehiclePropertyIds.java'))
     parser.add_argument('--android_build_top', required=True,
             help='Path to ANDROID_BUILD_TOP')
-    parser.add_argument('--preupload_files', required=True, nargs='+',
+    parser.add_argument('--preupload_files', required=True, nargs='*',
             help='modified files')
     args = parser.parse_args()
 
