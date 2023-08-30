@@ -21,7 +21,6 @@ import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS;
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
-import static android.car.test.mocks.JavaMockitoHelper.silentAwait;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -33,11 +32,9 @@ import static org.junit.Assume.assumeTrue;
 import android.app.UiAutomation;
 import android.car.Car;
 import android.car.media.CarAudioManager;
-import android.car.media.CarVolumeGroupEvent;
-import android.car.media.CarVolumeGroupEventCallback;
 import android.car.media.CarVolumeGroupInfo;
+import android.car.test.util.CarAudioManagerTestUtils;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.KeyEvent;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -49,8 +46,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -59,9 +54,6 @@ import java.util.concurrent.Executors;
  */
 @RunWith(AndroidJUnit4.class)
 public final class CarAudioManagerPermissionTest extends AbstractCarManagerPermissionTest {
-    private static final String TAG = CarAudioManagerPermissionTest.class.getSimpleName();
-
-    private static final long WAIT_TIMEOUT_MS = 5_000;
 
     private static final int GROUP_ID = 0;
     private static final int UID = 10;
@@ -70,8 +62,8 @@ public final class CarAudioManagerPermissionTest extends AbstractCarManagerPermi
             InstrumentationRegistry.getInstrumentation().getUiAutomation();
 
     private CarAudioManager mCarAudioManager;
-    private SyncCarVolumeCallback mCallback;
-    private TestCarVolumeGroupEventCallback mEventCallback;
+    private CarAudioManagerTestUtils.SyncCarVolumeCallback mCallback;
+    private CarAudioManagerTestUtils.TestCarVolumeGroupEventCallback mEventCallback;
 
     @Before
     public void setUp() {
@@ -286,7 +278,7 @@ public final class CarAudioManagerPermissionTest extends AbstractCarManagerPermi
 
     @Test
     public void registerCarVolumeCallback_nonNullCallback_throwsPermissionError() {
-        mCallback = new SyncCarVolumeCallback();
+        mCallback = new CarAudioManagerTestUtils.SyncCarVolumeCallback();
 
         Exception e = assertThrows(SecurityException.class,
                 () -> mCarAudioManager.registerCarVolumeCallback(mCallback));
@@ -297,7 +289,7 @@ public final class CarAudioManagerPermissionTest extends AbstractCarManagerPermi
     @Test
     public void registerCarVolumeGroupEventCallback_nonNullInputs_throwsPermissionError() {
         Executor executor = Executors.newFixedThreadPool(1);
-        mEventCallback = new TestCarVolumeGroupEventCallback();
+        mEventCallback = new CarAudioManagerTestUtils.TestCarVolumeGroupEventCallback();
 
         Exception exception = assertThrows(SecurityException.class,
                 () -> mCarAudioManager.registerCarVolumeGroupEventCallback(executor,
@@ -311,7 +303,7 @@ public final class CarAudioManagerPermissionTest extends AbstractCarManagerPermi
     @Test
     public void unregisterCarVolumeCallback_withoutPermission_receivesCallback() {
         assumeDynamicRoutingIsEnabled();
-        mCallback = new SyncCarVolumeCallback();
+        mCallback = new CarAudioManagerTestUtils.SyncCarVolumeCallback();
         runWithCarControlAudioVolumePermission(
                 () -> mCarAudioManager.registerCarVolumeCallback(mCallback));
 
@@ -325,7 +317,7 @@ public final class CarAudioManagerPermissionTest extends AbstractCarManagerPermi
 
     @Test
     public void unregisterCarVolumeCallback_withoutPermission_throws() {
-        mCallback = new SyncCarVolumeCallback();
+        mCallback = new CarAudioManagerTestUtils.SyncCarVolumeCallback();
         runWithCarControlAudioVolumePermission(
                 () -> mCarAudioManager.registerCarVolumeCallback(mCallback));
 
@@ -357,67 +349,6 @@ public final class CarAudioManagerPermissionTest extends AbstractCarManagerPermi
             runnable.run();
         } finally {
             UI_AUTOMATION.dropShellPermissionIdentity();
-        }
-    }
-
-    // TODO(b/298052350): Move this class to car-lib-test so it can be shared with CarAudioManager
-    private static final class SyncCarVolumeCallback extends CarAudioManager.CarVolumeCallback {
-        private final CountDownLatch mGroupVolumeChangeLatch = new CountDownLatch(1);
-        private final CountDownLatch mGroupMuteChangeLatch = new CountDownLatch(1);
-        private final CountDownLatch mMasterMuteChangeLatch = new CountDownLatch(1);
-
-        public int zoneId;
-        public int groupId;
-
-        boolean receivedGroupVolumeChanged() {
-            return silentAwait(mGroupVolumeChangeLatch, WAIT_TIMEOUT_MS);
-        }
-
-        boolean receivedGroupMuteChanged() {
-            return silentAwait(mGroupMuteChangeLatch, WAIT_TIMEOUT_MS);
-        }
-
-        boolean receivedMasterMuteChanged() {
-            return silentAwait(mMasterMuteChangeLatch, WAIT_TIMEOUT_MS);
-        }
-
-        @Override
-        public void onGroupVolumeChanged(int zoneId, int groupId, int flags) {
-            Log.v(TAG, "onGroupVolumeChanged");
-            mGroupVolumeChangeLatch.countDown();
-        }
-
-        @Override
-        public void onMasterMuteChanged(int zoneId, int flags) {
-            Log.v(TAG, "onMasterMuteChanged");
-            mMasterMuteChangeLatch.countDown();
-        }
-
-        @Override
-        public void onGroupMuteChanged(int zoneId, int groupId, int flags) {
-            Log.v(TAG, "onGroupMuteChanged");
-            this.zoneId = zoneId;
-            this.groupId = groupId;
-            mGroupMuteChangeLatch.countDown();
-        }
-    }
-
-    // TODO(b/298052350): Move this class to car-lib-test so it can be shared with CarAudioManager
-    private static final class TestCarVolumeGroupEventCallback implements
-            CarVolumeGroupEventCallback {
-
-        private CountDownLatch mVolumeGroupEventLatch = new CountDownLatch(1);
-        List<CarVolumeGroupEvent> mEvents;
-
-        boolean receivedVolumeGroupEvents() throws InterruptedException {
-            return silentAwait(mVolumeGroupEventLatch, WAIT_TIMEOUT_MS);
-        }
-
-        @Override
-        public void onVolumeGroupEvent(List<CarVolumeGroupEvent> volumeGroupEvents) {
-            mEvents = volumeGroupEvents;
-            Log.v(TAG, "onVolumeGroupEvent events " + volumeGroupEvents);
-            mVolumeGroupEventLatch.countDown();
         }
     }
 }
