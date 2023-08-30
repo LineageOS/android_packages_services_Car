@@ -26,7 +26,6 @@ import static android.os.Process.INVALID_UID;
 
 import static com.android.car.CarLog.TAG_AM;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.Nullable;
 import android.annotation.SuppressLint;
@@ -399,17 +398,11 @@ final class VendorServiceController implements UserLifecycleListener {
         // Start/bind service for system user.
         startOrBindServicesForUser(UserHandle.SYSTEM, /* forPostUnlock= */ null);
 
-        if (!isPlatformVersionAtLeastU()) {
-            // `user=visible` is not supported before U. Just need to handle the current user.
-            startOrBindServicesForUser(UserHandle.of(ActivityManager.getCurrentUser()),
-                    /* forPostUnlock= */ null);
-        } else {
-            // Start/bind service for all visible users.
-            Set<UserHandle> visibleUsers = mUserManager.getVisibleUsers();
-            for (Iterator<UserHandle> iterator = visibleUsers.iterator(); iterator.hasNext(); ) {
-                UserHandle userHandle = iterator.next();
-                startOrBindServicesForUser(userHandle, /* forPostUnlock= */ null);
-            }
+        // Start/bind service for all visible users.
+        Set<UserHandle> visibleUsers = mUserManager.getVisibleUsers();
+        for (Iterator<UserHandle> iterator = visibleUsers.iterator(); iterator.hasNext();) {
+            UserHandle userHandle = iterator.next();
+            startOrBindServicesForUser(userHandle, /* forPostUnlock= */ null);
         }
     }
 
@@ -465,15 +458,6 @@ final class VendorServiceController implements UserLifecycleListener {
                 continue;
             }
             VendorServiceInfo service = VendorServiceInfo.parse(rawServiceInfo);
-            // `user=visible` and `user=backgroundVisible` are not supported before U.
-            // Log an error and ignore the service.
-            if ((service.isVisibleUserService() || service.isBackgroundVisibleUserService())
-                    && !service.isAllUserService() && !isPlatformVersionAtLeastU()) {
-                Slogf.e(TAG, "user=visible and user=backgroundVisible are not supported in "
-                        + "this platform version. %s is ignored. Check your config.xml file.",
-                        service.toShortString());
-                continue;
-            }
             mVendorServiceInfos.add(service);
             if (DBG) {
                 Slogf.i(TAG, "Registered vendor service: " + service);

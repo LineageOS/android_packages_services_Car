@@ -16,7 +16,6 @@
 package com.android.car;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
@@ -99,14 +98,12 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     @Override
     public void init() {
         boolean assignPassengerActivityToFgGroup = false;
-        if (isPlatformVersionAtLeastU()) {
-            if (mContext.getResources().getBoolean(
-                    R.bool.config_assignPassengerActivityToForegroundCpuGroup)) {
-                CarOccupantZoneService occupantService = CarLocalServices.getService(
-                        CarOccupantZoneService.class);
-                if (occupantService.hasDriverZone() && occupantService.hasPassengerZones()) {
-                    assignPassengerActivityToFgGroup = true;
-                }
+        if (mContext.getResources().getBoolean(
+                R.bool.config_assignPassengerActivityToForegroundCpuGroup)) {
+            CarOccupantZoneService occupantService = CarLocalServices.getService(
+                    CarOccupantZoneService.class);
+            if (occupantService.hasDriverZone() && occupantService.hasPassengerZones()) {
+                assignPassengerActivityToFgGroup = true;
             }
         }
         synchronized (mLock) {

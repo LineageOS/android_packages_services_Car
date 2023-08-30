@@ -23,7 +23,6 @@ import static android.view.Display.STATE_ON;
 
 import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -1534,34 +1533,17 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     @VisibleForTesting
     @SuppressLint("NewApi")
     public boolean isUserVisible(@NonNull UserHandle user) {
-        if (isPlatformVersionAtLeastU()) {
-            // createContextAsUser throw exception if user does not exist. So it is not a reliable
-            // way to query it from car service. We need to catch the exception.
-            // TODO(b/243864134) Plumb to CarServiceHelper to use UserManagerInternal instead.
-            try {
-                Context userContext = mContext.createContextAsUser(user, /* flags= */ 0);
-                UserManager userManager = userContext.getSystemService(UserManager.class);
-                return userManager.isUserVisible();
-            } catch (Exception e) {
-                Slogf.w(TAG, "Cannot create User Context for user:" + user.getIdentifier(), e);
-                return false;
-            }
+        // createContextAsUser throw exception if user does not exist. So it is not a reliable
+        // way to query it from car service. We need to catch the exception.
+        // TODO(b/243864134) Plumb to CarServiceHelper to use UserManagerInternal instead.
+        try {
+            Context userContext = mContext.createContextAsUser(user, /* flags= */ 0);
+            UserManager userManager = userContext.getSystemService(UserManager.class);
+            return userManager.isUserVisible();
+        } catch (Exception e) {
+            Slogf.w(TAG, "Cannot create User Context for user:" + user.getIdentifier(), e);
+            return false;
         }
-
-        // This is legacy path for T where there is no visible user but we can still support profile
-        // user as visible as long as it belongs to the current user.
-        int currentUser = getCurrentUser();
-        int userId = user.getIdentifier();
-        if (userId == currentUser) {
-            return true;
-        }
-        synchronized (mLock) {
-            if (mProfileUsers.contains(userId)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /** Returns {@code true} if user allocation has changed */

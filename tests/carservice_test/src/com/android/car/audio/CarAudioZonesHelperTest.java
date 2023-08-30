@@ -15,7 +15,6 @@
  */
 package com.android.car.audio;
 
-import static android.car.PlatformVersion.VERSION_CODES.TIRAMISU_3;
 import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
@@ -1157,27 +1156,6 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
             SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
             assertThat(zones.size()).isEqualTo(1);
-        }
-    }
-
-    @Test
-    public void loadAudioZones_usingCoreAudioVersionThree_failsOnReleaseLessThanU_fails()
-            throws Exception {
-        mockCarGetPlatformVersion(TIRAMISU_3);
-        try (InputStream versionOneStream = mContext.getResources().openRawResource(
-                R.raw.car_audio_configuration_using_core_routing_and_volume)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionOneStream,
-                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    /* useCarVolumeGroupMute= */ false,
-                    /* useCoreAudioVolume= */ true, /* useCoreAudioRouting= */ true);
-
-            IllegalArgumentException thrown =
-                    assertThrows(IllegalArgumentException.class,
-                            () -> cazh.loadAudioZones());
-
-            assertWithMessage("Invalid release version exception").that(thrown)
-                    .hasMessageThat().contains("is only supported for release version");
         }
     }
 

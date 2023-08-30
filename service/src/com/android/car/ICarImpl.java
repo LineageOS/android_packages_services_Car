@@ -1089,10 +1089,7 @@ public class ICarImpl extends ICar.Stub {
 
         @Override
         public void initBootUser() throws RemoteException {
-            assertCallingFromSystemProcess();
-            EventLogHelper.writeCarServiceInitBootUser();
-            if (DBG) Slogf.d(TAG, "initBootUser(): ");
-            mCarUserService.initBootUser();
+            // TODO(b/277271542). Remove this code path.
         }
 
         // TODO(235524989): Remove this method as on user removed will now go through

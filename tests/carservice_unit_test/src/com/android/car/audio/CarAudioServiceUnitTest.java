@@ -18,7 +18,6 @@ package com.android.car.audio;
 
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS;
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME;
-import static android.car.PlatformVersion.VERSION_CODES.TIRAMISU_1;
 import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_AUDIO_MIRRORING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
@@ -1853,21 +1852,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         expectWithMessage("Oem service enabled with enabled focus service")
                 .that(isEnabled).isTrue();
-    }
-
-    @Test
-    public void isAudioFeatureEnabled_withEnabledFocusServiceAndReleaseLessThanU() {
-        mockCarGetPlatformVersion(TIRAMISU_1);
-        CarOemAudioFocusProxyService service = mock(CarOemAudioFocusProxyService.class);
-        when(mMockCarOemProxyService.isOemServiceEnabled()).thenReturn(true);
-        when(mMockCarOemProxyService.getCarOemAudioFocusService()).thenReturn(service);
-        mCarAudioService.init();
-
-        boolean isEnabled =
-                mCarAudioService.isAudioFeatureEnabled(AUDIO_FEATURE_OEM_AUDIO_SERVICE);
-
-        expectWithMessage("Oem service enabled with release less than U")
-                .that(isEnabled).isFalse();
     }
 
     @Test
