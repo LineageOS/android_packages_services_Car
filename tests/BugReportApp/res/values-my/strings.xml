@@ -46,13 +46,10 @@
     <string name="toast_status_failed" msgid="6365384202315043395">"ချွတ်ယွင်းမှု အစီရင်ခံ၍မရပါ"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"မျက်နှာပြင် ပုံဖမ်း၍ မရပါ"</string>
     <string name="toast_status_dump_state_failed" msgid="3496460783060512078">"Dumpstate မအောင်မြင်ပါ"</string>
-    <!-- no translation found for toast_screenshot_finished (539313383958984557) -->
-    <skip />
+    <string name="toast_screenshot_finished" msgid="539313383958984557">"သိမ်းထားသော ဖန်သားပြင်ဓာတ်ပုံ(များ)"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"ချွတ်ယွင်းမှု အစီရင်ခံစာကို ဆောင်ရွက်နေဆဲဖြစ်သည်"</string>
     <string name="notification_bugreport_finished_title" msgid="1188447311929693472">"ချွတ်ယွင်းမှု တိုင်ကြားချက်ကို စုစည်းပြီးပြီ"</string>
     <string name="notification_bugreport_channel_name" msgid="776902295433824255">"ချွတ်ယွင်းမှု အစီရင်ခံချက် အခြေအနေ ချန်နယ်"</string>
-    <!-- no translation found for notification_screenshot_message (4334354123333893911) -->
-    <skip />
-    <!-- no translation found for notification_screenshot_channel_name (147055389545365419) -->
-    <skip />
+    <string name="notification_screenshot_message" msgid="4334354123333893911">"ဖန်သားပြင်ဓာတ်ပုံ ရိုက်နေသည်"</string>
+    <string name="notification_screenshot_channel_name" msgid="147055389545365419">"ချွတ်ယွင်းချက်အစီရင်ခံစာ ဖန်သားပြင်ဓာတ်ပုံချန်နယ်"</string>
 </resources>

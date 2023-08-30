@@ -46,13 +46,10 @@
     <string name="toast_status_failed" msgid="6365384202315043395">"बग रिपोर्ट सङ्कलन गर्न सकिएन"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"स्क्रिनको फोटो खिच्न सकिएन"</string>
     <string name="toast_status_dump_state_failed" msgid="3496460783060512078">"Dumpstate ले काम गर्न सकेन"</string>
-    <!-- no translation found for toast_screenshot_finished (539313383958984557) -->
-    <skip />
+    <string name="toast_screenshot_finished" msgid="539313383958984557">"सेभ गरिएका स्क्रिनसट(हरू)"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"बग रिपोर्ट सङ्कलन गर्ने कार्य जारी छ"</string>
     <string name="notification_bugreport_finished_title" msgid="1188447311929693472">"त्रुटिसम्बन्धी रिपोर्ट सङ्कलन गरिएको छ"</string>
     <string name="notification_bugreport_channel_name" msgid="776902295433824255">"बग रिपोर्टको स्थिति देखाउने च्यानल"</string>
-    <!-- no translation found for notification_screenshot_message (4334354123333893911) -->
-    <skip />
-    <!-- no translation found for notification_screenshot_channel_name (147055389545365419) -->
-    <skip />
+    <string name="notification_screenshot_message" msgid="4334354123333893911">"स्क्रिनसट लिइँदै छ"</string>
+    <string name="notification_screenshot_channel_name" msgid="147055389545365419">"त्रुटिका सम्बन्धमा स्क्रिनसटसहित रिपोर्ट गर्ने च्यानल"</string>
 </resources>
