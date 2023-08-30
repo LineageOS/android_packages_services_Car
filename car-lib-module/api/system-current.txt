@@ -1996,11 +1996,38 @@ package android.car.projection {
 package android.car.remoteaccess {
 
   public final class CarRemoteAccessManager {
+    method @Nullable @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskScheduler getInVehicleTaskScheduler();
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public boolean isTaskScheduleSupported();
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void setPowerStatePostTaskExecution(int, boolean);
     field public static final int NEXT_POWER_STATE_OFF = 2; // 0x2
     field public static final int NEXT_POWER_STATE_ON = 1; // 0x1
     field public static final int NEXT_POWER_STATE_SUSPEND_TO_DISK = 4; // 0x4
     field public static final int NEXT_POWER_STATE_SUSPEND_TO_RAM = 3; // 0x3
+  }
+
+  public final class CarRemoteAccessManager.InVehicleTaskScheduler {
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public java.util.List<android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo> getAllScheduledTasks();
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public boolean isTaskScheduled(@NonNull String);
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void scheduleTask(@NonNull android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo);
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void unscheduleAllTasks();
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void unscheduleTask(@NonNull String);
+  }
+
+  public static final class CarRemoteAccessManager.ScheduleInfo {
+    method @NonNull public static android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo.Builder builder(@NonNull String, @NonNull byte[], long);
+    method public int getCount();
+    method @NonNull public java.time.Duration getPeriodic();
+    method @NonNull public String getScheduleId();
+    method public long getStartTimeInEpochSeconds();
+    method @NonNull public byte[] getTaskData();
+    field @NonNull public static final java.time.Duration PERIODIC_DAILY;
+    field @NonNull public static final java.time.Duration PERIODIC_WEEKLY;
+  }
+
+  public static final class CarRemoteAccessManager.ScheduleInfo.Builder {
+    method @NonNull public android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo build();
+    method @NonNull public android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo.Builder setCount(int);
+    method @NonNull public android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo.Builder setPeriodic(@NonNull java.time.Duration);
   }
 
 }
