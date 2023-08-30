@@ -1027,10 +1027,16 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         float wheelRightRearValue = 44.44f;
         long wheelRightRearTimestampNanos = Duration.ofSeconds(1).toNanos();
 
-        TestCallback callback = new TestCallback(/* initValueCount= */ 0, /* changeEventCount= */ 4,
+        // Initially we have 4 area Ids, so we will have 4 initial values. In the test we will
+        // inject 4 events which will generate 4 change events.
+        TestCallback callback = new TestCallback(/* initValueCount= */ 4, /* changeEventCount= */ 4,
                 /* errorEventCount= */ 0);
+        // AidlMockedVehicleHal will not actually genenerate property events for continuous
+        // property, so the subscription rate does not matter.
         assertThat(mManager.registerCallback(callback, VehiclePropertyIds.TIRE_PRESSURE, 1f))
                 .isTrue();
+
+        callback.assertRegisterCompleted();
 
         long currentElapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos();
         // inject events in time order from newest to oldest
