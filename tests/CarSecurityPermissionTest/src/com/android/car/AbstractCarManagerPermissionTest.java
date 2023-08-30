@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.android.compatibility.common.util.ShellIdentityUtils.invokeMethodWithShellPermissionsNoReturn;
+
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.car.Car;
@@ -45,6 +47,6 @@ public class AbstractCarManagerPermissionTest {
 
     @After
     public final void disconnectCar() {
-        mCar.disconnect();
+        invokeMethodWithShellPermissionsNoReturn(mCar, car -> car.disconnect());
     }
 }
