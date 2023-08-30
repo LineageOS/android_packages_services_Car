@@ -29,7 +29,7 @@ genrule {
 }
 
 gensrcs {
-    name: "dump-javastream-protos",
+    name: "gen-car-service-dump-javastream-protos",
 
     tools: [
         "aprotoc",
@@ -57,38 +57,33 @@ gensrcs {
     output_extension: "srcjar",
 }
 
-gensrcs {
-    name: "dump-cppstream-protos",
-
+genrule {
+    name: "gen-native-dump-cppstream-proto-headers",
     tools: [
         "aprotoc",
         "protoc-gen-cppstream",
     ],
-
     cmd: "mkdir -p $(genDir) " +
             "&& $(location aprotoc) " +
             "  --plugin=$(location protoc-gen-cppstream) " +
-            "  --cppstream_out=$(genDir)/packages/services/Car/service/proto/android/car/watchdog " +
+            "  --cppstream_out=$(genDir) " +
             "  --cppstream_opt=experimental_allow_proto3_optional " +
             "  -Iexternal/protobuf/src " +
-            "  -Ipackages/services/Car/service/proto/android/car/watchdog" +
+            "  -Ipackages/services/Car/service/proto/android/car/watchdog " +
             "  $(in) ",
-
     srcs: [
-        "proto/android/car/watchdog/carwatchdog_daemon_dump.proto",
-        "proto/android/car/watchdog/performance_stats.proto",
-        "proto/android/car/watchdog/health_check_client_info.proto",
+        ":native-dump-proto-srcs",
     ],
 
-    data: [
-        ":libprotobuf-internal-protos",
+    out: [
+        "carwatchdog_daemon_dump.proto.h",
+        "performance_stats.proto.h",
+        "health_check_client_info.proto.h",
     ],
-
-    output_extension: "proto.h",
 }
 
 genrule {
-    name: "watchdog-protos-headers",
+    name: "gen-native-dump-proto-headers",
     tools: [
         "aprotoc",
     ],
@@ -99,9 +94,7 @@ genrule {
             "  --proto_path=packages/services/Car/service/proto/android/car/watchdog " +
             "  $(in) ",
     srcs: [
-        "proto/android/car/watchdog/carwatchdog_daemon_dump.proto",
-        "proto/android/car/watchdog/performance_stats.proto",
-        "proto/android/car/watchdog/health_check_client_info.proto",
+        ":native-dump-proto-srcs",
     ],
     out: [
         "carwatchdog_daemon_dump.pb.h",
@@ -111,7 +104,7 @@ genrule {
 }
 
 genrule {
-    name: "watchdog-protos-srcs",
+    name: "gen-native-dump-proto-srcs",
     tools: [
         "aprotoc",
     ],
@@ -122,9 +115,7 @@ genrule {
             "  --proto_path=packages/services/Car/service/proto/android/car/watchdog " +
             "  $(in) ",
     srcs: [
-        "proto/android/car/watchdog/carwatchdog_daemon_dump.proto",
-        "proto/android/car/watchdog/performance_stats.proto",
-        "proto/android/car/watchdog/health_check_client_info.proto",
+        ":native-dump-proto-srcs",
     ],
     out: [
         "carwatchdog_daemon_dump.pb.cc",
@@ -139,7 +130,16 @@ filegroup {
         "proto/android/car/**/*_dump.proto",
     ],
     exclude_srcs: [
-        "proto/android/car/watchdog/carwatchdog_daemon_dump.proto",
+         ":native-dump-proto-srcs",
+    ],
+}
+
+filegroup {
+    name: "native-dump-proto-srcs",
+    srcs: [
+       "proto/android/car/watchdog/*_daemon_dump.proto",
+       "proto/android/car/watchdog/performance_stats.proto",
+       "proto/android/car/watchdog/health_check_client_info.proto",
     ],
 }
 
@@ -163,7 +163,7 @@ java_defaults {
         ":cartelemetryservice-proto-srcs",
         ":car-service-non-dump-proto-srcs",
         ":com.android.car.procfsinspector-client-src",
-        ":dump-javastream-protos",
+        ":gen-car-service-dump-javastream-protos",
         ":iscriptexecutor_aidl",
         ":statslog-Car-java-gen",
         ":VhalTestVendorProperties",
