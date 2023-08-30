@@ -22,7 +22,7 @@
     <string name="couldnt_launch" msgid="7815676424138012351">"No se ha podido iniciar la actividad"</string>
     <string name="select_display" msgid="1682700853391296117">"Selecciona una pantalla"</string>
     <string name="add_app_shortcut" msgid="8873512136913188432">"Añadir acceso directo a la aplicación"</string>
-    <string name="set_wallpaper" msgid="3650915172749345197">"Establecer fondo de pantalla"</string>
+    <string name="set_wallpaper" msgid="3650915172749345197">"Establecer fondo"</string>
     <string name="new_instance" msgid="1924479866055190730">"Solicitar lanzamiento en nueva instancia"</string>
     <string name="wallpaper_description" msgid="5885164573334720996">"Ejemplo de fondo para varias pantallas"</string>
     <string name="exit" msgid="3648703694102318310">"Salir"</string>
