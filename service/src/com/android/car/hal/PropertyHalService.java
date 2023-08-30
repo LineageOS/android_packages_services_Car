@@ -34,7 +34,8 @@ import static android.car.hardware.property.VehicleHalStatusCode.STATUS_TRY_AGAI
 
 import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
+import static com.android.car.internal.property.CarPropertyErrorCodes.convertVhalStatusCodeToCarPropertyManagerErrorCodes;
+import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
 import static com.android.car.internal.property.CarPropertyHelper.isSystemProperty;
 import static com.android.car.internal.property.GetSetValueResult.newGetValueResult;
 import static com.android.car.internal.property.InputSanitizationUtils.sanitizeUpdateRateHz;
@@ -83,6 +84,7 @@ import com.android.car.internal.LongPendingRequestPool;
 import com.android.car.internal.LongPendingRequestPool.TimeoutCallback;
 import com.android.car.internal.LongRequestIdWithTimeout;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
+import com.android.car.internal.property.CarPropertyErrorCodes;
 import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.GetSetValueResult;
@@ -661,7 +663,7 @@ public class PropertyHalService extends HalServiceBase {
                     }
 
                     int carPropMgrErrorCode = getVehicleStubAsyncResult.getErrorCode();
-                    if (carPropMgrErrorCode == VehicleStub.STATUS_TRY_AGAIN) {
+                    if (carPropMgrErrorCode == CarPropertyErrorCodes.STATUS_TRY_AGAIN) {
                         // The request might need to be retried.
                         if (DBG) {
                             Slogf.d(TAG, "request: %s try again", clientRequestInfo);
@@ -754,7 +756,7 @@ public class PropertyHalService extends HalServiceBase {
                     }
                     int carPropMgrErrorCode = setVehicleStubAsyncResult.getErrorCode();
 
-                    if (carPropMgrErrorCode == VehicleStub.STATUS_TRY_AGAIN) {
+                    if (carPropMgrErrorCode == CarPropertyErrorCodes.STATUS_TRY_AGAIN) {
                         // The request might need to be retried.
                         retryRequests.add(clientRequestInfo);
                         removePendingAsyncPropRequestInfoLocked(clientRequestInfo);
@@ -1552,7 +1554,7 @@ public class PropertyHalService extends HalServiceBase {
             for (int i = 0; i < vehiclePropErrors.size(); i++) {
                 VehiclePropError vehiclePropError = vehiclePropErrors.get(i);
                 int mgrPropId = halToManagerPropId(vehiclePropError.propId);
-                int vhalErrorCode = CarPropertyHelper.getVhalSystemErrorCode(
+                int vhalErrorCode = CarPropertyErrorCodes.getVhalSystemErrorCode(
                         vehiclePropError.errorCode);
                 Slogf.w(TAG,
                         "onPropertySetError for property: %s, area ID: %d, vhal error code: %d",
@@ -1583,13 +1585,17 @@ public class PropertyHalService extends HalServiceBase {
                         continue;
                     }
                     removePendingAsyncPropRequestInfoLocked(pendingRequest);
-                    int[] errorCodes = VehicleStub.convertHalToCarPropertyManagerError(
-                            vehiclePropError.errorCode);
+                    CarPropertyErrorCodes carPropertyErrorCodes =
+                            convertVhalStatusCodeToCarPropertyManagerErrorCodes(
+                                    vehiclePropError.errorCode);
                     GetSetValueResult errorResult = pendingRequest.toErrorResult(
-                            errorCodes[0], errorCodes[1]);
+                            carPropertyErrorCodes.getCarPropertyManagerErrorCode(),
+                            carPropertyErrorCodes.getVendorErrorCode());
                     Slogf.w(TAG, "Pending async set request received property set error with "
                             + "error: %d, vendor error code: %d, fail the pending request: %s",
-                            errorCodes[0], errorCodes[1], pendingRequest);
+                            carPropertyErrorCodes.getCarPropertyManagerErrorCode(),
+                            carPropertyErrorCodes.getVendorErrorCode(),
+                            pendingRequest);
                     storeResultForRequest(errorResult, pendingRequest, callbackToSetValueResults);
                 }
             }

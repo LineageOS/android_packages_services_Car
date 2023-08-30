@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.android.car.internal.property.CarPropertyErrorCodes.convertVhalStatusCodeToCarPropertyManagerErrorCodes;
+
 import android.annotation.Nullable;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.os.TraceHelper;
@@ -59,6 +61,7 @@ import com.android.car.internal.LargeParcelable;
 import com.android.car.internal.LongPendingRequestPool;
 import com.android.car.internal.LongPendingRequestPool.TimeoutCallback;
 import com.android.car.internal.LongRequestIdWithTimeout;
+import com.android.car.internal.property.CarPropertyErrorCodes;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.modules.expresslog.Histogram;
@@ -906,9 +909,11 @@ final class AidlVehicleStub extends VehicleStub {
         private GetVehicleStubAsyncResult toVehicleStubResult(int serviceRequestId,
                 GetValueResult vhalResult) {
             if (vhalResult.status != StatusCode.OK) {
-                int[] errorCodes = convertHalToCarPropertyManagerError(vhalResult.status);
+                CarPropertyErrorCodes carPropertyErrorCodes =
+                        convertVhalStatusCodeToCarPropertyManagerErrorCodes(vhalResult.status);
                 return new GetVehicleStubAsyncResult(serviceRequestId,
-                        errorCodes[0], errorCodes[1]);
+                        carPropertyErrorCodes.getCarPropertyManagerErrorCode(),
+                        carPropertyErrorCodes.getVendorErrorCode());
             } else if (vhalResult.prop == null) {
                 // If status is OKAY but no property is returned, treat it as not_available.
                 return new GetVehicleStubAsyncResult(serviceRequestId,
@@ -957,9 +962,11 @@ final class AidlVehicleStub extends VehicleStub {
         private SetVehicleStubAsyncResult toVehicleStubResult(int serviceRequestId,
                 SetValueResult vhalResult) {
             if (vhalResult.status != StatusCode.OK) {
-                int[] errorCodes = convertHalToCarPropertyManagerError(vhalResult.status);
+                CarPropertyErrorCodes carPropertyErrorCodes =
+                        convertVhalStatusCodeToCarPropertyManagerErrorCodes(vhalResult.status);
                 return new SetVehicleStubAsyncResult(serviceRequestId,
-                        errorCodes[0], errorCodes[1]);
+                        carPropertyErrorCodes.getCarPropertyManagerErrorCode(),
+                        carPropertyErrorCodes.getVendorErrorCode());
             }
             return new SetVehicleStubAsyncResult(serviceRequestId);
         }
@@ -1032,9 +1039,14 @@ final class AidlVehicleStub extends VehicleStub {
                     asyncResultsHandler);
             return;
         } catch (ServiceSpecificException e) {
-            int[] errorCodes = convertHalToCarPropertyManagerError(e.errorCode);
-            handleAsyncExceptionFromVhal(asyncRequestsHandler, vehicleStubCallback,
-                    errorCodes[0], errorCodes[1], asyncResultsHandler);
+            CarPropertyErrorCodes carPropertyErrorCodes =
+                    convertVhalStatusCodeToCarPropertyManagerErrorCodes(e.errorCode);
+            handleAsyncExceptionFromVhal(
+                    asyncRequestsHandler,
+                    vehicleStubCallback,
+                    carPropertyErrorCodes.getCarPropertyManagerErrorCode(),
+                    carPropertyErrorCodes.getVendorErrorCode(),
+                    asyncResultsHandler);
             return;
         }
     }

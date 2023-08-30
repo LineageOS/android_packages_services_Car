@@ -28,9 +28,6 @@ import java.util.List;
 
 public final class CarPropertyHelperUnitTest extends AbstractExpectableTestCase {
 
-    private static final int SYSTEM_ERROR_CODE = 0x0123;
-    private static final int VENDOR_ERROR_CODE = 0x1234;
-    private static final int COMBINED_ERROR_CODE = 0x12340123;
     private static final int TEST_PROPERTY_ID1 = 0x234;
     private static final int TEST_PROPERTY_ID2 = 0x54321;
     private static final int SYSTEM_PROPERTY = VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS;
@@ -58,18 +55,6 @@ public final class CarPropertyHelperUnitTest extends AbstractExpectableTestCase 
     @Test
     public void testIsSupported_backportedProperty() {
         assertThat(CarPropertyHelper.isSupported(BACKPORTED_PROPERTY)).isTrue();
-    }
-
-    @Test
-    public void testGetVhalSystemErrorcode() {
-        assertThat(CarPropertyHelper.getVhalSystemErrorCode(COMBINED_ERROR_CODE)).isEqualTo(
-                SYSTEM_ERROR_CODE);
-    }
-
-    @Test
-    public void testGetVhalVendorErrorCode() {
-        assertThat(CarPropertyHelper.getVhalVendorErrorCode(COMBINED_ERROR_CODE)).isEqualTo(
-                VENDOR_ERROR_CODE);
     }
 
     @Test
