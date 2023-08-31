@@ -31,6 +31,7 @@ import android.car.builtin.view.ViewHelper;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
+import android.graphics.Region;
 import android.os.UserManager;
 import android.view.Display;
 import android.view.SurfaceControl;
@@ -255,5 +256,61 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
                 + "  taskId=" + (getTaskInfo() == null ? "null" : getTaskInfo().taskId) + "\n"
                 + (withBounds ? ("  boundsOnScreen=" + mTmpRect) : "")
                 + "}\n";
+    }
+
+    // Since SurfaceView is public, these methods need to be overridden. Details in b/296680464.
+    @Override
+    @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
+    @MainThread
+    public void addInsets(int index, int type, @NonNull Rect frame) {
+        super.addInsets(index, type, frame);
+    }
+
+    @Override
+    @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
+    public void removeInsets(int index, int type) {
+        super.removeInsets(index, type);
+    }
+
+    @Override
+    @MainThread
+    public void release() {
+        super.release();
+    }
+
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+    }
+
+
+    @Override
+    public void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+    }
+
+    @Override
+    @MainThread
+    public boolean isInitialized() {
+        return super.isInitialized();
+    }
+
+    @Override
+    @MainThread
+    public void setObscuredTouchRegion(@NonNull Region obscuredRegion) {
+        super.setObscuredTouchRegion(obscuredRegion);
+    }
+
+    @Override
+    @MainThread
+    public void setObscuredTouchRect(@NonNull Rect obscuredRect) {
+        super.setObscuredTouchRect(obscuredRect);
+    }
+
+    @Override
+    @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
+    @MainThread
+    public void updateWindowBounds() {
+        super.updateWindowBounds();
     }
 }
