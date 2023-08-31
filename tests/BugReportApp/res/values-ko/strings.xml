@@ -46,13 +46,10 @@
     <string name="toast_status_failed" msgid="6365384202315043395">"버그 신고 실패"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"화면 캡처에 실패했습니다."</string>
     <string name="toast_status_dump_state_failed" msgid="3496460783060512078">"Dumpstate 실패"</string>
-    <!-- no translation found for toast_screenshot_finished (539313383958984557) -->
-    <skip />
+    <string name="toast_screenshot_finished" msgid="539313383958984557">"저장한 스크린샷"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"버그 신고가 진행 중입니다."</string>
     <string name="notification_bugreport_finished_title" msgid="1188447311929693472">"버그 신고 접수됨"</string>
     <string name="notification_bugreport_channel_name" msgid="776902295433824255">"버그 신고 상태 채널"</string>
-    <!-- no translation found for notification_screenshot_message (4334354123333893911) -->
-    <skip />
-    <!-- no translation found for notification_screenshot_channel_name (147055389545365419) -->
-    <skip />
+    <string name="notification_screenshot_message" msgid="4334354123333893911">"스크리샷 찍기"</string>
+    <string name="notification_screenshot_channel_name" msgid="147055389545365419">"버그 신고 스크린샷 채널"</string>
 </resources>
