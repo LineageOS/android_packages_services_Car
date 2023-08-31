@@ -20,6 +20,6 @@
     <string name="default_sensor_string" msgid="3994996854548513870">"लागू नहीं"</string>
     <string name="task_view_not_ready_message" msgid="3019570837236183122">"कृपया सिस्टम के लोड होने का इंतज़ार करें"</string>
     <string name="current_profile_subtitle" msgid="2466874755719023023">"मौजूदा प्रोफ़ाइल"</string>
-    <string name="aloha_welcome_message" msgid="4150763169818898412">"एएओएस"</string>
-    <string name="aloha_action_button_text" msgid="168403306904814629">"जारी रखें"</string>
+    <string name="loading_welcome_message" msgid="2351582619179505398">"एएओएस"</string>
+    <string name="loading_action_button_text" msgid="1296096984805774507">"जारी रखें"</string>
 </resources>
