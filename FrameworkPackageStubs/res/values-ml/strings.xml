@@ -4,5 +4,9 @@
     <string name="app_name" msgid="6179574017413146651">"ആക്‌റ്റിവിറ്റി സ്‌റ്റബ്"</string>
     <string name="message_not_supported" msgid="133939962837892495">"ഒരു ആപ്പിനും ഈ പ്രവർത്തനം ഹാൻഡിൽ ചെയ്യാനാവില്ല"</string>
     <string name="pip_not_supported" msgid="8681268258599412706">"ചിത്രത്തിനുള്ളിലെ ചിത്രത്തിന് ഈ ഉപകരണത്തിൽ പിന്തുണയില്ല"</string>
+    <!-- no translation found for manage_unknown_app_sources_not_supported (7368611099531260439) -->
+    <skip />
+    <!-- no translation found for documentsui_not_supported (2786636475647817501) -->
+    <skip />
     <string name="stub_name" msgid="3987164490218189006">"ഒന്നുമില്ല"</string>
 </resources>
