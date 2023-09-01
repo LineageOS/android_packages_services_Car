@@ -16,7 +16,6 @@
 
 package com.android.car.audio;
 
-import static android.car.PlatformVersion.VERSION_CODES.TIRAMISU_3;
 import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED;
@@ -233,15 +232,6 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
         verify(mMockAudioManager).setVolumeGroupVolumeIndex(
                 eq(MUSIC_GROUP_ID), eq(index), anyInt());
-    }
-
-    @Test
-    public void getAmLastAudibleIndex_witVersionLessThanU() {
-        mockCarGetPlatformVersion(TIRAMISU_3);
-
-        expectWithMessage("Initial am gain index when version is less than U")
-                .that(mMusicCoreAudioVolumeGroup.getAmLastAudibleIndex())
-                .isEqualTo(0);
     }
 
     @Test

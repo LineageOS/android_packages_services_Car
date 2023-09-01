@@ -16,8 +16,6 @@
 
 package android.car.app;
 
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeast;
-
 import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -26,7 +24,6 @@ import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.PendingIntent;
 import android.car.Car;
-import android.car.PlatformVersion;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.SurfaceControlHelper;
 import android.car.builtin.view.TouchableInsetsProvider;
@@ -62,7 +59,6 @@ public abstract class RemoteCarTaskView extends SurfaceView {
 
     RemoteCarTaskView(Context context) {
         super(context);
-        assertPlatformVersionAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0);
         mTouchableInsetsProvider = new TouchableInsetsProvider(this);
         getHolder().addCallback(mSurfaceCallbackHandler);
     }

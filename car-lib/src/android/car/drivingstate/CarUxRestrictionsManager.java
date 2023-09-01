@@ -16,8 +16,6 @@
 
 package android.car.drivingstate;
 
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
-
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
@@ -406,13 +404,6 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
     }
 
     private int getDisplayId() {
-        if (!isPlatformVersionAtLeastU()) {
-            mDisplayId = Display.DEFAULT_DISPLAY;
-            Log.d(TAG, "Returning default display id=" + mDisplayId +
-                " on earlier than U platform.");
-            return mDisplayId;
-        }
-
         if (mDisplayId != Display.INVALID_DISPLAY) {
             return mDisplayId;
         }
