@@ -18,7 +18,6 @@ package android.car.apitest;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.VehiclePropertyIds;
-import android.car.annotation.ApiRequirements;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.SparseArray;
@@ -61,8 +60,6 @@ public final class VehiclePropertyIdsTest extends CarLessApiTestBase {
 
     @Test
     @NonApiTest(exemptionReasons = {}, justification = "Large number of constant fields")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testMatchingVehiclePropertyNamesInVehicleHal() {
         List<String> carServiceNames = getListOfConstantNames(VehiclePropertyIds.class);
         List<String> vhalNames = getListOfConstantNames(VehicleProperty.class);
@@ -95,8 +92,6 @@ public final class VehiclePropertyIdsTest extends CarLessApiTestBase {
 
     @Test
     @NonApiTest(exemptionReasons = {}, justification = "Large number of constant fields")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testMatchingVehiclePropertyValuesInVehicleHal() {
         List<String> carServiceNames = getListOfConstantNames(VehiclePropertyIds.class);
         List<String> vhalNames = getListOfConstantNames(VehicleProperty.class);
