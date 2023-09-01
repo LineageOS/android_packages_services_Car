@@ -655,7 +655,7 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permission:
      * <ul>
-     *  <li>Dangerous permission {@link Car#PERMISSION_SPEED} to read property.
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
      *  <li>Property is not writable.
      * </ul>
      */
