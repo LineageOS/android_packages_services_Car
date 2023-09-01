@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.android.car;
 
 import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
@@ -24,7 +25,6 @@ import static com.android.car.CarServiceUtils.getCommonHandlerThread;
 import static com.android.car.CarServiceUtils.getContentResolverForUser;
 import static com.android.car.CarServiceUtils.isEventOfType;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -113,7 +113,7 @@ public class CarInputService extends ICarInput.Stub
     public interface KeyEventListener {
         /** Called when a key event occurs. */
         // TODO(b/247170915): This method is no needed anymore, please remove and use
-        //  onKeyEvent(KeyEvent event, intDisplayType, int seat)
+        // onKeyEvent(KeyEvent event, intDisplayType, int seat)
         default void onKeyEvent(KeyEvent event) {
         }
 
@@ -121,12 +121,12 @@ public class CarInputService extends ICarInput.Stub
          * Called when a key event occurs with seat.
          *
          * @param event the key event that occurred
-         * @param displayType target display the event is associated with
-         *                    should be one of {@link CarOccupantZoneManager#DISPLAY_TYPE_MAIN},
-         *                    {@link CarOccupantZoneManager#DISPLAY_TYPE_INSTRUMENT_CLUSTER},
-         *                    {@link CarOccupantZoneManager#DISPLAY_TYPE_HUD},
-         *                    {@link CarOccupantZoneManager#DISPLAY_TYPE_INPUT},
-         *                    {@link CarOccupantZoneManager#DISPLAY_TYPE_AUXILIARY},
+         * @param displayType target display the event is associated with should be one of
+         *            {@link CarOccupantZoneManager#DISPLAY_TYPE_MAIN},
+         *            {@link CarOccupantZoneManager#DISPLAY_TYPE_INSTRUMENT_CLUSTER},
+         *            {@link CarOccupantZoneManager#DISPLAY_TYPE_HUD},
+         *            {@link CarOccupantZoneManager#DISPLAY_TYPE_INPUT},
+         *            {@link CarOccupantZoneManager#DISPLAY_TYPE_AUXILIARY},
          * @param seat the area id this event is occurring from
          */
         default void onKeyEvent(KeyEvent event, @DisplayTypeEnum int displayType,
@@ -197,16 +197,16 @@ public class CarInputService extends ICarInput.Stub
     private final VoiceInteractionSessionShowCallbackHelper mShowCallback;
     static final VoiceInteractionSessionShowCallbackHelper sDefaultShowCallback =
             new VoiceInteractionSessionShowCallbackHelper() {
-                @Override
-                public void onFailed() {
-                    Slogf.w(TAG, "Failed to show VoiceInteractionSession");
-                }
+        @Override
+        public void onFailed() {
+            Slogf.w(TAG, "Failed to show VoiceInteractionSession");
+        }
 
-                @Override
-                public void onShown() {
-                    Slogf.d(TAG, "VoiceInteractionSessionShowCallbackHelper onShown()");
-                }
-            };
+        @Override
+        public void onShown() {
+            Slogf.d(TAG, "VoiceInteractionSessionShowCallbackHelper onShown()");
+        }
+    };
 
     private final Context mContext;
     private final InputHalService mInputHalService;
@@ -297,7 +297,7 @@ public class CarInputService extends ICarInput.Stub
 
     private static int getViewLongPressDelay(Context context) {
         return Settings.Secure.getInt(getContentResolverForUser(context,
-                        UserHandle.CURRENT.getIdentifier()), LONG_PRESS_TIMEOUT,
+                UserHandle.CURRENT.getIdentifier()), LONG_PRESS_TIMEOUT,
                 ViewConfiguration.getLongPressTimeout());
     }
 
@@ -352,11 +352,10 @@ public class CarInputService extends ICarInput.Stub
         mUserManager = userManager;
         mShowCallback = showCallback;
 
-        mVoiceKeyTimer =
-                new KeyPressTimer(
-                        handler, longPressDelaySupplier, this::handleVoiceAssistLongPress);
-        mCallKeyTimer =
-                new KeyPressTimer(handler, longPressDelaySupplier, this::handleCallLongPress);
+        mVoiceKeyTimer = new KeyPressTimer(
+                handler, longPressDelaySupplier, this::handleVoiceAssistLongPress);
+        mCallKeyTimer = new KeyPressTimer(handler, longPressDelaySupplier,
+                this::handleCallLongPress);
 
         mRotaryServiceComponentName = mContext.getString(R.string.rotaryService);
         mShouldCallButtonEndOngoingCallSupplier = shouldCallButtonEndOngoingCallSupplier;
@@ -379,7 +378,6 @@ public class CarInputService extends ICarInput.Stub
             }
         }
     }
-
 
     /**
      * This method registers a keyEventListener to listen on key events that it is interested in.
@@ -448,8 +446,9 @@ public class CarInputService extends ICarInput.Stub
 
     /**
      * Called for key event
-     * @throws IllegalArgumentException if the passed seat is an unknown seat and the driver seat
-     *                                  is not an unknown seat
+     *
+     * @throws IllegalArgumentException if the passed seat is an unknown seat and the driver seat is
+     *             not an unknown seat
      */
     @Override
     public void onKeyEvent(KeyEvent event, @DisplayTypeEnum int targetDisplayType,
@@ -480,7 +479,7 @@ public class CarInputService extends ICarInput.Stub
         switch (event.getKeyCode()) {
             case KeyEvent.KEYCODE_VOICE_ASSIST:
                 // TODO: b/288107028 - Pass target display type to handleVoiceAssistKey()
-                //  when passenger displays support voice assist keys
+                // when passenger displays support voice assist keys
                 handleVoiceAssistKey(event, targetDisplayType);
                 return;
             case KeyEvent.KEYCODE_CALL:
@@ -554,14 +553,7 @@ public class CarInputService extends ICarInput.Stub
             @VehicleAreaSeat.Enum int seat) {
         int newDisplayId = getDisplayIdForSeat(targetDisplayType, seat);
 
-        if (isPlatformVersionAtLeastU()) {
-            InputEventHelper.setDisplayId(event, newDisplayId);
-        } else if (event instanceof KeyEvent) {
-            KeyEventHelper.setDisplayId((KeyEvent) event, newDisplayId);
-        } else {
-            Slogf.e(TAG, "Assigning display id to motion event is only supported from %s.",
-                    UPSIDE_DOWN_CAKE_0);
-        }
+        InputEventHelper.setDisplayId(event, newDisplayId);
     }
 
     private int getDisplayIdForSeat(@DisplayTypeEnum int targetDisplayType,
@@ -667,7 +659,7 @@ public class CarInputService extends ICarInput.Stub
      * The event's display id will be overwritten accordingly to the display type (it will be
      * retrieved from {@link CarOccupantZoneService}).
      *
-     * @param event             the event to inject
+     * @param event the event to inject
      * @param targetDisplayType the display type associated with the event
      * @throws SecurityException when caller doesn't have INJECT_EVENTS permission granted
      */
@@ -694,9 +686,9 @@ public class CarInputService extends ICarInput.Stub
      * The event's display id will be overwritten accordingly to the display type (it will be
      * retrieved from {@link CarOccupantZoneService}).
      *
-     * @param event             the event to inject
+     * @param event the event to inject
      * @param targetDisplayType the display type associated with the event
-     * @param seat              the seat associated with the event
+     * @param seat the seat associated with the event
      * @throws SecurityException when caller doesn't have INJECT_EVENTS permission granted
      */
     public void injectKeyEventForSeat(KeyEvent event, @DisplayTypeEnum int targetDisplayType,
@@ -722,9 +714,9 @@ public class CarInputService extends ICarInput.Stub
      * The event's display id will be overwritten accordingly to the display type (it will be
      * retrieved from {@link CarOccupantZoneService}).
      *
-     * @param event             the event to inject
+     * @param event the event to inject
      * @param targetDisplayType the display type associated with the event
-     * @param seat              the seat associated with the event
+     * @param seat the seat associated with the event
      * @throws SecurityException when caller doesn't have INJECT_EVENTS permission granted
      */
     public void injectMotionEventForSeat(MotionEvent event, @DisplayTypeEnum int targetDisplayType,
@@ -764,7 +756,7 @@ public class CarInputService extends ICarInput.Stub
             }
 
             // TODO: b/288107028 - Pass the actual target display type to onKeyEvent
-            //  when passenger displays support voice assist keys
+            // when passenger displays support voice assist keys
             if (mCaptureController.onKeyEvent(targetDisplayType, event)) {
                 return;
             }
@@ -967,7 +959,7 @@ public class CarInputService extends ICarInput.Stub
 
     /**
      * @return false if the KeyEvent isn't consumed because there is no
-     * InstrumentClusterKeyListener.
+     *         InstrumentClusterKeyListener.
      */
     private boolean handleInstrumentClusterKey(KeyEvent event) {
         KeyEventListener listener = null;
@@ -982,8 +974,8 @@ public class CarInputService extends ICarInput.Stub
     }
 
     private List<String> getAccessibilityServicesToBeEnabled() {
-        String carSafetyAccessibilityServiceComponentName =
-                BuiltinPackageDependency.getComponentName(CAR_ACCESSIBILITY_SERVICE_CLASS);
+        String carSafetyAccessibilityServiceComponentName = BuiltinPackageDependency
+                .getComponentName(CAR_ACCESSIBILITY_SERVICE_CLASS);
         ArrayList<String> accessibilityServicesToBeEnabled = new ArrayList<>();
         accessibilityServicesToBeEnabled.add(carSafetyAccessibilityServiceComponentName);
         if (!TextUtils.isEmpty(mRotaryServiceComponentName)) {
@@ -1012,7 +1004,8 @@ public class CarInputService extends ICarInput.Stub
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    public void dumpProto(ProtoOutputStream proto) {}
+    public void dumpProto(ProtoOutputStream proto) {
+    }
 
     private void updateCarAccessibilityServicesSettings(@UserIdInt int userId) {
         if (UserHelperLite.isHeadlessSystemUser(userId)) {

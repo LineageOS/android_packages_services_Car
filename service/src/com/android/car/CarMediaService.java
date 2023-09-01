@@ -30,7 +30,6 @@ import static com.android.car.CarServiceUtils.assertPermission;
 import static com.android.car.CarServiceUtils.getCommonHandlerThread;
 import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -391,12 +390,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         UserLifecycleEventFilter.Builder userLifecycleEventFilterBuilder =
                 new UserLifecycleEventFilter.Builder()
                         .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED);
-        if (isPlatformVersionAtLeastU()) {
-            userLifecycleEventFilterBuilder.addEventType(USER_LIFECYCLE_EVENT_TYPE_INVISIBLE)
-                    .addEventType(USER_LIFECYCLE_EVENT_TYPE_VISIBLE);
-        } else {
-            userLifecycleEventFilterBuilder.addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
-        }
+        userLifecycleEventFilterBuilder.addEventType(USER_LIFECYCLE_EVENT_TYPE_INVISIBLE)
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_VISIBLE);
         mUserService.addUserLifecycleListener(userLifecycleEventFilterBuilder.build(),
                 mUserLifecycleListener);
 
@@ -1252,7 +1247,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         // events do not capture media app usage on AAOS because apps are hosted by a proxy such as
         // Media Center. Reporting a USER_INTERACTION event in setPrimaryMediaSource allows
         // attribution of non-foreground media app interactions to the app's package name
-        if (isPlatformVersionAtLeastU() && componentName != null) {
+        if (componentName != null) {
             UsageStatsManagerHelper.reportUserInteraction(mUsageStatsManager,
                     componentName.getPackageName(), userId);
         }

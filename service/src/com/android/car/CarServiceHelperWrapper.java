@@ -17,7 +17,6 @@
 package com.android.car;
 
 import static com.android.car.internal.common.CommonConstants.INVALID_PID;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -283,9 +282,6 @@ public final class CarServiceHelperWrapper {
      * See {@code ICarServiceHelper}.
      */
     public int fetchAidlVhalPid() {
-        if (!isPlatformVersionAtLeastU()) {
-            return INVALID_PID;
-        }
         try {
             return waitForCarServiceHelper().fetchAidlVhalPid();
         } catch (RemoteException e) {

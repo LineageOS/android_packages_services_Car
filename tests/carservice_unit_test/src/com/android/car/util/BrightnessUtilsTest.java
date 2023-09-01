@@ -18,7 +18,6 @@ package com.android.car.util;
 
 import static com.android.car.util.BrightnessUtils.GAMMA_SPACE_MAX;
 import static com.android.car.util.BrightnessUtils.GAMMA_SPACE_MIN;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -88,14 +87,6 @@ public class BrightnessUtilsTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testBrightnessIntToFloat_platformVersionLower() {
-        doReturn(false).when(() -> VersionUtils.isPlatformVersionAtLeastU());
-
-        assertThat(BrightnessUtils.brightnessIntToFloat(100))
-                .isEqualTo(BrightnessUtils.INVALID_BRIGHTNESS_IN_FLOAT);
-    }
-
-    @Test
     public void brightnessFloatToInt_shouldReturnMin() {
         assertThat(BrightnessUtils.brightnessFloatToInt(MIN_FLOAT)).isEqualTo(MIN_INT);
     }
@@ -113,12 +104,5 @@ public class BrightnessUtilsTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testBrightnessFloatToInt() {
         assertThat(BrightnessUtils.brightnessFloatToInt(0.5f)).isEqualTo(128);
-    }
-
-    @Test
-    public void testBrightnessFloatToInt_platformVersionLower() {
-        doReturn(false).when(() -> VersionUtils.isPlatformVersionAtLeastU());
-
-        assertThat(BrightnessUtils.brightnessFloatToInt(0.5f)).isEqualTo(INVALID_BRIGHTNESS);
     }
 }
