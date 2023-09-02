@@ -486,7 +486,7 @@
     <string name="auth_device_credential" translatable="false">Auth by device credential</string>
     <string name="auth_biometric" translatable="false">Auth by biometric</string>
     <string name="auth_device_credential_intent" translatable="false">Auth by createConfirmDeviceCredentialIntent</string>
-    
+
     <!-- Remote access test -->
     <string name="refresh_remote_task">Refresh</string>
     <string name="clear_remote_task">Clear</string>
@@ -494,6 +494,15 @@
     <string name="task_id">Task ID</string>
     <string name="task_data">Task Data</string>
     <string name="remaining_time_sec">Remaining Time(s)</string>
+    <string-array name="remote_task_types" translatable="false">
+          <item>Set HVAC Temp</item>
+          <item>Specify task data</item>
+    </string-array>
+    <string name="schedule_task">Schedule Task</string>
+    <string name="remote_task_data_title">Task Data:</string>
+    <string name="task_delay_title">Task start delay (s):</string>
+    <string name="task_repeat_title">Task repeat (how many times):</string>
+    <string name="task_interval_title">Task interval (s):</string>
 
     <!-- Camera2 test -->
     <string name="camera2_user0" translatable="false">Camera2 as User0</string>
