@@ -222,10 +222,6 @@ public final class CarFeatureController implements CarServiceBase {
         }
     }
 
-    @Override
-    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    public void dumpProto(ProtoOutputStream proto) {}
-
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpConfigFile(IndentingPrintWriter writer) {
         writer.println(" mFeatureConfigFile:");
@@ -258,6 +254,36 @@ public final class CarFeatureController implements CarServiceBase {
             }
         }
         writer.decreaseIndent();
+    }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {
+        for (String enabledFeature : mEnabledFeatures) {
+            proto.write(CarFeatureControlDumpProto.ENABLED_FEATURES, enabledFeature);
+        }
+        for (String defaultEnabledFeature : mDefaultEnabledFeaturesFromConfig) {
+            proto.write(CarFeatureControlDumpProto.DEFAULT_ENABLED_FEATURES_FROM_CONFIG,
+                    defaultEnabledFeature);
+        }
+        for (String disabledFeature : mDisabledFeaturesFromVhal) {
+            proto.write(CarFeatureControlDumpProto.DISABLED_FEATURES_FROM_VHAL,
+                    disabledFeature);
+        }
+        synchronized (mLock) {
+            for (String experimentalFeature : mAvailableExperimentalFeatures) {
+                proto.write(CarFeatureControlDumpProto.AVAILABLE_EXPERIMENTAL_FEATURES,
+                        experimentalFeature);
+            }
+            for (String pendingEnabledFeature : mPendingEnabledFeatures) {
+                proto.write(CarFeatureControlDumpProto.PENDING_ENABLED_FEATURES,
+                        pendingEnabledFeature);
+            }
+            for (String pendingDisabledFeature : mPendingDisabledFeatures) {
+                proto.write(CarFeatureControlDumpProto.PENDING_DISABLED_FEATURES,
+                        pendingDisabledFeature);
+            }
+        }
     }
 
     /** Check {@link Car#isFeatureEnabled(String)} */
