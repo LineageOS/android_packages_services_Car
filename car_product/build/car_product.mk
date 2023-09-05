@@ -51,6 +51,11 @@ PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/cpp/telemetry/cartelemetr
 PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/cartelemetry
 endif
 
+ifneq (,$(filter userdebug eng, $(TARGET_BUILD_VARIANT)))
+# SEPolicy for test apps/services
+PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/test
+endif
+
 ifeq ($(DISABLE_CAR_PRODUCT_CONFIG_OVERLAY),)
 PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/car_product/overlay
 endif
