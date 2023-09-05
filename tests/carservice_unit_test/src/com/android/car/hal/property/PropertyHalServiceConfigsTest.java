@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 import android.car.Car;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarHvacFanDirection;
+import android.car.test.AbstractExpectableTestCase;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.VehicleGear;
@@ -48,8 +49,6 @@ import com.android.car.hal.property.PropertyPermissionInfo.AnyOfPermissions;
 import com.android.car.hal.property.PropertyPermissionInfo.PropertyPermissions;
 import com.android.car.hal.property.PropertyPermissionInfo.SinglePermission;
 
-import com.google.common.truth.Expect;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,28 +60,27 @@ import org.mockito.junit.MockitoRule;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 @RunWith(AndroidJUnit4.class)
-public class PropertyHalServiceConfigsTest {
+public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
     private static final int VENDOR_PROPERTY_1 = 0x21e01111;
     private static final int VENDOR_PROPERTY_2 = 0x21e01112;
     private static final int VENDOR_PROPERTY_3 = 0x21e01113;
     private static final int VENDOR_PROPERTY_4 = 0x21e01114;
     private static final int[] VENDOR_PROPERTY_IDS = {
             VENDOR_PROPERTY_1, VENDOR_PROPERTY_2, VENDOR_PROPERTY_3, VENDOR_PROPERTY_4};
+    private static final int[] SYSTEM_PROPERTY_IDS = {VehiclePropertyIds.ENGINE_OIL_LEVEL,
+            VehiclePropertyIds.CURRENT_GEAR, VehiclePropertyIds.NIGHT_MODE,
+            VehiclePropertyIds.HVAC_FAN_SPEED, VehiclePropertyIds.DOOR_LOCK};
 
     @Rule
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
     @Mock
     private Context mContext;
-    @Rule
-    public final Expect expect = Expect.create();
 
     private PropertyHalServiceConfigs mPropertyHalServiceConfigs;
     private static final String TAG = PropertyHalServiceConfigsTest.class.getSimpleName();
@@ -116,7 +114,7 @@ public class PropertyHalServiceConfigsTest {
 
     @Before
     public void setUp() {
-        mPropertyHalServiceConfigs = new PropertyHalServiceConfigs(/* useRuntimeConfig= */ true);
+        mPropertyHalServiceConfigs = new PropertyHalServiceConfigs();
 
         when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_CAR_ENGINE_DETAILED))
                 .thenReturn(PackageManager.PERMISSION_GRANTED);
@@ -211,6 +209,29 @@ public class PropertyHalServiceConfigsTest {
             assertThat(mPropertyHalServiceConfigs.isReadable(mContext, vendorProp)).isFalse();
             assertThat(mPropertyHalServiceConfigs.isWritable(mContext, vendorProp)).isFalse();
         }
+    }
+
+    /**
+     * Test {@link PropertyHalServiceConfigs#isSupportedProperty}
+     */
+    @Test
+    public void testIsSupportedProperty() {
+        for (int vendorProp : VENDOR_PROPERTY_IDS) {
+            expectWithMessage("vendor property: " + vendorProp + " is supported").that(
+                    mPropertyHalServiceConfigs.isSupportedProperty(vendorProp)).isTrue();
+        }
+        for (int systemProp : SYSTEM_PROPERTY_IDS) {
+            expectWithMessage("system property: " + VehiclePropertyIds.toString(systemProp)
+                    + " is supported").that(
+                    mPropertyHalServiceConfigs.isSupportedProperty(systemProp)).isTrue();
+        }
+
+        int fakeSystemPropId = 0x1fffffff;
+        expectWithMessage("fake system property: " + fakeSystemPropId + " is not supported").that(
+                mPropertyHalServiceConfigs.isSupportedProperty(fakeSystemPropId)).isFalse();
+        int fakePropId = 0xffffffff;
+        expectWithMessage("fake property: " + fakePropId + " is not supported").that(
+                mPropertyHalServiceConfigs.isSupportedProperty(fakePropId)).isFalse();
     }
 
     /**
@@ -546,160 +567,6 @@ public class PropertyHalServiceConfigsTest {
 
         assertThrows(IllegalArgumentException.class, () ->
                 mPropertyHalServiceConfigs.parseJsonConfig(is, /* path= */ "test"));
-    }
-
-    // TODO(b/293354967): Remove this test once we migrate to runtime config.
-    @Test
-    public void testCheckPayloadInvalidEnum_noRuntimeConfig() {
-        PropertyHalServiceConfigs configsNoRuntime = new PropertyHalServiceConfigs(false);
-        SparseArray<Set<Integer>> halPropIdToEnumSet = configsNoRuntime.getHalPropIdToEnumSet();
-
-        for (int i = 0; i < halPropIdToEnumSet.size(); i++) {
-            int halPropId = halPropIdToEnumSet.keyAt(i);
-            Set<Integer> enums = halPropIdToEnumSet.valueAt(i);
-            for (int possibleValue = -20; possibleValue < 20; possibleValue++) {
-                HalPropValue halPropValue = PROP_VALUE_BUILDER.build(
-                        // Some of the properties are zoned properties, but we don't check areaId in
-                        // checkPayload.
-                        halPropId, /* areaId= */0,
-                        SystemClock.elapsedRealtimeNanos(), /* status= */0, possibleValue);
-                boolean isValid = configsNoRuntime.checkPayload(halPropValue);
-
-                expect.withMessage(
-                        "checkPayload must fail for invalid enum and pass for valid enum")
-                        .that(isValid).isEqualTo(enums.contains(possibleValue));
-            }
-        }
-    }
-
-    // Verifies that all enum checks using runtime config is consistent with not using runtime
-    // config. Verifies all valid enums are accepted and invalid enums are rejected.
-    // TODO(b/293354967): Remove this test once we migrate to runtime config.
-    @Test
-    public void testCheckPayloadInvalidEnum_runtimeConfigCompatible() {
-        PropertyHalServiceConfigs configsNoRuntime = new PropertyHalServiceConfigs(false);
-        PropertyHalServiceConfigs configsRuntime = new PropertyHalServiceConfigs(true);
-        SparseArray<Set<Integer>> halPropIdToEnumSet = configsNoRuntime.getHalPropIdToEnumSet();
-
-        for (int i = 0; i < halPropIdToEnumSet.size(); i++) {
-            int halPropId = halPropIdToEnumSet.keyAt(i);
-            Set<Integer> enums = halPropIdToEnumSet.valueAt(i);
-            for (int possibleValue = -20; possibleValue < 20; possibleValue++) {
-                HalPropValue halPropValue = PROP_VALUE_BUILDER.build(
-                        // Some of the properties are zoned properties, but we don't check areaId in
-                        // checkPayload.
-                        halPropId, /* areaId= */0,
-                        SystemClock.elapsedRealtimeNanos(), /* status= */0, possibleValue);
-                boolean isValid = configsRuntime.checkPayload(halPropValue);
-                boolean expectedIsValid = enums.contains(possibleValue);
-
-                // Known inconsistency: VehicleAreaSeat.java contains 0 as a valid value but
-                // VehicleAreaSeat.aidl does not.
-                // TODO(b/293521207): Make VehicleAreaSeat enum consistent.
-                if (halPropId == VehicleProperty.INFO_DRIVER_SEAT && possibleValue == 0) {
-                    expectedIsValid = true;
-                }
-
-                expect.withMessage("checkPayload must fail for invalid enum and pass for valid enum"
-                        + ", property: " + VehiclePropertyIds.toString(halPropId)
-                        + ", halPropValue: " + halPropValue)
-                        .that(isValid).isEqualTo(expectedIsValid);
-            }
-        }
-    }
-
-    private List<Integer> getAllHalPropIds() throws Exception {
-        List<Integer> halPropIds = new ArrayList<>();
-        for (Field field : VehicleProperty.class.getDeclaredFields()) {
-            int modifiers = field.getModifiers();
-            if (!Modifier.isPublic(modifiers) || !Modifier.isStatic(modifiers)
-                    || !Modifier.isFinal(modifiers) || !field.getType().equals(int.class)) {
-                continue;
-            }
-
-            halPropIds.add(field.getInt(/* object= */ null));
-        }
-        return halPropIds;
-    }
-
-    // Verifies that {@link PropertyHalServiceConfigs.getReadPermission} is consistent before
-    // and after using runtime config.
-    // TODO(b/293354967): Remove this test once we migrate to runtime config.
-    @Test
-    public void testCheckReadPermission_runtimeConfigCompatible() throws Exception {
-        PropertyHalServiceConfigs configsNoRuntime = new PropertyHalServiceConfigs(false);
-        PropertyHalServiceConfigs configsRuntime = new PropertyHalServiceConfigs(true);
-        List<Integer> allHalPropIds = getAllHalPropIds();
-        for (int i = 0; i < allHalPropIds.size(); i++) {
-            int halPropId = allHalPropIds.get(i);
-
-            expect.withMessage("got expected read permission for: "
-                    + VehiclePropertyIds.toString(halPropId))
-                    .that(configsNoRuntime.getReadPermission(halPropId))
-                    .isEqualTo(configsRuntime.getReadPermission(halPropId));
-        }
-    }
-
-    // Verifies that {@link PropertyHalServiceConfigs.getWritePermission} is consistent before
-    // and after using runtime config.
-    // TODO(b/293354967): Remove this test once we migrate to runtime config.
-    @Test
-    public void testCheckWritePermission_runtimeConfigCompatible() throws Exception {
-        PropertyHalServiceConfigs configsNoRuntime = new PropertyHalServiceConfigs(false);
-        PropertyHalServiceConfigs configsRuntime = new PropertyHalServiceConfigs(true);
-        List<Integer> allHalPropIds = getAllHalPropIds();
-        for (int i = 0; i < allHalPropIds.size(); i++) {
-            int halPropId = allHalPropIds.get(i);
-
-            expect.withMessage("got expected write permission for: "
-                    + VehiclePropertyIds.toString(halPropId))
-                    .that(configsNoRuntime.getWritePermission(halPropId))
-                    .isEqualTo(configsRuntime.getWritePermission(halPropId));
-        }
-    }
-
-    // Verifies that {@link PropertyHalServiceConfigs.getAllPossibleSupportedEnumValues} is
-    // consistent before and after using runtime config.
-    // TODO(b/293354967): Remove this test once we migrate to runtime config.
-    @Test
-    public void testGetAllPossibleSupportedEnumValues_runtimeConfigCompatible() throws Exception {
-        PropertyHalServiceConfigs configsNoRuntime = new PropertyHalServiceConfigs(false);
-        PropertyHalServiceConfigs configsRuntime = new PropertyHalServiceConfigs(true);
-        List<Integer> allHalPropIds = getAllHalPropIds();
-        for (int i = 0; i < allHalPropIds.size(); i++) {
-            int halPropId = allHalPropIds.get(i);
-
-            if (halPropId == VehicleProperty.INFO_DRIVER_SEAT) {
-                // TODO(b/293521207): Make VehicleAreaSeat enum consistent.
-                continue;
-            }
-            if (halPropId == VehicleProperty.INFO_EV_PORT_LOCATION ||
-                    halPropId == VehicleProperty.SEAT_FOOTWELL_LIGHTS_STATE ||
-                    halPropId == VehicleProperty.SEAT_FOOTWELL_LIGHTS_SWITCH) {
-                // TODO(b/292130544): Known missing data enum definitions.
-                continue;
-            }
-
-            Set<Integer> currentSupportedEnumValues =
-                    configsNoRuntime.getAllPossibleSupportedEnumValues(halPropId);
-            Set<Integer> expectedEnumValues = currentSupportedEnumValues == null ? null :
-                    new ArraySet<Integer>(currentSupportedEnumValues);
-            if (halPropId == VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS ||
-                    halPropId == VehicleProperty.DISTANCE_DISPLAY_UNITS ||
-                    halPropId == VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS ||
-                    halPropId == VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS ||
-                    halPropId == VehicleProperty.EV_BATTERY_DISPLAY_UNITS ||
-                    halPropId == VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS ||
-                    halPropId == VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS) {
-                // TODO(b/293943088): AMPERE should not be listed in supported enums.
-                expectedEnumValues.remove(VehicleUnit.AMPERE);
-            }
-
-            expect.withMessage("got expected possible supported enum values for: "
-                    + VehiclePropertyIds.toString(halPropId))
-                    .that(expectedEnumValues)
-                    .isEqualTo(configsRuntime.getAllPossibleSupportedEnumValues(halPropId));
-        }
     }
 
     @Test

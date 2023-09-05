@@ -16,6 +16,7 @@
 package com.android.car.internal;
 
 import android.annotation.Nullable;
+import android.car.builtin.os.HandlerHelper;
 import android.car.builtin.util.Slogf;
 import android.os.Handler;
 import android.os.Looper;
@@ -59,13 +60,15 @@ public final class LongPendingRequestPool<T extends LongRequestIdWithTimeout> {
             }
             List<Long> requestIdsCopy;
             synchronized (mRequestIdsLock) {
-                List<Long> requestIds = mTimeoutUptimeMsToRequestIds.get((Long) msg.obj);
+                Long timeoutUptimeMs = (Long) msg.obj;
+                List<Long> requestIds = mTimeoutUptimeMsToRequestIds.get(timeoutUptimeMs);
                 if (requestIds == null) {
                     Slogf.d(TAG, "handle a timeout msg, but all requests that should timeout "
                             + "has been removed");
                     return true;
                 }
                 requestIdsCopy = new ArrayList<>(requestIds);
+                mTimeoutUptimeMsToRequestIds.remove(timeoutUptimeMs);
             }
             mTimeoutCallback.onRequestsTimeout(requestIdsCopy);
             return true;
@@ -179,7 +182,7 @@ public final class LongPendingRequestPool<T extends LongRequestIdWithTimeout> {
             }
             if (requestIds.isEmpty()) {
                 mTimeoutUptimeMsToRequestIds.remove(timeoutUptimeMs);
-                mTimeoutHandler.removeMessages(REQUESTS_TIMEOUT_MESSAGE_TYPE,
+                HandlerHelper.removeEqualMessages(mTimeoutHandler, REQUESTS_TIMEOUT_MESSAGE_TYPE,
                         Long.valueOf(timeoutUptimeMs));
             }
         }
