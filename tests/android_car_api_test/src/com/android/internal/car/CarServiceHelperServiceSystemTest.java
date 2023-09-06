@@ -24,7 +24,6 @@ import static org.hamcrest.CoreMatchers.containsStringIgnoringCase;
 import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
 
-import android.car.annotation.ApiRequirements;
 import android.car.apitest.CarApiTestBase;
 import android.car.test.ApiCheckerRule.IgnoreInvalidApi;
 import android.os.Build;
@@ -40,8 +39,6 @@ public final class CarServiceHelperServiceSystemTest extends CarApiTestBase {
     @Test
     @ApiTest(apis = {"com.android.internal.car.CarServiceHelperInterface#setSafetyMode(boolean)"})
     @IgnoreInvalidApi(reason = "Class not on classpath, tested thpough dumpsys")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testCarServiceHelperServiceDump_safeMode() throws Exception {
         assumeSystemServerDumpSupported();
         assumeUserDebugBuild();
@@ -57,8 +54,6 @@ public final class CarServiceHelperServiceSystemTest extends CarApiTestBase {
     @Test
     @ApiTest(apis = {"com.android.internal.car.CarServiceHelperInterface#setSafetyMode(boolean)"})
     @IgnoreInvalidApi(reason = "Class not on classpath, tested thpough dumpsys")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testCarServiceHelperServiceDump_unsafeMode() throws Exception {
         assumeSystemServerDumpSupported();
         assumeUserDebugBuild();
@@ -80,8 +75,6 @@ public final class CarServiceHelperServiceSystemTest extends CarApiTestBase {
     @Test
     @ApiTest(apis = {"com.android.internal.car.CarServiceHelperService#dump(PrintWriter,String[])"})
     @IgnoreInvalidApi(reason = "Class not on classpath, tested thpough dumpsys")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testCarServiceHelperServiceDump_safeOperation() throws Exception {
         assumeSystemServerDumpSupported();
         assumeUserDebugBuild();
@@ -96,8 +89,6 @@ public final class CarServiceHelperServiceSystemTest extends CarApiTestBase {
     @Test
     @ApiTest(apis = {"com.android.internal.car.CarServiceHelperService#dump(PrintWriter,String[])"})
     @IgnoreInvalidApi(reason = "Class not on classpath, tested thpough dumpsys")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testCarServiceHelperServiceDump_unsafeOperation() throws Exception {
         assumeSystemServerDumpSupported();
         assumeUserDebugBuild();
