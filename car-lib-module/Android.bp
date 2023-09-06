@@ -43,11 +43,13 @@ java_sdk_library {
         "android.car.builtin",
         "framework-annotations-lib",
         "modules-utils-preconditions",
+        "framework-location",
         "framework-wifi",
         "framework-bluetooth",
     ],
     // Stub build drops module api and breaks build. Add it here.
     stub_only_libs: [
+        "framework-location",
         "framework-wifi",
         "framework-bluetooth",
     ],
