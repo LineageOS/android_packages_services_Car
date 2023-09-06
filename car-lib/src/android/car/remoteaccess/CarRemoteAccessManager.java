@@ -37,6 +37,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -77,6 +78,8 @@ import java.util.concurrent.Executor;
 public final class CarRemoteAccessManager extends CarManagerBase {
 
     private static final String TAG = CarRemoteAccessManager.class.getSimpleName();
+
+    private final InVehicleTaskScheduler mInVehicleTaskScheduler = new InVehicleTaskScheduler();
 
     /**
      * The system remains ON after completing the remote tasks.
@@ -424,8 +427,11 @@ public final class CarRemoteAccessManager extends CarManagerBase {
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
     public boolean isTaskScheduleSupported() {
-        // TODO(282792374): Implement this.
-        return false;
+        try {
+            return mService.isTaskScheduleSupported();
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, false);
+        }
     }
 
     /**
@@ -444,8 +450,11 @@ public final class CarRemoteAccessManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
     @Nullable
     public InVehicleTaskScheduler getInVehicleTaskScheduler() {
-        // TODO(282792374): Implement this.
-        return null;
+        if (!isTaskScheduleSupported()) {
+            Slogf.w(TAG, "getInVehicleTaskScheduler: Task schedule is not supported, return null");
+            return null;
+        }
+        return mInVehicleTaskScheduler;
     }
 
     /**
@@ -519,7 +528,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
             @NonNull
             public ScheduleInfo build() {
                 if (mBuilderUsed) {
-                    throw new IllegalArgumentException(
+                    throw new IllegalStateException(
                             "build is only supposed to be called once on one builder, use a new "
                             + "builder instance instead");
                 }
@@ -667,8 +676,14 @@ public final class CarRemoteAccessManager extends CarManagerBase {
         @SystemApi
         @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
         public void scheduleTask(@NonNull ScheduleInfo scheduleInfo) {
-            // TODO(282792374): Implement this.
-            throw new UnsupportedOperationException("Unimplemented");
+            Preconditions.checkArgument(scheduleInfo != null, "scheduleInfo cannot be null");
+            TaskScheduleInfo taskScheduleInfo = toTaskScheduleInfo(scheduleInfo);
+
+            try {
+                mService.scheduleTask(taskScheduleInfo);
+            } catch (RemoteException e) {
+                handleRemoteExceptionFromCarService(e);
+            }
         }
 
         /**
@@ -683,8 +698,12 @@ public final class CarRemoteAccessManager extends CarManagerBase {
         @SystemApi
         @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
         public void unscheduleTask(@NonNull String scheduleId) {
-            // TODO(282792374): Implement this.
-            throw new UnsupportedOperationException("Unimplemented");
+            Preconditions.checkArgument(scheduleId != null, "scheduleId cannot be null");
+            try {
+                mService.unscheduleTask(scheduleId);
+            } catch (RemoteException e) {
+                handleRemoteExceptionFromCarService(e);
+            }
         }
 
         /**
@@ -695,8 +714,11 @@ public final class CarRemoteAccessManager extends CarManagerBase {
         @SystemApi
         @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
         public void unscheduleAllTasks() {
-            // TODO(282792374): Implement this.
-            throw new UnsupportedOperationException("Unimplemented");
+            try {
+                mService.unscheduleAllTasks();
+            } catch (RemoteException e) {
+                handleRemoteExceptionFromCarService(e);
+            }
         }
 
         /**
@@ -710,8 +732,12 @@ public final class CarRemoteAccessManager extends CarManagerBase {
         @SystemApi
         @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
         public boolean isTaskScheduled(@NonNull String scheduleId) {
-            // TODO(282792374): Implement this.
-            throw new UnsupportedOperationException("Unimplemented");
+            Preconditions.checkArgument(scheduleId != null, "scheduleId cannot be null");
+            try {
+                return mService.isTaskScheduled(scheduleId);
+            } catch (RemoteException e) {
+                return handleRemoteExceptionFromCarService(e, false);
+            }
         }
 
         /**
@@ -727,8 +753,32 @@ public final class CarRemoteAccessManager extends CarManagerBase {
         @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
         @NonNull
         public List<ScheduleInfo> getAllScheduledTasks() {
-            // TODO(282792374): Implement this.
-            throw new UnsupportedOperationException("Unimplemented");
+            List<ScheduleInfo> scheduleInfoList = new ArrayList<>();
+            try {
+                List<TaskScheduleInfo> taskScheduleInfoList = mService.getAllScheduledTasks();
+                for (int i = 0; i < taskScheduleInfoList.size(); i++) {
+                    scheduleInfoList.add(fromTaskScheduleInfo(taskScheduleInfoList.get(i)));
+                }
+                return scheduleInfoList;
+            } catch (RemoteException e) {
+                return handleRemoteExceptionFromCarService(e, scheduleInfoList);
+            }
+        }
+
+        private static ScheduleInfo fromTaskScheduleInfo(TaskScheduleInfo taskScheduleInfo) {
+            return ScheduleInfo.builder(taskScheduleInfo.scheduleId, taskScheduleInfo.taskData,
+                    taskScheduleInfo.startTimeInEpochSeconds).setCount(taskScheduleInfo.count)
+                    .setPeriodic(Duration.ofSeconds(taskScheduleInfo.periodicInSeconds)).build();
+        }
+
+        private static TaskScheduleInfo toTaskScheduleInfo(ScheduleInfo scheduleInfo) {
+            TaskScheduleInfo taskScheduleInfo = new TaskScheduleInfo();
+            taskScheduleInfo.scheduleId = scheduleInfo.getScheduleId();
+            taskScheduleInfo.taskData = scheduleInfo.getTaskData();
+            taskScheduleInfo.count = scheduleInfo.getCount();
+            taskScheduleInfo.startTimeInEpochSeconds = scheduleInfo.getStartTimeInEpochSeconds();
+            taskScheduleInfo.periodicInSeconds = scheduleInfo.getPeriodic().getSeconds();
+            return taskScheduleInfo;
         }
     }
 }
