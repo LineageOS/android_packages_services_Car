@@ -1011,9 +1011,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             return;
         }
 
-        // BackgroundTaskView and Fu
-        //  llScreenTaskView are init with activities lists provided by
-        // mTaskCategoryManager. mTaskCategoryManager needs refresh to get up to date activities
+        // BackgroundTaskView and FullScreenTaskView are init with activities lists provided by
+        // mTaskCategoryManager. mTaskCategoryManager needs refresh to get up-to-date activities
         // lists.
         mTaskCategoryManager.refresh();
         setUpBackgroundTaskView();
@@ -1063,6 +1062,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     notifySystemUI(MSG_APP_GRID_VISIBILITY_CHANGE, boolToInt(false));
                 }
 
+                if (mCurrentTaskInRootTaskView != null && isVisible) {
+                    mTaskViewManager.updateTaskVisibility(mCurrentTaskInRootTaskView.token, true);
+                }
+
                 // Update the notification button's selection state.
                 if (mIsNotificationCenterOnTop && isVisible) {
                     notifySystemUI(MSG_NOTIFICATIONS_VISIBILITY_CHANGE, boolToInt(true));
@@ -1102,6 +1105,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     mAppGridTaskViewPanel.closePanel(/* animated = */ false);
                 } else if (mCurrentTaskInRootTaskView != null) {
                     // hide the window of the task running in the root task view.
+                    logIfDebuggable("hiding the window for task: " + mCurrentTaskInRootTaskView);
                     mTaskViewManager.updateTaskVisibility(mCurrentTaskInRootTaskView.token, false);
                 }
             }
