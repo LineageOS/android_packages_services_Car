@@ -70,6 +70,14 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ScreenshotActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:exported="true"
+            android:launchMode="singleInstance"
+            android:excludeFromRecents="true">
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+        </activity>
+
         <service android:name=".BugReportService"
                  android:foregroundServiceType="specialUse"
                  android:exported="true">
