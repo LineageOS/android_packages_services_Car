@@ -52,11 +52,16 @@ PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/cart
 endif
 
 ifeq ($(DISABLE_CAR_PRODUCT_CONFIG_OVERLAY),)
-PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/car_product/overlay
+PRODUCT_PACKAGES += \
+    CarFrameworkResConfigRRO \
+    CarCertInstallerConfigRRO \
+    CarSettingsProviderConfigRRO \
+    CarTelecommConfigRRO
 endif
 
 ifeq ($(DISABLE_CAR_PRODUCT_VISUAL_OVERLAY),)
 PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/car_product/overlay-visual
+PRODUCT_PACKAGES += CarFrameworkResVisualRRO
 endif
 
 # CarSystemUIPassengerOverlay is an RRO package required for enabling unique look
