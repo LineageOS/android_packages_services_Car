@@ -9,5 +9,8 @@ android_app {
 
     platform_apis: true,
 
+    // Required to allow non 0 intent filter priority
+    privileged: true,
+
     certificate: "platform",
 }

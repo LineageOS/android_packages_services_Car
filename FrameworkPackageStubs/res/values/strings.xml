@@ -10,6 +10,12 @@
     <!-- Toast message displayed for pip settings when pip isn't supported. [CHAR LIMIT=NONE] -->
     <string name="pip_not_supported">Picture in Picture is not supported on this device</string>
 
+    <!-- Toast message displayed when MANAGE_UNKNOWN_APP_SOURCES isn't supported. [CHAR LIMIT=NONE] -->
+    <string name="manage_unknown_app_sources_not_supported">Manage Unknown App Sources is not supported on this device</string>
+
+    <!-- Toast message displayed when documentsui isn't supported. [CHAR LIMIT=NONE] -->
+    <string name="documentsui_not_supported">File Management is not supported on this device</string>
+
     <!-- Stub name [CHAR LIMIT=NONE]-->
     <string name="stub_name">None</string>
 
