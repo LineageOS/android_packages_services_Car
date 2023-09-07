@@ -204,17 +204,25 @@ void HalCamera::requestNewFrame(std::shared_ptr<VirtualCamera> client, int64_t l
 }
 
 ScopedAStatus HalCamera::clientStreamStarting() {
-    if (mStreamState != STOPPED) {
-        return ScopedAStatus::ok();
-    }
+    {
+        std::lock_guard lock(mFrameMutex);
+        if (mStreamState != STOPPED) {
+            return ScopedAStatus::ok();
+        }
 
-    mStreamState = RUNNING;
+        mStreamState = RUNNING;
+    }
     return mHwCamera->startVideoStream(ref<HalCamera>());
 }
 
 void HalCamera::clientStreamEnding(const VirtualCamera* client) {
     {
         std::lock_guard<std::mutex> lock(mFrameMutex);
+        if (mStreamState != RUNNING) {
+            // We are being stopped or stopped already.
+            return;
+        }
+
         mNextRequests.erase(std::remove_if(mNextRequests.begin(), mNextRequests.end(),
                                            [client](const auto& r) {
                                                return r.client.lock().get() == client;
@@ -233,7 +241,10 @@ void HalCamera::clientStreamEnding(const VirtualCamera* client) {
 
     // If not, then stop the hardware stream
     if (!stillRunning) {
-        mStreamState = STOPPING;
+        {
+            std::lock_guard lock(mFrameMutex);
+            mStreamState = STOPPING;
+        }
         auto status = mHwCamera->stopVideoStream();
         if (!status.isOk()) {
             LOG(WARNING) << "Failed to stop a video stream, error = "
@@ -364,6 +375,7 @@ ScopedAStatus HalCamera::notify(const EvsEventDesc& event) {
     LOG(DEBUG) << "Received an event id: " << static_cast<int32_t>(event.aType);
     if (event.aType == EvsEventType::STREAM_STOPPED) {
         // This event happens only when there is no more active client.
+        std::lock_guard lock(mFrameMutex);
         if (mStreamState != STOPPING) {
             LOG(WARNING) << "Stream stopped unexpectedly";
         }
