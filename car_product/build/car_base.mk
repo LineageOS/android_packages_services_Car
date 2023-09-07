@@ -31,7 +31,6 @@ PRODUCT_PACKAGES += \
     BasicDreams \
     CaptivePortalLogin \
     CertInstaller \
-    DocumentsUI \
     DownloadProviderUi \
     FusedLocation \
     InputDevices \
