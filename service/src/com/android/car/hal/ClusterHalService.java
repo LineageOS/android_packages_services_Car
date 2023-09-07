@@ -31,10 +31,11 @@ import android.graphics.Rect;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
+import android.util.SparseBooleanArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.car.internal.util.IntArray;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 import java.util.Collection;
@@ -68,9 +69,7 @@ public final class ClusterHalService extends HalServiceBase {
          * @param insets Insets of the cluster display
          */
         void onDisplayState(int onOff, Rect bounds, Insets insets);
-    }
-
-    ;
+    };
 
     private static final int[] SUPPORTED_PROPERTIES = new int[]{
             CLUSTER_SWITCH_UI,
@@ -99,8 +98,9 @@ public final class ClusterHalService extends HalServiceBase {
 
     private final VehicleHal mHal;
 
-    private volatile boolean mIsCoreSupported;
-    private volatile boolean mIsNavigationStateSupported;
+    // The actual availability of each supported property in SUPPORTED_PROPERTIES.
+    private final SparseBooleanArray mAvailableProperties =
+            new SparseBooleanArray(SUPPORTED_PROPERTIES.length);
 
     private final HalPropValueBuilder mPropValueBuilder;
 
@@ -109,13 +109,20 @@ public final class ClusterHalService extends HalServiceBase {
         mPropValueBuilder = hal.getHalPropValueBuilder();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Note that {@link #takeProperties} must be called before this method, so that available
+     * properties are correctly initialized.</p>
+     */
     @Override
     public void init() {
         Slogf.d(TAG, "initClusterHalService");
-        if (!isCoreSupported()) return;
 
         for (int property : SUBSCRIBABLE_PROPERTIES) {
-            mHal.subscribeProperty(this, property);
+            if (isPropertyAvailable(property)) {
+                mHal.subscribeProperty(this, property);
+            }
         }
     }
 
@@ -144,28 +151,21 @@ public final class ClusterHalService extends HalServiceBase {
 
     @Override
     public void takeProperties(@NonNull Collection<HalPropConfig> properties) {
-        IntArray supportedProperties = new IntArray(properties.size());
+        mAvailableProperties.clear();
         for (HalPropConfig property : properties) {
-            supportedProperties.add(property.getPropId());
+            mAvailableProperties.put(property.getPropId(), true);
         }
-        mIsCoreSupported = true;
-        for (int coreProperty : CORE_PROPERTIES) {
-            if (supportedProperties.indexOf(coreProperty) < 0) {
-                mIsCoreSupported = false;
-                break;
-            }
-        }
-        mIsNavigationStateSupported = supportedProperties.indexOf(CLUSTER_NAVIGATION_STATE) >= 0;
-        Slogf.d(TAG, "takeProperties: coreSupported=%s, navigationStateSupported=%s",
-                mIsCoreSupported, mIsNavigationStateSupported);
+        Slogf.d(TAG, "takeProperties: actuallySupportedProperties=%s", mAvailableProperties);
     }
 
-    public boolean isCoreSupported() {
-        return mIsCoreSupported;
+    /** Checks if the property with the given {@code corePropertyId} is available. */
+    @VisibleForTesting
+    boolean isPropertyAvailable(int propertyId) {
+        return mAvailableProperties.get(propertyId);
     }
 
     public boolean isNavigationStateSupported() {
-        return mIsNavigationStateSupported;
+        return mAvailableProperties.get(CLUSTER_NAVIGATION_STATE);
     }
 
     @Override
@@ -175,7 +175,7 @@ public final class ClusterHalService extends HalServiceBase {
         synchronized (mLock) {
             callback = mCallback;
         }
-        if (callback == null || !isCoreSupported()) {
+        if (callback == null) {
             return;
         }
 
@@ -248,8 +248,9 @@ public final class ClusterHalService extends HalServiceBase {
      */
     public void reportState(int onOff, Rect bounds, Insets insets,
             int uiTypeMain, int uiTypeSub, byte[] uiAvailability) {
-        if (!isCoreSupported()) {
-            return;
+        if (!isPropertyAvailable(CLUSTER_REPORT_STATE)) {
+            throw new IllegalStateException(
+                    "reportState: CLUSTER_REPORT_STATE property is not supported on this device");
         }
         int[] intValues = new int[]{
             onOff,
@@ -278,8 +279,9 @@ public final class ClusterHalService extends HalServiceBase {
      * @param uiType uiType that ClusterHome tries to show in main area
      */
     public void requestDisplay(int uiType) {
-        if (!isCoreSupported()) {
-            return;
+        if (!isPropertyAvailable(CLUSTER_REQUEST_DISPLAY)) {
+            throw new IllegalStateException("requestDisplay: CLUSTER_REQUEST_DISPLAY property is "
+                    + "not supported on this device");
         }
         HalPropValue request = mPropValueBuilder.build(CLUSTER_REQUEST_DISPLAY,
                 /* areaId= */ 0, SystemClock.elapsedRealtime(), VehiclePropertyStatus.AVAILABLE,
@@ -315,7 +317,6 @@ public final class ClusterHalService extends HalServiceBase {
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(PrintWriter writer) {
         writer.println("*Cluster HAL*");
-        writer.println("mIsCoreSupported:" + isCoreSupported());
-        writer.println("mIsNavigationStateSupported:" + isNavigationStateSupported());
+        writer.println("mAvailableProperties: " + mAvailableProperties);
     }
 }
