@@ -20,6 +20,10 @@ runtime_resource_overlay {
     name: "GoogleCarUiBase",
     manifest: "AndroidManifest.xml",
     resource_dirs: ["res"],
+
+    static_libs: [
+        "car-resource-common"
+    ],
 }
 
 override_runtime_resource_overlay {
