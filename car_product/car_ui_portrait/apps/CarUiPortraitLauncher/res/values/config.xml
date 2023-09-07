@@ -25,6 +25,10 @@
         com.android.car.notification/com.android.car.notification.CarNotificationCenterActivity
     </string>
 
+    <string name="config_appGridActivity" translatable="false">
+        com.android.car.portraitlauncher/com.android.car.carlauncher.AppGridActivity
+    </string>
+
     <string-array name="config_ignoreOpeningForegroundDA" translatable="false">
         <item>android.car.usb.handler/android.car.usb.handler.UsbHostManagementActivity</item>
         <item>com.android.car.portraitlauncher/.homeactivities.CarUiPortraitHomeScreen</item>
