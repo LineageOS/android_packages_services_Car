@@ -39,6 +39,13 @@
     <style name="BrowseListItemRightArrowStyle">
         <item name="android:src">@null</item>
     </style>
+    <style name="MinimizedControlBarTitleStyle" parent="TextAppearance.Car.Body.Medium">
+        <item name="android:textColor">@color/car_on_surface</item>
+    </style>
+    <style name="MinimizedControlBarSubtitleStyle" parent="TextAppearance.Car.Body.Small">
+        <item name="android:textColor">@color/car_on_surface_variant</item>
+    </style>
+    <style name="MinimizedControlBarContentTileStyle" parent="MediaGridIconContainerStyle"/>
 
     <style name="BrowseSubheaderStyle" parent="TextAppearance.Car.Headline.Medium">
       <item name="android:paddingHorizontal">8dp</item>
@@ -90,5 +97,10 @@
         <item name="android:includeFontPadding">false</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="MinimizedControlBar">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
     </style>
 </resources>

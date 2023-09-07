@@ -43,4 +43,11 @@
     <dimen name="fragment_error_button_width">760dp</dimen>
     <dimen name="fragment_error_button_height">88dp</dimen>
     <dimen name="fragment_error_button_marginTop">120dp</dimen>
+
+    <!-- browse_mini_bar.xml, browse_mini_bar_container.xml & browse_mini_bar_view.xml -->
+    <dimen name="minimized_control_bar_app_icon_size">40dp</dimen>
+    <dimen name="minimized_control_bar_content_tile_size">280dp</dimen>
+    <dimen name="minimized_control_bar_width">@dimen/minimized_control_bar_content_tile_size</dimen>
+    <!-- Match car_ui_toolbar_row_height -->
+    <dimen name="container_browse_mini_item_bar_padding_top">96dp</dimen>
 </resources>
