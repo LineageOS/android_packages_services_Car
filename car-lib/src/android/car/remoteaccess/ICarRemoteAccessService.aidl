@@ -90,4 +90,14 @@ interface ICarRemoteAccessService {
      * Gets all pending scheduled tasks for this client.
      */
     List<TaskScheduleInfo> getAllScheduledTasks();
+
+    /**
+     * For testing only. Add a package as a new serverless remote access client.
+     */
+    void addServerlessRemoteTaskClient(in String packageName, in String clientId);
+
+    /**
+     * For testing only. Remove a package as serverless remote access client.
+     */
+    void removeServerlessRemoteTaskClient(in String packageName);
 }

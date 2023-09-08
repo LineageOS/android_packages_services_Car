@@ -42,6 +42,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.PackageInfoFlags;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.res.XmlResourceParser;
@@ -630,6 +631,81 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         Slogf.i(TAG, "All active tasks removed for uid: %s, after %d ms, check whether we should "
                 + "shutdown", uidName, mTaskUnbindDelayMs);
         mHandler.postMaybeShutdown(/* delayMs= */ mTaskUnbindDelayMs);
+    }
+
+    @GuardedBy("mLock")
+    private String getUidNameForPackageNameLocked(String packageName) {
+        String uidName = "";
+        try {
+            uidName = getNameForUidLocked(mPackageManager.getPackageUidAsUser(
+                    packageName, PackageInfoFlags.of(0), /* uid= */ 0));
+        } catch (Exception e) {
+            // Do thing.
+        }
+        return uidName;
+    }
+
+    /**
+     * Used in testing only. Clear up the stored client token information for the package.
+     */
+    @GuardedBy("mLock")
+    private void clearUpClientTokenForPackageLocked(String packageName) {
+        String uidName = getUidNameForPackageNameLocked(packageName);
+        String clientId = "";
+        for (int i = 0; i < mClientTokenByUidName.size(); i++) {
+            if (!mClientTokenByUidName.keyAt(i).equals(uidName)) {
+                continue;
+            }
+            clientId = mClientTokenByUidName.valueAt(i).getClientId();
+            break;
+        }
+        if (!clientId.isEmpty()) {
+            Slogf.i(TAG, "Clearing stored client token for uidName: %s because the client is now a "
+                    + "serverless remote task client", uidName);
+            mClientTokenByUidName.remove(uidName);
+            mUidByClientId.remove(clientId);
+        }
+    }
+
+    /**
+     * {@link android.car.remoteaccess.CarRemoteAccessManager#addServerlessRemoteTaskClient}
+     */
+    @Override
+    public void addServerlessRemoteTaskClient(String packageName, String clientId) {
+        Preconditions.checkArgument(packageName != null, "packageName must not be null");
+        Preconditions.checkArgument(clientId != null, "clientId must not be null");
+        synchronized (mLock) {
+            Slogf.i(TAG, "Adding a new test serverless remote task client, packageName: %s, "
+                    + "clientId: %s", packageName, clientId);
+            if (mServerlessClientIdsByPackageName.containsKey(packageName)) {
+                String message = "The package: " + packageName
+                        + " is already an serverless remote task client";
+                Slogf.w(TAG, message);
+                throw new IllegalArgumentException(message);
+            }
+            for (int i = 0; i < mServerlessClientIdsByPackageName.size(); i++) {
+                if (mServerlessClientIdsByPackageName.valueAt(i).equals(clientId)) {
+                    String message = "The client ID: " + clientId
+                            + " is already used, pick a different client ID";
+                    Slogf.w(TAG, message);
+                    throw new IllegalArgumentException(message);
+                }
+            }
+            mServerlessClientIdsByPackageName.put(packageName, clientId);
+            clearUpClientTokenForPackageLocked(packageName);
+        }
+    }
+
+    /**
+     * {@link android.car.remoteaccess.CarRemoteAccessManager#removeServerlessRemoteTaskClient}
+     */
+    @Override
+    public void removeServerlessRemoteTaskClient(String packageName) {
+        Preconditions.checkArgument(packageName != null, "packageName must not be null");
+        synchronized (mLock) {
+            mServerlessClientIdsByPackageName.remove(packageName);
+            clearUpClientTokenForPackageLocked(packageName);
+        }
     }
 
     /**

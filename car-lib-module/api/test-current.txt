@@ -124,6 +124,15 @@ package android.car.media {
 
 }
 
+package android.car.remoteaccess {
+
+  public final class CarRemoteAccessManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void addServerlessRemoteTaskClient(@NonNull String, @NonNull String);
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void removeServerlessRemoteTaskClient(@NonNull String);
+  }
+
+}
+
 package android.car.test {
 
   public final class CarTestManager {

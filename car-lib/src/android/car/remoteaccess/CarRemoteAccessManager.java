@@ -16,13 +16,13 @@
 
 package android.car.remoteaccess;
 
-
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
+import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.builtin.util.Slogf;
@@ -495,6 +495,47 @@ public final class CarRemoteAccessManager extends CarManagerBase {
             return null;
         }
         return mInVehicleTaskScheduler;
+    }
+
+    /**
+     * For testing only. Adds a package as a new serverless remote task client.
+     *
+     * @param packageName The package name for the serverless remote task client. This should be a
+     *      test package name.
+     * @param clientId An arbitrary client ID picked for the client. Client should add some test
+     *      identifier to the ID to avoid conflict with an existing real client ID.
+     * @throws IllegalArgumentException If the packageName is already an serverless remote task
+     *      client or if the client ID is already used.
+     *
+     * @hide
+     */
+    @TestApi
+    @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
+    public void addServerlessRemoteTaskClient(@NonNull String packageName,
+            @NonNull String clientId) {
+        try {
+            mService.addServerlessRemoteTaskClient(packageName, clientId);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * For testing only. Removes a package as serverless remote task client.
+     *
+     * @param packageName The package name for the previously added test serverless remote task
+     *      client.
+     *
+     * @hide
+     */
+    @TestApi
+    @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
+    public void removeServerlessRemoteTaskClient(@NonNull String packageName) {
+        try {
+            mService.removeServerlessRemoteTaskClient(packageName);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
     }
 
     /**
