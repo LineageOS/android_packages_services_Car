@@ -793,6 +793,16 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          * application uses the persistent resource version to decide whether the previous update
          * succeeded.
          *
+         * <p>All the tasks for this client will be unscheduled if the client app is removed.
+         *
+         * <p>If the client app is updated, the task will still be scheduled, so the client app must
+         * make sure the logic handling remote task is backward compatible.
+         *
+         * <p>It is possible that the client app's persistent data might be removed, e.g. during
+         * a factory reset. If the client app stores task-related information, it will be lost. The
+         * scheduled task will still be delivered to the app as expected unless client explicitly
+         * unschedule all the scheduled tasks when it detects that the data is erased.
+         *
          * @param scheduleInfo The schedule information.
          *
          * @throws IllegalArgumentException if a pending schedule with the same {@code scheduleId}

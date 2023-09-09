@@ -51,6 +51,7 @@ import android.car.remoteaccess.TaskScheduleInfo;
 import android.car.test.AbstractExpectableTestCase;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -62,6 +63,7 @@ import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
 import android.hardware.automotive.remoteaccess.ScheduleInfo;
+import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -196,6 +198,7 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
     private RemoteAccessStorage mRemoteAccessStorage;
     private Runnable mBootComplete;
     private boolean mBootCompleted;
+    private BroadcastReceiver mBroadcastReceiver;
 
     @Mock private Resources mResources;
     @Mock private PackageManager mPackageManager;
@@ -237,6 +240,11 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
         doReturn(mResources).when(mContext).getResources();
         doReturn(mUserManager).when(mContext).getSystemService(UserManager.class);
         doReturn(true).when(mContext).bindServiceAsUser(any(), any(), anyInt(), any());
+        doAnswer(i -> {
+            mBroadcastReceiver = (BroadcastReceiver) i.getArguments()[0];
+            return null;
+        }).when(mContext).registerReceiver(any(), any(), anyInt());
+        doNothing().when(mContext).unregisterReceiver(any());
         doNothing().when(mContext).unbindService(any());
         when(mUserManager.isUserUnlocked(any())).thenReturn(true);
         mDatabaseFile = mContext.getDatabasePath(DATABASE_NAME);
@@ -1565,6 +1573,17 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
         ServiceSpecificException e = assertThrows(ServiceSpecificException.class, () ->
                 mService.getAllScheduledTasks());
         assertThat(e.errorCode).isEqualTo(SERVICE_ERROR_CODE_GENERAL);
+    }
+
+    @Test
+    public void testOnPackageRemoved_unscheduleAllTasks() throws Exception {
+        prepareTaskSchedule();
+
+        Intent intent = new Intent(Intent.ACTION_PACKAGE_REMOVED,
+                (new Uri.Builder()).scheme("package").opaquePart(SERVERLESS_PACKAGE).build());
+        mBroadcastReceiver.onReceive(mContext, intent);
+
+        verify(mRemoteAccessHalWrapper).unscheduleAllTasks(CLIENT_ID_SERVERLESS);
     }
 
     private ICarPowerStateListener getCarPowerStateListener() {
