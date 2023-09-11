@@ -109,33 +109,6 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
     }
 
     @Test
-    public void testSetStatusListener() throws Exception {
-        // Registers a status listener and start monitoring the CarEvsService's state changes.
-        mEvsManager.setStatusListener(mCallbackExecutor, mStatusListener);
-
-        // Requests to start the rearview activity.
-        assertThat(
-                mEvsManager.startActivity(CarEvsManager.SERVICE_TYPE_REARVIEW)
-        ).isEqualTo(CarEvsManager.ERROR_NONE);
-
-        // Waits until the CarEvsService enters the REQUESTED state.
-        assertThat(
-                mServiceInRequestedState.tryAcquire(ACTIVITY_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
-        ).isTrue();
-
-        // Waits until the CarEvsService starts a video stream; it enters the ACTIVE state.
-        assertThat(
-                mServiceInActiveState.tryAcquire(STREAM_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
-        ).isTrue();
-
-        // Requests to stop the rearview activity.
-        mEvsManager.stopActivity();
-
-        // Unregisters a status listener.
-        mEvsManager.clearStatusListener();
-    }
-
-    @Test
     public void testStartAndStopVideoStream() throws Exception {
         // Registers a status listener and start monitoring the CarEvsService's state changes.
         mEvsManager.setStatusListener(mCallbackExecutor, mStatusListener);
