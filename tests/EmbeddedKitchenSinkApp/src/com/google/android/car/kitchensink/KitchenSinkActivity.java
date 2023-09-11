@@ -117,7 +117,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-public class KitchenSinkActivity extends FragmentActivity {
+public class KitchenSinkActivity extends FragmentActivity implements KitchenSinkHelper {
 
     public static final String TAG = "KitchenSinkActivity";
     private static final String LAST_FRAGMENT_TAG = "lastFragmentTag";
@@ -316,6 +316,11 @@ public class KitchenSinkActivity extends FragmentActivity {
     private CarWatchdogManager mCarWatchdogManager;
     private CarPerformanceManager mCarPerformanceManager;
     private Object mPropertyManagerReady = new Object();
+
+    @Override
+    public Car getCar() {
+        return mCarApi;
+    }
 
     public KitchenSinkActivity() {
         for (Pair<String, Class> entry : MENU_ENTRIES) {
@@ -657,10 +662,6 @@ public class KitchenSinkActivity extends FragmentActivity {
         updateHeaderInfoVisibility();
         boolean after = mShowHeaderInfo;
         writer.printf("Updated header info visibility from %b to %b\n", before, after);
-    }
-
-    public Car getCar() {
-        return mCarApi;
     }
 
     private final class MenuAdapter extends RecyclerView.Adapter<ItemViewHolder> {
