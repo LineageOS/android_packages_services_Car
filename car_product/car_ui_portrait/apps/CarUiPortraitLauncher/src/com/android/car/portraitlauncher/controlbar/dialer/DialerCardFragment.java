@@ -15,10 +15,13 @@
  */
 package com.android.car.portraitlauncher.controlbar.dialer;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Size;
 import android.view.View;
 import android.widget.Chronometer;
 
+import com.android.car.apps.common.BitmapUtils;
 import com.android.car.carlauncher.R;
 import com.android.car.carlauncher.homescreen.HomeCardFragment;
 import com.android.car.carlauncher.homescreen.ui.CardContent;
@@ -43,6 +46,8 @@ public class DialerCardFragment extends HomeCardFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getRootView().setVisibility(View.VISIBLE);
+        getRootView().findViewById(R.id.optional_seek_bar_with_times_container).setVisibility(
+                View.GONE);
     }
 
     @Override
@@ -81,10 +86,16 @@ public class DialerCardFragment extends HomeCardFragment {
         if (cardBackgroundImage == null || cardBackgroundImage.getForeground() == null) {
             cardBackgroundImage = mDefaultCardBackgroundImage;
         }
+        int maxDimen = Math.max(getCardBackgroundImage().getWidth(),
+                getCardBackgroundImage().getHeight());
+        Size scaledSize = new Size(maxDimen, maxDimen);
+        Bitmap imageBitmap = BitmapUtils.fromDrawable(cardBackgroundImage.getForeground(),
+                scaledSize);
         if (cardBackgroundImage.getBackground() != null) {
             getCardBackgroundImage().setBackground(cardBackgroundImage.getBackground());
             getCardBackgroundImage().setClipToOutline(true);
         }
+        getCardBackgroundImage().setImageBitmap(imageBitmap, /* showAnimation= */ true);
         getCardBackground().setVisibility(View.VISIBLE);
     }
 
