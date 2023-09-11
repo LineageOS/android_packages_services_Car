@@ -81,8 +81,6 @@ import androidx.lifecycle.ViewModelProvider;
 import com.android.car.carlauncher.CarLauncher;
 import com.android.car.carlauncher.CarLauncherUtils;
 import com.android.car.carlauncher.CarTaskView;
-import com.android.car.carlauncher.ControlledCarTaskViewCallbacks;
-import com.android.car.carlauncher.ControlledCarTaskViewConfig;
 import com.android.car.carlauncher.LaunchRootCarTaskViewCallbacks;
 import com.android.car.carlauncher.SemiControlledCarTaskViewCallbacks;
 import com.android.car.carlauncher.TaskViewManager;
@@ -97,6 +95,7 @@ import com.android.car.portraitlauncher.panel.TaskViewPanel;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -195,6 +194,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private final List<Message> mMessageCache = new ArrayList<>();
 
     private CarUiPortraitDriveStateController mCarUiPortraitDriveStateController;
+    private Set<ComponentName> mAppGridActivitiy = new HashSet<>();
     private final UserUnlockReceiver mUserUnlockReceiver = new UserUnlockReceiver();
 
     private final IntentHandler mMediaIntentHandler = new IntentHandler() {
@@ -476,6 +476,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         setContentView(R.layout.car_ui_portrait_launcher);
 
         registerUserUnlockReceiver();
+        mAppGridActivitiy.add(ComponentName
+                .unflattenFromString(
+                        getApplicationContext().getString(R.string.config_appGridActivity)));
 
         mTaskCategoryManager = new TaskCategoryManager(getApplicationContext());
         if (savedInstanceState != null) {
@@ -947,12 +950,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
     private void setUpAppGridTaskView() {
         mAppGridTaskViewPanel.setTag("AppGridPanel");
-        mTaskViewManager.createControlledCarTaskView(getMainExecutor(),
-                ControlledCarTaskViewConfig.builder()
-                        .setActivityIntent(CarLauncherUtils.getAppsGridIntent())
-                        .setAutoRestartOnCrash(/* autoRestartOnCrash= */ false)
-                        .build(),
-                new ControlledCarTaskViewCallbacks() {
+        mTaskViewManager.createSemiControlledTaskView(getMainExecutor(),
+                mAppGridActivitiy.stream().toList(),
+                new SemiControlledCarTaskViewCallbacks() {
                     @Override
                     public void onTaskViewCreated(CarTaskView taskView) {
                         taskView.setZOrderOnTop(false);
@@ -1103,7 +1103,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 // Hide the app grid task view behind the root task view.
                 if (newState.isVisible()) {
                     mAppGridTaskViewPanel.closePanel(/* animated = */ false);
-                } else if (mCurrentTaskInRootTaskView != null) {
+                } else if (mCurrentTaskInRootTaskView != null && oldState.isVisible()) {
                     // hide the window of the task running in the root task view.
                     logIfDebuggable("hiding the window for task: " + mCurrentTaskInRootTaskView);
                     mTaskViewManager.updateTaskVisibility(mCurrentTaskInRootTaskView.token, false);
