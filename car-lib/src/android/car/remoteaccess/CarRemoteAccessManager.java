@@ -575,7 +575,44 @@ public final class CarRemoteAccessManager extends CarManagerBase {
             private Duration mPeriodic;
             private boolean mBuilderUsed;
 
-            Builder(String scheduleId, byte[] taskData, long startTimeInEpochSeconds) {
+            /**
+             * Creates the builder for {@link ScheduleInfo}.
+             *
+             * <p>By default the task will be executed once at the {@code startTime}.
+             *
+             * <p>If {@code count} is not 1, the task will be executed multiple times at
+             * {@code startTime}, {@code startTime + periodic}, {@code startTime + periodic * 2}
+             * etc.
+             *
+             * <p>Note that all tasks scheduled in the past will not be executed. E.g. if the
+             * {@code startTime} is in the past and task is scheduled to be executed once, the task
+             * will not be executed. If the {@code startTime} is 6:00 am, the {@code periodic} is
+             * 1h, the {@code count} is 3, and the current time is 7:30 am. The first two scheduled
+             * time: 6:00am, 7:00am already past, so the task will only be executed once at 8:00am.
+             *
+             * <p>Note that {@code startTime} is an eopch time not containing time zone info.
+             * Changing the timezone will not affect the scheduling.
+             *
+             * <p>If the client always want the task to be executed at 3:00pm relative to the
+             * current Android timezone, the client must listen to {@code ACTION_TIMEZONE_CHANGED}.
+             * It must unschedule and reschedule the task when time zone is changed.
+             *
+             * <p>It is expected that the other device has the same time concept as Android.
+             * Optionally, the VHAL property {@code EPOCH_TIME} can be used to sync the time.
+             *
+             * @param scheduleId A unique ID to identify this scheduling. Must be unique among all
+             *      pending schedules for this client.
+             * @param taskData The opaque task data that will be sent back via
+             *      {@link onRemoteTaskRequested} when the task is to be executed.
+             * @param mStartTimeInEpochSeconds When the task is scheduled to be executed in epoch
+             *      seconds. It is not guaranteed that the task will be executed exactly at this
+             *      time (or be executed at all). Typically the task will be executed at a time
+             *      slightly later than the scheduled time due to the time spent waking up Android
+             *      system and starting the remote task client.
+             */
+            @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
+            public Builder(@NonNull String scheduleId, @NonNull byte[] taskData,
+                    long startTimeInEpochSeconds) {
                 Preconditions.checkArgument(scheduleId != null, "scheduleId must not be null");
                 Preconditions.checkArgument(taskData != null, "taskData must not be null");
                 Preconditions.checkArgument(startTimeInEpochSeconds > 0,
@@ -648,49 +685,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
         private int mCount;
         private long mStartTimeInEpochSeconds;
         private Duration mPeriodic;
-
-        /**
-         * Gets the builder for {@link ScheduleInfo}.
-         *
-         * <p>By default the task will be executed once at the {@code startTime}.
-         *
-         * <p>If {@code count} is not 1, the task will be executed multiple times at
-         * {@code startTime}, {@code startTime + periodic}, {@code startTime + periodic * 2} etc.
-         *
-         * <p>Note that all tasks scheduled in the past will not be executed. E.g. if the
-         * {@code startTime} is in the past and task is scheduled to be executed once, the task will
-         * not be executed. If the {@code startTime} is 6:00 am, the {@code periodic} is 1h, the
-         * {@code count} is 3, and the current time is 7:30 am. The first two scheduled time:
-         * 6:00am, 7:00am already past, so the task will only be executed once at 8:00am.
-         *
-         * <p>Note that {@code startTime} is an eopch time not containing time zone info.
-         * Changing the timezone will not affect the scheduling.
-         *
-         * <p>If the client always want the task to be executed at 3:00pm relative to the current
-         * Android timezone, the client must listen to {@code ACTION_TIMEZONE_CHANGED}. It must
-         * unschedule and reschedule the task when time zone is changed.
-         *
-         * <p>It is expected that the other device has the same time concept as Android. Optionally,
-         * the VHAL property {@code EPOCH_TIME} can be used to sync the time.
-         *
-         * @param scheduleId A unique ID to identify this scheduling. Must be unique among all
-         *      pending schedules for this client.
-         * @param taskData The opaque task data that will be sent back via
-         *      {@link onRemoteTaskRequested} when the task is to be executed.
-         * @param mStartTimeInEpochSeconds When the task is scheduled to be executed in epoch
-         *      seconds. It is not guaranteed that the task will be executed exactly at this time
-         *      (or be executed at all). Typically the task will be executed at a time slightly
-         *      later than the scheduled time due to the time spent waking up Android system and
-         *      starting the remote task client.
-         */
-        @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
-        @NonNull
-        public static Builder builder(@NonNull String scheduleId, @NonNull byte[] taskData,
-                long mStartTimeInEpochSeconds) {
-            Preconditions.checkArgument(scheduleId != null, "scheduleId must not be null");
-            Preconditions.checkArgument(taskData != null, "taskData must not be null");
-            return new Builder(scheduleId, taskData, mStartTimeInEpochSeconds);
-        }
 
         @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
         @NonNull
@@ -928,7 +922,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
         }
 
         private static ScheduleInfo fromTaskScheduleInfo(TaskScheduleInfo taskScheduleInfo) {
-            return ScheduleInfo.builder(taskScheduleInfo.scheduleId, taskScheduleInfo.taskData,
+            return new ScheduleInfo.Builder(taskScheduleInfo.scheduleId, taskScheduleInfo.taskData,
                     taskScheduleInfo.startTimeInEpochSeconds).setCount(taskScheduleInfo.count)
                     .setPeriodic(Duration.ofSeconds(taskScheduleInfo.periodicInSeconds)).build();
         }
