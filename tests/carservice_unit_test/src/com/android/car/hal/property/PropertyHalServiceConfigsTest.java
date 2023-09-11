@@ -77,6 +77,7 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
     private static final int[] SYSTEM_PROPERTY_IDS = {VehiclePropertyIds.ENGINE_OIL_LEVEL,
             VehiclePropertyIds.CURRENT_GEAR, VehiclePropertyIds.NIGHT_MODE,
             VehiclePropertyIds.HVAC_FAN_SPEED, VehiclePropertyIds.DOOR_LOCK};
+    private static final int BACKPORTED_PROPERTY = 0x31e01111;
 
     @Rule
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
@@ -269,6 +270,9 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
         int fakePropId = 0xffffffff;
         expectWithMessage("fake property: " + fakePropId + " is not supported").that(
                 mPropertyHalServiceConfigs.isSupportedProperty(fakePropId)).isFalse();
+
+        expectWithMessage("backported property: " + BACKPORTED_PROPERTY + " is supported").that(
+                mPropertyHalServiceConfigs.isSupportedProperty(BACKPORTED_PROPERTY)).isTrue();
     }
 
     /**
@@ -287,6 +291,10 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
         configArray.add(VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_ENGINE);
         // set up read permission and write permission to VENDOR_PROPERTY_3
         configArray.add(VENDOR_PROPERTY_3);
+        configArray.add(VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_INFO);
+        configArray.add(VehicleVendorPermission.PERMISSION_DEFAULT);
+        // set up read permission and write permission to BACKPORTED_PROPERTY
+        configArray.add(BACKPORTED_PROPERTY);
         configArray.add(VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_INFO);
         configArray.add(VehicleVendorPermission.PERMISSION_DEFAULT);
 
@@ -314,6 +322,12 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
         assertThat(mPropertyHalServiceConfigs.getWritePermission(VENDOR_PROPERTY_4)
                 .toString()).isEqualTo(Car.PERMISSION_VENDOR_EXTENSION);
 
+        assertThat(mPropertyHalServiceConfigs.getReadPermission(BACKPORTED_PROPERTY)
+                .toString()).isEqualTo(android.car.hardware.property
+                .VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_INFO);
+        assertThat(mPropertyHalServiceConfigs.getWritePermission(BACKPORTED_PROPERTY)
+                .toString()).isEqualTo(Car.PERMISSION_VENDOR_EXTENSION);
+
         when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_VENDOR_EXTENSION))
                 .thenReturn(PackageManager.PERMISSION_GRANTED);
         when(mContext.checkCallingOrSelfPermission(
@@ -337,6 +351,8 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
         assertThat(mPropertyHalServiceConfigs.isWritable(mContext, VENDOR_PROPERTY_3)).isTrue();
         assertThat(mPropertyHalServiceConfigs.isReadable(mContext, VENDOR_PROPERTY_4)).isTrue();
         assertThat(mPropertyHalServiceConfigs.isWritable(mContext, VENDOR_PROPERTY_4)).isTrue();
+        assertThat(mPropertyHalServiceConfigs.isReadable(mContext, BACKPORTED_PROPERTY)).isFalse();
+        assertThat(mPropertyHalServiceConfigs.isWritable(mContext, BACKPORTED_PROPERTY)).isTrue();
     }
 
     @Test

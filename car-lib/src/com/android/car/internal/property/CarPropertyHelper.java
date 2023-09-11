@@ -54,6 +54,7 @@ public final class CarPropertyHelper {
     // These are the same values as defined in VHAL interface.
     private static final int VEHICLE_PROPERTY_GROUP_MASK = 0xf0000000;
     private static final int VEHICLE_PROPERTY_GROUP_VENDOR = 0x20000000;
+    private static final int VEHICLE_PROPERTY_GROUP_BACKPORTED = 0x30000000;
 
     private static final int SYSTEM_ERROR_CODE_MASK = 0xffff;
     private static final int VENDOR_ERROR_CODE_SHIFT = 16;
@@ -70,7 +71,7 @@ public final class CarPropertyHelper {
      * Returns whether the property ID is supported by the current Car Service version.
      */
     public static boolean isSupported(int propertyId) {
-        return isSystemProperty(propertyId) || isVendorProperty(propertyId);
+        return isSystemProperty(propertyId) || isVendorOrBackportedProperty(propertyId);
     }
 
     /**
@@ -132,12 +133,25 @@ public final class CarPropertyHelper {
     }
 
     /**
+     * Returns whether the property ID is defined as a vendor property or a backported property.
+     */
+    public static boolean isVendorOrBackportedProperty(int propertyId) {
+        return isVendorProperty(propertyId) || isBackportedProperty(propertyId);
+    }
+
+    /**
      * Returns whether the property ID is defined as a vendor property.
      */
     public static boolean isVendorProperty(int propertyId) {
         return (propertyId & VEHICLE_PROPERTY_GROUP_MASK) == VEHICLE_PROPERTY_GROUP_VENDOR;
     }
 
+    /**
+     * Returns whether the property ID is defined as a backported property.
+     */
+    public static boolean isBackportedProperty(int propertyId) {
+        return (propertyId & VEHICLE_PROPERTY_GROUP_MASK) == VEHICLE_PROPERTY_GROUP_BACKPORTED;
+    }
 
     /**
      * Gets the default value for a {@link CarPropertyValue} class type.

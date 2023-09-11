@@ -20,33 +20,44 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.car.VehiclePropertyIds;
+import android.car.test.AbstractExpectableTestCase;
 
 import org.junit.Test;
 
 import java.util.List;
 
-public final class CarPropertyHelperUnitTest {
+public final class CarPropertyHelperUnitTest extends AbstractExpectableTestCase {
 
     private static final int SYSTEM_ERROR_CODE = 0x0123;
     private static final int VENDOR_ERROR_CODE = 0x1234;
     private static final int COMBINED_ERROR_CODE = 0x12340123;
     private static final int TEST_PROPERTY_ID1 = 0x234;
     private static final int TEST_PROPERTY_ID2 = 0x54321;
+    private static final int SYSTEM_PROPERTY = VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS;
+    // VehiclePropertyGroup:VENDOR, VehicleArea:GLOBAL,VehiclePropertyType:STRING, ID:0x0001
+    private static final int VENDOR_PROPERTY = 0x21100001;
+    // VehiclePropertyGroup:BACKPORTED, VehicleArea:GLOBAL,VehiclePropertyType:STRING, ID:0x0001
+    private static final int BACKPORTED_PROPERTY = 0x31100001;
 
     @Test
     public void testIsSupported() {
-        // VehiclePropertyGroup:VENDOR, VehicleArea:GLOBAL,VehiclePropertyType:STRING, ID:0x0001
-        assertThat(CarPropertyHelper.isSupported(0x21100001)).isTrue();
+
+        expectThat(CarPropertyHelper.isSupported(VENDOR_PROPERTY)).isTrue();
         // VEHICLE_SPEED_DISPLAY_UNITS is special because car property manager property ID is
         // different than vehicle HAL property ID.
-        assertThat(CarPropertyHelper.isSupported(
-                VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS)).isTrue();
+        expectThat(CarPropertyHelper.isSupported(
+                SYSTEM_PROPERTY)).isTrue();
          // This is a regular system property.
-        assertThat(CarPropertyHelper.isSupported(VehiclePropertyIds.INFO_VIN)).isTrue();
+        expectThat(CarPropertyHelper.isSupported(VehiclePropertyIds.INFO_VIN)).isTrue();
 
-        assertThat(CarPropertyHelper.isSupported(VehiclePropertyIds.INVALID)).isFalse();
+        expectThat(CarPropertyHelper.isSupported(VehiclePropertyIds.INVALID)).isFalse();
         // This is a wrong property ID. It is like INFO_VIN but with the wrong VehicleArea.
-        assertThat(CarPropertyHelper.isSupported(0x12100100)).isFalse();
+        expectThat(CarPropertyHelper.isSupported(0x12100100)).isFalse();
+    }
+
+    @Test
+    public void testIsSupported_backportedProperty() {
+        assertThat(CarPropertyHelper.isSupported(BACKPORTED_PROPERTY)).isTrue();
     }
 
     @Test
@@ -70,9 +81,23 @@ public final class CarPropertyHelperUnitTest {
     }
 
     @Test
+    public void testIsVendorOrBackportedProperty() {
+        expectThat(CarPropertyHelper.isVendorOrBackportedProperty(VENDOR_PROPERTY)).isTrue();
+        expectThat(CarPropertyHelper.isVendorOrBackportedProperty(BACKPORTED_PROPERTY)).isTrue();
+        expectThat(CarPropertyHelper.isVendorOrBackportedProperty(SYSTEM_PROPERTY)).isFalse();
+    }
+
+    @Test
     public void testIsVendorProperty() {
-        assertThat(CarPropertyHelper.isVendorProperty(0x21100001)).isTrue();
-        assertThat(CarPropertyHelper.isVendorProperty(
-                VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS)).isFalse();
+        expectThat(CarPropertyHelper.isVendorProperty(VENDOR_PROPERTY)).isTrue();
+        expectThat(CarPropertyHelper.isVendorProperty(BACKPORTED_PROPERTY)).isFalse();
+        expectThat(CarPropertyHelper.isVendorProperty(SYSTEM_PROPERTY)).isFalse();
+    }
+
+    @Test
+    public void testIsBackportedProperty() {
+        expectThat(CarPropertyHelper.isBackportedProperty(VENDOR_PROPERTY)).isFalse();
+        expectThat(CarPropertyHelper.isBackportedProperty(BACKPORTED_PROPERTY)).isTrue();
+        expectThat(CarPropertyHelper.isBackportedProperty(SYSTEM_PROPERTY)).isFalse();
     }
 }
