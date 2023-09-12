@@ -164,6 +164,10 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
                     PACKAGE_NAME_2)).thenReturn(PackageManager.PERMISSION_GRANTED);
             when(mPackageManager.checkPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS,
                     NO_PERMISSION_PACKAGE)).thenReturn(PackageManager.PERMISSION_DENIED);
+            when(mPackageManager.getPackagesForUid(Process.myUid())).thenReturn(
+                    new String[]{PACKAGE_NAME_1});
+            when(mPackageManager.getPackagesForUid(12345)).thenReturn(
+                    new String[]{PACKAGE_NAME_2});
         }
 
         @Override

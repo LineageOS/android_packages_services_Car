@@ -128,6 +128,7 @@
 
           <!-- XML files that can be overlaid -->
           <item type="xml" name="car_ux_restrictions_map"/>
+          <item type="xml" name="remote_access_serverless_client_map"/>
           <!-- XML files that can be overlaid -->
         </policy>
         <!-- END VENDOR CUSTOMIZATION -->

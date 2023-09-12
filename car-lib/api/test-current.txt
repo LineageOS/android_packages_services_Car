@@ -2076,8 +2076,10 @@ package android.car.projection {
 package android.car.remoteaccess {
 
   public final class CarRemoteAccessManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void addServerlessRemoteTaskClient(@NonNull String, @NonNull String);
     method @Nullable @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskScheduler getInVehicleTaskScheduler();
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public boolean isTaskScheduleSupported();
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void removeServerlessRemoteTaskClient(@NonNull String);
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void setPowerStatePostTaskExecution(int, boolean);
     field public static final int NEXT_POWER_STATE_OFF = 2; // 0x2
     field public static final int NEXT_POWER_STATE_ON = 1; // 0x1

@@ -16,13 +16,13 @@
 
 package android.car.remoteaccess;
 
-
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
+import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.builtin.util.Slogf;
@@ -59,8 +59,13 @@ import java.util.concurrent.Executor;
  * executed while the vehicle is off, the remote task client must check VHAL property
  * {@code VEHICLE_IN_USE} and/or check igntition state via {@code VehicleIgnitionState}.
  *
- * <p>A serverless setup might also be supported if {@link isTaskScheduleSupported} returns
- * {@code true}. Here the term 'remote' refers to the source of task coming from outside of the
+ * <p>Note: all remote task clients must run as system user.
+ *
+ * <p>A serverless setup might also be supported if the RRO overlay for
+ * remote_access_serverless_client_map exists which provides a map from serverless client ID to
+ * their package names.
+ *
+ * <p>Here the term 'remote' refers to the source of task coming from outside of the
  * Android system, it does not necessarily means the task comes from Internet. In the serverless
  * setup, no cloud service is required. Another device within the same vehicle, but outside the
  * Android system is the issuer for the remote task.
@@ -69,11 +74,15 @@ import java.util.concurrent.Executor;
  * register to {@link CarRemoteAccessManager} to listen to remote access events.
  * {@link RemoteTaskClientCallback#onServerlessClientRegistered} will be called instead of
  * {@link RemoteTaskClientCallback#onClientRegistered} and there is no cloud service involved.
- * They may use {@link scheduleTask} to schedule tasks to be executed later.
  * {@link RemoteTaskClientCallback#onRemoteTaskRequested} will be invoked when the task is to be
  * executed. It is supposed to call {@link #reportRemoteTaskDone(String)} when it
  * finishes the given task. Once the task completion is reported or the timeout expires, Android
  * system goes back to either the previous power state or the specified power state.
+ *
+ * <p>For serverless setup, if {@link isTaskScheduleSupported} returns {@code true}, client may
+ * use {@link InVehicleTaskScheduler#scheduleTask} to schedule a remote task to be executed later.
+ * If {@link isTaskScheduleSupported} returns {@code false}, it is assumed there exists some other
+ * channel outside of the Android system for task scheduling.
  */
 public final class CarRemoteAccessManager extends CarManagerBase {
 
@@ -127,8 +136,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
     private final ICarRemoteAccessService mService;
     private final Object mLock = new Object();
 
-    private final ICarRemoteAccessCallback mCarRemoteAccessCallback =
-            new ICarRemoteAccessCallback.Stub() {
+    private final class CarRemoteAccessCallback extends ICarRemoteAccessCallback.Stub {
         @Override
         public void onClientRegistrationUpdated(RemoteTaskClientRegistrationInfo registrationInfo) {
             RemoteTaskClientCallback callback;
@@ -144,6 +152,22 @@ public final class CarRemoteAccessManager extends CarManagerBase {
                 executor = mExecutor;
             }
             executor.execute(() -> callback.onRegistrationUpdated(registrationInfo));
+        }
+
+        @Override
+        public void onServerlessClientRegistered() {
+            RemoteTaskClientCallback callback;
+            Executor executor;
+            synchronized (mLock) {
+                if (mRemoteTaskClientCallback == null || mExecutor == null) {
+                    Slogf.w(TAG, "Cannot call onRegistrationUpdated because no remote task client "
+                            + "is registered");
+                    return;
+                }
+                callback = mRemoteTaskClientCallback;
+                executor = mExecutor;
+            }
+            executor.execute(() -> callback.onServerlessClientRegistered());
         }
 
         @Override
@@ -203,7 +227,9 @@ public final class CarRemoteAccessManager extends CarManagerBase {
             executor.execute(() ->
                     callback.onShutdownStarting(new MyCompletableRemoteTaskFuture(clientId)));
         }
-    };
+    }
+
+    private final ICarRemoteAccessCallback mCarRemoteAccessCallback = new CarRemoteAccessCallback();
 
     @GuardedBy("mLock")
     private RemoteTaskClientCallback mRemoteTaskClientCallback;
@@ -251,10 +277,23 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          * This is called when the remote task client is successfully registered or the client ID is
          * updated by AAOS.
          *
+         * <p>For a serverless remote task client, the {@link onServerlessClientRegistered} will be
+         * called instead of this.
+         *
          * @param info {@link RemoteTaskClientRegistrationIfno} which contains wake-up service ID,
          *             vehicle ID, processor ID and client ID.
          */
         void onRegistrationUpdated(@NonNull RemoteTaskClientRegistrationInfo info);
+
+        /**
+         * This is called when a pre-configured serverless remote task client is registered.
+         *
+         * <p>The serverless remote task client is configured via including a runtime config file
+         * at {@code /vendor/etc/}
+         */
+        default void onServerlessClientRegistered() {
+            Slogf.i(TAG, "onServerlessClientRegistered called");
+        }
 
         /**
          * This is called when registering the remote task client fails.
@@ -416,9 +455,10 @@ public final class CarRemoteAccessManager extends CarManagerBase {
     /**
      * Returns whether task scheduling is supported.
      *
-     * <p>If this returns {@code true}, user may use {@link scheduleTask} to schedule a task to be
-     * executed at a later time. If the device is off when the task is scheduled to be executed,
-     * the device will be woken up to execute the task.
+     * <p>If this returns {@code true}, user may use
+     * {@link InVehicleTaskScheduler#scheduleTask} to schedule a task to be executed at a later
+     * time. If the device is off when the task is scheduled to be executed, the device will be
+     * woken up to execute the task.
      *
      * @return {@code true} if serverless remote task scheduling is supported.
      *
@@ -455,6 +495,47 @@ public final class CarRemoteAccessManager extends CarManagerBase {
             return null;
         }
         return mInVehicleTaskScheduler;
+    }
+
+    /**
+     * For testing only. Adds a package as a new serverless remote task client.
+     *
+     * @param packageName The package name for the serverless remote task client. This should be a
+     *      test package name.
+     * @param clientId An arbitrary client ID picked for the client. Client should add some test
+     *      identifier to the ID to avoid conflict with an existing real client ID.
+     * @throws IllegalArgumentException If the packageName is already an serverless remote task
+     *      client or if the client ID is already used.
+     *
+     * @hide
+     */
+    @TestApi
+    @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
+    public void addServerlessRemoteTaskClient(@NonNull String packageName,
+            @NonNull String clientId) {
+        try {
+            mService.addServerlessRemoteTaskClient(packageName, clientId);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * For testing only. Removes a package as serverless remote task client.
+     *
+     * @param packageName The package name for the previously added test serverless remote task
+     *      client.
+     *
+     * @hide
+     */
+    @TestApi
+    @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
+    public void removeServerlessRemoteTaskClient(@NonNull String packageName) {
+        try {
+            mService.removeServerlessRemoteTaskClient(packageName);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
     }
 
     /**
