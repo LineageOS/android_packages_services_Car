@@ -38,5 +38,6 @@
            so that User 0 can access the camera.
       -->
       <permission name="android.permission.CAMERA" fixed="false"/>
+      <permission name="android.permission.CAMERA_HEADLESS_SYSTEM_USER" fixed="false"/>
     </exception>
 </exceptions>
