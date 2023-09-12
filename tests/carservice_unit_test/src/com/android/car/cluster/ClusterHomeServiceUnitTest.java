@@ -131,6 +131,7 @@ public class ClusterHomeServiceUnitTest {
             assertThat(mOccupantZoneCallback).isNotNull();
             return null;
         }).when(mOccupantZoneService).registerCallback(any(ICarOccupantZoneCallback.class));
+        when(mClusterHalService.isCoreSupported()).thenReturn(true);
         when(mClusterHalService.isNavigationStateSupported()).thenReturn(true);
         when(mDisplayManager.getDisplay(CLUSTER_DISPLAY_ID)).thenReturn(mClusterDisplay);
         doAnswer(invocation -> {
