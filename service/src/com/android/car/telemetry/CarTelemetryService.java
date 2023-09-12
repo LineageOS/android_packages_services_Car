@@ -412,10 +412,9 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                         + " from car telemetry service");
             }
             mTelemetryThreadTraceLog.traceBegin("removeMetricsConfig");
-            if (mMetricsConfigStore.removeMetricsConfig(metricsConfigName)) {
-                mDataBroker.removeMetricsConfig(metricsConfigName);
-                mResultStore.removeResult(metricsConfigName);
-            }
+            mMetricsConfigStore.removeMetricsConfig(metricsConfigName);
+            mDataBroker.removeMetricsConfig(metricsConfigName);
+            mResultStore.removeResult(metricsConfigName);
             mTelemetryThreadTraceLog.traceEnd();
         });
     }

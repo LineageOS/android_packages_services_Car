@@ -409,21 +409,24 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         }
 
         if (mUseGearSelection) {
-            if (DBG) {
-                Slogf.d(TAG_EVS, "CarEvsService listens to GEAR_SELECTION property.");
-            }
-
             if (mPropertyService == null || mPropertyService.getPropertySafe(
                     VehiclePropertyIds.GEAR_SELECTION, /*areaId=*/ 0) == null) {
-                Slogf.e(TAG_EVS,
-                        "CarEvsService is disabled because GEAR_SELECTION is unavailable.");
+                Slogf.w(TAG_EVS,
+                        "GEAR_SELECTION property is also not available. " +
+                        "CarEvsService may not respond to the system events.");
                 mUseGearSelection = false;
-                return;
-            }
+            } else {
+                if (DBG) {
+                    Slogf.d(TAG_EVS, "CarEvsService listens to GEAR_SELECTION property.");
+                }
 
-            mPropertyService.registerListenerSafe(
-                    VehiclePropertyIds.GEAR_SELECTION, /*updateRateHz=*/0,
-                    mGearSelectionPropertyListener);
+                if (!mPropertyService.registerListenerSafe(
+                        VehiclePropertyIds.GEAR_SELECTION, /*updateRateHz=*/0,
+                        mGearSelectionPropertyListener)) {
+                    Slogf.w(TAG_EVS, "Failed to register a listener for GEAR_SELECTION property.");
+                    mUseGearSelection = false;
+                }
+            }
         }
 
         StateMachine instance = mServiceInstances.get(CarEvsManager.SERVICE_TYPE_REARVIEW);
