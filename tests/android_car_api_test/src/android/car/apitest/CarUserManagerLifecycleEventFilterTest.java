@@ -178,10 +178,10 @@ public final class CarUserManagerLifecycleEventFilterTest extends CarMultiUserTe
             mCarUserManager.removeListener(listener.listener);
         }
 
+        // We do not need to clean up the user that is created by
+        // CarMultiUserTestBase#createUser().
         // TODO(b/246959046): Listen to the user removed event after investigating why some
         // other events, e,g. stopping, stopped and removed are out of order.
-        // Remove the new user for cleanup.
-        removeUser(newUserId);
 
         // The expected events are (in order): CREATED, STARTING, SWITCHING, SWITCHING.
         UserLifecycleEvent[] events = buildExpectedEvents(initialUserId, newUserId);
