@@ -45,6 +45,8 @@ public final class CarDevicePolicyManagerTest extends CarMultiUserTestBase {
 
     private static final String TAG = CarDevicePolicyManagerTest.class.getSimpleName();
 
+    private static final int TIMEOUT_MS = 5_000; // 5 seconds
+
     private CarDevicePolicyManager mCarDpm;
     private DevicePolicyManager mDpm;
     private KeyguardManager mKeyguardManager;
@@ -110,9 +112,8 @@ public final class CarDevicePolicyManagerTest extends CarMultiUserTestBase {
         // User is removed once switch is complete
         Log.d(TAG, "waiting for user to be removed: " + user);
         waitForUserRemoval(user.id);
-        assertWithMessage("User %s exists after switch (should be removed)", user)
-                .that(hasUser(user.id))
-                .isFalse();
+        waitUntil("User " + user + " exists after switch (should be removed)",
+                TIMEOUT_MS, () -> !hasUser(user.id));
     }
 
     @Test
@@ -203,14 +204,8 @@ public final class CarDevicePolicyManagerTest extends CarMultiUserTestBase {
         StartUserInBackgroundResult result = mCarDpm.startUserInBackground(user.getUserHandle());
         Log.d(TAG, "result: " + result);
 
-        try {
-            assertWithMessage("Result of startUserInBackground %s: %s", user.toFullString(), result)
-                    .that(result.isSuccess()).isTrue();
-        } finally {
-            // Clean up the created user.
-            removeUser(user.id);
-            waitForUserRemoval(user.id);
-        }
+        assertWithMessage("Result of startUserInBackground %s: %s", user.toFullString(), result)
+                .that(result.isSuccess()).isTrue();
     }
 
     @Test
@@ -222,14 +217,8 @@ public final class CarDevicePolicyManagerTest extends CarMultiUserTestBase {
         StopUserResult result = mCarDpm.stopUser(user.getUserHandle());
         Log.d(TAG, "result: " + result);
 
-        try {
-            assertWithMessage("Result of stopUser %s: %s", user.toFullString(), result)
-                    .that(result.isSuccess()).isTrue();
-        } finally {
-            // Clean up the user.
-            removeUser(user.id);
-            waitForUserRemoval(user.id);
-        }
+        assertWithMessage("Result of stopUser %s: %s", user.toFullString(), result)
+                .that(result.isSuccess()).isTrue();
     }
 
     @Test
