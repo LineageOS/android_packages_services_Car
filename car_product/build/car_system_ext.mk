@@ -26,6 +26,9 @@ PRODUCT_PACKAGES += \
     CarProvision \
     CarSystemUI \
 
+PRODUCT_PACKAGES_DEBUG += \
+    BugReportApp \
+
 # Default dex optimization configurations
 PRODUCT_SYSTEM_EXT_PROPERTIES += \
     dalvik.vm.dex2oat-cpu-set=0,1 \
