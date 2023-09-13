@@ -159,3 +159,11 @@ package android.car.util.concurrent {
 
 }
 
+package android.car.watchdog {
+
+  public final class IoOveruseAlertThreshold implements android.os.Parcelable {
+    ctor public IoOveruseAlertThreshold(long, long);
+  }
+
+}
+
