@@ -291,6 +291,17 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
                 () -> mClusterHomeManager.reportState(UI_TYPE_1, UI_TYPE_2, UI_AVAILABILITY));
         assertThrows(IllegalStateException.class,
                 () -> mClusterHomeManager.requestDisplay(UI_TYPE_1));
+        assertThrows(IllegalStateException.class,
+                () -> mClusterHomeManager.registerClusterStateListener(
+                        getContext().getMainExecutor(), mClusterStateListener));
+        assertThrows(IllegalStateException.class,
+                () -> mClusterHomeManager.unregisterClusterStateListener(mClusterStateListener));
+        assertThrows(IllegalStateException.class,
+                () -> mClusterHomeManager.registerClusterNavigationStateListener(
+                        getContext().getMainExecutor(), mClusterNavigationStateListener));
+        assertThrows(IllegalStateException.class,
+                () -> mClusterHomeManager
+                        .unregisterClusterNavigationStateListener(mClusterNavigationStateListener));
     }
 
     @Test
