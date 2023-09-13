@@ -55,7 +55,7 @@ void NativeTelemetryServer::removeMetricsConfig(const ::android::String16& metri
     const std::scoped_lock<std::mutex> lock(mMutex);
     ALOGI(LOG_TAG "removing config");
 
-    std::string key = std::string(android::String8(metricConfigName).string());
+    std::string key = android::String8(metricConfigName).c_str();
     if (mActiveConfigs.count(key)) {
         mActiveConfigs.erase(key);
     }
