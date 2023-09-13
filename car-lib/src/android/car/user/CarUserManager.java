@@ -21,7 +21,6 @@ import static android.Manifest.permission.INTERACT_ACROSS_USERS_FULL;
 import static android.os.Process.myUid;
 
 import static com.android.car.internal.util.FunctionalUtils.getLambdaName;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
@@ -425,19 +424,15 @@ public final class CarUserManager extends CarManagerBase {
         int uid = myUid();
         int userId = request.getUserHandle().getIdentifier();
         int displayId = request.getDisplayId();
-        if (isPlatformVersionAtLeastU()) {
-            EventLogHelper.writeCarUserManagerStartUserReq(uid, userId, displayId);
-        }
+        EventLogHelper.writeCarUserManagerStartUserReq(uid, userId, displayId);
         try {
             ResultCallbackImpl<UserStartResponse> callbackImpl = new ResultCallbackImpl<>(
                     executor, callback) {
                 @Override
                 protected void onCompleted(UserStartResponse response) {
-                    if (isPlatformVersionAtLeastU()) {
-                        EventLogHelper.writeCarUserManagerStartUserResp(uid, userId, displayId,
-                                response != null ? response.getStatus()
-                                        : UserStartResponse.STATUS_ANDROID_FAILURE);
-                    }
+                    EventLogHelper.writeCarUserManagerStartUserResp(uid, userId, displayId,
+                            response != null ? response.getStatus()
+                                    : UserStartResponse.STATUS_ANDROID_FAILURE);
                     super.onCompleted(response);
                 }
             };
@@ -465,19 +460,15 @@ public final class CarUserManager extends CarManagerBase {
             @NonNull ResultCallback<UserStopResponse> callback) {
         int uid = myUid();
         int userId = request.getUserHandle().getIdentifier();
-        if (isPlatformVersionAtLeastU()) {
-            EventLogHelper.writeCarUserManagerStopUserReq(uid, userId);
-        }
+        EventLogHelper.writeCarUserManagerStopUserReq(uid, userId);
         try {
             ResultCallbackImpl<UserStopResponse> callbackImpl = new ResultCallbackImpl<>(
                     executor, callback) {
                 @Override
                 protected void onCompleted(UserStopResponse response) {
-                    if (isPlatformVersionAtLeastU()) {
-                        EventLogHelper.writeCarUserManagerStopUserResp(uid, userId,
-                                response != null ? response.getStatus()
-                                        : UserStopResponse.STATUS_ANDROID_FAILURE);
-                    }
+                    EventLogHelper.writeCarUserManagerStopUserResp(uid, userId,
+                            response != null ? response.getStatus()
+                                    : UserStopResponse.STATUS_ANDROID_FAILURE);
                     super.onCompleted(response);
                 }
             };

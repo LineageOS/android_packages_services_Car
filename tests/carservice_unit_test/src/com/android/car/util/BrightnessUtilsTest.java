@@ -23,8 +23,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 
-import com.android.car.internal.util.VersionUtils;
-
 import org.junit.Test;
 
 public class BrightnessUtilsTest extends AbstractExtendedMockitoTestCase {
@@ -35,11 +33,6 @@ public class BrightnessUtilsTest extends AbstractExtendedMockitoTestCase {
     private static final int MIN_BACKLIGHT = 10;   // config_screenBrightnessSettingMinimum
     private static final int MAX_BACKLIGHT = 255;  // config_screenBrightnessSettingMaximum
     private static final int INVALID_BRIGHTNESS = -1;
-
-    @Override
-    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(VersionUtils.class);
-    }
 
     @Test
     public void linearToGamma_minValue_shouldReturnMin() {

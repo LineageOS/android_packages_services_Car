@@ -16,8 +16,6 @@
 
 package android.car.view;
 
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeast;
-
 import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -25,7 +23,6 @@ import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.app.Activity;
 import android.car.Car;
-import android.car.PlatformVersion;
 import android.car.app.CarActivityManager;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.TouchableInsetsProvider;
@@ -90,7 +87,6 @@ public final class MirroredSurfaceView extends SurfaceView {
                         SurfaceControl.Transaction transaction,
                         TouchableInsetsProvider touchableInsetsProvider) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        assertPlatformVersionAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0);
         mTransaction = transaction;
         mTouchableInsetsProvider = touchableInsetsProvider != null
                 ? touchableInsetsProvider : new TouchableInsetsProvider(this);

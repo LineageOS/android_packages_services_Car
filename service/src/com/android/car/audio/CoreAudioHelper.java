@@ -28,7 +28,6 @@ import android.media.audiopolicy.AudioVolumeGroup;
 import android.util.SparseArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.car.internal.util.VersionUtils;
 import com.android.internal.util.Preconditions;
 
 import java.util.List;
@@ -207,8 +206,7 @@ final class CoreAudioHelper {
             // bestAttributes attributes are not default and without tag (most generic as possible)
             if (!attributes.equals(DEFAULT_ATTRIBUTES)) {
                 bestAttributes = attributes;
-                if (!VersionUtils.isPlatformVersionAtLeastU()
-                        || Objects.equals(AudioManagerHelper.getFormattedTags(attributes), "")) {
+                if (Objects.equals(AudioManagerHelper.getFormattedTags(attributes), "")) {
                     break;
                 }
             }
@@ -253,11 +251,6 @@ final class CoreAudioHelper {
      */
     public static int getVolumeGroupIdForAudioAttributes(AudioAttributes attributes) {
         Preconditions.checkNotNull(attributes, "Audio Attributes must not be null");
-        if (!VersionUtils.isPlatformVersionAtLeastU()) {
-            Slogf.e(TAG, "AudioManagerHelper.getVolumeGroupIdForAudioAttributes() not"
-                    + " supported for this build version, returning INVALID_GROUP_ID");
-            return INVALID_GROUP_ID;
-        }
         for (int index = 0; index < getAudioProductStrategies().size(); index++) {
             AudioProductStrategy strategy = getAudioProductStrategies().get(index);
             int volumeGroupId =

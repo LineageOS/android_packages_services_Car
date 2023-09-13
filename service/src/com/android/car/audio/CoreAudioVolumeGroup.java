@@ -31,7 +31,6 @@ import android.util.SparseArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
-import com.android.car.internal.util.VersionUtils;
 import com.android.internal.annotations.GuardedBy;
 
 /**
@@ -96,13 +95,11 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
     }
 
     boolean isAmGroupMuted() {
-        return VersionUtils.isPlatformVersionAtLeastU()
-                ? AudioManagerHelper.isVolumeGroupMuted(mAudioManager, mAmId) : false;
+        return AudioManagerHelper.isVolumeGroupMuted(mAudioManager, mAmId);
     }
 
     int getAmLastAudibleIndex() {
-        return VersionUtils.isPlatformVersionAtLeastU()
-                ? AudioManagerHelper.getLastAudibleVolumeGroupVolume(mAudioManager, mAmId) : 0;
+        return AudioManagerHelper.getLastAudibleVolumeGroupVolume(mAudioManager, mAmId);
     }
 
     @Override
@@ -121,11 +118,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
     private void setCurrentGainIndexLocked(int gainIndex, boolean canChangeMuteState) {
         int flags = 0;
         if (canChangeMuteState || !isUserMutedLocked()) {
-            if (VersionUtils.isPlatformVersionAtLeastU()) {
-                mAudioManager.setVolumeGroupVolumeIndex(mAmId, gainIndex, flags);
-            } else {
-                mAudioManager.setVolumeIndexForAttributes(mAudioAttributes, gainIndex, flags);
-            }
+            mAudioManager.setVolumeGroupVolumeIndex(mAmId, gainIndex, flags);
         }
     }
 
@@ -148,7 +141,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
     @GuardedBy("mLock")
     @SuppressWarnings("GuardedBy")
     protected void applyMuteLocked(boolean mute) {
-        if (!isMutable() || !VersionUtils.isPlatformVersionAtLeastU()) {
+        if (!isMutable()) {
             return;
         }
         if (isAmGroupMuted() != mute) {
