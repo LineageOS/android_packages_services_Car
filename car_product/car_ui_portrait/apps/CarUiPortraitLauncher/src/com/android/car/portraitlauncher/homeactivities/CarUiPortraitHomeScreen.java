@@ -313,6 +313,23 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
 
         /**
+         * Called when a task is removed.
+         * @param taskId id of the task.
+         * @throws RemoteException
+         */
+        @Override
+        public void onTaskRemoved(int taskId) throws RemoteException {
+            super.onTaskRemoved(taskId);
+
+            // Hide the root task view panel if it is empty.
+            if (mRootTaskViewPanel != null
+                    && mTaskViewManager.getRootTaskCount() == 0
+                    && mRootTaskViewPanel.isOpen()) {
+                mRootTaskViewPanel.closePanel(false);
+            }
+        }
+
+        /**
          * Called whenever IActivityManager.startActivity is called on an activity that is already
          * running, but the task is either brought to the front or a new Intent is delivered to it.
          *
