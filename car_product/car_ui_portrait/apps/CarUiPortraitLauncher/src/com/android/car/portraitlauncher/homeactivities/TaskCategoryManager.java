@@ -209,6 +209,10 @@ class TaskCategoryManager {
         return mAppGridActivityComponent.equals(taskInfo.baseActivity);
     }
 
+    ComponentName getAppGridActivity() {
+        return mAppGridActivityComponent;
+    }
+
     Set<ComponentName> getFullScreenActivities() {
         return mFullScreenActivities;
     }
