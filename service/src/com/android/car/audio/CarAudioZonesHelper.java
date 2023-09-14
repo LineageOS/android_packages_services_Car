@@ -267,7 +267,7 @@ import java.util.stream.Collectors;
 
     private void parseCarAudioContexts(XmlPullParser parser)
             throws XmlPullParserException, IOException {
-        int contextId = 0;
+        int contextId = CarAudioContext.getInvalidContext() + 1;
 
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
