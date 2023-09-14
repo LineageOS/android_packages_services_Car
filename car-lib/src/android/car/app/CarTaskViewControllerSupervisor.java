@@ -29,6 +29,8 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArrayMap;
 
+import com.android.internal.annotations.GuardedBy;
+
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -193,7 +195,9 @@ final class CarTaskViewControllerSupervisor {
         private final Executor mCallbackExecutor;
         private final CarTaskViewControllerCallback mCarTaskViewControllerCallback;
         private final ICarActivityService mCarActivityService;
+        private final Object mLock = new Object();
 
+        @GuardedBy("mLock")
         private CarTaskViewController mCarTaskViewController;
 
         private ActivityHolder(Context context,
@@ -216,25 +220,47 @@ final class CarTaskViewControllerSupervisor {
         }
 
         private void onCarSystemUIConnected(ICarSystemUIProxy systemUIProxy) {
-            mCarTaskViewController =
-                    new CarTaskViewController(mContext, mActivity, systemUIProxy,
-                            mCarActivityService);
-            mCallbackExecutor.execute(() ->
-                    mCarTaskViewControllerCallback.onConnected(mCarTaskViewController)
-            );
+            synchronized (mLock) {
+                mCarTaskViewController =
+                        new CarTaskViewController(mContext, mActivity, systemUIProxy,
+                                mCarActivityService);
+            }
+            mCallbackExecutor.execute(() -> {
+                synchronized (mLock) {
+                    Slogf.w(TAG, "car task view controller not found when triggering callback, "
+                                    + "not dispatching onConnected");
+                    // Check for null because the mCarTaskViewController might have already been
+                    // released but this code path is executed later because the executor was busy.
+                    if (mCarTaskViewController == null) {
+                        return;
+                    }
+                    mCarTaskViewControllerCallback.onConnected(mCarTaskViewController);
+                }
+            });
         }
 
         private void onCarSystemUIDisconnected() {
-            if (mCarTaskViewController == null) {
-                Slogf.w(TAG, "car task view controller not found, not dispatching onDisconnected");
-                return;
+            synchronized (mLock) {
+                if (mCarTaskViewController == null) {
+                    Slogf.w(TAG,
+                            "car task view controller not found, not dispatching onDisconnected");
+                    return;
+                }
+                // Only release the taskviews and not the controller because the system ui might get
+                // connected while the activity is still visible.
+                mCarTaskViewController.releaseTaskViews();
             }
-            mCallbackExecutor.execute(() ->
-                    mCarTaskViewControllerCallback.onDisconnected(mCarTaskViewController)
-            );
-            // Only release the taskviews and not the controller because the system ui might get
-            // connected while the activity is still visible.
-            mCarTaskViewController.releaseTaskViews();
+
+            mCallbackExecutor.execute(() -> {
+                synchronized (mLock) {
+                    if (mCarTaskViewController == null) {
+                        Slogf.w(TAG, "car task view controller not found when triggering "
+                                + "callback, not dispatching onDisconnected");
+                        return;
+                    }
+                    mCarTaskViewControllerCallback.onDisconnected(mCarTaskViewController);
+                }
+            });
         }
 
         private void onActivityDestroyed() {
@@ -242,12 +268,14 @@ final class CarTaskViewControllerSupervisor {
         }
 
         private void releaseController() {
-            if (mCarTaskViewController == null) {
-                Slogf.w(TAG, "car task view controller not found, not releasing");
-                return;
+            synchronized (mLock) {
+                if (mCarTaskViewController == null) {
+                    Slogf.w(TAG, "car task view controller not found, not releasing");
+                    return;
+                }
+                mCarTaskViewController.release();
+                mCarTaskViewController = null;
             }
-            mCarTaskViewController.release();
-            mCarTaskViewController = null;
         }
     }
 }
