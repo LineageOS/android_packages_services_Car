@@ -171,8 +171,8 @@ private:
     public:
         ClientInfo(const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient>&
                            client,
-                   pid_t pid, userid_t userId, std::string packageName, uint64_t startTimeMillis,
-                   const WatchdogProcessService& service) :
+                   pid_t pid, userid_t userId, const std::string& packageName,
+                   uint64_t startTimeMillis, const WatchdogProcessService& service) :
               kPid(pid),
               kUserId(userId),
               kPackageName(packageName),
@@ -182,7 +182,7 @@ private:
               kClient(client) {}
         ClientInfo(const android::sp<WatchdogServiceHelperInterface>& helper,
                    const ndk::SpAIBinder& binder, pid_t pid, userid_t userId,
-                   std::string packageName, uint64_t startTimeMillis,
+                   const std::string& packageName, uint64_t startTimeMillis,
                    const WatchdogProcessService& service) :
               kPid(pid),
               kUserId(userId),
