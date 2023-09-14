@@ -297,6 +297,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
     private static final String COMMAND_GET_DISPLAY_BY_USER = "get-display-by-user";
     private static final String COMMAND_GET_USER_BY_DISPLAY = "get-user-by-display";
+    private static final String COMMAND_GENERATE_TEST_VENDOR_CONFIGS = "gen-test-vendor-configs";
+    private static final String COMMAND_RESTORE_TEST_VENDOR_CONFIGS = "restore-vendor-configs";
 
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
@@ -1220,6 +1222,24 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 String areaId = args.length < 3 ? PARAM_ALL_PROPERTIES_OR_AREA : args[2];
                 mHal.dumpPropertyValueByCommand(writer, Integer.decode(propId),
                         Integer.decode(areaId));
+                break;
+            case COMMAND_GENERATE_TEST_VENDOR_CONFIGS:
+                try (CarTestService.NativePipe pipe = CarTestService.NativePipe.newPipe()) {
+                    mHal.dumpVhal(pipe.getFileDescriptor(), List.of("--genTestVendorConfigs"));
+                    writer.print(pipe.getOutput(DEFAULT_HAL_TIMEOUT_MS));
+                } catch (Exception e) {
+                    Slogf.w(TAG, "dumpVhal --genTestVendorConfigs Failed", e);
+                    return showInvalidArguments(writer);
+                }
+                break;
+            case COMMAND_RESTORE_TEST_VENDOR_CONFIGS:
+                try (CarTestService.NativePipe pipe = CarTestService.NativePipe.newPipe()) {
+                    mHal.dumpVhal(pipe.getFileDescriptor(), List.of("--restoreVendorConfigs"));
+                    writer.print(pipe.getOutput(DEFAULT_HAL_TIMEOUT_MS));
+                } catch (Exception e) {
+                    Slogf.w(TAG, "dumpVhal --genTestVendorConfigs Failed", e);
+                    return showInvalidArguments(writer);
+                }
                 break;
             case COMMAND_SET_PROPERTY_VALUE:
                 runSetVehiclePropertyValue(args, writer);
