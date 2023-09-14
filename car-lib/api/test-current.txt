@@ -2732,6 +2732,7 @@ package android.car.watchdog {
   }
 
   public final class IoOveruseAlertThreshold implements android.os.Parcelable {
+    ctor public IoOveruseAlertThreshold(long, long);
     method public int describeContents();
     method public long getDurationInSeconds();
     method public long getWrittenBytesPerSecond();
