@@ -108,6 +108,14 @@
     <!--  The name of Activity who is in charge of ClusterHome. -->
     <string name="config_clusterHomeActivity" translatable="false">com.android.car.cluster.home/.ClusterHomeActivity</string>
 
+    <!-- Configures the mode in which ClusterHomeService operates.
+         Currently supported modes are:
+           0 (full mode): All VHAL properties in ClusterHalService#CORE_PROPERTIES must be
+                          available. Otherwise, the entire ClusterHomeService is disabled.
+           1 (light mode): ClusterHomeService is always enabled even without any VHAL properties.
+         -->
+   <integer name="config_clusterHomeServiceMode">0</integer>
+
     <!--  Service responsible for handling the rotary controller input. This service will start
           on boot or on user switch. Set this string to empty if you don't want to start this
           service. -->
