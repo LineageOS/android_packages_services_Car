@@ -95,7 +95,6 @@ import com.android.car.portraitlauncher.panel.TaskViewPanel;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -194,7 +193,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private final List<Message> mMessageCache = new ArrayList<>();
 
     private CarUiPortraitDriveStateController mCarUiPortraitDriveStateController;
-    private Set<ComponentName> mAppGridActivitiy = new HashSet<>();
     private final UserUnlockReceiver mUserUnlockReceiver = new UserUnlockReceiver();
 
     private final IntentHandler mMediaIntentHandler = new IntentHandler() {
@@ -476,9 +474,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         setContentView(R.layout.car_ui_portrait_launcher);
 
         registerUserUnlockReceiver();
-        mAppGridActivitiy.add(ComponentName
-                .unflattenFromString(
-                        getApplicationContext().getString(R.string.config_appGridActivity)));
 
         mTaskCategoryManager = new TaskCategoryManager(getApplicationContext());
         if (savedInstanceState != null) {
@@ -571,7 +566,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         UserUnlockReceiver.Callback callback = () -> {
             logIfDebuggable("On user unlock");
             initSemiControlledTaskViews();
-            startActivity(CarLauncherUtils.getAppsGridIntent());
         };
         mUserUnlockReceiver.register(this, callback);
     }
@@ -951,7 +945,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private void setUpAppGridTaskView() {
         mAppGridTaskViewPanel.setTag("AppGridPanel");
         mTaskViewManager.createSemiControlledTaskView(getMainExecutor(),
-                mAppGridActivitiy.stream().toList(),
+                List.of(mTaskCategoryManager.getAppGridActivity()),
                 new SemiControlledCarTaskViewCallbacks() {
                     @Override
                     public void onTaskViewCreated(CarTaskView taskView) {
@@ -964,6 +958,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                         logIfDebuggable("App grid Task View is ready");
                         mAppGridTaskViewPanel.setReady(true);
                         onTaskViewReadinessUpdated();
+                        startActivity(CarLauncherUtils.getAppsGridIntent());
                     }
                 }
         );
