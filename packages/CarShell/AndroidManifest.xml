@@ -43,6 +43,8 @@
     <uses-permission android:name="android.car.permission.CAR_DIAGNOSTICS" />
     <!-- Permission required for 'adb shell cmd car_service silent-mode' -->
     <uses-permission android:name="android.car.permission.CAR_POWER" />
+    <!-- Permission required for CTS test - OemCarServiceImplTest -->
+    <uses-permission android:name="android.car.permission.CAR_TEST_SERVICE"/>
     <!-- Permission required for ATS tests - AtsCarTests#CarPowerManagerTest-->
     <uses-permission android:name="android.car.permission.CONTROL_CAR_POWER_POLICY" />
     <uses-permission android:name="android.car.permission.CONTROL_SHUTDOWN_PROCESS" />
