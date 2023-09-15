@@ -19,13 +19,19 @@ package com.android.car.portraitlauncher.controlbar.dialer;
 import android.telecom.Call;
 
 import com.android.car.carlauncher.homescreen.audio.InCallModel;
+import com.android.car.telephony.common.CallDetail;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Clock;
+import java.util.List;
 
 /** A wrapper around InCallModel to track when an active call is in progress. */
 public class DialerCardModel extends InCallModel {
 
     private boolean mHasActiveCall;
+    private List<Integer> mAvailableRoutes;
+    private int mActiveRoute;
 
     public DialerCardModel(Clock elapsedTimeClock) {
         super(elapsedTimeClock);
@@ -46,5 +52,40 @@ public class DialerCardModel extends InCallModel {
     public void onCallRemoved(Call call) {
         mHasActiveCall = false;
         super.onCallRemoved(call);
+    }
+
+    @Override
+    protected void handleActiveCall(@NotNull Call call) {
+        CallDetail callDetails = CallDetail.fromTelecomCallDetail(call.getDetails());
+        mAvailableRoutes = sInCallServiceManager.getSupportedAudioRoute(callDetails);
+        mActiveRoute = sInCallServiceManager.getAudioRoute(
+                CallDetail.fromTelecomCallDetail(call.getDetails()).getScoState());
+        super.handleActiveCall(call);
+    }
+
+    /**
+     * Returns audio routes supported by current call.
+     */
+    public List<Integer> getAvailableAudioRoutes() {
+        return mAvailableRoutes;
+    }
+
+    /**
+     * Returns current call audio state.
+     */
+    public int getActiveAudioRoute() {
+        return mActiveRoute;
+    }
+
+    /**
+     * Sets current call audio route.
+     */
+    public void setActiveAudioRoute(int audioRoute) {
+        if (getCurrentCall() == null) {
+            // AudioRouteButton is disabled if it is null. Simply ignore it.
+            return;
+        }
+        sInCallServiceManager.setAudioRoute(audioRoute, getCurrentCall());
+        mActiveRoute = audioRoute;
     }
 }
