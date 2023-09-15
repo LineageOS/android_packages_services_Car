@@ -734,6 +734,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
      */
     @Override
     public void addServerlessRemoteTaskClient(String packageName, String clientId) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_REMOTE_ACCESS);
         Preconditions.checkArgument(packageName != null, "packageName must not be null");
         Preconditions.checkArgument(clientId != null, "clientId must not be null");
         synchronized (mLock) {
@@ -763,6 +764,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
      */
     @Override
     public void removeServerlessRemoteTaskClient(String packageName) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_REMOTE_ACCESS);
         Preconditions.checkArgument(packageName != null, "packageName must not be null");
         synchronized (mLock) {
             mServerlessClientIdsByPackageName.remove(packageName);

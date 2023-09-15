@@ -130,5 +130,6 @@
         <permission name="android.car.permission.MANAGE_REMOTE_DEVICE" />
         <permission name="android.car.permission.MANAGE_CAR_SYSTEM_UI" />
         <permission name="android.car.permission.QUERY_DISPLAY_COMPATIBILITY" />
+        <permission name="android.car.permission.CONTROL_REMOTE_ACCESS" />
     </privapp-permissions>
 </permissions>
