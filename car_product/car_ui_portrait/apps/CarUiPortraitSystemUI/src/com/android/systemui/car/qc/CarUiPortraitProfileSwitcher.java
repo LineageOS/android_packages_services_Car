@@ -22,11 +22,13 @@ import android.content.Context;
 import android.content.pm.UserInfo;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
+import android.os.Handler;
 
 import com.android.car.qc.QCItem;
 import com.android.car.qc.QCRow;
 import com.android.systemui.R;
 import com.android.systemui.car.CarServiceProvider;
+import com.android.systemui.dagger.qualifiers.Background;
 import com.android.systemui.settings.UserTracker;
 
 import javax.inject.Inject;
@@ -38,8 +40,8 @@ public class CarUiPortraitProfileSwitcher extends ProfileSwitcher {
 
     @Inject
     public CarUiPortraitProfileSwitcher(Context context, UserTracker userTracker,
-            CarServiceProvider carServiceProvider) {
-        super(context, userTracker, carServiceProvider);
+            CarServiceProvider carServiceProvider,  @Background Handler handler) {
+        super(context, userTracker, carServiceProvider, handler);
 
     }
 
