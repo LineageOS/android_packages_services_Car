@@ -1732,12 +1732,18 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @Override
     public void setDisplayPowerState(int displayId, boolean enable) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        boolean isNotSelf = Binder.getCallingUid() != Process.myUid();
         CarOccupantZoneService occupantZoneService =
                 CarLocalServices.getService(CarOccupantZoneService.class);
-        if (displayId == occupantZoneService.getDisplayIdForDriver(
-                    CarOccupantZoneManager.DISPLAY_TYPE_MAIN)
-                    && Binder.getCallingUid() != Process.myUid()) {
-            throw new UnsupportedOperationException("Driver display control is not supported");
+        long token = Binder.clearCallingIdentity();
+        try {
+            int driverDisplayId = occupantZoneService.getDisplayIdForDriver(
+                    CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+            if (displayId == driverDisplayId && isNotSelf) {
+                throw new UnsupportedOperationException("Driver display control is not supported");
+            }
+        } finally {
+            Binder.restoreCallingIdentity(token);
         }
         mSystemInterface.setDisplayState(displayId, enable);
     }
