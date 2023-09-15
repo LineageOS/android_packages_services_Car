@@ -43,7 +43,7 @@ import java.util.concurrent.Executor;
  * before hand.
  *
  * The underlying task will be restarted if it is crashed depending on the
- * {@code autoRestartOnCrash}.
+ * {@link ControlledRemoteCarTaskViewConfig#shouldAutoRestartOnCrash()}.
  *
  * <p>It should be preferred when:
  * <ul>
@@ -221,7 +221,7 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
             // onTaskVanished can be called when the host is in the background. In this case
             // embedded activity should not be started.
             Slogf.i(TAG, "Restarting task " + taskInfo.baseActivity
-                    + " in ControlledCarTaskView");
+                    + " in ControlledRemoteCarTaskView");
             startActivity();
         }
         mCallbackExecutor.execute(() -> mCallback.onTaskVanished(taskInfo));
