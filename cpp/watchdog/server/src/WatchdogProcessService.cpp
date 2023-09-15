@@ -41,9 +41,9 @@
 
 #include <utility>
 
-#include <packages/services/Car/service/proto/android/car/watchdog/carwatchdog_daemon_dump.proto.h>
-#include <packages/services/Car/service/proto/android/car/watchdog/health_check_client_info.proto.h>
-#include <packages/services/Car/service/proto/android/car/watchdog/performance_stats.proto.h>
+#include <carwatchdog_daemon_dump.proto.h>
+#include <health_check_client_info.proto.h>
+#include <performance_stats.proto.h>
 
 namespace android {
 namespace automotive {
