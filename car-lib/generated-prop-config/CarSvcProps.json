@@ -312,8 +312,17 @@
       "propertyId": 287310600,
       "description": "Fuel door open.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.CAR_ENERGY_PORTS"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_ENERGY_PORTS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_CAR_ENERGY_PORTS"
+          }
+        ]
       },
       "writePermission": {
         "type": "single",
@@ -343,8 +352,17 @@
       "propertyId": 287310602,
       "description": "EV charge port open.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.CAR_ENERGY_PORTS"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_ENERGY_PORTS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_CAR_ENERGY_PORTS"
+          }
+        ]
       },
       "writePermission": {
         "type": "single",
@@ -374,8 +392,17 @@
       "propertyId": 291504904,
       "description": "Range remaining in meters.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.CAR_ENERGY"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_ENERGY"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.ADJUST_RANGE_REMAINING"
+          }
+        ]
       },
       "writePermission": {
         "type": "single",
@@ -473,8 +500,17 @@
       "propertyId": 289408012,
       "description": "Regenerative braking level of a electronic vehicle.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.CAR_POWERTRAIN"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_POWERTRAIN"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_CAR_POWERTRAIN"
+          }
+        ]
       },
       "writePermission": {
         "type": "single",
@@ -486,8 +522,17 @@
       "propertyId": 289408013,
       "description": "Represents property for the current stopping mode of the vehicle.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.CAR_POWERTRAIN"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_POWERTRAIN"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_CAR_POWERTRAIN"
+          }
+        ]
       },
       "writePermission": {
         "type": "single",
@@ -2004,8 +2049,17 @@
       "propertyId": 322964423,
       "description": "Windshield wipers switch.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.READ_WINDSHIELD_WIPERS"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_WINDSHIELD_WIPERS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_WINDSHIELD_WIPERS"
+          }
+        ]
       },
       "writePermission": {
         "type": "single",
@@ -2518,8 +2572,17 @@
       "propertyId": 291508031,
       "description": "EV charge current draw limit.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.CAR_ENERGY"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_ENERGY"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_CAR_ENERGY"
+          }
+        ]
       },
       "writePermission": {
         "type": "single",
@@ -2531,8 +2594,17 @@
       "propertyId": 291508032,
       "description": "EV charge percent limit.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.CAR_ENERGY"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_ENERGY"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_CAR_ENERGY"
+          }
+        ]
       },
       "writePermission": {
         "type": "single",
@@ -2643,8 +2715,17 @@
       "propertyId": 287313920,
       "description": "Enable or disable Automatic Emergency Braking (AEB).",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.READ_ADAS_SETTINGS"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_ADAS_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+          }
+        ]
       },
       "writePermission": {
         "type": "single",
@@ -2679,8 +2760,17 @@
       "propertyId": 287313922,
       "description": "Enable or disable Forward Collision Warning (FCW).",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.READ_ADAS_SETTINGS"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_ADAS_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+          }
+        ]
       },
       "writePermission": {
         "type": "single",
@@ -2714,8 +2804,17 @@
       "propertyId": 287313924,
       "description": "Enable and disable Blind Spot Warning (BSW).",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.READ_ADAS_SETTINGS"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_ADAS_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+          }
+        ]
       },
       "writePermission": {
         "type": "single",
@@ -2749,8 +2848,17 @@
       "propertyId": 287313926,
       "description": "Enable or disable Lane Departure Warning (LDW).",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.READ_ADAS_SETTINGS"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_ADAS_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+          }
+        ]
       },
       "writePermission": {
         "type": "single",
@@ -2785,8 +2893,17 @@
       "propertyId": 287313928,
       "description": "Enable or disable Lane Keep Assist (LKA).",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.READ_ADAS_SETTINGS"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_ADAS_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+          }
+        ]
       },
       "writePermission": {
         "type": "single",
@@ -2822,8 +2939,17 @@
       "propertyId": 287313930,
       "description": "Enable or disable Lane Centering Assist (LCA).",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.READ_ADAS_SETTINGS"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_ADAS_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+          }
+        ]
       },
       "writePermission": {
         "type": "single",
@@ -2874,8 +3000,17 @@
       "propertyId": 287313933,
       "description": "Enable or disable Emergency Lane Keep Assist (ELKA).",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.READ_ADAS_SETTINGS"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_ADAS_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+          }
+        ]
       },
       "writePermission": {
         "type": "single",
@@ -2913,8 +3048,17 @@
       "propertyId": 287313935,
       "description": "Enable or disable Cruise Control (CC).",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.READ_ADAS_SETTINGS"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_ADAS_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+          }
+        ]
       },
       "writePermission": {
         "type": "single",
@@ -2927,8 +3071,17 @@
       "propertyId": 289411088,
       "description": "Current type of Cruise Control (CC).",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.READ_ADAS_STATES"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_ADAS_STATES"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_ADAS_STATES"
+          }
+        ]
       },
       "writePermission": {
         "type": "single",
@@ -3005,8 +3158,17 @@
       "propertyId": 289411092,
       "description": "Current target time gap for Adaptive Cruise Control (ACC) or Predictive Cruise Control in",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.READ_ADAS_STATES"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_ADAS_STATES"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_ADAS_STATES"
+          }
+        ]
       },
       "writePermission": {
         "type": "single",
@@ -3029,8 +3191,17 @@
       "propertyId": 287313942,
       "description": "Enable or disable Hands On Detection (HOD).",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.READ_DRIVER_MONITORING_SETTINGS"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_DRIVER_MONITORING_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
+          }
+        ]
       },
       "writePermission": {
         "type": "single",
