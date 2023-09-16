@@ -71,6 +71,9 @@ public class DialerCardPresenter extends CardPresenter {
                 @Override
                 public void onModelUpdate(HomeCardInterface.Model model) {
                     DialerCardModel dialerCardModel = (DialerCardModel) model;
+                    if (dialerCardModel.getCardHeader() != null) {
+                        mFragment.updateHeaderView(dialerCardModel.getCardHeader());
+                    }
                     if (dialerCardModel.getCardContent() != null) {
                         mFragment.updateContentView(dialerCardModel.getCardContent());
                     }
