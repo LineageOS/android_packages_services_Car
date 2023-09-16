@@ -43,7 +43,6 @@ import com.android.wm.shell.dagger.WMSingleton;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Controller that expands upon {@link DisplaySystemBarsController} but allows for immersive
@@ -51,7 +50,11 @@ import java.util.Objects;
  */
 @WMSingleton
 public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsController {
-    private static final String TAG = "CarUiPortraitDisplaySystemBarsController";
+    private static final String TAG =
+            CarUiPortraitDisplaySystemBarsController.class.getSimpleName();
+
+    private final ComponentName mComponentName;
+
     private SparseArray<CarUiPortraitPerDisplay> mCarUiPerDisplaySparseArray;
 
     private int mCurrentDrivingState = DRIVING_STATE_UNKNOWN;
@@ -77,6 +80,7 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
             DisplayInsetsController displayInsetsController,
             Handler mainHandler) {
         super(context, wmService, displayController, displayInsetsController, mainHandler);
+        mComponentName = new ComponentName(context, this.getClass());
 
         Car car = Car.createCar(context);
         if (car != null) {
@@ -189,8 +193,6 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
         private final List<Callback> mCallbacks = new ArrayList<>();
         private @InsetsType int mWindowRequestedVisibleTypes = WindowInsets.Type.defaultVisible();
         private @InsetsType int mAppRequestedVisibleTypes = WindowInsets.Type.defaultVisible();
-        private boolean mImmersiveWithNavBar = false;
-        private boolean mFullImmersive = false;
 
         @ImmersiveState
         private int mImmersiveState = STATE_DEFAULT;
@@ -216,25 +218,17 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
                 return;
             }
 
-            boolean requestedVisibilitiesChanged = false;
-
-            if (mWindowRequestedVisibleTypes != requestedVisibleTypes) {
-                mWindowRequestedVisibleTypes = requestedVisibleTypes;
-                boolean immersive =
-                        (mWindowRequestedVisibleTypes & (statusBars() | navigationBars())) == 0;
-                notifyOnImmersiveRequestedChanged(component, immersive);
-                if (!immersive) {
-                    mImmersiveState = STATE_DEFAULT;
-                    requestedVisibilitiesChanged = true;
-                }
-            }
+            boolean immersive =
+                    (requestedVisibleTypes & (statusBars() | navigationBars())) == 0;
             String packageName = component != null ? component.getPackageName() : null;
-            if (Objects.equals(mPackageName, packageName) && !requestedVisibilitiesChanged) {
-                return;
+
+            // Notify immersive request change if package name or requestedVisibleTypes changes.
+            if (mWindowRequestedVisibleTypes != requestedVisibleTypes
+                    || (mPackageName != null && !mPackageName.equals(packageName))) {
+                notifyOnImmersiveRequestedChanged(component, immersive);
+                mWindowRequestedVisibleTypes = requestedVisibleTypes;
+                mPackageName = packageName;
             }
-            mPackageName = packageName;
-            mImmersiveState = STATE_DEFAULT; // reset override when changing application
-            updateDisplayWindowRequestedVisibleTypes();
         }
 
         @Override
@@ -306,7 +300,7 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
                 mHandler.postDelayed(mDelayedImmersiveModeWithNavBarRunnable,
                         HIDE_NAVIGATION_BAR_DELAY_IN_MILLIS);
             } else {
-                Slog.d(TAG, "Cancel full immersive mode cancelled");
+                Slog.d(TAG, "Cancel delayed full immersive mode");
                 mHandler.removeCallbacks(mDelayedImmersiveModeWithNavBarRunnable);
             }
         }
@@ -344,7 +338,7 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
             }
             mImmersiveState = STATE_DEFAULT;
             updateDisplayWindowRequestedVisibleTypes();
-            notifyOnImmersiveRequestedChanged(null, false);
+            notifyOnImmersiveRequestedChanged(mComponentName, /* requested= */ false);
             // Show toast when drive state changes to driving while immersive mode is on.
             Toast.makeText(mContext,
                     R.string.car_ui_restricted_while_driving, Toast.LENGTH_LONG).show();
