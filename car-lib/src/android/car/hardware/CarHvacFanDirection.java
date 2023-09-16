@@ -44,17 +44,19 @@ public final class CarHvacFanDirection {
     public static final int FACE = 0x01;
     /** Constant for floor direction. */
     public static final int FLOOR = 0x02;
-    /** Constant for face and floor direction. */
-    public static final int FACE_AND_FLOOR = 0x03; // FACE_AND_FLOOR = FACE | FLOOR
+    /** Constant for face and floor direction. FACE_AND_FLOOR = FACE | FLOOR */
+    public static final int FACE_AND_FLOOR = 0x03;
     /** Constant for defrost direction. */
     public static final int DEFROST = 0x04;
-    /** Constant for face and defrost direction. */
-    public static final int FACE_AND_DEFROST = 0x05; // FACE_AND_DEFROST= FACE | DEFROST
-    /** Constant for defrost and floor direction.*/
-    public static final int DEFROST_AND_FLOOR = 0x06; // DEFROST_AND_FLOOR = DEFROST | FLOOR
-    /** Constant for face, defrost and floor direction.*/
-    public static final int FACE_DEFROST_AND_FLOOR = 0x07; // FACE_DEFROST_AND_FLOOR = FACE |
-                                                           // DEFROST | FLOOR
+    /** Constant for face and defrost direction. FACE_AND_DEFROST= FACE | DEFROST */
+    public static final int FACE_AND_DEFROST = 0x05;
+    /** Constant for defrost and floor direction. DEFROST_AND_FLOOR = DEFROST | FLOOR */
+    public static final int DEFROST_AND_FLOOR = 0x06;
+    /**
+     * Constant for face, defrost and floor direction.
+     * FACE_DEFROST_AND_FLOOR = FACE | DEFROST | FLOOR
+     */
+    public static final int FACE_DEFROST_AND_FLOOR = 0x07;
 
     /**@hide*/
     @IntDef(value = {
