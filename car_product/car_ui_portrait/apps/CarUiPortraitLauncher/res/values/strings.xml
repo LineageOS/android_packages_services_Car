@@ -18,4 +18,15 @@
     <string name="app_title">Car launcher reference</string>
     <string name="base_layer_failure_recovery_title_string">Something went wrong</string>
     <string name="base_layer_failure_recovery_message_string">Please open a navigation app</string>
+
+    <!-- Audio route selection dialog. Placeholder resources for overriding -->
+    <string name="audio_route_dialog_title">Audio output</string>
+
+    <!-- Audio route -->
+    <!-- Label for routing phone audio to the vehicle using car speakers [CHAR LIMIT=30] -->
+    <string name="audio_route_vehicle">Car speakers</string>
+    <!-- Label for routing phone audio to the phone speaker [CHAR LIMIT=30] -->
+    <string name="audio_route_phone_speaker">Phone speaker</string>
+    <!-- Label for routing phone audio to the phone earpiece. [CHAR LIMIT=30] -->
+    <string name="audio_route_handset">Phone</string>
 </resources>
