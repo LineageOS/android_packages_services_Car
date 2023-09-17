@@ -252,10 +252,10 @@ public final class CarTaskViewController {
             throw new IllegalStateException("CarTaskViewController is already released");
         }
         for (int i = 0, length = mRemoteCarTaskViews.size(); i < length; i++) {
-            RemoteCarTaskView carTaskView = mRemoteCarTaskViews.get(i);
+            RemoteCarTaskView remoteCarTaskView = mRemoteCarTaskViews.get(i);
             // TODO(b/267314188): Add a new method in ICarSystemUI to call
             // showEmbeddedTask in a single WCT for multiple tasks.
-            carTaskView.showEmbeddedTask();
+            remoteCarTaskView.showEmbeddedTask();
         }
     }
 
