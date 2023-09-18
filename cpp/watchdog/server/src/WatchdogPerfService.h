@@ -29,6 +29,7 @@
 #include <aidl/android/automotive/watchdog/internal/UserState.h>
 #include <android-base/chrono_utils.h>
 #include <android-base/result.h>
+#include <android/util/ProtoOutputStream.h>
 #include <cutils/multiuser.h>
 #include <gtest/gtest_prod.h>
 #include <utils/Errors.h>
@@ -77,6 +78,13 @@ enum SystemState {
  */
 class DataProcessorInterface : virtual public android::RefBase {
 public:
+    struct CollectionIntervals {
+        std::chrono::milliseconds mBoottimeIntervalMillis = std::chrono::milliseconds(0);
+        std::chrono::milliseconds mPeriodicIntervalMillis = std::chrono::milliseconds(0);
+        std::chrono::milliseconds mUserSwitchIntervalMillis = std::chrono::milliseconds(0);
+        std::chrono::milliseconds mWakeUpIntervalMillis = std::chrono::milliseconds(0);
+        std::chrono::milliseconds mCustomIntervalMillis = std::chrono::milliseconds(0);
+    };
     DataProcessorInterface() {}
     virtual ~DataProcessorInterface() {}
     // Returns the name of the data processor.
@@ -128,8 +136,12 @@ public:
     virtual android::base::Result<void> onPeriodicMonitor(
             time_t time, const android::wp<ProcDiskStatsCollectorInterface>& procDiskStatsCollector,
             const std::function<void()>& alertHandler) = 0;
-    // Callback to dump the boot-time collected and periodically collected data.
+    // Callback to dump system event data and periodically collected data.
     virtual android::base::Result<void> onDump(int fd) const = 0;
+    // Callback to dump system event data and periodically collected data in proto format.
+    virtual android::base::Result<void> onDumpProto(
+            const CollectionIntervals& collectionIntervals,
+            android::util::ProtoOutputStream& outProto) const = 0;
     /**
      * Callback to dump the custom collected data. When fd == -1, clear the custom collection cache.
      */
@@ -228,8 +240,11 @@ public:
      */
     virtual android::base::Result<void> onCustomCollection(int fd, const char** args,
                                                            uint32_t numArgs) = 0;
-    // Generates a dump from the boot-time and periodic collection events.
+    // Generates a dump from the system events and periodic collection events.
     virtual android::base::Result<void> onDump(int fd) const = 0;
+    // Generates a proto dump from system events and periodic collection events.
+    virtual android::base::Result<void> onDumpProto(
+            android::util::ProtoOutputStream& outProto) const = 0;
     // Dumps the help text.
     virtual bool dumpHelpText(int fd) const = 0;
 };
@@ -289,6 +304,8 @@ public:
                                                    uint32_t numArgs) override;
 
     android::base::Result<void> onDump(int fd) const override;
+    android::base::Result<void> onDumpProto(
+            android::util::ProtoOutputStream& outProto) const override;
 
     bool dumpHelpText(int fd) const override;
 

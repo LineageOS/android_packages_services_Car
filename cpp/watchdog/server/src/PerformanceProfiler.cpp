@@ -21,6 +21,7 @@
 #include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
 #include <android-base/stringprintf.h>
+#include <android/util/ProtoOutputStream.h>
 #include <log/log.h>
 
 #include <inttypes.h>
@@ -31,6 +32,9 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
+#include <carwatchdog_daemon_dump.proto.h>
+#include <performance_stats.proto.h>
 
 namespace android {
 namespace automotive {
@@ -49,6 +53,7 @@ using ::android::base::Result;
 using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
+using ::android::util::ProtoOutputStream;
 
 namespace {
 
@@ -562,6 +567,144 @@ Result<void> PerformanceProfiler::onDump(int fd) const {
         return Error(FAILED_TRANSACTION) << "Failed to dump the periodic collection report.";
     }
     return {};
+}
+
+// TODO(b/278740423): Add a test to verify proto output.
+Result<void> PerformanceProfiler::onDumpProto(
+        const CollectionIntervals& collectionIntervals, ProtoOutputStream& outProto) const {
+    Mutex::Autolock lock(mMutex);
+
+    uint64_t performanceStatsToken = outProto.start(PerformanceProfilerDump::PERFORMANCE_STATS);
+
+    uint64_t bootTimeStatsToken = outProto.start(PerformanceStats::BOOT_TIME_STATS);
+    outProto.write(StatsCollection::COLLECTION_INTERVAL_MILLIS,
+                   collectionIntervals.mBoottimeIntervalMillis.count());
+    dumpStatsRecordsProto(mBoottimeCollection, outProto);
+    outProto.end(bootTimeStatsToken);
+
+    uint64_t wakeUpStatsToken = outProto.start(PerformanceStats::WAKE_UP_STATS);
+    outProto.write(StatsCollection::COLLECTION_INTERVAL_MILLIS,
+                   collectionIntervals.mWakeUpIntervalMillis.count());
+    dumpStatsRecordsProto(mWakeUpCollection, outProto);
+    outProto.end(wakeUpStatsToken);
+
+    for (const auto& userSwitchCollection : mUserSwitchCollections) {
+        uint64_t userSwitchStatsToken = outProto.start(PerformanceStats::USER_SWITCH_STATS);
+        outProto.write(StatsCollection::COLLECTION_INTERVAL_MILLIS,
+                       collectionIntervals.mUserSwitchIntervalMillis.count());
+        dumpStatsRecordsProto(userSwitchCollection, outProto);
+        outProto.end(userSwitchStatsToken);
+    }
+
+    uint64_t lastNMinutesStatsToken = outProto.start(PerformanceStats::LAST_N_MINUTES_STATS);
+    outProto.write(StatsCollection::COLLECTION_INTERVAL_MILLIS,
+                   collectionIntervals.mPeriodicIntervalMillis.count());
+    dumpStatsRecordsProto(mPeriodicCollection, outProto);
+    outProto.end(lastNMinutesStatsToken);
+
+    uint64_t customCollectionStatsToken = outProto.start(PerformanceStats::CUSTOM_COLLECTION_STATS);
+    outProto.write(StatsCollection::COLLECTION_INTERVAL_MILLIS,
+                   collectionIntervals.mCustomIntervalMillis.count());
+    dumpStatsRecordsProto(mCustomCollection, outProto);
+    outProto.end(customCollectionStatsToken);
+
+    outProto.end(performanceStatsToken);
+
+    return {};
+}
+
+void PerformanceProfiler::dumpStatsRecordsProto(const CollectionInfo& collection,
+                                                ProtoOutputStream& outProto) const {
+    int id = 0;
+    for (const auto& record : collection.records) {
+        uint64_t statsRecordToken = outProto.start(StatsCollection::RECORDS);
+
+        outProto.write(StatsRecord::ID, id++);
+        struct tm* timeinfo = localtime(&record.time);
+
+        uint64_t dateToken = outProto.start(StatsRecord::DATE);
+        outProto.write(Date::YEAR, timeinfo->tm_year + 1900);
+        outProto.write(Date::MONTH, timeinfo->tm_mon + 1);
+        outProto.write(Date::DAY, timeinfo->tm_mday);
+        outProto.end(dateToken);
+
+        uint64_t timeOfDayToken = outProto.start(StatsRecord::TIME);
+        outProto.write(TimeOfDay::HOURS, timeinfo->tm_hour);
+        outProto.write(TimeOfDay::MINUTES, timeinfo->tm_min);
+        outProto.write(TimeOfDay::SECONDS, timeinfo->tm_sec);
+        outProto.end(timeOfDayToken);
+
+        uint64_t systemWideStatsToken = outProto.start(StatsRecord::SYSTEM_WIDE_STATS);
+        outProto.write(SystemWideStats::IO_WAIT_TIME_MILLIS,
+                       record.systemSummaryStats.cpuIoWaitTimeMillis);
+        outProto.write(SystemWideStats::IDLE_CPU_TIME_MILLIS,
+                       record.systemSummaryStats.cpuIdleTimeMillis);
+        outProto.write(SystemWideStats::TOTAL_CPU_TIME_MILLIS,
+                       record.systemSummaryStats.totalCpuTimeMillis);
+        outProto.write(SystemWideStats::TOTAL_CPU_CYCLES,
+                       static_cast<int>(record.systemSummaryStats.totalCpuCycles));
+        outProto.write(SystemWideStats::TOTAL_CONTEXT_SWITCHES,
+                       static_cast<int>(record.systemSummaryStats.contextSwitchesCount));
+        outProto.write(SystemWideStats::TOTAL_IO_BLOCKED_PROCESSES,
+                       static_cast<int>(record.systemSummaryStats.ioBlockedProcessCount));
+        outProto.write(SystemWideStats::TOTAL_MAJOR_PAGE_FAULTS,
+                       static_cast<int>(record.userPackageSummaryStats.totalMajorFaults));
+
+        uint64_t totalStorageIoStatsToken = outProto.start(SystemWideStats::TOTAL_STORAGE_IO_STATS);
+        outProto.write(StorageIoStats::FG_BYTES,
+                       record.userPackageSummaryStats.totalIoStats[WRITE_BYTES][FOREGROUND]);
+        outProto.write(StorageIoStats::FG_FSYNC,
+                       record.userPackageSummaryStats.totalIoStats[FSYNC_COUNT][FOREGROUND]);
+        outProto.write(StorageIoStats::BG_BYTES,
+                       record.userPackageSummaryStats.totalIoStats[WRITE_BYTES][BACKGROUND]);
+        outProto.write(StorageIoStats::BG_FSYNC,
+                       record.userPackageSummaryStats.totalIoStats[FSYNC_COUNT][BACKGROUND]);
+        outProto.end(totalStorageIoStatsToken);
+
+        outProto.end(systemWideStatsToken);
+
+        dumpPackageCpuStatsProto(record.userPackageSummaryStats, outProto);
+
+        outProto.end(statsRecordToken);
+    }
+}
+
+void PerformanceProfiler::dumpPackageCpuStatsProto(
+        const UserPackageSummaryStats& userPackageSummaryStats, ProtoOutputStream& outProto) const {
+    for (const auto& userPackageStat : userPackageSummaryStats.topNCpuTimes) {
+        uint64_t packageCpuStatsToken = outProto.start(StatsRecord::PACKAGE_CPU_STATS);
+        const auto& procCpuStatsView =
+                std::get_if<UserPackageStats::ProcCpuStatsView>(&userPackageStat.statsView);
+
+        uint64_t userPackageInfoToken = outProto.start(PackageCpuStats::USER_PACKAGE_INFO);
+        outProto.write(UserPackageInfo::USER_ID,
+                       static_cast<int>(multiuser_get_user_id(userPackageStat.uid)));
+        outProto.write(UserPackageInfo::PACKAGE_NAME, userPackageStat.genericPackageName);
+        outProto.end(userPackageInfoToken);
+
+        uint64_t cpuStatsToken = outProto.start(PackageCpuStats::CPU_STATS);
+        outProto.write(PackageCpuStats::CpuStats::CPU_TIME_MILLIS,
+                       static_cast<int>(procCpuStatsView->cpuTime));
+        outProto.write(PackageCpuStats::CpuStats::CPU_CYCLES,
+                       static_cast<int>(procCpuStatsView->cpuCycles));
+        outProto.end(cpuStatsToken);
+
+        for (const auto& processCpuStat : procCpuStatsView->topNProcesses) {
+            uint64_t processCpuStatToken = outProto.start(PackageCpuStats::PROCESS_CPU_STATS);
+            outProto.write(PackageCpuStats::ProcessCpuStats::COMMAND, processCpuStat.comm);
+
+            uint64_t processCpuValueToken =
+                    outProto.start(PackageCpuStats::ProcessCpuStats::CPU_STATS);
+            outProto.write(PackageCpuStats::CpuStats::CPU_TIME_MILLIS,
+                           static_cast<int>(processCpuStat.cpuTime));
+            outProto.write(PackageCpuStats::CpuStats::CPU_CYCLES,
+                           static_cast<int>(processCpuStat.cpuCycles));
+            outProto.end(processCpuValueToken);
+
+            outProto.end(processCpuStatToken);
+        }
+        outProto.end(packageCpuStatsToken);
+    }
 }
 
 Result<void> PerformanceProfiler::onCustomCollectionDump(int fd) {

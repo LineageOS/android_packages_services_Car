@@ -23,6 +23,7 @@
 #include <android-base/parseint.h>
 #include <android-base/stringprintf.h>
 #include <android-base/strings.h>
+#include <android/util/ProtoOutputStream.h>
 #include <log/log.h>
 #include <processgroup/sched_policy.h>
 
@@ -30,6 +31,10 @@
 
 #include <iterator>
 #include <vector>
+
+#include <carwatchdog_daemon_dump.proto.h>
+#include <health_check_client_info.proto.h>
+#include <performance_stats.proto.h>
 
 namespace android {
 namespace automotive {
@@ -51,6 +56,7 @@ using ::android::base::Split;
 using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
+using ::android::util::ProtoOutputStream;
 
 const int32_t kMaxCachedUnsentResourceStats = 10;
 const std::chrono::nanoseconds kPrevUnsentResourceStatsDelayNs = 3s;
@@ -576,6 +582,39 @@ Result<void> WatchdogPerfService::onDump(int fd) const {
     }
 
     WriteStringToFd(kDumpMajorDelimiter, fd);
+    return {};
+}
+
+Result<void> WatchdogPerfService::onDumpProto(ProtoOutputStream& outProto) const {
+    Mutex::Autolock lock(mMutex);
+    if (mCurrCollectionEvent == EventType::TERMINATED) {
+        ALOGW("%s not active. Dumping cached data", kServiceName);
+    }
+
+    uint64_t performanceProfilerDumpToken =
+            outProto.start(CarWatchdogDaemonDump::PERFORMANCE_PROFILER_DUMP);
+
+    outProto.write(PerformanceProfilerDump::CURRENT_EVENT, mCurrCollectionEvent);
+
+    DataProcessorInterface::CollectionIntervals collectionIntervals =
+            {.mBoottimeIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+                     mBoottimeCollection.pollingIntervalNs),
+             .mPeriodicIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+                     mPeriodicCollection.pollingIntervalNs),
+             .mUserSwitchIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+                     mUserSwitchCollection.pollingIntervalNs),
+             .mWakeUpIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+                     mWakeUpCollection.pollingIntervalNs),
+             .mCustomIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+                     mCustomCollection.pollingIntervalNs)};
+
+    // Populate Performance Stats
+    for (const auto& processor : mDataProcessors) {
+        processor->onDumpProto(collectionIntervals, outProto);
+    }
+
+    outProto.end(performanceProfilerDumpToken);
+
     return {};
 }
 
