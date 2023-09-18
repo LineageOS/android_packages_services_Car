@@ -59,7 +59,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-public class KitchenSink2Activity extends FragmentActivity {
+public class KitchenSink2Activity extends FragmentActivity implements KitchenSinkHelper {
     static final String TAG = KitchenSink2Activity.class.getName();
     private static final String LAST_FRAGMENT_TAG = "lastFragmentTag";
     private static final String PREFERENCES_NAME = "fragment_item_prefs";
@@ -450,14 +450,16 @@ public class KitchenSink2Activity extends FragmentActivity {
         editor.apply();
     }
 
-    public Car getCar() {
-        return mCarApi;
-    }
 
     private void initCarApi() {
         if (mCarApi == null || !mCarApi.isConnected()) {
             mCarApi = Car.createCar(this);
         }
+    }
+
+    @Override
+    public Car getCar() {
+        return mCarApi;
     }
 
     public CarHvacManager getHvacManager() {
