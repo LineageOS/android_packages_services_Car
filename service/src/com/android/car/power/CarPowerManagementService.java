@@ -243,7 +243,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @GuardedBy("mLock")
     private boolean mShutdownOnNextSuspend;
     @GuardedBy("mLock")
-    private boolean mIsBooting = true;
+    private boolean mShouldResumeUserService;
     @GuardedBy("mLock")
     private int mShutdownPrepareTimeMs = MIN_MAX_GARAGE_MODE_DURATION_MS;
     @GuardedBy("mLock")
@@ -495,12 +495,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     void setStateForWakeUp() {
         mSilentModeHandler.init();
         synchronized (mLock) {
-            mIsBooting = false;
+            mShouldResumeUserService = true;
         }
         handleWaitForVhal(new CpmsState(CpmsState.WAIT_FOR_VHAL,
                 CarPowerManager.STATE_WAIT_FOR_VHAL, /* canPostpone= */ false));
-        Slogf.d(TAG, "setStateForTesting(): mIsBooting is set to false and power state is switched "
-                + "to Wait For Vhal");
+        Slogf.d(TAG,
+                "setStateForTesting(): mShouldResumeUserService is set to false and power state "
+                        + "is switched "
+                        + "to Wait For Vhal");
     }
 
     /**
@@ -713,10 +715,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mHal.sendOn();
 
         synchronized (mLock) {
-            if (mIsBooting) {
+            if (!mShouldResumeUserService) {
                 Slogf.d(TAG, "handleOn(): called on boot");
-                mIsBooting = false;
                 return;
+            } else {
+                mShouldResumeUserService = false;
             }
         }
 
@@ -1135,6 +1138,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
         // allowUserSwitch value doesn't matter for onSuspend = true
         mUserService.onSuspend();
+        synchronized (mLock) {
+            mShouldResumeUserService = true;
+        }
     }
 
     private void waitForCompletion(Runnable taskAtCompletion, Runnable taskAtInterval,
