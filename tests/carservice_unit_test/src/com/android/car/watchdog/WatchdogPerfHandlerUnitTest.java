@@ -343,8 +343,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         });
     }
 
-    //TODO(b/293374687): Add relevant tests for deleteUser, packageIoOveruseStats,
-    // writeMetadataFile, writeToDatabase, release
+    //TODO(b/293374687): Add relevant tests for writeMetadataFile and release.
 
     @Test
     public void testProcessUserNotificationIntentDisablePackage() {
@@ -596,6 +595,46 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                 .containsExactlyElementsIn(expectedSavedIoUsageEntries);
         verify(mSpiedWatchdogStorage, times(1)).markWriteSuccessful();
         verify(mSpiedWatchdogStorage, times(1)).endWrite();
+    }
+
+    @Test
+    public void testDeleteUser() throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 100, 101, 102);
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo(
+                        "third_party_package", 10103456, "vendor_shared_package.critical"),
+                constructPackageManagerPackageInfo(
+                        "vendor_package", 10103456, "vendor_shared_package.critical"),
+                constructPackageManagerPackageInfo("third_party_package.A", 10001100, null),
+                constructPackageManagerPackageInfo("third_party_package.A", 10201100, null)));
+
+        SparseArray<PackageIoOveruseStats> packageIoOveruseStatsByUid =
+                injectIoOveruseStatsForPackages(
+                        mGenericPackageNameByUid,
+                        /* killablePackages= */ new ArraySet<>(Collections.singletonList(
+                                "third_party_package.A")),
+                        /* shouldNotifyPackages= */ new ArraySet<>());
+
+        mWatchdogPerfHandler.setKillablePackageAsUser(
+                "third_party_package.A", UserHandle.of(102), /* isKillable= */ false);
+
+        mWatchdogPerfHandler.deleteUser(102);
+
+        List<ResourceOveruseStats> actualStats = mWatchdogPerfHandler.getAllResourceOveruseStats(
+                FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
+                CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
+
+        List<ResourceOveruseStats> expectedStats = Arrays.asList(
+                constructResourceOveruseStats(
+                        /* uid= */ 10103456, "shared:vendor_shared_package.critical",
+                        packageIoOveruseStatsByUid.get(10103456).ioOveruseStats),
+                constructResourceOveruseStats(/* uid= */ 10001100, "third_party_package.A",
+                        packageIoOveruseStatsByUid.get(10001100).ioOveruseStats));
+
+        ResourceOveruseStatsSubject.assertThat(actualStats)
+                .containsExactlyElementsIn(expectedStats);
+
+        verify(mSpiedWatchdogStorage, times(2)).syncUsers(any());
     }
 
     @Test
