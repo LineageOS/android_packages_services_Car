@@ -29,7 +29,6 @@ import android.app.ActivityManager;
 import android.app.UiAutomation;
 import android.car.Car;
 import android.car.test.AbstractExpectableTestCase;
-import android.car.test.ApiCheckerRule;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
@@ -46,7 +45,6 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -91,25 +89,6 @@ public abstract class CarApiTestBase extends AbstractExpectableTestCase {
 
     // TODO(b/242350638): temporary hack to allow subclasses to disable checks - should be removed
     // when not needed anymore
-    private final ApiCheckerRule.Builder mApiCheckerRuleBuilder = new ApiCheckerRule.Builder();
-
-    @Rule
-    public final ApiCheckerRule mApiCheckerRule;
-
-    // TODO(b/242350638): temporary hack to allow subclasses to disable checks - should be removed
-    // when not needed anymore
-    protected CarApiTestBase() {
-        configApiCheckerRule(mApiCheckerRuleBuilder);
-        mApiCheckerRule = mApiCheckerRuleBuilder.build();
-    }
-
-    // TODO(b/242350638): temporary hack to allow subclasses to disable checks - should be removed
-    // when not needed anymore
-    protected void configApiCheckerRule(ApiCheckerRule.Builder builder) {
-        Log.v(TAG, "Good News, Everyone! Class " + getClass()
-                + " doesn't override configApiCheckerRule()");
-    }
-
     @Before
     public final void setFixturesAndConnectToCar() throws Exception {
         Log.d(TAG, "setFixturesAndConnectToCar() for " + getTestName());
@@ -296,7 +275,8 @@ public abstract class CarApiTestBase extends AbstractExpectableTestCase {
     }
 
     protected String getTestName() {
-        return getClass().getSimpleName() + "." + mApiCheckerRule.getTestMethodName();
+        // TODO(b/300964422): Add a way to get testName if possible.
+        return "";
     }
 
     protected static void fail(String format, Object...args) {

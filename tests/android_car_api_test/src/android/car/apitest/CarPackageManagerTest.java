@@ -24,11 +24,9 @@ import static org.junit.Assert.assertThrows;
 import android.car.Car;
 import android.car.CarVersion;
 import android.car.content.pm.CarPackageManager;
-import android.car.test.ApiCheckerRule.Builder;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.test.suitebuilder.annotation.MediumTest;
-import android.util.Log;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,13 +37,6 @@ public class CarPackageManagerTest extends CarApiTestBase {
     private static final String TAG = CarPackageManagerTest.class.getSimpleName();
 
     private CarPackageManager mCarPackageManager;
-
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        Log.w(TAG, "Disabling API requirements check");
-        builder.disableAnnotationsCheck();
-    }
 
     @Before
     public void setFixtures() {

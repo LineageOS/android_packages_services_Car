@@ -24,7 +24,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assume.assumeTrue;
 
 import android.app.UiAutomation;
-import android.car.test.ApiCheckerRule.Builder;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -38,12 +37,6 @@ public final class VehicleHalLargeParcelableTest extends CarApiTestBase {
     // TODO(b/225401892): Change this to a VTS test once ECHO_REVERSE_BYTES is defined as a system
     // property.
     private UiAutomation mUiAutomation;
-
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        builder.disableAnnotationsCheck();
-    }
 
     @Before
     public void setUp() {

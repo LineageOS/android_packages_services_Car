@@ -24,7 +24,6 @@ import static org.junit.Assert.assertThrows;
 
 import android.car.Car;
 import android.car.CarAppFocusManager;
-import android.car.test.ApiCheckerRule.Builder;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -51,13 +50,6 @@ public final class CarAppFocusManagerTest extends CarApiTestBase {
     private CarAppFocusManager mManager;
 
     private final LooperThread mEventThread = new LooperThread();
-
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        Log.w(TAG, "Disabling API requirements check");
-        builder.disableAnnotationsCheck();
-    }
 
     @Before
     public void setUp() throws Exception {
