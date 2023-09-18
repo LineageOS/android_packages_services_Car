@@ -68,6 +68,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.stubbing.OngoingStubbing;
 
 import java.util.ArrayList;
@@ -117,6 +118,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         doReturn(mCarUserService).when(() -> CarLocalServices.getService(CarUserService.class));
         doReturn(mCarPowerManager).when(() -> CarLocalServices.createCarPowerManager(mContext));
         when(mDisplayManager.getDisplay(VALID_DISPLAY_ID)).thenReturn(mValidDisplay);
+        when(mValidDisplay.getState()).thenReturn(Display.STATE_ON);
         mFixedActivityService = new FixedActivityService(mContext,
                 mActivityService, mDisplayManager, mUserHandleHelper);
     }
@@ -369,9 +371,10 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     }
 
     @Test
-    public void testStartFixedActivityModeForDisplayAndUser_invalidDisplay() {
+    public void testStartFixedActivityModeForDisplayAndUser_invalidDisplay() throws Exception {
         int userId = 100;
-        Intent intent = new Intent(Intent.ACTION_MAIN);
+        mockAmGetCurrentUser(userId);
+        Intent intent = expectComponentAvailable("test_package", "com.test.dude", userId);
         ActivityOptions options = ActivityOptions.makeBasic().setLaunchDisplayId(VALID_DISPLAY_ID);
         int invalidDisplayId = Display.DEFAULT_DISPLAY;
 
@@ -381,15 +384,54 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     }
 
     @Test
-    public void testStartFixedActivityModeForDisplayAndUser_unavailableDisplay() {
+    public void testStartFixedActivityModeForDisplayAndUser_unavailableDisplay() throws Exception {
         int userId = 100;
-        Intent intent = new Intent(Intent.ACTION_MAIN);
+        mockAmGetCurrentUser(userId);
+        Intent intent = expectComponentAvailable("test_package", "com.test.dude", userId);
         ActivityOptions options = ActivityOptions.makeBasic().setLaunchDisplayId(VALID_DISPLAY_ID);
         int unavailableDisplayId = VALID_DISPLAY_ID + 1;
 
         boolean started = mFixedActivityService.startFixedActivityModeForDisplayAndUser(
                 intent, options, unavailableDisplayId, userId);
         assertThat(started).isFalse();
+    }
+
+    @Test
+    public void testStartFixedActivityModeForDisplayAndUser_nonActiveDisplay() throws Exception {
+        int mockDisplayId = VALID_DISPLAY_ID + 1;
+        Display mockDisplay = Mockito.mock(Display.class);
+        when(mDisplayManager.getDisplay(mockDisplayId)).thenReturn(mockDisplay);
+        when(mockDisplay.getState()).thenReturn(Display.STATE_OFF, Display.STATE_ON);
+
+        int userId = 100;
+        mockAmGetCurrentUser(userId);
+        Intent intent = expectComponentAvailable("test_package", "com.test.dude", userId);
+        ActivityOptions options = ActivityOptions.makeBasic().setLaunchDisplayId(mockDisplayId);
+
+        // Display.STATE_OFF
+        boolean started1 = mFixedActivityService.startFixedActivityModeForDisplayAndUser(
+                intent, options, mockDisplayId, userId);
+        assertThat(started1).isFalse();
+
+        verify(mContext, never()).startActivityAsUser(any(Intent.class), any(Bundle.class),
+                any(UserHandle.class));
+
+        // Display.STATE_ON
+        boolean started2 = mFixedActivityService.startFixedActivityModeForDisplayAndUser(
+                intent, options, mockDisplayId, userId);
+        assertThat(started2).isTrue();
+
+        ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
+        ArgumentCaptor<Bundle> activityOptionsCaptor = ArgumentCaptor.forClass(Bundle.class);
+        ArgumentCaptor<UserHandle> userHandleCaptor = ArgumentCaptor.forClass(UserHandle.class);
+
+        verify(mContext, times(1)).startActivityAsUser(intentCaptor.capture(),
+                activityOptionsCaptor.capture(), userHandleCaptor.capture());
+        assertThat(userHandleCaptor.getAllValues().get(0)).isEqualTo(UserHandle.of(userId));
+        assertThat(ActivityOptions.fromBundle(activityOptionsCaptor.getAllValues().get(0))
+                .getLaunchDisplayId()).isEqualTo(mockDisplayId);
+        Intent capturedIntent =  intentCaptor.getAllValues().get(0);
+        assertThat(capturedIntent.getComponent()).isEqualTo(intent.getComponent());
     }
 
     @Test
