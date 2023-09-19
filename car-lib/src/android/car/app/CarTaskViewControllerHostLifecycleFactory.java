@@ -69,7 +69,8 @@ public final class CarTaskViewControllerHostLifecycleFactory {
 
         @Override
         public void onActivityStarted(@NonNull Activity activity) {
-            mCarTaskViewControllerHostLifecycle.hostAppeared();
+            // Don't invoke hostAppeared() in onStart(), which breaks the CTS
+            // ActivityLifecycleTests#testFinishBelowDialogActivity.
         }
 
         @Override
