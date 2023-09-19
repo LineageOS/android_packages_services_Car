@@ -343,7 +343,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         });
     }
 
-    //TODO(b/293374687): Add relevant tests for writeMetadataFile and release.
+    //TODO(b/293374687): Add relevant tests for writeMetadataFile.
 
     @Test
     public void testProcessUserNotificationIntentDisablePackage() {
@@ -635,6 +635,17 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                 .containsExactlyElementsIn(expectedStats);
 
         verify(mSpiedWatchdogStorage, times(2)).syncUsers(any());
+    }
+
+    @Test
+    public void testRelease() {
+        mWatchdogPerfHandler.release();
+
+        verify(mMockCarUxRestrictionsManagerService).unregisterUxRestrictionsChangeListener(
+                mICarUxRestrictionsChangeListenerCaptor.capture());
+
+        assertThat(mICarUxRestrictionsChangeListenerCaptor.getValue())
+                .isEqualTo(mCarUxRestrictionsChangeListener);
     }
 
     @Test
