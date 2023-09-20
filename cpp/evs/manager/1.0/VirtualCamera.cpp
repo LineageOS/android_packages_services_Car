@@ -15,12 +15,14 @@
  */
 
 #include "VirtualCamera.h"
-#include "HalCamera.h"
+
 #include "Enumerator.h"
+#include "HalCamera.h"
 
 #include <ui/GraphicBufferAllocator.h>
 #include <ui/GraphicBufferMapper.h>
 
+#include <assert.h>
 
 namespace android {
 namespace automotive {

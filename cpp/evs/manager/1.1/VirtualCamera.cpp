@@ -24,6 +24,8 @@
 #include <android-base/stringprintf.h>
 #include <android/hardware_buffer.h>
 
+#include <assert.h>
+
 using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
