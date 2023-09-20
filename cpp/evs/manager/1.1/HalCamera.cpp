@@ -237,7 +237,7 @@ Return<EvsResult> HalCamera::clientStreamStarting() {
     {
         std::lock_guard lock(mFrameMutex);
         if (mStreamState != STOPPED) {
-            return result;
+            return EvsResult::OK;
         }
 
         mStreamState = RUNNING;
