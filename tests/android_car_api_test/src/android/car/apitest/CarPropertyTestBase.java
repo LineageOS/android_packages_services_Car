@@ -18,7 +18,6 @@ package android.car.apitest;
 
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
-import android.car.test.ApiCheckerRule.Builder;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -40,12 +39,6 @@ abstract class CarPropertyTestBase extends CarLessApiTestBase {
     protected static final int WINDOW_PASSENGER = 0x00000002;
 
     private final Parcel mParcel = Parcel.obtain();
-
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        builder.disableAnnotationsCheck();
-    }
 
     @After
     public void recycleParcel() throws Exception {
