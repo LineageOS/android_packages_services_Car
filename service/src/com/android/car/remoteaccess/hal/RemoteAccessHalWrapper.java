@@ -24,8 +24,10 @@ import android.car.builtin.util.TimingsTraceLog;
 import android.hardware.automotive.remoteaccess.ApState;
 import android.hardware.automotive.remoteaccess.IRemoteAccess;
 import android.hardware.automotive.remoteaccess.IRemoteTaskCallback;
+import android.hardware.automotive.remoteaccess.ScheduleInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 import android.util.Log;
 
 import com.android.car.CarLog;
@@ -33,6 +35,7 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -41,8 +44,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public final class RemoteAccessHalWrapper implements IBinder.DeathRecipient {
 
-    static final String TAG = CarLog.tagFor(RemoteAccessHalWrapper.class);
+    private static final String TAG = CarLog.tagFor(RemoteAccessHalWrapper.class);
     private static final boolean DEBUG = Slogf.isLoggable(TAG, Log.DEBUG);
+    private static final String NOT_SUPPORTED_V1_MESSAGE =
+            "is not supported by remote access HAL v1";
 
     private final Object mLock = new Object();
     // Callback which is given by the instance creator.
@@ -154,6 +159,118 @@ public final class RemoteAccessHalWrapper implements IBinder.DeathRecipient {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Check {@link IRemoteAccess#isTaskScheduleSupported}.
+     *
+     * <p>Returns {@code false} if error happens.
+     */
+    public boolean isTaskScheduleSupported() {
+        try {
+            IRemoteAccess remoteAccessHal = getRemoteAccessHal();
+            if (remoteAccessHal.getInterfaceVersion() < 2) {
+                Slogf.w(TAG, "isTaskScheduleSupported %s, default to false",
+                        NOT_SUPPORTED_V1_MESSAGE);
+                return false;
+            }
+            return remoteAccessHal.isTaskScheduleSupported();
+        } catch (RemoteException | ServiceSpecificException e) {
+            Slogf.w(TAG, e, "Failed to call isTaskScheduleSupported, default to false");
+            return false;
+        }
+    }
+
+    /**
+     * Check {@link IRemoteAccess#scheduleTask}.
+     *
+     * <p>Client should check {@link isTaskScheduleSupported} is {@code true} before calling this.
+     *
+     * <p>Client should handle the thrown exception.
+     */
+    public void scheduleTask(ScheduleInfo scheduleInfo)
+            throws RemoteException, ServiceSpecificException {
+        try {
+            IRemoteAccess remoteAccessHal = getRemoteAccessHal();
+            remoteAccessHal.scheduleTask(scheduleInfo);
+        } catch (RemoteException | ServiceSpecificException e) {
+            Slogf.w(TAG, e, "Failed to call scheduleTask with scheduleInfo: %s", scheduleInfo);
+            throw e;
+        }
+    }
+
+    /**
+     * Check {@link IRemoteAccess#unscheduleTask}.
+     *
+     * <p>Client should check {@link isTaskScheduleSupported} is {@code true} before calling this.
+     *
+     * <p>Do nothing if error happens.
+     */
+    public void unscheduleTask(String clientId, String scheduleId)
+            throws RemoteException, ServiceSpecificException {
+        try {
+            IRemoteAccess remoteAccessHal = getRemoteAccessHal();
+            remoteAccessHal.unscheduleTask(clientId, scheduleId);
+        } catch (RemoteException | ServiceSpecificException e) {
+            Slogf.w(TAG, e, "Failed to call unscheduleTask with clientId: %s, scheduleId: %s",
+                    clientId, scheduleId);
+            throw e;
+        }
+    }
+
+    /**
+     * Check {@link IRemoteAccess#unscheduleAllTasks}.
+     *
+     * <p>Client should check {@link isTaskScheduleSupported} is {@code true} before calling this.
+     *
+     * <p>Do nothing if error happens.
+     */
+    public void unscheduleAllTasks(String clientId)
+            throws RemoteException, ServiceSpecificException {
+        try {
+            IRemoteAccess remoteAccessHal = getRemoteAccessHal();
+            remoteAccessHal.unscheduleAllTasks(clientId);
+        } catch (RemoteException | ServiceSpecificException e) {
+            Slogf.w(TAG, e, "Failed to call unscheduleAllTasks with clientId: %s", clientId);
+            throw e;
+        }
+    }
+
+    /**
+     * Check {@link IRemoteAccess#isTaskScheduled}.
+     *
+     * <p>Client should check {@link isTaskScheduleSupported} is {@code true} before calling this.
+     *
+     * <p>Returns {@code false} if error happens.
+     */
+    public boolean isTaskScheduled(String clientId, String scheduleId)
+            throws RemoteException, ServiceSpecificException {
+        try {
+            IRemoteAccess remoteAccessHal = getRemoteAccessHal();
+            return remoteAccessHal.isTaskScheduled(clientId, scheduleId);
+        } catch (RemoteException | ServiceSpecificException e) {
+            Slogf.w(TAG, e, "Failed to call isTaskScheduled with clientId: %s, scheduleId: %s,"
+                    + " default to false", clientId, scheduleId);
+            throw e;
+        }
+    }
+
+    /**
+     * Check {@link IRemoteAccess#getAllScheduledTasks}.
+     *
+     * <p>Client should check {@link isTaskScheduleSupported} is {@code true} before calling this.
+     *
+     * <p>Client should handle the thrown exception.
+     */
+    public List<ScheduleInfo> getAllScheduledTasks(String clientId)
+            throws RemoteException, ServiceSpecificException {
+        try {
+            IRemoteAccess remoteAccessHal = getRemoteAccessHal();
+            return remoteAccessHal.getAllScheduledTasks(clientId);
+        } catch (RemoteException | ServiceSpecificException e) {
+            Slogf.w(TAG, e, "Failed to call getAllScheduledTasks with clientId: %s", clientId);
+            throw e;
+        }
     }
 
     private void connectToHal() {

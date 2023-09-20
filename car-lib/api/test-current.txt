@@ -2085,6 +2085,7 @@ package android.car.remoteaccess {
     field public static final int NEXT_POWER_STATE_ON = 1; // 0x1
     field public static final int NEXT_POWER_STATE_SUSPEND_TO_DISK = 4; // 0x4
     field public static final int NEXT_POWER_STATE_SUSPEND_TO_RAM = 3; // 0x3
+    field public static final int SERVICE_ERROR_SCHEDULE_TASK = 1; // 0x1
   }
 
   public final class CarRemoteAccessManager.InVehicleTaskScheduler {
