@@ -101,7 +101,7 @@ private:
         STOPPED,
         RUNNING,
         STOPPING,
-    } mStreamState = STOPPED;
+    } mStreamState GUARDED_BY(mFrameMutex) = STOPPED;
 
     struct FrameRecord {
         uint32_t frameId;
