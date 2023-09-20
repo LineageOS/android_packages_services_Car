@@ -20,10 +20,12 @@ import static android.car.Car.PERMISSION_VENDOR_EXTENSION;
 
 import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
+import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
+import android.os.Trace;
 import android.util.ArraySet;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
@@ -58,6 +60,7 @@ import java.util.Set;
  * This class binds the read and write permissions to the property ID.
  */
 public class PropertyHalServiceConfigs {
+    private static final long TRACE_TAG = TraceHelper.TRACE_TAG_CAR_SERVICE;
     private static final Object sLock = new Object();
     @GuardedBy("sLock")
     private static PropertyHalServiceConfigs sPropertyHalServiceConfigs;
@@ -155,6 +158,7 @@ public class PropertyHalServiceConfigs {
      */
     @VisibleForTesting
     /* package */ PropertyHalServiceConfigs() {
+        Trace.traceBegin(TRACE_TAG, "initialize PropertyHalServiceConfigs");
         InputStream defaultConfigInputStream = this.getClass().getClassLoader()
                 .getResourceAsStream(CONFIG_RESOURCE_NAME);
         mHalPropIdToCarSvcConfig = parseJsonConfig(defaultConfigInputStream,
@@ -172,6 +176,7 @@ public class PropertyHalServiceConfigs {
             halPropIdMgrIdArray[i] = halPropIdMgrIds.get(i);
         }
         mMgrPropIdToHalPropId = BidirectionalSparseIntArray.create(halPropIdMgrIdArray);
+        Trace.traceEnd(TRACE_TAG);
     }
 
     /**
