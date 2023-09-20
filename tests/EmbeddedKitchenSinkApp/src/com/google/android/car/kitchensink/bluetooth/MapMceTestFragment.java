@@ -46,7 +46,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 
 import java.util.Collection;
@@ -136,7 +135,6 @@ public class MapMceTestFragment extends Fragment {
     PendingIntent mDeliveredIntent;
     NotificationReceiver mTransmissionStatusReceiver;
     Object mLock = new Object();
-    private KitchenSinkActivity mActivity;
     private Intent mSendIntent;
     private Intent mDeliveryIntent;
 
@@ -144,9 +142,8 @@ public class MapMceTestFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.sms_received, container, false);
-        mActivity = (KitchenSinkActivity) getHost();
 
-        if (!BluetoothPermissionChecker.isPermissionGranted(mActivity,
+        if (!BluetoothPermissionChecker.isPermissionGranted(getActivity(),
                 Manifest.permission.BLUETOOTH_CONNECT)) {
             BluetoothPermissionChecker.requestPermission(Manifest.permission.BLUETOOTH_CONNECT,
                     this,
@@ -249,7 +246,7 @@ public class MapMceTestFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        if (BluetoothPermissionChecker.isPermissionGranted(mActivity,
+        if (BluetoothPermissionChecker.isPermissionGranted(getActivity(),
                 Manifest.permission.BLUETOOTH_CONNECT)) {
             registerMapServiceListenerAndNotificationReceiver();
         }
@@ -306,10 +303,10 @@ public class MapMceTestFragment extends Fragment {
     }
 
     private void sendMessage(Collection recipients, String message) {
-        if (mActivity.checkSelfPermission(Manifest.permission.SEND_SMS)
+        if (getActivity().checkSelfPermission(Manifest.permission.SEND_SMS)
                 != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG,"Don't have SMS permission in kitchesink app. Requesting it");
-            mActivity.requestPermissions(new String[]{Manifest.permission.SEND_SMS},
+            getActivity().requestPermissions(new String[]{Manifest.permission.SEND_SMS},
                     SEND_SMS_PERMISSIONS_REQUEST);
             Toast.makeText(getContext(), "Try again after granting SEND_SMS perm!",
                     Toast.LENGTH_SHORT).show();
