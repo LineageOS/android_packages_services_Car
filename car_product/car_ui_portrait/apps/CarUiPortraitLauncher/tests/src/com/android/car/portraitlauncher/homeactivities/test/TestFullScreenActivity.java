@@ -14,20 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.car.portraitlauncher.homeactivities;
-
-import android.app.Activity;
-import android.os.Bundle;
-
-import com.android.car.portraitlauncher.homeactivities.test.R;
+package com.android.car.portraitlauncher.homeactivities.test;
 
 /**
- * An empty activity to be used for testing.
+ * An empty test activity to be launched in fullscreen panel.
  */
-public class TestActivity extends Activity {
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.empty_test_activity);
-    }
+public class TestFullScreenActivity extends TestActivity {
 }

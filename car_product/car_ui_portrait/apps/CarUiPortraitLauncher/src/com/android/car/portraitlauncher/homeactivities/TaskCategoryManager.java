@@ -295,7 +295,8 @@ class TaskCategoryManager {
                 // Ignoring empty announcements
                 return;
             }
-            updateBackgroundActivityMap();
+
+            refresh();
 
             if (Intent.ACTION_PACKAGE_ADDED.equals(action)) {
                 for (OnApplicationInstallUninstallListener listener :

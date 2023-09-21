@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package com.android.car.portraitlauncher.homeactivities;
-
-import static org.junit.Assert.assertEquals;
+package com.android.car.portraitlauncher.homeactivities.test;
 
 import android.graphics.Rect;
-import android.view.View;
+import android.util.Log;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
-
-import com.android.car.portraitlauncher.homeactivities.test.R;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,29 +31,31 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class CarUiPortraitHomeScreenTest {
+public class ApplicationPanelTapTest extends TapTestBase {
+    private static final String TAG = ApplicationPanelTapTest.class.getSimpleName();
     @Rule
     public ActivityScenarioRule<TestActivity> mActivityRule = new ActivityScenarioRule<>(
             TestActivity.class);
-    private TestActivity mActivity;
+    private ActivityScenario<TestActivity> mScenario;
 
     @Before
     public void setUp() {
-        ActivityScenario<TestActivity> scenario = mActivityRule.getScenario();
-        scenario.onActivity(activity -> mActivity = activity);
+        mScenario = mActivityRule.getScenario();
     }
 
     @Test
-    public void launchNonImmersiveActivity() {
-        View v = mActivity.findViewById(R.id.test_container);
-        int[] location = new int[2];
-        v.getLocationOnScreen(location);
-        Rect windowBound =  mActivity.getWindowManager().getCurrentWindowMetrics().getBounds();
+    public void clickView_openState_test() {
+        mScenario.onActivity(activity -> mTestActivity = activity);
+        mUiDevice.waitForIdle();
+        Rect testRect = getTestContainerRect();
+        Log.i(TAG, "testRect = " + testRect);
 
-        assertEquals(v.getHeight(), v.getWidth() + 1);
-        assertEquals(windowBound.left, location[0]);
-        assertEquals(windowBound.right, v.getWidth());
-        assertEquals(windowBound.top, location[1]);
-        assertEquals(windowBound.bottom, windowBound.top + v.getHeight());
+        for (int x = testRect.left; x <= testRect.right; x += CLICK_DELTA) {
+            // For Application panel, testRect.bottom is actually the height rather than actual
+            // value, so apply offsite to the y axis.
+            for (int y = testRect.top; y <= testRect.top + testRect.bottom; y += CLICK_DELTA) {
+                verifyClick(x, y, testRect.left, testRect.top, mTestActivity);
+            }
+        }
     }
 }
