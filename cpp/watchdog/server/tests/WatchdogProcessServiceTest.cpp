@@ -256,17 +256,29 @@ protected:
     }
 
     void syncLooper(std::chrono::nanoseconds delay = 0ns) {
+        // Acquire the lock before sending message to avoid any race condition.
+        std::unique_lock lock(mMutex);
         mHandlerLooper->sendMessageDelayed(delay.count(), mMessageHandler,
                                            Message(TestMessage::NOTIFY_ALL));
-        waitForLooperNotification(delay);
+        waitForLooperNotificationLocked(lock, delay);
     }
 
     void waitForLooperNotification(std::chrono::nanoseconds delay = 0ns) {
         std::unique_lock lock(mMutex);
-        mLooperCondition.wait_for(lock,
+        waitForLooperNotificationLocked(lock, delay);
+    }
+
+    void waitForLooperNotificationLocked(std::unique_lock<std::mutex>& lock,
+                                         std::chrono::nanoseconds delay = 0ns) {
+        // If a race condition is detected in the handler looper, the current locking mechanism
+        // should be re-evaluated as discussed in b/299676049.
+        std::cv_status status =
+                mLooperCondition
+                        .wait_for(lock,
                                   kMaxWaitForLooperExecutionMillis +
                                           std::chrono::duration_cast<std::chrono::milliseconds>(
                                                   delay));
+        ASSERT_EQ(status, std::cv_status::no_timeout) << "Looper notification not received";
     }
 
     void waitUntilVhalPidCachingAttemptsExhausted() {
