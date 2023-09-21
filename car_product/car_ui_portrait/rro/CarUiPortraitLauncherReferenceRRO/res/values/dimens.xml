@@ -17,7 +17,8 @@
 <resources>
     <dimen name="card_icon_margin_start">8dp</dimen>
     <dimen name="card_content_margin_start">16dp</dimen>
-    <dimen name="card_fragment_margin">24dp</dimen>
+    <dimen name="card_fragment_margin_horizontal">24dp</dimen>
+    <dimen name="card_fragment_margin_vertical">32dp</dimen>
 
     <dimen name="descriptive_text_vertical_margin">23dp</dimen>
 
@@ -77,7 +78,7 @@
     <dimen name="seekbar_times_width">140dp</dimen>
     <dimen name="seekbar_with_times_height">28dp</dimen>
     <dimen name="seekbar_with_times_margin_bottom">6dp</dimen>
-    <dimen name="seekbar_with_times_margin_top">30dp</dimen>
+    <dimen name="seekbar_with_times_margin_top">28dp</dimen>
 
     <dimen name="recent_task_icon_size">88dp</dimen>
     <dimen name="recent_task_width_first">962dp</dimen>

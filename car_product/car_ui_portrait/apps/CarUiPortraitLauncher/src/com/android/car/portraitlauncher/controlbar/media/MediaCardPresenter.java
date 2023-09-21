@@ -52,8 +52,13 @@ public class MediaCardPresenter extends CardPresenter {
             new HomeCardInterface.Model.OnModelUpdateListener() {
                 @Override
                 public void onModelUpdate(HomeCardInterface.Model model) {
-                    mFragment.updateHeaderView(mViewModel.getCardHeader());
-                    mFragment.updateContentView(mViewModel.getCardContent());
+                    MediaViewModel mediaViewModel = (MediaViewModel) model;
+                    if (mediaViewModel.getCardHeader() != null) {
+                        mFragment.updateHeaderView(mViewModel.getCardHeader());
+                    }
+                    if (mediaViewModel.getCardContent() != null) {
+                        mFragment.updateContentView(mViewModel.getCardContent());
+                    }
                 }
             };
 

@@ -22,6 +22,7 @@
     <item target="attr/strokeWidth" value="@attr/strokeWidth" />
 
     <item target="color/dialer_button_icon_color" value="@color/dialer_button_icon_color" />
+    <item target="color/dialer_icon_tint_state_list" value="@color/dialer_icon_tint_state_list" />
     <item target="color/icon_tint" value="@color/icon_tint" />
     <item target="color/media_button_tint" value="@color/media_button_tint" />
     <item target="color/media_button_tint_disabled" value="@color/media_button_tint_disabled" />
@@ -117,6 +118,7 @@
     <item target="drawable/default_audio_background" value="@drawable/default_audio_background" />
     <item target="drawable/ic_call_end" value="@drawable/ic_call_end" />
     <item target="drawable/ic_call_end_button" value="@drawable/ic_call_end_button" />
+    <item target="drawable/dialer_button_active_state_circle" value="@drawable/dialer_button_active_state_circle" />
 
     <item target="string/default_media_song_title" value="@string/default_media_song_title" />
     <item target="string/times_separator" value="@string/times_separator" />
