@@ -22,6 +22,7 @@ import android.car.diagnostic.CarDiagnosticEvent;
 import android.car.diagnostic.CarDiagnosticManager;
 import android.car.diagnostic.CarDiagnosticManager.OnDiagnosticEventListener;
 import android.car.hardware.CarSensorManager;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -31,14 +32,16 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
-import com.google.android.car.kitchensink.KitchenSinkActivity;
+import com.google.android.car.kitchensink.KitchenSinkHelper;
 import com.google.android.car.kitchensink.R;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
 
 public class DiagnosticTestFragment extends Fragment {
-    private KitchenSinkActivity mActivity;
+    private KitchenSinkHelper mKitchenSinkHelper;
     private TextView mLiveDiagnosticInfo;
     private TextView mFreezeDiagnosticInfo;
     private CarDiagnosticManager mDiagnosticManager;
@@ -59,6 +62,17 @@ public class DiagnosticTestFragment extends Fragment {
     private OnDiagnosticEventListener mLiveListener;
     private OnDiagnosticEventListener mFreezeListener;
 
+    @Override
+    public void onAttach(@androidx.annotation.NonNull @NotNull Context context) {
+        super.onAttach(context);
+        if (!(context instanceof KitchenSinkHelper)) {
+            throw new IllegalStateException(
+                    "Attached activity does not implement "
+                            + KitchenSinkHelper.class.getSimpleName());
+        }
+        mKitchenSinkHelper = (KitchenSinkHelper) context;
+    }
+
     @Nullable
     @Override
     public View onCreateView(
@@ -66,7 +80,6 @@ public class DiagnosticTestFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.diagnostic, container, false);
-        mActivity = (KitchenSinkActivity) getHost();
 
         mLiveDiagnosticInfo = (TextView) view.findViewById(R.id.live_diagnostic_info);
         mLiveDiagnosticInfo.setTextColor(Color.RED);
@@ -92,7 +105,7 @@ public class DiagnosticTestFragment extends Fragment {
     }
 
     private void resumeDiagnosticManager() {
-        Car car = mActivity.getCar();
+        Car car = mKitchenSinkHelper.getCar();
         if (!car.isFeatureEnabled(Car.DIAGNOSTIC_SERVICE)) {
             String notSupported = Car.DIAGNOSTIC_SERVICE + " not supported";
             mLiveDiagnosticInfo.setText(notSupported);

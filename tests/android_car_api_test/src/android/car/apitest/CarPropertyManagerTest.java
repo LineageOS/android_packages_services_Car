@@ -16,6 +16,8 @@
 
 package android.car.apitest;
 
+import static android.hardware.automotive.vehicle.TestVendorProperty.VENDOR_PROPERTY_FOR_ERROR_CODE_TESTING;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -49,8 +51,6 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 
 public final class CarPropertyManagerTest extends CarApiTestBase {
-    private static final int VENDOR_ERROR_CODE_PROPERTY_ID = 0x2a13 | VehiclePropertyGroup.VENDOR
-            | VehicleArea.GLOBAL | VehiclePropertyType.INT32;
     private static final int EXPECTED_VENDOR_ERROR_CODE = 0x00ab;
     private static final int NUMBER_OF_TEST_CODES = 0x2000;
     // 557862912
@@ -86,11 +86,12 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
     @Test
     public void testGetProperty_withVendorPropertyId_throws() {
         List<CarPropertyConfig> carPropertyConfigList = mCarPropertyManager.getPropertyList(
-                new ArraySet(List.of(VENDOR_ERROR_CODE_PROPERTY_ID)));
-        assumeTrue("VENDOR_ERROR_CODE_PROPERTY_ID is supported",
+                new ArraySet(List.of(VENDOR_PROPERTY_FOR_ERROR_CODE_TESTING)));
+        assumeTrue("VENDOR_PROPERTY_FOR_ERROR_CODE_TESTING is supported",
                 !carPropertyConfigList.isEmpty());
         CarInternalErrorException thrown = assertThrows(CarInternalErrorException.class, () ->
-                mCarPropertyManager.getProperty(VENDOR_ERROR_CODE_PROPERTY_ID, /* areaId = */ 0));
+                mCarPropertyManager.getProperty(VENDOR_PROPERTY_FOR_ERROR_CODE_TESTING,
+                        /* areaId = */ 0));
 
         assertThat(thrown.getVendorErrorCode()).isEqualTo(EXPECTED_VENDOR_ERROR_CODE);
     }
@@ -99,12 +100,12 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
     @Test
     public void testSetProperty_withVendorPropertyId_throws() {
         List<CarPropertyConfig> carPropertyConfigList = mCarPropertyManager.getPropertyList(
-                new ArraySet(List.of(VENDOR_ERROR_CODE_PROPERTY_ID)));
-        assumeTrue("VENDOR_ERROR_CODE_PROPERTY_ID is supported",
+                new ArraySet(List.of(VENDOR_PROPERTY_FOR_ERROR_CODE_TESTING)));
+        assumeTrue("VENDOR_PROPERTY_FOR_ERROR_CODE_TESTING is supported",
                 !carPropertyConfigList.isEmpty());
         CarInternalErrorException thrown = assertThrows(CarInternalErrorException.class,
-                () -> mCarPropertyManager.setProperty(Integer.class, VENDOR_ERROR_CODE_PROPERTY_ID,
-                        /* areaId = */ 0, /* val= */ 0));
+                () -> mCarPropertyManager.setProperty(Integer.class,
+                        VENDOR_PROPERTY_FOR_ERROR_CODE_TESTING, /* areaId = */ 0, /* val= */ 0));
 
         assertThat(thrown.getVendorErrorCode()).isEqualTo(EXPECTED_VENDOR_ERROR_CODE);
     }
@@ -124,18 +125,19 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
             }
             Log.d(TAG, "Stopping car service for test");
             mTestManager.stopCarService(mToken);
-            CarApiTestBase.executeShellCommand(
-                    "dumpsys android.hardware.automotive.vehicle.IVehicle/default "
-                            + "--genTestVendorConfigs");
+            String result = CarApiTestBase.executeShellCommand(
+                    "dumpsys car_service gen-test-vendor-configs");
             Log.d(TAG, "Starting car service for test");
             mTestManager.startCarService(mToken);
 
             List<CarPropertyConfig> carPropertyConfigsList = mCarPropertyManager.getPropertyList();
-
             resultSet = new ArraySet<>();
             for (int i = 0; i < carPropertyConfigsList.size(); i++) {
                 resultSet.add(carPropertyConfigsList.get(i).getPropertyId());
             }
+            assumeTrue("successfully generated vendor configs, VHAL gen-test-vendor-configs "
+                            + "debug command is supported",
+                    result.equals("successfully generated vendor configs\n"));
             for (int i = STARTING_TEST_CODES; i < END_TEST_CODES; i++) {
                 assertThat(i).isIn(resultSet);
             }
@@ -151,11 +153,13 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
         try {
             Log.d(TAG, "Stopping car service for test");
             mTestManager.stopCarService(mToken);
-            CarApiTestBase.executeShellCommand(
-                    "dumpsys android.hardware.automotive.vehicle.IVehicle/default "
-                            + "--genTestVendorConfigs");
+            String result = CarApiTestBase.executeShellCommand(
+                    "dumpsys car_service gen-test-vendor-configs");
             Log.d(TAG, "Starting car service for test");
             mTestManager.startCarService(mToken);
+            assumeTrue("successfully generated vendor configs, VHAL gen-test-vendor-configs "
+                            + "debug command is supported",
+                    result.equals("successfully generated vendor configs\n"));
             Executor callbackExecutor = new HandlerExecutor(mHandler);
             Set<Integer> setPropertyIds = new ArraySet<>();
             List<CarPropertyManager.SetPropertyRequest<?>> setPropertyRequests = new ArrayList<>();
@@ -191,11 +195,13 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
         try {
             Log.d(TAG, "Stopping car service for test");
             mTestManager.stopCarService(mToken);
-            CarApiTestBase.executeShellCommand(
-                    "dumpsys android.hardware.automotive.vehicle.IVehicle/default "
-                            + "--genTestVendorConfigs");
+            String result = CarApiTestBase.executeShellCommand(
+                    "dumpsys car_service gen-test-vendor-configs");
             Log.d(TAG, "Starting car service for test");
             mTestManager.startCarService(mToken);
+            assumeTrue("successfully generated vendor configs, VHAL gen-test-vendor-configs "
+                            + "debug command is supported",
+                    result.equals("successfully generated vendor configs\n"));
 
             Executor callbackExecutor = new HandlerExecutor(mHandler);
             Set<Integer> getPropertyIds = new ArraySet<>();
@@ -227,9 +233,9 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
     private void restoreCarService() throws Exception {
         Log.d(TAG, "Stopping car service for test");
         mTestManager.stopCarService(mToken);
-        CarApiTestBase.executeShellCommand(
-                "dumpsys android.hardware.automotive.vehicle.IVehicle/default "
-                        + "--restoreVendorConfigs");
+        String result = CarApiTestBase.executeShellCommand(
+                "dumpsys car_service restore-vendor-configs");
+        assertThat(result.equals("successfully restored vendor configs\n")).isTrue();
         Log.d(TAG, "Starting car service for test");
         mTestManager.startCarService(mToken);
     }

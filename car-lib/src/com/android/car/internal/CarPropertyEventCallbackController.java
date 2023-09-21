@@ -18,28 +18,20 @@ package com.android.car.internal;
 
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback;
-import android.util.ArrayMap;
 import android.util.Log;
 import android.util.SparseArray;
 
 import com.android.car.internal.property.CarPropertyEventTracker;
 import com.android.internal.annotations.GuardedBy;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 /**
- * Manages a group of {@link CarPropertyEventCallback} instances registered for the same {@link
- * #mPropertyId} at possibly different update rates.
+ * Manages a group of property IDs and area IDs registered for the same {@link
+ * CarPropertyEventCallback} at possibly different update rates.
  *
  * @hide
  */
@@ -47,219 +39,131 @@ public final class CarPropertyEventCallbackController {
     // Abbreviating TAG because class name is longer than the 23 character Log tag limit.
     private static final String TAG = "CPECallbackController";
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
-    // Since this class is internal to CarPropertyManager, it shares the same lock to avoid
-    // potential deadlock.
-    private final Object mCarPropertyManagerLock;
-    @GuardedBy("mCarPropertyManagerLock")
-    private final Map<CarPropertyEventCallback, Float> mCarPropertyEventCallbackToUpdateRateHz =
-            new ArrayMap<>();
-    // For each CarPropertyEventCallback and area ID, track the next update time
+    private final Object mLock = new Object();
+    private final CarPropertyEventCallback mCarPropertyEventCallback;
+    // For each property ID and area ID, track the next update time
     // based on the update rate.
-    @GuardedBy("mCarPropertyManagerLock")
-    private final Map<CarPropertyEventCallback, SparseArray<CarPropertyEventTracker>>
-            mCpeCallbackToAreaIdToCpeTracker = new ArrayMap<>();
-    private final int mPropertyId;
-    private final RegistrationUpdateCallback mRegistrationUpdateCallback;
-    @GuardedBy("mCarPropertyManagerLock")
-    private Float mMaxUpdateRateHz = null;
+    @GuardedBy("mLock")
+    private final SparseArray<SparseArray<CarPropertyEventTracker>> mPropIdToAreaIdToCpeTracker =
+            new SparseArray<>();
 
-    public CarPropertyEventCallbackController(int propertyId, Object carPropertyManagerLock,
-            RegistrationUpdateCallback registrationUpdateCallback) {
-        requireNonNull(registrationUpdateCallback);
-        mPropertyId = propertyId;
-        mCarPropertyManagerLock = carPropertyManagerLock;
-        mRegistrationUpdateCallback = registrationUpdateCallback;
-    }
-
-    /**
-     * Forward a successful {@link CarPropertyEvent} to the registered {@link
-     * CarPropertyEventCallback} instances if the {@link CarPropertyEventCallback} instance's update
-     * rate threshold is met.
-     */
-    public void forwardPropertyChanged(CarPropertyEvent carPropertyEvent) {
-        requireNonNull(carPropertyEvent);
-        CarPropertyValue<?> carPropertyValue = carPropertyEvent.getCarPropertyValue();
-        List<CarPropertyEventCallback> carPropertyEventCallbacks = getCallbacksForCarPropertyValue(
-                carPropertyValue);
-        for (int i = 0; i < carPropertyEventCallbacks.size(); i++) {
-            carPropertyEventCallbacks.get(i).onChangeEvent(carPropertyValue);
-        }
-    }
-
-    /**
-     * Forward an error {@link CarPropertyEvent} to the registered {@link CarPropertyEventCallback}
-     * instances.
-     */
-    public void forwardErrorEvent(CarPropertyEvent carPropertyEvent) {
-        requireNonNull(carPropertyEvent);
-        CarPropertyValue<?> carPropertyValue = carPropertyEvent.getCarPropertyValue();
-        if (DBG) {
-            Slogf.d(TAG, "onErrorEvent for propertyId=%s, areaId=0x%x, errorCode=%d",
-                    VehiclePropertyIds.toString(carPropertyValue.getPropertyId()),
-                    carPropertyValue.getAreaId(), carPropertyEvent.getErrorCode());
-        }
-        List<CarPropertyEventCallback> carPropertyEventCallbacks;
-        synchronized (mCarPropertyManagerLock) {
-            carPropertyEventCallbacks = new ArrayList<>(
-                    mCarPropertyEventCallbackToUpdateRateHz.keySet());
-        }
-        for (int i = 0; i < carPropertyEventCallbacks.size(); i++) {
-            carPropertyEventCallbacks.get(i).onErrorEvent(carPropertyValue.getPropertyId(),
-                    carPropertyValue.getAreaId(), carPropertyEvent.getErrorCode());
-
-        }
-    }
-
-    /**
-     * Add given {@link CarPropertyEventCallback} to the list and update registration if necessary.
-     *
-     * @return true is registration was successful, otherwise false.
-     */
-    public boolean add(CarPropertyEventCallback carPropertyEventCallback, int[] areaIds,
-            float updateRateHz) {
+    public CarPropertyEventCallbackController(CarPropertyEventCallback carPropertyEventCallback) {
         requireNonNull(carPropertyEventCallback);
+        mCarPropertyEventCallback = carPropertyEventCallback;
+    }
+
+    /**
+     * Forward a {@link CarPropertyEvent} to {@link #mCarPropertyEventCallback} if the event is an
+     * error event or the update rate threshold is met for a change event.
+     */
+    public void onEvent(CarPropertyEvent carPropertyEvent) {
+        requireNonNull(carPropertyEvent);
+        CarPropertyValue<?> carPropertyValue = carPropertyEvent.getCarPropertyValue();
+        if (!shouldCallbackBeInvoked(carPropertyEvent)) {
+            if (DBG) {
+                Slogf.d(TAG, "onEvent for propertyId=%s, areaId=0x%x, cannot be invoked.",
+                        VehiclePropertyIds.toString(carPropertyValue.getPropertyId()),
+                        carPropertyValue.getAreaId());
+            }
+            return;
+        }
+        switch (carPropertyEvent.getEventType()) {
+            case CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE:
+                mCarPropertyEventCallback.onChangeEvent(carPropertyValue);
+                break;
+            case CarPropertyEvent.PROPERTY_EVENT_ERROR:
+                if (DBG) {
+                    Slogf.d(TAG, "onErrorEvent for propertyId=%s, areaId=0x%x, errorCode=%d",
+                            VehiclePropertyIds.toString(carPropertyValue.getPropertyId()),
+                            carPropertyValue.getAreaId(), carPropertyEvent.getErrorCode());
+                }
+                mCarPropertyEventCallback.onErrorEvent(carPropertyValue.getPropertyId(),
+                        carPropertyValue.getAreaId(), carPropertyEvent.getErrorCode());
+                break;
+            default:
+                Slogf.e(TAG, "onEvent: unknown errorCode=%d, for propertyId=%s, areaId=0x%x",
+                        carPropertyEvent.getErrorCode(),
+                        VehiclePropertyIds.toString(carPropertyValue.getPropertyId()),
+                        carPropertyValue.getAreaId());
+                break;
+        }
+    }
+
+     /** Track the property ID and area IDs at the given update rate. */
+    public void add(int propertyId, int[] areaIds, float updateRateHz) {
         requireNonNull(areaIds);
-        synchronized (mCarPropertyManagerLock) {
+        synchronized (mLock) {
             SparseArray<CarPropertyEventTracker> areaIdToCpeTracker =
-                    new SparseArray<>(areaIds.length);
+                    mPropIdToAreaIdToCpeTracker.get(propertyId);
+            if (areaIdToCpeTracker == null) {
+                areaIdToCpeTracker = new SparseArray<>(areaIds.length);
+                mPropIdToAreaIdToCpeTracker.put(propertyId, areaIdToCpeTracker);
+            }
 
             for (int i = 0; i < areaIds.length; i++) {
                 areaIdToCpeTracker.put(areaIds[i], new CarPropertyEventTracker(updateRateHz));
             }
-
-            Float previousUpdateRateHz = mCarPropertyEventCallbackToUpdateRateHz.put(
-                    carPropertyEventCallback, updateRateHz);
-            SparseArray<CarPropertyEventTracker> previousAreaIdToCpeTracker =
-                    mCpeCallbackToAreaIdToCpeTracker.put(carPropertyEventCallback,
-                            areaIdToCpeTracker);
-            return updateMaxUpdateRateHzAndRegisterLocked(carPropertyEventCallback,
-                    previousUpdateRateHz, previousAreaIdToCpeTracker);
         }
     }
 
     /**
-     * Remove given {@link CarPropertyEventCallback} from the list and update registration if
-     * necessary.
+     * Return the update rate in hz that the property ID and area ID pair
+     * is subscribed at.
+     */
+    public float getUpdateRateHz(int propertyId, int areaId) {
+        synchronized (mLock) {
+            SparseArray<CarPropertyEventTracker> areaIdToCpeTracker =
+                    mPropIdToAreaIdToCpeTracker.get(propertyId);
+            if (areaIdToCpeTracker == null || areaIdToCpeTracker.get(areaId) == null) {
+                Slogf.e(TAG, "getUpdateRateHz: update rate hz not found for propertyId=%s",
+                        VehiclePropertyIds.toString(propertyId));
+                // Return 0 if property not found, since that is the slowest rate.
+                return 0f;
+            }
+            return areaIdToCpeTracker.get(areaId).getUpdateRateHz();
+        }
+    }
+
+    /**
+     * Stop tracking the given property ID.
      *
-     * @return true if all {@link CarPropertyEventCallback} instances are removed, otherwise false.
+     * @return {@code true} if there are no remaining properties being tracked.
      */
-    public boolean remove(CarPropertyEventCallback carPropertyEventCallback) {
-        requireNonNull(carPropertyEventCallback);
-        synchronized (mCarPropertyManagerLock) {
-            Float previousUpdateRateHz =
-                    mCarPropertyEventCallbackToUpdateRateHz.remove(carPropertyEventCallback);
-            SparseArray<CarPropertyEventTracker> previousAreaIdToCpeTracker =
-                    mCpeCallbackToAreaIdToCpeTracker.remove(carPropertyEventCallback);
-            updateMaxUpdateRateHzAndRegisterLocked(carPropertyEventCallback, previousUpdateRateHz,
-                    previousAreaIdToCpeTracker);
-            return mCarPropertyEventCallbackToUpdateRateHz.isEmpty();
+    public boolean remove(int propertyId) {
+        synchronized (mLock) {
+            mPropIdToAreaIdToCpeTracker.delete(propertyId);
+            return mPropIdToAreaIdToCpeTracker.size() == 0;
         }
     }
 
-    private List<CarPropertyEventCallback> getCallbacksForCarPropertyValue(
-            CarPropertyValue<?> carPropertyValue) {
-        List<CarPropertyEventCallback> carPropertyEventCallbacks = new ArrayList<>();
+    /** Returns a list of property IDs being tracked for {@link #mCarPropertyEventCallback}. */
+    public int[] getSubscribedProperties() {
+        synchronized (mLock) {
+            int[] propertyIds = new int[mPropIdToAreaIdToCpeTracker.size()];
+            for (int i = 0; i < mPropIdToAreaIdToCpeTracker.size(); i++) {
+                propertyIds[i] = mPropIdToAreaIdToCpeTracker.keyAt(i);
+            }
+            return propertyIds;
+        }
+    }
+
+    private boolean shouldCallbackBeInvoked(CarPropertyEvent carPropertyEvent) {
+        CarPropertyValue<?> carPropertyValue = carPropertyEvent.getCarPropertyValue();
+        int propertyId = carPropertyValue.getPropertyId();
         int areaId = carPropertyValue.getAreaId();
-        synchronized (mCarPropertyManagerLock) {
-            for (CarPropertyEventCallback carPropertyEventCallback :
-                    mCarPropertyEventCallbackToUpdateRateHz.keySet()) {
-                SparseArray<CarPropertyEventTracker> areaIdToCpeTracker =
-                        mCpeCallbackToAreaIdToCpeTracker.get(carPropertyEventCallback);
 
-                if (areaIdToCpeTracker == null || areaIdToCpeTracker.get(areaId) == null) {
-                    Slogf.w(TAG, "getCallbacksForCarPropertyValue: Callback not found for"
-                            + " propertyId=%s, areaId=0x%x, timestampNanos=%d",
-                            VehiclePropertyIds.toString(carPropertyValue.getPropertyId()), areaId,
-                            carPropertyValue.getTimestamp());
-                    continue;
-                }
-
-                CarPropertyEventTracker cpeTracker = areaIdToCpeTracker.get(areaId);
-                if (cpeTracker.hasNextUpdateTimeArrived(carPropertyValue)) {
-                    carPropertyEventCallbacks.add(carPropertyEventCallback);
-                }
+        synchronized (mLock) {
+            SparseArray<CarPropertyEventTracker> areaIdToCpeTracker =
+                    mPropIdToAreaIdToCpeTracker.get(propertyId);
+            if (areaIdToCpeTracker == null || areaIdToCpeTracker.get(areaId) == null) {
+                Slogf.w(TAG, "shouldCallbackBeInvoked: callback not registered for propertyId=%s, "
+                        + "areaId=0x%x, timestampNanos=%d", VehiclePropertyIds.toString(propertyId),
+                        areaId, carPropertyValue.getTimestamp());
+                return false;
             }
+            CarPropertyEventTracker cpeTracker = areaIdToCpeTracker.get(areaId);
+            return carPropertyEvent.getEventType() == CarPropertyEvent.PROPERTY_EVENT_ERROR
+                    || cpeTracker.hasNextUpdateTimeArrived(carPropertyValue);
         }
-        return carPropertyEventCallbacks;
-    }
-
-    @GuardedBy("mCarPropertyManagerLock")
-    private void restorePreviousUpdateValuesLocked(
-            CarPropertyEventCallback carPropertyEventCallback, @Nullable Float previousUpdateRateHz,
-            @Nullable SparseArray<CarPropertyEventTracker> previousAreaIdToCpeTracker) {
-        if (previousUpdateRateHz != null && previousAreaIdToCpeTracker != null) {
-            mCarPropertyEventCallbackToUpdateRateHz.put(carPropertyEventCallback,
-                    previousUpdateRateHz);
-            mCpeCallbackToAreaIdToCpeTracker.put(carPropertyEventCallback,
-                    previousAreaIdToCpeTracker);
-        } else {
-            mCarPropertyEventCallbackToUpdateRateHz.remove(carPropertyEventCallback);
-            mCpeCallbackToAreaIdToCpeTracker.remove(carPropertyEventCallback);
-        }
-        mMaxUpdateRateHz = calculateMaxUpdateRateHzLocked();
-    }
-
-    @GuardedBy("mCarPropertyManagerLock")
-    private boolean updateMaxUpdateRateHzAndRegisterLocked(
-            CarPropertyEventCallback carPropertyEventCallback, @Nullable Float previousUpdateRateHz,
-            @Nullable SparseArray<CarPropertyEventTracker> previousAreaIdToCpeTracker)
-            throws SecurityException {
-        Float newMaxUpdateRateHz = calculateMaxUpdateRateHzLocked();
-        if (Objects.equals(mMaxUpdateRateHz, newMaxUpdateRateHz)) {
-            return true;
-        }
-        mMaxUpdateRateHz = newMaxUpdateRateHz;
-
-        boolean updateSuccessful;
-        try {
-            if (newMaxUpdateRateHz == null) {
-                updateSuccessful = mRegistrationUpdateCallback.unregister(mPropertyId);
-            } else {
-                updateSuccessful =
-                        mRegistrationUpdateCallback.register(mPropertyId, newMaxUpdateRateHz);
-            }
-        } catch (SecurityException e) {
-            restorePreviousUpdateValuesLocked(carPropertyEventCallback, previousUpdateRateHz,
-                    previousAreaIdToCpeTracker);
-            throw e;
-        }
-
-        if (!updateSuccessful) {
-            restorePreviousUpdateValuesLocked(carPropertyEventCallback, previousUpdateRateHz,
-                    previousAreaIdToCpeTracker);
-        }
-        return updateSuccessful;
-    }
-
-    @GuardedBy("mCarPropertyManagerLock")
-    @Nullable
-    private Float calculateMaxUpdateRateHzLocked() {
-        if (mCarPropertyEventCallbackToUpdateRateHz.isEmpty()) {
-            return null;
-        }
-        return Collections.max(mCarPropertyEventCallbackToUpdateRateHz.values());
-    }
-
-    /**
-     * Interface that receives updates to register or unregister property with {@link
-     * com.android.car.CarPropertyService}.
-     */
-    public interface RegistrationUpdateCallback {
-        /**
-         * Called when {@code propertyId} registration needs to be updated.
-         *
-         * @return {@code true} if registration was successful, otherwise false.
-         * @throws SecurityException if missing the appropriate permission.
-         */
-        boolean register(int propertyId, float updateRateHz);
-
-        /**
-         * Called when {@code propertyId} needs to be unregistered.
-         *
-         * @return {@code true} if deregistration was successful, otherwise false.
-         * @throws SecurityException if missing the appropriate permission.
-         */
-        boolean unregister(int propertyId);
     }
 }
-

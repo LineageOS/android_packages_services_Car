@@ -21,7 +21,6 @@ import static android.car.occupantconnection.CarOccupantConnectionManager.CONNEC
 import static android.car.occupantconnection.CarOccupantConnectionManager.CONNECTION_ERROR_SIGNATURE_NOT_MATCH;
 import static android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES;
 
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -29,7 +28,6 @@ import android.annotation.SuppressLint;
 import android.annotation.SystemApi;
 import android.app.Service;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
-import android.car.annotation.ApiRequirements;
 import android.car.builtin.util.Slogf;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -170,12 +168,9 @@ public abstract class AbstractReceiverService extends Service {
     /**
      * {@inheritDoc}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     public void onCreate() {
         super.onCreate();
-        assertPlatformVersionAtLeastU();
         try {
             PackageInfo myInfo = getPackageManager().getPackageInfo(getPackageName(),
                     GET_SIGNING_CERTIFICATES);
@@ -192,12 +187,9 @@ public abstract class AbstractReceiverService extends Service {
      * If the client app needs to bind to this service, it should override {@link
      * #onLocalServiceBind}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Nullable
     @Override
     public final IBinder onBind(@NonNull Intent intent) {
-        assertPlatformVersionAtLeastU();
         if (CAR_INTENT_ACTION_RECEIVER_SERVICE.equals(intent.getAction())) {
             return mBackendReceiver.asBinder();
         }
@@ -209,11 +201,8 @@ public abstract class AbstractReceiverService extends Service {
      * service and get a communication channel to this service, it should override this method
      * instead of {@link #onBind}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Nullable
     public IBinder onLocalServiceBind(@NonNull Intent intent) {
-        assertPlatformVersionAtLeastU();
         return null;
     }
 
@@ -228,8 +217,6 @@ public abstract class AbstractReceiverService extends Service {
      *        registered. The inheritance should clear the cache once it is no longer needed.
      * </ul>
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public abstract void onPayloadReceived(@NonNull OccupantZoneInfo senderZone,
             @NonNull Payload payload);
 
@@ -242,10 +229,7 @@ public abstract class AbstractReceiverService extends Service {
      *
      * @param receiverEndpointId the ID of the newly registered endpoint
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void onReceiverRegistered(@NonNull String receiverEndpointId) {
-        assertPlatformVersionAtLeastU();
     }
 
     /**
@@ -260,11 +244,8 @@ public abstract class AbstractReceiverService extends Service {
      * connection between them even if they have different versions, the app will need to override
      * this method.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @SuppressLint("OnNameExpected")
     public boolean isSenderCompatible(long senderVersion) {
-        assertPlatformVersionAtLeastU();
         return mMyVersionCode == senderVersion;
     }
 
@@ -279,11 +260,8 @@ public abstract class AbstractReceiverService extends Service {
      * However, if the peer clients run on different Android instances, the app must override this
      * method for security.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @SuppressLint("OnNameExpected")
     public boolean isSenderAuthorized(@NonNull SigningInfo senderSigningInfo) {
-        assertPlatformVersionAtLeastU();
         return true;
     }
 
@@ -297,8 +275,6 @@ public abstract class AbstractReceiverService extends Service {
      * must be distraction optimized. Alternatively, the permission can be granted during device
      * setup.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public abstract void onConnectionInitiated(@NonNull OccupantZoneInfo senderZone);
 
     /**
@@ -310,20 +286,14 @@ public abstract class AbstractReceiverService extends Service {
      * <p>
      * Once the connection is established, the sender can send {@link Payload} to this client.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void onConnected(@NonNull OccupantZoneInfo senderZone) {
-        assertPlatformVersionAtLeastU();
     }
 
     /**
      * Invoked when the sender has canceled the pending connection request, or has become
      * unreachable after sending the connection request.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void onConnectionCanceled(@NonNull OccupantZoneInfo senderZone) {
-        assertPlatformVersionAtLeastU();
     }
 
     /**
@@ -333,17 +303,11 @@ public abstract class AbstractReceiverService extends Service {
      * <p>
      * When disconnected, the sender can no longer send {@link Payload} to this client.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void onDisconnected(@NonNull OccupantZoneInfo senderZone) {
-        assertPlatformVersionAtLeastU();
     }
 
     /** Accepts the connection request from {@code senderZone}. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public final void acceptConnection(@NonNull OccupantZoneInfo senderZone) {
-        assertPlatformVersionAtLeastU();
         try {
             mBackendConnectionResponder.acceptConnection(senderZone);
         } catch (RemoteException e) {
@@ -361,10 +325,7 @@ public abstract class AbstractReceiverService extends Service {
      *        value that is larger than {@link
      *        CarOccupantConnectionManager#CONNECTION_ERROR_PREDEFINED_MAXIMUM_VALUE}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public final void rejectConnection(@NonNull OccupantZoneInfo senderZone, int rejectionReason) {
-        assertPlatformVersionAtLeastU();
         try {
             mBackendConnectionResponder.rejectConnection(senderZone, rejectionReason);
         } catch (RemoteException e) {
@@ -385,12 +346,9 @@ public abstract class AbstractReceiverService extends Service {
      * @param payload            the Payload
      * @return whether the Payload has been forwarded to the receiver endpoint
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public final boolean forwardPayload(@NonNull OccupantZoneInfo senderZone,
             @NonNull String receiverEndpointId,
             @NonNull Payload payload) {
-        assertPlatformVersionAtLeastU();
         IPayloadCallback callback = mReceiverEndpointMap.get(receiverEndpointId);
         if (callback == null) {
             Slogf.e(TAG, "The receiver endpoint has been unregistered: %s", receiverEndpointId);
@@ -408,28 +366,19 @@ public abstract class AbstractReceiverService extends Service {
      * Returns an unmodifiable set containing all the IDs of the receiver endpoints. Returns an
      * empty set if there is no receiver endpoint registered.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @NonNull
     public final Set<String> getAllReceiverEndpoints() {
-        assertPlatformVersionAtLeastU();
         return mReceiverEndpointMap.keySet();
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     public int onStartCommand(@NonNull Intent intent, int flags, int startId) {
-        assertPlatformVersionAtLeastU();
         return START_STICKY;
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     public void dump(@Nullable FileDescriptor fd, @NonNull PrintWriter writer,
             @Nullable String[] args) {
-        assertPlatformVersionAtLeastU();
         writer.println("*AbstractReceiverService*");
         writer.printf("%smReceiverEndpointMap:\n", INDENTATION_2);
         for (int i = 0; i < mReceiverEndpointMap.size(); i++) {

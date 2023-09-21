@@ -47,7 +47,8 @@
             android:name=".CarResolverActivity"
             android:exported="true"
             android:launchMode="singleInstance"
-            android:noHistory="true">
+            android:noHistory="true"
+            android:excludeFromRecents="true">
             <meta-data android:name="distractionOptimized" android:value="true"/>
         </activity>
 

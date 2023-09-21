@@ -100,6 +100,26 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
     }
 
     /**
+     * Gets all the areaIds for the given propertyId
+     */
+    public int[] getAreaIds(int propertyId) {
+        synchronized (mLock) {
+            SparseArray<CarPropertyEventTracker> areaIdToCpeTracker =
+                    mPropIdToAreaIdToCpeTracker.get(propertyId);
+            if (areaIdToCpeTracker == null) {
+                Slogf.e(TAG, "getUpdateRateHz: update rate hz not found for propertyId=%s",
+                        VehiclePropertyIds.toString(propertyId));
+                return new int[0];
+            }
+            int[] areaIds = new int[areaIdToCpeTracker.size()];
+            for (int i = 0; i < areaIdToCpeTracker.size(); i++) {
+                areaIds[i] = areaIdToCpeTracker.keyAt(i);
+            }
+            return areaIds;
+        }
+    }
+
+    /**
      * Return the update rate in hz that the property ID and area ID pair
      * is subscribed at.
      */

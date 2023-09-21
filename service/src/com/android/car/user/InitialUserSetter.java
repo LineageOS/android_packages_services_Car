@@ -20,7 +20,6 @@ import static com.android.car.CarServiceUtils.isVisibleBackgroundUsersOnDefaultD
 import static com.android.car.hal.UserHalHelper.userFlagsToString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -28,12 +27,10 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.builtin.app.ActivityManagerHelper;
-import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.provider.SettingsHelper;
 import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
-import android.car.builtin.util.TimingsTraceLog;
 import android.car.builtin.widget.LockPatternHelper;
 import android.car.settings.CarSettings;
 import android.content.Context;
@@ -75,18 +72,17 @@ final class InitialUserSetter {
 
     /**
      * Sets the initial user using the default behavior.
-     *
      * <p>The default behavior is:
      *
      * <ol>
-     *  <li>On first boot, it creates and switches to a new user.
-     *  <li>Otherwise, it will switch to either:
-     *  <ol>
-     *   <li>User defined by {@code android.car.systemuser.bootuseroverrideid} (when it was
+     * <li>On first boot, it creates and switches to a new user.
+     * <li>Otherwise, it will switch to either:
+     * <ol>
+     * <li>User defined by {@code android.car.systemuser.bootuseroverrideid} (when it was
      * constructed with such option enabled).
-     *   <li>Last active user (as defined by
+     * <li>Last active user (as defined by
      * {@link android.provider.Settings.Global.LAST_ACTIVE_USER_ID}.
-     *  </ol>
+     * </ol>
      * </ol>
      */
     public static final int TYPE_DEFAULT_BEHAVIOR = 0;
@@ -107,20 +103,23 @@ final class InitialUserSetter {
     public static final int TYPE_CREATE = 2;
 
     /**
-     * Creates a new guest user and switches to it, if current user is unlocked guest user.
-     * Does not fallback if any of these steps fails. falling back to
-     * {@link #fallbackDefaultBehavior(String) if any of these steps fails
+     * Creates a new guest user and switches to it, if current user is unlocked guest user. Does not
+     * fallback if any of these steps fails. falling back to {@link #fallbackDefaultBehavior(String)
+     * if any of these steps fails
      */
     public static final int TYPE_REPLACE_GUEST = 3;
 
-    @IntDef(prefix = { "TYPE_" }, value = {
+    @IntDef(prefix = {
+            "TYPE_"
+    }, value = {
             TYPE_DEFAULT_BEHAVIOR,
             TYPE_SWITCH,
             TYPE_CREATE,
             TYPE_REPLACE_GUEST
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface InitialUserInfoType { }
+    public @interface InitialUserInfoType {
+    }
 
     private final Context mContext;
 
@@ -169,7 +168,6 @@ final class InitialUserSetter {
 
     /**
      * Builder for {@link InitialUserInfo} objects.
-     *
      */
     public static final class Builder {
 
@@ -185,8 +183,8 @@ final class InitialUserSetter {
         /**
          * Constructor for the given type.
          *
-         * @param type {@link #TYPE_DEFAULT_BEHAVIOR}, {@link #TYPE_SWITCH},
-         * {@link #TYPE_CREATE} or {@link #TYPE_REPLACE_GUEST}.
+         * @param type {@link #TYPE_DEFAULT_BEHAVIOR}, {@link #TYPE_SWITCH}, {@link #TYPE_CREATE} or
+         *            {@link #TYPE_REPLACE_GUEST}.
          */
         public Builder(@InitialUserInfoType int type) {
             Preconditions.checkArgument(type == TYPE_DEFAULT_BEHAVIOR || type == TYPE_SWITCH
@@ -236,8 +234,8 @@ final class InitialUserSetter {
         }
 
         /**
-         * Sets the flags (as defined by {@link android.hardware.automotive.vehicle.UserInfo})
-         * of the new user being created.
+         * Sets the flags (as defined by {@link android.hardware.automotive.vehicle.UserInfo}) of
+         * the new user being created.
          *
          * @throws IllegalArgumentException if builder is not for {@link #TYPE_CREATE}.
          */
@@ -311,7 +309,7 @@ final class InitialUserSetter {
         @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         public String toString() {
             StringBuilder string = new StringBuilder("InitialUserInfo[type=");
-            switch(type) {
+            switch (type) {
                 case TYPE_DEFAULT_BEHAVIOR:
                     string.append("DEFAULT_BEHAVIOR");
                     break;
@@ -334,9 +332,12 @@ final class InitialUserSetter {
                 default:
                     string.append("UNKNOWN:").append(type);
             }
-            if (replaceGuest) string.append(",replaceGuest");
-            if (supportsOverrideUserIdProperty) string.append(",supportsOverrideUserIdProperty");
-
+            if (replaceGuest) {
+                string.append(",replaceGuest");
+            }
+            if (supportsOverrideUserIdProperty) {
+                string.append(",supportsOverrideUserIdProperty");
+            }
             return string.append(']').toString();
         }
     }
@@ -347,11 +348,9 @@ final class InitialUserSetter {
     public void set(@NonNull InitialUserInfo info) {
         Preconditions.checkArgument(info != null, "info cannot be null");
 
-        if (isPlatformVersionAtLeastU()) {
-            EventLogHelper.writeCarInitialUserInfo(info.type, info.replaceGuest, info.switchUserId,
-                    info.newUserName, info.newUserFlags,
-                    info.supportsOverrideUserIdProperty, info.userLocales);
-        }
+        EventLogHelper.writeCarInitialUserInfo(info.type, info.replaceGuest, info.switchUserId,
+                info.newUserName, info.newUserFlags,
+                info.supportsOverrideUserIdProperty, info.userLocales);
 
         switch (info.type) {
             case TYPE_DEFAULT_BEHAVIOR:
@@ -428,7 +427,9 @@ final class InitialUserSetter {
                     .setReplaceGuest(false)
                     .build(), fallback);
         } else if (!hasValidInitialUser()) {
-            if (DBG) Slogf.d(TAG, "executeDefaultBehavior(): no initial user, creating it");
+            if (DBG) {
+                Slogf.d(TAG, "executeDefaultBehavior(): no initial user, creating it");
+            }
             createAndSwitchUser(new Builder(TYPE_CREATE)
                     .setNewUserName(mNewUserName)
                     .setNewUserFlags(UserInfo.USER_FLAG_ADMIN)
@@ -436,7 +437,9 @@ final class InitialUserSetter {
                     .setUserLocales(info.userLocales)
                     .build(), fallback);
         } else {
-            if (DBG) Slogf.d(TAG, "executeDefaultBehavior(): switching to initial user");
+            if (DBG) {
+                Slogf.d(TAG, "executeDefaultBehavior(): switching to initial user");
+            }
             int userId = getInitialUser(info.supportsOverrideUserIdProperty);
             switchUser(new Builder(TYPE_SWITCH)
                     .setSwitchUserId(userId)
@@ -453,13 +456,11 @@ final class InitialUserSetter {
             // Only log the error
             Slogf.w(TAG, reason);
             // Must explicitly tell listener that initial user could not be determined
-            notifyListener(/*initialUser= */ null);
+            notifyListener(/* initialUser= */ null);
             return;
         }
 
-        if (isPlatformVersionAtLeastU()) {
-            EventLogHelper.writeCarInitialUserFallbackDefaultBehavior(reason);
-        }
+        EventLogHelper.writeCarInitialUserFallbackDefaultBehavior(reason);
         Slogf.w(TAG, "Falling back to default behavior. Reason: " + reason);
         executeDefaultBehavior(info, /* fallback= */ false);
     }
@@ -492,11 +493,6 @@ final class InitialUserSetter {
 
         int actualUserId = actualUser.getIdentifier();
 
-        // Keep the old boot user flow for platform before U
-        if (!isPlatformVersionAtLeastU()) {
-            unlockSystemUserIfNecessary(actualUserId);
-        }
-
         int currentUserId = ActivityManager.getCurrentUser();
 
         if (DBG) {
@@ -522,18 +518,13 @@ final class InitialUserSetter {
         }
     }
 
-    private void unlockSystemUserIfNecessary(@UserIdInt int userId) {
-        // If system user is the only user to unlock, it will be handled when boot is complete.
-        if (userId != UserHandle.SYSTEM.getIdentifier()) {
-            unlockSystemUser();
-        }
-    }
-
     /**
      * Check if the user is a guest and can be replaced.
      */
     public boolean canReplaceGuestUser(UserHandle user) {
-        if (!mUserHandleHelper.isGuestUser(user)) return false;
+        if (!mUserHandleHelper.isGuestUser(user)) {
+            return false;
+        }
 
         if (LockPatternHelper.isSecure(mContext, user.getIdentifier())) {
             if (DBG) {
@@ -548,11 +539,9 @@ final class InitialUserSetter {
 
     /**
      * Replaces {@code user} by a new guest, if necessary.
-     *
-     * <p>If {@code user} is not a guest, it doesn't do anything and returns the same user.
-     *
-     * <p>Otherwise, it marks the current guest for deletion, creates a new one, and returns the
-     * new guest (or {@code null} if a new guest could not be created).
+     * <p> If {@code user} is not a guest, it doesn't do anything and returns the same user.
+     * <p> Otherwise, it marks the current guest for deletion, creates a new one, and returns
+     * the new guest (or {@code null} if a new guest could not be created).
      */
 
     @VisibleForTesting
@@ -564,9 +553,7 @@ final class InitialUserSetter {
             return user;
         }
 
-        if (isPlatformVersionAtLeastU()) {
-            EventLogHelper.writeCarInitialUserReplaceGuest(user.getIdentifier());
-        }
+        EventLogHelper.writeCarInitialUserReplaceGuest(user.getIdentifier());
         Slogf.i(TAG, "Replacing guest (" + user + ")");
 
         int halFlags = UserInfo.USER_FLAG_GUEST;
@@ -617,7 +604,7 @@ final class InitialUserSetter {
      * Creates a new user.
      *
      * @return on success, first element is the new user; on failure, second element contains the
-     * error message.
+     *         error message.
      */
     @NonNull
     private Pair<UserHandle, String> createNewUser(@NonNull InitialUserInfo info) {
@@ -665,7 +652,9 @@ final class InitialUserSetter {
                     + userFlagsToString(halFlags) + "): failed to create user");
         }
 
-        if (DBG) Slogf.d(TAG, "user created: " + user.getIdentifier());
+        if (DBG) {
+            Slogf.d(TAG, "user created: " + user.getIdentifier());
+        }
 
         if (info.userLocales != null) {
             if (DBG) {
@@ -681,37 +670,8 @@ final class InitialUserSetter {
     }
 
     @VisibleForTesting
-    void unlockSystemUser() {
-        if (isPlatformVersionAtLeastU()) {
-            EventLogHelper.writeCarInitialUserUnlockSystemUser();
-        }
-        Slogf.i(TAG, "unlocking system user");
-        TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
-        t.traceBegin("UnlockSystemUser");
-        // This is for force changing state into RUNNING_LOCKED. Otherwise unlock does not
-        // update the state and USER_SYSTEM stays as BOOTING.
-        t.traceBegin("am.startUser");
-        boolean started = ActivityManagerHelper.startUserInBackground(
-                UserHandle.SYSTEM.getIdentifier());
-        t.traceEnd();
-        if (!started) {
-            Slogf.w(TAG, "could not restart system user in foreground; trying unlock instead");
-            t.traceBegin("am.unlockUser");
-            boolean unlocked = ActivityManagerHelper.unlockUser(UserHandle.SYSTEM.getIdentifier());
-            t.traceEnd();
-            if (!unlocked) {
-                Slogf.w(TAG, "could not unlock system user neither");
-                return;
-            }
-        }
-        t.traceEnd();
-    }
-
-    @VisibleForTesting
     boolean startForegroundUser(InitialUserInfo info, @UserIdInt int userId) {
-        if (isPlatformVersionAtLeastU()) {
-            EventLogHelper.writeCarInitialUserStartFgUser(userId);
-        }
+        EventLogHelper.writeCarInitialUserStartFgUser(userId);
 
         if (UserHelperLite.isHeadlessSystemUser(userId)) {
             if (!mIsVisibleBackgroundUsersOnDefaultDisplaySupported) {
@@ -727,9 +687,7 @@ final class InitialUserSetter {
             }
         }
 
-        // Keep the old boot user flow for platform before U
-        if (info.requestType == InitialUserInfoRequestType.RESUME
-                || !isPlatformVersionAtLeastU()) {
+        if (info.requestType == InitialUserInfoRequestType.RESUME) {
             return ActivityManagerHelper.startUserInForeground(userId);
         } else {
             Slogf.i(TAG, "Setting boot user to: %d", userId);
@@ -739,7 +697,9 @@ final class InitialUserSetter {
     }
 
     private void notifyListener(@Nullable UserHandle initialUser) {
-        if (DBG) Slogf.d(TAG, "notifyListener(): " + initialUser);
+        if (DBG) {
+            Slogf.d(TAG, "notifyListener(): " + initialUser);
+        }
         mListener.accept(initialUser);
     }
 
@@ -758,12 +718,12 @@ final class InitialUserSetter {
      * Sets the last active user.
      */
     public void setLastActiveUser(@UserIdInt int userId) {
-        if (isPlatformVersionAtLeastU()) {
-            EventLogHelper.writeCarInitialUserSetLastActive(userId);
-        }
+        EventLogHelper.writeCarInitialUserSetLastActive(userId);
 
         if (UserHelperLite.isHeadlessSystemUser(userId)) {
-            if (DBG) Slogf.d(TAG, "setLastActiveUser(): ignoring headless system user " + userId);
+            if (DBG) {
+                Slogf.d(TAG, "setLastActiveUser(): ignoring headless system user " + userId);
+            }
             return;
         }
         setUserIdGlobalProperty(CarSettings.Global.LAST_ACTIVE_USER_ID, userId);
@@ -779,7 +739,9 @@ final class InitialUserSetter {
     }
 
     private void setUserIdGlobalProperty(@NonNull String name, @UserIdInt int userId) {
-        if (DBG) Slogf.d(TAG, "setting global property " + name + " to " + userId);
+        if (DBG) {
+            Slogf.d(TAG, "setting global property " + name + " to " + userId);
+        }
 
         Settings.Global.putInt(mContext.getContentResolver(), name, userId);
     }
@@ -787,20 +749,17 @@ final class InitialUserSetter {
     /**
      * Gets the user id for the initial user to boot into. This is only applicable for headless
      * system user model. This method checks for a system property and will only work for system
-     * apps.
-     *
-     * This method checks for the initial user via three mechanisms in this order:
+     * apps. This method checks for the initial user via three mechanisms in this order:
      * <ol>
-     *     <li>Check for a boot user override via {@code CarProperties#boot_user_override_id()}</li>
-     *     <li>Check for the last active user in the system</li>
-     *     <li>Fallback to the smallest user id that is not {@link UserHandle.SYSTEM}</li>
+     * <li>Check for a boot user override via {@code CarProperties#boot_user_override_id()}</li>
+     * <li>Check for the last active user in the system</li>
+     * <li>Fallback to the smallest user id that is not {@link UserHandle.SYSTEM}</li>
      * </ol>
-     *
      * If any step fails to retrieve the stored id or the retrieved id does not exist on device,
      * then it will move onto the next step.
      *
      * @return user id of the initial user to boot into on the device, or
-     * {@link UserHandle#USER_NULL} if there is no user available.
+     *         {@link UserHandle#USER_NULL} if there is no user available.
      */
     @VisibleForTesting
     int getInitialUser(boolean usesOverrideUserIdProperty) {
@@ -811,7 +770,7 @@ final class InitialUserSetter {
             return UserManagerHelper.USER_NULL;
         }
 
-        //TODO(b/150416512): Check if it is still supported, if not remove it.
+        // TODO(b/150416512): Check if it is still supported, if not remove it.
         if (usesOverrideUserIdProperty) {
             int bootUserOverride = CarSystemProperties.getBootUserOverrideId()
                     .orElse(BOOT_USER_NOT_FOUND);
@@ -860,12 +819,9 @@ final class InitialUserSetter {
     private List<UserHandle> getAllUsers() {
         if (UserManager.isHeadlessSystemUserMode()) {
             return getAllUsersExceptSystemUserAndSpecifiedUser(UserHandle.SYSTEM.getIdentifier());
-        } else if (isPlatformVersionAtLeastU()) {
-            return UserManagerHelper.getUserHandles(mUm, /* excludeDying= */ false);
-        } else {
-            return UserManagerHelper.getUserHandles(mUm, /* excludePartial= */ false,
-                    /* excludeDying= */ false, /* excludePreCreated */ true);
         }
+
+        return UserManagerHelper.getUserHandles(mUm, /* excludeDying= */ false);
     }
 
     /**
@@ -875,15 +831,9 @@ final class InitialUserSetter {
      * @return All users other than system user and user with userId.
      */
     private List<UserHandle> getAllUsersExceptSystemUserAndSpecifiedUser(@UserIdInt int userId) {
-        List<UserHandle> users;
-        if (isPlatformVersionAtLeastU()) {
-            users = UserManagerHelper.getUserHandles(mUm, /* excludeDying= */ false);
-        } else {
-            users = UserManagerHelper.getUserHandles(mUm, /* excludePartial= */ false,
-                    /* excludeDying= */ false, /* excludePreCreated */ true);
-        }
+        List<UserHandle> users = UserManagerHelper.getUserHandles(mUm, /* excludeDying= */ false);
 
-        for (Iterator<UserHandle> iterator = users.iterator(); iterator.hasNext(); ) {
+        for (Iterator<UserHandle> iterator = users.iterator(); iterator.hasNext();) {
             UserHandle user = iterator.next();
             if (user.getIdentifier() == userId
                     || user.getIdentifier() == UserHandle.SYSTEM.getIdentifier()) {
@@ -904,7 +854,9 @@ final class InitialUserSetter {
         List<UserHandle> allUsers = getAllUsers();
         for (int i = 0; i < allUsers.size(); i++) {
             UserHandle user = allUsers.get(i);
-            if (mUserHandleHelper.isManagedProfile(user)) continue;
+            if (mUserHandleHelper.isManagedProfile(user)) {
+                continue;
+            }
 
             return true;
         }
@@ -939,9 +891,7 @@ final class InitialUserSetter {
     }
 
     private void resetUserIdGlobalProperty(@NonNull String name) {
-        if (isPlatformVersionAtLeastU()) {
-            EventLogHelper.writeCarInitialUserResetGlobalProperty(name);
-        }
+        EventLogHelper.writeCarInitialUserResetGlobalProperty(name);
 
         Settings.Global.putInt(mContext.getContentResolver(), name, UserManagerHelper.USER_NULL);
     }
@@ -949,7 +899,9 @@ final class InitialUserSetter {
     private int getUserIdGlobalProperty(@NonNull String name) {
         int userId = Settings.Global.getInt(mContext.getContentResolver(), name,
                 UserManagerHelper.USER_NULL);
-        if (DBG) Slogf.d(TAG, "getting global property " + name + ": " + userId);
+        if (DBG) {
+            Slogf.d(TAG, "getting global property " + name + ": " + userId);
+        }
         return userId;
     }
 }

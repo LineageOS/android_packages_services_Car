@@ -18,11 +18,16 @@
 # car packages should be added to car.mk instead of here
 
 ifeq ($(DISABLE_CAR_PRODUCT_CONFIG_OVERLAY),)
-PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/car_product/overlay
+PRODUCT_PACKAGES += \
+    CarFrameworkResConfigRRO \
+    CarCertInstallerConfigRRO \
+    CarSettingsProviderConfigRRO \
+    CarTelecommConfigRRO
 endif
 
 ifeq ($(DISABLE_CAR_PRODUCT_VISUAL_OVERLAY),)
 PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/car_product/overlay-visual
+PRODUCT_PACKAGES += CarFrameworkResVisualRRO
 endif
 
 PRODUCT_PACKAGES += \
@@ -31,7 +36,6 @@ PRODUCT_PACKAGES += \
     BasicDreams \
     CaptivePortalLogin \
     CertInstaller \
-    DocumentsUI \
     DownloadProviderUi \
     FusedLocation \
     InputDevices \

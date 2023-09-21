@@ -24,6 +24,7 @@
         <permission name="android.permission.LOCATION_BYPASS" />
         <permission name="android.permission.MEDIA_CONTENT_CONTROL"/>
         <permission name="android.permission.MODIFY_AUDIO_ROUTING"/>
+        <permission name="android.car.permission.ACCESS_PRIVATE_DISPLAY_ID"/>
         <permission name="android.car.permission.READ_DRIVER_MONITORING_SETTINGS"/>
         <permission name="android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"/>
         <permission name="android.car.permission.READ_DRIVER_MONITORING_STATES"/>
@@ -33,6 +34,7 @@
         <permission name="android.car.permission.CLEAR_CAR_DIAGNOSTICS"/>
         <permission name="android.car.permission.CAR_DRIVING_STATE"/>
         <permission name="android.car.permission.CAR_POWER"/>
+        <permission name="android.car.permission.CAR_TEST_SERVICE"/>
         <permission name="android.car.permission.CONTROL_CAR_APP_LAUNCH"/>
         <permission name="android.car.permission.CONTROL_CAR_POWER_POLICY"/>
         <permission name="android.car.permission.CONTROL_CAR_CLIMATE"/>
@@ -126,5 +128,6 @@
         <permission name="android.car.permission.SET_CAR_VENDOR_CATEGORY_10"/>
         <permission name="android.car.permission.MANAGE_OCCUPANT_CONNECTION" />
         <permission name="android.car.permission.MANAGE_REMOTE_DEVICE" />
+        <permission name="android.car.permission.MANAGE_CAR_SYSTEM_UI" />
     </privapp-permissions>
 </permissions>

@@ -24,11 +24,9 @@ import android.annotation.FloatRange;
 import android.car.Car;
 import android.car.CarBugreportManager;
 import android.car.CarBugreportManager.CarBugreportManagerCallback;
-import android.car.test.ApiCheckerRule.Builder;
 import android.os.FileUtils;
 import android.os.ParcelFileDescriptor;
 import android.test.suitebuilder.annotation.LargeTest;
-import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnit4;
@@ -72,13 +70,6 @@ public final class CarBugreportManagerTest extends CarApiTestBase {
     private FakeCarBugreportCallback mFakeCallback;
     private ParcelFileDescriptor mOutput;
     private ParcelFileDescriptor mExtraOutput;
-
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        Log.w(TAG, "Disabling API requirements check");
-        builder.disableAnnotationsCheck();
-    }
 
     @Before
     public void setUp() throws Exception {

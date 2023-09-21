@@ -30,7 +30,7 @@ cc_defaults {
     include_dirs: [
         "system/libbase/include",
     ],
-    generated_headers: ["watchdog-protos-headers", "dump-cppstream-protos"],
+    generated_headers: ["gen-native-dump-proto-headers", "gen-native-dump-cppstream-proto-headers"],
     shared_libs: [
         "libbase",
         "libbinder",
@@ -145,7 +145,7 @@ cc_test {
         "libwatchdog_process_service_defaults",
         "libwatchdog_service_manager_defaults",
     ],
-    generated_sources: ["watchdog-protos-srcs"],
+    generated_sources: ["gen-native-dump-proto-srcs"],
     test_suites: [
         "general-tests",
         "automotive-tests",

@@ -27,7 +27,6 @@ import static android.car.hardware.power.PowerComponentUtil.powerComponentToStri
 import static android.car.hardware.power.PowerComponentUtil.toPowerComponent;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.Nullable;
 import android.bluetooth.BluetoothAdapter;
@@ -111,12 +110,8 @@ public final class PowerComponentHandler {
     }
 
     void init(ArrayMap<String, Integer> customComponents) {
-        if (isPlatformVersionAtLeastU()) {
-            // Before Android U, this permission is not needed.
-            // And, AppOpsManagerHelper.setTurnScreenOnAllowed is added in UDC.
-            AppOpsManagerHelper.setTurnScreenOnAllowed(mContext, Process.myUid(),
-                    mContext.getOpPackageName(), /* isAllowed= */ true);
-        }
+        AppOpsManagerHelper.setTurnScreenOnAllowed(mContext, Process.myUid(),
+                mContext.getOpPackageName(), /* isAllowed= */ true);
         PowerComponentMediatorFactory factory = new PowerComponentMediatorFactory();
         synchronized (mLock) {
             readUserOffComponentsLocked();

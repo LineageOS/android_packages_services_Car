@@ -86,7 +86,6 @@
           <item type="string" name="config_car_bugreport_application" translatable="false"/>
           <item type="array" name="config_occupant_zones" translatable="false"/>
           <item type="array" name="config_occupant_display_mapping" translatable="false"/>
-          <item type="array" name="config_sourcePreferredComponents" translatable="false"/>
           <item type="string" name="config_userNoticeUiService" translatable="false"/>
           <item type="string" name="config_userPickerActivity" translatable="false"/>
           <item type="integer" name="config_mediaSourceChangedAutoplay"/>
@@ -129,6 +128,7 @@
 
           <!-- XML files that can be overlaid -->
           <item type="xml" name="car_ux_restrictions_map"/>
+          <item type="xml" name="remote_access_serverless_client_map"/>
           <!-- XML files that can be overlaid -->
         </policy>
         <!-- END VENDOR CUSTOMIZATION -->

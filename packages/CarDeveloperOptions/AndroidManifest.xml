@@ -1868,7 +1868,7 @@
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
-            tools:replace="android:exported">
+            tools:replace="android:exported, android:enabled">
             <intent-filter tools:node="removeAll"/>
         </activity>
 
@@ -2511,6 +2511,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.wifi.dpp.WifiDppConfiguratorAuthActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.wifi.dpp.WifiDppEnrolleeActivity"
             android:enabled="false"
             android:exported="false"
@@ -2755,6 +2764,23 @@
 
         <activity
             android:name="com.android.settings.Settings$TextReadingSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity android:name="com.android.settings.biometrics.fingerprint2.ui.enrollment.activity.FingerprintEnrollmentV2Activity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.remoteauth.RemoteAuthActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"

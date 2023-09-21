@@ -22,7 +22,7 @@ import android.util.SparseIntArray;
  *
  * <p>This class is immutable. Use {@link #create(int[])} factory method to instantiate this class.
  */
-final class BidirectionalSparseIntArray {
+public final class BidirectionalSparseIntArray {
     private final SparseIntArray mMap;
     private final SparseIntArray mInverseMap;
 
@@ -31,7 +31,7 @@ final class BidirectionalSparseIntArray {
      *
      * <p> The input array should have an even number of elements.
      */
-    static BidirectionalSparseIntArray create(int[] keyValuePairs) {
+    public static BidirectionalSparseIntArray create(int[] keyValuePairs) {
         int inputLength = keyValuePairs.length;
         if (inputLength % 2 != 0) {
             throw new IllegalArgumentException("Odd number of key-value elements");
@@ -44,6 +44,20 @@ final class BidirectionalSparseIntArray {
         return biMap;
     }
 
+    /**
+     * Gets the value for the key.
+     */
+    public int getValue(int key, int defaultValue) {
+        return mMap.get(key, defaultValue);
+    }
+
+    /**
+     * Gets the key for the value.
+     */
+    public int getKey(int value, int defaultKey) {
+        return mInverseMap.get(value, defaultKey);
+    }
+
     private BidirectionalSparseIntArray(int initialCapacity) {
         mMap = new SparseIntArray(initialCapacity);
         mInverseMap = new SparseIntArray(initialCapacity);
@@ -52,13 +66,5 @@ final class BidirectionalSparseIntArray {
     private void put(int key, int value) {
         mMap.put(key, value);
         mInverseMap.put(value, key);
-    }
-
-    int getValue(int key, int defaultValue) {
-        return mMap.get(key, defaultValue);
-    }
-
-    int getKey(int value, int defaultKey) {
-        return mInverseMap.get(value, defaultKey);
     }
 }

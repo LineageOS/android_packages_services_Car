@@ -21,7 +21,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.car.Car;
-import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.RequiredFeature;
 import android.car.evs.CarEvsManager.CarEvsServiceState;
 import android.car.evs.CarEvsManager.CarEvsServiceType;
@@ -38,7 +37,6 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 @SystemApi
 @RequiredFeature(Car.CAR_EVS_SERVICE)
 public final class CarEvsStatus implements Parcelable {
-    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<CarEvsStatus> CREATOR =
             new Parcelable.Creator<CarEvsStatus>() {
                 @NonNull
@@ -76,13 +74,11 @@ public final class CarEvsStatus implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull final Parcel dest, final int flags) {
         dest.writeInt(mServiceType);
         dest.writeInt(mState);
@@ -98,7 +94,6 @@ public final class CarEvsStatus implements Parcelable {
      *
      * @return {@link android.car.evs.CarEvsManager.CarEvsServiceState}
      */
-    @AddedInOrBefore(majorVersion = 33)
     public @CarEvsServiceState int getState() {
         return mState;
     }
@@ -108,7 +103,6 @@ public final class CarEvsStatus implements Parcelable {
      *
      * @return {@link android.car.evs.CarEvsManager.CarEvsServiceType}
      */
-    @AddedInOrBefore(majorVersion = 33)
     public @CarEvsServiceType int getServiceType() {
         return mServiceType;
     }

@@ -46,7 +46,10 @@
     <string name="toast_status_failed" msgid="6365384202315043395">"Segnalazione di bug non riuscita"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Acquisizione schermata non riuscita"</string>
     <string name="toast_status_dump_state_failed" msgid="3496460783060512078">"Errore del servizio Dumpstate"</string>
+    <string name="toast_screenshot_finished" msgid="539313383958984557">"Screenshot salvati"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Segnalazione di bug in corso"</string>
     <string name="notification_bugreport_finished_title" msgid="1188447311929693472">"Segnalazione di bug raccolta"</string>
     <string name="notification_bugreport_channel_name" msgid="776902295433824255">"Canale stato segnalazione di bug"</string>
+    <string name="notification_screenshot_message" msgid="4334354123333893911">"Creazione di uno screenshot"</string>
+    <string name="notification_screenshot_channel_name" msgid="147055389545365419">"Canale per screenshot di segnalazione di bug"</string>
 </resources>

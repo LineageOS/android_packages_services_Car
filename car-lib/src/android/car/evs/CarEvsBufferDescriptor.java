@@ -23,8 +23,6 @@ import android.annotation.NonNull;
 import android.annotation.SuppressLint;
 import android.annotation.SystemApi;
 import android.car.Car;
-import android.car.annotation.AddedInOrBefore;
-import android.car.annotation.ApiRequirements;
 import android.car.annotation.RequiredFeature;
 import android.hardware.HardwareBuffer;
 import android.os.Parcel;
@@ -43,7 +41,6 @@ import java.util.Objects;
 @SystemApi
 @RequiredFeature(Car.CAR_EVS_SERVICE)
 public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
-    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<CarEvsBufferDescriptor> CREATOR =
             new Parcelable.Creator<CarEvsBufferDescriptor>() {
                 @NonNull
@@ -86,13 +83,11 @@ public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull final Parcel dest, final int flags) {
         dest.writeInt(mId);
         mHardwareBuffer.writeToParcel(dest, flags);
@@ -115,8 +110,6 @@ public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void close() {
         if (!mHardwareBuffer.isClosed()) {
             mHardwareBuffer.close();
@@ -128,7 +121,6 @@ public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
      *
      * @return A 32-bit signed integer unique buffer identifier.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public int getId() {
         return mId;
     }
@@ -140,7 +132,6 @@ public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
      * @return the registered {@link android.hardware.HardwareBuffer}.
      */
     @NonNull
-    @AddedInOrBefore(majorVersion = 33)
     public HardwareBuffer getHardwareBuffer() {
         return mHardwareBuffer;
     }

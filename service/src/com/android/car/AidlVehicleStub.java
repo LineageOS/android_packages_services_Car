@@ -444,9 +444,9 @@ final class AidlVehicleStub extends VehicleStub {
         }
 
 
-        void addRequest(AsyncRequestInfo requestInfo) {
+        void addRequests(List<AsyncRequestInfo> requestInfo) {
             synchronized (mAsyncRequestPoolLock) {
-                mPendingRequestPool.addPendingRequests(List.of(requestInfo));
+                mPendingRequestPool.addPendingRequests(requestInfo);
             }
         }
 
@@ -1079,16 +1079,17 @@ final class AidlVehicleStub extends VehicleStub {
                         + "client maybe already died");
             }
 
+            List<AsyncRequestInfo> requestInfoList = new ArrayList<>();
             for (int i = 0; i < vehicleStubRequests.size(); i++) {
                 AsyncGetSetRequest vehicleStubRequest = vehicleStubRequests.get(i);
                 long vhalRequestId = mRequestId.getAndIncrement();
-                AsyncRequestInfo requestInfo = new AsyncRequestInfo(
-                        vhalRequestId, vehicleStubRequest.getServiceRequestId(), clientCallback,
-                        vehicleStubRequest.getTimeoutUptimeMs());
-                mPendingAsyncRequestPool.addRequest(requestInfo);
                 asyncRequestsHandler.addVhalRequest(vhalRequestId,
                         vehicleStubRequest.getHalPropValue());
+                requestInfoList.add(new AsyncRequestInfo(
+                        vhalRequestId, vehicleStubRequest.getServiceRequestId(), clientCallback,
+                        vehicleStubRequest.getTimeoutUptimeMs()));
             }
+            mPendingAsyncRequestPool.addRequests(requestInfoList);
         }
 
     }

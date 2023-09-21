@@ -26,8 +26,6 @@ import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarOccupantZoneManager;
-import android.car.annotation.AddedInOrBefore;
-import android.car.annotation.ApiRequirements;
 import android.car.builtin.util.Slogf;
 import android.os.Handler;
 import android.os.IBinder;
@@ -76,7 +74,6 @@ public final class CarInputManager extends CarManagerBase {
          * @param targetDisplayType the display type associated with the events passed as parameter
          * @param keyEvents the key events to process
          */
-        @AddedInOrBefore(majorVersion = 33)
         default void onKeyEvents(@DisplayTypeEnum int targetDisplayType,
                 @NonNull List<KeyEvent> keyEvents) {}
 
@@ -86,7 +83,6 @@ public final class CarInputManager extends CarManagerBase {
          * @param targetDisplayType the display type associated with the events passed as parameter
          * @param events the rotary events to process
          */
-        @AddedInOrBefore(majorVersion = 33)
         default void onRotaryEvents(@DisplayTypeEnum int targetDisplayType,
                 @NonNull List<RotaryEvent> events) {}
 
@@ -98,7 +94,6 @@ public final class CarInputManager extends CarManagerBase {
          * @param targetDisplayType the display type associated with the events passed as parameter
          * @param activeInputTypes the input types to watch
          */
-        @AddedInOrBefore(majorVersion = 33)
         default void onCaptureStateChanged(@DisplayTypeEnum int targetDisplayType,
                 @NonNull @InputTypeEnum int[] activeInputTypes) {}
 
@@ -108,7 +103,6 @@ public final class CarInputManager extends CarManagerBase {
          * @param targetDisplayType the display type associated with the events passed as parameter
          * @param events the custom input events to process
          */
-        @AddedInOrBefore(majorVersion = 33)
         default void onCustomInputEvents(@DisplayTypeEnum int targetDisplayType,
                 @NonNull List<CustomInputEvent> events) {}
     }
@@ -119,7 +113,6 @@ public final class CarInputManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @AddedInOrBefore(majorVersion = 33)
     public static final int CAPTURE_REQ_FLAGS_ALLOW_DELAYED_GRANT = 0x1;
 
     /**
@@ -129,7 +122,6 @@ public final class CarInputManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @AddedInOrBefore(majorVersion = 33)
     public static final int CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY = 0x2;
 
     /** @hide */
@@ -147,19 +139,16 @@ public final class CarInputManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_TYPE_ALL_INPUTS = 1;
 
     /**
      * This covers rotary input device for navigation.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_TYPE_ROTARY_NAVIGATION = 10;
 
     /**
      * Volume knob.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_TYPE_ROTARY_VOLUME = 11;
 
     /**
@@ -170,39 +159,31 @@ public final class CarInputManager extends CarManagerBase {
      * {@link KeyEvent#KEYCODE_DPAD_DOWN_LEFT}, {@link KeyEvent#KEYCODE_DPAD_DOWN_RIGHT},
      * {@link KeyEvent#KEYCODE_DPAD_UP_LEFT}, {@link KeyEvent#KEYCODE_DPAD_UP_RIGHT}
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_TYPE_DPAD_KEYS = 100;
 
     /**
      * This is for all {@code KeyEvent#KEYCODE_NAVIGATE_*} keys and {@link KeyEvent#KEYCODE_BACK}.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_TYPE_NAVIGATE_KEYS = 101;
 
     /**
      * This is for all {@code KeyEvent#KEYCODE_SYSTEM_NAVIGATE_*} keys.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_TYPE_SYSTEM_NAVIGATE_KEYS = 102;
 
     /**
      * This is for {@code HW_CUSTOM_INPUT} events.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_TYPE_CUSTOM_INPUT_EVENT = 200;
 
     /**
      * This is for touch mode input type.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int INPUT_TYPE_TOUCH_SCREEN = 210;
 
     /**
      * This is for displays that don't support any input type
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int INPUT_TYPE_NONE = -1;
 
     /** @hide */
@@ -227,7 +208,6 @@ public final class CarInputManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_CAPTURE_RESPONSE_SUCCEEDED = 0;
 
     /**
@@ -237,7 +217,6 @@ public final class CarInputManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_CAPTURE_RESPONSE_FAILED = 1;
 
     /**
@@ -249,7 +228,6 @@ public final class CarInputManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_CAPTURE_RESPONSE_DELAYED = 2;
 
     /** @hide */
@@ -325,7 +303,6 @@ public final class CarInputManager extends CarManagerBase {
     @RequiresPermission(anyOf = {PERMISSION_FRAMEWORK_MONITOR_INPUT,
             Car.PERMISSION_CAR_MONITOR_INPUT})
     @InputCaptureResponseEnum
-    @AddedInOrBefore(majorVersion = 33)
     public int requestInputEventCapture(@DisplayTypeEnum int targetDisplayType,
             @NonNull @InputTypeEnum int[] inputTypes,
             @CaptureRequestFlags int requestFlags,
@@ -357,7 +334,6 @@ public final class CarInputManager extends CarManagerBase {
     @RequiresPermission(anyOf = {PERMISSION_FRAMEWORK_MONITOR_INPUT,
             Car.PERMISSION_CAR_MONITOR_INPUT})
     @InputCaptureResponseEnum
-    @AddedInOrBefore(majorVersion = 33)
     public int requestInputEventCapture(@DisplayTypeEnum int targetDisplayType,
             @NonNull @InputTypeEnum int[] inputTypes,
             @CaptureRequestFlags int requestFlags,
@@ -384,7 +360,6 @@ public final class CarInputManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @AddedInOrBefore(majorVersion = 33)
     public void releaseInputEventCapture(@DisplayTypeEnum int targetDisplayType) {
         CallbackHolder callbackHolder;
         synchronized (mLock) {
@@ -415,7 +390,6 @@ public final class CarInputManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(android.Manifest.permission.INJECT_EVENTS)
-    @AddedInOrBefore(majorVersion = 33)
     public void injectKeyEvent(@NonNull KeyEvent event, @DisplayTypeEnum int targetDisplayType) {
         try {
             mService.injectKeyEvent(event, targetDisplayType);
@@ -426,7 +400,6 @@ public final class CarInputManager extends CarManagerBase {
 
     /** @hide */
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     protected void onCarDisconnected() {
         synchronized (mLock) {
             mCarInputCaptureCallbacks.clear();

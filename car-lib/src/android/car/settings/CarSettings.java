@@ -17,10 +17,6 @@
 package android.car.settings;
 
 import android.annotation.SystemApi;
-import android.car.annotation.AddedInOrBefore;
-import android.car.annotation.ApiRequirements;
-import android.car.annotation.ApiRequirements.CarVersion;
-import android.car.annotation.ApiRequirements.PlatformVersion;
 
 /**
  * System-level, car-related settings.
@@ -46,7 +42,6 @@ public class CarSettings {
      * @hide
      */
     @SystemApi
-    @AddedInOrBefore(majorVersion = 33)
     public static final class Global {
 
         private Global() {
@@ -58,7 +53,6 @@ public class CarSettings {
          *
          * @hide
          */
-        @AddedInOrBefore(majorVersion = 33)
         public static final String DEFAULT_USER_RESTRICTIONS_SET =
                 "android.car.DEFAULT_USER_RESTRICTIONS_SET";
 
@@ -68,7 +62,6 @@ public class CarSettings {
          *
          * @hide
          */
-        @AddedInOrBefore(majorVersion = 33)
         public static final String DISABLE_INSTRUMENTATION_SERVICE =
                 "android.car.DISABLE_INSTRUMENTATION_SERVICE";
 
@@ -78,7 +71,6 @@ public class CarSettings {
          *
          * @hide
          */
-        @AddedInOrBefore(majorVersion = 33)
         public static final String ENABLE_USER_SWITCH_DEVELOPER_MESSAGE =
                 "android.car.ENABLE_USER_SWITCH_DEVELOPER_MESSAGE";
 
@@ -87,7 +79,6 @@ public class CarSettings {
          *
          * @hide
          */
-        @AddedInOrBefore(majorVersion = 33)
         public static final String LAST_ACTIVE_USER_ID =
                         "android.car.LAST_ACTIVE_USER_ID";
 
@@ -96,7 +87,6 @@ public class CarSettings {
          *
          * @hide
          */
-        @AddedInOrBefore(majorVersion = 33)
         public static final String LAST_ACTIVE_PERSISTENT_USER_ID =
                         "android.car.LAST_ACTIVE_PERSISTENT_USER_ID";
 
@@ -107,7 +97,6 @@ public class CarSettings {
          *
          * @hide
          */
-        @AddedInOrBefore(majorVersion = 33)
         public static final String SYSTEM_BAR_VISIBILITY_OVERRIDE =
                 "android.car.SYSTEM_BAR_VISIBILITY_OVERRIDE";
 
@@ -125,8 +114,6 @@ public class CarSettings {
          * @hide
          */
         @SystemApi
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         public static final String GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE =
                 "android.car.GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE";
 
@@ -143,8 +130,6 @@ public class CarSettings {
          * @hide
          */
         @SystemApi
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         public static final String DISPLAY_INPUT_LOCK =
                         "android.car.DISPLAY_INPUT_LOCK";
 
@@ -173,8 +158,6 @@ public class CarSettings {
          * @hide
          */
         @SystemApi
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         public static final String DISPLAY_POWER_MODE = "android.car.DISPLAY_POWER_MODE";
     }
 
@@ -183,7 +166,6 @@ public class CarSettings {
      *
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int[] DEFAULT_GARAGE_MODE_WAKE_UP_TIME = {0, 0};
 
     /**
@@ -191,8 +173,7 @@ public class CarSettings {
      *
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
-    public static final int DEFAULT_GARAGE_MODE_MAINTENANCE_WINDOW = 10 * 60 * 1000; // 10 mins
+    public static final int DEFAULT_GARAGE_MODE_MAINTENANCE_WINDOW = 10 * 60 * 1000;
 
     /**
      * @hide
@@ -221,7 +202,6 @@ public class CarSettings {
          * @hide
          */
         @SystemApi
-        @AddedInOrBefore(majorVersion = 33)
         public static final String KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL =
                 "android.car.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL";
 
@@ -236,7 +216,6 @@ public class CarSettings {
          * @hide
          */
         @SystemApi
-        @AddedInOrBefore(majorVersion = 33)
         public static final String KEY_AUDIO_PERSIST_VOLUME_GROUP_MUTE_STATES =
                 "android.car.KEY_AUDIO_PERSIST_VOLUME_GROUP_MUTE_STATES";
 
@@ -245,7 +224,6 @@ public class CarSettings {
          * Written to and read by {@link com.android.car.BluetoothDeviceManager}
          * @hide
          */
-        @AddedInOrBefore(majorVersion = 33)
         public static final String KEY_BLUETOOTH_DEVICES =
                 "android.car.KEY_BLUETOOTH_DEVICES";
 
@@ -254,7 +232,6 @@ public class CarSettings {
          * Read and written by {@link com.android.car.BluetoothProfileInhibitManager}.
          * @hide
          */
-        @AddedInOrBefore(majorVersion = 33)
         public static final String KEY_BLUETOOTH_PROFILES_INHIBITED =
                 "android.car.BLUETOOTH_PROFILES_INHIBITED";
 
@@ -265,7 +242,6 @@ public class CarSettings {
          * @hide
          */
         @SystemApi
-        @AddedInOrBefore(majorVersion = 33)
         public static final String KEY_ROTARY_KEY_EVENT_FILTER =
                 "android.car.ROTARY_KEY_EVENT_FILTER";
 
@@ -276,7 +252,6 @@ public class CarSettings {
          * @hide
          */
         @SystemApi
-        @AddedInOrBefore(majorVersion = 33)
         public static final String KEY_ENABLE_INITIAL_NOTICE_SCREEN_TO_USER =
                 "android.car.ENABLE_INITIAL_NOTICE_SCREEN_TO_USER";
 
@@ -287,7 +262,6 @@ public class CarSettings {
          * @hide
          */
         @SystemApi
-        @AddedInOrBefore(majorVersion = 33)
         public static final String KEY_SETUP_WIZARD_IN_PROGRESS =
                 "android.car.SETUP_WIZARD_IN_PROGRESS";
 
@@ -306,7 +280,6 @@ public class CarSettings {
          * @hide
          */
         @SystemApi
-        @AddedInOrBefore(majorVersion = 33)
         public static final String KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE =
                 "android.car.KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE";
 
@@ -329,8 +302,6 @@ public class CarSettings {
         * @hide
         */
        @SystemApi
-       @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-        minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
        public static final String KEY_USER_TOS_ACCEPTED = "android.car.KEY_USER_TOS_ACCEPTED";
 
 
@@ -346,8 +317,6 @@ public class CarSettings {
         * @hide
         */
        @SystemApi
-       @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-        minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
        public static final String KEY_UNACCEPTED_TOS_DISABLED_APPS =
                "android.car.KEY_UNACCEPTED_TOS_DISABLED_APPS";
 
@@ -365,8 +334,6 @@ public class CarSettings {
          * @hide
          */
         @SystemApi
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         public static final String VISIBLE_USER_ALLOCATION_PER_ZONE =
                 "android.car.VISIBLE_USER_ALLOCATION_PER_ZONE";
 
@@ -381,8 +348,6 @@ public class CarSettings {
          * @hide
          */
         @SystemApi
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         public static final String KEY_DRIVER_ALLOWED_TO_CONTROL_MEDIA =
                 "android.car.DRIVER_ALLOWED_TO_CONTROL_MEDIA";
     }

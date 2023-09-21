@@ -22,10 +22,6 @@ import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.annotation.AddedInOrBefore;
-import android.car.annotation.ApiRequirements;
-import android.car.annotation.ApiRequirements.CarVersion;
-import android.car.annotation.ApiRequirements.PlatformVersion;
 import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
@@ -51,8 +47,6 @@ public final class CarPerformanceManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
     public static final class SetSchedulerFailedException extends Exception {
         SetSchedulerFailedException(Throwable cause) {
             super(cause);
@@ -67,7 +61,6 @@ public final class CarPerformanceManager extends CarManagerBase {
 
     /** @hide */
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         // nothing to do
     }
@@ -105,7 +98,6 @@ public final class CarPerformanceManager extends CarManagerBase {
          *
          * @param info CPU availability information.
          */
-        @AddedInOrBefore(majorVersion = 33)
         void onCpuAvailabilityChange(@NonNull CpuAvailabilityInfo info);
     }
 
@@ -122,7 +114,6 @@ public final class CarPerformanceManager extends CarManagerBase {
      * @removed API not used since Android U. Must be removed in Android W (release 35).
      */
     @RequiresPermission(Car.PERMISSION_COLLECT_CAR_CPU_INFO)
-    @AddedInOrBefore(majorVersion = 33)
     public void addCpuAvailabilityChangeListener(
             @NonNull @CallbackExecutor Executor executor,
             @NonNull CpuAvailabilityMonitoringConfig config,
@@ -145,7 +136,6 @@ public final class CarPerformanceManager extends CarManagerBase {
      * @removed API not used since Android U. Must be removed in Android W (release 35).
      */
     @RequiresPermission(Car.PERMISSION_COLLECT_CAR_CPU_INFO)
-    @AddedInOrBefore(majorVersion = 33)
     public void removeCpuAvailabilityChangeListener(
             @NonNull @CallbackExecutor Executor executor,
             @NonNull CpuAvailabilityChangeListener listener) {
@@ -174,8 +164,6 @@ public final class CarPerformanceManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_1)
     @RequiresPermission(Car.PERMISSION_MANAGE_THREAD_PRIORITY)
     public void setThreadPriority(@NonNull ThreadPolicyWithPriority policyWithPriority)
             throws SetSchedulerFailedException {
@@ -204,8 +192,6 @@ public final class CarPerformanceManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_1)
     @RequiresPermission(Car.PERMISSION_MANAGE_THREAD_PRIORITY)
     public @NonNull ThreadPolicyWithPriority getThreadPriority() {
         int tid = Process.myTid();

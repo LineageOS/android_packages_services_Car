@@ -19,7 +19,6 @@ import static com.android.compatibility.common.util.ShellUtils.runShellCommand;
 
 import static org.junit.Assert.fail;
 
-import android.car.annotation.ApiRequirements;
 import android.platform.test.annotations.Presubmit;
 import android.text.TextUtils;
 
@@ -34,8 +33,6 @@ public final class PreInstalledPackagesTest extends CarLessApiTestBase {
     @Test
     @NonApiTest(exemptionReasons = {}, justification = "Testing package allowlist, which is not "
             + "an API or CDD requirement")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testNoCriticalErrors_currentMode() {
         assertNoCriticalErrors(/* enforceMode= */ false);
     }
@@ -43,8 +40,6 @@ public final class PreInstalledPackagesTest extends CarLessApiTestBase {
     @Test
     @NonApiTest(exemptionReasons = {}, justification = "Testing package allowlist, which is not "
             + "an API or CDD requirement")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testNoCriticalErrors_enforceMode() {
         assertNoCriticalErrors(/* enforceMode= */ true);
     }

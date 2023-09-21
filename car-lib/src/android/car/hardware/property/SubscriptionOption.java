@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.FloatRange;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.car.annotation.ApiRequirements;
 import android.car.hardware.CarPropertyConfig;
 import android.util.ArraySet;
 
@@ -52,8 +51,6 @@ public final class SubscriptionOption {
      *
      * @return {@link CarPropertyManager#SENSOR_RATE_UI}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.VANILLA_ICE_CREAM_0)
     public float getUpdateRateUi() {
         return CarPropertyManager.SENSOR_RATE_UI;
     }
@@ -63,8 +60,6 @@ public final class SubscriptionOption {
      *
      * @return {@link CarPropertyManager#SENSOR_RATE_NORMAL}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.VANILLA_ICE_CREAM_0)
     public float getUpdateRateNormal() {
         return CarPropertyManager.SENSOR_RATE_NORMAL;
     }
@@ -74,8 +69,6 @@ public final class SubscriptionOption {
      *
      * @return {@link CarPropertyManager#SENSOR_RATE_FAST}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.VANILLA_ICE_CREAM_0)
     public float getUpdateRateFast() {
         return CarPropertyManager.SENSOR_RATE_FAST;
     }
@@ -85,8 +78,6 @@ public final class SubscriptionOption {
      *
      * @return {@link CarPropertyManager#SENSOR_RATE_FASTEST}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.VANILLA_ICE_CREAM_0)
     public float getUpdateRateFastest() {
         return CarPropertyManager.SENSOR_RATE_FASTEST;
     }
@@ -94,8 +85,6 @@ public final class SubscriptionOption {
     /**
      * @return The propertyId to subscribe to
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.VANILLA_ICE_CREAM_0)
     public int getPropertyId() {
         return mPropertyId;
     }
@@ -103,8 +92,6 @@ public final class SubscriptionOption {
     /**
      * @return The update rate to subscribe to
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.VANILLA_ICE_CREAM_0)
     public float getUpdateRateHz() {
         return mUpdateRateHz;
     }
@@ -112,8 +99,6 @@ public final class SubscriptionOption {
     /**
      * @return The areaIds to subscribe to
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.VANILLA_ICE_CREAM_0)
     @Nullable
     public int[] getAreaIds() {
         return mAreaIds.clone();
@@ -141,8 +126,6 @@ public final class SubscriptionOption {
          * @param updateRateHz The update rate to set for the given builder
          * @return The original Builder object. This value cannot be {@code null}.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.VANILLA_ICE_CREAM_0)
         @NonNull
         public Builder setUpdateRateHz(@FloatRange(from = 0.0, to = 100.0) float updateRateHz) {
             Preconditions.checkArgumentInRange(updateRateHz, /* lower= */ 0.0f,
@@ -156,8 +139,6 @@ public final class SubscriptionOption {
          * Sets the update rate to {@link CarPropertyManager#SENSOR_RATE_UI}
          * @return The original Builder object. This value cannot be {@code null}.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.VANILLA_ICE_CREAM_0)
         @NonNull
         public Builder setUpdateRateUi() {
             mBuilderUpdateRateHz = CarPropertyManager.SENSOR_RATE_UI;
@@ -168,8 +149,6 @@ public final class SubscriptionOption {
          * Sets the update rate to {@link CarPropertyManager#SENSOR_RATE_NORMAL}
          * @return The original Builder object. This value cannot be {@code null}.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.VANILLA_ICE_CREAM_0)
         @NonNull
         public Builder setUpdateRateNormal() {
             mBuilderUpdateRateHz = CarPropertyManager.SENSOR_RATE_NORMAL;
@@ -180,8 +159,6 @@ public final class SubscriptionOption {
          * Sets the update rate to {@link CarPropertyManager#SENSOR_RATE_FAST}
          * @return The original Builder object. This value cannot be {@code null}.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.VANILLA_ICE_CREAM_0)
         @NonNull
         public Builder setUpdateRateFast() {
             mBuilderUpdateRateHz = CarPropertyManager.SENSOR_RATE_FAST;
@@ -192,8 +169,6 @@ public final class SubscriptionOption {
          * Sets the update rate to {@link CarPropertyManager#SENSOR_RATE_FASTEST}
          * @return The original Builder object. This value cannot be {@code null}.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.VANILLA_ICE_CREAM_0)
         @NonNull
         public Builder setUpdateRateFastest() {
             mBuilderUpdateRateHz = CarPropertyManager.SENSOR_RATE_FASTEST;
@@ -207,8 +182,6 @@ public final class SubscriptionOption {
          * @param areaId The areaId to add for the given builder
          * @return The original Builder object. This value cannot be {@code null}.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.VANILLA_ICE_CREAM_0)
         @NonNull
         public Builder addAreaId(int areaId) {
             mBuilderAreaIds.add(areaId);
@@ -220,8 +193,6 @@ public final class SubscriptionOption {
          *
          * @throws IllegalStateException if build is used more than once.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.VANILLA_ICE_CREAM_0)
         @NonNull
         public SubscriptionOption build() {
             checkNotUsed();

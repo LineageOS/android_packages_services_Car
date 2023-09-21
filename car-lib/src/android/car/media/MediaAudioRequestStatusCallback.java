@@ -19,15 +19,12 @@ package android.car.media;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.car.CarOccupantZoneManager;
-import android.car.annotation.ApiRequirements;
 
 /**
  * Callback for media request in primary audio zone
  *
  * @hide
  **/
-@ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-        minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
 @SystemApi
 public interface MediaAudioRequestStatusCallback {
 
@@ -42,8 +39,6 @@ public interface MediaAudioRequestStatusCallback {
      *                {@link android.car.media.CarAudioManager#AUDIO_REQUEST_STATUS_CANCELLED},
      *                {@link android.car.media.CarAudioManager#AUDIO_REQUEST_STATUS_STOPPED}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     void onMediaAudioRequestStatusChanged(@NonNull CarOccupantZoneManager.OccupantZoneInfo info,
             long requestId, @CarAudioManager.MediaAudioRequestStatus int status);
 }

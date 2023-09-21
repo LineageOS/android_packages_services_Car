@@ -22,8 +22,9 @@ android_test {
     name: "AndroidCarApiTest",
 
     srcs: [
-            "src/**/*.java",
-            "src/**/*.aidl",
+        "src/**/*.java",
+        "src/**/*.aidl",
+        ":VhalTestVendorProperties",
     ],
 
     platform_apis: true,

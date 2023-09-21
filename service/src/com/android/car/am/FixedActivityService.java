@@ -83,7 +83,7 @@ import java.util.Set;
  */
 public final class FixedActivityService implements CarServiceBase {
 
-    private static final boolean DBG = false;
+    private static final boolean DBG = Slogf.isLoggable(TAG_AM, Log.DEBUG);
 
     private static final long RECHECK_INTERVAL_MS = 500;
     private static final int MAX_NUMBER_OF_CONSECUTIVE_CRASH_RETRY = 5;
@@ -148,7 +148,7 @@ public final class FixedActivityService implements CarServiceBase {
         if (!isEventOfType(TAG_AM, event, USER_LIFECYCLE_EVENT_TYPE_SWITCHING)) {
             return;
         }
-        if (Slogf.isLoggable(TAG_AM, Log.DEBUG)) {
+        if (DBG) {
             Slogf.d(TAG_AM, "onEvent(" + event + ")");
         }
 
@@ -368,19 +368,12 @@ public final class FixedActivityService implements CarServiceBase {
         }
         long now = SystemClock.elapsedRealtime();
         synchronized (mLock) {
-            if (mRunningActivities.size() == 0) {
-                // it must have been stopped.
-                if (DBG) {
-                    Slogf.i(TAG_AM, "empty activity list", new RuntimeException());
-                }
-                return false;
-            }
             for (int i = mRunningActivities.size() - 1; i >= 0; i--) {
                 int displayIdForActivity = mRunningActivities.keyAt(i);
                 Display display = mDm.getDisplay(displayIdForActivity);
-                if (display == null) {
-                    Slogf.e(TAG_AM, "Stop fixed activity for non-available display"
-                            + displayIdForActivity);
+                if (display == null || display.getState() != Display.STATE_ON) {
+                    Slogf.e(TAG_AM, "Stop fixed activity for %s display%d",
+                            display == null ? "non-available" : "non-active", displayIdForActivity);
                     mRunningActivities.removeAt(i);
                     continue;
                 }
@@ -408,12 +401,25 @@ public final class FixedActivityService implements CarServiceBase {
                 }
                 mRunningActivities.removeAt(i);
             }
+            if (mRunningActivities.size() == 0) {
+                // it must have been stopped.
+                Slogf.i(TAG_AM, "empty activity list");
+                stopMonitoringEvents();
+                return false;
+            }
+            if (DBG) {
+                Slogf.i(TAG_AM, "Visible Tasks: %d", infos.size());
+            }
             for (int i = 0, size = infos.size(); i < size; ++i) {
                 TaskInfo taskInfo = infos.get(i);
                 int taskDisplayId = TaskInfoHelper.getDisplayId(taskInfo);
                 RunningActivityInfo activityInfo = mRunningActivities.get(taskDisplayId);
                 if (activityInfo == null) {
                     continue;
+                }
+                if (DBG) {
+                    Slogf.i(TAG_AM, "Task#%d: U%d top=%s orig=%s", i, activityInfo.userId,
+                            taskInfo.topActivity, taskInfo.origActivity);
                 }
                 int taskUserId = TaskInfoHelper.getUserId(taskInfo);
                 ComponentName expectedTopActivity = activityInfo.intent.getComponent();

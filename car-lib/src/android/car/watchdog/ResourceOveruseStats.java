@@ -20,7 +20,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.car.annotation.AddedInOrBefore;
 import android.os.Parcelable;
 import android.os.UserHandle;
 
@@ -91,7 +90,6 @@ public final class ResourceOveruseStats implements Parcelable {
      *       the stats are aggregated for all packages under the shared UID.
      */
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public @NonNull String getPackageName() {
         return mPackageName;
     }
@@ -100,13 +98,11 @@ public final class ResourceOveruseStats implements Parcelable {
      * User handle, whose stats are recorded in the below fields.
      */
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public @NonNull UserHandle getUserHandle() {
         return mUserHandle;
     }
 
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public @Nullable IoOveruseStats getIoOveruseStats() {
         return mIoOveruseStats;
     }
@@ -126,7 +122,6 @@ public final class ResourceOveruseStats implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -142,7 +137,6 @@ public final class ResourceOveruseStats implements Parcelable {
     @Override
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -169,7 +163,6 @@ public final class ResourceOveruseStats implements Parcelable {
     }
 
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<ResourceOveruseStats> CREATOR
             = new Parcelable.Creator<ResourceOveruseStats>() {
         @Override
@@ -226,7 +219,6 @@ public final class ResourceOveruseStats implements Parcelable {
          *       the stats are aggregated for all packages under the shared UID.
          */
         @DataClass.Generated.Member
-        @AddedInOrBefore(majorVersion = 33)
         public @NonNull Builder setPackageName(@NonNull String value) {
             checkNotUsed();
             mBuilderFieldsSet |= 0x1;
@@ -238,7 +230,6 @@ public final class ResourceOveruseStats implements Parcelable {
          * User handle, whose stats are recorded in the below fields.
          */
         @DataClass.Generated.Member
-        @AddedInOrBefore(majorVersion = 33)
         public @NonNull Builder setUserHandle(@NonNull UserHandle value) {
             checkNotUsed();
             mBuilderFieldsSet |= 0x2;
@@ -247,7 +238,6 @@ public final class ResourceOveruseStats implements Parcelable {
         }
 
         @DataClass.Generated.Member
-        @AddedInOrBefore(majorVersion = 33)
         public @NonNull Builder setIoOveruseStats(@NonNull IoOveruseStats value) {
             checkNotUsed();
             mBuilderFieldsSet |= 0x4;
@@ -256,7 +246,6 @@ public final class ResourceOveruseStats implements Parcelable {
         }
 
         /** Builds the instance. This builder should not be touched after calling this! */
-        @AddedInOrBefore(majorVersion = 33)
         public @NonNull ResourceOveruseStats build() {
             checkNotUsed();
             mBuilderFieldsSet |= 0x8; // Mark builder used

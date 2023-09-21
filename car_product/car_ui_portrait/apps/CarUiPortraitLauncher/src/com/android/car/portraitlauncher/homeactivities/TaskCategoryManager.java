@@ -36,6 +36,7 @@ import android.util.Log;
 import androidx.car.app.CarContext;
 
 import com.android.car.carlauncher.AppGridActivity;
+import com.android.car.carlauncher.CarLauncherUtils;
 import com.android.car.portraitlauncher.R;
 
 import java.util.ArrayList;
@@ -53,7 +54,6 @@ class TaskCategoryManager {
     /** Stub geo data to help query navigation intent. */
     private static final String STUB_GEO_DATA = "geo:0.0,0,0";
 
-    private final ComponentName mBlankActivityComponent;
     private final ComponentName mAppGridActivityComponent;
     private final ComponentName mNotificationActivityComponent;
     private final ComponentName mRecentsActivityComponent;
@@ -74,7 +74,6 @@ class TaskCategoryManager {
         mIgnoreOpeningRootTaskViewComponentsSet = convertToComponentNames(mContext.getResources()
                 .getStringArray(R.array.config_ignoreOpeningForegroundDA));
         mAppGridActivityComponent = new ComponentName(context, AppGridActivity.class);
-        mBlankActivityComponent = new ComponentName(context, BlankActivity.class);
         mNotificationActivityComponent = ComponentName.unflattenFromString(
                 mContext.getResources().getString(R.string.config_notificationActivity));
         mRecentsActivityComponent = ComponentName.unflattenFromString(mContext.getResources()
@@ -87,6 +86,14 @@ class TaskCategoryManager {
 
         mApplicationInstallUninstallReceiver = registerApplicationInstallUninstallReceiver(
                 mContext);
+    }
+
+    /**
+     * Refresh {@code mFullScreenActivities} and {@code mBackgroundActivities}.
+     */
+    void refresh() {
+        updateVoicePlateActivityMap();
+        updateBackgroundActivityMap();
     }
 
     static boolean isHomeIntent(TaskInfo taskInfo) {
@@ -155,6 +162,15 @@ class TaskCategoryManager {
                 .getStringArray(R.array.config_backgroundActivities)));
     }
 
+    /**
+     * Returns whether the {@code TaskCategoryManager} is ready. If maps intent can be resolved,
+     * the {@code TaskCategoryManager} is ready.
+     */
+    public boolean isReady() {
+        Intent intent = CarLauncherUtils.getMapsIntent(mContext);
+        return intent.resolveActivity(mContext.getPackageManager()) != null;
+    }
+
     void registerOnApplicationInstallUninstallListener(
             OnApplicationInstallUninstallListener onApplicationInstallUninstallListener) {
         mOnApplicationInstallUninstallListeners.add(onApplicationInstallUninstallListener);
@@ -185,20 +201,16 @@ class TaskCategoryManager {
         mCurrentBackgroundApp = componentName;
     }
 
-    boolean isBlankActivity(ActivityManager.RunningTaskInfo taskInfo) {
-        return mBlankActivityComponent.equals(taskInfo.baseActivity);
-    }
-
-    boolean isBlankActivity(ComponentName componentName) {
-        return mBlankActivityComponent.equals(componentName);
-    }
-
     boolean isAppGridActivity(ComponentName componentName) {
         return mAppGridActivityComponent.equals(componentName);
     }
 
     boolean isAppGridActivity(TaskInfo taskInfo) {
         return mAppGridActivityComponent.equals(taskInfo.baseActivity);
+    }
+
+    ComponentName getAppGridActivity() {
+        return mAppGridActivityComponent;
     }
 
     Set<ComponentName> getFullScreenActivities() {

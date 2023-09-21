@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -42,8 +41,6 @@ public final class LaneCenteringAssistCommand {
      * will be in the {@link LaneCenteringAssistState#ACTIVATED} state. Otherwise, an error
      * can be communicated through an {@link ErrorState} value.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int ACTIVATE = 1;
 
     /**
@@ -54,8 +51,6 @@ public final class LaneCenteringAssistCommand {
      * android.car.VehiclePropertyIds#LANE_CENTERING_ASSIST_STATE} will be updated to {@link
      * LaneCenteringAssistState#ENABLED}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int DEACTIVATE = 2;
 
     private LaneCenteringAssistCommand() {}
@@ -64,8 +59,6 @@ public final class LaneCenteringAssistCommand {
      * Returns a user-friendly representation of a {@code LaneCenteringAssistCommand}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(
             @LaneCenteringAssistCommandInt int laneCenteringAssistCommand) {
         switch (laneCenteringAssistCommand) {

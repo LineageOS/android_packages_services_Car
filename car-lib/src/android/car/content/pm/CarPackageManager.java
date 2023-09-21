@@ -30,8 +30,6 @@ import android.app.PendingIntent;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarVersion;
-import android.car.annotation.AddedInOrBefore;
-import android.car.annotation.ApiRequirements;
 import android.content.ComponentName;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.IBinder;
@@ -66,7 +64,6 @@ public final class CarPackageManager extends CarManagerBase {
      */
     @SystemApi
     @Deprecated
-    @AddedInOrBefore(majorVersion = 33)
     public static final int FLAG_SET_POLICY_WAIT_FOR_CHANGE = 0x1;
     /**
      * Flag for {@link #setAppBlockingPolicy(String, CarAppBlockingPolicy, int)}. When this
@@ -81,7 +78,6 @@ public final class CarPackageManager extends CarManagerBase {
      */
     @SystemApi
     @Deprecated
-    @AddedInOrBefore(majorVersion = 33)
     public static final int FLAG_SET_POLICY_ADD = 0x2;
     /**
      * Flag for {@link #setAppBlockingPolicy(String, CarAppBlockingPolicy, int)}. When this
@@ -95,7 +91,6 @@ public final class CarPackageManager extends CarManagerBase {
      */
     @SystemApi
     @Deprecated
-    @AddedInOrBefore(majorVersion = 33)
     public static final int FLAG_SET_POLICY_REMOVE = 0x4;
 
     /**
@@ -103,21 +98,18 @@ public final class CarPackageManager extends CarManagerBase {
      *
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final String BLOCKING_INTENT_EXTRA_BLOCKED_ACTIVITY_NAME = "blocked_activity";
     /**
      * int task id of the blocked task.
      *
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final String BLOCKING_INTENT_EXTRA_BLOCKED_TASK_ID = "blocked_task_id";
     /**
      * Name of root activity of blocked task.
      *
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final String BLOCKING_INTENT_EXTRA_ROOT_ACTIVITY_NAME = "root_activity_name";
     /**
      * Boolean indicating whether the root activity is distraction-optimized (DO).
@@ -125,7 +117,6 @@ public final class CarPackageManager extends CarManagerBase {
      *
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final String BLOCKING_INTENT_EXTRA_IS_ROOT_ACTIVITY_DO = "is_root_activity_do";
 
     /**
@@ -133,7 +124,6 @@ public final class CarPackageManager extends CarManagerBase {
      *
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final String BLOCKING_INTENT_EXTRA_DISPLAY_ID = "display_id";
 
     /**
@@ -141,7 +131,6 @@ public final class CarPackageManager extends CarManagerBase {
      *
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final String DRIVING_SAFETY_REGION_ALL = "android.car.drivingsafetyregion.all";
 
     /**
@@ -157,7 +146,6 @@ public final class CarPackageManager extends CarManagerBase {
      *
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final String DRIVING_SAFETY_ACTIVITY_METADATA_REGIONS =
             "android.car.drivingsafetyregions";
 
@@ -166,7 +154,6 @@ public final class CarPackageManager extends CarManagerBase {
      *
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int ERROR_CODE_NO_PACKAGE = -100;
 
     /**
@@ -185,9 +172,10 @@ public final class CarPackageManager extends CarManagerBase {
      * <p>And for {@link android.os.Build.VERSION_CODES#TIRAMISU Android 13} first update:
      *
      * <code><meta-data android:name="android.car.targetCarVersion" android:value="33:1"/></code>
+     *
+     * @deprecated Car version is no longer supported by the CarService.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @Deprecated
     public static final String MANIFEST_METADATA_TARGET_CAR_VERSION =
             "android.car.targetCarVersion";
 
@@ -214,7 +202,6 @@ public final class CarPackageManager extends CarManagerBase {
 
     /** @hide */
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         // nothing to do
     }
@@ -250,7 +237,6 @@ public final class CarPackageManager extends CarManagerBase {
      */
     @SystemApi
     @Deprecated
-    @AddedInOrBefore(majorVersion = 33)
     public void setAppBlockingPolicy(
             String packageName, CarAppBlockingPolicy policy, @SetPolicyFlags int flags) {
         if ((flags & FLAG_SET_POLICY_WAIT_FOR_CHANGE) != 0
@@ -272,7 +258,6 @@ public final class CarPackageManager extends CarManagerBase {
      *
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void restartTask(int taskId) {
         try {
             mService.restartTask(taskId);
@@ -296,7 +281,6 @@ public final class CarPackageManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isActivityBackedBySafeActivity(ComponentName activityName) {
         try {
             return mService.isActivityBackedBySafeActivity(activityName);
@@ -311,7 +295,6 @@ public final class CarPackageManager extends CarManagerBase {
      * @hide
      */
     @TestApi
-    @AddedInOrBefore(majorVersion = 33)
     public void setEnableActivityBlocking(boolean enable) {
         try {
             mService.setEnableActivityBlocking(enable);
@@ -329,7 +312,6 @@ public final class CarPackageManager extends CarManagerBase {
      * @return true if the activity is distraction optimized, false if it isn't or if the value
      *         could not be determined.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isActivityDistractionOptimized(String packageName, String className) {
         try {
             return mService.isActivityDistractionOptimized(packageName, className);
@@ -346,7 +328,6 @@ public final class CarPackageManager extends CarManagerBase {
      * @return true if the pending intent represents an activity that is distraction optimized,
      *         false if it isn't or if the value could not be determined.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isPendingIntentDistractionOptimized(@NonNull PendingIntent pendingIntent) {
         try {
             return mService.isPendingIntentDistractionOptimized(pendingIntent);
@@ -363,7 +344,6 @@ public final class CarPackageManager extends CarManagerBase {
      * @param className
      * @return
      */
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isServiceDistractionOptimized(String packageName, String className) {
         try {
             return mService.isServiceDistractionOptimized(packageName, className);
@@ -383,7 +363,6 @@ public final class CarPackageManager extends CarManagerBase {
     @RequiresPermission(anyOf = {PERMISSION_CONTROL_APP_BLOCKING,
             Car.PERMISSION_CAR_DRIVING_STATE})
     @NonNull
-    @AddedInOrBefore(majorVersion = 33)
     public String getCurrentDrivingSafetyRegion() {
         try {
             return mService.getCurrentDrivingSafetyRegion();
@@ -415,7 +394,6 @@ public final class CarPackageManager extends CarManagerBase {
      */
     @RequiresPermission(allOf = {PERMISSION_CONTROL_APP_BLOCKING,
             android.Manifest.permission.QUERY_ALL_PACKAGES})
-    @AddedInOrBefore(majorVersion = 33)
     public void controlTemporaryActivityBlockingBypassingAsUser(String packageName,
             String activityClassName, boolean bypass, @UserIdInt int userId)
             throws NameNotFoundException {
@@ -453,7 +431,6 @@ public final class CarPackageManager extends CarManagerBase {
     @RequiresPermission(allOf = {PERMISSION_CONTROL_APP_BLOCKING,
             android.Manifest.permission.QUERY_ALL_PACKAGES})
     @NonNull
-    @AddedInOrBefore(majorVersion = 33)
     public List<String> getSupportedDrivingSafetyRegionsForActivityAsUser(String packageName,
             String activityClassName, @UserIdInt int userId) throws NameNotFoundException {
         try {
@@ -484,12 +461,12 @@ public final class CarPackageManager extends CarManagerBase {
      * @throws NameNotFoundException If the given package does not exist for the user.
      *
      * @hide
+     * @deprecated CarVersion is no longer supported by the CarService.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @SystemApi
     @RequiresPermission(Manifest.permission.QUERY_ALL_PACKAGES)
     @NonNull
+    @Deprecated
     public CarVersion getTargetCarVersion(@NonNull String packageName)
             throws NameNotFoundException {
         try {
@@ -513,10 +490,10 @@ public final class CarPackageManager extends CarManagerBase {
      * version} as major and {@code 0} as minor instead.
      *
      * @return targeted Car API version (as defined above)
+     * @deprecated CarVersion is no longer supported by the CarService.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
+    @Deprecated
     public CarVersion getTargetCarVersion() {
         String pkgName = mCar.getContext().getPackageName();
         try {

@@ -26,6 +26,9 @@ PRODUCT_PACKAGES += \
     CarProvision \
     CarSystemUI \
 
+PRODUCT_PACKAGES_DEBUG += \
+    BugReportApp \
+
 # Default dex optimization configurations
 PRODUCT_SYSTEM_EXT_PROPERTIES += \
     dalvik.vm.dex2oat-cpu-set=0,1 \
@@ -43,3 +46,6 @@ PRODUCT_SYSTEM_EXT_PROPERTIES += \
     ro.carrier=unknown \
     ro.com.android.dataroaming?=true \
     ro.hardware.type=automotive \
+
+# Always disable Compose features in SystemUI to avoid APK size increase.
+SYSTEMUI_USE_COMPOSE := false

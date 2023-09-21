@@ -32,7 +32,6 @@ import static com.android.car.CarServiceUtils.toIntArray;
 import static com.android.car.PermissionHelper.checkHasAtLeastOnePermissionGranted;
 import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -402,10 +401,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * not done init yet.
      */
     public void priorityInit() {
-        // If platform is above U, then use new boot user flow and set the boot user ASAP.
-        if (isPlatformVersionAtLeastU()) {
-            mHandler.post(() -> initBootUser(getInitialUserInfoRequestType()));
-        }
+        mHandler.post(() -> initBootUser(getInitialUserInfoRequestType()));
     }
 
     @Override
@@ -755,18 +751,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
 
         mHandler.post(() -> initBootUser(InitialUserInfoRequestType.RESUME));
-    }
-
-    /**
-     * Calls to start user at the android startup.
-     */
-    public void initBootUser() {
-        // This check is to make sure that initBootUser is called only once during boot.
-        // For U and above, different boot user flow is used and initBootUser is called in
-        // priorityInit
-        if (!isPlatformVersionAtLeastU()) {
-            mHandler.post(() -> initBootUser(getInitialUserInfoRequestType()));
-        }
     }
 
     private void initBootUser(int requestType) {
@@ -1294,11 +1278,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * Same as {@link UserManager#isUserVisible()}, but passing the user id.
      */
     public boolean isUserVisible(@UserIdInt int userId) {
-        if (isPlatformVersionAtLeastU()) {
-            Set<UserHandle> visibleUsers = mUserManager.getVisibleUsers();
-            return visibleUsers.contains(UserHandle.of(userId));
-        }
-        return false;
+        Set<UserHandle> visibleUsers = mUserManager.getVisibleUsers();
+        return visibleUsers.contains(UserHandle.of(userId));
     }
 
     // TODO(b/244370727): Remove once the lifecycle event callbacks provide the display id.
@@ -2100,11 +2081,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
         int userId = request.getUserHandle().getIdentifier();
         int displayId = request.getDisplayId();
-        if (isPlatformVersionAtLeastU()) {
-            EventLogHelper.writeCarUserServiceStartUserVisibleOnDisplayReq(userId, displayId);
-        } else {
-            EventLogHelper.writeCarUserServiceStartUserInBackgroundReq(userId);
-        }
+        EventLogHelper.writeCarUserServiceStartUserVisibleOnDisplayReq(userId, displayId);
         mHandler.post(() -> handleStartUser(userId, displayId, callback));
     }
 
@@ -2117,12 +2094,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private void sendUserStartUserResponse(@UserIdInt int userId, int displayId,
             @UserStartResponse.Status int result,
             @NonNull ResultCallbackImpl<UserStartResponse> callback) {
-        if (isPlatformVersionAtLeastU()) {
-            EventLogHelper.writeCarUserServiceStartUserVisibleOnDisplayResp(userId, displayId,
+        EventLogHelper.writeCarUserServiceStartUserVisibleOnDisplayResp(userId, displayId,
                     result);
-        } else {
-            EventLogHelper.writeCarUserServiceStartUserInBackgroundResp(userId, result);
-        }
         callback.complete(new UserStartResponse(result));
     }
 
@@ -2133,12 +2106,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             // This works because the status code of UserStartResponse is a superset of
             // UserStartResult.
             return status;
-        }
-
-        if (!isPlatformVersionAtLeastU()) {
-            Slogf.w(TAG, "The platform does not support startUser."
-                    + " Platform version: %s", Car.getPlatformVersion());
-            return UserStartResponse.STATUS_UNSUPPORTED_PLATFORM_FAILURE;
         }
 
         // If the requested user is the system user.
@@ -2344,13 +2311,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         int r;
         try {
             if (withDelayedLocking) {
-                r =  ActivityManagerHelper.stopUserWithDelayedLocking(userId, forceStop);
-            } else if (isPlatformVersionAtLeastU()) {
-                r = ActivityManagerHelper.stopUser(userId, forceStop);
+                r = ActivityManagerHelper.stopUserWithDelayedLocking(userId, forceStop);
             } else {
-                Slogf.w(TAG, "stopUser() without delayed locking is not supported "
-                        + " in older platform version");
-                return UserStopResult.STATUS_ANDROID_FAILURE;
+                r = ActivityManagerHelper.stopUser(userId, forceStop);
             }
         } catch (RuntimeException e) {
             Slogf.e(TAG, e, "Exception calling am.stopUser(%d, true)", userId);
@@ -2417,14 +2380,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (DBG) {
             Slogf.d(TAG, "onUserLifecycleEvent(): event=%d, from=%d, to=%d", eventType, fromUserId,
                     toUserId);
-        }
-        if (!isPlatformVersionAtLeastU()
-                && (eventType == CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE
-                || eventType == CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE)) {
-            // UserVisibilityChanged events are not supported before U.
-            Slogf.w(TAG, "Ignoring unsupported user lifecycle event: type %d, user %d",
-                    eventType, toUserId);
-            return;
         }
         int userId = toUserId;
 

@@ -23,7 +23,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.car.annotation.AddedInOrBefore;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -39,39 +38,30 @@ import java.lang.annotation.Retention;
 public final class GazeDetection implements Parcelable {
 
     /** A unknown gaze region, not otherwise specified. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_REGION_UNKNOWN = 0;
 
     /** Center instrument cluster in front of the driver. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_REGION_CENTER_INSTRUMENT_CLUSTER = 1;
 
     /** The rear-view mirror. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_REGION_REAR_VIEW_MIRROR = 2;
 
     /** The left side mirror. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_REGION_LEFT_SIDE_MIRROR = 3;
 
     /** The right side mirror. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_REGION_RIGHT_SIDE_MIRROR = 4;
 
     /** The forward roadway. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_REGION_FORWARD_ROADWAY = 5;
 
     /** Out-the-window to the right. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_REGION_LEFT_ROADWAY = 6;
 
     /** Out-the-window to the right. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_REGION_RIGHT_ROADWAY = 7;
 
     /** Center head-unit display. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_REGION_HEAD_UNIT_DISPLAY = 8;
 
     /**
@@ -94,7 +84,6 @@ public final class GazeDetection implements Parcelable {
     public @interface VehicleRegion {}
 
     /** {@link OccupantAwarenessDetection.ConfidenceLevel} for the gaze detection. */
-    @AddedInOrBefore(majorVersion = 33)
     @OccupantAwarenessDetection.ConfidenceLevel public final int confidenceLevel;
 
     /**
@@ -105,7 +94,6 @@ public final class GazeDetection implements Parcelable {
      *
      * <p>May be {@code null} if the underlying detection system does not export eye position data.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public final @Nullable Point3D leftEyePosition;
 
     /**
@@ -116,7 +104,6 @@ public final class GazeDetection implements Parcelable {
      *
      * <p>May be {@code null} if the underlying detection system does not export eye position data.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public final @Nullable Point3D rightEyePosition;
 
     /**
@@ -125,7 +112,6 @@ public final class GazeDetection implements Parcelable {
      *
      * <p>May be {@code null} if the underlying system does not support head orientation vectors.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public final @Nullable Point3D headAngleUnitVector;
 
     /**
@@ -134,15 +120,12 @@ public final class GazeDetection implements Parcelable {
      *
      * <p>May be {@code null} if the underlying system does not support vectors.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public final @Nullable Point3D gazeAngleUnitVector;
 
     /** {@link VehicleRegion} where the subject is currently looking. */
-    @AddedInOrBefore(majorVersion = 33)
     @VehicleRegion public final int gazeTarget;
 
     /** Duration on the current gaze target, in milliseconds. */
-    @AddedInOrBefore(majorVersion = 33)
     public final long durationOnTargetMillis;
 
     public GazeDetection(
@@ -165,13 +148,11 @@ public final class GazeDetection implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeInt(confidenceLevel);
         dest.writeParcelable(leftEyePosition, flags);
@@ -197,7 +178,6 @@ public final class GazeDetection implements Parcelable {
                 + "}";
     }
 
-    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<GazeDetection> CREATOR =
             new Parcelable.Creator<GazeDetection>() {
                 public GazeDetection createFromParcel(Parcel in) {

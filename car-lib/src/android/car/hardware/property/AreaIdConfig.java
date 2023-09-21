@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -32,9 +31,6 @@ import java.util.List;
  * @param <T> matches the type for the {@link android.car.hardware.CarPropertyConfig}.
  */
 public final class AreaIdConfig<T> implements Parcelable {
-    @ApiRequirements(
-            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     public static final Parcelable.Creator<AreaIdConfig<Object>> CREATOR = getCreator();
 
@@ -81,9 +77,6 @@ public final class AreaIdConfig<T> implements Parcelable {
     /**
      * @return area ID for this configuration.
      */
-    @ApiRequirements(
-            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int getAreaId() {
         return mAreaId;
     }
@@ -93,9 +86,6 @@ public final class AreaIdConfig<T> implements Parcelable {
      *     minimum value supported.
      */
     @Nullable
-    @ApiRequirements(
-            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public T getMinValue() {
         return mMinValue;
     }
@@ -105,9 +95,6 @@ public final class AreaIdConfig<T> implements Parcelable {
      *     maximum value supported.
      */
     @Nullable
-    @ApiRequirements(
-            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public T getMaxValue() {
         return mMaxValue;
     }
@@ -117,25 +104,16 @@ public final class AreaIdConfig<T> implements Parcelable {
      * property does not support an enum.
      */
     @NonNull
-    @ApiRequirements(
-            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public List<T> getSupportedEnumValues() {
         return Collections.unmodifiableList(mSupportedEnumValues);
     }
 
     @Override
-    @ApiRequirements(
-            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int describeContents() {
         return 0;
     }
 
     @Override
-    @ApiRequirements(
-            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeInt(mAreaId);
         dest.writeValue(mMinValue);
@@ -176,9 +154,6 @@ public final class AreaIdConfig<T> implements Parcelable {
 
         /** Set the min value for the {@link AreaIdConfig}. */
         @NonNull
-        @ApiRequirements(
-                minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public Builder<T> setMinValue(T minValue) {
             mMinValue = minValue;
             return this;
@@ -186,9 +161,6 @@ public final class AreaIdConfig<T> implements Parcelable {
 
         /** Set the max value for the {@link AreaIdConfig}. */
         @NonNull
-        @ApiRequirements(
-                minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public Builder<T> setMaxValue(T maxValue) {
             mMaxValue = maxValue;
             return this;
@@ -196,9 +168,6 @@ public final class AreaIdConfig<T> implements Parcelable {
 
         /** Set the supported enum values for the {@link AreaIdConfig}. */
         @NonNull
-        @ApiRequirements(
-                minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public Builder<T> setSupportedEnumValues(@NonNull List<T> supportedEnumValues) {
             mSupportedEnumValues = supportedEnumValues;
             return this;
@@ -206,9 +175,6 @@ public final class AreaIdConfig<T> implements Parcelable {
 
         /** Builds a new {@link android.car.hardware.property.AreaIdConfig}. */
         @NonNull
-        @ApiRequirements(
-                minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public AreaIdConfig<T> build() {
             return new AreaIdConfig<>(mAreaId, mMinValue, mMaxValue, mSupportedEnumValues);
         }

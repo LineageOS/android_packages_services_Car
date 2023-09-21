@@ -58,6 +58,7 @@ import android.os.RemoteException;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.util.proto.ProtoOutputStream;
 
@@ -104,6 +105,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
@@ -175,7 +177,8 @@ public class ICarImpl extends ICar.Stub {
     @Nullable
     private CarRemoteAccessService mCarRemoteAccessService;
 
-    private final CarSystemService[] mAllServices;
+    // Storing all the car services in the order of their init.
+    private final CarSystemService[] mAllServicesInInitOrder;
 
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
@@ -507,8 +510,7 @@ public class ICarImpl extends ICar.Stub {
             mCarRemoteDeviceService = null;
         }
 
-        mAllServices = allServices.toArray(new CarSystemService[allServices.size()]);
-
+        mAllServicesInInitOrder = allServices.toArray(new CarSystemService[allServices.size()]);
         mICarSystemServerClientImpl = new ICarSystemServerClientImpl();
 
         t.traceEnd(); // "ICarImpl.constructor"
@@ -525,7 +527,7 @@ public class ICarImpl extends ICar.Stub {
         }
 
         t.traceBegin("CarService.initAllServices");
-        for (CarSystemService service : mAllServices) {
+        for (CarSystemService service : mAllServicesInInitOrder) {
             t.traceBegin(service.getClass().getSimpleName());
             service.init();
             t.traceEnd();
@@ -539,8 +541,8 @@ public class ICarImpl extends ICar.Stub {
 
     void release() {
         // release done in opposite order from init
-        for (int i = mAllServices.length - 1; i >= 0; i--) {
-            mAllServices[i].release();
+        for (int i = mAllServicesInInitOrder.length - 1; i >= 0; i--) {
+            mAllServicesInInitOrder[i].release();
         }
     }
 
@@ -965,16 +967,18 @@ public class ICarImpl extends ICar.Stub {
     }
 
     private CarShellCommand newCarShellCommand() {
-        return new CarShellCommand(mContext, mHal, mCarAudioService, mCarPackageManagerService,
-                mCarProjectionService, mCarPowerManagementService, mFixedActivityService,
-                mFeatureController, mCarInputService, mCarNightService, mSystemInterface,
-                mGarageModeService, mCarUserService, mCarOccupantZoneService, mCarEvsService,
-                mCarWatchdogService, mCarTelemetryService);
+        Map<Class, CarSystemService> allServicesByClazz = new ArrayMap<>();
+        for (CarSystemService service : mAllServicesInInitOrder) {
+            allServicesByClazz.put(service.getClass(), service);
+        }
+
+        return new CarShellCommand(mContext, mHal, mFeatureController, mSystemInterface,
+                allServicesByClazz);
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpListOfServices(IndentingPrintWriter writer) {
-        for (CarSystemService service : mAllServices) {
+        for (CarSystemService service : mAllServicesInInitOrder) {
             writer.println(service.getClass().getName());
         }
     }
@@ -982,7 +986,7 @@ public class ICarImpl extends ICar.Stub {
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpAllServices(IndentingPrintWriter writer) {
         writer.println("*Dump all services*");
-        for (CarSystemService service : mAllServices) {
+        for (CarSystemService service : mAllServicesInInitOrder) {
             if (service instanceof CarServiceBase) {
                 dumpService(service, writer);
             }
@@ -1033,7 +1037,7 @@ public class ICarImpl extends ICar.Stub {
 
     @Nullable
     private CarSystemService getCarServiceBySubstring(String className) {
-        return Arrays.asList(mAllServices).stream()
+        return Arrays.asList(mAllServicesInInitOrder).stream()
                 .filter(s -> s.getClass().getSimpleName().equals(className))
                 .findFirst().orElse(null);
     }
@@ -1085,10 +1089,7 @@ public class ICarImpl extends ICar.Stub {
 
         @Override
         public void initBootUser() throws RemoteException {
-            assertCallingFromSystemProcess();
-            EventLogHelper.writeCarServiceInitBootUser();
-            if (DBG) Slogf.d(TAG, "initBootUser(): ");
-            mCarUserService.initBootUser();
+            // TODO(b/277271542). Remove this code path.
         }
 
         // TODO(235524989): Remove this method as on user removed will now go through

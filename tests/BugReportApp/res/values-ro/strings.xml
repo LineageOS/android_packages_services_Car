@@ -46,7 +46,10 @@
     <string name="toast_status_failed" msgid="6365384202315043395">"Raportul de eroare nu s-a realizat"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Captura de ecran nu a reușit"</string>
     <string name="toast_status_dump_state_failed" msgid="3496460783060512078">"Nu s-a preluat starea fișierului dump"</string>
+    <string name="toast_screenshot_finished" msgid="539313383958984557">"Capturi de ecran salvate"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Raportul de eroare este în curs"</string>
     <string name="notification_bugreport_finished_title" msgid="1188447311929693472">"Raportul de eroare a fost colectat"</string>
     <string name="notification_bugreport_channel_name" msgid="776902295433824255">"Canalul de stare a raportului de eroare"</string>
+    <string name="notification_screenshot_message" msgid="4334354123333893911">"Realizarea unei capturi de ecran"</string>
+    <string name="notification_screenshot_channel_name" msgid="147055389545365419">"Canal pentru capturi de ecran cu rapoarte de eroare"</string>
 </resources>

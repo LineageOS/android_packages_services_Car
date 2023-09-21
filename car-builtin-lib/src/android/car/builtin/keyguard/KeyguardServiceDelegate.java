@@ -20,17 +20,13 @@ import static android.os.PowerManager.GO_TO_SLEEP_REASON_POWER_BUTTON;
 import static android.os.PowerManager.WAKE_REASON_POWER_BUTTON;
 
 import android.annotation.NonNull;
-import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
-import android.car.builtin.annotation.AddedIn;
-import android.car.builtin.annotation.PlatformVersion;
 import android.car.builtin.util.Slogf;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Resources;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -139,8 +135,6 @@ public final class KeyguardServiceDelegate {
     /**
      * Binds to the KeyguardService for a particular user and display(s).
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void bindService(Context context, UserHandle userHandle, int[] displays) {
         if (DBG) {
             Slogf.v(TAG, "bindService for user=%d, displays=%s", userHandle.getIdentifier(),
@@ -170,8 +164,6 @@ public final class KeyguardServiceDelegate {
     /**
      * Unbinds the currently bound KeyguardService.
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void stop(Context context) {
         try {
             context.unbindService(mKeyguardConnection);
@@ -184,8 +176,6 @@ public final class KeyguardServiceDelegate {
      * Returns whether Keyguard is showing for this delegate. If Keyguard is not bound, return true
      * to assume the most secure state.
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public boolean isShowing() {
         if (mKeyguardStateMonitor == null) {
             if (DBG) {
@@ -203,8 +193,6 @@ public final class KeyguardServiceDelegate {
     /**
      * Register a KeyguardLockedStateCallback for this delegate.
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void registerKeyguardLockedStateCallback(
             @NonNull KeyguardLockedStateCallback callback) {
         synchronized (mLock) {
@@ -217,8 +205,6 @@ public final class KeyguardServiceDelegate {
     /**
      * Unregister a KeyguardLockedStateCallback from this delegate.
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void unregisterKeyguardLockedStateCallback() {
         synchronized (mLock) {
             Preconditions.checkNotNull(mLockedStateCallback,
@@ -230,8 +216,6 @@ public final class KeyguardServiceDelegate {
     /**
      * Notify Keyguard of a display on event.
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void notifyDisplayOn() {
         if (mKeyguardService == null) {
             Slogf.w(TAG, "onDisplayOn - null KeyguardService");
@@ -254,8 +238,6 @@ public final class KeyguardServiceDelegate {
     /**
      * Notify Keyguard of a display off event.
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void notifyDisplayOff() {
         if (mKeyguardService == null) {
             Slogf.w(TAG, "onDisplayOff - null KeyguardService");
@@ -278,8 +260,6 @@ public final class KeyguardServiceDelegate {
     /**
      * Dump the KeyguardServiceDelegate state
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void dump(PrintWriter writer) {
         writer.println("*KeyguardServiceDelegate*");
         writer.println("Keyguard service connected = " + (mKeyguardService != null));
@@ -295,8 +275,6 @@ public final class KeyguardServiceDelegate {
         /**
          * Callback function that executes when the keyguard locked state changes.
          */
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-        @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
         void onKeyguardLockedStateChanged(boolean isKeyguardLocked);
     }
 }

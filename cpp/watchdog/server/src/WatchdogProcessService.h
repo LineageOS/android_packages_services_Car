@@ -63,7 +63,7 @@ public:
     virtual android::base::Result<void> start() = 0;
     virtual void terminate() = 0;
     virtual void onDump(int fd) = 0;
-    virtual void onDumpProto(util::ProtoOutputStream& proto) = 0;
+    virtual void onDumpProto(android::util::ProtoOutputStream& outProto) = 0;
     virtual void doHealthCheck(int what) = 0;
     virtual void handleBinderDeath(void* cookie) = 0;
     virtual ndk::ScopedAStatus registerClient(
@@ -121,7 +121,7 @@ public:
     android::base::Result<void> start() override;
     void terminate() override;
     void onDump(int fd) override;
-    void onDumpProto(util::ProtoOutputStream& proto) override;
+    void onDumpProto(util::ProtoOutputStream& outProto) override;
     void doHealthCheck(int what) override;
     void handleBinderDeath(void* cookie) override;
     ndk::ScopedAStatus registerClient(
@@ -171,8 +171,8 @@ private:
     public:
         ClientInfo(const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient>&
                            client,
-                   pid_t pid, userid_t userId, std::string packageName, uint64_t startTimeMillis,
-                   const WatchdogProcessService& service) :
+                   pid_t pid, userid_t userId, const std::string& packageName,
+                   uint64_t startTimeMillis, const WatchdogProcessService& service) :
               kPid(pid),
               kUserId(userId),
               kPackageName(packageName),
@@ -182,7 +182,7 @@ private:
               kClient(client) {}
         ClientInfo(const android::sp<WatchdogServiceHelperInterface>& helper,
                    const ndk::SpAIBinder& binder, pid_t pid, userid_t userId,
-                   std::string packageName, uint64_t startTimeMillis,
+                   const std::string& packageName, uint64_t startTimeMillis,
                    const WatchdogProcessService& service) :
               kPid(pid),
               kUserId(userId),

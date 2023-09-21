@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -40,20 +39,14 @@ public class CruiseControlState {
      * can use this field to remain backwards compatible if {@code CruiseControlState} is extended
      * to include additional states.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int OTHER = 0;
     /**
      * CC is enabled, but the ADAS system is not actively controlling the vehicle's speed.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int ENABLED = 1;
     /**
      * CC is enabled and activated, so the ADAS system is actively controlling the vehicle's speed.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int ACTIVATED = 2;
     /**
      * Most CC implementations allow the driver to override CC. This means that the car has
@@ -62,8 +55,6 @@ public class CruiseControlState {
      * done for safety reasons and to ensure that the driver can always take control of the vehicle.
      * This state will be set when the user is actively overriding the CC system.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int USER_OVERRIDE = 3;
     /**
      * Suspended state indicates CC is enabled and was activated, but now is suspended. This could
@@ -73,8 +64,6 @@ public class CruiseControlState {
      * target speed and/or target time gap settings in case CC is resumed. This state can also be
      * used when adaptive/predictive CC slows to a stop and needs a user signal to start again.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int SUSPENDED = 4;
     /**
      * When CC is in the {@link #ACTIVATED} state but may potentially need to deactivate because of
@@ -83,8 +72,6 @@ public class CruiseControlState {
      * attention), then the ADAS system will notify the driver of a potential need to deactivate and
      * give control back to the driver.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int FORCED_DEACTIVATION_WARNING = 5;
 
     private CruiseControlState() {}
@@ -93,8 +80,6 @@ public class CruiseControlState {
      * Returns a user-friendly representation of a {@code CruiseControlState}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(
             @CruiseControlState.CruiseControlStateInt int cruiseControlState) {
         switch (cruiseControlState) {

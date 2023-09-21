@@ -32,7 +32,6 @@ import android.app.ActivityManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.SyncResultCallback;
-import android.car.test.ApiCheckerRule.Builder;
 import android.car.test.util.AndroidHelper;
 import android.car.test.util.UserTestingHelper;
 import android.car.testapi.BlockingUserLifecycleListener;
@@ -101,12 +100,6 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
 
     // Guard to avoid test failure on @After when @Before failed (as it would hide the real issue)
     private boolean mSetupFinished;
-
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        builder.disableAnnotationsCheck();
-    }
 
     @Before
     public final void setMultiUserFixtures() throws Exception {
@@ -191,7 +184,7 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
                 Log.i(TAG, "removing users at end of " + getTestName() + ": " + mUsersToRemove);
                 for (Integer userId : mUsersToRemove) {
                     if (hasUser(userId)) {
-                        removeUser(userId);
+                        mUserManager.removeUser(userId);
                     }
                 }
             } else {

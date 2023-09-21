@@ -21,7 +21,6 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.AddedInOrBefore;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -40,7 +39,6 @@ import java.util.Objects;
  */
 @SystemApi
 public final class WearEstimateChange implements Parcelable {
-    @AddedInOrBefore(majorVersion = 33)
     public static final Parcelable.Creator<WearEstimateChange> CREATOR =
             new Parcelable.Creator<WearEstimateChange>() {
         public WearEstimateChange createFromParcel(Parcel in) {
@@ -55,31 +53,26 @@ public final class WearEstimateChange implements Parcelable {
     /**
      * The previous wear estimate.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public final @NonNull WearEstimate oldEstimate;
 
     /**
      * The new wear estimate.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public final @NonNull WearEstimate newEstimate;
 
     /**
      * Total CarService uptime when this change was detected.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public final long uptimeAtChange;
 
     /**
      * Wall-clock time when this change was detected.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public final @NonNull Instant dateAtChange;
 
     /**
      * Whether this change was within the vendor range for acceptable flash degradation.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public final boolean isAcceptableDegradation;
 
     public WearEstimateChange(WearEstimate oldEstimate,
@@ -109,13 +102,11 @@ public final class WearEstimateChange implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(oldEstimate, flags);
         dest.writeParcelable(newEstimate, flags);

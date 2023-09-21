@@ -19,7 +19,12 @@
     <string name="status_header" translatable="false"><u>Current Status</u></string>
     <string name="driving_state" translatable="false">Driving State: </string>
     <string name="is_do_reqd" translatable="false">Distraction Optimization Required? </string>
-    <string name="active_restrictions" translatable="false">Active UX Restrictions: </string>
+    <string name="do_reqd" translatable="false">Requires Distraction Optimization </string>
+    <string name="do_not_reqd" translatable="false">No Distraction Optimization required </string>
+    <string name="active_restrictions" translatable="false">Active UX Restrictions: 0x%s - %s</string>
+    <string name="active_restriction_parameters_string_length" translatable="false">UX Restriction Parameters Max String: %d</string>
+    <string name="active_restriction_parameters_content_depth" translatable="false">UX Restriction Parameters Max Content Depth: %d</string>
+    <string name="active_restriction_parameters_cumulative_content" translatable="false">UX Restriction Parameters Max Cumulative Content: %d</string>
     <string name="uxr_config_header" translatable="false">UxR Configuration: </string>
     <string name="action_header" translatable="false"><u>Available Actions</u></string>
     <string name="disable_uxr" translatable="false">Disable Ux Restriction Engine</string>

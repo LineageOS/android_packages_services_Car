@@ -18,8 +18,20 @@ package com.google.android.car.kitchensink;
 import static com.google.android.car.kitchensink.KitchenSinkActivity.MENU_ENTRIES;
 
 import android.annotation.Nullable;
+import android.car.Car;
+import android.car.CarOccupantZoneManager;
+import android.car.CarProjectionManager;
 import android.car.drivingstate.CarUxRestrictions;
+import android.car.hardware.CarSensorManager;
+import android.car.hardware.hvac.CarHvacManager;
+import android.car.hardware.power.CarPowerManager;
+import android.car.hardware.property.CarPropertyManager;
+import android.car.os.CarPerformanceManager;
+import android.car.telemetry.CarTelemetryManager;
+import android.car.watchdog.CarWatchdogManager;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
@@ -39,19 +51,35 @@ import com.android.car.ui.toolbar.NavButtonMode;
 import com.android.car.ui.toolbar.SearchMode;
 import com.android.car.ui.toolbar.ToolbarController;
 
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 
-// TODO: b/293660419 - Add CLI support i.e. onNewIntent and dump()
-public class KitchenSink2Activity extends FragmentActivity {
+public class KitchenSink2Activity extends FragmentActivity implements KitchenSinkHelper {
     static final String TAG = KitchenSink2Activity.class.getName();
+    private static final String LAST_FRAGMENT_TAG = "lastFragmentTag";
     private static final String PREFERENCES_NAME = "fragment_item_prefs";
     private static final String KEY_PINNED_ITEMS_LIST = "key_pinned_items_list";
+    private static final String KEY_COLLAPSE_STATE = "key_collapse_state";
     private static final String DELIMITER = "::"; // A unique delimiter
     @Nullable
     private Fragment mLastFragment;
+    private int mNotificationId = 1000;
     private static final int NO_INDEX = -1;
+    private Car mCarApi;
+    private CarHvacManager mHvacManager;
+    private CarOccupantZoneManager mOccupantZoneManager;
+    private CarPowerManager mPowerManager;
+    private CarPropertyManager mPropertyManager;
+    private CarSensorManager mSensorManager;
+    private CarProjectionManager mCarProjectionManager;
+    private CarTelemetryManager mCarTelemetryManager;
+    private CarWatchdogManager mCarWatchdogManager;
+    private CarPerformanceManager mCarPerformanceManager;
     private static final String EMPTY_STRING = "";
     private HighlightableAdapter mAdapter;
     private final FragmentItemClickHandler mItemClickHandler = new FragmentItemClickHandler();
@@ -67,13 +95,17 @@ public class KitchenSink2Activity extends FragmentActivity {
     private List<FragmentListItem> mFilteredData;
     private boolean mIsSinglePane = false;
     private ToolbarController mGlobalToolbar, mMiniToolbar;
-    private View mMenuContainer;
+    private View mWrapper;
     private CarUiRecyclerView mRV;
     private CharSequence mLastFragmentTitle;
     private MenuItem mFavButton;
+    private MenuItem mCollapsibleButton;
     private boolean mIsSearching;
     private int mPinnedItemsCount;
     private SharedPreferences mSharedPreferences;
+    public static final String DUMP_ARG_CMD = "cmd";
+    public static final String DUMP_ARG_FRAGMENT = "fragment";
+    public static final String DUMP_ARG_QUIET = "quiet";
 
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
@@ -129,8 +161,14 @@ public class KitchenSink2Activity extends FragmentActivity {
         mSharedPreferences = getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE);
 
         setContentView(R.layout.activity_2pane);
-        mMenuContainer = findViewById(R.id.top_level_menu_container);
+        // Connection to Car Service does not work for non-automotive yet.
+        if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
+            initCarApi();
+        }
+
         mRV = findViewById(R.id.list_pane);
+        mWrapper = findViewById(R.id.wrapper);
+        mWrapper.setVisibility(mSharedPreferences.getInt(KEY_COLLAPSE_STATE, View.VISIBLE));
 
         setUpToolbars();
 
@@ -139,8 +177,9 @@ public class KitchenSink2Activity extends FragmentActivity {
         mAdapter = new HighlightableAdapter(this, mFilteredData, mRV);
         mRV.setAdapter(mAdapter);
 
-        // showing Default
+        // showing intent or default
         showDefaultFragment();
+        onNewIntent(getIntent());
     }
 
     private void setUpToolbars() {
@@ -191,7 +230,16 @@ public class KitchenSink2Activity extends FragmentActivity {
                 .setOnClickListener(i -> onFavClicked())
                 .setUxRestrictions(CarUxRestrictions.UX_RESTRICTIONS_NO_KEYBOARD)
                 .build();
-        mMiniToolbar.setMenuItems(List.of(mFavButton));
+
+        mCollapsibleButton = new MenuItem.Builder(this)
+                .setOnClickListener(i -> toggleMenuWrapper())
+                .setUxRestrictions(CarUxRestrictions.UX_RESTRICTIONS_NO_KEYBOARD)
+                .setIcon(mWrapper.getVisibility() == View.GONE
+                        ? R.drawable.ic_left_panel_open
+                        : R.drawable.ic_left_panel_close)
+                .build();
+
+        mMiniToolbar.setMenuItems(List.of(mFavButton, mCollapsibleButton));
         mMiniToolbar.setNavButtonMode(NavButtonMode.BACK);
     }
 
@@ -288,6 +336,25 @@ public class KitchenSink2Activity extends FragmentActivity {
         }
     }
 
+    private void toggleMenuWrapper() {
+        if (mWrapper.getVisibility() == View.VISIBLE) {
+            mWrapper.setVisibility(View.GONE);
+            mCollapsibleButton.setIcon(R.drawable.ic_left_panel_open);
+        } else {
+            mWrapper.setVisibility(View.VISIBLE);
+            mCollapsibleButton.setIcon(R.drawable.ic_left_panel_close);
+        }
+    }
+
+    private void saveVisibilityState() {
+        if (mSharedPreferences == null) {
+            mSharedPreferences = getSharedPreferences(PREFERENCES_NAME, MODE_PRIVATE);
+        }
+        mSharedPreferences.edit()
+                .putInt(KEY_COLLAPSE_STATE, mWrapper.getVisibility())
+                .apply();
+    }
+
     List<FragmentListItem> getProcessedData() {
 
         List<String> pinnedTitles = getPinnedTitlesFromPrefs();
@@ -337,6 +404,30 @@ public class KitchenSink2Activity extends FragmentActivity {
     protected void onPause() {
         super.onPause();
         savePinnedItemsToPreferences();
+        saveVisibilityState();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(LAST_FRAGMENT_TAG, mLastFragmentTitle.toString());
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        // The app is being started for the first time.
+        if (savedInstanceState == null) {
+            return;
+        }
+
+        // The app is being reloaded, restores the last fragment UI.
+        mLastFragmentTitle = savedInstanceState.getString(LAST_FRAGMENT_TAG, "");
+        if (mLastFragmentTitle.isEmpty()) {
+            showDefaultFragment();
+        } else {
+            onFragmentItemClick(getFragmentIndexFromTitle(mLastFragmentTitle.toString()));
+        }
     }
 
     private void savePinnedItemsToPreferences() {
@@ -355,8 +446,179 @@ public class KitchenSink2Activity extends FragmentActivity {
             sb.setLength(sb.length() - DELIMITER.length());
         }
 
-        editor.putString(KEY_PINNED_ITEMS_LIST, sb.toString().toLowerCase());
+        editor.putString(KEY_PINNED_ITEMS_LIST, sb.toString().toLowerCase(Locale.US));
         editor.apply();
+    }
+
+
+    private void initCarApi() {
+        if (mCarApi == null || !mCarApi.isConnected()) {
+            mCarApi = Car.createCar(this);
+        }
+    }
+
+    @Override
+    public Car getCar() {
+        return mCarApi;
+    }
+
+    public CarHvacManager getHvacManager() {
+        if (mHvacManager == null) {
+            mHvacManager = (CarHvacManager) mCarApi.getCarManager(android.car.Car.HVAC_SERVICE);
+        }
+        return mHvacManager;
+    }
+
+    public CarOccupantZoneManager getOccupantZoneManager() {
+        if (mOccupantZoneManager == null) {
+            mOccupantZoneManager = (CarOccupantZoneManager) mCarApi.getCarManager(
+                    android.car.Car.CAR_OCCUPANT_ZONE_SERVICE);
+        }
+        return mOccupantZoneManager;
+    }
+
+    public CarPowerManager getPowerManager() {
+        if (mPowerManager == null) {
+            mPowerManager = (CarPowerManager) mCarApi.getCarManager(
+                    android.car.Car.POWER_SERVICE);
+        }
+        return mPowerManager;
+    }
+
+    public CarPropertyManager getPropertyManager() {
+        if (mPropertyManager == null) {
+            mPropertyManager = (CarPropertyManager) mCarApi.getCarManager(
+                    android.car.Car.PROPERTY_SERVICE);
+        }
+        return mPropertyManager;
+    }
+
+    public CarSensorManager getSensorManager() {
+        if (mSensorManager == null) {
+            mSensorManager = (CarSensorManager) mCarApi.getCarManager(
+                    android.car.Car.SENSOR_SERVICE);
+        }
+        return mSensorManager;
+    }
+
+    public CarProjectionManager getProjectionManager() {
+        if (mCarProjectionManager == null) {
+            mCarProjectionManager =
+                    (CarProjectionManager) mCarApi.getCarManager(Car.PROJECTION_SERVICE);
+        }
+        return mCarProjectionManager;
+    }
+
+    public CarTelemetryManager getCarTelemetryManager() {
+        if (mCarTelemetryManager == null) {
+            mCarTelemetryManager =
+                    (CarTelemetryManager) mCarApi.getCarManager(Car.CAR_TELEMETRY_SERVICE);
+        }
+        return mCarTelemetryManager;
+    }
+
+    public CarWatchdogManager getCarWatchdogManager() {
+        if (mCarWatchdogManager == null) {
+            mCarWatchdogManager =
+                    (CarWatchdogManager) mCarApi.getCarManager(Car.CAR_WATCHDOG_SERVICE);
+        }
+        return mCarWatchdogManager;
+    }
+
+    public CarPerformanceManager getPerformanceManager() {
+        if (mCarPerformanceManager == null) {
+            mCarPerformanceManager =
+                    (CarPerformanceManager) mCarApi.getCarManager(Car.CAR_PERFORMANCE_SERVICE);
+        }
+        return mCarPerformanceManager;
+    }
+
+    /* Open any tab directly:
+     * adb shell am force-stop com.google.android.car.kitchensink
+     * adb shell am 'start -n com.google.android.car.kitchensink/.KitchenSink2Activity --es select
+     *  "connectivity"'
+     *-ee
+     * Test car watchdog:
+     * adb shell am force-stop com.google.android.car.kitchensink
+     * adb shell am start -n com.google.android.car.kitchensink/.KitchenSink2Activity \
+     *     --es "watchdog" "[timeout] [not_respond_after] [inactive_main_after] [verbose]"
+     * - timeout: critical | moderate | normal
+     * - not_respond_after: after the given seconds, the client will not respond to car watchdog
+     *                      (-1 for making the client respond always)
+     * - inactive_main_after: after the given seconds, the main thread will not be responsive
+     *                        (-1 for making the main thread responsive always)
+     * - verbose: whether to output verbose logs (default: false)
+     */
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.d(TAG, "onNewIntent");
+        Bundle extras = intent.getExtras();
+        if (extras == null) {
+            return;
+        }
+        String watchdog = extras.getString("watchdog");
+        if (watchdog != null) {
+            CarWatchdogClient.start(getCar(), watchdog);
+        }
+        String select = extras.getString("select", "");
+        Log.d(TAG, "Trying to launch entry: " + select);
+        int fragmentItemIndex = getOriginalIndexFromTitle(select, 0, false);
+        onFragmentItemClick(fragmentItemIndex);
+    }
+
+    @Override
+    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+        boolean skipParentState = false;
+        if (args != null && args.length > 0) {
+            Log.v(TAG, "dump: args=" + Arrays.toString(args));
+            String arg = args[0];
+            switch (arg) {
+                case DUMP_ARG_CMD:
+                    String[] cmdArgs = new String[args.length - 1];
+                    System.arraycopy(args, 1, cmdArgs, 0, args.length - 1);
+                    new KitchenSinkShellCommand(this, writer, cmdArgs, mNotificationId++).run();
+                    return;
+                case DUMP_ARG_FRAGMENT:
+                    if (args.length < 2) {
+                        writer.println("Missing fragment name");
+                        return;
+                    }
+                    String select = args[1];
+                    Optional<FragmentListItem> entry = mData.stream()
+                            .filter(me -> select.equals(
+                                    me.getTitle().getPreferredText().toString())).findAny();
+                    if (entry.isPresent()) {
+                        String[] strippedArgs = new String[args.length - 2];
+                        System.arraycopy(args, 2, strippedArgs, 0, strippedArgs.length);
+                        entry.get().dump(prefix, fd, writer, strippedArgs);
+                    } else {
+                        writer.printf("No entry called '%s'\n", select);
+                    }
+                    return;
+                case DUMP_ARG_QUIET:
+                    skipParentState = true;
+                    break;
+                default:
+                    Log.v(TAG, "dump(): unknown arg, calling super(): " + Arrays.toString(args));
+            }
+        }
+        String innerPrefix = prefix;
+        if (!skipParentState) {
+            writer.printf("%sCustom state:\n", prefix);
+            innerPrefix = prefix + prefix;
+        }
+        writer.printf("%smLastFragmentTag: %s\n", innerPrefix, mLastFragmentTitle);
+        writer.printf("%smLastFragment: %s\n", innerPrefix, mLastFragment);
+        writer.printf("%sNext Notification Id: %d\n", innerPrefix, mNotificationId);
+
+        if (skipParentState) {
+            Log.v(TAG, "dump(): skipping parent state");
+            return;
+        }
+        writer.println();
+
+        super.dump(prefix, fd, writer, args);
     }
 
     private class FragmentItemClickHandler implements CarUiContentListItem.OnClickListener {

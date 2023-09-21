@@ -17,7 +17,6 @@ package android.car.media;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
@@ -31,8 +30,6 @@ import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
-import android.car.annotation.AddedInOrBefore;
-import android.car.annotation.ApiRequirements;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
@@ -88,7 +85,6 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @AddedInOrBefore(majorVersion = 33)
     public static final int PRIMARY_AUDIO_ZONE = 0x0;
 
     /**
@@ -96,14 +92,12 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @AddedInOrBefore(majorVersion = 33)
     public static final int INVALID_AUDIO_ZONE = 0xffffffff;
 
     /**
      * This is used to determine if dynamic routing is enabled via
      * {@link #isAudioFeatureEnabled(int)}
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int AUDIO_FEATURE_DYNAMIC_ROUTING = 1;
 
     /**
@@ -115,7 +109,6 @@ public final class CarAudioManager extends CarManagerBase {
      * also car volume group muting changed callback will be called upon group mute changes. If
      * disabled, car volume will toggle master mute instead.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int AUDIO_FEATURE_VOLUME_GROUP_MUTING = 2;
 
     /**
@@ -125,8 +118,6 @@ public final class CarAudioManager extends CarManagerBase {
      * <p>If enabled, car audio focus, car audio volume, and ducking control behaviour can change
      * as it can be OEM dependent.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int AUDIO_FEATURE_OEM_AUDIO_SERVICE = 3;
 
     /**
@@ -137,8 +128,6 @@ public final class CarAudioManager extends CarManagerBase {
      * to volume, mute, attenuation.
      * If disabled, the register/unregister APIs will return {@code false}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int AUDIO_FEATURE_VOLUME_GROUP_EVENTS = 4;
 
     /**
@@ -153,8 +142,6 @@ public final class CarAudioManager extends CarManagerBase {
      * {@code getMirrorAudioZonesForAudioZone(int)},
      * {@code getMirrorAudioZonesForMirrorRequest(long)}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int AUDIO_FEATURE_AUDIO_MIRRORING = 5;
 
     /** @hide */
@@ -172,7 +159,6 @@ public final class CarAudioManager extends CarManagerBase {
      * Volume Group ID when volume group not found.
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int INVALID_VOLUME_GROUP_ID = -1;
 
     /**
@@ -181,8 +167,6 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final long INVALID_REQUEST_ID = -1;
 
     /**
@@ -195,7 +179,6 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @AddedInOrBefore(majorVersion = 33)
     public static final String AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS =
             "android.car.media.AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS";
 
@@ -208,7 +191,6 @@ public final class CarAudioManager extends CarManagerBase {
      *
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final String AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID =
             "android.car.media.AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID";
 
@@ -217,8 +199,6 @@ public final class CarAudioManager extends CarManagerBase {
      *
      * @hide
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @SystemApi
     public static final int AUDIO_REQUEST_STATUS_APPROVED = 1;
 
@@ -227,8 +207,6 @@ public final class CarAudioManager extends CarManagerBase {
      *
      * @hide
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @SystemApi
     public static final int AUDIO_REQUEST_STATUS_REJECTED = 2;
 
@@ -237,8 +215,6 @@ public final class CarAudioManager extends CarManagerBase {
      *
      * @hide
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @SystemApi
     public static final int AUDIO_REQUEST_STATUS_CANCELLED = 3;
 
@@ -247,8 +223,6 @@ public final class CarAudioManager extends CarManagerBase {
      *
      * @hide
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @SystemApi
     public static final int AUDIO_REQUEST_STATUS_STOPPED = 4;
 
@@ -268,8 +242,6 @@ public final class CarAudioManager extends CarManagerBase {
      *
      * @hide
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @SystemApi
     public static final int AUDIO_MIRROR_INTERNAL_ERROR = -1;
 
@@ -279,8 +251,6 @@ public final class CarAudioManager extends CarManagerBase {
      *
      * @hide
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @SystemApi
     public static final int AUDIO_MIRROR_CAN_ENABLE = 1;
 
@@ -291,8 +261,6 @@ public final class CarAudioManager extends CarManagerBase {
      *
      * @hide
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @SystemApi
     public static final int AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES = 2;
 
@@ -409,7 +377,6 @@ public final class CarAudioManager extends CarManagerBase {
     @TestApi
     @Deprecated
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isDynamicRoutingEnabled() {
         return isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING);
     }
@@ -422,7 +389,6 @@ public final class CarAudioManager extends CarManagerBase {
      *                     {@link #AUDIO_FEATURE_VOLUME_GROUP_EVENTS}
      * @return Returns {@code true} if the feature is enabled, {@code false} otherwise.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isAudioFeatureEnabled(@CarAudioFeature int audioFeature) {
         try {
             return mService.isAudioFeatureEnabled(audioFeature);
@@ -439,7 +405,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @AddedInOrBefore(majorVersion = 33)
     public void setGroupVolume(int groupId, int index, int flags) {
         setGroupVolume(PRIMARY_AUDIO_ZONE, groupId, index, flags);
     }
@@ -457,7 +422,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @AddedInOrBefore(majorVersion = 33)
     public void setGroupVolume(int zoneId, int groupId, int index, int flags) {
         try {
             mService.setGroupVolume(zoneId, groupId, index, flags);
@@ -474,7 +438,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @AddedInOrBefore(majorVersion = 33)
     public int getGroupMaxVolume(int groupId) {
         return getGroupMaxVolume(PRIMARY_AUDIO_ZONE, groupId);
     }
@@ -489,7 +452,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @AddedInOrBefore(majorVersion = 33)
     public int getGroupMaxVolume(int zoneId, int groupId) {
         try {
             return mService.getGroupMaxVolume(zoneId, groupId);
@@ -506,7 +468,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @AddedInOrBefore(majorVersion = 33)
     public int getGroupMinVolume(int groupId) {
         return getGroupMinVolume(PRIMARY_AUDIO_ZONE, groupId);
     }
@@ -521,7 +482,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @AddedInOrBefore(majorVersion = 33)
     public int getGroupMinVolume(int zoneId, int groupId) {
         try {
             return mService.getGroupMinVolume(zoneId, groupId);
@@ -538,7 +498,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @AddedInOrBefore(majorVersion = 33)
     public int getGroupVolume(int groupId) {
         return getGroupVolume(PRIMARY_AUDIO_ZONE, groupId);
     }
@@ -556,7 +515,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @AddedInOrBefore(majorVersion = 33)
     public int getGroupVolume(int zoneId, int groupId) {
         try {
             return mService.getGroupVolume(zoneId, groupId);
@@ -578,7 +536,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @AddedInOrBefore(majorVersion = 33)
     public void setFadeTowardFront(float value) {
         try {
             mService.setFadeTowardFront(value);
@@ -600,7 +557,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @AddedInOrBefore(majorVersion = 33)
     public void setBalanceTowardRight(float value) {
         try {
             mService.setBalanceTowardRight(value);
@@ -628,7 +584,6 @@ public final class CarAudioManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     @Deprecated
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public @NonNull String[] getExternalSources() {
         try {
             return mService.getExternalSources();
@@ -663,7 +618,6 @@ public final class CarAudioManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     @Deprecated
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public CarAudioPatchHandle createAudioPatch(String sourceAddress, @AttributeUsage int usage,
             int gainInMillibels) {
         try {
@@ -689,7 +643,6 @@ public final class CarAudioManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     @Deprecated
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public void releaseAudioPatch(CarAudioPatchHandle patch) {
         try {
             mService.releaseAudioPatch(patch);
@@ -706,7 +659,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @AddedInOrBefore(majorVersion = 33)
     public int getVolumeGroupCount() {
         return getVolumeGroupCount(PRIMARY_AUDIO_ZONE);
     }
@@ -720,7 +672,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @AddedInOrBefore(majorVersion = 33)
     public int getVolumeGroupCount(int zoneId) {
         try {
             return mService.getVolumeGroupCount(zoneId);
@@ -737,7 +688,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @AddedInOrBefore(majorVersion = 33)
     public int getVolumeGroupIdForUsage(@AttributeUsage int usage) {
         return getVolumeGroupIdForUsage(PRIMARY_AUDIO_ZONE, usage);
     }
@@ -752,7 +702,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @AddedInOrBefore(majorVersion = 33)
     public int getVolumeGroupIdForUsage(int zoneId, @AttributeUsage int usage) {
         try {
             return mService.getVolumeGroupIdForUsage(zoneId, usage);
@@ -769,7 +718,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @AddedInOrBefore(majorVersion = 33)
     public @NonNull int[] getUsagesForVolumeGroupId(int groupId) {
         return getUsagesForVolumeGroupId(PRIMARY_AUDIO_ZONE, groupId);
     }
@@ -789,8 +737,6 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
     @Nullable
     public CarVolumeGroupInfo getVolumeGroupInfo(int zoneId, int groupId) {
@@ -815,8 +761,6 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
     @NonNull
     public List<CarVolumeGroupInfo> getVolumeGroupInfosForZone(int zoneId) {
@@ -838,8 +782,6 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
     @NonNull
     public List<AudioAttributes> getAudioAttributesForVolumeGroup(
@@ -861,7 +803,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @AddedInOrBefore(majorVersion = 33)
     public @NonNull int[] getUsagesForVolumeGroupId(int zoneId, int groupId) {
         try {
             return mService.getUsagesForVolumeGroupId(zoneId, groupId);
@@ -881,7 +822,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isPlaybackOnVolumeGroupActive(int zoneId, int groupId) {
         try {
             return mService.isPlaybackOnVolumeGroupActive(zoneId, groupId);
@@ -905,12 +845,9 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     @Nullable
     public CarAudioZoneConfigInfo getCurrentAudioZoneConfigInfo(int zoneId) {
-        assertPlatformVersionAtLeastU();
         try {
             return mService.getCurrentAudioZoneConfigInfo(zoneId);
         } catch (RemoteException e) {
@@ -934,12 +871,9 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     @NonNull
     public List<CarAudioZoneConfigInfo> getAudioZoneConfigInfos(int zoneId) {
-        assertPlatformVersionAtLeastU();
         try {
             return mService.getAudioZoneConfigInfos(zoneId);
         } catch (RemoteException e) {
@@ -968,13 +902,10 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public void switchAudioZoneToConfig(@NonNull CarAudioZoneConfigInfo zoneConfig,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull SwitchAudioZoneConfigCallback callback) {
-        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(zoneConfig, "Audio zone configuration can not be null");
         Objects.requireNonNull(executor, "Executor can not be null");
         Objects.requireNonNull(callback,
@@ -996,7 +927,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
-    @AddedInOrBefore(majorVersion = 33)
     public @NonNull List<Integer> getAudioZoneIds() {
         try {
             return asList(mService.getAudioZoneIds());
@@ -1014,7 +944,6 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
-    @AddedInOrBefore(majorVersion = 33)
     public int getZoneIdForUid(int uid) {
         try {
             return mService.getZoneIdForUid(uid);
@@ -1032,7 +961,6 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
-    @AddedInOrBefore(majorVersion = 33)
     public boolean setZoneIdForUid(int zoneId, int uid) {
         try {
             return mService.setZoneIdForUid(zoneId, uid);
@@ -1050,7 +978,6 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
-    @AddedInOrBefore(majorVersion = 33)
     public boolean clearZoneIdForUid(int uid) {
         try {
             return mService.clearZoneIdForUid(uid);
@@ -1073,13 +1000,10 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public boolean setPrimaryZoneMediaAudioRequestCallback(
             @NonNull @CallbackExecutor Executor executor,
             @NonNull PrimaryZoneMediaAudioRequestCallback callback) {
-        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(executor, "Executor can not be null");
         Objects.requireNonNull(callback, "Audio media request callback can not be null");
         synchronized (mLock) {
@@ -1113,11 +1037,8 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public void clearPrimaryZoneMediaAudioRequestCallback() {
-        assertPlatformVersionAtLeastU();
         synchronized (mLock) {
             if (mPrimaryZoneMediaAudioRequestCallback == null) {
                 return;
@@ -1147,11 +1068,8 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public boolean cancelMediaAudioOnPrimaryZone(long requestId) {
-        assertPlatformVersionAtLeastU();
         try {
             if (removeMediaRequestCallback(requestId)) {
                 return mService.cancelMediaAudioOnPrimaryZone(requestId);
@@ -1183,13 +1101,10 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public long requestMediaAudioOnPrimaryZone(@NonNull OccupantZoneInfo info,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull MediaAudioRequestStatusCallback callback) {
-        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(info, "Occupant zone info can not be null");
         Objects.requireNonNull(executor, "Executor can not be null");
         Objects.requireNonNull(callback, "Media audio request status callback can not be null");
@@ -1230,11 +1145,8 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public boolean allowMediaAudioOnPrimaryZone(long requestId, boolean allow) {
-        assertPlatformVersionAtLeastU();
         synchronized (mLock) {
             if (mPrimaryZoneMediaAudioRequestCallback == null) {
                 throw new IllegalStateException("Primary zone media audio request callback must be "
@@ -1261,11 +1173,8 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public boolean resetMediaAudioOnPrimaryZone(@NonNull OccupantZoneInfo info) {
-        assertPlatformVersionAtLeastU();
         try {
             return mService.resetMediaAudioOnPrimaryZone(info);
         } catch (RemoteException e) {
@@ -1283,11 +1192,8 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public boolean isMediaAudioAllowedInPrimaryZone(@NonNull OccupantZoneInfo info) {
-        assertPlatformVersionAtLeastU();
         try {
             return mService.isMediaAudioAllowedInPrimaryZone(info);
         } catch (RemoteException e) {
@@ -1313,12 +1219,9 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public boolean setAudioZoneMirrorStatusCallback(@NonNull @CallbackExecutor Executor executor,
             @NonNull AudioZonesMirrorStatusCallback callback) {
-        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(executor, "Executor can not be null");
         Objects.requireNonNull(callback, "Audio zones mirror status callback can not be null");
 
@@ -1375,11 +1278,8 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public void clearAudioZonesMirrorStatusCallback() {
-        assertPlatformVersionAtLeastU();
         AudioZonesMirrorStatusCallbackWrapper wrapper;
 
         synchronized (mLock) {
@@ -1413,11 +1313,8 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public @AudioMirrorStatus int canEnableAudioMirror() {
-        assertPlatformVersionAtLeastU();
         try {
             return mService.canEnableAudioMirror();
         } catch (RemoteException e) {
@@ -1449,11 +1346,8 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public long enableMirrorForAudioZones(@NonNull List<Integer> audioZonesToMirror) {
-        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(audioZonesToMirror, "Audio zones to mirror should not be null");
 
         try {
@@ -1490,11 +1384,8 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public void extendAudioMirrorRequest(long mirrorId, @NonNull List<Integer> audioZonesToMirror) {
-        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(audioZonesToMirror, "Audio zones to mirror should not be null");
 
         try {
@@ -1526,11 +1417,8 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public void disableAudioMirrorForZone(int zoneId) {
-        assertPlatformVersionAtLeastU();
         try {
             mService.disableAudioMirrorForZone(zoneId);
         } catch (RemoteException e) {
@@ -1555,11 +1443,8 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public void disableAudioMirror(long mirrorId) {
-        assertPlatformVersionAtLeastU();
         try {
             mService.disableAudioMirror(mirrorId);
         } catch (RemoteException e) {
@@ -1586,11 +1471,8 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public List<Integer> getMirrorAudioZonesForAudioZone(int zoneId) {
-        assertPlatformVersionAtLeastU();
         try {
             return asList(mService.getMirrorAudioZonesForAudioZone(zoneId));
         } catch (RemoteException e) {
@@ -1614,11 +1496,8 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public List<Integer> getMirrorAudioZonesForMirrorRequest(long mirrorId) {
-        assertPlatformVersionAtLeastU();
         try {
             return asList(mService.getMirrorAudioZonesForMirrorRequest(mirrorId));
         } catch (RemoteException e) {
@@ -1645,7 +1524,6 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @Nullable
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
-    @AddedInOrBefore(majorVersion = 33)
     public AudioDeviceInfo getOutputDeviceForUsage(int zoneId, @AttributeUsage int usage) {
         try {
             String deviceAddress = mService.getOutputDeviceAddressForUsage(zoneId, usage);
@@ -1673,7 +1551,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
-    @AddedInOrBefore(majorVersion = 33)
     public @NonNull List<AudioDeviceInfo> getInputDevicesForZoneId(int zoneId) {
         try {
             return convertInputDevicesToDeviceInfos(
@@ -1686,7 +1563,6 @@ public final class CarAudioManager extends CarManagerBase {
 
     /** @hide */
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         if (mService == null) {
             return;
@@ -1715,7 +1591,6 @@ public final class CarAudioManager extends CarManagerBase {
      * <p>
      * Requires permission Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void registerCarVolumeCallback(@NonNull CarVolumeCallback callback) {
         Objects.requireNonNull(callback);
 
@@ -1732,7 +1607,6 @@ public final class CarAudioManager extends CarManagerBase {
      * <p>
      * Requires permission Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void unregisterCarVolumeCallback(@NonNull CarVolumeCallback callback) {
         Objects.requireNonNull(callback);
         if (mCarVolumeCallbacks.contains(callback) && (mCarVolumeCallbacks.size() == 1)) {
@@ -1772,12 +1646,9 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public boolean registerCarVolumeGroupEventCallback(
             @NonNull @CallbackExecutor Executor executor,
             @NonNull CarVolumeGroupEventCallback callback) {
-        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(executor, "Executor can not be null");
         Objects.requireNonNull(callback, "Car volume event callback can not be null");
 
@@ -1817,11 +1688,8 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void unregisterCarVolumeGroupEventCallback(
             @NonNull CarVolumeGroupEventCallback callback) {
-        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(callback, "Car volume event callback can not be null");
 
         CarVolumeGroupEventCallbackWrapper callbackWrapper =
@@ -1865,7 +1733,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isVolumeGroupMuted(int zoneId, int groupId) {
         try {
             return mService.isVolumeGroupMuted(zoneId, groupId);
@@ -1890,7 +1757,6 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    @AddedInOrBefore(majorVersion = 33)
     public void setVolumeGroupMute(int zoneId, int groupId, boolean mute, int flags) {
         try {
             mService.setVolumeGroupMute(zoneId, groupId, mute, flags);
@@ -2051,7 +1917,6 @@ public final class CarAudioManager extends CarManagerBase {
          * @param flags see {@link android.media.AudioManager} for flag definitions
          */
         @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-        @AddedInOrBefore(majorVersion = 33)
         public void onGroupVolumeChanged(int zoneId, int groupId, int flags) {}
 
         /**
@@ -2067,7 +1932,6 @@ public final class CarAudioManager extends CarManagerBase {
          * @param flags see {@link android.media.AudioManager} for flag definitions
          */
         @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-        @AddedInOrBefore(majorVersion = 33)
         public void onMasterMuteChanged(int zoneId, int flags) {}
 
         /**
@@ -2093,7 +1957,6 @@ public final class CarAudioManager extends CarManagerBase {
          * @param flags see {@link android.media.AudioManager} for flag definitions
          */
         @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-        @AddedInOrBefore(majorVersion = 33)
         public void onGroupMuteChanged(int zoneId, int groupId, int flags) {}
     }
 

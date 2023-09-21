@@ -28,6 +28,7 @@ import android.car.admin.RemoveUserResult;
 import android.car.admin.StartUserInBackgroundResult;
 import android.car.admin.StopUserResult;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -49,7 +50,7 @@ import android.widget.Spinner;
 
 import androidx.fragment.app.Fragment;
 
-import com.google.android.car.kitchensink.KitchenSinkActivity;
+import com.google.android.car.kitchensink.KitchenSinkHelper;
 import com.google.android.car.kitchensink.R;
 import com.google.android.car.kitchensink.users.ExistingUsersView;
 import com.google.android.car.kitchensink.users.UserInfoView;
@@ -101,6 +102,18 @@ public final class DevicePolicyFragment extends Fragment {
     private final List<DeviceAdminApp> mDeviceAdminApps = new ArrayList<>();
     private Spinner mDeviceAdminAppsSpinner;
     private Button mSetDeviceAdminAppButton;
+    private KitchenSinkHelper mKitchenSinkHelper;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (!(context instanceof KitchenSinkHelper)) {
+            throw new IllegalStateException(
+                    "Attached activity does not implement "
+                            + KitchenSinkHelper.class.getSimpleName());
+        }
+        mKitchenSinkHelper = (KitchenSinkHelper) context;
+    }
 
     @Nullable
     @Override
@@ -113,7 +126,7 @@ public final class DevicePolicyFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         mUserManager = UserManager.get(getContext());
         mDevicePolicyManager = getContext().getSystemService(DevicePolicyManager.class);
-        Car car = ((KitchenSinkActivity) getHost()).getCar();
+        Car car = mKitchenSinkHelper.getCar();
         mCarDevicePolicyManager = (CarDevicePolicyManager) car
                 .getCarManager(Car.CAR_DEVICE_POLICY_SERVICE);
 

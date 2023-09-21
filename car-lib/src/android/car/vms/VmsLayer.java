@@ -19,7 +19,6 @@ package android.car.vms;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.SystemApi;
-import android.car.annotation.AddedInOrBefore;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -67,7 +66,6 @@ public final class VmsLayer implements Parcelable {
      * @deprecated Use {@link #getChannel()} instead
      */
     @Deprecated
-    @AddedInOrBefore(majorVersion = 33)
     public int getSubtype() {
         return mChannel;
     }
@@ -114,7 +112,6 @@ public final class VmsLayer implements Parcelable {
      * Type of data published on the layer
      */
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public int getType() {
         return mType;
     }
@@ -123,7 +120,6 @@ public final class VmsLayer implements Parcelable {
      * Type of packet published on the layer
      */
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public int getChannel() {
         return mChannel;
     }
@@ -132,7 +128,6 @@ public final class VmsLayer implements Parcelable {
      * Major version of layer packet format
      */
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public int getVersion() {
         return mVersion;
     }
@@ -183,7 +178,6 @@ public final class VmsLayer implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@android.annotation.NonNull Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -196,7 +190,6 @@ public final class VmsLayer implements Parcelable {
     @Override
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -218,7 +211,6 @@ public final class VmsLayer implements Parcelable {
     }
 
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public static final @android.annotation.NonNull Parcelable.Creator<VmsLayer> CREATOR
             = new Parcelable.Creator<VmsLayer>() {
         @Override

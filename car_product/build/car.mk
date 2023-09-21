@@ -53,7 +53,7 @@ PRODUCT_PACKAGES += \
     CarHotwordDetectionServiceOne \
 
 # SEPolicy for test apps / services
-BOARD_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/test
+PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/test
 endif
 
 # ClusterOsDouble is the testing app to test Cluster2 framework and it can handle Cluster VHAL
@@ -291,3 +291,6 @@ endif # USE_CAR_FRAMEWORK_APEX
 # Disable Prime Shader Cache in SurfaceFlinger to make it available faster
 PRODUCT_PROPERTY_OVERRIDES += \
     service.sf.prime_shader_cache=0
+
+# Always disable Compose features in SystemUI to avoid APK size increase.
+SYSTEMUI_USE_COMPOSE := false

@@ -19,7 +19,6 @@ package android.car.hardware.power;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.car.annotation.AddedInOrBefore;
 import android.util.SparseBooleanArray;
 
 import java.lang.annotation.Retention;
@@ -34,19 +33,16 @@ public final class PowerComponentUtil {
     /**
      * The component is marked as enabled in the power policy.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int COMPONENT_STATE_ENABLED = 1;
 
     /**
      * The component is marked as disabled in the power policy.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int COMPONENT_STATE_DISABLED = 2;
 
     /**
      * The component is not specified in the power policy.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int COMPONENT_STATE_UNTOUCHED = 3;
 
     @IntDef(prefix = { "COMPONENT_STATE_" }, value = {
@@ -60,13 +56,11 @@ public final class PowerComponentUtil {
     /**
      * Represetns an invalid power component.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int INVALID_POWER_COMPONENT = -1;
 
     /**
      * The first component in {@link PowerComponent}.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int FIRST_POWER_COMPONENT = PowerComponent.AUDIO;
 
     /**
@@ -74,7 +68,6 @@ public final class PowerComponentUtil {
      *
      * <p> This should be updated when a new component is added to {@link PowerComponent}.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int LAST_POWER_COMPONENT = PowerComponent.CPU;
 
     private static final String POWER_COMPONENT_PREFIX = "POWER_COMPONENT_";
@@ -107,7 +100,6 @@ public final class PowerComponentUtil {
     /**
      * Checks whether the given component is valid.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static boolean isValidPowerComponent(int component) {
         return component >= FIRST_POWER_COMPONENT && component <= LAST_POWER_COMPONENT;
     }
@@ -115,7 +107,6 @@ public final class PowerComponentUtil {
     /**
      * Checks whether the given policy has one ore more components specified in the given filter.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static boolean hasComponents(@NonNull CarPowerPolicy policy,
             @NonNull CarPowerPolicyFilter filter) {
         SparseBooleanArray filterSet = new SparseBooleanArray();
@@ -142,7 +133,6 @@ public final class PowerComponentUtil {
     /**
      * Matches the given string to {@link PowerComponent}.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static int toPowerComponent(@Nullable String componentArg, boolean prefix) {
         String component = componentArg;
         if (component == null) {
@@ -196,7 +186,6 @@ public final class PowerComponentUtil {
      * Convert {@link PowerComponent} to string.
      */
     @NonNull
-    @AddedInOrBefore(majorVersion = 33)
     public static String powerComponentToString(int component) {
         switch (component) {
             case PowerComponent.AUDIO:

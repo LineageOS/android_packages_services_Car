@@ -16,19 +16,15 @@
 
 package android.car.remoteaccess;
 
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
-
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
+import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.annotation.ApiRequirements;
-import android.car.annotation.ApiRequirements.CarVersion;
-import android.car.annotation.ApiRequirements.PlatformVersion;
 import android.car.builtin.util.Slogf;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -40,6 +36,9 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -53,10 +52,43 @@ import java.util.concurrent.Executor;
  * executing the given task. It is supposed to call {@link #reportRemoteTaskDone(String)} when it
  * finishes the given task. Once the task completion is reported or the timeout expires, Android
  * System goes back to either the previous power state or the specified power state.
+ *
+ * <p>Note that the remote task will be executed even when the vehicle is actively in use, not
+ * nessarily when the vehicle is off. Remote task client must make sure the task to be executed
+ * will not affect the system performance or affect driving safety. If certain task must be
+ * executed while the vehicle is off, the remote task client must check VHAL property
+ * {@code VEHICLE_IN_USE} and/or check igntition state via {@code VehicleIgnitionState}.
+ *
+ * <p>Note: all remote task clients must run as system user.
+ *
+ * <p>A serverless setup might also be supported if the RRO overlay for
+ * remote_access_serverless_client_map exists which provides a map from serverless client ID to
+ * their package names.
+ *
+ * <p>Here the term 'remote' refers to the source of task coming from outside of the
+ * Android system, it does not necessarily means the task comes from Internet. In the serverless
+ * setup, no cloud service is required. Another device within the same vehicle, but outside the
+ * Android system is the issuer for the remote task.
+ *
+ * <p>For serverless setup, there is a pre-configured set of serverless remote task clients. They
+ * register to {@link CarRemoteAccessManager} to listen to remote access events.
+ * {@link RemoteTaskClientCallback#onServerlessClientRegistered} will be called instead of
+ * {@link RemoteTaskClientCallback#onClientRegistered} and there is no cloud service involved.
+ * {@link RemoteTaskClientCallback#onRemoteTaskRequested} will be invoked when the task is to be
+ * executed. It is supposed to call {@link #reportRemoteTaskDone(String)} when it
+ * finishes the given task. Once the task completion is reported or the timeout expires, Android
+ * system goes back to either the previous power state or the specified power state.
+ *
+ * <p>For serverless setup, if {@link isTaskScheduleSupported} returns {@code true}, client may
+ * use {@link InVehicleTaskScheduler#scheduleTask} to schedule a remote task to be executed later.
+ * If {@link isTaskScheduleSupported} returns {@code false}, it is assumed there exists some other
+ * channel outside of the Android system for task scheduling.
  */
 public final class CarRemoteAccessManager extends CarManagerBase {
 
     private static final String TAG = CarRemoteAccessManager.class.getSimpleName();
+
+    private final InVehicleTaskScheduler mInVehicleTaskScheduler = new InVehicleTaskScheduler();
 
     /**
      * The system remains ON after completing the remote tasks.
@@ -64,8 +96,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int NEXT_POWER_STATE_ON = 1;
 
     /**
@@ -74,8 +104,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int NEXT_POWER_STATE_OFF = 2;
 
     /**
@@ -84,8 +112,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int NEXT_POWER_STATE_SUSPEND_TO_RAM = 3;
 
     /**
@@ -94,8 +120,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int NEXT_POWER_STATE_SUSPEND_TO_DISK = 4;
 
     /** @hide */
@@ -109,11 +133,18 @@ public final class CarRemoteAccessManager extends CarManagerBase {
     @Target({ElementType.TYPE_USE})
     public @interface NextPowerState {}
 
+    /**
+     * The error code for {@link android.os.ServiceSpecificException} used by {@link scheduleTask}.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final int SERVICE_ERROR_SCHEDULE_TASK = 1;
+
     private final ICarRemoteAccessService mService;
     private final Object mLock = new Object();
 
-    private final ICarRemoteAccessCallback mCarRemoteAccessCallback =
-            new ICarRemoteAccessCallback.Stub() {
+    private final class CarRemoteAccessCallback extends ICarRemoteAccessCallback.Stub {
         @Override
         public void onClientRegistrationUpdated(RemoteTaskClientRegistrationInfo registrationInfo) {
             RemoteTaskClientCallback callback;
@@ -129,6 +160,22 @@ public final class CarRemoteAccessManager extends CarManagerBase {
                 executor = mExecutor;
             }
             executor.execute(() -> callback.onRegistrationUpdated(registrationInfo));
+        }
+
+        @Override
+        public void onServerlessClientRegistered() {
+            RemoteTaskClientCallback callback;
+            Executor executor;
+            synchronized (mLock) {
+                if (mRemoteTaskClientCallback == null || mExecutor == null) {
+                    Slogf.w(TAG, "Cannot call onRegistrationUpdated because no remote task client "
+                            + "is registered");
+                    return;
+                }
+                callback = mRemoteTaskClientCallback;
+                executor = mExecutor;
+            }
+            executor.execute(() -> callback.onServerlessClientRegistered());
         }
 
         @Override
@@ -188,7 +235,9 @@ public final class CarRemoteAccessManager extends CarManagerBase {
             executor.execute(() ->
                     callback.onShutdownStarting(new MyCompletableRemoteTaskFuture(clientId)));
         }
-    };
+    }
+
+    private final ICarRemoteAccessCallback mCarRemoteAccessCallback = new CarRemoteAccessCallback();
 
     @GuardedBy("mLock")
     private RemoteTaskClientCallback mRemoteTaskClientCallback;
@@ -208,8 +257,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          * Tells {@link CarRemoteAccessManager} that the remote task client finalized the pending
          * remoate tasks.
          */
-        @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
         void complete();
     }
 
@@ -238,18 +285,27 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          * This is called when the remote task client is successfully registered or the client ID is
          * updated by AAOS.
          *
+         * <p>For a serverless remote task client, the {@link onServerlessClientRegistered} will be
+         * called instead of this.
+         *
          * @param info {@link RemoteTaskClientRegistrationIfno} which contains wake-up service ID,
          *             vehicle ID, processor ID and client ID.
          */
-        @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
         void onRegistrationUpdated(@NonNull RemoteTaskClientRegistrationInfo info);
+
+        /**
+         * This is called when a pre-configured serverless remote task client is registered.
+         *
+         * <p>The serverless remote task client is configured via including a runtime config file
+         * at {@code /vendor/etc/}
+         */
+        default void onServerlessClientRegistered() {
+            Slogf.i(TAG, "onServerlessClientRegistered called");
+        }
 
         /**
          * This is called when registering the remote task client fails.
          */
-        @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
         void onRegistrationFailed();
 
         /**
@@ -260,8 +316,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          * @param taskMaxDurationInSec The timeout before AAOS goes back to the previous power
          *                             state.
          */
-        @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
         void onRemoteTaskRequested(@NonNull String taskId, @Nullable byte[] data,
                 int taskMaxDurationInSec);
 
@@ -275,8 +329,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          * @param future {@link CompletableRemoteTaskFuture} used by the remote task client to
          *               notify CarRemoteAccessManager that all pending remote tasks are finalized.
          */
-        @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
         void onShutdownStarting(@NonNull CompletableRemoteTaskFuture future);
     }
 
@@ -288,8 +340,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
 
     /** @hide */
     @Override
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void onCarDisconnected() {
         // Nothing to do.
     }
@@ -303,11 +353,8 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @throws IllegalArgumentException When the given callback or the executor is {@code null}.
      */
     @RequiresPermission(Car.PERMISSION_USE_REMOTE_ACCESS)
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void setRemoteTaskClient(@NonNull @CallbackExecutor Executor executor,
             @NonNull RemoteTaskClientCallback callback) {
-        assertPlatformVersionAtLeastU();
         Preconditions.checkArgument(executor != null, "Executor cannot be null");
         Preconditions.checkArgument(callback != null, "Callback cannot be null");
 
@@ -341,10 +388,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @throws IllegalStateException if {@code callback} is not registered.
      */
     @RequiresPermission(Car.PERMISSION_USE_REMOTE_ACCESS)
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void clearRemoteTaskClient() {
-        assertPlatformVersionAtLeastU();
         synchronized (mLock) {
             if (mRemoteTaskClientCallback == null) {
                 Slogf.w(TAG, "No registered remote task client to clear");
@@ -362,7 +406,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
     }
 
     /**
-     * Reports that remote tast execution is completed, so that the vehicle will go back to the
+     * Reports that remote task execution is completed, so that the vehicle will go back to the
      * power state before the wake-up.
      *
      * @param taskId ID of the remote task which has been completed.
@@ -370,10 +414,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @throws IllegalStateException If the remote task client is not registered or not woken up.
      */
     @RequiresPermission(Car.PERMISSION_USE_REMOTE_ACCESS)
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void reportRemoteTaskDone(@NonNull String taskId) {
-        assertPlatformVersionAtLeastU();
         Preconditions.checkArgument(taskId != null, "Task ID cannot be null");
 
         String currentClientId;
@@ -410,15 +451,426 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void setPowerStatePostTaskExecution(@NextPowerState int nextPowerState,
             boolean runGarageMode) {
-        assertPlatformVersionAtLeastU();
         try {
             mService.setPowerStatePostTaskExecution(nextPowerState, runGarageMode);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Returns whether task scheduling is supported.
+     *
+     * <p>If this returns {@code true}, user may use
+     * {@link InVehicleTaskScheduler#scheduleTask} to schedule a task to be executed at a later
+     * time. If the device is off when the task is scheduled to be executed, the device will be
+     * woken up to execute the task.
+     *
+     * @return {@code true} if serverless remote task scheduling is supported.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
+    public boolean isTaskScheduleSupported() {
+        try {
+            return mService.isTaskScheduleSupported();
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, false);
+        }
+    }
+
+    /**
+     * Gets a in vehicle task scheduler that can be used to schedule a task to be executed later.
+     *
+     * <p>This is only supported for pre-configured remote task serverless clients.
+     *
+     * <p>See {@link InVehicleTaskScheduler.scheduleTask} for usage.
+     *
+     * @return An in vehicle task scheduler or {@code null} if {@link isTaskScheduleSupported} is
+     *      {@code false} or this client is not a serverless remote task client.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
+    @Nullable
+    public InVehicleTaskScheduler getInVehicleTaskScheduler() {
+        if (!isTaskScheduleSupported()) {
+            Slogf.w(TAG, "getInVehicleTaskScheduler: Task schedule is not supported, return null");
+            return null;
+        }
+        return mInVehicleTaskScheduler;
+    }
+
+    /**
+     * For testing only. Adds a package as a new serverless remote task client.
+     *
+     * @param packageName The package name for the serverless remote task client. This should be a
+     *      test package name.
+     * @param clientId An arbitrary client ID picked for the client. Client should add some test
+     *      identifier to the ID to avoid conflict with an existing real client ID.
+     * @throws IllegalArgumentException If the packageName is already an serverless remote task
+     *      client or if the client ID is already used.
+     *
+     * @hide
+     */
+    @TestApi
+    @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
+    public void addServerlessRemoteTaskClient(@NonNull String packageName,
+            @NonNull String clientId) {
+        try {
+            mService.addServerlessRemoteTaskClient(packageName, clientId);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * For testing only. Removes a package as serverless remote task client.
+     *
+     * @param packageName The package name for the previously added test serverless remote task
+     *      client.
+     *
+     * @hide
+     */
+    @TestApi
+    @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
+    public void removeServerlessRemoteTaskClient(@NonNull String packageName) {
+        try {
+            mService.removeServerlessRemoteTaskClient(packageName);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * The schedule information, which contains the schedule ID, the task data, the scheduling
+     * start time, frequency and counts.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final class ScheduleInfo {
+        @NonNull
+        public static final Duration PERIODIC_DAILY = Duration.ofDays(1);
+        @NonNull
+        public static final Duration PERIODIC_WEEKLY = Duration.ofDays(7);
+
+        /**
+         * The builder for {@link ScheduleInfo}.
+         */
+        public static final class Builder {
+            private String mScheduleId;
+            private byte[] mTaskData;
+            // By default the task is to be executed once.
+            private int mCount = 1;
+            private long mStartTimeInEpochSeconds;
+            private Duration mPeriodic;
+            private boolean mBuilderUsed;
+
+            Builder(String scheduleId, byte[] taskData, long startTimeInEpochSeconds) {
+                mScheduleId = scheduleId;
+                mTaskData = taskData;
+                mStartTimeInEpochSeconds = startTimeInEpochSeconds;
+            }
+
+            /**
+             * Sets how many times the task is scheduled to be executed.
+             *
+             * <p>Note that if {@code startTime} is in the past, the actual task execution count
+             * might be lower than the specified value since all the scheduled tasks in the past
+             * will be ignored.
+             *
+             * @param count How many times the task is scheduled to be executed. A special value of
+             *      0 means the count is infinite.
+             * @return the builder.
+             */
+            @NonNull
+            public Builder setCount(int count) {
+                Preconditions.checkArgument(count >= 0, "count must not be negative");
+                mCount = count;
+                return this;
+            }
+
+            /**
+             * Sets the interval between two scheduled tasks.
+             *
+             * <p>This is ignored if {@code count} is 1.
+             *
+             * @param periodic The interval between two scheduled tasks. Can be
+             *      {@link PERIODIC_DAILY} or {@link PERIODIC_WEEKLY} or any custom interval.
+             * @return the builder.
+             */
+            @NonNull
+            public Builder setPeriodic(@NonNull Duration periodic) {
+                Preconditions.checkArgument(periodic != null, "periodic must not be null");
+                mPeriodic = periodic;
+                return this;
+            }
+
+            /**
+             * Builds the {@link ScheduleInfo}.
+             */
+            @NonNull
+            public ScheduleInfo build() {
+                if (mBuilderUsed) {
+                    throw new IllegalStateException(
+                            "build is only supposed to be called once on one builder, use a new "
+                            + "builder instance instead");
+                }
+                mBuilderUsed = true;
+                return new ScheduleInfo(mScheduleId, mTaskData, mCount, mStartTimeInEpochSeconds,
+                        mPeriodic);
+            }
+        };
+
+        private String mScheduleId;
+        private byte[] mTaskData;
+        private int mCount;
+        private long mStartTimeInEpochSeconds;
+        private Duration mPeriodic;
+
+        /**
+         * Gets the builder for {@link ScheduleInfo}.
+         *
+         * <p>By default the task will be executed once at the {@code startTime}.
+         *
+         * <p>If {@code count} is not 1, the task will be executed multiple times at
+         * {@code startTime}, {@code startTime + periodic}, {@code startTime + periodic * 2} etc.
+         *
+         * <p>Note that all tasks scheduled in the past will not be executed. E.g. if the
+         * {@code startTime} is in the past and task is scheduled to be executed once, the task will
+         * not be executed. If the {@code startTime} is 6:00 am, the {@code periodic} is 1h, the
+         * {@code count} is 3, and the current time is 7:30 am. The first two scheduled time:
+         * 6:00am, 7:00am already past, so the task will only be executed once at 8:00am.
+         *
+         * <p>Note that {@code startTime} is an eopch time not containing time zone info.
+         * Changing the timezone will not affect the scheduling.
+         *
+         * <p>If the client always want the task to be executed at 3:00pm relative to the current
+         * Android timezone, the client must listen to {@code ACTION_TIMEZONE_CHANGED}. It must
+         * unschedule and reschedule the task when time zone is changed.
+         *
+         * <p>It is expected that the other device has the same time concept as Android. Optionally,
+         * the VHAL property {@code EPOCH_TIME} can be used to sync the time.
+         *
+         * @param scheduleId A unique ID to identify this scheduling. Must be unique among all
+         *      pending schedules for this client.
+         * @param taskData The opaque task data that will be sent back via
+         *      {@link onRemoteTaskRequested} when the task is to be executed.
+         * @param mStartTimeInEpochSeconds When the task is scheduled to be executed in epoch
+         *      seconds. It is not guaranteed that the task will be executed exactly at this time
+         *      (or be executed at all). Typically the task will be executed at a time slightly
+         *      later than the scheduled time due to the time spent waking up Android system and
+         *      starting the remote task client.
+         */
+        @NonNull
+        public static Builder builder(@NonNull String scheduleId, @NonNull byte[] taskData,
+                long mStartTimeInEpochSeconds) {
+            Preconditions.checkArgument(scheduleId != null, "scheduleId must not be null");
+            Preconditions.checkArgument(taskData != null, "taskData must not be null");
+            return new Builder(scheduleId, taskData, mStartTimeInEpochSeconds);
+        }
+
+        @NonNull
+        public String getScheduleId() {
+            return mScheduleId;
+        }
+
+        @NonNull
+        public byte[] getTaskData() {
+            return mTaskData;
+        }
+
+        public int getCount() {
+            return mCount;
+        }
+
+        public long getStartTimeInEpochSeconds() {
+            return mStartTimeInEpochSeconds;
+        }
+
+        @NonNull
+        public Duration getPeriodic() {
+            return mPeriodic;
+        }
+
+        private ScheduleInfo(@NonNull String scheduleId, @NonNull byte[] taskData, int count,
+                long startTimeInEpochSeconds, @NonNull Duration periodic) {
+            mScheduleId = scheduleId;
+            mTaskData = taskData;
+            mCount = count;
+            mStartTimeInEpochSeconds = startTimeInEpochSeconds;
+            mPeriodic = periodic;
+        }
+    };
+
+    /**
+     * A scheduler for scheduling a task to be executed later.
+     *
+     * <p>It schedules a task via sending a scheduled task message to a device in the same vehicle,
+     * but external to Android.
+     *
+     * <p>This is only supported for pre-configured remote task serverless clients.
+     *
+     * @hide
+     */
+    @SystemApi
+    public final class InVehicleTaskScheduler {
+        /**
+         * Please use {@link getInVehicleTaskScheduler} to create.
+         */
+        private InVehicleTaskScheduler() {}
+
+        /**
+         * Schedules a task to be executed later even when the vehicle is off.
+         *
+         * <p>This sends a scheduled task message to a device external to Android so that the device
+         * can wake up Android and deliver the task through {@code onRemoteTaskRequested}.
+         *
+         * <p>Note that the remote task will be executed even when the vehicle is in use. The task
+         * must not affect the system performance or driving safety.
+         *
+         * <p>Note that the scheduled task execution is on a best-effort basis. Multiple situations
+         * might cause the task not to execute successfully:
+         *
+         * <ul>
+         * <li>The vehicle is low on battery and the other device decides not to wake up Android.
+         * <li>User turns off vehicle while the task is executing.
+         * <li>The task logic itself fails.
+         *
+         * <p>The framework does not provide a mechanism to report the task status or task result.
+         * In order for the user to check whether the task is executed successfully, the client must
+         * record in its persistent storage the task's status/result during
+         * {@code onRemoteTaskRequested}.
+         *
+         * <p>For example, if the scheduled task is to update some of the application's resources.
+         * When the application is opened by the user, it may check whether the resource is the
+         * latest version, if not, it may check whether a scheduled update task exists. If not, it
+         * may schedule a new task at midnight at the same day to update the resource. The
+         * application uses the persistent resource version to decide whether the previous update
+         * succeeded.
+         *
+         * @param scheduleInfo The schedule information.
+         *
+         * @throws IllegalArgumentException if a pending schedule with the same {@code scheduleId}
+         *      for this client exists.
+         * @throws ServiceSpecificException if unable to schedule the task. The error code will
+         *      always be {@link SERVICE_ERROR_SCHEDULE_TASK}.
+         *
+         * @hide
+         */
+        @SystemApi
+        @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
+        public void scheduleTask(@NonNull ScheduleInfo scheduleInfo) {
+            Preconditions.checkArgument(scheduleInfo != null, "scheduleInfo cannot be null");
+            TaskScheduleInfo taskScheduleInfo = toTaskScheduleInfo(scheduleInfo);
+            try {
+                mService.scheduleTask(taskScheduleInfo);
+            } catch (RemoteException e) {
+                handleRemoteExceptionFromCarService(e);
+            }
+        }
+
+        /**
+         * Unschedules a scheduled task.
+         *
+         * @param scheduleId The ID for the schedule.
+         *
+         * <p>Does nothing if a pending schedule with {@code scheduleId} does not exist.
+         *
+         * @hide
+         */
+        @SystemApi
+        @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
+        public void unscheduleTask(@NonNull String scheduleId) {
+            Preconditions.checkArgument(scheduleId != null, "scheduleId cannot be null");
+            try {
+                mService.unscheduleTask(scheduleId);
+            } catch (RemoteException e) {
+                handleRemoteExceptionFromCarService(e);
+            }
+        }
+
+        /**
+         * Unschedules all scheduled tasks for this client.
+         *
+         * @hide
+         */
+        @SystemApi
+        @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
+        public void unscheduleAllTasks() {
+            try {
+                mService.unscheduleAllTasks();
+            } catch (RemoteException e) {
+                handleRemoteExceptionFromCarService(e);
+            }
+        }
+
+        /**
+         * Returns whether the specified task is scheduled.
+         *
+         * @param scheduleId The ID for the schedule.
+         * @return {@code true} if the task was scheduled and pending to be executed.
+         *
+         * @hide
+         */
+        @SystemApi
+        @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
+        public boolean isTaskScheduled(@NonNull String scheduleId) {
+            Preconditions.checkArgument(scheduleId != null, "scheduleId cannot be null");
+            try {
+                return mService.isTaskScheduled(scheduleId);
+            } catch (RemoteException e) {
+                return handleRemoteExceptionFromCarService(e, false);
+            }
+        }
+
+        /**
+         * Gets all pending scheduled tasks for this client.
+         *
+         * <p>The finished scheduled tasks will not be included.
+         *
+         * @return A list of schedule info.
+         *
+         * @throws ServiceSpecificException if unable to get the scheduled tasks. The error code
+         *      will always be {@link SERVICE_ERROR_SCHEDULE_TASK}.
+         *
+         * @hide
+         */
+        @SystemApi
+        @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
+        @NonNull
+        public List<ScheduleInfo> getAllScheduledTasks() {
+            List<ScheduleInfo> scheduleInfoList = new ArrayList<>();
+            try {
+                List<TaskScheduleInfo> taskScheduleInfoList = mService.getAllScheduledTasks();
+                for (int i = 0; i < taskScheduleInfoList.size(); i++) {
+                    scheduleInfoList.add(fromTaskScheduleInfo(taskScheduleInfoList.get(i)));
+                }
+                return scheduleInfoList;
+            } catch (RemoteException e) {
+                return handleRemoteExceptionFromCarService(e, scheduleInfoList);
+            }
+        }
+
+        private static ScheduleInfo fromTaskScheduleInfo(TaskScheduleInfo taskScheduleInfo) {
+            return ScheduleInfo.builder(taskScheduleInfo.scheduleId, taskScheduleInfo.taskData,
+                    taskScheduleInfo.startTimeInEpochSeconds).setCount(taskScheduleInfo.count)
+                    .setPeriodic(Duration.ofSeconds(taskScheduleInfo.periodicInSeconds)).build();
+        }
+
+        private static TaskScheduleInfo toTaskScheduleInfo(ScheduleInfo scheduleInfo) {
+            TaskScheduleInfo taskScheduleInfo = new TaskScheduleInfo();
+            taskScheduleInfo.scheduleId = scheduleInfo.getScheduleId();
+            taskScheduleInfo.taskData = scheduleInfo.getTaskData();
+            taskScheduleInfo.count = scheduleInfo.getCount();
+            taskScheduleInfo.startTimeInEpochSeconds = scheduleInfo.getStartTimeInEpochSeconds();
+            taskScheduleInfo.periodicInSeconds = scheduleInfo.getPeriodic().getSeconds();
+            return taskScheduleInfo;
         }
     }
 }

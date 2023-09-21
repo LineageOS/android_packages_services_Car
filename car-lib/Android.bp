@@ -76,6 +76,7 @@ java_library {
         "modules-utils-preconditions",
         "framework-wifi",
         "framework-bluetooth",
+        "framework-location",
     ],
     installable: true,
     // TODO(b/288271411): enable it when car mainline module is supported
@@ -377,4 +378,3 @@ filegroup {
         "api/system-removed.txt",
     ],
 }
-

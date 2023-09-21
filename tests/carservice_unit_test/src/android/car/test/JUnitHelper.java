@@ -40,7 +40,7 @@ final class JUnitHelper {
     }
 
     public static Description newTestMethod(String methodName, Annotation... annotations) {
-        return Description.createTestDescription(ApiCheckerRuleTest.class,
+        return Description.createTestDescription(PermissionsCheckerRuleTest.class,
                 methodName, annotations);
     }
 

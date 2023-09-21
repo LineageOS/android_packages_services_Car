@@ -46,7 +46,10 @@
     <string name="toast_status_failed" msgid="6365384202315043395">"Алдааны мэдээг цуглуулж чадсангүй"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Дэлгэцийн зургийг авч чадсангүй"</string>
     <string name="toast_status_dump_state_failed" msgid="3496460783060512078">"Dumpstate амжилтгүй боллоо"</string>
+    <string name="toast_screenshot_finished" msgid="539313383958984557">"Хадгалсан дэлгэцийн агшнууд"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Алдааны мэдээг цуглуулж байна"</string>
     <string name="notification_bugreport_finished_title" msgid="1188447311929693472">"Алдааны мэдээг цуглууллаа"</string>
     <string name="notification_bugreport_channel_name" msgid="776902295433824255">"Алдааны мэдээний төлөвийн суваг"</string>
+    <string name="notification_screenshot_message" msgid="4334354123333893911">"Дэлгэцийн агшин авч байна"</string>
+    <string name="notification_screenshot_channel_name" msgid="147055389545365419">"Алдааны мэдээний дэлгэцийн агшны суваг"</string>
 </resources>

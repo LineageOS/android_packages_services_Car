@@ -20,6 +20,7 @@
     <item target="array/config_quickControlsEntryPointIconControllers" value="@array/config_quickControlsEntryPointIconControllers"/>
 
     <item target="bool/config_enableTopSystemBar" value="false"/>
+    <item target="string/config_notificationPanelViewMediator" value="@string/config_notificationPanelViewMediator" />
 
     <item target="id/notifications" value="@id/notifications" />
     <item target="string/system_bar_notifications_label" value="@string/system_bar_notifications_label"/>
