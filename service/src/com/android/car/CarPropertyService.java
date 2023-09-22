@@ -543,12 +543,7 @@ public class CarPropertyService extends ICarProperty.Stub
         }
         List<CarSubscribeOption> propertyHalSubscribeOptions =
                 createPropertyHalSubscribeOptions(propId, updateRateHzToAreaIds);
-        try {
-            mPropertyHalService.subscribeProperty(propertyHalSubscribeOptions);
-        } catch (IllegalArgumentException e) {
-            Slogf.e(TAG, "failed to subscribe to propId=0x%s, error: %s",
-                    toHexString(propId), e);
-        }
+        mPropertyHalService.subscribeProperty(propertyHalSubscribeOptions);
     }
 
     private List<CarSubscribeOption> createPropertyHalSubscribeOptions(int propertyId,
