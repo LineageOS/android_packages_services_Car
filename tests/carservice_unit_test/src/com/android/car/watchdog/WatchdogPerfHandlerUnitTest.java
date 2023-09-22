@@ -215,6 +215,11 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     @Captor private ArgumentCaptor<SparseArray<String>> mHeadsUpPackagesCaptor;
     @Captor private ArgumentCaptor<SparseArray<String>> mNotificationCenterPackagesCaptor;
     @Captor private ArgumentCaptor<Intent> mStartActivityAsUserIntentCaptor;
+    @Captor
+    private ArgumentCaptor<List<WatchdogStorage.UserPackageSettingsEntry>>
+            mUserPackageSettingsEntryCaptor;
+    @Captor
+    private ArgumentCaptor<List<WatchdogStorage.IoUsageStatsEntry>> mIoUsageStatsEntryCaptor;
 
     private ICarUxRestrictionsChangeListener mCarUxRestrictionsChangeListener;
     private StatsManager.StatsPullAtomCallback mStatsPullAtomCallback;
@@ -338,8 +343,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         });
     }
 
-    //TODO(b/293374687): Add relevant tests for deleteUser, packageIoOveruseStats,
-    // writeMetadataFile, writeToDatabase, release
+    //TODO(b/293374687): Add relevant tests for writeMetadataFile and release.
 
     @Test
     public void testProcessUserNotificationIntentDisablePackage() {
@@ -461,6 +465,176 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
         verify(mMockNotificationHelper).cancelNotificationAsUser(eq(userHandle),
                 eq(notificationId));
+    }
+
+    @Test
+    public void testWriteToDatabaseForSaveUserPackageSettings() {
+        UserHandle userHandle = UserHandle.of(101);
+        injectPackageInfos(Collections.singletonList(
+                constructPackageManagerPackageInfo("third_party_package",
+                        10103456, /* sharedUserId= */  null)));
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package", userHandle,
+                /* isKillable= */ false);
+        List<WatchdogStorage.UserPackageSettingsEntry> expectedSavedUserPackageEntries =
+                List.of(
+                        new WatchdogStorage.UserPackageSettingsEntry(/* userId= */ 101,
+                                "third_party_package",
+                                /* killableState= */ PackageKillableState.KILLABLE_STATE_NO,
+                                /* lastModifiedKillableStateEpoch= */ 123456789));
+
+        mWatchdogPerfHandler.writeToDatabase();
+
+        verify(mSpiedWatchdogStorage, times(1)).startWrite();
+        verify(mSpiedWatchdogStorage, times(1)).saveUserPackageSettings(
+                mUserPackageSettingsEntryCaptor.capture());
+        expectWithMessage("User Package Settings Saved").that(
+                mUserPackageSettingsEntryCaptor.getValue()).containsExactlyElementsIn(
+                expectedSavedUserPackageEntries);
+        verify(mSpiedWatchdogStorage, times(1)).markWriteSuccessful();
+        verify(mSpiedWatchdogStorage, times(1)).endWrite();
+    }
+
+    @Test
+    public void testWriteToDatabaseForSaveIoUsageStatsWithForgive() throws Exception {
+        doReturn(Arrays.asList(new WatchdogStorage.NotForgivenOverusesEntry(100,
+                "third_party_package", 2))).when(mSpiedWatchdogStorage)
+                .getNotForgivenHistoricalIoOveruses(RECURRING_OVERUSE_PERIOD_IN_DAYS);
+        mTimeSource.updateNow(/* numDaysAgo= */ 1);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 100);
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo("system_package", 10011200, null),
+                constructPackageManagerPackageInfo("third_party_package", 10001100, null)));
+
+        List<PackageIoOveruseStats> packageIoOveruseStats = Arrays.asList(
+                constructPackageIoOveruseStats(10011200, /* shouldNotify= */ false,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(600, 700, 800),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(600, 700, 800),
+                                /* totalOveruses= */ 3)),
+                constructPackageIoOveruseStats(10001100, /* shouldNotify= */ false,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(1050, 1100, 1200),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(50, 60, 70),
+                                /* writtenBytes= */ constructPerStateBytes(1100, 1200, 1300),
+                                /* totalOveruses= */ 5)));
+
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        List<WatchdogStorage.IoUsageStatsEntry> expectedSavedIoUsageEntries = Arrays.asList(
+                new WatchdogStorage.IoUsageStatsEntry(/* userId= */ 100, "system_package",
+                        new WatchdogPerfHandler.PackageIoUsage(
+                                packageIoOveruseStats.get(0).ioOveruseStats,
+                                /* forgivenWriteBytes= */ constructPerStateBytes(600, 700, 800),
+                                /* forgivenOveruses= */ 3, /* totalTimesKilled= */ 0)),
+                new WatchdogStorage.IoUsageStatsEntry(/* userId= */ 100, "third_party_package",
+                        new WatchdogPerfHandler.PackageIoUsage(
+                                packageIoOveruseStats.get(1).ioOveruseStats,
+                                /* forgivenWriteBytes= */ constructPerStateBytes(1050, 1100, 1200),
+                                /* forgivenOveruses= */ 0, /* totalTimesKilled= */ 0)));
+
+        mWatchdogPerfHandler.writeToDatabase();
+
+        // An attempt to write to the database is also triggered by checkAndHandleDateChange after
+        // changing the date.
+        verify(mSpiedWatchdogStorage, times(2)).startWrite();
+        verify(mSpiedWatchdogStorage).forgiveHistoricalOveruses(mPackagesByUserIdCaptor.capture(),
+                eq(RECURRING_OVERUSE_PERIOD_IN_DAYS));
+        assertWithMessage("Forgiven packages")
+                .that(mPackagesByUserIdCaptor.getValue().get(100))
+                .containsExactlyElementsIn(Arrays.asList("third_party_package", "system_package"));
+        verify(mSpiedWatchdogStorage, times(1)).saveIoUsageStats(
+                mIoUsageStatsEntryCaptor.capture());
+        IoUsageStatsEntrySubject.assertThat(mIoUsageStatsEntryCaptor.getValue())
+                .containsExactlyElementsIn(expectedSavedIoUsageEntries);
+        verify(mSpiedWatchdogStorage, times(1)).markWriteSuccessful();
+        verify(mSpiedWatchdogStorage, times(1)).endWrite();
+    }
+
+    @Test
+    public void testWriteToDatabaseForSaveIoUsageStatsWithoutForgive() throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 100);
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo("system_package", 10011200, null),
+                constructPackageManagerPackageInfo("third_party_package", 10001100, null)));
+
+        List<PackageIoOveruseStats> packageIoOveruseStats = Arrays.asList(
+                constructPackageIoOveruseStats(10011200, /* shouldNotify= */ false,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(600, 700, 800),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(600, 700, 800),
+                                /* totalOveruses= */ 3)),
+                constructPackageIoOveruseStats(10001100, /* shouldNotify= */ false,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(1050, 1100, 1200),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(50, 60, 70),
+                                /* writtenBytes= */ constructPerStateBytes(1100, 1200, 1300),
+                                /* totalOveruses= */ 5)));
+
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        List<WatchdogStorage.IoUsageStatsEntry> expectedSavedIoUsageEntries = Arrays.asList(
+                new WatchdogStorage.IoUsageStatsEntry(/* userId= */ 100, "system_package",
+                        new WatchdogPerfHandler.PackageIoUsage(
+                                packageIoOveruseStats.get(0).ioOveruseStats,
+                                /* forgivenWriteBytes= */ constructPerStateBytes(600, 700, 800),
+                                /* forgivenOveruses= */ 3, /* totalTimesKilled= */ 0)),
+                new WatchdogStorage.IoUsageStatsEntry(/* userId= */ 100, "third_party_package",
+                        new WatchdogPerfHandler.PackageIoUsage(
+                                packageIoOveruseStats.get(1).ioOveruseStats,
+                                /* forgivenWriteBytes= */ constructPerStateBytes(1050, 1100, 1200),
+                                /* forgivenOveruses= */ 0, /* totalTimesKilled= */ 0)));
+
+        mWatchdogPerfHandler.writeToDatabase();
+
+        verify(mSpiedWatchdogStorage, times(1)).startWrite();
+        verify(mSpiedWatchdogStorage, times(1)).saveIoUsageStats(
+                mIoUsageStatsEntryCaptor.capture());
+        IoUsageStatsEntrySubject.assertThat(mIoUsageStatsEntryCaptor.getValue())
+                .containsExactlyElementsIn(expectedSavedIoUsageEntries);
+        verify(mSpiedWatchdogStorage, times(1)).markWriteSuccessful();
+        verify(mSpiedWatchdogStorage, times(1)).endWrite();
+    }
+
+    @Test
+    public void testDeleteUser() throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 100, 101, 102);
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo(
+                        "third_party_package", 10103456, "vendor_shared_package.critical"),
+                constructPackageManagerPackageInfo(
+                        "vendor_package", 10103456, "vendor_shared_package.critical"),
+                constructPackageManagerPackageInfo("third_party_package.A", 10001100, null),
+                constructPackageManagerPackageInfo("third_party_package.A", 10201100, null)));
+
+        SparseArray<PackageIoOveruseStats> packageIoOveruseStatsByUid =
+                injectIoOveruseStatsForPackages(
+                        mGenericPackageNameByUid,
+                        /* killablePackages= */ new ArraySet<>(Collections.singletonList(
+                                "third_party_package.A")),
+                        /* shouldNotifyPackages= */ new ArraySet<>());
+
+        mWatchdogPerfHandler.setKillablePackageAsUser(
+                "third_party_package.A", UserHandle.of(102), /* isKillable= */ false);
+
+        mWatchdogPerfHandler.deleteUser(102);
+
+        List<ResourceOveruseStats> actualStats = mWatchdogPerfHandler.getAllResourceOveruseStats(
+                FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
+                CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
+
+        List<ResourceOveruseStats> expectedStats = Arrays.asList(
+                constructResourceOveruseStats(
+                        /* uid= */ 10103456, "shared:vendor_shared_package.critical",
+                        packageIoOveruseStatsByUid.get(10103456).ioOveruseStats),
+                constructResourceOveruseStats(/* uid= */ 10001100, "third_party_package.A",
+                        packageIoOveruseStatsByUid.get(10001100).ioOveruseStats));
+
+        ResourceOveruseStatsSubject.assertThat(actualStats)
+                .containsExactlyElementsIn(expectedStats);
+
+        verify(mSpiedWatchdogStorage, times(2)).syncUsers(any());
     }
 
     @Test
