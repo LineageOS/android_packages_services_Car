@@ -1779,7 +1779,7 @@ public final class CarPropertyManagerUnitTest {
         CarPropertyValue<Float> goodValue = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0,
                 Duration.ofSeconds(1).toNanos(), 17.0f);
         CarPropertyValue<Float> almostFreshValue = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0,
-                Duration.ofMillis(1999).toNanos(), 18.0f);
+                Duration.ofMillis(1899).toNanos(), 18.0f);
         List<CarPropertyEvent> eventList = List.of(
                 new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, goodValue),
                 new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,

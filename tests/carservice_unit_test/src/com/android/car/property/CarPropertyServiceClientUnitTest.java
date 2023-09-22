@@ -57,7 +57,7 @@ public class CarPropertyServiceClientUnitTest {
     private static final float SECOND_SMALLER_UPDATE_RATE_HZ = 0.5F;
     private static final long TIMESTAMP_NANOS = Duration.ofSeconds(1).toNanos();
     private static final long FRESH_TIMESTAMP_NANOS = Duration.ofSeconds(2).toNanos();
-    private static final long ALMOST_FRESH_TIMESTAMP_NANOS = Duration.ofMillis(1999).toNanos();
+    private static final long ALMOST_FRESH_TIMESTAMP_NANOS = Duration.ofMillis(1899).toNanos();
     private static final long STALE_TIMESTAMP_NANOS = Duration.ofMillis(500).toNanos();
     private static final Integer INTEGER_VALUE_1 = 8438;
     private static final Integer INTEGER_VALUE_2 = 4834;
