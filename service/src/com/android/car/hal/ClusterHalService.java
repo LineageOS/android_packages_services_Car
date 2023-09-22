@@ -187,7 +187,7 @@ public final class ClusterHalService extends HalServiceBase {
         return mIsCoreSupported && (mServiceMode == CONFIG_CLUSTER_HOME_SERVICE_FULL_MODE);
     }
 
-    private boolean isLightMode() {
+    public boolean isLightMode() {
         return mServiceMode == CONFIG_CLUSTER_HOME_SERVICE_LIGHT_MODE;
     }
 
