@@ -1303,12 +1303,16 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
 
         modifyAudioMirrorForZones(oldConfigs, newConfig);
-        mCarAudioMirrorRequestHandler.updateRemoveMirrorConfigurationForZones(requestId, newConfig);
 
         // If there are no more zones mirroring then turn it off at HAL
         if (newConfig.length == 0) {
+            Slogf.i(TAG, "Sending mirror off command to audio HAL for address %s",
+                    mirrorDevice.getAddress());
             mAudioManager.setParameters(getAudioMirroringOffCommand(mirrorDevice.getAddress()));
         }
+
+        //Send the signal to current listeners at the end
+        mCarAudioMirrorRequestHandler.updateRemoveMirrorConfigurationForZones(requestId, newConfig);
     }
 
     private void modifyAudioMirrorForZones(int[] audioZoneIds, int[] newConfig) {
