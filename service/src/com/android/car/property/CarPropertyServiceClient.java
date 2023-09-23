@@ -199,7 +199,12 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
                 return;
             }
             for (int i = 0; i < events.size(); i++) {
-                CarPropertyValue<?> carPropertyValue = events.get(i).getCarPropertyValue();
+                CarPropertyEvent event = events.get(i);
+                if (event.getEventType() == CarPropertyEvent.PROPERTY_EVENT_ERROR) {
+                    filteredEvents.add(event);
+                    continue;
+                }
+                CarPropertyValue<?> carPropertyValue = event.getCarPropertyValue();
                 int propertyId = carPropertyValue.getPropertyId();
                 int areaId = carPropertyValue.getAreaId();
                 SparseArray<CarPropertyEventTracker> areaIdToCpeTracker =
@@ -213,9 +218,8 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
                 }
 
                 CarPropertyEventTracker cpeTracker = areaIdToCpeTracker.get(areaId);
-                if (events.get(i).getEventType() == CarPropertyEvent.PROPERTY_EVENT_ERROR
-                        || cpeTracker.hasNextUpdateTimeArrived(carPropertyValue)) {
-                    filteredEvents.add(events.get(i));
+                if (cpeTracker.hasNextUpdateTimeArrived(carPropertyValue)) {
+                    filteredEvents.add(event);
                 }
             }
         }

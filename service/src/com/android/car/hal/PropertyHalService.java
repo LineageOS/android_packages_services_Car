@@ -1108,30 +1108,6 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     /**
-     * Returns update rate in Hz for the propertyId and areaId, or UPDATE_RATE_ERROR if not
-     * subscribed.
-     *
-     * The update rate returned here only considers the subscription originated from
-     * {@link PropertyHalService#subscribeProperty} and does not consider the internal subscription
-     * for async set value requests.
-     *
-     * @param mgrPropId PropertyId to get
-     * @param areaId AreaId to get
-     * @return Subscription rate
-     */
-    public float getSubscribedUpdateRateHz(int mgrPropId, int areaId) {
-        int halPropId = managerToHalPropId(mgrPropId);
-        synchronized (mLock) {
-            SparseArray<Float> areaIdToUpdateRateHz = mSubscribedHalPropIdToAreaIdToUpdateRateHz
-                    .get(halPropId);
-            if (areaIdToUpdateRateHz == null) {
-                return UPDATE_RATE_ERROR;
-            }
-            return areaIdToUpdateRateHz.get(areaId, UPDATE_RATE_ERROR);
-        }
-    }
-
-    /**
      * Get the read permission string for the property. The format of the return value of this
      * function has changed over time and thus should not be relied on.
      */

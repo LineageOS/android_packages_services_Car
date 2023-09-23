@@ -82,6 +82,11 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
 
         default void onPropertySubscribe(int property, float sampleRate) {}
 
+        /**
+         * Called when a property is subscribed.
+         */
+        default void onPropertySubscribe(int property, int[] areaIds, float sampleRate) {}
+
         default void onPropertyUnsubscribe(int property) {}
 
         VehicleHalPropertyHandler NOP = new VehicleHalPropertyHandler() {};
@@ -336,6 +341,7 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
                 }
 
                 handler.onPropertySubscribe(opt.propId, opt.sampleRate);
+                handler.onPropertySubscribe(opt.propId, opt.areaIds, opt.sampleRate);
                 List<IVehicleCallback> subscribers = mSubscribers.get(opt.propId);
                 if (subscribers == null) {
                     subscribers = new ArrayList<>();
@@ -409,6 +415,11 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
 
         @Override
         public void onPropertySubscribe(int property, float sampleRate) {
+            fail("Unexpected onPropertySubscribe call");
+        }
+
+        @Override
+        public void onPropertySubscribe(int property, int[] areaIds, float sampleRate) {
             fail("Unexpected onPropertySubscribe call");
         }
 
@@ -492,6 +503,12 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
 
         @Override
         public void onPropertySubscribe(int property, float sampleRate) {
+            assertThat(mConfig.prop).isEqualTo(property);
+            mSubscribed = true;
+        }
+
+        @Override
+        public void onPropertySubscribe(int property, int[] areaIds, float sampleRate) {
             assertThat(mConfig.prop).isEqualTo(property);
             mSubscribed = true;
         }
