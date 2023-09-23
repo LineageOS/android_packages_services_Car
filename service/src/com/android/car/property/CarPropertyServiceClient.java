@@ -179,7 +179,11 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
                 propertyIds.add(mPropIdToAreaIdToCpeTracker.keyAt(i));
             }
         }
-        mUnregisterCallback.onUnregister(propertyIds, mListenerBinder);
+        try {
+            mUnregisterCallback.onUnregister(propertyIds, mListenerBinder);
+        } catch (Exception e) {
+            Slogf.e(TAG, "registerCallback.onUnregister failed", e);
+        }
     }
 
     /**

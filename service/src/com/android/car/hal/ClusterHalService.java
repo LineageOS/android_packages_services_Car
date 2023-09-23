@@ -142,7 +142,7 @@ public final class ClusterHalService extends HalServiceBase {
         if (!isFullModeEnabled()) return;
 
         for (int property : SUBSCRIBABLE_PROPERTIES) {
-            mHal.subscribeProperty(this, property);
+            mHal.subscribePropertySafe(this, property);
         }
     }
 
