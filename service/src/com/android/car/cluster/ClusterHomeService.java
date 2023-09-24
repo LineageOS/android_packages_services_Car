@@ -117,8 +117,9 @@ public class ClusterHomeService extends IClusterHomeService.Stub
             Slogf.i(TAG, "Improper ClusterHomeActivity: %s", mClusterHomeActivity);
             return;
         }
-        if (!mClusterHalService.isCoreSupported()) {
-            Slogf.e(TAG, "No Cluster HAL properties");
+        if (!mClusterHalService.isServiceEnabled()) {
+            Slogf.e(TAG, "ClusterHomeService is disabled. To enable, it must be either in LIGHT "
+                    + "mode, or all core properties must be defined in FULL mode.");
             return;
         }
 
