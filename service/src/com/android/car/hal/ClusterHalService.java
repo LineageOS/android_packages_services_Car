@@ -26,15 +26,18 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.annotation.NonNull;
 import android.car.builtin.util.Slogf;
+import android.content.Context;
 import android.graphics.Insets;
 import android.graphics.Rect;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 
+import com.android.car.R;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IntArray;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 import java.util.Collection;
@@ -45,6 +48,15 @@ import java.util.List;
  */
 public final class ClusterHalService extends HalServiceBase {
     private static final String TAG = ClusterHalService.class.getSimpleName();
+
+    // The value of config_clusterHomeServiceOnMode that are currently supported:
+    // 0: FULL mode. ClusterHomeService is enabled only when all CORE_PROPERTIES are available.
+    // 1: LIGHT mode. No properties need to be available. In this mode, all service methods that
+    //    rely on core properties will throw IllegalStateException, regardless of whether the
+    //    property is actually available or not.
+    private static final int CONFIG_CLUSTER_HOME_SERVICE_FULL_MODE = 0;
+    private static final int CONFIG_CLUSTER_HOME_SERVICE_LIGHT_MODE = 1;
+
     public static final int DISPLAY_OFF = 0;
     public static final int DISPLAY_ON = 1;
     public static final int DONT_CARE = -1;
@@ -68,9 +80,7 @@ public final class ClusterHalService extends HalServiceBase {
          * @param insets Insets of the cluster display
          */
         void onDisplayState(int onOff, Rect bounds, Insets insets);
-    }
-
-    ;
+    };
 
     private static final int[] SUPPORTED_PROPERTIES = new int[]{
             CLUSTER_SWITCH_UI,
@@ -99,20 +109,31 @@ public final class ClusterHalService extends HalServiceBase {
 
     private final VehicleHal mHal;
 
+    // The value of config_clusterHomeServiceOnMode
+    private final int mServiceMode;
+    // Whether all CORE_PROPERTIES are available.
     private volatile boolean mIsCoreSupported;
     private volatile boolean mIsNavigationStateSupported;
 
     private final HalPropValueBuilder mPropValueBuilder;
 
-    public ClusterHalService(VehicleHal hal) {
+    public ClusterHalService(Context context, VehicleHal hal) {
         mHal = hal;
         mPropValueBuilder = hal.getHalPropValueBuilder();
+        mServiceMode = context.getResources().getInteger(R.integer.config_clusterHomeServiceMode);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Note that {@link #takeProperties} must be called before this method, so that available
+     * properties are correctly initialized.</p>
+     */
     @Override
     public void init() {
         Slogf.d(TAG, "initClusterHalService");
-        if (!isCoreSupported()) return;
+        // Do not subscribe if the config is not FULL mode, or any core property is not available.
+        if (!isFullModeEnabled()) return;
 
         for (int property : SUBSCRIBABLE_PROPERTIES) {
             mHal.subscribeProperty(this, property);
@@ -160,8 +181,18 @@ public final class ClusterHalService extends HalServiceBase {
                 mIsCoreSupported, mIsNavigationStateSupported);
     }
 
-    public boolean isCoreSupported() {
-        return mIsCoreSupported;
+    @VisibleForTesting
+    boolean isFullModeEnabled() {
+        // In FULL mode, all core properties need to be available.
+        return mIsCoreSupported && (mServiceMode == CONFIG_CLUSTER_HOME_SERVICE_FULL_MODE);
+    }
+
+    private boolean isLightMode() {
+        return mServiceMode == CONFIG_CLUSTER_HOME_SERVICE_LIGHT_MODE;
+    }
+
+    public boolean isServiceEnabled() {
+        return isFullModeEnabled() || isLightMode();
     }
 
     public boolean isNavigationStateSupported() {
@@ -175,7 +206,7 @@ public final class ClusterHalService extends HalServiceBase {
         synchronized (mLock) {
             callback = mCallback;
         }
-        if (callback == null || !isCoreSupported()) {
+        if (callback == null || !isFullModeEnabled()) {
             return;
         }
 
@@ -248,8 +279,10 @@ public final class ClusterHalService extends HalServiceBase {
      */
     public void reportState(int onOff, Rect bounds, Insets insets,
             int uiTypeMain, int uiTypeSub, byte[] uiAvailability) {
-        if (!isCoreSupported()) {
-            return;
+        if (!isFullModeEnabled()) {
+            throw new IllegalStateException(
+                    "reportState: one or more core property is not supported on this device, "
+                            + "or the service is not in FULL mode");
         }
         int[] intValues = new int[]{
             onOff,
@@ -278,8 +311,9 @@ public final class ClusterHalService extends HalServiceBase {
      * @param uiType uiType that ClusterHome tries to show in main area
      */
     public void requestDisplay(int uiType) {
-        if (!isCoreSupported()) {
-            return;
+        if (!isFullModeEnabled()) {
+            throw new IllegalStateException("requestDisplay: one or more core property is "
+                    + "not supported on this device, or the service is not in FULL mode");
         }
         HalPropValue request = mPropValueBuilder.build(CLUSTER_REQUEST_DISPLAY,
                 /* areaId= */ 0, SystemClock.elapsedRealtime(), VehiclePropertyStatus.AVAILABLE,
@@ -315,7 +349,8 @@ public final class ClusterHalService extends HalServiceBase {
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(PrintWriter writer) {
         writer.println("*Cluster HAL*");
-        writer.println("mIsCoreSupported:" + isCoreSupported());
-        writer.println("mIsNavigationStateSupported:" + isNavigationStateSupported());
+        writer.println("mIsClusterHomeServiceMode: " + mServiceMode);
+        writer.println("mIsCoreSupported: " + mIsCoreSupported);
+        writer.println("mIsNavigationStateSupported: " + mIsNavigationStateSupported);
     }
 }

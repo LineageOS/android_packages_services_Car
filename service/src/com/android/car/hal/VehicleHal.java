@@ -236,7 +236,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         mUserHal = userHal != null ? userHal :  new UserHalService(this);
         mDiagnosticHal = diagnosticHal != null ? diagnosticHal : new DiagnosticHalService(this);
         mClusterHalService = clusterHalService != null
-                ? clusterHalService : new ClusterHalService(this);
+                ? clusterHalService : new ClusterHalService(context, this);
         mEvsHal = new EvsHalService(this);
         mTimeHalService = timeHalService != null
                 ? timeHalService : new TimeHalService(context, this);
