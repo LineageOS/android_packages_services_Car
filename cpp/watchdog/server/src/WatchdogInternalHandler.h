@@ -133,6 +133,7 @@ public:
 
 private:
     status_t dumpServices(int fd);
+    status_t dumpProto(int fd);
     status_t dumpHelpText(const int fd, const std::string& errorMsg);
     void checkAndRegisterIoOveruseMonitor();
     ndk::ScopedAStatus handlePowerCycleChange(
