@@ -1245,14 +1245,56 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 mPowerHal.getDisplayBrightness(displayId)).isEqualTo(brightness);
     }
 
+    @Test
+    public void testGarageModeSystemPolicyOverride() throws Exception {
+        grantPowerPolicyPermission();
+
+        openRawResource(R.raw.valid_power_policy);
+
+        CarPowerPolicyFilter filterBluetooth = new CarPowerPolicyFilter.Builder().setComponents(
+                PowerComponent.BLUETOOTH).build();
+        CarPowerPolicyFilter filterNfc = new CarPowerPolicyFilter.Builder().setComponents(
+                PowerComponent.NFC).build();
+        MockedPowerPolicyListener listenerBluetooth = new MockedPowerPolicyListener();
+        MockedPowerPolicyListener listenerNfc = new MockedPowerPolicyListener();
+        mService.addPowerPolicyListener(filterBluetooth, listenerBluetooth);
+        mService.addPowerPolicyListener(filterNfc, listenerNfc);
+
+        mPowerHal.setCurrentPowerState(
+                new PowerState(
+                        VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY));
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_SHUTDOWN_START);
+        assertWithMessage("Garage mode immediate exit status").that(
+                mService.garageModeShouldExitImmediately()).isFalse();
+
+        waitForPowerPolicy(SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
+
+        assertWithMessage("Car power policy daemon policy ID").that(
+                mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(
+                        SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
+        PollingCheck.check("Current power policy of bluetooth listener is wrong",
+                WAIT_TIMEOUT_LONG_MS, () -> listenerBluetooth.getCurrentPowerPolicy() != null
+                        && SYSTEM_POWER_POLICY_NO_USER_INTERACTION.equals(
+                        listenerBluetooth.getCurrentPowerPolicy().getPolicyId()));
+        expectWithMessage("Bluetooth component is missing from current policy enabled components")
+                .that(listenerBluetooth.getCurrentPowerPolicy().getEnabledComponents()).asList()
+                .contains(PowerComponent.BLUETOOTH);
+        PollingCheck.check("Current power policy of NFC listener is wrong",
+                WAIT_TIMEOUT_LONG_MS, () -> listenerNfc.getCurrentPowerPolicy() != null
+                        && SYSTEM_POWER_POLICY_NO_USER_INTERACTION.equals(
+                        listenerNfc.getCurrentPowerPolicy().getPolicyId()));
+        expectWithMessage("NFC component is missing from current policy enabled components").that(
+                listenerBluetooth.getCurrentPowerPolicy().getEnabledComponents()).asList().contains(
+                PowerComponent.NFC);
+    }
+
 
     @Test
     public void testPowerPolicyNotificationCustomComponents() throws Exception {
         grantPowerPolicyPermission();
 
-        Context context = InstrumentationRegistry.getInstrumentation().getContext();
-        mService.readPowerPolicyFromXml(
-                context.getResources().openRawResource(R.raw.valid_power_policy_custom_components));
+        openRawResource(R.raw.valid_power_policy_custom_components);
 
         int custom_component_1000 = 1000;
         CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder().setComponents(
@@ -1281,9 +1323,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         String policyIdCustom = "policy_id_custom";
         String policyIdOtherOff = "policy_id_other_off";
 
-        Context context = InstrumentationRegistry.getInstrumentation().getContext();
-        mService.readPowerPolicyFromXml(
-                context.getResources().openRawResource(R.raw.valid_power_policy_custom_components));
+        openRawResource(R.raw.valid_power_policy_custom_components);
         int custom_component_1000 = 1000;
         CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder().setComponents(
                 custom_component_1000).build();
@@ -1589,6 +1629,12 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 });
     }
 
+    private void openRawResource(int resourceId) throws Exception {
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
+        mService.readPowerPolicyFromXml(
+                context.getResources().openRawResource(resourceId));
+    }
+
     private MockedPowerPolicyListener setUpPowerPolicy(String policyId, String[] enabledComponents,
             String[] disabledComponents, int... filterComponentValues) {
         mService.definePowerPolicy(policyId, enabledComponents, disabledComponents);
@@ -1629,6 +1675,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         PollingCheck.check("Policy id is not " + policyId, WAIT_TIMEOUT_LONG_MS,
                 () -> {
                     CarPowerPolicy policy = mService.getCurrentPowerPolicy();
+                    Log.d(TAG, "CarPowerManagementService current power policy is "
+                            + policy.getPolicyId());
                     return policy != null && policyId.equals(policy.getPolicyId());
                 });
     }
