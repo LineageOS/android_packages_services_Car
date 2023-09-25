@@ -18,7 +18,6 @@ package com.android.car.portraitlauncher.homeactivities;
 
 import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY;
 import static android.window.DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER;
-
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_IMMERSIVE_MODE_REQUESTED_SOURCE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_APP_GRID_VISIBILITY_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_COLLAPSE_NOTIFICATION;
@@ -174,7 +173,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private TaskViewPanel mAppGridTaskViewPanel;
     private TaskViewPanel mRootTaskViewPanel;
     private InputManagerGlobal mInputManagerGlobal;
-
     private ComponentName mUnhandledImmersiveModeRequestComponent;
     private long mUnhandledImmersiveModeRequestTimestamp;
     private boolean mUnhandledImmersiveModeRequest;
@@ -297,7 +295,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 if (shouldOpenFullScreenPanel(taskInfo)) {
                     mRootTaskViewPanel.openFullScreenPanel(/* animated= */ true,
                             /* showToolBar= */ true, mNavBarHeight);
-                    resetObscuredTouchRegion();
                     setUnhandledImmersiveModeRequest(/* componentName= */ null, /* timestamp= */ 0,
                             /* requested= */ false);
                 } else if (mAppGridTaskViewPanel.isOpen()) {
@@ -320,12 +317,24 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         @Override
         public void onTaskRemoved(int taskId) throws RemoteException {
             super.onTaskRemoved(taskId);
+            logIfDebuggable("onTaskRemoved taskId=" + taskId);
+            // Notification center dies during the transition to deferred SUW, don't respond to it.
+            if (mRootTaskViewPanel == null || mIsSUWInProgress) {
+                return;
+            }
+
+            boolean isRootTaskViewEmpty = mTaskViewManager.getRootTaskCount() == 0;
+            // It's possible that mTaskViewManager still thinks it has one task but that task is
+            // actually removed. This typically happens on deferred SUW quits.
+            ActivityManager.RunningTaskInfo taskInfo =
+                    mTaskViewManager.getTopTaskInLaunchRootTask();
+            isRootTaskViewEmpty |= mTaskViewManager.getRootTaskCount() == 1
+                    && taskInfo != null
+                    && taskInfo.taskId == taskId;
 
             // Hide the root task view panel if it is empty.
-            if (mRootTaskViewPanel != null
-                    && mTaskViewManager.getRootTaskCount() == 0
-                    && mRootTaskViewPanel.isOpen()) {
-                mRootTaskViewPanel.closePanel(false);
+            if (isRootTaskViewEmpty && mRootTaskViewPanel.isVisible()) {
+                mRootTaskViewPanel.closePanel(/* animated= */ false);
             }
         }
 
@@ -410,7 +419,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     if (shouldOpenFullScreenPanel(taskInfo)) {
                         mRootTaskViewPanel.openFullScreenPanel(/* animated= */ true,
                                 /* showToolBar= */ true, mNavBarHeight);
-                        resetObscuredTouchRegion();
                         setUnhandledImmersiveModeRequest(/* componentName= */ null,
                                 /* timestamp= */ 0, /* requested= */ false);
                     } else if (mAppGridTaskViewPanel.isOpen()) {
@@ -453,7 +461,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 if (mIsSUWInProgress) {
                     mRootTaskViewPanel.openFullScreenPanel(/* animated = */ false,
                             /* showToolBar = */ false, /* bottomAdjustment= */ 0);
-                    resetObscuredTouchRegion();
                 }
             };
 
@@ -779,7 +786,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     }
 
     private void resetObscuredTouchRegion() {
-        Rect resetRegion = new Rect(0, 0, 0, 0);
+        // TODO(b/300707398): find a proper way to reset ObscuredTouchRegion during SUW. It's
+        //  unclear why nav bar area is not touchable when below rect is (0,0,0,0).
+        Rect resetRegion = new Rect(/* left= */ 0, /* top= */ 0, /* right= */ 1, /* bottom= */ 1);
         Region resetTouchRegion = new Region();
         resetTouchRegion.union(resetRegion);
         mRootTaskViewPanel.setObscuredTouchRegion(resetTouchRegion);
@@ -1100,6 +1109,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 // Hide the control bar after the animation if in full screen.
                 if (newState.isFullScreen()) {
                     setControlBarVisibility(/* isVisible= */ false, animated);
+                    resetObscuredTouchRegion();
                 } else {
                     // Update the background task view insets to make sure their content is not
                     // covered with our panels. We only need to do this when we are not in
@@ -1194,12 +1204,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             return;
         }
 
-        if (componentName == null) {
-            // Quit immersive mode if the car is moving and in immersive mode.
-            if (mCarUiPortraitDriveStateController.isDrivingStateMoving()
-                    && mRootTaskViewPanel.isFullScreen()) {
-                mRootTaskViewPanel.openPanel();
-            }
+        if (mCarUiPortraitDriveStateController.isDrivingStateMoving()
+                && mRootTaskViewPanel.isFullScreen()) {
+            mRootTaskViewPanel.openPanel();
             return;
         }
 
@@ -1215,7 +1222,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         if (requested) {
             mRootTaskViewPanel.openFullScreenPanel(/* animated= */ true, /* showToolBar= */ true,
                     mNavBarHeight);
-            resetObscuredTouchRegion();
         } else {
             mRootTaskViewPanel.openPanelWithIcon();
         }
@@ -1273,7 +1279,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     if (mIsSUWInProgress) {
                         mRootTaskViewPanel.openFullScreenPanel(/* animated= */false,
                                 /* showToolBar= */ false, /* bottomAdjustment= */ 0);
-                        resetObscuredTouchRegion();
                     } else {
                         mRootTaskViewPanel.closePanel();
                     }

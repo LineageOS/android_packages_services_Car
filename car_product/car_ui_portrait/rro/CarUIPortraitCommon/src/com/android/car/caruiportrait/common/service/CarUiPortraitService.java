@@ -168,6 +168,7 @@ public class CarUiPortraitService extends Service {
     public static final int MSG_COLLAPSE_RECENTS = 13;
 
     private boolean mIsSystemInImmersiveMode;
+    private String mImmersiveModeSource;
     private boolean mIsSuwInProgress;
     private BroadcastReceiver mSysUiRequestsReceiver;
 
@@ -235,11 +236,15 @@ public class CarUiPortraitService extends Service {
             public void onReceive(Context context, Intent intent) {
                 boolean isImmersive = intent.getBooleanExtra(
                         INTENT_EXTRA_IS_IMMERSIVE_MODE_REQUESTED, false);
+                String source = intent.getStringExtra(
+                        INTENT_EXTRA_IMMERSIVE_MODE_REQUESTED_SOURCE);
+                Log.d(TAG, "Immersive request: source = " + source + ", request=" + isImmersive);
                 if (intent.hasExtra(INTENT_EXTRA_IS_IMMERSIVE_MODE_REQUESTED)
-                        && isImmersive != mIsSystemInImmersiveMode) {
+                        && isImmersive != mIsSystemInImmersiveMode
+                        && source != null
+                        && !source.equals(mImmersiveModeSource)) {
                     mIsSystemInImmersiveMode = isImmersive;
-                    String source = intent.getStringExtra(
-                            INTENT_EXTRA_IMMERSIVE_MODE_REQUESTED_SOURCE);
+                    mImmersiveModeSource = source;
                     Bundle bundle = new Bundle();
                     bundle.putString(INTENT_EXTRA_IMMERSIVE_MODE_REQUESTED_SOURCE, source);
                     notifyClients(MSG_IMMERSIVE_MODE_REQUESTED, boolToInt(isImmersive), bundle);
