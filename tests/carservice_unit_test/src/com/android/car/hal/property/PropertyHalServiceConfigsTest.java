@@ -162,7 +162,7 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
         assertThat(mPropertyHalServiceConfigs
                 .isWritable(mContext, VehiclePropertyIds.HVAC_FAN_SPEED)).isTrue();
         assertThat(mPropertyHalServiceConfigs
-                .isReadable(mContext, VehiclePropertyIds.WINDSHIELD_WIPERS_SWITCH)).isFalse();
+                .isReadable(mContext, VehiclePropertyIds.WINDSHIELD_WIPERS_SWITCH)).isTrue();
         assertThat(mPropertyHalServiceConfigs
                 .isWritable(mContext, VehiclePropertyIds.WINDSHIELD_WIPERS_SWITCH)).isTrue();
         assertThat(mPropertyHalServiceConfigs
