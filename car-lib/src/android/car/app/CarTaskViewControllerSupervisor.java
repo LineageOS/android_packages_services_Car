@@ -15,6 +15,8 @@
  */
 package android.car.app;
 
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
+
 import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -23,6 +25,9 @@ import android.app.Activity;
 import android.car.app.CarTaskViewControllerHostLifecycle.CarTaskViewControllerHostLifecycleObserver;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.util.Slogf;
+import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.UserLifecycleEventFilter;
 import android.content.Context;
 import android.os.Build;
 import android.os.IBinder;
@@ -31,7 +36,6 @@ import android.util.ArrayMap;
 
 import com.android.internal.annotations.GuardedBy;
 
-import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
@@ -44,7 +48,7 @@ import java.util.concurrent.Executor;
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 final class CarTaskViewControllerSupervisor {
     private static final String TAG = CarTaskViewControllerSupervisor.class.getSimpleName();
-    private final Map<CarTaskViewControllerHostLifecycle, ActivityHolder> mActivityHolders =
+    private final ArrayMap<CarTaskViewControllerHostLifecycle, ActivityHolder> mActivityHolders =
             new ArrayMap<>();
     private final ICarActivityService mCarActivityService;
     private final Executor mMainExecutor;
@@ -63,7 +67,7 @@ final class CarTaskViewControllerSupervisor {
             mCarTaskViewControllerHostLifecycleObserver =
             new CarTaskViewControllerHostLifecycleObserver() {
                 public void onHostAppeared(CarTaskViewControllerHostLifecycle lifecycle) {
-                    mActivityHolders.get(lifecycle).showEmbeddedTasks();
+                    mActivityHolders.get(lifecycle).maybeShowEmbeddedTasks();
                 }
 
                 @Override
@@ -96,9 +100,13 @@ final class CarTaskViewControllerSupervisor {
     /**
      * @param carActivityService the handle to the {@link com.android.car.am.CarActivityService}.
      */
-    CarTaskViewControllerSupervisor(ICarActivityService carActivityService, Executor mainExecutor) {
+    CarTaskViewControllerSupervisor(ICarActivityService carActivityService, Executor mainExecutor,
+            @NonNull CarUserManager carUserManager) {
         mCarActivityService = carActivityService;
         mMainExecutor = mainExecutor;
+        UserLifecycleEventFilter filter = new UserLifecycleEventFilter.Builder()
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED).build();
+        carUserManager.addListener(mainExecutor, filter, mUserLifecycleListener);
     }
 
     private static IBinder getToken(Activity activity) {
@@ -212,11 +220,13 @@ final class CarTaskViewControllerSupervisor {
             mCarActivityService = carActivityService;
         }
 
-        private void showEmbeddedTasks() {
-            if (mCarTaskViewController == null) {
-                return;
+        private void maybeShowEmbeddedTasks() {
+            synchronized (mLock) {
+                if (mCarTaskViewController == null || !mCarTaskViewController.isHostVisible()) {
+                    return;
+                }
+                mCarTaskViewController.showEmbeddedTasks();
             }
-            mCarTaskViewController.showEmbeddedTasks();
         }
 
         private void onCarSystemUIConnected(ICarSystemUIProxy systemUIProxy) {
@@ -278,4 +288,15 @@ final class CarTaskViewControllerSupervisor {
             }
         }
     }
+
+    private UserLifecycleListener mUserLifecycleListener = new UserLifecycleListener() {
+        @Override
+        public void onEvent(@NonNull CarUserManager.UserLifecycleEvent event) {
+            // Only called when USER_LIFECYCLE_EVENT_TYPE_UNLOCKED.
+            for (int i = mActivityHolders.size() - 1; i >= 0; --i) {
+                ActivityHolder activityHolder = mActivityHolders.valueAt(i);
+                activityHolder.maybeShowEmbeddedTasks();
+            }
+        }
+    };
 }
