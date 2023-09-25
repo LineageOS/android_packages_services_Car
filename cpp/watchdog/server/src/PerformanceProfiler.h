@@ -290,13 +290,22 @@ private:
 
     void clearExpiredSystemEventCollections(time_t now);
 
-    // Populate UserPackageSummaryStats in onDumpProto.
     void dumpStatsRecordsProto(const CollectionInfo& collection,
                                android::util::ProtoOutputStream& outProto) const;
 
-    // Populate PackageCpuStats in onDumpProto.
-    void dumpPackageCpuStatsProto(const UserPackageSummaryStats& userPackageSummaryStats,
+    void dumpPackageCpuStatsProto(const std::vector<UserPackageStats>& userPackageStats,
                                   android::util::ProtoOutputStream& outProto) const;
+
+    void dumpPackageStorageIoStatsProto(const std::vector<UserPackageStats>& userPackageStats,
+                                        const uint64_t storageStatsFieldId,
+                                        android::util::ProtoOutputStream& outProto) const;
+
+    void dumpPackageTaskStateStatsProto(const std::vector<UserPackageStats>& userPackageStats,
+                                        const std::unordered_map<uid_t, uint64_t>& taskCountByUid,
+                                        android::util::ProtoOutputStream& outProto) const;
+
+    void dumpPackageMajorPageFaultsProto(const std::vector<UserPackageStats>& userPackageStats,
+                                         android::util::ProtoOutputStream& outProto) const;
 
     std::function<int64_t()> kGetElapsedTimeSinceBootMillisFunc;
 
