@@ -123,6 +123,8 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.ArraySet;
+import android.util.AtomicFile;
+import android.util.JsonReader;
 import android.util.SparseArray;
 import android.util.StatsEvent;
 import android.view.Display;
@@ -144,9 +146,13 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -173,6 +179,11 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
             WatchdogPerfHandlerUnitTest.class.getCanonicalName();
     private static final String CAR_WATCHDOG_SERVICE_NAME =
             CarWatchdogService.class.getSimpleName();
+    private static final String SYSTEM_IO_USAGE_SUMMARY_REPORTED_DATE =
+            "systemIoUsageSummaryReportedDate";
+    private static final String UID_IO_USAGE_SUMMARY_REPORTED_DATE =
+            "uidIoUsageSummaryReportedDate";
+    private static final String METADATA_FILENAME = "metadata.json";
 
     @Mock
     private Context mMockContext;
@@ -342,8 +353,6 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                     mockListener);
         });
     }
-
-    //TODO(b/293374687): Add relevant tests for writeMetadataFile.
 
     @Test
     public void testProcessUserNotificationIntentDisablePackage() {
@@ -646,6 +655,50 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
         assertThat(mICarUxRestrictionsChangeListenerCaptor.getValue())
                 .isEqualTo(mCarUxRestrictionsChangeListener);
+    }
+
+    @Test
+    public void testWriteMetadataFile() throws Exception {
+        ZonedDateTime systemIoUsageReportedDate = null;
+        ZonedDateTime uidIoUsageReportedDate = null;
+
+        // Set mLastSystemIoUsageSummaryReportedDate and mLastUidIoUsageSummaryReportedDate.
+        assertWithMessage("Stats pull atom callback status")
+                .that(mStatsPullAtomCallback.onPullAtom(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY,
+                        new ArrayList<>())).isEqualTo(PULL_SUCCESS);
+
+        mWatchdogPerfHandler.writeMetadataFile();
+
+        File metadataFile = new File(mTempSystemCarDir.getAbsolutePath() + '/' + WATCHDOG_DIR_NAME,
+                METADATA_FILENAME);
+        AtomicFile atomicFile = new AtomicFile(metadataFile);
+
+        FileInputStream fis = atomicFile.openRead();
+        JsonReader reader = new JsonReader(new InputStreamReader(fis, StandardCharsets.UTF_8));
+        reader.beginObject();
+        while (reader.hasNext()) {
+            String name = reader.nextName();
+            switch (name) {
+                case SYSTEM_IO_USAGE_SUMMARY_REPORTED_DATE:
+                    systemIoUsageReportedDate = ZonedDateTime.parse(reader.nextString(),
+                            DateTimeFormatter.ISO_DATE_TIME.withZone(ZONE_OFFSET));
+                    break;
+                case UID_IO_USAGE_SUMMARY_REPORTED_DATE:
+                    uidIoUsageReportedDate = ZonedDateTime.parse(reader.nextString(),
+                            DateTimeFormatter.ISO_DATE_TIME.withZone(ZONE_OFFSET));
+                    break;
+                default:
+                    reader.skipValue();
+            }
+        }
+        reader.endObject();
+
+        expectWithMessage("System IO Usage Summary Reported Date")
+                .that(systemIoUsageReportedDate)
+                .isEqualTo(mTimeSource.getCurrentDate());
+        expectWithMessage("UID IO Usage Summary Reported Date")
+                .that(uidIoUsageReportedDate)
+                .isEqualTo(mTimeSource.getCurrentDate().minus(RETENTION_PERIOD));
     }
 
     @Test

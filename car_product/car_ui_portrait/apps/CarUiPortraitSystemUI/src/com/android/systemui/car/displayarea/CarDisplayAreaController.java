@@ -58,7 +58,7 @@ import javax.inject.Inject;
 public class CarDisplayAreaController implements ConfigurationController.ConfigurationListener,
         CommandQueue.Callbacks {
 
-    private static final String TAG = "CarDisplayAreaController";
+    private static final String TAG = CarDisplayAreaController.class.getSimpleName();
     private static final boolean DEBUG = Build.IS_DEBUGGABLE;
     private final DisplayAreaOrganizer mOrganizer;
     private final CarFullscreenTaskListener mCarFullscreenTaskListener;

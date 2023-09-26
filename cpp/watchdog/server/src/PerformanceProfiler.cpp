@@ -663,23 +663,34 @@ void PerformanceProfiler::dumpStatsRecordsProto(const CollectionInfo& collection
 
         outProto.end(systemWideStatsToken);
 
-        dumpPackageCpuStatsProto(record.userPackageSummaryStats, outProto);
+        dumpPackageCpuStatsProto(record.userPackageSummaryStats.topNCpuTimes, outProto);
+
+        dumpPackageStorageIoStatsProto(record.userPackageSummaryStats.topNIoReads,
+                                       StatsRecord::PACKAGE_STORAGE_IO_READ_STATS, outProto);
+
+        dumpPackageStorageIoStatsProto(record.userPackageSummaryStats.topNIoWrites,
+                                       StatsRecord::PACKAGE_STORAGE_IO_WRITE_STATS, outProto);
+
+        dumpPackageTaskStateStatsProto(record.userPackageSummaryStats.topNIoBlocked,
+                                       record.userPackageSummaryStats.taskCountByUid, outProto);
+
+        dumpPackageMajorPageFaultsProto(record.userPackageSummaryStats.topNMajorFaults, outProto);
 
         outProto.end(statsRecordToken);
     }
 }
 
 void PerformanceProfiler::dumpPackageCpuStatsProto(
-        const UserPackageSummaryStats& userPackageSummaryStats, ProtoOutputStream& outProto) const {
-    for (const auto& userPackageStat : userPackageSummaryStats.topNCpuTimes) {
+        const std::vector<UserPackageStats>& topNCpuTimes, ProtoOutputStream& outProto) const {
+    for (const auto& userPackageStats : topNCpuTimes) {
         uint64_t packageCpuStatsToken = outProto.start(StatsRecord::PACKAGE_CPU_STATS);
         const auto& procCpuStatsView =
-                std::get_if<UserPackageStats::ProcCpuStatsView>(&userPackageStat.statsView);
+                std::get_if<UserPackageStats::ProcCpuStatsView>(&userPackageStats.statsView);
 
         uint64_t userPackageInfoToken = outProto.start(PackageCpuStats::USER_PACKAGE_INFO);
         outProto.write(UserPackageInfo::USER_ID,
-                       static_cast<int>(multiuser_get_user_id(userPackageStat.uid)));
-        outProto.write(UserPackageInfo::PACKAGE_NAME, userPackageStat.genericPackageName);
+                       static_cast<int>(multiuser_get_user_id(userPackageStats.uid)));
+        outProto.write(UserPackageInfo::PACKAGE_NAME, userPackageStats.genericPackageName);
         outProto.end(userPackageInfoToken);
 
         uint64_t cpuStatsToken = outProto.start(PackageCpuStats::CPU_STATS);
@@ -704,6 +715,91 @@ void PerformanceProfiler::dumpPackageCpuStatsProto(
             outProto.end(processCpuStatToken);
         }
         outProto.end(packageCpuStatsToken);
+    }
+}
+
+void PerformanceProfiler::dumpPackageStorageIoStatsProto(
+        const std::vector<UserPackageStats>& userPackageStats, const uint64_t storageStatsFieldId,
+        ProtoOutputStream& outProto) const {
+    for (const auto& userPackageStats : userPackageStats) {
+        uint64_t token = outProto.start(storageStatsFieldId);
+        const auto& ioStatsView =
+                std::get_if<UserPackageStats::IoStatsView>(&userPackageStats.statsView);
+
+        uint64_t userPackageInfoToken = outProto.start(PackageStorageIoStats::USER_PACKAGE_INFO);
+        outProto.write(UserPackageInfo::USER_ID,
+                       static_cast<int>(multiuser_get_user_id(userPackageStats.uid)));
+        outProto.write(UserPackageInfo::PACKAGE_NAME, userPackageStats.genericPackageName);
+        outProto.end(userPackageInfoToken);
+
+        uint64_t storageIoStatsToken = outProto.start(PackageStorageIoStats::STORAGE_IO_STATS);
+        outProto.write(StorageIoStats::FG_BYTES, static_cast<int>(ioStatsView->bytes[FOREGROUND]));
+        outProto.write(StorageIoStats::FG_FSYNC, static_cast<int>(ioStatsView->fsync[FOREGROUND]));
+        outProto.write(StorageIoStats::BG_BYTES, static_cast<int>(ioStatsView->bytes[BACKGROUND]));
+        outProto.write(StorageIoStats::BG_FSYNC, static_cast<int>(ioStatsView->fsync[BACKGROUND]));
+        outProto.end(storageIoStatsToken);
+
+        outProto.end(token);
+    }
+}
+
+void PerformanceProfiler::dumpPackageTaskStateStatsProto(
+        const std::vector<UserPackageStats>& topNIoBlocked,
+        const std::unordered_map<uid_t, uint64_t>& taskCountByUid,
+        ProtoOutputStream& outProto) const {
+    for (const auto& userPackageStats : topNIoBlocked) {
+        const auto taskCount = taskCountByUid.find(userPackageStats.uid);
+        if (taskCount == taskCountByUid.end()) {
+            continue;
+        }
+
+        uint64_t packageTaskStateStatsToken = outProto.start(StatsRecord::PACKAGE_TASK_STATE_STATS);
+        const auto& procSingleStatsView =
+                std::get_if<UserPackageStats::ProcSingleStatsView>(&userPackageStats.statsView);
+
+        uint64_t userPackageInfoToken = outProto.start(PackageTaskStateStats::USER_PACKAGE_INFO);
+        outProto.write(UserPackageInfo::USER_ID,
+                       static_cast<int>(multiuser_get_user_id(userPackageStats.uid)));
+        outProto.write(UserPackageInfo::PACKAGE_NAME, userPackageStats.genericPackageName);
+        outProto.end(userPackageInfoToken);
+
+        outProto.write(PackageTaskStateStats::IO_BLOCKED_TASK_COUNT,
+                       static_cast<int>(procSingleStatsView->value));
+        outProto.write(PackageTaskStateStats::TOTAL_TASK_COUNT,
+                       static_cast<int>(taskCount->second));
+
+        for (const auto& processValue : procSingleStatsView->topNProcesses) {
+            uint64_t processTaskStateStatsToken =
+                    outProto.start(PackageTaskStateStats::PROCESS_TASK_STATE_STATS);
+            outProto.write(PackageTaskStateStats::ProcessTaskStateStats::COMMAND,
+                           processValue.comm);
+            outProto.write(PackageTaskStateStats::ProcessTaskStateStats::IO_BLOCKED_TASK_COUNT,
+                           static_cast<int>(processValue.value));
+            outProto.end(processTaskStateStatsToken);
+        }
+
+        outProto.end(packageTaskStateStatsToken);
+    }
+}
+
+void PerformanceProfiler::dumpPackageMajorPageFaultsProto(
+        const std::vector<UserPackageStats>& topNMajorFaults, ProtoOutputStream& outProto) const {
+    for (const auto& userPackageStats : topNMajorFaults) {
+        uint64_t packageMajorPageFaultsToken =
+                outProto.start(StatsRecord::PACKAGE_MAJOR_PAGE_FAULTS);
+        const auto& procSingleStatsView =
+                std::get_if<UserPackageStats::ProcSingleStatsView>(&userPackageStats.statsView);
+
+        uint64_t userPackageInfoToken = outProto.start(PackageMajorPageFaults::USER_PACKAGE_INFO);
+        outProto.write(UserPackageInfo::USER_ID,
+                       static_cast<int>(multiuser_get_user_id(userPackageStats.uid)));
+        outProto.write(UserPackageInfo::PACKAGE_NAME, userPackageStats.genericPackageName);
+        outProto.end(userPackageInfoToken);
+
+        outProto.write(PackageMajorPageFaults::MAJOR_PAGE_FAULTS_COUNT,
+                       static_cast<int>(procSingleStatsView->value));
+
+        outProto.end(packageMajorPageFaultsToken);
     }
 }
 

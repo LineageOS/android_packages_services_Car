@@ -675,12 +675,14 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Normal permission {@link Car#PERMISSION_ENERGY_PORTS} to read property.
+     *  <li>Normal permission {@link Car#PERMISSION_ENERGY_PORTS} or Signature|Privileged permission
+     *  "android.car.permission.CONTROL_CAR_ENERGY_PORTS"to read property.
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_ENERGY_PORTS" to
      *  write property.
      * </ul>
      */
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY_PORTS))
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_ENERGY_PORTS,
+            Car.PERMISSION_CONTROL_ENERGY_PORTS}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ENERGY_PORTS))
     public static final int FUEL_DOOR_OPEN = 287310600;
     /**
@@ -746,12 +748,14 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Normal permission {@link Car#PERMISSION_ENERGY_PORTS} to read property.
+     *  <li>Normal permission {@link Car#PERMISSION_ENERGY_PORTS} or Signature|Privileged permission
+     *  "android.car.permission.CONTROL_CAR_ENERGY_PORTS"to read property.
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_ENERGY_PORTS" to
      *  write property.
      * </ul>
      */
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY_PORTS))
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_ENERGY_PORTS,
+            Car.PERMISSION_CONTROL_ENERGY_PORTS}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ENERGY_PORTS))
     public static final int EV_CHARGE_PORT_OPEN = 287310602;
     /**
@@ -812,12 +816,14 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} or Signature|Privileged permission
+     *  "android.car.permission.ADJUST_RANGE_REMAINING" to read property.
      *  <li>Signature|Privileged permission "android.car.permission.ADJUST_RANGE_REMAINING" to write
      *  property.
      * </ul>
      */
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_ENERGY,
+            Car.PERMISSION_ADJUST_RANGE_REMAINING}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_ADJUST_RANGE_REMAINING))
     public static final int RANGE_REMAINING = 291504904;
     /**
@@ -1047,12 +1053,14 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Normal permission {@link Car#PERMISSION_POWERTRAIN} to read property.
+     *  <li>Normal permission {@link Car#PERMISSION_POWERTRAIN} or Signature|Privileged permission
+     *  "android.car.permission.CONTROL_CAR_POWERTRAIN" to read property.
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_POWERTRAIN" to write
      *  property.
      * </ul>
      */
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_POWERTRAIN))
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_POWERTRAIN,
+            Car.PERMISSION_CONTROL_POWERTRAIN}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_POWERTRAIN))
     public static final int EV_BRAKE_REGENERATION_LEVEL = 289408012;
     /**
@@ -1075,14 +1083,16 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Normal permission {@link Car#PERMISSION_POWERTRAIN} to read property.
+     *  <li>Normal permission {@link Car#PERMISSION_POWERTRAIN} or Signature|Privileged permission
+     *  "android.car.permission.CONTROL_CAR_POWERTRAIN" to read property.
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_POWERTRAIN" to write
      *  property.
      * </ul>
      *
      * @data_enum {@link EvStoppingMode}
      */
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_POWERTRAIN))
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_POWERTRAIN,
+            Car.PERMISSION_CONTROL_POWERTRAIN}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_POWERTRAIN))
     public static final int EV_STOPPING_MODE = 289408013;
     /**
@@ -3836,7 +3846,8 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_WINDSHIELD_WIPERS} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_WINDSHIELD_WIPERS} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_WINDSHIELD_WIPERS} to read
      *  property.
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_WINDSHIELD_WIPERS} to
      *  write property.
@@ -3847,7 +3858,8 @@ public final class VehiclePropertyIds {
      * @hide
      */
     @SystemApi
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_WINDSHIELD_WIPERS))
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_READ_WINDSHIELD_WIPERS,
+            Car.PERMISSION_CONTROL_WINDSHIELD_WIPERS}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_WINDSHIELD_WIPERS))
     public static final int WINDSHIELD_WIPERS_SWITCH = 322964423;
 
@@ -5031,12 +5043,14 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} or Signature|Privileged permission
+     *  "android.car.permission.CONTROL_CAR_ENERGY" to read property.
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_ENERGY" to write
      *  property.
      * </ul>
      */
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_ENERGY,
+            Car.PERMISSION_CONTROL_CAR_ENERGY}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_CAR_ENERGY))
     public static final int EV_CHARGE_CURRENT_DRAW_LIMIT = 291508031;
 
@@ -5066,12 +5080,14 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} or Signature|Privileged permission
+     *  "android.car.permission.CONTROL_CAR_ENERGY" to read property.
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_ENERGY" to write
      *  property.
      * </ul>
      */
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_ENERGY,
+            Car.PERMISSION_CONTROL_CAR_ENERGY}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_CAR_ENERGY))
     public static final int EV_CHARGE_PERCENT_LIMIT = 291508032;
 
@@ -5273,7 +5289,8 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to read
      *  property.
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
      *  property.
@@ -5282,7 +5299,8 @@ public final class VehiclePropertyIds {
      * @hide
      */
     @SystemApi
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_SETTINGS))
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_READ_ADAS_SETTINGS,
+            Car.PERMISSION_CONTROL_ADAS_SETTINGS}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
     public static final int AUTOMATIC_EMERGENCY_BRAKING_ENABLED = 287313920;
 
@@ -5346,7 +5364,8 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to read
      *  property.
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
      *  property.
@@ -5355,7 +5374,8 @@ public final class VehiclePropertyIds {
      * @hide
      */
     @SystemApi
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_SETTINGS))
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_READ_ADAS_SETTINGS,
+            Car.PERMISSION_CONTROL_ADAS_SETTINGS}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
     public static final int FORWARD_COLLISION_WARNING_ENABLED = 287313922;
 
@@ -5417,7 +5437,8 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to read
      *  property.
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
      *  property.
@@ -5426,7 +5447,8 @@ public final class VehiclePropertyIds {
      * @hide
      */
     @SystemApi
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_SETTINGS))
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_READ_ADAS_SETTINGS,
+            Car.PERMISSION_CONTROL_ADAS_SETTINGS}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
     public static final int BLIND_SPOT_WARNING_ENABLED = 287313924;
 
@@ -5488,7 +5510,8 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to read
      *  property.
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
      *  property.
@@ -5497,7 +5520,8 @@ public final class VehiclePropertyIds {
      * @hide
      */
     @SystemApi
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_SETTINGS))
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_READ_ADAS_SETTINGS,
+            Car.PERMISSION_CONTROL_ADAS_SETTINGS}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
     public static final int LANE_DEPARTURE_WARNING_ENABLED = 287313926;
 
@@ -5563,7 +5587,8 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to read
      *  property.
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
      *  property.
@@ -5572,7 +5597,8 @@ public final class VehiclePropertyIds {
      * @hide
      */
     @SystemApi
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_SETTINGS))
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_READ_ADAS_SETTINGS,
+            Car.PERMISSION_CONTROL_ADAS_SETTINGS}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
     public static final int LANE_KEEP_ASSIST_ENABLED = 287313928;
 
@@ -5642,7 +5668,8 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to read
      *  property.
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
      *  property.
@@ -5651,7 +5678,8 @@ public final class VehiclePropertyIds {
      * @hide
      */
     @SystemApi
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_SETTINGS))
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_READ_ADAS_SETTINGS,
+            Car.PERMISSION_CONTROL_ADAS_SETTINGS}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
     public static final int LANE_CENTERING_ASSIST_ENABLED = 287313930;
 
@@ -5762,7 +5790,8 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to read
      *  property.
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
      *  property.
@@ -5771,7 +5800,8 @@ public final class VehiclePropertyIds {
      * @hide
      */
     @SystemApi
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_SETTINGS))
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_READ_ADAS_SETTINGS,
+            Car.PERMISSION_CONTROL_ADAS_SETTINGS}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
     public static final int EMERGENCY_LANE_KEEP_ASSIST_ENABLED = 287313933;
 
@@ -5837,7 +5867,8 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to read
      *  property.
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
      *  property.
@@ -5846,7 +5877,8 @@ public final class VehiclePropertyIds {
      * @hide
      */
     @SystemApi
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_SETTINGS))
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_READ_ADAS_SETTINGS,
+            Car.PERMISSION_CONTROL_ADAS_SETTINGS}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
     public static final int CRUISE_CONTROL_ENABLED = 287313935;
 
@@ -5882,7 +5914,8 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_STATES} to read
      *  property.
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_STATES} to write
      *  property.
@@ -5894,7 +5927,8 @@ public final class VehiclePropertyIds {
      * @hide
      */
     @SystemApi
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_STATES))
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_READ_ADAS_STATES,
+            Car.PERMISSION_CONTROL_ADAS_STATES}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_STATES))
     public static final int CRUISE_CONTROL_TYPE = 289411088;
 
@@ -6040,7 +6074,8 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_STATES} to read
      *  property.
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_STATES} to write
      *  property.
@@ -6049,7 +6084,8 @@ public final class VehiclePropertyIds {
      * @hide
      */
     @SystemApi
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_STATES))
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_READ_ADAS_STATES,
+            Car.PERMISSION_CONTROL_ADAS_STATES}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_STATES))
     public static final int ADAPTIVE_CRUISE_CONTROL_TARGET_TIME_GAP = 289411092;
 
@@ -6116,7 +6152,8 @@ public final class VehiclePropertyIds {
      * <p>Required Permissions:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_SETTINGS}
-     *  to read property.
+     *  or Signature|Privileged permission {@link
+     *  Car#PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS} to read property.
      *  <li>Signature|Privileged permission {@link
      *  Car#PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS} to write property.
      * </ul>
@@ -6124,7 +6161,9 @@ public final class VehiclePropertyIds {
      * @hide
      */
     @SystemApi
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS))
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {
+            Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS,
+            Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS}))
     @RequiresPermission.Write(@RequiresPermission(
             Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS))
     public static final int HANDS_ON_DETECTION_ENABLED = 287313942;
