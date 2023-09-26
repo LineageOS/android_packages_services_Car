@@ -41,6 +41,7 @@ import android.widget.TextView;
 
 import com.google.android.car.kitchensink.R;
 
+import java.util.Arrays;
 import java.util.List;
 
 class PropertyListAdapter extends BaseAdapter implements ListAdapter {
@@ -178,12 +179,18 @@ class PropertyListAdapter extends BaseAdapter implements ListAdapter {
         @Override
         public void onChangeEvent(CarPropertyValue value) {
             int propId = value.getPropertyId();
+            int areaId = value.getAreaId();
 
             mNumEvents.put(propId, mNumEvents.get(propId) + 1);
-            mTvLogEvent.append(String.format("Event %1$s: time=%2$s propId=0x%3$s areaId=0x%3$s "
-                            + "name=%4$s status=%5$s value=%6$s", mNumEvents.get(propId),
-                    value.getTimestamp(), toHexString(propId), VehiclePropertyIds.toString(propId),
-                    value.getStatus(), value.getValue()));
+
+            String valueString = value.getValue().getClass().isArray()
+                    ? Arrays.toString((Object[]) value.getValue())
+                    : value.getValue().toString();
+
+            mTvLogEvent.append(String.format("Event %1$s: time=%2$s propId=0x%3$s areaId=0x%4$s "
+                            + "name=%5$s status=%6$s value=%7$s", mNumEvents.get(propId),
+                    value.getTimestamp(), toHexString(propId), toHexString(areaId),
+                    VehiclePropertyIds.toString(propId), value.getStatus(), valueString));
             if (mPropSampleRate.contains(propId)) {
                 mTvLogEvent.append(
                         String.format(" selected sample rate=%1$s actual sample rate=%2$s\n",

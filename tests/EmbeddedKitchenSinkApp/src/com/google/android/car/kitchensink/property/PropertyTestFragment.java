@@ -49,6 +49,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -285,8 +286,11 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                     + "\n[1]=" + (Long) ticks[1] + " [2]=" + (Long) ticks[2]
                     + "\n[3]=" + (Long) ticks[3] + " [4]=" + (Long) ticks[4]);
         } else {
+            String valueString = value.getClass().isArray()
+                    ? Arrays.toString((Object[]) value)
+                    : value.toString();
             mGetValue.setText("Timestamp=" + timestamp
-                    + "\nvalue=" + value
+                    + "\nvalue=" + valueString
                     + "\nread=" + mMgr.getReadPermission(propId)
                     + "\nwrite=" + mMgr.getWritePermission(propId));
         }
