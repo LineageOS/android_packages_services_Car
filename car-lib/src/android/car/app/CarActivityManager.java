@@ -16,6 +16,8 @@
 
 package android.car.app;
 
+import static android.Manifest.permission.INTERACT_ACROSS_USERS;
+
 import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.IntDef;
@@ -32,6 +34,7 @@ import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
+import android.car.user.CarUserManager;
 import android.car.view.MirroredSurfaceView;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -476,7 +479,7 @@ public final class CarActivityManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @RequiresPermission(Car.PERMISSION_MANAGE_CAR_SYSTEM_UI)
+    @RequiresPermission(allOf = {Car.PERMISSION_MANAGE_CAR_SYSTEM_UI, INTERACT_ACROSS_USERS})
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
@@ -508,7 +511,7 @@ public final class CarActivityManager extends CarManagerBase {
      * @hide
      */
     // TODO(b/293297847): Expose this as system API
-    @RequiresPermission(Car.PERMISSION_MANAGE_CAR_SYSTEM_UI)
+    @RequiresPermission(allOf = {Car.PERMISSION_MANAGE_CAR_SYSTEM_UI, INTERACT_ACROSS_USERS})
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
@@ -523,7 +526,7 @@ public final class CarActivityManager extends CarManagerBase {
             if (mCarTaskViewControllerSupervisor == null) {
                 // Same supervisor is used for multiple activities.
                 mCarTaskViewControllerSupervisor = new CarTaskViewControllerSupervisor(mService,
-                        getContext().getMainExecutor());
+                        getContext().getMainExecutor(), mCar.getCarManager(CarUserManager.class));
             }
             mCarTaskViewControllerSupervisor.createCarTaskViewController(
                     hostContext,
