@@ -132,6 +132,7 @@ public class ClusterHomeServiceUnitTest {
             return null;
         }).when(mOccupantZoneService).registerCallback(any(ICarOccupantZoneCallback.class));
         when(mClusterHalService.isServiceEnabled()).thenReturn(true);
+        when(mClusterHalService.isLightMode()).thenReturn(false);
         when(mClusterHalService.isNavigationStateSupported()).thenReturn(true);
         when(mDisplayManager.getDisplay(CLUSTER_DISPLAY_ID)).thenReturn(mClusterDisplay);
         doAnswer(invocation -> {
@@ -145,7 +146,7 @@ public class ClusterHomeServiceUnitTest {
         mClusterHomeService.init();
     }
 
-    public void registerClusterHomeCallbacks() {
+    private void registerClusterHomeCallbacks() {
         mClusterStateListener = new IClusterStateListenerImpl();
         mClusterNavigationStateListener = new IClusterNavigationStateListenerImpl();
         mClusterHomeService.registerClusterStateListener(mClusterStateListener);
@@ -177,6 +178,15 @@ public class ClusterHomeServiceUnitTest {
         assertThat(intentCaptor.getValue().getComponent()).isEqualTo(mClusterHomeActivity);
         assertThat(activityOptionsCaptor.getValue().getLaunchDisplayId())
                 .isEqualTo(CLUSTER_DISPLAY_ID);
+    }
+
+    @Test
+    public void init_lightMode_setsDisplayOn() {
+        when(mClusterHalService.isLightMode()).thenReturn(true);
+
+        mClusterHomeService.init();
+
+        assertThat(mClusterHomeService.getClusterState().on).isEqualTo(true);
     }
 
     @Test
