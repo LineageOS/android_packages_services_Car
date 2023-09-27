@@ -28,6 +28,7 @@ import android.car.CarManagerBase;
 import android.car.builtin.util.Slogf;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
@@ -132,14 +133,6 @@ public final class CarRemoteAccessManager extends CarManagerBase {
     })
     @Target({ElementType.TYPE_USE})
     public @interface NextPowerState {}
-
-    /**
-     * The error code for {@link android.os.ServiceSpecificException} used by {@link scheduleTask}.
-     *
-     * @hide
-     */
-    @SystemApi
-    public static final int SERVICE_ERROR_SCHEDULE_TASK = 1;
 
     private final ICarRemoteAccessService mService;
     private final Object mLock = new Object();
@@ -468,7 +461,8 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * time. If the device is off when the task is scheduled to be executed, the device will be
      * woken up to execute the task.
      *
-     * @return {@code true} if serverless remote task scheduling is supported.
+     * @return {@code true} if serverless remote task scheduling is supported by the HAL and the
+     *      caller is a pre-configured serverless remote task client.
      *
      * @hide
      */
@@ -490,7 +484,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * <p>See {@link InVehicleTaskScheduler.scheduleTask} for usage.
      *
      * @return An in vehicle task scheduler or {@code null} if {@link isTaskScheduleSupported} is
-     *      {@code false} or this client is not a serverless remote task client.
+     *      {@code false}.
      *
      * @hide
      */
@@ -572,6 +566,10 @@ public final class CarRemoteAccessManager extends CarManagerBase {
             private boolean mBuilderUsed;
 
             Builder(String scheduleId, byte[] taskData, long startTimeInEpochSeconds) {
+                Preconditions.checkArgument(scheduleId != null, "scheduleId must not be null");
+                Preconditions.checkArgument(taskData != null, "taskData must not be null");
+                Preconditions.checkArgument(startTimeInEpochSeconds > 0,
+                        "startTimeInEpochSeconds must > 0");
                 mScheduleId = scheduleId;
                 mTaskData = taskData;
                 mStartTimeInEpochSeconds = startTimeInEpochSeconds;
@@ -607,6 +605,8 @@ public final class CarRemoteAccessManager extends CarManagerBase {
             @NonNull
             public Builder setPeriodic(@NonNull Duration periodic) {
                 Preconditions.checkArgument(periodic != null, "periodic must not be null");
+                Preconditions.checkArgument(!periodic.isNegative(),
+                        "periodic must not be negative");
                 mPeriodic = periodic;
                 return this;
             }
@@ -622,6 +622,9 @@ public final class CarRemoteAccessManager extends CarManagerBase {
                             + "builder instance instead");
                 }
                 mBuilderUsed = true;
+                if (mCount == 1) {
+                    mPeriodic = Duration.ZERO;
+                }
                 return new ScheduleInfo(mScheduleId, mTaskData, mCount, mStartTimeInEpochSeconds,
                         mPeriodic);
             }
@@ -709,6 +712,21 @@ public final class CarRemoteAccessManager extends CarManagerBase {
     };
 
     /**
+     * Exception that might be thrown by {@link InVehicleTaskScheduler} methods.
+     *
+     * <p>This indicates that something is wrong while communicating with the external device
+     * which is responsible for managing task schedule or the external device reports some error.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final class InVehicleTaskSchedulerException extends Exception {
+        InVehicleTaskSchedulerException(Throwable cause) {
+            super(cause);
+        }
+    }
+
+    /**
      * A scheduler for scheduling a task to be executed later.
      *
      * <p>It schedules a task via sending a scheduled task message to a device in the same vehicle,
@@ -758,20 +776,22 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          *
          * @throws IllegalArgumentException if a pending schedule with the same {@code scheduleId}
          *      for this client exists.
-         * @throws ServiceSpecificException if unable to schedule the task. The error code will
-         *      always be {@link SERVICE_ERROR_SCHEDULE_TASK}.
+         * @throws InVehicleTaskSchedulerException if unable to schedule the task.
          *
          * @hide
          */
         @SystemApi
         @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
-        public void scheduleTask(@NonNull ScheduleInfo scheduleInfo) {
+        public void scheduleTask(@NonNull ScheduleInfo scheduleInfo)
+                throws InVehicleTaskSchedulerException {
             Preconditions.checkArgument(scheduleInfo != null, "scheduleInfo cannot be null");
             TaskScheduleInfo taskScheduleInfo = toTaskScheduleInfo(scheduleInfo);
             try {
                 mService.scheduleTask(taskScheduleInfo);
             } catch (RemoteException e) {
                 handleRemoteExceptionFromCarService(e);
+            } catch (ServiceSpecificException e) {
+                throw new InVehicleTaskSchedulerException(e);
             }
         }
 
@@ -782,16 +802,21 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          *
          * <p>Does nothing if a pending schedule with {@code scheduleId} does not exist.
          *
+         * @throws InVehicleTaskSchedulerException if failed to unschedule the tasks.
+         *
          * @hide
          */
         @SystemApi
         @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
-        public void unscheduleTask(@NonNull String scheduleId) {
+        public void unscheduleTask(@NonNull String scheduleId)
+                throws InVehicleTaskSchedulerException {
             Preconditions.checkArgument(scheduleId != null, "scheduleId cannot be null");
             try {
                 mService.unscheduleTask(scheduleId);
             } catch (RemoteException e) {
                 handleRemoteExceptionFromCarService(e);
+            } catch (ServiceSpecificException e) {
+                throw new InVehicleTaskSchedulerException(e);
             }
         }
 
@@ -799,14 +824,18 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          * Unschedules all scheduled tasks for this client.
          *
          * @hide
+         *
+         * @throws InVehicleTaskSchedulerException if failed to unschedule the tasks.
          */
         @SystemApi
         @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
-        public void unscheduleAllTasks() {
+        public void unscheduleAllTasks() throws InVehicleTaskSchedulerException {
             try {
                 mService.unscheduleAllTasks();
             } catch (RemoteException e) {
                 handleRemoteExceptionFromCarService(e);
+            } catch (ServiceSpecificException e) {
+                throw new InVehicleTaskSchedulerException(e);
             }
         }
 
@@ -815,17 +844,21 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          *
          * @param scheduleId The ID for the schedule.
          * @return {@code true} if the task was scheduled and pending to be executed.
+         * @throws InVehicleTaskSchedulerException if failed to check whether the task is scheduled.
          *
          * @hide
          */
         @SystemApi
         @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
-        public boolean isTaskScheduled(@NonNull String scheduleId) {
+        public boolean isTaskScheduled(@NonNull String scheduleId)
+                throws InVehicleTaskSchedulerException {
             Preconditions.checkArgument(scheduleId != null, "scheduleId cannot be null");
             try {
                 return mService.isTaskScheduled(scheduleId);
             } catch (RemoteException e) {
                 return handleRemoteExceptionFromCarService(e, false);
+            } catch (ServiceSpecificException e) {
+                throw new InVehicleTaskSchedulerException(e);
             }
         }
 
@@ -836,15 +869,14 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          *
          * @return A list of schedule info.
          *
-         * @throws ServiceSpecificException if unable to get the scheduled tasks. The error code
-         *      will always be {@link SERVICE_ERROR_SCHEDULE_TASK}.
+         * @throws InVehicleTaskSchedulerException if unable to get the scheduled tasks.
          *
          * @hide
          */
         @SystemApi
         @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
         @NonNull
-        public List<ScheduleInfo> getAllScheduledTasks() {
+        public List<ScheduleInfo> getAllScheduledTasks() throws InVehicleTaskSchedulerException {
             List<ScheduleInfo> scheduleInfoList = new ArrayList<>();
             try {
                 List<TaskScheduleInfo> taskScheduleInfoList = mService.getAllScheduledTasks();
@@ -854,6 +886,8 @@ public final class CarRemoteAccessManager extends CarManagerBase {
                 return scheduleInfoList;
             } catch (RemoteException e) {
                 return handleRemoteExceptionFromCarService(e, scheduleInfoList);
+            } catch (ServiceSpecificException e) {
+                throw new InVehicleTaskSchedulerException(e);
             }
         }
 

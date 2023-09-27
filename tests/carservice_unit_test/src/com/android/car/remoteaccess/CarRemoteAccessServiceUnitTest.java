@@ -16,6 +16,7 @@
 
 package com.android.car.remoteaccess;
 
+import static android.car.remoteaccess.ICarRemoteAccessService.SERVICE_ERROR_CODE_GENERAL;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 
 import static com.android.car.remoteaccess.RemoteAccessStorage.RemoteAccessDbHelper.DATABASE_NAME;
@@ -46,6 +47,7 @@ import android.car.hardware.power.ICarPowerStateListener;
 import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.remoteaccess.ICarRemoteAccessCallback;
 import android.car.remoteaccess.RemoteTaskClientRegistrationInfo;
+import android.car.remoteaccess.TaskScheduleInfo;
 import android.car.test.AbstractExpectableTestCase;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
@@ -59,8 +61,10 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
+import android.hardware.automotive.remoteaccess.ScheduleInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -145,6 +149,7 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
             new ClientIdEntry("12345", System.currentTimeMillis(), "we.are.the.world"),
             new ClientIdEntry("98765", System.currentTimeMillis(), "android.automotive.os")
     );
+    private static final String TEST_SERVERLESS_CLIENT_ID = "serverless_client_1234";
     private static final String EMPTY_SERVERLESS_CLIENT_MAP_XML =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
             + "<ServerlessClientMap xmlns:car=\"http://schemas.android.com/apk/res-auto\">"
@@ -153,8 +158,8 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
             + "<ServerlessClientMap xmlns:car=\"http://schemas.android.com/apk/res-auto\">"
             + "  <ServerlessClient>"
-            + "    <ClientId>serverless_client_1234</ClientId>"
-            + "    <PackageName>android.car.app1</PackageName>"
+            + "    <ClientId>" + TEST_SERVERLESS_CLIENT_ID + "</ClientId>"
+            + "    <PackageName>" + SERVERLESS_PACKAGE + "</PackageName>"
             + "  </ServerlessClient>"
             + "  <ServerlessClient>"
             + "    <ClientId>serverless_client_2345</ClientId>"
@@ -167,14 +172,20 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
             + "<!-- comment -->"
             + "<ServerlessClientMap xmlns:car=\"http://schemas.android.com/apk/res-auto\">"
             + "  <ServerlessClient>"
-            + "    <ClientId>serverless_client_1234</ClientId>"
-            + "    <PackageName>android.car.app1</PackageName>"
+            + "    <ClientId>" + TEST_SERVERLESS_CLIENT_ID + "</ClientId>"
+            + "    <PackageName>" + SERVERLESS_PACKAGE + "</PackageName>"
             + "  </ServerlessClient>"
             + "  <ServerlessClient>"
             + "    <ClientId>serverless_client_2345</ClientId>"
             + "    <PackageName>android.car.app2</PackageName>"
             + "  </ServerlessClient>"
             + "</ServerlessClientMap>";
+    private static final String TEST_SCHEDULE_ID = "TEST_SCHEDULE_ID";
+    private static final byte[] TEST_TASK_DATA = new byte[]{(byte) 0xDE, (byte) 0xAD, (byte) 0xBE,
+            (byte) 0xEF};
+    private static final int TEST_TASK_COUNT = 1234;
+    private static final long TEST_START_TIME = 2345;
+    private static final long TEST_PERIODIC = 3456;
 
     private CarRemoteAccessService mService;
     private ICarRemoteAccessCallbackImpl mRemoteAccessCallback;
@@ -198,6 +209,7 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
 
     @Captor private ArgumentCaptor<UserLifecycleListener> mUserLifecycleListenerCaptor;
     @Captor private ArgumentCaptor<RemoteTaskClientRegistrationInfo> mRegistrationInfoCaptor;
+    @Captor private ArgumentCaptor<ScheduleInfo> mHalScheduleInfoCaptor;
 
     private CarRemoteAccessService newServiceWithSystemUpTime(long systemUpTime) {
         CarRemoteAccessService service =  new CarRemoteAccessService(mContext, mSystemInterface,
@@ -242,6 +254,8 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
         when(mRemoteAccessHalWrapper.getProcessorId()).thenReturn(TEST_PROCESSOR_ID);
         when(mRemoteAccessHalWrapper.notifyApStateChange(anyBoolean(), anyBoolean()))
                 .thenReturn(true);
+        // By default task scheduling is not supported.
+        when(mRemoteAccessHalWrapper.isTaskScheduleSupported()).thenReturn(false);
         when(mCarPowerManagementService.getLastShutdownState())
                 .thenReturn(CarRemoteAccessManager.NEXT_POWER_STATE_OFF);
         when(mSystemInterface.getSystemCarDir()).thenReturn(mDatabaseFile.getParentFile());
@@ -1241,6 +1255,297 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
                 clientIdsByPackageName.get("android.car.app1")).isEqualTo("serverless_client_1234");
         expectWithMessage("client ID for package 2").that(
                 clientIdsByPackageName.get("android.car.app2")).isEqualTo("serverless_client_2345");
+    }
+
+    private void enableTaskScheduling() {
+        when(mRemoteAccessHalWrapper.isTaskScheduleSupported()).thenReturn(true);
+        mService = newServiceWithSystemUpTime(ALLOWED_SYSTEM_UP_TIME_FOR_TESTING_MS);
+    }
+
+    @Test
+    public void testIsTaskScheduleSupported_true() throws Exception {
+        enableTaskScheduling();
+        when(mDep.getCallingUid()).thenReturn(UID_SERVERLESS_PACKAGE);
+        XmlResourceParser fakeXmlResourceParser = getFakeXmlResourceParser(
+                SERVERLESS_CLIENT_MAP_XML);
+        when(mResources.getXml(R.xml.remote_access_serverless_client_map)).thenReturn(
+                fakeXmlResourceParser);
+        mService.init();
+
+        assertThat(mService.isTaskScheduleSupported()).isTrue();
+    }
+
+    @Test
+    public void testIsTaskScheduleSupported_halNotSupported() {
+        mService.init();
+
+        assertThat(mService.isTaskScheduleSupported()).isFalse();
+    }
+
+    @Test
+    public void testIsTaskScheduleSupported_clientNotConfigured() throws Exception {
+        enableTaskScheduling();
+        // UID_PERMISSION_GRANTED_PACKAGE_ONE is not a serverless remote task client.
+        when(mDep.getCallingUid()).thenReturn(UID_PERMISSION_GRANTED_PACKAGE_ONE);
+        XmlResourceParser fakeXmlResourceParser = getFakeXmlResourceParser(
+                SERVERLESS_CLIENT_MAP_XML);
+        when(mResources.getXml(R.xml.remote_access_serverless_client_map)).thenReturn(
+                fakeXmlResourceParser);
+        mService.init();
+
+        assertThat(mService.isTaskScheduleSupported()).isFalse();
+    }
+
+    // Sets isTaskScheduleSupported to be true. Registers the caller as a serverless remote task
+    // client.
+    private void prepareTaskSchedule() throws Exception {
+        enableTaskScheduling();
+        when(mDep.getCallingUid()).thenReturn(UID_SERVERLESS_PACKAGE);
+        XmlResourceParser fakeXmlResourceParser = getFakeXmlResourceParser(
+                SERVERLESS_CLIENT_MAP_XML);
+        when(mResources.getXml(R.xml.remote_access_serverless_client_map)).thenReturn(
+                fakeXmlResourceParser);
+        mService.init();
+        runBootComplete();
+        mService.addCarRemoteTaskClient(mRemoteAccessCallback);
+    }
+
+    private TaskScheduleInfo getTestTaskScheduleInfo() {
+        TaskScheduleInfo taskScheduleInfo = new TaskScheduleInfo();
+        taskScheduleInfo.scheduleId = TEST_SCHEDULE_ID;
+        taskScheduleInfo.taskData = TEST_TASK_DATA;
+        taskScheduleInfo.count = TEST_TASK_COUNT;
+        taskScheduleInfo.startTimeInEpochSeconds = TEST_START_TIME;
+        taskScheduleInfo.periodicInSeconds = TEST_PERIODIC;
+        return taskScheduleInfo;
+    }
+
+    @Test
+    public void testScheduleTask() throws Exception {
+        prepareTaskSchedule();
+
+        TaskScheduleInfo testTaskScheduleInfo = getTestTaskScheduleInfo();
+        mService.scheduleTask(testTaskScheduleInfo);
+
+        verify(mRemoteAccessHalWrapper).scheduleTask(mHalScheduleInfoCaptor.capture());
+        ScheduleInfo halScheduleInfo = mHalScheduleInfoCaptor.getValue();
+        expectWithMessage("ScheduleInfo.clientId").that(halScheduleInfo.clientId).isEqualTo(
+                CLIENT_ID_SERVERLESS);
+        expectWithMessage("ScheduleInfo.scheduleId").that(halScheduleInfo.scheduleId).isEqualTo(
+                TEST_SCHEDULE_ID);
+        expectWithMessage("ScheduleInfo.taskData").that(halScheduleInfo.taskData).isEqualTo(
+                TEST_TASK_DATA);
+        expectWithMessage("ScheduleInfo.count").that(halScheduleInfo.count).isEqualTo(
+                TEST_TASK_COUNT);
+        expectWithMessage("ScheduleInfo.startTimeInEpochSeconds").that(
+                halScheduleInfo.startTimeInEpochSeconds).isEqualTo(TEST_START_TIME);
+        expectWithMessage("ScheduleInfo.periodicInSeconds").that(
+                halScheduleInfo.periodicInSeconds).isEqualTo(TEST_PERIODIC);
+    }
+
+    @Test
+    public void testScheduleTask_unsupported() throws Exception {
+        mService.init();
+
+        TaskScheduleInfo testTaskScheduleInfo = getTestTaskScheduleInfo();
+        assertThrows(IllegalStateException.class, () ->
+                mService.scheduleTask(testTaskScheduleInfo));
+    }
+
+    @Test
+    public void testScheduleTask_notServerlessClient() throws Exception {
+        enableTaskScheduling();
+        runBootComplete();
+        mService.init();
+        prepareCarRemoteTaskClient();
+
+        TaskScheduleInfo testTaskScheduleInfo = getTestTaskScheduleInfo();
+        assertThrows(IllegalStateException.class, () ->
+                mService.scheduleTask(testTaskScheduleInfo));
+    }
+
+    @Test
+    public void testScheduleTask_RemoteException() throws Exception {
+        prepareTaskSchedule();
+        doThrow(new RemoteException()).when(mRemoteAccessHalWrapper).scheduleTask(any());
+
+        TaskScheduleInfo testTaskScheduleInfo = getTestTaskScheduleInfo();
+        ServiceSpecificException e = assertThrows(ServiceSpecificException.class, () ->
+                mService.scheduleTask(testTaskScheduleInfo));
+        assertThat(e.errorCode).isEqualTo(SERVICE_ERROR_CODE_GENERAL);
+    }
+
+    @Test
+    public void testScheduleTask_serviceSpecificException() throws Exception {
+        prepareTaskSchedule();
+        doThrow(new ServiceSpecificException(1234)).when(mRemoteAccessHalWrapper)
+                .scheduleTask(any());
+
+        TaskScheduleInfo testTaskScheduleInfo = getTestTaskScheduleInfo();
+        ServiceSpecificException e = assertThrows(ServiceSpecificException.class, () ->
+                mService.scheduleTask(testTaskScheduleInfo));
+        assertThat(e.errorCode).isEqualTo(SERVICE_ERROR_CODE_GENERAL);
+    }
+
+    @Test
+    public void testUnscheduleTask() throws Exception {
+        prepareTaskSchedule();
+
+        mService.unscheduleTask(TEST_SCHEDULE_ID);
+
+        verify(mRemoteAccessHalWrapper).unscheduleTask(CLIENT_ID_SERVERLESS, TEST_SCHEDULE_ID);
+    }
+
+    @Test
+    public void testUnscheduleTask_unsupported() throws Exception {
+        mService.init();
+
+        assertThrows(IllegalStateException.class, () -> mService.unscheduleTask(TEST_SCHEDULE_ID));
+    }
+
+    @Test
+    public void testUnscheduleTask_RemoteException() throws Exception {
+        prepareTaskSchedule();
+        doThrow(new RemoteException()).when(mRemoteAccessHalWrapper).unscheduleTask(any(), any());
+
+        ServiceSpecificException e = assertThrows(ServiceSpecificException.class, () ->
+                mService.unscheduleTask(TEST_SCHEDULE_ID));
+        assertThat(e.errorCode).isEqualTo(SERVICE_ERROR_CODE_GENERAL);
+    }
+
+    @Test
+    public void testUnscheduleTask_serviceSpecificException() throws Exception {
+        prepareTaskSchedule();
+        doThrow(new ServiceSpecificException(1234)).when(mRemoteAccessHalWrapper)
+                .unscheduleTask(any(), any());
+
+        ServiceSpecificException e = assertThrows(ServiceSpecificException.class, () ->
+                mService.unscheduleTask(TEST_SCHEDULE_ID));
+        assertThat(e.errorCode).isEqualTo(SERVICE_ERROR_CODE_GENERAL);
+    }
+
+    @Test
+    public void testUnscheduleAllTasks() throws Exception {
+        prepareTaskSchedule();
+
+        mService.unscheduleAllTasks();
+
+        verify(mRemoteAccessHalWrapper).unscheduleAllTasks(CLIENT_ID_SERVERLESS);
+    }
+
+    @Test
+    public void testUnscheduleAllTasks_unsupported() throws Exception {
+        mService.init();
+
+        assertThrows(IllegalStateException.class, () -> mService.unscheduleAllTasks());
+    }
+
+    @Test
+    public void testUnscheduleAllTasks_RemoteException() throws Exception {
+        prepareTaskSchedule();
+        doThrow(new RemoteException()).when(mRemoteAccessHalWrapper).unscheduleAllTasks(any());
+
+        ServiceSpecificException e = assertThrows(ServiceSpecificException.class, () ->
+                mService.unscheduleAllTasks());
+        assertThat(e.errorCode).isEqualTo(SERVICE_ERROR_CODE_GENERAL);
+    }
+
+    @Test
+    public void testUnscheduleAllTasks_serviceSpecificException() throws Exception {
+        prepareTaskSchedule();
+        doThrow(new ServiceSpecificException(1234)).when(mRemoteAccessHalWrapper)
+                .unscheduleAllTasks(any());
+
+        ServiceSpecificException e = assertThrows(ServiceSpecificException.class, () ->
+                mService.unscheduleAllTasks());
+        assertThat(e.errorCode).isEqualTo(SERVICE_ERROR_CODE_GENERAL);
+    }
+
+    @Test
+    public void testIsTaskScheduled() throws Exception {
+        prepareTaskSchedule();
+
+        when(mRemoteAccessHalWrapper.isTaskScheduled(CLIENT_ID_SERVERLESS, TEST_SCHEDULE_ID))
+                .thenReturn(true);
+
+        assertThat(mService.isTaskScheduled(TEST_SCHEDULE_ID)).isTrue();
+    }
+
+    @Test
+    public void testIsTaskScheduled_unsupported() throws Exception {
+        mService.init();
+
+        assertThrows(IllegalStateException.class, () -> mService.isTaskScheduled(
+                TEST_SCHEDULE_ID));
+    }
+
+    @Test
+    public void testIsTaskScheduled_RemoteException() throws Exception {
+        prepareTaskSchedule();
+        doThrow(new RemoteException()).when(mRemoteAccessHalWrapper).isTaskScheduled(any(), any());
+
+        ServiceSpecificException e = assertThrows(ServiceSpecificException.class, () ->
+                mService.isTaskScheduled(TEST_SCHEDULE_ID));
+        assertThat(e.errorCode).isEqualTo(SERVICE_ERROR_CODE_GENERAL);
+    }
+
+    @Test
+    public void testIsTaskScheduled_serviceSpecificException() throws Exception {
+        prepareTaskSchedule();
+        doThrow(new ServiceSpecificException(1234)).when(mRemoteAccessHalWrapper)
+                .isTaskScheduled(any(), any());
+
+        ServiceSpecificException e = assertThrows(ServiceSpecificException.class, () ->
+                mService.isTaskScheduled(TEST_SCHEDULE_ID));
+        assertThat(e.errorCode).isEqualTo(SERVICE_ERROR_CODE_GENERAL);
+    }
+
+    @Test
+    public void testGetAllScheduledTasks() throws Exception {
+        prepareTaskSchedule();
+        ScheduleInfo scheduleInfo = new ScheduleInfo();
+        scheduleInfo.scheduleId = TEST_SCHEDULE_ID;
+        scheduleInfo.taskData = TEST_TASK_DATA;
+        scheduleInfo.count = TEST_TASK_COUNT;
+        scheduleInfo.startTimeInEpochSeconds = TEST_START_TIME;
+        scheduleInfo.periodicInSeconds = TEST_PERIODIC;
+        when(mRemoteAccessHalWrapper.getAllScheduledTasks(CLIENT_ID_SERVERLESS))
+                .thenReturn(List.of(scheduleInfo));
+
+        List<TaskScheduleInfo> taskScheduleInfoList = mService.getAllScheduledTasks();
+
+        assertWithMessage("TaskScheduleInfo list").that(taskScheduleInfoList).hasSize(1);
+        assertWithMessage("TaskScheduleInfo").that(taskScheduleInfoList.get(0)).isEqualTo(
+                getTestTaskScheduleInfo());
+    }
+
+    @Test
+    public void testGetAllScheduledTasks_unsupported() throws Exception {
+        mService.init();
+
+        assertThrows(IllegalStateException.class, () -> mService.getAllScheduledTasks());
+    }
+
+    @Test
+    public void testGetAllScheduledTasks_remoteException() throws Exception {
+        prepareTaskSchedule();
+        when(mRemoteAccessHalWrapper.getAllScheduledTasks(CLIENT_ID_SERVERLESS))
+                .thenThrow(new RemoteException());
+
+        ServiceSpecificException e = assertThrows(ServiceSpecificException.class, () ->
+                mService.getAllScheduledTasks());
+        assertThat(e.errorCode).isEqualTo(SERVICE_ERROR_CODE_GENERAL);
+    }
+
+    @Test
+    public void testGetAllScheduledTasks_serviceSpecificException() throws Exception {
+        prepareTaskSchedule();
+        when(mRemoteAccessHalWrapper.getAllScheduledTasks(CLIENT_ID_SERVERLESS))
+                .thenThrow(new ServiceSpecificException(1234));
+
+        ServiceSpecificException e = assertThrows(ServiceSpecificException.class, () ->
+                mService.getAllScheduledTasks());
+        assertThat(e.errorCode).isEqualTo(SERVICE_ERROR_CODE_GENERAL);
     }
 
     private ICarPowerStateListener getCarPowerStateListener() {
