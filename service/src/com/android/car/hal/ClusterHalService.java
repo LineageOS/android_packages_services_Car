@@ -349,7 +349,7 @@ public final class ClusterHalService extends HalServiceBase {
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(PrintWriter writer) {
         writer.println("*Cluster HAL*");
-        writer.println("mIsClusterHomeServiceMode: " + mServiceMode);
+        writer.println("mServiceMode: " + mServiceMode);
         writer.println("mIsCoreSupported: " + mIsCoreSupported);
         writer.println("mIsNavigationStateSupported: " + mIsNavigationStateSupported);
     }
