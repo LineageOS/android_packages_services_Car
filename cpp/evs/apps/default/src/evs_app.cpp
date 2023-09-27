@@ -33,6 +33,7 @@
 #include <utils/StrongPointer.h>
 
 #include <IVhalClient.h>
+#include <assert.h>
 #include <signal.h>
 #include <stdio.h>
 
