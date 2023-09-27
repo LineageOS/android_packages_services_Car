@@ -20,6 +20,8 @@
 <!-- These resources are around just to allow their values to be customized
      for different hardware and product builds.  Do not translate. -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- The dreams feature (screensavers) is not supported in android auto -->
+    <bool name="config_dreamsSupported">false</bool>
     <!-- Disable local-display-mirror-content -->
     <bool name="config_localDisplaysMirrorContent">false</bool>
     <!-- Enable multi-user. -->

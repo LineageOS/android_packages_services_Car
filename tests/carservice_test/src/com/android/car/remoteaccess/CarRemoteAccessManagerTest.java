@@ -417,9 +417,9 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
 
         mCarRemoteAccessManager.clearRemoteTaskClient();
 
+        clearInvocations(mRemoteTaskClientCallback);
         mCarRemoteAccessManager.setRemoteTaskClient(mExecutor, mRemoteTaskClientCallback);
 
-        clearInvocations(mRemoteTaskClientCallback);
         verify(mRemoteTaskClientCallback, timeout(DEFAULT_TIME_OUT_MS)).onRegistrationUpdated(
                 mRegistrationInfoCaptor.capture());
         registrationInfo = mRegistrationInfoCaptor.getValue();
