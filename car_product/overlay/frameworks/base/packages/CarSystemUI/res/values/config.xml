@@ -19,6 +19,8 @@
 
 <!-- Resource overrides for car system ui. -->
 <resources>
+    <!-- The dreams feature (screensavers) is not supported in android auto -->
+    <bool name="config_dreamsSupported">false</bool>
 
     <!-- Notifications on the car should not show the gear icon. Swiping should only dismiss the
          cards. -->
