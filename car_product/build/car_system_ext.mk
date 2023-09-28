@@ -24,17 +24,14 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/window_extensions.mk)
 PRODUCT_PACKAGES += \
     CarDeveloperOptions \
     CarProvision \
-    CarSystemUI \
+    CarSystemUI
 
 PRODUCT_PACKAGES_DEBUG += \
-    BugReportApp \
+    BugReportApp
 
 # Default dex optimization configurations
 PRODUCT_SYSTEM_EXT_PROPERTIES += \
-    dalvik.vm.dex2oat-cpu-set=0,1 \
-    dalvik.vm.dex2oat-threads=2 \
-    pm.dexopt.disable_bg_dexopt=false \
-    pm.dexopt.downgrade_after_inactive_days=10 \
+    pm.dexopt.downgrade_after_inactive_days=10
 
 # Disable Prime Shader Cache in SurfaceFlinger to make it available faster
 PRODUCT_SYSTEM_EXT_PROPERTIES += \
@@ -45,7 +42,7 @@ PRODUCT_SYSTEM_EXT_PROPERTIES += \
     keyguard.no_require_sim=true \
     ro.carrier=unknown \
     ro.com.android.dataroaming?=true \
-    ro.hardware.type=automotive \
+    ro.hardware.type=automotive
 
 # Always disable Compose features in SystemUI to avoid APK size increase.
 SYSTEMUI_USE_COMPOSE := false

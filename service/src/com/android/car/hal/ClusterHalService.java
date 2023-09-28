@@ -187,7 +187,7 @@ public final class ClusterHalService extends HalServiceBase {
         return mIsCoreSupported && (mServiceMode == CONFIG_CLUSTER_HOME_SERVICE_FULL_MODE);
     }
 
-    private boolean isLightMode() {
+    public boolean isLightMode() {
         return mServiceMode == CONFIG_CLUSTER_HOME_SERVICE_LIGHT_MODE;
     }
 
@@ -349,7 +349,7 @@ public final class ClusterHalService extends HalServiceBase {
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(PrintWriter writer) {
         writer.println("*Cluster HAL*");
-        writer.println("mIsClusterHomeServiceMode: " + mServiceMode);
+        writer.println("mServiceMode: " + mServiceMode);
         writer.println("mIsCoreSupported: " + mIsCoreSupported);
         writer.println("mIsNavigationStateSupported: " + mIsNavigationStateSupported);
     }

@@ -122,6 +122,12 @@ public class ClusterHomeService extends IClusterHomeService.Stub
                     + "mode, or all core properties must be defined in FULL mode.");
             return;
         }
+        // In FULL mode mOnOff is set to 'OFF', and can be changed by the CLUSTER_DISPLAY_STATE
+        // property. In LIGHT mode, we set it to 'ON' because the CLUSTER_DISPLAY_STATE property may
+        // not be available, and we do not subscribe to it.
+        if (mClusterHalService.isLightMode()) {
+            mOnOff = DISPLAY_ON;
+        }
 
         mServiceEnabled = true;
         mClusterHalService.setCallback(this);
