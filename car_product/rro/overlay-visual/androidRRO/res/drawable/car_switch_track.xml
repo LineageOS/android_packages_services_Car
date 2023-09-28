@@ -27,7 +27,7 @@
             <size
                 android:height="@dimen/car_switch_track_height"
                 android:width="@dimen/car_switch_track_width" />
-            <solid android:color="?attr/colorSwitchTrack" />
+            <solid android:color="@color/car_switch_track_background_selector" />
         </shape>
     </item>
     <item

@@ -20,7 +20,7 @@
         android:gravity="center_vertical|fill_horizontal">
         <shape>
             <size android:height="@dimen/car_seekbar_background_height" />
-            <solid android:color="@color/car_seekbar_background_color" />
+            <solid android:color="@color/car_seekbar_background_color_selector" />
             <corners android:radius="@dimen/car_seekbar_background_corner_radius" />
         </shape>
     </item>
@@ -31,7 +31,7 @@
                 <size android:height="@dimen/car_seekbar_height" />
                 <corners android:radius="@dimen/car_seekbar_rounded_corner_radius" />
                 <solid
-                    android:color="@color/car_seekbar_secondary_color" />
+                    android:color="@color/car_seekbar_secondary_color_selector" />
             </shape>
         </clip>
     </item>
@@ -41,7 +41,7 @@
             <shape>
                 <size android:height="@dimen/car_seekbar_height" />
                 <corners android:radius="@dimen/car_seekbar_rounded_corner_radius" />
-                <solid android:color="@color/car_seekbar_primary_color" />
+                <solid android:color="@color/car_seekbar_primary_color_selector" />
             </shape>
         </clip>
     </item>
