@@ -25,6 +25,7 @@ import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 
@@ -46,7 +47,8 @@ public final class HalPropConfigTest {
     private static final int GLOBAL_INTEGER_VEC_PROP_ID =
             1 | VehicleArea.GLOBAL | VehiclePropertyType.INT32_VEC;
     private static final int TEST_AREA_ID = 2;
-    private static final int TEST_ACCESS = 2;
+    private static final int TEST_ACCESS = VehiclePropertyAccess.READ_WRITE;
+    private static final int TEST_ALTERNATE_ACCESS = VehiclePropertyAccess.READ;
     private static final int TEST_CHANGE_MODE = VehiclePropertyChangeMode.ON_CHANGE;
     private static final int[] TEST_CONFIG_ARRAY = new int[]{1, 2, 3};
     private static final ArrayList<Integer> TEST_CONFIG_ARRAY_LIST = new ArrayList<Integer>(
@@ -115,6 +117,22 @@ public final class HalPropConfigTest {
 
     private static VehicleAreaConfig getTestAidlAreaConfig() {
         VehicleAreaConfig aidlAreaConfig = new VehicleAreaConfig();
+        aidlAreaConfig.access = TEST_ACCESS;
+        aidlAreaConfig.areaId = TEST_AREA_ID;
+        aidlAreaConfig.minInt32Value = MIN_INT32_VALUE;
+        aidlAreaConfig.maxInt32Value = MAX_INT32_VALUE;
+        aidlAreaConfig.minInt64Value = MIN_INT64_VALUE;
+        aidlAreaConfig.maxInt64Value = MAX_INT64_VALUE;
+        aidlAreaConfig.minFloatValue = MIN_FLOAT_VALUE;
+        aidlAreaConfig.maxFloatValue = MAX_FLOAT_VALUE;
+        aidlAreaConfig.supportedEnumValues = SUPPORTED_ENUM_VALUES;
+        aidlAreaConfig.supportVariableUpdateRate = true;
+        return aidlAreaConfig;
+    }
+
+    private static VehicleAreaConfig getTestAlternateAidlAreaConfig() {
+        VehicleAreaConfig aidlAreaConfig = new VehicleAreaConfig();
+        aidlAreaConfig.access = TEST_ALTERNATE_ACCESS;
         aidlAreaConfig.areaId = TEST_AREA_ID;
         aidlAreaConfig.minInt32Value = MIN_INT32_VALUE;
         aidlAreaConfig.maxInt32Value = MAX_INT32_VALUE;
@@ -151,6 +169,7 @@ public final class HalPropConfigTest {
         assertThat(halPropConfig.getAreaConfigs().length).isEqualTo(1);
 
         HalAreaConfig halAreaConfig = halPropConfig.getAreaConfigs()[0];
+        assertThat(halAreaConfig.getAccess()).isEqualTo(TEST_ACCESS);
         assertThat(halAreaConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
         assertThat(halAreaConfig.getMinInt32Value()).isEqualTo(MIN_INT32_VALUE);
         assertThat(halAreaConfig.getMaxInt32Value()).isEqualTo(MAX_INT32_VALUE);
@@ -228,9 +247,25 @@ public final class HalPropConfigTest {
         AreaIdConfig<?> areaIdConfig = carPropertyConfig.getAreaIdConfig(/*areaId=*/0);
         assertThat(areaIdConfig).isNotNull();
         assertThat(areaIdConfig.getAreaId()).isEqualTo(/*areaId=*/0);
+        assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
         assertThat(areaIdConfig.getMinValue()).isNull();
         assertThat(areaIdConfig.getMaxValue()).isNull();
         assertThat(areaIdConfig.getSupportedEnumValues()).isEmpty();
+    }
+
+    @Test
+    public void toCarPropertyConfig_populatesAlternateAccessMode() {
+        VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
+        aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {
+                getTestAlternateAidlAreaConfig()
+        };
+        HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
+
+        AreaIdConfig<?> areaIdConfig = halPropConfig.toCarPropertyConfig(
+                GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(TEST_AREA_ID);
+        assertThat(areaIdConfig).isNotNull();
+        assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
+        assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ALTERNATE_ACCESS);
     }
 
     @Test
@@ -243,6 +278,7 @@ public final class HalPropConfigTest {
                 GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(TEST_AREA_ID);
         assertThat(areaIdConfig).isNotNull();
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
+        assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
         assertThat(areaIdConfig.getMinValue()).isEqualTo(MIN_INT32_VALUE);
         assertThat(areaIdConfig.getMaxValue()).isEqualTo(MAX_INT32_VALUE);
     }
@@ -259,6 +295,7 @@ public final class HalPropConfigTest {
                 GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(TEST_AREA_ID);
         assertThat(areaIdConfig).isNotNull();
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
+        assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
         assertThat(areaIdConfig.getMinValue()).isNull();
         assertThat(areaIdConfig.getMaxValue()).isNull();
     }
@@ -274,6 +311,7 @@ public final class HalPropConfigTest {
                 GLOBAL_LONG_PROP_ID).getAreaIdConfig(TEST_AREA_ID);
         assertThat(areaIdConfig).isNotNull();
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
+        assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
         assertThat(areaIdConfig.getMinValue()).isEqualTo(MIN_INT64_VALUE);
         assertThat(areaIdConfig.getMaxValue()).isEqualTo(MAX_INT64_VALUE);
     }
@@ -291,6 +329,7 @@ public final class HalPropConfigTest {
                 GLOBAL_LONG_PROP_ID).getAreaIdConfig(TEST_AREA_ID);
         assertThat(areaIdConfig).isNotNull();
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
+        assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
         assertThat(areaIdConfig.getMinValue()).isNull();
         assertThat(areaIdConfig.getMaxValue()).isNull();
     }
@@ -306,6 +345,7 @@ public final class HalPropConfigTest {
                 GLOBAL_FLOAT_PROP_ID).getAreaIdConfig(TEST_AREA_ID);
         assertThat(areaIdConfig).isNotNull();
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
+        assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
         assertThat(areaIdConfig.getMinValue()).isEqualTo(MIN_FLOAT_VALUE);
         assertThat(areaIdConfig.getMaxValue()).isEqualTo(MAX_FLOAT_VALUE);
     }
@@ -323,6 +363,7 @@ public final class HalPropConfigTest {
                 GLOBAL_FLOAT_PROP_ID).getAreaIdConfig(TEST_AREA_ID);
         assertThat(areaIdConfig).isNotNull();
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
+        assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
         assertThat(areaIdConfig.getMinValue()).isNull();
         assertThat(areaIdConfig.getMaxValue()).isNull();
     }
@@ -338,6 +379,7 @@ public final class HalPropConfigTest {
                 GLOBAL_INTEGER_VEC_PROP_ID).getAreaIdConfig(TEST_AREA_ID);
         assertThat(areaIdConfig).isNotNull();
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
+        assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
         assertThat(areaIdConfig.getMinValue()).isNull();
         assertThat(areaIdConfig.getMaxValue()).isNull();
     }
@@ -403,6 +445,19 @@ public final class HalPropConfigTest {
 
         assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
                 TEST_AREA_ID).getSupportedEnumValues()).isEmpty();
+    }
+
+    @Test
+    public void toCarPropertyConfig_hidlAreaConfigGetAccessReturnsPropConfigAccess() {
+        android.hardware.automotive.vehicle.V2_0.VehiclePropConfig hidlVehiclePropConfig =
+                getTestHidlPropConfig();
+        hidlVehiclePropConfig.areaConfigs =
+                new ArrayList<android.hardware.automotive.vehicle.V2_0.VehicleAreaConfig>(
+                        Arrays.asList(getTestHidlAreaConfig()));
+        HidlHalPropConfig halPropConfig = new HidlHalPropConfig(hidlVehiclePropConfig);
+
+        assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
+                TEST_AREA_ID).getAccess()).isEqualTo(halPropConfig.getAccess());
     }
 
     @Test
