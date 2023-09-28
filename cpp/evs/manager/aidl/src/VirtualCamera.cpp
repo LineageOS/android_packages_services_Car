@@ -25,6 +25,8 @@
 #include <android-base/stringprintf.h>
 #include <android/hardware_buffer.h>
 
+#include <assert.h>
+
 #include <chrono>
 
 namespace aidl::android::automotive::evs::implementation {
