@@ -660,7 +660,7 @@ public final class CarActivityService extends ICarActivityService.Stub
     private void findTaskAndGrantFocus(ComponentName activity) {
         TaskInfo taskInfo = getTaskInfoForTopActivity(activity);
         if (taskInfo != null) {
-            ActivityManagerHelper.setFocusedRootTask(taskInfo.taskId);
+            ActivityManagerHelper.setFocusedTask(taskInfo.taskId);
             return;
         }
         Slogf.i(CarLog.TAG_AM, "cannot give focus, cannot find Activity:" + activity);

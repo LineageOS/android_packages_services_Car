@@ -187,6 +187,17 @@ public final class ActivityManagerHelper {
     }
 
     /**
+     * Makes the task of the given taskId focused.
+     */
+    public static void setFocusedTask(int taskId) {
+        try {
+            ActivityTaskManager.getService().setFocusedTask(taskId);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Failed to setFocusedTask", e);
+        }
+    }
+
+    /**
      * Removes the given task.
      */
     public static boolean removeTask(int taskId) {
