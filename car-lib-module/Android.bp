@@ -22,6 +22,9 @@ package {
 java_sdk_library {
     name: "android.car-module",
 
+    defaults: [
+        "car-framework-aconfig-libraries",
+    ],
     srcs: [
         ":android.car-full-src",
     ],
