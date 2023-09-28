@@ -21,6 +21,7 @@ import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.AreaIdConfig;
 import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 
@@ -137,19 +138,21 @@ public abstract class HalPropConfig {
                     /* minInt32Value= */ 0, /* maxInt32Value= */ 0,
                     /* minFloatValue= */ 0, /* maxFloatValue= */ 0,
                     /* minInt64Value= */ 0, /* maxInt64Value= */ 0,
-                    supportedEnumValues, /* supportVariableUpdateRate= */ false));
+                    supportedEnumValues, /* supportVariableUpdateRate= */ false, getAccess()));
         } else {
             for (HalAreaConfig halAreaConfig : halAreaConfigs) {
                 if (!shouldConfigArrayDefineSupportedEnumValues) {
                     supportedEnumValues = halAreaConfig.getSupportedEnumValues();
                 }
+                int areaAccess = (halAreaConfig.getAccess() == VehiclePropertyAccess.NONE)
+                        ? getAccess() : halAreaConfig.getAccess();
                 carPropertyConfigBuilder.addAreaIdConfig(
                         generateAreaIdConfig(clazz, halAreaConfig.getAreaId(),
                                 halAreaConfig.getMinInt32Value(), halAreaConfig.getMaxInt32Value(),
                                 halAreaConfig.getMinFloatValue(), halAreaConfig.getMaxFloatValue(),
                                 halAreaConfig.getMinInt64Value(), halAreaConfig.getMaxInt64Value(),
                                 supportedEnumValues,
-                                halAreaConfig.isVariableUpdateRateSupported()));
+                                halAreaConfig.isVariableUpdateRateSupported(), areaAccess));
             }
         }
         return carPropertyConfigBuilder.build();
@@ -157,8 +160,9 @@ public abstract class HalPropConfig {
 
     private AreaIdConfig generateAreaIdConfig(Class<?> clazz, int areaId, int minInt32Value,
             int maxInt32Value, float minFloatValue, float maxFloatValue, long minInt64Value,
-            long maxInt64Value, long[] supportedEnumValues, boolean supportVariableUpdateRate) {
-        AreaIdConfig.Builder areaIdConfigBuilder = new AreaIdConfig.Builder(areaId);
+            long maxInt64Value, long[] supportedEnumValues, boolean supportVariableUpdateRate,
+            int access) {
+        AreaIdConfig.Builder areaIdConfigBuilder = new AreaIdConfig.Builder(access, areaId);
         if (classMatched(Integer.class, clazz)) {
             if ((minInt32Value != 0 || maxInt32Value != 0)) {
                 areaIdConfigBuilder.setMinValue(minInt32Value).setMaxValue(maxInt32Value);
