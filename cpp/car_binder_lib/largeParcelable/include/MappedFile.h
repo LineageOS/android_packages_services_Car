@@ -19,6 +19,7 @@
 
 #include <utils/Errors.h>
 
+#include <assert.h>
 #include <sys/mman.h>
 
 namespace android {
