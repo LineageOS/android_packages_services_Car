@@ -57,7 +57,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     Status status = graph->initialize(runner::test::kAddress, engine);
     if (status != Status::SUCCESS) {
         LOG(ERROR) << "Initialization of GrpcGraph failed, aborting...";
-        exit(1);
+        return 0;
     }
 
     // Fuzz goes here
