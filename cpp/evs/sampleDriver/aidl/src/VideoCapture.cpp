@@ -18,6 +18,7 @@
 
 #include <android-base/logging.h>
 
+#include <assert.h>
 #include <errno.h>
 #include <error.h>
 #include <fcntl.h>
