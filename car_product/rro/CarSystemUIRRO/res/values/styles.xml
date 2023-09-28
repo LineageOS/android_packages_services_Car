@@ -22,17 +22,4 @@
         <item name="*android:errorColor">?android:attr/colorError</item>
     </style>
 
-
-    <style name="CancelButton">
-        <item name="android:textSize">32sp</item>
-        <item name="android:fontFamily">roboto-regular</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:lineHeight">40dp</item>
-        <item name="android:background">@drawable/cancel_button_background</item>
-        <item name="android:textColor">@color/cancel_button_text_color</item>
-        <item name="android:stateListAnimator">@null</item>
-        <item name="android:textColorHint">?android:attr/textColorHint</item>
-        <item name="android:textColorHighlight">?android:attr/textColorHighlight</item>
-        <item name="android:textColorLink">?android:attr/textColorLink</item>
-    </style>
 </resources>
