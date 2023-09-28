@@ -746,6 +746,7 @@ package android.car.hardware.property {
 
   public final class AreaIdConfig<T> implements android.os.Parcelable {
     method public int describeContents();
+    method @FlaggedApi(android.car.feature.Flags.FLAG_AREA_ID_CONFIG_ACCESS) public int getAccess();
     method public int getAreaId();
     method @Nullable public T getMaxValue();
     method @Nullable public T getMinValue();
