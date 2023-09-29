@@ -45,7 +45,6 @@ import android.os.Trace;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
-import android.util.Pair;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
@@ -56,6 +55,7 @@ import com.android.car.VehicleStub.SubscriptionClient;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.Lists;
+import com.android.car.internal.util.PairSparseArray;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -128,8 +128,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     @GuardedBy("mLock")
     private final List<HalServiceBase> mAllServices;
     @GuardedBy("mLock")
-    private final ArrayMap<Pair<Integer, Integer>, Float> mUpdateRateByPropIdAreadId =
-            new ArrayMap<>();
+    private final PairSparseArray<Float> mUpdateRateByPropIdAreaId = new PairSparseArray<>();
     @GuardedBy("mLock")
     private final SparseArray<HalPropConfig> mAllProperties = new SparseArray<>();
 
@@ -473,10 +472,11 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             for (int i = mAllServices.size() - 1; i >= 0; i--) {
                 mAllServices.get(i).release();
             }
-            for (int i = 0; i < mUpdateRateByPropIdAreadId.size(); i++) {
-                subscribedProperties.add(mUpdateRateByPropIdAreadId.keyAt(i).first);
+            for (int i = 0; i < mUpdateRateByPropIdAreaId.size(); i++) {
+                int propertyId = mUpdateRateByPropIdAreaId.keyPairAt(i)[0];
+                subscribedProperties.add(propertyId);
             }
-            mUpdateRateByPropIdAreadId.clear();
+            mUpdateRateByPropIdAreaId.clear();
             mAllProperties.clear();
         }
         for (int i = 0; i < subscribedProperties.size(); i++) {
@@ -637,8 +637,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                                 VehiclePropertyIds.toString(opts.propId), filteredAreaIds[j],
                                 samplingRateHz);
                     }
-                    mUpdateRateByPropIdAreadId.put(Pair.create(property,
-                            filteredAreaIds[j]), samplingRateHz);
+                    mUpdateRateByPropIdAreaId.put(property, filteredAreaIds[j], samplingRateHz);
                 }
                 subscribeOptionsList.add(opts);
             }
@@ -651,8 +650,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         List<Integer> areaIdList = new ArrayList<>();
         synchronized (mLock) {
             for (int i = 0; i < areaIds.length; i++) {
-                Pair<Integer, Integer> propertyAndAreadId = Pair.create(property, areaIds[i]);
-                Float savedSampleRateHz = mUpdateRateByPropIdAreadId.get(propertyAndAreadId);
+                Float savedSampleRateHz = mUpdateRateByPropIdAreaId.get(property, areaIds[i]);
                 if (savedSampleRateHz != null
                         && Math.abs(savedSampleRateHz - sampleRateHz) < PRECISION_THRESHOLD) {
                     if (DBG) {
@@ -702,8 +700,9 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 int[] areaIds = getAllAreaIdsFromPropertyId(config);
                 boolean isSubscribed = false;
                 for (int i = 0; i < areaIds.length; i++) {
-                    if (mUpdateRateByPropIdAreadId.remove(Pair.create(property, areaIds[i]))
-                            != null) {
+                    int index = mUpdateRateByPropIdAreaId.indexOfKeyPair(property, areaIds[i]);
+                    if (index >= 0) {
+                        mUpdateRateByPropIdAreaId.removeAt(index);
                         isSubscribed = true;
                     }
                 }
