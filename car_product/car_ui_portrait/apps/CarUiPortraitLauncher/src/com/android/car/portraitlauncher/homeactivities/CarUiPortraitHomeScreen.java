@@ -36,7 +36,8 @@ import static com.android.car.caruiportrait.common.service.CarUiPortraitService.
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
-import android.app.IActivityManager;
+import android.app.ActivityTaskManager;
+import android.app.IActivityTaskManager;
 import android.app.TaskInfo;
 import android.app.TaskStackListener;
 import android.content.ActivityNotFoundException;
@@ -151,7 +152,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private static final long IMMERSIVE_MODE_REQUEST_TIMEOUT = 500;
     private static final String SAVED_BACKGROUND_APP_COMPONENT_NAME =
             "SAVED_BACKGROUND_APP_COMPONENT_NAME";
-    private static final IActivityManager sActivityManager = ActivityManager.getService();
+
+    private static final IActivityTaskManager sActivityTaskManager =
+            ActivityTaskManager.getService();
 
     private int mCurrentBackgroundTaskId;
     private int mStatusBarHeight;
@@ -433,7 +436,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
     private void setFocusToBackgroundApp() {
         try {
-            sActivityManager.setFocusedRootTask(mCurrentBackgroundTaskId);
+            sActivityTaskManager.setFocusedTask(mCurrentBackgroundTaskId);
         } catch (RemoteException e) {
             Log.w(TAG, "Unable to set focus on background app: ", e);
         }
