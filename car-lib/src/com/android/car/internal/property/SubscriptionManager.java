@@ -34,6 +34,7 @@ import com.android.car.internal.util.PairSparseArray;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * This class manages [{propertyId, areaId} -> RateInfoForClients] map and maintains two states:
@@ -74,26 +75,28 @@ public final class SubscriptionManager<ClientType> {
      */
     private static final class RateInfoForClients<ClientType> {
         private final ArrayMap<ClientType, Float> mUpdateRateHzByClient;
+        // An ordered set for all update rates to provide efficient add, remove and get max update
+        // rate.
+        private final TreeSet<Float> mUpdateRatesHz;
+        private final ArrayMap<Float, Integer> mClientCountByUpdateRateHz;
 
         RateInfoForClients() {
             mUpdateRateHzByClient = new ArrayMap<>();
+            mUpdateRatesHz = new TreeSet<>();
+            mClientCountByUpdateRateHz = new ArrayMap<>();
         }
 
         RateInfoForClients(RateInfoForClients other) {
             mUpdateRateHzByClient = new ArrayMap<>(other.mUpdateRateHzByClient);
+            mUpdateRatesHz = new TreeSet<>(other.mUpdateRatesHz);
+            mClientCountByUpdateRateHz = new ArrayMap<>(other.mClientCountByUpdateRateHz);
         }
 
         /**
          * Gets the max update rate for this {propertyId, areaId}.
          */
         float getMaxUpdateRateHz() {
-            float maxUpdateRateHz = 0;
-            for (int i = 0; i < mUpdateRateHzByClient.size(); i++) {
-                if (mUpdateRateHzByClient.valueAt(i) > maxUpdateRateHz) {
-                    maxUpdateRateHz = mUpdateRateHzByClient.valueAt(i);
-                }
-            }
-            return maxUpdateRateHz;
+            return mUpdateRatesHz.last();
         }
 
         Set<ClientType> getClients() {
@@ -109,9 +112,29 @@ public final class SubscriptionManager<ClientType> {
          */
         void add(ClientType client, float updateRateHz) {
             mUpdateRateHzByClient.put(client, updateRateHz);
+            if (!mClientCountByUpdateRateHz.containsKey(updateRateHz)) {
+                mUpdateRatesHz.add(updateRateHz);
+                mClientCountByUpdateRateHz.put(updateRateHz, 1);
+                return;
+            }
+            mClientCountByUpdateRateHz.put(updateRateHz,
+                    mClientCountByUpdateRateHz.get(updateRateHz) + 1);
         }
 
         void remove(ClientType client) {
+            if (!mUpdateRateHzByClient.containsKey(client)) {
+                return;
+            }
+            float updateRateHz = mUpdateRateHzByClient.get(client);
+            if (mClientCountByUpdateRateHz.containsKey(updateRateHz)) {
+                int newCount = mClientCountByUpdateRateHz.get(updateRateHz) - 1;
+                if (newCount == 0) {
+                    mClientCountByUpdateRateHz.remove(updateRateHz);
+                    mUpdateRatesHz.remove(mUpdateRateHzByClient.get(client));
+                } else {
+                    mClientCountByUpdateRateHz.put(updateRateHz, newCount);
+                }
+            }
             mUpdateRateHzByClient.remove(client);
         }
 
@@ -124,7 +147,7 @@ public final class SubscriptionManager<ClientType> {
             new PairSparseArray<>();
     PairSparseArray<RateInfoForClients<ClientType>> mStagedUpdateRateHzByClientByPropIdAreaId =
             new PairSparseArray<>();
-    boolean mHasStagedChanges;
+    ArraySet<int[]> mStagedAffectedPropIdAreaIds = new ArraySet<>();
 
     /**
      * Prepares new subscriptions.
@@ -140,12 +163,12 @@ public final class SubscriptionManager<ClientType> {
         }
 
         cloneCurrentToStage();
-        mHasStagedChanges = true;
 
         for (int i = 0; i < options.size(); i++) {
             CarSubscribeOption option = options.get(i);
             int propertyId = option.propertyId;
             for (int areaId : option.areaIds) {
+                mStagedAffectedPropIdAreaIds.add(new int[]{propertyId, areaId});
                 if (mStagedUpdateRateHzByClientByPropIdAreaId.get(propertyId, areaId) == null) {
                     mStagedUpdateRateHzByClientByPropIdAreaId.put(propertyId, areaId,
                             new RateInfoForClients<>());
@@ -168,35 +191,26 @@ public final class SubscriptionManager<ClientType> {
         }
 
         cloneCurrentToStage();
-        mHasStagedChanges = true;
 
-        // TODO (b/302574617): Optimize this once PairSparseArray supports getting all areaIds for
-        // one property Id.
-        List<int[]> propIdAreaIdsToUnsubscribe = new ArrayList<>();
-        for (int i = 0; i < mStagedUpdateRateHzByClientByPropIdAreaId.size(); i++) {
-            int[] propIdAreaId = mStagedUpdateRateHzByClientByPropIdAreaId.keyPairAt(i);
-            int propertyId = propIdAreaId[0];
-            if (!propertyIdsToUnregister.contains(propertyId)) {
-                continue;
+        for (int i = 0; i < propertyIdsToUnregister.size(); i++) {
+            int propertyId = propertyIdsToUnregister.valueAt(i);
+            ArraySet<Integer> areaIds =
+                    mStagedUpdateRateHzByClientByPropIdAreaId.getSecondKeysForFirstKey(propertyId);
+            for (int j = 0; j < areaIds.size(); j++) {
+                int areaId = areaIds.valueAt(j);
+                mStagedAffectedPropIdAreaIds.add(new int[]{propertyId, areaId});
+                RateInfoForClients<ClientType> rateInfoForClients =
+                        mStagedUpdateRateHzByClientByPropIdAreaId.get(propertyId, areaId);
+                if (rateInfoForClients == null) {
+                    Log.e(TAG, "The property: " + VehiclePropertyIds.toString(propertyId)
+                            + ", area ID: " + areaId + " was not registered, do nothing");
+                    continue;
+                }
+                rateInfoForClients.remove(client);
+                if (rateInfoForClients.isEmpty()) {
+                    mStagedUpdateRateHzByClientByPropIdAreaId.remove(propertyId, areaId);
+                }
             }
-            int areaId = propIdAreaId[1];
-            RateInfoForClients<ClientType> rateInfoForClients =
-                    mStagedUpdateRateHzByClientByPropIdAreaId.get(propertyId, areaId);
-            if (rateInfoForClients == null) {
-                Log.e(TAG, "The property: " + VehiclePropertyIds.toString(propertyId)
-                        + ", area ID: " + areaId + " was not registered, do nothing");
-                continue;
-            }
-            rateInfoForClients.remove(client);
-            if (rateInfoForClients.isEmpty()) {
-                propIdAreaIdsToUnsubscribe.add(new int[]{propertyId, areaId});
-            }
-        }
-
-        for (int i = 0; i < propIdAreaIdsToUnsubscribe.size(); i++) {
-            int[] propIdAreaIdToUnsubscribe = propIdAreaIdsToUnsubscribe.get(i);
-            mStagedUpdateRateHzByClientByPropIdAreaId.remove(propIdAreaIdToUnsubscribe[0],
-                    propIdAreaIdToUnsubscribe[1]);
         }
     }
 
@@ -207,13 +221,13 @@ public final class SubscriptionManager<ClientType> {
      * changes are applied successfully to the lower layer.
      */
     public void commit() {
-        if (!mHasStagedChanges) {
+        if (mStagedAffectedPropIdAreaIds.isEmpty()) {
             Log.w(TAG, "No changes has been staged, nothing to commit");
             return;
         }
         // Drop the current state.
         mCurrentUpdateRateHzByClientByPropIdAreaId = mStagedUpdateRateHzByClientByPropIdAreaId;
-        mHasStagedChanges = false;
+        mStagedAffectedPropIdAreaIds.clear();
     }
 
     /**
@@ -222,13 +236,13 @@ public final class SubscriptionManager<ClientType> {
      * This should be called after the changes failed to apply to the lower layer.
      */
     public void dropCommit() {
-        if (!mHasStagedChanges) {
+        if (mStagedAffectedPropIdAreaIds.isEmpty()) {
             Log.w(TAG, "No changes has been staged, nothing to drop");
             return;
         }
         // Drop the staged state.
         mStagedUpdateRateHzByClientByPropIdAreaId = mCurrentUpdateRateHzByClientByPropIdAreaId;
-        mHasStagedChanges = false;
+        mStagedAffectedPropIdAreaIds.clear();
     }
 
     /**
@@ -237,7 +251,7 @@ public final class SubscriptionManager<ClientType> {
     public void clear() {
         mStagedUpdateRateHzByClientByPropIdAreaId.clear();
         mCurrentUpdateRateHzByClientByPropIdAreaId.clear();
-        mHasStagedChanges = false;
+        mStagedAffectedPropIdAreaIds.clear();
     }
 
     /**
@@ -272,22 +286,14 @@ public final class SubscriptionManager<ClientType> {
      */
     public void diffBetweenCurrentAndStage(List<CarSubscribeOption> outDiffSubscribeOptions,
             List<Integer> outPropertyIdsToUnsubscribe) {
-        if (!mHasStagedChanges) {
+        if (mStagedAffectedPropIdAreaIds.isEmpty()) {
             Log.w(TAG, "No changes has been staged, no diff");
             return;
         }
-        // TODO(b/302574617): Optimize this, loop only through the updated propId, area Ids.
-        ArraySet<int[]> combinedPropIdAreaIds = new ArraySet<>();
-        for (int i = 0; i < mCurrentUpdateRateHzByClientByPropIdAreaId.size(); i++) {
-            combinedPropIdAreaIds.add(mCurrentUpdateRateHzByClientByPropIdAreaId.keyPairAt(i));
-        }
-        for (int i = 0; i < mStagedUpdateRateHzByClientByPropIdAreaId.size(); i++) {
-            combinedPropIdAreaIds.add(mStagedUpdateRateHzByClientByPropIdAreaId.keyPairAt(i));
-        }
         ArraySet<Integer> possiblePropIdsToUnsubscribe = new ArraySet<>();
         SparseArray<SparseArray<Float>> diffUpdateRateHzByAreaIdByPropId = new SparseArray<>();
-        for (int i = 0; i < combinedPropIdAreaIds.size(); i++) {
-            int[] propIdAreaId = combinedPropIdAreaIds.valueAt(i);
+        for (int i = 0; i < mStagedAffectedPropIdAreaIds.size(); i++) {
+            int[] propIdAreaId = mStagedAffectedPropIdAreaIds.valueAt(i);
             int propertyId = propIdAreaId[0];
             int areaId = propIdAreaId[1];
 
@@ -330,16 +336,10 @@ public final class SubscriptionManager<ClientType> {
             outDiffSubscribeOptions.addAll(getCarSubscribeOptionForProperty(
                     propertyId, diffUpdateRateHzByAreaIdByPropId.valueAt(i)));
         }
-        // TODO(b/302574617): Optimize this once PairSparseArray supports getting all area Ids for
-        // one property Id.
-        ArraySet<Integer> subscribedPropIdsInStage = new ArraySet<>();
-        for (int i = 0; i < mStagedUpdateRateHzByClientByPropIdAreaId.size(); i++) {
-            subscribedPropIdsInStage.add(
-                    (mStagedUpdateRateHzByClientByPropIdAreaId.keyPairAt(i))[0]);
-        }
         for (int i = 0; i < possiblePropIdsToUnsubscribe.size(); i++) {
             int possiblePropIdToUnsubscribe = possiblePropIdsToUnsubscribe.valueAt(i);
-            if (!subscribedPropIdsInStage.contains(possiblePropIdToUnsubscribe)) {
+            if (mStagedUpdateRateHzByClientByPropIdAreaId.getSecondKeysForFirstKey(
+                    possiblePropIdToUnsubscribe).isEmpty()) {
                 // We should only unsubscribe the property if all area IDs are unsubscribed.
                 if (DBG) {
                     Log.d(TAG, String.format(
@@ -396,7 +396,7 @@ public final class SubscriptionManager<ClientType> {
     }
 
     private void cloneCurrentToStage() {
-        if (mHasStagedChanges) {
+        if (!mStagedAffectedPropIdAreaIds.isEmpty()) {
             throw new IllegalStateException(
                     "Must either commit or dropCommit before staging new changes");
         }

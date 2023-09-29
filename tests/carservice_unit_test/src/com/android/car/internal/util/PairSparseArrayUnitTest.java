@@ -18,9 +18,11 @@ package com.android.car.internal.util;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+
 import org.junit.Test;
 
-public class PairSparseArrayUnitTest {
+public class PairSparseArrayUnitTest extends AbstractExtendedMockitoTestCase {
     private static final int FIRST_KEY = 10;
     private static final int SECOND_KEY = 20;
     private static final int THIRD_KEY = 30;
@@ -137,5 +139,28 @@ public class PairSparseArrayUnitTest {
         map.remove(NEGATIVE_FOURTH_KEY, FOURTH_KEY);
 
         assertThat(map.size()).isEqualTo(11);
+    }
+
+    @Test
+    public void test_getSecondKeysForFirstKey() {
+        PairSparseArray<Integer> map = new PairSparseArray<>(16);
+
+        map.put(FIRST_KEY, FIRST_KEY, VALUE_1);
+        map.put(SECOND_KEY, FIRST_KEY, VALUE_1);
+        map.put(SECOND_KEY, SECOND_KEY, VALUE_1);
+        map.put(THIRD_KEY, FIRST_KEY, VALUE_1);
+        map.put(THIRD_KEY, SECOND_KEY, VALUE_1);
+        map.put(THIRD_KEY, THIRD_KEY, VALUE_1);
+        map.put(FOURTH_KEY, FIRST_KEY, VALUE_1);
+        map.put(FOURTH_KEY, SECOND_KEY, VALUE_1);
+        map.put(FOURTH_KEY, THIRD_KEY, VALUE_1);
+        map.put(FOURTH_KEY, FOURTH_KEY, VALUE_1);
+
+        expectThat(map.getSecondKeysForFirstKey(FIRST_KEY)).containsExactly(FIRST_KEY);
+        expectThat(map.getSecondKeysForFirstKey(SECOND_KEY)).containsExactly(FIRST_KEY, SECOND_KEY);
+        expectThat(map.getSecondKeysForFirstKey(THIRD_KEY)).containsExactly(FIRST_KEY, SECOND_KEY,
+                THIRD_KEY);
+        expectThat(map.getSecondKeysForFirstKey(FOURTH_KEY)).containsExactly(FIRST_KEY, SECOND_KEY,
+                THIRD_KEY, FOURTH_KEY);
     }
 }

@@ -1312,6 +1312,7 @@ public class CarPropertyManager extends CarManagerBase {
      */
     private void validateAreaDisjointness(List<SubscriptionOption> subscribeOptions) {
         PairSparseArray<Object> propertyToAreaId = new PairSparseArray<>();
+        Object placeHolder = new Object();
         for (int i = 0; i < subscribeOptions.size(); i++) {
             SubscriptionOption option = subscribeOptions.get(i);
             int propertyId = option.getPropertyId();
@@ -1322,7 +1323,7 @@ public class CarPropertyManager extends CarManagerBase {
                             + "propertyId: " + VehiclePropertyIds.toString(propertyId) + " areaId: "
                             + areaId);
                 }
-                propertyToAreaId.append(propertyId, areaId, null);
+                propertyToAreaId.append(propertyId, areaId, placeHolder);
             }
         }
     }
