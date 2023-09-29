@@ -21,6 +21,7 @@ import static android.car.Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY;
 import static android.car.CarLibLog.TAG_CAR;
 
 import android.Manifest;
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
@@ -31,6 +32,7 @@ import android.app.PendingIntent;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarVersion;
+import android.car.feature.Flags;
 import android.content.ComponentName;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.IBinder;
@@ -513,10 +515,14 @@ public final class CarPackageManager extends CarManagerBase {
      *
      * @hide
      */
+    @FlaggedApi(Flags.FLAG_DISPLAY_COMPATIBILITY)
     @SystemApi
     @RequiresPermission(allOf = {PERMISSION_QUERY_DISPLAY_COMPATIBILITY,
             android.Manifest.permission.QUERY_ALL_PACKAGES})
     public boolean requiresDisplayCompat(@NonNull String packageName) throws NameNotFoundException {
+        if (!Flags.displayCompatibility()) {
+            return false;
+        }
         try {
             return mService.requiresDisplayCompat(packageName);
         } catch (ServiceSpecificException e) {
