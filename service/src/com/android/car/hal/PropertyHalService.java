@@ -35,6 +35,7 @@ import static android.car.hardware.property.VehicleHalStatusCode.STATUS_TRY_AGAI
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
 import static com.android.car.internal.property.CarPropertyHelper.isSystemProperty;
+import static com.android.car.internal.property.CarPropertyHelper.propertyIdsToString;
 import static com.android.car.internal.property.GetSetValueResult.newGetValueResult;
 import static com.android.car.internal.property.InputSanitizationUtils.sanitizeUpdateRateHz;
 
@@ -311,8 +312,8 @@ public class PropertyHalService extends HalServiceBase {
         void parseClientUpdateRateHz(CarPropertyConfig carPropertyConfig) {
             float clientUpdateRateHz = mPropMgrRequest.getUpdateRateHz();
             if (clientUpdateRateHz == 0.0f) {
-                // If client does not specify a sample rate for async set, subscribe at the max
-                // sample rate so that we can get the property update as soon as possible.
+                // If client does not specify a update rate for async set, subscribe at the max
+                // update rate so that we can get the property update as soon as possible.
                 clientUpdateRateHz = carPropertyConfig.getMaxSampleRate();
             }
             mUpdateRateHz = sanitizeUpdateRateHz(carPropertyConfig, clientUpdateRateHz);
@@ -1194,13 +1195,10 @@ public class PropertyHalService extends HalServiceBase {
     /**
      * Subscribe to this property at the specified updateRateHz and areaId. The list of
      * carSubscribeOptions should never be empty since it is checked at CarPropertyService.
-     *
-     * @throws IllegalArgumentException thrown if property is not supported by VHAL.
      */
-    public void subscribeProperty(List<CarSubscribeOption> carSubscribeOptions)
-            throws IllegalArgumentException {
+    public void subscribeProperty(List<CarSubscribeOption> carSubscribeOptions) {
         synchronized (mLock) {
-            List<Integer> halPropIdsToSubscribe = new ArrayList<>();
+            Set<Integer> halPropIdsToSubscribe = new ArraySet<>();
             // Even though this involves binder call, this must be done inside the lock so that
             // the state in {@code mSubscribedHalPropIdToUpdateRateHz} is consistent with the
             // state in VHAL.
@@ -1223,7 +1221,7 @@ public class PropertyHalService extends HalServiceBase {
                 }
                 halPropIdsToSubscribe.add(halPropId);
             }
-            updateSubscriptionRateForHalPropIdLocked(halPropIdsToSubscribe);
+            updateSubscriptionRateLocked(halPropIdsToSubscribe);
         }
     }
 
@@ -1246,7 +1244,7 @@ public class PropertyHalService extends HalServiceBase {
                 return;
             }
             mSubscribedHalPropIdToAreaIdToUpdateRateHz.remove(halPropId);
-            updateSubscriptionRateForHalPropIdLocked(List.of(halPropId));
+            updateSubscriptionRateLocked(Set.of(halPropId));
         }
     }
 
@@ -1410,29 +1408,65 @@ public class PropertyHalService extends HalServiceBase {
      *
      * Note that {@code VehicleHal} subscription logic will ignore subscribe property request with
      * the same subscription rate, so we do not need to check that here.
+     *
+     * This functions involves binder call to VHAL, but we intentionally keep this inside the
+     * lock because we need to keep the subscription status consistent. If we do not use lock
+     * here, the following situation might happen:
+     *
+     * <ol>
+     * <li>Lock is obtained by thread 1.
+     * <li>mHalPropIdToWaitingUpdateRequestInfo is updated by one thread to state 1.
+     * <li>New update rate (local variable) is calculated based on state 1.
+     * <li>Lock is released by thread 1.
+     * <li>Lock is obtained by thread 2.
+     * <li>mHalPropIdToWaitingUpdateRequestInfo is updated by thread 2 to state 2.
+     * <li>New update rate (local variable) is calculated based on state 2.
+     * <li>Lock is released by thread 2.
+     * <li>Thread 2 calls subscribeProperty to VHAL based on state 2.
+     * <li>Thread 1 calls subscribeProperty to VHAL based on state 1.
+     * <li>Now internally, the state is in state 2, but from VHAL side, it is in state 1.
      */
     @GuardedBy("mLock")
-    private void updateSubscriptionRateForHalPropIdLocked(List<Integer> halPropIds) {
-        List<HalSubscribeOptions> halSubscribeOptions = generateVehicleHalSubscribeOptions(
-                halPropIds);
-        if (halSubscribeOptions.isEmpty()) {
-            if (DBG) {
-                Slogf.d(TAG, "unsubscribeProperty for property ID: %s", halPropIds.get(0));
-            }
-            mVehicleHal.unsubscribeProperty(this, halPropIds.get(0));
+    private void updateSubscriptionRateLocked(Set<Integer> halPropIds) {
+        if (halPropIds.isEmpty()) {
             return;
         }
         if (DBG) {
-            Slogf.d(TAG, "Subscribing to halSubscribeOptions of %s", halSubscribeOptions);
+            Slogf.d(TAG, "updated subscription rate for hal prop IDs: %s",
+                    propertyIdsToString(halPropIds));
         }
-        mVehicleHal.subscribeProperty(this, halSubscribeOptions);
+        List<HalSubscribeOptions> halSubscribeOptionsToUpdate = new ArrayList<>();
+        Set<Integer> propIdsToUnsubscribe = new ArraySet<>();
+        generateHalSubscribeOptions(halPropIds, propIdsToUnsubscribe, halSubscribeOptionsToUpdate);
+        if (!halSubscribeOptionsToUpdate.isEmpty()) {
+            if (DBG) {
+                Slogf.d(TAG, "subscribeProperty, options: %s", halSubscribeOptionsToUpdate);
+            }
+            mVehicleHal.subscribeProperty(this, halSubscribeOptionsToUpdate);
+        }
+        for (int halPropId : propIdsToUnsubscribe) {
+            if (DBG) {
+                Slogf.d(TAG, "unsubscribeProperty for property ID: %s",
+                        halPropIdToName(halPropId));
+            }
+            mVehicleHal.unsubscribeProperty(this, halPropId);
+        }
     }
 
+    /**
+     * Calculate the new update rate for all the areaIds for the hal property IDs.
+     *
+     * If all of the areas for a property are not subscribed any more, the property ID will be
+     * added to {@code propIdsToUnsubscribe}. Otherwise, for each areaId, a new
+     * {@code HalSubscribeOptions} with the new update rate will be generated and added to
+     * {@code halSubscribeOptionsToUpdate}, which can then be passed to {@link VehicleHal} to update
+     * the update rate.
+     */
     @GuardedBy("mLock")
-    private List<HalSubscribeOptions> generateVehicleHalSubscribeOptions(List<Integer> halPropIds) {
-        List<HalSubscribeOptions> halSubscribeOptions = new ArrayList<>();
-        for (int i = 0; i < halPropIds.size(); i++) {
-            int halPropId = halPropIds.get(i);
+    private void generateHalSubscribeOptions(
+            Set<Integer> halPropIds, Set<Integer> propIdsToUnsubscribe,
+            List<HalSubscribeOptions> halSubscribeOptionsToUpdate) {
+        for (int halPropId : halPropIds) {
             int[] areaIds = getAllAreaIdsLocked(halToManagerPropId(halPropId));
             ArrayMap<Float, ArrayList<Integer>> updateRateHzToAreaIds = new ArrayMap<>();
             for (int j = 0; j < areaIds.length; j++) {
@@ -1454,6 +1488,10 @@ public class PropertyHalService extends HalServiceBase {
                 }
                 updateRateHzToAreaIds.get(newUpdateRateHz).add(areaIds[j]);
             }
+            if (updateRateHzToAreaIds.isEmpty()) {
+                propIdsToUnsubscribe.add(halPropId);
+                continue;
+            }
             for (int j = 0; j < updateRateHzToAreaIds.size(); j++) {
                 int[] filteredAreaIds = CarServiceUtils.toIntArray(
                         updateRateHzToAreaIds.valueAt(j));
@@ -1461,36 +1499,8 @@ public class PropertyHalService extends HalServiceBase {
 
                 HalSubscribeOptions options = new HalSubscribeOptions(halPropId, filteredAreaIds,
                         newUpdateRateHz);
-                halSubscribeOptions.add(options);
+                halSubscribeOptionsToUpdate.add(options);
             }
-        }
-        return halSubscribeOptions;
-    }
-
-    @GuardedBy("mLock")
-    private void updateSubscriptionRateLocked(Set<Integer> updatedHalPropIds) {
-        // This functions involves binder call to VHAL, but we intentionally keep this inside the
-        // lock because we need to keep the subscription status consistent. If we do not use lock
-        // here, the following situation might happen:
-        // 1. Lock is obtained by thread 1.
-        // 2. mHalPropIdToWaitingUpdateRequestInfo is updated by one thread to state 1.
-        // 3. New update rate (local variable) is calculated based on state 1.
-        // 4. Lock is released by thread 1..
-        // 5. Lock is obtained by thread 2.
-        // 6. mHalPropIdToWaitingUpdateRequestInfo is updated by thread 2 to state 2.
-        // 7. New update rate (local variable) is calculated based on state 2.
-        // 8. Lock is released by thread 2.
-        // 9. Thread 2 calls subscribeProperty to VHAL based on state 2.
-        // 10. Thread 1 calls subscribeProperty to VHAL based on state 1.
-        // 11. Now internally, the state is in state 2, but from VHAL side, it is in state 1.
-        if (updatedHalPropIds.isEmpty()) {
-            return;
-        }
-        if (DBG) {
-            Slogf.d(TAG, "updated subscription rate for hal prop IDs: %s", updatedHalPropIds);
-        }
-        for (int updatedHalPropId : updatedHalPropIds) {
-            updateSubscriptionRateForHalPropIdLocked(List.of(updatedHalPropId));
         }
     }
 

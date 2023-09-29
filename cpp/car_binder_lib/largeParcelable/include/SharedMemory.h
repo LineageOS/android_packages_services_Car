@@ -23,6 +23,7 @@
 #include <cutils/ashmem.h>
 #include <utils/Errors.h>
 
+#include <assert.h>
 #include <unistd.h>
 
 #include <memory>
