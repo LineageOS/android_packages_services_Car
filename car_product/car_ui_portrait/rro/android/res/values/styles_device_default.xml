@@ -102,10 +102,14 @@
         <item name="android:textColor">@color/car_on_primary</item>
     </style>
 
+    <style name="TextAppearance.DeviceDefault.Widget.Button.Borderless"
+           parent="TextAppearance.DeviceDefault.Widget.Button">
+        <item name="android:textColor">@color/car_on_background</item>
+    </style>
+
     <style name="TextAppearance.DeviceDefault.Widget.Button.Borderless.Colored"
            parent="TextAppearance.DeviceDefault.Widget.Button">
         <item name="android:textColor">@color/car_primary</item>
-        parent="TextAppearance.DeviceDefault.Widget.Button.Colored">
     </style>
 
     <style name="TextAppearance.DeviceDefault.Widget.Button.Toggle"
@@ -179,7 +183,12 @@
 
     <style name="Widget.DeviceDefault.Button.Borderless" parent="Widget.DeviceDefault.Button">
         <item name="android:background">@drawable/car_button_borderless_background</item>
-        <item name="android:textColor">@color/car_on_background</item>
+        <item name="android:textAppearance">@style/TextAppearance.DeviceDefault.Widget.Button.Borderless</item>
+    </style>
+
+    <style name="Widget.DeviceDefault.Button.Borderless.Colored" parent="Widget.DeviceDefault.Button">
+        <item name="android:background">@drawable/car_button_borderless_background</item>
+        <item name="android:textAppearance">@style/TextAppearance.DeviceDefault.Widget.Button.Borderless.Colored</item>
     </style>
 
     <style name="Widget.DeviceDefault.ImageButton" parent="android:Widget.Material.ImageButton">

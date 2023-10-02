@@ -21,10 +21,28 @@
         <ripple android:color="@color/car_control_highlight">
             <item>
                 <shape android:shape="rectangle">
-                    <corners android:radius="@*android:dimen/car_button_radius"/>
+                    <corners android:radius="@dimen/car_button_radius"/>
                     <solid android:color="@color/car_button_toggle_background_color"/>
                 </shape>
             </item>
         </ripple>
+    </item>
+    <item>
+        <selector>
+            <item android:state_focused="true" android:state_pressed="true">
+                <shape>
+                    <solid android:color="@color/car_rotary_focus_pressed_fill_color"/>
+                    <stroke android:width="@dimen/car_rotary_focus_pressed_stroke_width" android:color="@color/car_rotary_focus_stroke_color"/>
+                    <corners android:radius="@dimen/car_button_radius"/>
+                </shape>
+            </item>
+            <item android:state_focused="true">
+                <shape>
+                    <solid android:color="@color/car_rotary_focus_fill_color"/>
+                    <stroke android:width="@dimen/car_rotary_focus_stroke_width" android:color="@color/car_rotary_focus_stroke_color"/>
+                    <corners android:radius="@dimen/car_button_radius"/>
+                </shape>
+            </item>
+        </selector>
     </item>
 </layer-list>

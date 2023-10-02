@@ -60,11 +60,6 @@
         <item name="android:textSize">@*android:dimen/car_body1_size</item>
     </style>
 
-    <style name="TextAppearance.DeviceDefault.Widget.Button.Borderless.Colored"
-           parent="android:TextAppearance.DeviceDefault.Widget.Button">
-        <item name="android:textColor">@*android:color/car_borderless_button_text_color</item>
-    </style>
-
     <style name="DialogWindowTitle.DeviceDefault" parent="*android:DialogWindowTitle.Material">
         <item name="android:textAppearance">@*android:style/TextAppearance.DeviceDefault.DialogWindowTitle</item>
     </style>
@@ -88,6 +83,26 @@
         <item name="android:textColor">@color/car_button_text_color</item>
     </style>
 
+    <style name="TextAppearance.DeviceDefault.Widget.Button.Small"
+           parent="android:TextAppearance.DeviceDefault.Widget.Button">
+        <item name="android:textColor">@color/car_button_text_color</item>
+    </style>
+
+    <style name="TextAppearance.DeviceDefault.Widget.Button.Colored"
+           parent="android:TextAppearance.DeviceDefault.Widget.Button">
+        <item name="android:textColor">@color/car_on_primary</item>
+    </style>
+
+    <style name="TextAppearance.DeviceDefault.Widget.Button.Borderless"
+           parent="android:TextAppearance.DeviceDefault.Widget.Button">
+        <item name="android:textColor">@color/car_on_background</item>
+    </style>
+
+    <style name="TextAppearance.DeviceDefault.Widget.Button.Borderless.Colored"
+           parent="android:TextAppearance.DeviceDefault.Widget.Button">
+        <item name="android:textColor">@color/car_primary</item>
+    </style>
+
     <style name="TextAppearance.DeviceDefault.Widget.Button.Toggle"
            parent="TextAppearance.DeviceDefault.Widget.Button">
         <item name="android:textColor">@color/car_button_toggle_text_color</item>
@@ -104,12 +119,29 @@
         <item name="android:ellipsize">none</item>
         <item name="android:requiresFadingEdge">horizontal</item>
         <item name="android:fadingEdgeLength">@*android:dimen/car_textview_fading_edge_length</item>
-        <item name="android:background">@*android:drawable/car_button_background</item>
+        <item name="android:background">@drawable/car_button_background</item>
         <item name="android:textAppearance">@style/TextAppearance.DeviceDefault.Widget.Button</item>
-        <item name="android:layout_height">@*android:dimen/car_button_height</item>
-        <item name="android:minWidth">@*android:dimen/car_button_min_width</item>
-        <item name="android:paddingStart">@*android:dimen/car_button_horizontal_padding</item>
-        <item name="android:paddingEnd">@*android:dimen/car_button_horizontal_padding</item>
+        <item name="android:minHeight">@dimen/car_button_min_height</item>
+        <item name="android:minWidth">@dimen/car_button_min_width</item>
+        <item name="android:paddingHorizontal">@*android:dimen/car_button_horizontal_padding</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="Widget.DeviceDefault.Button.Small" parent="Widget.DeviceDefault.Button">
+        <item name="android:paddingHorizontal">@dimen/car_button_small_radius</item>
+        <item name="android:minHeight">@dimen/car_button_min_height_small</item>
+        <item name="android:textAppearance">
+            @style/TextAppearance.DeviceDefault.Widget.Button.Small
+        </item>
+    </style>
+
+    <style name="Widget.DeviceDefault.Button.Inset" parent="Widget.DeviceDefault.Button"/>
+
+    <style name="Widget.DeviceDefault.Button.Colored" parent="Widget.DeviceDefault.Button">
+        <item name="android:background">@drawable/car_button_colored_background</item>
+        <item name="android:textAppearance">
+            @style/TextAppearance.DeviceDefault.Widget.Button.Colored
+        </item>
     </style>
 
     <style name="Widget.DeviceDefault.Button.Toggle" parent="android:Widget.Material.Button.Toggle">
@@ -119,14 +151,20 @@
         <item name="android:fadingEdgeLength">@*android:dimen/car_textview_fading_edge_length</item>
         <item name="android:background">@drawable/car_button_toggle_background</item>
         <item name="android:textAppearance">@style/TextAppearance.DeviceDefault.Widget.Button.Toggle</item>
-        <item name="android:minHeight">@*android:dimen/car_button_height</item>
-        <item name="android:minWidth">@*android:dimen/car_button_min_width</item>
+        <item name="android:minHeight">@dimen/car_button_min_height</item>
+        <item name="android:minWidth">@dimen/car_button_min_width</item>
         <item name="android:paddingHorizontal">@*android:dimen/car_button_horizontal_padding</item>
         <item name="android:gravity">center</item>
     </style>
 
     <style name="Widget.DeviceDefault.Button.Borderless" parent="android:Widget.Material.Button.Borderless">
         <item name="android:background">@drawable/btn_borderless_car</item>
+        <item name="android:textAppearance">@style/TextAppearance.DeviceDefault.Widget.Button.Borderless</item>
+    </style>
+
+    <style name="Widget.DeviceDefault.Button.Borderless.Colored" parent="android:Widget.Material.Button.Borderless.Colored">
+        <item name="android:background">@drawable/btn_borderless_car</item>
+        <item name="android:textAppearance">@style/TextAppearance.DeviceDefault.Widget.Button.Borderless.Colored</item>
     </style>
 
     <style name="Widget.DeviceDefault.CompoundButton.CheckBox" parent="android:Widget.Material.CompoundButton.CheckBox">
