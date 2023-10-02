@@ -1,8 +1,0 @@
-package: "android.car.content.pm"
-
-flag {
-  name: "display_compatibility"
-  namespace: "car_framework"
-  description: "This flag controls if apps can query packages that need car display compatibility treatment."
-  bug: "291638685"
-}
