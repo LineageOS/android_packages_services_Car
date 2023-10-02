@@ -19,6 +19,7 @@
 
 #include "WatchdogProcessService.h"
 
+#include "PackageInfoResolver.h"
 #include "ServiceManager.h"
 #include "UidProcStatsCollector.h"
 #include "WatchdogServiceHelper.h"
@@ -247,6 +248,10 @@ WatchdogProcessService::WatchdogProcessService(
     }
 }
 
+WatchdogProcessService::~WatchdogProcessService() {
+    terminate();
+}
+
 ScopedAStatus WatchdogProcessService::registerClient(
         const std::shared_ptr<ICarWatchdogClient>& client, TimeoutLength timeout) {
     if (client == nullptr) {
@@ -256,11 +261,9 @@ ScopedAStatus WatchdogProcessService::registerClient(
     pid_t callingPid = IPCThreadState::self()->getCallingPid();
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
     userid_t callingUserId = multiuser_get_user_id(callingUid);
-    sp<PackageInfoResolverInterface> packageInfoResolver = PackageInfoResolver::getInstance();
-    std::string packageName = packageInfoResolver->getPackageNamesForUids({callingUid})[callingUid];
 
-    ClientInfo clientInfo(client, callingPid, callingUserId, packageName,
-                          kGetStartTimeForPidFunc(callingPid), *this);
+    ClientInfo clientInfo(client, callingPid, callingUserId, kGetStartTimeForPidFunc(callingPid),
+                          *this);
     return toScopedAStatus(registerClient(clientInfo, timeout));
 }
 
@@ -279,15 +282,13 @@ ScopedAStatus WatchdogProcessService::registerCarWatchdogService(
     pid_t callingPid = IPCThreadState::self()->getCallingPid();
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
     userid_t callingUserId = multiuser_get_user_id(callingUid);
-    sp<PackageInfoResolverInterface> packageInfoResolver = PackageInfoResolver::getInstance();
-    std::string packageName = packageInfoResolver->getPackageNamesForUids({callingUid})[callingUid];
 
     if (helper == nullptr) {
         return ScopedAStatus::
                 fromExceptionCodeWithMessage(EX_ILLEGAL_ARGUMENT,
                                              "Watchdog service helper instance is null");
     }
-    ClientInfo clientInfo(helper, binder, callingPid, callingUserId, packageName,
+    ClientInfo clientInfo(helper, binder, callingPid, callingUserId,
                           kGetStartTimeForPidFunc(callingPid), *this);
     if (auto result = registerClient(clientInfo, kCarWatchdogServiceTimeoutDelay); !result.ok()) {
         return toScopedAStatus(result);
@@ -599,7 +600,7 @@ void WatchdogProcessService::onDumpProto(ProtoOutputStream& outProto) {
             uint64_t userPackageInfoToken =
                     outProto.start(HealthCheckClientInfo::USER_PACKAGE_INFO);
             outProto.write(UserPackageInfo::USER_ID, static_cast<int>(clientInfo.kUserId));
-            outProto.write(UserPackageInfo::PACKAGE_NAME, clientInfo.kPackageName);
+            outProto.write(UserPackageInfo::PACKAGE_NAME, clientInfo.packageName);
             outProto.end(userPackageInfoToken);
 
             outProto.write(HealthCheckClientInfo::CLIENT_TYPE, clientInfo.kType);
@@ -748,6 +749,33 @@ Result<void> WatchdogProcessService::registerClient(const ClientInfo& clientInfo
         startHealthCheckingLocked(timeout);
         ALOGI("Starting health checking for timeout = %d", timeout);
     }
+    uid_t callingUid = IPCThreadState::self()->getCallingUid();
+
+    // Lazy initialization of PackageInfoResolver.
+    if (mPackageInfoResolver == nullptr) {
+        mPackageInfoResolver = PackageInfoResolver::getInstance();
+    }
+    mPackageInfoResolver
+            ->asyncFetchPackageNamesForUids({callingUid},
+                                            [&](std::unordered_map<uid_t, std::string>
+                                                        packageNames) {
+                                                ClientInfoMap& clients =
+                                                        this->mClientsByTimeout[timeout];
+                                                auto client = clients.find(cookieId);
+                                                // The client could have been unregistered by
+                                                // the time that the packageName is updated.
+                                                if (client != clients.end()) {
+                                                    if (packageNames.find(callingUid) !=
+                                                        packageNames.end()) {
+                                                        client->second.packageName =
+                                                                packageNames[callingUid];
+                                                    } else {
+                                                        ALOGW("Failed to resolve packageName "
+                                                              "for calling uid: %i.",
+                                                              callingUid);
+                                                    }
+                                                }
+                                            });
     return {};
 }
 

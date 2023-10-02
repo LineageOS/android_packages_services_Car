@@ -57,6 +57,7 @@ class WatchdogProcessServicePeer;
 }  // namespace internal
 
 class WatchdogServiceHelperInterface;
+class PackageInfoResolverInterface;
 
 class WatchdogProcessServiceInterface : virtual public android::RefBase {
 public:
@@ -116,7 +117,7 @@ public:
             const std::chrono::nanoseconds& vhalPidCachingRetryDelayNs,
             const sp<Looper>& handlerLooper,
             const sp<AIBinderDeathRegistrationWrapperInterface>& deathRegistrationWrapper);
-    ~WatchdogProcessService() { terminate(); }
+    ~WatchdogProcessService();
 
     android::base::Result<void> start() override;
     void terminate() override;
@@ -171,22 +172,19 @@ private:
     public:
         ClientInfo(const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient>&
                            client,
-                   pid_t pid, userid_t userId, const std::string& packageName,
-                   uint64_t startTimeMillis, const WatchdogProcessService& service) :
+                   pid_t pid, userid_t userId, uint64_t startTimeMillis,
+                   const WatchdogProcessService& service) :
               kPid(pid),
               kUserId(userId),
-              kPackageName(packageName),
               kStartTimeMillis(startTimeMillis),
               kType(ClientType::Regular),
               kService(service),
               kClient(client) {}
         ClientInfo(const android::sp<WatchdogServiceHelperInterface>& helper,
                    const ndk::SpAIBinder& binder, pid_t pid, userid_t userId,
-                   const std::string& packageName, uint64_t startTimeMillis,
-                   const WatchdogProcessService& service) :
+                   uint64_t startTimeMillis, const WatchdogProcessService& service) :
               kPid(pid),
               kUserId(userId),
-              kPackageName(packageName),
               kStartTimeMillis(startTimeMillis),
               kType(ClientType::Service),
               kService(service),
@@ -203,7 +201,6 @@ private:
 
         const pid_t kPid;
         const userid_t kUserId;
-        const std::string kPackageName;
         const int64_t kStartTimeMillis;
         const ClientType kType;
         const WatchdogProcessService& kService;
@@ -212,6 +209,7 @@ private:
         const ndk::SpAIBinder kWatchdogServiceBinder;
 
         int sessionId;
+        std::string packageName;
     };
 
     struct HeartBeat {
@@ -320,6 +318,7 @@ private:
     std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient::OnBinderDiedCallbackFunc>
             mVhalBinderDiedCallback;
     android::sp<AIBinderDeathRegistrationWrapperInterface> mDeathRegistrationWrapper;
+    android::sp<PackageInfoResolverInterface> mPackageInfoResolver;
 
     android::Mutex mMutex;
 
