@@ -144,6 +144,7 @@ protected:
     constexpr static int32_t TEST_PROP_ID = 1;
     constexpr static int32_t TEST_AREA_ID = 2;
     constexpr static int32_t TEST_PROP_ID_2 = 3;
+    constexpr static int32_t TEST_AREA_ID_2 = 4;
 
     const VehiclePropValue TEST_VALUE{
             .prop = TEST_PROP_ID,
@@ -291,10 +292,15 @@ TEST_F(HidlVhalClientTest, testGetAllPropConfigs) {
             VehiclePropConfig{
                     .prop = TEST_PROP_ID,
                     .areaConfigs = {{
-                            .areaId = TEST_AREA_ID,
-                            .minInt32Value = 0,
-                            .maxInt32Value = 1,
-                    }},
+                                            .areaId = TEST_AREA_ID,
+                                            .minInt32Value = 0,
+                                            .maxInt32Value = 1,
+                                    },
+                                    {
+                                            .areaId = TEST_AREA_ID_2,
+                                            .minInt32Value = 2,
+                                            .maxInt32Value = 3,
+                                    }},
             },
             VehiclePropConfig{
                     .prop = TEST_PROP_ID_2,
@@ -308,12 +314,17 @@ TEST_F(HidlVhalClientTest, testGetAllPropConfigs) {
 
     ASSERT_EQ(configs.size(), static_cast<size_t>(2));
     ASSERT_EQ(configs[0]->getPropId(), TEST_PROP_ID);
-    ASSERT_EQ(configs[0]->getAreaConfigSize(), static_cast<size_t>(1));
+    ASSERT_EQ(configs[0]->getAreaConfigSize(), static_cast<size_t>(2));
 
-    const IHalAreaConfig* areaConfig = configs[0]->getAreaConfigs();
-    ASSERT_EQ(areaConfig->getAreaId(), TEST_AREA_ID);
-    ASSERT_EQ(areaConfig->getMinInt32Value(), 0);
-    ASSERT_EQ(areaConfig->getMaxInt32Value(), 1);
+    const std::unique_ptr<IHalAreaConfig>& areaConfig0 = configs[0]->getAreaConfigs()[0];
+    ASSERT_EQ(areaConfig0->getAreaId(), TEST_AREA_ID);
+    ASSERT_EQ(areaConfig0->getMinInt32Value(), 0);
+    ASSERT_EQ(areaConfig0->getMaxInt32Value(), 1);
+
+    const std::unique_ptr<IHalAreaConfig>& areaConfig1 = configs[0]->getAreaConfigs()[1];
+    ASSERT_EQ(areaConfig1->getAreaId(), TEST_AREA_ID_2);
+    ASSERT_EQ(areaConfig1->getMinInt32Value(), 2);
+    ASSERT_EQ(areaConfig1->getMaxInt32Value(), 3);
 
     ASSERT_EQ(configs[1]->getPropId(), TEST_PROP_ID_2);
     ASSERT_EQ(configs[1]->getAreaConfigSize(), static_cast<size_t>(0));
@@ -324,10 +335,15 @@ TEST_F(HidlVhalClientTest, testGetPropConfigs) {
             VehiclePropConfig{
                     .prop = TEST_PROP_ID,
                     .areaConfigs = {{
-                            .areaId = TEST_AREA_ID,
-                            .minInt32Value = 0,
-                            .maxInt32Value = 1,
-                    }},
+                                            .areaId = TEST_AREA_ID,
+                                            .minInt32Value = 0,
+                                            .maxInt32Value = 1,
+                                    },
+                                    {
+                                            .areaId = TEST_AREA_ID_2,
+                                            .minInt32Value = 2,
+                                            .maxInt32Value = 3,
+                                    }},
             },
             VehiclePropConfig{
                     .prop = TEST_PROP_ID_2,
@@ -343,12 +359,17 @@ TEST_F(HidlVhalClientTest, testGetPropConfigs) {
 
     ASSERT_EQ(configs.size(), static_cast<size_t>(2));
     ASSERT_EQ(configs[0]->getPropId(), TEST_PROP_ID);
-    ASSERT_EQ(configs[0]->getAreaConfigSize(), static_cast<size_t>(1));
+    ASSERT_EQ(configs[0]->getAreaConfigSize(), static_cast<size_t>(2));
 
-    const IHalAreaConfig* areaConfig = configs[0]->getAreaConfigs();
-    ASSERT_EQ(areaConfig->getAreaId(), TEST_AREA_ID);
-    ASSERT_EQ(areaConfig->getMinInt32Value(), 0);
-    ASSERT_EQ(areaConfig->getMaxInt32Value(), 1);
+    const std::unique_ptr<IHalAreaConfig>& areaConfig0 = configs[0]->getAreaConfigs()[0];
+    ASSERT_EQ(areaConfig0->getAreaId(), TEST_AREA_ID);
+    ASSERT_EQ(areaConfig0->getMinInt32Value(), 0);
+    ASSERT_EQ(areaConfig0->getMaxInt32Value(), 1);
+
+    const std::unique_ptr<IHalAreaConfig>& areaConfig1 = configs[0]->getAreaConfigs()[1];
+    ASSERT_EQ(areaConfig1->getAreaId(), TEST_AREA_ID_2);
+    ASSERT_EQ(areaConfig1->getMinInt32Value(), 2);
+    ASSERT_EQ(areaConfig1->getMaxInt32Value(), 3);
 
     ASSERT_EQ(configs[1]->getPropId(), TEST_PROP_ID_2);
     ASSERT_EQ(configs[1]->getAreaConfigSize(), static_cast<size_t>(0));
