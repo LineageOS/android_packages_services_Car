@@ -18,6 +18,7 @@ package com.android.car.portraitlauncher.homeactivities;
 
 import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY;
 import static android.window.DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER;
+
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_IMMERSIVE_MODE_REQUESTED_SOURCE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_APP_GRID_VISIBILITY_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_COLLAPSE_NOTIFICATION;
@@ -172,6 +173,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private TaskInfo mCurrentTaskInRootTaskView;
     private boolean mIsNotificationCenterOnTop;
     private boolean mIsRecentsOnTop;
+    private boolean mIsAppGridOnTop;
     private TaskInfoCache mTaskInfoCache;
     private TaskViewPanel mAppGridTaskViewPanel;
     private TaskViewPanel mRootTaskViewPanel;
@@ -199,7 +201,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private final IntentHandler mMediaIntentHandler = new IntentHandler() {
         @Override
         public void handleIntent(Intent intent) {
-            if (TaskCategoryManager.isMediaApp(mTaskViewManager.getTopTaskInLaunchRootTask())) {
+            if (TaskCategoryManager.isMediaApp(mTaskViewManager.getTopTaskInLaunchRootTask())
+                    && mRootTaskViewPanel.isOpen()) {
                 mRootTaskViewPanel.closePanel();
                 return;
             }
@@ -284,6 +287,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
             mIsNotificationCenterOnTop = mTaskCategoryManager.isNotificationActivity(taskInfo);
             mIsRecentsOnTop = mTaskCategoryManager.isRecentsActivity(taskInfo);
+            mIsAppGridOnTop = mTaskCategoryManager.isAppGridActivity(taskInfo);
 
             if (mTaskCategoryManager.isBackgroundApp(taskInfo)) {
                 mTaskCategoryManager.setCurrentBackgroundApp(taskInfo.baseActivity);
@@ -1087,7 +1091,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 }
 
                 if (mCurrentTaskInRootTaskView != null && isVisible) {
-                    mTaskViewManager.updateTaskVisibility(mCurrentTaskInRootTaskView.token, true);
+                    mTaskViewManager.updateLaunchRootCarTaskVisibility(/* visibility= */ true);
                 }
 
                 // Update the notification button's selection state.
@@ -1131,7 +1135,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 } else if (mCurrentTaskInRootTaskView != null && oldState.isVisible()) {
                     // hide the window of the task running in the root task view.
                     logIfDebuggable("hiding the window for task: " + mCurrentTaskInRootTaskView);
-                    mTaskViewManager.updateTaskVisibility(mCurrentTaskInRootTaskView.token, false);
+                    mTaskViewManager.updateLaunchRootCarTaskVisibility(/* visibility= */ false);
                 }
             }
         });
@@ -1215,7 +1219,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
         // Only handles the immersive mode request here if requesting component has the same package
         // name as the current top task.
-        if (!isPackageVisibleOnRootTask(componentName)) {
+        if (!isPackageVisibleOnRootTask(componentName) || mIsAppGridOnTop) {
             // Save the component and timestamp of the latest immersive mode request, in case any
             // race condition with TaskStackListener.
             setUnhandledImmersiveModeRequest(componentName, System.currentTimeMillis(), requested);
