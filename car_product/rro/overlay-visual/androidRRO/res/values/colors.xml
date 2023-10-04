@@ -76,4 +76,7 @@
     <color name="car_button_toggle_background_unchecked">@color/car_secondary</color>
     <color name="car_button_toggle_foreground_checked">@color/car_on_primary</color>
     <color name="car_button_toggle_foreground_unchecked">@color/car_on_secondary</color>
+
+    <!-- Dialog colors -->
+    <color name="car_alert_dialog_background_color">@color/car_surface_2</color>
 </resources>
