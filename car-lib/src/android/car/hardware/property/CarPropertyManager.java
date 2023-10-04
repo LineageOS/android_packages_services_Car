@@ -1057,7 +1057,6 @@ public class CarPropertyManager extends CarManagerBase {
     @SuppressWarnings("FormatString")
     public boolean registerCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback,
             int propertyId, @FloatRange(from = 0.0, to = 100.0) float updateRateHz) {
-        // TODO(b/293201348): Call subscribePropertyEvents once the API is fully implemented.
         if (DBG) {
             Log.d(TAG, String.format("registerCallback, callback: %s propertyId: %s, "
                     + "updateRateHz: %f", carPropertyEventCallback,
