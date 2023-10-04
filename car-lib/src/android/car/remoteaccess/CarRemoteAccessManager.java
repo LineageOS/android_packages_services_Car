@@ -16,6 +16,8 @@
 
 package android.car.remoteaccess;
 
+import static android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS;
+
 import android.annotation.CallbackExecutor;
 import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
@@ -468,7 +470,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS)
+    @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
     @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
     public boolean isTaskScheduleSupported() {
         try {
@@ -491,7 +493,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS)
+    @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
     @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
     @Nullable
     public InVehicleTaskScheduler getInVehicleTaskScheduler() {
@@ -515,7 +517,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @hide
      */
     @TestApi
-    @FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS)
+    @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
     @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
     public void addServerlessRemoteTaskClient(@NonNull String packageName,
             @NonNull String clientId) {
@@ -535,7 +537,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @hide
      */
     @TestApi
-    @FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS)
+    @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
     @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
     public void removeServerlessRemoteTaskClient(@NonNull String packageName) {
         try {
@@ -552,6 +554,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
+    @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
     public static final class ScheduleInfo {
         @NonNull
         public static final Duration PERIODIC_DAILY = Duration.ofDays(1);
@@ -561,6 +564,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
         /**
          * The builder for {@link ScheduleInfo}.
          */
+        @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
         public static final class Builder {
             private String mScheduleId;
             private byte[] mTaskData;
@@ -591,7 +595,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
              *      0 means the count is infinite.
              * @return the builder.
              */
-            @FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS)
+            @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
             @NonNull
             public Builder setCount(int count) {
                 Preconditions.checkArgument(count >= 0, "count must not be negative");
@@ -608,7 +612,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
              *      {@link PERIODIC_DAILY} or {@link PERIODIC_WEEKLY} or any custom interval.
              * @return the builder.
              */
-            @FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS)
+            @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
             @NonNull
             public Builder setPeriodic(@NonNull Duration periodic) {
                 Preconditions.checkArgument(periodic != null, "periodic must not be null");
@@ -621,7 +625,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
             /**
              * Builds the {@link ScheduleInfo}.
              */
-            @FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS)
+            @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
             @NonNull
             public ScheduleInfo build() {
                 if (mBuilderUsed) {
@@ -678,7 +682,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          *      later than the scheduled time due to the time spent waking up Android system and
          *      starting the remote task client.
          */
-        @FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS)
+        @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
         @NonNull
         public static Builder builder(@NonNull String scheduleId, @NonNull byte[] taskData,
                 long mStartTimeInEpochSeconds) {
@@ -687,29 +691,29 @@ public final class CarRemoteAccessManager extends CarManagerBase {
             return new Builder(scheduleId, taskData, mStartTimeInEpochSeconds);
         }
 
-        @FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS)
+        @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
         @NonNull
         public String getScheduleId() {
             return mScheduleId;
         }
 
-        @FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS)
+        @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
         @NonNull
         public byte[] getTaskData() {
             return mTaskData;
         }
 
-        @FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS)
+        @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
         public int getCount() {
             return mCount;
         }
 
-        @FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS)
+        @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
         public long getStartTimeInEpochSeconds() {
             return mStartTimeInEpochSeconds;
         }
 
-        @FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS)
+        @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
         @NonNull
         public Duration getPeriodic() {
             return mPeriodic;
@@ -734,6 +738,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
+    @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
     public static final class InVehicleTaskSchedulerException extends Exception {
         InVehicleTaskSchedulerException(Throwable cause) {
             super(cause);
@@ -751,6 +756,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
+    @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
     public final class InVehicleTaskScheduler {
         /**
          * Please use {@link getInVehicleTaskScheduler} to create.
@@ -795,7 +801,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          * @hide
          */
         @SystemApi
-        @FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS)
+        @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
         @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
         public void scheduleTask(@NonNull ScheduleInfo scheduleInfo)
                 throws InVehicleTaskSchedulerException {
@@ -822,7 +828,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          * @hide
          */
         @SystemApi
-        @FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS)
+        @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
         @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
         public void unscheduleTask(@NonNull String scheduleId)
                 throws InVehicleTaskSchedulerException {
@@ -844,7 +850,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          * @throws InVehicleTaskSchedulerException if failed to unschedule the tasks.
          */
         @SystemApi
-        @FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS)
+        @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
         @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
         public void unscheduleAllTasks() throws InVehicleTaskSchedulerException {
             try {
@@ -866,7 +872,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          * @hide
          */
         @SystemApi
-        @FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS)
+        @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
         @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
         public boolean isTaskScheduled(@NonNull String scheduleId)
                 throws InVehicleTaskSchedulerException {
@@ -892,7 +898,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          * @hide
          */
         @SystemApi
-        @FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS)
+        @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
         @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
         @NonNull
         public List<ScheduleInfo> getAllScheduledTasks() throws InVehicleTaskSchedulerException {

@@ -97,6 +97,7 @@ android.car VehicleOilLevel int HIGH
 android.car VehicleOilLevel int LOW
 android.car VehicleOilLevel int NORMAL
 android.car VehiclePropertyIds int CLUSTER_DISPLAY_STATE
+android.car VehiclePropertyIds int CLUSTER_HEARTBEAT
 android.car VehiclePropertyIds int CLUSTER_NAVIGATION_STATE
 android.car VehiclePropertyIds int CLUSTER_REPORT_STATE
 android.car VehiclePropertyIds int CLUSTER_REQUEST_DISPLAY

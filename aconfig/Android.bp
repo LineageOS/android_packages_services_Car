@@ -12,17 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// List all java aconfig libraries here
-aconfig_srcjars = [
-    ":android.car.remoteaccess.flags-aconfig-java{.generated_srcjars}",
-    ":android.car.content.pm.flags-aconfig-java{.generated_srcjars}",
-]
-
 // Aconfig declarations and libraries for the Android Automotive OS
 java_defaults {
     name: "car-framework-aconfig-libraries",
     // Add java_aconfig_libraries to here to add them to the AAOS
-    srcs: aconfig_srcjars,
+    srcs: [
+        ":android.car.feature-aconfig-java{.generated_srcjars}",
+    ],
     libs: [
         // Add aconfig-annotations-lib as a dependency for the optimization
         "aconfig-annotations-lib",
@@ -31,34 +27,21 @@ java_defaults {
 }
 
 // Default flags for java_aconfig_libraries that go into car-lib and car modules
+// fake_device_config is linked to avoid a build error
 java_defaults {
     name: "car-framework-aconfig-java-defaults",
     sdk_version: "core_platform",
     libs: ["fake_device_config"],
 }
 
-// Remote Access
 aconfig_declarations {
-    name: "android.car.remoteaccess.flags-aconfig",
-    package: "android.car.remoteaccess",
-    srcs: ["car-lib/src/android/car/remoteaccess/*.aconfig"],
+    name: "android.car.feature-aconfig",
+    package: "android.car.feature",
+    srcs: ["flags.aconfig"],
 }
 
 java_aconfig_library {
-    name: "android.car.remoteaccess.flags-aconfig-java",
-    aconfig_declarations: "android.car.remoteaccess.flags-aconfig",
-    defaults: ["car-framework-aconfig-java-defaults"],
-}
-
-// CarPackageManager
-aconfig_declarations {
-    name: "android.car.content.pm.flags-aconfig",
-    package: "android.car.content.pm",
-    srcs: ["car-lib/src/android/car/content/pm/*.aconfig"],
-}
-
-java_aconfig_library {
-    name: "android.car.content.pm.flags-aconfig-java",
-    aconfig_declarations: "android.car.content.pm.flags-aconfig",
+    name: "android.car.feature-aconfig-java",
+    aconfig_declarations: "android.car.feature-aconfig",
     defaults: ["car-framework-aconfig-java-defaults"],
 }

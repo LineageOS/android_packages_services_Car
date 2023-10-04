@@ -47,6 +47,6 @@ Status EventProviderImpl::registerCallback(const sp<IEventCallback>& cb) {
 
 Status EventProviderImpl::unregisterCallback(const sp<IEventCallback>& cb) {
     std::scoped_lock lock(mMutex);
-    std::remove(mCallbacks.begin(), mCallbacks.end(), cb);
+    mCallbacks.erase(std::remove(mCallbacks.begin(), mCallbacks.end(), cb), mCallbacks.end());
     return Status::ok();
 }

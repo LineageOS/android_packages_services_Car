@@ -136,7 +136,8 @@ droidstubs {
     name: "android.car-stubs-docs",
     defaults: ["android.car-docs-default"],
     args: "--hide UnavailableSymbol --hide HiddenSuperclass --stub-packages android.car* " +
-        "--hide-package com.android.internal --hide-package com.android.car.internal ",
+        "--hide-package com.android.internal --hide-package com.android.car.internal " +
+        "--error UnflaggedApi",
     installable: false,
     check_api: {
         last_released: {
@@ -167,7 +168,7 @@ droidstubs {
     args: "--hide CallbackInterface --hide UnavailableSymbol --hide HiddenSuperclass " +
         "--stub-packages android.car* " +
         "--show-annotation android.annotation.SystemApi --hide-package com.android.internal " +
-        "--hide-package com.android.car.internal ",
+        "--hide-package com.android.car.internal --error UnflaggedApi",
     installable: false,
     check_api: {
         last_released: {

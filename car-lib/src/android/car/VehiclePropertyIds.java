@@ -4850,6 +4850,24 @@ public final class VehiclePropertyIds {
     public static final int CLUSTER_NAVIGATION_STATE = 292556600;
 
     /**
+     * Property to send the heartbeat signal to ClusterOS.
+     *
+     * <p>Doesn't require permission because it's not exposed through
+     * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Object[]} property type
+     * </ul>
+     *
+     * @hide
+     */
+    public static final int CLUSTER_HEARTBEAT = 299896651;
+
+    /**
      * Current date and time, encoded as Unix time.
      *
      * <p>This value denotes the number of milliseconds that have elapsed since 1/1/1970 UTC.

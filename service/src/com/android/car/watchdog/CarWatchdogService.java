@@ -297,7 +297,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mCarWatchdogDaemonHelper = new CarWatchdogDaemonHelper(TAG_WATCHDOG);
         mWatchdogServiceForSystem = new ICarWatchdogServiceForSystemImpl(this);
         mWatchdogProcessHandler = watchdogProcessHandler != null ? watchdogProcessHandler
-                : new WatchdogProcessHandler(mWatchdogServiceForSystem, mCarWatchdogDaemonHelper);
+                : new WatchdogProcessHandler(mWatchdogServiceForSystem, mCarWatchdogDaemonHelper,
+                        mPackageInfoHandler);
         mWatchdogPerfHandler =
                 watchdogPerfHandler != null ? watchdogPerfHandler : new WatchdogPerfHandler(
                         mContext, carServiceBuiltinPackageContext,

@@ -1,8 +1,0 @@
-package: "android.car.remoteaccess"
-
-flag {
-  name: "serverless_remote_access"
-  namespace: "car_framework"
-  description: "Enables serverless remote access"
-  bug: "302339402"
-}

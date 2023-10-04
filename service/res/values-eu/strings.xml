@@ -57,7 +57,7 @@
     <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"Zuzeneko errendatzea instrumentu lukuan"</string>
     <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"Eman instrumentu lukuan bistaratu beharreko jarduerak azaltzeko baimena aplikazioari"</string>
     <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"Instrumentu lukua kontrolatzeko aukera"</string>
-    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Abiarazi aplikazioak instrumentu lukuan"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Exekutatu aplikazioak instrumentu lukuan"</string>
     <string name="car_permission_car_monitor_cluster_navigation_state" msgid="7025307242306902441">"Instrumentuen lukuko nabigazioaren egoera"</string>
     <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"Entzun instrumentuen lukuko nabigazioaren egoeran ematen diren aldaketak"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Erabiltzeko moduaren murriztapenen konfigurazioa"</string>
@@ -93,7 +93,7 @@
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Erabili autoko EVS zerbitzua"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Harpidetu EVSren bideo-igorpenetara"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"Eskatu EVSko aurrebistaren jarduera"</string>
-    <string name="car_permission_desc_request_evs_activity" msgid="4582768053649138488">"Eskatu sistemari EVSko aurrebista abiarazteko"</string>
+    <string name="car_permission_desc_request_evs_activity" msgid="4582768053649138488">"Eskatu sistemari EVSko aurrebista exekutatzeko"</string>
     <string name="car_permission_label_control_evs_activity" msgid="2030069860204405679">"Kontrolatu EVSko aurrebistaren jarduera"</string>
     <string name="car_permission_desc_control_evs_activity" msgid="691646545916976346">"Kontrolatu sistemaren EVSko aurrebistaren jarduera"</string>
     <string name="car_permission_label_use_evs_camera" msgid="3607720208623955067">"Erabili EVSaren kamera"</string>
