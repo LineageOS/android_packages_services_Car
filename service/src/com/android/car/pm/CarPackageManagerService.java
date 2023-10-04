@@ -672,7 +672,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             mLock.notifyAll();
         }
         mContext.unregisterReceiver(mPackageParsingEventReceiver);
-        mActivityService.registerActivityLaunchListener(null);
+        mActivityService.unregisterActivityLaunchListener(mActivityLaunchListener);
         synchronized (mLock) {
             for (int i = 0; i < mUxRestrictionsListeners.size(); i++) {
                 UxRestrictionsListener listener = mUxRestrictionsListeners.valueAt(i);
