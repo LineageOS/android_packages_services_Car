@@ -33,6 +33,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.SigningInfo;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -110,7 +111,12 @@ public abstract class AbstractReceiverService extends Service {
         @Override
         public void registerReceiver(String receiverEndpointId, IPayloadCallback callback) {
             mReceiverEndpointMap.put(receiverEndpointId, callback);
-            AbstractReceiverService.this.onReceiverRegistered(receiverEndpointId);
+            long token = Binder.clearCallingIdentity();
+            try {
+                AbstractReceiverService.this.onReceiverRegistered(receiverEndpointId);
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
         }
 
         @Override
@@ -125,7 +131,12 @@ public abstract class AbstractReceiverService extends Service {
 
         @Override
         public void onPayloadReceived(OccupantZoneInfo senderZone, Payload payload) {
-            AbstractReceiverService.this.onPayloadReceived(senderZone, payload);
+            long token = Binder.clearCallingIdentity();
+            try {
+                AbstractReceiverService.this.onPayloadReceived(senderZone, payload);
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
         }
 
         @Override
@@ -146,22 +157,42 @@ public abstract class AbstractReceiverService extends Service {
                         CONNECTION_ERROR_SIGNATURE_NOT_MATCH);
                 return;
             }
-            AbstractReceiverService.this.onConnectionInitiated(senderZone);
+            long token = Binder.clearCallingIdentity();
+            try {
+                AbstractReceiverService.this.onConnectionInitiated(senderZone);
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
         }
 
         @Override
         public void onConnected(OccupantZoneInfo senderZone) {
-            AbstractReceiverService.this.onConnected(senderZone);
+            long token = Binder.clearCallingIdentity();
+            try {
+                AbstractReceiverService.this.onConnected(senderZone);
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
         }
 
         @Override
         public void onConnectionCanceled(OccupantZoneInfo senderZone) {
-            AbstractReceiverService.this.onConnectionCanceled(senderZone);
+            long token = Binder.clearCallingIdentity();
+            try {
+                AbstractReceiverService.this.onConnectionCanceled(senderZone);
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
         }
 
         @Override
         public void onDisconnected(OccupantZoneInfo senderZone) {
-            AbstractReceiverService.this.onDisconnected(senderZone);
+            long token = Binder.clearCallingIdentity();
+            try {
+                AbstractReceiverService.this.onDisconnected(senderZone);
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
         }
     };
 

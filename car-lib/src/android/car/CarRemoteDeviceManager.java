@@ -28,6 +28,7 @@ import android.car.builtin.util.Slogf;
 import android.car.occupantconnection.ICarRemoteDevice;
 import android.car.occupantconnection.IStateCallback;
 import android.content.pm.PackageInfo;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -208,8 +209,13 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
                         + ", callbackExecutor: " + callbackExecutor);
                 return;
             }
-            callbackExecutor.execute(() -> callback.onOccupantZoneStateChanged(
-                    occupantZone, occupantZoneStates));
+            long token = Binder.clearCallingIdentity();
+            try {
+                callbackExecutor.execute(() -> callback.onOccupantZoneStateChanged(
+                        occupantZone, occupantZoneStates));
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
         }
 
         @Override
@@ -227,8 +233,13 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
                         + ", callbackExecutor: " + callbackExecutor);
                 return;
             }
-            callbackExecutor.execute(() ->
-                    callback.onAppStateChanged(occupantZone, appStates));
+            long token = Binder.clearCallingIdentity();
+            try {
+                callbackExecutor.execute(() ->
+                        callback.onAppStateChanged(occupantZone, appStates));
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
         }
     };
 
