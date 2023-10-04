@@ -38,6 +38,7 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import java.time.Duration;
+import java.util.concurrent.Executor;
 
 
 public final class CarPropertyEventCallbackControllerUnitTest {
@@ -80,11 +81,12 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     @Mock
     private CarPropertyManager.CarPropertyEventCallback mCarPropertyEventCallback;
     private CarPropertyEventCallbackController mCarPropertyEventCallbackController;
+    private static final Executor DIRECT_EXECUTOR = Runnable::run;
 
     @Before
     public void setUp() {
         mCarPropertyEventCallbackController =
-                new CarPropertyEventCallbackController(mCarPropertyEventCallback);
+                new CarPropertyEventCallbackController(mCarPropertyEventCallback, DIRECT_EXECUTOR);
     }
 
     @Test

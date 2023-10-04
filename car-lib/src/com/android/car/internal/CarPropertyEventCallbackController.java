@@ -29,6 +29,8 @@ import android.util.SparseArray;
 import com.android.car.internal.property.CarPropertyEventTracker;
 import com.android.internal.annotations.GuardedBy;
 
+import java.util.concurrent.Executor;
+
 /**
  * Manages a group of property IDs and area IDs registered for the same {@link
  * CarPropertyEventCallback} at possibly different update rates.
@@ -46,10 +48,13 @@ public final class CarPropertyEventCallbackController {
     @GuardedBy("mLock")
     private final SparseArray<SparseArray<CarPropertyEventTracker>> mPropIdToAreaIdToCpeTracker =
             new SparseArray<>();
+    private final Executor mExecutor;
 
-    public CarPropertyEventCallbackController(CarPropertyEventCallback carPropertyEventCallback) {
+    public CarPropertyEventCallbackController(CarPropertyEventCallback carPropertyEventCallback,
+            Executor executor) {
         requireNonNull(carPropertyEventCallback);
         mCarPropertyEventCallback = carPropertyEventCallback;
+        mExecutor = executor;
     }
 
     /**
@@ -69,7 +74,7 @@ public final class CarPropertyEventCallbackController {
         }
         switch (carPropertyEvent.getEventType()) {
             case CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE:
-                mCarPropertyEventCallback.onChangeEvent(carPropertyValue);
+                mExecutor.execute(() -> mCarPropertyEventCallback.onChangeEvent(carPropertyValue));
                 break;
             case CarPropertyEvent.PROPERTY_EVENT_ERROR:
                 if (DBG) {
@@ -77,8 +82,9 @@ public final class CarPropertyEventCallbackController {
                             VehiclePropertyIds.toString(carPropertyValue.getPropertyId()),
                             carPropertyValue.getAreaId(), carPropertyEvent.getErrorCode());
                 }
-                mCarPropertyEventCallback.onErrorEvent(carPropertyValue.getPropertyId(),
-                        carPropertyValue.getAreaId(), carPropertyEvent.getErrorCode());
+                mExecutor.execute(() -> mCarPropertyEventCallback.onErrorEvent(
+                        carPropertyValue.getPropertyId(), carPropertyValue.getAreaId(),
+                        carPropertyEvent.getErrorCode()));
                 break;
             default:
                 Slogf.e(TAG, "onEvent: unknown errorCode=%d, for propertyId=%s, areaId=0x%x",
@@ -107,6 +113,21 @@ public final class CarPropertyEventCallbackController {
     }
 
     /**
+     * Returns the areaIds associated with the given propertyId
+     */
+    public int[] getAreaIds(int propertyId) {
+        synchronized (mLock) {
+            SparseArray<CarPropertyEventTracker> areaIdToCpeTracker =
+                    mPropIdToAreaIdToCpeTracker.get(propertyId);
+            int[] areaIds = new int[areaIdToCpeTracker.size()];
+            for (int i = 0; i < areaIdToCpeTracker.size(); i++) {
+                areaIds[i] = areaIdToCpeTracker.keyAt(i);
+            }
+            return areaIds;
+        }
+    }
+
+    /**
      * Return the update rate in hz that the property ID and area ID pair
      * is subscribed at.
      */
@@ -122,6 +143,10 @@ public final class CarPropertyEventCallbackController {
             }
             return areaIdToCpeTracker.get(areaId).getUpdateRateHz();
         }
+    }
+
+    public Executor getExecutor() {
+        return mExecutor;
     }
 
     /**
