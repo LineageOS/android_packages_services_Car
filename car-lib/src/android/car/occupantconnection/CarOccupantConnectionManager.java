@@ -27,6 +27,7 @@ import android.car.CarManagerBase;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.CarRemoteDeviceManager.AppState;
 import android.car.CarRemoteDeviceManager.OccupantZoneState;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArrayMap;
@@ -324,7 +325,12 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
                         // Notify the sender of success.
                         ConnectionRequestCallback callback = pair.first;
                         Executor executor = pair.second;
-                        executor.execute(() -> callback.onConnected(receiverZone));
+                        long token = Binder.clearCallingIdentity();
+                        try {
+                            executor.execute(() -> callback.onConnected(receiverZone));
+                        } finally {
+                            Binder.restoreCallingIdentity(token);
+                        }
 
                         // Unlike other onFoo() methods, we shouldn't remove the callback here
                         // because we need to invoke it once it is disconnected.
@@ -343,7 +349,13 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
                         // Notify the sender of failure.
                         ConnectionRequestCallback callback = pair.first;
                         Executor executor = pair.second;
-                        executor.execute(() -> callback.onFailed(receiverZone, connectionError));
+                        long token = Binder.clearCallingIdentity();
+                        try {
+                            executor.execute(
+                                    () -> callback.onFailed(receiverZone, connectionError));
+                        } finally {
+                            Binder.restoreCallingIdentity(token);
+                        }
 
                         mConnectionRequestMap.remove(receiverZone.zoneId);
                     }
@@ -361,7 +373,12 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
                         // Notify the sender of disconnection.
                         ConnectionRequestCallback callback = pair.first;
                         Executor executor = pair.second;
-                        executor.execute(() -> callback.onDisconnected(receiverZone));
+                        long token = Binder.clearCallingIdentity();
+                        try {
+                            executor.execute(() -> callback.onDisconnected(receiverZone));
+                        } finally {
+                            Binder.restoreCallingIdentity(token);
+                        }
 
                         mConnectionRequestMap.remove(receiverZone.zoneId);
                     }
@@ -391,7 +408,12 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
             }
             PayloadCallback callback = pair.first;
             Executor executor = pair.second;
-            executor.execute(() -> callback.onPayloadReceived(senderZone, payload));
+            long token = Binder.clearCallingIdentity();
+            try {
+                executor.execute(() -> callback.onPayloadReceived(senderZone, payload));
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
         }
     };
 
