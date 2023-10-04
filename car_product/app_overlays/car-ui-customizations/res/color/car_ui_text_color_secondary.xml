@@ -20,10 +20,10 @@
           xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:state_enabled="false"
           android:alpha="?android:attr/disabledAlpha"
-          android:color="?android:attr/colorForeground"/>
+          android:color="?android:attr/textColorSecondary"/>
     <item app:state_ux_restricted="true"
           android:alpha="?android:attr/disabledAlpha"
-          android:color="?android:attr/colorForeground"/>
+          android:color="?android:attr/textColorSecondary"/>
     <item android:alpha="?android:attr/secondaryContentAlpha"
-          android:color="?android:attr/colorForeground"/>
+          android:color="?android:attr/textColorSecondary"/>
 </selector>

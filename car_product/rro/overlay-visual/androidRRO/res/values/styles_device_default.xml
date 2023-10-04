@@ -21,30 +21,38 @@
 <resources>
 
     <style name="TextAppearance.DeviceDefault" parent="android:TextAppearance.Material.Large">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:textSize">@*android:dimen/car_body3_size</item>
     </style>
     <style name="TextAppearance.DeviceDefault.Inverse" parent="android:TextAppearance.Material.Inverse">
+        <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
         <item name="android:textSize">@*android:dimen/car_body3_size</item>
     </style>
 
     <style name="TextAppearance.DeviceDefault.Large" parent="android:TextAppearance.Material.Large">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:textSize">@*android:dimen/car_body1_size</item>
     </style>
     <style name="TextAppearance.DeviceDefault.Large.Inverse" parent="android:TextAppearance.Material.Large.Inverse">
+        <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
         <item name="android:textSize">@*android:dimen/car_body1_size</item>
     </style>
 
     <style name="TextAppearance.DeviceDefault.Medium" parent="android:TextAppearance.Material.Medium">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:textSize">@*android:dimen/car_body2_size</item>
     </style>
     <style name="TextAppearance.DeviceDefault.Medium.Inverse" parent="android:TextAppearance.Material.Medium.Inverse">
+        <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
         <item name="android:textSize">@*android:dimen/car_body2_size</item>
     </style>
 
     <style name="TextAppearance.DeviceDefault.Small" parent="android:TextAppearance.Material.Small">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:textSize">@*android:dimen/car_body4_size</item>
     </style>
     <style name="TextAppearance.DeviceDefault.Small.Inverse" parent="android:TextAppearance.Material.Small.Inverse">
+        <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
         <item name="android:textSize">@*android:dimen/car_body4_size</item>
     </style>
 
@@ -77,7 +85,12 @@
         <item name="android:fontFamily">@*android:string/config_headlineFontFamilyMedium</item>
         <item name="android:textAllCaps">@*android:bool/config_buttonTextAllCaps</item>
         <item name="android:textSize">@*android:dimen/car_action1_size</item>
-        <item name="android:textColor">@*android:color/car_button_text_color</item>
+        <item name="android:textColor">@color/car_button_text_color</item>
+    </style>
+
+    <style name="TextAppearance.DeviceDefault.Widget.Button.Toggle"
+           parent="TextAppearance.DeviceDefault.Widget.Button">
+        <item name="android:textColor">@color/car_button_toggle_text_color</item>
     </style>
 
     <style name="Widget.DeviceDefault.TextView" parent="android:Widget.Material.TextView">
@@ -92,10 +105,24 @@
         <item name="android:requiresFadingEdge">horizontal</item>
         <item name="android:fadingEdgeLength">@*android:dimen/car_textview_fading_edge_length</item>
         <item name="android:background">@*android:drawable/car_button_background</item>
+        <item name="android:textAppearance">@style/TextAppearance.DeviceDefault.Widget.Button</item>
         <item name="android:layout_height">@*android:dimen/car_button_height</item>
         <item name="android:minWidth">@*android:dimen/car_button_min_width</item>
         <item name="android:paddingStart">@*android:dimen/car_button_horizontal_padding</item>
         <item name="android:paddingEnd">@*android:dimen/car_button_horizontal_padding</item>
+    </style>
+
+    <style name="Widget.DeviceDefault.Button.Toggle" parent="android:Widget.Material.Button.Toggle">
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">none</item>
+        <item name="android:requiresFadingEdge">horizontal</item>
+        <item name="android:fadingEdgeLength">@*android:dimen/car_textview_fading_edge_length</item>
+        <item name="android:background">@drawable/car_button_toggle_background</item>
+        <item name="android:textAppearance">@style/TextAppearance.DeviceDefault.Widget.Button.Toggle</item>
+        <item name="android:minHeight">@*android:dimen/car_button_height</item>
+        <item name="android:minWidth">@*android:dimen/car_button_min_width</item>
+        <item name="android:paddingHorizontal">@*android:dimen/car_button_horizontal_padding</item>
+        <item name="android:gravity">center</item>
     </style>
 
     <style name="Widget.DeviceDefault.Button.Borderless" parent="android:Widget.Material.Button.Borderless">
@@ -154,6 +181,7 @@
 
     <style name="Widget.DeviceDefault.ActionBar.Solid" parent="android:Widget.Material.ActionBar.Solid">
         <item name="android:textSize">@*android:dimen/car_body3_size</item>
+        <item name="android:textColor">@color/car_on_background</item>
     </style>
 
     <!-- Preference Styles -->
