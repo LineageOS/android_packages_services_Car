@@ -17,6 +17,7 @@
 package com.android.car.pm;
 
 import static android.Manifest.permission.QUERY_ALL_PACKAGES;
+import static android.car.Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLOCKED_ACTIVITY_NAME;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLOCKED_TASK_ID;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_DISPLAY_ID;
@@ -99,6 +100,7 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
+import com.android.car.CarServiceHelperWrapper;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
 import com.android.car.am.CarActivityService;
@@ -1734,6 +1736,20 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         } catch (NameNotFoundException e) {
             return null;
         }
+    }
+
+    @Override
+    public boolean requiresDisplayCompat(String packageName) {
+        if (!callerCanQueryPackage(packageName)) {
+            throw new SecurityException("requires permission " + QUERY_ALL_PACKAGES);
+        }
+        int callingUid = Binder.getCallingUid();
+        if (!hasPermissionGranted(PERMISSION_QUERY_DISPLAY_COMPATIBILITY, callingUid)) {
+            throw new SecurityException("requires permission "
+                    + PERMISSION_QUERY_DISPLAY_COMPATIBILITY);
+        }
+        return CarServiceHelperWrapper.getInstance().requiresDisplayCompat(
+                Objects.requireNonNull(packageName, "packageName cannot be Null"));
     }
 
     private String[] findDistractionOptimizedActivitiesAsUser(String pkgName, int userId)

@@ -1093,6 +1093,16 @@
         android:label="@string/car_permission_label_control_windshield_wipers"
         android:description="@string/car_permission_desc_control_windshield_wipers"/>
 
+     <!-- Allows an application to query if a package requires display compatibility treatment or
+          not.
+         <p>Protection level: signature|privileged
+      -->
+     <permission android:name="android.car.permission.QUERY_DISPLAY_COMPATIBILITY"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_query_display_compatibility"
+        android:description="@string/car_permission_desc_query_display_compatibility"/>
+
+
     <!-- NOTE: when you're adding a new permission, you should edit
          cts/tests/tests/permission2/res/raw/automotive_android_manifest.xml accordingly and run
          the test with 'atest android.permission2.cts.PermissionPolicyTest' to verify it.

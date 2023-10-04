@@ -618,6 +618,11 @@
     <!-- Permission text: apps can control car windshield wipers [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_control_windshield_wipers">Control car\u2019s windshield wipers.</string>
 
+    <!-- Permission text: apps can control car windshield wipers [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_query_display_compatibility">query display compatibility packages</string>
+    <!-- Permission text: apps can control car windshield wipers [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_query_display_compatibility">Query display compatibility packages.</string>
+
     <!-- Permission text: apps can monitor the states of other occupant zones in the car and peer
          apps (apps that have the same package name as the caller) installed in those zones,
          and manage the power of those zones.

@@ -156,4 +156,6 @@
     <uses-permission android:name="android.car.permission.MANAGE_OCCUPANT_CONNECTION" />
     <!-- Permissions required for CarRemoteDeviceManagerPermissionTest -->
     <uses-permission android:name="android.car.permission.MANAGE_REMOTE_DEVICE" />
+    <!-- Permissions required for CarPackageManagerPermissionTest -->
+    <uses-permission android:name="android.car.permission.QUERY_DISPLAY_COMPATIBILITY" />
 </manifest>
