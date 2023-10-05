@@ -27,6 +27,7 @@ import android.car.builtin.view.ViewHelper;
 import android.content.ComponentName;
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -86,7 +87,12 @@ public final class RemoteCarRootTaskView extends RemoteCarTaskView {
 
                 // If onTaskAppeared() is called, it implicitly means that super.isInitialized()
                 // is true, as the root task is created only after initialization.
-                mCallbackExecutor.execute(() -> mCallback.onTaskViewInitialized());
+                final long identity = Binder.clearCallingIdentity();
+                try {
+                    mCallbackExecutor.execute(() -> mCallback.onTaskViewInitialized());
+                } finally {
+                    Binder.restoreCallingIdentity(identity);
+                }
 
                 if (taskInfo.taskDescription != null) {
                     ViewHelper.seResizeBackgroundColor(
