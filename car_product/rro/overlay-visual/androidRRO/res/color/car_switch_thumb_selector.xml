@@ -16,7 +16,14 @@
 -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:color="?attr/colorSwitchThumbDisabled"
-        android:state_enabled="false" />
-    <item android:color="?attr/colorSwitchThumbNormal" />
+        android:state_checked="true" android:state_enabled="false"
+        android:alpha="?android:attr/disabledAlpha"
+        android:color="@color/car_on_primary" />
+    <item
+        android:state_enabled="false"
+        android:alpha="?android:attr/disabledAlpha"
+        android:color="@color/car_secondary" />
+    <item
+        android:state_checked="true" android:color="@color/car_on_primary" />
+    <item android:color="@color/car_secondary" />
 </selector>
