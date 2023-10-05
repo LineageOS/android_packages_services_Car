@@ -18,12 +18,15 @@ package com.android.car.internal.property;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.car.VehicleAreaMirror;
 import android.car.VehicleGear;
 import android.car.VehicleSeatOccupancyState;
 
 import com.android.car.internal.util.ConstantDebugUtils;
 
 import org.junit.Test;
+
+import java.util.List;
 
 public class ConstantDebugUtilsUnitTest {
     @Test
@@ -43,5 +46,12 @@ public class ConstantDebugUtilsUnitTest {
         assertThat(
                 ConstantDebugUtils.toValue(VehicleSeatOccupancyState.class, "OCCUPIED")).isEqualTo(
                 VehicleSeatOccupancyState.OCCUPIED);
+    }
+
+    @Test
+    public void testGetValues() {
+        assertThat(ConstantDebugUtils.getValues(VehicleAreaMirror.class)).containsExactlyElementsIn(
+                List.of(VehicleAreaMirror.MIRROR_DRIVER_LEFT, VehicleAreaMirror.MIRROR_DRIVER_RIGHT,
+                        VehicleAreaMirror.MIRROR_DRIVER_CENTER));
     }
 }

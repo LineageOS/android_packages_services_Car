@@ -27,6 +27,7 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -75,7 +76,16 @@ public final class ConstantDebugUtils {
         return cacheClazzToConstantDebugUtilsMapping(clazz).toValue(name);
     }
 
+    /**
+     * Gets the all the constant values for the specified {@code clazz}.
+     */
+    public static Collection<Integer> getValues(Class<?> clazz) {
+        return cacheClazzToConstantDebugUtilsMapping(
+                clazz).cacheConstantNameToValueMapping().values();
+    }
+
     private static ConstantDebugUtils cacheClazzToConstantDebugUtilsMapping(Class<?> clazz) {
+
         Map<Class<?>, ConstantDebugUtils> clazzToConstantDebugUtils =
                 CLAZZ_TO_CONSTANT_DEBUG_UTILS_HOLDER.get();
         if (clazzToConstantDebugUtils == null || clazzToConstantDebugUtils.get(clazz) == null) {
