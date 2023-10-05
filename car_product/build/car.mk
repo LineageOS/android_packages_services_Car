@@ -50,6 +50,7 @@ PRODUCT_PACKAGES += \
     curl \
     CarTelemetryApp \
     RailwayReferenceApp \
+    CarHotwordDetectionServiceOne \
 
 # SEPolicy for test apps / services
 PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/test
@@ -68,6 +69,10 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.carrier=unknown \
     ro.hardware.type=automotive \
 
+# Disable developer options activity embedding
+PRODUCT_SYSTEM_PROPERTIES += \
+    persist.sys.fflag.override.settings_support_large_screen=false
+
 # Set default Bluetooth profiles
 TARGET_SYSTEM_PROP += \
     packages/services/Car/car_product/properties/bluetooth.prop
@@ -83,11 +88,6 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     ro.fw.mu.headless_system_user?=true
 
-# Enable user pre-creation
-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
-    android.car.number_pre_created_users?=1 \
-    android.car.number_pre_created_guests?=1
-
 # Enable User HAL integration
 # NOTE: when set to true, VHAL must also implement the user-related properties,
 # otherwise CarService will ignore it
@@ -100,6 +100,9 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
 $(call inherit-product, device/sample/products/location_overlay.mk)
 $(call inherit-product-if-exists, frameworks/webview/chromium/chromium.mk)
 $(call inherit-product, packages/services/Car/car_product/build/car_base.mk)
+
+# Window Extensions
+$(call inherit-product, $(SRC_TARGET_DIR)/product/window_extensions.mk)
 
 # Overrides
 PRODUCT_BRAND := generic
@@ -117,10 +120,9 @@ PRODUCT_PROPERTY_OVERRIDES := \
 PRODUCT_PROPERTY_OVERRIDES += \
     keyguard.no_require_sim=true
 
-# TODO(b/205189147): Remove the following change after the proper fix is landed.
-# Uses the local KeyGuard animation to resolve TaskView misalignment issue after display-on.
+# TODO(b/255631687): Enable the shell transition as soon as all CTS issues are resolved.
 PRODUCT_SYSTEM_PROPERTIES += \
-    persist.wm.enable_remote_keyguard_animation=0
+    persist.wm.debug.shell_transit=0
 
 # TODO(b/198516172): Find a better location to add this read only property
 # It is added here to check the functionality, will be updated in next CL
@@ -132,7 +134,7 @@ PRODUCT_SYSTEM_PROPERTIES += \
     ro.android.car.carservice.package?=com.android.car.updatable
 
 # Update with PLATFORM_VERSION_MINOR_INT update
-PRODUCT_SYSTEM_PROPERTIES += ro.android.car.version.platform_minor=3
+PRODUCT_SYSTEM_PROPERTIES += ro.android.car.version.platform_minor=0
 
 # Automotive specific packages
 PRODUCT_PACKAGES += \
@@ -148,7 +150,6 @@ PRODUCT_PACKAGES += \
     CarMediaApp \
     CarMessengerApp \
     CarHTMLViewer \
-    CarHvacApp \
     CarMapsPlaceholder \
     CarLatinIME \
     CarSettings \
@@ -157,12 +158,19 @@ PRODUCT_PACKAGES += \
     RotaryPlayground \
     android.car.builtin \
     car-frameworks-service \
+    libcarservicehelperjni \
     com.android.car.procfsinspector \
     com.android.permission \
 
 # RROs
 PRODUCT_PACKAGES += \
     CarPermissionControllerRRO \
+
+# CarSystemUIPassengerOverlay is an RRO package required for enabling unique look
+# and feel for Passenger(Secondary) User.
+ifeq ($(ENABLE_PASSENGER_SYSTEMUI_RRO), true)
+PRODUCT_PACKAGES += CarSystemUIPassengerOverlay
+endif  # ENABLE_PASSENGER_SYSTEMUI_RRO
 
 # System Server components
 # Order is important: if X depends on Y, then Y should precede X on the list.

@@ -111,7 +111,7 @@ final class CarDucking implements CarFocusCallback {
         int zoneId = oldDuckingInfo.mZoneId;
         CarAudioZone zone = mCarAudioZones.get(zoneId);
 
-        List<CarVolumeGroupInfo> groupInfos = zone.getVolumeGroupInfos();
+        List<CarVolumeGroupInfo> groupInfos = zone.getCurrentVolumeGroupInfos();
 
         List<AudioAttributes> attributesHoldingFocus =
                 CarDuckingUtils.getAudioAttributesHoldingFocus(focusHolders);

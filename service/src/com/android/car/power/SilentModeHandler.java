@@ -101,10 +101,11 @@ final class SilentModeHandler {
                 ? sysfsDir + SYSFS_FILENAME_HW_STATE_MONITORING : hwStateMonitoringFileName;
         mKernelSilentModeFileName = kernelSilentModeFileName == null
                 ? sysfsDir + SYSFS_FILENAME_KERNEL_SILENTMODE : kernelSilentModeFileName;
-        if (bootReason == null) {
-            bootReason = SystemProperties.get(SYSTEM_BOOT_REASON);
+        String reason = bootReason;
+        if (reason == null) {
+            reason = SystemProperties.get(SYSTEM_BOOT_REASON);
         }
-        switch (bootReason) {
+        switch (reason) {
             case FORCED_SILENT:
                 Slogf.i(TAG, "Starting in forced silent mode");
                 mForcedMode = true;
@@ -247,9 +248,8 @@ final class SilentModeHandler {
                 boolean newSilentMode;
                 boolean oldSilentMode;
                 synchronized (mLock) {
-                    // FileObserver can report events even after stopWatching is called. To ignore
-                    // such events, check the current internal state.
-                    if (mForcedMode) {
+                    // FileObserver can report events even after stopWatching is called.
+                    if (mForcedMode || mFileObserver == null) {
                         return;
                     }
                     oldSilentMode = mSilentModeByHwState;

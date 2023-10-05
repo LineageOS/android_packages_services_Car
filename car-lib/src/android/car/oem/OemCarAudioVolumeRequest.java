@@ -69,6 +69,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
     // To regenerate run:
     // $ codegen $ANDROID_BUILD_TOP/packages/services/Car/car-lib/src/android/car/oem
     // /OemCarAudioVolumeRequest.java
+    // Added AddedInOrBefore or ApiRequirement Annotation manually
     //
     // To exclude the generated code from IntelliJ auto-formatting enable (one-time):
     //   Settings > Editor > Code Style > Formatter Control
@@ -155,9 +156,6 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
         return mCarVolumeGroupInfos;
     }
 
-    // TODO(b/260757994): Remove ApiRequirements for overridden methods
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     public String toString() {
@@ -173,9 +171,6 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
         " }";
     }
 
-    // TODO(b/260757994): Remove ApiRequirements for overridden methods
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     public boolean equals(@android.annotation.Nullable Object o) {
@@ -196,9 +191,6 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
                 && Objects.equals(mCarVolumeGroupInfos, that.mCarVolumeGroupInfos);
     }
 
-    // TODO(b/260757994): Remove ApiRequirements for overridden methods
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     public int hashCode() {

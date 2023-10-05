@@ -46,7 +46,6 @@ public class NotificationFragment extends Fragment {
     private NotificationManager mManager;
     private Context mContext;
     private Handler mHandler = new Handler();
-    private int mCount = 0;
     private HashMap<Integer, Runnable> mUpdateRunnables = new HashMap<>();
 
     @Override
@@ -101,6 +100,7 @@ public class NotificationFragment extends Fragment {
         initMessagingStyleButtonWithMuteAction(view);
         initTestMessagesButton(view);
         initProgressButton(view);
+        initProgressColorizedButton(view);
         initNavigationButton(view);
         initMediaButton(view);
         initCallButton(view);
@@ -109,6 +109,15 @@ public class NotificationFragment extends Fragment {
         initCustomizableMessageButton(view);
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        View view = getView();
+        if (view != null) {
+            view.post(() -> view.scrollTo(0, view.findViewById(R.id.fragment_top).getTop()));
+        }
     }
 
     private PendingIntent createServiceIntent(int notificationId, String action) {
@@ -649,42 +658,72 @@ public class NotificationFragment extends Fragment {
             Notification notification = new Notification
                     .Builder(mContext, IMPORTANCE_DEFAULT_ID)
                     .setContentTitle("Progress")
-                    .setOngoing(true)
+                    .setOngoing(/* ongoing= */ true)
                     .setContentText(
                             "Doesn't show heads-up; Importance Default; Groups; Ongoing (cannot "
                                     + "be dismissed)")
-                    .setProgress(100, 0, false)
+                    .setProgress(/* max= */ 100, /* progress= */ 0, /* indeterminate= */ false)
+                    .setContentInfo("0%")
+                    .setSmallIcon(R.drawable.car_ic_mode)
+                    .build();
+            mManager.notify(id, notification);
+
+            int progress = 0;
+            Runnable runnable = getProgressNotifUpdateRunnable(id, progress, /* isColorized= */
+                    false);
+            mUpdateRunnables.put(id, runnable);
+            mHandler.post(runnable);
+        });
+    }
+
+    private void initProgressColorizedButton(View view) {
+        view.findViewById(R.id.progress_button_colorized).setOnClickListener(v -> {
+            int id = mCurrentNotificationId++;
+
+            Notification notification = new Notification
+                    .Builder(mContext, IMPORTANCE_DEFAULT_ID)
+                    .setContentTitle("Progress (Colorized)")
+                    .setOngoing(/* ongoing= */ true)
+                    .setContentText(
+                            "Doesn't show heads-up; Importance Default; Groups; Ongoing (cannot "
+                                    + "be dismissed)")
+                    .setProgress(/* max= */ 100, /* progress= */ 0, /* indeterminate= */ false)
                     .setColor(mContext.getColor(android.R.color.holo_purple))
                     .setContentInfo("0%")
                     .setSmallIcon(R.drawable.car_ic_mode)
                     .build();
             mManager.notify(id, notification);
 
-            Runnable runnable = new Runnable() {
-                int mProgress = 0;
-
-                @Override
-                public void run() {
-                    Notification updateNotification = new Notification
-                            .Builder(mContext, IMPORTANCE_DEFAULT_ID)
-                            .setContentTitle("Progress")
-                            .setContentText("Doesn't show heads-up; Importance Default; Groups")
-                            .setProgress(100, mProgress, false)
-                            .setOngoing(true)
-                            .setColor(mContext.getColor(android.R.color.holo_purple))
-                            .setContentInfo(mProgress + "%")
-                            .setSmallIcon(R.drawable.car_ic_mode)
-                            .build();
-                    mManager.notify(id, updateNotification);
-                    mProgress += 5;
-                    if (mProgress <= 100) {
-                        mHandler.postDelayed(this, 1000);
-                    }
-                }
-            };
+            int progress = 0;
+            Runnable runnable = getProgressNotifUpdateRunnable(id, progress, /* isColorized= */
+                    true);
             mUpdateRunnables.put(id, runnable);
             mHandler.post(runnable);
         });
+    }
+
+    private Runnable getProgressNotifUpdateRunnable(int id, int progress, boolean isColorized) {
+        Runnable runnable = () -> {
+            Notification.Builder builder = new Notification
+                    .Builder(mContext, IMPORTANCE_DEFAULT_ID)
+                    .setContentTitle("Progress")
+                    .setContentText("Doesn't show heads-up; Importance Default; Groups")
+                    .setProgress(/* max= */ 100, progress, /* indeterminate= */ false)
+                    .setOngoing(/* ongoing= */ true)
+                    .setContentInfo(progress + "%")
+                    .setSmallIcon(R.drawable.car_ic_mode);
+            if (isColorized) {
+                builder.setColor(mContext.getColor(android.R.color.holo_purple));
+            }
+            Notification updateNotification = builder.build();
+            mManager.notify(id, updateNotification);
+            if (progress + 5 <= 100) {
+                mHandler.postDelayed(getProgressNotifUpdateRunnable(id, progress + 5, isColorized),
+                        /* delayMillis= */ 1000);
+            }
+        };
+        mUpdateRunnables.put(id, runnable);
+        return runnable;
     }
 
     private void initNavigationButton(View view) {

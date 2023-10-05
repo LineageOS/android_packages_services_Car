@@ -20,8 +20,9 @@ import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHIN
 import static android.os.Process.INVALID_UID;
 
 import static com.android.car.CarLog.TAG_AM;
+import static com.android.car.CarServiceUtils.getHandlerThread;
+import static com.android.car.CarServiceUtils.isEventOfType;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.util.Utils.isEventOfType;
 
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
@@ -59,7 +60,6 @@ import android.view.Display;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceBase;
-import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -256,7 +256,7 @@ public final class FixedActivityService implements CarServiceBase {
         mContext = context;
         mActivityService = activityService;
         mDm = displayManager;
-        mHandler = new Handler(CarServiceUtils.getHandlerThread(
+        mHandler = new Handler(getHandlerThread(
                 FixedActivityService.class.getSimpleName()).getLooper());
         mUserHandleHelper = userHandleHelper;
     }
@@ -356,7 +356,7 @@ public final class FixedActivityService implements CarServiceBase {
      *         launched. It will return false for {@link Display#INVALID_DISPLAY} {@code displayId}.
      */
     private boolean launchIfNecessary(int displayId) {
-        List<? extends TaskInfo> infos = mActivityService.getVisibleTasks();
+        List<? extends TaskInfo> infos = mActivityService.getVisibleTasksInternal();
         if (infos == null) {
             Slogf.e(TAG_AM, "cannot get RootTaskInfo from AM");
             return false;

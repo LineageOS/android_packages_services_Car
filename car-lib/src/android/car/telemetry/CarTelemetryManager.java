@@ -22,7 +22,6 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
-import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.AddedInOrBefore;
@@ -57,7 +56,6 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @RequiredFeature(Car.CAR_TELEMETRY_SERVICE)
 @SystemApi
-@TestApi
 public final class CarTelemetryManager extends CarManagerBase {
 
     private static final boolean DEBUG = false;
@@ -161,7 +159,6 @@ public final class CarTelemetryManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     public interface AddMetricsConfigCallback {
         /**
          * Sends the {@link #addMetricsConfig(String, byte[], Executor, AddMetricsConfigCallback)}
@@ -183,7 +180,6 @@ public final class CarTelemetryManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     public interface MetricsReportCallback {
         /**
          * Provides the metrics report associated with metricsConfigName. If there is a metrics
@@ -217,7 +213,6 @@ public final class CarTelemetryManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     public interface ReportReadyListener {
         /**
          * Sends the report ready notification to the client.
@@ -277,7 +272,6 @@ public final class CarTelemetryManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
     @AddedInOrBefore(majorVersion = 33)
     public void addMetricsConfig(
@@ -310,7 +304,6 @@ public final class CarTelemetryManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
     @AddedInOrBefore(majorVersion = 33)
     public void removeMetricsConfig(@NonNull String metricsConfigName) {
@@ -328,7 +321,6 @@ public final class CarTelemetryManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
     @AddedInOrBefore(majorVersion = 33)
     public void removeAllMetricsConfigs() {
@@ -351,7 +343,6 @@ public final class CarTelemetryManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
     @AddedInOrBefore(majorVersion = 33)
     public void getFinishedReport(
@@ -377,7 +368,6 @@ public final class CarTelemetryManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
     @AddedInOrBefore(majorVersion = 33)
     public void getAllFinishedReports(
@@ -407,7 +397,6 @@ public final class CarTelemetryManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
     @AddedInOrBefore(majorVersion = 33)
     public void setReportReadyListener(
@@ -430,7 +419,6 @@ public final class CarTelemetryManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
     @AddedInOrBefore(majorVersion = 33)
     public void clearReportReadyListener() {

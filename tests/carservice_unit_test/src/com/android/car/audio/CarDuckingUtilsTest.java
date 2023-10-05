@@ -41,9 +41,7 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @RunWith(AndroidJUnit4.class)
 public class CarDuckingUtilsTest {
@@ -53,7 +51,8 @@ public class CarDuckingUtilsTest {
     private static final String NAVIGATION_ADDRESS = "navigation";
 
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
-            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+            new CarAudioContext(CarAudioContext.getAllContextsInfo(),
+                    /* useCoreAudioRouting= */ false);
 
     private static final @CarAudioContext.AudioContext int TEST_MEDIA_AUDIO_CONTEXT =
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(
@@ -69,51 +68,6 @@ public class CarDuckingUtilsTest {
                     .getAudioAttributeFromUsage(USAGE_CALL_ASSISTANT));
 
     private static final int ZONE_ID = 0;
-
-    @Test
-    public void sContextsToDuck_verifyNoCycles() {
-        for (int i = 0; i < CarAudioContext.sContextsToDuck.size(); i++) {
-            int startingContext = CarAudioContext.sContextsToDuck.keyAt(i);
-            List<Integer> contextsToVisit =
-                    new ArrayList<>(CarAudioContext.getContextsToDuck(startingContext));
-            Set<Integer> visitedContexts = new HashSet<>(startingContext);
-
-            while (contextsToVisit.size() > 0) {
-                int contextToVisit = contextsToVisit.remove(0);
-                if (visitedContexts.contains(contextToVisit)) {
-                    continue;
-                }
-                visitedContexts.add(contextToVisit);
-
-                List<Integer> duckedContextsToVisit =
-                        CarAudioContext.getContextsToDuck(contextToVisit);
-
-                for (int duckedContext : duckedContextsToVisit) {
-                    assertWithMessage("A cycle exists where %s can duck itself via %s",
-                            TEST_CAR_AUDIO_CONTEXT.toString(startingContext),
-                            TEST_CAR_AUDIO_CONTEXT.toString(contextToVisit)
-                    ).that(duckedContext).isNotEqualTo(startingContext);
-
-                    if (!visitedContexts.contains(duckedContext)) {
-                        contextsToVisit.add(duckedContext);
-                    }
-                }
-            }
-        }
-    }
-
-    @Test
-    public void sContextsToDuck_verifyContextsDontDuckThemselves() {
-        for (int i = 0; i < CarAudioContext.sContextsToDuck.size(); i++) {
-            int context = CarAudioContext.sContextsToDuck.keyAt(i);
-            List<Integer> contextsToDuck = CarAudioContext.getContextsToDuck(context);
-
-            assertWithMessage("Context to duck for context %s",
-                    TEST_CAR_AUDIO_CONTEXT.toString(context))
-                    .that(contextsToDuck)
-                    .doesNotContain(context);
-        }
-    }
 
     @Test
     public void getAudioAttributesHoldingFocus_withNoHolders_returnsEmptyArray() {

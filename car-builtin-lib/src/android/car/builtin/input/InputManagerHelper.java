@@ -17,10 +17,14 @@
 package android.car.builtin.input;
 
 import android.annotation.NonNull;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
 import android.hardware.input.InputManager;
+import android.os.Build;
+import android.os.IBinder;
+import android.view.View;
 
 /**
  * Helper for {@link InputManager}
@@ -45,5 +49,14 @@ public class InputManagerHelper {
     public static boolean injectInputEvent(@NonNull InputManager inputManager,
             @NonNull android.view.InputEvent event) {
         return inputManager.injectInputEvent(event, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
+    }
+
+    /**
+     * See {@link InputManager#pilferPointers(IBinder)}.
+     */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void pilferPointers(@NonNull InputManager inputManager, @NonNull View v) {
+        inputManager.pilferPointers(v.getViewRootImpl().getInputToken());
     }
 }

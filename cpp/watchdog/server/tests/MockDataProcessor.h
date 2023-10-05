@@ -36,7 +36,8 @@ public:
     MOCK_METHOD(android::base::Result<void>, onSystemStartup, (), (override));
     MOCK_METHOD(android::base::Result<void>, onBoottimeCollection,
                 (time_t, const wp<UidStatsCollectorInterface>&,
-                 const wp<ProcStatCollectorInterface>&),
+                 const wp<ProcStatCollectorInterface>&,
+                 aidl::android::automotive::watchdog::internal::ResourceStats*),
                 (override));
     MOCK_METHOD(android::base::Result<void>, onWakeUpCollection,
                 (time_t, const wp<UidStatsCollectorInterface>&,
@@ -44,7 +45,8 @@ public:
                 (override));
     MOCK_METHOD(android::base::Result<void>, onPeriodicCollection,
                 (time_t, SystemState, const wp<UidStatsCollectorInterface>&,
-                 const wp<ProcStatCollectorInterface>&),
+                 const wp<ProcStatCollectorInterface>&,
+                 aidl::android::automotive::watchdog::internal::ResourceStats*),
                 (override));
     MOCK_METHOD(android::base::Result<void>, onUserSwitchCollection,
                 (time_t, userid_t, userid_t, const wp<UidStatsCollectorInterface>&,
@@ -52,7 +54,8 @@ public:
                 (override));
     MOCK_METHOD(android::base::Result<void>, onCustomCollection,
                 (time_t, SystemState, const std::unordered_set<std::string>&,
-                 const wp<UidStatsCollectorInterface>&, const wp<ProcStatCollectorInterface>&),
+                 const wp<UidStatsCollectorInterface>&, const wp<ProcStatCollectorInterface>&,
+                 aidl::android::automotive::watchdog::internal::ResourceStats*),
                 (override));
     MOCK_METHOD(android::base::Result<void>, onPeriodicMonitor,
                 (time_t, const android::wp<ProcDiskStatsCollectorInterface>&,

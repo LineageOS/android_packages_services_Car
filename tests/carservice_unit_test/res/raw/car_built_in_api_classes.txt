@@ -2,6 +2,7 @@ android.car.builtin.CarBuiltin
 android.car.builtin.PermissionHelper
 android.car.builtin.app.ActivityManagerHelper
 android.car.builtin.app.ActivityManagerHelper$ProcessObserverCallback
+android.car.builtin.app.AppOpsManagerHelper
 android.car.builtin.app.KeyguardManagerHelper
 android.car.builtin.app.TaskInfoHelper
 android.car.builtin.app.VoiceInteractionHelper
@@ -11,8 +12,11 @@ android.car.builtin.bluetooth.le.AdvertisingSetCallbackHelper$Callback
 android.car.builtin.bluetooth.le.AdvertisingSetHelper
 android.car.builtin.content.ContextHelper
 android.car.builtin.content.pm.PackageManagerHelper
+android.car.builtin.display.DisplayManagerHelper
 android.car.builtin.input.InputManagerHelper
 android.car.builtin.job.JobSchedulerHelper
+android.car.builtin.keyguard.KeyguardServiceDelegate
+android.car.builtin.keyguard.KeyguardServiceDelegate$KeyguardLockedStateCallback
 android.car.builtin.media.AudioManagerHelper
 android.car.builtin.media.AudioManagerHelper$AudioGainInfo
 android.car.builtin.media.AudioManagerHelper$AudioPatchInfo
@@ -21,6 +25,7 @@ android.car.builtin.os.BinderHelper
 android.car.builtin.os.BinderHelper$ShellCommandListener
 android.car.builtin.os.BuildHelper
 android.car.builtin.os.ParcelHelper
+android.car.builtin.os.ProcessHelper
 android.car.builtin.os.ServiceManagerHelper
 android.car.builtin.os.SharedMemoryHelper
 android.car.builtin.os.SystemPropertiesHelper
@@ -36,8 +41,14 @@ android.car.builtin.util.EventLogHelper
 android.car.builtin.util.Slogf
 android.car.builtin.util.TimeUtils
 android.car.builtin.util.TimingsTraceLog
+android.car.builtin.util.UsageStatsManagerHelper
 android.car.builtin.util.ValidationHelper
 android.car.builtin.view.DisplayHelper
+android.car.builtin.view.InputEventHelper
 android.car.builtin.view.KeyEventHelper
+android.car.builtin.view.SurfaceControlHelper
+android.car.builtin.view.TouchableInsetsProvider
+android.car.builtin.view.ViewHelper
 android.car.builtin.widget.LockPatternHelper
 android.car.builtin.window.DisplayAreaOrganizerHelper
+android.car.builtin.window.WindowManagerHelper

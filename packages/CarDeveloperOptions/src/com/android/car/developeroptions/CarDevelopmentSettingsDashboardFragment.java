@@ -38,6 +38,7 @@ import com.android.settingslib.core.AbstractPreferenceController;
 import com.android.settingslib.drawer.CategoryKey;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -136,7 +137,7 @@ public class CarDevelopmentSettingsDashboardFragment extends DevelopmentSettings
     }
 
     protected List<MenuItem> getToolbarMenuItems() {
-        return null;
+        return Collections.emptyList();
     }
 
     private void removeControllers(List<AbstractPreferenceController> controllers) {

@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"இந்த ஆப்ஸ் பின்னணியில் இயங்குவதிலிருந்து தடுக்கப்பட்டுள்ளது. ஆப்ஸ் பின்னணியில் தொடர்ந்து இயங்க அதற்கு முன்னுரிமை அளியுங்கள்."</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"மூடுக"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"ஆப்ஸை முன்னுரிமைப்படுத்துங்கள்"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> முடக்கப்பட்டது. அமைப்புகளுக்குச் சென்று மீண்டும் அதை இயக்கலாம்."</string>
 </resources>

@@ -14,9 +14,17 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:state_activated="true" app:state_ux_restricted="true"
+        android:color="#1C66B5FF"/>
+    <item android:state_activated="false" app:state_ux_restricted="true"
+        android:color="#75202124"/>
+    <item android:state_activated="true" android:state_enabled="false"
+        android:color="#1C66B5FF"/>
+    <item android:state_activated="false" android:state_enabled="false"
+        android:color="#75202124"/>
     <item android:state_activated="false"
         android:color="#202124"/>
-    <item android:color="?android:attr/colorAccent"
-        android:alpha="0.24"/>
+    <item android:color="#3d66B5FF"/>
 </selector>

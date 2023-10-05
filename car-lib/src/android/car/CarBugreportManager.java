@@ -175,8 +175,8 @@ public final class CarBugreportManager extends CarManagerBase {
 
     /**
      * Request a bug report. A zipped (i.e. legacy) bugreport is generated in the background
-     * using dumpstate. This API also generates extra files that does not exist in the legacy
-     * bugreport and makes them available through a extra output file. Currently the extra
+     * using dumpstate. This API also generates extra files that do not exist in the legacy
+     * bugreport and makes them available through an extra output file. Currently the extra
      * output contains the screenshots for all the physical displays.
      *
      * <p>It closes provided file descriptors. The callback runs on a background thread.

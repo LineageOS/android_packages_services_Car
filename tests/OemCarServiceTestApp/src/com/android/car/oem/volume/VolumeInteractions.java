@@ -80,7 +80,7 @@ public final class VolumeInteractions {
         mContext = Objects.requireNonNull(context, "Context must not be null");
         mAudioAttributeToPriority = new ArrayMap<>(audioAttributes.size());
         for (int index = 0; index < audioAttributes.size(); index++) {
-            mAudioAttributeToPriority.append(
+            mAudioAttributeToPriority.put(
                     new AudioAttributesWrapper(audioAttributes.get(index)),
                     audioAttributes.size() - index - 1);
         }
@@ -180,10 +180,12 @@ public final class VolumeInteractions {
             }
             return defaultVolumeGroup;
         }
+        Slog.d(TAG, "test: ");
 
         if (activeAudioAttributes.size() < 2) {
             AudioAttributesWrapper audioAttributesWrapper =
                     new AudioAttributesWrapper(activeAudioAttributes.get(0));
+            Slog.d(TAG, "Only one audio attribute available: " + audioAttributesWrapper);
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Slog.d(TAG, "Only one audio attribute available: " + audioAttributesWrapper);
             }
@@ -234,7 +236,7 @@ public final class VolumeInteractions {
 
     public void dump(PrintWriter writer, String indent) {
         writer.printf("%sVolume priorities: \n", indent);
-        for (int index = mAudioAttributeToPriority.size() - 1; index > 0; index++) {
+        for (int index = mAudioAttributeToPriority.size() - 1; index >= 0; index--) {
             writer.printf("%s%sPriority[%d]: %s \n", indent, indent, index,
                     mAudioAttributeToPriority.keyAt(
                             mAudioAttributeToPriority.indexOfValue(index)));
@@ -246,7 +248,7 @@ public final class VolumeInteractions {
      */
     public void init() {
         Car car = Car.createCar(mContext);
-        CarAudioManager carAudioManager = (CarAudioManager) car.getCarManager(Car.AUDIO_SERVICE);
+        CarAudioManager carAudioManager = car.getCarManager(CarAudioManager.class);
 
         List<Integer> zones = carAudioManager.getAudioZoneIds();
 

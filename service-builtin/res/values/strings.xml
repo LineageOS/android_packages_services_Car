@@ -85,6 +85,4 @@
     <string name="resource_overuse_notification_button_close_app">Close</string>
     <!-- Label for button that will redirect user to prioritize app setting [CHAR LIMIT=30] -->
     <string name="resource_overuse_notification_button_prioritize_app">Prioritize app</string>
-    <!-- Text of the toast shown when the app is disabled [CHAR_LIMIT=100]-->
-    <string name="resource_overuse_toast_disable_app_now"><xliff:g name="app_name" example="Maps">^1</xliff:g> has been disabled. You can enable it again in Settings.</string>
 </resources>

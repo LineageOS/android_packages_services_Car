@@ -16,22 +16,22 @@
 
 package com.android.car.os;
 
+import static android.car.os.ThreadPolicyWithPriority.SCHED_FIFO;
+import static android.car.os.ThreadPolicyWithPriority.SCHED_RR;
+
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.expectThrows;
 
-import android.car.os.CpuAvailabilityMonitoringConfig;
-import android.car.os.ICpuAvailabilityChangeListener;
+import android.car.Car;
+import android.car.os.ThreadPolicyWithPriority;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
-import android.os.IBinder;
+import android.os.Binder;
+
+import com.android.car.CarLocalServices;
+import com.android.car.watchdog.CarWatchdogService;
 
 import org.junit.After;
 import org.junit.Before;
@@ -47,6 +47,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 public final class CarPerformanceServiceUnitTest extends AbstractExtendedMockitoTestCase {
 
     @Mock private Context mMockContext;
+    @Mock private CarWatchdogService mMockCarWatchdogService;
 
     private CarPerformanceService mCarPerformanceService;
 
@@ -56,110 +57,41 @@ public final class CarPerformanceServiceUnitTest extends AbstractExtendedMockito
 
     @Before
     public void setUp() throws Exception {
+        CarLocalServices.addService(CarWatchdogService.class, mMockCarWatchdogService);
         mCarPerformanceService = new CarPerformanceService(mMockContext);
         mCarPerformanceService.init();
     }
 
     @After
     public void tearDown() throws Exception {
-        mCarPerformanceService.release();
+        CarLocalServices.removeServiceForTest(CarWatchdogService.class);
+    }
+
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
+        builder.spyStatic(Car.class);
     }
 
     @Test
-    public void testAddRemoveCpuAvailabilityChangeListener() throws Exception {
-        ICpuAvailabilityChangeListener mockListener = createMockCpuAvailabilityChangeListener();
-        CpuAvailabilityMonitoringConfig config = new CpuAvailabilityMonitoringConfig.Builder(
-                /* lowerBoundPercent= */ 10, /* upperBoundPercent= */ 90,
-                /* timeoutInSeconds= */ 300).build();
-        mCarPerformanceService.addCpuAvailabilityChangeListener(config, mockListener);
+    public void testSetThreadPriority() throws Exception {
+        ThreadPolicyWithPriority policyWithPriority = new ThreadPolicyWithPriority(SCHED_FIFO, 10);
 
-        IBinder mockBinder = mockListener.asBinder();
-        verify(mockBinder).linkToDeath(any(IBinder.DeathRecipient.class), anyInt());
+        mCarPerformanceService.setThreadPriority(/* tid= */234000, policyWithPriority);
 
-        mCarPerformanceService.removeCpuAvailabilityChangeListener(mockListener);
-
-        verify(mockBinder).unlinkToDeath(any(IBinder.DeathRecipient.class), anyInt());
+        verify(mMockCarWatchdogService).setThreadPriority(Binder.getCallingPid(),
+                /* tid= */234000, Binder.getCallingUid(), policyWithPriority.getPolicy(),
+                policyWithPriority.getPriority());
     }
 
     @Test
-    public void testDuplicateAddCpuAvailabilityChangeListener() throws Exception {
-        ICpuAvailabilityChangeListener mockListener = createMockCpuAvailabilityChangeListener();
-        CpuAvailabilityMonitoringConfig config = new CpuAvailabilityMonitoringConfig.Builder(
-                /* lowerBoundPercent= */ 10, /* upperBoundPercent= */ 90,
-                /* timeoutInSeconds= */ 300).build();
-        mCarPerformanceService.addCpuAvailabilityChangeListener(config, mockListener);
+    public void testGetThreadPriority() throws Exception {
+        when(mMockCarWatchdogService.getThreadPriority(Binder.getCallingPid(),
+                /* tid= */234000, Binder.getCallingUid())).thenReturn(new int[] {SCHED_RR, 30});
 
-        IBinder mockBinder = mockListener.asBinder();
-        verify(mockBinder).linkToDeath(any(IBinder.DeathRecipient.class), anyInt());
+        ThreadPolicyWithPriority actual =
+                mCarPerformanceService.getThreadPriority(/* tid= */234000);
 
-        mCarPerformanceService.addCpuAvailabilityChangeListener(config, mockListener);
-
-        verify(mockBinder, times(2)).linkToDeath(any(IBinder.DeathRecipient.class), anyInt());
-        verify(mockBinder).unlinkToDeath(any(IBinder.DeathRecipient.class), anyInt());
-
-        mCarPerformanceService.removeCpuAvailabilityChangeListener(mockListener);
-
-        verify(mockBinder, times(2)).unlinkToDeath(any(IBinder.DeathRecipient.class), anyInt());
-
-        mCarPerformanceService.addCpuAvailabilityChangeListener(config, mockListener);
-
-        verify(mockBinder, times(3)).linkToDeath(any(IBinder.DeathRecipient.class), anyInt());
-    }
-
-    @Test
-    public void testAddCpuAvailabilityChangeListenerThrowsExceptions() throws Exception {
-        ICpuAvailabilityChangeListener mockListener = createMockCpuAvailabilityChangeListener();
-        CpuAvailabilityMonitoringConfig goodConfig =
-                new CpuAvailabilityMonitoringConfig.Builder(/* lowerBoundPercent= */ 10,
-                        /* upperBoundPercent= */ 90, /* timeoutInSeconds= */ 300).build();
-
-        NullPointerException npeThrown = expectThrows(NullPointerException.class,
-                () -> mCarPerformanceService.addCpuAvailabilityChangeListener(null, mockListener));
-        assertWithMessage("NullPointerException thrown on null config")
-                .that(npeThrown).hasMessageThat().contains("Configuration must be non-null");
-
-        npeThrown = expectThrows(NullPointerException.class,
-                () -> mCarPerformanceService.addCpuAvailabilityChangeListener(goodConfig, null));
-        assertWithMessage("NullPointerException thrown on null listener")
-                .that(npeThrown).hasMessageThat().contains("Listener must be non-null");
-
-        CpuAvailabilityMonitoringConfig ignoreBoundsConfig =
-                new CpuAvailabilityMonitoringConfig.Builder(
-                        CpuAvailabilityMonitoringConfig.IGNORE_PERCENT_LOWER_BOUND,
-                        CpuAvailabilityMonitoringConfig.IGNORE_PERCENT_UPPER_BOUND,
-                        /* timeoutInSeconds= */ 300).build();
-        IllegalArgumentException iaeThrown = expectThrows(IllegalArgumentException.class,
-                () -> mCarPerformanceService.addCpuAvailabilityChangeListener(ignoreBoundsConfig,
-                        mockListener));
-        assertWithMessage("IllegalArgumentException thrown on ignore lower/uppwer bound percents")
-                .that(iaeThrown).hasMessageThat().contains(
-                        "lower bound percent(0) and upper bound percent(100)");
-
-        CpuAvailabilityMonitoringConfig mismatchBoundsConfig =
-                new CpuAvailabilityMonitoringConfig.Builder(/* lowerBoundPercent= */ 90,
-                        /* upperBoundPercent= */ 10, /* timeoutInSeconds= */ 300).build();
-        iaeThrown = expectThrows(IllegalArgumentException.class,
-                () -> mCarPerformanceService.addCpuAvailabilityChangeListener(mismatchBoundsConfig,
-                        mockListener));
-        assertWithMessage("IllegalArgumentException thrown on invalid lower/upper bound percents")
-                .that(iaeThrown).hasMessageThat().contains(
-                        "lower bound percent(90) and upper bound percent(10)");
-    }
-
-    @Test
-    public void testRemoveUnaddedCpuAvailabilityChangeListener() throws Exception {
-        ICpuAvailabilityChangeListener mockListener = createMockCpuAvailabilityChangeListener();
-
-        IBinder mockBinder = mockListener.asBinder();
-
-        mCarPerformanceService.removeCpuAvailabilityChangeListener(mockListener);
-
-        verify(mockBinder, never()).unlinkToDeath(any(IBinder.DeathRecipient.class), anyInt());
-    }
-
-    private static ICpuAvailabilityChangeListener createMockCpuAvailabilityChangeListener() {
-        ICpuAvailabilityChangeListener listener = mock(ICpuAvailabilityChangeListener.Stub.class);
-        when(listener.asBinder()).thenCallRealMethod();
-        return listener;
+        assertWithMessage("Thread policy").that(actual.getPolicy()).isEqualTo(SCHED_RR);
+        assertWithMessage("Thread priority").that(actual.getPriority()).isEqualTo(30);
     }
 }

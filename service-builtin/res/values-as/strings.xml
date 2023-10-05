@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"এই এপ্‌টোক নেপথ্যত চলাত বাধা আৰোপ কৰা হৈছে। নেপথ্য়ত ব্যৱহাৰ হৈ থকাটো অব্যাহত ৰাখিবলৈ এপক অগ্ৰাধিকাৰ দিয়ক।"</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"বন্ধ কৰক"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"এপক অগ্ৰাধিকাৰ দিয়ক"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g>ক অক্ষম কৰা হৈছে। আপুনি এইটো ছেটিঙত পুনৰ সক্ষম কৰিব পাৰে।"</string>
 </resources>

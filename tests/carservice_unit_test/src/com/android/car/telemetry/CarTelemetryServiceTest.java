@@ -45,6 +45,7 @@ import android.car.telemetry.CarTelemetryManager;
 import android.car.telemetry.ICarTelemetryReportListener;
 import android.car.telemetry.ICarTelemetryReportReadyListener;
 import android.car.telemetry.TelemetryProto;
+import android.car.test.mocks.MockSettings;
 import android.content.Context;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
@@ -95,7 +96,9 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
     private Handler mTelemetryHandler;
     private MetricsConfigStore mMetricsConfigStore;
     private ResultStore mResultStore;
-    private SystemMonitor.SystemMonitorCallback mSystemMonitorCallback;
+    // Not used directly, but sets proper mockStatic() expectations on Settings
+    @SuppressWarnings("UnusedVariable")
+    private MockSettings mMockSettings;
 
     @Mock private ActivityManager mMockActivityManager;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
@@ -109,7 +112,6 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
     @Mock private ResultReceiver mMockAddMetricsConfigCallback;
     @Mock private SessionController mMockSessionController;
     @Mock private SystemInterface mMockSystemInterface;
-    @Mock private SystemMonitor mMockSystemMonitor;
     @Mock private UidPackageMapper mMockUidMapper;
 
 
@@ -119,6 +121,7 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
+        mMockSettings = new MockSettings(session);
         session.spyStatic(SystemMonitor.class).spyStatic(ParcelFileDescriptor.class);
     }
 

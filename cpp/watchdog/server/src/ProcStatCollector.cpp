@@ -40,7 +40,7 @@ using ::android::base::StartsWith;
 
 namespace {
 
-bool parseCpuStats(const std::string& data, CpuStats* cpuStats, int32_t millisPerClockTick) {
+bool parseCpuStats(const std::string& data, int32_t millisPerClockTick, CpuStats* cpuStats) {
     std::vector<std::string> fields = Split(data, " ");
     if (fields.size() == 12 && fields[1].empty()) {
         /* The first cpu line will have an extra space after the first word. This will generate an
@@ -133,7 +133,7 @@ Result<ProcStatInfo> ProcStatCollector::getProcStatLocked() const {
             if (info.totalCpuTimeMillis() != 0) {
                 return Error() << "Duplicate `cpu .*` line in " << kPath;
             }
-            if (!parseCpuStats(lines[i], &info.cpuStats, mMillisPerClockTick)) {
+            if (!parseCpuStats(lines[i], mMillisPerClockTick, &info.cpuStats)) {
                 return Error() << "Failed to parse `cpu .*` line in " << kPath;
             }
         } else if (!lines[i].compare(0, 4, "ctxt")) {

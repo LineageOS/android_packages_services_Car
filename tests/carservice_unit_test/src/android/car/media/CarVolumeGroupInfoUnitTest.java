@@ -16,12 +16,19 @@
 
 package android.car.media;
 
+import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
+import static android.media.AudioAttributes.USAGE_ASSISTANT;
+import static android.media.AudioAttributes.USAGE_MEDIA;
+
 import static org.junit.Assert.assertThrows;
 
 import android.car.test.AbstractExpectableTestCase;
+import android.media.AudioAttributes;
 import android.os.Parcel;
 
 import org.junit.Test;
+
+import java.util.List;
 
 public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase {
 
@@ -33,13 +40,23 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     private static final boolean TEST_DEFAULT_MUTE_STATE = false;
     private static final boolean TEST_DEFAULT_BLOCKED_STATE = false;
     private static final boolean TEST_DEFAULT_ATTENUATED_STATE = false;
-    public static final int TEST_MAX_GAIN_INDEX = 9_005;
-    public static final int TEST_MIN_GAIN_INDEX = 0;
+    private static final int TEST_MAX_GAIN_INDEX = 9_005;
+    private static final int TEST_MIN_GAIN_INDEX = 0;
+    private static final AudioAttributes TEST_MEDIA_AUDIO_ATTRIBUTE =
+            new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+    private static final AudioAttributes TEST_NAVIGATION_AUDIO_ATTRIBUTE =
+            new AudioAttributes.Builder().setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE).build();
+    private static final AudioAttributes TEST_ASSISTANT_AUDIO_ATTRIBUTE =
+            new AudioAttributes.Builder().setUsage(USAGE_ASSISTANT).build();
+    private static final List<AudioAttributes> TEST_AUDIO_ATTRIBUTES = List.of(
+            TEST_MEDIA_AUDIO_ATTRIBUTE, TEST_NAVIGATION_AUDIO_ATTRIBUTE,
+            TEST_ASSISTANT_AUDIO_ATTRIBUTE);
 
     private static final CarVolumeGroupInfo TEST_VOLUME_INFO =
-            new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID,
-            TEST_PRIMARY_GROUP_ID).setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
-                    .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX).build();
+            new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID)
+                    .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                    .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                    .setAudioAttributes(TEST_AUDIO_ATTRIBUTES).build();
 
     private final CarVolumeGroupInfo.Builder mTestGroupInfoBuilder =
             new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME,
@@ -151,6 +168,23 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
+    public void setAudioAttribute_buildsGroupInfo() {
+        CarVolumeGroupInfo info = mTestGroupInfoBuilder.setAudioAttributes(TEST_AUDIO_ATTRIBUTES)
+                .build();
+
+        expectWithMessage("Audio attributes").that(info.getAudioAttributes())
+                .containsExactlyElementsIn(TEST_AUDIO_ATTRIBUTES);
+    }
+    @Test
+    public void setAudioAttribute_withNull_buildFails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class,
+                () -> mTestGroupInfoBuilder.setAudioAttributes(null));
+
+        expectWithMessage("Null audio attributes exception")
+                .that(thrown).hasMessageThat().contains("Audio Attributes");
+    }
+
+    @Test
     public void builder_withReuse_fails() {
         CarVolumeGroupInfo.Builder builder = new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME,
                 TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID)
@@ -189,7 +223,6 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
                 .isEqualTo(TEST_VOLUME_INFO);
     }
 
-
     @Test
     public void newArray() {
         CarVolumeGroupInfo[] infos = CarVolumeGroupInfo.CREATOR.newArray(/* size= */ 3);
@@ -203,7 +236,8 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
         CarVolumeGroupInfo infoWithSameContent =
                 new CarVolumeGroupInfo.Builder(TEST_VOLUME_INFO)
                         .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
-                        .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX).build();
+                        .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                        .setAudioAttributes(TEST_AUDIO_ATTRIBUTES).build();
 
         expectWithMessage("Car volume info with same content")
                 .that(infoWithSameContent).isEqualTo(TEST_VOLUME_INFO);
@@ -214,7 +248,8 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
         CarVolumeGroupInfo info = new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID,
                 TEST_PRIMARY_GROUP_ID).setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                 .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
-                .setVolumeGainIndex(TEST_CURRENT_GAIN).build();
+                .setVolumeGainIndex(TEST_CURRENT_GAIN)
+                .setAudioAttributes(TEST_AUDIO_ATTRIBUTES).build();
 
         expectWithMessage("Car volume info null content")
                 .that(info.equals(null)).isFalse();
@@ -236,7 +271,7 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
         CarVolumeGroupInfo infoWithSameContent = new CarVolumeGroupInfo.Builder(TEST_VOLUME_INFO)
                 .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                 .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
-                .build();
+                .setAudioAttributes(TEST_AUDIO_ATTRIBUTES).build();
 
         expectWithMessage("Car volume info hash with same content")
                 .that(infoWithSameContent.hashCode()).isEqualTo(TEST_VOLUME_INFO.hashCode());
@@ -247,13 +282,18 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
         CarVolumeGroupInfo info = new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID,
                 TEST_PRIMARY_GROUP_ID).setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                 .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
-                .setVolumeGainIndex(TEST_CURRENT_GAIN).build();
+                .setVolumeGainIndex(TEST_CURRENT_GAIN)
+                .setAudioAttributes(TEST_AUDIO_ATTRIBUTES).build();
+
+        String carVolumeGroupInfoString = info.toString();
 
         expectWithMessage("Car volume info name")
-                .that(info.toString()).contains(TEST_GROUP_NAME);
+                .that(carVolumeGroupInfoString).contains(TEST_GROUP_NAME);
         expectWithMessage("Car volume info group id")
-                .that(info.toString()).contains(Integer.toString(TEST_PRIMARY_GROUP_ID));
+                .that(carVolumeGroupInfoString).contains(Integer.toString(TEST_PRIMARY_GROUP_ID));
         expectWithMessage("Car volume info group zone")
-                .that(info.toString()).contains(Integer.toString(TEST_ZONE_ID));
+                .that(carVolumeGroupInfoString).contains(Integer.toString(TEST_ZONE_ID));
+        expectWithMessage("Car volume group audio attributes")
+                .that(carVolumeGroupInfoString).contains(TEST_ASSISTANT_AUDIO_ATTRIBUTE.toString());
     }
 }

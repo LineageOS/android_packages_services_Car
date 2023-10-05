@@ -53,13 +53,31 @@ public @interface ApiRequirements {
      */
     PlatformVersion minPlatformVersion();
 
+    /**
+     * Indicates the Android version in which this deprecated annotated API will be soft removed.
+     * <p>Soft removal means the API will now be marked as {@code @Removed} but its
+     * implementation remains.
+     *
+     * <p>Only used for APIs that have been marked for removal.
+     */
+    int softRemovalVersion() default -1;
+
+    /**
+     * Indicates the Android version in which this deprecated annotated API will be hard removed.
+     * <p>Hard removal means removing the entire implementation of the API.
+     *
+     * <p>Only used for APIs that have been marked for removal.
+     */
+    int hardRemovalVersion() default -1;
+
     @SuppressWarnings("Enum")
     enum CarVersion {
 
         TIRAMISU_0(android.car.CarVersion.VERSION_CODES.TIRAMISU_0),
         TIRAMISU_1(android.car.CarVersion.VERSION_CODES.TIRAMISU_1),
         TIRAMISU_2(android.car.CarVersion.VERSION_CODES.TIRAMISU_2),
-        TIRAMISU_3(android.car.CarVersion.VERSION_CODES.TIRAMISU_3);
+        TIRAMISU_3(android.car.CarVersion.VERSION_CODES.TIRAMISU_3),
+        UPSIDE_DOWN_CAKE_0(android.car.CarVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0);
 
         private final android.car.CarVersion mVersion;
 
@@ -81,7 +99,8 @@ public @interface ApiRequirements {
         TIRAMISU_0(android.car.PlatformVersion.VERSION_CODES.TIRAMISU_0),
         TIRAMISU_1(android.car.PlatformVersion.VERSION_CODES.TIRAMISU_1),
         TIRAMISU_2(android.car.PlatformVersion.VERSION_CODES.TIRAMISU_2),
-        TIRAMISU_3(android.car.PlatformVersion.VERSION_CODES.TIRAMISU_3);
+        TIRAMISU_3(android.car.PlatformVersion.VERSION_CODES.TIRAMISU_3),
+        UPSIDE_DOWN_CAKE_0(android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0);
 
         private final android.car.PlatformVersion mVersion;
 

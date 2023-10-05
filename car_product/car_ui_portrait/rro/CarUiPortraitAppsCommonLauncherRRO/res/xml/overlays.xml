@@ -15,8 +15,12 @@
   -->
 
 <overlay>
+    <item target="bool/enable_control_bar_overflow" value="@bool/enable_control_bar_overflow"/>
+    <item target="color/action_button_icon_tint" value="@color/action_button_icon_tint"/>
+    <item target="dimen/control_bar_button_padding" value="@dimen/control_bar_button_padding" />
     <item target="dimen/control_bar_button_size" value="@dimen/control_bar_button_size"/>
     <item target="dimen/play_pause_image_size" value="@dimen/play_pause_image_size"/>
-
-    <item target="color/action_button_icon_tint" value="@color/action_button_icon_tint"/>
+    <item target="drawable/ic_overflow_button" value="@drawable/ic_overflow_button"/>
+    <item target="integer/control_bar_columns" value="@integer/control_bar_columns"/>
+    <item target="style/Widget.ActionButton.PlayPause" value="@style/Widget.ActionButton.PlayPause" />
 </overlay>

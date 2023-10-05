@@ -2,8 +2,6 @@
 per-file src/com/android/car/AppFocusTest.java = ycheo@google.com
 
 # Audio
-per-file src/android/media/tests/AudioPolicyTest.java = oscarazu@google.com, ericjeong@google.com
-per-file src/com/android/car/CarAudioManagerTest.java = oscarazu@google.com, ericjeong@google.com
 per-file src/com/android/car/audio/* = oscarazu@google.com, ericjeong@google.com
 
 # Cluster
@@ -22,6 +20,9 @@ per-file src/com/android/car/pm/* = ycheo@google.com
 # Power
 per-file src/com/android/car/garagemode/* = ericjeong@google.com
 per-file src/com/android/car/power/* = ericjeong@google.com
+
+# Property
+per-file src/com/android/car/CarProperty* = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
 
 # StorageMonitoring
 per-file src/com/android/car/CarStorageMonitoringTest.java = lakshmana@google.com

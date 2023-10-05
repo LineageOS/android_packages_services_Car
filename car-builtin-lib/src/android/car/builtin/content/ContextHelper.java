@@ -18,12 +18,14 @@ package android.car.builtin.content;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.UserHandle;
 
@@ -44,6 +46,13 @@ public final class ContextHelper {
     @AddedIn(PlatformVersion.TIRAMISU_0)
     public static int getDisplayId(@NonNull Context context) {
         return context.getDisplayId();
+    }
+
+    /** Returns associated display id relevant for the context */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static int getAssociatedDisplayId(@NonNull Context context) {
+        return context.getAssociatedDisplayId();
     }
 
     /**

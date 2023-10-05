@@ -22,7 +22,9 @@ import android.util.Log;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 // TODO(b/242571576): move this class to com.android.compatibility.common.util
@@ -34,7 +36,7 @@ import java.util.Objects;
 public final class ApiHelper {
 
     private static final String TAG = ApiHelper.class.getSimpleName();
-    private static final boolean DBG = false;
+    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
 
     /**
      * Resolves an API to the proper member (method or field).
@@ -43,8 +45,17 @@ public final class ApiHelper {
     public static Member resolve(String api) {
         Objects.requireNonNull(api);
 
-        // Try method first, as it's the most common case...
-        Member member = getMethod(api);
+        Member member = null;
+        ClassNotFoundException classNotFoundException = null;
+        try {
+            // Try method first, as it's the most common case...
+            member = getMethod(api);
+            if (member != null) {
+                return member;
+            }
+        } catch (ClassNotFoundException e) {
+            classNotFoundException = e;
+        }
 
         // ...then field
         if (member == null) {
@@ -54,7 +65,6 @@ public final class ApiHelper {
             }
             member = getField(api);
         }
-
         // ...then special cases
         if (member == null && api.contains("#")) {
             // TODO(b/242571576): From Java's point of view, a field from an inner class like:
@@ -68,14 +78,18 @@ public final class ApiHelper {
         }
 
         if (member == null) {
-            Log.w(TAG, "Could not resolve API: " + api);
+            if (classNotFoundException != null) {
+                Log.w(TAG, "Could not resolve API " + api + ": " + classNotFoundException);
+            } else {
+                Log.w(TAG, "Could not resolve API " + api + "; check log tag " + TAG
+                        + " for more details");
+            }
         }
-
         return member;
     }
 
     @Nullable
-    private static Method getMethod(String fullyQualifiedMethodName) {
+    private static Method getMethod(String fullyQualifiedMethodName) throws ClassNotFoundException {
         // TODO(b/242571576): improve it to:
         // - use regex
         // - handle methods from CREATOR
@@ -93,34 +107,21 @@ public final class ApiHelper {
                     + ", signature=" + methodSignature);
         }
 
-        try {
-            Class<?> clazz = Class.forName(className);
-            String methodName = methodSignature;
-            if (clazz != null) {
-                if (methodSignature.contains("(") && methodSignature.endsWith(")")) {
-                    int openingIndex = methodSignature.indexOf('(');
-                    methodName = methodSignature.substring(0, openingIndex);
-                    String types = methodSignature.substring(openingIndex + 1,
-                            methodSignature.length() - 1);
-                    String[] paramTypesNames = types.split(",");
-                    if (DBG) {
-                        Log.d(TAG, "Method name after stripping (): " + methodName + ". Types: "
-                                + Arrays.toString(paramTypesNames));
-                    }
-                    return getMethodWithParameters(clazz, methodName, paramTypesNames);
-                } // methodSignature.contains....
-                if (DBG) {
-                    Log.d(TAG, "Getting method without params: " + methodName);
-                }
-                Class<?>[] noParams = {};
-                return clazz.getDeclaredMethod(methodName, noParams);
-            } // clazz != null
-        } catch (Exception e) {
+        Class<?> clazz = Class.forName(className);
+        String methodName = methodSignature;
+        if (methodSignature.contains("(") && methodSignature.endsWith(")")) {
+            int openingIndex = methodSignature.indexOf('(');
+            methodName = methodSignature.substring(0, openingIndex);
+            String types = methodSignature.substring(openingIndex + 1,
+                    methodSignature.length() - 1);
+            String[] paramTypesNames = types.split(",");
             if (DBG) {
-                Log.d(TAG, "getMethod(" + fullyQualifiedMethodName + ") failed: " + e);
+                Log.d(TAG, "Method name after stripping (): " + methodName + ". Types: "
+                        + Arrays.toString(paramTypesNames));
             }
+            return getMethodWithParameters(clazz, methodName, paramTypesNames);
         }
-        return null;
+        return getMethodWithoutParameters(clazz, methodName);
     }
 
     @Nullable
@@ -142,40 +143,61 @@ public final class ApiHelper {
             }
         }
 
-        try {
-            Method[] allMethods = clazz.getDeclaredMethods();
-            method:
-            for (Method method : allMethods) {
-                if (DBG) {
-                    Log.v(TAG, "Trying method :"  + method);
-                }
-                if (!method.getName().equals(methodName)) {
-                    continue;
-                }
-                Class<?>[] paramTypes = method.getParameterTypes();
-                if (paramTypes.length != paramTypesNames.length) {
-                    continue;
-                }
-                for (int i = 0; i < paramTypes.length; i++) {
-                    String expected = paramTypesNames[i].trim();
-                    String actual = paramTypes[i].getCanonicalName();
-                    if (DBG) {
-                        Log.d(TAG, "Checking param #" + i + ": expected=" + expected + ", actual="
-                                + actual);
-                    }
-                    if (!actual.endsWith(expected)) {
-                        continue method;
-                    }
-                }
-                if (DBG) {
-                    Log.d(TAG, "Found method :"  + method);
-                }
-                return method;
+        Method[] allMethods = clazz.getDeclaredMethods();
+        method:
+        for (Method method : allMethods) {
+            if (DBG) {
+                Log.v(TAG, "Trying method :"  + method);
             }
+            if (!method.getName().equals(methodName)) {
+                continue;
+            }
+            Class<?>[] paramTypes = method.getParameterTypes();
+            if (paramTypes.length != paramTypesNames.length) {
+                continue;
+            }
+            for (int i = 0; i < paramTypes.length; i++) {
+                String expected = paramTypesNames[i].trim();
+                String actual = paramTypes[i].getCanonicalName();
+                if (DBG) {
+                    Log.d(TAG, "Checking param #" + i + ": expected=" + expected + ", actual="
+                            + actual);
+                }
+                if (!actual.endsWith(expected)) {
+                    continue method;
+                }
+            }
+            if (DBG) {
+                Log.d(TAG, "Found method :"  + method);
+            }
+            return method;
+        }
+        return null;
+    }
 
-        } catch (Exception e) {
-            Log.w(TAG, "getMethod(" + clazz + ", " + Arrays.toString(paramTypesNames)
-                    + ") failed: " + e);
+    @Nullable
+    private static Method getMethodWithoutParameters(Class<?> clazz, String methodName) {
+        if (DBG) {
+            Log.d(TAG, "Getting method without params: " + methodName);
+        }
+        List<Method> methods = new ArrayList<>();
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (methodName.equals(method.getName())) {
+                if (DBG) {
+                    Log.d(TAG, "Found " + methodName + ": " + method);
+                }
+                methods.add(method);
+            }
+        }
+        if (methods.size() == 1) {
+            return methods.get(0);
+        }
+        if (DBG) {
+            if (methods.isEmpty()) {
+                Log.d(TAG, "No method named " + methodName + " on " + clazz);
+            } else {
+                Log.d(TAG, "Found " + methods.size() + " methods on " + clazz + ": " + methods);
+            }
         }
         return null;
     }
@@ -193,15 +215,17 @@ public final class ApiHelper {
             Log.d(TAG, "getField(" + fullyQualifiedFieldName + "): class=" + className
                     + ", field=" + fieldName);
         }
-        Class<?> clazz;
+        Class<?> clazz = null;
         try {
             clazz = Class.forName(className);
             if (clazz != null) {
                 return clazz.getDeclaredField(fieldName);
             }
         } catch (Exception e) {
-            if (DBG) {
-                Log.d(TAG, "getField(" + fullyQualifiedFieldName + ") failed: " + e);
+            Log.d(TAG, "getField(" + fullyQualifiedFieldName + ") failed: " + e);
+            if (DBG && clazz != null) {
+                Log.d(TAG, "Fields of " + clazz + ": "
+                        + Arrays.toString(clazz.getDeclaredFields()));
             }
         }
         return null;

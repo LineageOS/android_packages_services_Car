@@ -16,6 +16,7 @@
 ** limitations under the License.
 */
 -->
+<!-- Consider other dimension overrides in values-xxx when adding/changing the value here! -->
 <resources>
     <dimen name="status_bar_height">76dp</dimen>
     <dimen name="status_bar_height_default">76dp</dimen>

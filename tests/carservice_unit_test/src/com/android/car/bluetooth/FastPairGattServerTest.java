@@ -493,6 +493,7 @@ public class FastPairGattServerTest {
 
     @Test
     public void testStopWhileStopped_stopIgnored() {
+        clearInvocations(mMockContext);
         mTestGattServer.stop();
         verifyNoMoreInteractions(mMockContext);
         assertThat(mTestGattServer.isStarted()).isFalse();
@@ -612,7 +613,7 @@ public class FastPairGattServerTest {
     }
 
     @Test
-    public void testProcessPairingKeyRequest_pairingConfirmed() {
+    public void testProcessPasskeyRequest_pairingConfirmed() {
         testProcessKeyBasedPairingRequestWithAntiSpoofKey_responseValid();
         clearInvocations(mMockBluetoothGattServer);
         sendBondStateChangeBroadcast(mMockBluetoothDevice,
@@ -620,13 +621,26 @@ public class FastPairGattServerTest {
         sendPairingRequestBroadcast(mMockBluetoothDevice, TEST_PAIRING_KEY);
         byte[] request = buildPasskeyRequest(PASSKEY_REQUEST_SEEKER, TEST_PAIRING_KEY_BYTES,
                 TEST_SALT_12, TEST_GENERATED_KEY);
-        byte[] encryptedResponse = sendPasskeyRequest(mMockBluetoothDevice, request);
+        byte[] unused = sendPasskeyRequest(mMockBluetoothDevice, request);
+
+        byte[] encryptedResponse = mPasskeyCharacteristic.getValue();
+        byte[] passkeyResponse = decrypt(encryptedResponse, TEST_GENERATED_KEY);
+
+        assertThat(passkeyResponse.length).isEqualTo(16);
+        byte type = passkeyResponse[0];
+        byte[] passkey = Arrays.copyOfRange(passkeyResponse, 1, 4);
+        byte[] salt = Arrays.copyOfRange(passkeyResponse, 4, 15);
+
+        assertThat(type).isEqualTo(PASSKEY_REQUEST_PROVIDER);
+        assertThat(passkey).isEqualTo(TEST_PAIRING_KEY_BYTES);
+        assertThat(salt).isNotNull();
+
         verify(mMockBluetoothDevice).setPairingConfirmation(eq(true));
         assertThat(mTestGattServer.isFastPairSessionActive()).isTrue(); // lifespan 10000
     }
 
     @Test
-    public void testProcessPairingKeyRequestWrongPasskey_pairingCancelled() {
+    public void testProcessPasskeyRequestWrongPasskey_pairingCancelled() {
         testProcessKeyBasedPairingRequestWithAntiSpoofKey_responseValid();
         clearInvocations(mMockBluetoothGattServer);
         sendBondStateChangeBroadcast(mMockBluetoothDevice,
@@ -640,7 +654,7 @@ public class FastPairGattServerTest {
     }
 
     @Test
-    public void testProcessPairingKeyRequestShortPasskey_pairingCancelled() {
+    public void testProcessPasskeyRequestShortPasskey_pairingCancelled() {
         testProcessKeyBasedPairingRequestWithAntiSpoofKey_responseValid();
         clearInvocations(mMockBluetoothGattServer);
         sendBondStateChangeBroadcast(mMockBluetoothDevice,
@@ -651,7 +665,7 @@ public class FastPairGattServerTest {
     }
 
     @Test
-    public void testProcessPairingKeyRequestNullPasskey_pairingCancelled() {
+    public void testProcessPasskeyRequestNullPasskey_pairingCancelled() {
         testProcessKeyBasedPairingRequestWithAntiSpoofKey_responseValid();
         clearInvocations(mMockBluetoothGattServer);
         sendBondStateChangeBroadcast(mMockBluetoothDevice,
@@ -662,11 +676,40 @@ public class FastPairGattServerTest {
     }
 
     @Test
-    public void testReceivePairingCode_sendsPairingResponse() {
+    public void testProcessPasskeyBeforePairingCodeReceived_pairingContinues() {
         testProcessKeyBasedPairingRequestWithAntiSpoofKey_responseValid();
         clearInvocations(mMockBluetoothGattServer);
         sendBondStateChangeBroadcast(mMockBluetoothDevice,
                 BluetoothDevice.BOND_BONDING, BluetoothDevice.BOND_NONE);
+        byte[] request = buildPasskeyRequest(PASSKEY_REQUEST_SEEKER, TEST_PAIRING_KEY_BYTES,
+                TEST_SALT_12, TEST_GENERATED_KEY);
+        sendPasskeyRequest(mMockBluetoothDevice, request);
+        verify(mMockBluetoothDevice, never()).setPairingConfirmation(anyBoolean());
+        assertThat(mTestGattServer.isFastPairSessionActive()).isTrue(); // lifespan 10000
+    }
+
+    @Test
+    public void testReceivePairingCodeBeforeSeekerPasskey_noPairingResponseSent() {
+        testProcessKeyBasedPairingRequestWithAntiSpoofKey_responseValid();
+        clearInvocations(mMockBluetoothGattServer);
+        sendBondStateChangeBroadcast(mMockBluetoothDevice,
+                BluetoothDevice.BOND_BONDING, BluetoothDevice.BOND_NONE);
+        sendPairingRequestBroadcast(mMockBluetoothDevice, TEST_PAIRING_KEY);
+        verify(mMockBluetoothGattServer, never()).notifyCharacteristicChanged(
+                eq(mMockBluetoothDevice), eq(mPasskeyCharacteristic), eq(false));
+        verify(mMockBluetoothDevice, never()).setPairingConfirmation(anyBoolean());
+        assertThat(mTestGattServer.isFastPairSessionActive()).isTrue(); // Lifespan 35000
+    }
+
+    @Test
+    public void testReceivePairingCodeAfterSeekerPasskey_sendsPairingResponse() {
+        testProcessKeyBasedPairingRequestWithAntiSpoofKey_responseValid();
+        clearInvocations(mMockBluetoothGattServer);
+        sendBondStateChangeBroadcast(mMockBluetoothDevice,
+                BluetoothDevice.BOND_BONDING, BluetoothDevice.BOND_NONE);
+        byte[] request = buildPasskeyRequest(PASSKEY_REQUEST_SEEKER, TEST_PAIRING_KEY_BYTES,
+                TEST_SALT_12, TEST_GENERATED_KEY);
+        byte[] unused = sendPasskeyRequest(mMockBluetoothDevice, request);
         sendPairingRequestBroadcast(mMockBluetoothDevice, TEST_PAIRING_KEY);
         byte[] encryptedResponse = mPasskeyCharacteristic.getValue();
         byte[] passkeyResponse = decrypt(encryptedResponse, TEST_GENERATED_KEY);
@@ -682,6 +725,7 @@ public class FastPairGattServerTest {
 
         verify(mMockBluetoothGattServer).notifyCharacteristicChanged(eq(mMockBluetoothDevice),
                 eq(mPasskeyCharacteristic), eq(false));
+        verify(mMockBluetoothDevice).setPairingConfirmation(eq(true));
         assertThat(mTestGattServer.isFastPairSessionActive()).isTrue(); // Lifespan 35000
     }
 
@@ -703,7 +747,7 @@ public class FastPairGattServerTest {
 
     @Test
     public void testProcessAccountKeyRequestWithValidKey_keyAdded() {
-        testProcessPairingKeyRequest_pairingConfirmed();
+        testProcessPasskeyRequest_pairingConfirmed();
         clearInvocations(mMockBluetoothGattServer);
         sendBondStateChangeBroadcast(mMockBluetoothDevice,
                 BluetoothDevice.BOND_BONDED, BluetoothDevice.BOND_BONDING);
@@ -716,7 +760,7 @@ public class FastPairGattServerTest {
 
     @Test
     public void testProcessAccountKeyRequestWithInvalidKey_keyIgnored() {
-        testProcessPairingKeyRequest_pairingConfirmed();
+        testProcessPasskeyRequest_pairingConfirmed();
         clearInvocations(mMockBluetoothGattServer);
         sendBondStateChangeBroadcast(mMockBluetoothDevice,
                 BluetoothDevice.BOND_BONDED, BluetoothDevice.BOND_BONDING);
@@ -729,7 +773,7 @@ public class FastPairGattServerTest {
 
     @Test
     public void testProcessAccountKeyRequestWithEmptyKey_requestIgnored() {
-        testProcessPairingKeyRequest_pairingConfirmed();
+        testProcessPasskeyRequest_pairingConfirmed();
         clearInvocations(mMockBluetoothGattServer);
         sendBondStateChangeBroadcast(mMockBluetoothDevice,
                 BluetoothDevice.BOND_BONDED, BluetoothDevice.BOND_BONDING);
@@ -741,7 +785,7 @@ public class FastPairGattServerTest {
 
     @Test
     public void testProcessAccountKeyRequestWithShortKey_requestIgnored() {
-        testProcessPairingKeyRequest_pairingConfirmed();
+        testProcessPasskeyRequest_pairingConfirmed();
         clearInvocations(mMockBluetoothGattServer);
         sendBondStateChangeBroadcast(mMockBluetoothDevice,
                 BluetoothDevice.BOND_BONDED, BluetoothDevice.BOND_BONDING);
@@ -753,7 +797,7 @@ public class FastPairGattServerTest {
 
     @Test
     public void testProcessAccountKeyRequestWithNullKey_requestIgnored() {
-        testProcessPairingKeyRequest_pairingConfirmed();
+        testProcessPasskeyRequest_pairingConfirmed();
         clearInvocations(mMockBluetoothGattServer);
         sendBondStateChangeBroadcast(mMockBluetoothDevice,
                 BluetoothDevice.BOND_BONDED, BluetoothDevice.BOND_BONDING);

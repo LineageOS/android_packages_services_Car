@@ -20,12 +20,19 @@ import android.annotation.NonNull;
 import android.car.oem.OemCarAudioFocusEvaluationRequest;
 import android.car.oem.OemCarAudioFocusResult;
 import android.car.oem.OemCarAudioFocusService;
+import android.content.Context;
+import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.util.Slog;
 
 import com.android.car.oem.focus.FocusInteraction;
+import com.android.car.oem.utils.OemCarServiceHelper;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
@@ -36,8 +43,21 @@ public final class OemCarAudioFocusServiceImpl implements OemCarAudioFocusServic
 
     private final FocusInteraction mFocusInteraction;
 
-    public OemCarAudioFocusServiceImpl() {
-        mFocusInteraction = new FocusInteraction(FocusInteraction.ATTRIBUTES_INTERACTIONS);
+    /**
+     * Constructs a {@link FocusInteraction} with the given interaction mapping if
+     * the interaction mapping is null, it will default to
+     * {@link FocusInteraction.ATTRIBUTES_INTERACTIONS}
+     *
+     * @param attributeInteractions An array map of mappings from an incoming AudioAttributes to
+     *        an array map of other AudioAttributes to focus interactions.
+     */
+    public OemCarAudioFocusServiceImpl(Context context) {
+        ArrayMap<AudioAttributes, ArrayMap<AudioAttributes, Integer>>
+                attributePriority = parseAndGetFocusInteractions(context);
+        if (attributePriority == null) {
+            attributePriority = FocusInteraction.ATTRIBUTES_INTERACTIONS;
+        }
+        mFocusInteraction = new FocusInteraction(attributePriority);
         if (DEBUG) {
             Slog.d(TAG, "constructor");
         }
@@ -95,5 +115,18 @@ public final class OemCarAudioFocusServiceImpl implements OemCarAudioFocusServic
     public String toString() {
         return new StringBuilder().append("{Class: ").append(TAG).append(", package: ")
                 .append(OemCarAudioFocusServiceImpl.class.getPackage()).append("}").toString();
+    }
+
+    private ArrayMap<AudioAttributes, ArrayMap<AudioAttributes, Integer>>
+            parseAndGetFocusInteractions(Context context) {
+        OemCarServiceHelper oemCarServiceHelper = new OemCarServiceHelper();
+        try {
+            oemCarServiceHelper.parseAudioManagementConfiguration(context.getAssets().open(
+                    "oem_focus_config.xml"));
+            return oemCarServiceHelper.getCurrentFocusToIncomingFocusInteractions();
+        } catch (XmlPullParserException | IOException e) {
+            Slog.w(TAG, "Focus config file was not able to be parsed ", e);
+            return null;
+        }
     }
 }

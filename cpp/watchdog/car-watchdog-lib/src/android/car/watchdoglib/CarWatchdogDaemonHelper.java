@@ -24,6 +24,7 @@ import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.ProcessIdentifier;
 import android.automotive.watchdog.internal.ResourceOveruseConfiguration;
 import android.automotive.watchdog.internal.ThreadPolicyWithPriority;
+import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.os.Handler;
 import android.os.IBinder;
@@ -324,6 +325,32 @@ public final class CarWatchdogDaemonHelper {
         }, /* expectedDaemonVersion= */ 2);
 
         return resultValues;
+    }
+
+    /**
+     * Updates the daemon with the AIDL VHAL pid.
+     *
+     * This call is a response to the {@link ICarWatchdogServiceForSystem.Stub.requestAidlVhalPid}
+     * call.
+     *
+     * @param pid The AIDL VHAL process ID.
+     */
+    public void onAidlVhalPidFetched(int pid) throws RemoteException {
+        invokeDaemonMethodForVersionAtLeast(
+                (daemon) -> daemon.onAidlVhalPidFetched(pid), /* expectedDaemonVersion= */ 3);
+    }
+
+    /**
+     * Handles the current UTC calendar day's I/O usage stats for all package collected during
+     * the previous boot.
+     *
+     * @param userPackageIoUsageStats I/O usage stats for all packages.
+     */
+    public void onTodayIoUsageStatsFetched(List<UserPackageIoUsageStats> userPackageIoUsageStats)
+            throws RemoteException {
+        invokeDaemonMethodForVersionAtLeast(
+                (daemon) -> daemon.onTodayIoUsageStatsFetched(userPackageIoUsageStats),
+                /* expectedDaemonVersion= */ 3);
     }
 
     private void invokeDaemonMethod(Invokable r) throws RemoteException {

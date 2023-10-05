@@ -19,6 +19,8 @@ package com.google.android.car.kitchensink.audiorecorder;
 import static android.R.layout.simple_spinner_dropdown_item;
 import static android.R.layout.simple_spinner_item;
 
+import static com.google.android.car.kitchensink.KitchenSinkActivity.DUMP_ARG_CMD;
+
 import android.Manifest;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -57,7 +59,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 public final class AudioRecorderTestFragment extends Fragment {
-    public static final String DUMP_ARG_CMD = "cmd";
+
     public static final String FRAGMENT_NAME = "audio recorder";
     private static final String TAG = "CAR.AUDIO.RECORDER.KS";
     private static final String[] PERMISSIONS = {Manifest.permission.RECORD_AUDIO};

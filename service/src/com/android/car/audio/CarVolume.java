@@ -164,7 +164,7 @@ final class CarVolume {
     }
 
     /**
-     * @see {@link CarAudioService#resetSelectedVolumeContext()}
+     * @see CarAudioService#resetSelectedVolumeContext()
      */
     public void resetSelectedVolumeContext() {
         setAudioContextStillActive(CarAudioContext.getInvalidContext());
@@ -276,6 +276,8 @@ final class CarVolume {
             case CALL_STATE_OFFHOOK:
                 attributes.add(CarAudioContext
                         .getAudioAttributeFromUsage(USAGE_VOICE_COMMUNICATION));
+                break;
+            default:
                 break;
         }
 

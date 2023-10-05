@@ -29,6 +29,7 @@
 #include <dirent.h>
 
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -43,10 +44,13 @@ using ::android::base::ParseUint;
 using ::android::base::ReadFileToString;
 using ::android::base::Result;
 using ::android::base::Split;
+using ::android::base::StartsWith;
 using ::android::base::StringAppendF;
 using ::android::base::Trim;
 
 namespace {
+
+constexpr uint64_t kMaxUint64 = std::numeric_limits<uint64_t>::max();
 
 constexpr const char* kProcPidStatFileFormat = "/proc/%" PRIu32 "/stat";
 constexpr const char* kProcPidStatusFileFormat = "/proc/%" PRIu32 "/status";
@@ -56,6 +60,10 @@ enum ReadError {
     ERR_FILE_OPEN_READ = 1,
     NUM_ERRORS = 2,
 };
+
+uint64_t addUint64(const uint64_t& l, const uint64_t& r) {
+    return (kMaxUint64 - l) > r ? (l + r) : kMaxUint64;
+}
 
 /**
  * /proc/PID/stat or /proc/PID/task/TID/stat format:
@@ -128,14 +136,41 @@ Result<PidStat> readPidStatFile(const std::string& path, int32_t millisPerClockT
     return pidStat;
 }
 
+std::vector<std::string> getLinesWithTags(std::string_view buffer,
+                                          const std::vector<std::string>& tags) {
+    std::vector<std::string> result;
+    std::vector<std::string> notFoundTags(tags);
+    size_t base = 0;
+    std::string_view sub;
+    for (size_t found = 0; !notFoundTags.empty() && found != buffer.npos;) {
+        found = buffer.find_first_of('\n', base);
+        sub = buffer.substr(base, found - base);
+        bool hasTag = false;
+        for (auto it = notFoundTags.begin(); it != notFoundTags.end();) {
+            if (sub.find(*it) != sub.npos) {
+                notFoundTags.erase(it);
+                hasTag = true;
+            } else {
+                ++it;
+            }
+        }
+        if (hasTag) {
+            result.push_back(std::string{sub});
+        }
+        base = found + 1;
+    }
+    return result;
+}
+
 Result<std::unordered_map<std::string, std::string>> readKeyValueFile(
-        const std::string& path, const std::string& delimiter) {
+        const std::string& path, const std::string& delimiter,
+        const std::vector<std::string>& tags) {
     std::string buffer;
     if (!ReadFileToString(path, &buffer)) {
         return Error(ERR_FILE_OPEN_READ) << "ReadFileToString failed for " << path;
     }
+    std::vector<std::string> lines = getLinesWithTags(buffer, tags);
     std::unordered_map<std::string, std::string> contents;
-    std::vector<std::string> lines = Split(std::move(buffer), "\n");
     for (size_t i = 0; i < lines.size(); ++i) {
         if (lines[i].empty()) {
             continue;
@@ -167,7 +202,7 @@ Result<std::unordered_map<std::string, std::string>> readKeyValueFile(
  * Note: Included only the fields that are parsed from the file.
  */
 Result<std::tuple<uid_t, pid_t>> readPidStatusFile(const std::string& path) {
-    auto result = readKeyValueFile(path, ":\t");
+    auto result = readKeyValueFile(path, ":\t", {"Uid", "Tgid"});
     if (!result.ok()) {
         return Error(result.error().code()) << result.error();
     }
@@ -187,22 +222,87 @@ Result<std::tuple<uid_t, pid_t>> readPidStatusFile(const std::string& path) {
     return std::make_tuple(uid, tgid);
 }
 
+/**
+ * Returns the total CPU cycles from the given time_in_state file.
+ *
+ * /proc/PID/task/TID/time_in_state file format:
+ * cpuX
+ * <CPU freq (kHz)> <time spent at freq (clock ticks)>
+ * <CPU freq (kHz)> <time spent at freq (clock ticks)>
+ * ...
+ * cpuY
+ * <CPU freq (kHz)> <time spent at freq (clock ticks)>
+ * <CPU freq (kHz)> <time spent at freq (clock ticks)>
+ * ...
+ *
+ * Note: Each 'cpuX' header refers to a particular CPU freq policy. A policy can contain multiple
+ * cores. Since we gather the time spent at a frequency at the thread level, their is no need
+ * aggregate the time across cores because threads only run in one core at a time.
+ */
+Result<uint64_t> readTimeInStateFile(const std::string& path) {
+    const auto mul = [](const uint64_t& l, const uint64_t& r) -> uint64_t {
+        if (l == 0 || r == 0) {
+            return 0;
+        }
+        return (kMaxUint64 / r) > l ? (l * r) : kMaxUint64;
+    };
+
+    std::string buffer;
+    if (!ReadFileToString(path, &buffer)) {
+        return Error(ERR_FILE_OPEN_READ) << "ReadFileToString failed for " << path;
+    }
+    std::string delimiter = " ";
+    uint64_t oneTenthCpuCycles = 0;
+    const uint64_t cyclesPerKHzClockTicks = 1000 / sysconf(_SC_CLK_TCK);
+    std::vector<std::string> lines = Split(buffer, "\n");
+    for (size_t i = 0; i < lines.size(); ++i) {
+        if (lines[i].empty() || StartsWith(lines[i], "cpu")) {
+            continue;
+        }
+        std::vector<std::string> elements = Split(lines[i], delimiter);
+        if (elements.size() < 2) {
+            return Error(ERR_INVALID_FILE)
+                    << "Line \"" << lines[i] << "\" doesn't contain the delimiter \"" << delimiter
+                    << "\" in file " << path;
+        }
+        uint64_t freqKHz;
+        uint64_t clockTicks;
+        if (!ParseUint(elements[0], &freqKHz) || !ParseUint(Trim(elements[1]), &clockTicks)) {
+            return Error(ERR_INVALID_FILE)
+                    << "Line \"" << lines[i] << "\" has invalid format in file " << path;
+        }
+        oneTenthCpuCycles = addUint64(oneTenthCpuCycles, mul(freqKHz, clockTicks));
+    }
+    // The frequency is in kHz and the time is in clock ticks (10ms). In order to obtain cycles,
+    // one has to scale the frequency by 1000 to obtain Hz and the time by 1/sysconf(_SC_CLK_TCK)
+    // to obtain seconds which results in scaling the result by |cyclesPerKHzClockTicks|.
+    return mul(oneTenthCpuCycles, cyclesPerKHzClockTicks);
+}
+
 }  // namespace
 
 std::string ProcessStats::toString() const {
-    return StringPrintf("{comm: %s, startTimeMillis: %" PRIu64 ", cpuTimeMillis: %" PRIu64
-                        ", totalMajorFaults: %" PRIu64
-                        ", totalTasksCount: %d, ioBlockedTasksCount: %d}",
-                        comm.c_str(), startTimeMillis, cpuTimeMillis, totalMajorFaults,
-                        totalTasksCount, ioBlockedTasksCount);
+    std::string buffer;
+    StringAppendF(&buffer,
+                  "{comm: %s, startTimeMillis: %" PRIu64 ", cpuTimeMillis: %" PRIu64
+                  ", totalCpuCycles: %" PRIu64 ", totalMajorFaults: %" PRIu64
+                  ", totalTasksCount: %d, ioBlockedTasksCount: %d, cpuCyclesByTid: {",
+                  comm.c_str(), startTimeMillis, cpuTimeMillis, totalCpuCycles, totalMajorFaults,
+                  totalTasksCount, ioBlockedTasksCount);
+    for (const auto& [tid, cpuCycles] : cpuCyclesByTid) {
+        StringAppendF(&buffer, "{tid: %d, cpuCycles: %" PRIu64 "},", tid, cpuCycles);
+    }
+    StringAppendF(&buffer, "}");
+    return buffer;
 }
 
 std::string UidProcStats::toString() const {
     std::string buffer;
     StringAppendF(&buffer,
-                  "UidProcStats{cpuTimeMillis: %" PRIu64 ", totalMajorFaults: %" PRIu64
-                  ", totalTasksCount: %d, ioBlockedTasksCount: %d, processStatsByPid: {",
-                  cpuTimeMillis, totalMajorFaults, totalTasksCount, ioBlockedTasksCount);
+                  "UidProcStats{cpuTimeMillis: %" PRIu64 ", cpuCycles: %" PRIu64
+                  ", totalMajorFaults: %" PRIu64 ", totalTasksCount: %d, ioBlockedTasksCount: %d"
+                  ", processStatsByPid: {",
+                  cpuTimeMillis, cpuCycles, totalMajorFaults, totalTasksCount, ioBlockedTasksCount);
     for (const auto& [pid, processStats] : processStatsByPid) {
         StringAppendF(&buffer, "{pid: %" PRIi32 ", processStats: %s},", pid,
                       processStats.toString().c_str());
@@ -219,10 +319,23 @@ void UidProcStatsCollector::init() {
     std::string tidStatPath = StringPrintf((mPath + kTaskDirFormat + kStatFileFormat).c_str(),
                                            PID_FOR_INIT, PID_FOR_INIT);
     std::string pidStatusPath = StringPrintf((mPath + kStatusFileFormat).c_str(), PID_FOR_INIT);
+    std::string tidTimeInStatePath =
+            StringPrintf((mPath + kTaskDirFormat + kTimeInStateFormat).c_str(), PID_FOR_INIT,
+                         PID_FOR_INIT);
 
     Mutex::Autolock lock(mMutex);
     mEnabled = access(pidStatPath.c_str(), R_OK) == 0 && access(tidStatPath.c_str(), R_OK) == 0 &&
             access(pidStatusPath.c_str(), R_OK) == 0;
+
+    mTimeInStateEnabled = access(tidTimeInStatePath.c_str(), R_OK) == 0;
+    if (mTimeInStateEnabled) {
+        auto tidCpuCycles = readTimeInStateFile(tidTimeInStatePath);
+        mTimeInStateEnabled = tidCpuCycles.ok() && *tidCpuCycles > 0;
+    }
+    if (!mTimeInStateEnabled) {
+        ALOGW("Time in state files are not enabled. Missing time in state file at path: %s",
+              tidTimeInStatePath.c_str());
+    }
 }
 
 Result<void> UidProcStatsCollector::collect() {
@@ -237,35 +350,52 @@ Result<void> UidProcStatsCollector::collect() {
     }
 
     mDeltaStats.clear();
-    for (const auto& [uid, currStats] : *uidProcStatsByUid) {
+    for (const auto& [uid, currUidStats] : *uidProcStatsByUid) {
         if (const auto& it = mLatestStats.find(uid); it == mLatestStats.end()) {
-            mDeltaStats[uid] = currStats;
+            mDeltaStats[uid] = currUidStats;
             continue;
         }
-        const auto& prevStats = mLatestStats[uid];
-        UidProcStats deltaStats = {
-                .totalTasksCount = currStats.totalTasksCount,
-                .ioBlockedTasksCount = currStats.ioBlockedTasksCount,
+        const auto& prevUidStats = mLatestStats[uid];
+        UidProcStats deltaUidStats = {
+                .totalTasksCount = currUidStats.totalTasksCount,
+                .ioBlockedTasksCount = currUidStats.ioBlockedTasksCount,
         };
         // Generate the delta stats since the previous collection. Delta stats are generated by
-        // calculating the difference between the |prevStats| and the |currStats|.
-        for (const auto& [pid, processStats] : currStats.processStatsByPid) {
+        // calculating the difference between the |prevUidStats| and the |currUidStats|.
+        for (const auto& [pid, processStats] : currUidStats.processStatsByPid) {
             ProcessStats deltaProcessStats = processStats;
-            if (const auto& it = prevStats.processStatsByPid.find(pid);
-                it != prevStats.processStatsByPid.end() &&
+            if (const auto& it = prevUidStats.processStatsByPid.find(pid);
+                it != prevUidStats.processStatsByPid.end() &&
                 it->second.startTimeMillis == deltaProcessStats.startTimeMillis) {
-                if (it->second.cpuTimeMillis <= deltaProcessStats.cpuTimeMillis) {
-                    deltaProcessStats.cpuTimeMillis -= it->second.cpuTimeMillis;
+                auto prevProcessStats = it->second;
+                if (prevProcessStats.cpuTimeMillis <= deltaProcessStats.cpuTimeMillis) {
+                    deltaProcessStats.cpuTimeMillis -= prevProcessStats.cpuTimeMillis;
                 }
-                if (it->second.totalMajorFaults <= deltaProcessStats.totalMajorFaults) {
-                    deltaProcessStats.totalMajorFaults -= it->second.totalMajorFaults;
+                if (prevProcessStats.totalMajorFaults <= deltaProcessStats.totalMajorFaults) {
+                    deltaProcessStats.totalMajorFaults -= prevProcessStats.totalMajorFaults;
+                }
+                // Generate the process delta CPU cycles by iterating through the thread-level CPU
+                // cycles and calculating the sum of the deltas of each thread.
+                deltaProcessStats.totalCpuCycles = 0;
+                for (const auto& [tid, threadCpuCycles] : processStats.cpuCyclesByTid) {
+                    uint64_t deltaThreadCpuCycles = threadCpuCycles;
+                    if (const auto& cIt = prevProcessStats.cpuCyclesByTid.find(tid);
+                        cIt != prevProcessStats.cpuCyclesByTid.end() &&
+                        cIt->second <= deltaThreadCpuCycles) {
+                        deltaThreadCpuCycles -= cIt->second;
+                    }
+                    deltaProcessStats.cpuCyclesByTid[tid] = deltaThreadCpuCycles;
+                    deltaProcessStats.totalCpuCycles =
+                            addUint64(deltaProcessStats.totalCpuCycles, deltaThreadCpuCycles);
                 }
             }
-            deltaStats.cpuTimeMillis += deltaProcessStats.cpuTimeMillis;
-            deltaStats.totalMajorFaults += deltaProcessStats.totalMajorFaults;
-            deltaStats.processStatsByPid[pid] = deltaProcessStats;
+            deltaUidStats.cpuTimeMillis += deltaProcessStats.cpuTimeMillis;
+            deltaUidStats.cpuCycles =
+                    addUint64(deltaUidStats.cpuCycles, deltaProcessStats.totalCpuCycles);
+            deltaUidStats.totalMajorFaults += deltaProcessStats.totalMajorFaults;
+            deltaUidStats.processStatsByPid[pid] = deltaProcessStats;
         }
-        mDeltaStats[uid] = std::move(deltaStats);
+        mDeltaStats[uid] = std::move(deltaUidStats);
     }
     mLatestStats = std::move(*uidProcStatsByUid);
     return {};
@@ -303,6 +433,7 @@ Result<std::unordered_map<uid_t, UidProcStats>> UidProcStatsCollector::readUidPr
         }
         UidProcStats* uidProcStats = &uidProcStatsByUid[uid];
         uidProcStats->cpuTimeMillis += processStats.cpuTimeMillis;
+        uidProcStats->cpuCycles = addUint64(uidProcStats->cpuCycles, processStats.totalCpuCycles);
         uidProcStats->totalMajorFaults += processStats.totalMajorFaults;
         uidProcStats->totalTasksCount += processStats.totalTasksCount;
         uidProcStats->ioBlockedTasksCount += processStats.ioBlockedTasksCount;
@@ -354,12 +485,14 @@ Result<std::tuple<uid_t, ProcessStats>> UidProcStatsCollector::readProcessStatsL
             .comm = std::move(pidStat->comm),
             .startTimeMillis = pidStat->startTimeMillis,
             .cpuTimeMillis = pidStat->cpuTimeMillis,
+            .totalCpuCycles = 0,
             .totalTasksCount = 1,
             /* Top-level process stats has the aggregated major page faults count and this should be
              * persistent across thread creation/termination. Thus use the value from this field.
              */
             .totalMajorFaults = pidStat->majorFaults,
             .ioBlockedTasksCount = pidStat->state == "D" ? 1 : 0,
+            .cpuCyclesByTid = {},
     };
 
     // 3. Read per-thread stats.
@@ -369,24 +502,49 @@ Result<std::tuple<uid_t, ProcessStats>> UidProcStatsCollector::readProcessStatsL
     for (dirent* tidDir = nullptr;
          taskDirp != nullptr && (tidDir = readdir(taskDirp.get())) != nullptr;) {
         pid_t tid = 0;
-        if (tidDir->d_type != DT_DIR || !ParseInt(tidDir->d_name, &tid) || tid == pid) {
+        if (tidDir->d_type != DT_DIR || !ParseInt(tidDir->d_name, &tid)) {
             continue;
         }
 
-        path = StringPrintf((taskDir + kStatFileFormat).c_str(), tid);
-        auto tidStat = readPidStatFile(path, mMillisPerClockTick);
-        if (!tidStat.ok()) {
-            if (tidStat.error().code() != ERR_FILE_OPEN_READ) {
-                return Error() << "Failed to read per-thread stat file: "
-                               << tidStat.error().message().c_str();
+        if (tid != pid) {
+            path = StringPrintf((taskDir + kStatFileFormat).c_str(), tid);
+            auto tidStat = readPidStatFile(path, mMillisPerClockTick);
+            if (!tidStat.ok()) {
+                if (tidStat.error().code() != ERR_FILE_OPEN_READ) {
+                    return Error() << "Failed to read per-thread stat file: "
+                                   << tidStat.error().message().c_str();
+                }
+                /* Maybe the thread terminated before reading the file so skip this thread and
+                 * continue with scanning the next thread's stat.
+                 */
+                continue;
             }
-            /* Maybe the thread terminated before reading the file so skip this thread and
-             * continue with scanning the next thread's stat.
-             */
+
+            processStats.ioBlockedTasksCount += tidStat->state == "D" ? 1 : 0;
+            processStats.totalTasksCount += 1;
+        }
+
+        if (!mTimeInStateEnabled) {
             continue;
         }
-        processStats.ioBlockedTasksCount += tidStat->state == "D" ? 1 : 0;
-        processStats.totalTasksCount += 1;
+
+        path = StringPrintf((taskDir + kTimeInStateFormat).c_str(), tid);
+        auto tidCpuCycles = readTimeInStateFile(path);
+        if (!tidCpuCycles.ok() || *tidCpuCycles <= 0) {
+            if (!tidCpuCycles.ok() && tidCpuCycles.error().code() != ERR_FILE_OPEN_READ) {
+                return Error() << "Failed to read per-thread time_in_state file: "
+                               << tidCpuCycles.error().message().c_str();
+            }
+            // time_in_state file might not be supported by the Kernel (when the Kernel configs
+            // CPU_FREQ_STAT or CPU_FREQ_TIMES are not be enabled or the governor doesn't report the
+            // CPU transition states to the Kernel CPU frequency node). Or non-positive CPU cycles
+            // calculated. Or maybe the thread terminated before reading the file so skip this
+            // thread and continue with scanning the next thread's stat.
+            continue;
+        }
+
+        processStats.totalCpuCycles = addUint64(processStats.totalCpuCycles, *tidCpuCycles);
+        processStats.cpuCyclesByTid[tid] = *tidCpuCycles;
     }
     return std::make_tuple(uid, processStats);
 }

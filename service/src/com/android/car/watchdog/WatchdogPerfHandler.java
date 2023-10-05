@@ -39,6 +39,8 @@ import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
 import static android.os.Process.INVALID_UID;
 import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 
+import static com.android.car.CarServiceUtils.getContentResolverForUser;
+import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__KILL_REASON__KILLED_ON_IO_OVERUSE;
@@ -49,10 +51,9 @@ import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__UID_
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.util.Utils.getContentResolverForUser;
-import static com.android.car.watchdog.CarWatchdogService.ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
-import static com.android.car.watchdog.CarWatchdogService.ACTION_LAUNCH_APP_SETTINGS;
-import static com.android.car.watchdog.CarWatchdogService.ACTION_RESOURCE_OVERUSE_DISABLE_APP;
+import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
+import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
+import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP;
 import static com.android.car.watchdog.CarWatchdogService.DEBUG;
 import static com.android.car.watchdog.CarWatchdogService.TAG;
 import static com.android.car.watchdog.PackageInfoHandler.SHARED_PACKAGE_PREFIX;
@@ -121,7 +122,6 @@ import android.view.Display;
 
 import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarLocalServices;
-import com.android.car.CarServiceUtils;
 import com.android.car.CarStatsLog;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
@@ -142,6 +142,7 @@ import java.io.OutputStreamWriter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -226,6 +227,7 @@ public final class WatchdogPerfHandler {
     private final OveruseConfigurationCache mOveruseConfigurationCache;
     private final int mUidIoUsageSummaryTopCount;
     private final int mIoUsageSummaryMinSystemTotalWrittenBytes;
+    private final int mPackageKillableStateResetDays;
     private final int mRecurringOverusePeriodInDays;
     private final int mRecurringOveruseTimes;
     private final int mResourceOveruseNotificationBaseId;
@@ -249,6 +251,10 @@ public final class WatchdogPerfHandler {
      * When cache is updated, call {@link WatchdogStorage#markDirty} to notify database is out of
      * sync.
      */
+    // TODO(b/235615155): Update database when a default not killable package is set to killable
+    //  Also, changes to mDefaultNotKillableGenericPackages should be tracked by the last modified
+    //  date. This date should be copied to any new user package settings that take the default
+    //  value. When this date is beyond reset days, the settings here should be reset.
     @GuardedBy("mLock")
     private final ArraySet<String> mDefaultNotKillableGenericPackages = new ArraySet<>();
     /** Keys in {@link mUsageByUserPackage} for user notification on resource overuse. */
@@ -314,17 +320,19 @@ public final class WatchdogPerfHandler {
         mCarWatchdogDaemonHelper = daemonHelper;
         mPackageInfoHandler = packageInfoHandler;
         mMainHandler = new Handler(Looper.getMainLooper());
-        mServiceHandler = new Handler(CarServiceUtils.getHandlerThread(
+        mServiceHandler = new Handler(getHandlerThread(
                 CarWatchdogService.class.getSimpleName()).getLooper());
         mWatchdogStorage = watchdogStorage;
         mOveruseConfigurationCache = new OveruseConfigurationCache();
         mTimeSource = timeSource;
         Resources resources = mContext.getResources();
         mUidIoUsageSummaryTopCount = resources.getInteger(R.integer.uidIoUsageSummaryTopCount);
-        mIoUsageSummaryMinSystemTotalWrittenBytes = resources
-                .getInteger(R.integer.ioUsageSummaryMinSystemTotalWrittenBytes);
-        mRecurringOverusePeriodInDays = resources
-                .getInteger(R.integer.recurringResourceOverusePeriodInDays);
+        mIoUsageSummaryMinSystemTotalWrittenBytes =
+                resources.getInteger(R.integer.ioUsageSummaryMinSystemTotalWrittenBytes);
+        mPackageKillableStateResetDays =
+                resources.getInteger(R.integer.watchdogUserPackageSettingsResetDays);
+        mRecurringOverusePeriodInDays =
+                resources.getInteger(R.integer.recurringResourceOverusePeriodInDays);
         mRecurringOveruseTimes = resources.getInteger(R.integer.recurringResourceOveruseTimes);
         mResourceOveruseNotificationBaseId =
                 NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
@@ -609,7 +617,7 @@ public final class WatchdogPerfHandler {
                 usage = new PackageResourceUsage(userId, genericPackageName,
                         getDefaultKillableStateLocked(genericPackageName));
             }
-            if (!usage.verifyAndSetKillableState(isKillable)) {
+            if (!usage.verifyAndSetKillableState(isKillable, mTimeSource.getCurrentDate())) {
                 Slogf.e(TAG, "User %d cannot set killable state for package '%s'",
                         userHandle.getIdentifier(), genericPackageName);
                 throw new IllegalArgumentException("Package killable state is not updatable");
@@ -643,7 +651,7 @@ public final class WatchdogPerfHandler {
                 if (usage == null) {
                     continue;
                 }
-                if (!usage.verifyAndSetKillableState(isKillable)) {
+                if (!usage.verifyAndSetKillableState(isKillable, mTimeSource.getCurrentDate())) {
                     Slogf.e(TAG, "Cannot set killable state for package '%s'", packageName);
                     throw new IllegalArgumentException(
                             "Package killable state is not updatable");
@@ -890,32 +898,50 @@ public final class WatchdogPerfHandler {
 
     /** Resets the resource overuse settings and stats for the given generic package names. */
     public void resetResourceOveruseStats(Set<String> genericPackageNames) {
-        synchronized (mLock) {
-            mIsHeadsUpNotificationSent = false;
-            for (int i = 0; i < mUsageByUserPackage.size(); ++i) {
-                PackageResourceUsage usage = mUsageByUserPackage.valueAt(i);
-                if (!genericPackageNames.contains(usage.genericPackageName)) {
-                    continue;
+        mServiceHandler.post(() -> {
+            synchronized (mLock) {
+                mIsHeadsUpNotificationSent = false;
+                for (int i = 0; i < mUsageByUserPackage.size(); ++i) {
+                    PackageResourceUsage usage = mUsageByUserPackage.valueAt(i);
+                    if (!genericPackageNames.contains(usage.genericPackageName)) {
+                        continue;
+                    }
+                    usage.resetStats();
+                    usage.verifyAndSetKillableState(/* isKillable= */ true,
+                            mTimeSource.getCurrentDate());
+                    mWatchdogStorage.deleteUserPackage(usage.userId, usage.genericPackageName);
+                    mActionableUserPackages.remove(usage.getUniqueId());
+                    Slogf.i(TAG,
+                            "Reset resource overuse settings and stats for user '%d' package '%s'",
+                            usage.userId, usage.genericPackageName);
+                    if (usage.isSharedPackage() && usage.getUid() == INVALID_UID) {
+                        // Only enable packages that were disabled by the watchdog service. Ergo, if
+                        // the usage doesn't have a valid UID, the package was not recently disabled
+                        // by the watchdog service (unless the service crashed) and can be safely
+                        // skipped.
+                        Slogf.e(TAG, "Skipping enabling user %d's package %s", usage.userId,
+                                usage.genericPackageName);
+                        continue;
+                    }
+                    enablePackageForUser(usage.getUid(), usage.genericPackageName);
                 }
-                usage.resetStats();
-                usage.verifyAndSetKillableState(/* isKillable= */ true);
-                mWatchdogStorage.deleteUserPackage(usage.userId, usage.genericPackageName);
-                mActionableUserPackages.remove(usage.getUniqueId());
-                Slogf.i(TAG,
-                        "Reset resource overuse settings and stats for user '%d' package '%s'",
-                        usage.userId, usage.genericPackageName);
-                if (usage.isSharedPackage() && usage.getUid() == INVALID_UID) {
-                    // Only enable packages that were disabled by the watchdog service. Ergo, if
-                    // the usage doesn't have a valid UID, the package was not recently disabled
-                    // by the watchdog service (unless the service crashed) and can be safely
-                    // skipped.
-                    Slogf.e(TAG, "Skipping enabling user %d's package %s", usage.userId,
-                            usage.genericPackageName);
-                    continue;
-                }
-                enablePackageForUser(usage.getUid(), usage.genericPackageName);
             }
-        }
+        });
+    }
+
+    /**
+     * Asynchronously fetches today's I/O usage stats for all packages collected during the
+     * previous boot and sends them to the CarWatchdog daemon.
+     */
+    public void asyncFetchTodayIoUsageStats() {
+        mServiceHandler.post(() -> {
+            List<UserPackageIoUsageStats> todayIoUsageStats = getTodayIoUsageStats();
+            try {
+                mCarWatchdogDaemonHelper.onTodayIoUsageStatsFetched(todayIoUsageStats);
+            } catch (RemoteException e) {
+                Slogf.w(TAG, e, "Failed to send today's I/O usage stats to daemon.");
+            }
+        });
     }
 
     /** Returns today's I/O usage stats for all packages collected during the previous boot. */
@@ -966,7 +992,7 @@ public final class WatchdogPerfHandler {
             return;
         }
         switch (action) {
-            case ACTION_RESOURCE_OVERUSE_DISABLE_APP:
+            case CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP:
                 disablePackageForUser(packageName, userHandle.getIdentifier());
                 if (DEBUG) {
                     Slogf.d(TAG,
@@ -974,7 +1000,7 @@ public final class WatchdogPerfHandler {
                             packageName, userHandle);
                 }
                 break;
-            case ACTION_LAUNCH_APP_SETTINGS:
+            case CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS:
                 Intent settingsIntent = new Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
                         .setData(Uri.parse("package:" + packageName))
                         .setFlags(FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_NEW_TASK);
@@ -984,7 +1010,7 @@ public final class WatchdogPerfHandler {
                             + "package %s and user %s", packageName, userHandle);
                 }
                 break;
-            case ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION:
+            case CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION:
                 break;
             default:
                 Slogf.e(TAG, "Skipping invalid user notification intent action: %s", action);
@@ -1186,11 +1212,13 @@ public final class WatchdogPerfHandler {
         // call to database and caching of the date, future calls to |latestIoOveruseStats| will
         // catch the change and sync the database with the in-memory cache.
         ZonedDateTime curReportDate = mTimeSource.getCurrentDate();
+        Instant killableStateResetDate =
+                curReportDate.minusDays(mPackageKillableStateResetDays).toInstant();
         List<WatchdogStorage.IoUsageStatsEntry> ioStatsEntries =
                 mWatchdogStorage.getTodayIoUsageStats();
         Slogf.i(TAG, "Read %d I/O usage stats from database", ioStatsEntries.size());
         synchronized (mLock) {
-            for (int i = 0; i < settingsEntries.size(); ++i) {
+            for (int i = 0; i < settingsEntries.size(); i++) {
                 WatchdogStorage.UserPackageSettingsEntry entry = settingsEntries.get(i);
                 if (entry.userId == UserHandle.ALL.getIdentifier()) {
                     if (entry.killableState != KILLABLE_STATE_YES) {
@@ -1204,7 +1232,19 @@ public final class WatchdogPerfHandler {
                     usage = new PackageResourceUsage(entry.userId, entry.packageName,
                             getDefaultKillableStateLocked(entry.packageName));
                 }
-                usage.setKillableState(entry.killableState);
+                int killableState = entry.killableState;
+                Instant lastModifiedDate =
+                        Instant.ofEpochSecond(entry.killableStateLastModifiedEpochSeconds);
+                ZonedDateTime usageModifiedDate = lastModifiedDate.atZone(ZONE_OFFSET);
+                if (killableState == KILLABLE_STATE_NO
+                        && lastModifiedDate.compareTo(killableStateResetDate) <= 0) {
+                    killableState = KILLABLE_STATE_YES;
+                    usageModifiedDate = curReportDate;
+                    mWatchdogStorage.markDirty();
+                    Slogf.i(TAG, "Reset killable state for package %s for user %d",
+                            entry.packageName, entry.userId);
+                }
+                usage.setKillableState(killableState, usageModifiedDate);
                 mUsageByUserPackage.put(key, usage);
             }
             for (int i = 0; i < ioStatsEntries.size(); ++i) {
@@ -1265,7 +1305,8 @@ public final class WatchdogPerfHandler {
                 for (int i = 0; i < mUsageByUserPackage.size(); i++) {
                     PackageResourceUsage usage = mUsageByUserPackage.valueAt(i);
                     userPackageSettingsEntries.add(new WatchdogStorage.UserPackageSettingsEntry(
-                            usage.userId, usage.genericPackageName, usage.getKillableState()));
+                            usage.userId, usage.genericPackageName, usage.getKillableState(),
+                            usage.getKillableStateLastModifiedDate().toEpochSecond()));
                     if (!usage.ioUsage.hasUsage()) {
                         continue;
                     }
@@ -1281,8 +1322,13 @@ public final class WatchdogPerfHandler {
                             usage.genericPackageName, usage.ioUsage));
                 }
                 for (String packageName : mDefaultNotKillableGenericPackages) {
+                    // TODO(b/235615155): Update database when a default not killable package is
+                    //  set to killable. Also, changes to mDefaultNotKillableGenericPackages should
+                    //  be tracked by the last modified date and the date should be written to the
+                    //  database.
                     userPackageSettingsEntries.add(new WatchdogStorage.UserPackageSettingsEntry(
-                            UserHandle.ALL.getIdentifier(), packageName, KILLABLE_STATE_NO));
+                            UserHandle.ALL.getIdentifier(), packageName, KILLABLE_STATE_NO,
+                            mTimeSource.getCurrentDate().toEpochSecond()));
                 }
             }
             boolean userPackageSettingResult =
@@ -1363,6 +1409,26 @@ public final class WatchdogPerfHandler {
     }
 
     @GuardedBy("mLock")
+    private void checkAndResetUserPackageKillableStatesLocked() {
+        ZonedDateTime currentDate = mTimeSource.getCurrentDate();
+        Instant killableStateResetDate =
+                currentDate.minusDays(mPackageKillableStateResetDays).toInstant();
+        for (int i = 0; i < mUsageByUserPackage.size(); i++) {
+            PackageResourceUsage usage = mUsageByUserPackage.valueAt(i);
+            Instant lastModifiedDate =
+                    usage.getKillableStateLastModifiedDate().toInstant();
+            if (usage.getKillableState() != KILLABLE_STATE_NO
+                    || lastModifiedDate.compareTo(killableStateResetDate) > 0) {
+                continue;
+            }
+            usage.verifyAndSetKillableState(/* isKillable= */ true, currentDate);
+            mWatchdogStorage.markDirty();
+            Slogf.i(TAG, "Reset killable state for package %s for user %d",
+                    usage.genericPackageName, usage.userId);
+        }
+    }
+
+    @GuardedBy("mLock")
     private void notifyResourceOveruseStatsLocked(int uid,
             ResourceOveruseStats resourceOveruseStats) {
         String genericPackageName = resourceOveruseStats.getPackageName();
@@ -1393,6 +1459,7 @@ public final class WatchdogPerfHandler {
                 return;
             }
             mLatestStatsReportDate = currentDate;
+            checkAndResetUserPackageKillableStatesLocked();
         }
         writeToDatabase();
         synchronized (mLock) {
@@ -2518,7 +2585,7 @@ public final class WatchdogPerfHandler {
     private static void checkResourceOveruseConfig(ResourceOveruseConfiguration config,
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag) {
         int componentType = config.getComponentType();
-        if (toComponentTypeStr(componentType).equals("UNKNOWN")) {
+        if (Objects.equals(toComponentTypeStr(componentType), "UNKNOWN")) {
             throw new IllegalArgumentException(
                     "Invalid component type in the configuration: " + componentType);
         }
@@ -2660,6 +2727,7 @@ public final class WatchdogPerfHandler {
         public @UserIdInt final int userId;
         public final PackageIoUsage ioUsage = new PackageIoUsage();
         private @KillableState int mKillableState;
+        public ZonedDateTime mKillableStateLastModifiedDate;
         private int mUid;
 
         /** Must be called only after acquiring {@link mLock} */
@@ -2668,6 +2736,7 @@ public final class WatchdogPerfHandler {
             this.genericPackageName = genericPackageName;
             this.userId = userId;
             this.mKillableState = defaultKillableState;
+            this.mKillableStateLastModifiedDate = mTimeSource.getCurrentDate();
             this.mUid = INVALID_UID;
         }
 
@@ -2723,15 +2792,17 @@ public final class WatchdogPerfHandler {
             return mKillableState;
         }
 
-        public void setKillableState(@KillableState int killableState) {
+        public void setKillableState(@KillableState int killableState, ZonedDateTime modifiedDate) {
             mKillableState = killableState;
+            mKillableStateLastModifiedDate = modifiedDate;
         }
 
-        public boolean verifyAndSetKillableState(boolean isKillable) {
+        public boolean verifyAndSetKillableState(boolean isKillable, ZonedDateTime modifiedDate) {
             if (mKillableState == KILLABLE_STATE_NEVER) {
                 return false;
             }
             mKillableState = isKillable ? KILLABLE_STATE_YES : KILLABLE_STATE_NO;
+            mKillableStateLastModifiedDate = modifiedDate;
             return true;
         }
 
@@ -2750,6 +2821,10 @@ public final class WatchdogPerfHandler {
                 mKillableState = defaultKillableState;
             }
             return mKillableState;
+        }
+
+        public ZonedDateTime getKillableStateLastModifiedDate() {
+            return mKillableStateLastModifiedDate;
         }
 
         public void resetStats() {

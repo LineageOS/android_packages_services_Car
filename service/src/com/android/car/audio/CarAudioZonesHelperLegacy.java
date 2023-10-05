@@ -57,6 +57,8 @@ class CarAudioZonesHelperLegacy {
     private static final String TAG_GROUP = "group";
     private static final String TAG_CONTEXT = "context";
 
+    private static final int ZONE_CONFIG_ID = 0;
+
     private static final int NO_BUS_FOR_CONTEXT = -1;
 
     private final Context mContext;
@@ -146,11 +148,16 @@ class CarAudioZonesHelperLegacy {
     }
 
     SparseArray<CarAudioZone> loadAudioZones() {
-        CarAudioZone zone = new CarAudioZone(mCarAudioContext, "Primary zone",
-                PRIMARY_AUDIO_ZONE);
-        for (CarVolumeGroup volumeGroup : loadVolumeGroups()) {
-            zone.addVolumeGroup(volumeGroup);
+        String zoneName = "Primary zone";
+        CarAudioZoneConfig.Builder zoneConfigBuilder = new CarAudioZoneConfig.Builder(zoneName,
+                PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, /* isDefault= */ true);
+        List<CarVolumeGroup> volumeGroups = loadVolumeGroups();
+        for (int index = 0; index < volumeGroups.size(); index++) {
+            zoneConfigBuilder.addVolumeGroup(volumeGroups.get(index));
         }
+        CarAudioZone zone = new CarAudioZone(mCarAudioContext, zoneName, PRIMARY_AUDIO_ZONE);
+        zone.addZoneConfig(zoneConfigBuilder.build());
+
         SparseArray<CarAudioZone> carAudioZones = new SparseArray<>();
         addMicrophonesToPrimaryZone(zone);
         carAudioZones.put(PRIMARY_AUDIO_ZONE, zone);
@@ -196,27 +203,28 @@ class CarAudioZonesHelperLegacy {
 
     private CarVolumeGroup parseVolumeGroup(int id, AttributeSet attrs,
             XmlResourceParser parser) throws XmlPullParserException, IOException {
-        CarVolumeGroup.Builder builder =
-                new CarVolumeGroup.Builder(mCarAudioSettings, mCarAudioContext,
-                PRIMARY_AUDIO_ZONE, id, /* useCarVolumeGroupMute= */ false);
+        CarVolumeGroupFactory groupFactory =
+                new CarVolumeGroupFactory(/* audioManager= */ null, mCarAudioSettings,
+                        mCarAudioContext, PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, id,
+                        String.valueOf(id), /* useCarVolumeGroupMute= */ false);
 
         List<Integer> audioContexts = parseAudioContexts(parser, attrs);
 
         for (int i = 0; i < audioContexts.size(); i++) {
-            bindContextToBuilder(builder, audioContexts.get(i));
+            bindContextToBuilder(groupFactory, audioContexts.get(i));
         }
 
-        return builder.build();
+        return groupFactory.getCarVolumeGroup(/* useCoreAudioVolume= */ false);
     }
 
-    private void bindContextToBuilder(CarVolumeGroup.Builder groupBuilder, int legacyAudioContext) {
+    private void bindContextToBuilder(CarVolumeGroupFactory groupFactory, int legacyAudioContext) {
         int busNumber = mLegacyAudioContextToBus.get(legacyAudioContext);
         CarAudioDeviceInfo info = mBusToCarAudioDeviceInfo.get(busNumber);
-        groupBuilder.setDeviceInfoForContext(legacyAudioContext, info);
+        groupFactory.setDeviceInfoForContext(legacyAudioContext, info);
 
         if (legacyAudioContext == mCarAudioContext
                 .getContextForAudioAttribute(CAR_DEFAULT_AUDIO_ATTRIBUTE)) {
-            CarAudioZonesHelper.setNonLegacyContexts(groupBuilder, info);
+            groupFactory.setNonLegacyContexts(info);
         }
     }
 

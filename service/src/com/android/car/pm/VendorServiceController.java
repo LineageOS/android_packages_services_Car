@@ -16,19 +16,25 @@
 
 package com.android.car.pm;
 
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE;
 import static android.content.Context.BIND_AUTO_CREATE;
 import static android.os.Process.INVALID_UID;
 
 import static com.android.car.CarLog.TAG_AM;
-import static com.android.car.util.Utils.isEventAnyOfTypes;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.Nullable;
+import android.annotation.SuppressLint;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.builtin.util.Slogf;
+import android.car.hardware.power.CarPowerManager;
+import android.car.hardware.power.ICarPowerStateListener;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserLifecycleEventFilter;
@@ -52,13 +58,19 @@ import android.util.Log;
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.R;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
@@ -79,13 +91,13 @@ final class VendorServiceController implements UserLifecycleListener {
     private static final String PACKAGE_DATA_SCHEME = "package";
 
     private final List<VendorServiceInfo> mVendorServiceInfos = new ArrayList<>();
-    // TODO(b/240607225): Synchronize access to mConnections. It can lead to unexpected behavior.
     private final Map<ConnectionKey, VendorServiceConnection> mConnections =
             new ConcurrentHashMap<>();
     private final Context mContext;
     private final UserManager mUserManager;
     private final Handler mHandler;
     private CarUserService mCarUserService;
+    private CarPowerManagementService mPowerManagementService;
 
     private final BroadcastReceiver mPackageChangeReceiver = new BroadcastReceiver() {
         @Override
@@ -114,7 +126,7 @@ final class VendorServiceController implements UserLifecycleListener {
                 case Intent.ACTION_PACKAGE_REPLACED:
                     // Fall through
                 case Intent.ACTION_PACKAGE_ADDED:
-                    tryToRebindConnectionsForUser(userId);
+                    startOrBindServiceForPackage(packageName, userId);
                     break;
                 case Intent.ACTION_PACKAGE_REMOVED:
                     stopOrUnbindService(packageName, userId);
@@ -125,6 +137,20 @@ final class VendorServiceController implements UserLifecycleListener {
             }
         }
     };
+
+    private final ICarPowerStateListener mCarPowerStateListener =
+            new ICarPowerStateListener.Stub() {
+                @Override
+                public void onStateChanged(int state, long expirationTimeMs) {
+                    if (DBG) {
+                        Slogf.d(TAG, "Power state change received. State = %d", state);
+                    }
+                    if (state == CarPowerManager.STATE_HIBERNATION_EXIT
+                            || state == CarPowerManager.STATE_SUSPEND_EXIT) {
+                        onPowerResumed();
+                    }
+                }
+            };
 
     VendorServiceController(Context context, Looper looper) {
         mContext = context;
@@ -137,15 +163,19 @@ final class VendorServiceController implements UserLifecycleListener {
             return;  // Nothing to do
         }
 
+        mPowerManagementService = CarLocalServices.getService(CarPowerManagementService.class);
         mCarUserService = CarLocalServices.getService(CarUserService.class);
-        UserLifecycleEventFilter userSwitchingOrUnlockingEventFilter =
+        UserLifecycleEventFilter userLifecycleEventFilter =
                 new UserLifecycleEventFilter.Builder()
                         .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
                         .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_VISIBLE)
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_INVISIBLE)
                         .addEventType(USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED).build();
-        mCarUserService.addUserLifecycleListener(userSwitchingOrUnlockingEventFilter, this);
+        mCarUserService.addUserLifecycleListener(userLifecycleEventFilter, this);
 
         startOrBindServicesIfNeeded();
+        mPowerManagementService.registerListener(mCarPowerStateListener);
         registerPackageChangeReceiver();
     }
 
@@ -159,6 +189,7 @@ final class VendorServiceController implements UserLifecycleListener {
             mCarUserService.removeUserLifecycleListener(this);
         }
         unregisterPackageChangeReceiver();
+        mPowerManagementService.unregisterListener(mCarPowerStateListener);
         for (ConnectionKey key : mConnections.keySet()) {
             stopOrUnbindService(key.mVendorServiceInfo, key.mUserHandle);
         }
@@ -166,17 +197,43 @@ final class VendorServiceController implements UserLifecycleListener {
         mConnections.clear();
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dump(IndentingPrintWriter writer) {
+        writer.println("VendorServiceController:");
+
+        writer.increaseIndent();
+        writer.printf("DBG=%b\n", DBG);
+
+        writer.println("VendorServiceInfo:");
+        writer.increaseIndent();
+        for (VendorServiceInfo info : mVendorServiceInfos) {
+            writer.println(info.toString());
+        }
+        writer.decreaseIndent(); // end of VendorServiceInfo:
+
+        writer.println("Connections:");
+        writer.increaseIndent();
+        for (VendorServiceConnection connection : mConnections.values()) {
+            connection.dump(writer);
+        }
+        writer.decreaseIndent(); // end of Connections:
+
+        writer.decreaseIndent(); // end of VendorServiceController:
+    }
+
     @Override
     public void onEvent(UserLifecycleEvent event) {
-        if (!isEventAnyOfTypes(TAG, event, USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
-                USER_LIFECYCLE_EVENT_TYPE_UNLOCKED, USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED)) {
-            return;
-        }
         if (DBG) {
             Slogf.d(TAG, "onEvent(" + event + ")");
         }
         int userId = event.getUserId();
         switch (event.getEventType()) {
+            case USER_LIFECYCLE_EVENT_TYPE_VISIBLE:
+                mHandler.post(() -> handleOnUserVisible(userId));
+                break;
+            case USER_LIFECYCLE_EVENT_TYPE_INVISIBLE:
+                mHandler.post(() -> handleOnUserInvisible(userId));
+                break;
             case USER_LIFECYCLE_EVENT_TYPE_SWITCHING:
                 mHandler.post(() -> handleOnUserSwitching(userId));
                 break;
@@ -189,6 +246,25 @@ final class VendorServiceController implements UserLifecycleListener {
             default:
                 // Shouldn't happen as listener was registered with filter
                 Slogf.wtf(TAG, "Invalid event: %s", event);
+        }
+    }
+
+    /** Handles power resume events, starting services with `trigger=resume`. */
+    private void onPowerResumed() {
+        if (DBG) {
+            Slogf.d(TAG, "onPowerResumed()");
+        }
+
+        int size = mVendorServiceInfos.size();
+        for (int i = 0; i < size; i++) {
+            VendorServiceInfo serviceInfo = mVendorServiceInfos.get(i);
+            // RESUME events handle the system user only. Current or visible users are handled by
+            // user lifecycle events (unlock, visible, etc).
+            boolean isForSystemOrAllUsers = serviceInfo.isSystemUserService();
+            boolean isResumeTrigger = serviceInfo.shouldStartOnResume();
+            if (isForSystemOrAllUsers && isResumeTrigger) {
+                startOrBindService(serviceInfo, UserHandle.SYSTEM);
+            }
         }
     }
 
@@ -208,29 +284,53 @@ final class VendorServiceController implements UserLifecycleListener {
         mContext.unregisterReceiver(mPackageChangeReceiver);
     }
 
-    private void tryToRebindConnectionsForUser(@UserIdInt int userId) {
-        for (VendorServiceConnection connection : mConnections.values()) {
-            if (connection.isUser(userId)) {
-                Slogf.d(TAG, "Trying to rebind connection to %s",
-                        connection.mVendorServiceInfo);
-                connection.tryToRebind();
+    private void startOrBindServiceForPackage(String packageName, @UserIdInt int userId) {
+        if (DBG) {
+            Slogf.d(TAG, "startOrBindServiceForPackage() for package=%s, userId=%d",
+                    packageName, userId);
+        }
+
+        int currentUserId = ActivityManager.getCurrentUser();
+        int size = mVendorServiceInfos.size();
+        for (int i = 0; i < size; i++) {
+            VendorServiceInfo serviceInfo = mVendorServiceInfos.get(i);
+            // Start or bind the service when the package name matches and the user is in scope.
+            if (packageName.equals(serviceInfo.getIntent().getComponent().getPackageName())
+                    && isUserInScope(userId, serviceInfo, mCarUserService, currentUserId)) {
+                startOrBindService(serviceInfo, UserHandle.of(userId));
             }
         }
     }
 
+    /** Checks if the given {@code serviceInfo} satisfies the user scope. */
+    private static boolean isUserInScope(@UserIdInt int userId, VendorServiceInfo serviceInfo,
+            CarUserService carUserService, @UserIdInt int currentUserId) {
+        boolean isSystemUser = userId == UserHandle.SYSTEM.getIdentifier();
+        boolean isCurrentUser = userId == currentUserId;
+
+        return (isSystemUser && serviceInfo.isSystemUserService())
+            || (isCurrentUser && serviceInfo.isForegroundUserService())
+            || ((serviceInfo.isVisibleUserService()
+                    || (!isCurrentUser && serviceInfo.isBackgroundVisibleUserService()))
+                && carUserService.isUserVisible(userId));
+    }
+
     private void handleOnUserSwitching(@UserIdInt int userId) {
-        // Stop all services which do not run under foreground or system user.
-        int fgUser = ActivityManager.getCurrentUser();
-        if (fgUser != userId) {
+        // The user switch notification is obsolete if userId is different from the current
+        // foreground user. Ignore it.
+        int currentUserId = ActivityManager.getCurrentUser();
+        if (currentUserId != userId) {
             Slogf.w(TAG, "Received userSwitch event for user " + userId
-                    + " while current foreground user is " + fgUser + "."
+                    + " while current foreground user is " + currentUserId + "."
                     + " Ignore the switch user event.");
             return;
         }
 
+        // Clean up the services which do not satisfy their configured user scope.
         for (VendorServiceConnection connection : mConnections.values()) {
             int connectedUserId = connection.mUser.getIdentifier();
-            if (connectedUserId != UserHandle.SYSTEM.getIdentifier() && connectedUserId != userId) {
+            if (!isUserInScope(connectedUserId, connection.mVendorServiceInfo, mCarUserService,
+                    currentUserId)) {
                 connection.stopOrUnbindService();
             }
         }
@@ -242,26 +342,50 @@ final class VendorServiceController implements UserLifecycleListener {
         }
     }
 
-    private void handleOnUserUnlocked(@UserIdInt int userId, boolean forPostUnlock) {
-        int currentUserId = ActivityManager.getCurrentUser();
-
+    private void handleOnUserInvisible(@UserIdInt int userId) {
         if (DBG) {
-            Slogf.i(TAG, "handleOnUserUnlocked(): user=%d, currentUser=%d", userId, currentUserId);
+            Slogf.d(TAG, "handleOnUserInvisible(): user=%d", userId);
         }
-        if ((userId == currentUserId || userId == UserHandle.SYSTEM.getIdentifier())) {
-            startOrBindServicesForUser(UserHandle.of(userId), forPostUnlock);
+
+        for (VendorServiceConnection connection : mConnections.values()) {
+            VendorServiceInfo serviceInfo = connection.mVendorServiceInfo;
+            if (connection.isUser(userId)
+                    && (serviceInfo.isVisibleUserService()
+                            || serviceInfo.isBackgroundVisibleUserService())
+                    && !serviceInfo.isAllUserService()) {
+                connection.stopOrUnbindService();
+            }
         }
+    }
+
+    private void handleOnUserVisible(@UserIdInt int userId) {
+        if (DBG) {
+            Slogf.d(TAG, "handleOnUserVisible(): user=%d", userId);
+        }
+
+        startOrBindServicesForUser(UserHandle.of(userId), /* forPostUnlock= */ null);
+    }
+
+    private void handleOnUserUnlocked(@UserIdInt int userId, boolean forPostUnlock) {
+        if (DBG) {
+            Slogf.d(TAG, "handleOnUserUnlocked(): user=%d", userId);
+        }
+
+        startOrBindServicesForUser(UserHandle.of(userId), forPostUnlock);
     }
 
     private void startOrBindServicesForUser(UserHandle user, @Nullable Boolean forPostUnlock) {
         boolean unlocked = mUserManager.isUserUnlockingOrUnlocked(user);
-        boolean systemUser = UserHandle.SYSTEM.equals(user);
+        int currentUserId = ActivityManager.getCurrentUser();
+        int userId = user.getIdentifier();
         for (VendorServiceInfo service: mVendorServiceInfos) {
-            if (forPostUnlock != null && service.shouldStartOnPostUnlock() != forPostUnlock) {
+            if (forPostUnlock != null
+                    && service.shouldStartOnPostUnlock() != forPostUnlock.booleanValue()) {
                 continue;
             }
-            boolean userScopeChecked = (!systemUser && service.isForegroundUserService())
-                    || (systemUser && service.isSystemUserService());
+
+            boolean userScopeChecked = isUserInScope(userId, service, mCarUserService,
+                    currentUserId);
             boolean triggerChecked = service.shouldStartAsap() || unlocked;
 
             if (userScopeChecked && triggerChecked) {
@@ -270,11 +394,22 @@ final class VendorServiceController implements UserLifecycleListener {
         }
     }
 
+    @SuppressLint("NewApi")
     private void startOrBindServicesIfNeeded() {
-        int userId = ActivityManager.getCurrentUser();
+        // Start/bind service for system user.
         startOrBindServicesForUser(UserHandle.SYSTEM, /* forPostUnlock= */ null);
-        if (userId > 0) {
-            startOrBindServicesForUser(UserHandle.of(userId), /* forPostUnlock= */ null);
+
+        if (!isPlatformVersionAtLeastU()) {
+            // `user=visible` is not supported before U. Just need to handle the current user.
+            startOrBindServicesForUser(UserHandle.of(ActivityManager.getCurrentUser()),
+                    /* forPostUnlock= */ null);
+        } else {
+            // Start/bind service for all visible users.
+            Set<UserHandle> visibleUsers = mUserManager.getVisibleUsers();
+            for (Iterator<UserHandle> iterator = visibleUsers.iterator(); iterator.hasNext(); ) {
+                UserHandle userHandle = iterator.next();
+                startOrBindServicesForUser(userHandle, /* forPostUnlock= */ null);
+            }
         }
     }
 
@@ -330,6 +465,15 @@ final class VendorServiceController implements UserLifecycleListener {
                 continue;
             }
             VendorServiceInfo service = VendorServiceInfo.parse(rawServiceInfo);
+            // `user=visible` and `user=backgroundVisible` are not supported before U.
+            // Log an error and ignore the service.
+            if ((service.isVisibleUserService() || service.isBackgroundVisibleUserService())
+                    && !service.isAllUserService() && !isPlatformVersionAtLeastU()) {
+                Slogf.e(TAG, "user=visible and user=backgroundVisible are not supported in "
+                        + "this platform version. %s is ignored. Check your config.xml file.",
+                        service.toShortString());
+                continue;
+            }
             mVendorServiceInfos.add(service);
             if (DBG) {
                 Slogf.i(TAG, "Registered vendor service: " + service);
@@ -358,6 +502,7 @@ final class VendorServiceController implements UserLifecycleListener {
         private boolean mStopRequested = false;
         private final VendorServiceInfo mVendorServiceInfo;
         private final UserHandle mUser;
+        private final CarUserService mCarUserService;
         private final Context mUserContext;
         private final Handler mHandler;
         private final Handler mFailureHandler;
@@ -368,6 +513,7 @@ final class VendorServiceController implements UserLifecycleListener {
             mVendorServiceInfo = vendorServiceInfo;
             mUser = user;
             mUserContext = context.createContextAsUser(mUser, /* flags= */ 0);
+            mCarUserService = CarLocalServices.getService(CarUserService.class);
 
             mFailureHandler = new Handler(handler.getLooper()) {
                 @Override
@@ -377,15 +523,16 @@ final class VendorServiceController implements UserLifecycleListener {
             };
         }
 
-        @VisibleForTesting
-        public boolean isPendingRebind() {
-            return mFailureHandler.hasMessages(MSG_REBIND);
-        }
-
         @Override
         public String toString() {
             return "VendorServiceConnection[user=" + mUser
                     + ", service=" + mVendorServiceInfo + "]";
+        }
+
+        @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+        public void dump(PrintWriter writer) {
+            writer.printf("%s, mRecentFailures=%d, mBound=%b, mStarted=%b, mStopRequested=%b\n",
+                    toString(), mRecentFailures, mBound, mStarted, mStopRequested);
         }
 
         private boolean isUser(@UserIdInt int userId) {
@@ -477,14 +624,15 @@ final class VendorServiceController implements UserLifecycleListener {
                 return;
             }
 
-            if (UserHandle.of(ActivityManager.getCurrentUser()).equals(mUser)
-                    || UserHandle.SYSTEM.equals(mUser)) {
+            int currentUserId = ActivityManager.getCurrentUser();
+            if (isUserInScope(mUser.getIdentifier(), mVendorServiceInfo, mCarUserService,
+                    currentUserId)) {
                 mFailureHandler.sendMessageDelayed(
                         mFailureHandler.obtainMessage(MSG_REBIND), REBIND_DELAY_MS);
                 scheduleResetFailureCounter();
             } else {
-                Slogf.w(TAG, "No need to rebind anymore as the user " + mUser
-                        + " is no longer in foreground.");
+                Slogf.w(TAG, "No need to rebind anymore as the service no longer satisfies "
+                        + " the user scope.");
             }
         }
 

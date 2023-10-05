@@ -60,6 +60,7 @@ public final class OemCarVolumeChangeInfo implements Parcelable {
     // To regenerate run:
     // $ codegen $ANDROID_BUILD_TOP/packages/services/Car/car-lib/src/android/car/oem
     // /OemCarVolumeChangeInfo.java
+    // Added AddedInOrBefore or ApiRequirement Annotation manually
     //
     // To exclude the generated code from IntelliJ auto-formatting enable (one-time):
     //   Settings > Editor > Code Style > Formatter Control
@@ -109,8 +110,6 @@ public final class OemCarVolumeChangeInfo implements Parcelable {
         return mChangedVolumeGroup;
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
@@ -124,8 +123,6 @@ public final class OemCarVolumeChangeInfo implements Parcelable {
         " }";
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     public boolean equals(@Nullable Object o) {
@@ -142,8 +139,6 @@ public final class OemCarVolumeChangeInfo implements Parcelable {
                 && Objects.equals(mChangedVolumeGroup, that.mChangedVolumeGroup);
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     public int hashCode() {

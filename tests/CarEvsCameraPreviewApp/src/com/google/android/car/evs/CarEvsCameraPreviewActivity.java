@@ -367,7 +367,7 @@ public class CarEvsCameraPreviewActivity extends Activity
             mDisplayManager.unregisterDisplayListener(mDisplayListener);
             if (mUseSystemWindow) {
                 WindowManager wm = getSystemService(WindowManager.class);
-                wm.removeView(mRootView);
+                wm.removeViewImmediate(mRootView);
             }
 
             unregisterReceiver(mBroadcastReceiver);

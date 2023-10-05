@@ -20,6 +20,7 @@ import android.os.Parcelable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public final class KeypressEvent implements Parcelable {
     private static final Map<Integer, String> KEYCODE_NAME_MAP = new HashMap<Integer, String>();
@@ -621,6 +622,11 @@ public final class KeypressEvent implements Parcelable {
                     other.isKeydown == isKeydown;
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(source, keycode, isKeydown);
     }
 
     @Override

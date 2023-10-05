@@ -30,7 +30,6 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.bluetooth.BluetoothAdapter;
@@ -53,11 +52,16 @@ import com.android.dx.mockito.inline.extended.ExtendedMockito;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.junit.runners.model.Statement;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.MockitoSession;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -128,6 +132,21 @@ public class FastPairAdvertiserTest {
         public void onRpaUpdated(BluetoothDevice device) {
             // TODO(196233989): Add tests for this when the API becomes available and the code can
             // be uncommented.
+        }
+    };
+
+    @Rule
+    public final TestRule mClearInlineMocksRule = new TestRule() {
+        @Override
+        public Statement apply(Statement base, Description description) {
+            return new Statement() {
+                @Override
+                public void evaluate() throws Throwable {
+                    // When using inline mock maker, clean up inline mocks to prevent OutOfMemory
+                    // errors. See https://github.com/mockito/mockito/issues/1614 and b/259280359.
+                    Mockito.framework().clearInlineMocks();
+                }
+            };
         }
     };
 

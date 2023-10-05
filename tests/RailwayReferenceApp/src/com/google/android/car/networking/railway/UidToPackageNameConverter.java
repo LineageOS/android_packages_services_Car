@@ -25,7 +25,7 @@ import android.util.ArraySet;
 import java.util.List;
 import java.util.Set;
 
-public class UidToPackageNameConverter {
+public final class UidToPackageNameConverter {
 
     public static Set<Integer> convertToUids(Context applicationContext, String packageNames)
             throws PackageManager.NameNotFoundException {

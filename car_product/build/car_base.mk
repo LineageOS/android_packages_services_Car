@@ -91,8 +91,9 @@ PRODUCT_PACKAGES += CarEvsCameraPreviewApp
 endif
 ifeq ($(ENABLE_REAR_VIEW_CAMERA_SAMPLE), true)
 PRODUCT_PACKAGES += SampleRearViewCamera
-PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/tests/SampleRearViewCamera/overlay
 endif
+# This is needed to be available to all builds because overlay config doesn't support optional overlays.
+PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/tests/SampleRearViewCamera/overlay
 
 endif  # ENABLE_EVS_SERVICE
 

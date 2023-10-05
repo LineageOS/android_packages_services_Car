@@ -23,11 +23,8 @@ import static org.junit.Assume.assumeTrue;
 import android.car.Car;
 import android.car.evs.CarEvsBufferDescriptor;
 import android.car.evs.CarEvsManager;
-import android.car.evs.CarEvsManager.CarEvsServiceState;
-import android.car.evs.CarEvsManager.CarEvsServiceType;
 import android.car.evs.CarEvsManager.CarEvsStreamEvent;
 import android.car.evs.CarEvsStatus;
-import android.content.Context;
 import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
 

@@ -21,7 +21,16 @@ package {
 android_test {
     name: "CarServiceUnitTest",
 
-    srcs: ["src/**/*.java"],
+    srcs: [
+            "src/**/*.java",
+            "src/**/*.aidl",
+        ],
+
+    aidl: {
+            include_dirs: [
+                "packages/services/Car/car-lib/src",
+            ],
+    },
 
     aaptflags: [
         "--extra-packages com.android.car",
@@ -72,16 +81,22 @@ android_test {
         "frameworks-base-testutils",
         "mockito-target-extended",
         "SettingsLib",
-        "testng",
+        "servicestests-utils",
         "truth-prebuilt",
         "WindowManager-Shell",  // for CarActivityServiceTaskMonitorUnitTest
         "vehicle-hal-support-lib",
     ],
 
-    test_suites: ["general-tests"],
+    test_suites: [
+        "general-tests",
+        "automotive-tests",
+        "automotive-general-tests",
+    ],
 
     // mockito-target-inline dependency
     jni_libs: [
+        "libcarservicejni",
+        "libcarservicejni_test",
         "libdexmakerjvmtiagent",
         "libstaticjvmtiagent",
     ],

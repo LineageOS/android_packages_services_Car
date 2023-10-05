@@ -16,45 +16,58 @@
 
 package com.android.systemui.car.systembar;
 
-import static android.view.Display.DEFAULT_DISPLAY;
-
-import static com.android.systemui.car.displayarea.DisplayAreaComponent.DISPLAY_AREA_VISIBILITY_CHANGED;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_APP_GRID_VISIBILITY_CHANGE;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_NOTIFICATION_VISIBILITY_CHANGE;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_RECENTS_VISIBILITY_CHANGE;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.REQUEST_FROM_LAUNCHER;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import com.android.systemui.car.displayarea.CarDisplayAreaController;
-
 class CarUiPortraitButtonSelectionStateListener extends ButtonSelectionStateListener {
 
-    private final CarDisplayAreaController mDisplayAreaController;
+    private CarUiPortraitButtonSelectionStateController mPortraitButtonStateController;
+    private boolean mIsAppGridVisible;
+    private boolean mIsNotificationVisible;
+    private boolean mIsRecentsVisible;
 
     CarUiPortraitButtonSelectionStateListener(Context context,
-            ButtonSelectionStateController carSystemButtonController,
-            CarDisplayAreaController displayAreaController) {
+            ButtonSelectionStateController carSystemButtonController) {
         super(carSystemButtonController);
-        mDisplayAreaController = displayAreaController;
+        if (mButtonSelectionStateController
+                instanceof CarUiPortraitButtonSelectionStateController) {
+            mPortraitButtonStateController =
+                    (CarUiPortraitButtonSelectionStateController) carSystemButtonController;
+        }
 
         BroadcastReceiver displayAreaVisibilityReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                onTaskStackChanged();
+                if (mPortraitButtonStateController == null) {
+                    return;
+                }
+                if (intent.hasExtra(INTENT_EXTRA_APP_GRID_VISIBILITY_CHANGE)) {
+                    mIsAppGridVisible = intent.getBooleanExtra(
+                            INTENT_EXTRA_APP_GRID_VISIBILITY_CHANGE, false);
+                    mPortraitButtonStateController.setAppGridButtonSelected(mIsAppGridVisible);
+                } else if (intent.hasExtra(INTENT_EXTRA_NOTIFICATION_VISIBILITY_CHANGE)) {
+                    mIsNotificationVisible = intent.getBooleanExtra(
+                            INTENT_EXTRA_NOTIFICATION_VISIBILITY_CHANGE, false);
+                    mPortraitButtonStateController.setNotificationButtonSelected(
+                            mIsNotificationVisible);
+                } else if (intent.hasExtra(INTENT_EXTRA_RECENTS_VISIBILITY_CHANGE)) {
+                    mIsRecentsVisible = intent.getBooleanExtra(
+                            INTENT_EXTRA_RECENTS_VISIBILITY_CHANGE, false);
+                    mPortraitButtonStateController.setRecentsButtonSelected(mIsRecentsVisible);
+                }
             }
         };
-        LocalBroadcastManager.getInstance(context).registerReceiver(displayAreaVisibilityReceiver,
-                new IntentFilter(DISPLAY_AREA_VISIBILITY_CHANGED));
-    }
 
-    @Override
-    public void onTaskStackChanged() {
-        if (!mDisplayAreaController.isHostingDefaultApplicationDisplayAreaVisible()) {
-            mButtonSelectionStateController.clearAllSelectedButtons(DEFAULT_DISPLAY);
-            return;
-        }
-        super.onTaskStackChanged();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(REQUEST_FROM_LAUNCHER);
+        context.registerReceiverForAllUsers(displayAreaVisibilityReceiver,
+                filter, null, null, Context.RECEIVER_EXPORTED);
     }
 }

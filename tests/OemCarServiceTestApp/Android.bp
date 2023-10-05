@@ -41,7 +41,7 @@ android_app {
     certificate: "platform",
     platform_apis: true,
     libs: [
-        "android.car",
+        "android.car-system-stubs",
         ],
     static_libs: ["com.android.car.oem"],
     required: ["allowed_privapp_com.android.car.oemcarservice.testapp"],

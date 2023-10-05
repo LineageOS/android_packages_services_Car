@@ -70,7 +70,8 @@ public class CarAudioZonesHelperLegacyTest {
     private static final int INVALID_BUS = -1;
 
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
-            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+            new CarAudioContext(CarAudioContext.getAllContextsInfo(),
+                    /* useCoreAudioRouting= */ false);
     private static final @CarAudioContext.AudioContext int TEST_MEDIA_CONTEXT =
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(
                     CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
@@ -250,7 +251,7 @@ public class CarAudioZonesHelperLegacyTest {
                 mMockAudioControlWrapper, mMockCarAudioSettings, getInputDevices());
 
         SparseArray<CarAudioZone> zones = helper.loadAudioZones();
-        CarVolumeGroup[] volumeGroups = zones.get(0).getVolumeGroups();
+        CarVolumeGroup[] volumeGroups = zones.get(0).getCurrentVolumeGroups();
         assertThat(volumeGroups).hasLength(2);
     }
 
@@ -299,7 +300,7 @@ public class CarAudioZonesHelperLegacyTest {
 
         SparseArray<CarAudioZone> zones = helper.loadAudioZones();
 
-        CarVolumeGroup[] volumeGroups = zones.get(0).getVolumeGroups();
+        CarVolumeGroup[] volumeGroups = zones.get(0).getCurrentVolumeGroups();
         CarVolumeGroup mediaVolumeGroup = volumeGroups[0];
         List<Integer> contexts = IntStream.of(mediaVolumeGroup.getContexts()).boxed().collect(
                 Collectors.toList());
@@ -329,7 +330,7 @@ public class CarAudioZonesHelperLegacyTest {
 
         SparseArray<CarAudioZone> zones = helper.loadAudioZones();
 
-        CarVolumeGroup[] volumeGroups = zones.get(0).getVolumeGroups();
+        CarVolumeGroup[] volumeGroups = zones.get(0).getCurrentVolumeGroups();
         CarVolumeGroup mediaVolumeGroup = volumeGroups[0];
         List<Integer> contexts = IntStream.of(mediaVolumeGroup.getContexts()).boxed().collect(
                 Collectors.toList());
