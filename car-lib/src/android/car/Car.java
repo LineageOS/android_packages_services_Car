@@ -18,6 +18,7 @@ package android.car;
 
 import static android.car.CarLibLog.TAG_CAR;
 
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -43,6 +44,7 @@ import android.car.diagnostic.CarDiagnosticManager;
 import android.car.drivingstate.CarDrivingStateManager;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.car.evs.CarEvsManager;
+import android.car.feature.Flags;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.CarVendorExtensionManager;
 import android.car.hardware.cabin.CarCabinManager;
@@ -1273,6 +1275,16 @@ public final class Car {
     @SystemApi
     public static final String PERMISSION_MANAGE_CAR_SYSTEM_UI =
             "android.car.permission.MANAGE_CAR_SYSTEM_UI";
+
+    /**
+     * Permission necessary to query if a package requires launching in automotive compatibility
+     * mode or not
+     * @hide
+     */
+    @FlaggedApi(Flags.FLAG_DISPLAY_COMPATIBILITY)
+    @SystemApi
+    public static final String PERMISSION_QUERY_DISPLAY_COMPATIBILITY =
+            "android.car.permission.QUERY_DISPLAY_COMPATIBILITY";
 
     /**
      * Intent for connecting to the template renderer. Services that handle this intent must also

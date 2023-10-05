@@ -97,4 +97,10 @@
     <!-- control focus colors -->
     <color name="car_focus_ring">@color/car_primary</color>
     <color name="car_focus_background">#99b0c5ff</color>
+
+    <!-- TODO(b/302163073) - update rotary specs -->
+    <!-- Rotary Colors -->
+    <color name="car_rotary_focus_stroke_color">#94CBFF</color>
+    <color name="car_rotary_focus_fill_color">#3D94CBFF</color>
+    <color name="car_rotary_focus_pressed_fill_color">#8A94CBFF</color>
 </resources>

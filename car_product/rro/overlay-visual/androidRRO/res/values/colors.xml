@@ -75,4 +75,9 @@
     <!-- Color for launcher icon background -->
     <color name="ic_launcher_android_background">#1A73E8</color>
 
+    <!-- Toggle button colors -->
+    <color name="car_button_toggle_background_checked">@color/car_primary</color>
+    <color name="car_button_toggle_background_unchecked">@color/car_secondary</color>
+    <color name="car_button_toggle_foreground_checked">@color/car_on_primary</color>
+    <color name="car_button_toggle_foreground_unchecked">@color/car_on_secondary</color>
 </resources>

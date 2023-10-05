@@ -98,4 +98,9 @@ interface ICarServiceHelper {
      */
     void setPersistentActivitiesOnRootTask(in List<ComponentName> activity,
         in IBinder rootTaskToken) = 14;
+
+    /**
+     * Returns true if the given package requires launching in automotive compatibility mode.
+     */
+    boolean requiresDisplayCompat(String packageName) = 15;
 }

@@ -17,6 +17,6 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_enabled="false"
         android:alpha="?android:attr/disabledAlpha"
-        android:color="?android:attr/colorControlActivated"/>
-    <item android:color="?android:attr/colorControlActivated"/>
+        android:color="@color/car_primary"/>
+    <item android:color="@color/car_primary"/>
 </selector>

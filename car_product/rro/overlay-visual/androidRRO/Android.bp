@@ -22,4 +22,8 @@ runtime_resource_overlay {
     certificate: "platform",
     manifest: "AndroidManifest.xml",
     system_ext_specific: true,
+
+    static_libs: [
+        "car-resource-common"
+    ],
 }
