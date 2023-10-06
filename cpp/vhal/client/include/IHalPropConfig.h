@@ -52,7 +52,9 @@ public:
 
     virtual int32_t getChangeMode() const = 0;
 
-    virtual const IHalAreaConfig* getAreaConfigs() const = 0;
+    const std::vector<std::unique_ptr<IHalAreaConfig>>& getAreaConfigs() const {
+        return mAreaConfigs;
+    }
 
     virtual size_t getAreaConfigSize() const = 0;
 
@@ -65,6 +67,9 @@ public:
     virtual float getMaxSampleRate() const = 0;
 
     virtual ~IHalPropConfig() = default;
+
+protected:
+    std::vector<std::unique_ptr<IHalAreaConfig>> mAreaConfigs;
 };
 
 }  // namespace vhal
