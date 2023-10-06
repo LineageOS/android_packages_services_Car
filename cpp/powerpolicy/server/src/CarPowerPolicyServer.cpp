@@ -43,6 +43,8 @@ namespace frameworks {
 namespace automotive {
 namespace powerpolicy {
 
+using ::aidl::android::automotive::powerpolicy::internal::ICarPowerPolicyDelegateCallback;
+using ::aidl::android::automotive::powerpolicy::internal::PowerPolicyInitData;
 using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy;
 using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicyFilter;
 using ::aidl::android::frameworks::automotive::powerpolicy::ICarPowerPolicyChangeCallback;
@@ -128,7 +130,7 @@ void PropertyChangeListener::onPropertyEvent(
         const std::string stringValue = value->getStringValue();
         int32_t propId = value->getPropId();
         if (propId == static_cast<int32_t>(VehicleProperty::POWER_POLICY_GROUP_REQ)) {
-            const auto& ret = mService->setPowerPolicyGroup(stringValue);
+            const auto& ret = mService->setPowerPolicyGroupInternal(stringValue);
             if (!ret.ok()) {
                 ALOGW("Failed to set power policy group(%s): %s", stringValue.c_str(),
                       ret.error().message().c_str());
@@ -207,6 +209,48 @@ ScopedAStatus CarServiceNotificationHandler::notifyPowerPolicyDefinition(
         return ScopedAStatus::ok();
     }
     return mService->notifyPowerPolicyDefinition(policyId, enabledComponents, disabledComponents);
+}
+
+CarPowerPolicyDelegate::CarPowerPolicyDelegate(CarPowerPolicyServer* service) : mService(service) {}
+
+void CarPowerPolicyDelegate::terminate() {
+    Mutex::Autolock lock(mMutex);
+    mService = nullptr;
+}
+
+binder_status_t CarPowerPolicyDelegate::dump([[maybe_unused]] int fd,
+                                             [[maybe_unused]] const char** args,
+                                             [[maybe_unused]] uint32_t numArgs) {
+    // TODO(b/301028782): Implement here
+    return EX_UNSUPPORTED_OPERATION;
+}
+
+ScopedAStatus CarPowerPolicyDelegate::notifyCarServiceReady(
+        [[maybe_unused]] const std::shared_ptr<ICarPowerPolicyDelegateCallback>& callback,
+        [[maybe_unused]] PowerPolicyInitData* aidlReturn) {
+    // TODO(b/301028782): Implement here
+    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+}
+
+ScopedAStatus CarPowerPolicyDelegate::applyPowerPolicyAsync(
+        [[maybe_unused]] const std::string& policyId, [[maybe_unused]] bool force,
+        [[maybe_unused]] int* aidlReturn) {
+    // TODO(b/301028782): Implement here
+    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+}
+
+ScopedAStatus CarPowerPolicyDelegate::setPowerPolicyGroup(
+        [[maybe_unused]] const std::string& policyGroupId) {
+    // TODO(b/301028782): Implement here
+    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+}
+
+ScopedAStatus CarPowerPolicyDelegate::notifyPowerPolicyDefinition(
+        [[maybe_unused]] const std::string& policyId,
+        [[maybe_unused]] const std::vector<std::string>& enabledComponents,
+        [[maybe_unused]] const std::vector<std::string>& disabledComponents) {
+    // TODO(b/301028782): Implement here
+    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
 }
 
 ISilentModeChangeHandler::~ISilentModeChangeHandler() {}
@@ -355,6 +399,17 @@ ScopedAStatus CarPowerPolicyServer::unregisterPowerPolicyChangeCallback(
               callingUid);
     }
     return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::applyPowerPolicy([[maybe_unused]] const std::string& policyId) {
+    // TODO(b/301028782): Implement here
+    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+}
+
+ScopedAStatus CarPowerPolicyServer::setPowerPolicyGroup(
+        [[maybe_unused]] const std::string& policyGroupId) {
+    // TODO(b/301028782): Implement here
+    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
 }
 
 ScopedAStatus CarPowerPolicyServer::notifyCarServiceReady(PolicyState* policyState) {
@@ -607,7 +662,7 @@ Result<void> CarPowerPolicyServer::applyPowerPolicy(const std::string& policyId,
     return {};
 }
 
-Result<void> CarPowerPolicyServer::setPowerPolicyGroup(const std::string& groupId) {
+Result<void> CarPowerPolicyServer::setPowerPolicyGroupInternal(const std::string& groupId) {
     if (!mPolicyManager.isPowerPolicyGroupAvailable(groupId)) {
         return Error() << StringPrintf("Power policy group(%s) is not available", groupId.c_str());
     }
@@ -751,7 +806,7 @@ void CarPowerPolicyServer::subscribeToVhal() {
                         [this](const IHalPropValue& value) {
                             std::string stringValue = value.getStringValue();
                             if (stringValue.size() > 0) {
-                                const auto& ret = setPowerPolicyGroup(stringValue);
+                                const auto& ret = setPowerPolicyGroupInternal(stringValue);
                                 if (ret.ok()) {
                                     Mutex::Autolock lock(mMutex);
                                     mLastSetDefaultPowerPolicyGroupUptimeMs = value.getTimestamp();

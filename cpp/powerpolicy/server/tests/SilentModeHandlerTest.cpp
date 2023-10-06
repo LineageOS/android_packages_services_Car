@@ -104,6 +104,8 @@ public:
                 (override));
     MOCK_METHOD(ScopedAStatus, unregisterPowerPolicyChangeCallback,
                 (const std::shared_ptr<ICarPowerPolicyChangeCallback>& callback), (override));
+    MOCK_METHOD(ScopedAStatus, applyPowerPolicy, (const std::string& policyId), (override));
+    MOCK_METHOD(ScopedAStatus, setPowerPolicyGroup, (const std::string& policyGroupId), (override));
     MOCK_METHOD(void, notifySilentModeChange, (const bool silent), (override));
 };
 
