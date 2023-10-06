@@ -17,10 +17,12 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:state_checked="true" android:state_enabled="false"
-        android:color="@color/car_switch_track_background_checked_disabled" />
+        android:alpha="?android:attr/disabledAlpha"
+        android:color="@color/car_switch_track_background_checked" />
     <item
         android:state_enabled="false"
-        android:color="@color/car_switch_track_background_unchecked_disabled" />
+        android:alpha="?android:attr/disabledAlpha"
+        android:color="@color/car_switch_track_background_unchecked" />
     <item
         android:state_checked="true" android:color="@color/car_switch_track_background_checked" />
     <item android:color="@color/car_switch_track_background_unchecked" />

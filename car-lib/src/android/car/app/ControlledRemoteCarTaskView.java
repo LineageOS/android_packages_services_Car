@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.graphics.Region;
+import android.os.Binder;
 import android.os.UserManager;
 import android.view.Display;
 import android.view.SurfaceControl;
@@ -69,30 +70,43 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     final ICarTaskViewClient mICarTaskViewClient = new ICarTaskViewClient.Stub() {
         @Override
         public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo, SurfaceControl leash) {
-            mTaskInfo = taskInfo;
-            updateWindowBounds();
-            if (taskInfo.taskDescription != null) {
-                ViewHelper.seResizeBackgroundColor(
-                        ControlledRemoteCarTaskView.this,
-                        taskInfo.taskDescription.getBackgroundColor());
+            long identity = Binder.clearCallingIdentity();
+            try {
+                mTaskInfo = taskInfo;
+                updateWindowBounds();
+                if (taskInfo.taskDescription != null) {
+                    ViewHelper.seResizeBackgroundColor(ControlledRemoteCarTaskView.this,
+                            taskInfo.taskDescription.getBackgroundColor());
+                }
+                ControlledRemoteCarTaskView.this.onTaskAppeared(taskInfo, leash);
+            } finally {
+                Binder.restoreCallingIdentity(identity);
             }
-            ControlledRemoteCarTaskView.this.onTaskAppeared(taskInfo, leash);
         }
 
         @Override
         public void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo) {
-            if (taskInfo.taskDescription != null) {
-                ViewHelper.seResizeBackgroundColor(
-                        ControlledRemoteCarTaskView.this,
-                        taskInfo.taskDescription.getBackgroundColor());
+            long identity = Binder.clearCallingIdentity();
+            try {
+                if (taskInfo.taskDescription != null) {
+                    ViewHelper.seResizeBackgroundColor(ControlledRemoteCarTaskView.this,
+                            taskInfo.taskDescription.getBackgroundColor());
+                }
+                ControlledRemoteCarTaskView.this.onTaskInfoChanged(taskInfo);
+            } finally {
+                Binder.restoreCallingIdentity(identity);
             }
-            ControlledRemoteCarTaskView.this.onTaskInfoChanged(taskInfo);
         }
 
         @Override
         public void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo) {
-            mTaskInfo = null;
-            ControlledRemoteCarTaskView.this.onTaskVanished(taskInfo);
+            long identity = Binder.clearCallingIdentity();
+            try {
+                mTaskInfo = null;
+                ControlledRemoteCarTaskView.this.onTaskVanished(taskInfo);
+            } finally {
+                Binder.restoreCallingIdentity(identity);
+            }
         }
 
         @Override
@@ -198,6 +212,7 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo) {
         super.onTaskInfoChanged(taskInfo);
         mCallbackExecutor.execute(() -> mCallback.onTaskInfoChanged(taskInfo));
+
     }
 
     @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)

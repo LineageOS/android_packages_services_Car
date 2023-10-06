@@ -91,7 +91,8 @@ endif  # ENABLE_EVS_SERVICE
 
 # Conditionally enable the telemetry service
 ifeq ($(ENABLE_CARTELEMETRY_SERVICE), true)
-PRODUCT_PACKAGES += android.automotive.telemetryd@1.0
+PRODUCT_PACKAGES += android.automotive.telemetryd@1.0 \
+                    ScriptExecutor
 endif
 
 # ENABLE_EVS_SAMPLE should be set true or their vendor specific equivalents should be included in

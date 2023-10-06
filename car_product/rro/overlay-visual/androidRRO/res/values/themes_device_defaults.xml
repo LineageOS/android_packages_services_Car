@@ -50,13 +50,6 @@
         <item name="android:actionBarSize">@*android:dimen/car_app_bar_height</item>
         <item name="android:radioButtonStyle">@style/Widget.DeviceDefault.CompoundButton.RadioButton</item>
 
-        <item name="colorSwitchThumbNormal">@color/car_switch_thumb_color</item>
-        <item name="colorSwitchTrack">@color/car_switch_track_background_selector</item>
-        <item name="colorSwitchThumbDisabled">@color/car_switch_thumb_color_disabled_on_dark</item>
-        <item name="colorSeekBarTrackBackground">@color/car_seekbar_track_background</item>
-        <item name="colorSeekBarTrackProgress">@color/car_seekbar_track_progress</item>
-        <item name="colorSeekBarTrackProgressSecondary">@color/car_seekbar_track_progress_secondary</item>
-        <item name="colorSeekbarThumb">@color/car_seekbar_thumb_selector</item>
         <item name="*android:disabledAlpha">@dimen/car_disabled_alpha</item>
         <item name="android:windowLayoutInDisplayCutoutMode">always</item>
     </style>
@@ -134,14 +127,8 @@
         defined theme palette -->
     <style name="Theme.DeviceDefault.Light" parent="android:Theme.DeviceDefault">
         <item name="android:switchStyle">@style/Widget.DeviceDefault.Light.CompoundButton.Switch</item>
-        <item name="colorSwitchThumbNormal">@color/car_switch_thumb_color</item>
-        <item name="colorSwitchThumbDisabled">@color/car_switch_thumb_color_disabled_on_light</item>
-        <item name="colorSeekBarTrackBackground">@color/car_seekbar_track_background</item>
-        <item name="colorSeekBarTrackProgress">@color/car_seekbar_track_progress</item>
-        <item name="colorSeekBarTrackProgressSecondary">@color/car_seekbar_track_progress_secondary</item>
         <item name="*android:disabledAlpha">@dimen/car_disabled_alpha</item>
         <!--  To simulate transparency over light (white) background, we don't need a selector. -->
-        <item name="colorSeekbarThumb">@color/car_seekbar_thumb</item>
         <item name="android:windowLayoutInDisplayCutoutMode">always</item>
     </style>
     <style name="Theme.DeviceDefault.Light.Dialog" parent="android:Theme.DeviceDefault.Dialog"/>

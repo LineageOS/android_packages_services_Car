@@ -74,11 +74,6 @@
     <color name="car_alert_dialog_button_text_color">@color/car_on_secondary_container</color>
     <color name="car_alert_dialog_button1_text_color">@color/car_on_primary</color>
 
-    <!-- ****** Seekbar colors ***** -->
-    <color name="car_seekbar_background_color">@color/car_secondary_container</color>
-    <color name="car_seekbar_primary_color">@color/car_primary</color>
-    <color name="car_seekbar_secondary_color">@color/car_secondary</color>
-
     <!-- ****** Toggle button colors ***** -->
     <color name="car_button_toggle_background_checked">@color/car_primary</color>
     <color name="car_button_toggle_background_unchecked">@color/car_secondary_container</color>

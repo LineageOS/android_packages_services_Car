@@ -18,17 +18,21 @@
           xmlns:app="http://schemas.android.com/apk/res-auto">
   <item
       android:state_checked="true" app:state_ux_restricted="true"
-      android:color="#7566B5FF" />
+      android:alpha="?android:attr/disabledAlpha"
+      android:color="@color/car_primary" />
   <item
       android:state_checked="false" app:state_ux_restricted="true"
-      android:color="#75757575" />
+      android:alpha="?android:attr/disabledAlpha"
+      android:color="@color/car_secondary_container" />
   <item
       android:state_checked="true" android:state_enabled="false"
-      android:color="#7566B5FF" />
+      android:alpha="?android:attr/disabledAlpha"
+      android:color="@color/car_primary" />
   <item
       android:state_enabled="false"
-      android:color="#75757575" />
+      android:alpha="?android:attr/disabledAlpha"
+      android:color="@color/car_secondary_container" />
   <item
-      android:state_checked="true" android:color="#66B5FF" />
-  <item android:color="#757575" />
+      android:state_checked="true" android:color="@color/car_primary" />
+  <item android:color="@color/car_secondary_container" />
 </selector>

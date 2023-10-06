@@ -22,6 +22,7 @@ import android.app.ActivityManager;
 import android.car.builtin.view.ViewHelper;
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Binder;
 import android.view.SurfaceControl;
 
 import java.util.concurrent.Executor;
@@ -55,7 +56,12 @@ public final class RemoteCarDefaultRootTaskView extends RemoteCarTaskView {
                 mRootTask = taskInfo;
                 // If onTaskAppeared() is called, it implicitly means that super.isInitialized()
                 // is true, as the root task is created only after initialization.
-                mCallbackExecutor.execute(() -> mCallback.onTaskViewInitialized());
+                long identity = Binder.clearCallingIdentity();
+                try {
+                    mCallbackExecutor.execute(() -> mCallback.onTaskViewInitialized());
+                } finally {
+                    Binder.restoreCallingIdentity(identity);
+                }
 
                 if (taskInfo.taskDescription != null) {
                     ViewHelper.seResizeBackgroundColor(
@@ -66,7 +72,12 @@ public final class RemoteCarDefaultRootTaskView extends RemoteCarTaskView {
             }
 
             mRootTaskStackManager.taskAppeared(taskInfo, leash);
-            mCallbackExecutor.execute(() -> mCallback.onTaskAppeared(taskInfo));
+            long identity = Binder.clearCallingIdentity();
+            try {
+                mCallbackExecutor.execute(() -> mCallback.onTaskAppeared(taskInfo));
+            } finally {
+                Binder.restoreCallingIdentity(identity);
+            }
         }
 
         @Override
@@ -77,7 +88,12 @@ public final class RemoteCarDefaultRootTaskView extends RemoteCarTaskView {
                         taskInfo.taskDescription.getBackgroundColor());
             }
             mRootTaskStackManager.taskInfoChanged(taskInfo);
-            mCallbackExecutor.execute(() -> mCallback.onTaskInfoChanged(taskInfo));
+            long identity = Binder.clearCallingIdentity();
+            try {
+                mCallbackExecutor.execute(() -> mCallback.onTaskInfoChanged(taskInfo));
+            } finally {
+                Binder.restoreCallingIdentity(identity);
+            }
         }
 
         @Override
@@ -86,7 +102,12 @@ public final class RemoteCarDefaultRootTaskView extends RemoteCarTaskView {
                 mRootTask = null;
             }
             mRootTaskStackManager.taskVanished(taskInfo);
-            mCallbackExecutor.execute(() -> mCallback.onTaskVanished(taskInfo));
+            long identity = Binder.clearCallingIdentity();
+            try {
+                mCallbackExecutor.execute(() -> mCallback.onTaskVanished(taskInfo));
+            } finally {
+                Binder.restoreCallingIdentity(identity);
+            }
         }
 
         @Override
