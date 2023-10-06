@@ -196,6 +196,10 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Fikia maelezo ya waipa za gari."</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"dhibiti waipa za gari"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Dhibiti waipa za gari."</string>
+    <!-- no translation found for car_permission_label_query_display_compatibility (8846515818036686896) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_query_display_compatibility (5344194045180717300) -->
+    <skip />
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"fuatilia hali za maeneo mengine alipo mwenye gari na programu zingine (programu ambazo zina jina la kifurushi sawa na anayepiga) zilizosakinishwa katika maeneo hayo na udhibiti matumizi katika maeneo hayo."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Fuatilia hali za maeneo mengine alipo mwenye gari na programu zingine (programu ambazo zina jina la kifurushi sawa na anayepiga) zilizosakinishwa katika maeneo hayo na udhibiti matumizi katika maeneo hayo."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"anzisha muunganisho na uwasiliane na programu zingine (programu ambazo zina jina la kifurushi sawa na anayepiga) zilizosakinishwa katika maeneo mengine alipo mwenye gari."</string>

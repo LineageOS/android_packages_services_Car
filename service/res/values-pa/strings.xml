@@ -196,6 +196,10 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"ਕਾਰ ਦੇ ਵਿੰਡਸ਼ੀਲਡ ਵਾਈਪਰਾਂ ਦੀ ਜਾਣਕਾਰੀ ਨੂੰ ਪੜ੍ਹਨ ਦਿਓ।"</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"ਕਾਰ ਦੇ ਵਿੰਡਸ਼ੀਲਡ ਵਾਈਪਰਾਂ ਨੂੰ ਕੰਟਰੋਲ ਕਰਨ ਦਿਓ"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"ਕਾਰ ਦੇ ਵਿੰਡਸ਼ੀਲਡ ਵਾਈਪਰਾਂ ਨੂੰ ਕੰਟਰੋਲ ਕਰਨ ਦਿਓ।"</string>
+    <!-- no translation found for car_permission_label_query_display_compatibility (8846515818036686896) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_query_display_compatibility (5344194045180717300) -->
+    <skip />
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"ਕਾਰ ਦੇ ਹੋਰ ਸਵਾਰੀ ਖੇਤਰਾਂ ਦੀਆਂ ਸਥਿਤੀਆਂ ਅਤੇ ਉਨ੍ਹਾਂ ਖੇਤਰਾਂ ਵਿੱਚ ਸਥਾਪਤ ਪੀਅਰ ਐਪਾਂ (ਉਹ ਐਪਾਂ ਜਿਨ੍ਹਾਂ ਦਾ ਕਾਲਰ ਨਾਲ ਦਾ ਇੱਕੋ ਜਿਹਾ ਪੈਕੇਜ ਨਾਮ ਹੁੰਦਾ ਹੈ) ਦੀ ਨਿਗਰਾਨੀ ਕਰੋ, ਅਤੇ ਉਨ੍ਹਾਂ ਖੇਤਰਾਂ ਦੀ ਪਾਵਰ ਦਾ ਪ੍ਰਬੰਧਨ ਕਰੋ।"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"ਕਾਰ ਦੇ ਹੋਰ ਸਵਾਰੀ ਖੇਤਰਾਂ ਦੀਆਂ ਸਥਿਤੀਆਂ ਅਤੇ ਉਨ੍ਹਾਂ ਖੇਤਰਾਂ ਵਿੱਚ ਸਥਾਪਤ ਪੀਅਰ ਐਪਾਂ (ਉਹ ਐਪਾਂ ਜਿਨ੍ਹਾਂ ਦਾ ਕਾਲਰ ਨਾਲ ਦਾ ਇੱਕੋ ਜਿਹਾ ਪੈਕੇਜ ਨਾਮ ਹੁੰਦਾ ਹੈ) ਦੀ ਨਿਗਰਾਨੀ ਕਰੋ, ਅਤੇ ਉਨ੍ਹਾਂ ਖੇਤਰਾਂ ਦੀ ਪਾਵਰ ਦਾ ਪ੍ਰਬੰਧਨ ਕਰੋ।"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"ਕਾਰ ਦੇ ਹੋਰ ਸਵਾਰੀ ਖੇਤਰਾਂ ਵਿੱਚ ਸਥਾਪਤ ਪੀਅਰ ਐਪਾਂ (ਉਹ ਐਪਾਂ ਜਿਨ੍ਹਾਂ ਦਾ ਕਾਲਰ ਨਾਲ ਦਾ ਇੱਕੋ ਜਿਹਾ ਪੈਕੇਜ ਨਾਮ ਹੁੰਦਾ ਹੈ) ਨਾਲ ਕਨੈਕਟ ਕਰੋ ਅਤੇ ਸੰਚਾਰ ਕਰੋ"</string>
