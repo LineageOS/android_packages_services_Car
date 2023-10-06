@@ -273,6 +273,7 @@
             android:name=".Stubs$DocumentsUIStubWithResult"
             android:label="@string/stub_name"
             android:excludeFromRecents="true"
+            android:visibleToInstantApps="true"
             android:exported="true">
             <!-- .picker.PickActivity
                  set android:priority="101" to avoid other apps to take the priority,
