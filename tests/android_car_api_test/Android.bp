@@ -50,11 +50,11 @@ android_test {
         "android.car.test.utils",
         "com.android.car.test.lib",
         "androidx.test.runner",
-// TODO(b/236153976): comment back once guava is supported
-//      "guava-android-testlib",
+        // TODO(b/236153976): comment back once guava is supported
+        //      "guava-android-testlib",
         "compatibility-device-util-axt",
         "platform-test-annotations",
-        "truth-prebuilt",
+        "truth",
     ],
 
     libs: [

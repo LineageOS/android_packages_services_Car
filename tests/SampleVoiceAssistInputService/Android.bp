@@ -61,7 +61,7 @@ android_test {
         "androidx.test.core",
         "androidx.test.ext.junit",
         "androidx.test.rules",
-        "truth-prebuilt",
+        "truth",
     ],
     libs: [
         "android.car-system-stubs",
@@ -87,4 +87,3 @@ android_test {
         "automotive-general-tests",
     ],
 }
-
