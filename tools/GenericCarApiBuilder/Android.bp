@@ -25,7 +25,7 @@ java_binary_host {
     static_libs: [
         "javaparser",
         "junit",
-        "truth-prebuilt",
+        "truth",
     ],
 }
 
@@ -36,6 +36,6 @@ java_test_host {
     static_libs: [
         "javaparser",
         "junit",
-        "truth-prebuilt",
+        "truth",
     ],
 }
