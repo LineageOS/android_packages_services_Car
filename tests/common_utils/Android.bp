@@ -24,7 +24,7 @@ java_library {
 
     static_libs: [
         "mockito-target-extended",
-        "truth-prebuilt",
+        "truth",
         "android.car",
     ],
 
