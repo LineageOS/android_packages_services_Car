@@ -34,7 +34,7 @@ android_test {
         "androidx.test.runner",
         "junit",
         "scriptexecutor-test-lib",
-        "truth-prebuilt",
+        "truth",
     ],
 
     test_suites: ["general-tests"],

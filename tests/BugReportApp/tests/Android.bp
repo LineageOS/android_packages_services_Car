@@ -38,7 +38,7 @@ android_test {
     static_libs: [
         "androidx.test.rules",
         "mockito-target",
-        "truth-prebuilt",
+        "truth",
     ],
 
     test_suites: [
