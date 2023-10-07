@@ -40,7 +40,7 @@ android_test {
         "android.hardware.automotive.vehicle-V2-java",
         "android.hardware.automotive.vehicle.property-V3-java",
         "compatibility-device-util-axt",
-        "truth-prebuilt",
+        "truth",
     ],
 
     libs: [

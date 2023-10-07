@@ -22,18 +22,18 @@ android_test {
     name: "CarServiceUnitTest",
 
     srcs: [
-            "src/**/*.java",
-            "src/**/*.aidl",
-            ":car-service-dump-proto-srcs",
-        ],
+        "src/**/*.java",
+        "src/**/*.aidl",
+        ":car-service-dump-proto-srcs",
+    ],
     proto: {
         type: "lite",
     },
 
     aidl: {
-            include_dirs: [
-                "packages/services/Car/car-lib/src",
-            ],
+        include_dirs: [
+            "packages/services/Car/car-lib/src",
+        ],
     },
 
     aaptflags: [
@@ -86,8 +86,8 @@ android_test {
         "mockito-target-extended",
         "SettingsLib",
         "servicestests-utils",
-        "truth-prebuilt",
-        "WindowManager-Shell",  // for CarActivityServiceTaskMonitorUnitTest
+        "truth",
+        "WindowManager-Shell", // for CarActivityServiceTaskMonitorUnitTest
         "vehicle-hal-support-lib",
     ],
 

@@ -52,7 +52,7 @@ android_test {
         "car-service-builtin-test-static-lib",
         "com.android.car.test.lib",
         "mockito-target-extended",
-        "truth-prebuilt",
+        "truth",
         "compatibility-device-util-axt",
         "vehicle-hal-support-lib",
     ],
