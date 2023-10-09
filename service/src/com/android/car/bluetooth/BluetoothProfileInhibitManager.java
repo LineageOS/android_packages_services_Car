@@ -322,7 +322,8 @@ public class BluetoothProfileInhibitManager {
      * @param profile The {@link android.bluetooth.BluetoothProfile} to inhibit.
      * @param token   A {@link IBinder} to be used as an identity for the request. If the process
      *                owning the token dies, the request will automatically be released
-     * @return True if the profile was successfully inhibited, false if an error occurred.
+     * @return {@code true} if the profile was successfully inhibited, {@code false} if an error
+     *         occurred.
      */
     boolean requestProfileInhibit(BluetoothDevice device, int profile, IBinder token) {
         if (DBG) {
@@ -342,7 +343,7 @@ public class BluetoothProfileInhibitManager {
      * @param profile The profile on which to release the inhibit request.
      * @param token   The token provided in the original call to
      *                {@link #requestBluetoothProfileInhibit}.
-     * @return True if the request was released, false if an error occurred.
+     * @return {@code true} if the request was released, {@code false} if an error occurred.
      */
     boolean releaseProfileInhibit(BluetoothDevice device, int profile, IBinder token) {
         if (DBG) {
@@ -360,6 +361,41 @@ public class BluetoothProfileInhibitManager {
         }
 
         return record.removeSelf();
+    }
+
+    /**
+     * Checks whether a request to disconnect the given profile on the given device has been made
+     * and if the inhibit request is still active.
+     *
+     * @param device  The device on which to verify the inhibit request.
+     * @param profile The profile on which to verify the inhibit request.
+     * @param token   The token provided in the original call to
+     *                {@link #requestBluetoothProfileInhibit}.
+     * @return {@code true} if inhibit was requested and is still active, {@code false} if an error
+     *         occurred or inactive.
+     */
+    boolean isProfileInhibited(BluetoothDevice device, int profile, IBinder token) {
+        if (DBG) {
+            Slogf.d(TAG, "%s Check profile inhibit: profile %s, device %s",
+                    mLogHeader, BluetoothUtils.getProfileName(profile), device.getAddress());
+        }
+
+        if (findInhibitRecord(new BluetoothConnection(profile, device), token) == null) {
+            Slogf.e(TAG, "Record not found");
+            return false;
+        }
+
+        if (!isProxyAvailable(profile)) {
+            return false;
+        }
+
+        try {
+            int policy = mBluetoothUserProxies.getConnectionPolicy(profile, device);
+            return policy == BluetoothProfile.CONNECTION_POLICY_FORBIDDEN;
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Could not retrieve policy for profile", e);
+            return false;
+        }
     }
 
     /**
@@ -434,7 +470,8 @@ public class BluetoothProfileInhibitManager {
      *
      * @param params  BluetoothConnection parameter pair that could have an inhibit on it
      * @param token   The token provided in the call to {@link #requestBluetoothProfileInhibit}.
-     * @return InhibitRecord for the connection parameters and token if exists, null otherwise.
+     * @return InhibitRecord for the connection parameters and token if exists, {@code null}
+     *         otherwise.
      */
     private InhibitRecord findInhibitRecord(BluetoothConnection params, IBinder token) {
         synchronized (mProfileInhibitsLock) {
@@ -594,7 +631,7 @@ public class BluetoothProfileInhibitManager {
     /**
      * Determines if the per-user bluetooth proxy for a given profile is active and usable.
      *
-     * @return True if proxy is available, false otherwise
+     * @return {@code true} if proxy is available, {@code false} otherwise
      */
     private boolean isProxyAvailable(int profile) {
         try {

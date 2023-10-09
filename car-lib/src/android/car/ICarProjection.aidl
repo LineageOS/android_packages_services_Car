@@ -97,4 +97,8 @@ interface ICarProjection {
      * hotspot credentials.
      */
     void resetProjectionAccessPointCredentials() = 13;
+
+    /** Checks whether a Bluetooth profile is inhibited. */
+    boolean isBluetoothProfileInhibited(
+            in BluetoothDevice device, in int profile, in IBinder token) = 14;
 }

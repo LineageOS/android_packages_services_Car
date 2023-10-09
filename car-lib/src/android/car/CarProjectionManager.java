@@ -16,9 +16,12 @@
 
 package android.car;
 
+import static android.car.feature.Flags.FLAG_PROJECTION_QUERY_BT_PROFILE_INHIBIT;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
 
 import android.annotation.CallbackExecutor;
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -582,7 +585,8 @@ public final class CarProjectionManager extends CarManagerBase {
 
     /**
      * Request to disconnect the given profile on the given device, and prevent it from reconnecting
-     * until either the request is released, or the process owning the given token dies.
+     * until either the request is released, or the process owning the given token dies. Mainly
+     * intended to use with the {@code A2DP_SINK} profile.
      *
      * @param device  The device on which to inhibit a profile.
      * @param profile The {@link android.bluetooth.BluetoothProfile} to inhibit.
@@ -601,7 +605,8 @@ public final class CarProjectionManager extends CarManagerBase {
 
     /**
      * Release an inhibit request made by {@link #requestBluetoothProfileInhibit}, and reconnect the
-     * profile if no other inhibit requests are active.
+     * profile if no other inhibit requests are active. Mainly intended to use with the {@code
+     * A2DP_SINK} profile.
      *
      * @param device  The device on which to release the inhibit request.
      * @param profile The profile on which to release the inhibit request.
@@ -612,6 +617,28 @@ public final class CarProjectionManager extends CarManagerBase {
         Objects.requireNonNull(device, "device cannot be null");
         try {
             return mService.releaseBluetoothProfileInhibit(device, profile, mToken);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, false);
+        }
+    }
+
+
+    /**
+     * Checks whether a request to disconnect the given profile on the given device has been made
+     * and if the inhibit request is still active. Mainly intended to use with the {@code A2DP_SINK}
+     * profile.
+     *
+     * @param device  The device on which to check the inhibit request.
+     * @param profile The profile on which to check the inhibit request.
+     * @return True if inhibit was requested and is still active, false if an error occurred or
+     *         inactive.
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
+    @FlaggedApi(FLAG_PROJECTION_QUERY_BT_PROFILE_INHIBIT)
+    public boolean isBluetoothProfileInhibited(@NonNull BluetoothDevice device, int profile) {
+        Objects.requireNonNull(device, "device cannot be null");
+        try {
+            return mService.isBluetoothProfileInhibited(device, profile, mToken);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, false);
         }
