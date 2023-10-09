@@ -28,6 +28,7 @@ import android.annotation.SystemApi;
 import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArrayMap;
@@ -66,7 +67,9 @@ public class CarPowerManager extends CarManagerBase {
         @Override
         public void onPolicyChanged(CarPowerPolicy appliedPolicy,
                 CarPowerPolicy accumulatedPolicy) {
+            long identityToken = Binder.clearCallingIdentity();
             notifyPowerPolicyListeners(appliedPolicy, accumulatedPolicy);
+            Binder.restoreCallingIdentity(identityToken);
         }
     };
 
