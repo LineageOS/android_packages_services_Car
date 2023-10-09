@@ -16,9 +16,7 @@
 
 package com.android.car.audio;
 
-import static android.car.builtin.media.AudioManagerHelper.AUDIO_ATTRIBUTE_TAG_SEPARATOR;
 import static android.car.builtin.media.AudioManagerHelper.addTagToAudioAttributes;
-import static android.car.builtin.media.AudioManagerHelper.getFormattedTags;
 import static android.car.builtin.media.AudioManagerHelper.getTags;
 import static android.car.builtin.media.AudioManagerHelper.usageToXsdString;
 
@@ -94,7 +92,7 @@ public final class CarHalAudioUtils {
         playbackTrackMetadata.tags = tags.toArray(tagsArray);
         playbackTrackMetadata.channelMask = AudioChannelLayout.none(0);
         AudioDeviceDescription audioDeviceDescription = new AudioDeviceDescription();
-        audioDeviceDescription.connection = new String();
+        audioDeviceDescription.connection = "";
         AudioDevice audioDevice = new AudioDevice();
         audioDevice.type = audioDeviceDescription;
         audioDevice.address = AudioDeviceAddress.id(deviceAddress);

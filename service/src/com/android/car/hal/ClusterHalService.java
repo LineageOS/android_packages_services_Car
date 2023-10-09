@@ -22,6 +22,8 @@ import static android.car.VehiclePropertyIds.CLUSTER_REPORT_STATE;
 import static android.car.VehiclePropertyIds.CLUSTER_REQUEST_DISPLAY;
 import static android.car.VehiclePropertyIds.CLUSTER_SWITCH_UI;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_FLOAT_ARRAY;
+import static com.android.car.internal.common.CommonConstants.EMPTY_LONG_ARRAY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -299,8 +301,8 @@ public final class ClusterHalService extends HalServiceBase {
         };
         HalPropValue request = mPropValueBuilder.build(CLUSTER_REPORT_STATE,
                 /* areaId= */ 0, SystemClock.elapsedRealtime(), VehiclePropertyStatus.AVAILABLE,
-                /* int32Values= */ intValues, /* floatValues= */ new float[0],
-                /* int64Values= */ new long[0], /* stringValue= */ new String(),
+                /* int32Values= */ intValues, /* floatValues= */ EMPTY_FLOAT_ARRAY,
+                /* int64Values= */ EMPTY_LONG_ARRAY, /* stringValue= */ "",
                 /* byteValues= */ uiAvailability);
         send(request);
     }

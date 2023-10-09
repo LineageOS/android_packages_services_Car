@@ -16,6 +16,8 @@
 
 package android.car.diagnostic;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_LONG_ARRAY;
+
 import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
@@ -236,7 +238,7 @@ public final class CarDiagnosticManager extends CarManagerBase {
         try {
             return mService.getFreezeFrameTimestamps();
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, new long[0]);
+            return handleRemoteExceptionFromCarService(e, EMPTY_LONG_ARRAY);
         }
     }
 

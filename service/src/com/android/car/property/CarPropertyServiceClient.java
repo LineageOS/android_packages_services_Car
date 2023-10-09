@@ -16,6 +16,8 @@
 
 package com.android.car.property;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
+
 import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyValue;
@@ -109,7 +111,7 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
             if (areaIdToCpeTracker == null) {
                 Slogf.e(TAG, "getUpdateRateHz: update rate hz not found for propertyId=%s",
                         VehiclePropertyIds.toString(propertyId));
-                return new int[0];
+                return EMPTY_INT_ARRAY;
             }
             int[] areaIds = new int[areaIdToCpeTracker.size()];
             for (int i = 0; i < areaIdToCpeTracker.size(); i++) {

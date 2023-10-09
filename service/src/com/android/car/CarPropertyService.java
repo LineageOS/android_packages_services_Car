@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
 
@@ -271,7 +272,7 @@ public class CarPropertyService extends ICarProperty.Stub
     public void registerListener(int propertyId, float updateRateHz,
             ICarPropertyEventListener carPropertyEventListener) throws IllegalArgumentException {
         CarSubscribeOption option = new CarSubscribeOption();
-        int[] areaIds = new int[0];
+        int[] areaIds = EMPTY_INT_ARRAY;
         CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
         // carPropertyConfig nullity check will be done in registerListenerWithSubscribeOptions
         if (carPropertyConfig != null) {

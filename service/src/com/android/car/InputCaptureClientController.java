@@ -18,6 +18,7 @@ package com.android.car;
 
 import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import static java.util.Map.entry;
@@ -113,7 +114,7 @@ public class InputCaptureClientController {
             CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER
     );
 
-    private static final int[] EMPTY_INPUT_TYPES = new int[0];
+    private static final int[] EMPTY_INPUT_TYPES = EMPTY_INT_ARRAY;
 
     private final class ClientInfoForDisplay implements IBinder.DeathRecipient {
         private final int mUid;

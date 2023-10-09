@@ -17,6 +17,7 @@
 package com.android.car.internal.property;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
+import static com.android.car.internal.common.CommonConstants.EMPTY_BYTE_ARRAY;
 
 import android.annotation.SuppressLint;
 import android.car.VehiclePropertyIds;
@@ -221,13 +222,13 @@ public final class CarPropertyHelper {
             return (T) new Float[0];
         }
         if (clazz.equals(byte[].class)) {
-            return (T) new byte[0];
+            return (T) EMPTY_BYTE_ARRAY;
         }
         if (clazz.equals(Object[].class)) {
             return (T) new Object[0];
         }
         if (clazz.equals(String.class)) {
-            return (T) new String("");
+            return (T) "";
         }
         throw new IllegalArgumentException("Unexpected class: " + clazz);
     }
