@@ -159,7 +159,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
         }
 
         @Override
-        public void onServerlessClientRegistered() {
+        public void onServerlessClientRegistered(String clientId) {
             RemoteTaskClientCallback callback;
             Executor executor;
             synchronized (mLock) {
@@ -168,6 +168,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
                             + "is registered");
                     return;
                 }
+                mCurrentClientId = clientId;
                 callback = mRemoteTaskClientCallback;
                 executor = mExecutor;
             }
@@ -928,7 +929,9 @@ public final class CarRemoteAccessManager extends CarManagerBase {
             taskScheduleInfo.taskData = scheduleInfo.getTaskData();
             taskScheduleInfo.count = scheduleInfo.getCount();
             taskScheduleInfo.startTimeInEpochSeconds = scheduleInfo.getStartTimeInEpochSeconds();
-            taskScheduleInfo.periodicInSeconds = scheduleInfo.getPeriodic().getSeconds();
+            if (scheduleInfo.getPeriodic() != null) {
+                taskScheduleInfo.periodicInSeconds = scheduleInfo.getPeriodic().getSeconds();
+            }
             return taskScheduleInfo;
         }
     }

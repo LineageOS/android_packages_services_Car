@@ -690,6 +690,25 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
     }
 
     @Test
+    public void testRemoteTaskRequested_serverlessClientRegisteredAfterRequest() throws Exception {
+        when(mDep.getCallingUid()).thenReturn(UID_SERVERLESS_PACKAGE);
+        XmlResourceParser fakeXmlResourceParser = getFakeXmlResourceParser(
+                SERVERLESS_CLIENT_MAP_XML);
+        when(mResources.getXml(R.xml.remote_access_serverless_client_map)).thenReturn(
+                fakeXmlResourceParser);
+        RemoteAccessHalCallback halCallback = mService.getRemoteAccessHalCallback();
+        mService.init();
+        runBootComplete();
+
+        halCallback.onRemoteTaskRequested(TEST_SERVERLESS_CLIENT_ID, /* data= */ null);
+        SystemClock.sleep(500);
+        mService.addCarRemoteTaskClient(mRemoteAccessCallback);
+
+        PollingCheck.check("onRemoteTaskRequested should be called", WAIT_TIMEOUT_MS,
+                () -> mRemoteAccessCallback.getTaskId() != null);
+    }
+
+    @Test
     public void testRemoteTaskRequested_withTwoClientsRegistered() throws Exception {
         when(mDep.getCallingUid()).thenReturn(UID_PERMISSION_GRANTED_PACKAGE_ONE)
                 .thenReturn(UID_PERMISSION_GRANTED_PACKAGE_TWO);
@@ -1688,7 +1707,7 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
         }
 
         @Override
-        public void onServerlessClientRegistered() {
+        public void onServerlessClientRegistered(String clientId) {
             synchronized (mLock) {
                 mServerlessClientRegistered = true;
             }

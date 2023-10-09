@@ -233,10 +233,20 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
     };
 
+    @GuardedBy("mLock")
+    private boolean isServerlessClientLocked(String clientId) {
+        for (int i = 0; i < mServerlessClientIdsByPackageName.size(); i++) {
+            if (mServerlessClientIdsByPackageName.valueAt(i).equals(clientId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void maybeStartNewRemoteTask(String clientId) {
         ICarRemoteAccessCallback callback;
         List<RemoteTask> remoteTasksToNotify = null;
-        RemoteTaskClientServiceInfo serviceInfo;
+        RemoteTaskClientServiceInfo serviceInfo = null;
         int taskMaxDurationInSec;
         long taskMaxDurationInMs;
         String uidName;
@@ -259,15 +269,20 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             }
             // If this clientId has never been stored on this device before,
             uidName = mUidByClientId.get(clientId);
-            if (uidName == null) {
+            // uidName might be null for serverless remote task client if the device just booted up
+            // and the client has not called addCarRemoteTaskClient yet. For regular remote task
+            // client, the client ID must already be stored in database, so during
+            // populatePackageClientIdMapping the mUidByClientId will contain clientId and uidName
+            // must not be null.
+            if (!isServerlessClientLocked(clientId) && uidName == null) {
                 Slogf.w(TAG, "Cannot notify task: client(%s) is not registered.", clientId);
                 Slogf.w(TAG, "Removing all the pending tasks for client ID: %s", clientId);
                 mTasksToBeNotifiedByClientId.remove(clientId);
                 return;
             }
-            // Token must not be null if mUidByClientId contains clientId.
-            token = mClientTokenByUidName.get(uidName);
-            serviceInfo = mClientServiceInfoByUid.get(uidName);
+            if (uidName != null) {
+                serviceInfo = mClientServiceInfoByUid.get(uidName);
+            }
             if (serviceInfo == null) {
                 Slogf.w(TAG, "Notifying task is delayed: the remote client service information "
                         + "for %s is not registered yet", uidName);
@@ -275,6 +290,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 // after searching for remote task client service is done.
                 return;
             }
+            // Token must not be null if mUidByClientId contains clientId.
+            token = mClientTokenByUidName.get(uidName);
             callback = token.getCallback();
             if (callback != null) {
                 remoteTasksToNotify = popTasksFromPendingQueueLocked(clientId);
@@ -1134,7 +1151,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 }
             } else {
                 try {
-                    callback.onServerlessClientRegistered();
+                    callback.onServerlessClientRegistered(clientId);
                 } catch (RemoteException e) {
                     Slogf.e(TAG, e, "Calling onServerlessClientRegistered() failed");
                 }
