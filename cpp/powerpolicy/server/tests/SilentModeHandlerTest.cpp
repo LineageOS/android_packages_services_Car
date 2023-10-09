@@ -63,9 +63,11 @@ public:
     ~SilentModeHandlerPeer() { mHandler->stopMonitoringSilentModeHwState(); }
 
     void init() {
+        mHandler->init();
+        mHandler->stopMonitoringSilentModeHwState();
         mHandler->mSilentModeHwStateFilename = mFileSilentModeHwState.path;
         mHandler->mKernelSilentModeFilename = mFileKernelSilentMode.path;
-        mHandler->init();
+        mHandler->startMonitoringSilentModeHwState();
     }
 
     void injectBootReason(const std::string& bootReason) { mHandler->mBootReason = bootReason; }
