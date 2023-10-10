@@ -87,6 +87,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -411,6 +412,31 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
             Slogf.e(TAG, "Error in releaseBluetoothProfileInhibit", e);
             throw e;
         }
+    }
+
+    /**
+     * Checks whether a request to disconnect the given profile on the given device has been made
+     * and if the inhibit request is still active.
+     *
+     * @param device  The device on which to verify the inhibit request.
+     * @param profile The profile on which to verify the inhibit request.
+     * @param token   The token provided in the original call to
+     *                {@link #requestBluetoothProfileInhibit}.
+     * @return True if inhibit was requested and is still active, false if an error occurred or
+     *         inactive.
+     */
+    @Override
+    public boolean isBluetoothProfileInhibited(
+            BluetoothDevice device, int profile, IBinder token) {
+        if (DBG) {
+            Slogf.d(TAG, "isBluetoothProfileInhibited device=" + device + " profile=" + profile
+                    + " from uid " + Binder.getCallingUid());
+        }
+        CarServiceUtils.assertProjectionPermission(mContext);
+        Objects.requireNonNull(device, "Device must not be null");
+        Objects.requireNonNull(token, "Token must not be null");
+
+        return mCarBluetoothService.isProfileInhibited(device, profile, token);
     }
 
     @Override

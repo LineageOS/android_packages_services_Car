@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import static android.bluetooth.BluetoothProfile.A2DP_SINK;
 import static android.car.CarProjectionManager.PROJECTION_AP_STARTED;
 import static android.car.projection.ProjectionStatus.PROJECTION_STATE_ACTIVE_FOREGROUND;
 import static android.car.projection.ProjectionStatus.PROJECTION_STATE_INACTIVE;
@@ -33,6 +34,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.bluetooth.BluetoothDevice;
 import android.car.CarProjectionManager;
 import android.car.ICarProjectionKeyEventHandler;
 import android.car.ICarProjectionStatusListener;
@@ -470,6 +472,18 @@ public class CarProjectionServiceTest {
 
         mService.unregisterKeyEventHandler(eventHandler1);
         inOrder.verify(mCarInputService).setProjectionKeyEventHandler(eq(null), any());
+    }
+
+    @Test
+    public void isBluetoothProfileInhibited() {
+        mService = new CarProjectionService(mContext, mHandler, mCarInputService,
+                mCarBluetoothService);
+        when(mCarBluetoothService.isProfileInhibited(any(), anyInt(), any()))
+                .thenReturn(true);
+        BluetoothDevice device = mock(BluetoothDevice.class);
+
+        assertThat(mService.isBluetoothProfileInhibited(device, A2DP_SINK,
+                mToken)).isEqualTo(true);
     }
 
     private ProjectionStatus createProjectionStatus() {

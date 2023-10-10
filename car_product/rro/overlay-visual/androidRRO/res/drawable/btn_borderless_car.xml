@@ -23,9 +23,9 @@
                 <item android:state_focused="true" android:state_pressed="true">
                     <shape android:shape="rectangle">
                         <corners android:radius="?android:attr/buttonCornerRadius" />
-                        <solid android:color="#8A94CBFF"/>
-                        <stroke android:width="4dp"
-                                android:color="#94CBFF"/>
+                        <solid android:color="@color/car_rotary_focus_pressed_fill_color"/>
+                        <stroke android:width="@dimen/car_rotary_focus_pressed_stroke_width"
+                                android:color="@color/car_rotary_focus_stroke_color"/>
                         <padding android:left="@*android:dimen/button_padding_horizontal_material"
                                  android:top="@*android:dimen/button_padding_vertical_material"
                                  android:right="@*android:dimen/button_padding_horizontal_material"
@@ -35,8 +35,9 @@
                 <item android:state_focused="true">
                     <shape android:shape="rectangle">
                         <corners android:radius="?android:attr/buttonCornerRadius" />
-                        <solid android:color="#3D94CBFF"/>
-                        <stroke android:width="8dp" android:color="#94CBFF"/>
+                        <solid android:color="@color/car_rotary_focus_fill_color"/>
+                        <stroke android:width="@dimen/car_rotary_focus_stroke_width"
+                                android:color="@color/car_rotary_focus_stroke_color"/>
                         <padding android:left="@*android:dimen/button_padding_horizontal_material"
                                  android:top="@*android:dimen/button_padding_vertical_material"
                                  android:right="@*android:dimen/button_padding_horizontal_material"

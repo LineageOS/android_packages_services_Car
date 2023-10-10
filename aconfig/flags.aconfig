@@ -8,6 +8,14 @@ flag {
   bug: "291638685"
 }
 
+# CarProjectionManager
+flag {
+  name: "projection_query_bt_profile_inhibit"
+  namespace: "car_framework"
+  description: "This flag controls if apps can query the inhibit state or bluetooth profiles."
+  bug: "281791498"
+}
+
 # CarRemoteAccessManager
 flag {
   name: "serverless_remote_access"
