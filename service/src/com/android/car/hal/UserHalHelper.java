@@ -15,6 +15,7 @@
  */
 package com.android.car.hal;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 import static com.android.car.CarServiceUtils.toIntArray;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
 import static com.android.internal.util.Preconditions.checkArgument;
@@ -709,7 +710,7 @@ public final class UserHalHelper {
     public static UserIdentificationGetRequest emptyUserIdentificationGetRequest() {
         UserIdentificationGetRequest request = new UserIdentificationGetRequest();
         request.userInfo = new UserInfo();
-        request.associationTypes = new int[0];
+        request.associationTypes = EMPTY_INT_ARRAY;
         return request;
     }
 

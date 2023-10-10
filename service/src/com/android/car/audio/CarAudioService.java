@@ -41,6 +41,7 @@ import static android.view.KeyEvent.KEYCODE_VOLUME_DOWN;
 import static android.view.KeyEvent.KEYCODE_VOLUME_MUTE;
 import static android.view.KeyEvent.KEYCODE_VOLUME_UP;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 import static com.android.car.audio.CarAudioUtils.convertVolumeChangeToEvent;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
@@ -1111,7 +1112,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         long requestId = mCarAudioMirrorRequestHandler.getRequestIdForAudioZone(zoneId);
 
         if (requestId == INVALID_REQUEST_ID) {
-            return new int[0];
+            return EMPTY_INT_ARRAY;
         }
         int[] config = mCarAudioMirrorRequestHandler.getMirrorAudioZonesForRequest(requestId);
         return config == null ? new int[0] : config;
@@ -1388,7 +1389,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
         // If there are less than two zones mirroring, remove all the zones
         if (newConfig.length < 2) {
-            newConfig = new int[0];
+            newConfig = EMPTY_INT_ARRAY;
         }
 
         modifyAudioMirrorForZones(oldConfigs, newConfig);

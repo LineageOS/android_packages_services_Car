@@ -369,7 +369,8 @@ public final class FakeVhalConfigParser {
                             }
                         }
                     }
-                    vehiclePropConfig.areaConfigs = areaConfigs.toArray(new VehicleAreaConfig[0]);
+                    vehiclePropConfig.areaConfigs = areaConfigs.toArray(
+                            new VehicleAreaConfig[areaConfigs.size()]);
                     break;
                 case JSON_FIELD_NAME_COMMENT:
                     // The "comment" field is used for comment in the config files and is ignored

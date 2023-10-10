@@ -89,8 +89,6 @@ public final class CarServiceUtils {
     private static final String TAG = CarLog.tagFor(CarServiceUtils.class);
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
-    /** Empty int array */
-    public  static final int[] EMPTY_INT_ARRAY = new int[0];
     private static final String COMMON_HANDLER_THREAD_NAME =
             "CarServiceUtils_COMMON_HANDLER_THREAD";
     private static final byte[] CHAR_POOL_FOR_RANDOM_STRING =

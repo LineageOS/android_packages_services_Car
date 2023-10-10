@@ -16,6 +16,8 @@
 
 package android.car.vms;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_BYTE_ARRAY;
+
 import android.annotation.CallbackExecutor;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -47,7 +49,7 @@ import java.util.concurrent.TimeUnit;
 @SystemApi
 public final class VmsSubscriberManager extends CarManagerBase {
     private static final long CLIENT_READY_TIMEOUT_MS = 500;
-    private static final byte[] DEFAULT_PUBLISHER_INFO = new byte[0];
+    private static final byte[] DEFAULT_PUBLISHER_INFO = EMPTY_BYTE_ARRAY;
 
     /**
      * Callback interface for Vehicle Map Service subscribers.

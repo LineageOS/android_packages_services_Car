@@ -17,6 +17,7 @@ package android.car.media;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
@@ -807,7 +808,7 @@ public final class CarAudioManager extends CarManagerBase {
         try {
             return mService.getUsagesForVolumeGroupId(zoneId, groupId);
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, new int[0]);
+            return handleRemoteExceptionFromCarService(e, EMPTY_INT_ARRAY);
         }
     }
 

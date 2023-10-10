@@ -16,6 +16,8 @@
 
 package android.car;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
+
 import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.TestApi;
@@ -218,7 +220,7 @@ public final class CarAppFocusManager extends CarManagerBase {
         try {
             return mService.getActiveAppTypes();
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, new int[0]);
+            return handleRemoteExceptionFromCarService(e, EMPTY_INT_ARRAY);
         }
     }
 
