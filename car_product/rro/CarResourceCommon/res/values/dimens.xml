@@ -16,8 +16,21 @@
   -->
 <resources>
     <dimen name="car_selectable_item_radius">24dp</dimen>
+    <dimen name="car_window_rounded_corner_radius">48dp</dimen>
 
     <!-- TODO(b/302163073) - update rotary specs -->
     <dimen name="car_rotary_focus_stroke_width">8dp</dimen>
     <dimen name="car_rotary_focus_pressed_stroke_width">4dp</dimen>
+
+    <dimen name="car_alert_dialog_padding">24dp</dimen>
+    <dimen name="car_alert_dialog_content_min_height">48dp</dimen>
+    <dimen name="car_alert_dialog_icon_size">64dp</dimen>
+    <dimen name="car_alert_dialog_button_spacing">16dp</dimen>
+    <dimen name="car_alert_dialog_button_height">88dp</dimen>
+
+    <!-- Toast Dimensions -->
+    <dimen name="car_toast_margin">24dp</dimen>
+    <dimen name="car_toast_bottom_margin">32dp</dimen>
+    <dimen name="car_toast_icon_margin">24dp</dimen>
+    <dimen name="car_toast_icon_size">48dp</dimen>
 </resources>

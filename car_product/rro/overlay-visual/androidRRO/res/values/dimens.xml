@@ -163,6 +163,12 @@
     <!-- car_switch_thumb_size + car_switch_thumb_stroke_width == car_switch_track_height -->
     <dimen name="car_switch_thumb_size">40dp</dimen>
 
+    <!-- Toast Dimensions -->
+    <dimen name="toast_corner_radius">48dp</dimen>
+    <dimen name="toast_elevation">0dp</dimen>
+    <dimen name="toast_width">1050dp</dimen>
+    <dimen name="toast_y_offset">268dp</dimen>
+
     <!-- Button Dimensions -->
     <dimen name="car_button_height">88dp</dimen>
     <dimen name="car_button_min_height">88dp</dimen>
