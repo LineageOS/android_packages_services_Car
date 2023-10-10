@@ -165,6 +165,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     // All the TaskViews & corresponding helper instance variables.
     private CarTaskView mBackgroundTaskView;
     private CarTaskView mFullScreenTaskView;
+    private ViewGroup mBackgroundAppArea;
     private boolean mIsBackgroundTaskViewReady;
     private boolean mIsFullScreenTaskViewReady;
     private int mNavBarHeight;
@@ -374,6 +375,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             adjustFullscreenSpacing(mTaskCategoryManager.isFullScreenActivity(taskInfo));
 
             if (mTaskCategoryManager.isBackgroundApp(taskInfo)) {
+                return;
+            }
+
+            if (mIsSUWInProgress) {
                 return;
             }
 
@@ -679,7 +684,26 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         super.onDestroy();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateTaskViewAllowListedActivities(/* enabled= */ true);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // This usually happens during user switch, SUW might starts before
+        // SemiControlledCarTaskView get released. So manually clean the
+        // SemiControlledCarTaskView allowlist to avoid null pointers.
+        updateTaskViewAllowListedActivities(/* enabled= */ false);
+    }
+
     private boolean shouldTaskShowOnRootTaskView(TaskInfo taskInfo) {
+        if (mIsSUWInProgress) {
+            logIfDebuggable("Skip root task view state change during suw");
+            return false;
+        }
         if (taskInfo.baseIntent == null || taskInfo.baseIntent.getComponent() == null) {
             logIfDebuggable("Should not show on root task view since base intent is null");
             return false;
@@ -752,11 +776,18 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     }
 
     private void adjustFullscreenSpacing(boolean isFullscreen) {
+        if (mIsSUWInProgress) {
+            logIfDebuggable("don't change spaceing during suw");
+            return;
+        }
         logIfDebuggable(isFullscreen
                 ? "Adjusting screen spacing for fullscreen task view"
                 : "Adjusting screen spacing for non-fullscreen task views");
         setControlBarSpacerVisibility(isFullscreen);
         setHomeScreenBottomPadding(isFullscreen ? 0 : mNavBarHeight);
+        // Add offset to background app area to avoid background apps shift for full screen app.
+        mBackgroundAppArea.setPadding(/* left= */ 0, /* top= */ 0, /* right= */ 0,
+                isFullscreen ? mNavBarHeight : 0);
     }
 
     // TODO(b/275633095): Add test to verify the region is set correctly in each mode
@@ -777,31 +808,29 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 controlBarRect.right, mContainer.getMeasuredHeight());
 
         Rect statusBarRect = new Rect(controlBarRect.left, /* top= */ 0, controlBarRect.right,
-                mStatusBarHeight);
+                mIsSUWInProgress ? 0 : mStatusBarHeight);
 
         Region obscuredTouchRegion = new Region();
-        obscuredTouchRegion.union(controlBarRect);
+        if (!mRootTaskViewPanel.isFullScreen()) {
+            obscuredTouchRegion.union(controlBarRect);
+        }
         obscuredTouchRegion.union(navigationBarRect);
-
+        logIfDebuggable("Update ObscuredTouchRegion for root and app grid" + obscuredTouchRegion);
         mRootTaskViewPanel.setObscuredTouchRegion(obscuredTouchRegion);
         mAppGridTaskViewPanel.setObscuredTouchRegion(obscuredTouchRegion);
-        obscuredTouchRegion.union(appPanelGripBarRect);
-        obscuredTouchRegion.union(rootPanelGripBarRect);
-        obscuredTouchRegion.union(statusBarRect);
+
+        if (!mIsSUWInProgress) {
+            obscuredTouchRegion.union(appPanelGripBarRect);
+            obscuredTouchRegion.union(rootPanelGripBarRect);
+            obscuredTouchRegion.union(statusBarRect);
+        } else if (mRootTaskViewPanel.isVisible()) {
+            obscuredTouchRegion.union(rootPanelGripBarRect);
+            obscuredTouchRegion.union(appPanelGripBarRect);
+        }
+        logIfDebuggable(
+                "Update ObscuredTouchRegion for background and fullscreen" + obscuredTouchRegion);
         mBackgroundTaskView.setObscuredTouchRegion(obscuredTouchRegion);
         mFullScreenTaskView.setObscuredTouchRegion(obscuredTouchRegion);
-    }
-
-    private void resetObscuredTouchRegion() {
-        // TODO(b/300707398): find a proper way to reset ObscuredTouchRegion during SUW. It's
-        //  unclear why nav bar area is not touchable when below rect is (0,0,0,0).
-        Rect resetRegion = new Rect(/* left= */ 0, /* top= */ 0, /* right= */ 1, /* bottom= */ 1);
-        Region resetTouchRegion = new Region();
-        resetTouchRegion.union(resetRegion);
-        mRootTaskViewPanel.setObscuredTouchRegion(resetTouchRegion);
-        mAppGridTaskViewPanel.setObscuredTouchRegion(resetTouchRegion);
-        mBackgroundTaskView.setObscuredTouchRegion(resetTouchRegion);
-        mFullScreenTaskView.setObscuredTouchRegion(resetTouchRegion);
     }
 
     private void updateBackgroundTaskViewInsets() {
@@ -840,8 +869,11 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         Rect appAreaBounds = new Rect();
         mFullScreenTaskView.getBoundsOnScreen(appAreaBounds);
 
-        Rect bottomInsets = new Rect(appAreaBounds.left, appAreaBounds.height() - mNavBarHeight,
-                appAreaBounds.right, appAreaBounds.bottom);
+        Rect bottomInsets = new Rect(
+                appAreaBounds.left,
+                appAreaBounds.height() - mNavBarHeight,
+                appAreaBounds.right,
+                appAreaBounds.bottom);
 
         Rect topInsets = new Rect(appAreaBounds.left, appAreaBounds.top, appAreaBounds.right,
                 mStatusBarHeight);
@@ -855,8 +887,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     }
 
     private void updateTaskViewInsets() {
-        Insets insets = Insets.of(/* left= */ 0, /* top= */ 0, /* right= */ 0,
-                mControlBarView.getHeight() + mNavBarHeight);
+        int bottom = mIsSUWInProgress ? 0 : mControlBarView.getHeight() + mNavBarHeight;
+        Insets insets = Insets.of(/* left= */ 0, /* top= */ 0, /* right= */ 0, bottom);
 
         if (mRootTaskViewPanel != null) {
             mRootTaskViewPanel.setInsets(insets);
@@ -883,7 +915,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     }
 
     private void setUpBackgroundTaskView() {
-        ViewGroup parent = findViewById(R.id.background_app_area);
+        mBackgroundAppArea = findViewById(R.id.background_app_area);
 
         mTaskViewManager.createSemiControlledTaskView(getMainExecutor(),
                 mTaskCategoryManager.getBackgroundActivities().stream().toList(),
@@ -893,7 +925,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                         logIfDebuggable("Background Task View is created");
                         taskView.setZOrderOnTop(false);
                         mBackgroundTaskView = taskView;
-                        parent.addView(mBackgroundTaskView);
+                        mBackgroundAppArea.addView(mBackgroundTaskView);
                     }
 
                     @Override
@@ -949,29 +981,37 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 new TaskCategoryManager.OnApplicationInstallUninstallListener() {
                     @Override
                     public void onAppInstalled(String packageName) {
-                        updateTaskViewAllowListedActivities();
+                        updateTaskViewAllowListedActivities(/* enabled= */ true);
                     }
 
                     @Override
                     public void onAppUninstall(String packageName) {
-                        updateTaskViewAllowListedActivities();
+                        updateTaskViewAllowListedActivities(/* enabled= */ true);
                     }
                 });
     }
 
-    private void updateTaskViewAllowListedActivities() {
-        mTaskViewManager.setAllowListedActivities(mBackgroundTaskView,
-                mTaskCategoryManager.getBackgroundActivities().stream().toList());
-        mTaskViewManager.setAllowListedActivities(mFullScreenTaskView,
-                mTaskCategoryManager.getFullScreenActivities().stream().toList());
+    void updateTaskViewAllowListedActivities(boolean enabled) {
+        List<ComponentName> fullscreenList = enabled
+                ? mTaskCategoryManager.getFullScreenActivities().stream().toList()
+                : new ArrayList<>();
+        List<ComponentName> backGroundList = enabled
+                ? mTaskCategoryManager.getBackgroundActivities().stream().toList()
+                : new ArrayList<>();
+
+        if (mFullScreenTaskView != null) {
+            mTaskViewManager.setAllowListedActivities(mFullScreenTaskView, fullscreenList);
+        }
+        if (mBackgroundTaskView != null) {
+            mTaskViewManager.setAllowListedActivities(mBackgroundTaskView, backGroundList);
+        }
     }
 
     private void setControlBarVisibility(boolean isVisible, boolean animate) {
         float translationY = isVisible ? 0 : mContainer.getHeight() - mControlBarView.getTop();
         if (animate) {
-            mControlBarView.animate().translationY(translationY).withEndAction(() -> {
-                updateObscuredTouchRegion();
-            });
+            mControlBarView.animate().translationY(translationY).withEndAction(
+                    this::updateObscuredTouchRegion);
         } else {
             mControlBarView.setTranslationY(translationY);
             updateObscuredTouchRegion();
@@ -1078,12 +1118,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             public void onStateChangeStart(TaskViewPanel.State oldState,
                     TaskViewPanel.State newState, boolean animated) {
                 boolean isFullScreen = newState.isFullScreen();
-                if (isFullScreen) {
-                    if (!mIsSUWInProgress) {
-                        notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, boolToInt(isFullScreen));
-                    }
-                } else {
-                    setControlBarVisibility(/* isVisible= */ true, animated);
+                if (!mIsSUWInProgress) {
+                    setControlBarVisibility(!isFullScreen, animated);
+                    notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE,
+                            isFullScreen
+                            ? WindowInsets.Type.navigationBars()
+                            : WindowInsets.Type.systemBars());
                 }
 
                 boolean isVisible = newState.isVisible();
@@ -1119,17 +1159,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 // Hide the control bar after the animation if in full screen.
                 if (newState.isFullScreen()) {
                     setControlBarVisibility(/* isVisible= */ false, animated);
-                    resetObscuredTouchRegion();
+                    updateObscuredTouchRegion();
                 } else {
                     // Update the background task view insets to make sure their content is not
                     // covered with our panels. We only need to do this when we are not in
                     // fullscreen.
                     updateBackgroundTaskViewInsets();
-                    // Show the nav bar if not showing Setup Wizard
-                    if (!mIsSUWInProgress) {
-                        notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE,
-                                boolToInt(newState.isFullScreen()));
-                    }
                 }
 
                 // Hide the app grid task view behind the root task view.
@@ -1207,6 +1242,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
     private void onImmersiveModeRequested(boolean requested, ComponentName componentName) {
         logIfDebuggable("onImmersiveModeRequested = " + requested + " cmp=" + componentName);
+        if (mIsSUWInProgress) {
+            logIfDebuggable("skip immersive change during suw");
+            return;
+        }
 
         // Ignore the immersive mode request for app grid, since it's not in root task view panel.
         // Handle the app grid task in TaskStackListener.

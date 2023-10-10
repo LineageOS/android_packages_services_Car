@@ -81,7 +81,7 @@ class TaskCategoryManager {
 
         mOnApplicationInstallUninstallListeners = new HashSet<>();
 
-        updateVoicePlateActivityMap();
+        updateFullScreenActivities();
         updateBackgroundActivityMap();
 
         mApplicationInstallUninstallReceiver = registerApplicationInstallUninstallReceiver(
@@ -92,7 +92,7 @@ class TaskCategoryManager {
      * Refresh {@code mFullScreenActivities} and {@code mBackgroundActivities}.
      */
     void refresh() {
-        updateVoicePlateActivityMap();
+        updateFullScreenActivities();
         updateBackgroundActivityMap();
     }
 
@@ -124,7 +124,7 @@ class TaskCategoryManager {
         return componentNames;
     }
 
-    void updateVoicePlateActivityMap() {
+    void updateFullScreenActivities() {
         mFullScreenActivities.clear();
         Intent voiceIntent = new Intent(Intent.ACTION_VOICE_ASSIST, /* uri= */ null);
         List<ResolveInfo> result = mContext.getPackageManager().queryIntentActivitiesAsUser(
@@ -158,6 +158,7 @@ class TaskCategoryManager {
             }
             mBackgroundActivities.add(info.getComponentInfo().getComponentName());
         }
+
         mBackgroundActivities.addAll(convertToComponentNames(mContext.getResources()
                 .getStringArray(R.array.config_backgroundActivities)));
     }

@@ -211,8 +211,9 @@ public class CarUiPortraitService extends Service {
                 case MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE:
                     int val = msg.arg1;
                     Intent hideSysBarIntent = new Intent(REQUEST_FROM_LAUNCHER);
-                    hideSysBarIntent.putExtra(INTENT_EXTRA_HIDE_SYSTEM_BAR_FOR_IMMERSIVE_MODE,
-                            intToBoolean(val));
+                    Log.d(TAG, "hideSysBarIntent: val = " + val);
+
+                    hideSysBarIntent.putExtra(INTENT_EXTRA_HIDE_SYSTEM_BAR_FOR_IMMERSIVE_MODE, val);
                     CarUiPortraitService.this.sendBroadcast(hideSysBarIntent);
                     break;
                 case MSG_FG_TASK_VIEW_READY:
