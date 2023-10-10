@@ -75,6 +75,10 @@ int32_t AidlHalAreaConfig::getAreaId() const {
     return mAreaConfig.areaId;
 }
 
+int32_t AidlHalAreaConfig::getAccess() const {
+    return toInt(mAreaConfig.access);
+}
+
 int32_t AidlHalAreaConfig::getMinInt32Value() const {
     return mAreaConfig.minInt32Value;
 }

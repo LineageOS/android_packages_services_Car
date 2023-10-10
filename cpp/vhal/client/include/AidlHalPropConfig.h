@@ -37,6 +37,8 @@ public:
 
     int32_t getAreaId() const override;
 
+    int32_t getAccess() const override;
+
     int32_t getMinInt32Value() const override;
 
     int32_t getMaxInt32Value() const override;
