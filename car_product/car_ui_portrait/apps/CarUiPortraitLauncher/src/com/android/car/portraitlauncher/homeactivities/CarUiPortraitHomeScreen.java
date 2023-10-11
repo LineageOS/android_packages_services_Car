@@ -949,19 +949,22 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 new TaskCategoryManager.OnApplicationInstallUninstallListener() {
                     @Override
                     public void onAppInstalled(String packageName) {
-                        mTaskViewManager.setAllowListedActivities(
-                                mBackgroundTaskView,
-                                mTaskCategoryManager.getBackgroundActivities().stream().toList());
+                        updateTaskViewAllowListedActivities();
                     }
 
                     @Override
                     public void onAppUninstall(String packageName) {
-                        mTaskViewManager.setAllowListedActivities(
-                                mBackgroundTaskView,
-                                mTaskCategoryManager.getBackgroundActivities().stream().toList());
+                        updateTaskViewAllowListedActivities();
                     }
                 });
-    };
+    }
+
+    private void updateTaskViewAllowListedActivities() {
+        mTaskViewManager.setAllowListedActivities(mBackgroundTaskView,
+                mTaskCategoryManager.getBackgroundActivities().stream().toList());
+        mTaskViewManager.setAllowListedActivities(mFullScreenTaskView,
+                mTaskCategoryManager.getFullScreenActivities().stream().toList());
+    }
 
     private void setControlBarVisibility(boolean isVisible, boolean animate) {
         float translationY = isVisible ? 0 : mContainer.getHeight() - mControlBarView.getTop();
@@ -1235,7 +1238,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     }
 
     private boolean isPackageVisibleOnRootTask(ComponentName componentName) {
-        ActivityManager.RunningTaskInfo taskInfo = mTaskViewManager.getTopTaskInLaunchRootTask();
+        TaskInfo taskInfo = mCurrentTaskInRootTaskView;
         logIfDebuggable("Top task in launch root task is" + taskInfo);
         if (taskInfo == null) {
             return false;
@@ -1247,7 +1250,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 && componentName.getPackageName().equals(visibleComponentName.getPackageName());
     }
 
-    private ComponentName getVisibleActivity(ActivityManager.RunningTaskInfo taskInfo) {
+    private ComponentName getVisibleActivity(TaskInfo taskInfo) {
         if (taskInfo.topActivity != null) {
             return taskInfo.topActivity;
         } else if (taskInfo.baseActivity != null) {
