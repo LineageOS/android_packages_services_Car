@@ -19,12 +19,19 @@ package com.google.android.car.kitchensink.remoteaccess;
 
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
+import android.car.Car;
+import android.car.remoteaccess.CarRemoteAccessManager;
+import android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskScheduler;
+import android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
@@ -38,8 +45,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class RemoteAccessTestFragment extends Fragment {
 
@@ -47,10 +56,30 @@ public final class RemoteAccessTestFragment extends Fragment {
 
     private SharedPreferences mSharedPref;
 
+    private Car mCar;
+    private CarRemoteAccessManager mRemoteAccessManager;
+    private AtomicInteger mScheduleId = new AtomicInteger(0);
+    private Spinner mTaskType;
+    private EditText mRemoteTaskDataView;
+    private EditText mTaskDelayView;
+    private EditText mTaskRepeatView;
+    private EditText mTaskIntervalView;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mSharedPref = getDefaultSharedPreferences(getContext());
+        disconnectCar();
+        mCar = Car.createCar(getContext(), /* handler= */ null, Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER,
+                (Car car, boolean ready) -> {
+                    if (ready) {
+                        mRemoteAccessManager = (CarRemoteAccessManager) car.getCarManager(
+                                Car.CAR_REMOTE_ACCESS_SERVICE);
+                    } else {
+                        mCar = null;
+                        mRemoteAccessManager = null;
+                    }
+                });
     }
 
     @Override
@@ -60,6 +89,19 @@ public final class RemoteAccessTestFragment extends Fragment {
 
         v.findViewById(R.id.refresh_remote_task_btn).setOnClickListener(this::refresh);
         v.findViewById(R.id.clear_remote_task_btn).setOnClickListener(this::clear);
+        v.findViewById(R.id.schedule_task_btn).setOnClickListener(this::scheduleTask);
+
+        Spinner taskTypeSpinner = (Spinner) v.findViewById(R.id.remote_task_type_spinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
+                R.array.remote_task_types, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        taskTypeSpinner.setAdapter(adapter);
+
+        mRemoteTaskDataView = (EditText) v.findViewById(R.id.remote_task_data);
+        mTaskDelayView = (EditText) v.findViewById(R.id.task_delay);
+        mTaskType = taskTypeSpinner;
+        mTaskRepeatView = (EditText) v.findViewById(R.id.task_repeat);
+        mTaskIntervalView = (EditText) v.findViewById(R.id.task_interval);
         return v;
     }
 
@@ -67,6 +109,20 @@ public final class RemoteAccessTestFragment extends Fragment {
     public void onStart() {
         super.onStart();
         refresh(getView());
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        disconnectCar();
+    }
+
+    private void disconnectCar() {
+        if (mCar != null && mCar.isConnected()) {
+            mRemoteAccessManager.clearRemoteTaskClient();
+            mCar.disconnect();
+            mCar = null;
+        }
     }
 
     private static class TaskInfo {
@@ -132,5 +188,47 @@ public final class RemoteAccessTestFragment extends Fragment {
     private void clear(View v) {
         mSharedPref.edit().putString(KitchenSinkRemoteTaskService.PREF_KEY, "{}").apply();
         refresh(v);
+    }
+
+    private void scheduleTask(View v) {
+        Log.e(TAG, "scheduleTask");
+        InVehicleTaskScheduler taskScheduler = mRemoteAccessManager.getInVehicleTaskScheduler();
+        if (taskScheduler == null) {
+            Log.e(TAG, "Task scheduling is not supported");
+            return;
+        }
+        String taskData = mRemoteTaskDataView.getText().toString();
+        if (taskData.length() == 0) {
+            Log.e(TAG, "No task data specified");
+            return;
+        }
+        int delay = Integer.parseInt(mTaskDelayView.getText().toString());
+        long startTimeInEpochSeconds = (long) (System.currentTimeMillis() / 1000) + (long) delay;
+        int taskTypePos = mTaskType.getSelectedItemPosition();
+        String scheduleId = "scheduleId" + mScheduleId.getAndIncrement();
+
+        switch (taskTypePos) {
+            case 0:
+                taskData = "SetTemp:" + Float.parseFloat(taskData);
+                break;
+            default:
+                // Do nothing
+        }
+        ScheduleInfo.Builder scheduleInfoBuilder = ScheduleInfo.builder(
+                scheduleId, taskData.getBytes(), startTimeInEpochSeconds);
+        int count = Integer.parseInt(mTaskRepeatView.getText().toString());
+        scheduleInfoBuilder.setCount(count);
+        if (count > 1) {
+            int taskInterval = Integer.parseInt(mTaskIntervalView.getText().toString());
+            scheduleInfoBuilder.setPeriodic(Duration.ofSeconds(taskInterval));
+        }
+        try {
+            Log.i(TAG, "Scheduling task to be executed");
+            taskScheduler.scheduleTask(scheduleInfoBuilder.build());
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to schedule task: " + e);
+            return;
+        }
+        Log.i(TAG, "Task scheduled successfully");
     }
 }
