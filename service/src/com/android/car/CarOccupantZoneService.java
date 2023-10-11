@@ -21,6 +21,7 @@ import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPING
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 import static android.view.Display.STATE_ON;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
@@ -95,7 +96,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
     private static final String HANDLER_THREAD_NAME = "CarOccupantZoneService";
 
-    private static final int[] EMPTY_INPUT_SUPPORT_TYPES = new int[0];
+    private static final int[] EMPTY_INPUT_SUPPORT_TYPES = EMPTY_INT_ARRAY;
 
     private final Object mLock = new Object();
     private final Context mContext;
@@ -527,7 +528,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         synchronized (mLock) {
             OccupantConfig config = mActiveOccupantConfigs.get(occupantZoneId);
             if (config == null) {
-                return new int[0];
+                return EMPTY_INT_ARRAY;
             }
             int[] displayIds = new int[config.displayInfos.size()];
             for (int i = 0; i < config.displayInfos.size(); i++) {

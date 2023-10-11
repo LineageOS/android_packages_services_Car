@@ -15,6 +15,9 @@
  */
 package com.android.car.hal;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_BYTE_ARRAY;
+import static com.android.car.internal.common.CommonConstants.EMPTY_FLOAT_ARRAY;
+import static com.android.car.internal.common.CommonConstants.EMPTY_LONG_ARRAY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.VehicleAreaType;
@@ -84,7 +87,7 @@ public class VmsHalService extends HalServiceBase {
     };
     private static final int NUM_INTEGERS_IN_VMS_LAYER = 3;
     private static final int UNKNOWN_CLIENT_ID = -1;
-    private static final byte[] DEFAULT_PUBLISHER_INFO = new byte[0];
+    private static final byte[] DEFAULT_PUBLISHER_INFO = EMPTY_BYTE_ARRAY;
 
     private final VehicleHal mVehicleHal;
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
@@ -821,9 +824,9 @@ public class VmsHalService extends HalServiceBase {
             intValues[i + 1] = values.get(i);
         }
         return builder.build(HAL_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
-                /*timestamp=*/0, VehiclePropertyStatus.AVAILABLE,
-                /*int32Values=*/intValues, /*floatValues=*/new float[0],
-                /*int64Values=*/new long[0], /*stringValue=*/new String(), /*byteValues=*/payload);
+                /*timestamp=*/ 0, VehiclePropertyStatus.AVAILABLE,
+                /*int32Values=*/ intValues, /*floatValues=*/ EMPTY_FLOAT_ARRAY,
+                /*int64Values=*/ EMPTY_LONG_ARRAY, /*stringValue=*/ "", /*byteValues=*/payload);
     }
 
     /**

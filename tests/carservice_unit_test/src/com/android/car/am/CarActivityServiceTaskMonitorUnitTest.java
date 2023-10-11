@@ -128,8 +128,8 @@ public class CarActivityServiceTaskMonitorUnitTest {
         for (Activity activity : sTestActivities) {
             activity.finish();
         }
-        mService.registerActivityLaunchListener(null);
         mService.unregisterTaskMonitor(mToken);
+        // Any remaining ActivityLaunchListeners will be flushed in release().
         mService.release();
         mService = null;
     }
@@ -179,6 +179,33 @@ public class CarActivityServiceTaskMonitorUnitTest {
         startActivityAndAssertLaunched(mActivityA);
 
         startActivityAndAssertLaunched(mActivityB);
+    }
+
+    @Test
+    public void testMultipleActivityLaunchListeners() throws Exception {
+        FilteredLaunchListener listener1 = new FilteredLaunchListener(mActivityA);
+        mService.registerActivityLaunchListener(listener1);
+        FilteredLaunchListener listener2 = new FilteredLaunchListener(mActivityA);
+        mService.registerActivityLaunchListener(listener2);
+
+        startActivity(mActivityA, Display.DEFAULT_DISPLAY);
+
+        listener2.assertTopTaskActivityLaunched();
+        assertThat(listener1.mActivityLaunched.getCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void testUnregisterActivityLaunchListener() throws Exception {
+        FilteredLaunchListener listener1 = new FilteredLaunchListener(mActivityA);
+        mService.registerActivityLaunchListener(listener1);
+        FilteredLaunchListener listener2 = new FilteredLaunchListener(mActivityA);
+        mService.registerActivityLaunchListener(listener2);
+        mService.unregisterActivityLaunchListener(listener1);
+
+        startActivity(mActivityA, Display.DEFAULT_DISPLAY);
+
+        listener2.assertTopTaskActivityLaunched();
+        assertThat(listener1.mActivityLaunched.getCount()).isEqualTo(1);
     }
 
     @Test

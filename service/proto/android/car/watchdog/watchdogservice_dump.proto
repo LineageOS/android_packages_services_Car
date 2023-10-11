@@ -55,7 +55,7 @@ message PerformanceDump {
   optional int64 uid_io_usage_summary_top_count = 3;
   optional int64 io_usage_summary_min_system_total_written_bytes = 4;
   optional int64 package_killable_state_reset_days = 5;
-  optional int64 recurring_overuse_period = 6;
+  optional int64 recurring_overuse_period_days = 6;
   optional int64 resource_overuse_notification_base_id = 7;
   optional int64 resource_overuse_notification_max_offset = 8;
   optional bool is_connected_to_daemon = 9;
@@ -92,24 +92,18 @@ message PerformanceDump {
 
   message IoThresholdByComponent {
     optional ComponentType component_type = 1;
-    optional PerStateBytesThreshold threshold = 2;
+    optional PerStateBytes threshold = 2;
   }
 
   message IoThresholdByPackage {
     optional ComponentType package_type = 1;
-    optional PerStateBytesThreshold threshold = 2;
+    optional PerStateBytes threshold = 2;
     optional string package_name = 3;
   }
 
   message IoThresholdByAppCategory {
     optional ApplicationCategory application_category = 1;
-    optional PerStateBytesThreshold threshold = 2;
-  }
-
-  message PerStateBytesThreshold {
-    optional int64 foreground_bytes = 1;
-    optional int64 background_bytes = 2;
-    optional int64 garage_mode_bytes = 3;
+    optional PerStateBytes threshold = 2;
   }
 
   message UsageByUserPackage {
@@ -119,7 +113,7 @@ message PerformanceDump {
   }
 
   message PackageIoUsage {
-    optional IoOveruseStats io_overuse_states = 1;
+    optional IoOveruseStats io_overuse_stats = 1;
     optional PerStateBytes forgiven_write_bytes = 2;
     optional int64 forgiven_overuses = 3;
     optional int64 historical_not_forgiven_overuses = 4;
@@ -129,7 +123,7 @@ message PerformanceDump {
   message IoOveruseStats {
     optional bool killable_on_overuse = 1;
     optional PerStateBytes remaining_write_bytes = 2;
-    optional int64 startTime = 3;
+    optional int64 start_time = 3;
     optional int64 duration = 4;
     optional PerStateBytes written_bytes = 5;
     optional int64 total_overuses = 6;
@@ -178,7 +172,7 @@ message PerformanceDump {
 
 message DateTime {
   optional Date date = 1;
-  optional TimeOfDay timeOfDay = 2;
+  optional TimeOfDay time_of_day = 2;
 }
 
 // Represents a whole or partial calendar date, such as a birthday. The time of

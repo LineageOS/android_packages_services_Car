@@ -17,6 +17,7 @@
 package com.android.car.internal.util;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -747,7 +748,7 @@ public final class ArrayUtils {
     /** TODO: add javadoc */
     @NonNull
     public static int[] defeatNullable(@Nullable int[] val) {
-        return (val != null) ? val : new int[0];
+        return (val != null) ? val : EMPTY_INT_ARRAY;
     }
 
     /** TODO: add javadoc */

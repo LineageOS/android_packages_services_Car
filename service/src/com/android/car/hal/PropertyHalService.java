@@ -32,6 +32,7 @@ import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAI
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_TRY_AGAIN;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
 import static com.android.car.internal.property.CarPropertyHelper.isSystemProperty;
@@ -1250,7 +1251,7 @@ public class PropertyHalService extends HalServiceBase {
 
     @GuardedBy("mLock")
     private int[] getAllAreaIdsLocked(int mgrPropId) {
-        int[] areaIds = new int[0];
+        int[] areaIds = EMPTY_INT_ARRAY;
         HalPropConfig halPropConfig = mHalPropIdToPropConfig.get(managerToHalPropId(mgrPropId));
         if (halPropConfig == null) {
             if (DBG) {
@@ -1295,7 +1296,7 @@ public class PropertyHalService extends HalServiceBase {
 
     @Override
     public int[] getAllSupportedProperties() {
-        return CarServiceUtils.EMPTY_INT_ARRAY;
+        return EMPTY_INT_ARRAY;
     }
 
     // The method is called in HAL init(). Avoid handling complex things in here.

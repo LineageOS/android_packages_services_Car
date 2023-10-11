@@ -27,6 +27,7 @@ import static android.net.wifi.WifiManager.WIFI_AP_STATE_DISABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLING;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.Nullable;
@@ -332,13 +333,13 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         }
         if (scanner == null) {
             Slogf.w(TAG, "Unable to get WifiScanner");
-            return new int[0];
+            return EMPTY_INT_ARRAY;
         }
 
         List<Integer> channels = scanner.getAvailableChannels(band);
         if (channels == null || channels.isEmpty()) {
             Slogf.w(TAG, "WifiScanner reported no available channels");
-            return new int[0];
+            return EMPTY_INT_ARRAY;
         }
 
         int[] array = new int[channels.size()];

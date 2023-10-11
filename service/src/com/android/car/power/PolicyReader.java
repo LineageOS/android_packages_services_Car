@@ -23,6 +23,7 @@ import static android.car.hardware.power.PowerComponentUtil.powerComponentToStri
 import static android.car.hardware.power.PowerComponentUtil.toPowerComponent;
 import static android.frameworks.automotive.powerpolicy.PowerComponent.MINIMUM_CUSTOM_COMPONENT_VALUE;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
@@ -121,7 +122,7 @@ public final class PolicyReader {
     private static final String POWER_ONOFF_UNTOUCHED = "untouched";
 
     private static final int[] ALL_COMPONENTS;
-    private static final int[] NO_COMPONENTS = new int[0];
+    private static final int[] NO_COMPONENTS = EMPTY_INT_ARRAY;
     private static final int[] INITIAL_ON_COMPONENTS = {
             PowerComponent.AUDIO, PowerComponent.DISPLAY, PowerComponent.CPU
     };

@@ -129,7 +129,7 @@ public final class CarActivityService extends ICarActivityService.Stub
         void onActivityLaunch(TaskInfo topTask);
     }
     @GuardedBy("mLock")
-    private ActivityLaunchListener mActivityLaunchListener;
+    private final ArrayList<ActivityLaunchListener> mActivityLaunchListeners = new ArrayList<>();
 
     private final HandlerThread mMonitorHandlerThread = CarServiceUtils.getHandlerThread(
             SystemActivityMonitoringService.class.getSimpleName());
@@ -150,7 +150,11 @@ public final class CarActivityService extends ICarActivityService.Stub
     public void init() {}
 
     @Override
-    public void release() {}
+    public void release() {
+        synchronized (mLock) {
+            mActivityLaunchListeners.clear();
+        }
+    }
 
     @Override
     public int setPersistentActivity(ComponentName activity, int displayId, int featureId) throws
@@ -178,9 +182,15 @@ public final class CarActivityService extends ICarActivityService.Stub
         return UserManagerHelper.getUserId(Binder.getCallingUid());
     }
 
-    public void registerActivityLaunchListener(ActivityLaunchListener listener) {
+    public void registerActivityLaunchListener(@NonNull ActivityLaunchListener listener) {
         synchronized (mLock) {
-            mActivityLaunchListener = listener;
+            mActivityLaunchListeners.add(listener);
+        }
+    }
+
+    public void unregisterActivityLaunchListener(@NonNull ActivityLaunchListener listener) {
+        synchronized (mLock) {
+            mActivityLaunchListeners.remove(listener);
         }
     }
 
@@ -258,10 +268,9 @@ public final class CarActivityService extends ICarActivityService.Stub
     private void notifyActivityLaunch(TaskInfo taskInfo) {
         ActivityLaunchListener listener;
         synchronized (mLock) {
-            listener = mActivityLaunchListener;
-        }
-        if (listener != null) {
-            listener.onActivityLaunch(taskInfo);
+            for (int i = 0, size = mActivityLaunchListeners.size(); i < size; ++i) {
+                mActivityLaunchListeners.get(i).onActivityLaunch(taskInfo);
+            }
         }
     }
 
@@ -690,6 +699,7 @@ public final class CarActivityService extends ICarActivityService.Stub
                 writer.println("  " + TaskInfoHelper.toString(taskInfo));
             }
             writer.println(" Surfaces: " + mTaskToSurfaceMap.toString());
+            writer.println(" ActivityLaunchListeners: " + mActivityLaunchListeners.toString());
         }
     }
 
