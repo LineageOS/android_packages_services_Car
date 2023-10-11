@@ -111,6 +111,9 @@ public final class SubscriptionManager<ClientType> {
          * Adds a new client for this {propertyId, areaId}.
          */
         void add(ClientType client, float updateRateHz) {
+            // Clear the existing updateRateHz for the client if exists.
+            remove(client);
+            // Store the new updateRateHz.
             mUpdateRateHzByClient.put(client, updateRateHz);
             if (!mClientCountByUpdateRateHz.containsKey(updateRateHz)) {
                 mUpdateRatesHz.add(updateRateHz);
@@ -130,7 +133,7 @@ public final class SubscriptionManager<ClientType> {
                 int newCount = mClientCountByUpdateRateHz.get(updateRateHz) - 1;
                 if (newCount == 0) {
                     mClientCountByUpdateRateHz.remove(updateRateHz);
-                    mUpdateRatesHz.remove(mUpdateRateHzByClient.get(client));
+                    mUpdateRatesHz.remove(updateRateHz);
                 } else {
                     mClientCountByUpdateRateHz.put(updateRateHz, newCount);
                 }

@@ -59,6 +59,7 @@ import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
+import com.android.car.internal.property.SubscriptionManager;
 import com.android.car.internal.util.PairSparseArray;
 import com.android.internal.annotations.GuardedBy;
 
@@ -68,7 +69,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -110,15 +111,15 @@ public class CarPropertyManager extends CarManagerBase {
     @GuardedBy("mLock")
     private final SparseArray<ArraySet<CarPropertyEventCallbackController>>
             mPropIdToCpeCallbackControllerList = new SparseArray<>();
-    @GuardedBy("mLock")
-    private final SparseArray<SparseArray<Float>> mPropertyIdToAreaIdToMaxUpdateRateHz =
-            new SparseArray<>();
 
     private final GetPropertyResultCallback mGetPropertyResultCallback =
             new GetPropertyResultCallback();
 
     private final SetPropertyResultCallback mSetPropertyResultCallback =
             new SetPropertyResultCallback();
+    @GuardedBy("mLock")
+    private final SubscriptionManager<CarPropertyEventCallback> mSubscriptionManager =
+            new SubscriptionManager<>();
 
     /**
      * Application registers {@link CarPropertyEventCallback} object to receive updates and changes
@@ -707,66 +708,6 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * The updateRateHz value is used to determine whether the subscribe option is for subscribing
-     * or unsubscribing. A null updateRateHz value signifies an unsubscribe, while a non-null
-     * updateRateHz value signifies a subscribe.
-     */
-    private static final class InternalSubscribeOption {
-        private int mPropertyId;
-        private int[] mAreaIds;
-        private Float mUpdateRateHz;
-
-        /**
-         * Returns a new InternalSubscribeOption with sanitized update rate.
-         *
-         * @param config The config of the clientOption's propertyId
-         * @param clientOption SubscriptionOption to turn into InternalSubscribeOption
-         * @return InternalSubscribeOption
-         */
-        private static InternalSubscribeOption newSubscribe(CarPropertyConfig config,
-                SubscriptionOption clientOption) {
-            float sanitizedUpdateRate = InputSanitizationUtils.sanitizeUpdateRateHz(config,
-                    clientOption.getUpdateRateHz());
-            InternalSubscribeOption internalSubscribeOption = new InternalSubscribeOption(
-                    clientOption.getPropertyId(), clientOption.getAreaIds());
-            internalSubscribeOption.setUpdateRateHz(sanitizedUpdateRate);
-            return internalSubscribeOption;
-        }
-
-        /**
-         * Returns a new InternalSubscribeOption with null updateRateHz
-         *
-         * @param propertyId PropertyId of new InternalSubscribeOption
-         * @param areaIds AreaIds of new InternalSubscribeOption
-         * @return InternalSubscribeOption
-         */
-        private static InternalSubscribeOption newUnsubscribe(int propertyId, int[] areaIds) {
-            return new InternalSubscribeOption(propertyId, areaIds);
-        }
-
-        private InternalSubscribeOption(int propertyId, int[] areaIds) {
-            mPropertyId = propertyId;
-            mAreaIds = areaIds;
-        }
-
-        private void setUpdateRateHz(Float updateRateHz) {
-            mUpdateRateHz = updateRateHz;
-        }
-
-        private int getPropertyId() {
-            return mPropertyId;
-        }
-
-        private int[] getAreaIds() {
-            return mAreaIds;
-
-        }
-        private Float getUpdateRateHz() {
-            return mUpdateRateHz;
-        }
-    }
-
-    /**
      * An abstract interface for converting async get/set result and calling client callbacks.
      */
     private interface PropertyResultCallback<CallbackType, ResultType> {
@@ -1138,17 +1079,25 @@ public class CarPropertyManager extends CarManagerBase {
                     + VehiclePropertyIds.toString(propertyId));
             return false;
         }
-        float sanitizedUpdateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(carPropertyConfig,
-                updateRateHz);
         int[] areaIds = carPropertyConfig.getAreaIds();
+        // We require updateRateHz to be within 0 and 100, however, in the previous implementation,
+        // we did not actually check this range. In order to prevent the existing behavior, and
+        // to prevent SubscriptionOption.Builder.setUpdateRateHz to throw exception, we fit the
+        // input within the expected range.
+        if (updateRateHz > 100.0f) {
+            updateRateHz = 100.0f;
+        }
+        if (updateRateHz < 0.0f) {
+            updateRateHz = 0.0f;
+        }
         SubscriptionOption.Builder subscriptionOptionBuilder = new SubscriptionOption
-                .Builder(propertyId).setUpdateRateHz(sanitizedUpdateRateHz);
+                .Builder(propertyId).setUpdateRateHz(updateRateHz);
         for (int areaId : areaIds) {
             subscriptionOptionBuilder.addAreaId(areaId);
         }
         try {
             return subscribePropertyEvents(List.of(subscriptionOptionBuilder.build()),
-                    null, carPropertyEventCallback);
+                    /* callbackExecutor= */ null, carPropertyEventCallback);
         } catch (IllegalArgumentException e) {
             Log.w(TAG, "register: PropertyId=" + propertyId + ", exception=", e);
             return false;
@@ -1244,8 +1193,8 @@ public class CarPropertyManager extends CarManagerBase {
             callbackExecutor = mExecutor;
         }
 
-        List<InternalSubscribeOption> internalSubscribeOptions =
-                convertSubscriptionOptions(subscribeOptions);
+        List<CarSubscribeOption> carSubscribeOptions =
+                sanitizeUpdateRateConvertToCarSubscribeOptions(subscribeOptions);
 
         synchronized (mLock) {
             CarPropertyEventCallbackController cpeCallbackController =
@@ -1255,15 +1204,20 @@ public class CarPropertyManager extends CarManagerBase {
                 throw new IllegalArgumentException("A different executor is already associated with"
                         + " this callback, please use the same executor.");
             }
-            if (!updateMaxUpdateRateHzAndRegisterLocked(internalSubscribeOptions,
-                    cpeCallbackController)) {
+
+            mSubscriptionManager.stageNewOptions(carPropertyEventCallback, carSubscribeOptions);
+
+            if (!applySubscriptionChangesLocked()) {
                 return false;
             }
-            for (int i = 0; i < internalSubscribeOptions.size(); i++) {
-                InternalSubscribeOption option = internalSubscribeOptions.get(i);
-                int propertyId = option.getPropertyId();
-                float updateRateHz = option.getUpdateRateHz();
-                int[] areaIds = option.getAreaIds();
+
+            // Must use carSubscribeOptions instead of subscribeOptions here since we need to use
+            // sanitized update rate.
+            for (int i = 0; i < carSubscribeOptions.size(); i++) {
+                CarSubscribeOption option = carSubscribeOptions.get(i);
+                int propertyId = option.propertyId;
+                float sanitizedUpdateRateHz = option.updateRateHz;
+                int[] areaIds = option.areaIds;
 
                 if (cpeCallbackController == null) {
                     cpeCallbackController =
@@ -1272,7 +1226,7 @@ public class CarPropertyManager extends CarManagerBase {
                     mCpeCallbackToCpeCallbackController.put(carPropertyEventCallback,
                             cpeCallbackController);
                 }
-                cpeCallbackController.add(propertyId, areaIds, updateRateHz);
+                cpeCallbackController.add(propertyId, areaIds, sanitizedUpdateRateHz);
 
                 ArraySet<CarPropertyEventCallbackController> cpeCallbackControllerSet =
                         mPropIdToCpeCallbackControllerList.get(propertyId);
@@ -1284,25 +1238,6 @@ public class CarPropertyManager extends CarManagerBase {
             }
         }
         return true;
-    }
-
-    @Nullable
-    private List<InternalSubscribeOption> convertSubscriptionOptions(
-            List<SubscriptionOption> subscribeOptions) {
-        List<InternalSubscribeOption> internalSubscribeOptions = new ArrayList<>();
-        for (int i = 0; i < subscribeOptions.size(); i++) {
-            SubscriptionOption subscribeOption = subscribeOptions.get(i);
-            int propertyId = subscribeOption.getPropertyId();
-            CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
-            if (carPropertyConfig == null) {
-                throw new IllegalArgumentException("registerCallback:  propertyId is not in"
-                        + " carPropertyConfig list:  "
-                        + VehiclePropertyIds.toString(propertyId));
-            }
-            internalSubscribeOptions.add(InternalSubscribeOption.newSubscribe(carPropertyConfig,
-                    subscribeOption));
-        }
-        return internalSubscribeOptions;
     }
 
     /**
@@ -1363,216 +1298,50 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws SecurityException if missing the appropriate permission.
      */
     @GuardedBy("mLock")
-    private boolean updateMaxUpdateRateHzAndRegisterLocked(
-            List<InternalSubscribeOption> subscribeOptions,
-            @Nullable CarPropertyEventCallbackController cpeCallbackController) {
-        // Filter out subscribe options that are the same as the current status and properties that
-        // are supposed to be unsubscribed.
-        List<CarSubscribeOption> updatedCarSubscribeOptions = filterSubscribeOptionsLocked(
-                subscribeOptions, cpeCallbackController);
-        List<Integer> propertiesToUnsubscribe = getPropertiesToUnsubscribeLocked(subscribeOptions,
-                cpeCallbackController);
+    private boolean applySubscriptionChangesLocked() {
+        List<CarSubscribeOption> updatedCarSubscribeOptions = new ArrayList<>();
+        List<Integer> propertiesToUnsubscribe = new ArrayList<>();
+
+        mSubscriptionManager.diffBetweenCurrentAndStage(updatedCarSubscribeOptions,
+                propertiesToUnsubscribe);
 
         if (propertiesToUnsubscribe.isEmpty() && updatedCarSubscribeOptions.isEmpty()) {
             Log.d(TAG, "There is nothing to subscribe or unsubscribe to CarPropertyService");
+            mSubscriptionManager.commit();
             return true;
         }
 
         if (DBG) {
             Log.d(TAG, "updatedCarSubscribeOptions to subscribe is: "
                     + updatedCarSubscribeOptions + " and the list of properties to unsubscribe is: "
-                    + propertiesToUnsubscribe);
+                    + CarPropertyHelper.propertyIdsToString(propertiesToUnsubscribe));
         }
 
-        if (!propertiesToUnsubscribe.isEmpty()) {
-            for (int i = 0; i < propertiesToUnsubscribe.size(); i++) {
-                if (!unregisterLocked(propertiesToUnsubscribe.get(i))) {
-                    Log.w(TAG, "Failed to unsubscribe to: " + propertiesToUnsubscribe.get(i));
+        try {
+            if (!updatedCarSubscribeOptions.isEmpty()) {
+                if (!registerLocked(updatedCarSubscribeOptions)) {
+                    mSubscriptionManager.dropCommit();
                     return false;
                 }
-                mPropertyIdToAreaIdToMaxUpdateRateHz.remove(propertiesToUnsubscribe.get(i));
             }
+
+            if (!propertiesToUnsubscribe.isEmpty()) {
+                for (int i = 0; i < propertiesToUnsubscribe.size(); i++) {
+                    if (!unregisterLocked(propertiesToUnsubscribe.get(i))) {
+                        Log.w(TAG, "Failed to unsubscribe to: " + VehiclePropertyIds.toString(
+                                propertiesToUnsubscribe.get(i)));
+                        mSubscriptionManager.dropCommit();
+                        return false;
+                    }
+                }
+            }
+        } catch (SecurityException e) {
+            mSubscriptionManager.dropCommit();
+            throw e;
         }
 
-        if (!updatedCarSubscribeOptions.isEmpty()) {
-            if (!registerLocked(updatedCarSubscribeOptions)) {
-                return false;
-            }
-        }
-
-        for (int i = 0; i < updatedCarSubscribeOptions.size(); i++) {
-            CarSubscribeOption carSubscribeOption = updatedCarSubscribeOptions.get(i);
-            int propertyId = carSubscribeOption.propertyId;
-            int[] areaIds = carSubscribeOption.areaIds;
-            Float maxUpdateRateHz = carSubscribeOption.updateRateHz;
-            if (!mPropertyIdToAreaIdToMaxUpdateRateHz.contains(propertyId)) {
-                mPropertyIdToAreaIdToMaxUpdateRateHz.put(propertyId, new SparseArray<>());
-            }
-            for (int areaId : areaIds) {
-                mPropertyIdToAreaIdToMaxUpdateRateHz.get(propertyId).put(areaId,
-                        maxUpdateRateHz);
-            }
-        }
-
+        mSubscriptionManager.commit();
         return true;
-    }
-
-    @GuardedBy("mLock")
-    private List<Integer> getPropertiesToUnsubscribeLocked(
-            List<InternalSubscribeOption> subscribeOptions,
-            CarPropertyEventCallbackController cpeCallbackController) {
-        List<Integer> propertiesToUnsubscribe = new ArrayList<>();
-        for (int i = 0; i < subscribeOptions.size(); i++) {
-            InternalSubscribeOption internalSubscribeOption = subscribeOptions.get(i);
-            int propertyId = internalSubscribeOption.getPropertyId();
-            int[] areaIds = internalSubscribeOption.getAreaIds();
-            Float updateRateHz = internalSubscribeOption.getUpdateRateHz();
-            boolean shouldUnsubscribe = true;
-            for (int areaId : areaIds) {
-                if (calculateMaxUpdateRateHzLocked(propertyId, areaId,
-                        cpeCallbackController, updateRateHz) != null) {
-                    shouldUnsubscribe = false;
-                    break;
-                }
-            }
-            if (shouldUnsubscribe) {
-                propertiesToUnsubscribe.add(propertyId);
-            }
-        }
-        return propertiesToUnsubscribe;
-    }
-
-    @GuardedBy("mLock")
-    private List<CarSubscribeOption> filterSubscribeOptionsLocked(
-            List<InternalSubscribeOption> subscribeOptions,
-            CarPropertyEventCallbackController cpeCallbackController) {
-        List<CarSubscribeOption> carSubscribeOptions = new ArrayList<>();
-        for (int i = 0; i < subscribeOptions.size(); i++) {
-            InternalSubscribeOption internalSubscribeOption = subscribeOptions.get(i);
-            int propertyId = internalSubscribeOption.getPropertyId();
-            int[] areaIds = internalSubscribeOption.getAreaIds();
-            Float updateRateHz = internalSubscribeOption.getUpdateRateHz();
-            carSubscribeOptions.addAll(removeLowerUpdateRateOptionLocked(propertyId, areaIds,
-                    cpeCallbackController, updateRateHz));
-        }
-        return carSubscribeOptions;
-    }
-
-    /**
-     * Creates a List of CarSubscribeOption to subscribe to CarPropertyService.
-     *
-     * @param propertyId PropertyId of CarSubscribeOptions to create.
-     * @param updateRateHzToAreaIds Map from max update rates to areaIds
-     * @return List of CarSubscribeOption to subscribe to.
-     */
-    private List<CarSubscribeOption> createCarSubOptionFromMaxUpdateRates(int propertyId,
-            ArrayMap<Float, List<Integer>> updateRateHzToAreaIds) {
-        List<CarSubscribeOption> carSubscribeOptions = new ArrayList<>();
-        for (int i = 0; i < updateRateHzToAreaIds.size(); i++) {
-            CarSubscribeOption option = new CarSubscribeOption();
-            option.propertyId = propertyId;
-            List<Integer> filteredAreaIds = updateRateHzToAreaIds.valueAt(i);
-            int[] carSubscribeOptionsAreaIds = new int[filteredAreaIds.size()];
-            for (int j = 0; j < filteredAreaIds.size(); ++j) {
-                carSubscribeOptionsAreaIds[j] = filteredAreaIds.get(j);
-            }
-            option.areaIds = carSubscribeOptionsAreaIds;
-            option.updateRateHz = updateRateHzToAreaIds.keyAt(i);
-            carSubscribeOptions.add(option);
-        }
-        return carSubscribeOptions;
-    }
-
-    /**
-     * Calculates the highest updateRateHzs to subscribe to CarPropertyService with, if the new
-     * update rate is less than or equal to the old update rate, it will get filtered out.
-     *
-     * @param propertyId propertyId to subscribe to.
-     * @param areaIds areaIds to filter.
-     * @param cpeCallbackController the controller for the callback being registered
-     * @param sanitizedUpdateRateHz the sanitized update rate.
-     * @return List of CarSubscribeOption to subscribe to.
-     */
-    @GuardedBy("mLock")
-    @Nullable
-    private List<CarSubscribeOption> removeLowerUpdateRateOptionLocked(int propertyId,
-            int[] areaIds, @Nullable CarPropertyEventCallbackController cpeCallbackController,
-            Float sanitizedUpdateRateHz) {
-        ArrayMap<Float, List<Integer>> updateRateHzToAreaIds = new ArrayMap<>();
-        for (int areaId : areaIds) {
-            Float newMaxUpdateRateHz = calculateMaxUpdateRateHzLocked(propertyId, areaId,
-                    cpeCallbackController, sanitizedUpdateRateHz);
-            if (newMaxUpdateRateHz == null) {
-                continue;
-            }
-            Float currentMaxUpdateRateHz = null;
-            if (mPropertyIdToAreaIdToMaxUpdateRateHz.contains(propertyId)) {
-                currentMaxUpdateRateHz = mPropertyIdToAreaIdToMaxUpdateRateHz.get(propertyId)
-                        .get(areaId);
-            }
-            if (Objects.equals(currentMaxUpdateRateHz, newMaxUpdateRateHz)) {
-                if (DBG) {
-                    Log.d(TAG, "createMaxUpdateRateHzMap: currentMaxUpdateRateHz and"
-                            + " newMaxUpdateRateHz are equal - " + newMaxUpdateRateHz + ", so not"
-                            + " updating listener in service. Registering propertyId="
-                            + VehiclePropertyIds.toString(propertyId) + ", areaId="
-                            + areaId + ", sanitizedUpdateRateHz="
-                            + sanitizedUpdateRateHz);
-                }
-                continue;
-            }
-            if (updateRateHzToAreaIds.get(newMaxUpdateRateHz) == null) {
-                updateRateHzToAreaIds.put(newMaxUpdateRateHz, new ArrayList<>());
-            }
-            updateRateHzToAreaIds.get(newMaxUpdateRateHz).add(areaId);
-        }
-        return createCarSubOptionFromMaxUpdateRates(propertyId, updateRateHzToAreaIds);
-    }
-
-    /**
-     * Find the highest update rate for a property ID and area ID pair from all callbacks registered
-     * to that property ID and area ID.
-     *
-     * @param propertyId the property ID
-     * @param areaId the area ID
-     * @param cpeCallbackController the controller for the callback being registered or
-     * unregistered. If it is {@code null}, then the callback has not been previously registered for
-     * any property.
-     * @param sanitizedUpdateRateHz the rate the callback is subscribing at. If it is {@code null},
-     * then the callback is unregistering from updates to the property ID and area ID pair.
-     *
-     * @return the highest update rate in hz. If it is {@code null}, then there are no remaining
-     * callbacks subscribed to the property ID and area ID pair.
-     */
-    @GuardedBy("mLock")
-    @Nullable
-    private Float calculateMaxUpdateRateHzLocked(int propertyId, int areaId,
-            @Nullable CarPropertyEventCallbackController cpeCallbackController,
-            @Nullable Float sanitizedUpdateRateHz) {
-        ArraySet<CarPropertyEventCallbackController> cpeCallbackControllerSet =
-                mPropIdToCpeCallbackControllerList.get(propertyId);
-        if (cpeCallbackControllerSet == null || cpeCallbackControllerSet.isEmpty()) {
-            // No callback has been registered for this property yet. Return the new rate.
-            return sanitizedUpdateRateHz;
-        }
-
-        Float maxUpdateRateHz = sanitizedUpdateRateHz;
-        for (int i = 0; i < cpeCallbackControllerSet.size(); i++) {
-            if (cpeCallbackControllerSet.valueAt(i) == cpeCallbackController) {
-                // Ignore the previous update rate for the same callback since it'll be overwritten.
-                continue;
-            }
-            float updateRateHz =
-                    cpeCallbackControllerSet.valueAt(i).getUpdateRateHz(propertyId, areaId);
-            if (maxUpdateRateHz == null || updateRateHz > maxUpdateRateHz) {
-                maxUpdateRateHz = updateRateHz;
-            }
-        }
-        if (DBG) {
-            Log.d(TAG, "Calculated maxUpdateRate for propertyId: " + propertyId + " and areaId: "
-                    + areaId + " is: " + maxUpdateRateHz);
-        }
-        return maxUpdateRateHz;
     }
 
     /**
@@ -1587,6 +1356,12 @@ public class CarPropertyManager extends CarManagerBase {
             mService.registerListenerWithSubscribeOptions(options, mCarPropertyEventToService);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
+            return false;
+        } catch (SecurityException e) {
+            throw e;
+        } catch (Exception e) {
+            Log.w(TAG, "registerLocked with options: " + options
+                    + ", unexpected exception=", e);
             return false;
         }
         return true;
@@ -1604,6 +1379,13 @@ public class CarPropertyManager extends CarManagerBase {
             mService.unregisterListener(propertyId, mCarPropertyEventToService);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
+            return false;
+        } catch (SecurityException e) {
+            throw e;
+        } catch (Exception e) {
+            Log.w(TAG, "unregisterLocked with property: "
+                    + VehiclePropertyIds.toString(propertyId)
+                    + ", unexpected exception=", e);
             return false;
         }
         return true;
@@ -1673,15 +1455,10 @@ public class CarPropertyManager extends CarManagerBase {
                 return;
             }
 
-            InternalSubscribeOption option = InternalSubscribeOption.newUnsubscribe(propertyId,
-                    cpeCallbackController.getAreaIds(propertyId));
-            try {
-                if (!updateMaxUpdateRateHzAndRegisterLocked(List.of(option),
-                        cpeCallbackController)) {
-                    return;
-                }
-            } catch (IllegalArgumentException e) {
-                Log.w(TAG, "unregisterCallback: PropertyId=" + propertyId + ", exception=", e);
+            mSubscriptionManager.stageUnregister(carPropertyEventCallback,
+                    new ArraySet<>(Set.of(propertyId)));
+
+            if (!applySubscriptionChangesLocked()) {
                 return;
             }
 
@@ -2516,7 +2293,7 @@ public class CarPropertyManager extends CarManagerBase {
         synchronized (mLock) {
             mCpeCallbackToCpeCallbackController.clear();
             mPropIdToCpeCallbackControllerList.clear();
-            mPropertyIdToAreaIdToMaxUpdateRateHz.clear();
+            mSubscriptionManager.clear();
         }
     }
 
@@ -2821,4 +2598,29 @@ public class CarPropertyManager extends CarManagerBase {
         }
         return requestIds;
     }
+
+    private List<CarSubscribeOption> sanitizeUpdateRateConvertToCarSubscribeOptions(
+            List<SubscriptionOption> subscribeOptions) throws IllegalArgumentException {
+        List<CarSubscribeOption> output = new ArrayList<>();
+        for (int i = 0; i < subscribeOptions.size(); i++) {
+            SubscriptionOption subscribeOption = subscribeOptions.get(i);
+            CarSubscribeOption carSubscribeOption = new CarSubscribeOption();
+            int propertyId = subscribeOption.getPropertyId();
+            CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
+            if (carPropertyConfig == null) {
+                String errorMessage = "propertyId is not in carPropertyConfig list: "
+                        + VehiclePropertyIds.toString(propertyId);
+                Log.e(TAG, "sanitizeUpdateRate: " + errorMessage);
+                throw new IllegalArgumentException(errorMessage);
+            }
+            float sanitizedUpdateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(
+                    carPropertyConfig, subscribeOption.getUpdateRateHz());
+            carSubscribeOption.propertyId = propertyId;
+            carSubscribeOption.areaIds = subscribeOption.getAreaIds();
+            carSubscribeOption.updateRateHz = sanitizedUpdateRateHz;
+            output.add(carSubscribeOption);
+        }
+        return output;
+    }
+
 }
