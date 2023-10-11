@@ -190,6 +190,18 @@ public class PropertyHalServiceConfigs {
     }
 
     /**
+     * Gets a list of all system VHAL property IDs. For unit test only.
+     */
+    @VisibleForTesting
+    /* package */ List<Integer> getAllSystemHalPropIds() {
+        List<Integer> halPropIds = new ArrayList<>();
+        for (int i = 0; i < mHalPropIdToCarSvcConfig.size(); i++) {
+            halPropIds.add(mHalPropIdToCarSvcConfig.keyAt(i));
+        }
+        return halPropIds;
+    }
+
+    /**
      * Gets the singleton instance for {@link PropertyHalServiceConfigs}.
      */
     public static PropertyHalServiceConfigs getInstance() {
