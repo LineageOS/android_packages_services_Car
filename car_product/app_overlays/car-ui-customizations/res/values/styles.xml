@@ -146,5 +146,13 @@
         <item name="android:height">0.01dp</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
+    <style name="Widget.CarUi.Toolbar.Tab"/>
+    <style name="Widget.CarUi.Toolbar.Tab.Container">
+        <item name="android:orientation">vertical</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/car_ui_toolbar_tab_background</item>
+    </style>
 
 </resources>
