@@ -18,21 +18,18 @@ package com.android.car.internal.property;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
 import static com.android.car.internal.common.CommonConstants.EMPTY_BYTE_ARRAY;
+import static com.android.car.internal.property.VehiclePropertyIdDebugUtils.isDefined;
+import static com.android.car.internal.property.VehiclePropertyIdDebugUtils.toDebugString;
 
 import android.annotation.SuppressLint;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.VehicleHalStatusCode;
 import android.car.hardware.property.VehicleHalStatusCode.VehicleHalStatusCodeInt;
-import android.util.Log;
-import android.util.SparseArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Helper class for CarPropertyService/CarPropertyManager.
@@ -40,8 +37,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * @hide
  */
 public final class CarPropertyHelper {
-    private static final String TAG = CarPropertyHelper.class.getSimpleName();
-
     /**
      * Status indicating no error.
      *
@@ -63,13 +58,6 @@ public final class CarPropertyHelper {
     private static final int SYSTEM_ERROR_CODE_MASK = 0xffff;
     private static final int VENDOR_ERROR_CODE_SHIFT = 16;
 
-    /*
-     * Used to cache the mapping of property Id integer values into property name strings. This
-     * will be initialized during the first usage.
-     */
-    private static final AtomicReference<SparseArray<String>> sPropertyIdToPropertyNameHolder =
-            new AtomicReference<>();
-
     /**
      * CarPropertyHelper only contains static fields and methods and must never be instantiated.
      */
@@ -86,14 +74,6 @@ public final class CarPropertyHelper {
     }
 
     /**
-     * Gets a user-friendly representation of a property.
-     */
-    public static String toString(int propertyId) {
-        String name = cachePropertyIdsToNameMapping().get(propertyId);
-        return name != null ? name : "0x" + Integer.toHexString(propertyId);
-    }
-
-    /**
      * Gets a user-friendly representation of a list of properties.
      */
     public static String propertyIdsToString(Collection<Integer> propertyIds) {
@@ -105,7 +85,7 @@ public final class CarPropertyHelper {
             } else {
                 names += ", ";
             }
-            names += toString(propertyId);
+            names += toDebugString(propertyId);
         }
         return names + "]";
     }
@@ -129,8 +109,7 @@ public final class CarPropertyHelper {
      * Returns whether the property ID is defined as a system property.
      */
     public static boolean isSystemProperty(int propertyId) {
-        return propertyId != VehiclePropertyIds.INVALID
-                && cachePropertyIdsToNameMapping().contains(propertyId);
+        return propertyId != VehiclePropertyIds.INVALID && isDefined(propertyId);
     }
 
     /**
@@ -150,42 +129,6 @@ public final class CarPropertyHelper {
             default:
                 return false;
         }
-    }
-
-    private static SparseArray<String> cachePropertyIdsToNameMapping() {
-        SparseArray<String> propertyIdsToNameMapping = sPropertyIdToPropertyNameHolder.get();
-        if (propertyIdsToNameMapping == null) {
-            propertyIdsToNameMapping = getPropertyIdsToNameMapping();
-            sPropertyIdToPropertyNameHolder.compareAndSet(null, propertyIdsToNameMapping);
-        }
-        return propertyIdsToNameMapping;
-    }
-
-    /**
-     * Creates a SparseArray mapping property Ids to their String representations
-     * directly from this class.
-     */
-    private static SparseArray<String> getPropertyIdsToNameMapping() {
-        Field[] classFields = VehiclePropertyIds.class.getDeclaredFields();
-        SparseArray<String> propertyIdsToNameMapping = new SparseArray<>(classFields.length);
-        for (int i = 0; i < classFields.length; i++) {
-            Field candidateField = classFields[i];
-            try {
-                if (isPropertyId(candidateField)) {
-                    propertyIdsToNameMapping
-                            .put(candidateField.getInt(null), candidateField.getName());
-                }
-            } catch (IllegalAccessException e) {
-                Log.wtf(TAG, "Failed trying to find value for " + candidateField.getName(), e);
-            }
-        }
-        return propertyIdsToNameMapping;
-    }
-
-    private static boolean isPropertyId(Field field) {
-        // We only want public static final int values
-        return field.getType() == int.class
-            && field.getModifiers() == (Modifier.STATIC | Modifier.FINAL | Modifier.PUBLIC);
     }
 
     /**
