@@ -75,4 +75,19 @@
         <item name="android:textDirection">locale</item>
         <item name="android:lineSpacingExtra">8sp</item>
     </style>
+
+    <style name="NotificationCard">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:layout_marginEnd">@dimen/notification_card_margin_horizontal</item>
+        <item name="android:layout_marginStart">@dimen/notification_card_margin_horizontal</item>
+
+    </style>
+
+    <style name="HeadsUpNotificationCard" parent="NotificationCard">
+        <item name="android:layout_gravity">center_horizontal|bottom</item>
+        <item name="android:layout_marginEnd">0dp</item>
+        <item name="android:layout_marginStart">0dp</item>
+    </style>
 </resources>

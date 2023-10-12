@@ -22,13 +22,9 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/card_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginEnd="@dimen/notification_card_margin_horizontal"
-        android:layout_marginStart="@dimen/notification_card_margin_horizontal"
         app:cardElevation="@dimen/card_elevation"
-        app:cardCornerRadius="@dimen/notification_card_radius">
+        app:cardCornerRadius="@dimen/notification_card_radius"
+        style="@style/NotificationCard">
 
         <FrameLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
