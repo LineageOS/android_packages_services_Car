@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.hal;
+package com.android.car.hal.property;
 
 import static com.android.car.internal.util.ConstantDebugUtils.toName;
 
