@@ -154,6 +154,10 @@ filegroup {
 java_defaults {
     name: "carservice-updatable-min-java-defaults",
 
+    defaults: [
+        "car-framework-aconfig-libraries",
+    ],
+
     srcs: [
         // add full source for all codes under p/s/Car to reduce unnecessary library allow listing.
         ":IVehicleGeneratedJavaFiles",
@@ -200,6 +204,7 @@ java_defaults {
     ],
 
     static_libs: [
+        "android.automotive.powerpolicy.delegate-V1-java",
         "android.automotive.telemetry.internal-V2-java",  // ICarTelemetryInternal
         "android.automotive.watchdog.internal-V3-java",
         "android.frameworks.automotive.powerpolicy.internal-V1-java",
