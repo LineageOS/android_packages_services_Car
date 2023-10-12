@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.hal.property;
+package com.android.car.hal;
 
 import android.annotation.Nullable;
 import android.hardware.automotive.vehicle.VehicleProperty;
