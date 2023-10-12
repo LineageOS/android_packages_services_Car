@@ -1183,16 +1183,17 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     /**
      * Inject a VHAL event
      *
-     * @param property the Vehicle property Id as defined in the HAL
-     * @param zone the zone that this event services
-     * @param value the data value of the event
-     * @param delayTime add a certain duration to event timestamp
+     * @param propertyId       the property ID as defined in the HAL
+     * @param areaId           the area ID that this event services
+     * @param value            the data value of the event
+     * @param delayTimeSeconds add a certain duration to event timestamp
      */
-    public void injectVhalEvent(int property, int zone, String value, int delayTime)
+    public void injectVhalEvent(int propertyId, int areaId, String value, int delayTimeSeconds)
             throws NumberFormatException {
-        long timestamp = SystemClock.elapsedRealtimeNanos() + TimeUnit.SECONDS.toNanos(delayTime);
-        HalPropValue v = createPropValueForInjecting(mPropValueBuilder, property, zone,
-                Arrays.asList(value.split(DATA_DELIMITER)), timestamp);
+        long timestampNanos = SystemClock.elapsedRealtimeNanos() + TimeUnit.SECONDS.toNanos(
+                delayTimeSeconds);
+        HalPropValue v = createPropValueForInjecting(mPropValueBuilder, propertyId, areaId,
+                Arrays.asList(value.split(DATA_DELIMITER)), timestampNanos);
         if (v == null) {
             return;
         }
