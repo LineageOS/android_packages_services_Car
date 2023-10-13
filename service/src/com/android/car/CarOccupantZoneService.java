@@ -27,7 +27,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.SuppressLint;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.Car;
@@ -102,6 +101,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     private final Context mContext;
     private final DisplayManager mDisplayManager;
     private final UserManager mUserManager;
+    private CarUserService mCarUserService;
 
     private final boolean mEnableProfileUserAssignmentForMultiDisplay;
 
@@ -301,11 +301,11 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             handleAudioZoneChangesLocked();
             handleUserChangesLocked();
         }
-        CarUserService userService = CarLocalServices.getService(CarUserService.class);
+        mCarUserService = CarLocalServices.getService(CarUserService.class);
         UserLifecycleEventFilter userEventFilter = new UserLifecycleEventFilter.Builder()
                 .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING).addEventType(
                         USER_LIFECYCLE_EVENT_TYPE_STOPPING).build();
-        userService.addUserLifecycleListener(userEventFilter, mUserLifecycleListener);
+        mCarUserService.addUserLifecycleListener(userEventFilter, mUserLifecycleListener);
         ExperimentalCarUserService experimentalUserService =
                 CarLocalServices.getService(ExperimentalCarUserService.class);
         if (experimentalUserService != null) {
@@ -388,8 +388,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     @Override
     public void release() {
         mDisplayManager.unregisterDisplayListener(mDisplayListener);
-        CarUserService userService = CarLocalServices.getService(CarUserService.class);
-        userService.removeUserLifecycleListener(mUserLifecycleListener);
+        mCarUserService.removeUserLifecycleListener(mUserLifecycleListener);
         ExperimentalCarUserService experimentalUserService =
                 CarLocalServices.getService(ExperimentalCarUserService.class);
         if (experimentalUserService != null) {
@@ -899,7 +898,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             userId = user.getIdentifier();
         }
 
-        if (!isUserVisible(user)) {
+        if (!mCarUserService.isUserVisible(userId)) {
             Slogf.w(TAG, "Non-visible user %d cannot be allocated to zone %d", userId,
                     occupantZoneId);
             return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_FAIL_NON_VISIBLE_USER;
@@ -1553,25 +1552,6 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
-    /**
-     * Checks if the given user is visible. This works in pre-U as well.
-     */
-    @VisibleForTesting
-    @SuppressLint("NewApi")
-    public boolean isUserVisible(@NonNull UserHandle user) {
-        // createContextAsUser throw exception if user does not exist. So it is not a reliable
-        // way to query it from car service. We need to catch the exception.
-        // TODO(b/243864134) Plumb to CarServiceHelper to use UserManagerInternal instead.
-        try {
-            Context userContext = mContext.createContextAsUser(user, /* flags= */ 0);
-            UserManager userManager = userContext.getSystemService(UserManager.class);
-            return userManager.isUserVisible();
-        } catch (Exception e) {
-            Slogf.w(TAG, "Cannot create User Context for user:" + user.getIdentifier(), e);
-            return false;
-        }
-    }
-
     /** Returns {@code true} if user allocation has changed */
     @GuardedBy("mLock")
     private boolean handleUserChangesLocked() {
@@ -1602,7 +1582,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 continue;
             }
             // Now it will be non-driver valid user id.
-            if (!isUserVisible(UserHandle.of(config.userId))) {
+            if (!mCarUserService.isUserVisible(config.userId)) {
                 if (DBG) Slogf.d(TAG, "Unassigned no longer visible user:%d", config.userId);
                 config.userId = CarOccupantZoneManager.INVALID_USER_ID;
                 changed = true;

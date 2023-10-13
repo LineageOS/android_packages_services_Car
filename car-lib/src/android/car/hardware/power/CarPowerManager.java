@@ -28,6 +28,7 @@ import android.annotation.SystemApi;
 import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArrayMap;
@@ -66,7 +67,9 @@ public class CarPowerManager extends CarManagerBase {
         @Override
         public void onPolicyChanged(CarPowerPolicy appliedPolicy,
                 CarPowerPolicy accumulatedPolicy) {
+            long identityToken = Binder.clearCallingIdentity();
             notifyPowerPolicyListeners(appliedPolicy, accumulatedPolicy);
+            Binder.restoreCallingIdentity(identityToken);
         }
     };
 
@@ -726,8 +729,13 @@ public class CarPowerManager extends CarManagerBase {
                         }
                         // Notifies the user that the state has changed and supply a future.
                         if (listenerWithCompletion != null && executor != null) {
-                            executor.execute(
-                                    () -> listenerWithCompletion.onStateChanged(state, future));
+                            long identityToken = Binder.clearCallingIdentity();
+                            try {
+                                executor.execute(
+                                        () -> listenerWithCompletion.onStateChanged(state, future));
+                            } finally {
+                                Binder.restoreCallingIdentity(identityToken);
+                            }
                         }
                     } else {
                         CarPowerStateListener listener;
@@ -738,7 +746,12 @@ public class CarPowerManager extends CarManagerBase {
                         }
                         // Notifies the user without supplying a future.
                         if (listener != null && executor != null) {
-                            executor.execute(() -> listener.onStateChanged(state));
+                            long identityToken = Binder.clearCallingIdentity();
+                            try {
+                                executor.execute(() -> listener.onStateChanged(state));
+                            } finally {
+                                Binder.restoreCallingIdentity(identityToken);
+                            }
                         }
                     }
                 }

@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2021 The Android Open Source Project
+  ~ Copyright (C) 2023 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,16 +14,12 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/notification_headsup"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-    <com.android.car.notification.headsup.HeadsUpContainerView
-        android:id="@+id/headsup_content"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/headsup_container_height" />
-
-</FrameLayout>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.google.android.car.kitchensink.serverless_remoteaccess">
+    <application android:hasCode="false"/>
+    <overlay android:priority="5001"
+             android:targetPackage="com.android.car.updatable"
+             android:targetName="CarServiceCustomization"
+             android:resourcesMap="@xml/overlays"
+             android:isStatic="true" />
+</manifest>

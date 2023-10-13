@@ -72,7 +72,8 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         public void onSuccess(@NonNull GetPropertyResult<?> getPropertyResult) {
             int propId = getPropertyResult.getPropertyId();
             long timestamp = getPropertyResult.getTimestampNanos();
-            setTextOnSuccess(propId, timestamp, getPropertyResult.getValue());
+            setTextOnSuccess(propId, timestamp, getPropertyResult.getValue(),
+                    CarPropertyValue.STATUS_AVAILABLE);
         }
 
         @Override
@@ -140,7 +141,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                 int propId = info.mConfig.getPropertyId();
                 int areaId = Integer.decode(mAreaId.getSelectedItem().toString());
                 CarPropertyValue value = mMgr.getProperty(propId, areaId);
-                setTextOnSuccess(propId, value.getTimestamp(), value.getValue());
+                setTextOnSuccess(propId, value.getTimestamp(), value.getValue(), value.getStatus());
             } catch (Exception e) {
                 Log.e(TAG, "Failed to get VHAL property", e);
                 Toast.makeText(mActivity, "Failed to get VHAL property: " + e.getMessage(),
@@ -278,7 +279,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         // Another interface callback
     }
 
-    private void setTextOnSuccess(int propId, long timestamp, Object value) {
+    private void setTextOnSuccess(int propId, long timestamp, Object value, int status) {
         if (propId == VehiclePropertyIds.WHEEL_TICK) {
             Object[] ticks = (Object[]) value;
             mGetValue.setText("Timestamp=" + timestamp
@@ -290,6 +291,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                     ? Arrays.toString((Object[]) value)
                     : value.toString();
             mGetValue.setText("Timestamp=" + timestamp
+                    + "\nstatus=" + status
                     + "\nvalue=" + valueString
                     + "\nread=" + mMgr.getReadPermission(propId)
                     + "\nwrite=" + mMgr.getWritePermission(propId));

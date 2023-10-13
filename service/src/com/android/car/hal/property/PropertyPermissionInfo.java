@@ -63,6 +63,8 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.util.ArraySet;
 
+import com.android.internal.annotations.VisibleForTesting;
+
 import java.util.Collections;
 import java.util.Objects;
 
@@ -401,6 +403,25 @@ public class PropertyPermissionInfo {
         @Override
         public int hashCode() {
             return Objects.hashCode(mPermissionsList) + "any".hashCode();
+        }
+
+        /**
+         * Checks whether current {@link PermissionCondition} instance will be met if given {@link
+         * SinglePermission} instance is known to be granted.
+         *
+         * <p>To be used for testing only
+         *
+         * @param grantedPermission {@link SinglePermission} that is known to be granted.
+         * @return whether current AnyOfPermissions object is met.
+         */
+        @VisibleForTesting
+        public boolean isMetIfGranted(SinglePermission grantedPermission) {
+            for (int i = 0; i < mPermissionsList.size(); i++) {
+                if (mPermissionsList.valueAt(i).equals(grantedPermission)) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 

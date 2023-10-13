@@ -19,6 +19,8 @@ package android.car;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+import static com.android.car.internal.property.VehiclePropertyIdDebugUtils.isDefined;
+import static com.android.car.internal.property.VehiclePropertyIdDebugUtils.toName;
 
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
@@ -53,7 +55,6 @@ import android.car.hardware.property.WindshieldWipersState;
 import android.car.hardware.property.WindshieldWipersSwitch;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.car.internal.property.CarPropertyHelper;
 
 /**
  * List of vehicle property IDs.
@@ -6282,7 +6283,7 @@ public final class VehiclePropertyIds {
     /**
      * Gets a user-friendly representation of a property.
      */
-    public static String toString(int property) {
-        return CarPropertyHelper.toString(property);
+    public static String toString(int propertyId) {
+        return isDefined(propertyId) ? toName(propertyId) : "0x" + Integer.toHexString(propertyId);
     }
 }

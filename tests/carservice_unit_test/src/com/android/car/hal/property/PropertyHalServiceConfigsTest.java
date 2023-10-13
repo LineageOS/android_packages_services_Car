@@ -46,6 +46,7 @@ import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.property.PropertyHalServiceConfigs.CarSvcPropertyConfig;
 import com.android.car.hal.property.PropertyPermissionInfo.AllOfPermissions;
 import com.android.car.hal.property.PropertyPermissionInfo.AnyOfPermissions;
+import com.android.car.hal.property.PropertyPermissionInfo.PermissionCondition;
 import com.android.car.hal.property.PropertyPermissionInfo.PropertyPermissions;
 import com.android.car.hal.property.PropertyPermissionInfo.SinglePermission;
 
@@ -190,6 +191,42 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
                 .isReadable(mContext, VehiclePropertyIds.DISTANCE_DISPLAY_UNITS)).isFalse();
         assertThat(mPropertyHalServiceConfigs
                 .isWritable(mContext, VehiclePropertyIds.DISTANCE_DISPLAY_UNITS)).isFalse();
+    }
+
+    /**
+     * Test for READ-WRITE system properties that write permissions are present in read permissions.
+     */
+    @Test
+    public void testWritePermissionsExistInReadPermissionsForSystemProperty() {
+        List<Integer> allSystemHalPropIds = mPropertyHalServiceConfigs.getAllSystemHalPropIds();
+        for (int halPropId : allSystemHalPropIds) {
+            PermissionCondition readPermission =
+                    mPropertyHalServiceConfigs.getReadPermission(halPropId);
+            if (readPermission == null) {
+                continue;
+            }
+            PermissionCondition writePermission =
+                    mPropertyHalServiceConfigs.getWritePermission(halPropId);
+
+            // This skips the _DISPLAY_UNITS properties, which have multiple write permissions.
+            if (!(writePermission instanceof SinglePermission)) {
+                continue;
+            }
+
+            if (readPermission.equals(writePermission)) {
+                continue;
+            }
+
+            assertWithMessage("Read permission " + readPermission + " of property "
+                    + VehiclePropertyIds.toString(halPropId)
+                    + " should be an instance of AnyOfPermissions if not equal to write permission")
+                    .that(readPermission instanceof AnyOfPermissions).isTrue();
+            assertWithMessage("Read permission " + readPermission + " of property "
+                    + VehiclePropertyIds.toString(halPropId)
+                    + " should be equal to or contain write permission " + writePermission)
+                    .that(((AnyOfPermissions) readPermission)
+                            .isMetIfGranted((SinglePermission) writePermission)).isTrue();
+        }
     }
 
     /**
