@@ -61,6 +61,7 @@ import com.google.android.collect.Lists;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -594,6 +595,32 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         mPowerStateHandler.waitForStateSetAndGetAll(DEFAULT_WAIT_TIMEOUT_MS,
                 VehicleApPowerStateReport.SHUTDOWN_START);
         assertThat(errorOccurred.get()).isFalse();
+    }
+
+    @Test
+    public void testApplyPowerPolicy_vhalPropertyUpdated() throws Exception {
+        String policyIdWifiOff = "policy_id_wifi_off";
+        String policyIdWifiOn = "policy_id_wifi_on";
+        // This is how the other test cases in this file interact w/CPMS, but would it make sense
+        // to just define mService = (CarPowerManagementService) getCarService(Car.POWER_SERVICE)?
+        CarPowerManagementService cpms =
+                (CarPowerManagementService) getCarService(Car.POWER_SERVICE);
+        cpms.definePowerPolicy(policyIdWifiOff, new String[]{}, new String[]{"WIFI"});
+        cpms.definePowerPolicy(policyIdWifiOn, new String[]{"WIFI"}, new String[]{});
+        PowerPolicyListener wifiOffListener = new PowerPolicyListener(policyIdWifiOff);
+        PowerPolicyListener wifiOnListener = new PowerPolicyListener(policyIdWifiOn);
+        CarPowerPolicyFilter filterWifi = new CarPowerPolicyFilter.Builder()
+                .setComponents(PowerComponent.WIFI).build();
+        cpms.addPowerPolicyListener(filterWifi, wifiOffListener);
+        cpms.addPowerPolicyListener(filterWifi, wifiOnListener);
+
+        cpms.applyPowerPolicy(policyIdWifiOn);
+        wifiOnListener.waitForPowerPolicy();
+        cpms.applyPowerPolicy(policyIdWifiOff);
+        wifiOffListener.waitForPowerPolicy();
+
+        Mockito.verify(getMockedPowerPolicyDaemon())
+                .notifyPowerPolicyChange(policyIdWifiOff, /* force= */ false);
     }
 
     private void testShutdownPostponeWhileListenerPendingInState(final int targetState,
