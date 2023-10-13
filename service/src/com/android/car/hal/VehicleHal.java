@@ -18,8 +18,11 @@ package com.android.car.hal;
 
 import static android.os.SystemClock.uptimeMillis;
 
+import static com.android.car.hal.property.HalAreaIdDebugUtils.toDebugString;
+import static com.android.car.hal.property.HalPropertyIdDebugUtils.toDebugString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.util.ConstantDebugUtils.toName;
 
 import android.annotation.CheckResult;
 import android.annotation.Nullable;
@@ -1033,12 +1036,12 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     /**
      * Dumps vehicle property values.
      *
-     * @param propId property id, dump all properties' value if it is empty string
+     * @param propertyId property id, dump all properties' value if it is {@code -1}.
      * @param areaId areaId of the property, dump the property for all areaIds in the config
-     *               if it is empty string
+     *               if it is {@code -1}
      */
-    public void dumpPropertyValueByCommand(PrintWriter writer, int propId, int areaId) {
-        if (propId == -1) {
+    public void dumpPropertyValueByCommand(PrintWriter writer, int propertyId, int areaId) {
+        if (propertyId == -1) {
             writer.println("**All property values**");
             synchronized (mLock) {
                 for (int i = 0; i < mAllProperties.size(); i++) {
@@ -1048,22 +1051,20 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             }
         } else if (areaId == -1) {
             synchronized (mLock) {
-                HalPropConfig config = mAllProperties.get(propId);
+                HalPropConfig config = mAllProperties.get(propertyId);
                 if (config == null) {
-                    writer.print("Property ");
-                    dumpPropHelper(writer, propId);
-                    writer.print(" not supported by HAL\n");
+                    writer.printf("Property: %s not supported by HAL\n", toDebugString(propertyId));
                     return;
                 }
                 dumpPropertyValueByConfig(writer, config);
             }
         } else {
             try {
-                HalPropValue value = get(propId, areaId);
+                HalPropValue value = get(propertyId, areaId);
                 dumpPropValue(writer, value);
             } catch (RuntimeException e) {
-                writer.printf("Can not get property value for property: %d // 0x%x "
-                        + "in areaId: %d // 0x%x.\n", propId, propId, areaId, areaId);
+                writer.printf("Cannot get property value for property: %s in areaId: %s.\n",
+                        toDebugString(propertyId), toDebugString(propertyId, areaId));
             }
         }
     }
@@ -1100,30 +1101,27 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         return mVehicleStub.isFakeModeEnabled();
     }
 
-    private static void dumpPropHelper(PrintWriter pw, int propId) {
-        pw.printf("Id: %d // 0x%x, name: %s ", propId, propId, VehiclePropertyIds.toString(propId));
-    }
-
     private void dumpPropertyValueByConfig(PrintWriter writer, HalPropConfig config) {
-        int propId = config.getPropId();
+        int propertyId = config.getPropId();
         HalAreaConfig[] areaConfigs = config.getAreaConfigs();
         if (areaConfigs == null || areaConfigs.length == 0) {
             try {
                 HalPropValue value = get(config.getPropId());
                 dumpPropValue(writer, value);
             } catch (RuntimeException e) {
-                writer.printf("Can not get property value for property: %d // 0x%x,"
-                        + " areaId: 0 \n", propId, propId);
+                writer.printf("Can not get property value for property: %s, areaId: %s\n",
+                        toDebugString(propertyId), toDebugString(propertyId, /*areaId=*/0));
             }
         } else {
             for (HalAreaConfig areaConfig : areaConfigs) {
                 int areaId = areaConfig.getAreaId();
                 try {
-                    HalPropValue value = get(propId, areaId);
+                    HalPropValue value = get(propertyId, areaId);
                     dumpPropValue(writer, value);
                 } catch (RuntimeException e) {
-                    writer.printf("Can not get property value for property: %d // 0x%x "
-                            + "in areaId: %d // 0x%x\n", propId, propId, areaId, areaId);
+                    writer.printf(
+                            "Can not get property value for property: %s in areaId: %s\n",
+                            toDebugString(propertyId), toDebugString(propertyId, areaId));
                 }
             }
         }
@@ -1378,12 +1376,14 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             bytesString = Arrays.toString(byteValues);
         }
 
-        writer.printf("Property:0x%x, status: %d, timestamp: %d, zone: 0x%x, "
+        writer.printf("Property: %s, area ID: %s, status: %s, timestampNanos: %d, "
                         + "floatValues: %s, int32Values: %s, int64Values: %s, bytes: %s, string: "
                         + "%s\n",
-                value.getPropId(), value.getStatus(), value.getTimestamp(), value.getAreaId(),
-                value.dumpFloatValues(), value.dumpInt32Values(), value.dumpInt64Values(),
-                bytesString, value.getStringValue());
+                toDebugString(value.getPropId()),
+                toDebugString(value.getPropId(), value.getAreaId()),
+                toName(VehiclePropertyStatus.class, value.getStatus()), value.getTimestamp(),
+                value.dumpFloatValues(), value.dumpInt32Values(),
+                value.dumpInt64Values(), bytesString, value.getStringValue());
     }
 
     private static String toCarPropertyLog(int propId) {

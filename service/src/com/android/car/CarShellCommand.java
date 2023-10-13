@@ -417,7 +417,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String PARAM_VEHICLE_PROPERTY_GLOBAL_AREA_ID = "0";
     private static final String PARAM_INJECT_EVENT_DEFAULT_RATE = "10";
     private static final String PARAM_INJECT_EVENT_DEFAULT_DURATION = "60";
-    private static final String PARAM_ALL_PROPERTIES_OR_AREA = "-1";
+    private static final String PARAM_ALL_PROPERTIES_OR_AREA_IDS = "-1";
     private static final String PARAM_ON_MODE = "on";
     private static final String PARAM_OFF_MODE = "off";
     private static final String PARAM_QUERY_MODE = "query";
@@ -1198,14 +1198,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 }
                 break;
             case COMMAND_GET_CARPROPERTYCONFIG:
-                String propertyId = args.length < 2 ? PARAM_ALL_PROPERTIES_OR_AREA : args[1];
+                String propertyId = args.length < 2 ? PARAM_ALL_PROPERTIES_OR_AREA_IDS : args[1];
                 mHal.dumpPropertyConfigs(writer, Integer.decode(propertyId));
                 break;
             case COMMAND_GET_PROPERTY_VALUE:
-                String propId = args.length < 2 ? PARAM_ALL_PROPERTIES_OR_AREA : args[1];
-                String areaId = args.length < 3 ? PARAM_ALL_PROPERTIES_OR_AREA : args[2];
-                mHal.dumpPropertyValueByCommand(writer, Integer.decode(propId),
-                        Integer.decode(areaId));
+                getPropertyValue(args, writer);
                 break;
             case COMMAND_GENERATE_TEST_VENDOR_CONFIGS:
                 try (CarTestService.NativePipe pipe = CarTestService.NativePipe.newPipe()) {
@@ -3070,6 +3067,19 @@ final class CarShellCommand extends BasicShellCommandHandler {
         mCarPowerManagementService.powerOffFromCommand(skipGarageMode, reboot);
     }
 
+    /**
+     * Get current value for VHAL property
+     *
+     * @param args   the command line arguments to parse for VHAL property details
+     * @param writer IndentingPrintWriter
+     */
+    private void getPropertyValue(String[] args, IndentingPrintWriter writer) {
+        String propertyIdString =
+                args.length < 2 ? PARAM_ALL_PROPERTIES_OR_AREA_IDS : args[1];
+        String areaIdString = args.length < 3 ? PARAM_ALL_PROPERTIES_OR_AREA_IDS : args[2];
+        mHal.dumpPropertyValueByCommand(writer, decodePropertyId(propertyIdString),
+                decodeAreaId(areaIdString));
+    }
     /**
      * Inject a fake VHAL event
      *
