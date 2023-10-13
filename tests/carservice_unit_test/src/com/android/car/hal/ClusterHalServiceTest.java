@@ -17,6 +17,7 @@
 package com.android.car.hal;
 
 import static android.car.VehiclePropertyIds.CLUSTER_DISPLAY_STATE;
+import static android.car.VehiclePropertyIds.CLUSTER_HEARTBEAT;
 import static android.car.VehiclePropertyIds.CLUSTER_NAVIGATION_STATE;
 import static android.car.VehiclePropertyIds.CLUSTER_REPORT_STATE;
 import static android.car.VehiclePropertyIds.CLUSTER_REQUEST_DISPLAY;
@@ -528,4 +529,21 @@ public class ClusterHalServiceTest {
 
         verify(mVehicleHal, times(0)).set(mPropCaptor.capture());
     }
+
+    @Test
+    public void testSendHeartbeat() {
+        long epochTimeNs = 123456789;
+        long visibility = 1;
+        byte[] appMetadata = new byte[]{3, 2, 0, 1};
+        mClusterHalService.sendHeartbeat(epochTimeNs, visibility, appMetadata);
+
+        verify(mVehicleHal).set(mPropCaptor.capture());
+        HalPropValue prop = mPropCaptor.getValue();
+        assertThat(prop.getPropId()).isEqualTo(CLUSTER_HEARTBEAT);
+        assertThat(prop.getInt64ContainerArray()).asList()
+                .containsExactly((long) epochTimeNs, (long) visibility);
+        assertThat(prop.getByteArray()).asList()
+                .containsExactly((byte) 3, (byte) 2, (byte) 0, (byte) 1);
+    }
+
 }

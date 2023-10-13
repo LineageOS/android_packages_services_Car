@@ -17,14 +17,16 @@
 package com.android.car.hal;
 
 import static android.car.VehiclePropertyIds.CLUSTER_DISPLAY_STATE;
+import static android.car.VehiclePropertyIds.CLUSTER_HEARTBEAT;
 import static android.car.VehiclePropertyIds.CLUSTER_NAVIGATION_STATE;
 import static android.car.VehiclePropertyIds.CLUSTER_REPORT_STATE;
 import static android.car.VehiclePropertyIds.CLUSTER_REQUEST_DISPLAY;
 import static android.car.VehiclePropertyIds.CLUSTER_SWITCH_UI;
 
-import static com.android.car.internal.common.CommonConstants.EMPTY_FLOAT_ARRAY;
-import static com.android.car.internal.common.CommonConstants.EMPTY_LONG_ARRAY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.common.CommonConstants.EMPTY_FLOAT_ARRAY;
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
+import static com.android.car.internal.common.CommonConstants.EMPTY_LONG_ARRAY;
 
 import android.annotation.NonNull;
 import android.car.builtin.util.Slogf;
@@ -90,6 +92,7 @@ public final class ClusterHalService extends HalServiceBase {
             CLUSTER_REPORT_STATE,
             CLUSTER_REQUEST_DISPLAY,
             CLUSTER_NAVIGATION_STATE,
+            CLUSTER_HEARTBEAT,
     };
 
     private static final int[] CORE_PROPERTIES = new int[]{
@@ -116,6 +119,7 @@ public final class ClusterHalService extends HalServiceBase {
     // Whether all CORE_PROPERTIES are available.
     private volatile boolean mIsCoreSupported;
     private volatile boolean mIsNavigationStateSupported;
+    private volatile boolean mIsHeartbeatSupported;
 
     private final HalPropValueBuilder mPropValueBuilder;
 
@@ -179,8 +183,10 @@ public final class ClusterHalService extends HalServiceBase {
             }
         }
         mIsNavigationStateSupported = supportedProperties.indexOf(CLUSTER_NAVIGATION_STATE) >= 0;
-        Slogf.d(TAG, "takeProperties: coreSupported=%s, navigationStateSupported=%s",
-                mIsCoreSupported, mIsNavigationStateSupported);
+        mIsHeartbeatSupported = supportedProperties.indexOf(CLUSTER_HEARTBEAT) >= 0;
+        Slogf.d(TAG, "takeProperties: coreSupported=%s, navigationStateSupported=%s, "
+                + "heartbeatSupported=%s",
+                mIsCoreSupported, mIsNavigationStateSupported, mIsHeartbeatSupported);
     }
 
     @VisibleForTesting
@@ -199,6 +205,10 @@ public final class ClusterHalService extends HalServiceBase {
 
     public boolean isNavigationStateSupported() {
         return mIsNavigationStateSupported;
+    }
+
+    public boolean isHeartbeatSupported() {
+        return mIsHeartbeatSupported;
     }
 
     @Override
@@ -339,6 +349,26 @@ public final class ClusterHalService extends HalServiceBase {
         send(request);
     }
 
+    /**
+     * Sends a heartbeat to ClusterOS
+     * @param epochTimeNs the current time
+     * @param visibility 0 means invisible and 1 means visible.
+     * @param appMetadata the application specific metadata which will be delivered with
+     *                    the heartbeat.
+     */
+    public void sendHeartbeat(long epochTimeNs, long visibility, byte[] appMetadata) {
+        long[] longValues = new long[]{
+                epochTimeNs,
+                visibility
+        };
+        HalPropValue request = mPropValueBuilder.build(CLUSTER_HEARTBEAT,
+                /* areaId= */ 0, SystemClock.elapsedRealtime(), VehiclePropertyStatus.AVAILABLE,
+                /* int32Values= */ EMPTY_INT_ARRAY, /* floatValues= */ EMPTY_FLOAT_ARRAY,
+                /* int64Values= */ longValues, /* stringValue= */ "",
+                /* byteValues= */ appMetadata);
+        send(request);
+    }
+
     private void send(HalPropValue request) {
         try {
             mHal.set(request);
@@ -354,5 +384,6 @@ public final class ClusterHalService extends HalServiceBase {
         writer.println("mServiceMode: " + mServiceMode);
         writer.println("mIsCoreSupported: " + mIsCoreSupported);
         writer.println("mIsNavigationStateSupported: " + mIsNavigationStateSupported);
+        writer.println("mIsHeartbeatSupported: " + mIsHeartbeatSupported);
     }
 }

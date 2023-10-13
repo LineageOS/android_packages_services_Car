@@ -367,6 +367,21 @@ public class ClusterHomeManager extends CarManagerBase {
         }
     }
 
+    /**
+     * Sends a heartbeat to ClusterOS.
+     * @param epochTimeNs the current time
+     * @param appMetadata the application specific metadata which will be delivered with
+     *                    the heartbeat.
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
+    public void sendHeartbeat(long epochTimeNs, @Nullable byte[] appMetadata) {
+        try {
+            mService.sendHeartbeat(epochTimeNs, appMetadata);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
     @Override
     protected void onCarDisconnected() {
         mStateListeners.clear();
