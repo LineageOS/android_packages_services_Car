@@ -34,6 +34,9 @@ import static android.hardware.automotive.vehicle.UserIdentificationAssociationT
 import static android.media.AudioManager.FLAG_SHOW_UI;
 
 import static com.android.car.CarServiceUtils.toIntArray;
+import static com.android.car.hal.property.HalAreaIdDebugUtils.toDebugString;
+import static com.android.car.hal.property.HalPropertyIdDebugUtils.toDebugString;
+import static com.android.car.hal.property.HalPropertyIdDebugUtils.toId;
 import static com.android.car.power.PolicyReader.POWER_STATE_ON;
 import static com.android.car.power.PolicyReader.POWER_STATE_WAIT_FOR_VHAL;
 
@@ -130,7 +133,6 @@ import com.android.car.hal.PowerHalService;
 import com.android.car.hal.UserHalHelper;
 import com.android.car.hal.UserHalService;
 import com.android.car.hal.VehicleHal;
-import com.android.car.hal.property.HalPropertyIdDebugUtils;
 import com.android.car.internal.util.DebugUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.pm.CarPackageManagerService;
@@ -1602,8 +1604,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
     }
 
     private static int decodePropertyId(String propertyIdString) {
-        if (HalPropertyIdDebugUtils.toId(propertyIdString) != null) {
-            return HalPropertyIdDebugUtils.toId(propertyIdString).intValue();
+        if (toId(propertyIdString) != null) {
+            return toId(propertyIdString).intValue();
         }
 
         try {
@@ -3090,7 +3092,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         } else {
             // area ID is not specified, assume global area ID
             if (!isPropertyAreaTypeGlobal(propertyId)) {
-                writer.println("Property " + HalPropertyIdDebugUtils.toDebugString(propertyId)
+                writer.println("Property " + toDebugString(propertyId)
                         + " is not a global area type property. The area ID must be specified. "
                         + "Skipping injection.");
                 return;
@@ -3098,11 +3100,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
             areaId = 0;
             value = args[2];
         }
-        String debugOutput =
-                "Injecting VHAL event: property=" + HalPropertyIdDebugUtils.toDebugString(
-                        propertyId) + ", areaId=" + areaId + ", value=" + value + (
-                        TextUtils.isEmpty(delayTimeSeconds) ? ""
-                                : ", delayTimeSeconds=" + delayTimeSeconds);
+        String debugOutput = "Injecting VHAL event: property=" + toDebugString(propertyId)
+                + ", areaId=" + toDebugString(propertyId, areaId) + ", value=" + value + (
+                TextUtils.isEmpty(delayTimeSeconds) ? ""
+                        : ", delayTimeSeconds=" + delayTimeSeconds);
         Slogf.i(TAG, debugOutput);
         writer.println(debugOutput);
         mHal.injectVhalEvent(propertyId, areaId, value, Integer.decode(delayTimeSeconds));
@@ -3123,8 +3124,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
         int areaId = decodeAreaId(args[2]);
         int errorCode = Integer.decode(args[3]);
         Slogf.i(TAG,
-                "Injecting VHAL error event: property=" + HalPropertyIdDebugUtils.toDebugString(
-                        propertyId) + ", areaId=" + areaId + ", errorCode=" + errorCode);
+                "Injecting VHAL error event: property=" + toDebugString(
+                        propertyId) + ", areaId=" + toDebugString(propertyId, areaId)
+                        + ", errorCode=" + errorCode);
         VehiclePropError vehiclePropError = new VehiclePropError();
         vehiclePropError.propId = propertyId;
         vehiclePropError.areaId = areaId;
