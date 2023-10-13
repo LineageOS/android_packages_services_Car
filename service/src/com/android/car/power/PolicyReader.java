@@ -16,6 +16,7 @@
 
 package com.android.car.power;
 
+import static android.car.feature.Flags.carPowerPolicyRefactoring;
 import static android.car.hardware.power.PowerComponentUtil.FIRST_POWER_COMPONENT;
 import static android.car.hardware.power.PowerComponentUtil.INVALID_POWER_COMPONENT;
 import static android.car.hardware.power.PowerComponentUtil.LAST_POWER_COMPONENT;
@@ -168,8 +169,11 @@ public final class PolicyReader {
     }
 
     private ArrayMap<String, CarPowerPolicy> mRegisteredPowerPolicies;
+    // TODO(b/286303350): remove once power policy refactor complete
     private ArrayMap<String, SparseArray<String>> mPolicyGroups;
+    // TODO(b/286303350): remove once power policy refactor complete
     private ArrayMap<String, CarPowerPolicy> mPreemptivePowerPolicies;
+    // TODO(b/286303350): remove once power policy refactor complete
     private String mDefaultPolicyGroupId;
     private ArrayMap<String, Integer> mCustomComponents = new ArrayMap<>();
 
@@ -230,7 +234,9 @@ public final class PolicyReader {
 
     void init() {
         initPolicies();
-        readPowerPolicyConfiguration();
+        if (!carPowerPolicyRefactoring()) {
+            readPowerPolicyConfiguration();
+        }
     }
 
     /**
@@ -425,7 +431,9 @@ public final class PolicyReader {
     @VisibleForTesting
     void initPolicies() {
         mRegisteredPowerPolicies = new ArrayMap<>();
-        registerBasicPowerPolicies();
+        if (!carPowerPolicyRefactoring()) {
+            registerBasicPowerPolicies();
+        }
 
         mPolicyGroups = new ArrayMap<>();
 
