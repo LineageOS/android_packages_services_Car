@@ -91,7 +91,7 @@ public final class ConstantDebugUtils {
         if (clazzToConstantDebugUtils == null || clazzToConstantDebugUtils.get(clazz) == null) {
             clazzToConstantDebugUtils = getClazzToConstantDebugUtilsMapping(
                     clazzToConstantDebugUtils, clazz);
-            CLAZZ_TO_CONSTANT_DEBUG_UTILS_HOLDER.compareAndSet(null, clazzToConstantDebugUtils);
+            CLAZZ_TO_CONSTANT_DEBUG_UTILS_HOLDER.set(clazzToConstantDebugUtils);
         }
         return clazzToConstantDebugUtils.get(clazz);
     }
