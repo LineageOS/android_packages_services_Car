@@ -31,3 +31,11 @@ flag {
   description: "Controls whether refactored car power policy daemon handles power policy change request"
   bug: "286303350"
 }
+
+# CarAudioManager
+flag {
+  name: "car_audio_dynamic_devices"
+  namespace: "car_framework"
+  description: "Controls whether car audio system can be configured with dynamic output devices"
+  bug: "305301155"
+}
