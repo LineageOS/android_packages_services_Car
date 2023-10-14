@@ -89,6 +89,7 @@ import com.android.car.internal.property.CarSubscribeOption;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.internal.util.PairSparseArray;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.modules.expresslog.Histogram;
@@ -131,8 +132,8 @@ public class PropertyHalService extends HalServiceBase {
             PropertyHalServiceConfigs.getInstance();
 
     @GuardedBy("mLock")
-    private final ArrayMap<Pair<Integer, Integer>, CarPropertyValue> mStaticPropertyIdAreaIdCache =
-            new ArrayMap<>();
+    private final PairSparseArray<CarPropertyValue> mStaticPropertyIdAreaIdCache =
+            new PairSparseArray<>();
 
     private static final Histogram sGetAsyncEndToEndLatencyHistogram = new Histogram(
             "automotive_os.value_get_async_end_to_end_latency",
@@ -669,7 +670,7 @@ public class PropertyHalService extends HalServiceBase {
                             int propertyId = carPropertyValue.getPropertyId();
                             int areaId = carPropertyValue.getAreaId();
                             if (isStaticAndSystemProperty(propertyId)) {
-                                mStaticPropertyIdAreaIdCache.put(Pair.create(propertyId, areaId),
+                                mStaticPropertyIdAreaIdCache.put(propertyId, areaId,
                                         carPropertyValue);
                             }
                         }
@@ -1077,8 +1078,8 @@ public class PropertyHalService extends HalServiceBase {
         synchronized (mLock) {
             halPropConfig = mHalPropIdToPropConfig.get(halPropId);
             if (isStaticAndSystemProperty(mgrPropId)) {
-                CarPropertyValue carPropertyValue = mStaticPropertyIdAreaIdCache.get(Pair.create(
-                        mgrPropId, areaId));
+                CarPropertyValue carPropertyValue = mStaticPropertyIdAreaIdCache.get(mgrPropId,
+                        areaId);
                 if (carPropertyValue != null) {
                     if (DBG) {
                         Slogf.d(TAG, "Get Sync Property: %s retrieved from cache",
@@ -1095,7 +1096,7 @@ public class PropertyHalService extends HalServiceBase {
                 return result;
             }
             synchronized (mLock) {
-                mStaticPropertyIdAreaIdCache.put(Pair.create(mgrPropId, areaId), result);
+                mStaticPropertyIdAreaIdCache.put(mgrPropId, areaId, result);
                 return result;
             }
         } catch (IllegalStateException e) {
@@ -1681,15 +1682,15 @@ public class PropertyHalService extends HalServiceBase {
                 AsyncPropertyServiceRequest serviceRequest = serviceRequests.get(i);
                 int propertyId = serviceRequest.getPropertyId();
                 int areaId = serviceRequest.getAreaId();
-                if (requestType == GET && mStaticPropertyIdAreaIdCache.get(Pair.create(propertyId,
-                        areaId)) != null) {
+                if (requestType == GET
+                        && mStaticPropertyIdAreaIdCache.get(propertyId, areaId) != null) {
                     if (DBG) {
                         Slogf.d(TAG, "Get Async property: %s retrieved from cache",
                                 VehiclePropertyIds.toString(propertyId));
                     }
                     staticGetValueResults.add(new GetSetValueResultWrapper(newGetValueResult(
-                            serviceRequest.getRequestId(), mStaticPropertyIdAreaIdCache.get(Pair
-                                    .create(propertyId, areaId))), asyncRequestStartTime,
+                            serviceRequest.getRequestId(), mStaticPropertyIdAreaIdCache.get(
+                                    propertyId, areaId)), asyncRequestStartTime,
                             /* retryCount= */ 0));
                     continue;
                 }
