@@ -37,8 +37,10 @@ cc_defaults {
         "liblog",
         "libtinyxml2",
         "libutils",
+        "server_configurable_flags",
     ],
     static_libs: [
+        "android.car.feature-aconfig-cpp",
         "libc++fs",
         "libsysfsmonitor",
         "libvhalclient",
