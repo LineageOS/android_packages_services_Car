@@ -4,7 +4,7 @@ package: "android.car.feature"
 flag {
   name: "display_compatibility"
   namespace: "car_framework"
-  description: "This flag controls if apps can query packages that need car display compatibility treatment."
+  description: "This flag controls if apps can query packages that need car display compatibility treatment"
   bug: "291638685"
 }
 
@@ -22,4 +22,12 @@ flag {
   namespace: "car_framework"
   description: "Enables serverless remote access"
   bug: "302339402"
+}
+
+# CarPowerManager
+flag {
+  name: "car_power_policy_refactoring"
+  namespace: "car_framework"
+  description: "Controls whether refactored car power policy daemon handles power policy change request"
+  bug: "286303350"
 }

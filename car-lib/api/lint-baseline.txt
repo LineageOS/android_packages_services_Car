@@ -203,6 +203,8 @@ UnflaggedApi: android.car.ApiVersion#getMinorVersion():
     New API must be flagged with @FlaggedApi: method android.car.ApiVersion.getMinorVersion()
 UnflaggedApi: android.car.ApiVersion#isAtLeast(T):
     New API must be flagged with @FlaggedApi: method android.car.ApiVersion.isAtLeast(T)
+UnflaggedApi: android.car.ApiVersion#toString():
+    New API must be flagged with @FlaggedApi: method android.car.ApiVersion.toString()
 UnflaggedApi: android.car.Car:
     New API must be flagged with @FlaggedApi: class android.car.Car
 UnflaggedApi: android.car.Car#APP_FOCUS_SERVICE:

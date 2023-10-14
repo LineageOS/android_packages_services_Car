@@ -47,3 +47,8 @@ java_aconfig_library {
     aconfig_declarations: "android.car.feature-aconfig",
     defaults: ["car-framework-aconfig-java-defaults"],
 }
+
+cc_aconfig_library {
+    name: "android.car.feature-aconfig-cpp",
+    aconfig_declarations: "android.car.feature-aconfig",
+}
