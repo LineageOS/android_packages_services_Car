@@ -36,7 +36,6 @@ import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.util.ArrayMap;
 import android.util.ArraySet;
-import android.util.Pair;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
@@ -49,6 +48,7 @@ import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.VehicleHalCallback;
+import com.android.car.internal.util.PairSparseArray;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -88,7 +88,6 @@ public final class FakeVehicleStub extends VehicleStub {
     private static final String FAKE_MODE_ENABLE_FILE_NAME = "ENABLE";
     private static final int AREA_ID_GLOBAL = 0;
 
-    private final SparseArray<ConfigDeclaration> mConfigDeclarationsByPropId;
     private final SparseArray<HalPropConfig> mPropConfigsByPropId;
     private final VehicleStub mRealVehicle;
     private final HalPropValueBuilder mHalPropValueBuilder;
@@ -100,13 +99,13 @@ public final class FakeVehicleStub extends VehicleStub {
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
-    private final Map<Pair<Integer, Integer>, HalPropValue> mPropValuesByPropIdAreaId;
+    private final PairSparseArray<HalPropValue> mPropValuesByPropIdAreaId;
     @GuardedBy("mLock")
-    private final Map<Pair<Integer, Integer>, Set<FakeVhalSubscriptionClient>>
-            mOnChangeSubscribeClientByPropIdAreaId;
+    private final PairSparseArray<Set<FakeVhalSubscriptionClient>>
+            mOnChangeSubscribeClientByPropIdAreaId = new PairSparseArray<>();
     @GuardedBy("mLock")
-    private final Map<FakeVhalSubscriptionClient,
-            Map<Pair<Integer, Integer>, ContinuousPropUpdater>> mUpdaterByPropIdAreaIdByClient;
+    private final Map<FakeVhalSubscriptionClient, PairSparseArray<ContinuousPropUpdater>>
+            mUpdaterByPropIdAreaIdByClient = new ArrayMap<>();
 
     /**
      * Checks if fake mode is enabled.
@@ -148,15 +147,13 @@ public final class FakeVehicleStub extends VehicleStub {
         mHalPropValueBuilder = new HalPropValueBuilder(/* isAidl= */ true);
         mParser = parser;
         mCustomConfigFiles = customConfigFiles;
-        mConfigDeclarationsByPropId = parseConfigFiles();
-        mPropConfigsByPropId = extractPropConfigs(mConfigDeclarationsByPropId);
-        mPropValuesByPropIdAreaId = extractPropValues(mConfigDeclarationsByPropId);
+        SparseArray<ConfigDeclaration> configDeclarationsByPropId = parseConfigFiles();
+        mPropConfigsByPropId = extractPropConfigs(configDeclarationsByPropId);
+        mPropValuesByPropIdAreaId = extractPropValues(configDeclarationsByPropId);
         mHvacPowerSupportedAreas = getHvacPowerSupportedAreaId();
         mHvacPowerDependentProps = getHvacPowerDependentProps();
         mHandler = new Handler(CarServiceUtils.getHandlerThread(getClass().getSimpleName())
                 .getLooper());
-        mOnChangeSubscribeClientByPropIdAreaId = new ArrayMap<>();
-        mUpdaterByPropIdAreaIdByClient = new ArrayMap<>();
         Slogf.d(TAG, "A FakeVehicleStub instance is created.");
     }
 
@@ -350,9 +347,9 @@ public final class FakeVehicleStub extends VehicleStub {
         // PropId config exists but the value map doesn't have this propId, this may be caused by:
         // 1. This property is a global property, and it doesn't have default prop value.
         // 2. This property has area configs, and it has neither default prop value nor area value.
-        Pair<Integer, Integer> propIdAreaId = Pair.create(propId, areaId);
         synchronized (mLock) {
-            if (!mPropValuesByPropIdAreaId.containsKey(propIdAreaId)) {
+            HalPropValue halPropValue = mPropValuesByPropIdAreaId.get(propId, areaId);
+            if (halPropValue == null) {
                 if (isPropertyGlobal(propId)) {
                     throw new ServiceSpecificException(StatusCode.NOT_AVAILABLE,
                         "propId: " + propId + " has no property value.");
@@ -360,7 +357,7 @@ public final class FakeVehicleStub extends VehicleStub {
                 throw new ServiceSpecificException(StatusCode.NOT_AVAILABLE,
                     "propId: " + propId + ", areaId: " + areaId + " has no property value.");
             }
-            return mPropValuesByPropIdAreaId.get(propIdAreaId);
+            return halPropValue;
         }
     }
 
@@ -405,14 +402,11 @@ public final class FakeVehicleStub extends VehicleStub {
 
         HalPropValue updatedValue = buildHalPropValue(propId, areaId,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
-        Pair<Integer, Integer> propIdAreaId = Pair.create(propId, areaId);
-        Set<FakeVhalSubscriptionClient> clients = new ArraySet<>();
+        Set<FakeVhalSubscriptionClient> clients;
 
         synchronized (mLock) {
-            mPropValuesByPropIdAreaId.put(propIdAreaId, updatedValue);
-            if (mOnChangeSubscribeClientByPropIdAreaId.containsKey(propIdAreaId)) {
-                clients = mOnChangeSubscribeClientByPropIdAreaId.get(propIdAreaId);
-            }
+            mPropValuesByPropIdAreaId.put(propId, areaId, updatedValue);
+            clients = mOnChangeSubscribeClientByPropIdAreaId.get(propId, areaId, new ArraySet<>());
         }
         clients.forEach(c -> c.onPropertyEvent(updatedValue));
     }
@@ -451,7 +445,7 @@ public final class FakeVehicleStub extends VehicleStub {
         }
 
         public void onPropertyEvent(HalPropValue value) {
-            mCallBack.onPropertyEvent(new ArrayList(List.of(value)));
+            mCallBack.onPropertyEvent(new ArrayList<>(List.of(value)));
         }
 
         @Override
@@ -606,10 +600,10 @@ public final class FakeVehicleStub extends VehicleStub {
      * @param configDeclarationsByPropId The parsing result.
      * @return a {@link Map} mapped from propId, areaId to its value.
      */
-    private Map<Pair<Integer, Integer>, HalPropValue> extractPropValues(
+    private PairSparseArray<HalPropValue> extractPropValues(
             SparseArray<ConfigDeclaration> configDeclarationsByPropId) {
         long timestamp = SystemClock.elapsedRealtimeNanos();
-        Map<Pair<Integer, Integer>, HalPropValue> propValuesByPropIdAreaId = new ArrayMap<>();
+        PairSparseArray<HalPropValue> propValuesByPropIdAreaId = new PairSparseArray<>();
         for (int i = 0; i < configDeclarationsByPropId.size(); i++) {
             // Get configDeclaration of a property.
             ConfigDeclaration configDeclaration = configDeclarationsByPropId.valueAt(i);
@@ -632,7 +626,7 @@ public final class FakeVehicleStub extends VehicleStub {
                     continue;
                 }
                 // Set the areaId to be 0.
-                propValuesByPropIdAreaId.put(Pair.create(propId, AREA_ID_GLOBAL),
+                propValuesByPropIdAreaId.put(propId, AREA_ID_GLOBAL,
                         buildHalPropValue(propId, AREA_ID_GLOBAL, timestamp, defaultRawPropValues));
                 continue;
             }
@@ -654,8 +648,8 @@ public final class FakeVehicleStub extends VehicleStub {
                 if (areaRawPropValues == null) {
                     continue;
                 }
-                propValuesByPropIdAreaId.put(Pair.create(propId, areaId), buildHalPropValue(propId,
-                        areaId, timestamp, areaRawPropValues));
+                propValuesByPropIdAreaId.put(propId, areaId,
+                        buildHalPropValue(propId, areaId, timestamp, areaRawPropValues));
             }
         }
         return propValuesByPropIdAreaId;
@@ -986,12 +980,15 @@ public final class FakeVehicleStub extends VehicleStub {
                 checkAreaIdSupported(propId, areaId);
                 Slogf.d(TAG, "FakeVhalSubscriptionClient subscribes ON_CHANGE property, "
                         + "propId: %d,  areaId: ", propId, areaId);
-                Pair<Integer, Integer> propIdAreaId = Pair.create(propId, areaId);
                 // Update the map from propId, areaId to client set in FakeVehicleStub.
-                if (!mOnChangeSubscribeClientByPropIdAreaId.containsKey(propIdAreaId)) {
-                    mOnChangeSubscribeClientByPropIdAreaId.put(propIdAreaId, new ArraySet<>());
+                Set<FakeVehicleStub.FakeVhalSubscriptionClient> subscriptionClientSet =
+                        mOnChangeSubscribeClientByPropIdAreaId.get(propId, areaId);
+                if (subscriptionClientSet == null) {
+                    subscriptionClientSet = new ArraySet<>();
+                    mOnChangeSubscribeClientByPropIdAreaId.put(propId, areaId,
+                            subscriptionClientSet);
                 }
-                mOnChangeSubscribeClientByPropIdAreaId.get(propIdAreaId).add(client);
+                subscriptionClientSet.add(client);
             }
         }
     }
@@ -1011,29 +1008,30 @@ public final class FakeVehicleStub extends VehicleStub {
                 checkAreaIdSupported(propId, areaId);
                 Slogf.d(TAG, "FakeVhalSubscriptionClient subscribes CONTINUOUS property, "
                         + "propId: %d,  areaId: %d", propId, areaId);
-                Pair<Integer, Integer> propIdAreaId = Pair.create(propId, areaId);
-
-                // Check if this client has subscribed CONTINUOUS properties.
-                if (!mUpdaterByPropIdAreaIdByClient.containsKey(client)) {
-                    mUpdaterByPropIdAreaIdByClient.put(client, new ArrayMap<>());
-                }
-                Map<Pair<Integer, Integer>, ContinuousPropUpdater> updaterByPropIdAreaId =
+                PairSparseArray<ContinuousPropUpdater> updaterByPropIdAreaId =
                         mUpdaterByPropIdAreaIdByClient.get(client);
-                // Check if this client subscribes the propId, areaId pair
-                if (updaterByPropIdAreaId.containsKey(propIdAreaId)) {
+                // Check if this client has subscribed CONTINUOUS properties.
+                if (updaterByPropIdAreaId == null) {
+                    updaterByPropIdAreaId = new PairSparseArray<>();
+                    mUpdaterByPropIdAreaIdByClient.put(client, updaterByPropIdAreaId);
+                }
+                // Check if this client subscribes to the propId, areaId pair
+                int indexOfPropIdAreaId = updaterByPropIdAreaId.indexOfKeyPair(propId, areaId);
+                if (indexOfPropIdAreaId >= 0) {
                     // If current subscription rate is same as the new sample rate.
-                    ContinuousPropUpdater oldUpdater = updaterByPropIdAreaId.get(propIdAreaId);
+                    ContinuousPropUpdater oldUpdater =
+                            updaterByPropIdAreaId.valueAt(indexOfPropIdAreaId);
                     if (oldUpdater.mSampleRate == sampleRate) {
                         Slogf.w(TAG, "Sample rate is same as current rate. No update.");
                         continue;
                     }
                     // If sample rate is not same. Remove old updater from mHandler's message queue.
                     oldUpdater.stop();
-                    updaterByPropIdAreaId.remove(propIdAreaId);
+                    updaterByPropIdAreaId.removeAt(indexOfPropIdAreaId);
                 }
                 ContinuousPropUpdater updater = new ContinuousPropUpdater(client, propId, areaId,
                         sampleRate);
-                updaterByPropIdAreaId.put(propIdAreaId, updater);
+                updaterByPropIdAreaId.put(propId, areaId, updater);
             }
         }
     }
@@ -1069,22 +1067,23 @@ public final class FakeVehicleStub extends VehicleStub {
      */
     private void unsubscribeOnChangeProp(FakeVhalSubscriptionClient client, int propId) {
         synchronized (mLock) {
-            List<Pair<Integer, Integer>> deletePairs = new ArrayList<>();
-            for (Pair<Integer, Integer> propIdAreaId
-                    : mOnChangeSubscribeClientByPropIdAreaId.keySet()) {
-                if (propIdAreaId.first == propId) {
-                    Set<FakeVhalSubscriptionClient> clientSet =
-                            mOnChangeSubscribeClientByPropIdAreaId.get(propIdAreaId);
-                    clientSet.remove(client);
-                    Slogf.d(TAG, "FakeVhalSubscriptionClient unsubscribes ON_CHANGE property, "
-                            + "propId: %d, areaId: %d", propId, propIdAreaId.second);
-                    if (clientSet.isEmpty()) {
-                        deletePairs.add(propIdAreaId);
-                    }
+            List<Integer> areaIdsToDelete = new ArrayList<>();
+            for (int i = 0; i < mOnChangeSubscribeClientByPropIdAreaId.size(); i++) {
+                int[] propIdAreaId = mOnChangeSubscribeClientByPropIdAreaId.keyPairAt(i);
+                if (propIdAreaId[0] != propId) {
+                    continue;
+                }
+                Set<FakeVhalSubscriptionClient> clientSet =
+                        mOnChangeSubscribeClientByPropIdAreaId.valueAt(i);
+                clientSet.remove(client);
+                Slogf.d(TAG, "FakeVhalSubscriptionClient unsubscribes ON_CHANGE property, "
+                        + "propId: %d, areaId: %d", propId, propIdAreaId[1]);
+                if (clientSet.isEmpty()) {
+                    areaIdsToDelete.add(propIdAreaId[1]);
                 }
             }
-            for (int i = 0; i < deletePairs.size(); i++) {
-                mOnChangeSubscribeClientByPropIdAreaId.remove(deletePairs.get(i));
+            for (int i = 0; i < areaIdsToDelete.size(); i++) {
+                mOnChangeSubscribeClientByPropIdAreaId.remove(propId, areaIdsToDelete.get(i));
             }
         }
     }
@@ -1101,21 +1100,23 @@ public final class FakeVehicleStub extends VehicleStub {
                 Slogf.w(TAG, "This client hasn't subscribed any CONTINUOUS property.");
                 return;
             }
-            List<Pair<Integer, Integer>> deletePairs = new ArrayList<>();
-            Map<Pair<Integer, Integer>, ContinuousPropUpdater> updaterByPropIdAreaId =
+            List<Integer> areaIdsToDelete = new ArrayList<>();
+            PairSparseArray<ContinuousPropUpdater> updaterByPropIdAreaId =
                     mUpdaterByPropIdAreaIdByClient.get(client);
-            for (Pair<Integer, Integer> propIdAreaId : updaterByPropIdAreaId.keySet()) {
-                if (propIdAreaId.first == propId) {
-                    updaterByPropIdAreaId.get(propIdAreaId).stop();
-                    Slogf.d(TAG, "FakeVhalSubscriptionClient unsubscribes CONTINUOUS property,"
-                            + " propId: %d,  areaId: %d", propId, propIdAreaId.second);
-                    deletePairs.add(propIdAreaId);
+            for (int i = 0; i < updaterByPropIdAreaId.size(); i++) {
+                int[] propIdAreaId = updaterByPropIdAreaId.keyPairAt(i);
+                if (propIdAreaId[0] != propId) {
+                    continue;
                 }
+                updaterByPropIdAreaId.valueAt(i).stop();
+                Slogf.d(TAG, "FakeVhalSubscriptionClient unsubscribes CONTINUOUS property,"
+                        + " propId: %d,  areaId: %d", propId, propIdAreaId[1]);
+                areaIdsToDelete.add(propIdAreaId[1]);
             }
-            for (int i = 0; i < deletePairs.size(); i++) {
-                updaterByPropIdAreaId.remove(deletePairs.get(i));
+            for (int i = 0; i < areaIdsToDelete.size(); i++) {
+                updaterByPropIdAreaId.remove(propId, areaIdsToDelete.get(i));
             }
-            if (updaterByPropIdAreaId.isEmpty()) {
+            if (updaterByPropIdAreaId.size() == 0) {
                 mUpdaterByPropIdAreaIdByClient.remove(client);
             }
         }
@@ -1163,12 +1164,11 @@ public final class FakeVehicleStub extends VehicleStub {
      */
     private HalPropValue updateTimeStamp(int propId, int areaId) {
         synchronized (mLock) {
-            Pair<Integer, Integer> propIdAreaId = Pair.create(propId, areaId);
-            HalPropValue propValue = mPropValuesByPropIdAreaId.get(propIdAreaId);
+            HalPropValue propValue = mPropValuesByPropIdAreaId.get(propId, areaId);
             RawPropValues rawPropValues = ((VehiclePropValue) propValue.toVehiclePropValue()).value;
             HalPropValue updatedValue = buildHalPropValue(propId, areaId,
                     SystemClock.elapsedRealtimeNanos(), rawPropValues);
-            mPropValuesByPropIdAreaId.put(propIdAreaId, updatedValue);
+            mPropValuesByPropIdAreaId.put(propId, areaId, updatedValue);
             return updatedValue;
         }
     }
