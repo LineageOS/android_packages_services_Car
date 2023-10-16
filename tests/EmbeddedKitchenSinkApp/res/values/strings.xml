@@ -257,25 +257,34 @@
     <string name="property_unregister" translatable="false">Unregister</string>
 
     <!-- radio test -->
-    <string name="radio_open" translatable="false">Open</string>
-    <string name="radio_close" translatable="false">Close</string>
-    <string name="radio_muted" translatable="false">Muted</string>
-    <string name="radio_unmuted" translatable="false">Unmuted</string>
-    <string name="radio_next" translatable="false">Next</string>
-    <string name="radio_prev" translatable="false">Previous</string>
-    <string name="radio_scan_cancel" translatable="false">Cancel scan</string>
-    <string name="radio_tune_to_station" translatable="false">Tune to Station</string>
-    <string name="radio_step_up" translatable="false">Step Up</string>
-    <string name="radio_step_down" translatable="false">Step Down</string>
-    <string name="radio_enter_station_hint" translatable="false">Enter Station Frequency (kHz)</string>
-    <string name="radio_get_program_info" translatable="false">getProgramInformation</string>
+    <string name="radio_fm_am_tuner" translatable="false">FM/AM Tuner</string>
+    <string name="radio_open">Open Tuner</string>
+    <string name="radio_close" translatable="false">Close Tuner</string>
+    <string name="radio_play" translatable="false">Playing</string>
+    <string name="radio_stop" translatable="false">Stopped</string>
+    <string name="radio_cancel" translatable="false">Cancel Tuning Operations</string>
+    <string name="radio_warning" translatable="false">Error: %1$s</string>
+    <string name="radio_tune" translatable="false">Tune</string>
+    <string name="radio_input_frequency" translatable="false">Frequency</string>
     <string name="radio_am" translatable="false">AM</string>
     <string name="radio_fm" translatable="false">FM</string>
-    <string name="radio_station_info" translatable="false">Station info: %1$s</string>
-    <string name="radio_channel_info" translatable="false">Channel info: %1$s kHz</string>
-    <string name="radio_song_info" translatable="false">Song info: %1$s</string>
-    <string name="radio_artist_info" translatable="false">Artist info: %1$s</string>
+    <string name="radio_default_fm_frequency_input" translatable="false">97.3</string>
+    <string name="radio_default_am_frequency_input" translatable="false">700</string>
+    <string name="radio_skip_subchannels" translatable="false">Skip subchannels?</string>
+    <string name="radio_step" translatable="false">Step</string>
+    <string name="radio_step_down" translatable="false">Step -</string>
+    <string name="radio_step_up" translatable="false">Step +</string>
+    <string name="radio_seek" translatable="false">Seek</string>
+    <string name="radio_seek_down" translatable="false">Seek -</string>
+    <string name="radio_seek_up" translatable="false">Seek +</string>
+    <string name="radio_current_program_info" translatable="false">Current Program Info</string>
+    <string name="radio_current_station_info" translatable="false">Station info: %1$s</string>
+    <string name="radio_current_channel_info" translatable="false">Channel info: %1$s</string>
+    <string name="radio_current_song_info" translatable="false">Song info: %1$s</string>
+    <string name="radio_current_artist_info" translatable="false">Artist info: %1$s</string>
     <string name="radio_na" translatable="false">N/A</string>
+    <string name="radio_program_list" translatable="false">Program List</string>
+    <string name="radio_program_station_title" translatable="false">Station</string>
 
     <!-- sensors test -->
     <string name="location_title" translatable="false">Location Data:</string>

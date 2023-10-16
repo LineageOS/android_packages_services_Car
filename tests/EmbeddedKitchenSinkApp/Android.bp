@@ -63,6 +63,7 @@ android_app {
         "android.car.cluster.navigation",
         "car-experimental-api-static-lib",
         "concurrent.hotword.lib",
+        "car-broadcastradio-support",
     ],
 
     libs: [

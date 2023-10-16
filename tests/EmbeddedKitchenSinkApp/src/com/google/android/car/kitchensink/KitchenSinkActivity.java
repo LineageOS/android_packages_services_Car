@@ -91,6 +91,7 @@ import com.google.android.car.kitchensink.privacy.PrivacyIndicatorFragment;
 import com.google.android.car.kitchensink.projection.ProjectionFragment;
 import com.google.android.car.kitchensink.property.PropertyTestFragment;
 import com.google.android.car.kitchensink.qc.QCViewerFragment;
+import com.google.android.car.kitchensink.radio.RadioTestFragment;
 import com.google.android.car.kitchensink.remoteaccess.RemoteAccessTestFragment;
 import com.google.android.car.kitchensink.rotary.RotaryFragment;
 import com.google.android.car.kitchensink.sensor.SensorsTestFragment;
@@ -303,7 +304,8 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
             new Pair<>("window insets full screen",
                     WindowInsetsFullScreenFragment.class),
             new Pair<>("oem car service", OemCarServiceTestFragment.class),
-            new Pair<>("Camera2", Camera2TestFragment.class));
+            new Pair<>("Camera2", Camera2TestFragment.class),
+            new Pair<>(RadioTestFragment.FRAGMENT_NAME, RadioTestFragment.class));
 
     private Car mCarApi;
     private CarHvacManager mHvacManager;

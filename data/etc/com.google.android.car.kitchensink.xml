@@ -159,5 +159,7 @@
         <permission name="android.permission.CHANGE_OVERLAY_PACKAGES"/>
         <!-- use for RemoteTaskClientService -->
         <permission name="android.car.permission.CONTROL_REMOTE_ACCESS"/>
+        <!-- use for TunerTestFragment -->
+        <permission name="android.permission.ACCESS_BROADCAST_RADIO" />
     </privapp-permissions>
 </permissions>
