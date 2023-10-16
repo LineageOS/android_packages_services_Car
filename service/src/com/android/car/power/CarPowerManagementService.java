@@ -16,6 +16,7 @@
 
 package com.android.car.power;
 
+import static android.car.feature.Flags.carPowerPolicyRefactoring;
 import static android.car.hardware.power.CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE;
 import static android.car.hardware.power.CarPowerManager.STATE_SHUTDOWN_PREPARE;
 import static android.net.ConnectivityManager.TETHERING_WIFI;
@@ -179,8 +180,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     // Default timeout for listener completion during shutdown.
     private static final int DEFAULT_COMPLETION_WAIT_TIMEOUT = 5_000;
-    // TODO(b/303669616): replace with refactor aconfig flag
-    private static final boolean CAR_POWER_POLICY_REFACTORING = false;
 
     private final Object mLock = new Object();
     private final Object mSimulationWaitObject = new Object();
@@ -345,7 +344,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 /* silentModeKernelStatePath= */ null, /* bootReason= */ null);
     }
 
-    // TODO(b/303669616): guard with refactor flag
     public CarPowerManagementService(Context context, PowerHalService powerHal,
             SystemInterface systemInterface, CarUserService carUserService,
             ICarPowerPolicyDelegate powerPolicyDaemon) {
@@ -400,13 +398,16 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 new ScreenOffHandler(mContext, mSystemInterface, mHandler.getLooper()));
     }
 
-    // TODO(b/303669616): guard with refactor flag
     @VisibleForTesting
     public CarPowerManagementService(Context context, Resources resources, PowerHalService powerHal,
             SystemInterface systemInterface, UserManager userManager, CarUserService carUserService,
             ICarPowerPolicyDelegate powerPolicyDaemon, PowerComponentHandler powerComponentHandler,
             @Nullable ScreenOffHandler screenOffHandler, @Nullable String silentModeHwStatePath,
             @Nullable String silentModeKernelStatePath, @Nullable String bootReason) {
+        if (!carPowerPolicyRefactoring()) {
+            throw new UnsupportedOperationException("car_power_policy_refactoring feature flag must"
+                    + " be enabled for power policy daemon to be of type ICarPowerPolicyDelegate");
+        }
         mContext = context;
         mHal = powerHal;
         mSystemInterface = systemInterface;
@@ -1912,7 +1913,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void initializePowerPolicy() {
-        if (CAR_POWER_POLICY_REFACTORING) {
+        if (carPowerPolicyRefactoring()) {
             ICarPowerPolicyDelegate daemon;
             synchronized (mLock) {
                 daemon = mRefactoredCarPowerPolicyDaemon;
@@ -2154,7 +2155,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private void connectToPowerPolicyDaemon() {
         synchronized (mLock) {
-            if (CAR_POWER_POLICY_REFACTORING) {
+            if (carPowerPolicyRefactoring()) {
                 if (mRefactoredCarPowerPolicyDaemon != null || mConnectionInProgress) {
                     return;
                 }
@@ -2200,7 +2201,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             Slogf.wtf(TAG, "Finding car power policy daemon took too long(%dms)", elapsedTimeMs);
         }
 
-        if (CAR_POWER_POLICY_REFACTORING) {
+        if (carPowerPolicyRefactoring()) {
             ICarPowerPolicyDelegate daemon = ICarPowerPolicyDelegate.Stub.asInterface(binder);
             if (daemon == null) {
                 Slogf.w(TAG, "Getting car power policy daemon interface failed. Power policy "
@@ -2247,13 +2248,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         public void binderDied() {
             Slogf.w(TAG, "Car power policy daemon died: reconnecting");
             unlinkToDeath();
-            if (CAR_POWER_POLICY_REFACTORING) {
+            if (carPowerPolicyRefactoring()) {
                 mRefactoredDaemon = null;
             } else {
                 mDaemon = null;
             }
             synchronized (mLock) {
-                if (CAR_POWER_POLICY_REFACTORING) {
+                if (carPowerPolicyRefactoring()) {
                     mRefactoredCarPowerPolicyDaemon = null;
                 } else {
                     mCarPowerPolicyDaemon = null;
@@ -2266,7 +2267,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
 
         private void linkToDeath() {
-            if (CAR_POWER_POLICY_REFACTORING) {
+            if (carPowerPolicyRefactoring()) {
                 if (mRefactoredDaemon == null) {
                     return;
                 }
@@ -2276,7 +2277,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 }
             }
             IBinder binder;
-            if (CAR_POWER_POLICY_REFACTORING) {
+            if (carPowerPolicyRefactoring()) {
                 binder = mRefactoredDaemon.asBinder();
             } else {
                 binder = mDaemon.asBinder();
@@ -2288,7 +2289,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             try {
                 binder.linkToDeath(this, 0);
             } catch (RemoteException e) {
-                if (CAR_POWER_POLICY_REFACTORING) {
+                if (carPowerPolicyRefactoring()) {
                     mRefactoredDaemon = null;
                 } else {
                     mDaemon = null;
@@ -2298,7 +2299,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
 
         private void unlinkToDeath() {
-            if (CAR_POWER_POLICY_REFACTORING) {
+            if (carPowerPolicyRefactoring()) {
                 if (mRefactoredDaemon == null) {
                     return;
                 }
@@ -2308,7 +2309,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 }
             }
             IBinder binder;
-            if (CAR_POWER_POLICY_REFACTORING) {
+            if (carPowerPolicyRefactoring()) {
                 binder = mRefactoredDaemon.asBinder();
             } else {
                 binder = mDaemon.asBinder();
