@@ -17,7 +17,6 @@ package com.android.car;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -58,7 +57,7 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
             | CarUxRestrictions.UX_RESTRICTIONS_LIMIT_CONTENT
             | CarUxRestrictions.UX_RESTRICTIONS_NO_SETUP
             | CarUxRestrictions.UX_RESTRICTIONS_NO_TEXT_MESSAGE;
-
+    private static final int UX_RESTRICTIONS_IDLE = CarUxRestrictions.UX_RESTRICTIONS_NO_VIDEO;
 
     @Override
     protected void configureMockedHal() {
@@ -154,9 +153,8 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
         assertThat(drivingEvent.eventValue).isEqualTo(CarDrivingStateEvent.DRIVING_STATE_IDLING);
         restrictions = listener.waitForUxRestrictionsChange();
         assertNotNull(restrictions);
-        assertFalse(restrictions.isRequiresDistractionOptimization());
-        assertThat(restrictions.getActiveRestrictions())
-                .isEqualTo(CarUxRestrictions.UX_RESTRICTIONS_BASELINE);
+        assertTrue(restrictions.isRequiresDistractionOptimization());
+        assertThat(restrictions.getActiveRestrictions()).isEqualTo(UX_RESTRICTIONS_IDLE);
 
         // Test Moving state and corresponding restrictions when driving in reverse.
         Log.d(TAG, "Injecting gear reverse");
