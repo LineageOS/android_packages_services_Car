@@ -49,6 +49,8 @@
     <item target="color/car_ui_text_color_secondary" value="@color/car_ui_text_color_secondary"/>
     <item target="color/car_ui_toolbar_menu_item_icon_background_color" value="@color/car_ui_toolbar_menu_item_icon_background_color"/>
     <item target="color/car_ui_toolbar_menu_item_icon_color" value="@color/car_ui_toolbar_menu_item_icon_color"/>
+    <item target="color/car_ui_toolbar_tab_selected_color" value="@color/car_ui_toolbar_tab_selected_color"/>
+    <item target="color/car_ui_toolbar_tab_unselected_color" value="@color/car_ui_toolbar_tab_unselected_color"/>
     <item target="color/car_ui_scrollbar_thumb" value="@color/car_ui_scrollbar_thumb"/>
 
     <item target="dimen/car_ui_toolbar_margin" value="@dimen/car_ui_toolbar_margin"/>
@@ -142,6 +144,7 @@
     <item target="style/Widget.CarUi.Toolbar.MenuItem" value="@style/Widget.CarUi.Toolbar.MenuItem"/>
     <item target="style/Widget.CarUi.Toolbar.NavIconContainer" value="@style/Widget.CarUi.Toolbar.NavIconContainer"/>
     <item target="style/Widget.CarUi.Toolbar.NavIcon" value="@style/Widget.CarUi.Toolbar.NavIcon"/>
+    <item target="style/Widget.CarUi.Toolbar.Tab.Container" value="@style/Widget.CarUi.Toolbar.Tab.Container"/>
     <item target="style/Widget.CarUi.Toolbar.TextButton" value="@style/Widget.CarUi.Toolbar.TextButton"/>
     <item target="style/Widget.CarUi.Toolbar.TextButton.WithIcon" value="@style/Widget.CarUi.Toolbar.TextButton.WithIcon"/>
     <item target="style/Widget.CarUi.Toolbar" value="@style/Widget.CarUi.Toolbar"/>
