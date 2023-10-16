@@ -33,6 +33,7 @@ import static com.android.car.caruiportrait.common.service.CarUiPortraitService.
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_SUW_IN_PROGRESS;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_SYSUI_STARTED;
 import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.ON_ACTIVITY_RESTART_ATTEMPT;
+import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.ON_CALM_MODE_STARTED;
 import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.ON_COLLAPSE_MSG;
 import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.ON_DRIVE_STATE_CHANGED;
 import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.ON_HOME_INTENT;
@@ -181,6 +182,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private boolean mIsNotificationCenterOnTop;
     private boolean mIsRecentsOnTop;
     private boolean mIsAppGridOnTop;
+    private boolean mIsCalmMode;
     private TaskInfoCache mTaskInfoCache;
     private TaskViewPanel mAppGridTaskViewPanel;
     private TaskViewPanel mRootTaskViewPanel;
@@ -276,6 +278,24 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
             if (mTaskCategoryManager.isBackgroundApp(taskInfo)) {
                 mTaskCategoryManager.setCurrentBackgroundApp(taskInfo.baseActivity);
+                mIsCalmMode = mTaskCategoryManager.isCalmModeActivity(taskInfo);
+                int windowInsetsType = WindowInsets.Type.systemBars();
+                if (mIsCalmMode) {
+
+                    if (mRootTaskViewPanel.isOpen()) {
+                        mRootTaskViewPanel.closePanel(createReason(ON_CALM_MODE_STARTED,
+                                taskInfo.taskId, getVisibleActivity(taskInfo)));
+                    }
+                    if (mAppGridTaskViewPanel.isOpen()) {
+                        mRootTaskViewPanel.closePanel(createReason(ON_CALM_MODE_STARTED,
+                                taskInfo.taskId, getVisibleActivity(taskInfo)));
+                    }
+                    setControlBarVisibility(/* isVisible = */ false, /* animate = */ true);
+                    windowInsetsType = WindowInsets.Type.navigationBars();
+                } else {
+                    setControlBarVisibility(/* isVisible = */ true, /* animate = */ true);
+                }
+                notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, windowInsetsType);
                 return;
             }
 
@@ -1016,7 +1036,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         float translationY = isVisible ? 0 : mContainer.getHeight() - mControlBarView.getTop();
         if (animate) {
             mControlBarView.animate().translationY(translationY).withEndAction(
-                    this::updateObscuredTouchRegion);
+                    () -> {
+                        // TODO (b/316344351): Investigate why control bar does not re-appear
+                        //                     without requestLayout()
+                        mControlBarView.requestLayout();
+                        updateObscuredTouchRegion();
+                    });
         } else {
             mControlBarView.setTranslationY(translationY);
             updateObscuredTouchRegion();

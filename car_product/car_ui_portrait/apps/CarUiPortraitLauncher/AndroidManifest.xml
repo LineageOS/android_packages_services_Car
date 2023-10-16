@@ -86,5 +86,31 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.android.car.carlauncher.calmmode.CalmModeActivity"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <!-- Disable the CalmModeActivity from CarLauncher as we don't want that in portrait
+                 launcher. -->
+            <intent-filter tools:node="removeAll" />
+        </activity>
+        <activity android:name=".calmmode.CalmModeActivity"
+            android:theme="@style/Theme.CalmMode"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:launchMode="singleInstance">
+            <intent-filter>
+                <action android:name="com.android.settings.action.EXTRA_SETTINGS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <meta-data
+                android:name="com.android.settings.title"
+                android:resource="@string/calm_mode_title"/>
+            <meta-data
+                android:name="com.android.settings.category"
+                android:value="com.android.settings.category.ia.display"/>
+        </activity>
     </application>
 </manifest>

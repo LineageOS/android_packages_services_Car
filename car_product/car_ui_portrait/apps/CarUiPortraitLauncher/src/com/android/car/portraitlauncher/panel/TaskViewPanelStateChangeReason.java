@@ -39,6 +39,7 @@ public class TaskViewPanelStateChangeReason {
     public static final String ON_SUW_STATE_CHANGED = "ON_SUW_STATE_CHANGED";
     public static final String ON_TASK_MOVED_TO_FRONT = "ON_TASK_MOVED_TO_FRONT";
     public static final String ON_TASK_REMOVED = "ON_TASK_REMOVED";
+    public static final String ON_CALM_MODE_STARTED = "ON_CALM_MODE_STARTED";
     private static final int EMPTY_TASK_ID = -1;
     private final String mReason;
     private final int mTaskId;
@@ -102,6 +103,7 @@ public class TaskViewPanelStateChangeReason {
             ON_SUW_STATE_CHANGED,
             ON_TASK_MOVED_TO_FRONT,
             ON_TASK_REMOVED,
+            ON_CALM_MODE_STARTED,
     })
     @Retention(RetentionPolicy.SOURCE)
     @interface Reason {

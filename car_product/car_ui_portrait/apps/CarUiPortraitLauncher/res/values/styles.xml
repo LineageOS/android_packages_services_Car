@@ -19,4 +19,8 @@
         <item name="cardCornerRadius">@dimen/launcher_card_corner_radius</item>
         <item name="cardElevation">0dp</item>
     </style>
+    <style name="CalmModeClock" parent="TextAppearance.Car.Display">
+        <item name="android:textSize">500sp</item>
+        <item name="android:lineHeight">480sp</item>
+    </style>
 </resources>
