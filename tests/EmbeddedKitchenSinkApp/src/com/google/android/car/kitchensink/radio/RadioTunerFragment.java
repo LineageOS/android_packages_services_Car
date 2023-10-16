@@ -17,6 +17,7 @@
 package com.google.android.car.kitchensink.radio;
 
 import android.annotation.Nullable;
+import android.hardware.radio.ProgramList;
 import android.hardware.radio.ProgramSelector;
 import android.hardware.radio.RadioManager;
 import android.hardware.radio.RadioMetadata;
@@ -30,6 +31,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -49,7 +51,10 @@ public final class RadioTunerFragment extends Fragment {
 
     private final RadioTuner mRadioTuner;
     private final RadioTestFragment.TunerListener mListener;
+    private final ProgramList mFmAmProgramList;
     private boolean mViewCreated = false;
+
+    private ProgramInfoAdapter mProgramInfoAdapter;
 
     private EditText mFrequencyInput;
     private RadioGroup mFmAmBandSelection;
@@ -66,6 +71,11 @@ public final class RadioTunerFragment extends Fragment {
         mRadioTuner = radioManager.openTuner(moduleId, bandConfig, /* withAudio= */ true,
                 new RadioTunerCallbackImpl(), handler);
         mListener = Objects.requireNonNull(tunerListener, "Tuner listener can not be null");
+        if (mRadioTuner == null) {
+            mFmAmProgramList =  null;
+        } else {
+            mFmAmProgramList = mRadioTuner.getDynamicProgramList(/* filter= */ null);
+        }
     }
 
     RadioTuner getRadioTuner() {
@@ -92,10 +102,16 @@ public final class RadioTunerFragment extends Fragment {
         mSeekChannelCheckBox = view.findViewById(R.id.selection_seek_skip_subchannels);
         Button seekUpButton = view.findViewById(R.id.button_radio_seek_up);
         Button seekDownButton = view.findViewById(R.id.button_radio_seek_down);
+        ListView programListView = view.findViewById(R.id.radio_program_list);
         mCurrentStationTextView = view.findViewById(R.id.radio_current_station_info);
         mCurrentChannelTextView = view.findViewById(R.id.radio_current_channel_info);
         mCurrentSongTitleTextView = view.findViewById(R.id.radio_current_song_info);
         mCurrentArtistTextView = view.findViewById(R.id.radio_current_artist_info);
+        mProgramInfoAdapter = new ProgramInfoAdapter(getContext(), R.layout.program_info_item,
+                new RadioManager.ProgramInfo[]{}, this);
+        programListView.setAdapter(mProgramInfoAdapter);
+
+        registerProgramListListener();
 
         closeButton.setOnClickListener((v) -> handleClose());
         cancelButton.setOnClickListener((v) -> handleCancel());
@@ -117,6 +133,15 @@ public final class RadioTunerFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         Log.i(TAG, "onDestroyView");
+    }
+
+    private void registerProgramListListener() {
+        if (mFmAmProgramList == null) {
+            Log.e(TAG, "Can not get program list");
+            return;
+        }
+        OnCompleteListenerImpl onCompleteListener = new OnCompleteListenerImpl();
+        mFmAmProgramList.addOnCompleteListener(getContext().getMainExecutor(), onCompleteListener);
     }
 
     void handleTune(ProgramSelector sel) {
@@ -261,6 +286,17 @@ public final class RadioTunerFragment extends Fragment {
                 warning += " for selector " + selector;
             }
             mWarningTextView.setText(getString(R.string.radio_warning, warning));
+        }
+    }
+
+    private final class OnCompleteListenerImpl implements ProgramList.OnCompleteListener {
+        @Override
+        public void onComplete() {
+            if (mFmAmProgramList == null) {
+                Log.e(TAG, "Program list is null");
+            }
+            mProgramInfoAdapter.updateProgramInfos(mFmAmProgramList.toList()
+                    .toArray(new RadioManager.ProgramInfo[0]));
         }
     }
 }
