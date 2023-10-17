@@ -937,22 +937,23 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     }
 
     /**
-     * Sets a property passed from the shell command.
+     * Sets a passed propertyId+areaId from the shell command.
      *
-     * @param property Property ID in hex or decimal.
-     * @param areaId Area ID
-     * @param data Comma-separated value.
+     * @param propertyId Property ID
+     * @param areaId     Area ID
+     * @param data       Comma-separated value.
      */
-    public void setPropertyFromCommand(int property, int areaId, String data,
+    public void setPropertyFromCommand(int propertyId, int areaId, String data,
             IndentingPrintWriter writer) throws IllegalArgumentException, ServiceSpecificException {
-        long timestamp = SystemClock.elapsedRealtimeNanos();
-        HalPropValue v = createPropValueForInjecting(mPropValueBuilder, property, areaId,
-                List.of(data.split(DATA_DELIMITER)), timestamp);
-        if (v == null) {
-            throw new IllegalArgumentException("Unsupported property type: property=" + property
-                    + ", areaId=" + areaId);
+        long timestampNanos = SystemClock.elapsedRealtimeNanos();
+        HalPropValue halPropValue = createPropValueForInjecting(mPropValueBuilder, propertyId,
+                areaId, List.of(data.split(DATA_DELIMITER)), timestampNanos);
+        if (halPropValue == null) {
+            throw new IllegalArgumentException(
+                    "Unsupported property type: propertyId=" + toDebugString(propertyId)
+                            + ", areaId=" + toDebugString(propertyId, areaId));
         }
-        set(v);
+        set(halPropValue);
     }
 
     private final ArraySet<HalServiceBase> mServicesToDispatch = new ArraySet<>();
