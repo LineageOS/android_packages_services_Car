@@ -61,4 +61,6 @@ interface IClusterHomeService {
     void registerClusterNavigationStateListener(in IClusterNavigationStateListener listener) = 9;
     /** Unregisters a cluster navigation state listener. */
     void unregisterClusterNavigationStateListener(in IClusterNavigationStateListener listener) = 10;
+    /** Sends a heartbeat. */
+    void sendHeartbeat(long epochTimeNs, in byte[] appMetadata) = 11;
 }

@@ -230,6 +230,7 @@ android.car.cluster ClusterHomeManager void registerClusterNavigationStateListen
 android.car.cluster ClusterHomeManager void registerClusterStateListener(Executor executor, ClusterStateListener callback)
 android.car.cluster ClusterHomeManager void reportState(int uiTypeMain, int uiTypeSub, byte[] uiAvailability)
 android.car.cluster ClusterHomeManager void requestDisplay(int uiType)
+android.car.cluster ClusterHomeManager void sendHeartbeat(long epochTimeNs, byte[] appMetadata)
 android.car.cluster ClusterHomeManager void stopFixedActivityMode()
 android.car.cluster ClusterHomeManager void unregisterClusterNavigationStateListener(ClusterNavigationStateListener callback)
 android.car.cluster ClusterHomeManager void unregisterClusterStateListener(ClusterStateListener callback)
