@@ -291,7 +291,7 @@ import java.util.stream.Collectors;
             if (Objects.equals(parser.getName(), TAG_AUDIO_ATTRIBUTES)) {
                 List<AudioAttributes> attributes = parseAudioAttributes(parser, contextName);
                 if (mUseCoreAudioRouting) {
-                    contextId = CoreAudioHelper.getStrategyForAudioAttributes(attributes.get(0));
+                    contextId = CoreAudioHelper.getStrategyForContextName(contextName);
                     if (contextId == CoreAudioHelper.INVALID_STRATEGY) {
                         throw new IllegalArgumentException(TAG_AUDIO_ATTRIBUTES
                                 + ": Cannot find strategy id for context: "

@@ -16,22 +16,27 @@
 
 package com.android.car.audio;
 
+import static com.android.car.audio.CoreAudioRoutingUtils.INVALID_CONTEXT_NAME;
 import static com.android.car.audio.CoreAudioRoutingUtils.INVALID_GROUP_ID;
 import static com.android.car.audio.CoreAudioRoutingUtils.INVALID_GROUP_NAME;
+import static com.android.car.audio.CoreAudioRoutingUtils.INVALID_STRATEGY;
 import static com.android.car.audio.CoreAudioRoutingUtils.INVALID_STRATEGY_ID;
 import static com.android.car.audio.CoreAudioRoutingUtils.MUSIC_ATTRIBUTES;
+import static com.android.car.audio.CoreAudioRoutingUtils.MUSIC_CONTEXT_NAME;
 import static com.android.car.audio.CoreAudioRoutingUtils.MUSIC_GROUP;
 import static com.android.car.audio.CoreAudioRoutingUtils.MUSIC_GROUP_ID;
 import static com.android.car.audio.CoreAudioRoutingUtils.MUSIC_GROUP_NAME;
 import static com.android.car.audio.CoreAudioRoutingUtils.MUSIC_STRATEGY;
 import static com.android.car.audio.CoreAudioRoutingUtils.MUSIC_STRATEGY_ID;
 import static com.android.car.audio.CoreAudioRoutingUtils.NAV_ATTRIBUTES;
+import static com.android.car.audio.CoreAudioRoutingUtils.NAV_CONTEXT_NAME;
 import static com.android.car.audio.CoreAudioRoutingUtils.NAV_GROUP;
 import static com.android.car.audio.CoreAudioRoutingUtils.NAV_GROUP_ID;
 import static com.android.car.audio.CoreAudioRoutingUtils.NAV_GROUP_NAME;
 import static com.android.car.audio.CoreAudioRoutingUtils.NAV_STRATEGY;
 import static com.android.car.audio.CoreAudioRoutingUtils.NAV_STRATEGY_ID;
 import static com.android.car.audio.CoreAudioRoutingUtils.OEM_ATTRIBUTES;
+import static com.android.car.audio.CoreAudioRoutingUtils.OEM_CONTEXT_NAME;
 import static com.android.car.audio.CoreAudioRoutingUtils.OEM_GROUP;
 import static com.android.car.audio.CoreAudioRoutingUtils.OEM_GROUP_ID;
 import static com.android.car.audio.CoreAudioRoutingUtils.OEM_GROUP_NAME;
@@ -115,6 +120,26 @@ public final class CoreAudioHelperTest extends AbstractExtendedMockitoTestCase {
                 .that(CoreAudioHelper.getStrategyForAudioAttributesOrDefault(
                         UNSUPPORTED_ATTRIBUTES))
                 .isEqualTo(MUSIC_STRATEGY_ID);
+    }
+
+    @Test
+    public void getStrategyForContextName_succeeds() {
+        expectWithMessage("Music strategy for context name (%s)", MUSIC_CONTEXT_NAME)
+                .that(CoreAudioHelper.getStrategyForContextName(MUSIC_CONTEXT_NAME))
+                .isEqualTo(MUSIC_STRATEGY_ID);
+        expectWithMessage("Navigation strategy for context name (%s)", NAV_CONTEXT_NAME)
+                .that(CoreAudioHelper.getStrategyForContextName(NAV_CONTEXT_NAME))
+                .isEqualTo(NAV_STRATEGY_ID);
+        expectWithMessage("OEM strategy for context name (%s)", OEM_CONTEXT_NAME)
+                .that(CoreAudioHelper.getStrategyForContextName(OEM_CONTEXT_NAME))
+                .isEqualTo(OEM_STRATEGY_ID);
+    }
+
+    @Test
+    public void getStrategyForContextName_withInvalidContextName_returnsInvalidStrategy() {
+        expectWithMessage("Strategy for invalid context name (%s)", INVALID_CONTEXT_NAME)
+                .that(CoreAudioHelper.getStrategyForContextName(INVALID_CONTEXT_NAME))
+                .isEqualTo(INVALID_STRATEGY);
     }
 
     @Test

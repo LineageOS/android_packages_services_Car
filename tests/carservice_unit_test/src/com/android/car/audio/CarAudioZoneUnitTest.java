@@ -371,8 +371,8 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
 
     @Test
     public void validateCanUseDynamicMixRouting() {
-        when(mMockZoneConfig0.validateCanUseDynamicMixRouting(
-                /* useCoreAudioRouting= */ false)).thenReturn(true);
+        when(mMockZoneConfig0.validateCanUseDynamicMixRouting(/* useCoreAudioRouting= */ false))
+                .thenReturn(true);
         when(mMockZoneConfig1.validateCanUseDynamicMixRouting(
                 /* useCoreAudioRouting= */ false)).thenReturn(false);
         mTestAudioZone.addZoneConfig(mMockZoneConfig0);

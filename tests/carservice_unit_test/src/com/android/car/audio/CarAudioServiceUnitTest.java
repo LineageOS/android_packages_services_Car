@@ -1082,6 +1082,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     public void setZoneIdForUid_withoutDynamicRouting_fails() {
         when(mMockResources.getBoolean(audioUseDynamicRouting))
                 .thenReturn(/* useDynamicRouting= */ false);
+        when(mMockResources.getBoolean(audioUseCoreRouting))
+                .thenReturn(/* useCoreRouting= */ false);
         CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
                 mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
                 mCarVolumeCallbackHandler);
@@ -1092,7 +1094,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         expectWithMessage("Set Zone for UID Dynamic Configuration Exception")
                 .that(thrown).hasMessageThat()
-                .contains("Dynamic routing is required");
+                .contains("Non legacy routing is required");
     }
 
     @Test
@@ -1263,6 +1265,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     public void clearZoneIdForUid_withoutDynamicRouting_fails() {
         when(mMockResources.getBoolean(audioUseDynamicRouting))
                 .thenReturn(/* useDynamicRouting= */ false);
+        when(mMockResources.getBoolean(audioUseCoreRouting))
+                .thenReturn(/* useCoreRouting= */ false);
         CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
                 mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
                 mCarVolumeCallbackHandler);
@@ -1273,7 +1277,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         expectWithMessage("Clear Zone for UID Dynamic Configuration Exception")
                 .that(thrown).hasMessageThat()
-                .contains("Dynamic routing is required");
+                .contains("Non legacy routing is required");
     }
 
     @Test
@@ -1492,6 +1496,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     public void getOutputDeviceAddressForUsage_withNonDynamicRouting_forMediaUsage_fails() {
         when(mMockResources.getBoolean(audioUseDynamicRouting))
                 .thenReturn(/* useDynamicRouting= */ false);
+        when(mMockResources.getBoolean(audioUseCoreRouting))
+                .thenReturn(/* useCoreRouting= */ false);
         CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
                 mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
                 mCarVolumeCallbackHandler);
@@ -1502,7 +1508,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                         .getOutputDeviceAddressForUsage(PRIMARY_AUDIO_ZONE, USAGE_MEDIA));
 
         expectWithMessage("Non dynamic routing media usage audio device address exception")
-                .that(thrown).hasMessageThat().contains("Dynamic routing is required");
+                .that(thrown).hasMessageThat().contains("Non legacy routing is required");
     }
 
     @Test
