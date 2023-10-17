@@ -480,6 +480,9 @@ public final class WatchdogPerfHandler {
 
             proto.write(PerformanceDump.IS_PENDING_RESOURCE_OVERUSE_CONFIGURATIONS_REQUEST,
                     mPendingSetResourceOveruseConfigurationsRequest != null);
+
+            mOveruseConfigurationCache.dumpProto(proto);
+
             proto.end(performanceDumpToken);
         }
     }
