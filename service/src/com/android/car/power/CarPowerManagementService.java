@@ -2768,17 +2768,44 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mPowerComponentHandler.registerCustomComponents(
                     customComponents.toArray(new Integer[customComponents.size()]));
         }
-        ICarPowerPolicySystemNotification daemon;
-        synchronized (mLock) {
-            daemon = mCarPowerPolicyDaemon;
-        }
-        try {
-            daemon.notifyPowerPolicyDefinition(powerPolicyId, enabledComponents,
-                    disabledComponents);
-        } catch (RemoteException e) {
-            int error = PolicyOperationStatus.ERROR_DEFINE_POWER_POLICY;
-            Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error));
-            return error;
+        if (carPowerPolicyRefactoring()) {
+            ICarPowerPolicyDelegate daemon;
+            synchronized (mLock) {
+                daemon = mRefactoredCarPowerPolicyDaemon;
+            }
+            try {
+                daemon.notifyPowerPolicyDefinition(powerPolicyId, enabledComponents,
+                        disabledComponents);
+            } catch (IllegalArgumentException e) {
+                int policyError = PolicyOperationStatus.ERROR_INVALID_POWER_POLICY_ID;
+                int componentError = PolicyOperationStatus.ERROR_INVALID_POWER_COMPONENT;
+                Slogf.w(TAG, e, "%s and/or %s",
+                        PolicyOperationStatus.errorCodeToString(policyError),
+                        PolicyOperationStatus.errorCodeToString(componentError));
+                return policyError;
+            } catch (IllegalStateException | RemoteException e) {
+                int error = PolicyOperationStatus.ERROR_DEFINE_POWER_POLICY;
+                Slogf.w(TAG, e, PolicyOperationStatus.errorCodeToString(error));
+                return error;
+            } catch (SecurityException e) {
+                int error = PolicyOperationStatus.ERROR_DEFINE_POWER_POLICY;
+                Slogf.w(TAG, e, "%s; insufficient permissions",
+                        PolicyOperationStatus.errorCodeToString(error));
+                return error;
+            }
+        } else {
+            ICarPowerPolicySystemNotification daemon;
+            synchronized (mLock) {
+                daemon = mCarPowerPolicyDaemon;
+            }
+            try {
+                daemon.notifyPowerPolicyDefinition(powerPolicyId, enabledComponents,
+                        disabledComponents);
+            } catch (RemoteException e) {
+                int error = PolicyOperationStatus.ERROR_DEFINE_POWER_POLICY;
+                Slogf.w(TAG, e, PolicyOperationStatus.errorCodeToString(error));
+                return error;
+            }
         }
         return PolicyOperationStatus.OK;
     }
