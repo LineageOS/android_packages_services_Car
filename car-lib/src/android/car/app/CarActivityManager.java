@@ -16,6 +16,8 @@
 
 package android.car.app;
 
+import static android.Manifest.permission.INTERACT_ACROSS_USERS;
+
 import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.IntDef;
@@ -25,15 +27,18 @@ import android.annotation.Nullable;
 import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
+import android.annotation.UiContext;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
+import android.car.user.CarUserManager;
 import android.car.view.MirroredSurfaceView;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
+import android.content.Context;
 import android.graphics.Rect;
 import android.os.Binder;
 import android.os.Build;
@@ -474,7 +479,7 @@ public final class CarActivityManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @RequiresPermission(Car.PERMISSION_MANAGE_CAR_SYSTEM_UI)
+    @RequiresPermission(allOf = {Car.PERMISSION_MANAGE_CAR_SYSTEM_UI, INTERACT_ACROSS_USERS})
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
@@ -483,15 +488,51 @@ public final class CarActivityManager extends CarManagerBase {
             @NonNull Activity hostActivity,
             @NonNull Executor callbackExecutor,
             @NonNull CarTaskViewControllerCallback carTaskViewControllerCallback) {
+        getCarTaskViewController(
+                hostActivity,
+                CarTaskViewControllerHostLifecycleFactory.forActivity(hostActivity),
+                callbackExecutor,
+                carTaskViewControllerCallback);
+    }
+
+    /**
+     * Gets the {@link CarTaskViewController} using the {@code carTaskViewControllerCallback}.
+     *
+     * This method is expected to be called when the container (host) is created. It will
+     * take care of freeing up the held resources when container is destroyed. If the container is
+     * recreated, this method should be called again after it gets created again.
+     *
+     * @param carTaskViewControllerCallback the callback which the client can use to monitor the
+     *                                      lifecycle of the {@link CarTaskViewController}.
+     * @param hostContext the visual hostContext which the container (host) is associated with.
+     * @param callbackExecutor the executor which the {@code carTaskViewControllerCallback} will be
+     *                         executed on.
+     * @param carTaskViewControllerHostLifecycle the lifecycle of the container (host).
+     * @hide
+     */
+    // TODO(b/293297847): Expose this as system API
+    @RequiresPermission(allOf = {Car.PERMISSION_MANAGE_CAR_SYSTEM_UI, INTERACT_ACROSS_USERS})
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
+    @MainThread
+    public void getCarTaskViewController(
+            @UiContext @NonNull Context hostContext,
+            @NonNull CarTaskViewControllerHostLifecycle carTaskViewControllerHostLifecycle,
+            @NonNull Executor callbackExecutor,
+            @NonNull CarTaskViewControllerCallback carTaskViewControllerCallback) {
         assertPlatformVersionAtLeastU();
         try {
             if (mCarTaskViewControllerSupervisor == null) {
                 // Same supervisor is used for multiple activities.
                 mCarTaskViewControllerSupervisor = new CarTaskViewControllerSupervisor(mService,
-                        getContext().getMainExecutor());
+                        getContext().getMainExecutor(), mCar.getCarManager(CarUserManager.class));
             }
-            mCarTaskViewControllerSupervisor.createCarTaskViewController(callbackExecutor,
-                    carTaskViewControllerCallback, hostActivity);
+            mCarTaskViewControllerSupervisor.createCarTaskViewController(
+                    hostContext,
+                    carTaskViewControllerHostLifecycle,
+                    callbackExecutor,
+                    carTaskViewControllerCallback);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }

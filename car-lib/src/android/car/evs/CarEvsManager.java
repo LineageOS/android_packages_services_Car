@@ -35,8 +35,10 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.evs.CarEvsUtils;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.annotation.Retention;
@@ -44,6 +46,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.Objects;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Provides an application interface for interativing with the Extended View System service.
@@ -62,8 +66,9 @@ public final class CarEvsManager extends CarManagerBase {
     private final ICarEvsService mService;
     private final Object mStreamLock = new Object();
 
+    // This array maintains mappings between service type and its client.
     @GuardedBy("mStreamLock")
-    private CarEvsStreamCallback mStreamCallback;
+    private SparseArray<CarEvsStreamCallback> mStreamCallbacks = new SparseArray<>();
 
     @GuardedBy("mStreamLock")
     private Executor mStreamCallbackExecutor;
@@ -329,8 +334,7 @@ public final class CarEvsManager extends CarManagerBase {
         }
 
         synchronized (mStreamLock) {
-            mStreamCallback = null;
-            mStreamCallbackExecutor = null;
+            stopVideoStreamLocked();
         }
     }
 
@@ -491,7 +495,10 @@ public final class CarEvsManager extends CarManagerBase {
      * {@link com.android.car.ICarEvsStreamCallback} across the binder interface.
      */
     private static class CarEvsStreamListenerToService extends ICarEvsStreamCallback.Stub {
+        private static final int DEFAULT_STREAM_EVENT_WAIT_TIMEOUT_IN_SEC = 1;
         private final WeakReference<CarEvsManager> mManager;
+        private final Semaphore mStreamEventOccurred = new Semaphore(/* permits= */ 0);
+        private @CarEvsStreamEvent int mLastStreamEvent;
 
         CarEvsStreamListenerToService(CarEvsManager manager) {
             mManager = new WeakReference<>(manager);
@@ -499,6 +506,9 @@ public final class CarEvsManager extends CarManagerBase {
 
         @Override
         public void onStreamEvent(@CarEvsStreamEvent int event) {
+            mLastStreamEvent = event;
+            mStreamEventOccurred.release();
+
             CarEvsManager manager = mManager.get();
             if (manager != null) {
                 manager.handleStreamEvent(event);
@@ -512,6 +522,29 @@ public final class CarEvsManager extends CarManagerBase {
                 manager.handleNewFrame(buffer);
             }
         }
+
+        public boolean waitForStreamEvent(@CarEvsStreamEvent int expected) {
+            return waitForStreamEvent(expected, DEFAULT_STREAM_EVENT_WAIT_TIMEOUT_IN_SEC);
+        }
+
+        public boolean waitForStreamEvent(@CarEvsStreamEvent int expected, int timeoutInSeconds) {
+            while (true) {
+                try {
+                    if (!mStreamEventOccurred.tryAcquire(timeoutInSeconds, TimeUnit.SECONDS)) {
+                        Slogf.w(TAG, "Timer for a new stream event expired.");
+                        return false;
+                    }
+
+                    if (mLastStreamEvent == expected) {
+                        return true;
+                    }
+                } catch (InterruptedException e) {
+                    Slogf.w(TAG, "Interrupted while waiting for an event %d.\nException = %s",
+                            expected, Log.getStackTraceString(e));
+                    return false;
+                }
+            }
+        }
     }
 
     /**
@@ -522,19 +555,21 @@ public final class CarEvsManager extends CarManagerBase {
      * @param event {@link #CarEvsStreamEvent} from the service this manager subscribes to.
      */
     private void handleStreamEvent(@CarEvsStreamEvent int event) {
+        synchronized(mStreamLock) {
+            handleStreamEventLocked(event);
+        }
+    }
+
+    @GuardedBy("mStreamLock")
+    private void handleStreamEventLocked(@CarEvsStreamEvent int event) {
         if (DBG) {
             Slogf.d(TAG, "Received: " + event);
         }
 
-        final CarEvsStreamCallback callback;
-        final Executor executor;
-        synchronized (mStreamLock) {
-            callback = mStreamCallback;
-            executor = mStreamCallbackExecutor;
-        }
-
+        CarEvsStreamCallback callback = mStreamCallbacks.get(CarEvsUtils.getTag(event));
+        Executor executor = mStreamCallbackExecutor;
         if (callback != null) {
-            executor.execute(() -> callback.onStreamEvent(event));
+            executor.execute(() -> callback.onStreamEvent(CarEvsUtils.getValue(event)));
         } else if (DBG) {
             Slogf.w(TAG, "No client seems active; a current stream event is ignored.");
         }
@@ -556,7 +591,7 @@ public final class CarEvsManager extends CarManagerBase {
         final CarEvsStreamCallback callback;
         final Executor executor;
         synchronized (mStreamLock) {
-            callback = mStreamCallback;
+            callback = mStreamCallbacks.get(CarEvsUtils.getTag(buffer.getId()));
             executor = mStreamCallbackExecutor;
         }
 
@@ -569,6 +604,36 @@ public final class CarEvsManager extends CarManagerBase {
             }
             returnFrameBuffer(buffer);
         }
+    }
+
+
+    /** Stops all active stream callbacks. */
+    @GuardedBy("mStreamLock")
+    private void stopVideoStreamLocked() {
+        if (mStreamCallbacks.size() < 1) {
+            Slogf.i(TAG, "No stream to stop.");
+            return;
+        }
+
+        try {
+            mService.stopVideoStream(mStreamListenerToService);
+        } catch (RemoteException err) {
+            handleRemoteExceptionFromCarService(err);
+        }
+
+        // Wait for a confirmation.
+        if (!mStreamListenerToService.waitForStreamEvent(STREAM_EVENT_STREAM_STOPPED)) {
+            Slogf.w(TAG, "EVS did not notify us that target streams are stopped " +
+                    "before a time expires.");
+        }
+
+        // Notify clients that streams are stopped.
+        handleStreamEventLocked(STREAM_EVENT_STREAM_STOPPED);
+
+        // We're not interested in frames and events anymore.  The client can safely assume
+        // the service is stopped properly.
+        mStreamCallbacks.clear();
+        mStreamCallbackExecutor = null;
     }
 
     /**
@@ -660,7 +725,7 @@ public final class CarEvsManager extends CarManagerBase {
         Objects.requireNonNull(callback);
 
         synchronized (mStreamLock) {
-            mStreamCallback = callback;
+            mStreamCallbacks.put(type, callback);
             mStreamCallbackExecutor = executor;
         }
 
@@ -682,21 +747,7 @@ public final class CarEvsManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public void stopVideoStream() {
         synchronized (mStreamLock) {
-            if (mStreamCallback == null) {
-                Slogf.e(TAG, "The service has not started yet.");
-                return;
-            }
-
-            // We're not interested in frames and events anymore.  The client can safely assume
-            // the service is stopped properly.
-            mStreamCallback = null;
-            mStreamCallbackExecutor = null;
-        }
-
-        try {
-            mService.stopVideoStream(mStreamListenerToService);
-        } catch (RemoteException err) {
-            handleRemoteExceptionFromCarService(err);
+            stopVideoStreamLocked();
         }
     }
 

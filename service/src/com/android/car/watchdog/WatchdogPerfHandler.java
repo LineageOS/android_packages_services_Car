@@ -1107,6 +1107,9 @@ public final class WatchdogPerfHandler {
                             + "current enabled state is %s", userId, packageName,
                             toEnabledStateString(currentEnabledState));
                     return false;
+                default:
+                    // COMPONENT_ENABLED_STATE_DEFAULT or other non-disabled states.
+                    break;
             }
             PackageManagerHelper.setApplicationEnabledSettingForUser(packageName,
                     COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED, /* flags= */ 0, userId,
@@ -2076,6 +2079,9 @@ public final class WatchdogPerfHandler {
                     mLastUidIoUsageSummaryReportedDate = mTimeSource.getCurrentDate();
                 }
                 break;
+            default:
+                Slogf.i(TAG, "Skipping pull atom request on invalid watchdog atom tag: %d",
+                        atomTag);
         }
         return PULL_SUCCESS;
     }

@@ -784,7 +784,9 @@ public final class AidlVehicleStubUnitTest {
 
         HalPropValue value = HVAC_PROP_VALUE;
 
-        long timeoutUptimeMs = SystemClock.uptimeMillis() + 10;
+        // Requests will timeout after 100ms from this point. Don't make this too short otherwise
+        // the okay result will timeout.
+        long timeoutUptimeMs = SystemClock.uptimeMillis() + 100;
         AsyncGetSetRequest getVehicleStubAsyncRequest1 = new AsyncGetSetRequest(
                 /* serviceRequestId= */ 0, value, timeoutUptimeMs);
         AsyncGetSetRequest getVehicleStubAsyncRequest2 = new AsyncGetSetRequest(

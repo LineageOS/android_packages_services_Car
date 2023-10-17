@@ -32,7 +32,7 @@ android_app {
     certificate: "platform",
 
     optimize: {
-        enabled: false,
+        proguard_flags_files: [":CarSettings_proguard_flags"],
     },
 
     privileged: true,

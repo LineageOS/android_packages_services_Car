@@ -53,6 +53,7 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.android.car.CarLocalServices;
+import com.android.car.CarOccupantZoneService;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.hal.UserHalService;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
@@ -132,6 +133,9 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
     @Mock
     private CarPowerManagementService mCarPowerManagementService;
 
+    @Mock
+    private CarOccupantZoneService mCarOccupantZoneService;
+
     private ServiceLauncherContext mContext;
     private CarUserService mCarUserService;
     private VendorServiceController mController;
@@ -150,7 +154,8 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         mContext = new ServiceLauncherContext(ApplicationProvider.getApplicationContext());
 
         mCarUserService = new CarUserService(mContext, mUserHal, mUserManager,
-                /* maxRunningUsers= */ 2, mUxRestrictionService, mCarPackageManagerService);
+                /* maxRunningUsers= */ 2, mUxRestrictionService, mCarPackageManagerService,
+                mCarOccupantZoneService);
         spyOn(mCarUserService);
         CarLocalServices.removeServiceForTest(CarUserService.class);
         CarLocalServices.addService(CarUserService.class, mCarUserService);

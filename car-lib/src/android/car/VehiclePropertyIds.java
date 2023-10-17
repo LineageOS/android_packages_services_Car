@@ -2117,13 +2117,11 @@ public final class VehiclePropertyIds {
     /**
      * Property to feed H/W input events to android.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Integer[]} property type
-     * </ul>
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     *
+     * Deprecated, use {@link android.car.input.CarInputManager} instead.
      */
     @AddedInOrBefore(majorVersion = 33)
     public static final int HW_KEY_INPUT = 289475088;
@@ -3234,27 +3232,16 @@ public final class VehiclePropertyIds {
     public static final int SEAT_LUMBAR_SIDE_SUPPORT_MOVE = 356518804;
 
     /**
-     * @deprecated This property is deprecated because it is defined as type {@link
-     * VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, which means all seats use the same value. Use
-     * {@link #SEAT_HEADREST_HEIGHT_POS_V2} instead which fixes this issue by being defined as type
+     * Headrest height position.
+     *
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     *
+     * @deprecated because it is defined as type {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL},
+     * which means all seats use the same value. Use {@link #SEAT_HEADREST_HEIGHT_POS_V2} instead
+     * which fixes this issue by being defined as type
      * {@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}.
-     *
-     * <p>Headrest height position.
-     *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
-     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Integer} property type
-     * </ul>
-     *
-     * <p>Required Permission:
-     * <ul>
-     *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read
-     *  and write property.
-     * </ul>
      */
     @Deprecated
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
@@ -4251,20 +4238,11 @@ public final class VehiclePropertyIds {
     /**
      * Vehicle Maps Service (VMS) message.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Object[]} property type
-     * </ul>
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Required Permission:
-     * <ul>
-     *  <li>Signature|Privileged permission "android.car.permission.VMS_PUBLISHER" or
-     *  Signature|Privileged permission "android.car.permission.VMS_SUBSCRIBER" to read and write
-     *  property.
-     * </ul>
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     *
+     * Deprecated, use {@link android.car.vms.VmsClientManager} instead.
      */
     @RequiresPermission(anyOf = {Car.PERMISSION_VMS_PUBLISHER, Car.PERMISSION_VMS_SUBSCRIBER})
     @AddedInOrBefore(majorVersion = 33)
@@ -4309,22 +4287,11 @@ public final class VehiclePropertyIds {
     /**
      * OBD2 Live Sensor Data.
      *
-     * <p>Reports a snapshot of the current (live) values of the OBD2 sensors available.
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Object[]} property type
-     * </ul>
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * <p>Required Permission:
-     * <ul>
-     *  <li>Signature|Privileged permission "android.car.permission.CAR_DIAGNOSTICS" to read
-     *  property.
-     *  <li>Property is not writable.
-     * </ul>
+     * Deprecated, use {@link android.car.diagnostic.CarDiagnosticManager} instead.
      */
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
     @AddedInOrBefore(majorVersion = 33)
@@ -4332,23 +4299,11 @@ public final class VehiclePropertyIds {
     /**
      * OBD2 Freeze Frame Sensor Data.
      *
-     * <p>Reports a snapshot of the value of the OBD2 sensors available at the time that a fault
-     * occurred and was detected.
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Object[]} property type
-     * </ul>
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * <p>Required Permission:
-     * <ul>
-     *  <li>Signature|Privileged permission "android.car.permission.CAR_DIAGNOSTICS" to read
-     *  property.
-     *  <li>Property is not writable.
-     * </ul>
+     * Deprecated, use {@link android.car.diagnostic.CarDiagnosticManager} instead.
      */
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
     @AddedInOrBefore(majorVersion = 33)
@@ -4356,20 +4311,11 @@ public final class VehiclePropertyIds {
     /**
      * OBD2 Freeze Frame Information.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Object[]} property type
-     * </ul>
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Required Permission:
-     * <ul>
-     *  <li>Signature|Privileged permission "android.car.permission.CAR_DIAGNOSTICS" to read
-     *  property.
-     *  <li>Property is not writable.
-     * </ul>
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     *
+     * Deprecated, use {@link android.car.diagnostic.CarDiagnosticManager} instead.
      */
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
     @AddedInOrBefore(majorVersion = 33)
@@ -4377,23 +4323,11 @@ public final class VehiclePropertyIds {
     /**
      * OBD2 Freeze Frame Clear.
      *
-     * <p>This property allows deletion of any of the freeze frames stored in
-     * vehicle memory, as described by {@link #OBD2_FREEZE_FRAME_INFO}.
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Object[]} property type
-     * </ul>
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * <p>Required Permission:
-     * <ul>
-     *  <li>Property is not readable.
-     *  <li>Signature|Privileged permission "android.car.permission.CLEAR_CAR_DIAGNOSTICS" to write
-     *  property.
-     * </ul>
+     * Deprecated, use {@link android.car.diagnostic.CarDiagnosticManager} instead.
      */
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR)
     @AddedInOrBefore(majorVersion = 33)

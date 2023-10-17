@@ -49,60 +49,20 @@ import android.view.SurfaceView;
  * A {@link SurfaceView} that can embed a Task inside of it. The task management is done remotely
  * in a process that has registered a TaskOrganizer with the system server.
  * Usually this process is the Car System UI.
+ *
+ * @hide
  */
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-abstract class RemoteCarTaskView extends SurfaceView {
+public abstract class RemoteCarTaskView extends SurfaceView {
     private static final String TAG = RemoteCarTaskView.class.getSimpleName();
 
     private final TouchableInsetsProvider mTouchableInsetsProvider;
     private final SurfaceCallbackHandler mSurfaceCallbackHandler = new SurfaceCallbackHandler();
     private final Rect mTmpRect = new Rect();
-    boolean mInitialized = false;
+    private boolean mInitialized = false;
     boolean mSurfaceCreated = false;
     private Region mObscuredTouchRegion;
     private ICarTaskViewHost mICarTaskViewHost;
-    private ActivityManager.RunningTaskInfo mTaskInfo;
-
-    final ICarTaskViewClient mICarTaskViewClient = new ICarTaskViewClient.Stub() {
-        @Override
-        public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo, SurfaceControl leash) {
-            mTaskInfo = taskInfo;
-            updateWindowBounds();
-            if (taskInfo.taskDescription != null) {
-                ViewHelper.seResizeBackgroundColor(
-                        RemoteCarTaskView.this,
-                        taskInfo.taskDescription.getBackgroundColor());
-            }
-            RemoteCarTaskView.this.onTaskAppeared(taskInfo, leash);
-        }
-
-        @Override
-        public void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo) {
-            if (taskInfo.taskDescription != null) {
-                ViewHelper.seResizeBackgroundColor(
-                        RemoteCarTaskView.this,
-                        taskInfo.taskDescription.getBackgroundColor());
-            }
-            RemoteCarTaskView.this.onTaskInfoChanged(taskInfo);
-        }
-
-        @Override
-        public void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo) {
-            mTaskInfo = null;
-            RemoteCarTaskView.this.onTaskVanished(taskInfo);
-        }
-
-        @Override
-        public void setResizeBackgroundColor(SurfaceControl.Transaction t, int color) {
-            ViewHelper.seResizeBackgroundColor(RemoteCarTaskView.this, color);
-        }
-
-        @Override
-        public Rect getCurrentBoundsOnScreen() {
-            ViewHelper.getBoundsOnScreen(RemoteCarTaskView.this, mTmpRect);
-            return mTmpRect;
-        }
-    };
 
     RemoteCarTaskView(Context context) {
         super(context);
@@ -174,9 +134,7 @@ abstract class RemoteCarTaskView extends SurfaceView {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
-    @Nullable public ActivityManager.RunningTaskInfo getTaskInfo() {
-        return mTaskInfo;
-    }
+    @Nullable public abstract ActivityManager.RunningTaskInfo getTaskInfo();
 
     /**
      * @return true, if the task view is initialized.
@@ -207,6 +165,7 @@ abstract class RemoteCarTaskView extends SurfaceView {
     @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @MainThread
     public void addInsets(int index, int type, @NonNull Rect frame) {
         try {
             mICarTaskViewHost.addInsets(index, type, frame);
@@ -269,14 +228,32 @@ abstract class RemoteCarTaskView extends SurfaceView {
         }
     }
 
+    void createRootTask(int displayId) {
+        try {
+            mICarTaskViewHost.createRootTask(displayId);
+        } catch (RemoteException exception) {
+            Slogf.e(TAG, "exception in createRootTask", exception);
+        }
+    }
+
+    void createLaunchRootTask(int displayId, boolean embedHomeTask, boolean embedRecentsTask,
+            boolean embedAssistantTask) {
+        try {
+            mICarTaskViewHost.createLaunchRootTask(displayId, embedHomeTask, embedRecentsTask,
+                    embedAssistantTask);
+        } catch (RemoteException exception) {
+            Slogf.e(TAG, "exception in createRootTask", exception);
+        }
+    }
+
     /** Release the resources associated with this task view. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @MainThread
     public void release() {
         getHolder().removeCallback(mSurfaceCallbackHandler);
         try {
             mICarTaskViewHost.release();
-            mTaskInfo = null;
         } catch (DeadObjectException e) {
             Slogf.w(TAG, "TaskView's host has already died", e);
         } catch (RemoteException e) {

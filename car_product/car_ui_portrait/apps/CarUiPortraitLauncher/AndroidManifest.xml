@@ -30,6 +30,7 @@
         android:label="@string/app_title"
         android:theme="@style/Theme.CarUi.NoToolbar"
         tools:replace="android:label,android:theme"
+        android:directBootAware="true"
         tools:node="merge">
 
         <activity
@@ -43,7 +44,7 @@
         </activity>
 
         <activity
-            android:name=".homeactivities.BlankActivity"
+            android:name=".homeactivities.BackgroundPanelBaseActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:excludeFromRecents="true">

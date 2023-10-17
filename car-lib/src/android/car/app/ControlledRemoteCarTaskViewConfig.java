@@ -30,7 +30,7 @@ import android.content.Intent;
  */
 @SystemApi
 public final class ControlledRemoteCarTaskViewConfig {
-    private static final String TAG = "ControlledRemoteCarTaskView";
+    private static final String TAG = ControlledRemoteCarTaskViewConfig.class.getSimpleName();
 
     final Intent mActivityIntent;
     final boolean mShouldAutoRestartOnTaskRemoval;

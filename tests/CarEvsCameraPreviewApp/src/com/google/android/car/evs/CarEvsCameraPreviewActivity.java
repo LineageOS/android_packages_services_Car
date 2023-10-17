@@ -73,6 +73,15 @@ public class CarEvsCameraPreviewActivity extends Activity
     private final static int STREAM_STATE_INVISIBLE = 2;
     private final static int STREAM_STATE_LOST = 3;
 
+    private final static float DEFAULT_1X1_POSITION[][] = {
+        {
+            -1.0f,  1.0f, 0.0f,
+             1.0f,  1.0f, 0.0f,
+            -1.0f, -1.0f, 0.0f,
+             1.0f, -1.0f, 0.0f,
+        },
+    };
+
     private static String streamStateToString(int state) {
         switch (state) {
             case STREAM_STATE_STOPPED:
@@ -126,6 +135,7 @@ public class CarEvsCameraPreviewActivity extends Activity
     private IBinder mSessionToken;
 
     private boolean mUseSystemWindow;
+    private int mServiceType;
 
     /** Callback to listen to EVS stream */
     private final CarEvsManager.CarEvsStreamCallback mStreamHandler =
@@ -260,8 +270,12 @@ public class CarEvsCameraPreviewActivity extends Activity
         Car.createCar(getApplicationContext(), /* handler = */ null,
                 Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER, mCarServiceLifecycleListener);
 
-        mEvsView = CarEvsGLSurfaceView.create(getApplication(), this, getApplicationContext()
-                .getResources().getInteger(R.integer.config_evsRearviewCameraInPlaneRotationAngle));
+        // Packaging parameters to create CarEvsGLSurfaceView.
+        ArrayList callbacks = new ArrayList<>(1);
+        callbacks.add(CarEvsManager.SERVICE_TYPE_REARVIEW, this);
+        mEvsView = CarEvsGLSurfaceView.create(getApplication(), callbacks, getApplicationContext()
+                .getResources().getInteger(R.integer.config_evsRearviewCameraInPlaneRotationAngle),
+                DEFAULT_1X1_POSITION);
         mRootView = (ViewGroup) LayoutInflater.from(this).inflate(
                 R.layout.evs_preview_activity, /* root= */ null);
         mPreviewContainer = mRootView.findViewById(R.id.evs_preview_container);
@@ -274,7 +288,7 @@ public class CarEvsCameraPreviewActivity extends Activity
         mPreviewContainer.addView(mEvsView, 0);
         View closeButton = mRootView.findViewById(R.id.close_button);
         if (closeButton != null) {
-            closeButton.setOnClickListener(v -> finish());
+            closeButton.setOnClickListener(v -> handleCloseButtonTriggered());
         }
 
         int width = WindowManager.LayoutParams.MATCH_PARENT;
@@ -310,10 +324,14 @@ public class CarEvsCameraPreviewActivity extends Activity
         Bundle extras = intent.getExtras();
         if (extras == null) {
             mSessionToken = null;
+            mServiceType = CarEvsManager.SERVICE_TYPE_REARVIEW;
+            mUseSystemWindow = false;
             return;
         }
+
         mSessionToken = extras.getBinder(CarEvsManager.EXTRA_SESSION_TOKEN);
         mUseSystemWindow = mSessionToken != null;
+        mServiceType = extras.getShort(Integer.toString(CarEvsManager.SERVICE_TYPE_REARVIEW));
     }
 
     @Override
@@ -330,10 +348,10 @@ public class CarEvsCameraPreviewActivity extends Activity
     protected void onStop() {
         Log.d(TAG, "onStop");
         try {
-            if (mUseSystemWindow) {
+            if (mUseSystemWindow && mEvsView.getWindowVisibility() == View.VISIBLE) {
                 // When a new activity is launched, this activity will become the background
                 // activity and, however, likely still visible to the users if it is using the
-                // system window.  Therefore, we should not transition to the INVISIBLE state.
+                // system window.  Therefore, we should not transition to the STOPPED state.
                 //
                 // Similarly, this activity continues previewing the camera when the user triggers
                 // the home button.  If the users want to manually close the preview window, they
@@ -342,7 +360,7 @@ public class CarEvsCameraPreviewActivity extends Activity
             }
 
             synchronized (mLock) {
-                handleVideoStreamLocked(STREAM_STATE_INVISIBLE);
+                handleVideoStreamLocked(STREAM_STATE_STOPPED);
             }
         } finally {
             super.onStop();
@@ -400,8 +418,8 @@ public class CarEvsCameraPreviewActivity extends Activity
             case STREAM_STATE_VISIBLE:
                 // Starts a video stream
                 if (mEvsManager != null) {
-                    int result = mEvsManager.startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW,
-                            mSessionToken, mCallbackExecutor, mStreamHandler);
+                    int result = mEvsManager.startVideoStream(mServiceType, mSessionToken,
+                            mCallbackExecutor, mStreamHandler);
                     if (result != ERROR_NONE) {
                         Log.e(TAG, "Failed to start a video stream, error = " + result);
                     } else {
@@ -475,5 +493,13 @@ public class CarEvsCameraPreviewActivity extends Activity
         } catch (Exception e) {
             Log.w(TAG, "CarEvsService is not available.");
         }
+    }
+
+    private void handleCloseButtonTriggered() {
+        // It is possible that we've been stopped but a video stream is still active.
+        synchronized (mLock) {
+            handleVideoStreamLocked(STREAM_STATE_STOPPED);
+        }
+        finish();
     }
 }

@@ -466,6 +466,16 @@
     <!-- Drive Mode Switch -->
     <string name="drive_mode_state" translatable="false">Drive Mode State</string>
 
+    <!-- Oem Car Service Test -->
+    <string name="oem_car_service_audio_focus" translatable="false">Car Oem Audio Focus Proxy Service </string>
+    <string name="oem_car_service_audio_volume" translatable="false">Car Oem Audio Volume Proxy Service</string>
+    <string name="oem_car_service_audio_focus_test" translatable="false">Test Audio Focus Request</string>
+    <string name="oem_car_service_audio_volume_test" translatable="false">Test Volume Key Event</string>
+    <string name="oem_car_service_audio_focus_results" translatable="false"><b>Audio Focus Request Result</b></string>
+    <string name="oem_car_service_audio_volume_results" translatable="false"><b>Volume Key Events Result</b></string>
+    <string name="oem_car_service_no_results" translatable="false">There were no log results to display.</string>
+    <string name="oem_car_service_average_execution_time" translatable="false">Average function execution time: "%.3f (ms)</string>
+
     <!-- Privacy chip test -->
     <string name="audio_permission_granted">Audio permission granted</string>
     <string name="audio_permission_not_granted">No audio permission</string>

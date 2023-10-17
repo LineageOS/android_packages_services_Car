@@ -1303,12 +1303,16 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
 
         modifyAudioMirrorForZones(oldConfigs, newConfig);
-        mCarAudioMirrorRequestHandler.updateRemoveMirrorConfigurationForZones(requestId, newConfig);
 
         // If there are no more zones mirroring then turn it off at HAL
         if (newConfig.length == 0) {
+            Slogf.i(TAG, "Sending mirror off command to audio HAL for address %s",
+                    mirrorDevice.getAddress());
             mAudioManager.setParameters(getAudioMirroringOffCommand(mirrorDevice.getAddress()));
         }
+
+        //Send the signal to current listeners at the end
+        mCarAudioMirrorRequestHandler.updateRemoveMirrorConfigurationForZones(requestId, newConfig);
     }
 
     private void modifyAudioMirrorForZones(int[] audioZoneIds, int[] newConfig) {
@@ -2702,6 +2706,14 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                     userId, audioZoneId);
             return;
         }
+
+        // No need to undo focus or user device affinities.
+        // Focus is handled as user exits.
+        // User device affinities are handled below as the user id routing is undone.
+        removePrimaryZoneRequestForOccupantLocked(occupantZoneId, prevUserId);
+
+        removeAudioMirrorForZoneId(audioZoneId);
+
         Slogf.d(TAG, "updateUserForOccupantZone assigning userId(%d) to audioZoneId(%d)",
                 userId, audioZoneId);
         // If the user has changed, be sure to remove from current routing
@@ -2723,6 +2735,29 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         audioZone.updateVolumeGroupsSettingsForUser(userId);
         mFocusHandler.updateUserForZoneId(audioZoneId, userId);
         setUserIdForAudioZoneLocked(userId, audioZoneId);
+    }
+
+    private void removeAudioMirrorForZoneId(int audioZoneId) {
+        long requestId = mCarAudioMirrorRequestHandler.getRequestIdForAudioZone(audioZoneId);
+        if (requestId == INVALID_REQUEST_ID) {
+            return;
+        }
+        Slogf.i(TAG, "Removing audio zone mirror for zone id %s", audioZoneId);
+        handleDisableAudioMirrorForZonesInConfig(new int[]{audioZoneId}, requestId);
+    }
+
+    @GuardedBy("mImplLock")
+    private void removePrimaryZoneRequestForOccupantLocked(int occupantZoneId, int userId) {
+        long requestId = mMediaRequestHandler.getAssignedRequestIdForOccupantZoneId(occupantZoneId);
+
+        if (requestId == INVALID_REQUEST_ID) {
+            return;
+        }
+
+        Slogf.d(TAG, "removePrimaryZoneRequestForOccupant removing request for %d occupant %d"
+                        + " and user id %d", requestId, occupantZoneId, userId);
+        removeAssignedUserInfoLocked(userId);
+        mMediaRequestHandler.cancelMediaAudioOnPrimaryZone(requestId);
     }
 
     private int getOccupantZoneIdForDriver() {

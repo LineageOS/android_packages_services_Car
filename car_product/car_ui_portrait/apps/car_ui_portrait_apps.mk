@@ -18,7 +18,6 @@
 PRODUCT_PACKAGES += \
     car-ui-lib-diagnostic-plugin \
     car-ui-lib-portrait-proxyplugin \
-    car-ui-lib-portrait-sharedlibrary \
     CarNotification \
     CarUiPortraitCommon \
     CarUiPortraitLauncher \

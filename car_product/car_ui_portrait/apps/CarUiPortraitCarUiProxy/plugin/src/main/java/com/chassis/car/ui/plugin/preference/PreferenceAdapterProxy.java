@@ -30,15 +30,18 @@ import static com.android.car.ui.preference.CarUiPreferenceViewStub.TWO_ACTION_T
 import static com.android.car.ui.preference.CarUiPreferenceViewStub.TWO_ACTION_TEXT_BORDERLESS;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import com.android.car.ui.plugin.oemapis.preference.PreferenceOEMV1;
 import com.android.car.ui.plugin.oemapis.preference.PreferenceViewAttributesOEMV1;
 import com.android.car.ui.preference.CarUiPreferenceViewStub.PreferenceType;
-import com.android.car.ui.sharedlibrary.R;
 
+import com.chassis.car.ui.plugin.R;
 
 /**
  * Adapter to load preference from plugin.
@@ -142,15 +145,24 @@ public class PreferenceAdapterProxy implements PreferenceOEMV1 {
         int sharedLibId = getSharedLibViewId(name);
         int appViewId = getAppViewId(name);
         View view = carUiPreferenceView.findViewById(sharedLibId);
-        if (view != null) {
-            view.setId(appViewId);
-        }
+        ViewGroup.LayoutParams currentViewLayoutParam =
+                (ViewGroup.LayoutParams) view.getLayoutParams();
+        ViewGroup parent = (ViewGroup) view.getParent();
+        int index = parent.indexOfChild(view);
+        parent.removeView(view);
+        FrameLayout wrapper = new FrameLayout(mPluginContext);
+        ViewGroup.LayoutParams wrapperLayoutparams = new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        wrapper.addView(view, wrapperLayoutparams);
+        parent.addView(wrapper, index, currentViewLayoutParam);
+        view.setId(appViewId);
+        wrapper.setId(sharedLibId);
     }
 
     private int getSharedLibViewId(String resName) {
         Resources res = mPluginContext.getResources();
         return res.getIdentifier(resName, "id",
-                "com.android.car.ui.sharedlibrary");
+                ((ContextWrapper) mPluginContext).getBaseContext().getPackageName());
     }
 
     private int getAppViewId(String resName) {

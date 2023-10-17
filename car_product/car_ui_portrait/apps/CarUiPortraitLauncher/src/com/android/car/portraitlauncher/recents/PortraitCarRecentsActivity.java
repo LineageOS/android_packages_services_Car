@@ -16,12 +16,10 @@
 
 package com.android.car.portraitlauncher.recents;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import com.android.car.carlauncher.recents.CarRecentsActivity;
 import com.android.car.carlauncher.recents.RecentTasksViewModel;
-import com.android.car.portraitlauncher.homeactivities.CarUiPortraitHomeScreen;
 
 /**
  * Recents activity to display list of recent tasks in Car.
@@ -52,10 +50,5 @@ public class PortraitCarRecentsActivity extends CarRecentsActivity {
             return;
         }
         super.onResume();
-    }
-
-    @Override
-    protected void launchHomeIntent() {
-        startActivity(new Intent(this, CarUiPortraitHomeScreen.class));
     }
 }

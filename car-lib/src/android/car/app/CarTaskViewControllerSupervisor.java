@@ -15,21 +15,27 @@
  */
 package android.car.app;
 
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
+
 import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresApi;
 import android.app.Activity;
-import android.app.Application;
+import android.car.app.CarTaskViewControllerHostLifecycle.CarTaskViewControllerHostLifecycleObserver;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.util.Slogf;
+import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.UserLifecycleEventFilter;
+import android.content.Context;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArrayMap;
 
-import java.util.Map;
+import com.android.internal.annotations.GuardedBy;
+
 import java.util.concurrent.Executor;
 
 /**
@@ -40,9 +46,10 @@ import java.util.concurrent.Executor;
  * clients.
  */
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-final class CarTaskViewControllerSupervisor implements Application.ActivityLifecycleCallbacks{
+final class CarTaskViewControllerSupervisor {
     private static final String TAG = CarTaskViewControllerSupervisor.class.getSimpleName();
-    private final Map<IBinder, ActivityHolder> mActivityHolders = new ArrayMap<>();
+    private final ArrayMap<CarTaskViewControllerHostLifecycle, ActivityHolder> mActivityHolders =
+            new ArrayMap<>();
     private final ICarActivityService mCarActivityService;
     private final Executor mMainExecutor;
 
@@ -56,12 +63,50 @@ final class CarTaskViewControllerSupervisor implements Application.ActivityLifec
         }
     };
 
+    private final CarTaskViewControllerHostLifecycleObserver
+            mCarTaskViewControllerHostLifecycleObserver =
+            new CarTaskViewControllerHostLifecycleObserver() {
+                public void onHostAppeared(CarTaskViewControllerHostLifecycle lifecycle) {
+                    mActivityHolders.get(lifecycle).maybeShowEmbeddedTasks();
+                }
+
+                @Override
+                public void onHostDisappeared(CarTaskViewControllerHostLifecycle lifecycle) {
+                }
+
+                @Override
+                public void onHostDestroyed(CarTaskViewControllerHostLifecycle lifecycle) {
+                    lifecycle.unregisterObserver(this);
+
+                    ActivityHolder activityHolder = mActivityHolders.remove(lifecycle);
+                    activityHolder.onActivityDestroyed();
+
+                    // When all the underlying activities are destroyed, the callback should be
+                    // removed from the CarActivityService as it's no longer required.
+                    // A new callback will be registered when a new activity calls the
+                    // createTaskViewController.
+                    if (mActivityHolders.isEmpty()) {
+                        try {
+                            mCarActivityService.removeCarSystemUIProxyCallback(
+                                    mSystemUIProxyCallback);
+                            mSystemUIProxyCallback = null;
+                        } catch (RemoteException e) {
+                            Slogf.e(TAG, "Failed to remove CarSystemUIProxyCallback", e);
+                        }
+                    }
+                }
+            };
+
     /**
      * @param carActivityService the handle to the {@link com.android.car.am.CarActivityService}.
      */
-    CarTaskViewControllerSupervisor(ICarActivityService carActivityService, Executor mainExecutor) {
+    CarTaskViewControllerSupervisor(ICarActivityService carActivityService, Executor mainExecutor,
+            @NonNull CarUserManager carUserManager) {
         mCarActivityService = carActivityService;
         mMainExecutor = mainExecutor;
+        UserLifecycleEventFilter filter = new UserLifecycleEventFilter.Builder()
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED).build();
+        carUserManager.addListener(mainExecutor, filter, mUserLifecycleListener);
     }
 
     private static IBinder getToken(Activity activity) {
@@ -82,17 +127,19 @@ final class CarTaskViewControllerSupervisor implements Application.ActivityLifec
      */
     @MainThread
     void createCarTaskViewController(
+            Context context,
+            @NonNull CarTaskViewControllerHostLifecycle hostActivity,
             @NonNull Executor callbackExecutor,
-            @NonNull CarTaskViewControllerCallback carTaskViewControllerCallback,
-            @NonNull Activity hostActivity) throws RemoteException {
-        if (mActivityHolders.containsKey(getToken(hostActivity))) {
+            @NonNull CarTaskViewControllerCallback carTaskViewControllerCallback)
+            throws RemoteException {
+        if (mActivityHolders.containsKey(hostActivity)) {
             throw new IllegalArgumentException("A CarTaskViewController already exists for this "
                     + "activity. Cannot create another one.");
         }
-        hostActivity.registerActivityLifecycleCallbacks(this);
-        ActivityHolder activityHolder = new ActivityHolder(hostActivity, callbackExecutor,
-                carTaskViewControllerCallback);
-        mActivityHolders.put(getToken(hostActivity), activityHolder);
+        hostActivity.registerObserver(mCarTaskViewControllerHostLifecycleObserver);
+        ActivityHolder activityHolder = new ActivityHolder(context, hostActivity, callbackExecutor,
+                carTaskViewControllerCallback, mCarActivityService);
+        mActivityHolders.put(hostActivity, activityHolder);
 
         if (mSystemUIProxyCallback != null && mICarSystemUI != null) {
             // If there is already a connection with the CarSystemUIProxy, trigger onConnected
@@ -150,90 +197,80 @@ final class CarTaskViewControllerSupervisor implements Application.ActivityLifec
         // taskviews again, when system ui will be connected again.
     }
 
-    @Override
-    public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
-    }
-
-    @Override
-    public void onActivityStarted(@NonNull Activity activity) {}
-
-    @Override
-    public void onActivityResumed(@NonNull Activity activity) {
-        mActivityHolders.get(getToken(activity)).showEmbeddedTasks();
-    }
-
-    @Override
-    public void onActivityPaused(@NonNull Activity activity) {}
-
-    @Override
-    public void onActivityStopped(@NonNull Activity activity) {}
-
-    @Override
-    public void onActivitySaveInstanceState(@NonNull Activity activity,
-            @NonNull Bundle outState) {}
-
-    @Override
-    public void onActivityDestroyed(@NonNull Activity activity) {
-        activity.unregisterActivityLifecycleCallbacks(this);
-
-        ActivityHolder activityHolder = mActivityHolders.remove(getToken(activity));
-        activityHolder.onActivityDestroyed();
-
-        // When all the underlying activities are destroyed, the callback should be removed
-        // from the CarActivityService as its no longer required.
-        // A new callback will be registered when a new activity calls the createTaskViewController.
-        if (mActivityHolders.isEmpty()) {
-            try {
-                mCarActivityService.removeCarSystemUIProxyCallback(mSystemUIProxyCallback);
-                mSystemUIProxyCallback = null;
-            } catch (RemoteException e) {
-                Slogf.e(TAG, "Failed to remove CarSystemUIProxyCallback", e);
-            }
-        }
-    }
-
     private static final class ActivityHolder {
-        private final Activity mActivity;
+        private final Context mContext;
+        private final CarTaskViewControllerHostLifecycle mActivity;
         private final Executor mCallbackExecutor;
         private final CarTaskViewControllerCallback mCarTaskViewControllerCallback;
+        private final ICarActivityService mCarActivityService;
+        private final Object mLock = new Object();
 
+        @GuardedBy("mLock")
         private CarTaskViewController mCarTaskViewController;
 
-        private ActivityHolder(Activity activity,
+        private ActivityHolder(Context context,
+                CarTaskViewControllerHostLifecycle activity,
                 Executor callbackExecutor,
-                CarTaskViewControllerCallback carTaskViewControllerCallback) {
+                CarTaskViewControllerCallback carTaskViewControllerCallback,
+                ICarActivityService carActivityService) {
+            mContext = context;
             mActivity = activity;
             mCallbackExecutor = callbackExecutor;
             mCarTaskViewControllerCallback = carTaskViewControllerCallback;
+            mCarActivityService = carActivityService;
         }
 
-        private void showEmbeddedTasks() {
-            if (mCarTaskViewController == null) {
-                return;
+        private void maybeShowEmbeddedTasks() {
+            synchronized (mLock) {
+                if (mCarTaskViewController == null || !mCarTaskViewController.isHostVisible()) {
+                    return;
+                }
+                mCarTaskViewController.showEmbeddedTasks();
             }
-            mCarTaskViewController.showEmbeddedTasks();
         }
 
         private void onCarSystemUIConnected(ICarSystemUIProxy systemUIProxy) {
-            CarTaskViewController taskViewManager =
-                    new CarTaskViewController(systemUIProxy, mActivity);
-            mCarTaskViewController = taskViewManager;
-            mCallbackExecutor.execute(() ->
-                    mCarTaskViewControllerCallback.onConnected(taskViewManager)
-            );
+            synchronized (mLock) {
+                mCarTaskViewController =
+                        new CarTaskViewController(mContext, mActivity, systemUIProxy,
+                                mCarActivityService);
+            }
+            mCallbackExecutor.execute(() -> {
+                synchronized (mLock) {
+                    Slogf.w(TAG, "car task view controller not found when triggering callback, "
+                                    + "not dispatching onConnected");
+                    // Check for null because the mCarTaskViewController might have already been
+                    // released but this code path is executed later because the executor was busy.
+                    if (mCarTaskViewController == null) {
+                        return;
+                    }
+                    mCarTaskViewControllerCallback.onConnected(mCarTaskViewController);
+                }
+            });
         }
 
         private void onCarSystemUIDisconnected() {
-            if (mCarTaskViewController == null) {
-                Slogf.w(TAG, "car task view controller not found, not dispatching onDisconnected");
-                return;
+            synchronized (mLock) {
+                if (mCarTaskViewController == null) {
+                    Slogf.w(TAG,
+                            "car task view controller not found, not dispatching onDisconnected");
+                    return;
+                }
+                // Only release the taskviews and not the controller because the system ui might get
+                // connected while the activity is still visible.
+                mCarTaskViewController.releaseTaskViews();
             }
-            mCallbackExecutor.execute(() ->
-                    mCarTaskViewControllerCallback.onDisconnected(mCarTaskViewController)
-            );
-            // Only release the taskviews and not the controller because the system ui might get
-            // connected while the activity is still visible.
-            mCarTaskViewController.releaseTaskViews();
+
+            mCallbackExecutor.execute(() -> {
+                synchronized (mLock) {
+                    if (mCarTaskViewController == null) {
+                        Slogf.w(TAG, "car task view controller not found when triggering "
+                                + "callback, not dispatching onDisconnected");
+                        return;
+                    }
+                    mCarTaskViewControllerCallback.onDisconnected(mCarTaskViewController);
+                }
+            });
         }
 
         private void onActivityDestroyed() {
@@ -241,12 +278,25 @@ final class CarTaskViewControllerSupervisor implements Application.ActivityLifec
         }
 
         private void releaseController() {
-            if (mCarTaskViewController == null) {
-                Slogf.w(TAG, "car task view controller not found, not dispatching onDisconnected");
-                return;
+            synchronized (mLock) {
+                if (mCarTaskViewController == null) {
+                    Slogf.w(TAG, "car task view controller not found, not releasing");
+                    return;
+                }
+                mCarTaskViewController.release();
+                mCarTaskViewController = null;
             }
-            mCarTaskViewController.release();
-            mCarTaskViewController = null;
         }
     }
+
+    private UserLifecycleListener mUserLifecycleListener = new UserLifecycleListener() {
+        @Override
+        public void onEvent(@NonNull CarUserManager.UserLifecycleEvent event) {
+            // Only called when USER_LIFECYCLE_EVENT_TYPE_UNLOCKED.
+            for (int i = mActivityHolders.size() - 1; i >= 0; --i) {
+                ActivityHolder activityHolder = mActivityHolders.valueAt(i);
+                activityHolder.maybeShowEmbeddedTasks();
+            }
+        }
+    };
 }

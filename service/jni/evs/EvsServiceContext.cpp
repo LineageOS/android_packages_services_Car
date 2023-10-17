@@ -15,6 +15,7 @@
  */
 
 #include "EvsServiceContext.h"
+#include "NoOpEvsDisplay.h"
 
 #include <aidl/android/hardware/automotive/evs/EvsResult.h>
 #include <aidl/android/hardware/common/NativeHandle.h>
@@ -197,12 +198,12 @@ bool EvsServiceContext::initialize(JNIEnv* env, jobject thiz) {
         return true;
     }
 
+    std::lock_guard lock(mLock);
     if (!mServiceFactory || !mServiceFactory->init()) {
         LOG(ERROR) << "Failed to connect to EVS service.";
         return false;
     }
 
-    std::lock_guard lock(mLock);
     auto deathRecipient = ::AIBinder_DeathRecipient_new(EvsServiceContext::onEvsServiceBinderDied);
     auto status = ::ndk::ScopedAStatus::fromStatus(
             mLinkUnlinkImpl->linkToDeath(mServiceFactory->getService()->asBinder().get(),
@@ -245,56 +246,73 @@ void EvsServiceContext::deinitialize() {
 }
 
 bool EvsServiceContext::openCamera(const char* id) {
-    if (!isAvailable()) {
-        LOG(ERROR) << "Has not connected to EVS service yet.";
-        return false;
-    }
-
-    if (isCameraOpened()) {
-        if (mCameraIdInUse == id) {
-            LOG(DEBUG) << "Camera " << id << " is has opened already.";
-            return true;
+    CameraDesc desc;
+    IEvsEnumerator* pService;
+    std::shared_ptr<IEvsCamera> cameraToClose;
+    {
+        std::lock_guard lock(mLock);
+        if (!isAvailableLocked()) {
+            LOG(ERROR) << "Has not connected to EVS service yet.";
+            return false;
         }
 
-        // Close a current camera device.
-        if (!mServiceFactory->getService()->closeCamera(mCamera).isOk()) {
-            LOG(WARNING) << "Failed to close a current camera device";
+        if (isCameraOpenedLocked()) {
+            if (mCameraIdInUse == id) {
+                LOG(DEBUG) << "Camera " << id << " is has opened already.";
+                return true;
+            }
+
+            cameraToClose = mCamera;
+            LOG(INFO) << "Current camera will be closed.";
+        }
+
+        auto it = std::find_if(mCameraList.begin(), mCameraList.end(),
+                               [target = std::string(id)](const CameraDesc& desc) {
+                                   return target == desc.id;
+                               });
+        if (it == mCameraList.end()) {
+            LOG(ERROR) << id << " is not available";
+            return false;
+        }
+
+        cameraToClose = mCamera;
+        desc = *it;
+        pService = mServiceFactory->getService();
+        if (pService == nullptr) {
+            LOG(ERROR) << "IEvsEnumerator is not available.";
+            return false;
         }
     }
 
-    auto it = std::find_if(mCameraList.begin(), mCameraList.end(),
-                           [target = std::string(id)](const CameraDesc& desc) {
-                               return target == desc.id;
-                           });
-    if (it == mCameraList.end()) {
-        LOG(ERROR) << id << " is not available";
-        return false;
+    // Close a current camera device.
+    if (cameraToClose && !pService->closeCamera(cameraToClose).isOk()) {
+        LOG(WARNING) << "Failed to close a current camera device";
     }
 
     std::vector<Stream> availableStreams;
+    pService->getStreamList(desc, &availableStreams);
+
+    Stream streamConfig = selectStreamConfiguration(availableStreams);
+    std::shared_ptr<IEvsCamera> camObj;
+    if (!pService->openCamera(id, streamConfig, &camObj).isOk() ||
+        !camObj) {
+        LOG(ERROR) << "Failed to open a camera " << id;
+        return false;
+    }
+
+    std::shared_ptr<StreamHandler> streamHandler =
+            ::ndk::SharedRefBase::make<StreamHandler>(camObj, this,
+                                                      EvsServiceContext::kMaxNumFramesInFlight);
+    if (!streamHandler) {
+        LOG(ERROR) << "Failed to initialize a stream streamHandler.";
+        if (!pService->closeCamera(camObj).isOk()) {
+            LOG(ERROR) << "Failed to close a temporary camera device";
+        }
+        return false;
+    }
+
     {
-        std::lock_guard<std::mutex> lock(mLock);
-        mServiceFactory->getService()->getStreamList(*it, &availableStreams);
-
-        Stream streamConfig = selectStreamConfiguration(availableStreams);
-        std::shared_ptr<IEvsCamera> camObj;
-        if (!mServiceFactory->getService()->openCamera(id, streamConfig, &camObj).isOk() ||
-            !camObj) {
-            LOG(ERROR) << "Failed to open a camera " << id;
-            return false;
-        }
-
-        std::shared_ptr<StreamHandler> streamHandler =
-                ::ndk::SharedRefBase::make<StreamHandler>(camObj, this,
-                                                          EvsServiceContext::kMaxNumFramesInFlight);
-        if (!streamHandler) {
-            LOG(ERROR) << "Failed to initialize a stream streamHandler.";
-            if (!mServiceFactory->getService()->closeCamera(camObj).isOk()) {
-                LOG(ERROR) << "Failed to close a temporary camera device";
-            }
-            return false;
-        }
-
+        std::lock_guard lock(mLock);
         mCamera = std::move(camObj);
         mStreamHandler = std::move(streamHandler);
         mCameraIdInUse = id;
@@ -304,13 +322,13 @@ bool EvsServiceContext::openCamera(const char* id) {
 }
 
 void EvsServiceContext::closeCamera() {
-    if (!isAvailable() || !isCameraOpened()) {
+    std::lock_guard lock(mLock);
+    if (!isAvailableLocked() || !isCameraOpenedLocked()) {
         LOG(DEBUG) << "Not connected to the Extended View System service or no camera has opened "
                       "yet; a request to close a camera is ignored.";
         return;
     }
 
-    std::lock_guard lock(mLock);
     if (!mServiceFactory->getService()->closeCamera(mCamera).isOk()) {
         LOG(WARNING) << "Failed to close a current camera device.";
     }
@@ -321,7 +339,8 @@ void EvsServiceContext::closeCamera() {
 }
 
 bool EvsServiceContext::startVideoStream() {
-    if (!isAvailable() || !isCameraOpened()) {
+    std::lock_guard lock(mLock);
+    if (!isAvailableLocked() || !isCameraOpenedLocked()) {
         LOG(ERROR)
                 << "Not connected to the Extended View System service or no camera has opened yet.";
         return JNI_FALSE;
@@ -331,15 +350,14 @@ bool EvsServiceContext::startVideoStream() {
 }
 
 void EvsServiceContext::stopVideoStream() {
-    if (!isAvailable() || !isCameraOpened()) {
+    std::lock_guard lock(mLock);
+    if (!isAvailableLocked() || !isCameraOpenedLocked()) {
         LOG(DEBUG) << "Not connected to the Extended View System service or no camera has opened "
                       "yet; a request to stop a video steram is ignored.";
         return;
     }
 
-    if (!mStreamHandler->asyncStopStream()) {
-        LOG(WARNING) << "Failed to stop a video stream.  EVS service may die.";
-    }
+    mStreamHandler->blockingStopStream();
 }
 
 void EvsServiceContext::acquireCameraAndDisplayLocked() {
@@ -358,6 +376,10 @@ void EvsServiceContext::acquireCameraAndDisplayLocked() {
         LOG(WARNING) << "Failed to acquire the display ownership.  "
                      << "CarEvsManager may not be able to render "
                      << "the contents on the screen.";
+
+        // We hold a no-op IEvsDisplay object to avoid attempting to open a
+        // display repeatedly.
+        mDisplay = ndk::SharedRefBase::make<NoOpEvsDisplay>();
         return;
     }
 
@@ -370,27 +392,25 @@ void EvsServiceContext::acquireCameraAndDisplayLocked() {
 }
 
 void EvsServiceContext::doneWithFrame(int bufferId) {
-    {
-        std::lock_guard<std::mutex> lock(mLock);
-        if (!mStreamHandler) {
-            LOG(DEBUG) << "A stream handler is not available.";
-            return;
-        }
+    std::lock_guard<std::mutex> lock(mLock);
+    if (!mStreamHandler) {
+        LOG(DEBUG) << "A stream handler is not available.";
+        return;
+    }
 
-        auto it = mBufferRecords.find(bufferId);
-        if (it == mBufferRecords.end()) {
-            LOG(WARNING) << "Unknown buffer is requested to return.";
-            return;
-        }
+    auto it = mBufferRecords.find(bufferId);
+    if (it == mBufferRecords.end()) {
+        LOG(WARNING) << "Unknown buffer is requested to return.";
+        return;
+    }
 
-        mBufferRecords.erase(it);
+    mBufferRecords.erase(it);
 
-        // If this is the first frame since current video stream started, we'd claim
-        // the exclusive ownership of the camera and the display and keep for the rest
-        // of the lifespan.
-        if (!mDisplay) {
-            acquireCameraAndDisplayLocked();
-        }
+    // If this is the first frame since current video stream started, we'd claim
+    // the exclusive ownership of the camera and the display and keep for the rest
+    // of the lifespan.
+    if (!mDisplay) {
+        acquireCameraAndDisplayLocked();
     }
     mStreamHandler->doneWithFrame(bufferId);
 }
@@ -444,25 +464,29 @@ bool EvsServiceContext::onNewFrame(const BufferDesc& bufferDesc) {
     if (status != android::NO_ERROR) {
         LOG(ERROR) << "Failed to create a raw hardware buffer from a native handle, "
                    << "status = " << statusToString(status);
+        std::lock_guard lock(mLock);
         mStreamHandler->doneWithFrame(bufferDesc.bufferId);
         return false;
     }
 
     mCallbackThread.enqueue([ahwb, bufferId = bufferDesc.bufferId, this](JNIEnv* env) {
+        jobject hwBuffer;
         {
             std::lock_guard lock(mLock);
             mBufferRecords.insert(bufferId);
+
+            // Forward AHardwareBuffer to the client
+            hwBuffer = AHardwareBuffer_toHardwareBuffer(env, ahwb);
+            if (!hwBuffer) {
+                LOG(WARNING) << "Failed to create HardwareBuffer from AHardwareBuffer.";
+                mStreamHandler->doneWithFrame(bufferId);
+                AHardwareBuffer_release(ahwb);
+                return;
+            }
         }
 
-        // Forward AHardwareBuffer to the client
-        jobject hwBuffer = AHardwareBuffer_toHardwareBuffer(env, ahwb);
-        if (!hwBuffer) {
-            LOG(WARNING) << "Failed to create HardwareBuffer from AHardwareBuffer.";
-            mStreamHandler->doneWithFrame(bufferId);
-        } else {
-            env->CallVoidMethod(mCarEvsServiceObj, mFrameHandlerMethodId, bufferId, hwBuffer);
-            env->DeleteLocalRef(hwBuffer);
-        }
+        env->CallVoidMethod(mCarEvsServiceObj, mFrameHandlerMethodId, bufferId, hwBuffer);
+        env->DeleteLocalRef(hwBuffer);
 
         // We're done
         AHardwareBuffer_release(ahwb);

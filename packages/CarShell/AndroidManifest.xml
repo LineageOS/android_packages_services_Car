@@ -43,6 +43,8 @@
     <uses-permission android:name="android.car.permission.CAR_DIAGNOSTICS" />
     <!-- Permission required for 'adb shell cmd car_service silent-mode' -->
     <uses-permission android:name="android.car.permission.CAR_POWER" />
+    <!-- Permission required for CTS test - OemCarServiceImplTest -->
+    <uses-permission android:name="android.car.permission.CAR_TEST_SERVICE"/>
     <!-- Permission required for ATS tests - AtsCarTests#CarPowerManagerTest-->
     <uses-permission android:name="android.car.permission.CONTROL_CAR_POWER_POLICY" />
     <uses-permission android:name="android.car.permission.CONTROL_SHUTDOWN_PROCESS" />
@@ -67,6 +69,8 @@
     <uses-permission android:name="android.car.permission.USE_CAR_TELEMETRY_SERVICE" />
     <!-- Permission required for CTS test - LocationManagerFineTest -->
     <uses-permission android:name="android.permission.LOCATION_BYPASS" />
+    <!-- Permissions required for CTS test - CarActivityManagerTest#getCarTaskViewController -->
+    <uses-permission android:name="android.car.permission.MANAGE_CAR_SYSTEM_UI" />
     <!-- Permissions required for CTS test - CarPropertyManagerTest -->
     <uses-permission android:name="android.car.permission.READ_DRIVER_MONITORING_SETTINGS"/>
     <uses-permission android:name="android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"/>
@@ -147,6 +151,7 @@
     <!-- Permissions required for CTS test - CarPerformanceManagerTest -->
     <uses-permission android:name="android.car.permission.MANAGE_THREAD_PRIORITY" />
     <!-- Permissions required for CTS test - CarOccupantZoneManagerTest -->
+    <uses-permission android:name="android.car.permission.ACCESS_PRIVATE_DISPLAY_ID" />
     <uses-permission android:name="android.car.permission.MANAGE_OCCUPANT_ZONE" />
     <!-- Permissions required for CarOccupantConnectionManagerPermissionTest -->
     <uses-permission android:name="android.car.permission.MANAGE_OCCUPANT_CONNECTION" />

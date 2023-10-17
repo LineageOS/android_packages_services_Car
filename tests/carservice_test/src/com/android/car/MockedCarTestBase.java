@@ -354,7 +354,9 @@ public class MockedCarTestBase {
         Log.i(TAG, "tearDown");
 
         // Wait for CPMS to finish event processing.
-        waitUntilPowerStateChangeHandled();
+        if (mCarImpl != null) {
+            waitUntilPowerStateChangeHandled();
+        }
 
         try {
             if (mCar != null) {

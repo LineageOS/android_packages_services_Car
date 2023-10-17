@@ -194,7 +194,8 @@ public:
           mUserSwitchCollections({}),
           mWakeUpCollection({}),
           mCustomCollection({}),
-          mLastMajorFaults(0) {}
+          mLastMajorFaults(0),
+          mDoSendResourceUsageStats(false) {}
 
     ~PerformanceProfiler() { terminate(); }
 
@@ -202,6 +203,8 @@ public:
 
     // Implements DataProcessorInterface.
     android::base::Result<void> onSystemStartup() override;
+
+    void onCarWatchdogServiceRegistered() override;
 
     android::base::Result<void> onBoottimeCollection(
             time_t time, const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
@@ -252,10 +255,12 @@ protected:
 private:
     // Processes the collected data.
     android::base::Result<void> processLocked(
-            time_t time, const std::unordered_set<std::string>& filterPackages,
+            time_t time, SystemState systemState,
+            const std::unordered_set<std::string>& filterPackages,
             const android::sp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::sp<ProcStatCollectorInterface>& procStatCollector,
-            CollectionInfo* collectionInfo);
+            CollectionInfo* collectionInfo,
+            aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats);
 
     // Processes per-UID performance data.
     void processUidStatsLocked(const std::unordered_set<std::string>& filterPackages,
@@ -307,6 +312,9 @@ private:
     // Major faults delta from last collection. Useful when calculating the percentage change in
     // major faults since last collection.
     uint64_t mLastMajorFaults GUARDED_BY(mMutex);
+
+    // Enables the sending of resource usage stats to CarService.
+    bool mDoSendResourceUsageStats GUARDED_BY(mMutex);
 
     friend class WatchdogPerfService;
 

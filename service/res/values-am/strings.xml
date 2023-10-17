@@ -92,10 +92,10 @@
     <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"የመኪና ሥርዓት ጤና ውሂብ ይሰብስቡ።"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"የመኪና ኢቪኤስ አገልግሎት ይጠቀሙ"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"ለኢቪኤስ ቪዲዮ ዥረቶች ይመዝገቡ"</string>
-    <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"የኢቪኤስ ቅድመ-ዕይታ እንቅስቃሴን መጠየቅ"</string>
-    <string name="car_permission_desc_request_evs_activity" msgid="4582768053649138488">"የኢቪኤስ ቅድመ-ዕይታ እንቅስቃሴን ለማስጀመር ስርዓቱን መጠየቅ"</string>
-    <string name="car_permission_label_control_evs_activity" msgid="2030069860204405679">"የኢቪኤስ ቅድመ-ዕይታ እንቅስቃሴን መቆጣጠር"</string>
-    <string name="car_permission_desc_control_evs_activity" msgid="691646545916976346">"የስርዓቱን የኢቪኤስ ቅድመ-ዕይታ እንቅስቃሴ መቆጣጠር"</string>
+    <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"የኢቪኤስ ቅድመ-እይታ እንቅስቃሴን መጠየቅ"</string>
+    <string name="car_permission_desc_request_evs_activity" msgid="4582768053649138488">"የኢቪኤስ ቅድመ-እይታ እንቅስቃሴን ለማስጀመር ስርዓቱን መጠየቅ"</string>
+    <string name="car_permission_label_control_evs_activity" msgid="2030069860204405679">"የኢቪኤስ ቅድመ-እይታ እንቅስቃሴን መቆጣጠር"</string>
+    <string name="car_permission_desc_control_evs_activity" msgid="691646545916976346">"የስርዓቱን የኢቪኤስ ቅድመ-እይታ እንቅስቃሴ መቆጣጠር"</string>
     <string name="car_permission_label_use_evs_camera" msgid="3607720208623955067">"የኢቪኤስ ካሜራን መጠቀም"</string>
     <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"ለኢቪኤስ የካሜራ ዥረቶች ደንበኝነት መመዝገብ"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"የኢቪኤስ አገልግሎት ሁኔታን መከታተል"</string>
@@ -200,8 +200,8 @@
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"በመኪናው ውስጥ ያሉ የሌሎች የተጠቃሚ ሰው ዞኖችን እና በእነሱ ዞኖች ውስጥ የተጫኑ የአቻ መተግበሪያዎችን (ከደዋዩ ጋር ተመሳሳይ የጥቅል ስም ያላቸው መተግበሪያዎች) ሁኔታዎች ይከታተሉ እና የእነሱን ዞኖች ኃይል ያስተዳድሩ።"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"ግንኙነት ይፍጠሩ እና በመኪናው ውስጥ ያሉ ሌሎች የተጠቃሚ ሰው ዞኖች ውስጥ ከተጫኑ አቻ መተግበሪያዎች (ከደዋዩ ጋር ተመሳሳይ የጥቅል ስም ያላቸው መተግበሪያዎች) ጋር ይገናኙ"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"ግንኙነት ይፍጠሩ እና በመኪናው ውስጥ ባሉ ሌሎች የተጠቃሚ ሰዎች ዞኖች ውስጥ ከተጫኑ አቻ መተግበሪያዎች (ከደዋዩ ጋር ተመሳሳይ የጥቅል ስም ያላቸው መተግበሪያዎች) ጋር ይገናኙ።"</string>
-    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"የሌሎች መተግበሪያዎችን ማያ ገፅ ያንጸባርቁ"</string>
-    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"የሌሎች መተግበሪያዎችን ማያ ገፅ ያንጸባርቁ።"</string>
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"የሌሎች መተግበሪያዎችን ማያ ገጽ ያንጸባርቁ"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"የሌሎች መተግበሪያዎችን ማያ ገጽ ያንጸባርቁ።"</string>
     <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"የሌሎች ተጠቃሚዎች ማሳያን ያንጸባርቁ"</string>
     <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"የሌሎች ተጠቃሚዎች ማሳያን ያንጸባርቁ።"</string>
     <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"የሥርዓት ዩአይን ለማስተዳደር እና የተግባር ዕይታዎችን ለመፍጠር በሌላ መተግበሪያዎች ሥራ ላይ መዋል የሚችል የሥርዓት ዩአይ ተኪ ያቅርቡ።"</string>

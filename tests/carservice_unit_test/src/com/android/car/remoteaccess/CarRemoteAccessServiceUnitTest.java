@@ -356,14 +356,52 @@ public final class CarRemoteAccessServiceUnitTest {
     @Test
     public void testCarRemoteAccessServiceInit_retryNotifyApState() throws Exception {
         when(mRemoteAccessHalWrapper.notifyApStateChange(anyBoolean(), anyBoolean()))
+                .thenReturn(false).thenReturn(false).thenReturn(true);
+
+        mService.init();
+
+        // This should take about 300ms, so waiting 5s is definitely enough.
+        verify(mRemoteAccessHalWrapper, timeout(WAIT_TIMEOUT_MS).times(3)).notifyApStateChange(
+                anyBoolean(), anyBoolean());
+    }
+
+    @Test
+    public void testCarRemoteAccessServiceInit_maxRetryNotifyApState() throws Exception {
+        when(mRemoteAccessHalWrapper.notifyApStateChange(anyBoolean(), anyBoolean()))
                 .thenReturn(false);
 
         mService.init();
 
-        verify(mRemoteAccessHalWrapper, timeout(1500).times(10)).notifyApStateChange(
+        verify(mRemoteAccessHalWrapper, timeout(WAIT_TIMEOUT_MS).times(10)).notifyApStateChange(
+                /* isReadyForRemoteTask= */ true, /* isWakeupRequired= */ false);
+
+        SystemClock.sleep(100);
+
+        // Verify no more retry.
+        verify(mRemoteAccessHalWrapper, times(10)).notifyApStateChange(
                 /* isReadyForRemoteTask= */ true, /* isWakeupRequired= */ false);
     }
 
+    @Test
+    public void testCarRemoteAccessServiceInit_resetRetryCountAfterSuccess() throws Exception {
+        when(mRemoteAccessHalWrapper.notifyApStateChange(anyBoolean(), anyBoolean()))
+                .thenReturn(false).thenReturn(false).thenReturn(true);
+
+        mService.init();
+
+        verify(mRemoteAccessHalWrapper, timeout(WAIT_TIMEOUT_MS).times(3)).notifyApStateChange(
+                /* isReadyForRemoteTask= */ true, /* isWakeupRequired= */ false);
+
+        ICarPowerStateListener powerStateListener = getCarPowerStateListener();
+        // Success notifying should not be limited retry count and should reset retry count to 0.
+        for (int i = 0; i < 10; i++) {
+            powerStateListener.onStateChanged(CarPowerManager.STATE_WAIT_FOR_VHAL, 0);
+        }
+
+        // notifyApStateChange is also called when initializaing CarRemoteAccessService.
+        verify(mRemoteAccessHalWrapper, times(13)).notifyApStateChange(
+                /* isReadyForRemoteTask= */ true, /* isWakeupRequired= */ false);
+    }
 
     @Test
     public void testAddCarRemoteTaskClient() throws Exception {
@@ -447,6 +485,45 @@ public final class CarRemoteAccessServiceUnitTest {
         mService.init();
         // Removing unregistered ICarRemoteAccessCallback is no-op.
         mService.removeCarRemoteTaskClient(mRemoteAccessCallback);
+    }
+
+    @Test
+    public void testRemoveCarRemoteTaskClient_removeActiveTasks() throws Exception {
+        // Only use one package.
+        mockPackageInfo(1);
+        mService.init();
+        mService.setTaskUnbindDelayMs(100);
+        runBootComplete();
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
+
+        String clientId = mRemoteAccessCallback.getClientId();
+        byte[] data = new byte[]{1, 2, 3, 4};
+        // Starts an active task.
+        halCallback.onRemoteTaskRequested(clientId, data);
+
+        PollingCheck.check("onRemoteTaskRequested should be called", WAIT_TIMEOUT_MS,
+                () -> mRemoteAccessCallback.getTaskId() != null);
+        String taskId = mRemoteAccessCallback.getTaskId();
+
+        // This should clear the active tasks, after 100ms, the client should be unbound and the
+        // device should be shutdown.
+        mService.removeCarRemoteTaskClient(mRemoteAccessCallback);
+
+        // This should throw exception because clientId is not valid.
+        assertThrows(IllegalArgumentException.class, () -> mService.reportRemoteTaskDone(
+                clientId, taskId));
+
+        mService.addCarRemoteTaskClient(mRemoteAccessCallback);
+
+        // This should throw exception because the task was cleared so the task ID is not valid.
+        assertThrows(IllegalArgumentException.class, () -> mService.reportRemoteTaskDone(
+                clientId, taskId));
+
+        // The client must be unbound.
+        verify(mContext, timeout(WAIT_TIMEOUT_MS)).unbindService(any());
+        // The device must be shutdown.
+        verify(mCarPowerManagementService, timeout(WAIT_TIMEOUT_MS)).requestShutdownAp(
+                anyInt(), anyBoolean());
     }
 
     @Test
