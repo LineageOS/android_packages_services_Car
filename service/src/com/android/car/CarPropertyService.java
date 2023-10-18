@@ -407,7 +407,7 @@ public class CarPropertyService extends ICarProperty.Stub
                     carPropertyValue = getProperty(propertyId, areaId);
                 } catch (ServiceSpecificException e) {
                     Slogf.w("Get initial carPropertyValue for registerCallback failed -"
-                                    + " property ID: %s, area ID $s, exception: %s",
+                                    + " property ID: %s, area ID %s, exception: %s",
                             VehiclePropertyIds.toString(propertyId), Integer.toHexString(areaId),
                             e);
                     int errorCode = CarPropertyHelper.getVhalSystemErrorCode(e.errorCode);
@@ -425,7 +425,7 @@ public class CarPropertyService extends ICarProperty.Stub
                 } catch (Exception e) {
                     // Do nothing.
                     Slogf.e("Get initial carPropertyValue for registerCallback failed -"
-                                    + " property ID: %s, area ID $s, exception: %s",
+                                    + " property ID: %s, area ID %s, exception: %s",
                             VehiclePropertyIds.toString(propertyId), Integer.toHexString(areaId),
                             e);
                 }

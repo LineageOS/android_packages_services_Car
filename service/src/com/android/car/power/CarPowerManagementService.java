@@ -1758,12 +1758,29 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * @see android.car.hardware.power.CarPowerManager#setPowerPolicyGroup
      */
     @Override
-    public void setPowerPolicyGroup(String policyGroupId) {
+    public void setPowerPolicyGroup(String policyGroupId) throws RemoteException {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_POWER_POLICY);
         Preconditions.checkArgument(policyGroupId != null, "policyGroupId cannot be null");
-        int status = setCurrentPowerPolicyGroup(policyGroupId);
-        if (status != PolicyOperationStatus.OK) {
-            throw new IllegalArgumentException(PolicyOperationStatus.errorCodeToString(status));
+        if (carPowerPolicyRefactoring()) {
+            ICarPowerPolicyDelegate daemon;
+            synchronized (mLock) {
+                daemon = mRefactoredCarPowerPolicyDaemon;
+            }
+            try {
+                daemon.setPowerPolicyGroup(policyGroupId);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Policy group ID is invalid");
+            } catch (SecurityException e) {
+                Slogf.e(TAG, e, "Failed to set power policy group, insufficient permissions");
+            }
+            synchronized (mLock) {
+                mCurrentPowerPolicyGroupId = policyGroupId;
+            }
+        } else {
+            int status = setCurrentPowerPolicyGroup(policyGroupId);
+            if (status != PolicyOperationStatus.OK) {
+                throw new IllegalArgumentException(PolicyOperationStatus.errorCodeToString(status));
+            }
         }
     }
 
@@ -2804,6 +2821,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * @return {@code true}, if successful. Otherwise, {@code false}.
      */
     public boolean definePowerPolicyGroupFromCommand(String[] args, IndentingPrintWriter writer) {
+        if (carPowerPolicyRefactoring()) {
+            // TODO(b/305805440): add support once AIDL interface is updated
+            throw new UnsupportedOperationException("Power policy groups cannot be defined from "
+                    + " a command");
+        }
         if (args.length < 3 || args.length > 4) {
             writer.println("Invalid syntax");
             return false;
@@ -2848,10 +2870,19 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             return false;
         }
         String policyGroupId = args[1];
-        int status = setCurrentPowerPolicyGroup(policyGroupId);
-        if (status != PolicyOperationStatus.OK) {
-            writer.println(PolicyOperationStatus.errorCodeToString(status));
-            return false;
+        if (carPowerPolicyRefactoring()) {
+            try {
+                setPowerPolicyGroup(policyGroupId);
+            } catch (RemoteException e) {
+                writer.println("RemoteException encountered when setting power policy group");
+                return false;
+            }
+        } else {
+            int status = setCurrentPowerPolicyGroup(policyGroupId);
+            if (status != PolicyOperationStatus.OK) {
+                writer.println(PolicyOperationStatus.errorCodeToString(status));
+                return false;
+            }
         }
         writer.printf("Setting power policy group(%s) is successful.\n", policyGroupId);
         return true;

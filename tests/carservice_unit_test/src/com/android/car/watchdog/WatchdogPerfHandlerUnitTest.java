@@ -127,6 +127,7 @@ import android.util.AtomicFile;
 import android.util.JsonReader;
 import android.util.SparseArray;
 import android.util.StatsEvent;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
 import com.android.car.BuiltinPackageDependency;
@@ -343,8 +344,6 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
             FileUtils.deleteContentsAndDir(mTempSystemCarDir);
         }
     }
-
-    //TODO(b/296123438): Add a test for testDumpProto
 
     @Test
     public void testAddResourceOveruseListenerThrowsWithInvalidFlag() throws Exception {
@@ -3918,6 +3917,150 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                         .setPeriod(AtomsProto.CarWatchdogEventTimePeriod.Period.WEEKLY).build())
                 .addAllDailyIoUsageSummary(dailySummaries)
                 .build();
+    }
+
+    //TODO(b/296123438): Add test for remaining dump fields in dumpProto.
+    @Test
+    public void testDumpProto() throws Exception {
+        mWatchdogPerfHandler.disablePackageForUser("testPackage", 101);
+        // Set mLastSystemIoUsageSummaryReportedDate and mLastUidIoUsageSummaryReportedDate.
+        assertWithMessage("Stats pull atom callback status")
+                .that(mStatsPullAtomCallback.onPullAtom(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY,
+                        new ArrayList<>())).isEqualTo(PULL_SUCCESS);
+        ProtoOutputStream proto = new ProtoOutputStream();
+        mWatchdogPerfHandler.dumpProto(proto);
+
+        CarWatchdogDumpProto carWatchdogDumpProto = CarWatchdogDumpProto.parseFrom(
+                proto.getBytes());
+        PerformanceDump performanceDump = carWatchdogDumpProto.getPerformanceDump();
+        expectWithMessage("Current UX State")
+                .that(performanceDump.getCurrentUxState())
+                .isEqualTo(PerformanceDump.UxState.UX_STATE_USER_NOTIFICATION);
+
+        expectWithMessage("Disabled Packages By User Id")
+                .that(performanceDump.getDisabledUserPackagesCount()).isEqualTo(1);
+        UserPackageInfo userPackageInfo =
+                performanceDump.getDisabledUserPackages(0);
+        expectWithMessage("UserPackageInfo.userId")
+                .that(userPackageInfo.getUserId()).isEqualTo(101);
+        expectWithMessage("UserPackageInfo.packageName")
+                .that(userPackageInfo.getPackageName()).isEqualTo("testPackage");
+
+        PerformanceDump.OveruseConfigurationCacheDump overuseConfigurationCacheDump =
+                performanceDump.getOveruseConfigurationCacheDump();
+
+        expectWithMessage("Safe To Kill System Packages")
+                .that(overuseConfigurationCacheDump.getSafeToKillSystemPackagesCount())
+                .isEqualTo(4);
+        expectThat(overuseConfigurationCacheDump.getSafeToKillSystemPackages(0))
+                .isEqualTo("system_package.non_critical.A");
+        expectThat(overuseConfigurationCacheDump.getSafeToKillSystemPackages(1))
+                .isEqualTo("system_pkg.non_critical.B");
+        expectThat(overuseConfigurationCacheDump.getSafeToKillSystemPackages(2))
+                .isEqualTo("shared:system_shared_package.non_critical.B");
+        expectThat(overuseConfigurationCacheDump.getSafeToKillSystemPackages(3))
+                .isEqualTo("some_pkg_as_system_pkg");
+
+        expectWithMessage("Safe To Kill Vendor Packages")
+                .that(overuseConfigurationCacheDump.getSafeToKillVendorPackagesCount())
+                .isEqualTo(4);
+        expectThat(overuseConfigurationCacheDump.getSafeToKillVendorPackages(0))
+                .isEqualTo("vendor_package.non_critical.A");
+        expectThat(overuseConfigurationCacheDump.getSafeToKillVendorPackages(1))
+                .isEqualTo("shared:vendor_shared_package.non_critical.B");
+        expectThat(overuseConfigurationCacheDump.getSafeToKillVendorPackages(2))
+                .isEqualTo("vendor_pkg.non_critical.B");
+        expectThat(overuseConfigurationCacheDump.getSafeToKillVendorPackages(3))
+                .isEqualTo("some_pkg_as_vendor_pkg");
+
+        expectWithMessage("Vendor Package Prefixes").that(
+                overuseConfigurationCacheDump.getVendorPackagePrefixesCount()).isEqualTo(2);
+        expectThat(overuseConfigurationCacheDump.getVendorPackagePrefixes(0))
+                .isEqualTo("vendor_package");
+        expectThat(overuseConfigurationCacheDump.getVendorPackagePrefixes(1))
+                .isEqualTo("some_pkg_as_vendor_pkg");
+
+        expectWithMessage("Packages by App Category")
+                .that(overuseConfigurationCacheDump.getPackagesByAppCategoryCount()).isEqualTo(2);
+        PerformanceDump.PackageByAppCategory packageByMapsAppCategory =
+                overuseConfigurationCacheDump.getPackagesByAppCategory(0);
+        expectThat(packageByMapsAppCategory.getApplicationCategory())
+                .isEqualTo(PerformanceDump.ApplicationCategory.MAPS);
+        expectThat(packageByMapsAppCategory.getPackageName(0)).isEqualTo("system_package.A");
+        PerformanceDump.PackageByAppCategory packageByMediaAppCategory =
+                overuseConfigurationCacheDump.getPackagesByAppCategory(1);
+        expectThat(packageByMediaAppCategory.getApplicationCategory())
+                .isEqualTo(PerformanceDump.ApplicationCategory.MEDIA);
+        expectThat(packageByMediaAppCategory.getPackageName(0)).isEqualTo("vendor_package.MEDIA");
+
+        expectWithMessage("Generic Io Thresholds by Component")
+                .that(overuseConfigurationCacheDump.getGenericIoThresholdsByComponentCount())
+                .isEqualTo(3);
+        PerformanceDump.IoThresholdByComponent ioThresholdBySystemComponent =
+                overuseConfigurationCacheDump.getGenericIoThresholdsByComponent(0);
+        expectThat(ioThresholdBySystemComponent.getComponentType())
+                .isEqualTo(PerformanceDump.ComponentType.SYSTEM);
+        PerformanceDump.PerStateBytes perStateBytes =
+                ioThresholdBySystemComponent.getThreshold();
+        expectThat(perStateBytes.getForegroundBytes()).isEqualTo(10);
+        expectThat(perStateBytes.getBackgroundBytes()).isEqualTo(20);
+        expectThat(perStateBytes.getGaragemodeBytes()).isEqualTo(30);
+        PerformanceDump.IoThresholdByComponent ioThresholdByVendorComponent =
+                overuseConfigurationCacheDump.getGenericIoThresholdsByComponent(1);
+        expectThat(ioThresholdByVendorComponent.getComponentType())
+                .isEqualTo(PerformanceDump.ComponentType.VENDOR);
+        perStateBytes = ioThresholdByVendorComponent.getThreshold();
+        expectThat(perStateBytes.getForegroundBytes()).isEqualTo(20);
+        expectThat(perStateBytes.getBackgroundBytes()).isEqualTo(40);
+        expectThat(perStateBytes.getGaragemodeBytes()).isEqualTo(60);
+        PerformanceDump.IoThresholdByComponent ioThresholdByThirdPartyComponent =
+                overuseConfigurationCacheDump.getGenericIoThresholdsByComponent(2);
+        expectThat(ioThresholdByThirdPartyComponent.getComponentType())
+                .isEqualTo(PerformanceDump.ComponentType.THIRD_PARTY);
+        perStateBytes = ioThresholdByThirdPartyComponent.getThreshold();
+        expectThat(perStateBytes.getForegroundBytes()).isEqualTo(30);
+        expectThat(perStateBytes.getBackgroundBytes()).isEqualTo(60);
+        expectThat(perStateBytes.getGaragemodeBytes()).isEqualTo(90);
+
+        expectWithMessage("Io Thresholds By Package").that(
+                overuseConfigurationCacheDump.getIoThresholdsByPackageCount()).isEqualTo(2);
+        PerformanceDump.IoThresholdByPackage ioThresholdBySystemPackage =
+                overuseConfigurationCacheDump.getIoThresholdsByPackage(0);
+        expectThat(ioThresholdBySystemPackage.getPackageType()).isEqualTo(
+                PerformanceDump.ComponentType.SYSTEM);
+        perStateBytes = ioThresholdBySystemPackage.getThreshold();
+        expectThat(perStateBytes.getForegroundBytes()).isEqualTo(40);
+        expectThat(perStateBytes.getBackgroundBytes()).isEqualTo(50);
+        expectThat(perStateBytes.getGaragemodeBytes()).isEqualTo(60);
+        expectThat(ioThresholdBySystemPackage.getPackageName()).isEqualTo("system_package.A");
+        PerformanceDump.IoThresholdByPackage ioThresholdByVendorPackage =
+                overuseConfigurationCacheDump.getIoThresholdsByPackage(1);
+        expectThat(ioThresholdByVendorPackage.getPackageType()).isEqualTo(
+                PerformanceDump.ComponentType.VENDOR);
+        perStateBytes = ioThresholdByVendorPackage.getThreshold();
+        expectThat(perStateBytes.getForegroundBytes()).isEqualTo(80);
+        expectThat(perStateBytes.getBackgroundBytes()).isEqualTo(100);
+        expectThat(perStateBytes.getGaragemodeBytes()).isEqualTo(120);
+        expectThat(ioThresholdByVendorPackage.getPackageName()).isEqualTo("vendor_package.A");
+
+        expectWithMessage("Thresholds by App Category")
+                .that(overuseConfigurationCacheDump.getThresholdsByAppCategoryCount()).isEqualTo(2);
+        PerformanceDump.IoThresholdByAppCategory ioThresholdByMapsAppCategory =
+                overuseConfigurationCacheDump.getThresholdsByAppCategory(0);
+        expectThat(ioThresholdByMapsAppCategory.getApplicationCategory())
+                .isEqualTo(PerformanceDump.ApplicationCategory.MAPS);
+        perStateBytes = ioThresholdByMapsAppCategory.getThreshold();
+        expectThat(perStateBytes.getForegroundBytes()).isEqualTo(2200);
+        expectThat(perStateBytes.getBackgroundBytes()).isEqualTo(4400);
+        expectThat(perStateBytes.getGaragemodeBytes()).isEqualTo(6600);
+        PerformanceDump.IoThresholdByAppCategory ioThresholdByMediaAppCategory =
+                overuseConfigurationCacheDump.getThresholdsByAppCategory(1);
+        expectThat(ioThresholdByMediaAppCategory.getApplicationCategory())
+                .isEqualTo(PerformanceDump.ApplicationCategory.MEDIA);
+        perStateBytes = ioThresholdByMediaAppCategory.getThreshold();
+        expectThat(perStateBytes.getForegroundBytes()).isEqualTo(200);
+        expectThat(perStateBytes.getBackgroundBytes()).isEqualTo(400);
+        expectThat(perStateBytes.getGaragemodeBytes()).isEqualTo(600);
     }
 
     private static SparseArray<String> constructPackagesByNotificationId(int idOffset,
