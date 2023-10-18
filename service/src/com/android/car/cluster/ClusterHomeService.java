@@ -22,6 +22,7 @@ import static android.content.Intent.ACTION_MAIN;
 import static com.android.car.hal.ClusterHalService.DISPLAY_OFF;
 import static com.android.car.hal.ClusterHalService.DISPLAY_ON;
 import static com.android.car.hal.ClusterHalService.DONT_CARE;
+import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.common.CommonConstants.EMPTY_BYTE_ARRAY;
 
@@ -219,7 +220,22 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
-        // TODO: record the latest states from both sides
+        checkHasDumpPermissionGranted(mContext, "dump()");
+        writer.println("*ClusterHomeService*");
+
+        writer.increaseIndent();
+        writer.println("mServiceEnabled: " + mServiceEnabled);
+        writer.println("isLightMode: " + mClusterHalService.isLightMode());
+        writer.println("mClusterDisplayId: " + mClusterDisplayId);
+        writer.println("mClusterHomeActivity: " + mClusterHomeActivity);
+        writer.println("mOnOff: " + mOnOff);
+        writer.println("mBounds: " + mBounds);
+        writer.println("mInsets: " + mInsets);
+        writer.println("mUiType: " + mUiType);
+        writer.println("mLastIntent: " + mLastIntent);
+        writer.println("mLastIntentUserId: " + mLastIntentUserId);
+        writer.println("mClusterActivityVisible: " + mClusterActivityVisible);
+        writer.decreaseIndent();
     }
 
     @Override
