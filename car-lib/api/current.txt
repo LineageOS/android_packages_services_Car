@@ -786,7 +786,7 @@ package android.car.hardware.property {
     method public void setPropertiesAsync(@NonNull java.util.List<android.car.hardware.property.CarPropertyManager.SetPropertyRequest<?>>, long, @Nullable android.os.CancellationSignal, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.SetPropertyCallback);
     method public void setPropertiesAsync(@NonNull java.util.List<android.car.hardware.property.CarPropertyManager.SetPropertyRequest<?>>, @Nullable android.os.CancellationSignal, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.SetPropertyCallback);
     method public <E> void setProperty(@NonNull Class<E>, int, int, @NonNull E);
-    method public boolean subscribePropertyEvents(@NonNull java.util.List<android.car.hardware.property.SubscriptionOption>, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
+    method @FlaggedApi(android.car.feature.Flags.FLAG_BATCHED_SUBSCRIPTIONS) public boolean subscribePropertyEvents(@NonNull java.util.List<android.car.hardware.property.SubscriptionOption>, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     method public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     method public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int);
     field public static final long ASYNC_GET_DEFAULT_TIMEOUT_MS = 10000L; // 0x2710L
