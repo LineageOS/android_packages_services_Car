@@ -23,6 +23,9 @@ import android.util.SparseBooleanArray;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Utility class used when dealing with PowerComponent.
@@ -226,5 +229,19 @@ public final class PowerComponentUtil {
                 }
                 return "unknown component";
         }
+    }
+
+    /**
+     * Convert list of {@link PowerComponent} to list of strings.
+     */
+    @NonNull
+    public static List<String> powerComponentsToStrings(Iterable<Integer> components) {
+        List<String> powerComponents = new ArrayList<>();
+        Iterator<Integer> componentsIterator = components.iterator();
+        while (componentsIterator.hasNext()) {
+            Integer component = componentsIterator.next();
+            powerComponents.add(powerComponentToString(component));
+        }
+        return powerComponents;
     }
 }
