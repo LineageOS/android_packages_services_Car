@@ -28,6 +28,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -578,8 +579,33 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testSubscribeProperty_remoteException() throws Exception {
+    public void testSubscribeProperty_RemoteExceptionFromVhal() throws Exception {
         doThrow(new RemoteException()).when(mSubscriptionClient).subscribe(any());
+
+        assertThrows(ServiceSpecificException.class, () ->
+                mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY,
+                        ANY_SAMPLING_RATE_1));
+    }
+
+    @Test
+    public void testSubscribeProperty_ServiceSpecificExceptionFromVhal() throws Exception {
+        doThrow(new ServiceSpecificException(0)).when(mSubscriptionClient).subscribe(any());
+
+        assertThrows(ServiceSpecificException.class, () ->
+                mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY,
+                        ANY_SAMPLING_RATE_1));
+    }
+
+    @Test
+    public void testSubscribeProperty_ServiceSpecificExceptionFromVhal_retry() throws Exception {
+        doThrow(new ServiceSpecificException(0)).when(mSubscriptionClient).subscribe(any());
+
+        assertThrows(ServiceSpecificException.class, () ->
+                mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY,
+                        ANY_SAMPLING_RATE_1));
+
+        clearInvocations(mSubscriptionClient);
+        doNothing().when(mSubscriptionClient).subscribe(any());
 
         mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY,
                 ANY_SAMPLING_RATE_1);
@@ -587,8 +613,16 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         SubscribeOptions expectedOptions = createSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
                 ANY_SAMPLING_RATE_1, new int[]{GLOBAL_AREA_ID});
 
-        // RemoteException is handled in subscribeProperty.
         verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{expectedOptions}));
+    }
+
+    @Test
+    public void testSubscribePropertySafe_ServiceSpecificExceptionFromVhal() throws Exception {
+        doThrow(new ServiceSpecificException(0)).when(mSubscriptionClient).subscribe(any());
+
+        // Exception should be handled inside subscribePropertySafe.
+        mVehicleHal.subscribePropertySafe(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY,
+                ANY_SAMPLING_RATE_1);
     }
 
     @Test
@@ -872,17 +906,46 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testUnsubscribeProperty_remoteException() throws Exception {
-        // Arrange
+    public void testUnsubscribeProperty_remoteExceptionFromVhal() throws Exception {
         mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY);
         doThrow(new RemoteException()).when(mSubscriptionClient).unsubscribe(anyInt());
 
-        //Act
+        assertThrows(ServiceSpecificException.class, () ->
+                mVehicleHal.unsubscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY));
+    }
+
+    @Test
+    public void testUnubscribeProperty_ServiceSpecificExceptionFromVhal() throws Exception {
+        mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY);
+        doThrow(new ServiceSpecificException(0)).when(mSubscriptionClient).unsubscribe(anyInt());
+
+        assertThrows(ServiceSpecificException.class, () ->
+                mVehicleHal.unsubscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY));
+    }
+
+    @Test
+    public void testUnsubscribeProperty_ServiceSpecificExceptionFromVhal_retry() throws Exception {
+        mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY);
+        doThrow(new ServiceSpecificException(0)).when(mSubscriptionClient).unsubscribe(anyInt());
+
+        assertThrows(ServiceSpecificException.class, () ->
+                mVehicleHal.unsubscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY));
+
+        clearInvocations(mSubscriptionClient);
+        doNothing().when(mSubscriptionClient).unsubscribe(anyInt());
+
         mVehicleHal.unsubscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY);
 
-        // Assert
-        // RemoteException is handled in subscribeProperty.
         verify(mSubscriptionClient).unsubscribe(eq(SOME_READ_ON_CHANGE_PROPERTY));
+    }
+
+    @Test
+    public void testUnsubscribePropertySafe_ServiceSpecificExceptionFromVhal() throws Exception {
+        mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY);
+        doThrow(new ServiceSpecificException(0)).when(mSubscriptionClient).unsubscribe(anyInt());
+
+        // Exception should be handled inside unsubscribePropertySafe.
+        mVehicleHal.unsubscribePropertySafe(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY);
     }
 
     @Test

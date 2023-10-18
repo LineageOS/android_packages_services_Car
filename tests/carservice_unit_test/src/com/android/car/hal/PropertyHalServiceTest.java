@@ -60,6 +60,7 @@ import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehicleVendorPermission;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 import android.util.ArraySet;
 
 import androidx.test.runner.AndroidJUnit4;
@@ -2607,6 +2608,87 @@ public class PropertyHalServiceTest {
                 new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{0}, 40.0f));
 
         verifyNoPendingRequest();
+    }
+
+    @Test
+    public void testSubscribeProperty_exceptionFromVhal() throws Exception {
+        doThrow(new ServiceSpecificException(0)).when(mVehicleHal).subscribeProperty(
+                any(), anyList());
+
+        assertThrows(ServiceSpecificException.class, () ->
+                mPropertyHalService.subscribeProperty(List.of(
+                        createCarSubscriptionOption(
+                                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f))));
+    }
+
+    /**
+     * Tests that if we receive exception from underlying layer, client must be able to retry the
+     * operation and causes a retry to VHAL. If the error goes away in VHAL, the retry must succeed.
+     */
+    @Test
+    public void testSubscribeProperty_exceptionFromVhal_retryFixed() throws Exception {
+        doThrow(new ServiceSpecificException(0)).when(mVehicleHal).subscribeProperty(
+                any(), anyList());
+
+        assertThrows(ServiceSpecificException.class, () ->
+                mPropertyHalService.subscribeProperty(List.of(
+                        createCarSubscriptionOption(
+                                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f))));
+
+        clearInvocations(mVehicleHal);
+        // Simulate the error has been fixed.
+        doNothing().when(mVehicleHal).subscribeProperty(any(), anyList());
+
+        // Retry the operation.
+        mPropertyHalService.subscribeProperty(List.of(
+                createCarSubscriptionOption(
+                        PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f)));
+
+        // The retry request must go to VehicleHal.
+        verify(mVehicleHal).subscribeProperty(any(), anyList());
+
+        mPropertyHalService.unsubscribeProperty(PERF_VEHICLE_SPEED);
+
+        verify(mVehicleHal).unsubscribeProperty(any(), eq(PERF_VEHICLE_SPEED));
+
+        verifyNoPendingRequest();
+    }
+
+    @Test
+    public void testUnubscribeProperty_exceptionFromVhal() throws Exception {
+        mPropertyHalService.subscribeProperty(List.of(
+                createCarSubscriptionOption(
+                        PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f)));
+        doThrow(new ServiceSpecificException(0)).when(mVehicleHal).unsubscribeProperty(
+                any(), anyInt());
+
+        assertThrows(ServiceSpecificException.class, () ->
+                mPropertyHalService.unsubscribeProperty(PERF_VEHICLE_SPEED));
+    }
+
+    /**
+     * Tests that if we receive exception from underlying layer, client must be able to retry the
+     * operation and causes a retry to VHAL. If the error goes away in VHAL, the retry must succeed.
+     */
+    @Test
+    public void tesUnsubscribeProperty_exceptionFromVhal_retryFixed() throws Exception {
+        mPropertyHalService.subscribeProperty(List.of(
+                createCarSubscriptionOption(
+                        PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f)));
+        doThrow(new ServiceSpecificException(0)).when(mVehicleHal).unsubscribeProperty(
+                any(), anyInt());
+
+        assertThrows(ServiceSpecificException.class, () ->
+                mPropertyHalService.unsubscribeProperty(PERF_VEHICLE_SPEED));
+
+        // Simulate the error has been fixed.
+        clearInvocations(mVehicleHal);
+        doNothing().when(mVehicleHal).unsubscribeProperty(any(), anyInt());
+
+        mPropertyHalService.unsubscribeProperty(PERF_VEHICLE_SPEED);
+
+        // The retry request must go to VehicleHal.
+        verify(mVehicleHal).unsubscribeProperty(any(), eq(PERF_VEHICLE_SPEED));
     }
 
     public static CarSubscribeOption createCarSubscriptionOption(int propertyId,

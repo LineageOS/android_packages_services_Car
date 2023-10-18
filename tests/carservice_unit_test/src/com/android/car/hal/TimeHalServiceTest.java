@@ -160,7 +160,7 @@ public final class TimeHalServiceTest {
         timeHalService.init();
 
         assertThat(timeHalService.isExternalCarTimeSupported()).isTrue();
-        verify(mVehicleHal).subscribeProperty(timeHalService, EXTERNAL_CAR_TIME);
+        verify(mVehicleHal).subscribePropertySafe(timeHalService, EXTERNAL_CAR_TIME);
     }
 
     @Test

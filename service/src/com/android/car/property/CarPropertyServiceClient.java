@@ -25,6 +25,7 @@ import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -140,16 +141,18 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
     }
 
     /**
-     * Remove a property ID that this client is subscribed to.
+     * Remove property IDs that this client is subscribed to.
      *
      * Once all property IDs are removed, this client instance must be removed because
      * {@link #mListenerBinder} will no longer be receiving death notifications.
      *
      * @return {@code true} if there are no properties registered to this client
      */
-    public boolean removeProperty(int propertyId) {
+    public boolean removeProperties(ArraySet<Integer> propertyIds) {
         synchronized (mLock) {
-            mPropIdToAreaIdToCpeTracker.delete(propertyId);
+            for (int i = 0; i < propertyIds.size(); i++) {
+                mPropIdToAreaIdToCpeTracker.delete(propertyIds.valueAt(i));
+            }
             if (mPropIdToAreaIdToCpeTracker.size() == 0) {
                 mListenerBinder.unlinkToDeath(this, /* flags= */ 0);
             }
@@ -179,7 +182,11 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
                 propertyIds.add(mPropIdToAreaIdToCpeTracker.keyAt(i));
             }
         }
-        mUnregisterCallback.onUnregister(propertyIds, mListenerBinder);
+        try {
+            mUnregisterCallback.onUnregister(propertyIds, mListenerBinder);
+        } catch (Exception e) {
+            Slogf.e(TAG, "registerCallback.onUnregister failed", e);
+        }
     }
 
     /**
@@ -195,7 +202,12 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
                 return;
             }
             for (int i = 0; i < events.size(); i++) {
-                CarPropertyValue<?> carPropertyValue = events.get(i).getCarPropertyValue();
+                CarPropertyEvent event = events.get(i);
+                if (event.getEventType() == CarPropertyEvent.PROPERTY_EVENT_ERROR) {
+                    filteredEvents.add(event);
+                    continue;
+                }
+                CarPropertyValue<?> carPropertyValue = event.getCarPropertyValue();
                 int propertyId = carPropertyValue.getPropertyId();
                 int areaId = carPropertyValue.getAreaId();
                 SparseArray<CarPropertyEventTracker> areaIdToCpeTracker =
@@ -209,9 +221,8 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
                 }
 
                 CarPropertyEventTracker cpeTracker = areaIdToCpeTracker.get(areaId);
-                if (events.get(i).getEventType() == CarPropertyEvent.PROPERTY_EVENT_ERROR
-                        || cpeTracker.hasNextUpdateTimeArrived(carPropertyValue)) {
-                    filteredEvents.add(events.get(i));
+                if (cpeTracker.hasNextUpdateTimeArrived(carPropertyValue)) {
+                    filteredEvents.add(event);
                 }
             }
         }

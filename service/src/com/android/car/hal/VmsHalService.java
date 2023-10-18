@@ -205,7 +205,7 @@ public class VmsHalService extends HalServiceBase {
         }
 
         Slogf.i(TAG, "Initializing VmsHalService VHAL property");
-        mVehicleHal.subscribeProperty(this, HAL_PROPERTY_ID);
+        mVehicleHal.subscribePropertySafe(this, HAL_PROPERTY_ID);
 
         mHandler.post(() ->
                 setPropertyValue(createStartSessionMessage(
@@ -223,7 +223,7 @@ public class VmsHalService extends HalServiceBase {
         if (DBG) {
             Slogf.d(TAG, "Releasing VmsHalService VHAL property");
         }
-        mVehicleHal.unsubscribeProperty(this, HAL_PROPERTY_ID);
+        mVehicleHal.unsubscribePropertySafe(this, HAL_PROPERTY_ID);
     }
 
     @Override

@@ -190,66 +190,71 @@ public class ClusterHalServiceTest {
     }
 
     @Test
-    public void testInit_subscribeProperty_coreProperties() {
+    public void testInit_subscribePropertySafe_coreProperties() {
         mClusterHalService.takeProperties(getCoreProperties());
 
         mClusterHalService.init();
 
-        verify(mVehicleHal).subscribeProperty(mClusterHalService, CLUSTER_SWITCH_UI);
-        verify(mVehicleHal).subscribeProperty(mClusterHalService, CLUSTER_DISPLAY_STATE);
+        verify(mVehicleHal).subscribePropertySafe(mClusterHalService, CLUSTER_SWITCH_UI);
+        verify(mVehicleHal).subscribePropertySafe(mClusterHalService, CLUSTER_DISPLAY_STATE);
     }
 
     @Test
-    public void testInit_subscribeProperty_lightMode_coreProperties() {
+    public void testInit_subscribePropertySafe_lightMode_coreProperties() {
         ClusterHalService lightModeService =
                 createLightModeServiceWithProperties(getCoreProperties());
 
         lightModeService.init();
 
-        verify(mVehicleHal, times(0)).subscribeProperty(lightModeService, CLUSTER_SWITCH_UI);
-        verify(mVehicleHal, times(0)).subscribeProperty(lightModeService, CLUSTER_DISPLAY_STATE);
+        verify(mVehicleHal, times(0)).subscribePropertySafe(lightModeService, CLUSTER_SWITCH_UI);
+        verify(mVehicleHal, times(0)).subscribePropertySafe(lightModeService,
+                CLUSTER_DISPLAY_STATE);
     }
 
     @Test
-    public void testInit_subscribeProperty_noProperties() {
+    public void testInit_subscribePropertySafe_noProperties() {
         mClusterHalService.takeProperties(Arrays.asList());
 
         mClusterHalService.init();
 
-        verify(mVehicleHal, times(0)).subscribeProperty(mClusterHalService, CLUSTER_SWITCH_UI);
-        verify(mVehicleHal, times(0)).subscribeProperty(mClusterHalService, CLUSTER_DISPLAY_STATE);
+        verify(mVehicleHal, times(0)).subscribePropertySafe(mClusterHalService, CLUSTER_SWITCH_UI);
+        verify(mVehicleHal, times(0)).subscribePropertySafe(mClusterHalService,
+                CLUSTER_DISPLAY_STATE);
     }
 
     @Test
-    public void testInit_lightMode_subscribeProperty_noProperties() {
+    public void testInit_lightMode_subscribePropertySafe_noProperties() {
         ClusterHalService lightModeService = createLightModeServiceWithProperties(Arrays.asList());
 
         lightModeService.init();
 
-        verify(mVehicleHal, times(0)).subscribeProperty(lightModeService, CLUSTER_SWITCH_UI);
-        verify(mVehicleHal, times(0)).subscribeProperty(lightModeService, CLUSTER_DISPLAY_STATE);
+        verify(mVehicleHal, times(0)).subscribePropertySafe(lightModeService, CLUSTER_SWITCH_UI);
+        verify(mVehicleHal, times(0)).subscribePropertySafe(lightModeService,
+                CLUSTER_DISPLAY_STATE);
     }
 
     @Test
-    public void testInit_subscribeProperty_partialProperties() {
+    public void testInit_subscribePropertySafe_partialProperties() {
         mClusterHalService.takeProperties(Arrays.asList(
                 newSubscribableConfig(CLUSTER_DISPLAY_STATE)));
 
         mClusterHalService.init();
 
-        verify(mVehicleHal, times(0)).subscribeProperty(mClusterHalService, CLUSTER_SWITCH_UI);
-        verify(mVehicleHal, times(0)).subscribeProperty(mClusterHalService, CLUSTER_DISPLAY_STATE);
+        verify(mVehicleHal, times(0)).subscribePropertySafe(mClusterHalService, CLUSTER_SWITCH_UI);
+        verify(mVehicleHal, times(0)).subscribePropertySafe(mClusterHalService,
+                CLUSTER_DISPLAY_STATE);
     }
 
     @Test
-    public void testInit_lightMode_subscribeProperty_partialProperties() {
+    public void testInit_lightMode_subscribePropertySafe_partialProperties() {
         ClusterHalService lightModeService = createLightModeServiceWithProperties(Arrays.asList(
                 newSubscribableConfig(CLUSTER_DISPLAY_STATE)));
 
         lightModeService.init();
 
-        verify(mVehicleHal, times(0)).subscribeProperty(lightModeService, CLUSTER_SWITCH_UI);
-        verify(mVehicleHal, times(0)).subscribeProperty(lightModeService, CLUSTER_DISPLAY_STATE);
+        verify(mVehicleHal, times(0)).subscribePropertySafe(lightModeService, CLUSTER_SWITCH_UI);
+        verify(mVehicleHal, times(0)).subscribePropertySafe(lightModeService,
+                CLUSTER_DISPLAY_STATE);
     }
 
     @Test
