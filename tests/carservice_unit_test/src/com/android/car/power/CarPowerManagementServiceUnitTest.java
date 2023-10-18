@@ -104,6 +104,7 @@ import org.mockito.Spy;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -111,10 +112,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @SmallTest
 public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTestCase {
@@ -1139,6 +1142,70 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
+    public void testApplyPowerPolicyAtStateChanged() throws Exception {
+        grantPowerPolicyPermission();
+
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
+        PolicyReader policyReader = mService.getPolicyReader();
+        Resources resources =
+                InstrumentationRegistry.getInstrumentation().getTargetContext().getResources();
+        try (InputStream inputStream = resources.openRawResource(
+                R.raw.valid_power_policy_with_policy_groups)) {
+            policyReader.readPowerPolicyFromXml(inputStream);
+        }
+
+        CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
+                .setComponents(PowerComponent.AUDIO).build();
+        MockedPowerPolicyListener listenerToWait = new MockedPowerPolicyListener();
+        mService.addPowerPolicyListener(filterAudio, listenerToWait);
+
+        String policyGroupId = "policy_group_1";
+        String waitForVhalPolicy = "wait_for_vhal_policy";
+        mService.setPowerPolicyGroup(policyGroupId);
+        mService.applyPowerPolicy(waitForVhalPolicy);
+        waitForPowerPolicy(waitForVhalPolicy);
+        String onPolicy = "on_policy";
+        AtomicBoolean isPolicyApplicationSuccessful = new AtomicBoolean(false);
+        mService.registerListener(new ICarPowerStateListener.Stub() {
+            @Override
+            public void onStateChanged(int state, long expirationTimeMs) {
+                // when ON state is received, request to change power policy
+                if (state == CarPowerManager.STATE_ON) {
+                    try {
+                        // send request from another thread, to avoid blocking main thread while
+                        // we're waiting for policy to apply
+                        new Thread(() -> {
+                            mService.applyPowerPolicy(onPolicy);
+                            // if flag is not set, exception was caught
+                            isPolicyApplicationSuccessful.set(true);
+                        }).start();
+                    } catch (Exception e) {
+                        Log.e(TAG, "Caught an exception " + Log.getStackTraceString(e));
+                    }
+                }
+            }
+        });
+
+        // Transition to ON state
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
+        waitForPowerPolicy(onPolicy);
+
+        CarPowerPolicy policy = mService.getCurrentPowerPolicy();
+        assertWithMessage("Power Policy").that(policy).isNotNull();
+        expectWithMessage("Policy id").that(policy.getPolicyId())
+                .isEqualTo(onPolicy);
+        expectWithMessage("Accumulated policy id")
+                .that(mPowerComponentHandler.getAccumulatedPolicy().getPolicyId())
+                .isEqualTo(onPolicy);
+        expectWithMessage("Current power policy")
+                .that(listenerToWait.getCurrentPowerPolicy()).isNotNull();
+        waitForPowerPolicyNotificationToDaemon(onPolicy);
+        PollingCheck.waitFor(WAIT_TIMEOUT_LONG_MS, isPolicyApplicationSuccessful::get);
+    }
+
+    @Test
     public void testSuspendFailure() throws Exception {
         suspendWithFailure(/* nextPowerState= */ null);
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
@@ -1792,6 +1859,18 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         when(mUserManager.getUserInfo(userId)).thenReturn(userInfo);
         return userInfo;
     }
+
+    private void waitForPolicyId(String policyId, Callable<Boolean> policyCheckCallable)
+            throws Exception {
+        PollingCheck.check("Policy id is not " + policyId, WAIT_TIMEOUT_LONG_MS,
+                policyCheckCallable);
+    }
+
+    private void waitForPowerPolicyNotificationToDaemon(String policyId) throws Exception {
+        waitForPolicyId(policyId,
+                () -> policyId.equals(mPowerPolicyDaemon.getLastNotifiedPolicyId()));
+    }
+
 
     private void grantPowerPolicyPermission() {
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)

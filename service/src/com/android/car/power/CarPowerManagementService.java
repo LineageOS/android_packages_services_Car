@@ -910,6 +910,16 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
+    /**
+     * This method is required for testing
+     * Gets {@code PolicyReader} that reads {@code power_policy.xml}.
+     * @return {@link PolicyReader}
+     */
+    @VisibleForTesting
+    public PolicyReader getPolicyReader() {
+        return mPolicyReader;
+    }
+
     private void handleShutdownPrepare(CpmsState currentState, CpmsState prevState) {
         switch (currentState.mCarPowerStateListenerState) {
             case CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE:
