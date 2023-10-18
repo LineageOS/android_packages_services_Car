@@ -47,3 +47,11 @@ flag {
   description: "enabled batched subscriptions for multiple [propId, areaId]s"
   bug: "298257574"
 }
+
+# CarServiceBase
+flag {
+  name: "car_dump_to_proto"
+  namespace: "car_framework"
+  description: "Controls whether dump to proto is an option for car services"
+  bug: "302596493"
+}
