@@ -15,6 +15,8 @@
   -->
 
 <overlay>
+    <item target="bool/show_menu_item_selector" value="@bool/show_menu_item_selector" />
+
     <item target="dimen/playback_card_height" value="@dimen/playback_card_height" />
     <item target="dimen/radio_activity_playback_width" value="@dimen/radio_activity_playback_width" />
     <item target="dimen/playback_card_margin_bottom" value="@dimen/playback_card_margin_bottom" />
