@@ -177,7 +177,6 @@
         systemui:hvacAreaId="117"
         systemui:hvacPropertyId="354419977"
         systemui:hvacToggleOffButtonDrawable="@drawable/ic_sync_off"
-        systemui:hvacToggleOnButtonDrawable="@drawable/ic_sync_on"
-        systemui:hvacTurnOffIfAutoOn="true"/>
+        systemui:hvacToggleOnButtonDrawable="@drawable/ic_sync_on"/>
 
 </com.android.systemui.car.hvac.HvacPanelView>
