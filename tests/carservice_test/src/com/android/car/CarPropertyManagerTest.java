@@ -975,7 +975,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         long wheelLeftFrontTimestampNanos = Duration.ofSeconds(1).toNanos();
 
         float notNewEnoughWheelLeftFrontValue = 22.22f;
-        long notNewEnoughWheelLeftFrontTimestampNanos = Duration.ofMillis(1999).toNanos();
+        long notNewEnoughWheelLeftFrontTimestampNanos = Duration.ofMillis(1899).toNanos();
 
         float newEnoughWheelLeftFrontValue = 33.33f;
         long newEnoughWheelLeftFrontTimestampNanos = Duration.ofSeconds(2).toNanos();
