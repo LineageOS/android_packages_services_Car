@@ -16,7 +16,11 @@
 
 package com.android.car.internal.util;
 
+import android.util.ArraySet;
 import android.util.LongSparseArray;
+import android.util.SparseArray;
+
+import com.android.internal.util.Preconditions;
 
 /**
  * SparseArray mapping two integer keys to an Object. It encodes the two {@code int}s into a {@code
@@ -38,6 +42,11 @@ public class PairSparseArray<E> {
      * Underlying long->Object map data structure.
      */
     private final LongSparseArray<E> mValues;
+    /**
+     * First key to second keys mapping to allow easier operation applied to all the entries with
+     * the first key.
+     */
+    private final SparseArray<ArraySet<Integer>> mSecondKeysByFirstKey = new SparseArray<>();
 
     /** Creates a new PairSparseArray with initial capacity of {@link #INITIAL_CAPACITY}. */
     public PairSparseArray() {
@@ -50,12 +59,24 @@ public class PairSparseArray<E> {
     }
 
     /**
+     * Gets all the second keys for the first key.
+     */
+    public ArraySet<Integer> getSecondKeysForFirstKey(int firstKey) {
+        if (!mSecondKeysByFirstKey.contains(firstKey)) {
+            return new ArraySet<>();
+        }
+        return new ArraySet<>(mSecondKeysByFirstKey.get(firstKey));
+    }
+
+    /**
      * Puts the keys and value into the array, optimizing for the case where
      * the encoded key is greater than all existing keys in the array.
      */
     public void append(int firstKey, int secondKey, E value) {
+        Preconditions.checkArgument(value != null, "Value must not be null");
         long key = encodeKeyPair(firstKey, secondKey);
         mValues.append(key, value);
+        addSecondKeyByFirstKey(firstKey, secondKey);
     }
 
     /**
@@ -63,6 +84,7 @@ public class PairSparseArray<E> {
      */
     public void clear() {
         mValues.clear();
+        mSecondKeysByFirstKey.clear();
     }
 
     /**
@@ -81,6 +103,7 @@ public class PairSparseArray<E> {
     public void delete(int firstKey, int secondKey) {
         long key = encodeKeyPair(firstKey, secondKey);
         mValues.delete(key);
+        removeSecondKeyByFirstKey(firstKey, secondKey);
     }
 
     /**
@@ -131,6 +154,7 @@ public class PairSparseArray<E> {
      * @see LongSparseArray#indexOfValue(Object)
      */
     public int indexOfValue(E value) {
+        Preconditions.checkArgument(value != null, "Value must not be null");
         return mValues.indexOfValue(value);
     }
 
@@ -151,8 +175,10 @@ public class PairSparseArray<E> {
      * replacing the previous mapping if there was one.
      */
     public void put(int firstKey, int secondKey, E value) {
+        Preconditions.checkArgument(value != null, "Value must not be null");
         long key = encodeKeyPair(firstKey, secondKey);
         mValues.put(key, value);
+        addSecondKeyByFirstKey(firstKey, secondKey);
     }
 
     /**
@@ -168,6 +194,8 @@ public class PairSparseArray<E> {
      * @see LongSparseArray#removeAt(int)
      */
     public void removeAt(int index) {
+        int[] keyPair = keyPairAt(index);
+        removeSecondKeyByFirstKey(keyPair[0], keyPair[1]);
         mValues.removeAt(index);
     }
 
@@ -179,6 +207,7 @@ public class PairSparseArray<E> {
      * @see LongSparseArray#setValueAt(int, Object)
      */
     public void setValueAt(int index, E value) {
+        Preconditions.checkArgument(value != null, "Value must not be null");
         mValues.setValueAt(index, value);
     }
 
@@ -254,5 +283,24 @@ public class PairSparseArray<E> {
         int firstKey = (int) (key >> 32);
         int secondKey = (int) key;
         return new int[] {firstKey, secondKey};
+    }
+
+    private void addSecondKeyByFirstKey(int firstKey, int secondKey) {
+        if (!mSecondKeysByFirstKey.contains(firstKey)) {
+            mSecondKeysByFirstKey.put(firstKey, new ArraySet<>());
+        }
+        mSecondKeysByFirstKey.get(firstKey).add(secondKey);
+    }
+
+    private void removeSecondKeyByFirstKey(int firstKey, int secondKey) {
+        int index = mSecondKeysByFirstKey.indexOfKey(firstKey);
+        if (index < 0) {
+            // First key not found, do nothing.
+            return;
+        }
+        mSecondKeysByFirstKey.valueAt(index).remove(secondKey);
+        if (mSecondKeysByFirstKey.valueAt(index).isEmpty()) {
+            mSecondKeysByFirstKey.removeAt(index);
+        }
     }
 }
