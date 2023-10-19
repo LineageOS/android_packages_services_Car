@@ -1231,7 +1231,6 @@ public class CarPropertyManager extends CarManagerBase {
     public boolean subscribePropertyEvents(@NonNull List<SubscriptionOption> subscribeOptions,
             @Nullable Executor callbackExecutor,
             @NonNull CarPropertyEventCallback carPropertyEventCallback) {
-        // TODO(b/292620314): Guard this API with a flag
         // TODO(b/301169322): Create an unsubscribePropertyEvents
         requireNonNull(subscribeOptions);
         requireNonNull(carPropertyEventCallback);
