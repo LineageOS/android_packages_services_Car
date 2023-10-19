@@ -97,18 +97,21 @@
         <item name="android:textSize">32sp</item>
     </style>
 
-    <style name="TextAppearance.CarUi.PreferenceCategoryTitle" parent="TextAppearance.CarUi.Body3">
-        <item name="android:fontFamily">sans-serif-medium</item>
+    <style name="TextAppearance.CarUi.PreferenceCategoryTitle"
+           parent="TextAppearance.Car.Subhead.Medium">
+        <item name="android:textColor">@color/car_on_surface_variant</item>
     </style>
 
-    <style name="TextAppearance.CarUi.PreferenceTitle" parent="TextAppearance.CarUi.Body1"/>
+    <style name="TextAppearance.CarUi.PreferenceSummary" parent="TextAppearance.Car.Body.Small">
+        <item name="android:textColor">@color/car_ui_text_color_secondary</item>
+    </style>
+
+    <style name="TextAppearance.CarUi.PreferenceTitle" parent="TextAppearance.Car.Body.Large">
+        <item name="android:textColor">@color/car_ui_text_color_primary</item>
+    </style>
 
     <style name="TextAppearance.CarUi.Body3">
         <item name="android:textSize">24sp</item>
-    </style>
-
-    <style name="TextAppearance.CarUi.PreferenceSummary" parent="TextAppearance.CarUi.Body3">
-        <item name="android:textColor">@color/car_ui_text_color_secondary</item>
     </style>
 
     <style name="TextAppearance.CarUi.ListItem" parent="TextAppearance.CarUi.Body1"/>

@@ -20,8 +20,14 @@
 -->
 <resources>
 
-    <style name="TextAppearance.DeviceDefault" parent="android:TextAppearance.Material.Large">
+    <style name="TextAppearance.DeviceDefault" parent="TextAppearance.Car">
         <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textColorHint">?android:attr/textColorHint</item>
+        <item name="android:textColorHighlight">?android:attr/textColorHighlight</item>
+        <item name="android:textColorLink">?android:attr/textColorLink</item>
+        <item name="android:lineSpacingMultiplier">
+            @*android:dimen/text_line_spacing_multiplier_material
+        </item>
         <item name="android:textSize">@*android:dimen/car_body3_size</item>
     </style>
     <style name="TextAppearance.DeviceDefault.Inverse" parent="android:TextAppearance.Material.Inverse">
@@ -29,31 +35,44 @@
         <item name="android:textSize">@*android:dimen/car_body3_size</item>
     </style>
 
-    <style name="TextAppearance.DeviceDefault.Large" parent="android:TextAppearance.Material.Large">
+    <style name="TextAppearance.DeviceDefault.Large" parent="TextAppearance.Car.Body.Large">
         <item name="android:textColor">?android:attr/textColorPrimary</item>
-        <item name="android:textSize">@*android:dimen/car_body1_size</item>
+        <item name="android:textColorHint">?android:attr/textColorHint</item>
+        <item name="android:textColorHighlight">?android:attr/textColorHighlight</item>
+        <item name="android:textColorLink">?android:attr/textColorLink</item>
     </style>
-    <style name="TextAppearance.DeviceDefault.Large.Inverse" parent="android:TextAppearance.Material.Large.Inverse">
+    <style name="TextAppearance.DeviceDefault.Large.Inverse"
+           parent="TextAppearance.DeviceDefault.Large">
         <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
-        <item name="android:textSize">@*android:dimen/car_body1_size</item>
+        <item name="android:textColorHint">?android:attr/textColorHintInverse</item>
+        <item name="android:textColorHighlight">?android:attr/textColorHighlightInverse</item>
+        <item name="android:textColorLink">?android:attr/textColorLinkInverse</item>
     </style>
-
-    <style name="TextAppearance.DeviceDefault.Medium" parent="android:TextAppearance.Material.Medium">
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
-        <item name="android:textSize">@*android:dimen/car_body2_size</item>
+    <style name="TextAppearance.DeviceDefault.Medium" parent="TextAppearance.Car.Body.Medium">
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:textColorHint">?android:attr/textColorHint</item>
+        <item name="android:textColorHighlight">?android:attr/textColorHighlight</item>
+        <item name="android:textColorLink">?android:attr/textColorLink</item>
     </style>
-    <style name="TextAppearance.DeviceDefault.Medium.Inverse" parent="android:TextAppearance.Material.Medium.Inverse">
-        <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
-        <item name="android:textSize">@*android:dimen/car_body2_size</item>
+    <style name="TextAppearance.DeviceDefault.Medium.Inverse"
+           parent="TextAppearance.DeviceDefault.Medium">
+        <item name="android:textColor">?android:attr/textColorSecondaryInverse</item>
+        <item name="android:textColorHint">?android:attr/textColorHintInverse</item>
+        <item name="android:textColorHighlight">?android:attr/textColorHighlightInverse</item>
+        <item name="android:textColorLink">?android:attr/textColorLinkInverse</item>
     </style>
-
-    <style name="TextAppearance.DeviceDefault.Small" parent="android:TextAppearance.Material.Small">
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
-        <item name="android:textSize">@*android:dimen/car_body4_size</item>
+    <style name="TextAppearance.DeviceDefault.Small" parent="TextAppearance.Car.Body.Small">
+        <item name="android:textColor">?android:attr/textColorTertiary</item>
+        <item name="android:textColorHint">?android:attr/textColorHint</item>
+        <item name="android:textColorHighlight">?android:attr/textColorHighlight</item>
+        <item name="android:textColorLink">?android:attr/textColorLink</item>
     </style>
-    <style name="TextAppearance.DeviceDefault.Small.Inverse" parent="android:TextAppearance.Material.Small.Inverse">
-        <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
-        <item name="android:textSize">@*android:dimen/car_body4_size</item>
+    <style name="TextAppearance.DeviceDefault.Small.Inverse"
+           parent="TextAppearance.DeviceDefault.Small">
+        <item name="android:textColor">?android:attr/textColorTertiaryInverse</item>
+        <item name="android:textColorHint">?android:attr/textColorHintInverse</item>
+        <item name="android:textColorHighlight">?android:attr/textColorHighlightInverse</item>
+        <item name="android:textColorLink">?android:attr/textColorLinkInverse</item>
     </style>
 
     <style name="TextAppearance.DeviceDefault.Subhead" parent="android:TextAppearance.Material.Subhead">
@@ -76,30 +95,28 @@
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
-    <style name="TextAppearance.DeviceDefault.Widget.Button" parent="android:TextAppearance.Material.Widget.Button">
-        <item name="android:fontFamily">@*android:string/config_headlineFontFamilyMedium</item>
+    <style name="TextAppearance.DeviceDefault.Widget.Button" parent="TextAppearance.Car.Button.Medium">
         <item name="android:textAllCaps">@*android:bool/config_buttonTextAllCaps</item>
-        <item name="android:textSize">@*android:dimen/car_action1_size</item>
         <item name="android:textColor">@color/car_button_text_color</item>
     </style>
 
     <style name="TextAppearance.DeviceDefault.Widget.Button.Small"
-           parent="android:TextAppearance.DeviceDefault.Widget.Button">
+           parent="TextAppearance.Car.Button.Small">
         <item name="android:textColor">@color/car_button_text_color</item>
     </style>
 
     <style name="TextAppearance.DeviceDefault.Widget.Button.Colored"
-           parent="android:TextAppearance.DeviceDefault.Widget.Button">
+           parent="TextAppearance.DeviceDefault.Widget.Button">
         <item name="android:textColor">@color/car_on_primary</item>
     </style>
 
     <style name="TextAppearance.DeviceDefault.Widget.Button.Borderless"
-           parent="android:TextAppearance.DeviceDefault.Widget.Button">
+           parent="TextAppearance.DeviceDefault.Widget.Button">
         <item name="android:textColor">@color/car_on_background</item>
     </style>
 
     <style name="TextAppearance.DeviceDefault.Widget.Button.Borderless.Colored"
-           parent="android:TextAppearance.DeviceDefault.Widget.Button">
+           parent="TextAppearance.DeviceDefault.Widget.Button">
         <item name="android:textColor">@color/car_primary</item>
     </style>
 
