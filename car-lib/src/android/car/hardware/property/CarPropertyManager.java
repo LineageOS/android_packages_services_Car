@@ -16,6 +16,8 @@
 
 package android.car.hardware.property;
 
+import static android.car.feature.Flags.FLAG_BATCHED_SUBSCRIPTIONS;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
@@ -23,6 +25,7 @@ import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_
 import static java.lang.Integer.toHexString;
 import static java.util.Objects.requireNonNull;
 
+import android.annotation.FlaggedApi;
 import android.annotation.FloatRange;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -1228,6 +1231,7 @@ public class CarPropertyManager extends CarManagerBase {
      *                                  registered to another callback or one of the properties does
      *                                  not have a corresponding CarPropertyConfig.
      */
+    @FlaggedApi(FLAG_BATCHED_SUBSCRIPTIONS)
     public boolean subscribePropertyEvents(@NonNull List<SubscriptionOption> subscribeOptions,
             @Nullable Executor callbackExecutor,
             @NonNull CarPropertyEventCallback carPropertyEventCallback) {

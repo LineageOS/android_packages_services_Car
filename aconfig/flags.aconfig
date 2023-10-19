@@ -39,3 +39,11 @@ flag {
   description: "Controls whether car audio system can be configured with dynamic output devices"
   bug: "305301155"
 }
+
+#CarPropertyManager
+flag {
+  name: "batched_subscriptions"
+  namespace: "car_framework"
+  description: "enabled batched subscriptions for multiple [propId, areaId]s"
+  bug: "298257574"
+}
