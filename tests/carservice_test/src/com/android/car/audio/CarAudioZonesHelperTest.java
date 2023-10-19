@@ -1177,9 +1177,8 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
                     assertThrows(IllegalArgumentException.class, () -> cazh.loadAudioZones());
 
             assertWithMessage("First unsupported attributes exception").that(thrown)
-                    .hasMessageThat().contains("audioAttributes: Cannot find strategy id for "
-                            + "context: OEM_CONTEXT and attributes \"" + unsupportedAttributes
-                            + "\"");
+                    .hasMessageThat().contains("Invalid attributes " + unsupportedAttributes
+                            + " for context: OEM_CONTEXT");
         }
     }
 

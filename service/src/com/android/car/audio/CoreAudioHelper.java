@@ -112,6 +112,17 @@ final class CoreAudioHelper {
         return INVALID_STRATEGY;
     }
 
+    public static int getStrategyForContextName(String contextName) {
+        Preconditions.checkNotNull(contextName, "Context name must not be null");
+        for (int index = 0; index < getAudioProductStrategies().size(); index++) {
+            AudioProductStrategy strategy = getAudioProductStrategies().get(index);
+            if (Objects.equals(strategy.getName(), contextName)) {
+                return strategy.getId();
+            }
+        }
+        return INVALID_STRATEGY;
+    }
+
     /**
      * Identifies the {@link AudioProductStrategy} supporting the given {@link AudioAttributes}
      * and fallbacking on the default strategy supporting {@code DEFAULT_ATTRIBUTES} otherwise.

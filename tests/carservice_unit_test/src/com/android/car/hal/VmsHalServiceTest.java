@@ -120,7 +120,7 @@ public class VmsHalServiceTest {
 
         // Verify START_SESSION message was sent
         InOrder initOrder = Mockito.inOrder(mVehicleHal);
-        initOrder.verify(mVehicleHal).subscribeProperty(mHalService,
+        initOrder.verify(mVehicleHal).subscribePropertySafe(mHalService,
                 VehicleProperty.VEHICLE_MAP_SERVICE);
         initOrder.verify(mVehicleHal).set(createHalMessage(
                 VmsMessageType.START_SESSION, // Message type

@@ -311,7 +311,7 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExtendedMockit
 
     @Test
     public void testScheduleInfoBuilder() {
-        ScheduleInfo.Builder builder = ScheduleInfo.builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
+        ScheduleInfo.Builder builder = new ScheduleInfo.Builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
                 TEST_START_TIME);
         ScheduleInfo scheduleInfo = builder.setCount(TEST_TASK_COUNT).setPeriodic(TEST_PERIODIC)
                 .build();
@@ -330,7 +330,7 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExtendedMockit
 
     @Test
     public void testScheduleInfoBuilder_buildTwiceNotAllowed() {
-        ScheduleInfo.Builder builder = ScheduleInfo.builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
+        ScheduleInfo.Builder builder = new ScheduleInfo.Builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
                 TEST_START_TIME);
         builder.setCount(TEST_TASK_COUNT).setPeriodic(TEST_PERIODIC).build();
 
@@ -339,26 +339,26 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExtendedMockit
 
     @Test
     public void testScheduleInfoBuilder_nullScheduleId() {
-        assertThrows(IllegalArgumentException.class, () -> ScheduleInfo.builder(
+        assertThrows(IllegalArgumentException.class, () -> new ScheduleInfo.Builder(
                 /* scheduleId= */ null, TEST_TASK_DATA, TEST_START_TIME));
     }
 
     @Test
     public void testScheduleInfoBuilder_nullTaskData() {
-        assertThrows(IllegalArgumentException.class, () -> ScheduleInfo.builder(
+        assertThrows(IllegalArgumentException.class, () -> new ScheduleInfo.Builder(
                 TEST_SCHEDULE_ID, /* taskData= */ null, TEST_START_TIME));
     }
 
     @Test
     public void testScheduleInfoBuilder_negativeCount() {
-        ScheduleInfo.Builder builder = ScheduleInfo.builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
+        ScheduleInfo.Builder builder = new ScheduleInfo.Builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
                 TEST_START_TIME);
         assertThrows(IllegalArgumentException.class, () -> builder.setCount(-1));
     }
 
     @Test
     public void testScheduleInfoBuilder_nullPeriodic() {
-        ScheduleInfo.Builder builder = ScheduleInfo.builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
+        ScheduleInfo.Builder builder = new ScheduleInfo.Builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
                 TEST_START_TIME);
         assertThrows(IllegalArgumentException.class, () -> builder.setPeriodic(null));
     }
@@ -397,7 +397,7 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExtendedMockit
     @Test
     public void testScheduleTask() throws Exception {
         when(mService.isTaskScheduleSupported()).thenReturn(true);
-        ScheduleInfo.Builder builder = ScheduleInfo.builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
+        ScheduleInfo.Builder builder = new ScheduleInfo.Builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
                 TEST_START_TIME);
         ScheduleInfo scheduleInfo = builder.setCount(TEST_TASK_COUNT).setPeriodic(TEST_PERIODIC)
                 .build();
@@ -420,7 +420,7 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExtendedMockit
         when(mService.isTaskScheduleSupported()).thenReturn(true);
         doThrow(new ServiceSpecificException(SERVICE_ERROR_CODE_GENERAL)).when(mService)
                 .scheduleTask(any());
-        ScheduleInfo scheduleInfo = ScheduleInfo.builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
+        ScheduleInfo scheduleInfo = new ScheduleInfo.Builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
                 TEST_START_TIME).setCount(TEST_TASK_COUNT).setPeriodic(TEST_PERIODIC).build();
 
         assertThrows(InVehicleTaskSchedulerException.class, () ->

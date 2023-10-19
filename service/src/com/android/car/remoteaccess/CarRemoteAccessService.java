@@ -18,6 +18,7 @@ package com.android.car.remoteaccess;
 
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 import static android.content.Context.BIND_AUTO_CREATE;
+import static android.content.Context.RECEIVER_NOT_EXPORTED;
 
 import static com.android.car.CarServiceUtils.isEventOfType;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
@@ -37,9 +38,11 @@ import android.car.remoteaccess.RemoteTaskClientRegistrationInfo;
 import android.car.remoteaccess.TaskScheduleInfo;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserLifecycleEventFilter;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.PackageInfoFlags;
@@ -48,6 +51,7 @@ import android.content.pm.ServiceInfo;
 import android.content.res.XmlResourceParser;
 import android.hardware.automotive.remoteaccess.IRemoteAccess;
 import android.hardware.automotive.remoteaccess.ScheduleInfo;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -336,6 +340,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private final long mAllowedSystemUptimeMs;
     private final int mNotifyApStateChangeMaxRetry;
     private final int mNotifyApStateChangeRetrySleepInMs;
+    private final BroadcastReceiver mPackageRemovedReceiver;
 
     private String mWakeupServiceName = "";
     private String mVehicleId = "";
@@ -405,6 +410,38 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 PACKAGE_SEARCH_DELAY, PACKAGE_SEARCH_DELAY_RAND_RANGE);
         mNotifyApStateChangeMaxRetry = getNotifyApStateChangeMaxRetry();
         mNotifyApStateChangeRetrySleepInMs = getNotifyApStateChangeRetrySleepInMs();
+        mPackageRemovedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                onReceiveIntent(context, intent);
+            }
+        };
+    }
+
+    /**
+     * handles {@code ACTION_PACKAGE_REMOVED} intent.
+     */
+    @SuppressWarnings("unused")
+    private void onReceiveIntent(Context context, Intent intent) {
+        if (!intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED)) {
+            Slogf.w(TAG, "Received an unknown intent, ignore: " + intent);
+            return;
+        }
+        String packageName = Uri.parse(intent.getDataString()).getSchemeSpecificPart();
+        String clientId;
+        synchronized (mLock) {
+            if (!mServerlessClientIdsByPackageName.containsKey(packageName)) {
+                // Not a serverless client, ignore.
+                return;
+            }
+            clientId = mServerlessClientIdsByPackageName.get(packageName);
+        }
+        try {
+            mRemoteAccessHalWrapper.unscheduleAllTasks(clientId);
+        } catch (ServiceSpecificException | RemoteException e) {
+            Slogf.e(TAG, e, "failed to unschedule tasks for package: %s when it is removed",
+                    packageName);
+        }
     }
 
     @VisibleForTesting
@@ -460,12 +497,20 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
         mHandler.postWrapUpRemoteAccessService(mAllowedSystemUptimeMs);
         mHandler.postNotifyApStateChange(0);
+
+        IntentFilter filter = new IntentFilter(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addDataScheme("package");
+        // We are registering receiver for a system broadcast so the flag for NOT_EXPORTED does
+        // not really matter. But we are not expecting intents from other apps, so set it to
+        // NOT_EXPORTED to be safe.
+        mContext.registerReceiver(mPackageRemovedReceiver, filter, RECEIVER_NOT_EXPORTED);
     }
 
     @Override
     public void release() {
         Slogf.i(TAG, "release CarRemoteAccessService");
         mHandler.cancelAll();
+        mContext.unregisterReceiver(mPackageRemovedReceiver);
         mRemoteAccessHalWrapper.release();
         mRemoteAccessStorage.release();
     }

@@ -83,11 +83,14 @@ public final class CoreAudioRoutingUtils {
     public static final AudioVolumeGroup OEM_GROUP;
     public static final CarAudioContextInfo OEM_CONTEXT_INFO;
 
-    public static final int INVALID_STRATEGY_ID = 999999;
-    public static final int INVALID_GROUP_ID = 999999;
-    public static final String INVALID_GROUP_NAME = "INVALID_GROUP";
+    static final String INVALID_CONTEXT_NAME = "INVALID_CONTEXT";
+    static final int INVALID_STRATEGY_ID = 999999;
+    static final int INVALID_GROUP_ID = 999999;
+    static final String INVALID_GROUP_NAME = "INVALID_GROUP";
 
-    public static final AudioAttributes UNSUPPORTED_ATTRIBUTES = new AudioAttributes.Builder()
+    static final int INVALID_STRATEGY = -1;
+
+    static final AudioAttributes UNSUPPORTED_ATTRIBUTES = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_GAME)
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
             .build();

@@ -19,6 +19,7 @@ package com.android.car;
 import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
+import static com.android.car.internal.property.CarPropertyHelper.propertyIdsToString;
 
 import static java.lang.Integer.toHexString;
 import static java.util.Objects.requireNonNull;
@@ -48,6 +49,7 @@ import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.os.Trace;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.proto.ProtoOutputStream;
@@ -61,6 +63,7 @@ import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.property.CarSubscribeOption;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
+import com.android.car.internal.property.SubscriptionManager;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.property.CarPropertyServiceClient;
@@ -177,10 +180,10 @@ public class CarPropertyService extends ICarProperty.Stub
     @GuardedBy("mLock")
     private final Map<IBinder, CarPropertyServiceClient> mClientMap = new ArrayMap<>();
     @GuardedBy("mLock")
-    private final SparseArray<List<CarPropertyServiceClient>> mPropIdClientMap =
-            new SparseArray<>();
+    private final SubscriptionManager<CarPropertyServiceClient> mSubscriptionManager =
+            new SubscriptionManager<>();
     @GuardedBy("mLock")
-    private final SparseArray<SparseArray<CarPropertyServiceClient>> mSetOperationClientMap =
+    private final SparseArray<SparseArray<CarPropertyServiceClient>> mSetOpClientByAreaIdByPropId =
             new SparseArray<>();
     private final HandlerThread mHandlerThread =
             CarServiceUtils.getHandlerThread(getClass().getSimpleName());
@@ -215,9 +218,9 @@ public class CarPropertyService extends ICarProperty.Stub
     public void release() {
         synchronized (mLock) {
             mClientMap.clear();
-            mPropIdClientMap.clear();
+            mSubscriptionManager.clear();
             mPropertyHalService.setPropertyHalListener(null);
-            mSetOperationClientMap.clear();
+            mSetOpClientByAreaIdByPropId.clear();
         }
     }
 
@@ -232,26 +235,13 @@ public class CarPropertyService extends ICarProperty.Stub
             writer.println("Current sync operation count: " + mSyncGetSetPropertyOpCount);
             writer.println("Properties registered: ");
             writer.increaseIndent();
-            for (int i = 0; i < mPropIdClientMap.size(); i++) {
-                int propId = mPropIdClientMap.keyAt(i);
-                List<CarPropertyServiceClient> clients = mPropIdClientMap.valueAt(i);
-                writer.println("propId: " + VehiclePropertyIds.toString(propId)
-                        + " is registered by " + clients.size() + " client(s).");
-                writer.increaseIndent();
-                for (int j = 0; j < clients.size(); j++) {
-                    int firstAreaId = getCarPropertyConfig(propId).getAreaIds()[0];
-                    float subscribedRate = clients.get(j).getUpdateRateHz(propId, firstAreaId);
-                    writer.println("Client " + clients.get(j).hashCode() + ": Subscribed at "
-                            + subscribedRate + " hz");
-                }
-                writer.decreaseIndent();
-            }
+            mSubscriptionManager.dump(writer);
             writer.decreaseIndent();
             writer.println("Properties that have a listener registered for setProperty:");
             writer.increaseIndent();
-            for (int i = 0; i < mSetOperationClientMap.size(); i++) {
-                int propId = mSetOperationClientMap.keyAt(i);
-                SparseArray areaIdToClient = mSetOperationClientMap.valueAt(i);
+            for (int i = 0; i < mSetOpClientByAreaIdByPropId.size(); i++) {
+                int propId = mSetOpClientByAreaIdByPropId.keyAt(i);
+                SparseArray areaIdToClient = mSetOpClientByAreaIdByPropId.valueAt(i);
                 for (int j = 0; j < areaIdToClient.size(); j++) {
                     int areaId = areaIdToClient.keyAt(j);
                     writer.println("Client: " + areaIdToClient.valueAt(j).hashCode() + " propId: "
@@ -270,7 +260,8 @@ public class CarPropertyService extends ICarProperty.Stub
 
     @Override
     public void registerListener(int propertyId, float updateRateHz,
-            ICarPropertyEventListener carPropertyEventListener) throws IllegalArgumentException {
+            ICarPropertyEventListener carPropertyEventListener)
+            throws IllegalArgumentException, ServiceSpecificException {
         CarSubscribeOption option = new CarSubscribeOption();
         int[] areaIds = EMPTY_INT_ARRAY;
         CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
@@ -284,72 +275,104 @@ public class CarPropertyService extends ICarProperty.Stub
         registerListenerWithSubscribeOptions(List.of(option), carPropertyEventListener);
     }
 
+    /**
+     * Validates the subscribe options and sanitize the update rate inside it.
+     *
+     * The update rate will be fit within the {@code minSampleRate} and {@code maxSampleRate}.
+     *
+     * @throws IllegalArgumentException if one of the options is not valid.
+     */
+    private void validateAndSanitizeSubscribeOptions(List<CarSubscribeOption> subscribeOptions)
+            throws IllegalArgumentException {
+        for (int i = 0; i < subscribeOptions.size(); i++) {
+            CarSubscribeOption option = subscribeOptions.get(i);
+            CarPropertyConfig<?> carPropertyConfig = validateRegisterParameterAndGetConfig(
+                    option.propertyId, option.areaIds);
+            option.updateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(carPropertyConfig,
+                    option.updateRateHz);
+        }
+    }
+
+    /**
+     * Gets the {@code CarPropertyServiceClient} for the binder, create a new one if not exists.
+     *
+     * @param carPropertyEventListener The client callback.
+     * @return the client for the binder, or null if the client is already dead.
+     */
+    @GuardedBy("mLock")
+    private @Nullable CarPropertyServiceClient getOrCreateClientForBinderLocked(
+            ICarPropertyEventListener carPropertyEventListener) {
+        IBinder listenerBinder = carPropertyEventListener.asBinder();
+        CarPropertyServiceClient client = mClientMap.get(listenerBinder);
+        if (client != null) {
+            return client;
+        }
+        client = new CarPropertyServiceClient(carPropertyEventListener,
+                this::unregisterListenerBinderForProps);
+        if (client.isDead()) {
+            Slogf.w(TAG, "the ICarPropertyEventListener is already dead");
+            return null;
+        }
+        mClientMap.put(listenerBinder, client);
+        return client;
+    }
+
     @Override
     public void registerListenerWithSubscribeOptions(List<CarSubscribeOption> subscribeOptions,
-            ICarPropertyEventListener carPropertyEventListener) {
+            ICarPropertyEventListener carPropertyEventListener)
+            throws IllegalArgumentException, ServiceSpecificException {
+        requireNonNull(subscribeOptions);
         requireNonNull(carPropertyEventListener);
-        List<CarSubscribeOption> propertyHalSubscribeOptions = new ArrayList<>();
+
+        validateAndSanitizeSubscribeOptions(subscribeOptions);
 
         CarPropertyServiceClient finalClient;
         synchronized (mLock) {
-            for (int i = 0; i < subscribeOptions.size(); i++) {
-                CarSubscribeOption option = subscribeOptions.get(i);
-                int propertyId = option.propertyId;
-                int[] areaIds = option.areaIds;
-                float updateRateHz = option.updateRateHz;
-
-                CarPropertyConfig<?> carPropertyConfig = validateRegisterParameterAndGetConfig(
-                        propertyId, areaIds);
-
-                option.updateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(carPropertyConfig,
-                        updateRateHz);
-            }
-            // Get or create the client for this iCarPropertyEventListener
-            IBinder listenerBinder = carPropertyEventListener.asBinder();
-            CarPropertyServiceClient client = mClientMap.get(listenerBinder);
+            // We create the client first so that we will not subscribe if the binder is already
+            // dead.
+            CarPropertyServiceClient client = getOrCreateClientForBinderLocked(
+                    carPropertyEventListener);
             if (client == null) {
-                client = new CarPropertyServiceClient(carPropertyEventListener,
-                        this::unregisterListenerBinderForProps);
-                if (client.isDead()) {
-                    Slogf.w(TAG, "the ICarPropertyEventListener is already dead");
-                    return;
-                }
-                mClientMap.put(listenerBinder, client);
+                // The client is already dead.
+                return;
             }
+
             for (int i = 0; i < subscribeOptions.size(); i++) {
                 CarSubscribeOption option = subscribeOptions.get(i);
-                int propertyId = option.propertyId;
-                int[] areaIds = option.areaIds;
-                float sanitizedUpdateRateHz = option.updateRateHz;
-                sSubscriptionUpdateRateHistogram.logSample(sanitizedUpdateRateHz);
+                sSubscriptionUpdateRateHistogram.logSample(option.updateRateHz);
                 if (DBG) {
                     Slogf.d(TAG, "registerListener after update rate sanitization, options: "
                             + subscribeOptions.get(i));
                 }
-                client.addProperty(propertyId, areaIds, sanitizedUpdateRateHz);
-                // Insert the client into the propertyId --> clients map
-                List<CarPropertyServiceClient> clients = mPropIdClientMap.get(propertyId);
-                if (clients == null) {
-                    clients = new ArrayList<>();
-                    mPropIdClientMap.put(propertyId, clients);
-                }
-                if (!clients.contains(client)) {
-                    clients.add(client);
-                }
-                CarSubscribeOption filteredOptions = filterSubscribeOptionAreaIds(option);
-                if (DBG) {
-                    Slogf.d(TAG, "The filtered subscribe options are: %s", filteredOptions);
-                }
-                if (filteredOptions != null) {
-                    propertyHalSubscribeOptions.add(filteredOptions);
-                }
+            }
+
+            // Store the new subscritpion state in the staging area. This does not affect the
+            // current state.
+            mSubscriptionManager.stageNewOptions(client, subscribeOptions);
+
+            // Try to apply the staged changes.
+            try {
+                applyStagedChangesLocked();
+            } catch (Exception e) {
+                mSubscriptionManager.dropCommit();
+                throw e;
+            }
+
+            // After subscribeProperty succeeded, adds the client to the
+            // [propertyId -> subscribed clients list] map. Adds the property to the client's
+            // [areaId -> update rate] map.
+            mSubscriptionManager.commit();
+            for (int i = 0; i < subscribeOptions.size(); i++) {
+                CarSubscribeOption option = subscribeOptions.get(i);
+                client.addProperty(
+                        option.propertyId, option.areaIds, option.updateRateHz);
             }
             finalClient = client;
         }
 
-        if (!propertyHalSubscribeOptions.isEmpty()) {
-            mPropertyHalService.subscribeProperty(propertyHalSubscribeOptions);
-        }
+        // We should use subscribeOptions instead of filteredSubscribeOptions here since even if
+        // the request may cause no new subscription because the [propId, areaId] is already
+        // subscribed at the target rate, we should still send initial values to the client.
         mHandler.post(() ->
                 getAndDispatchPropertyInitValue(subscribeOptions, finalClient));
     }
@@ -369,29 +392,37 @@ public class CarPropertyService extends ICarProperty.Stub
         }
     }
 
-    private CarSubscribeOption filterSubscribeOptionAreaIds(CarSubscribeOption option) {
-        CarSubscribeOption filteredOption = new CarSubscribeOption();
-        int[] areaIds = option.areaIds;
-        int propertyId = option.propertyId;
-        float sanitizedUpdateRateHz = option.updateRateHz;
-        List<Integer> filteredAreaIds = new ArrayList<>();
-        for (int areaId : areaIds) {
-            if (sanitizedUpdateRateHz > mPropertyHalService.getSubscribedUpdateRateHz(
-                    propertyId, areaId)) {
-                filteredAreaIds.add(areaId);
+    @GuardedBy("mLock")
+    void applyStagedChangesLocked() throws ServiceSpecificException {
+        List<CarSubscribeOption> filteredSubscribeOptions = new ArrayList<>();
+        List<Integer> propertyIdsToUnsubscribe = new ArrayList<>();
+        mSubscriptionManager.diffBetweenCurrentAndStage(/* out */ filteredSubscribeOptions,
+                /* out */ propertyIdsToUnsubscribe);
+
+        if (DBG) {
+            Slogf.d(TAG, "SubscribeOptions after filtering out options that are already"
+                    + " subscribed at the same or a higher rate: " + filteredSubscribeOptions);
+        }
+
+        if (!filteredSubscribeOptions.isEmpty()) {
+            try {
+                mPropertyHalService.subscribeProperty(filteredSubscribeOptions);
+            } catch (ServiceSpecificException e) {
+                Slogf.e(TAG, "PropertyHalService.subscribeProperty failed", e);
+                throw e;
             }
         }
-        if (filteredAreaIds.isEmpty()) {
-            if (DBG) {
-                Slogf.d(TAG, "Filtered out %s because they are already subscribed at an equal or "
-                        + "higher rate.", option);
+
+        for (int i = 0; i < propertyIdsToUnsubscribe.size(); i++) {
+            Slogf.d(TAG, "Property: %s is no longer subscribed",
+                    propertyIdsToUnsubscribe.get(i));
+            try {
+                mPropertyHalService.unsubscribeProperty(propertyIdsToUnsubscribe.get(i));
+            } catch (ServiceSpecificException e) {
+                Slogf.e(TAG, "failed to call PropertyHalService.unsubscribeProperty", e);
+                throw e;
             }
-            return null;
         }
-        filteredOption.propertyId = propertyId;
-        filteredOption.areaIds = CarServiceUtils.toIntArray(filteredAreaIds);
-        filteredOption.updateRateHz = option.updateRateHz;
-        return filteredOption;
     }
 
     private void getAndDispatchPropertyInitValue(List<CarSubscribeOption> subscribeOptions,
@@ -451,9 +482,17 @@ public class CarPropertyService extends ICarProperty.Stub
 
     @Override
     public void unregisterListener(int propertyId,
-            ICarPropertyEventListener iCarPropertyEventListener) {
+            ICarPropertyEventListener iCarPropertyEventListener)
+            throws IllegalArgumentException, ServiceSpecificException {
         requireNonNull(iCarPropertyEventListener);
-        validateRegisterParameterAndGetConfig(propertyId);
+
+        // We do not have to call validateRegisterParameterAndGetConfig since if the property was
+        // previously subscribed, then the client already had the read permssion. If not, then we
+        // would do nothing.
+        // We also need to consider the case where the client has write-only permission and uses
+        // setProperty before, we must remove the listener associated with property set error.
+        CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
+        assertConfigIsNotNull(propertyId, carPropertyConfig);
 
         if (DBG) {
             Slogf.d(TAG,
@@ -479,92 +518,69 @@ public class CarPropertyService extends ICarProperty.Stub
         }
     }
 
-
+    /**
+     * Gets the max update rate for each areaId for the given clients.
+     */
     @GuardedBy("mLock")
-    private void unregisterListenerBinderLocked(int propId, IBinder listenerBinder) {
-        CarPropertyServiceClient client = mClientMap.get(listenerBinder);
-        List<CarPropertyServiceClient> propertyClients = mPropIdClientMap.get(propId);
-        if (mPropertyIdToCarPropertyConfig.get(propId) == null) {
-            // Do not attempt to unregister an invalid propId
-            Slogf.e(TAG, "unregisterListener: propId is not in config list:0x%s",
-                    toHexString(propId));
-            return;
-        }
-        if ((client == null) || (propertyClients == null)) {
-            Slogf.e(TAG, "unregisterListenerBinderLocked: Listener was not previously "
-                    + "registered.");
-            return;
-        }
-        if (propertyClients.remove(client)) {
-            boolean allPropertiesRemoved = client.removeProperty(propId);
-            if (allPropertiesRemoved) {
-                mClientMap.remove(listenerBinder);
-            }
-            clearSetOperationRecorderLocked(propId, client);
-
-        } else {
-            Slogf.e(TAG, "unregisterListenerBinderLocked: Listener was not registered for "
-                    + "propId=0x" + toHexString(propId));
-            return;
-        }
-
-        if (propertyClients.isEmpty()) {
-            // Last listener for this property unsubscribed.  Clean up
-            mPropIdClientMap.remove(propId);
-            mSetOperationClientMap.remove(propId);
-            mPropertyHalService.unsubscribeProperty(propId);
-            return;
-        }
-        ArrayMap<Float, List<Integer>> updateRateHzToAreaIds = new ArrayMap<>();
-        // Other listeners are still subscribed.  Calculate the new rate
-        for (int i = 0; i < propertyClients.size(); i++) {
-            CarPropertyServiceClient c = propertyClients.get(i);
-            int[] areaIds = c.getAreaIds(propId);
-            for (int areaId : areaIds) {
-                float rate = c.getUpdateRateHz(propId, areaId);
-                if (Float.compare(rate,
-                        mPropertyHalService.getSubscribedUpdateRateHz(propId, areaId)) != 0) {
-                    if (!updateRateHzToAreaIds.containsKey(rate)) {
-                        updateRateHzToAreaIds.put(rate, new ArrayList<>());
-                    }
-                    updateRateHzToAreaIds.get(rate).add(areaId);
+    SparseArray<Float> getMaxUpdateRateHzByAreaIdLocked(
+            int propertyId, ArraySet<CarPropertyServiceClient> clients) {
+        SparseArray<Float> maxUpdateRateHzByAreaId = new SparseArray<>();
+        for (int i = 0; i < clients.size(); i++) {
+            CarPropertyServiceClient client = clients.valueAt(i);
+            for (int areaId : client.getAreaIds(propertyId)) {
+                float currentUpdateRateHz = client.getUpdateRateHz(propertyId, areaId);
+                if (!maxUpdateRateHzByAreaId.contains(areaId)
+                        || maxUpdateRateHzByAreaId.get(areaId) < currentUpdateRateHz) {
+                    maxUpdateRateHzByAreaId.put(areaId, currentUpdateRateHz);
                 }
             }
         }
-        // Only reset the sample rate if needed
-        if (updateRateHzToAreaIds.isEmpty()) {
-            return;
-        }
-        if (DBG) {
-            Slogf.d(TAG, "updating subscription in CarPropertyService for propertyId %d", propId);
-            for (int i = 0; i < updateRateHzToAreaIds.size(); i++) {
-                Slogf.d(TAG, "updateRate %f, areaIds: %s", updateRateHzToAreaIds.keyAt(i),
-                        updateRateHzToAreaIds.valueAt(i));
-            }
-        }
-        List<CarSubscribeOption> propertyHalSubscribeOptions =
-                createPropertyHalSubscribeOptions(propId, updateRateHzToAreaIds);
-        mPropertyHalService.subscribeProperty(propertyHalSubscribeOptions);
+        return maxUpdateRateHzByAreaId;
     }
 
-    private List<CarSubscribeOption> createPropertyHalSubscribeOptions(int propertyId,
-            ArrayMap<Float, List<Integer>> updateRateHzToAreaIds) {
-        List<CarSubscribeOption> propertyHalSubscribeOptions = new ArrayList<>();
-        for (int i = 0; i < updateRateHzToAreaIds.size(); i++) {
-            CarSubscribeOption option = new CarSubscribeOption();
-            option.propertyId = propertyId;
-            option.areaIds = CarServiceUtils.toIntArray(updateRateHzToAreaIds.valueAt(i));
-            option.updateRateHz = updateRateHzToAreaIds.keyAt(i);
-            propertyHalSubscribeOptions.add(option);
-        }
-        return propertyHalSubscribeOptions;
-    }
-
-    private void unregisterListenerBinderForProps(List<Integer> propIds, IBinder listenerBinder) {
+    private void unregisterListenerBinderForProps(List<Integer> propertyIds, IBinder listenerBinder)
+            throws ServiceSpecificException {
         synchronized (mLock) {
-            for (int i = 0; i < propIds.size(); i++) {
-                int propId = propIds.get(i);
-                unregisterListenerBinderLocked(propId, listenerBinder);
+            CarPropertyServiceClient client = mClientMap.get(listenerBinder);
+            if (client == null) {
+                Slogf.e(TAG, "unregisterListener: Listener was not previously "
+                        + "registered for any property");
+                return;
+            }
+
+            ArraySet<Integer> validPropertyIds = new ArraySet<>();
+            for (int i = 0; i < propertyIds.size(); i++) {
+                int propertyId = propertyIds.get(i);
+                if (mPropertyIdToCarPropertyConfig.get(propertyId) == null) {
+                    // Do not attempt to unregister an invalid propertyId
+                    Slogf.e(TAG, "unregisterListener: propertyId is not in config list: %s",
+                            VehiclePropertyIds.toString(propertyId));
+                    continue;
+                }
+                validPropertyIds.add(propertyId);
+            }
+
+            if (validPropertyIds.isEmpty()) {
+                Slogf.e(TAG, "All properties are invalid: " + propertyIdsToString(propertyIds));
+                return;
+            }
+
+            // Clear the onPropertySetError callback associated with this property.
+            clearSetOperationRecorderLocked(validPropertyIds, client);
+
+            mSubscriptionManager.stageUnregister(client, validPropertyIds);
+
+            try {
+                applyStagedChangesLocked();
+            } catch (Exception e) {
+                mSubscriptionManager.dropCommit();
+                throw e;
+            }
+
+            mSubscriptionManager.commit();
+            boolean allPropertiesRemoved = client.removeProperties(validPropertyIds);
+            if (allPropertiesRemoved) {
+                mClientMap.remove(listenerBinder);
             }
         }
     }
@@ -748,35 +764,43 @@ public class CarPropertyService extends ICarProperty.Stub
 
     // Updates recorder for set operation.
     @GuardedBy("mLock")
-    private void updateSetOperationRecorderLocked(int propId, int areaId,
+    private void updateSetOperationRecorderLocked(int propertyId, int areaId,
             CarPropertyServiceClient client) {
-        if (mSetOperationClientMap.get(propId) != null) {
-            mSetOperationClientMap.get(propId).put(areaId, client);
+        if (mSetOpClientByAreaIdByPropId.get(propertyId) != null) {
+            mSetOpClientByAreaIdByPropId.get(propertyId).put(areaId, client);
         } else {
             SparseArray<CarPropertyServiceClient> areaIdToClient = new SparseArray<>();
             areaIdToClient.put(areaId, client);
-            mSetOperationClientMap.put(propId, areaIdToClient);
+            mSetOpClientByAreaIdByPropId.put(propertyId, areaIdToClient);
         }
     }
 
     // Clears map when client unregister for property.
     @GuardedBy("mLock")
-    private void clearSetOperationRecorderLocked(int propId, CarPropertyServiceClient client) {
-        SparseArray<CarPropertyServiceClient> areaIdToClient = mSetOperationClientMap.get(propId);
-        if (areaIdToClient != null) {
-            List<Integer> indexNeedToRemove = new ArrayList<>();
-            for (int index = 0; index < areaIdToClient.size(); index++) {
-                if (client.equals(areaIdToClient.valueAt(index))) {
-                    indexNeedToRemove.add(index);
+    private void clearSetOperationRecorderLocked(ArraySet<Integer> propertyIds,
+            CarPropertyServiceClient client) {
+        for (int i = 0; i < propertyIds.size(); i++) {
+            int propertyId = propertyIds.valueAt(i);
+            SparseArray<CarPropertyServiceClient> areaIdToClient = mSetOpClientByAreaIdByPropId.get(
+                    propertyId);
+            if (areaIdToClient == null) {
+                continue;
+            }
+            List<Integer> areaIdsToRemove = new ArrayList<>();
+            for (int j = 0; j < areaIdToClient.size(); j++) {
+                if (client.equals(areaIdToClient.valueAt(j))) {
+                    areaIdsToRemove.add(areaIdToClient.keyAt(j));
                 }
             }
-
-            for (int index : indexNeedToRemove) {
+            for (int j = 0; j < areaIdsToRemove.size(); j++) {
                 if (DBG) {
-                    Slogf.d("ErrorEvent", " Clear propId:0x" + toHexString(propId)
-                            + " areaId: 0x" + toHexString(areaIdToClient.keyAt(index)));
+                    Slogf.d(TAG, "clear set operation client for property: %s, area ID: %d",
+                            VehiclePropertyIds.toString(propertyId), areaIdsToRemove.get(j));
                 }
-                areaIdToClient.removeAt(index);
+                areaIdToClient.remove(areaIdsToRemove.get(j));
+            }
+            if (areaIdToClient.size() == 0) {
+                mSetOpClientByAreaIdByPropId.remove(propertyId);
             }
         }
     }
@@ -789,22 +813,22 @@ public class CarPropertyService extends ICarProperty.Stub
             for (int i = 0; i < events.size(); i++) {
                 CarPropertyEvent event = events.get(i);
                 int propId = event.getCarPropertyValue().getPropertyId();
-                List<CarPropertyServiceClient> clients = mPropIdClientMap.get(propId);
+                int areaId = event.getCarPropertyValue().getAreaId();
+                Set<CarPropertyServiceClient> clients = mSubscriptionManager.getClients(
+                        propId, areaId);
                 if (clients == null) {
-                    Slogf.e(TAG, "onPropertyChange: no listener registered for propId=0x%s",
-                            toHexString(propId));
+                    Slogf.e(TAG,
+                            "onPropertyChange: no listener registered for propId=%s, areaId=%d",
+                            VehiclePropertyIds.toString(propId), areaId);
                     continue;
                 }
 
-                for (int j = 0; j < clients.size(); j++) {
-                    CarPropertyServiceClient c = clients.get(j);
-                    List<CarPropertyEvent> p = eventsToDispatch.get(c);
-                    if (p == null) {
-                        // Initialize the linked list for the listener
-                        p = new ArrayList<CarPropertyEvent>();
-                        eventsToDispatch.put(c, p);
+                for (CarPropertyServiceClient client : clients) {
+                    List<CarPropertyEvent> eventsForClient = eventsToDispatch.get(client);
+                    if (eventsForClient == null) {
+                        eventsToDispatch.put(client, new ArrayList<CarPropertyEvent>());
                     }
-                    p.add(event);
+                    eventsToDispatch.get(client).add(event);
                 }
             }
         }
@@ -831,9 +855,9 @@ public class CarPropertyService extends ICarProperty.Stub
     public void onPropertySetError(int property, int areaId, int errorCode) {
         CarPropertyServiceClient lastOperatedClient = null;
         synchronized (mLock) {
-            if (mSetOperationClientMap.get(property) != null
-                    && mSetOperationClientMap.get(property).get(areaId) != null) {
-                lastOperatedClient = mSetOperationClientMap.get(property).get(areaId);
+            if (mSetOpClientByAreaIdByPropId.get(property) != null
+                    && mSetOpClientByAreaIdByPropId.get(property).get(areaId) != null) {
+                lastOperatedClient = mSetOpClientByAreaIdByPropId.get(property).get(areaId);
             } else {
                 Slogf.e(TAG, "Can not find the client changed propertyId: 0x"
                         + toHexString(property) + " in areaId: 0x" + toHexString(areaId));

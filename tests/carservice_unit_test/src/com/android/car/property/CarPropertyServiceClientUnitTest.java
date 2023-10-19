@@ -33,6 +33,7 @@ import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.ArraySet;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +45,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Set;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CarPropertyServiceClientUnitTest {
@@ -154,21 +156,21 @@ public class CarPropertyServiceClientUnitTest {
     }
 
     @Test
-    public void removeProperty_doesNothingIfNoPropertyAdded() {
-        assertThat(mCarPropertyServiceClient.removeProperty(FIRST_PROPERTY_ID))
-                .isTrue();
+    public void removeProperties_doesNothingIfNoPropertyAdded() {
+        assertThat(mCarPropertyServiceClient.removeProperties(
+                new ArraySet<>(Set.of(FIRST_PROPERTY_ID)))).isTrue();
         verify(mListenerBinder).unlinkToDeath(any(), anyInt());
     }
 
     @Test
-    public void removeProperty_onePropertyRemoved() {
+    public void removeProperties_onePropertyRemoved() {
         mCarPropertyServiceClient.addProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
                 FIRST_UPDATE_RATE_HZ);
         mCarPropertyServiceClient.addProperty(SECOND_PROPERTY_ID, REGISTERED_AREA_IDS,
                 FIRST_UPDATE_RATE_HZ);
 
-        assertThat(mCarPropertyServiceClient.removeProperty(FIRST_PROPERTY_ID))
-                .isFalse();
+        assertThat(mCarPropertyServiceClient.removeProperties(
+                new ArraySet<>(Set.of(FIRST_PROPERTY_ID)))).isFalse();
     }
 
     @Test

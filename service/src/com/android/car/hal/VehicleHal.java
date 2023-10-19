@@ -131,7 +131,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     @GuardedBy("mLock")
     private final List<HalServiceBase> mAllServices;
     @GuardedBy("mLock")
-    private final PairSparseArray<Float> mUpdateRateByPropIdAreaId = new PairSparseArray<>();
+    private PairSparseArray<Float> mUpdateRateByPropIdAreaId = new PairSparseArray<>();
     @GuardedBy("mLock")
     private final SparseArray<HalPropConfig> mAllProperties = new SparseArray<>();
 
@@ -545,11 +545,25 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * Subscribes given properties with sampling rate defaults to 0 and no special flags provided.
      *
      * @throws IllegalArgumentException thrown if property is not supported by VHAL
+     * @throws ServiceSpecificException if VHAL returns error or lost connection with VHAL.
      * @see #subscribeProperty(HalServiceBase, int, float)
      */
     public void subscribeProperty(HalServiceBase service, int property)
-            throws IllegalArgumentException {
+            throws IllegalArgumentException, ServiceSpecificException {
         subscribeProperty(service, property, /* samplingRateHz= */ 0f);
+    }
+
+    /**
+     * Similar to {@link #subscribeProperty(HalServiceBase, int)} except that all exceptions
+     * are caught and are logged.
+     */
+    public void subscribePropertySafe(HalServiceBase service, int property) {
+        try {
+            subscribeProperty(service, property);
+        } catch (IllegalArgumentException | ServiceSpecificException e) {
+            Slogf.w(CarLog.TAG_HAL, "Failed to subscribe for property: "
+                    + VehiclePropertyIds.toString(property), e);
+        }
     }
 
     /**
@@ -559,11 +573,25 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * @param property property id (VehicleProperty)
      * @param samplingRateHz sampling rate in Hz for continuous properties
      * @throws IllegalArgumentException thrown if property is not supported by VHAL
+     * @throws ServiceSpecificException if VHAL returns error or lost connection with VHAL.
      */
     public void subscribeProperty(HalServiceBase service, int property, float samplingRateHz)
-            throws IllegalArgumentException {
+            throws IllegalArgumentException, ServiceSpecificException {
         HalSubscribeOptions options = new HalSubscribeOptions(property, new int[0], samplingRateHz);
         subscribeProperty(service, List.of(options));
+    }
+
+    /**
+     * Similar to {@link #subscribeProperty(HalServiceBase, int, float)} except that all exceptions
+     * are caught and converted to logs.
+     */
+    public void subscribePropertySafe(HalServiceBase service, int property, float sampleRateHz) {
+        try {
+            subscribeProperty(service, property, sampleRateHz);
+        } catch (IllegalArgumentException | ServiceSpecificException e) {
+            Slogf.w(CarLog.TAG_HAL, e, "Failed to subscribe for property: %s, sample rate: %f hz",
+                    VehiclePropertyIds.toString(property), sampleRateHz);
+        }
     }
 
     /**
@@ -572,78 +600,95 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * @param service HalService that owns this property
      * @param halSubscribeOptions Information needed to subscribe to VHAL
      * @throws IllegalArgumentException thrown if property is not supported by VHAL
+     * @throws ServiceSpecificException if VHAL returns error or lost connection with VHAL.
      */
     public void subscribeProperty(HalServiceBase service, List<HalSubscribeOptions>
-            halSubscribeOptions) {
-        SubscribeOptions[] subscribeOptions = createSubscribeOptions(service,
-                halSubscribeOptions);
-        if (subscribeOptions.length == 0) {
-            if (DBG) {
-                Slogf.d(CarLog.TAG_HAL, "Failed to subscribe, SubscribeOptions is length 0");
+            halSubscribeOptions) throws IllegalArgumentException, ServiceSpecificException {
+        synchronized (mLock) {
+            PairSparseArray<Float> previousState = cloneState(mUpdateRateByPropIdAreaId);
+            SubscribeOptions[] subscribeOptions = createVhalSubscribeOptionsLocked(
+                    service, halSubscribeOptions);
+            if (subscribeOptions.length == 0) {
+                if (DBG) {
+                    Slogf.d(CarLog.TAG_HAL,
+                            "Ignore the subscribeProperty request, SubscribeOptions is length 0");
+                }
+                return;
             }
-            return;
-        }
-        try {
-            mSubscriptionClient.subscribe(subscribeOptions);
-        } catch (RemoteException | ServiceSpecificException e) {
-            Slogf.w(CarLog.TAG_HAL, "Failed to subscribe", e);
+            try {
+                mSubscriptionClient.subscribe(subscribeOptions);
+            } catch (RemoteException e) {
+                mUpdateRateByPropIdAreaId = previousState;
+                Slogf.w(CarLog.TAG_HAL, "Failed to subscribe, connection to VHAL failed", e);
+                // Convert RemoteException to ServiceSpecificException so that it could be passed
+                // back to the client.
+                throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
+                        "Failed to subscribe, connection to VHAL failed, error: " + e);
+            } catch (ServiceSpecificException e) {
+                mUpdateRateByPropIdAreaId = previousState;
+                Slogf.w(CarLog.TAG_HAL, "Failed to subscribe, received error from VHAL", e);
+                throw e;
+            }
         }
     }
 
-    private SubscribeOptions[] createSubscribeOptions(HalServiceBase service,
-            List<HalSubscribeOptions> halSubscribeOptions) {
+    /**
+     * Converts {@link HalSubscribeOptions} to {@link SubscribeOptions} which is the data structure
+     * used by VHAL.
+     */
+    @GuardedBy("mLock")
+    private SubscribeOptions[] createVhalSubscribeOptionsLocked(HalServiceBase service,
+            List<HalSubscribeOptions> halSubscribeOptions) throws IllegalArgumentException {
         if (DBG) {
             Slogf.d(CarLog.TAG_HAL, "creating subscribeOptions from CarSubscribeOptions of size: "
                     + halSubscribeOptions.size());
         }
         List<SubscribeOptions> subscribeOptionsList = new ArrayList<>();
-        synchronized (mLock) {
-            for (int i = 0; i < halSubscribeOptions.size(); i++) {
-                int property = halSubscribeOptions.get(i).getHalPropId();
-                int[] areaIds = halSubscribeOptions.get(i).getAreaId();
-                float samplingRateHz = halSubscribeOptions.get(i).getUpdateRateHz();
+        for (int i = 0; i < halSubscribeOptions.size(); i++) {
+            int property = halSubscribeOptions.get(i).getHalPropId();
+            int[] areaIds = halSubscribeOptions.get(i).getAreaId();
+            float samplingRateHz = halSubscribeOptions.get(i).getUpdateRateHz();
 
-                HalPropConfig config;
-                config = mAllProperties.get(property);
+            HalPropConfig config;
+            config = mAllProperties.get(property);
 
-                if (config == null) {
-                    throw new IllegalArgumentException("subscribe error: "
-                            + toCarPropertyLog(property) + " is not supported");
-                }
-
-                if (!isPropertySubscribable(config)) {
-                    Slogf.w(CarLog.TAG_HAL, "Cannot subscribe to " + toCarPropertyLog(property));
-                    continue;
-                }
-
-                if (areaIds.length == 0) {
-                    areaIds = getAllAreaIdsFromPropertyId(config);
-                }
-                SubscribeOptions opts = new SubscribeOptions();
-                opts.propId = property;
-                opts.sampleRate = samplingRateHz;
-                int[] filteredAreaIds = filterAlreadySubscribedAreasForSampleRate(property, areaIds,
-                        samplingRateHz);
-                opts.areaIds = filteredAreaIds;
-                if (opts.areaIds.length == 0) {
-                    if (DBG) {
-                        Slogf.d(CarLog.TAG_HAL, "property: " + VehiclePropertyIds.toString(property)
-                                + " is already subscribed at rate: " + samplingRateHz + " hz");
-                    }
-                    continue;
-                }
-                assertServiceOwnerLocked(service, property);
-                for (int j = 0; j < filteredAreaIds.length; j++) {
-                    if (DBG) {
-                        Slogf.d(CarLog.TAG_HAL, "Update subscription rate for propertyId:"
-                                        + " %s, areaId: %d, SampleRateHz: %f",
-                                VehiclePropertyIds.toString(opts.propId), filteredAreaIds[j],
-                                samplingRateHz);
-                    }
-                    mUpdateRateByPropIdAreaId.put(property, filteredAreaIds[j], samplingRateHz);
-                }
-                subscribeOptionsList.add(opts);
+            if (config == null) {
+                throw new IllegalArgumentException("subscribe error: "
+                        + toCarPropertyLog(property) + " is not supported");
             }
+
+            if (!isPropertySubscribable(config)) {
+                Slogf.w(CarLog.TAG_HAL, "Cannot subscribe to " + toCarPropertyLog(property));
+                continue;
+            }
+
+            if (areaIds.length == 0) {
+                areaIds = getAllAreaIdsFromPropertyId(config);
+            }
+            SubscribeOptions opts = new SubscribeOptions();
+            opts.propId = property;
+            opts.sampleRate = samplingRateHz;
+            int[] filteredAreaIds = filterAlreadySubscribedAreasForSampleRate(property, areaIds,
+                    samplingRateHz);
+            opts.areaIds = filteredAreaIds;
+            if (opts.areaIds.length == 0) {
+                if (DBG) {
+                    Slogf.d(CarLog.TAG_HAL, "property: " + VehiclePropertyIds.toString(property)
+                            + " is already subscribed at rate: " + samplingRateHz + " hz");
+                }
+                continue;
+            }
+            assertServiceOwnerLocked(service, property);
+            for (int j = 0; j < filteredAreaIds.length; j++) {
+                if (DBG) {
+                    Slogf.d(CarLog.TAG_HAL, "Update subscription rate for propertyId:"
+                                    + " %s, areaId: %d, SampleRateHz: %f",
+                            VehiclePropertyIds.toString(opts.propId), filteredAreaIds[j],
+                            samplingRateHz);
+                }
+                mUpdateRateByPropIdAreaId.put(property, filteredAreaIds[j], samplingRateHz);
+            }
+            subscribeOptionsList.add(opts);
         }
         return subscribeOptionsList.toArray(new SubscribeOptions[0]);
     }
@@ -681,50 +726,68 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     }
 
     /**
+     * Like {@link unsubscribeProperty} except that exceptions are logged.
+     */
+    public void unsubscribePropertySafe(HalServiceBase service, int property) {
+        try {
+            unsubscribeProperty(service, property);
+        } catch (ServiceSpecificException e) {
+            Slogf.w(CarLog.TAG_SERVICE, "Failed to unsubscribe: "
+                    + toCarPropertyLog(property), e);
+        }
+    }
+
+    /**
      * Unsubscribes from receiving notifications for the property and HAL services passed
      * as parameters.
      */
-    public void unsubscribeProperty(HalServiceBase service, int property) {
+    public void unsubscribeProperty(HalServiceBase service, int property)
+            throws ServiceSpecificException {
         if (DBG) {
             Slogf.d(CarLog.TAG_HAL, "unsubscribeProperty, service:" + service
                     + ", " + toCarPropertyLog(property));
         }
-        HalPropConfig config;
         synchronized (mLock) {
-            config = mAllProperties.get(property);
-        }
-
-        if (config == null) {
-            Slogf.w(CarLog.TAG_HAL, "unsubscribeProperty " + toCarPropertyLog(property)
-                    + " does not exist");
-        } else if (isPropertySubscribable(config)) {
-            synchronized (mLock) {
-                assertServiceOwnerLocked(service, property);
-                int[] areaIds = getAllAreaIdsFromPropertyId(config);
-                boolean isSubscribed = false;
-                for (int i = 0; i < areaIds.length; i++) {
-                    int index = mUpdateRateByPropIdAreaId.indexOfKeyPair(property, areaIds[i]);
-                    if (index >= 0) {
-                        mUpdateRateByPropIdAreaId.removeAt(index);
-                        isSubscribed = true;
-                    }
+            HalPropConfig config = mAllProperties.get(property);
+            if (config == null) {
+                Slogf.w(CarLog.TAG_HAL, "unsubscribeProperty " + toCarPropertyLog(property)
+                        + " does not exist");
+                return;
+            }
+            if (!isPropertySubscribable(config)) {
+                Slogf.w(CarLog.TAG_HAL, "Cannot unsubscribe " + toCarPropertyLog(property));
+                return;
+            }
+            assertServiceOwnerLocked(service, property);
+            int[] areaIds = getAllAreaIdsFromPropertyId(config);
+            boolean isSubscribed = false;
+            PairSparseArray<Float> previousState = cloneState(mUpdateRateByPropIdAreaId);
+            for (int i = 0; i < areaIds.length; i++) {
+                int index = mUpdateRateByPropIdAreaId.indexOfKeyPair(property, areaIds[i]);
+                if (index >= 0) {
+                    mUpdateRateByPropIdAreaId.removeAt(index);
+                    isSubscribed = true;
                 }
-                if (!isSubscribed) {
-                    if (DBG) {
-                        Slogf.d(CarLog.TAG_HAL, "Property " + toCarPropertyLog(property)
-                                + " was not subscribed, do nothing");
-                    }
-                    return;
+            }
+            if (!isSubscribed) {
+                if (DBG) {
+                    Slogf.d(CarLog.TAG_HAL, "Property " + toCarPropertyLog(property)
+                            + " was not subscribed, do nothing");
                 }
+                return;
             }
             try {
                 mSubscriptionClient.unsubscribe(property);
-            } catch (RemoteException | ServiceSpecificException e) {
-                Slogf.w(CarLog.TAG_SERVICE, "Failed to unsubscribe: "
-                        + toCarPropertyLog(property), e);
+            } catch (RemoteException e) {
+                mUpdateRateByPropIdAreaId = previousState;
+                Slogf.w(CarLog.TAG_HAL, "Failed to unsubscribe, connection to VHAL failed", e);
+                throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
+                        "Failed to unsubscribe, connection to VHAL failed, error: " + e);
+            } catch (ServiceSpecificException e) {
+                mUpdateRateByPropIdAreaId = previousState;
+                Slogf.w(CarLog.TAG_HAL, "Failed to unsubscribe, received error from VHAL", e);
+                throw e;
             }
-        } else {
-            Slogf.w(CarLog.TAG_HAL, "Cannot unsubscribe " + toCarPropertyLog(property));
         }
     }
 
@@ -937,22 +1000,23 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     }
 
     /**
-     * Sets a property passed from the shell command.
+     * Sets a passed propertyId+areaId from the shell command.
      *
-     * @param property Property ID in hex or decimal.
-     * @param areaId Area ID
-     * @param data Comma-separated value.
+     * @param propertyId Property ID
+     * @param areaId     Area ID
+     * @param data       Comma-separated value.
      */
-    public void setPropertyFromCommand(int property, int areaId, String data,
+    public void setPropertyFromCommand(int propertyId, int areaId, String data,
             IndentingPrintWriter writer) throws IllegalArgumentException, ServiceSpecificException {
-        long timestamp = SystemClock.elapsedRealtimeNanos();
-        HalPropValue v = createPropValueForInjecting(mPropValueBuilder, property, areaId,
-                List.of(data.split(DATA_DELIMITER)), timestamp);
-        if (v == null) {
-            throw new IllegalArgumentException("Unsupported property type: property=" + property
-                    + ", areaId=" + areaId);
+        long timestampNanos = SystemClock.elapsedRealtimeNanos();
+        HalPropValue halPropValue = createPropValueForInjecting(mPropValueBuilder, propertyId,
+                areaId, List.of(data.split(DATA_DELIMITER)), timestampNanos);
+        if (halPropValue == null) {
+            throw new IllegalArgumentException(
+                    "Unsupported property type: propertyId=" + toDebugString(propertyId)
+                            + ", areaId=" + toDebugString(propertyId, areaId));
         }
-        set(v);
+        set(halPropValue);
     }
 
     private final ArraySet<HalServiceBase> mServicesToDispatch = new ArraySet<>();
@@ -1412,6 +1476,15 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                     operation, toCarPropertyLog(requestValue.getPropId()), retrier);
         }
         return result;
+    }
+
+    private PairSparseArray<Float> cloneState(PairSparseArray<Float> state) {
+        PairSparseArray<Float> cloned = new PairSparseArray<>();
+        for (int i = 0; i < state.size(); i++) {
+            int[] keyPair = state.keyPairAt(i);
+            cloned.put(keyPair[0], keyPair[1], state.valueAt(i));
+        }
+        return cloned;
     }
 
     private static final class Retrier {

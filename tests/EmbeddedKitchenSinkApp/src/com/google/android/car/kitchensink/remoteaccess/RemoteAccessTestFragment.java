@@ -214,7 +214,7 @@ public final class RemoteAccessTestFragment extends Fragment {
             default:
                 // Do nothing
         }
-        ScheduleInfo.Builder scheduleInfoBuilder = ScheduleInfo.builder(
+        ScheduleInfo.Builder scheduleInfoBuilder = new ScheduleInfo.Builder(
                 scheduleId, taskData.getBytes(), startTimeInEpochSeconds);
         int count = Integer.parseInt(mTaskRepeatView.getText().toString());
         scheduleInfoBuilder.setCount(count);

@@ -166,24 +166,19 @@ final class CarAudioZoneConfig {
             CarVolumeGroup group = mVolumeGroups.get(index);
 
             List<String> groupAddresses = group.getAddresses();
-            // Due to AudioPolicy Dynamic Mixing limitation,  rules can be made only on usage and
+            // Due to AudioPolicy Dynamic Mixing limitation, rules can be made only on usage and
             // not on audio attributes.
             // When using product strategies, AudioPolicy may not simply route on usage match.
-            // Ensure that a given usage can reach a single device address to enable dynamic mix.
-            // Otherwise, prevent from establishing rule if supporting Core Routing.
-            // Returns false if Core Routing is not supported
+            // Prevent using dynamic mixes if supporting Core Routing.
             for (int addressIndex = 0; addressIndex < groupAddresses.size(); addressIndex++) {
                 String address = groupAddresses.get(addressIndex);
-                boolean canUseDynamicMixRoutingForAddress = true;
                 CarAudioDeviceInfo info = group.getCarAudioDeviceInfoForAddress(address);
                 List<Integer> usagesForAddress = group.getAllSupportedUsagesForAddress(address);
 
-                if (!addresses.add(address)) {
-                    if (useCoreAudioRouting) {
-                        Slogf.w(CarLog.TAG_AUDIO, "Address %s appears in two groups, prevents"
-                                + " from using dynamic policy mixes for routing" , address);
-                        canUseDynamicMixRoutingForAddress = false;
-                    }
+                if (!addresses.add(address) && !useCoreAudioRouting) {
+                    Slogf.w(CarLog.TAG_AUDIO, "Address %s appears in two groups, prevents"
+                            + " from using dynamic policy mixes for routing" , address);
+                    return false;
                 }
                 for (int usageIndex = 0; usageIndex < usagesForAddress.size(); usageIndex++) {
                     int usage = usagesForAddress.get(usageIndex);
@@ -194,7 +189,6 @@ final class CarAudioZoneConfig {
                                 infoForAttr.getAddress(), address,
                                 AudioManagerHelper.usageToXsdString(usage));
                         if (useCoreAudioRouting) {
-                            canUseDynamicMixRoutingForAddress = false;
                             infoForAttr.resetCanBeRoutedWithDynamicPolicyMix();
                         } else {
                             return false;
@@ -203,7 +197,7 @@ final class CarAudioZoneConfig {
                         usageToDevice.put(usage, info);
                     }
                 }
-                if (!canUseDynamicMixRoutingForAddress) {
+                if (useCoreAudioRouting) {
                     info.resetCanBeRoutedWithDynamicPolicyMix();
                 }
             }
