@@ -1992,7 +1992,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
 
         @Override
-        public void onApplyPowerPolicySucceeded(int requestId) {
+        public void onApplyPowerPolicySucceeded(int requestId,
+                android.frameworks.automotive.powerpolicy.CarPowerPolicy accumulatedPolicy) {
             // TODO(b/303675851): implement this
             // Count down latch corresponding to requestId
             // Update async policy request to succeeded
