@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2023 The Android Open Source Project
   ~
@@ -13,6 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:alpha="0.50" android:color="?android:attr/colorControlNormal"/>
-</selector>
+<resources>
+    <integer name="car_app_selector_column_number">4</integer>
+    <integer name="car_app_selector_row_number">5</integer>
+</resources>

@@ -14,15 +14,14 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<shape
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <corners
-        android:radius="@dimen/app_item_highlight_corner_radius"/>
-    <solid
-        android:color="@color/app_item_on_hover_background_color"/>
-    <stroke
-        android:width="@dimen/app_item_highlight_edge_width"
-        android:color="@color/app_item_on_hover_border_color"/>
-</shape>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.android.car.portraitlauncher.appgrid.rro">
+    <application android:hasCode="false"/>
+    <overlay android:priority="21"
+             android:targetName="CarAppGrid-lib"
+             android:targetPackage="com.android.car.portraitlauncher"
+             android:resourcesMap="@xml/overlays"
+             android:requiredSystemPropertyName="car.ui.config"
+             android:requiredSystemPropertyValue="rickybobby"
+             android:isStatic="true" />
+</manifest>

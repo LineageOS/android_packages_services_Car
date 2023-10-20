@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!--
-  ~ Copyright (C) 2022 The Android Open Source Project
+  ~ Copyright (C) 2023 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,10 +16,7 @@
   -->
 <resources>
 
-    <!-- If the control bar's seekbar should be displayed -->
-    <bool name="show_seek_bar">true</bool>
-
-    <!-- If the control bar's seekbar uses the color from media source -->
-    <bool name="use_media_source_color_for_seek_bar">false</bool>
+    <color name="icon_tint">@color/car_on_background</color>
+    <color name="app_item_on_hover_border_color">@color/car_primary</color>
 
 </resources>
