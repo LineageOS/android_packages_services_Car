@@ -17,13 +17,15 @@
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-    <!--  Title for screen asking user to enter their existing lock pattern [CHAR LIMIT=30] -->
-    <string name="lock_settings_enter_pattern">Enter your pattern</string>
-
     <!--  Title for screen asking user to enter their existing lock PIN [CHAR LIMIT=30] -->
-    <string name="lock_settings_enter_pin">Enter your PIN</string>
+
+    <string name="confirm_pin_title">Confirm your PIN</string>
+
+
+    <string name="confirm_pattern_title">Confirm your pattern</string>
+
     <!--  Title for screen asking user to enter their existing password [CHAR LIMIT=30] -->
-    <string name="lock_settings_enter_password">Enter your password</string>
+    <string name="confirm_password_title">Confirm your password</string>
 
     <!-- Button label for generic cancel action [CHAR LIMIT=20] -->
     <string name="cancel">Cancel</string>
