@@ -546,6 +546,17 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testGetLastMediaSources_returnsDefaultWhenNothingIsStored() {
+        initMediaService(MEDIA_CLASS);
+        when(mMockSharedPreferences.getString(anyString(), anyString())).thenReturn("");
+
+        assertThat(mCarMediaService.getLastMediaSources(MEDIA_SOURCE_MODE_PLAYBACK, TEST_USER_ID))
+                .containsExactly(MEDIA_COMPONENT);
+        assertThat(mCarMediaService.getLastMediaSources(MEDIA_SOURCE_MODE_BROWSE, TEST_USER_ID))
+                .containsExactly(MEDIA_COMPONENT);
+    }
+
+    @Test
     public void testGetLastMediaSources_throwsSecurityExceptionWhenUserDoesNotMatch() {
         mockGetCallingUserHandle(TEST_USER_ID);
 
