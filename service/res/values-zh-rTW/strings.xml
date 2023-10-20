@@ -196,10 +196,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"讀取車輛雨刷。"</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"控制車輛雨刷"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"控制車輛雨刷。"</string>
-    <!-- no translation found for car_permission_label_query_display_compatibility (8846515818036686896) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_query_display_compatibility (5344194045180717300) -->
-    <skip />
+    <string name="car_permission_label_query_display_compatibility" msgid="8846515818036686896">"查詢顯示相容性套件"</string>
+    <string name="car_permission_desc_query_display_compatibility" msgid="5344194045180717300">"查詢顯示相容性套件。"</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"監控安裝在車內其他乘客區域的同類應用程式 (套件名稱與呼叫端相同的應用程式) 和這些區域本身的狀態，以及管理這些區域的電源供應。"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"監控安裝在車內其他乘客區域的同類應用程式 (套件名稱與呼叫端相同的應用程式) 和這些區域本身的狀態，以及管理這些區域的電源供應。"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"建立連線並與安裝在車內其他乘客區域的同類應用程式 (套件名稱與呼叫端相同的應用程式) 進行通訊"</string>

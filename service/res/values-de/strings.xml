@@ -196,10 +196,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Informationen zu den Scheibenwischern des Autos auslesen."</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"Scheibenwischer des Autos steuern"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Scheibenwischer des Autos steuern."</string>
-    <!-- no translation found for car_permission_label_query_display_compatibility (8846515818036686896) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_query_display_compatibility (5344194045180717300) -->
-    <skip />
+    <string name="car_permission_label_query_display_compatibility" msgid="8846515818036686896">"Pakete, für die Anzeigekompatibilität erforderlich ist, abfragen"</string>
+    <string name="car_permission_desc_query_display_compatibility" msgid="5344194045180717300">"Pakete, für die Anzeigekompatibilität erforderlich ist, abfragen."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"Den Status von anderen Insassenbereichen im Auto und von ähnlichen Apps – d. h. Apps, die denselben Paketnamen wie der Aufrufer haben –, die in diesen Bereichen installiert sind, überwachen und die Energieeinstellungen dieser Bereiche verwalten."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Den Status von anderen Insassenbereichen im Auto und von ähnlichen Apps – d. h. Apps, die denselben Paketnamen wie der Aufrufer haben –, die in diesen Bereichen installiert sind, überwachen und die Energieeinstellungen dieser Bereiche verwalten."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"Verbindung mit ähnlichen Apps – d. h. Apps, die denselben Paketnamen wie der Aufrufer haben –, die in anderen Insassenbereichen im Auto installiert sind, herstellen und mit diesen kommunizieren"</string>

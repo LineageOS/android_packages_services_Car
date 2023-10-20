@@ -196,10 +196,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"读取汽车雨刷的数据。"</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"控制汽车的雨刷"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"控制汽车的雨刷。"</string>
-    <!-- no translation found for car_permission_label_query_display_compatibility (8846515818036686896) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_query_display_compatibility (5344194045180717300) -->
-    <skip />
+    <string name="car_permission_label_query_display_compatibility" msgid="8846515818036686896">"查询需进行显示屏兼容性处理的软件包"</string>
+    <string name="car_permission_desc_query_display_compatibility" msgid="5344194045180717300">"查询需进行显示屏兼容性处理的软件包。"</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"监控安装在车内其他乘员区中的类似应用（与调用方拥有相同软件包名称的应用）的状态及这些区域本身的状态，以及管理这些区域的电源供应。"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"监控安装在车内其他乘员区中的类似应用（与调用方拥有相同软件包名称的应用）的状态及这些区域本身的状态，以及管理这些区域的电源供应。"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"与安装在车内其他乘员区中的类似应用（与调用方拥有相同软件包名称的应用）建立连接及进行通信"</string>
