@@ -59,6 +59,7 @@ import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
+import com.android.car.internal.util.PairSparseArray;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.annotation.Retention;
@@ -89,6 +90,7 @@ public class CarPropertyManager extends CarManagerBase {
     private final SingleMessageHandler<CarPropertyEvent> mHandler;
     private final ICarProperty mService;
     private final int mAppTargetSdk;
+    private final Executor mExecutor;
     private final AtomicInteger mRequestIdCounter = new AtomicInteger(0);
     @GuardedBy("mLock")
     private final SparseArray<AsyncPropertyRequestInfo<?, ?>> mRequestIdToAsyncRequestInfo =
@@ -1029,8 +1031,10 @@ public class CarPropertyManager extends CarManagerBase {
         Handler eventHandler = getEventHandler();
         if (eventHandler == null) {
             mHandler = null;
+            mExecutor = null;
             return;
         }
+        mExecutor = new HandlerExecutor(getEventHandler());
         mHandler = new SingleMessageHandler<>(eventHandler.getLooper(), MSG_GENERIC_EVENT) {
             @Override
             protected void handleEvent(CarPropertyEvent carPropertyEvent) {
@@ -1109,6 +1113,11 @@ public class CarPropertyManager extends CarManagerBase {
      * {@link VehiclePropertyIds#HVAC_POWER_ON} for hvac power dependent properties) to decide this
      * property's availability.
      *
+     * <p>
+     * If one {@link CarPropertyEventCallback} is already registered using
+     * {@link CarPropertyManager#subscribePropertyEvents}, caller must make sure the executor was
+     * null (using the default executor) when calling subscribePropertyEvents.
+     *
      * @param carPropertyEventCallback the CarPropertyEventCallback to be registered
      * @param propertyId               the property ID to subscribe
      * @param updateRateHz             how fast the property events are delivered in Hz
@@ -1123,53 +1132,27 @@ public class CarPropertyManager extends CarManagerBase {
                             + "updateRateHz: %f", carPropertyEventCallback,
                     VehiclePropertyIds.toString(propertyId), updateRateHz));
         }
-        requireNonNull(carPropertyEventCallback);
         CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
         if (carPropertyConfig == null) {
             Log.e(TAG, "registerCallback:  propertyId is not in carPropertyConfig list:  "
                     + VehiclePropertyIds.toString(propertyId));
             return false;
         }
-
         float sanitizedUpdateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(carPropertyConfig,
                 updateRateHz);
         int[] areaIds = carPropertyConfig.getAreaIds();
-
-        synchronized (mLock) {
-            CarPropertyEventCallbackController cpeCallbackController =
-                    mCpeCallbackToCpeCallbackController.get(carPropertyEventCallback);
-            InternalSubscribeOption option = new InternalSubscribeOption(propertyId, areaIds);
-            option.setUpdateRateHz(sanitizedUpdateRateHz);
-            try {
-                if (!updateMaxUpdateRateHzAndRegisterLocked(List.of(option),
-                        cpeCallbackController)) {
-                    return false;
-                }
-            } catch (IllegalArgumentException e) {
-                Log.w(TAG, "register: PropertyId=" + propertyId + ", exception=", e);
-                return false;
-            }
-
-            if (cpeCallbackController == null) {
-                cpeCallbackController =
-                        new CarPropertyEventCallbackController(carPropertyEventCallback,
-                                new HandlerExecutor(getEventHandler()));
-                mCpeCallbackToCpeCallbackController.put(carPropertyEventCallback,
-                        cpeCallbackController);
-            }
-            cpeCallbackController.add(propertyId, areaIds, sanitizedUpdateRateHz);
-
-            ArraySet<CarPropertyEventCallbackController> cpeCallbackControllerSet =
-                    mPropIdToCpeCallbackControllerList.get(propertyId);
-            if (cpeCallbackControllerSet == null) {
-                cpeCallbackControllerSet = new ArraySet<>();
-                mPropIdToCpeCallbackControllerList.put(propertyId, cpeCallbackControllerSet);
-            }
-            if (!cpeCallbackControllerSet.contains(cpeCallbackController)) {
-                cpeCallbackControllerSet.add(cpeCallbackController);
-            }
+        SubscriptionOption.Builder subscriptionOptionBuilder = new SubscriptionOption
+                .Builder(propertyId).setUpdateRateHz(sanitizedUpdateRateHz);
+        for (int areaId : areaIds) {
+            subscriptionOptionBuilder.addAreaId(areaId);
         }
-        return true;
+        try {
+            return subscribePropertyEvents(List.of(subscriptionOptionBuilder.build()),
+                    null, carPropertyEventCallback);
+        } catch (IllegalArgumentException e) {
+            Log.w(TAG, "register: PropertyId=" + propertyId + ", exception=", e);
+            return false;
+        }
     }
 
     /**
@@ -1184,15 +1167,14 @@ public class CarPropertyManager extends CarManagerBase {
      * <p>
      * Only one executor can be registered to a callback. The callback must be unregistered before
      * trying to register another executor for the same callback. (E.G. A callback cannot have
-     * multiple exeucotrs)
+     * multiple executors)
      *
      * <p>
-     * <b>Note:</b>Rate has no effect if the PropertyId has change mode
-     * {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *
-     * <p> If a property has the change mode
-     * {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC},
-     * {@link IllegalArgumentException} will be thrown.
+     * <b>Note:</b>Rate has no effect if the property has one of the following change modes:
+     * <ul>
+     *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}</li>
+     *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}</li>
+     * </ul>
      *
      * <p>
      * <b>Note:</b> When a client registers to receive updates for a PropertyId for the
@@ -1231,6 +1213,11 @@ public class CarPropertyManager extends CarManagerBase {
      * should subscribe to the power state PropertyId (e.g. {@link VehiclePropertyIds#HVAC_POWER_ON}
      * for hvac power dependent properties) to decide this PropertyId's availability.
      *
+     * <p>
+     * If one {@link CarPropertyEventCallback} is already registered using
+     * {@link CarPropertyManager#registerCallback}, caller must make sure the executor is
+     * null (using the default executor) for subscribePropertyEvents.
+     *
      * @param subscribeOptions The subscribe options, which includes propertyID, areaID, and
      *                         updateRateHz.
      * @param callbackExecutor The executor in which the callback is done on.
@@ -1245,17 +1232,16 @@ public class CarPropertyManager extends CarManagerBase {
             @Nullable Executor callbackExecutor,
             @NonNull CarPropertyEventCallback carPropertyEventCallback) {
         // TODO(b/292620314): Guard this API with a flag
-        // TODO(b/295234335): Add IllegalArgumentException for over-lapping areaIds and check if
-        //  executor is registered to another callback
         // TODO(b/301169322): Create an unsubscribePropertyEvents
         requireNonNull(subscribeOptions);
         requireNonNull(carPropertyEventCallback);
+        validateAreaDisjointness(subscribeOptions);
         if (DBG) {
-            Log.d(TAG, String.format("registerCallback, callback: %s SubscribeOptions: %s",
+            Log.d(TAG, String.format("subscribePropertyEvents, callback: %s SubscribeOptions: %s",
                              carPropertyEventCallback, subscribeOptions));
         }
         if (callbackExecutor == null) {
-            callbackExecutor = new HandlerExecutor(getEventHandler());
+            callbackExecutor = mExecutor;
         }
 
         List<InternalSubscribeOption> internalSubscribeOptions =
@@ -1264,6 +1250,11 @@ public class CarPropertyManager extends CarManagerBase {
         synchronized (mLock) {
             CarPropertyEventCallbackController cpeCallbackController =
                     mCpeCallbackToCpeCallbackController.get(carPropertyEventCallback);
+            if (cpeCallbackController != null
+                    && cpeCallbackController.getExecutor() != callbackExecutor) {
+                throw new IllegalArgumentException("A different executor is already associated with"
+                        + " this callback, please use the same executor.");
+            }
             if (!updateMaxUpdateRateHzAndRegisterLocked(internalSubscribeOptions,
                     cpeCallbackController)) {
                 return false;
@@ -1312,6 +1303,28 @@ public class CarPropertyManager extends CarManagerBase {
                     subscribeOption));
         }
         return internalSubscribeOptions;
+    }
+
+    /**
+     * Checks if any subscribeOptions have overlapping [propertyId, areaId] pairs.
+     *
+     * @param subscribeOptions The list of SubscriptionOption to check.
+     */
+    private void validateAreaDisjointness(List<SubscriptionOption> subscribeOptions) {
+        PairSparseArray<Object> propertyToAreaId = new PairSparseArray<>();
+        for (int i = 0; i < subscribeOptions.size(); i++) {
+            SubscriptionOption option = subscribeOptions.get(i);
+            int propertyId = option.getPropertyId();
+            int[] areaIds = option.getAreaIds();
+            for (int areaId : areaIds) {
+                if (propertyToAreaId.contains(propertyId, areaId)) {
+                    throw new IllegalArgumentException("Subscribe options contain overlapping "
+                            + "propertyId: " + VehiclePropertyIds.toString(propertyId) + " areaId: "
+                            + areaId);
+                }
+                propertyToAreaId.append(propertyId, areaId, null);
+            }
+        }
     }
 
     private static class CarPropertyEventListenerToService extends ICarPropertyEventListener.Stub {

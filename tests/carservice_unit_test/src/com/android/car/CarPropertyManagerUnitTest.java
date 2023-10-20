@@ -31,6 +31,7 @@ import static com.android.car.hal.PropertyHalServiceTest.createCarSubscriptionOp
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -96,6 +97,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * <p>This class contains unit tests for the {@link CarPropertyManager}.
@@ -148,6 +150,11 @@ public final class CarPropertyManagerUnitTest {
     private CarPropertyManager.GetPropertyCallback mGetPropertyCallback;
     @Mock
     private CarPropertyManager.SetPropertyCallback mSetPropertyCallback;
+    @Mock
+    private Executor mMockExecutor1;
+    @Mock
+    private Executor mMockExecutor2;
+
 
     @Captor
     private ArgumentCaptor<Integer> mPropertyIdCaptor;
@@ -1795,20 +1802,17 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
-    public void testRegisterCallback_registerMultipleEventsSameProperty() throws Exception {
-        assertThat(mCarPropertyManager.subscribePropertyEvents(List.of(
-                        new SubscriptionOption.Builder(VENDOR_CONTINUOUS_PROPERTY).addAreaId(0)
-                                .setUpdateRateFast().build(),
-                        new SubscriptionOption.Builder(VENDOR_CONTINUOUS_PROPERTY).addAreaId(0)
-                                .build()),
-                /* callbackExecutor= */null, mCarPropertyEventCallback)).isTrue();
+    public void testRegisterCallback_registerMultipleEventsSameProperty_throws() throws Exception {
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.subscribePropertyEvents(List.of(
+                                new SubscriptionOption.Builder(VENDOR_CONTINUOUS_PROPERTY)
+                                        .addAreaId(0).setUpdateRateFast().build(),
+                                new SubscriptionOption.Builder(VENDOR_CONTINUOUS_PROPERTY)
+                                        .addAreaId(0).build()),
+                        /* callbackExecutor= */null, mCarPropertyEventCallback));
 
-        verify(mICarProperty).registerListenerWithSubscribeOptions(
-                eq(List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
-                        CarPropertyManager.SENSOR_RATE_FAST), createCarSubscriptionOption(
-                        VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
-                        CarPropertyManager.SENSOR_RATE_FAST))),
-                any(ICarPropertyEventListener.class));
+        assertWithMessage("Overlapping areaIds").that(thrown).hasMessageThat()
+                .contains("Subscribe options contain overlapping propertyId");
     }
 
     @Test
@@ -1843,10 +1847,54 @@ public final class CarPropertyManagerUnitTest {
         mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback);
 
         verify(mICarProperty).registerListenerWithSubscribeOptions(eq(List.of(
-                createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
-                        CarPropertyManager.SENSOR_RATE_FAST))),
+                        createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
+                                CarPropertyManager.SENSOR_RATE_FAST))),
                 any(ICarPropertyEventListener.class));
         verify(mICarProperty).unregisterListener(eq(VENDOR_ON_CHANGE_PROPERTY),
+                any(ICarPropertyEventListener.class));
+    }
+
+    @Test
+    public void testRegisterCallback_registersAgainWithDifferentExecutor_throws() throws Exception {
+        mCarPropertyManager.subscribePropertyEvents(List.of(
+                        new SubscriptionOption.Builder(VENDOR_CONTINUOUS_PROPERTY).addAreaId(0)
+                                .setUpdateRateFast().build(),
+                        new SubscriptionOption.Builder(VENDOR_ON_CHANGE_PROPERTY).addAreaId(0)
+                                .build()),
+                mMockExecutor1, mCarPropertyEventCallback);
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
+                mCarPropertyManager.subscribePropertyEvents(List.of(
+                        new SubscriptionOption.Builder(VENDOR_CONTINUOUS_PROPERTY).addAreaId(0)
+                                .setUpdateRateFast().build(),
+                        new SubscriptionOption.Builder(VENDOR_ON_CHANGE_PROPERTY).addAreaId(0)
+                                .build()),
+                mMockExecutor2, mCarPropertyEventCallback));
+        assertWithMessage("Two executor subscription").that(thrown).hasMessageThat()
+                .contains("A different executor is already associated with this callback,"
+                        + " please use the same executor");
+    }
+
+    @Test
+    public void testRegisterCallback_registersAgainWithSameExecutor() throws Exception {
+        mCarPropertyManager.subscribePropertyEvents(List.of(
+                        new SubscriptionOption.Builder(VENDOR_CONTINUOUS_PROPERTY).addAreaId(0)
+                                .setUpdateRateFast().build(),
+                        new SubscriptionOption.Builder(VENDOR_ON_CHANGE_PROPERTY).addAreaId(0)
+                                .build()),
+                mMockExecutor1, mCarPropertyEventCallback);
+        mCarPropertyManager.subscribePropertyEvents(List.of(
+                        new SubscriptionOption.Builder(VENDOR_CONTINUOUS_PROPERTY).addAreaId(0)
+                                .setUpdateRateFast().build(),
+                        new SubscriptionOption.Builder(VENDOR_ON_CHANGE_PROPERTY).addAreaId(0)
+                                .build()),
+                mMockExecutor1, mCarPropertyEventCallback);
+
+        verify(mICarProperty).registerListenerWithSubscribeOptions(
+                eq(List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
+                        CarPropertyManager.SENSOR_RATE_FAST), createCarSubscriptionOption(
+                        VENDOR_ON_CHANGE_PROPERTY, new int[]{0},
+                        CarPropertyManager.SENSOR_RATE_ONCHANGE))),
                 any(ICarPropertyEventListener.class));
     }
 
@@ -1878,7 +1926,7 @@ public final class CarPropertyManagerUnitTest {
         CarPropertyValue<Float> goodValue = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0,
                 Duration.ofSeconds(1).toNanos(), 17.0f);
         CarPropertyValue<Float> almostFreshValue = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0,
-                Duration.ofMillis(1999).toNanos(), 18.0f);
+                Duration.ofMillis(1899).toNanos(), 18.0f);
         List<CarPropertyEvent> eventList = List.of(
                 new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, goodValue),
                 new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,

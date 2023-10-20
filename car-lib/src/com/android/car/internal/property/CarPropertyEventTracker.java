@@ -33,6 +33,9 @@ public final class CarPropertyEventTracker {
     private static final String TAG = "CarPropertyEventTracker";
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     private static final float NANOSECONDS_PER_SECOND = Duration.ofSeconds(1).toNanos();
+    // Add a margin so that if an event timestamp is within
+    // 5% of the next timestamp, it will not be dropped.
+    private static final float UPDATE_PERIOD_OFFSET = 0.95f;
 
     private final float mUpdateRateHz;
     private final long mUpdatePeriodNanos;
@@ -41,7 +44,7 @@ public final class CarPropertyEventTracker {
     public CarPropertyEventTracker(float updateRateHz) {
         mUpdateRateHz = updateRateHz;
         mUpdatePeriodNanos = mUpdateRateHz > 0
-                ? ((long) ((1.0 / mUpdateRateHz) * NANOSECONDS_PER_SECOND))
+                ? ((long) ((1.0 / mUpdateRateHz) * NANOSECONDS_PER_SECOND * UPDATE_PERIOD_OFFSET))
                 : 0L;
     }
 

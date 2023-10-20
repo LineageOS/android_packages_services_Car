@@ -158,4 +158,6 @@
     <uses-permission android:name="android.car.permission.MANAGE_REMOTE_DEVICE" />
     <!-- Permissions required for CarPackageManagerPermissionTest -->
     <uses-permission android:name="android.car.permission.QUERY_DISPLAY_COMPATIBILITY" />
+    <!-- permissions required for CarRemoteAccessManagerTest -->
+    <uses-permission android:name="android.car.permission.CONTROL_REMOTE_ACCESS" />
 </manifest>

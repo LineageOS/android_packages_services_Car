@@ -34,6 +34,7 @@ public final class CarPropertyEventTrackerUnitTest {
     private static final float FIRST_UPDATE_RATE_HZ = 1F;
     private static final long TIMESTAMP_NANOS = Duration.ofSeconds(1).toNanos();
     private static final long FRESH_TIMESTAMP_NANOS = Duration.ofSeconds(2).toNanos();
+    private static final long TOO_EARLY_TIMESTAMP_NANOS = Duration.ofMillis(1899).toNanos();
     private static final long ALMOST_FRESH_TIMESTAMP_NANOS = Duration.ofMillis(1999).toNanos();
     private static final long STALE_TIMESTAMP_NANOS = Duration.ofMillis(500).toNanos();
     private static final Integer INTEGER_VALUE_1 = 8438;
@@ -41,6 +42,9 @@ public final class CarPropertyEventTrackerUnitTest {
             new CarPropertyValue<>(FIRST_PROPERTY_ID, AREA_ID_1, TIMESTAMP_NANOS, INTEGER_VALUE_1);
     private static final CarPropertyValue<Integer> FRESH_CAR_PROPERTY_VALUE =
             new CarPropertyValue<>(FIRST_PROPERTY_ID, AREA_ID_1, FRESH_TIMESTAMP_NANOS,
+                    INTEGER_VALUE_1);
+    private static final CarPropertyValue<Integer> TOO_EARLY_CAR_PROPERTY_VALUE =
+            new CarPropertyValue<>(FIRST_PROPERTY_ID, AREA_ID_1, TOO_EARLY_TIMESTAMP_NANOS,
                     INTEGER_VALUE_1);
     private static final CarPropertyValue<Integer> ALMOST_FRESH_CAR_PROPERTY_VALUE =
             new CarPropertyValue<>(FIRST_PROPERTY_ID, AREA_ID_1, ALMOST_FRESH_TIMESTAMP_NANOS,
@@ -70,11 +74,19 @@ public final class CarPropertyEventTrackerUnitTest {
     }
 
     @Test
-    public void hasNextUpdateTimeArrived_returnsFalseForEventBeforeNextUpdateTime() {
+    public void hasNextUpdateTimeArrived_returnsFalseForEventArrivedTooEarly() {
         assertThat(mCarPropertyEventTracker.hasNextUpdateTimeArrived(GOOD_CAR_PROPERTY_VALUE))
                 .isTrue();
         assertThat(mCarPropertyEventTracker.hasNextUpdateTimeArrived(
-                ALMOST_FRESH_CAR_PROPERTY_VALUE)).isFalse();
+                TOO_EARLY_CAR_PROPERTY_VALUE)).isFalse();
+    }
+
+    @Test
+    public void hasNextUpdateTimeArrived_returnsTrueForEventWithinOffset() {
+        assertThat(mCarPropertyEventTracker.hasNextUpdateTimeArrived(GOOD_CAR_PROPERTY_VALUE))
+                .isTrue();
+        assertThat(mCarPropertyEventTracker.hasNextUpdateTimeArrived(
+                ALMOST_FRESH_CAR_PROPERTY_VALUE)).isTrue();
     }
 
     @Test
