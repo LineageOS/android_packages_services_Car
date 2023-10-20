@@ -94,6 +94,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
@@ -816,21 +817,32 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         enforceValidCallingUser(userId);
         assertPermission(mContext,
                 android.Manifest.permission.MEDIA_CONTENT_CONTROL);
-        return getLastMediaSourcesInternal(mode, userId);
+        ArrayList<ComponentName> results = getLastMediaSourcesInternal(mode, userId);
+        // Always add the default media source at the end, if it is not already in the list.
+        // This is to match the results of getLastMediaSources() with what getMediaSource() returns.
+        // For example, when a user is first initialized and no media source has been stored yet,
+        // getLastMediaSources() will return the default media source, instead of an empty list.
+        ComponentName defaultMediaSource = getDefaultMediaSource(userId);
+        if (defaultMediaSource != null && results.indexOf(defaultMediaSource) < 0) {
+            results.add(defaultMediaSource);
+        }
+        return results;
     }
 
     /**
      * Returns the last media sources for the specified {@code mode} and {@code userId}.
      *
-     * <p>Anywhere in this file, do not use the public {@link getLastMediaSources(int)} method.
-     * Use this method instead.
+     * <p>Anywhere in this file, do not use the public {@link #getLastMediaSources(int, int)}
+     * method. Use this method instead.
      */
-    private List<ComponentName> getLastMediaSourcesInternal(
+    private ArrayList<ComponentName> getLastMediaSourcesInternal(
             @CarMediaManager.MediaSourceMode int mode, @UserIdInt int userId) {
         String key = getMediaSourceKey(mode, userId);
         String serialized = mSharedPrefs.getString(key, "");
         List<String> componentNames = getComponentNameList(serialized);
-        ArrayList<ComponentName> results = new ArrayList<>(componentNames.size());
+        // Set the initial capacity to componentNames.size() + 1, to avoid re-allocation in case
+        // the default media source needs to be added by getLastMediaSources().
+        ArrayList<ComponentName> results = new ArrayList<>(componentNames.size() + 1);
         for (int i = 0; i < componentNames.size(); i++) {
             results.add(ComponentName.unflattenFromString(componentNames.get(i)));
         }
@@ -1504,6 +1516,11 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     }
 
     private List<String> getComponentNameList(String serialized) {
+        // Note that for an empty string, String#split returns an array of size 1 with an empty
+        // string as its entry. Instead, we just return an empty list.
+        if (serialized.isEmpty()) {
+            return Collections.emptyList();
+        }
         String[] componentNames = serialized.split(COMPONENT_NAME_SEPARATOR);
         return (Arrays.asList(componentNames));
     }
