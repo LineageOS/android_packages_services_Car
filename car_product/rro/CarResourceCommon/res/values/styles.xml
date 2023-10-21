@@ -15,7 +15,84 @@
   -->
 
 <resources>
-    <style name="TextAppearance.Car.Toast" parent="android:TextAppearance.DeviceDefault.Medium">
+    <style name="TextAppearance.Car" parent="android:TextAppearance">
+        <item name="android:fontFamily">roboto-regular</item>
+    </style>
+
+    <style name="TextAppearance.Car.Headline">
+        <item name="android:fontFamily">roboto-regular</item>
+        <item name="android:textFontWeight">400</item>
+    </style>
+    <style name="TextAppearance.Car.Headline.Large">
+        <item name="android:textSize">56sp</item>
+    </style>
+    <style name="TextAppearance.Car.Headline.Medium">
+        <item name="android:textSize">44sp</item>
+    </style>
+
+    <!-- Attributes here affects textAppearanceSmall and might cause CTS failures. Careful when adding item like textFontWeight. -->
+    <style name="TextAppearance.Car.Body"/>
+    <style name="TextAppearance.Car.Body.Large">
+        <item name="android:lineHeight">44dp</item>
+        <item name="android:textSize">34sp</item>
+    </style>
+    <style name="TextAppearance.Car.Body.Medium">
+        <item name="android:lineHeight">40dp</item>
+        <item name="android:textSize">32sp</item>
+    </style>
+    <style name="TextAppearance.Car.Body.Small">
+        <item name="android:lineHeight">36dp</item>
+        <item name="android:textSize">28sp</item>
+    </style>
+
+    <style name="TextAppearance.Car.Sub">
+        <item name="android:textFontWeight">400</item>
+    </style>
+    <style name="TextAppearance.Car.Sub.Large">
+        <item name="android:textSize">24sp</item>
+    </style>
+    <style name="TextAppearance.Car.Sub.Medium">
+        <item name="android:textSize">22sp</item>
+    </style>
+    <style name="TextAppearance.Car.Sub.Small">
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="TextAppearance.Car.Subhead">
+        <item name="android:fontFamily">roboto-regular</item>
+        <item name="android:textFontWeight">500</item>
+    </style>
+    <style name="TextAppearance.Car.Subhead.Large">
+        <item name="android:textSize">36sp</item>
+        <item name="android:lineHeight">44dp</item>
+    </style>
+    <style name="TextAppearance.Car.Subhead.Medium">
+        <item name="android:textSize">32sp</item>
+        <item name="android:lineHeight">40dp</item>
+    </style>
+    <style name="TextAppearance.Car.Subhead.Small">
+        <item name="android:textSize">28sp</item>
+        <item name="android:lineHeight">36dp</item>
+    </style>
+
+    <style name="TextAppearance.Car.Button">
+        <item name="android:fontFamily">roboto-regular</item>
+        <item name="android:textFontWeight">500</item>
+    </style>
+    <style name="TextAppearance.Car.Button.Large">
+        <item name="android:textSize">36sp</item>
+        <item name="android:lineHeight">44dp</item>
+    </style>
+    <style name="TextAppearance.Car.Button.Medium">
+        <item name="android:textSize">32sp</item>
+        <item name="android:lineHeight">40dp</item>
+    </style>
+    <style name="TextAppearance.Car.Button.Small">
+        <item name="android:textSize">28sp</item>
+        <item name="android:lineHeight">36dp</item>
+    </style>
+
+    <style name="TextAppearance.Car.Toast" parent="TextAppearance.Car.Body.Medium">
         <item name="android:textColorHighlight">@color/car_inverse_on_surface</item>
         <item name="android:textColorHint">@color/car_inverse_on_surface</item>
         <item name="android:textColorLink">@color/car_inverse_on_surface</item>

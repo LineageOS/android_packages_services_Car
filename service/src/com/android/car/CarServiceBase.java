@@ -16,6 +16,9 @@
 
 package com.android.car;
 
+import static android.car.feature.Flags.FLAG_CAR_DUMP_TO_PROTO;
+
+import android.annotation.FlaggedApi;
 import android.util.proto.ProtoOutputStream;
 
 /**
@@ -29,5 +32,6 @@ import android.util.proto.ProtoOutputStream;
 // for VehicleHal and CarStatsService.
 public interface CarServiceBase extends CarSystemService {
     /** Dumps its state to a proto buffer. */
+    @FlaggedApi(FLAG_CAR_DUMP_TO_PROTO)
     void dumpProto(ProtoOutputStream proto);
 }
