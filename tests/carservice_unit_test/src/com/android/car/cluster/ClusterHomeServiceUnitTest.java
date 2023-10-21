@@ -44,6 +44,7 @@ import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Insets;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -53,6 +54,7 @@ import android.os.UserHandle;
 import android.view.Display;
 
 import com.android.car.CarOccupantZoneService;
+import com.android.car.R;
 import com.android.car.am.FixedActivityService;
 import com.android.car.cluster.ClusterNavigationService.ContextOwner;
 import com.android.car.hal.ClusterHalService;
@@ -81,6 +83,8 @@ public class ClusterHomeServiceUnitTest {
 
     @Mock
     private Context mContext;
+    @Mock
+    private Resources mResources;
     @Mock
     private ClusterHalService mClusterHalService;
     @Mock
@@ -121,8 +125,15 @@ public class ClusterHomeServiceUnitTest {
 
     @Before
     public void setUp() {
-        when(mContext.getString(com.android.car.R.string.config_clusterHomeActivity))
+        when(mContext.getResources()).thenReturn(mResources);
+        when(mContext.getString(R.string.config_clusterHomeActivity))
                 .thenReturn(mClusterHomeActivity.flattenToString());
+        when(mResources.getFraction(R.fraction.config_clusterHomeVisibility_minAlpha, 1, 1))
+                .thenReturn(1.0f);
+        when(mResources.getFraction(R.fraction.config_clusterHomeVisibility_minRendered, 1, 1))
+                .thenReturn(0.9f);
+        when(mResources.getInteger(R.integer.config_clusterHomeVisibility_stabilityMs))
+                .thenReturn(100);
         when(mContext.getSystemService(DisplayManager.class)).thenReturn(mDisplayManager);
 
         when(mOccupantZoneService.getDisplayIdForDriver(DISPLAY_TYPE_INSTRUMENT_CLUSTER))

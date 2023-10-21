@@ -24,7 +24,6 @@ import static com.android.car.hal.ClusterHalService.DISPLAY_OFF;
 import static com.android.car.hal.ClusterHalService.DISPLAY_ON;
 import static com.android.car.hal.ClusterHalService.DONT_CARE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.common.CommonConstants.EMPTY_BYTE_ARRAY;
 
 import android.app.ActivityOptions;
 import android.car.Car;
@@ -53,6 +52,7 @@ import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.proto.ProtoOutputStream;
 import android.view.Display;
+import android.view.SurfaceControl;
 
 import com.android.car.CarLog;
 import com.android.car.CarOccupantZoneService;
@@ -66,7 +66,7 @@ import com.android.car.internal.util.IndentingPrintWriter;
 /**
  * Service responsible for interactions between ClusterOS and ClusterHome.
  */
-public class ClusterHomeService extends IClusterHomeService.Stub
+public final class ClusterHomeService extends IClusterHomeService.Stub
         implements CarServiceBase, ClusterNavigationService.ClusterNavigationServiceCallback,
         ClusterHalService.ClusterHalEventCallback {
     private static final String TAG = CarLog.TAG_CLUSTER;
@@ -79,6 +79,7 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     private final CarOccupantZoneService mOccupantZoneService;
     private final FixedActivityService mFixedActivityService;
     private final ComponentName mClusterHomeActivity;
+    private final ClusterHealthMonitor mClusterHealthMonitor;
 
     private boolean mServiceEnabled;
 
@@ -90,7 +91,6 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     private int mUiType = ClusterHomeManager.UI_TYPE_CLUSTER_HOME;
     private Intent mLastIntent;
     private int mLastIntentUserId = UserManagerHelper.USER_SYSTEM;
-    private volatile boolean mClusterActivityVisible;
 
     private final RemoteCallbackList<IClusterStateListener> mClientListeners =
             new RemoteCallbackList<>();
@@ -109,6 +109,7 @@ public class ClusterHomeService extends IClusterHomeService.Stub
         mFixedActivityService = fixedActivityService;
         mClusterHomeActivity = ComponentName.unflattenFromString(
                 mContext.getString(R.string.config_clusterHomeActivity));
+        mClusterHealthMonitor = new ClusterHealthMonitor(mContext, mClusterHalService);
         mLastIntent = new Intent(ACTION_MAIN).setComponent(mClusterHomeActivity);
     }
 
@@ -201,17 +202,17 @@ public class ClusterHomeService extends IClusterHomeService.Stub
         writer.println("*ClusterHomeService*");
 
         writer.increaseIndent();
-        writer.println("mServiceEnabled: " + mServiceEnabled);
-        writer.println("isLightMode: " + mClusterHalService.isLightMode());
-        writer.println("mClusterDisplayId: " + mClusterDisplayId);
-        writer.println("mClusterHomeActivity: " + mClusterHomeActivity);
-        writer.println("mOnOff: " + mOnOff);
-        writer.println("mBounds: " + mBounds);
-        writer.println("mInsets: " + mInsets);
-        writer.println("mUiType: " + mUiType);
-        writer.println("mLastIntent: " + mLastIntent);
-        writer.println("mLastIntentUserId: " + mLastIntentUserId);
-        writer.println("mClusterActivityVisible: " + mClusterActivityVisible);
+        writer.printf("mServiceEnabled: %b\n", mServiceEnabled);
+        writer.printf("isLightMode: %b\n", mClusterHalService.isLightMode());
+        writer.printf("mClusterDisplayId: %d\n", mClusterDisplayId);
+        writer.printf("mClusterHomeActivity: %s\n", mClusterHomeActivity);
+        writer.printf("mOnOff: %d\n", mOnOff);
+        writer.printf("mBounds: %s\n", mBounds);
+        writer.printf("mInsets: %s\n", mInsets);
+        writer.printf("mUiType: %d\n", mUiType);
+        writer.printf("mLastIntent: %s\n", mLastIntent);
+        writer.printf("mLastIntentUserId: %d\n", mLastIntentUserId);
+        mClusterHealthMonitor.dump(writer);
         writer.decreaseIndent();
     }
 
@@ -406,10 +407,19 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     @Override
     public void sendHeartbeat(long epochTimeNs, byte[] appMetadata) {
         enforcePermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL);
-        if (appMetadata == null) {
-            appMetadata = EMPTY_BYTE_ARRAY;
-        }
-        mClusterHalService.sendHeartbeat(epochTimeNs, mClusterActivityVisible ? 1 : 0, appMetadata);
+        mClusterHealthMonitor.sendHeartbeat(epochTimeNs, appMetadata);
+    }
+
+    @Override
+    public void startVisibilityMonitoring(SurfaceControl surface) {
+        enforcePermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL);
+        mClusterHealthMonitor.startVisibilityMonitoring(surface);
+    }
+
+    @Override
+    public void stopVisibilityMonitoring() {
+        enforcePermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL);
+        mClusterHealthMonitor.stopVisibilityMonitoring();
     }
     // IClusterHomeService ends
 
