@@ -22,6 +22,7 @@ import static android.car.VehiclePropertyIds.HVAC_POWER_ON;
 
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.AreaIdConfig;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -159,7 +160,25 @@ public class FanSpeedSeekBar extends SeekBar implements HvacView {
 
     @Override
     public void setConfigInfo(CarPropertyConfig<?> carPropertyConfig) {
-        // no-op.
+        // If there are different min/max values between area IDs,
+        // use the highest min value and lowest max value so the
+        // value can be set across all area IDs.
+        Integer highestMinValue = null;
+        Integer lowestMaxValue = null;
+        for (AreaIdConfig<?> areaIdConfig: carPropertyConfig.getAreaIdConfigs()) {
+            if (highestMinValue == null
+                    || ((Integer) areaIdConfig.getMinValue()) > highestMinValue) {
+                highestMinValue = (Integer) areaIdConfig.getMinValue();
+            }
+            if (lowestMaxValue == null
+                    || ((Integer) areaIdConfig.getMaxValue()) < lowestMaxValue) {
+                lowestMaxValue = (Integer) areaIdConfig.getMaxValue();
+            }
+        }
+        setMin(highestMinValue);
+        // The number of fan speeds cannot exceed the number of icons that represent
+        // the levels.
+        setMax(Math.min(lowestMaxValue, mIcons.size()));
     }
 
     @Override
