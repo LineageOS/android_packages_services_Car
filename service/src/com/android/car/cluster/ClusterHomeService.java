@@ -19,10 +19,10 @@ package com.android.car.cluster;
 import static android.car.builtin.app.ActivityManagerHelper.createActivityOptions;
 import static android.content.Intent.ACTION_MAIN;
 
+import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 import static com.android.car.hal.ClusterHalService.DISPLAY_OFF;
 import static com.android.car.hal.ClusterHalService.DISPLAY_ON;
 import static com.android.car.hal.ClusterHalService.DONT_CARE;
-import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.common.CommonConstants.EMPTY_BYTE_ARRAY;
 
@@ -30,7 +30,6 @@ import android.app.ActivityOptions;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.ICarOccupantZoneCallback;
-import android.car.builtin.app.TaskInfoHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.cluster.ClusterHomeManager;
@@ -59,7 +58,6 @@ import com.android.car.CarLog;
 import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
 import com.android.car.R;
-import com.android.car.am.CarActivityService;
 import com.android.car.am.FixedActivityService;
 import com.android.car.hal.ClusterHalService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -80,7 +78,6 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     private final ClusterNavigationService mClusterNavigationService;
     private final CarOccupantZoneService mOccupantZoneService;
     private final FixedActivityService mFixedActivityService;
-    private final CarActivityService mCarActivityService;
     private final ComponentName mClusterHomeActivity;
 
     private boolean mServiceEnabled;
@@ -104,14 +101,12 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     public ClusterHomeService(Context context, ClusterHalService clusterHalService,
             ClusterNavigationService navigationService,
             CarOccupantZoneService occupantZoneService,
-            FixedActivityService fixedActivityService,
-            CarActivityService carActivityService) {
+            FixedActivityService fixedActivityService) {
         mContext = context;
         mClusterHalService = clusterHalService;
         mClusterNavigationService = navigationService;
         mOccupantZoneService = occupantZoneService;
         mFixedActivityService = fixedActivityService;
-        mCarActivityService = carActivityService;
         mClusterHomeActivity = ComponentName.unflattenFromString(
                 mContext.getString(R.string.config_clusterHomeActivity));
         mLastIntent = new Intent(ACTION_MAIN).setComponent(mClusterHomeActivity);
@@ -143,9 +138,6 @@ public class ClusterHomeService extends IClusterHomeService.Stub
 
         mOccupantZoneService.registerCallback(mOccupantZoneCallback);
 
-        if (mClusterHalService.isHeartbeatSupported()) {
-            mCarActivityService.registerActivityLaunchListener(mActivityLaunchListener);
-        }
         initClusterDisplay();
     }
 
@@ -195,27 +187,12 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     @Override
     public void release() {
         Slogf.d(TAG, "releaseClusterHomeService");
-        if (mClusterHalService.isHeartbeatSupported()) {
-            mCarActivityService.unregisterActivityLaunchListener(mActivityLaunchListener);
-        }
         mOccupantZoneService.unregisterCallback(mOccupantZoneCallback);
         mClusterHalService.setCallback(null);
         mClusterNavigationService.setClusterServiceCallback(null);
         mClientListeners.kill();
         mClientNavigationListeners.kill();
     }
-
-    private final CarActivityService.ActivityLaunchListener mActivityLaunchListener =
-            (topTask) -> {
-                if (TaskInfoHelper.getDisplayId(topTask) != mClusterDisplayId) return;
-                if (!mLastIntent.getComponent().equals(topTask.topActivity)) {
-                    mClusterActivityVisible = false;
-                    return;
-                }
-
-                // TODO: b/285415531 - Install TPL and TPL decides the visibility.
-                mClusterActivityVisible = true;
-            };
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)

@@ -437,7 +437,7 @@ public class ICarImpl extends ICar.Stub {
                         t, ClusterHomeService.class,
                         () -> new ClusterHomeService(serviceContext, mHal.getClusterHal(),
                                 mClusterNavigationService, mCarOccupantZoneService,
-                                mFixedActivityService, mCarActivityService), allServices);
+                                mFixedActivityService), allServices);
             } else {
                 Slogf.w(TAG, "Can't init ClusterHomeService, since Old cluster service is running");
                 mClusterHomeService = null;
