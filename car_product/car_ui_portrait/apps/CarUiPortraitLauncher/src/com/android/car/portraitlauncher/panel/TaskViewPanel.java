@@ -16,6 +16,7 @@
 
 package com.android.car.portraitlauncher.panel;
 
+import android.annotation.NonNull;
 import android.annotation.SuppressLint;
 import android.app.TaskInfo;
 import android.content.ComponentName;
@@ -169,9 +170,6 @@ public class TaskViewPanel extends RelativeLayout {
     /** The top margin for task view panel. */
     private final int mPanelTopMargin;
 
-    /** The height of the grip bar. */
-    private int mGripBarHeight;
-
     /** The grip bar used to drag the panel. */
     private GripBarView mGripBar;
 
@@ -241,8 +239,9 @@ public class TaskViewPanel extends RelativeLayout {
         mTaskViewOverlay = findViewById(R.id.task_view_overlay);
         mBackgroundSurfaceView = findViewById(R.id.surface_view);
         mBackgroundSurfaceView.setZOrderOnTop(false);
-        setupGrabBar();
         mActiveState = mCloseState;
+
+        setupGripBar();
     }
 
     /** Whether the panel is in the open state. */
@@ -334,8 +333,9 @@ public class TaskViewPanel extends RelativeLayout {
     }
 
     /** Sets the component that {@link mTaskViewOverlay} covers */
-    public void setComponentName(ComponentName componentName) {
+    public void setComponentName(@NonNull ComponentName componentName) {
         mTaskViewOverlay.setComponentName(componentName);
+        mGripBar.update(componentName);
     }
 
     /**
@@ -349,7 +349,7 @@ public class TaskViewPanel extends RelativeLayout {
     public void getGripBarBounds(Rect bounds) {
         if (mActiveState.hasGripBar()) {
             bounds.set(mActiveState.mBounds);
-            bounds.bottom = mActiveState.mBounds.top + mGripBarHeight;
+            bounds.bottom = mActiveState.mBounds.top + mGripBar.getHeight();
         } else {
             bounds.setEmpty();
         }
@@ -397,8 +397,7 @@ public class TaskViewPanel extends RelativeLayout {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private void setupGrabBar() {
-        mGripBarHeight = (int) getResources().getDimension(R.dimen.panel_grip_bar_height);
+    private void setupGripBar() {
         mGripBar.setOnTouchListener(new OnPanelDragListener(getContext()) {
             @Override void onClick() {
                 closePanel();
@@ -434,7 +433,7 @@ public class TaskViewPanel extends RelativeLayout {
         bounds.inset(mActiveState.mInsets);
 
         if (state.hasGripBar()) {
-            bounds.top += mGripBarHeight;
+            bounds.top += mGripBar.getHeight();
         }
 
         return bounds;
@@ -506,7 +505,8 @@ public class TaskViewPanel extends RelativeLayout {
         int parentWidth = ((ViewGroup) getParent()).getWidth();
         int parentHeight = ((ViewGroup) getParent()).getHeight();
 
-        mOpenState.mBounds.set(0, mPanelTopMargin + mGripBarHeight, parentWidth, parentHeight);
+        mOpenState.mBounds.set(0, mPanelTopMargin + mGripBar.getHeight(), parentWidth,
+                parentHeight);
         mCloseState.mBounds.set(0, parentHeight, parentWidth,
                 parentHeight + mOpenState.mBounds.height());
         mFullScreenState.mBounds.set(0, 0, parentWidth, parentHeight);
