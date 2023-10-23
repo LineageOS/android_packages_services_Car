@@ -44,10 +44,10 @@ namespace automotive {
 namespace powerpolicy {
 
 struct CallbackInfo {
-    CallbackInfo(::ndk::SpAIBinder binder,
-                 const ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicyFilter&
-                         filter,
-                 int32_t pid) :
+    CallbackInfo(
+            ndk::SpAIBinder binder,
+            const aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicyFilter& filter,
+            int32_t pid) :
           binder(binder), filter(filter), pid(pid) {}
 
     ndk::SpAIBinder binder;
@@ -81,9 +81,19 @@ private:
     CarPowerPolicyServer* mService;
 };
 
-class MessageHandlerImpl : public android::MessageHandler {
+class EventHandler : public android::MessageHandler {
 public:
-    explicit MessageHandlerImpl(CarPowerPolicyServer* service);
+    explicit EventHandler(CarPowerPolicyServer* service);
+
+    void handleMessage(const android::Message& message) override;
+
+private:
+    CarPowerPolicyServer* mService;
+};
+
+class RequestIdHandler : public android::MessageHandler {
+public:
+    explicit RequestIdHandler(CarPowerPolicyServer* service);
 
     void handleMessage(const android::Message& message) override;
 
@@ -233,16 +243,18 @@ public:
             EXCLUDES(mMutex);
 
     void connectToVhalHelper() EXCLUDES(mMutex);
-    void handleBinderDeath(const AIBinder* client) EXCLUDES(mMutex);
+    void handleClientBinderDeath(const AIBinder* client) EXCLUDES(mMutex);
+    void handleCarServiceBinderDeath() EXCLUDES(mMutex);
     void handleVhalDeath() EXCLUDES(mMutex);
+    void handleApplyPowerPolicyRequest(const int32_t requestId);
 
 private:
     friend class ndk::SharedRefBase;
 
-    // OnBinderDiedContext is a type used as a cookie passed deathRecipient. The deathRecipient's
-    // onBinderDied function takes only a cookie as input and we have to store all the contexts
-    // as the cookie.
-    struct OnBinderDiedContext {
+    // OnClientBinderDiedContext is a type used as a cookie passed deathRecipient. The
+    // deathRecipient's onClientBinderDied function takes only a cookie as input and we have to
+    // store all the contexts as the cookie.
+    struct OnClientBinderDiedContext {
         CarPowerPolicyServer* server;
         const AIBinder* clientId;
     };
@@ -265,6 +277,11 @@ private:
                                       void* cookie) override;
     };
 
+    struct PolicyRequest {
+        std::string policyId;
+        bool force;
+    };
+
     void terminate() EXCLUDES(mMutex);
     bool isRegisteredLocked(const AIBinder* binder) REQUIRES(mMutex);
     void connectToVhal();
@@ -279,25 +296,30 @@ private:
                                    std::vector<CallbackInfo>& outClients) REQUIRES(mMutex);
     void applyInitialPowerPolicy() EXCLUDES(mMutex);
     void applyAndNotifyPowerPolicy(const CarPowerPolicyMeta& policyMeta,
-                                   const std::vector<CallbackInfo>& clients);
+                                   const std::vector<CallbackInfo>& clients,
+                                   const bool notifyCarService);
     android::base::Result<void> applyPowerPolicyInternal(const std::string& policyId,
-                                                         const bool force) EXCLUDES(mMutex);
+                                                         const bool force,
+                                                         const bool notifyCarService)
+            EXCLUDES(mMutex);
     android::base::Result<void> notifyVhalNewPowerPolicy(const std::string& policyId)
             EXCLUDES(mMutex);
 
-    static void onBinderDied(void* cookie);
+    static void onClientBinderDied(void* cookie);
+    static void onCarServiceBinderDied(void* cookie);
     static std::string callbackToString(const CallbackInfo& callback);
 
     // For test-only.
     void setLinkUnlinkImpl(std::unique_ptr<LinkUnlinkImpl> impl);
     std::vector<CallbackInfo> getPolicyChangeCallbacks() EXCLUDES(mMutex);
-    size_t countOnBinderDiedContexts() EXCLUDES(mMutex);
+    size_t countOnClientBinderDiedContexts() EXCLUDES(mMutex);
 
 private:
     static std::shared_ptr<CarPowerPolicyServer> sCarPowerPolicyServer;
 
     android::sp<android::Looper> mHandlerLooper;
-    android::sp<MessageHandlerImpl> mMessageHandler;
+    android::sp<EventHandler> mEventHandler;
+    android::sp<RequestIdHandler> mRequestIdHandler;
     PowerComponentHandler mComponentHandler;
     PolicyManager mPolicyManager;
     SilentModeHandler mSilentModeHandler;
@@ -315,7 +337,8 @@ private:
     // No thread-safety guard is needed because only accessed through main thread handler.
     bool mIsFirstConnectionToVhal;
     std::unordered_map<int32_t, bool> mSupportedProperties;
-    ndk::ScopedAIBinder_DeathRecipient mDeathRecipient GUARDED_BY(mMutex);
+    ndk::ScopedAIBinder_DeathRecipient mClientDeathRecipient GUARDED_BY(mMutex);
+    ndk::ScopedAIBinder_DeathRecipient mCarServiceDeathRecipient GUARDED_BY(mMutex);
     // Thread-safe because only initialized once.
     std::shared_ptr<PropertyChangeListener> mPropertyChangeListener;
     std::unique_ptr<android::frameworks::automotive::vhal::ISubscriptionClient> mSubscriptionClient;
@@ -327,10 +350,12 @@ private:
     std::unique_ptr<LinkUnlinkImpl> mLinkUnlinkImpl;
 
     std::shared_ptr<CarPowerPolicyDelegate> mCarPowerPolicyDelegate GUARDED_BY(mMutex);
+    ndk::SpAIBinder mPowerPolicyDelegateCallback GUARDED_BY(mMutex);
 
-    // A map of callback ptr to context that is required for handleBinderDeath.
-    std::unordered_map<const AIBinder*, std::unique_ptr<OnBinderDiedContext>> mOnBinderDiedContexts
-            GUARDED_BY(mMutex);
+    // A map of callback ptr to context that is required for handleClientBinderDeath.
+    std::unordered_map<const AIBinder*, std::unique_ptr<OnClientBinderDiedContext>>
+            mOnClientBinderDiedContexts GUARDED_BY(mMutex);
+    std::unordered_map<uint32_t, PolicyRequest> mPolicyRequestById GUARDED_BY(mMutex);
 
     // For unit tests.
     friend class android::frameworks::automotive::powerpolicy::internal::CarPowerPolicyServerPeer;
