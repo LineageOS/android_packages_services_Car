@@ -196,10 +196,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Машины салхины шил арчигчийг унших."</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"машины салхины шил арчигчийг хянах"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Машины салхины шил арчигчийг хянах."</string>
-    <!-- no translation found for car_permission_label_query_display_compatibility (8846515818036686896) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_query_display_compatibility (5344194045180717300) -->
-    <skip />
+    <string name="car_permission_label_query_display_compatibility" msgid="8846515818036686896">"дэлгэцийн тохирох багцыг асуух"</string>
+    <string name="car_permission_desc_query_display_compatibility" msgid="5344194045180717300">"Дэлгэцийн тохирох багцыг асууна уу."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"Машины бусад суух бүс болон эдгээр бүсэд суулгасан төстэй аппуудын (дуудлага хийгчтэй ижил багцын нэртэй аппууд) төлөвийг хянаж, эдгээр бүсийн цахилгааныг удирдана."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Машины бусад суух бүс болон эдгээр бүсэд суулгасан төстэй аппуудын (дуудлага хийгчтэй ижил багцын нэртэй аппууд) төлөвийг хянаж, эдгээр бүсийн цахилгааныг удирдана."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"машины бусад суух бүсэд суулгасан төстэй аппуудтай (дуудлага хийгчтэй ижил багцын нэртэй аппууд) холболт тогтоож, харилцана"</string>

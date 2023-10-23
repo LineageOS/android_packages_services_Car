@@ -196,10 +196,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Ler o limpador de para-brisa do carro."</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"controlar o limpador de para-brisa do carro"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Controlar o limpador de para-brisa do carro."</string>
-    <!-- no translation found for car_permission_label_query_display_compatibility (8846515818036686896) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_query_display_compatibility (5344194045180717300) -->
-    <skip />
+    <string name="car_permission_label_query_display_compatibility" msgid="8846515818036686896">"consultar pacotes de compatibilidade de exibição"</string>
+    <string name="car_permission_desc_query_display_compatibility" msgid="5344194045180717300">"Consultar pacotes de compatibilidade de exibição."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"monitorar os estados de outras zonas de ocupantes no carro e apps semelhantes (que têm o mesmo nome de pacote que o autor da chamada) instalados nessas zonas e gerenciar a energia delas."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Monitorar os estados de outras zonas de ocupantes no carro e apps semelhantes (que têm o mesmo nome de pacote que o autor da chamada) instalados nessas zonas e gerenciar a energia delas."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"estabelecer conexão e se comunicar com apps semelhantes (que têm o mesmo nome de pacote que o autor da chamada) instalados em outras zonas de ocupantes no carro"</string>
