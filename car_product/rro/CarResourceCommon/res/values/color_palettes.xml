@@ -94,6 +94,9 @@
     <!-- control highlight colors -->
     <color name="car_control_highlight">#99d9e2ff</color>
 
+    <!-- indicator colors -->
+    <color name = "car_icon_indicator_color">@color/car_red_tint</color>
+
     <!-- control focus colors -->
     <color name="car_focus_ring">@color/car_primary</color>
     <color name="car_focus_background">#99b0c5ff</color>
