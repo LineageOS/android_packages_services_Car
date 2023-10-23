@@ -35,6 +35,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.session.MediaController;
+import android.media.session.MediaSessionManager;
 import android.os.Build;
 import android.os.UserHandle;
 import android.util.ArraySet;
@@ -42,6 +44,7 @@ import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.android.systemui.R;
@@ -52,6 +55,7 @@ import com.android.systemui.shared.system.TaskStackChangeListener;
 import com.android.systemui.shared.system.TaskStackChangeListeners;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -69,6 +73,8 @@ public class TaskViewController {
 
     private final UserUnlockReceiver mUserUnlockReceiver = new UserUnlockReceiver();
     private final Context mContext;
+    private final MediaSessionManager mMediaSessionManager;
+
     private Intent mBaseIntentForTopTask;
 
     private RemoteCarDefaultRootTaskView mDefaultRootTaskView = null;
@@ -87,10 +93,8 @@ public class TaskViewController {
 
         @Override
         public void onTaskMovedToFront(ActivityManager.RunningTaskInfo taskInfo) {
-            if (DEBUG) {
-                Log.d(TAG, "onTaskMovedToFront: " + taskInfo
-                        + " token: " + taskInfo.token + " displayId: " + taskInfo.displayId);
-            }
+            logIfDebuggable("onTaskMovedToFront: " + taskInfo
+                    + " token: " + taskInfo.token + " displayId: " + taskInfo.displayId);
 
             if (taskInfo.displayId == DEFAULT_DISPLAY_ID) {
                 mBaseIntentForTopTask = taskInfo.baseIntent;
@@ -102,6 +106,8 @@ public class TaskViewController {
 
     public TaskViewController(Context context) {
         mContext = context;
+        mMediaSessionManager = mContext.getSystemService(MediaSessionManager.class);
+
     }
 
     /**
@@ -160,16 +166,36 @@ public class TaskViewController {
             return;
         }
         if (newDisplayId == DEFAULT_DISPLAY_ID && mBaseIntentForTopTaskDD != null) {
-            ActivityOptions options = ActivityOptions.makeCustomAnimation(mContext, 0, 0);
-            options.setLaunchDisplayId(DEFAULT_DISPLAY_ID);
-            mContext.startActivityAsUser(mBaseIntentForTopTaskDD, options.toBundle(),
-                    UserHandle.CURRENT);
-        } else if (newDisplayId == mDistantDisplayId) {
-            ActivityOptions options = ActivityOptions.makeCustomAnimation(mContext, 0, 0);
-            options.setLaunchDisplayId(newDisplayId);
-            mContext.startActivityAsUser(mBaseIntentForTopTask, options.toBundle(),
-                    UserHandle.CURRENT);
+            startActivityOnDisplay(mBaseIntentForTopTaskDD, DEFAULT_DISPLAY_ID);
+        } else if (newDisplayId == mDistantDisplayId && taskHasActiveMediaSession(
+                mBaseIntentForTopTask.getComponent().getPackageName())) {
+            startActivityOnDisplay(mBaseIntentForTopTask, mDistantDisplayId);
         }
+    }
+
+    private boolean taskHasActiveMediaSession(@Nullable String packageName) {
+        if (packageName == null) {
+            Log.w(TAG, "package name is null");
+            return false;
+        }
+        List<MediaController> controllerList =
+                mMediaSessionManager.getActiveSessions(/* notificationListener= */ null);
+        for (MediaController ctrl : controllerList) {
+            if (packageName.equals(ctrl.getPackageName())) {
+                return true;
+            }
+        }
+        logIfDebuggable("package: " + packageName
+                + " does not have an active MediaSession, cannot move the Task");
+        return false;
+    }
+
+    private void startActivityOnDisplay(Intent intent, int displayId) {
+        ActivityOptions options = ActivityOptions.makeCustomAnimation(mContext, /* enterResId=*/
+                0, /* exitResId= */ 0);
+        options.setLaunchDisplayId(displayId);
+        logIfDebuggable("starting task" + intent + "on display " + displayId);
+        mContext.startActivityAsUser(intent, options.toBundle(), UserHandle.CURRENT);
     }
 
     private void setupRemoteCarTaskView() {
@@ -222,14 +248,10 @@ public class TaskViewController {
         if (!isSystemReady()) {
             return;
         }
-        ActivityOptions options = ActivityOptions.makeCustomAnimation(mContext, 0, 0);
-        options.setLaunchDisplayId(mDistantDisplayId);
-        mContext.startActivityAsUser(
-                RootTaskViewWallpaperActivity.createIntent(mContext),
-                options.toBundle(), UserHandle.CURRENT);
-        mContext.startActivityAsUser(
-                NavigationTaskViewWallpaperActivity.createIntent(mContext),
-                options.toBundle(), UserHandle.CURRENT);
+        startActivityOnDisplay(RootTaskViewWallpaperActivity.createIntent(mContext),
+                mDistantDisplayId);
+        startActivityOnDisplay(NavigationTaskViewWallpaperActivity.createIntent(mContext),
+                mDistantDisplayId);
     }
 
     private boolean isSystemReady() {
@@ -287,5 +309,11 @@ public class TaskViewController {
                     }
                 }
         );
+    }
+
+    private static void logIfDebuggable(String message) {
+        if (DEBUG) {
+            Log.d(TAG, message);
+        }
     }
 }
