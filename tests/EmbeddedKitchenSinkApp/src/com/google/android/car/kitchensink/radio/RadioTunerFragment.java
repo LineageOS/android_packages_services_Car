@@ -19,6 +19,7 @@ package com.google.android.car.kitchensink.radio;
 import android.annotation.Nullable;
 import android.hardware.radio.ProgramSelector;
 import android.hardware.radio.RadioManager;
+import android.hardware.radio.RadioMetadata;
 import android.hardware.radio.RadioTuner;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,9 +28,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+
+import com.android.car.broadcastradio.support.platform.ProgramSelectorExt;
 
 import com.google.android.car.kitchensink.R;
 
@@ -44,7 +51,15 @@ public final class RadioTunerFragment extends Fragment {
     private final RadioTestFragment.TunerListener mListener;
     private boolean mViewCreated = false;
 
+    private EditText mFrequencyInput;
+    private RadioGroup mFmAmBandSelection;
+    private CheckBox mStepChannelCheckBox;
+    private CheckBox mSeekChannelCheckBox;
     private TextView mWarningTextView;
+    private TextView mCurrentStationTextView;
+    private TextView mCurrentChannelTextView;
+    private TextView mCurrentSongTitleTextView;
+    private TextView mCurrentArtistTextView;
 
     RadioTunerFragment(RadioManager radioManager, int moduleId, RadioManager.BandConfig bandConfig,
                        Handler handler, RadioTestFragment.TunerListener tunerListener) {
@@ -64,9 +79,35 @@ public final class RadioTunerFragment extends Fragment {
         View view = inflater.inflate(R.layout.radio_tuner_fragment, container,
                 /* attachToRoot= */ false);
         Button closeButton = view.findViewById(R.id.button_radio_close);
+        Button cancelButton = view.findViewById(R.id.button_radio_cancel);
         mWarningTextView = view.findViewById(R.id.warning_tune);
+        mFrequencyInput = view.findViewById(R.id.input_am_fm_frequency);
+        mFmAmBandSelection = view.findViewById(R.id.button_fm_am_selection);
+        RadioButton fmRadioButton = view.findViewById(R.id.button_radio_fm);
+        RadioButton amRadioButton = view.findViewById(R.id.button_radio_am);
+        Button tuneButton = view.findViewById(R.id.button_radio_tune);
+        mStepChannelCheckBox = view.findViewById(R.id.selection_step_skip_subchannels);
+        Button stepUpButton = view.findViewById(R.id.button_radio_step_up);
+        Button stepDownButton = view.findViewById(R.id.button_radio_step_down);
+        mSeekChannelCheckBox = view.findViewById(R.id.selection_seek_skip_subchannels);
+        Button seekUpButton = view.findViewById(R.id.button_radio_seek_up);
+        Button seekDownButton = view.findViewById(R.id.button_radio_seek_down);
+        mCurrentStationTextView = view.findViewById(R.id.radio_current_station_info);
+        mCurrentChannelTextView = view.findViewById(R.id.radio_current_channel_info);
+        mCurrentSongTitleTextView = view.findViewById(R.id.radio_current_song_info);
+        mCurrentArtistTextView = view.findViewById(R.id.radio_current_artist_info);
 
         closeButton.setOnClickListener((v) -> handleClose());
+        cancelButton.setOnClickListener((v) -> handleCancel());
+        tuneButton.setOnClickListener((v) -> tuneToInputStation());
+        fmRadioButton.setOnClickListener((v) -> mFrequencyInput
+                .setText(getString(R.string.radio_default_fm_frequency_input)));
+        amRadioButton.setOnClickListener((v) -> mFrequencyInput
+                .setText(getString(R.string.radio_default_am_frequency_input)));
+        stepUpButton.setOnClickListener((v) -> handleStep(RadioTuner.DIRECTION_UP));
+        stepDownButton.setOnClickListener((v) -> handleStep(RadioTuner.DIRECTION_DOWN));
+        seekUpButton.setOnClickListener((v) -> handleSeek(RadioTuner.DIRECTION_UP));
+        seekDownButton.setOnClickListener((v) -> handleSeek(RadioTuner.DIRECTION_DOWN));
 
         mViewCreated = true;
         return view;
@@ -76,6 +117,74 @@ public final class RadioTunerFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         Log.i(TAG, "onDestroyView");
+    }
+
+    void handleTune(ProgramSelector sel) {
+        if (mRadioTuner == null) {
+            mWarningTextView.setText(getString(R.string.radio_warning, NULL_TUNER_WARNING));
+            return;
+        }
+        mWarningTextView.setText(getString(R.string.empty));
+        try {
+            mRadioTuner.tune(sel);
+        } catch (Exception e) {
+            mWarningTextView.setText(getString(R.string.radio_warning, e.getMessage()));
+        }
+        mListener.onTunerPlay();
+    }
+
+    private void tuneToInputStation() {
+        int selectedButtonId = mFmAmBandSelection.getCheckedRadioButtonId();
+        ProgramSelector sel;
+        try {
+            double frequencyInput = Double.parseDouble(mFrequencyInput.getText().toString());
+            switch (selectedButtonId) {
+                case R.id.button_radio_fm:
+                    int fmFrequency = (int) Math.round(frequencyInput * 1_000);
+                    sel = ProgramSelector.createAmFmSelector(RadioManager.BAND_FM, fmFrequency);
+                    break;
+                case R.id.button_radio_am:
+                    int amFrequency = (int) Math.round(frequencyInput);
+                    sel = ProgramSelector.createAmFmSelector(RadioManager.BAND_AM, amFrequency);
+                    break;
+                default:
+                    mWarningTextView.setText(getString(R.string.radio_warning,
+                            "Unsupported input selector type"));
+                    return;
+            }
+        } catch (Exception e) {
+            mWarningTextView.setText(getString(R.string.radio_warning, e.getMessage()));
+            return;
+        }
+        handleTune(sel);
+    }
+
+    private void handleStep(int direction) {
+        if (mRadioTuner == null) {
+            mWarningTextView.setText(getString(R.string.radio_warning, NULL_TUNER_WARNING));
+            return;
+        }
+        mWarningTextView.setText(getString(R.string.empty));
+        try {
+            mRadioTuner.step(direction, mStepChannelCheckBox.isChecked());
+        } catch (Exception e) {
+            mWarningTextView.setText(getString(R.string.radio_warning, e.getMessage()));
+        }
+        mListener.onTunerPlay();
+    }
+
+    private void handleSeek(int direction) {
+        if (mRadioTuner == null) {
+            mWarningTextView.setText(getString(R.string.radio_warning, NULL_TUNER_WARNING));
+            return;
+        }
+        mWarningTextView.setText(getString(R.string.empty));
+        try {
+            mRadioTuner.seek(direction, mSeekChannelCheckBox.isChecked());
+        } catch (Exception e) {
+            mWarningTextView.setText(getString(R.string.radio_warning, e.getMessage()));
+        }
+        mListener.onTunerPlay();
     }
 
     private void handleClose() {
@@ -92,7 +201,56 @@ public final class RadioTunerFragment extends Fragment {
         }
     }
 
+    private void handleCancel() {
+        if (mRadioTuner == null) {
+            mWarningTextView.setText(getString(R.string.radio_warning, NULL_TUNER_WARNING));
+            return;
+        }
+        mWarningTextView.setText(getString(R.string.empty));
+        try {
+            mRadioTuner.cancel();
+        } catch (Exception e) {
+            mWarningTextView.setText(getString(R.string.radio_warning, e.getMessage()));
+        }
+    }
+
+    private void setProgramInfo(RadioManager.ProgramInfo info) {
+        String channelText = null;
+        if (info != null && info.getSelector().getPrimaryId().getType()
+                == ProgramSelector.IDENTIFIER_TYPE_AMFM_FREQUENCY) {
+            channelText = ProgramSelectorExt.getDisplayName(info.getSelector(), /* flags= */ 0);
+        }
+        if (channelText == null) {
+            channelText = getString(R.string.radio_na);
+        }
+        mCurrentStationTextView.setText(getString(R.string.radio_current_station_info,
+                getMetadataText(info, RadioMetadata.METADATA_KEY_RDS_PS)));
+        mCurrentChannelTextView.setText(getString(R.string.radio_current_channel_info,
+                channelText));
+        mCurrentArtistTextView.setText(getString(R.string.radio_current_song_info,
+                getMetadataText(info, RadioMetadata.METADATA_KEY_TITLE)));
+        mCurrentSongTitleTextView.setText(getString(R.string.radio_current_artist_info,
+                getMetadataText(info, RadioMetadata.METADATA_KEY_ARTIST)));
+    }
+
+    private CharSequence getMetadataText(RadioManager.ProgramInfo info, String metadataType) {
+        String naText = getString(R.string.radio_na);
+        if (info == null || info.getMetadata() == null) {
+            return naText;
+        }
+        CharSequence metadataText = info.getMetadata().getString(metadataType);
+        return metadataText == null ? naText : metadataText;
+    }
+
     private final class RadioTunerCallbackImpl extends RadioTuner.Callback {
+        @Override
+        public void onProgramInfoChanged(RadioManager.ProgramInfo info) {
+            if (!mViewCreated) {
+                return;
+            }
+            setProgramInfo(info);
+        }
+
         @Override
         public void onTuneFailed(int result, @Nullable ProgramSelector selector) {
             if (!mViewCreated) {
