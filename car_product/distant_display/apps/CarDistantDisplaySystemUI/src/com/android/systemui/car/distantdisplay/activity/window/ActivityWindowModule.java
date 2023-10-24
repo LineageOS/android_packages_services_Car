@@ -30,7 +30,7 @@ import dagger.multibindings.ClassKey;
 import dagger.multibindings.IntoMap;
 
 /**
- * Dagger injection module for {@link ActivityWindowManager}
+ * Dagger injection module for {@link DistantDisplayActivityWindowManager}
  */
 @Module
 public abstract class ActivityWindowModule {

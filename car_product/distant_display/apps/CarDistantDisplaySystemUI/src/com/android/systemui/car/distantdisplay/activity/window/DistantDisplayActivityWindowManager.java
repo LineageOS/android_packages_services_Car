@@ -24,12 +24,12 @@ import javax.inject.Inject;
  * Dagger Subcomponent for windows within SysUI.
  */
 @SysUISingleton
-public class ActivityWindowManager implements CoreStartable {
+public class DistantDisplayActivityWindowManager implements CoreStartable {
 
     private final ActivityWindowController mActivityOverlayController;
 
     @Inject
-    public ActivityWindowManager(
+    public DistantDisplayActivityWindowManager(
             ActivityWindowController activityOverlayController) {
         mActivityOverlayController = activityOverlayController;
     }
