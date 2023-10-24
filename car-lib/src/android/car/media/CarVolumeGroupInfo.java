@@ -18,10 +18,13 @@ package android.car.media;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
+import android.annotation.FlaggedApi;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
+import android.car.feature.Flags;
 import android.media.AudioAttributes;
+import android.media.AudioDeviceAttributes;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -54,6 +57,9 @@ public final class CarVolumeGroupInfo implements Parcelable {
     private final boolean mIsAttenuated;
     private final List<AudioAttributes> mAudioAttributes;
 
+    @NonNull
+    private final List<AudioDeviceAttributes> mAudioDeviceAttributes;
+
     private CarVolumeGroupInfo(
             String name,
             int zoneId,
@@ -64,7 +70,8 @@ public final class CarVolumeGroupInfo implements Parcelable {
             boolean isMuted,
             boolean isBlocked,
             boolean isAttenuated,
-            List<AudioAttributes> audioAttributes) {
+            List<AudioAttributes> audioAttributes,
+            List<AudioDeviceAttributes> audioDeviceAttributes) {
         mName = Objects.requireNonNull(name, "Volume info name can not be null");
         mZoneId = zoneId;
         mId = id;
@@ -76,6 +83,9 @@ public final class CarVolumeGroupInfo implements Parcelable {
         mIsAttenuated = isAttenuated;
         mAudioAttributes = Objects.requireNonNull(audioAttributes,
                 "Audio attributes can not be null");
+        mAudioDeviceAttributes = Objects.requireNonNull(audioDeviceAttributes,
+                "Audio device attributes can not be null");
+
     }
 
     /**
@@ -97,6 +107,9 @@ public final class CarVolumeGroupInfo implements Parcelable {
         List<AudioAttributes> audioAttributes = new ArrayList<>();
         in.readParcelableList(audioAttributes, AudioAttributes.class.getClassLoader(),
                 AudioAttributes.class);
+        List<AudioDeviceAttributes> audioDeviceAttributes = new ArrayList<>();
+        in.readParcelableList(audioDeviceAttributes, AudioDeviceAttributes.class.getClassLoader(),
+                AudioDeviceAttributes.class);
         this.mZoneId = zoneId;
         this.mId = id;
         this.mName = name;
@@ -107,6 +120,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
         this.mIsBlocked = isBlocked;
         this.mIsAttenuated = isAttenuated;
         this.mAudioAttributes = audioAttributes;
+        this.mAudioDeviceAttributes = audioDeviceAttributes;
     }
 
     @NonNull
@@ -201,18 +215,30 @@ public final class CarVolumeGroupInfo implements Parcelable {
         return mAudioAttributes;
     }
 
+    /**
+     * Returns a list of audio device attributes associated with the volume group
+     */
+    @NonNull
+    @FlaggedApi(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
+    public List<AudioDeviceAttributes> getAudioDeviceAttributes() {
+        return mAudioDeviceAttributes;
+    }
+
     @Override
     public String toString() {
-        return new StringBuilder().append("CarVolumeGroupId { .name = ").append(mName)
-                .append(", zone id = ").append(mZoneId).append(" id = ").append(mId)
+        StringBuilder builder = new StringBuilder().append("CarVolumeGroupId { name = ")
+                .append(mName).append(", zone id = ").append(mZoneId).append(" id = ").append(mId)
                 .append(", gain = ").append(mVolumeGainIndex)
                 .append(", max gain = ").append(mMaxVolumeGainIndex)
                 .append(", min gain = ").append(mMinVolumeGainIndex)
                 .append(", muted = ").append(mIsMuted)
                 .append(", blocked = ").append(mIsBlocked)
                 .append(", attenuated = ").append(mIsAttenuated)
-                .append(", audio attributes = ").append(mAudioAttributes)
-                .append(" }").toString();
+                .append(", audio attributes = ").append(mAudioAttributes);
+        if (Flags.carAudioDynamicDevices()) {
+            builder.append(", audio device attributes = ").append(mAudioDeviceAttributes);
+        }
+        return builder.append(" }").toString();
     }
 
     @Override
@@ -227,6 +253,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
         dest.writeBoolean(mIsBlocked);
         dest.writeBoolean(mIsAttenuated);
         dest.writeParcelableList(mAudioAttributes, flags);
+        dest.writeParcelableList(mAudioDeviceAttributes, flags);
     }
 
     /**
@@ -257,13 +284,26 @@ public final class CarVolumeGroupInfo implements Parcelable {
                 && mMinVolumeGainIndex == that.mMinVolumeGainIndex
                 && mIsMuted == that.mIsMuted && mIsBlocked == that.mIsBlocked
                 && mIsAttenuated == that.mIsAttenuated
-                && Objects.equals(mAudioAttributes, that.mAudioAttributes);
+                && Objects.equals(mAudioAttributes, that.mAudioAttributes)
+                && checkIsSameAudioAttributeDevices(that.mAudioDeviceAttributes);
     }
 
     @Override
     public int hashCode() {
+        if (Flags.carAudioDynamicDevices()) {
+            return Objects.hash(mName, mZoneId, mId, mVolumeGainIndex, mMaxVolumeGainIndex,
+                    mMinVolumeGainIndex, mIsMuted, mIsBlocked, mIsAttenuated, mAudioAttributes,
+                    mAudioDeviceAttributes);
+        }
         return Objects.hash(mName, mZoneId, mId, mVolumeGainIndex, mMaxVolumeGainIndex,
                 mMinVolumeGainIndex, mIsMuted, mIsBlocked, mIsAttenuated, mAudioAttributes);
+    }
+
+    private boolean checkIsSameAudioAttributeDevices(List<AudioDeviceAttributes> other) {
+        if (Flags.carAudioDynamicDevices()) {
+            return Objects.equals(mAudioDeviceAttributes, other);
+        }
+        return true;
     }
 
     /**
@@ -282,6 +322,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
         private boolean mIsBlocked;
         private boolean mIsAttenuated;
         private List<AudioAttributes> mAudioAttributes = new ArrayList<>();
+        private List<AudioDeviceAttributes> mAudioDeviceAttributes = new ArrayList<>();
 
         private long mBuilderFieldsSet = 0L;
 
@@ -303,6 +344,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
             mIsBlocked = info.mIsBlocked;
             mIsAttenuated = info.mIsAttenuated;
             mAudioAttributes = info.mAudioAttributes;
+            mAudioDeviceAttributes = info.mAudioDeviceAttributes;
         }
 
         /**
@@ -364,12 +406,22 @@ public final class CarVolumeGroupInfo implements Parcelable {
          */
         @NonNull
         public Builder setAudioAttributes(@NonNull List<AudioAttributes> audioAttributes) {
-            // TODO(b/273843708): add assertion back. getOccupantZoneId is not version guarded
-            // properly when it is used within Car module. Assertion should be added backed once
-            // b/280702422 is resolved
             checkNotUsed();
             mAudioAttributes = Objects.requireNonNull(audioAttributes,
                     "Audio Attributes can not be null");
+            return this;
+        }
+
+        /**
+         * Sets the list of audio device attributes associated with the volume group
+         */
+        @NonNull
+        @FlaggedApi(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
+        public Builder setAudioDeviceAttributes(@NonNull List<AudioDeviceAttributes>
+                                                                audioDeviceAttributes) {
+            checkNotUsed();
+            mAudioDeviceAttributes = Objects.requireNonNull(audioDeviceAttributes,
+                    "Audio Device Attributes can not be null");
             return this;
         }
 
@@ -389,10 +441,9 @@ public final class CarVolumeGroupInfo implements Parcelable {
 
             mBuilderFieldsSet |= IS_USED_FIELD_SET; // Mark builder used
 
-
             return new CarVolumeGroupInfo(mName, mZoneId, mId, mVolumeGainIndex,
                     mMaxVolumeGainIndex, mMinVolumeGainIndex, mIsMuted, mIsBlocked, mIsAttenuated,
-                    mAudioAttributes);
+                    mAudioAttributes, mAudioDeviceAttributes);
         }
 
         private void validateGainIndexRange() {
