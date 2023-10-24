@@ -36,4 +36,5 @@ package android.automotive.powerpolicy.internal;
 parcelable PowerPolicyInitData {
   int[] registeredCustomComponents;
   android.frameworks.automotive.powerpolicy.CarPowerPolicy currentPowerPolicy;
+  android.frameworks.automotive.powerpolicy.CarPowerPolicy[] registeredPolicies;
 }

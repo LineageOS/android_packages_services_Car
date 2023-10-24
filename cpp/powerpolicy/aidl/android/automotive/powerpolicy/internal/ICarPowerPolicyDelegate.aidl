@@ -39,7 +39,8 @@ interface ICarPowerPolicyDelegate {
    * <p>If this method is called multiple times, the second or later calls are ignored.
    *
    * @param callback The callback that car power policy daemon use to communicate with CarService.
-   * @return The available custom power components in {@PowerPolicyInitData}.
+   * @return The available custom power components, current power policy, and registered power
+   * policies in {@PowerPolicyInitData}.
    * @throws SecurityException if the caller doesn't have sufficient permissions.
    */
   PowerPolicyInitData notifyCarServiceReady(in ICarPowerPolicyDelegateCallback callback);
