@@ -120,8 +120,8 @@
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"Autoaren airbagak kontrolatu."</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"atzitu autoaren oinarrizko informazioa"</string>
     <string name="car_permission_desc_car_info" msgid="2118081474543537653">"Atzitu autoaren oinarrizko informazioa."</string>
-    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"atzitu autoaren isilpeko informazioa"</string>
-    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"Atzitu autoaren isilpeko informazioa."</string>
+    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"atzitu autoaren informazio pribilegiatua"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"Atzitu autoaren informazio pribilegiatua."</string>
     <string name="car_permission_label_vendor_permission_info" msgid="4471260460536888654">"atzitu autoaren saltzailearen baimenari buruzko informazioa"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Atzitu autoaren saltzailearen baimenari buruzko informazioa"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"irakurri autoaren kanpoaldeko argien egoera"</string>
@@ -196,10 +196,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Irakurri autoaren haizetako-garbigailuak."</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"kontrolatu autoaren haizetako-garbigailuak"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Kontrolatu autoaren haizetako-garbigailuak."</string>
-    <!-- no translation found for car_permission_label_query_display_compatibility (8846515818036686896) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_query_display_compatibility (5344194045180717300) -->
-    <skip />
+    <string name="car_permission_label_query_display_compatibility" msgid="8846515818036686896">"egin kontsultak bistaratze-bateragarritasunaren paketeei buruz"</string>
+    <string name="car_permission_desc_query_display_compatibility" msgid="5344194045180717300">"Egin kontsultak bistaratze-bateragarritasunaren paketeei buruz."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"kontrolatu ea autoko beste eserlekuetan inor baden eta eserleku horietan daudenen instalatutatako pareko aplikazioen (deitzailearen pakete-izen bereko aplikazioak) egoerak, eta kudeatu eserleku horietako korrontea."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Kontrolatu ea autoko beste eserlekuetan inor baden eta eserleku horietan daudenen instalatutatako pareko aplikazioen (deitzailearen pakete-izen bereko aplikazioak) egoerak, eta kudeatu eserleku horietako korrontea."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"konektatu eta komunikatu autoko beste eserleku batzuetan instalatuta dauden pareko aplikazioekin; hau da, deitzailearen pakete-izen bereko aplikazioekin"</string>

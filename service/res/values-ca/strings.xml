@@ -196,10 +196,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Llegir els eixugaparabrises del cotxe."</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"controlar els eixugaparabrises del cotxe"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Controlar els eixugaparabrises del cotxe."</string>
-    <!-- no translation found for car_permission_label_query_display_compatibility (8846515818036686896) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_query_display_compatibility (5344194045180717300) -->
-    <skip />
+    <string name="car_permission_label_query_display_compatibility" msgid="8846515818036686896">"consultar paquets de compatibilitat de pantalla"</string>
+    <string name="car_permission_desc_query_display_compatibility" msgid="5344194045180717300">"Consultar paquets de compatibilitat de pantalla."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"supervisar els estats de les zones d\'altres ocupants del cotxe i de les aplicacions semblants (aplicacions que tenen el mateix nom de paquet que la persona que truca) instal·lades en aquestes zones, i gestionar l\'energia en aquestes zones"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Supervisar els estats de les zones d\'altres ocupants del cotxe i de les aplicacions semblants (aplicacions que tenen el mateix nom de paquet que la persona que truca) instal·lades en aquestes zones, i gestionar l\'energia en aquestes zones."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"establir la connexió i comunicar-se amb aplicacions semblants (aplicacions que tenen el mateix nom de paquet que la persona que truca) instal·lades en les zones d\'altres ocupants del cotxe"</string>

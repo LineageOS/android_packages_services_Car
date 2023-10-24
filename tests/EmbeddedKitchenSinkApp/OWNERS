@@ -31,3 +31,6 @@ per-file src/com/google/android/car/kitchensink/watchdog/* = lakshmana@google.co
 
 # Property
 per-file src/com/google/android/car/kitchensink/property/* = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+
+# Sensor
+per-file src/com/google/android/car/kitchensink/sensor/* = ericjeong@google.com, tylertrephan@google.com, evaschen@google.com
