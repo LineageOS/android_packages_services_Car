@@ -25,6 +25,9 @@ per-file src/com/google/android/car/kitchensink/packageinfo/* = ycheo@google.com
 # Power
 per-file src/com/google/android/car/kitchensink/power/* = ericjeong@google.com
 
+# Radio
+per-file src/com/google/android/car/kitchensink/radio/* = xuweilin@google.com, oscarazu@google.com, ericjeong@google.com
+
 # Watchdog
 per-file src/com/google/android/car/kitchensink/CarWatchdogClient.java = lakshmana@google.com
 per-file src/com/google/android/car/kitchensink/watchdog/* = lakshmana@google.com
