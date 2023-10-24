@@ -36,10 +36,12 @@ import com.google.common.base.Strings;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.PrintWriter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.time.Instant;
+import java.util.Locale;
 import java.util.function.Function;
 
 
@@ -100,7 +102,8 @@ public class BugStorageProvider extends ContentProvider {
             URL_SEGMENT_OPEN_FILE,
     })
     @Retention(RetentionPolicy.SOURCE)
-    @interface UriActionSegments {}
+    @interface UriActionSegments {
+    }
 
     static final Uri BUGREPORT_CONTENT_URI =
             Uri.parse("content://" + AUTHORITY + "/" + BUG_REPORTS_TABLE);
@@ -272,7 +275,7 @@ public class BugStorageProvider extends ContentProvider {
                             + URL_MATCHED_BUG_REPORT_ID_URI);
                 }
                 selection = COLUMN_ID + "=?";
-                selectionArgs = new String[]{ uri.getLastPathSegment() };
+                selectionArgs = new String[]{uri.getLastPathSegment()};
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URL " + uri);
@@ -450,10 +453,10 @@ public class BugStorageProvider extends ContentProvider {
      * Print the Provider's state into the given stream. This gets invoked if
      * you run "dumpsys activity provider com.android.car.bugreport/.BugStorageProvider".
      *
-     * @param fd The raw file descriptor that the dump is being sent to.
+     * @param fd     The raw file descriptor that the dump is being sent to.
      * @param writer The PrintWriter to which you should dump your state.  This will be
-     * closed for you after you return.
-     * @param args additional arguments to the dump request.
+     *               closed for you after you return.
+     * @param args   additional arguments to the dump request.
      */
     public void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
         writer.println("BugStorageProvider:");
@@ -463,12 +466,26 @@ public class BugStorageProvider extends ContentProvider {
     private boolean deleteFilesFor(MetaBugReport bugReport) {
         File pendingDir = FileUtils.getPendingDir(getContext());
         boolean result = true;
+        // This ensures file deletion in case the file name does not contain lookup code.
         if (!Strings.isNullOrEmpty(bugReport.getAudioFileName())) {
             result = new File(pendingDir, bugReport.getAudioFileName()).delete();
         }
         if (!Strings.isNullOrEmpty(bugReport.getBugReportFileName())) {
             result = result && new File(pendingDir, bugReport.getBugReportFileName()).delete();
         }
+
+        // Because MetaBugReport holds only the current report and audio files, this finds and
+        // deletes the unlinked audio files from re-recording. This code requires the file name
+        // includes the same lookup code.
+        String lookupCode = FileUtils.extractLookupCode(bugReport);
+        FilenameFilter filter = (folder, name) -> name.toLowerCase(Locale.ROOT).contains(
+                lookupCode.toLowerCase(Locale.ROOT));
+
+        File[] filesToDelete = pendingDir.listFiles(filter);
+        for (File file : filesToDelete) {
+            FileUtils.deleteFileQuietly(file);
+        }
+
         return result;
     }
 }
