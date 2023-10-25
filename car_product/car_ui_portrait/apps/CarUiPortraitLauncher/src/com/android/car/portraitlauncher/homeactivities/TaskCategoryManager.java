@@ -214,12 +214,12 @@ class TaskCategoryManager {
         return mAppGridActivityComponent;
     }
 
-    Set<ComponentName> getFullScreenActivities() {
-        return mFullScreenActivities;
+    List<ComponentName> getFullScreenActivitiesList() {
+        return mFullScreenActivities.stream().toList();
     }
 
-    Set<ComponentName> getBackgroundActivities() {
-        return mBackgroundActivities;
+    List<ComponentName> getBackgroundActivitiesList() {
+        return mBackgroundActivities.stream().toList();
     }
 
     boolean isFullScreenActivity(TaskInfo taskInfo) {
