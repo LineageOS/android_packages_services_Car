@@ -33,4 +33,9 @@ parcelable PowerPolicyInitData {
    * The current power policy.
    */
   CarPowerPolicy currentPowerPolicy;
+
+  /**
+  * The power policies that have been registered by the power policy daemon.
+  */
+  CarPowerPolicy[] registeredPolicies;
 }

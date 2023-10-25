@@ -103,8 +103,4 @@
     <color name="car_rotary_focus_stroke_color">#94CBFF</color>
     <color name="car_rotary_focus_fill_color">#3D94CBFF</color>
     <color name="car_rotary_focus_pressed_fill_color">#8A94CBFF</color>
-
-    <!-- TODO(b/305783841) - update with standard colors -->
-    <!-- HVAC Colors -->
-    <color name="car_hvac_surface_color">#1D272C</color>
 </resources>
