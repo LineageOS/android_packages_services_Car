@@ -1911,11 +1911,23 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
-    private class PowerPolicyCallback extends ICarPowerPolicyDelegateCallback.Stub {
+    /**
+     * Converts a given power policy from power policy type returned by the car power policy daemon
+     * to the one used within car service.
+     * @param policy of type android.frameworks.automotive.powerpolicy.CarPowerPolicy
+     * @return policy converted to type android.car.hardware.power.CarPowerPolicy
+     */
+    private CarPowerPolicy convertPowerPolicyFromDaemon(
+            android.frameworks.automotive.powerpolicy.CarPowerPolicy policy) {
+        return new CarPowerPolicy(policy.policyId, policy.enabledComponents,
+                policy.disabledComponents);
+    }
+
+    private final class PowerPolicyCallback extends ICarPowerPolicyDelegateCallback.Stub {
         @Override
         public void updatePowerComponents(
                 android.frameworks.automotive.powerpolicy.CarPowerPolicy policy) {
-            // TODO(b/303676085): implement this
+            mPowerComponentHandler.applyPowerPolicy(convertPowerPolicyFromDaemon(policy));
         }
 
         @Override
@@ -1972,8 +1984,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             synchronized (mLock) {
                 mCurrentPowerPolicyId = currentPowerPolicy.policyId;
             }
-            mPowerComponentHandler.applyPowerPolicy(new CarPowerPolicy(currentPowerPolicy.policyId,
-                    currentPowerPolicy.enabledComponents, currentPowerPolicy.disabledComponents));
+            mPowerComponentHandler.applyPowerPolicy(
+                    convertPowerPolicyFromDaemon(currentPowerPolicy));
         } else {
             Slogf.i(TAG, "CPMS is taking control from carpowerpolicyd");
             ICarPowerPolicySystemNotification daemon;
