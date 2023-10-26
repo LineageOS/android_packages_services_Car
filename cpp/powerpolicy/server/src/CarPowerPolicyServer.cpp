@@ -275,6 +275,13 @@ ScopedAStatus CarPowerPolicyDelegate::notifyPowerPolicyDefinition(
             "notifyPowerPolicyDefinition");
 }
 
+ScopedAStatus CarPowerPolicyDelegate::notifyPowerStateChange(
+        [[maybe_unused]] ::aidl::android::automotive::powerpolicy::internal::
+                ICarPowerPolicyDelegate::PowerState in_state) {
+    // TODO(b/301028782): Implement here
+    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+}
+
 ScopedAStatus CarPowerPolicyDelegate::runWithService(
         const std::function<ScopedAStatus(CarPowerPolicyServer*)>& action,
         const std::string& actionTitle) {

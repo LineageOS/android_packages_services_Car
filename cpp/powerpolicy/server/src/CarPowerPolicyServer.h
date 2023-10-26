@@ -133,6 +133,9 @@ public:
     ndk::ScopedAStatus notifyPowerPolicyDefinition(
             const std::string& policyId, const std::vector<std::string>& enabledComponents,
             const std::vector<std::string>& disabledComponents) override EXCLUDES(mMutex);
+    ndk::ScopedAStatus notifyPowerStateChange(
+            ::aidl::android::automotive::powerpolicy::internal::ICarPowerPolicyDelegate::PowerState
+                    in_state);
 
     void terminate() EXCLUDES(mMutex);
     ndk::ScopedAStatus runWithService(
