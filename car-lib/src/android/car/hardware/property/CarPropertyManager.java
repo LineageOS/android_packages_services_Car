@@ -1132,6 +1132,17 @@ public class CarPropertyManager extends CarManagerBase {
      * </ul>
      *
      * <p>
+     * If the property has the change mode:
+     * {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}, {@code updateRateHz} in
+     * {@code SubscribeOption} specifies how frequent the property value has to be polled. If
+     * {@code disableVariableUpdateRate} is {@code false} (default), then the client
+     * will receive property update event only when the property's value changes (a.k.a behaves the
+     * same as {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}). If
+     * {@code disableVariableUpdateRate} is {@code true}, then the client will receive all the
+     * property update events based on the update rate even if the events contain the same property
+     * value. See {@link SubscribeOption.Builder#disableVariableUpdateRate} for more detail.
+     *
+     * <p>
      * <b>Note:</b> When a client registers to receive updates for a PropertyId for the
      * first time, it will receive the current value of the PropertyId through a change
      * event for the specified areaId if the PropertyId is currently available to be
