@@ -38,11 +38,12 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.zip.ZipOutputStream;
 
@@ -123,14 +124,6 @@ class SimpleUploaderAsyncTask extends AsyncTask<Void, Void, Boolean> {
         return gcsBucket;
     }
 
-    private static void deleteFileQuietly(File file) {
-        try {
-            Files.delete(file.toPath());
-        } catch (IOException | SecurityException e) {
-            Log.w(TAG, "Failed to delete " + file + ". Ignoring the error.", e);
-        }
-    }
-
     private void upload(MetaBugReport bugReport) throws IOException {
         GoogleCredential credential = GoogleCredential
                 .fromStream(mContext.getResources().openRawResource(R.raw.gcs_credentials))
@@ -152,27 +145,33 @@ class SimpleUploaderAsyncTask extends AsyncTask<Void, Void, Boolean> {
             // Delete only after successful upload; the files are needed for retry.
             if (!Strings.isNullOrEmpty(bugReport.getAudioFileName())) {
                 Log.v(TAG, "Deleting file " + bugReport.getAudioFileName());
-                deleteFileQuietly(new File(pendingDir, bugReport.getAudioFileName()));
+                FileUtils.deleteFileQuietly(new File(pendingDir, bugReport.getAudioFileName()));
             }
             if (!Strings.isNullOrEmpty(bugReport.getBugReportFileName())) {
                 Log.v(TAG, "Deleting file " + bugReport.getBugReportFileName());
-                deleteFileQuietly(new File(pendingDir, bugReport.getBugReportFileName()));
+                FileUtils.deleteFileQuietly(new File(pendingDir, bugReport.getBugReportFileName()));
             }
         } finally {
             // No need to throw exception even if it fails to delete the file, as the task
             // shouldn't retry the upload again.
             Log.v(TAG, "Deleting file " + zipFileToUpload);
-            deleteFileQuietly(zipFileToUpload);
+            FileUtils.deleteFileQuietly(zipFileToUpload);
 
-            // Deletes unlinked wav files from MetaBugReport because of re-recording.
-            String lookupCode = FileUtils.extractLookupCode(bugReport).toLowerCase();
+            // Deletes replaced wav files because of re-recording.
+            String lookupCode = FileUtils.extractLookupCode(bugReport);
             File pendingDir = FileUtils.getPendingDir(mContext);
-            File[] files = pendingDir.listFiles();
-            for (File file : files) {
-                if (file.getName().toLowerCase().contains(lookupCode)) {
-                    Log.v(TAG, "Deleting file " + file.getCanonicalPath());
-                    deleteFileQuietly(file);
-                }
+
+            // Do not delete the current bug report and audio files in MetaBugReport because they
+            // should be deleted only when uploading is completed successfully in the try clause
+            // above.
+            FilenameFilter filter = (folder, name) -> name.toLowerCase(Locale.ROOT).contains(
+                    lookupCode.toLowerCase(Locale.ROOT)) && !name.equals(
+                    bugReport.getBugReportFileName()) && !name.equals(bugReport.getAudioFileName());
+
+            File[] filesToDelete = pendingDir.listFiles(filter);
+            for (File file : filesToDelete) {
+                Log.v(TAG, "Deleting file " + file.getName());
+                FileUtils.deleteFileQuietly(file);
             }
         }
     }

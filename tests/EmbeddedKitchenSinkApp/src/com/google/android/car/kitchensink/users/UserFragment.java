@@ -261,7 +261,7 @@ public final class UserFragment extends Fragment {
         StorageManager storageManager = getContext().getSystemService(StorageManager.class);
 
         try {
-            storageManager.lockUserKey(userToLock);
+            storageManager.lockCeStorage(userToLock);
         } catch (Exception e) {
             showMessage("Error: lock user data: " + e);
         }
