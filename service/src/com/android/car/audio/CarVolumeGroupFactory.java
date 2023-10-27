@@ -62,7 +62,7 @@ final class CarVolumeGroupFactory {
     }
 
     CarVolumeGroup getCarVolumeGroup(boolean useCoreAudioVolume) {
-        Preconditions.checkArgument(mStepSize != UNSET_STEP_SIZE,
+        Preconditions.checkArgument(mAddressToCarAudioDeviceInfo.size() != 0,
                 "setDeviceInfoForContext has to be called at least once before building");
         CarVolumeGroup group;
         if (useCoreAudioVolume) {
