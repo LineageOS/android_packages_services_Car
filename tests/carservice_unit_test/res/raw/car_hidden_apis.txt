@@ -446,6 +446,7 @@ android.car.hardware.power PowerComponentUtil int FIRST_POWER_COMPONENT
 android.car.hardware.power PowerComponentUtil int INVALID_POWER_COMPONENT
 android.car.hardware.power PowerComponentUtil int LAST_POWER_COMPONENT
 android.car.hardware.power PowerComponentUtil int toPowerComponent(String componentArg, boolean prefix)
+android.car.hardware.property AreaIdConfig.Builder Builder<T> setSupportVariableUpdateRate(boolean supportVariableUpdateRate)
 android.car.hardware.property CarPropertyEvent CarPropertyEvent createErrorEventWithErrorCode(int propertyId, int areaId, int errorCode)
 android.car.hardware.property CarPropertyEvent CarPropertyValue<?> getCarPropertyValue()
 android.car.hardware.property CarPropertyEvent Parcelable.Creator<CarPropertyEvent> CREATOR
