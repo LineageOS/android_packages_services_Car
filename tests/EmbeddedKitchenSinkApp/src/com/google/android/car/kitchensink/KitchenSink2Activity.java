@@ -32,7 +32,9 @@ import android.car.watchdog.CarWatchdogManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
@@ -83,6 +85,7 @@ public class KitchenSink2Activity extends FragmentActivity implements KitchenSin
     private static final String EMPTY_STRING = "";
     private HighlightableAdapter mAdapter;
     private final FragmentItemClickHandler mItemClickHandler = new FragmentItemClickHandler();
+    private final Object mCarReady = new Object();
 
     /**
      * List of all the original menu items.
@@ -452,9 +455,18 @@ public class KitchenSink2Activity extends FragmentActivity implements KitchenSin
 
 
     private void initCarApi() {
-        if (mCarApi == null || !mCarApi.isConnected()) {
-            mCarApi = Car.createCar(this);
+        if (mCarApi != null && mCarApi.isConnected()) {
+            mCarApi.disconnect();
+            mCarApi = null;
         }
+        mCarApi = Car.createCar(this, null, Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER,
+                (Car car, boolean ready) -> {
+                    if (ready) {
+                        synchronized (mCarReady) {
+                            mCarReady.notifyAll();
+                        }
+                    }
+                });
     }
 
     @Override
@@ -619,6 +631,31 @@ public class KitchenSink2Activity extends FragmentActivity implements KitchenSin
         writer.println();
 
         super.dump(prefix, fd, writer, args);
+    }
+
+    @Override
+    public void requestRefreshManager(final Runnable r, final Handler h) {
+        final AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... unused) {
+                synchronized (mCarReady) {
+                    while (!mCarApi.isConnected()) {
+                        try {
+                            mCarReady.wait();
+                        } catch (InterruptedException e) {
+                            return null;
+                        }
+                    }
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void unused) {
+                h.post(r);
+            }
+        };
+        task.execute();
     }
 
     private class FragmentItemClickHandler implements CarUiContentListItem.OnClickListener {

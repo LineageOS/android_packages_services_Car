@@ -17,10 +17,22 @@
 package com.google.android.car.kitchensink;
 
 import android.car.Car;
+import android.car.hardware.property.CarPropertyManager;
+import android.os.Handler;
 
 public interface KitchenSinkHelper {
     /**
      * @return Car api
      */
     Car getCar();
+
+    /**
+     * Gets the car property manager.
+     */
+    CarPropertyManager getPropertyManager();
+
+    /**
+     * Uses the handler to post the runnable to run after car service is connected.
+     */
+    void requestRefreshManager(Runnable r, Handler h);
 }

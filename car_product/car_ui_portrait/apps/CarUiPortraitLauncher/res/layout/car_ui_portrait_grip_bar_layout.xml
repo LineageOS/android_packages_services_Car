@@ -15,10 +15,20 @@
   ~ limitations under the License.
   -->
 
-<com.android.car.portraitlauncher.panel.GripBarView
+<merge
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/grip_bar"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-</com.android.car.portraitlauncher.panel.GripBarView>
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="RelativeLayout">
+    <FrameLayout
+        android:id="@+id/grip_bar_handle"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/panel_grip_bar_height"
+        android:background="@drawable/grip_bar_background"
+        android:layout_alignParentTop="true"/>
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/displaycompat_toolbar_height"
+        android:visibility="gone"
+        android:layout_below="@id/grip_bar_handle"
+        layout="@layout/car_ui_portrait_displaycompat_toolbar"/>
+</merge>

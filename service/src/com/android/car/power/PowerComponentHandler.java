@@ -93,6 +93,8 @@ public final class PowerComponentHandler {
     private final IntArray mRegisteredComponents = new IntArray();
     private final PackageManager mPackageManager;
 
+    // TODO(b/286303350): remove after power policy refactor is complete; only used for getting
+    //                    accumulated policy, and that will be done by CPPD
     @GuardedBy("mLock")
     private String mCurrentPolicyId = "";
 

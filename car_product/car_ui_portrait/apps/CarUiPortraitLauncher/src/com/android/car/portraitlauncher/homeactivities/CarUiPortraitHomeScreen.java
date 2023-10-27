@@ -178,7 +178,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private TaskInfoCache mTaskInfoCache;
     private TaskViewPanel mAppGridTaskViewPanel;
     private TaskViewPanel mRootTaskViewPanel;
-    private InputManagerGlobal mInputManagerGlobal;
     private ComponentName mUnhandledImmersiveModeRequestComponent;
     private long mUnhandledImmersiveModeRequestTimestamp;
     private boolean mUnhandledImmersiveModeRequest;
@@ -580,8 +579,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         setUpRootTaskView();
 
         MediaIntentRouter.getInstance().registerMediaIntentHandler(mMediaIntentHandler);
-
-        mInputManagerGlobal = InputManagerGlobal.getInstance();
     }
 
     @Override
@@ -1202,7 +1199,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
      * Send both action down and up to be qualified as a back press. Set time for key events, so
      * they are not staled.
      */
-    private void sendVirtualBackPress() {
+    public static void sendVirtualBackPress() {
         long downEventTime = SystemClock.uptimeMillis();
         long upEventTime = downEventTime + 1;
 
@@ -1213,8 +1210,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 KeyEvent.KEYCODE_BACK, /* repeat= */ 0, /* metaState= */ 0,
                 KeyCharacterMap.VIRTUAL_KEYBOARD, /* scancode= */ 0, KeyEvent.FLAG_FROM_SYSTEM);
 
-        mInputManagerGlobal.injectInputEvent(keydown, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
-        mInputManagerGlobal.injectInputEvent(keyup, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
+        InputManagerGlobal inputManagerGlobal = InputManagerGlobal.getInstance();
+        inputManagerGlobal.injectInputEvent(keydown, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
+        inputManagerGlobal.injectInputEvent(keyup, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
     }
 
     private void setUpFullScreenTaskView() {
