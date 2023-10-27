@@ -63,6 +63,8 @@ public final class VehiclePropertyIdDebugUtils {
             return toName(propertyId);
         } else if (CarPropertyHelper.isVendorProperty(propertyId)) {
             return "VENDOR_PROPERTY(0x" + Integer.toHexString(propertyId) + ")";
+        } else if (CarPropertyHelper.isBackportedProperty(propertyId)) {
+            return "BACKPORTED_PROPERTY(0x" + Integer.toHexString(propertyId) + ")";
         }
         return "0x" + Integer.toHexString(propertyId);
     }

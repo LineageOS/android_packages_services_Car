@@ -275,7 +275,7 @@ public class PropertyHalServiceConfigs {
      */
     @Nullable
     public PermissionCondition getReadPermission(int halPropId) {
-        if (CarPropertyHelper.isVendorProperty(halPropId)) {
+        if (CarPropertyHelper.isVendorOrBackportedProperty(halPropId)) {
             return getVendorReadPermission(halPropId);
         }
         CarSvcPropertyConfig carSvcPropertyConfig = mHalPropIdToCarSvcConfig.get(
@@ -314,7 +314,7 @@ public class PropertyHalServiceConfigs {
      */
     @Nullable
     public PermissionCondition getWritePermission(int halPropId) {
-        if (CarPropertyHelper.isVendorProperty(halPropId)) {
+        if (CarPropertyHelper.isVendorOrBackportedProperty(halPropId)) {
             return getVendorWritePermission(halPropId);
         }
         CarSvcPropertyConfig carSvcPropertyConfig = mHalPropIdToCarSvcConfig.get(
@@ -382,7 +382,7 @@ public class PropertyHalServiceConfigs {
      */
     public boolean isSupportedProperty(int propId) {
         return mHalPropIdToCarSvcConfig.get(propId) != null
-                || CarPropertyHelper.isVendorProperty(propId);
+                || CarPropertyHelper.isVendorOrBackportedProperty(propId);
     }
 
     /**
@@ -399,7 +399,7 @@ public class PropertyHalServiceConfigs {
         int index = 0;
         while (index < configArray.length) {
             int propId = configArray[index++];
-            if (!CarPropertyHelper.isVendorProperty(propId)) {
+            if (!CarPropertyHelper.isVendorOrBackportedProperty(propId)) {
                 throw new IllegalArgumentException("Property Id: " + propId
                         + " is not in vendor range");
             }
