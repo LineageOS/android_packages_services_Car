@@ -42,17 +42,23 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import android.annotation.UserIdInt;
+import android.car.feature.Flags;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.test.AbstractExpectableTestCase;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
 import android.hardware.automotive.audiocontrol.Reasons;
 import android.media.AudioAttributes;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioManager;
 import android.os.UserHandle;
+import android.platform.test.annotations.RequiresFlagsEnabled;
+import android.platform.test.flag.junit.CheckFlagsRule;
+import android.platform.test.flag.junit.DeviceFlagsValueProvider;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -114,6 +120,9 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     CarAudioSettings mSettingsMock;
     @Mock
     AudioManager mAudioManagerMock;
+
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
 
     @Before
     public void setUp() {
@@ -301,6 +310,19 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
         expectWithMessage("Device information for non-bounded address %s", OTHER_ADDRESS)
                 .that(actualDevice).isNull();
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
+    public void getAudioDeviceAttribute_returnsExpectedDevice() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        CarVolumeGroupInfo info = carVolumeGroup.getCarVolumeGroupInfo();
+
+        List<AudioDeviceAttributes> devices = info.getAudioDeviceAttributes();
+
+        expectWithMessage("Audio device attributes").that(devices).containsExactly(
+                        new AudioDeviceAttributes(mMediaDeviceInfo.getAudioDeviceInfo()),
+                        new AudioDeviceAttributes(mNavigationDeviceInfo.getAudioDeviceInfo()));
     }
 
     @Test

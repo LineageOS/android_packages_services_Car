@@ -22,10 +22,18 @@ import static android.media.AudioAttributes.USAGE_MEDIA;
 
 import static org.junit.Assert.assertThrows;
 
+import android.car.feature.Flags;
 import android.car.test.AbstractExpectableTestCase;
 import android.media.AudioAttributes;
+import android.media.AudioDeviceAttributes;
+import android.media.AudioDeviceInfo;
 import android.os.Parcel;
+import android.platform.test.annotations.RequiresFlagsDisabled;
+import android.platform.test.annotations.RequiresFlagsEnabled;
+import android.platform.test.flag.junit.CheckFlagsRule;
+import android.platform.test.flag.junit.DeviceFlagsValueProvider;
 
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.List;
@@ -57,6 +65,9 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
                     .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                     .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
                     .setAudioAttributes(TEST_AUDIO_ATTRIBUTES).build();
+    private static final AudioDeviceAttributes TEST_AUDIO_DEVICE_ATTRIBUTE =
+            new AudioDeviceAttributes(AudioDeviceAttributes.ROLE_OUTPUT,
+                    AudioDeviceInfo.TYPE_BLUETOOTH_A2DP, "a2dp");
 
     private final CarVolumeGroupInfo.Builder mTestGroupInfoBuilder =
             new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME,
@@ -66,7 +77,12 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
                     .setVolumeGainIndex(TEST_CURRENT_GAIN).setBlocked(TEST_DEFAULT_BLOCKED_STATE)
                     .setMuted(TEST_DEFAULT_MUTE_STATE);
 
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule =
+            DeviceFlagsValueProvider.createCheckFlagsRule();
+
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
     public void build_buildsGroupInfo() {
         CarVolumeGroupInfo info = new CarVolumeGroupInfo
                 .Builder(TEST_GROUP_NAME, TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID)
@@ -80,6 +96,45 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
                 .that(info.getId()).isEqualTo(TEST_PRIMARY_GROUP_ID);
         expectWithMessage("Car volume info build info group name")
                 .that(info.getName()).isEqualTo(TEST_GROUP_NAME);
+    }
+
+    @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
+    public void build_buildsGroupInfo_withoutAudioDevices_succeeds() {
+        CarVolumeGroupInfo info = new CarVolumeGroupInfo
+                .Builder(TEST_GROUP_NAME, TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID)
+                .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                .setVolumeGainIndex(TEST_CURRENT_GAIN).build();
+
+        expectWithMessage("Car volume group id, for group built without audio devices")
+                .that(info.getId()).isEqualTo(TEST_PRIMARY_GROUP_ID);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
+    public void build_buildsGroupInfo_withAudioDevices_succeeds() {
+        CarVolumeGroupInfo info = new CarVolumeGroupInfo
+                .Builder(TEST_GROUP_NAME, TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID)
+                .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                .setVolumeGainIndex(TEST_CURRENT_GAIN)
+                .setAudioDeviceAttributes(List.of(TEST_AUDIO_DEVICE_ATTRIBUTE)).build();
+
+        expectWithMessage("Car volume group info devices")
+                .that(info.getAudioDeviceAttributes()).containsExactly(TEST_AUDIO_DEVICE_ATTRIBUTE);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
+    public void build_buildsGroupInfo_withNullAudioDevices_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                new CarVolumeGroupInfo.Builder(/* name= */ null,
+                        TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID).setAudioDeviceAttributes(null)
+        );
+
+        expectWithMessage("Null audio devices exception")
+                .that(thrown).hasMessageThat().contains("Audio Device Attributes");
     }
 
     @Test
@@ -267,7 +322,8 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    public void hashCode_forSameContent() {
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
+    public void hashCode_forSameContent_forDynamicFlagsDisabled() {
         CarVolumeGroupInfo infoWithSameContent = new CarVolumeGroupInfo.Builder(TEST_VOLUME_INFO)
                 .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                 .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
@@ -275,6 +331,22 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
 
         expectWithMessage("Car volume info hash with same content")
                 .that(infoWithSameContent.hashCode()).isEqualTo(TEST_VOLUME_INFO.hashCode());
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
+    public void hashCode_forSameContent_forDynamicFlagsEnabled() {
+        CarVolumeGroupInfo originalInfo = new CarVolumeGroupInfo.Builder(TEST_VOLUME_INFO)
+                .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                .setAudioAttributes(TEST_AUDIO_ATTRIBUTES)
+                .setAudioDeviceAttributes(List.of(TEST_AUDIO_DEVICE_ATTRIBUTE)).build();
+
+        CarVolumeGroupInfo infoWithSameContent =
+                new CarVolumeGroupInfo.Builder(originalInfo).build();
+
+        expectWithMessage("Car volume info hash with same content, with audio device attribute")
+                .that(infoWithSameContent.hashCode()).isEqualTo(originalInfo.hashCode());
     }
 
     @Test

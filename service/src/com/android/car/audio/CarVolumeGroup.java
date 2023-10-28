@@ -28,12 +28,15 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.car.builtin.util.Slogf;
+import android.car.feature.Flags;
 import android.car.media.CarVolumeGroupInfo;
 import android.media.AudioAttributes;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.os.UserHandle;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.util.SparseArray;
 import android.util.proto.ProtoOutputStream;
 
@@ -822,10 +825,37 @@ import java.util.Objects;
 
         String name = mName.isEmpty() ? "group id " + mId : mName;
 
-        return new CarVolumeGroupInfo.Builder(name, mZoneId, mId)
+        CarVolumeGroupInfo.Builder builder = new CarVolumeGroupInfo.Builder(name, mZoneId, mId)
                 .setVolumeGainIndex(gainIndex).setMaxVolumeGainIndex(getMaxGainIndex())
                 .setMinVolumeGainIndex(getMinGainIndex()).setMuted(isMuted).setBlocked(isBlocked)
-                .setAttenuated(isAttenuated).setAudioAttributes(getAudioAttributes()).build();
+                .setAttenuated(isAttenuated).setAudioAttributes(getAudioAttributes());
+
+        if (Flags.carAudioDynamicDevices()) {
+            builder.setAudioDeviceAttributes(getAudioDeviceAttributes());
+        }
+
+        return builder.build();
+    }
+
+    private List<AudioDeviceAttributes> getAudioDeviceAttributes() {
+        ArraySet<AudioDeviceAttributes> set = new ArraySet<>();
+        int[] contexts = getContexts();
+        for (int index = 0; index < contexts.length; index++) {
+            AudioDeviceAttributes device = getAudioDeviceAttributeForContext(contexts[index]);
+            if (device == null) {
+                Slogf.w(CarLog.TAG_AUDIO,
+                        "getAudioDeviceAttributes: Could not find audio device for context "
+                                + mCarAudioContext.toString(contexts[index]));
+                continue;
+            }
+            set.add(device);
+        }
+        return new ArrayList<>(set);
+    }
+
+    private AudioDeviceAttributes getAudioDeviceAttributeForContext(int context) {
+        AudioDeviceInfo info = getAudioDeviceForContext(context);
+        return info == null ? null : new AudioDeviceAttributes(info);
     }
 
     List<AudioAttributes> getAudioAttributes() {

@@ -33,6 +33,7 @@
 #include <aidl/android/automotive/watchdog/TimeoutLength.h>
 #include <android-base/result.h>
 #include <android/binder_auto_utils.h>
+#include <android/binder_libbinder.h>
 #include <android/binder_manager.h>
 #include <gtest/gtest_prod.h>
 #include <utils/Errors.h>
@@ -71,8 +72,8 @@ public:
             const android::sp<WatchdogPerfServiceInterface>& watchdogPerfService,
             const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
             const android::sp<IoOveruseMonitorInterface>& ioOveruseMonitor,
-            const std::function<android::base::Result<void>(ndk::ICInterface*, const char*)>&
-                    addServiceHandler = nullptr);
+            const std::function<android::base::Result<void>(const char*, ndk::ICInterface*, bool,
+                                                            int)>& addServiceHandler = nullptr);
     ~WatchdogBinderMediator() { terminate(); }
 
     // Implements ICarWatchdog.aidl APIs.
@@ -143,7 +144,8 @@ private:
     std::shared_ptr<WatchdogInternalHandlerInterface> mWatchdogInternalHandler;
 
     // Used by tests to stub the call to IServiceManager.
-    std::function<android::base::Result<void>(ndk::ICInterface*, const char*)> mAddServiceHandler;
+    std::function<android::base::Result<void>(const char*, ndk::ICInterface*, bool, int)>
+            mAddServiceHandler;
 
     friend class ServiceManager;
 
