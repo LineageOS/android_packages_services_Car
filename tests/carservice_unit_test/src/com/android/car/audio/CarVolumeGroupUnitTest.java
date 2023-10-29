@@ -321,8 +321,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         List<AudioDeviceAttributes> devices = info.getAudioDeviceAttributes();
 
         expectWithMessage("Audio device attributes").that(devices).containsExactly(
-                        new AudioDeviceAttributes(mMediaDeviceInfo.getAudioDeviceInfo()),
-                        new AudioDeviceAttributes(mNavigationDeviceInfo.getAudioDeviceInfo()));
+                mMediaDeviceInfo.getAudioDevice(), mNavigationDeviceInfo.getAudioDevice());
     }
 
     @Test

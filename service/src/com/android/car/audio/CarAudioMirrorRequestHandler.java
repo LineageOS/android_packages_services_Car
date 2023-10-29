@@ -26,7 +26,7 @@ import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
 import android.car.media.IAudioZonesMirrorStatusCallback;
-import android.media.AudioDeviceInfo;
+import android.media.AudioDeviceAttributes;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.RemoteCallbackList;
@@ -121,7 +121,8 @@ import java.util.Objects;
         }
     }
 
-    @Nullable AudioDeviceInfo getAudioDeviceInfo(long requestId) {
+    @Nullable
+    AudioDeviceAttributes getAudioDevice(long requestId) {
         Preconditions.checkArgument(requestId != INVALID_REQUEST_ID,
                 "Request id for device can not be INVALID_REQUEST_ID");
         synchronized (mLock) {
@@ -129,7 +130,7 @@ import java.util.Objects;
             if (index < 0) {
                 return null;
             }
-            return mRequestIdToMirrorDevice.valueAt(index).getAudioDeviceInfo();
+            return mRequestIdToMirrorDevice.valueAt(index).getAudioDevice();
         }
     }
 

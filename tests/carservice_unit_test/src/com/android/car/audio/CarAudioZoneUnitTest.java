@@ -529,32 +529,32 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
 
     @Test
     public void getCurrentAudioDeviceInfos() {
-        AudioDeviceInfo audioDeviceInfo0 = mock(AudioDeviceInfo.class);
-        AudioDeviceInfo audioDeviceInfo1 = mock(AudioDeviceInfo.class);
-        when(mMockZoneConfig0.getAudioDeviceInfos()).thenReturn(List.of(audioDeviceInfo0));
-        when(mMockZoneConfig1.getAudioDeviceInfos()).thenReturn(List.of(audioDeviceInfo1));
+        AudioDeviceAttributes audioDevice0 = mock(AudioDeviceAttributes.class);
+        AudioDeviceAttributes audioDevice1 = mock(AudioDeviceAttributes.class);
+        when(mMockZoneConfig0.getAudioDevice()).thenReturn(List.of(audioDevice0));
+        when(mMockZoneConfig1.getAudioDevice()).thenReturn(List.of(audioDevice1));
         mTestAudioZone.addZoneConfig(mMockZoneConfig0);
         mTestAudioZone.addZoneConfig(mMockZoneConfig1);
 
         expectWithMessage("Current device infos")
-                .that(mTestAudioZone.getCurrentAudioDeviceInfos())
-                .containsExactly(audioDeviceInfo0);
+                .that(mTestAudioZone.getCurrentAudioDevices())
+                .containsExactly(audioDevice0);
     }
 
     @Test
     public void getCurrentAudioDeviceInfosSupportingDynamicMix() {
-        AudioDeviceInfo audioDeviceInfo0 = mock(AudioDeviceInfo.class);
-        AudioDeviceInfo audioDeviceInfo1 = mock(AudioDeviceInfo.class);
-        when(mMockZoneConfig0.getAudioDeviceInfosSupportingDynamicMix())
-                .thenReturn(List.of(audioDeviceInfo0));
-        when(mMockZoneConfig1.getAudioDeviceInfosSupportingDynamicMix())
-                .thenReturn(List.of(audioDeviceInfo1));
+        AudioDeviceAttributes audioDevice0 = mock(AudioDeviceAttributes.class);
+        AudioDeviceAttributes audioDevice1 = mock(AudioDeviceAttributes.class);
+        when(mMockZoneConfig0.getAudioDeviceSupportingDynamicMix())
+                .thenReturn(List.of(audioDevice0));
+        when(mMockZoneConfig1.getAudioDeviceSupportingDynamicMix())
+                .thenReturn(List.of(audioDevice1));
         mTestAudioZone.addZoneConfig(mMockZoneConfig0);
         mTestAudioZone.addZoneConfig(mMockZoneConfig1);
 
         expectWithMessage("Current device infos supporting dynamic mix")
-                .that(mTestAudioZone.getCurrentAudioDeviceInfosSupportingDynamicMix())
-                .containsExactly(audioDeviceInfo0);
+                .that(mTestAudioZone.getCurrentAudioDeviceSupportingDynamicMix())
+                .containsExactly(audioDevice0);
     }
 
     @Test

@@ -21,6 +21,7 @@ import static android.media.AudioAttributes.USAGE_MEDIA;
 import static com.android.car.audio.CarAudioContext.AudioContext;
 
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -28,8 +29,10 @@ import static org.mockito.Mockito.when;
 
 import android.car.media.CarAudioManager;
 import android.media.AudioAttributes;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
+import android.media.AudioManager;
 import android.media.AudioSystem;
 import android.media.audiopolicy.AudioMix;
 import android.media.audiopolicy.AudioPolicy;
@@ -43,6 +46,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -69,17 +73,23 @@ public final class CarAudioDynamicRoutingTest {
     private static final @AudioContext int TEST_NAVIGATION_CONTEXT =
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_NAVIGATION_ATTRIBUTE);
 
+    @Mock
+    private AudioManager mAudioManager;
+
     @Rule
     public final Expect expect = Expect.create();
 
     @Test
     public void setupAudioDynamicRouting() {
         AudioPolicy.Builder mockBuilder = Mockito.mock(AudioPolicy.Builder.class);
+        AudioDeviceInfo musicDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
         CarAudioDeviceInfo musicCarAudioDeviceInfo = getCarAudioDeviceInfo(MUSIC_ADDRESS,
-                /* canBeRoutedWithDynamicPolicyMix= */ true);
+                /* canBeRoutedWithDynamicPolicyMix= */ true, musicDeviceInfo);
+        AudioDeviceInfo navDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
         CarAudioDeviceInfo navCarAudioDeviceInfo = getCarAudioDeviceInfo(NAV_ADDRESS,
-                /* canBeRoutedWithDynamicPolicyMix= */ false);
-
+                /* canBeRoutedWithDynamicPolicyMix= */ false, navDeviceInfo);
+        when(mAudioManager.getDevices(anyInt())).thenReturn(
+                new AudioDeviceInfo[]{musicDeviceInfo, navDeviceInfo});
         CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
                 .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS)
                 .addCarAudioDeviceInfoMock(musicCarAudioDeviceInfo)
@@ -88,7 +98,6 @@ public final class CarAudioDynamicRoutingTest {
                 .addDeviceAddressAndContexts(TEST_NAVIGATION_CONTEXT, NAV_ADDRESS)
                 .addCarAudioDeviceInfoMock(navCarAudioDeviceInfo)
                 .build();
-
         CarAudioZoneConfig carAudioZoneConfig =
                 new CarAudioZoneConfig.Builder("Primary zone config 0",
                         CarAudioManager.PRIMARY_AUDIO_ZONE, /* zoneConfigId= */ 0,
@@ -96,17 +105,16 @@ public final class CarAudioDynamicRoutingTest {
                         .addVolumeGroup(mockMusicGroup)
                         .addVolumeGroup(mockNavGroupRoutingOnMusic)
                         .build();
-
         CarAudioZone carAudioZone = new CarAudioZone(TEST_CAR_AUDIO_CONTEXT, "Primary zone",
                 CarAudioManager.PRIMARY_AUDIO_ZONE);
-
         carAudioZone.addZoneConfig(carAudioZoneConfig);
         SparseArray<CarAudioZone> zones = new SparseArray<>();
         zones.put(CarAudioManager.PRIMARY_AUDIO_ZONE, carAudioZone);
-        CarAudioDynamicRouting.setupAudioDynamicRouting(mockBuilder, zones, TEST_CAR_AUDIO_CONTEXT);
+
+        CarAudioDynamicRouting.setupAudioDynamicRouting(TEST_CAR_AUDIO_CONTEXT, mAudioManager,
+                mockBuilder, zones);
 
         ArgumentCaptor<AudioMix> audioMixCaptor = ArgumentCaptor.forClass(AudioMix.class);
-
         verify(mockBuilder).addMix(audioMixCaptor.capture());
         AudioMix audioMix = audioMixCaptor.getValue();
         expect.withMessage("Music address registered").that(audioMix.getRegistration())
@@ -178,11 +186,15 @@ public final class CarAudioDynamicRoutingTest {
     @Test
     public void setupAudioDynamicRoutingForMirrorDevice() {
         AudioPolicy.Builder mockBuilder = Mockito.mock(AudioPolicy.Builder.class);
+        AudioDeviceInfo mirrorDevice = Mockito.mock(AudioDeviceInfo.class);
         CarAudioDeviceInfo carMirrorDeviceInfo = getCarAudioDeviceInfo(MUSIC_ADDRESS,
-                /* canBeRoutedWithDynamicPolicyMix= */ true);
+                /* canBeRoutedWithDynamicPolicyMix= */ true, mirrorDevice);
+        when(mAudioManager.getDevices(anyInt())).thenReturn(
+                new AudioDeviceInfo[]{mirrorDevice});
+
 
         CarAudioDynamicRouting.setupAudioDynamicRoutingForMirrorDevice(mockBuilder,
-                List.of(carMirrorDeviceInfo));
+                List.of(carMirrorDeviceInfo), mAudioManager);
 
         ArgumentCaptor<AudioMix> audioMixCaptor = ArgumentCaptor.forClass(AudioMix.class);
 
@@ -199,14 +211,14 @@ public final class CarAudioDynamicRoutingTest {
     }
 
     private CarAudioDeviceInfo getCarAudioDeviceInfo(String address,
-            boolean canBeRoutedWithDynamicPolicyMix) {
-        AudioDeviceInfo audioDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+            boolean canBeRoutedWithDynamicPolicyMix, AudioDeviceInfo audioDeviceInfo) {
         when(audioDeviceInfo.isSink()).thenReturn(true);
         when(audioDeviceInfo.getType()).thenReturn(AudioDeviceInfo.TYPE_BUS);
         when(audioDeviceInfo.getAddress()).thenReturn(address);
+        AudioDeviceAttributes deviceAttributes = new AudioDeviceAttributes(audioDeviceInfo);
         CarAudioDeviceInfo carAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
         when(carAudioDeviceInfo.getAddress()).thenReturn(address);
-        when(carAudioDeviceInfo.getAudioDeviceInfo()).thenReturn(audioDeviceInfo);
+        when(carAudioDeviceInfo.getAudioDevice()).thenReturn(deviceAttributes);
         when(carAudioDeviceInfo.getEncodingFormat())
                 .thenReturn(AudioFormat.ENCODING_PCM_16BIT);
         when(carAudioDeviceInfo.getChannelCount()).thenReturn(2);
