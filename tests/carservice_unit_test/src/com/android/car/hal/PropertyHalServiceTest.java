@@ -1016,8 +1016,7 @@ public class PropertyHalServiceTest {
                 /* asyncRequestStartTime= */ 0);
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
-                HVAC_TEMPERATURE_SET, new int[]{0}, 0f));
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(hvacHalSubscribeOption());
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
 
@@ -1086,8 +1085,7 @@ public class PropertyHalServiceTest {
                 /* asyncRequestStartTime= */ 0);
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
-                HVAC_TEMPERATURE_SET, new int[]{0}, 0f));
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(hvacHalSubscribeOption());
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
 
@@ -1135,8 +1133,7 @@ public class PropertyHalServiceTest {
                 /* asyncRequestStartTime= */ 0);
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
-                HVAC_TEMPERATURE_SET, new int[]{0}, 0f));
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(hvacHalSubscribeOption());
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
 
@@ -1184,8 +1181,7 @@ public class PropertyHalServiceTest {
                 /* asyncRequestStartTime= */ 0);
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
-                HVAC_TEMPERATURE_SET, new int[]{0}, 0f));
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(hvacHalSubscribeOption());
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
 
@@ -1237,8 +1233,7 @@ public class PropertyHalServiceTest {
                 /* asyncRequestStartTime= */ 0);
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
-                HVAC_TEMPERATURE_SET, new int[]{0}, 0f));
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(hvacHalSubscribeOption());
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
 
@@ -1283,8 +1278,7 @@ public class PropertyHalServiceTest {
                 /* asyncRequestStartTime= */ 0);
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
-                HVAC_TEMPERATURE_SET, new int[]{0}, 0f));
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(hvacHalSubscribeOption());
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
 
@@ -1327,8 +1321,7 @@ public class PropertyHalServiceTest {
                 /* asyncRequestStartTime= */ 0);
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
-                HVAC_TEMPERATURE_SET, new int[]{0}, 0f));
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(hvacHalSubscribeOption());
         deliverErrorSetResult(setInvocationWrap.get(0),
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
 
@@ -1366,8 +1359,7 @@ public class PropertyHalServiceTest {
                 /* asyncRequestStartTime= */ 0);
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
-                HVAC_TEMPERATURE_SET, new int[]{0}, 0f));
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(hvacHalSubscribeOption());
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
 
@@ -1431,8 +1423,7 @@ public class PropertyHalServiceTest {
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getValue()).containsExactly(
-                new HalSubscribeOptions(HVAC_TEMPERATURE_SET, new int[]{0}, 0f),
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{0}, testSampleRate));
+                hvacHalSubscribeOption(), speedHalSubscribeOption(testSampleRate));
 
         // Notify the property is updated to the target value.
         assertThat(serviceWrap).hasSize(1);
@@ -1489,8 +1480,7 @@ public class PropertyHalServiceTest {
         deliverOkaySetResult(setInvocationWrap.get(0));
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
-                HVAC_TEMPERATURE_SET, new int[]{0}, 0f));
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(hvacHalSubscribeOption());
 
         // Generate a property update event with non-target value.
         serviceWrap.get(0).onHalEvents(List.of(mNonTargetPropValue));
@@ -1537,18 +1527,17 @@ public class PropertyHalServiceTest {
         assertThat(getInvocationWrap).hasSize(1);
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
-                PERF_VEHICLE_SPEED, new int[]{0}, 20f));
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(speedHalSubscribeOption(20f));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
         mPropertyHalService.subscribeProperty(List.of(createCarSubscriptionOption(
-                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f)));
+                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f,
+                /* enableVUR= */ true)));
 
         // Subscription rate has to be updated according to client subscription.
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
-                PERF_VEHICLE_SPEED, new int[]{0}, 40f));
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(speedHalSubscribeOption(40f));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
@@ -1556,18 +1545,17 @@ public class PropertyHalServiceTest {
         mPropertyHalService.unsubscribeProperty(PERF_VEHICLE_SPEED);
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
-                PERF_VEHICLE_SPEED, new int[]{0}, 20f));
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(speedHalSubscribeOption(20f));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
         // New client subscription must overwrite the internal rate.
         mPropertyHalService.subscribeProperty(List.of(createCarSubscriptionOption(
-                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 50.0f)));
+                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 50.0f,
+                /* enableVUR= */ true)));
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
-                PERF_VEHICLE_SPEED, new int[]{0}, 50f));
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(speedHalSubscribeOption(50f));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
@@ -1622,29 +1610,33 @@ public class PropertyHalServiceTest {
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getValue()).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 20f),
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 21f));
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 20f,
+                        /* enableVUR= */ true),
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 21f,
+                        /* enableVUR= */ true));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
 
         List<CarSubscribeOption> carSubscribeOptions = new ArrayList<>();
         carSubscribeOptions.add(createCarSubscriptionOption(PERF_VEHICLE_SPEED, new int[] {1},
-                /* updateRateHz= */ 40.0f));
+                /* updateRateHz= */ 40.0f, /* enableVUR= */ true));
         mPropertyHalService.subscribeProperty(carSubscribeOptions);
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getValue()).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 40f));
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 40f,
+                        /* enableVUR= */ true));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
         carSubscribeOptions = new ArrayList<>();
         carSubscribeOptions.add(createCarSubscriptionOption(PERF_VEHICLE_SPEED, new int[] {2},
-                /* updateRateHz= */ 41.0f));
+                /* updateRateHz= */ 41.0f, /* enableVUR= */ true));
         mPropertyHalService.subscribeProperty(carSubscribeOptions);
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getValue()).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 41f));
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 41f,
+                        /* enableVUR= */ true));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
@@ -1654,29 +1646,33 @@ public class PropertyHalServiceTest {
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getValue()).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 20f),
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 21f));
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 20f,
+                        /* enableVUR= */ true),
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 21f,
+                        /* enableVUR= */ true));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
 
         carSubscribeOptions = new ArrayList<>();
         carSubscribeOptions.add(createCarSubscriptionOption(PERF_VEHICLE_SPEED, new int[] {1},
-                /* updateRateHz= */ 30.0f));
+                /* updateRateHz= */ 30.0f, /* enableVUR= */ true));
         mPropertyHalService.subscribeProperty(carSubscribeOptions);
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getValue()).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 30f));
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 30f,
+                        /* enableVUR= */ true));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
         carSubscribeOptions = new ArrayList<>();
         carSubscribeOptions.add(createCarSubscriptionOption(PERF_VEHICLE_SPEED, new int[] {2},
-                /* updateRateHz= */ 31.0f));
+                /* updateRateHz= */ 31.0f, /* enableVUR= */ true));
         mPropertyHalService.subscribeProperty(carSubscribeOptions);
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getValue()).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 31f));
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 31f,
+                        /* enableVUR= */ true));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
@@ -1734,24 +1730,28 @@ public class PropertyHalServiceTest {
 
         verify(mVehicleHal, times(2)).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getAllValues().get(0)).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 20f));
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 20f,
+                        /* enableVUR= */ true));
         assertThat(mListArgumentCaptor.getAllValues().get(1)).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 21f));
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 21f,
+                        /* enableVUR= */ true));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
         List<CarSubscribeOption> carSubscribeOptions = new ArrayList<>();
         carSubscribeOptions.add(createCarSubscriptionOption(PERF_VEHICLE_SPEED, new int[] {1},
-                /* updateRateHz= */ 40.0f));
+                /* updateRateHz= */ 40.0f, /* enableVUR= */ true));
         carSubscribeOptions.add(createCarSubscriptionOption(PERF_VEHICLE_SPEED, new int[] {2},
-                /* updateRateHz= */ 41.0f));
+                /* updateRateHz= */ 41.0f, /* enableVUR= */ true));
         mPropertyHalService.subscribeProperty(carSubscribeOptions);
 
         // Subscription rate has to be updated according to client subscription.
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getValue()).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 40f),
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 41f));
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 40f,
+                        /* enableVUR= */ true),
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 41f,
+                        /* enableVUR= */ true));
         clearInvocations(mVehicleHal);
 
         deliverOkaySetResult(setInvocationWrap.get(0));
@@ -1766,7 +1766,7 @@ public class PropertyHalServiceTest {
         mPropertyHalService.unsubscribeProperty(PERF_VEHICLE_SPEED);
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
-                PERF_VEHICLE_SPEED, new int[]{2}, 21f));
+                PERF_VEHICLE_SPEED, new int[]{2}, 21f, /* enableVUR= */ true));
         clearInvocations(mVehicleHal);
 
         deliverOkaySetResult(setInvocationWrap.get(1));
@@ -1806,16 +1806,19 @@ public class PropertyHalServiceTest {
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getAllValues().get(0)).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 20f));
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 20f,
+                        /* enableVUR= */ true));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
         mPropertyHalService.subscribeProperty(List.of(createCarSubscriptionOption(
-                PERF_VEHICLE_SPEED, new int[]{0, 1}, /* updateRateHz= */ 40.0f)));
+                PERF_VEHICLE_SPEED, new int[]{0, 1}, /* updateRateHz= */ 40.0f,
+                /* enableVUR= */ true)));
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getAllValues().get(0)).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{0, 1}, 40f));
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{0, 1}, 40f,
+                        /* enableVUR= */ true));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
@@ -1824,19 +1827,21 @@ public class PropertyHalServiceTest {
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getAllValues().get(0)).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 20f));
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 20f,
+                        /* enableVUR= */ true));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
         // New client subscription must overwrite the internal rate.
         List<CarSubscribeOption> carSubscribeOptions = new ArrayList<>();
         carSubscribeOptions.add(createCarSubscriptionOption(PERF_VEHICLE_SPEED, new int[] {1},
-                /* updateRateHz= */ 50.0f));
+                /* updateRateHz= */ 50.0f, /* enableVUR= */ true));
         mPropertyHalService.subscribeProperty(carSubscribeOptions);
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getAllValues().get(0)).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 50f));
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 50f,
+                        /* enableVUR= */ true));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
         clearInvocations(mVehicleHal);
@@ -1886,8 +1891,7 @@ public class PropertyHalServiceTest {
 
         // Default sample rate is set to max sample rate.
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
-                PERF_VEHICLE_SPEED, new int[]{0}, 100f));
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(speedHalSubscribeOption(100f));
 
         // Finish the async set request.
         deliverOkaySetResult(setInvocationWrap.get(0));
@@ -1922,8 +1926,9 @@ public class PropertyHalServiceTest {
         float maxSampleRate = 100.0f;
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getValue()).containsExactly(
-                new HalSubscribeOptions(HVAC_TEMPERATURE_SET, new int[]{0}, 0f),
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, maxSampleRate));
+                hvacHalSubscribeOption(),
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, maxSampleRate,
+                        /* enableVUR= */ true));
 
         // Finish the async set request.
         deliverOkaySetResult(setInvocationWrap.get(0));
@@ -1947,11 +1952,12 @@ public class PropertyHalServiceTest {
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 
         mPropertyHalService.subscribeProperty(List.of(createCarSubscriptionOption(
-                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 22.0f)));
+                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 22.0f,
+                /* enableVUR= */ true)));
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getAllValues().get(0)).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{0}, 22.0f));
+                speedHalSubscribeOption(22.0f));
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
         clearInvocations(mVehicleHal);
 
@@ -1967,7 +1973,7 @@ public class PropertyHalServiceTest {
         assertThat(getInvocationWrap).hasSize(1);
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getAllValues().get(0)).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{0}, 23.2f));
+                speedHalSubscribeOption(23.2f));
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
         clearInvocations(mVehicleHal);
 
@@ -1985,8 +1991,7 @@ public class PropertyHalServiceTest {
 
         // After internal subscription complete, the client subscription rate must be kept.
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
-                PERF_VEHICLE_SPEED, new int[]{0}, 22.0f));
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(speedHalSubscribeOption(22.0f));
 
         verifyNoPendingRequest();
     }
@@ -2024,8 +2029,7 @@ public class PropertyHalServiceTest {
         deliverOkaySetResult(setInvocationWrap.get(0));
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
-                HVAC_TEMPERATURE_SET, new int[]{0}, 0f));
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(hvacHalSubscribeOption());
 
         // Cancel the ongoing request.
         mPropertyHalService.cancelRequests(new int[]{REQUEST_ID_1});
@@ -2072,8 +2076,7 @@ public class PropertyHalServiceTest {
         deliverOkaySetResult(setInvocationWrap.get(0));
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
-                HVAC_TEMPERATURE_SET, new int[]{0}, 0f));
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(hvacHalSubscribeOption());
 
         List<AsyncGetSetRequest> setAsyncRequests = setInvocationWrap.get(0).getArgument(0);
         VehicleStubCallbackInterface callback = setInvocationWrap.get(0).getArgument(1);
@@ -2515,9 +2518,11 @@ public class PropertyHalServiceTest {
     @Test
     public void testHalSubscribeOptions_notEquals() {
         HalSubscribeOptions options1 = new HalSubscribeOptions(/* propId= */ 5,
-                /* areaId= */ new int[]{0, 3}, /* updateRateHz= */ 55f);
+                /* areaId= */ new int[]{0, 3}, /* updateRateHz= */ 55f,
+                /* enableVUR= */ true);
         HalSubscribeOptions options2 = new HalSubscribeOptions(/* propId= */ 5,
-                /* areaId= */ new int[]{0, 3}, /* updateRateHz= */ 53f);
+                /* areaId= */ new int[]{0, 3}, /* updateRateHz= */ 53f,
+                /* enableVUR= */ true);
 
         assertWithMessage("Non-equal hal subscribe options")
                 .that(options1.equals(options2)).isFalse();
@@ -2526,9 +2531,11 @@ public class PropertyHalServiceTest {
     @Test
     public void testHalSubscribeOptions_hashcode() {
         HalSubscribeOptions options1 = new HalSubscribeOptions(/* propId= */ 5,
-                /* areaId= */ new int[]{0, 3}, /* updateRateHz= */ 53f);
+                /* areaId= */ new int[]{0, 3}, /* updateRateHz= */ 53f,
+                /* enableVUR= */ true);
         HalSubscribeOptions options2 = new HalSubscribeOptions(/* propId= */ 5,
-                /* areaId= */ new int[]{0, 3}, /* updateRateHz= */ 53f);
+                /* areaId= */ new int[]{0, 3}, /* updateRateHz= */ 53f,
+                /* enableVUR= */ true);
 
         assertWithMessage("Hashcode hal subscribe options")
                 .that(options1.hashCode()).isEqualTo(options2.hashCode());
@@ -2562,7 +2569,8 @@ public class PropertyHalServiceTest {
         // Subscribe to speed at 40hz.
         mPropertyHalService.subscribeProperty(List.of(
                 createCarSubscriptionOption(
-                        PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f)));
+                        PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f,
+                        /* enableVUR= */ true)));
         // Issues set async request, which should cause speed to be subscribed at 100hz.
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_HVAC_REQUEST_ID_1),
                 mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000,
@@ -2579,13 +2587,13 @@ public class PropertyHalServiceTest {
         verify(mVehicleHal, times(3)).subscribeProperty(any(), mListArgumentCaptor.capture());
         // This is caused by subscribeProperty.
         assertThat(mListArgumentCaptor.getAllValues().get(0)).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{0}, 40.0f));
+                speedHalSubscribeOption(40.0f));
         // This is caused by setCarPropertyValuesAsync.
         assertThat(mListArgumentCaptor.getAllValues().get(1)).containsExactly(
-                new HalSubscribeOptions(HVAC_TEMPERATURE_SET, new int[]{0}, 0.0f));
+                hvacHalSubscribeOption());
         // This is caused by setCarPropertyValuesAsync.
         assertThat(mListArgumentCaptor.getAllValues().get(2)).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{0}, 100.0f));
+                speedHalSubscribeOption(100.0f));
 
         clearInvocations(mVehicleHal);
 
@@ -2597,7 +2605,7 @@ public class PropertyHalServiceTest {
         // Speed should be subscribed at 40hz.
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getAllValues().get(3)).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{0}, 40.0f));
+                speedHalSubscribeOption(40.0f));
 
         verifyNoPendingRequest();
     }
@@ -2610,7 +2618,8 @@ public class PropertyHalServiceTest {
         assertThrows(ServiceSpecificException.class, () ->
                 mPropertyHalService.subscribeProperty(List.of(
                         createCarSubscriptionOption(
-                                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f))));
+                                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f,
+                                /* enableVUR= */ true))));
     }
 
     /**
@@ -2625,7 +2634,8 @@ public class PropertyHalServiceTest {
         assertThrows(ServiceSpecificException.class, () ->
                 mPropertyHalService.subscribeProperty(List.of(
                         createCarSubscriptionOption(
-                                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f))));
+                                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f,
+                                /* enableVUR= */ true))));
 
         clearInvocations(mVehicleHal);
         // Simulate the error has been fixed.
@@ -2634,7 +2644,8 @@ public class PropertyHalServiceTest {
         // Retry the operation.
         mPropertyHalService.subscribeProperty(List.of(
                 createCarSubscriptionOption(
-                        PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f)));
+                        PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f,
+                        /* enableVUR= */ true)));
 
         // The retry request must go to VehicleHal.
         verify(mVehicleHal).subscribeProperty(any(), anyList());
@@ -2647,10 +2658,65 @@ public class PropertyHalServiceTest {
     }
 
     @Test
+    public void testSubscribeProperty_enableVUR() throws Exception {
+        mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
+
+        mPropertyHalService.subscribeProperty(List.of(createCarSubscriptionOption(
+                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f,
+                /* enableVUR= */ true)));
+
+        // Subscription rate has to be updated according to client subscription.
+        verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(speedHalSubscribeOption(40f));
+    }
+
+    @Test
+    public void testSubscribeProperty_disablesVUR() throws Exception {
+        mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
+
+        mPropertyHalService.subscribeProperty(List.of(createCarSubscriptionOption(
+                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f,
+                /* enableVUR= */ false)));
+
+        // Subscription rate has to be updated according to client subscription.
+        verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
+                PERF_VEHICLE_SPEED, new int[]{0}, 40.0f, /* enableVUR= */ false));
+    }
+
+    @Test
+    public void testSubscribeProperty_setAsync_clientDisablesVUR() throws Exception {
+        doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
+        AsyncPropertyServiceRequest request = copyRequest(SET_SPEED_REQUEST_ID_2);
+        request.setUpdateRateHz(20.0f);
+
+        mPropertyHalService.setCarPropertyValuesAsync(List.of(request),
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000,
+                /* asyncRequestStartTime= */ 0);
+
+        verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(speedHalSubscribeOption(20f));
+        clearInvocations(mVehicleHal);
+
+        // Client disables VUR.
+        mPropertyHalService.subscribeProperty(List.of(createCarSubscriptionOption(
+                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 10.0f,
+                /* enableVUR= */ false)));
+
+        // VUR must be turned off.
+        verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
+                PERF_VEHICLE_SPEED, new int[]{0}, 20.0f, /* enableVUR= */ false));
+
+        mPropertyHalService.cancelRequests(new int[]{REQUEST_ID_2});
+    }
+
+    @Test
     public void testUnubscribeProperty_exceptionFromVhal() throws Exception {
         mPropertyHalService.subscribeProperty(List.of(
                 createCarSubscriptionOption(
-                        PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f)));
+                        PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f,
+                        /* enableVUR= */ true)));
         doThrow(new ServiceSpecificException(0)).when(mVehicleHal).unsubscribeProperty(
                 any(), anyInt());
 
@@ -2666,7 +2732,8 @@ public class PropertyHalServiceTest {
     public void tesUnsubscribeProperty_exceptionFromVhal_retryFixed() throws Exception {
         mPropertyHalService.subscribeProperty(List.of(
                 createCarSubscriptionOption(
-                        PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f)));
+                        PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f,
+                        /* enableVUR= */ true)));
         doThrow(new ServiceSpecificException(0)).when(mVehicleHal).unsubscribeProperty(
                 any(), anyInt());
 
@@ -2701,5 +2768,15 @@ public class PropertyHalServiceTest {
         options.updateRateHz = updateRateHz;
         options.enableVariableUpdateRate = enableVUR;
         return options;
+    }
+
+    private static HalSubscribeOptions hvacHalSubscribeOption() {
+        return new HalSubscribeOptions(HVAC_TEMPERATURE_SET, new int[]{0}, 0.0f,
+                /* enableVUR= */ false);
+    }
+
+    private static HalSubscribeOptions speedHalSubscribeOption(float speed) {
+        return new HalSubscribeOptions(
+                PERF_VEHICLE_SPEED, new int[]{0}, speed, /* enableVUR= */ true);
     }
 }
