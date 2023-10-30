@@ -69,6 +69,17 @@ public class PairSparseArray<E> {
     }
 
     /**
+     * Gets all the first keys.
+     */
+    public ArraySet<Integer> getFirstKeys() {
+        ArraySet<Integer> firstKeys = new ArraySet<>();
+        for (int i = 0; i < mSecondKeysByFirstKey.size(); i++) {
+            firstKeys.add(mSecondKeysByFirstKey.keyAt(i));
+        }
+        return new ArraySet<>(firstKeys);
+    }
+
+    /**
      * Puts the keys and value into the array, optimizing for the case where
      * the encoded key is greater than all existing keys in the array.
      */

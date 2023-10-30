@@ -78,6 +78,7 @@ import com.android.car.internal.property.CarSubscribeOption;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.internal.annotations.VisibleForTesting;
 
 import org.junit.After;
 import org.junit.Before;
@@ -2691,12 +2692,23 @@ public class PropertyHalServiceTest {
         verify(mVehicleHal).unsubscribeProperty(any(), eq(PERF_VEHICLE_SPEED));
     }
 
+    /** Creates a {@code CarSubscribeOption} with VUR off. */
+    @VisibleForTesting
     public static CarSubscribeOption createCarSubscriptionOption(int propertyId,
             int[] areaId, float updateRateHz) {
+        return createCarSubscriptionOption(propertyId, areaId, updateRateHz,
+                /* enableVUR= */ false);
+    }
+
+    /** Creates a {@code CarSubscribeOption}. */
+    @VisibleForTesting
+    public static CarSubscribeOption createCarSubscriptionOption(int propertyId,
+            int[] areaId, float updateRateHz, boolean enableVUR) {
         CarSubscribeOption options = new CarSubscribeOption();
         options.propertyId = propertyId;
         options.areaIds = areaId;
         options.updateRateHz = updateRateHz;
+        options.enableVariableUpdateRate = enableVUR;
         return options;
     }
 }

@@ -227,6 +227,49 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
     }
 
     @Test
+    public void testDiffBetweenCurrentAndStage_updateEnableVariableUpdateRate() {
+        CarSubscribeOption option1 = getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2});
+        CarSubscribeOption option2 = getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2});
+        option1.enableVariableUpdateRate = false;
+        option2.enableVariableUpdateRate = true;
+        // client1 disables VUR.
+        mSubscriptionManager.stageNewOptions(mClient1, List.of(option1));
+
+        List<CarSubscribeOption> outDiffSubscribeOptions = new ArrayList<>();
+        List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
+
+        mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
+                outPropertyIdsToUnsubscribe);
+
+        expectThat(outPropertyIdsToUnsubscribe).isEmpty();
+        expectThat(outDiffSubscribeOptions).containsExactly(option1);
+        outDiffSubscribeOptions.clear();
+
+        mSubscriptionManager.commit();
+        // Only client2 enables VUR, so combined VUR is still disabled.
+        mSubscriptionManager.stageNewOptions(mClient2, List.of(option2));
+
+        mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
+                outPropertyIdsToUnsubscribe);
+
+        expectThat(outPropertyIdsToUnsubscribe).isEmpty();
+        expectWithMessage("Only one client enables VUR must cause VUR disabled as combined")
+                .that(outDiffSubscribeOptions).isEmpty();
+
+        mSubscriptionManager.commit();
+        // Unregisters client1, so only client2 is registered with VUR enabled.
+        mSubscriptionManager.stageUnregister(mClient1, new ArraySet<Integer>(Set.of(
+                PROPERTY1)));
+
+        mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
+                outPropertyIdsToUnsubscribe);
+
+        expectThat(outPropertyIdsToUnsubscribe).isEmpty();
+        expectWithMessage("VUR must be enabled when only one client registers with VUR enabled")
+                .that(outDiffSubscribeOptions).containsExactly(option2);
+    }
+
+    @Test
     public void testDiffBetweenCurrentAndStage_removeClientCauseRateChange() {
         mSubscriptionManager.stageNewOptions(mClient1, List.of(
                 getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}, 1.0f)
