@@ -215,4 +215,7 @@
     <!-- Uses customized system bar controls -->
     <!-- TODO(b/324901970): turn to true after system bar persistency feature is done. -->
     <bool name="config_remoteInsetsControllerControlsSystemBars">false</bool>
+
+    <!-- Make sure that auto-suspend mode is not used. -->
+    <bool name="config_useAutoSuspend">false</bool>
 </resources>
