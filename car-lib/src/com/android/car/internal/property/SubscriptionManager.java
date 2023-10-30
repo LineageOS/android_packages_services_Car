@@ -47,6 +47,10 @@ import java.util.TreeSet;
  * ```
  * synchronized (mLock) {
  *   mSubscriptionManager.stageNewOptions(...);
+ *   // Optionally stage some other options.
+ *   mSubscriptionManager.stageNewOptions(...);
+ *   // Optionally stage unregistration.
+ *   mSubscriptionManager.stageUnregister(...);
  *
  *   mSubscriptionManager.diffBetweenCurrentAndStage(...);
  *   try {
@@ -228,7 +232,7 @@ public final class SubscriptionManager<ClientType> {
             Log.d(TAG, "stageNewOptions: options: " + options);
         }
 
-        cloneCurrentToStage();
+        cloneCurrentToStageIfClean();
 
         for (int i = 0; i < options.size(); i++) {
             CarSubscribeOption option = options.get(i);
@@ -256,7 +260,7 @@ public final class SubscriptionManager<ClientType> {
                     propertyIdsToUnregister));
         }
 
-        cloneCurrentToStage();
+        cloneCurrentToStageIfClean();
 
         for (int i = 0; i < propertyIdsToUnregister.size(); i++) {
             int propertyId = propertyIdsToUnregister.valueAt(i);
@@ -309,6 +313,10 @@ public final class SubscriptionManager<ClientType> {
         // Drop the staged state.
         mStagedUpdateRateHzByClientByPropIdAreaId = mCurrentUpdateRateHzByClientByPropIdAreaId;
         mStagedAffectedPropIdAreaIds.clear();
+    }
+
+    public ArraySet<Integer> getCurrentSubscribedPropIds() {
+        return new ArraySet<Integer>(mCurrentUpdateRateHzByClientByPropIdAreaId.getFirstKeys());
     }
 
     /**
@@ -450,10 +458,11 @@ public final class SubscriptionManager<ClientType> {
         return carSubscribeOptions;
     }
 
-    private void cloneCurrentToStage() {
+    private void cloneCurrentToStageIfClean() {
         if (!mStagedAffectedPropIdAreaIds.isEmpty()) {
-            throw new IllegalStateException(
-                    "Must either commit or dropCommit before staging new changes");
+            // The current state is not clean, we already cloned once. We allow staging multiple
+            // commits before final commit/drop.
+            return;
         }
 
         mStagedUpdateRateHzByClientByPropIdAreaId = new PairSparseArray<>();

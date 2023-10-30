@@ -16,8 +16,6 @@
 
 package com.android.car.internal.property;
 
-import static org.junit.Assert.assertThrows;
-
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.util.ArraySet;
 
@@ -65,6 +63,20 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
                 mSubscriptionManager.getClients(PROPERTY1, AREA2)).isEqualTo(Set.of(mClient1));
         expectWithMessage("Get expected clients for PROPERTY2, AREA1").that(
                 mSubscriptionManager.getClients(PROPERTY2, AREA1)).isNull();
+    }
+
+    @Test
+    public void testStageNewOptions_Commit_GetCurrentSubscribedPropIds() {
+        mSubscriptionManager.stageNewOptions(mClient1, List.of(
+                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}),
+                getCarSubscribeOption(PROPERTY2, new int[]{AREA1, AREA2})
+        ));
+
+        mSubscriptionManager.commit();
+
+        expectWithMessage("Get expected current subscribed property IDs").that(
+                mSubscriptionManager.getCurrentSubscribedPropIds())
+                .isEqualTo(Set.of(PROPERTY1, PROPERTY2));
     }
 
     @Test
@@ -393,31 +405,46 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
     }
 
     @Test
-    public void testStageNewOptions_dirtyStateNotAllowed() {
-        List<CarSubscribeOption> newOptions = List.of(
+    public void testStageNewOptions_calledTwice() {
+        mSubscriptionManager.stageNewOptions(mClient1, List.of(
+                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2})
+        ));
+        mSubscriptionManager.stageNewOptions(mClient2, List.of(
+                getCarSubscribeOption(PROPERTY2, new int[]{AREA1, AREA2})
+        ));
+
+        List<CarSubscribeOption> outDiffSubscribeOptions = new ArrayList<>();
+        List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
+        mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
+                outPropertyIdsToUnsubscribe);
+
+        expectThat(outPropertyIdsToUnsubscribe).isEmpty();
+        expectThat(outDiffSubscribeOptions).containsExactly(
                 getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}),
                 getCarSubscribeOption(PROPERTY2, new int[]{AREA1, AREA2})
         );
-        mSubscriptionManager.stageNewOptions(mClient1, newOptions);
-
-        // Staging a new change with existing staged changes is not allowed
-        assertThrows(IllegalStateException.class, () -> mSubscriptionManager.stageNewOptions(
-                mClient1, newOptions));
     }
 
     @Test
-    public void testStageUnregister_dirtyStateNotAllowed() {
+    public void testStageUnregister_calledTwice() {
         mSubscriptionManager.stageNewOptions(mClient1, List.of(
                 getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}),
                 getCarSubscribeOption(PROPERTY2, new int[]{AREA1, AREA2})
         ));
         mSubscriptionManager.commit();
+
         mSubscriptionManager.stageUnregister(mClient1, new ArraySet<Integer>(Set.of(
                 PROPERTY1)));
+        mSubscriptionManager.stageUnregister(mClient1, new ArraySet<Integer>(Set.of(
+                PROPERTY2)));
 
-        // Staging a new change with existing staged changes is not allowed
-        assertThrows(IllegalStateException.class, () -> mSubscriptionManager.stageUnregister(
-                mClient1, new ArraySet<Integer>(Set.of(PROPERTY1))));
+        List<CarSubscribeOption> outDiffSubscribeOptions = new ArrayList<>();
+        List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
+        mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
+                outPropertyIdsToUnsubscribe);
+
+        expectThat(outPropertyIdsToUnsubscribe).containsExactly(PROPERTY1, PROPERTY2);
+        expectThat(outDiffSubscribeOptions).isEmpty();
     }
 
     @Test
