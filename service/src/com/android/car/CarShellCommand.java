@@ -601,9 +601,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t  Print this help text.");
         pw.println("\tday-night-mode [day|night|sensor]");
         pw.println("\t  Force into day/night mode or restore to auto.");
-        pw.println("\tinject-vhal-event <PROPERTY_ID in String, Hex, or Decimal> [area ID] "
-                + "data(can be comma separated list) "
-                + "[-t delay_time_seconds]");
+        pw.println("\tinject-vhal-event <property name in SCREAMING_SNAKE_CASE or ID in Hex or "
+                + "Decimal> [area ID] data(can be comma separated list) [-t delay_time_seconds]");
         pw.println("\t  Inject a vehicle property for testing.");
         pw.println("\t  delay_time_seconds: the event timestamp is increased by certain second.");
         pw.println("\t  If not specified, it will be 0.");
@@ -624,9 +623,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t  With 'reboot', enter garage mode, then reboot when it completes.");
         pw.println("\tget-do-activities pkgname");
         pw.println("\t  Get Distraction Optimized activities in given package.");
-        pw.println("\tget-carpropertyconfig [PROPERTY_ID in Hex or Decimal]");
-        pw.println("\t  Get a CarPropertyConfig by Id or list all CarPropertyConfigs");
-        pw.println("\tget-property-value [PROPERTY_ID in Hex or Decimal] [areaId]");
+        pw.println("\tget-carpropertyconfig [property name in SCREAMING_SNAKE_CASE or ID in Hex or"
+                + " Decimal]");
+        pw.println("\t  Get a specific CarPropertyConfig or list all CarPropertyConfigs");
+        pw.println("\tget-property-value [property name in SCREAMING_SNAKE_CASE or ID in Hex or "
+                + "Decimal] [areaId]");
         pw.println("\t  Get a vehicle property value by property id and areaId");
         pw.println("\t  or list all property values for all areaId");
         pw.printf("\t%s\n", getSetPropertyValueUsage());
@@ -3227,7 +3228,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
     }
 
     private static String getSetPropertyValueUsage() {
-        return COMMAND_SET_PROPERTY_VALUE + " <PROPERTY_ID in Hex or Decimal> <areaId> "
+        return COMMAND_SET_PROPERTY_VALUE
+                + " <property name in SCREAMING_SNAKE_CASE or ID in Hex or Decimal> <areaId> "
                 + "<data (can be comma-separated)>";
     }
 
