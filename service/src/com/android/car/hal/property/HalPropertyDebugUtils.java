@@ -18,9 +18,13 @@ package com.android.car.hal.property;
 
 import static java.lang.Integer.toHexString;
 
+import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
+import android.hardware.automotive.vehicle.VehiclePropertyGroup;
+import android.hardware.automotive.vehicle.VehiclePropertyType;
+import android.util.Slog;
 
 import com.android.car.internal.util.ConstantDebugUtils;
 
@@ -28,12 +32,41 @@ import com.android.car.internal.util.ConstantDebugUtils;
  * Utility class for converting {@link VehicleProperty} related information to human-readable names.
  */
 public final class HalPropertyDebugUtils {
+    private static final String TAG = HalPropertyDebugUtils.class.getSimpleName();
+
     /**
      * HalPropertyDebugUtils only contains static fields and methods and must never be
      * instantiated.
      */
     private HalPropertyDebugUtils() {
         throw new UnsupportedOperationException("Must never be called");
+    }
+
+    /**
+     * Gets a user-friendly representation string representation of {@link VehicleArea}
+     * constant for the passed {@code propertyId}.
+     */
+    public static String toAreaTypeString(int propertyId) {
+        int areaType = propertyId & VehicleArea.MASK;
+        return toDebugString(VehicleArea.class, areaType);
+    }
+
+    /**
+     * Gets a user-friendly representation string representation of {@link VehiclePropertyGroup}
+     * constant for the passed {@code propertyId}.
+     */
+    public static String toGroupString(int propertyId) {
+        int group = propertyId & VehiclePropertyGroup.MASK;
+        return toDebugString(VehiclePropertyGroup.class, group);
+    }
+
+    /**
+     * Gets a user-friendly representation string representation of {@link VehiclePropertyType}
+     * constant for the passed {@code propertyId}.
+     */
+    public static String toValueTypeString(int propertyId) {
+        int valueType = propertyId & VehiclePropertyType.MASK;
+        return toDebugString(VehiclePropertyType.class, valueType);
     }
 
     /**
@@ -53,12 +86,12 @@ public final class HalPropertyDebugUtils {
     }
 
     private static String toDebugString(Class<?> clazz, int constantValue) {
+        String hexSuffix = "(0x" + toHexString(constantValue) + ")";
         if (ConstantDebugUtils.toName(clazz, constantValue) == null) {
-            throw new IllegalArgumentException(
-                    "Invalid " + clazz.getSimpleName() + " constant value: 0x" + toHexString(
-                            constantValue));
+            String invalidConstantValue = "INVALID_" + clazz.getSimpleName() + hexSuffix;
+            Slog.e(TAG, invalidConstantValue);
+            return invalidConstantValue;
         }
-        return ConstantDebugUtils.toName(clazz, constantValue) + "(0x" + toHexString(constantValue)
-                + ")";
+        return ConstantDebugUtils.toName(clazz, constantValue) + hexSuffix;
     }
 }

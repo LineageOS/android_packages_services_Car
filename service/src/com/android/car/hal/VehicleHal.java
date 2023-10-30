@@ -20,7 +20,10 @@ import static android.os.SystemClock.uptimeMillis;
 
 import static com.android.car.hal.property.HalAreaIdDebugUtils.toDebugString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toAccessString;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toAreaTypeString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toChangeModeString;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toGroupString;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toValueTypeString;
 import static com.android.car.hal.property.HalPropertyIdDebugUtils.toDebugString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -1226,9 +1229,10 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     private static void dumpPropertyConfigsHelp(PrintWriter writer, HalPropConfig config) {
         int propertyId = config.getPropId();
         writer.printf(
-                "Property:%s, access:%s, changeMode:%s, configArray:%s, minSampleRateHz:%f, "
-                        + "maxSampleRateHz:%f\n",
-                toDebugString(propertyId), toAccessString(config.getAccess()),
+                "Property:%s, group:%s, areaType:%s, valueType:%s,\n    access:%s, changeMode:%s, "
+                        + "configArray:%s, minSampleRateHz:%f, maxSampleRateHz:%f\n",
+                toDebugString(propertyId), toGroupString(propertyId), toAreaTypeString(propertyId),
+                toValueTypeString(propertyId), toAccessString(config.getAccess()),
                 toChangeModeString(config.getChangeMode()),
                 Arrays.toString(config.getConfigArray()), config.getMinSampleRate(),
                 config.getMaxSampleRate());
@@ -1236,7 +1240,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             return;
         }
         for (HalAreaConfig area : config.getAreaConfigs()) {
-            writer.printf("\tareaId:%s, f min:%f, f max:%f, i min:%d, i max:%d,"
+            writer.printf("        areaId:%s, f min:%f, f max:%f, i min:%d, i max:%d,"
                             + " i64 min:%d, i64 max:%d\n", toDebugString(propertyId,
                             area.getAreaId()),
                     area.getMinFloatValue(), area.getMaxFloatValue(), area.getMinInt32Value(),
