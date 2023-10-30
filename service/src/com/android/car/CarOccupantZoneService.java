@@ -21,9 +21,9 @@ import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPING
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 import static android.view.Display.STATE_ON;
 
-import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -71,6 +71,8 @@ import com.android.car.occupantzone.CarOccupantZoneDumpProto;
 import com.android.car.occupantzone.CarOccupantZoneDumpProto.DisplayConfigProto;
 import com.android.car.occupantzone.CarOccupantZoneDumpProto.DisplayPortConfigsProto;
 import com.android.car.occupantzone.CarOccupantZoneDumpProto.DisplayPortConfigsProto.DisplayConfigPortProto;
+import com.android.car.occupantzone.CarOccupantZoneDumpProto.DisplayUniqueIdConfigsProto;
+import com.android.car.occupantzone.CarOccupantZoneDumpProto.DisplayUniqueIdConfigsProto.DisplayConfigUniqueIdProto;
 import com.android.car.user.CarUserService;
 import com.android.car.user.ExperimentalCarUserService;
 import com.android.car.user.ExperimentalCarUserService.ZoneUserBindingHelper;
@@ -505,6 +507,25 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 proto.end(displayConfigToken);
                 proto.end(displayConfigPortToken);
                 proto.end(displayPortConfigsToken);
+            }
+
+            for (int i = 0; i < mDisplayUniqueIdConfigs.size(); i++) {
+                long displayUniqueIdConfigsToken = proto.start(
+                        CarOccupantZoneDumpProto.DISPLAY_UNIQUE_ID_CONFIGS);
+                long displayConfigUniqueIdToken = proto.start(
+                        DisplayUniqueIdConfigsProto.DISPLAY_CONFIG_UNIQUE_ID);
+                String uniqueId = mDisplayUniqueIdConfigs.keyAt(i);
+                proto.write(DisplayConfigUniqueIdProto.UNIQUE_ID, uniqueId);
+                long displayConfigToken = proto.start(DisplayConfigPortProto.DISPLAY_CONFIG);
+                DisplayConfig displayConfig = mDisplayUniqueIdConfigs.valueAt(i);
+                proto.write(DisplayConfigProto.DISPLAY_TYPE, displayConfig.displayType);
+                proto.write(DisplayConfigProto.OCCUPANT_ZONE_ID, displayConfig.occupantZoneId);
+                for (int j = 0; j < displayConfig.inputTypes.length; j++) {
+                    proto.write(DisplayConfigProto.INPUT_TYPES, displayConfig.inputTypes[j]);
+                }
+                proto.end(displayConfigToken);
+                proto.end(displayConfigUniqueIdToken);
+                proto.end(displayUniqueIdConfigsToken);
             }
         }
     }

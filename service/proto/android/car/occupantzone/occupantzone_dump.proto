@@ -33,5 +33,13 @@ message CarOccupantZoneDumpProto {
     }
     optional DisplayConfigPortProto display_config_port = 1;
   }
+  message DisplayUniqueIdConfigsProto {
+    message DisplayConfigUniqueIdProto {
+      optional string unique_id = 1;
+      optional DisplayConfigProto display_config = 2;
+    }
+    optional DisplayConfigUniqueIdProto display_config_unique_id = 1;
+  }
   repeated DisplayPortConfigsProto display_port_configs = 1;
+  repeated DisplayUniqueIdConfigsProto display_unique_id_configs = 2;
 }
