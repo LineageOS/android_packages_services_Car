@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"ਯੋਜਨਾਬੰਦੀ ਸੇਵਾ ਨਾਲ ਜੋੜੋ"</string>
-    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"ਹੋਲਡਰ ਨੂੰ ਯੋਜਨਾਬੰਦੀ ਸੇਵਾ ਦੇ ਉੱਚ-ਪੱਧਰ ਦੇ ਇੰਟਰਫੇਸ ਨਾਲ ਜੋੜਨ ਦਿੰਦਾ ਹੈ। ਇਹ ਆਮ ਐਪਾਂ ਲਈ ਕਦੇ ਵੀ ਲੋੜੀਂਦਾ ਨਹੀਂ ਹੋਣਾ ਚਾਹੀਦਾ।"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"ਹੋਲਡਰ ਨੂੰ ਯੋਜਨਾਬੰਦੀ ਸੇਵਾ ਦੇ ਉੱਚ-ਪੱਧਰ ਦੇ ਇੰਟਰਫ਼ੇਸ ਨਾਲ ਜੋੜਨ ਦਿੰਦਾ ਹੈ। ਇਹ ਆਮ ਐਪਾਂ ਲਈ ਕਦੇ ਵੀ ਲੋੜੀਂਦਾ ਨਹੀਂ ਹੋਣਾ ਚਾਹੀਦਾ।"</string>
     <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS ਕਲਾਇੰਟ ਸੇਵਾ"</string>
     <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"VMS ਕਲਾਇੰਟਾਂ ਨਾਲ ਜੋੜੋ"</string>
     <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"ਇੰਸਟਰੂਮੈਂਟ ਕਲੱਸਟਰ ਰੈਂਡਰਿੰਗ"</string>
