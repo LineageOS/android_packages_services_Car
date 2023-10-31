@@ -260,5 +260,9 @@ public final class RadioTestFragment extends Fragment {
                 mOpenTunerWarning.setText(getString(R.string.empty));
             }
         }
+
+        public void onTunerPlay() {
+            handleHwAudioSourceStart();
+        }
     }
 }
