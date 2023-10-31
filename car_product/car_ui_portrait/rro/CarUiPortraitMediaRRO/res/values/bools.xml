@@ -20,4 +20,6 @@
     <bool name="show_mini_playback_controls">false</bool>
     <bool name="switch_to_playback_view_when_playable_item_is_clicked">false</bool>
     <bool name="show_persistent_tabs">true</bool>
+    <!-- A config determines whether to show menu item selector in toolbar menu items-->
+    <bool name="show_menu_item_selector">false</bool>
 </resources>
