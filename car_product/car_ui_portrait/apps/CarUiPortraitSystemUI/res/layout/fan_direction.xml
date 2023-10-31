@@ -31,7 +31,7 @@
             systemui:hvacPropertyId="356517121"
             systemui:hvacToggleOffButtonDrawable="@drawable/ic_airflow_head_off"
             systemui:hvacToggleOnButtonDrawable="@drawable/ic_airflow_head_on"
-            systemui:hvacTurnOffIfAutoOn="true"
+            systemui:hvacDisableViewIfAutoOn="true"
             systemui:onValue="1"
             systemui:offValue="0"
             systemui:preventToggleOff="true"/>
@@ -48,7 +48,7 @@
             systemui:hvacPropertyId="356517121"
             systemui:hvacToggleOffButtonDrawable="@drawable/ic_airflow_feet_off"
             systemui:hvacToggleOnButtonDrawable="@drawable/ic_airflow_feet_on"
-            systemui:hvacTurnOffIfAutoOn="true"
+            systemui:hvacDisableViewIfAutoOn="true"
             systemui:onValue="2"
             systemui:offValue="0"
             systemui:preventToggleOff="true"/>
@@ -65,7 +65,7 @@
             systemui:hvacPropertyId="356517121"
             systemui:hvacToggleOffButtonDrawable="@drawable/ic_airflow_windshield_off"
             systemui:hvacToggleOnButtonDrawable="@drawable/ic_airflow_windshield_on"
-            systemui:hvacTurnOffIfAutoOn="true"
+            systemui:hvacDisableViewIfAutoOn="true"
             systemui:onValue="6"
             systemui:offValue="0"
             systemui:preventToggleOff="true"/>
@@ -87,7 +87,7 @@
             systemui:hvacPropertyId="320865540"
             systemui:hvacToggleOffButtonDrawable="@drawable/ic_defroster_windshield_off"
             systemui:hvacToggleOnButtonDrawable="@drawable/ic_defroster_windshield_on"
-            systemui:hvacTurnOffIfAutoOn="true"
+            systemui:hvacDisableViewIfAutoOn="true"
             systemui:onValue="1"
             systemui:offValue="0"/>
         <View
@@ -103,7 +103,7 @@
             systemui:hvacPropertyId="320865540"
             systemui:hvacToggleOffButtonDrawable="@drawable/ic_defroster_rear_off"
             systemui:hvacToggleOnButtonDrawable="@drawable/ic_defroster_rear_on"
-            systemui:hvacTurnOffIfAutoOn="true"
+            systemui:hvacDisableViewIfAutoOn="true"
             systemui:onValue="1"
             systemui:offValue="0"/>
     </LinearLayout>
