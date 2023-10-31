@@ -168,6 +168,9 @@ public:
             const android::sp<android::Looper>& looper);
     static void terminateService();
 
+    CarPowerPolicyServer();
+    android::base::Result<void> init(const sp<android::Looper>& looper);
+
     // Implements ICarPowerPolicyServer.aidl.
     status_t dump(int fd, const char** args, uint32_t numArgs) override EXCLUDES(mMutex);
     ndk::ScopedAStatus getCurrentPowerPolicy(
@@ -259,9 +262,6 @@ private:
                                       void* cookie) override;
     };
 
-    CarPowerPolicyServer();
-
-    android::base::Result<void> init(const android::sp<android::Looper>& looper) EXCLUDES(mMutex);
     void terminate() EXCLUDES(mMutex);
     bool isRegisteredLocked(const AIBinder* binder) REQUIRES(mMutex);
     void connectToVhal();
