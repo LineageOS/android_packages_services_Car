@@ -131,8 +131,12 @@
     <item target="layout/car_ui_toolbar_two_row" value="@layout/car_ui_toolbar_two_row"/>
     <item target="layout/car_ui_toolbar" value="@layout/car_ui_toolbar"/>
 
+    <item target="style/TextAppearance.CarUi.AlertDialog.Title" value="@style/TextAppearance.CarUi.AlertDialog.Title"/>
+    <item target="style/TextAppearance.CarUi.AlertDialog.Subtitle" value="@style/TextAppearance.CarUi.AlertDialog.Subtitle"/>
     <item target="style/TextAppearance.CarUi.Body1" value="@style/TextAppearance.CarUi.Body1"/>
     <item target="style/TextAppearance.CarUi.Body3" value="@style/TextAppearance.CarUi.Body3"/>
+    <item target="style/TextAppearance.CarUi.ListItem" value="@style/TextAppearance.CarUi.ListItem"/>
+    <item target="style/TextAppearance.CarUi.ListItem.Body" value="@style/TextAppearance.CarUi.ListItem.Body"/>
     <item target="style/TextAppearance.CarUi.PreferenceCategoryTitle" value="@style/TextAppearance.CarUi.PreferenceCategoryTitle"/>
     <item target="style/TextAppearance.CarUi.PreferenceSummary" value="@style/TextAppearance.CarUi.PreferenceSummary"/>
     <item target="style/TextAppearance.CarUi.PreferenceTitle" value="@style/TextAppearance.CarUi.PreferenceTitle"/>
