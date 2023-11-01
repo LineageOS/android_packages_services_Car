@@ -54,4 +54,14 @@ interface ICarPowerPolicyDelegateCallback {
    * @param reason Code to tell why the power policy application failed.
    */
   oneway void onApplyPowerPolicyFailed(int requestId, in PowerPolicyFailureReason reason);
+
+  /**
+   * The car power policy daemon calls this when a power policy change has been applied by a client
+   * other than CarService.
+   *
+   * <p>CarService can then notify its listeners of the power policy change.
+   *
+   * @param accumulatedPolicy the current accumulated power policy
+   */
+  oneway void onPowerPolicyChanged(in CarPowerPolicy accumulatedPolicy);
 }

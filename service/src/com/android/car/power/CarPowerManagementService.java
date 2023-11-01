@@ -1941,6 +1941,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
 
         @Override
+        public void onPowerPolicyChanged(
+                android.frameworks.automotive.powerpolicy.CarPowerPolicy accumulatedPolicy) {
+            // TODO(b/308192386): implement this
+        }
+
+        @Override
         public String getInterfaceHash() {
             return ICarPowerPolicyDelegateCallback.HASH;
         }
