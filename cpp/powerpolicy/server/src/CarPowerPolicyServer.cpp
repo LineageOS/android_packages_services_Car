@@ -241,11 +241,12 @@ ScopedAStatus CarPowerPolicyDelegate::notifyCarServiceReady(
             "notifyCarServiceReady");
 }
 
-ScopedAStatus CarPowerPolicyDelegate::applyPowerPolicyAsync(const std::string& policyId, bool force,
-                                                            int* aidlReturn) {
+ScopedAStatus CarPowerPolicyDelegate::applyPowerPolicyAsync(int32_t requestId,
+                                                            const std::string& policyId,
+                                                            bool force) {
     return runWithService(
-            [policyId, force, aidlReturn](CarPowerPolicyServer* service) -> ScopedAStatus {
-                return service->applyPowerPolicyAsync(policyId, force, aidlReturn);
+            [requestId, policyId, force](CarPowerPolicyServer* service) -> ScopedAStatus {
+                return service->applyPowerPolicyAsync(requestId, policyId, force);
             },
             "applyPowerPolicyAsync");
 }
@@ -521,8 +522,8 @@ ScopedAStatus CarPowerPolicyServer::notifyPowerPolicyDefinition(
 }
 
 ScopedAStatus CarPowerPolicyServer::applyPowerPolicyAsync(
-        [[maybe_unused]] const std::string& policyId, [[maybe_unused]] bool force,
-        [[maybe_unused]] int* aidlReturn) {
+        [[maybe_unused]] int32_t requestId, [[maybe_unused]] const std::string& policyId,
+        [[maybe_unused]] bool force) {
     ScopedAStatus status = checkSystemPermission();
     if (!status.isOk()) {
         return status;

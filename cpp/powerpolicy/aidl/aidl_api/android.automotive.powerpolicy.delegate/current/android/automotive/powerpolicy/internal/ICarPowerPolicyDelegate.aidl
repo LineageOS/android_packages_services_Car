@@ -35,7 +35,7 @@ package android.automotive.powerpolicy.internal;
 /* @hide */
 interface ICarPowerPolicyDelegate {
   android.automotive.powerpolicy.internal.PowerPolicyInitData notifyCarServiceReady(in android.automotive.powerpolicy.internal.ICarPowerPolicyDelegateCallback callback);
-  int applyPowerPolicyAsync(in @utf8InCpp String policyId, boolean force);
+  void applyPowerPolicyAsync(int requestId, in @utf8InCpp String policyId, boolean force);
   void setPowerPolicyGroup(in @utf8InCpp String policyGroupId);
   void notifyPowerPolicyDefinition(in @utf8InCpp String policyId, in @utf8InCpp String[] enabledComponents, in @utf8InCpp String[] disabledComponents);
   void notifyPowerStateChange(in android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate.PowerState state);
