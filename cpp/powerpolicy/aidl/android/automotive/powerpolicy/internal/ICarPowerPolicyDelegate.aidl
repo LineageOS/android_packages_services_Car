@@ -50,17 +50,17 @@ interface ICarPowerPolicyDelegate {
    *
    * <p>This method should return immediately after queueing the request. When the car power policy
    * daemon finishes applying the power policy, it invokes
-   * {@code ICarPowerPolicyDelegateCallback.onApplyPowerPolicyCompleted}.
+   * {@code ICarPowerPolicyDelegateCallback.onApplyPowerPolicySucceeded}.
    *
+   * @param The request ID for power policy application. Must be unique.
    * @param policyId The policy ID to apply.
    * @param force If {@code true}, the given policy is applied even when the current policy is a
    *        system power policy.
-   * @return The request ID for power policy application.
    * @throws IllegalArgumentException if {@code policyId} is invalid.
    * @throws IllegalStateException if it fails to apply the power policy.
    * @throws SecurityException if the caller doesn't have sufficient permissions.
    */
-  int applyPowerPolicyAsync(in @utf8InCpp String policyId, boolean force);
+  void applyPowerPolicyAsync(int requestId, in @utf8InCpp String policyId, boolean force);
 
   /**
    * CarService uses this method to set a power policy group.
