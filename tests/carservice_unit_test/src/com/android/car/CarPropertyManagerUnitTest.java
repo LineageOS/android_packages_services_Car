@@ -789,14 +789,22 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
+    public void testGetIntProperty_wrongType() throws Exception {
+        CarPropertyValue<Integer> value = new CarPropertyValue<>(INT32_PROP, 0, 1);
+        when(mICarProperty.getProperty(INT32_PROP, 0)).thenReturn(value);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.getFloatProperty(INT32_PROP, 0));
+    }
+
+    @Test
     public void testGetIntArrayProperty() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.R);
-        CarPropertyValue<Integer[]> value = new CarPropertyValue<>(INT32_VEC_PROP, 0,
-                new Integer[]{1, 2});
-        when(mICarProperty.getProperty(INT32_VEC_PROP, 0)).thenReturn(value);
+        CarPropertyValue<Float> value = new CarPropertyValue<>(FLOAT_PROP, 0, 1f);
+        when(mICarProperty.getProperty(FLOAT_PROP, 0)).thenReturn(value);
 
-        assertThat(mCarPropertyManager.getIntArrayProperty(INT32_VEC_PROP, 0)).isEqualTo(
-                new int[]{1, 2});
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.getIntArrayProperty(FLOAT_PROP, 0));
     }
 
     @Test
@@ -845,6 +853,15 @@ public final class CarPropertyManagerUnitTest {
 
         assertThrows(PropertyNotAvailableAndRetryException.class,
                 () -> mCarPropertyManager.getFloatProperty(FLOAT_PROP, 0));
+    }
+
+    @Test
+    public void testGetFloatProperty_wrongType() throws Exception {
+        CarPropertyValue<Integer> value = new CarPropertyValue<>(INT32_PROP, 0, 1);
+        when(mICarProperty.getProperty(INT32_PROP, 0)).thenReturn(value);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.getFloatProperty(INT32_PROP, 0));
     }
 
     private CarPropertyManager.GetPropertyRequest createGetPropertyRequest() {
