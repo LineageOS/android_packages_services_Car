@@ -44,8 +44,15 @@ flag {
 flag {
   name: "batched_subscriptions"
   namespace: "car_framework"
-  description: "enabled batched subscriptions for multiple [propId, areaId]s"
+  description: "Controls whether to enable batched subscriptions for multiple [propId, areaId]s"
   bug: "298257574"
+}
+
+flag {
+  name: "variable_update_rate"
+  namespace: "car_framework"
+  description: "Controls whether to enable variable update rate for subscription"
+  bug: "300700719"
 }
 
 # CarServiceBase
