@@ -29,6 +29,7 @@ import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarProperty;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.os.RemoteException;
+import android.util.ArraySet;
 
 import com.android.car.internal.PropertyPermissionMapping;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
@@ -38,10 +39,11 @@ import com.android.car.internal.property.CarSubscribeOption;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.internal.util.PairSparseArray;
+import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -62,34 +64,41 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
     // Contains a list of values that were set from the manager.
     private final ArrayList<CarPropertyValue<?>> mValuesSet = new ArrayList<>();
 
-    // Mapping between propertyId and a set of listeners.
-    private final Map<Integer, Set<ListenerInfo>> mListeners = new HashMap<>();
+    private final Object mLock = new Object();
 
-    @Override
-    public void registerListener(int propId, float rate, ICarPropertyEventListener listener)
-            throws RemoteException {
-        Set<ListenerInfo> propListeners = mListeners.get(propId);
-        if (propListeners == null) {
-            propListeners = new HashSet<>();
-            mListeners.put(propId, propListeners);
-        }
-
-        propListeners.add(new ListenerInfo(listener));
-    }
+    // Mapping between [propId, areaId] and a set of listeners.
+    @GuardedBy("mLock")
+    private final PairSparseArray<Set<ListenerInfo>> mListenersByPropIdAreaId =
+            new PairSparseArray<>();
 
     @Override
     public void registerListenerWithSubscribeOptions(List<CarSubscribeOption> subscribeOptions,
-            ICarPropertyEventListener iCarPropertyEventListener) {
-        // TODO(b/291975137): Change mListeners to propertyId, areaId mapping to listener
+            ICarPropertyEventListener listener) {
+        synchronized (mLock) {
+            for (int i = 0; i < subscribeOptions.size(); i++) {
+                int propId = subscribeOptions.get(i).propertyId;
+                for (int areaId : subscribeOptions.get(i).areaIds) {
+                    Set<ListenerInfo> propListeners = mListenersByPropIdAreaId.get(propId, areaId);
+                    if (propListeners == null) {
+                        propListeners = new ArraySet<>();
+                        mListenersByPropIdAreaId.put(propId, areaId, propListeners);
+                    }
+
+                    propListeners.add(new ListenerInfo(listener));
+                }
+            }
+        }
     }
 
     @Override
     public void unregisterListener(int propId, ICarPropertyEventListener listener)
             throws RemoteException {
-        Set<ListenerInfo> propListeners = mListeners.get(propId);
-        if (propListeners != null && propListeners.remove(new ListenerInfo(listener))) {
-            if (propListeners.isEmpty()) {
-                mListeners.remove(propId);
+        synchronized (mLock) {
+            for (int areaId : mListenersByPropIdAreaId.getSecondKeysForFirstKey(propId)) {
+                Set<ListenerInfo> propListeners = mListenersByPropIdAreaId.get(propId, areaId);
+                if (propListeners.remove(new ListenerInfo(listener)) && propListeners.isEmpty()) {
+                    mListenersByPropIdAreaId.remove(propId, areaId);
+                }
             }
         }
     }
@@ -209,16 +218,19 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
     }
 
     private void sendEvent(CarPropertyValue v) {
-        Set<ListenerInfo> listeners = mListeners.get(v.getPropertyId());
-        if (listeners != null) {
-            for (ListenerInfo listenerInfo : listeners) {
-                List<CarPropertyEvent> events = new ArrayList<>();
-                events.add(new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE, v));
-                try {
-                    listenerInfo.mListener.onEvent(events);
-                } catch (RemoteException e) {
-                    // This is impossible as the code runs within the same process in test.
-                    throw new RuntimeException(e);
+        synchronized (mLock) {
+            Set<ListenerInfo> listeners = mListenersByPropIdAreaId.get(v.getPropertyId(),
+                    v.getAreaId());
+            if (listeners != null) {
+                for (ListenerInfo listenerInfo : listeners) {
+                    List<CarPropertyEvent> events = new ArrayList<>();
+                    events.add(new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE, v));
+                    try {
+                        listenerInfo.mListener.onEvent(events);
+                    } catch (RemoteException e) {
+                        // This is impossible as the code runs within the same process in test.
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }
