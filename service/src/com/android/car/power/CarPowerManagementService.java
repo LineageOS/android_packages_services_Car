@@ -747,6 +747,24 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
+    private void notifyPowerStateChangeToDaemon(@CarPowerManager.CarPowerState int powerState) {
+        ICarPowerPolicyDelegate daemon;
+        synchronized (mLock) {
+            daemon = mRefactoredCarPowerPolicyDaemon;
+        }
+        if (daemon == null) {
+            Slogf.e(TAG, "Failed to notify car power policy daemon of power state change, "
+                    + "daemon unavailable");
+            return;
+        }
+        try {
+            daemon.notifyPowerStateChange((byte) powerState);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, e, "Failed to notify car power policy of power state change to state %s",
+                    powerState);
+        }
+    }
+
     private void handleWaitForVhal(CpmsState state) {
         @CarPowerManager.CarPowerState int carPowerStateListenerState =
                 state.mCarPowerStateListenerState;
@@ -754,8 +772,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         // modified for S2R.
         mSilentModeHandler.querySilentModeHwState();
 
-        applyDefaultPowerPolicyForState(CarPowerManager.STATE_WAIT_FOR_VHAL,
+        if (carPowerPolicyRefactoring()) {
+            notifyPowerStateChangeToDaemon(CarPowerManager.STATE_WAIT_FOR_VHAL);
+        } else {
+            applyDefaultPowerPolicyForState(CarPowerManager.STATE_WAIT_FOR_VHAL,
                     PolicyReader.POWER_POLICY_ID_INITIAL_ON);
+        }
 
         if (!mSilentModeHandler.isSilentMode()) {
             cancelPreemptivePowerPolicy();
@@ -832,8 +854,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         if (!mSilentModeHandler.isSilentMode()) {
             cancelPreemptivePowerPolicy();
         }
-        applyDefaultPowerPolicyForState(VehicleApPowerStateReport.ON,
-                PolicyReader.POWER_POLICY_ID_ALL_ON);
+        if (carPowerPolicyRefactoring()) {
+            notifyPowerStateChangeToDaemon(CarPowerManager.STATE_ON);
+        } else {
+            applyDefaultPowerPolicyForState(VehicleApPowerStateReport.ON,
+                    PolicyReader.POWER_POLICY_ID_ALL_ON);
+        }
 
         sendPowerManagerEvent(CarPowerManager.STATE_ON, INVALID_TIMEOUT);
 
@@ -872,6 +898,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
+    // TODO(b/286303350): remove once power policy refactor is complete, CPPD will handle applying
+    //                    default power policies according to state
     private void applyDefaultPowerPolicyForState(@CarPowerManager.CarPowerState int state,
             @Nullable String fallbackPolicyId) {
         Slogf.i(TAG, "Applying the default power policy for %s", powerStateToString(state));
