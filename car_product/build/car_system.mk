@@ -268,3 +268,6 @@ else # !USE_CAR_FRAMEWORK_APEX
     PRODUCT_HIDDENAPI_STUBS_SYSTEM := android.car-system-stubs-dex
     PRODUCT_HIDDENAPI_STUBS_TEST := android.car-test-stubs-dex
 endif # USE_CAR_FRAMEWORK_APEX
+
+# Disable Dynamic System Update for automotive targets
+PRODUCT_NO_DYNAMIC_SYSTEM_UPDATE := true
