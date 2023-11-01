@@ -59,23 +59,19 @@ public final class ProgramInfoAdapter extends ArrayAdapter<RadioManager.ProgramI
             vh = (ViewHolder) convertView.getTag();
         }
         if (mProgramInfos[position] != null) {
-            if (position == 0) {
-                vh.programSelectorText.setText(R.string.radio_program_station_title);
-                vh.tuneButton.setVisibility(View.INVISIBLE);
-            } else {
-                int programType = mProgramInfos[position].getSelector().getPrimaryId().getType();
-                String programSelectorText = "";
-                if (programType == ProgramSelector.IDENTIFIER_TYPE_AMFM_FREQUENCY) {
-                    programSelectorText = ProgramSelectorExt.getDisplayName(
-                            mProgramInfos[position].getSelector(), /* flags= */ 0);
-                }
-                vh.programSelectorText.setText(programSelectorText);
-                vh.tuneButton.setVisibility(View.VISIBLE);
-
-                vh.tuneButton.setOnClickListener((view) -> {
-                    mFragment.handleTune(mProgramInfos[position].getSelector());
-                });
+            int programType = mProgramInfos[position].getSelector().getPrimaryId().getType();
+            String programSelectorText = "";
+            if (programType == ProgramSelector.IDENTIFIER_TYPE_AMFM_FREQUENCY
+                    || programType == ProgramSelector.IDENTIFIER_TYPE_HD_STATION_ID_EXT) {
+                programSelectorText = ProgramSelectorExt.getDisplayName(
+                        mProgramInfos[position].getSelector(), /* flags= */ 0);
             }
+            vh.programSelectorText.setText(programSelectorText);
+            vh.tuneButton.setVisibility(View.VISIBLE);
+
+            vh.tuneButton.setOnClickListener((view) -> {
+                mFragment.handleTune(mProgramInfos[position].getSelector());
+            });
         }
         return convertView;
     }
