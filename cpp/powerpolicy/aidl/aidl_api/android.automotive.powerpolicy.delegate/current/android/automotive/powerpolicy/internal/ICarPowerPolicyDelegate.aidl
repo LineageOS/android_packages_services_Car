@@ -38,4 +38,21 @@ interface ICarPowerPolicyDelegate {
   int applyPowerPolicyAsync(in @utf8InCpp String policyId, boolean force);
   void setPowerPolicyGroup(in @utf8InCpp String policyGroupId);
   void notifyPowerPolicyDefinition(in @utf8InCpp String policyId, in @utf8InCpp String[] enabledComponents, in @utf8InCpp String[] disabledComponents);
+  void notifyPowerStateChange(in android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate.PowerState state);
+  enum PowerState {
+    INVALID = 0,
+    WAIT_FOR_VHAL = 1,
+    SUSPEND_ENTER = 2,
+    SUSPEND_EXIT = 3,
+    SHUTDOWN_ENTER = 5,
+    ON = 6,
+    SHUTDOWN_PREPARE = 7,
+    SHUTDOWN_CANCELLED = 8,
+    HIBERNATION_ENTER = 9,
+    HIBERNATION_EXIT = 10,
+    PRE_SHUTDOWN_PREPARE = 11,
+    POST_SUSPEND_ENTER = 12,
+    POST_SHUTDOWN_ENTER = 13,
+    POST_HIBERNATION_ENTER = 14,
+  }
 }
