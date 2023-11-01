@@ -16,13 +16,8 @@
 
 #include "CarPowerPolicyServer.h"
 
-#include <android-base/result.h>
-#include <binder/IPCThreadState.h>
-#include <binder/ProcessState.h>
 #include <fuzzbinder/libbinder_ndk_driver.h>
 #include <fuzzer/FuzzedDataProvider.h>
-#include <log/log.h>
-#include <utils/Looper.h>
 #include <utils/StrongPointer.h>
 
 using ::android::fuzzService;
@@ -31,30 +26,10 @@ using ::android::sp;
 using ::android::frameworks::automotive::powerpolicy::CarPowerPolicyServer;
 using ::ndk::SharedRefBase;
 
-using ::android::IPCThreadState;
-using ::android::Looper;
-using ::android::ProcessState;
-using ::android::sp;
-using ::android::frameworks::automotive::powerpolicy::CarPowerPolicyServer;
-
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-    // Set up the binder
-    sp<ProcessState> ps(ProcessState::self());
-    ps->setThreadPoolMaxThreadCount(2);
-    ps->startThreadPool();
-    ps->giveThreadPoolName();
-    IPCThreadState::self()->disableBackgroundScheduling(true);
-
     sp<Looper> looper(Looper::prepare(/*opts=*/0));
-    auto result = CarPowerPolicyServer::startService(looper);
-    if (!result.ok()) {
-        printf("Failed to start service: %s", result.error().message().c_str());
-        CarPowerPolicyServer::terminateService();
-        exit(result.error().code());
-    }
-    auto carpowerServer = *result;
-    fuzzService(carpowerServer->asBinder().get(), FuzzedDataProvider(data, size));
-    CarPowerPolicyServer::terminateService();
-
+    std::shared_ptr<CarPowerPolicyServer> server = SharedRefBase::make<CarPowerPolicyServer>();
+    server->init(looper);
+    fuzzService(server->asBinder().get(), FuzzedDataProvider(data, size));
     return 0;
 }
