@@ -39,6 +39,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.feature.FeatureFlags;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
@@ -118,6 +119,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     @Mock private VehicleStub.VehicleStubCallbackInterface mGetVehicleStubAsyncCallback;
     @Mock private VehicleStub.VehicleStubCallbackInterface mSetVehicleStubAsyncCallback;
     @Mock private VehicleStub.SubscriptionClient mSubscriptionClient;
+    @Mock private FeatureFlags mFeatureFlags;
 
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
             VehicleHal.class.getSimpleName());
@@ -166,6 +168,10 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         when(mClusterHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
         when(mVehicle.getAllPropConfigs()).thenReturn(toHalPropConfigs(mConfigs));
+
+        when(mFeatureFlags.variableUpdateRate()).thenReturn(true);
+        mVehicleHal.setFeatureFlags(mFeatureFlags);
+
         mVehicleHal.priorityInit();
     }
 
@@ -670,6 +676,20 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
 
         SubscribeOptions expectedOptions = createSubscribeOptions(CONTINUOUS_PROPERTY,
                 ANY_SAMPLING_RATE_1, areaIds, /*enableVUR=*/ true);
+
+        verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{expectedOptions}));
+    }
+
+    @Test
+    public void testSubscribeProperty_enableVUR_featureDisabled() throws Exception {
+        when(mFeatureFlags.variableUpdateRate()).thenReturn(false);
+        int[] areaIds = new int[] {AREA_ID_1};
+        HalSubscribeOptions option = new HalSubscribeOptions(CONTINUOUS_PROPERTY,
+                areaIds, ANY_SAMPLING_RATE_1, /*enableVariableUpdateRate=*/ true);
+        mVehicleHal.subscribeProperty(mPropertyHalService, List.of(option));
+
+        SubscribeOptions expectedOptions = createSubscribeOptions(CONTINUOUS_PROPERTY,
+                ANY_SAMPLING_RATE_1, areaIds, /*enableVUR=*/ false);
 
         verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{expectedOptions}));
     }

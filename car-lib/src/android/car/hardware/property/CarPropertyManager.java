@@ -17,7 +17,6 @@
 package android.car.hardware.property;
 
 import static android.car.feature.Flags.FLAG_BATCHED_SUBSCRIPTIONS;
-import static android.car.hardware.CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
@@ -36,6 +35,8 @@ import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.VehiclePropertyIds;
+import android.car.feature.FeatureFlags;
+import android.car.feature.FeatureFlagsImpl;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.os.Binder;
@@ -67,6 +68,7 @@ import com.android.car.internal.property.InputSanitizationUtils;
 import com.android.car.internal.property.SubscriptionManager;
 import com.android.car.internal.util.PairSparseArray;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -125,6 +127,18 @@ public class CarPropertyManager extends CarManagerBase {
     @GuardedBy("mLock")
     private final SubscriptionManager<CarPropertyEventCallback> mSubscriptionManager =
             new SubscriptionManager<>();
+
+    private FeatureFlags mFeatureFlags = new FeatureFlagsImpl();
+
+    /**
+     * Sets fake feature flag for unit testing.
+     *
+     * @hide
+     */
+    @VisibleForTesting
+    public void setFeatureFlags(FeatureFlags fakeFeatureFlags) {
+        mFeatureFlags = fakeFeatureFlags;
+    }
 
     /**
      * Application registers {@link CarPropertyEventCallback} object to receive updates and changes
@@ -1075,13 +1089,6 @@ public class CarPropertyManager extends CarManagerBase {
                             + "updateRateHz: %f", carPropertyEventCallback,
                     VehiclePropertyIds.toString(propertyId), updateRateHz));
         }
-        CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
-        if (carPropertyConfig == null) {
-            Log.e(TAG, "registerCallback:  propertyId is not in carPropertyConfig list:  "
-                    + VehiclePropertyIds.toString(propertyId));
-            return false;
-        }
-        int[] areaIds = carPropertyConfig.getAreaIds();
         // We require updateRateHz to be within 0 and 100, however, in the previous implementation,
         // we did not actually check this range. In order to prevent the existing behavior, and
         // to prevent SubscriptionOption.Builder.setUpdateRateHz to throw exception, we fit the
@@ -1094,9 +1101,6 @@ public class CarPropertyManager extends CarManagerBase {
         }
         SubscriptionOption.Builder subscriptionOptionBuilder = new SubscriptionOption
                 .Builder(propertyId).setUpdateRateHz(updateRateHz);
-        for (int areaId : areaIds) {
-            subscriptionOptionBuilder.addAreaId(areaId);
-        }
         SubscriptionOption subscribeOption = subscriptionOptionBuilder.build();
         // Disable VUR for backward compatibility.
         subscribeOption.disableVariableUpdateRate();
@@ -2623,7 +2627,6 @@ public class CarPropertyManager extends CarManagerBase {
         List<CarSubscribeOption> output = new ArrayList<>();
         for (int i = 0; i < subscribeOptions.size(); i++) {
             SubscriptionOption subscribeOption = subscribeOptions.get(i);
-            CarSubscribeOption carSubscribeOption = new CarSubscribeOption();
             int propertyId = subscribeOption.getPropertyId();
             CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
             if (carPropertyConfig == null) {
@@ -2634,17 +2637,18 @@ public class CarPropertyManager extends CarManagerBase {
             }
             float sanitizedUpdateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(
                     carPropertyConfig, subscribeOption.getUpdateRateHz());
+            CarSubscribeOption carSubscribeOption = new CarSubscribeOption();
             carSubscribeOption.propertyId = propertyId;
             carSubscribeOption.areaIds = subscribeOption.getAreaIds();
-            carSubscribeOption.updateRateHz = sanitizedUpdateRateHz;
-            if (carPropertyConfig.getChangeMode() == VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS) {
-                // TODO(b/308814366): Check whether VUR is supported here.
-                carSubscribeOption.enableVariableUpdateRate =
-                        !subscribeOption.isVariableUpdateRateDisabled();
-            } else {
-                carSubscribeOption.enableVariableUpdateRate = false;
+            if (carSubscribeOption.areaIds.length == 0) {
+                // Subscribe to all areaIds if not specified.
+                carSubscribeOption.areaIds = carPropertyConfig.getAreaIds();
             }
-            output.add(carSubscribeOption);
+            carSubscribeOption.enableVariableUpdateRate =
+                    !subscribeOption.isVariableUpdateRateDisabled();
+            carSubscribeOption.updateRateHz = sanitizedUpdateRateHz;
+            output.addAll(InputSanitizationUtils.sanitizeEnableVariableUpdateRate(
+                    mFeatureFlags, carPropertyConfig, carSubscribeOption));
         }
         return output;
     }

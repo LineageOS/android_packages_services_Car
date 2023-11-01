@@ -34,6 +34,8 @@ import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
+import android.car.feature.FeatureFlags;
+import android.car.feature.FeatureFlagsImpl;
 import android.content.Context;
 import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.SubscribeOptions;
@@ -124,6 +126,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     private final VehicleStub mVehicleStub;
 
     private final Object mLock = new Object();
+
+    private FeatureFlags mFeatureFlags = new FeatureFlagsImpl();
 
     // Only changed for test.
     private int mMaxDurationForRetryMs = MAX_DURATION_FOR_RETRIABLE_RESULT_MS;
@@ -283,6 +287,12 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 mPropertyHal);
         mVehicleStub = vehicle;
         mSubscriptionClient = vehicle.newSubscriptionClient(this);
+    }
+
+    /** Sets fake feature flag for unit testing. */
+    @VisibleForTesting
+    public void setFeatureFlags(FeatureFlags fakeFeatureFlags) {
+        mFeatureFlags = fakeFeatureFlags;
     }
 
     @VisibleForTesting
@@ -667,7 +677,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     private SubscribeOptions[] createVhalSubscribeOptionsLocked(HalServiceBase service,
             List<HalSubscribeOptions> halSubscribeOptions) throws IllegalArgumentException {
         if (DBG) {
-            Slogf.d(CarLog.TAG_HAL, "creating subscribeOptions from CarSubscribeOptions of size: "
+            Slogf.d(CarLog.TAG_HAL, "creating subscribeOptions from HalSubscribeOptions of size: "
                     + halSubscribeOptions.size());
         }
         List<SubscribeOptions> subscribeOptionsList = new ArrayList<>();
@@ -686,10 +696,18 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                         + toCarPropertyLog(property) + " is not supported");
             }
 
-            if (config.getChangeMode() != VehiclePropertyChangeMode.CONTINUOUS) {
-                // enableVUR should be ignored if property is not continuous, but we set it to
-                // false to be safe.
-                enableVariableUpdateRate = false;
+            if (enableVariableUpdateRate) {
+                if (config.getChangeMode() != VehiclePropertyChangeMode.CONTINUOUS) {
+                    // enableVUR should be ignored if property is not continuous, but we set it to
+                    // false to be safe.
+                    enableVariableUpdateRate = false;
+                    Slogf.w(CarLog.TAG_HAL, "VUR is always off for non-continuous property: "
+                            + toCarPropertyLog(property));
+                }
+                if (!mFeatureFlags.variableUpdateRate()) {
+                    enableVariableUpdateRate = false;
+                    Slogf.w(CarLog.TAG_HAL, "VUR feature is not enabled, VUR is always off");
+                }
             }
 
             if (!isPropertySubscribable(config)) {
