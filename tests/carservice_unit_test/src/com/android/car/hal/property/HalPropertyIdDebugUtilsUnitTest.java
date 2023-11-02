@@ -28,14 +28,14 @@ public class HalPropertyIdDebugUtilsUnitTest {
     @Test
     public void testToDebugString() {
         assertThat(HalPropertyIdDebugUtils.toDebugString(VehicleProperty.ABS_ACTIVE)).isEqualTo(
-                "ABS_ACTIVE");
+                "ABS_ACTIVE(0x1120040a)");
         assertThat(HalPropertyIdDebugUtils.toDebugString(
                 VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS)).isEqualTo(
-                "VEHICLE_SPEED_DISPLAY_UNITS");
+                "VEHICLE_SPEED_DISPLAY_UNITS(0x11400605)");
         assertThat(HalPropertyIdDebugUtils.toDebugString(VehiclePropertyGroup.VENDOR)).isEqualTo(
                 "VENDOR_PROPERTY(0x" + Integer.toHexString(VehiclePropertyGroup.VENDOR) + ")");
         assertThat(HalPropertyIdDebugUtils.toDebugString(-1)).isEqualTo(
-                "0x" + Integer.toHexString(-1));
+                "INVALID_PROPERTY_ID(0x" + Integer.toHexString(-1) + ")");
     }
 
     @Test

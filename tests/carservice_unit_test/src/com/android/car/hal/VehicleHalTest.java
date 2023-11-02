@@ -1847,7 +1847,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
 
         mVehicleHal.dumpPropertyConfigs(printWriter, SOME_READ_ON_CHANGE_PROPERTY);
 
-        assertThat(writer.toString()).contains("Property:0x1");
+        assertThat(writer.toString()).contains("Property:INVALID_PROPERTY_ID(0x1)");
     }
 
     // Testing vehicle hal property getters
