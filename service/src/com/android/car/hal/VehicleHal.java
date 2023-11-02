@@ -24,11 +24,11 @@ import static com.android.car.hal.property.HalPropertyDebugUtils.toAreaTypeStrin
 import static com.android.car.hal.property.HalPropertyDebugUtils.toChangeModeString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toGroupString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toPropertyIdString;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toStatusString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toValueString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toValueTypeString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.ConstantDebugUtils.toName;
 
 import android.annotation.CheckResult;
 import android.annotation.Nullable;
@@ -1489,8 +1489,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         writer.printf("Property: %s, area ID: %s, status: %s, timestampNanos: %d, value: %s\n",
                 toPropertyIdString(value.getPropId()),
                 toDebugString(value.getPropId(), value.getAreaId()),
-                toName(VehiclePropertyStatus.class, value.getStatus()), value.getTimestamp(),
-                toValueString(value));
+                toStatusString(value.getStatus()), value.getTimestamp(), toValueString(value));
     }
 
     private static String toCarPropertyLog(int propId) {

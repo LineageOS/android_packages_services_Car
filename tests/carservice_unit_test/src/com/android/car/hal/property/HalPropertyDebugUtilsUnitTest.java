@@ -20,6 +20,7 @@ import static com.android.car.hal.property.HalPropertyDebugUtils.toAccessString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toAreaTypeString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toChangeModeString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toGroupString;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toStatusString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toValueTypeString;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -30,6 +31,7 @@ import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyGroup;
+import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 
 import com.android.car.hal.HalPropValueBuilder;
@@ -139,5 +141,13 @@ public class HalPropertyDebugUtilsUnitTest {
                 "CONTINUOUS(0x2)");
         assertThat(toChangeModeString(-1)).isEqualTo(
                 "INVALID_VehiclePropertyChangeMode(0xffffffff)");
+    }
+
+    @Test
+    public void testToStatusString() {
+        assertThat(toStatusString(VehiclePropertyStatus.ERROR)).isEqualTo(
+                "ERROR(0x2)");
+        assertThat(toStatusString(-1)).isEqualTo(
+                "INVALID_VehiclePropertyStatus(0xffffffff)");
     }
 }

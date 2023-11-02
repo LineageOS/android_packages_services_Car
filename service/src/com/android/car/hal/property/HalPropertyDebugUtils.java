@@ -27,6 +27,7 @@ import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyGroup;
+import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.util.Slog;
 
@@ -202,6 +203,14 @@ public final class HalPropertyDebugUtils {
      */
     public static String toChangeModeString(int changeMode) {
         return toDebugString(VehiclePropertyChangeMode.class, changeMode);
+    }
+
+    /**
+     * Gets a user-friendly representation string representation of
+     * {@link VehiclePropertyStatus} constant.
+     */
+    public static String toStatusString(int status) {
+        return toDebugString(VehiclePropertyStatus.class, status);
     }
 
     private static String toDebugString(Class<?> clazz, int constantValue) {
