@@ -349,7 +349,7 @@ public class ICarImpl extends ICar.Stub {
         mCarInputService = constructWithTrace(t, CarInputService.class,
                 () -> new CarInputService(serviceContext, mHal.getInputHal(), mCarUserService,
                         mCarOccupantZoneService, mCarBluetoothService, mCarPowerManagementService,
-                        mSystemInterface, userManager), allServices);
+                        mSystemInterface), allServices);
         mCarProjectionService = constructWithTrace(t, CarProjectionService.class,
                 () -> new CarProjectionService(serviceContext, null /* handler */, mCarInputService,
                         mCarBluetoothService), allServices);
