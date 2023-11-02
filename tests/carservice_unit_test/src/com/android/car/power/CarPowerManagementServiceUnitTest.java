@@ -40,6 +40,7 @@ import static org.mockito.Mockito.when;
 import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
+import android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate;
 import android.car.Car;
 import android.car.ICarResultReceiver;
 import android.car.builtin.app.VoiceInteractionHelper;
@@ -110,6 +111,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
@@ -1542,6 +1544,24 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         assertWithMessage("Custom component is in enabled components of accumulated policy").that(
                 listener.getCurrentPowerPolicy().getEnabledComponents()).asList().doesNotContain(
                 custom_component_1000);
+    }
+
+    @Test
+    public void testPowerStateAidlDefinition() throws Exception {
+        Field[] powerManagerFields = CarPowerManager.class.getFields();
+        String statePrefix = "STATE_";
+
+        for (int i = 0; i < powerManagerFields.length; i++) {
+            String powerManagerField = powerManagerFields[i].getName();
+            if (powerManagerField.startsWith(statePrefix)) {
+                String powerState = powerManagerField.substring(statePrefix.length());
+                int powerStateInt = powerManagerFields[i].getInt(null);
+                int aidlPowerStateInt = ICarPowerPolicyDelegate.PowerState.class.getField(
+                        powerState).getInt(null);
+                assertWithMessage("Power state int representation of '%s'", powerState).that(
+                        aidlPowerStateInt).isEqualTo(powerStateInt);
+            }
+        }
     }
 
     @Test

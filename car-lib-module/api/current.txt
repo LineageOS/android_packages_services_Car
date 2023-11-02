@@ -934,6 +934,7 @@ package android.car.hardware.property {
   }
 
   public final class SubscriptionOption {
+    method @FlaggedApi("android.car.feature.variable_update_rate") public void disableVariableUpdateRate();
     method @Nullable public int[] getAreaIds();
     method public int getPropertyId();
     method public float getUpdateRateFast();
@@ -941,6 +942,7 @@ package android.car.hardware.property {
     method public float getUpdateRateHz();
     method public float getUpdateRateNormal();
     method public float getUpdateRateUi();
+    method @FlaggedApi("android.car.feature.variable_update_rate") public boolean isVariableUpdateRateDisabled();
   }
 
   public static final class SubscriptionOption.Builder {

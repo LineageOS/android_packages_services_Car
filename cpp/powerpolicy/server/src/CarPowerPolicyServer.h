@@ -126,13 +126,16 @@ public:
                                           ICarPowerPolicyDelegateCallback>& callback,
             aidl::android::automotive::powerpolicy::internal::PowerPolicyInitData* aidlReturn)
             override;
-    ndk::ScopedAStatus applyPowerPolicyAsync(const std::string& policyId, bool force,
-                                             int* aidlReturn) override EXCLUDES(mMutex);
+    ndk::ScopedAStatus applyPowerPolicyAsync(int32_t requestId, const std::string& policyId,
+                                             bool force) override EXCLUDES(mMutex);
     ndk::ScopedAStatus setPowerPolicyGroup(const std::string& policyGroupId) override
             EXCLUDES(mMutex);
     ndk::ScopedAStatus notifyPowerPolicyDefinition(
             const std::string& policyId, const std::vector<std::string>& enabledComponents,
             const std::vector<std::string>& disabledComponents) override EXCLUDES(mMutex);
+    ndk::ScopedAStatus notifyPowerStateChange(
+            ::aidl::android::automotive::powerpolicy::internal::ICarPowerPolicyDelegate::PowerState
+                    in_state);
 
     void terminate() EXCLUDES(mMutex);
     ndk::ScopedAStatus runWithService(
@@ -198,8 +201,8 @@ public:
             const std::vector<std::string>& disabledComponents);
 
     // Internal implementation of ICarPowerPolicyDelegate.aidl.
-    ndk::ScopedAStatus applyPowerPolicyAsync(const std::string& policyId, bool force,
-                                             int* aidlReturn);
+    ndk::ScopedAStatus applyPowerPolicyAsync(int32_t requestId, const std::string& policyId,
+                                             bool force);
     ndk::ScopedAStatus notifyCarServiceReadyInternal(
             const std::shared_ptr<aidl::android::automotive::powerpolicy::internal::
                                           ICarPowerPolicyDelegateCallback>& callback,

@@ -16,6 +16,9 @@
 
 package android.car.hardware.property;
 
+import static android.car.feature.Flags.FLAG_VARIABLE_UPDATE_RATE;
+
+import android.annotation.FlaggedApi;
 import android.annotation.FloatRange;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -35,6 +38,7 @@ public final class SubscriptionOption {
     @FloatRange(from = 0.0, to = 100.0)
     private final float mUpdateRateHz;
     private final int[] mAreaIds;
+    private boolean mDisableVariableUpdateRate;
 
     private SubscriptionOption(@NonNull Builder builder) {
         mPropertyId = builder.mBuilderPropertyId;
@@ -105,6 +109,42 @@ public final class SubscriptionOption {
     }
 
     /**
+     * Disables variable update rate.
+     *
+     * <p>This option is only meaningful for continuous property.
+     *
+     * <p>For better system performance, it is STRONGLY RECOMMENDED NOT TO DISABLE variable
+     * update rate unless the client relies on continuously arriving property update events
+     * (e.g. for system health checking).
+     *
+     * <p>If variable update rate is enabled (default), then client will receive property
+     * update events only when the property's value changes (a.k.a behaves the same as an on-change
+     * property).
+     *
+     * <p>If variable update rate is disabled, then client will receive all the property
+     * update events based on the update rate even if the events contain the same property value.
+     *
+     * <p>E.g. a vehicle speed subscribed at 10hz will cause the vehicle hardware to poll 10
+     * times per second. If the vehicle is initially parked at time 0s, and start moving at
+     * speed 1 at time 1s. If variable update rate is enabled, the client will receive one
+     * initial value of speed 0 at time 0s, and one value of speed 1 at time 1s. If variable
+     * update rate is disabled, the client will receive 10 events of speed 0 from 0s to 1s, and
+     * 10 events of speed 1 from 1s to 2s.
+     */
+    @FlaggedApi(FLAG_VARIABLE_UPDATE_RATE)
+    public void disableVariableUpdateRate() {
+        mDisableVariableUpdateRate = true;
+    }
+
+    /**
+     * @return whether variable update rate is disabled.
+     */
+    @FlaggedApi(FLAG_VARIABLE_UPDATE_RATE)
+    public boolean isVariableUpdateRateDisabled() {
+        return mDisableVariableUpdateRate;
+    }
+
+    /**
      * Builder for {@link SubscriptionOption}
      */
     public static final class Builder {
@@ -112,7 +152,6 @@ public final class SubscriptionOption {
         private float mBuilderUpdateRateHz = CarPropertyManager.SENSOR_RATE_ONCHANGE;
         private final Set<Integer> mBuilderAreaIds = new ArraySet<>();
         private long mBuilderFieldsSet = 0L;
-
 
         public Builder(int propertyId) {
             this.mBuilderPropertyId = propertyId;

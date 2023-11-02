@@ -50,17 +50,17 @@ interface ICarPowerPolicyDelegate {
    *
    * <p>This method should return immediately after queueing the request. When the car power policy
    * daemon finishes applying the power policy, it invokes
-   * {@code ICarPowerPolicyDelegateCallback.onApplyPowerPolicyCompleted}.
+   * {@code ICarPowerPolicyDelegateCallback.onApplyPowerPolicySucceeded}.
    *
+   * @param The request ID for power policy application. Must be unique.
    * @param policyId The policy ID to apply.
    * @param force If {@code true}, the given policy is applied even when the current policy is a
    *        system power policy.
-   * @return The request ID for power policy application.
    * @throws IllegalArgumentException if {@code policyId} is invalid.
    * @throws IllegalStateException if it fails to apply the power policy.
    * @throws SecurityException if the caller doesn't have sufficient permissions.
    */
-  int applyPowerPolicyAsync(in @utf8InCpp String policyId, boolean force);
+  void applyPowerPolicyAsync(int requestId, in @utf8InCpp String policyId, boolean force);
 
   /**
    * CarService uses this method to set a power policy group.
@@ -88,4 +88,32 @@ interface ICarPowerPolicyDelegate {
    */
   void notifyPowerPolicyDefinition(in @utf8InCpp String policyId,
     in @utf8InCpp String[] enabledComponents, in @utf8InCpp String[] disabledComponents);
+
+  /**
+   * Enumeration of power states, matching those defined in CarPowerManager.
+   */
+  enum PowerState {
+    INVALID = 0,
+    WAIT_FOR_VHAL = 1,
+    SUSPEND_ENTER = 2,
+    SUSPEND_EXIT = 3,
+    SHUTDOWN_ENTER = 5,
+    ON = 6,
+    SHUTDOWN_PREPARE = 7,
+    SHUTDOWN_CANCELLED = 8,
+    HIBERNATION_ENTER = 9,
+    HIBERNATION_EXIT = 10,
+    PRE_SHUTDOWN_PREPARE = 11,
+    POST_SUSPEND_ENTER = 12,
+    POST_SHUTDOWN_ENTER = 13,
+    POST_HIBERNATION_ENTER = 14,
+  }
+
+  /**
+   * CarService uses this method to inform the power policy daemon of the system's current power
+   * state.
+   *
+   * @param state The power state.
+   */
+  void notifyPowerStateChange(in PowerState state);
 }
