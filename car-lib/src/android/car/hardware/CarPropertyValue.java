@@ -33,6 +33,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -278,7 +279,8 @@ public final class CarPropertyValue<T> implements Parcelable {
     /** Generates hash code for this instance. */
     @Override
     public int hashCode() {
-        return Objects.hash(mPropertyId, mAreaId, mStatus, mTimestampNanos, mValue);
+        return Arrays.deepHashCode(new Object[]{
+                mPropertyId, mAreaId, mStatus, mTimestampNanos, mValue});
     }
 
     /** Checks equality with passed {@code object}. */
@@ -294,6 +296,6 @@ public final class CarPropertyValue<T> implements Parcelable {
         return mPropertyId == carPropertyValue.mPropertyId && mAreaId == carPropertyValue.mAreaId
                 && mStatus == carPropertyValue.mStatus
                 && mTimestampNanos == carPropertyValue.mTimestampNanos
-                && Objects.equals(mValue, carPropertyValue.mValue);
+                && Objects.deepEquals(mValue, carPropertyValue.mValue);
     }
 }
