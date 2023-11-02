@@ -2022,7 +2022,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         @Override
         public void onPowerPolicyChanged(
                 android.frameworks.automotive.powerpolicy.CarPowerPolicy accumulatedPolicy) {
-            // TODO(b/308192386): implement this
+            synchronized (mLock) {
+                mCurrentAccumulatedPowerPolicy = convertPowerPolicyFromDaemon(accumulatedPolicy);
+            }
+            String policyId = accumulatedPolicy.policyId;
+            Slogf.i(TAG, "Queueing power policy notification (id: %s) in the handler", policyId);
+            mHandler.handlePowerPolicyNotification(policyId);
         }
 
         @Override
