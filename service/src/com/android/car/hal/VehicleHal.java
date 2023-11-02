@@ -24,6 +24,7 @@ import static com.android.car.hal.property.HalPropertyDebugUtils.toAreaTypeStrin
 import static com.android.car.hal.property.HalPropertyDebugUtils.toChangeModeString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toGroupString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toPropertyIdString;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toValueString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toValueTypeString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -90,12 +91,6 @@ import java.util.stream.Collectors;
 public class VehicleHal implements VehicleHalCallback, CarSystemService {
     private static final boolean DBG = Slogf.isLoggable(CarLog.TAG_HAL, Log.DEBUG);;
     private static final long TRACE_TAG = TraceHelper.TRACE_TAG_CAR_SERVICE;
-
-    /**
-     * Used in {@link VehicleHal#dumpPropValue} method when copying
-     * {@link HalPropValue}.
-     */
-    private static final int MAX_BYTE_SIZE = 20;
 
     public static final int NO_AREA = -1;
     public static final float NO_SAMPLE_RATE = -1;
@@ -1491,23 +1486,11 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     }
 
     private static void dumpPropValue(PrintWriter writer, HalPropValue value) {
-        String bytesString = "";
-        byte[] byteValues = value.getByteArray();
-        if (byteValues.length > MAX_BYTE_SIZE) {
-            byte[] bytes = Arrays.copyOf(byteValues, MAX_BYTE_SIZE);
-            bytesString = Arrays.toString(bytes);
-        } else {
-            bytesString = Arrays.toString(byteValues);
-        }
-
-        writer.printf("Property: %s, area ID: %s, status: %s, timestampNanos: %d, "
-                        + "floatValues: %s, int32Values: %s, int64Values: %s, bytes: %s, string: "
-                        + "%s\n",
+        writer.printf("Property: %s, area ID: %s, status: %s, timestampNanos: %d, value: %s\n",
                 toPropertyIdString(value.getPropId()),
                 toDebugString(value.getPropId(), value.getAreaId()),
                 toName(VehiclePropertyStatus.class, value.getStatus()), value.getTimestamp(),
-                value.dumpFloatValues(), value.dumpInt32Values(),
-                value.dumpInt64Values(), bytesString, value.getStringValue());
+                toValueString(value));
     }
 
     private static String toCarPropertyLog(int propId) {

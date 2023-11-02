@@ -24,11 +24,15 @@ import static com.android.car.hal.property.HalPropertyDebugUtils.toValueTypeStri
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.FuelType;
+import android.hardware.automotive.vehicle.VehicleGear;
+import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyGroup;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
+
+import com.android.car.hal.HalPropValueBuilder;
 
 import org.junit.Test;
 
@@ -36,12 +40,11 @@ public class HalPropertyDebugUtilsUnitTest {
 
     @Test
     public void testToPropertyIdString() {
-        assertThat(HalPropertyDebugUtils.toPropertyIdString(
-                android.hardware.automotive.vehicle.VehicleProperty.ABS_ACTIVE)).isEqualTo(
+        assertThat(HalPropertyDebugUtils.toPropertyIdString(VehicleProperty.ABS_ACTIVE)).isEqualTo(
                 "ABS_ACTIVE(0x1120040a)");
         assertThat(HalPropertyDebugUtils.toPropertyIdString(
-                android.hardware.automotive.vehicle.VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS))
-                .isEqualTo("VEHICLE_SPEED_DISPLAY_UNITS(0x11400605)");
+                VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS)).isEqualTo(
+                "VEHICLE_SPEED_DISPLAY_UNITS(0x11400605)");
         assertThat(HalPropertyDebugUtils.toPropertyIdString(VehiclePropertyGroup.VENDOR)).isEqualTo(
                 "VENDOR_PROPERTY(0x" + Integer.toHexString(VehiclePropertyGroup.VENDOR) + ")");
         assertThat(HalPropertyDebugUtils.toPropertyIdString(-1)).isEqualTo(
@@ -51,10 +54,53 @@ public class HalPropertyDebugUtilsUnitTest {
     @Test
     public void testToPropertyId() {
         assertThat(HalPropertyDebugUtils.toPropertyId("ABS_ACTIVE")).isEqualTo(
-                android.hardware.automotive.vehicle.VehicleProperty.ABS_ACTIVE);
+                VehicleProperty.ABS_ACTIVE);
         assertThat(HalPropertyDebugUtils.toPropertyId("VEHICLE_SPEED_DISPLAY_UNITS")).isEqualTo(
-                android.hardware.automotive.vehicle.VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
+                VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
         assertThat(HalPropertyDebugUtils.toPropertyId("saljflsadj")).isNull();
+    }
+
+    @Test
+    public void testToValueString() {
+        assertThat(HalPropertyDebugUtils.toValueString(
+                new HalPropValueBuilder(true).build(VehicleProperty.PARKING_BRAKE_ON, 0,
+                        0))).isEqualTo("FALSE");
+        assertThat(HalPropertyDebugUtils.toValueString(
+                new HalPropValueBuilder(true).build(VehicleProperty.GEAR_SELECTION, 0,
+                        VehicleGear.GEAR_9))).isEqualTo("GEAR_9(0x1000)");
+        assertThat(HalPropertyDebugUtils.toValueString(
+                new HalPropValueBuilder(true).build(VehicleProperty.STEERING_WHEEL_DEPTH_POS, 0,
+                        87))).isEqualTo("87");
+        assertThat(HalPropertyDebugUtils.toValueString(
+                new HalPropValueBuilder(true).build(VehicleProperty.INFO_FUEL_TYPE, 0,
+                        FuelType.FUEL_TYPE_E85))).isEqualTo("[FUEL_TYPE_E85(0x6)]");
+        assertThat(HalPropertyDebugUtils.toValueString(
+                new HalPropValueBuilder(true).build(VehicleProperty.INFO_FUEL_TYPE, 0,
+                        new int[]{FuelType.FUEL_TYPE_E85, FuelType.FUEL_TYPE_LPG,
+                                FuelType.FUEL_TYPE_LEADED}))).isEqualTo(
+                "[FUEL_TYPE_E85(0x6), FUEL_TYPE_LPG(0x7), FUEL_TYPE_LEADED(0x2)]");
+        assertThat(HalPropertyDebugUtils.toValueString(
+                new HalPropValueBuilder(true).build(VehicleProperty.PERF_VEHICLE_SPEED, 0,
+                        11.1f))).isEqualTo("11.1");
+        assertThat(HalPropertyDebugUtils.toValueString(new HalPropValueBuilder(true).build(
+                VehicleProperty.HVAC_TEMPERATURE_VALUE_SUGGESTION, 0,
+                new float[]{11.1f, 33.3f}))).isEqualTo("[11.1, 33.3]");
+        assertThat(HalPropertyDebugUtils.toValueString(
+                new HalPropValueBuilder(true).build(VehicleProperty.VHAL_HEARTBEAT, 0,
+                        -1L))).isEqualTo("-1");
+        assertThat(HalPropertyDebugUtils.toValueString(
+                new HalPropValueBuilder(true).build(VehicleProperty.WHEEL_TICK, 0,
+                        new long[]{-1, -2}))).isEqualTo("[-1, -2]");
+        assertThat(HalPropertyDebugUtils.toValueString(
+                new HalPropValueBuilder(true).build(VehicleProperty.INFO_MAKE, 0,
+                        "testMake"))).isEqualTo("testMake");
+        assertThat(HalPropertyDebugUtils.toValueString(
+                new HalPropValueBuilder(true).build(VehicleProperty.STORAGE_ENCRYPTION_BINDING_SEED,
+                        0, new byte[]{}))).isEqualTo("[]");
+        assertThat(HalPropertyDebugUtils.toValueString(
+                new HalPropValueBuilder(true).build(VehicleProperty.VEHICLE_MAP_SERVICE, 0,
+                        new byte[]{}))).isEqualTo(
+                "floatValues: [], int32Values: [], int64Values: [], bytes: [], string: ");
     }
 
     @Test
