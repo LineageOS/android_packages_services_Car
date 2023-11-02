@@ -13,7 +13,7 @@ per-file src/android/car/media/ICarVolumeCallback.aidl = oscarazu@google.com, er
 per-file src/android/car/cluster/* = ycheo@google.com
 
 # Input
-per-file src/android/car/input/* = ycheo@google.com
+per-file src/android/car/input/* = ycheo@google.com, kanant@google.com
 
 # Navigation
 per-file src/android/car/navigation/* = ycheo@google.com
