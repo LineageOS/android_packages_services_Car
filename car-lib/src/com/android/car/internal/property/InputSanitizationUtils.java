@@ -91,7 +91,7 @@ public final class InputSanitizationUtils {
     }
 
     /**
-     * Sanitizes the enableVUR option in {@code CarSubscribeOption}.
+     * Sanitizes the enableVUR option in {@code CarSubscription}.
      *
      * <p>Overwrite it to false if:
      *
@@ -104,14 +104,14 @@ public final class InputSanitizationUtils {
      * @return a list of sanitized subscribe options. We may return more than one option because
      * part of the areaIds support VUR, the rest does not.
      */
-    public static List<CarSubscribeOption> sanitizeEnableVariableUpdateRate(
+    public static List<CarSubscription> sanitizeEnableVariableUpdateRate(
             FeatureFlags featureFlags, CarPropertyConfig<?> carPropertyConfig,
-            CarSubscribeOption inputOption) throws IllegalArgumentException {
+            CarSubscription inputOption) throws IllegalArgumentException {
         int[] areaIds = inputOption.areaIds;
         Preconditions.checkArgument(areaIds != null && areaIds.length != 0,
                 "areaIds must not be empty for property: "
                 + VehiclePropertyIds.toString(inputOption.propertyId));
-        List<CarSubscribeOption> sanitizedOptions = new ArrayList<>();
+        List<CarSubscription> sanitizedOptions = new ArrayList<>();
         if (!inputOption.enableVariableUpdateRate) {
             // We will only overwrite enableVUR to off.
             sanitizedOptions.add(inputOption);
@@ -140,13 +140,13 @@ public final class InputSanitizationUtils {
             }
             disabledAreaIds.add(areaId);
         }
-        CarSubscribeOption disabledVUROption = new CarSubscribeOption();
+        CarSubscription disabledVUROption = new CarSubscription();
         disabledVUROption.propertyId = inputOption.propertyId;
         disabledVUROption.areaIds = convertToIntArray(disabledAreaIds);
         disabledVUROption.updateRateHz = inputOption.updateRateHz;
         disabledVUROption.enableVariableUpdateRate = false;
 
-        CarSubscribeOption enabledVUROption = new CarSubscribeOption();
+        CarSubscription enabledVUROption = new CarSubscription();
         enabledVUROption.propertyId = inputOption.propertyId;
         enabledVUROption.areaIds = convertToIntArray(enabledAreaIds);
         enabledVUROption.updateRateHz = inputOption.updateRateHz;

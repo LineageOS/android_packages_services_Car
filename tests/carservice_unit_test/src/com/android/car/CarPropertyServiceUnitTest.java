@@ -59,7 +59,7 @@ import android.util.SparseArray;
 import com.android.car.hal.PropertyHalService;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
-import com.android.car.internal.property.CarSubscribeOption;
+import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 
 import org.junit.Before;
@@ -598,7 +598,7 @@ public final class CarPropertyServiceUnitTest {
         mValue = new CarPropertyValue<>(SPEED_ID, 0, timestampNanos, 0f);
         when(mHalService.getProperty(SPEED_ID, 0)).thenReturn(mValue);
 
-        mService.registerListenerWithSubscribeOptions(List.of(
+        mService.registerListener(List.of(
                 createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f),
                         createCarSubscriptionOption(HVAC_TEMP, new int[]{0}, 0f)),
                 mMockHandler1);
@@ -689,10 +689,10 @@ public final class CarPropertyServiceUnitTest {
                 HVAC_TEMP, 0, timestampNanos, 0f);
         when(mHalService.getProperty(HVAC_TEMP, 0)).thenReturn(hvacValue);
 
-        List<CarSubscribeOption> subscribeOptions = List.of(
+        List<CarSubscription> subscribeOptions = List.of(
                 createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f),
                 createCarSubscriptionOption(HVAC_TEMP, new int[]{0}, 0f));
-        mService.registerListenerWithSubscribeOptions(subscribeOptions, mockHandler);
+        mService.registerListener(subscribeOptions, mockHandler);
 
         // Verify the two initial value responses arrive.
         verify(mockHandler, timeout(5000)).onEvent(mPropertyEventCaptor.capture());
@@ -721,15 +721,15 @@ public final class CarPropertyServiceUnitTest {
                 HVAC_TEMP, 0, timestampNanos, 0f);
         when(mHalService.getProperty(HVAC_TEMP, 0)).thenReturn(hvacValue);
 
-        List<CarSubscribeOption> subscribeOptions = List.of(
+        List<CarSubscription> subscribeOptions = List.of(
                 createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVUR= */ true),
                 // This is an on-change property, so VUR must have no effect.
                 createCarSubscriptionOption(HVAC_TEMP, new int[]{0}, 0f, /* enableVUR= */ true));
-        List<CarSubscribeOption> sanitizedOptions = List.of(
+        List<CarSubscription> sanitizedOptions = List.of(
                 createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVUR= */ true),
                 // This is an on-change property, so VUR must have no effect.
                 createCarSubscriptionOption(HVAC_TEMP, new int[]{0}, 0f, /* enableVUR= */ false));
-        mService.registerListenerWithSubscribeOptions(subscribeOptions, mockHandler);
+        mService.registerListener(subscribeOptions, mockHandler);
 
         // Verify the two initial value responses arrive.
         verify(mockHandler, timeout(5000)).onEvent(mPropertyEventCaptor.capture());
@@ -751,11 +751,11 @@ public final class CarPropertyServiceUnitTest {
                 HVAC_TEMP, 0, timestampNanos, 0f);
         when(mHalService.getProperty(HVAC_TEMP, 0)).thenReturn(hvacValue);
 
-        List<CarSubscribeOption> subscribeOptions = List.of(
+        List<CarSubscription> subscribeOptions = List.of(
                 createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVUR= */ true));
-        List<CarSubscribeOption> sanitizedOptions = List.of(
+        List<CarSubscription> sanitizedOptions = List.of(
                 createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVUR= */ false));
-        mService.registerListenerWithSubscribeOptions(subscribeOptions, mockHandler);
+        mService.registerListener(subscribeOptions, mockHandler);
 
         // Verify the two initial value responses arrive.
         verify(mockHandler, timeout(5000)).onEvent(mPropertyEventCaptor.capture());
@@ -770,12 +770,12 @@ public final class CarPropertyServiceUnitTest {
         when(mockHandler.asBinder()).thenReturn(mockBinder);
         doThrow(new ServiceSpecificException(0)).when(mHalService).subscribeProperty(any());
 
-        List<CarSubscribeOption> subscribeOptions = List.of(
+        List<CarSubscription> subscribeOptions = List.of(
                 createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f),
                 createCarSubscriptionOption(HVAC_TEMP, new int[]{0}, 0f));
 
         assertThrows(ServiceSpecificException.class, () ->
-                mService.registerListenerWithSubscribeOptions(subscribeOptions, mockHandler));
+                mService.registerListener(subscribeOptions, mockHandler));
     }
 
     @Test
@@ -788,25 +788,25 @@ public final class CarPropertyServiceUnitTest {
         CarPropertyValue mockValue = mock(CarPropertyValue.class);
         when(mHalService.getProperty(anyInt(), anyInt())).thenReturn(mockValue);
 
-        List<CarSubscribeOption> subscribeOptions = List.of(
+        List<CarSubscription> subscribeOptions = List.of(
                 createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f),
                 createCarSubscriptionOption(HVAC_TEMP, new int[]{0}, 0f));
 
         assertThrows(ServiceSpecificException.class, () ->
-                mService.registerListenerWithSubscribeOptions(subscribeOptions, mockHandler));
+                mService.registerListener(subscribeOptions, mockHandler));
 
         // Simulate the error goes away.
         clearInvocations(mHalService);
         doNothing().when(mHalService).subscribeProperty(any());
 
-        mService.registerListenerWithSubscribeOptions(subscribeOptions, mockHandler);
+        mService.registerListener(subscribeOptions, mockHandler);
 
         // Verify that the retry request must go to PropertyHalService.
         verify(mHalService).subscribeProperty(subscribeOptions);
     }
 
     @Test
-    public void testRegisterListenerWithSubscribeOptions_alreadySubscribedOptionFilteredOut() {
+    public void testregisterListener_alreadySubscribedOptionFilteredOut() {
         ICarPropertyEventListener mockHandler1 = mock(ICarPropertyEventListener.class);
         ICarPropertyEventListener mockHandler2 = mock(ICarPropertyEventListener.class);
         IBinder mockBinder1 = mock(IBinder.class);
@@ -821,13 +821,13 @@ public final class CarPropertyServiceUnitTest {
         // [left -> 0f]
         // Continuous:
         // [left -> 20f, right -> 20f]
-        List<CarSubscribeOption> firstSubscribeOptions = List.of(
+        List<CarSubscription> firstSubscribeOptions = List.of(
                 createCarSubscriptionOption(ON_CHANGE_ZONED_PROPERTY_ID, new int[]{
                         VehicleAreaWindow.WINDOW_ROW_1_LEFT}, 0f),
                 createCarSubscriptionOption(CONTINUOUS_ZONED_PROPERTY_ID, new int[]{
                         VehicleAreaWindow.WINDOW_ROW_1_LEFT, VehicleAreaWindow.WINDOW_ROW_1_RIGHT},
                         20f));
-        mService.registerListenerWithSubscribeOptions(firstSubscribeOptions, mockHandler1);
+        mService.registerListener(firstSubscribeOptions, mockHandler1);
 
         verify(mHalService).subscribeProperty(firstSubscribeOptions);
 
@@ -842,7 +842,7 @@ public final class CarPropertyServiceUnitTest {
         // [right -> 0f]
         // Continuous:
         // [right -> 30f]
-        List<CarSubscribeOption> secondSubscribeOptions = List.of(
+        List<CarSubscription> secondSubscribeOptions = List.of(
                 createCarSubscriptionOption(ON_CHANGE_ZONED_PROPERTY_ID, new int[]{
                         VehicleAreaWindow.WINDOW_ROW_1_LEFT, VehicleAreaWindow.WINDOW_ROW_1_RIGHT},
                         0f),
@@ -850,7 +850,7 @@ public final class CarPropertyServiceUnitTest {
                         VehicleAreaWindow.WINDOW_ROW_1_LEFT}, 10f),
                 createCarSubscriptionOption(CONTINUOUS_ZONED_PROPERTY_ID, new int[]{
                         VehicleAreaWindow.WINDOW_ROW_1_RIGHT}, 30f));
-        mService.registerListenerWithSubscribeOptions(secondSubscribeOptions, mockHandler2);
+        mService.registerListener(secondSubscribeOptions, mockHandler2);
 
         verify(mHalService).subscribeProperty(List.of(
                 createCarSubscriptionOption(ON_CHANGE_ZONED_PROPERTY_ID, new int[]{
@@ -904,20 +904,20 @@ public final class CarPropertyServiceUnitTest {
         // [left -> 0f]
         // Continuous:
         // [left -> 20f, right -> 20f]
-        List<CarSubscribeOption> firstSubscribeOptions = List.of(
+        List<CarSubscription> firstSubscribeOptions = List.of(
                 createCarSubscriptionOption(ON_CHANGE_ZONED_PROPERTY_ID, new int[]{
                         VehicleAreaWindow.WINDOW_ROW_1_LEFT}, 0f),
                 createCarSubscriptionOption(CONTINUOUS_ZONED_PROPERTY_ID, new int[]{
                         VehicleAreaWindow.WINDOW_ROW_1_LEFT, VehicleAreaWindow.WINDOW_ROW_1_RIGHT},
                         20f));
-        mService.registerListenerWithSubscribeOptions(firstSubscribeOptions, mockHandler1);
+        mService.registerListener(firstSubscribeOptions, mockHandler1);
 
         // Client 2
         // On-change:
         // [left -> 0f (filtered out), right -> 0f]
         // Continuous:
         // [left -> 10f (filtered out), right -> 30f]
-        List<CarSubscribeOption> secondSubscribeOptions = List.of(
+        List<CarSubscription> secondSubscribeOptions = List.of(
                 createCarSubscriptionOption(ON_CHANGE_ZONED_PROPERTY_ID, new int[]{
                         VehicleAreaWindow.WINDOW_ROW_1_LEFT, VehicleAreaWindow.WINDOW_ROW_1_RIGHT},
                         0f),
@@ -925,7 +925,7 @@ public final class CarPropertyServiceUnitTest {
                         VehicleAreaWindow.WINDOW_ROW_1_LEFT}, 10f),
                 createCarSubscriptionOption(CONTINUOUS_ZONED_PROPERTY_ID, new int[]{
                         VehicleAreaWindow.WINDOW_ROW_1_RIGHT}, 30f));
-        mService.registerListenerWithSubscribeOptions(secondSubscribeOptions, mockHandler2);
+        mService.registerListener(secondSubscribeOptions, mockHandler2);
 
         clearInvocations(mHalService);
 
@@ -959,25 +959,25 @@ public final class CarPropertyServiceUnitTest {
     }
 
     @Test
-    public void testRegisterListenerWithSubscribeOptions_emptyAreaIds() throws Exception {
+    public void testregisterListener_emptyAreaIds() throws Exception {
         ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
         IBinder mockBinder = mock(IBinder.class);
         when(mockHandler.asBinder()).thenReturn(mockBinder);
 
         assertThrows(IllegalArgumentException.class, () ->
-                mService.registerListenerWithSubscribeOptions(List.of(
+                mService.registerListener(List.of(
                         createCarSubscriptionOption(ON_CHANGE_ZONED_PROPERTY_ID, new int[]{}, 0f)),
                 mockHandler));
     }
 
     @Test
-    public void testRegisterListenerWithSubscribeOptions_nullAreaIds() throws Exception {
+    public void testregisterListener_nullAreaIds() throws Exception {
         ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
         IBinder mockBinder = mock(IBinder.class);
         when(mockHandler.asBinder()).thenReturn(mockBinder);
 
         assertThrows(IllegalArgumentException.class, () ->
-                mService.registerListenerWithSubscribeOptions(List.of(
+                mService.registerListener(List.of(
                         createCarSubscriptionOption(ON_CHANGE_ZONED_PROPERTY_ID,
                                 /* areaId= */ null, 0f)),
                 mockHandler));
@@ -993,11 +993,11 @@ public final class CarPropertyServiceUnitTest {
         when(mHalService.getProperty(anyInt(), anyInt())).thenReturn(mockValue);
         doThrow(new ServiceSpecificException(0)).when(mHalService).unsubscribeProperty(anyInt());
 
-        List<CarSubscribeOption> subscribeOptions = List.of(
+        List<CarSubscription> subscribeOptions = List.of(
                 createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f),
                 createCarSubscriptionOption(HVAC_TEMP, new int[]{0}, 0f));
 
-        mService.registerListenerWithSubscribeOptions(subscribeOptions, mockHandler);
+        mService.registerListener(subscribeOptions, mockHandler);
 
         assertThrows(ServiceSpecificException.class, () ->
                 mService.unregisterListener(SPEED_ID, mockHandler));
@@ -1013,11 +1013,11 @@ public final class CarPropertyServiceUnitTest {
         when(mHalService.getProperty(anyInt(), anyInt())).thenReturn(mockValue);
         doThrow(new ServiceSpecificException(0)).when(mHalService).unsubscribeProperty(anyInt());
 
-        List<CarSubscribeOption> subscribeOptions = List.of(
+        List<CarSubscription> subscribeOptions = List.of(
                 createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f),
                 createCarSubscriptionOption(HVAC_TEMP, new int[]{0}, 0f));
 
-        mService.registerListenerWithSubscribeOptions(subscribeOptions, mockHandler);
+        mService.registerListener(subscribeOptions, mockHandler);
 
         assertThrows(ServiceSpecificException.class, () ->
                 mService.unregisterListener(SPEED_ID, mockHandler));

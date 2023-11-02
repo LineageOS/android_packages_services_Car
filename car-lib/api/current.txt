@@ -781,7 +781,7 @@ package android.car.hardware.property {
     method public void setPropertiesAsync(@NonNull java.util.List<android.car.hardware.property.CarPropertyManager.SetPropertyRequest<?>>, long, @Nullable android.os.CancellationSignal, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.SetPropertyCallback);
     method public void setPropertiesAsync(@NonNull java.util.List<android.car.hardware.property.CarPropertyManager.SetPropertyRequest<?>>, @Nullable android.os.CancellationSignal, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.SetPropertyCallback);
     method public <E> void setProperty(@NonNull Class<E>, int, int, @NonNull E);
-    method @FlaggedApi(android.car.feature.Flags.FLAG_BATCHED_SUBSCRIPTIONS) public boolean subscribePropertyEvents(@NonNull java.util.List<android.car.hardware.property.SubscriptionOption>, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
+    method @FlaggedApi(android.car.feature.Flags.FLAG_BATCHED_SUBSCRIPTIONS) public boolean subscribePropertyEvents(@NonNull java.util.List<android.car.hardware.property.Subscription>, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     method public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     method public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int);
     field public static final long ASYNC_GET_DEFAULT_TIMEOUT_MS = 10000L; // 0x2710L
@@ -928,7 +928,7 @@ package android.car.hardware.property {
     method public int getDetailedErrorCode();
   }
 
-  public final class SubscriptionOption {
+  @FlaggedApi(android.car.feature.Flags.FLAG_BATCHED_SUBSCRIPTIONS) public final class Subscription {
     method @FlaggedApi(android.car.feature.Flags.FLAG_VARIABLE_UPDATE_RATE) public void disableVariableUpdateRate();
     method @Nullable public int[] getAreaIds();
     method public int getPropertyId();
@@ -940,15 +940,15 @@ package android.car.hardware.property {
     method @FlaggedApi(android.car.feature.Flags.FLAG_VARIABLE_UPDATE_RATE) public boolean isVariableUpdateRateDisabled();
   }
 
-  public static final class SubscriptionOption.Builder {
-    ctor public SubscriptionOption.Builder(int);
-    method @NonNull public android.car.hardware.property.SubscriptionOption.Builder addAreaId(int);
-    method @NonNull public android.car.hardware.property.SubscriptionOption build();
-    method @NonNull public android.car.hardware.property.SubscriptionOption.Builder setUpdateRateFast();
-    method @NonNull public android.car.hardware.property.SubscriptionOption.Builder setUpdateRateFastest();
-    method @NonNull public android.car.hardware.property.SubscriptionOption.Builder setUpdateRateHz(@FloatRange(from=0.0, to=100.0) float);
-    method @NonNull public android.car.hardware.property.SubscriptionOption.Builder setUpdateRateNormal();
-    method @NonNull public android.car.hardware.property.SubscriptionOption.Builder setUpdateRateUi();
+  public static final class Subscription.Builder {
+    ctor public Subscription.Builder(int);
+    method @NonNull public android.car.hardware.property.Subscription.Builder addAreaId(int);
+    method @NonNull public android.car.hardware.property.Subscription build();
+    method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateFast();
+    method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateFastest();
+    method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateHz(@FloatRange(from=0.0, to=100.0) float);
+    method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateNormal();
+    method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateUi();
   }
 
   public class VehicleElectronicTollCollectionCardStatus {

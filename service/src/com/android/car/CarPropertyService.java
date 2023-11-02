@@ -64,7 +64,7 @@ import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.internal.property.CarPropertyHelper;
-import com.android.car.internal.property.CarSubscribeOption;
+import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
 import com.android.car.internal.property.SubscriptionManager;
@@ -279,10 +279,10 @@ public class CarPropertyService extends ICarProperty.Stub
     public void registerListener(int propertyId, float updateRateHz,
             boolean enableVariableUpdateRate,
             ICarPropertyEventListener carPropertyEventListener) {
-        CarSubscribeOption option = new CarSubscribeOption();
+        CarSubscription option = new CarSubscription();
         int[] areaIds = EMPTY_INT_ARRAY;
         CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
-        // carPropertyConfig nullity check will be done in registerListenerWithSubscribeOptions
+        // carPropertyConfig nullity check will be done in registerListener
         if (carPropertyConfig != null) {
             areaIds = carPropertyConfig.getAreaIds();
         }
@@ -290,7 +290,7 @@ public class CarPropertyService extends ICarProperty.Stub
         option.updateRateHz = updateRateHz;
         option.areaIds = areaIds;
         option.enableVariableUpdateRate = enableVariableUpdateRate;
-        registerListenerWithSubscribeOptions(List.of(option), carPropertyEventListener);
+        registerListener(List.of(option), carPropertyEventListener);
     }
 
     /**
@@ -304,7 +304,7 @@ public class CarPropertyService extends ICarProperty.Stub
             throws IllegalArgumentException, ServiceSpecificException {
         CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
         boolean enableVariableUpdateRate = false;
-        // carPropertyConfig nullity check will be done in registerListenerWithSubscribeOptions
+        // carPropertyConfig nullity check will be done in registerListener
         if (carPropertyConfig != null
                 && carPropertyConfig.getChangeMode() == VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS) {
             enableVariableUpdateRate = true;
@@ -320,21 +320,21 @@ public class CarPropertyService extends ICarProperty.Stub
      *
      * @throws IllegalArgumentException if one of the options is not valid.
      */
-    private List<CarSubscribeOption> validateAndSanitizeSubscribeOptions(
-                List<CarSubscribeOption> subscribeOptions)
+    private List<CarSubscription> validateAndSanitizeSubscriptions(
+                List<CarSubscription> carSubscriptions)
             throws IllegalArgumentException {
-        List<CarSubscribeOption> sanitizedOptions = new ArrayList<>();
-        for (int i = 0; i < subscribeOptions.size(); i++) {
-            CarSubscribeOption option = subscribeOptions.get(i);
+        List<CarSubscription> sanitizedSubscriptions = new ArrayList<>();
+        for (int i = 0; i < carSubscriptions.size(); i++) {
+            CarSubscription subscription = carSubscriptions.get(i);
             CarPropertyConfig<?> carPropertyConfig = validateRegisterParameterAndGetConfig(
-                    option.propertyId, option.areaIds);
-            option.updateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(carPropertyConfig,
-                    option.updateRateHz);
+                    subscription.propertyId, subscription.areaIds);
+            subscription.updateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(
+                    carPropertyConfig, subscription.updateRateHz);
 
-            sanitizedOptions.addAll(InputSanitizationUtils.sanitizeEnableVariableUpdateRate(
-                    mFeatureFlags, carPropertyConfig, option));
+            sanitizedSubscriptions.addAll(InputSanitizationUtils.sanitizeEnableVariableUpdateRate(
+                    mFeatureFlags, carPropertyConfig, subscription));
         }
-        return sanitizedOptions;
+        return sanitizedSubscriptions;
     }
 
     /**
@@ -362,14 +362,14 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     @Override
-    public void registerListenerWithSubscribeOptions(List<CarSubscribeOption> subscribeOptions,
+    public void registerListener(List<CarSubscription> carSubscriptions,
             ICarPropertyEventListener carPropertyEventListener)
             throws IllegalArgumentException, ServiceSpecificException {
-        requireNonNull(subscribeOptions);
+        requireNonNull(carSubscriptions);
         requireNonNull(carPropertyEventListener);
 
-        List<CarSubscribeOption> sanitizedOptions =
-                validateAndSanitizeSubscribeOptions(subscribeOptions);
+        List<CarSubscription> sanitizedOptions =
+                validateAndSanitizeSubscriptions(carSubscriptions);
 
         CarPropertyServiceClient finalClient;
         synchronized (mLock) {
@@ -383,7 +383,7 @@ public class CarPropertyService extends ICarProperty.Stub
             }
 
             for (int i = 0; i < sanitizedOptions.size(); i++) {
-                CarSubscribeOption option = sanitizedOptions.get(i);
+                CarSubscription option = sanitizedOptions.get(i);
                 sSubscriptionUpdateRateHistogram.logSample(option.updateRateHz);
                 if (DBG) {
                     Slogf.d(TAG, "registerListener after update rate sanitization, options: "
@@ -408,7 +408,7 @@ public class CarPropertyService extends ICarProperty.Stub
             // [areaId -> update rate] map.
             mSubscriptionManager.commit();
             for (int i = 0; i < sanitizedOptions.size(); i++) {
-                CarSubscribeOption option = sanitizedOptions.get(i);
+                CarSubscription option = sanitizedOptions.get(i);
                 client.addProperty(
                         option.propertyId, option.areaIds, option.updateRateHz);
             }
@@ -458,19 +458,19 @@ public class CarPropertyService extends ICarProperty.Stub
 
     @GuardedBy("mLock")
     void applyStagedChangesLocked() throws ServiceSpecificException {
-        List<CarSubscribeOption> filteredSubscribeOptions = new ArrayList<>();
+        List<CarSubscription> filteredSubscriptions = new ArrayList<>();
         List<Integer> propertyIdsToUnsubscribe = new ArrayList<>();
-        mSubscriptionManager.diffBetweenCurrentAndStage(/* out */ filteredSubscribeOptions,
+        mSubscriptionManager.diffBetweenCurrentAndStage(/* out */ filteredSubscriptions,
                 /* out */ propertyIdsToUnsubscribe);
 
         if (DBG) {
-            Slogf.d(TAG, "SubscribeOptions after filtering out options that are already"
-                    + " subscribed at the same or a higher rate: " + filteredSubscribeOptions);
+            Slogf.d(TAG, "Subscriptions after filtering out options that are already"
+                    + " subscribed at the same or a higher rate: " + filteredSubscriptions);
         }
 
-        if (!filteredSubscribeOptions.isEmpty()) {
+        if (!filteredSubscriptions.isEmpty()) {
             try {
-                mPropertyHalService.subscribeProperty(filteredSubscribeOptions);
+                mPropertyHalService.subscribeProperty(filteredSubscriptions);
             } catch (ServiceSpecificException e) {
                 Slogf.e(TAG, "PropertyHalService.subscribeProperty failed", e);
                 throw e;
@@ -489,11 +489,11 @@ public class CarPropertyService extends ICarProperty.Stub
         }
     }
 
-    private void getAndDispatchPropertyInitValue(List<CarSubscribeOption> subscribeOptions,
+    private void getAndDispatchPropertyInitValue(List<CarSubscription> carSubscriptions,
             CarPropertyServiceClient client) {
         List<CarPropertyEvent> events = new ArrayList<>();
-        for (int i = 0; i < subscribeOptions.size(); i++) {
-            CarSubscribeOption option = subscribeOptions.get(i);
+        for (int i = 0; i < carSubscriptions.size(); i++) {
+            CarSubscription option = carSubscriptions.get(i);
             int propertyId = option.propertyId;
             int[] areaIds = option.areaIds;
             for (int areaId : areaIds) {

@@ -84,7 +84,7 @@ import com.android.car.internal.LongPendingRequestPool.TimeoutCallback;
 import com.android.car.internal.LongRequestIdWithTimeout;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.CarPropertyHelper;
-import com.android.car.internal.property.CarSubscribeOption;
+import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
@@ -1176,30 +1176,30 @@ public class PropertyHalService extends HalServiceBase {
 
     /**
      * Subscribe to this property at the specified updateRateHz and areaId. The list of
-     * carSubscribeOptions should never be empty since it is checked at CarPropertyService.
+     * carSubscriptions should never be empty since it is checked at CarPropertyService.
      *
      * @throws ServiceSpecificException If VHAL returns error.
      */
-    public void subscribeProperty(List<CarSubscribeOption> carSubscribeOptions)
+    public void subscribeProperty(List<CarSubscription> carSubscriptions)
             throws ServiceSpecificException {
         synchronized (mLock) {
             Set<Integer> halPropIdsToSubscribe = new ArraySet<>();
             // Even though this involves binder call, this must be done inside the lock so that
             // the state in {@code mSubManager} is consistent with the state in VHAL.
-            for (int i = 0; i < carSubscribeOptions.size(); i++) {
-                CarSubscribeOption subscribeOption = carSubscribeOptions.get(i);
-                int mgrPropId = subscribeOption.propertyId;
-                int[] areaIds = subscribeOption.areaIds;
-                float updateRateHz = subscribeOption.updateRateHz;
+            for (int i = 0; i < carSubscriptions.size(); i++) {
+                CarSubscription carSubscription = carSubscriptions.get(i);
+                int mgrPropId = carSubscription.propertyId;
+                int[] areaIds = carSubscription.areaIds;
+                float updateRateHz = carSubscription.updateRateHz;
                 if (DBG) {
                     Slogf.d(TAG, "subscribeProperty propertyId: %s, updateRateHz=%f",
                             VehiclePropertyIds.toString(mgrPropId), updateRateHz);
                 }
                 int halPropId = managerToHalPropId(mgrPropId);
                 // Note that we use halPropId instead of mgrPropId in mSubManager.
-                mSubManager.stageNewOptions(CAR_PROP_SVC_REQUEST_ID, List.of(newCarSubscribeOption(
+                mSubManager.stageNewOptions(CAR_PROP_SVC_REQUEST_ID, List.of(newCarSubscription(
                         halPropId, areaIds, updateRateHz,
-                        subscribeOption.enableVariableUpdateRate)));
+                        carSubscription.enableVariableUpdateRate)));
             }
             try {
                 updateSubscriptionRateLocked();
@@ -1379,10 +1379,10 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     private static ArrayList<HalSubscribeOptions> toHalSubscribeOptions(
-            ArrayList<CarSubscribeOption> carSubscribeOptions) {
+            ArrayList<CarSubscription> carSubscriptions) {
         ArrayList<HalSubscribeOptions> halOptions = new ArrayList<>();
-        for (int i = 0; i < carSubscribeOptions.size(); i++) {
-            CarSubscribeOption carOption = carSubscribeOptions.get(i);
+        for (int i = 0; i < carSubscriptions.size(); i++) {
+            CarSubscription carOption = carSubscriptions.get(i);
             halOptions.add(new HalSubscribeOptions(carOption.propertyId, carOption.areaIds,
                     carOption.updateRateHz, carOption.enableVariableUpdateRate));
         }
@@ -1414,7 +1414,7 @@ public class PropertyHalService extends HalServiceBase {
      */
     @GuardedBy("mLock")
     private void updateSubscriptionRateLocked() throws ServiceSpecificException {
-        ArrayList<CarSubscribeOption> diffSubscribeOptions = new ArrayList<>();
+        ArrayList<CarSubscription> diffSubscribeOptions = new ArrayList<>();
         List<Integer> propIdsToUnsubscribe = new ArrayList<>();
         mSubManager.diffBetweenCurrentAndStage(diffSubscribeOptions, propIdsToUnsubscribe);
         try {
@@ -1732,9 +1732,9 @@ public class PropertyHalService extends HalServiceBase {
         return waitForUpdateSetRequests;
     }
 
-    private static CarSubscribeOption newCarSubscribeOption(int propertyId, int[] areaIds,
+    private static CarSubscription newCarSubscription(int propertyId, int[] areaIds,
             float updateRateHz, boolean enableVUR) {
-        CarSubscribeOption option = new CarSubscribeOption();
+        CarSubscription option = new CarSubscription();
         option.propertyId = propertyId;
         option.areaIds = areaIds;
         option.updateRateHz = updateRateHz;
@@ -1778,7 +1778,7 @@ public class PropertyHalService extends HalServiceBase {
                         == CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS);
                 mSubManager.stageNewOptions(setRequestInfo.getServiceRequestId(),
                         // Note that we use halPropId instead of mgrPropId in mSubManager.
-                        List.of(newCarSubscribeOption(halPropId,
+                        List.of(newCarSubscription(halPropId,
                                 new int[]{setRequestInfo.getAreaId()},
                                 setRequestInfo.getUpdateRateHz(), enableVUR)));
             }

@@ -36,13 +36,13 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
     private static final int AREA2 = 2;
     private static final float ON_CHANGE_RATE = 0f;
 
-    private CarSubscribeOption getCarSubscribeOption(int propertyId, int[] areaIds) {
-        return getCarSubscribeOption(propertyId, areaIds, ON_CHANGE_RATE);
+    private CarSubscription getCarSubscription(int propertyId, int[] areaIds) {
+        return getCarSubscription(propertyId, areaIds, ON_CHANGE_RATE);
     }
 
-    private CarSubscribeOption getCarSubscribeOption(int propertyId, int[] areaIds,
+    private CarSubscription getCarSubscription(int propertyId, int[] areaIds,
             float updateRateHz) {
-        CarSubscribeOption option = new CarSubscribeOption();
+        CarSubscription option = new CarSubscription();
         option.propertyId = propertyId;
         option.areaIds = areaIds;
         option.updateRateHz = updateRateHz;
@@ -52,7 +52,7 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testStageNewOptions_Commit_GetClients() {
         mSubscriptionManager.stageNewOptions(mClient1, List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2})
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2})
         ));
 
         mSubscriptionManager.commit();
@@ -68,8 +68,8 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testStageNewOptions_Commit_GetCurrentSubscribedPropIds() {
         mSubscriptionManager.stageNewOptions(mClient1, List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}),
-                getCarSubscribeOption(PROPERTY2, new int[]{AREA1, AREA2})
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}),
+                getCarSubscription(PROPERTY2, new int[]{AREA1, AREA2})
         ));
 
         mSubscriptionManager.commit();
@@ -82,17 +82,17 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testStageNewOptions_UpdateRateChangedToLowerRate() {
         mSubscriptionManager.stageNewOptions(mClient1, List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}, 1.0f)
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 1.0f)
         ));
 
         mSubscriptionManager.commit();
 
-        List<CarSubscribeOption> newOptions = List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}, 0.5f)
+        List<CarSubscription> newOptions = List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 0.5f)
         );
         mSubscriptionManager.stageNewOptions(mClient1, newOptions);
 
-        List<CarSubscribeOption> outDiffSubscribeOptions = new ArrayList<>();
+        List<CarSubscription> outDiffSubscribeOptions = new ArrayList<>();
         List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
         mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
                 outPropertyIdsToUnsubscribe);
@@ -104,11 +104,11 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testStageNewOptions_DropCommit_GetClients() {
         mSubscriptionManager.stageNewOptions(mClient1, List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1})
+                getCarSubscription(PROPERTY1, new int[]{AREA1})
         ));
         mSubscriptionManager.commit();
         mSubscriptionManager.stageNewOptions(mClient1, List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA2})
+                getCarSubscription(PROPERTY1, new int[]{AREA2})
         ));
         mSubscriptionManager.dropCommit();
 
@@ -121,8 +121,8 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testStageUnregister_Commit_GetClients() {
         mSubscriptionManager.stageNewOptions(mClient1, List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}),
-                getCarSubscribeOption(PROPERTY2, new int[]{AREA1, AREA2})
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}),
+                getCarSubscription(PROPERTY2, new int[]{AREA1, AREA2})
         ));
         mSubscriptionManager.commit();
         mSubscriptionManager.stageUnregister(mClient1, new ArraySet<Integer>(Set.of(
@@ -142,7 +142,7 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testStageUnregister_DropCommit_GetClients() {
         mSubscriptionManager.stageNewOptions(mClient1, List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2})
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2})
         ));
         mSubscriptionManager.commit();
         mSubscriptionManager.stageUnregister(mClient1, new ArraySet<Integer>(Set.of(
@@ -157,12 +157,12 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
 
     @Test
     public void testDiffBetweenCurrentAndStage_simpleAdd() {
-        List<CarSubscribeOption> newOptions = List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}),
-                getCarSubscribeOption(PROPERTY2, new int[]{AREA1, AREA2})
+        List<CarSubscription> newOptions = List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}),
+                getCarSubscription(PROPERTY2, new int[]{AREA1, AREA2})
         );
         mSubscriptionManager.stageNewOptions(mClient1, newOptions);
-        List<CarSubscribeOption> outDiffSubscribeOptions = new ArrayList<>();
+        List<CarSubscription> outDiffSubscribeOptions = new ArrayList<>();
         List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
 
         mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
@@ -174,15 +174,15 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
 
     @Test
     public void testDiffBetweenCurrentAndStage_simpleRemove() {
-        List<CarSubscribeOption> newOptions = List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}),
-                getCarSubscribeOption(PROPERTY2, new int[]{AREA1, AREA2})
+        List<CarSubscription> newOptions = List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}),
+                getCarSubscription(PROPERTY2, new int[]{AREA1, AREA2})
         );
         mSubscriptionManager.stageNewOptions(mClient1, newOptions);
         mSubscriptionManager.commit();
         mSubscriptionManager.stageUnregister(mClient1, new ArraySet<Integer>(Set.of(
                 PROPERTY1)));
-        List<CarSubscribeOption> outDiffSubscribeOptions = new ArrayList<>();
+        List<CarSubscription> outDiffSubscribeOptions = new ArrayList<>();
         List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
 
         mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
@@ -194,19 +194,19 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
 
     @Test
     public void testDiffBetweenCurrentAndStage_updatedRate() {
-        List<CarSubscribeOption> client1Options = List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}),
-                getCarSubscribeOption(PROPERTY2, new int[]{AREA1, AREA2})
+        List<CarSubscription> client1Options = List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}),
+                getCarSubscription(PROPERTY2, new int[]{AREA1, AREA2})
         );
         mSubscriptionManager.stageNewOptions(mClient1, client1Options);
         mSubscriptionManager.commit();
 
-        List<CarSubscribeOption> client2Options = List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}, 1.23f),
-                getCarSubscribeOption(PROPERTY2, new int[]{AREA1, AREA2}, 2.34f)
+        List<CarSubscription> client2Options = List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 1.23f),
+                getCarSubscription(PROPERTY2, new int[]{AREA1, AREA2}, 2.34f)
         );
         mSubscriptionManager.stageNewOptions(mClient2, client2Options);
-        List<CarSubscribeOption> outDiffSubscribeOptions = new ArrayList<>();
+        List<CarSubscription> outDiffSubscribeOptions = new ArrayList<>();
         List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
 
         mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
@@ -219,17 +219,17 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testDiffBetweenCurrentAndStage_updateRateChangedToLowerRate() {
         mSubscriptionManager.stageNewOptions(mClient1, List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}, 1.0f)
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 1.0f)
         ));
 
         mSubscriptionManager.commit();
 
-        List<CarSubscribeOption> newOptions = List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}, 0.5f)
+        List<CarSubscription> newOptions = List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 0.5f)
         );
         mSubscriptionManager.stageNewOptions(mClient1, newOptions);
 
-        List<CarSubscribeOption> outDiffSubscribeOptions = new ArrayList<>();
+        List<CarSubscription> outDiffSubscribeOptions = new ArrayList<>();
         List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
         mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
                 outPropertyIdsToUnsubscribe);
@@ -240,14 +240,14 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
 
     @Test
     public void testDiffBetweenCurrentAndStage_updateEnableVariableUpdateRate() {
-        CarSubscribeOption option1 = getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2});
-        CarSubscribeOption option2 = getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2});
+        CarSubscription option1 = getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2});
+        CarSubscription option2 = getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2});
         option1.enableVariableUpdateRate = false;
         option2.enableVariableUpdateRate = true;
         // client1 disables VUR.
         mSubscriptionManager.stageNewOptions(mClient1, List.of(option1));
 
-        List<CarSubscribeOption> outDiffSubscribeOptions = new ArrayList<>();
+        List<CarSubscription> outDiffSubscribeOptions = new ArrayList<>();
         List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
 
         mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
@@ -284,44 +284,44 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testDiffBetweenCurrentAndStage_removeClientCauseRateChange() {
         mSubscriptionManager.stageNewOptions(mClient1, List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}, 1.0f)
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 1.0f)
         ));
         mSubscriptionManager.commit();
         mSubscriptionManager.stageNewOptions(mClient2, List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}, 0.5f)
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 0.5f)
         ));
         mSubscriptionManager.commit();
         mSubscriptionManager.stageUnregister(mClient1, new ArraySet<Integer>(Set.of(
                 PROPERTY1)));
 
-        List<CarSubscribeOption> outDiffSubscribeOptions = new ArrayList<>();
+        List<CarSubscription> outDiffSubscribeOptions = new ArrayList<>();
         List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
         mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
                 outPropertyIdsToUnsubscribe);
 
         expectThat(outPropertyIdsToUnsubscribe).isEmpty();
         expectThat(outDiffSubscribeOptions).containsExactlyElementsIn(List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}, 0.5f)
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 0.5f)
         ));
     }
 
     @Test
     public void testDiffBetweenCurrentAndStage_complicatedCases() {
         // Client1 subscribes for PROPERTY1, AREA1.
-        List<CarSubscribeOption> client1Options = List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1}, 1.23f)
+        List<CarSubscription> client1Options = List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1}, 1.23f)
         );
         mSubscriptionManager.stageNewOptions(mClient1, client1Options);
         mSubscriptionManager.commit();
 
         // Client2 subscribes at all areas for property 1 at a lower rate, and all areas for
         // property 2 at a higher rate.
-        List<CarSubscribeOption> client2Options = List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}, 0.12f),
-                getCarSubscribeOption(PROPERTY2, new int[]{AREA1, AREA2}, 3.45f)
+        List<CarSubscription> client2Options = List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 0.12f),
+                getCarSubscription(PROPERTY2, new int[]{AREA1, AREA2}, 3.45f)
         );
         mSubscriptionManager.stageNewOptions(mClient2, client2Options);
-        List<CarSubscribeOption> outDiffSubscribeOptions = new ArrayList<>();
+        List<CarSubscription> outDiffSubscribeOptions = new ArrayList<>();
         List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
 
         mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
@@ -335,14 +335,14 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
         expectWithMessage(
                 "Only the newly subscribed areas or areas with a higher rate should be changed")
                 .that(outDiffSubscribeOptions).containsExactlyElementsIn(List.of(
-                        getCarSubscribeOption(PROPERTY1, new int[]{AREA2}, 0.12f),
-                        getCarSubscribeOption(PROPERTY2, new int[]{AREA1, AREA2}, 3.45f)
+                        getCarSubscription(PROPERTY1, new int[]{AREA2}, 0.12f),
+                        getCarSubscription(PROPERTY2, new int[]{AREA1, AREA2}, 3.45f)
         ));
 
         mSubscriptionManager.commit();
         // Client 2 subscribes to PROPERTY2, AREA1 for a higher rate.
         mSubscriptionManager.stageNewOptions(mClient2, List.of(
-                getCarSubscribeOption(PROPERTY2, new int[]{AREA1}, 4.56f)
+                getCarSubscription(PROPERTY2, new int[]{AREA1}, 4.56f)
         ));
 
         outDiffSubscribeOptions.clear();
@@ -355,7 +355,7 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
         expectWithMessage(
                 "Only areas with a higher rate should be changed")
                 .that(outDiffSubscribeOptions).containsExactlyElementsIn(List.of(
-                        getCarSubscribeOption(PROPERTY2, new int[]{AREA1}, 4.56f)
+                        getCarSubscription(PROPERTY2, new int[]{AREA1}, 4.56f)
         ));
 
         mSubscriptionManager.commit();
@@ -407,29 +407,29 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testStageNewOptions_calledTwice() {
         mSubscriptionManager.stageNewOptions(mClient1, List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2})
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2})
         ));
         mSubscriptionManager.stageNewOptions(mClient2, List.of(
-                getCarSubscribeOption(PROPERTY2, new int[]{AREA1, AREA2})
+                getCarSubscription(PROPERTY2, new int[]{AREA1, AREA2})
         ));
 
-        List<CarSubscribeOption> outDiffSubscribeOptions = new ArrayList<>();
+        List<CarSubscription> outDiffSubscribeOptions = new ArrayList<>();
         List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
         mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
                 outPropertyIdsToUnsubscribe);
 
         expectThat(outPropertyIdsToUnsubscribe).isEmpty();
         expectThat(outDiffSubscribeOptions).containsExactly(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}),
-                getCarSubscribeOption(PROPERTY2, new int[]{AREA1, AREA2})
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}),
+                getCarSubscription(PROPERTY2, new int[]{AREA1, AREA2})
         );
     }
 
     @Test
     public void testStageUnregister_calledTwice() {
         mSubscriptionManager.stageNewOptions(mClient1, List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}),
-                getCarSubscribeOption(PROPERTY2, new int[]{AREA1, AREA2})
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}),
+                getCarSubscription(PROPERTY2, new int[]{AREA1, AREA2})
         ));
         mSubscriptionManager.commit();
 
@@ -438,7 +438,7 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
         mSubscriptionManager.stageUnregister(mClient1, new ArraySet<Integer>(Set.of(
                 PROPERTY2)));
 
-        List<CarSubscribeOption> outDiffSubscribeOptions = new ArrayList<>();
+        List<CarSubscription> outDiffSubscribeOptions = new ArrayList<>();
         List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
         mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
                 outPropertyIdsToUnsubscribe);
@@ -449,15 +449,15 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
 
     @Test
     public void testDiffBetweenCurrentAndStage_noStagedChanges() {
-        List<CarSubscribeOption> client1Options = List.of(
-                getCarSubscribeOption(PROPERTY1, new int[]{AREA1, AREA2}),
-                getCarSubscribeOption(PROPERTY2, new int[]{AREA1, AREA2})
+        List<CarSubscription> client1Options = List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}),
+                getCarSubscription(PROPERTY2, new int[]{AREA1, AREA2})
         );
         mSubscriptionManager.stageNewOptions(mClient1, client1Options);
         mSubscriptionManager.commit();
 
         // No staged changes after commit.
-        List<CarSubscribeOption> outDiffSubscribeOptions = new ArrayList<>();
+        List<CarSubscription> outDiffSubscribeOptions = new ArrayList<>();
         List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
         mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
                 outPropertyIdsToUnsubscribe);

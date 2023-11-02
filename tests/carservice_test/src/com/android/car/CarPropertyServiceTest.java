@@ -53,7 +53,7 @@ import androidx.test.filters.MediumTest;
 
 import com.android.car.hal.test.AidlMockedVehicleHal.VehicleHalPropertyHandler;
 import com.android.car.hal.test.AidlVehiclePropValueBuilder;
-import com.android.car.internal.property.CarSubscribeOption;
+import com.android.car.internal.property.CarSubscription;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -144,8 +144,8 @@ public class CarPropertyServiceTest extends MockedCarTestBase {
     }
 
     @Test
-    public void testRegisterListenerWithSubscribeOptions() {
-        CarSubscribeOption options = new CarSubscribeOption();
+    public void testregisterListener() {
+        CarSubscription options = new CarSubscription();
         options.propertyId = TEST_SUBSCRIBE_PROP;
         options.areaIds = new int[]{
                 android.car.VehicleAreaWheel.WHEEL_LEFT_FRONT,
@@ -161,7 +161,7 @@ public class CarPropertyServiceTest extends MockedCarTestBase {
                     .addFloatValues(1.23f)
                     .setTimestamp(SystemClock.elapsedRealtimeNanos()).build());
 
-        mService.registerListenerWithSubscribeOptions(List.of(options), mockHandler);
+        mService.registerListener(List.of(options), mockHandler);
 
         ArgumentCaptor<int[]> areaIdsCaptor = ArgumentCaptor.forClass(int[].class);
 
@@ -173,8 +173,8 @@ public class CarPropertyServiceTest extends MockedCarTestBase {
     }
 
     @Test
-    public void testRegisterListenerWithSubscribeOptions_exceptionAndRetry() {
-        CarSubscribeOption options = new CarSubscribeOption();
+    public void testregisterListener_exceptionAndRetry() {
+        CarSubscription options = new CarSubscription();
         options.propertyId = TEST_SUBSCRIBE_PROP;
         options.areaIds = new int[]{
                 android.car.VehicleAreaWheel.WHEEL_LEFT_FRONT,
@@ -193,7 +193,7 @@ public class CarPropertyServiceTest extends MockedCarTestBase {
                 anyInt(), any(), anyFloat());
 
         assertThrows(ServiceSpecificException.class, () ->
-                mService.registerListenerWithSubscribeOptions(List.of(options), mockHandler));
+                mService.registerListener(List.of(options), mockHandler));
 
         // Simulate the error goes away.
         doNothing().when(mMockPropertyHandler).onPropertySubscribe(anyInt(), any(), anyFloat());
@@ -201,7 +201,7 @@ public class CarPropertyServiceTest extends MockedCarTestBase {
         ArgumentCaptor<int[]> areaIdsCaptor = ArgumentCaptor.forClass(int[].class);
 
         // Retry.
-        mService.registerListenerWithSubscribeOptions(List.of(options), mockHandler);
+        mService.registerListener(List.of(options), mockHandler);
 
         // The retry must reach VHAL.
         verify(mMockPropertyHandler, times(2)).onPropertySubscribe(eq(TEST_SUBSCRIBE_PROP),
@@ -213,7 +213,7 @@ public class CarPropertyServiceTest extends MockedCarTestBase {
 
     @Test
     public void testUnregisterListener() {
-        CarSubscribeOption options = new CarSubscribeOption();
+        CarSubscription options = new CarSubscription();
         options.propertyId = TEST_SUBSCRIBE_PROP;
         options.areaIds = new int[]{
                 android.car.VehicleAreaWheel.WHEEL_LEFT_FRONT,
@@ -229,7 +229,7 @@ public class CarPropertyServiceTest extends MockedCarTestBase {
                     .addFloatValues(1.23f)
                     .setTimestamp(SystemClock.elapsedRealtimeNanos()).build());
 
-        mService.registerListenerWithSubscribeOptions(List.of(options), mockHandler);
+        mService.registerListener(List.of(options), mockHandler);
 
         verify(mMockPropertyHandler).onPropertySubscribe(eq(TEST_SUBSCRIBE_PROP), any(), eq(10f));
 
@@ -240,7 +240,7 @@ public class CarPropertyServiceTest extends MockedCarTestBase {
 
     @Test
     public void testUnregisterListener_exceptionAndRetry() {
-        CarSubscribeOption options = new CarSubscribeOption();
+        CarSubscription options = new CarSubscription();
         options.propertyId = TEST_SUBSCRIBE_PROP;
         options.areaIds = new int[]{
                 android.car.VehicleAreaWheel.WHEEL_LEFT_FRONT,
@@ -256,7 +256,7 @@ public class CarPropertyServiceTest extends MockedCarTestBase {
                     .addFloatValues(1.23f)
                     .setTimestamp(SystemClock.elapsedRealtimeNanos()).build());
 
-        mService.registerListenerWithSubscribeOptions(List.of(options), mockHandler);
+        mService.registerListener(List.of(options), mockHandler);
 
         verify(mMockPropertyHandler).onPropertySubscribe(eq(TEST_SUBSCRIBE_PROP), any(), eq(10f));
 

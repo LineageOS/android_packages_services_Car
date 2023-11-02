@@ -1465,8 +1465,8 @@ UnflaggedApi: android.car.hardware.property.CarPropertyManager#setPropertiesAsyn
     New API must be flagged with @FlaggedApi: method android.car.hardware.property.CarPropertyManager.setPropertiesAsync(java.util.List<android.car.hardware.property.CarPropertyManager.SetPropertyRequest<?>>,long,android.os.CancellationSignal,java.util.concurrent.Executor,android.car.hardware.property.CarPropertyManager.SetPropertyCallback)
 UnflaggedApi: android.car.hardware.property.CarPropertyManager#setProperty(Class<E>, int, int, E):
     New API must be flagged with @FlaggedApi: method android.car.hardware.property.CarPropertyManager.setProperty(Class<E>,int,int,E)
-UnflaggedApi: android.car.hardware.property.CarPropertyManager#subscribePropertyEvents(java.util.List<android.car.hardware.property.SubscriptionOption>, java.util.concurrent.Executor, android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback):
-    New API must be flagged with @FlaggedApi: method android.car.hardware.property.CarPropertyManager.subscribePropertyEvents(java.util.List<android.car.hardware.property.SubscriptionOption>,java.util.concurrent.Executor,android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback)
+UnflaggedApi: android.car.hardware.property.CarPropertyManager#subscribePropertyEvents(java.util.List<android.car.hardware.property.SubscribeOption>, java.util.concurrent.Executor, android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback):
+    New API must be flagged with @FlaggedApi: method android.car.hardware.property.CarPropertyManager.subscribePropertyEvents(java.util.List<android.car.hardware.property.SubscribeOption>,java.util.concurrent.Executor,android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback)
 UnflaggedApi: android.car.hardware.property.CarPropertyManager#unregisterCallback(android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback):
     New API must be flagged with @FlaggedApi: method android.car.hardware.property.CarPropertyManager.unregisterCallback(android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback)
 UnflaggedApi: android.car.hardware.property.CarPropertyManager#unregisterCallback(android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int):
@@ -1659,40 +1659,40 @@ UnflaggedApi: android.car.hardware.property.PropertyNotAvailableException:
     New API must be flagged with @FlaggedApi: class android.car.hardware.property.PropertyNotAvailableException
 UnflaggedApi: android.car.hardware.property.PropertyNotAvailableException#getDetailedErrorCode():
     New API must be flagged with @FlaggedApi: method android.car.hardware.property.PropertyNotAvailableException.getDetailedErrorCode()
-UnflaggedApi: android.car.hardware.property.SubscriptionOption:
-    New API must be flagged with @FlaggedApi: class android.car.hardware.property.SubscriptionOption
-UnflaggedApi: android.car.hardware.property.SubscriptionOption#getAreaIds():
-    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscriptionOption.getAreaIds()
-UnflaggedApi: android.car.hardware.property.SubscriptionOption#getPropertyId():
-    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscriptionOption.getPropertyId()
-UnflaggedApi: android.car.hardware.property.SubscriptionOption#getUpdateRateFast():
-    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscriptionOption.getUpdateRateFast()
-UnflaggedApi: android.car.hardware.property.SubscriptionOption#getUpdateRateFastest():
-    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscriptionOption.getUpdateRateFastest()
-UnflaggedApi: android.car.hardware.property.SubscriptionOption#getUpdateRateHz():
-    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscriptionOption.getUpdateRateHz()
-UnflaggedApi: android.car.hardware.property.SubscriptionOption#getUpdateRateNormal():
-    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscriptionOption.getUpdateRateNormal()
-UnflaggedApi: android.car.hardware.property.SubscriptionOption#getUpdateRateUi():
-    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscriptionOption.getUpdateRateUi()
-UnflaggedApi: android.car.hardware.property.SubscriptionOption.Builder:
-    New API must be flagged with @FlaggedApi: class android.car.hardware.property.SubscriptionOption.Builder
-UnflaggedApi: android.car.hardware.property.SubscriptionOption.Builder#Builder(int):
-    New API must be flagged with @FlaggedApi: constructor android.car.hardware.property.SubscriptionOption.Builder(int)
-UnflaggedApi: android.car.hardware.property.SubscriptionOption.Builder#addAreaId(int):
-    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscriptionOption.Builder.addAreaId(int)
-UnflaggedApi: android.car.hardware.property.SubscriptionOption.Builder#build():
-    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscriptionOption.Builder.build()
-UnflaggedApi: android.car.hardware.property.SubscriptionOption.Builder#setUpdateRateFast():
-    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscriptionOption.Builder.setUpdateRateFast()
-UnflaggedApi: android.car.hardware.property.SubscriptionOption.Builder#setUpdateRateFastest():
-    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscriptionOption.Builder.setUpdateRateFastest()
-UnflaggedApi: android.car.hardware.property.SubscriptionOption.Builder#setUpdateRateHz(float):
-    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscriptionOption.Builder.setUpdateRateHz(float)
-UnflaggedApi: android.car.hardware.property.SubscriptionOption.Builder#setUpdateRateNormal():
-    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscriptionOption.Builder.setUpdateRateNormal()
-UnflaggedApi: android.car.hardware.property.SubscriptionOption.Builder#setUpdateRateUi():
-    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscriptionOption.Builder.setUpdateRateUi()
+UnflaggedApi: android.car.hardware.property.SubscribeOption:
+    New API must be flagged with @FlaggedApi: class android.car.hardware.property.SubscribeOption
+UnflaggedApi: android.car.hardware.property.SubscribeOption#getAreaIds():
+    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscribeOption.getAreaIds()
+UnflaggedApi: android.car.hardware.property.SubscribeOption#getPropertyId():
+    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscribeOption.getPropertyId()
+UnflaggedApi: android.car.hardware.property.SubscribeOption#getUpdateRateFast():
+    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscribeOption.getUpdateRateFast()
+UnflaggedApi: android.car.hardware.property.SubscribeOption#getUpdateRateFastest():
+    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscribeOption.getUpdateRateFastest()
+UnflaggedApi: android.car.hardware.property.SubscribeOption#getUpdateRateHz():
+    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscribeOption.getUpdateRateHz()
+UnflaggedApi: android.car.hardware.property.SubscribeOption#getUpdateRateNormal():
+    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscribeOption.getUpdateRateNormal()
+UnflaggedApi: android.car.hardware.property.SubscribeOption#getUpdateRateUi():
+    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscribeOption.getUpdateRateUi()
+UnflaggedApi: android.car.hardware.property.SubscribeOption.Builder:
+    New API must be flagged with @FlaggedApi: class android.car.hardware.property.SubscribeOption.Builder
+UnflaggedApi: android.car.hardware.property.SubscribeOption.Builder#Builder(int):
+    New API must be flagged with @FlaggedApi: constructor android.car.hardware.property.SubscribeOption.Builder(int)
+UnflaggedApi: android.car.hardware.property.SubscribeOption.Builder#addAreaId(int):
+    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscribeOption.Builder.addAreaId(int)
+UnflaggedApi: android.car.hardware.property.SubscribeOption.Builder#build():
+    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscribeOption.Builder.build()
+UnflaggedApi: android.car.hardware.property.SubscribeOption.Builder#setUpdateRateFast():
+    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscribeOption.Builder.setUpdateRateFast()
+UnflaggedApi: android.car.hardware.property.SubscribeOption.Builder#setUpdateRateFastest():
+    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscribeOption.Builder.setUpdateRateFastest()
+UnflaggedApi: android.car.hardware.property.SubscribeOption.Builder#setUpdateRateHz(float):
+    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscribeOption.Builder.setUpdateRateHz(float)
+UnflaggedApi: android.car.hardware.property.SubscribeOption.Builder#setUpdateRateNormal():
+    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscribeOption.Builder.setUpdateRateNormal()
+UnflaggedApi: android.car.hardware.property.SubscribeOption.Builder#setUpdateRateUi():
+    New API must be flagged with @FlaggedApi: method android.car.hardware.property.SubscribeOption.Builder.setUpdateRateUi()
 UnflaggedApi: android.car.hardware.property.VehicleElectronicTollCollectionCardStatus:
     New API must be flagged with @FlaggedApi: class android.car.hardware.property.VehicleElectronicTollCollectionCardStatus
 UnflaggedApi: android.car.hardware.property.VehicleElectronicTollCollectionCardStatus#ELECTRONIC_TOLL_COLLECTION_CARD_INVALID:

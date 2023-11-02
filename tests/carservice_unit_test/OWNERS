@@ -42,6 +42,7 @@ per-file src/com/android/car/hal/property/*.java = ericjeong@google.com, tylertr
 per-file src/com/android/car/property/*.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
 per-file src/com/android/car/internal/property/*.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
 per-file src/com/android/car/internal/util/PairSparseArrayUnitTest.java = aaqibismail@google.com, tylertrephan@google.com, shanyu@google.com
+per-file src/android/car/hardware/property/*.java = aaqibismail@google.com, tylertrephan@google.com, shanyu@google.com
 
 # StorageMonitoring
 per-file src/com/android/car/storagemonitoring/* = lakshmana@google.com
