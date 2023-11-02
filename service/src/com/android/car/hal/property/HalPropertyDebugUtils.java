@@ -16,8 +16,11 @@
 
 package com.android.car.hal.property;
 
+import static com.android.car.internal.util.ConstantDebugUtils.toName;
+
 import static java.lang.Integer.toHexString;
 
+import android.annotation.Nullable;
 import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
@@ -26,6 +29,7 @@ import android.hardware.automotive.vehicle.VehiclePropertyGroup;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.util.Slog;
 
+import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.util.ConstantDebugUtils;
 
 /**
@@ -40,6 +44,29 @@ public final class HalPropertyDebugUtils {
      */
     private HalPropertyDebugUtils() {
         throw new UnsupportedOperationException("Must never be called");
+    }
+
+    /**
+     * Gets a user-friendly representation string representation of a {@code propertyId}.
+     */
+    public static String toPropertyIdString(int propertyId) {
+        String hexSuffix = "(0x" + toHexString(propertyId) + ")";
+        if (isSystemPropertyId(propertyId)) {
+            return toName(VehicleProperty.class, propertyId) + hexSuffix;
+        } else if (CarPropertyHelper.isVendorProperty(propertyId)) {
+            return "VENDOR_PROPERTY" + hexSuffix;
+        } else if (CarPropertyHelper.isBackportedProperty(propertyId)) {
+            return "BACKPORTED_PROPERTY" + hexSuffix;
+        }
+        return "INVALID_PROPERTY_ID" + hexSuffix;
+    }
+
+    /**
+     * Gets the HAL property's ID based on the passed name.
+     */
+    @Nullable
+    public static Integer toPropertyId(String propertyName) {
+        return ConstantDebugUtils.toValue(VehicleProperty.class, propertyName);
     }
 
     /**
@@ -87,11 +114,20 @@ public final class HalPropertyDebugUtils {
 
     private static String toDebugString(Class<?> clazz, int constantValue) {
         String hexSuffix = "(0x" + toHexString(constantValue) + ")";
-        if (ConstantDebugUtils.toName(clazz, constantValue) == null) {
+        if (toName(clazz, constantValue) == null) {
             String invalidConstantValue = "INVALID_" + clazz.getSimpleName() + hexSuffix;
             Slog.e(TAG, invalidConstantValue);
             return invalidConstantValue;
         }
-        return ConstantDebugUtils.toName(clazz, constantValue) + hexSuffix;
+        return toName(clazz, constantValue) + hexSuffix;
     }
+
+    /**
+     * Returns {@code true} if {@code propertyId} is defined in {@link VehicleProperty}.
+     * {@code false} otherwise.
+     */
+    private static boolean isSystemPropertyId(int propertyId) {
+        return toName(VehicleProperty.class, propertyId) != null;
+    }
+
 }
