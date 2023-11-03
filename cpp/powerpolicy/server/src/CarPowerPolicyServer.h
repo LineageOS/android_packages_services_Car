@@ -136,6 +136,9 @@ public:
             const sp<android::Looper>& looper);
     static void terminateService();
 
+    CarPowerPolicyServer();
+    android::base::Result<void> init(const sp<android::Looper>& looper);
+
     // Implements ICarPowerPolicyServer.aidl.
     status_t dump(int fd, const char** args, uint32_t numArgs) override;
     ::ndk::ScopedAStatus getCurrentPowerPolicy(
@@ -214,8 +217,6 @@ private:
                                       void* cookie) override;
     };
 
-    CarPowerPolicyServer();
-
     void terminate();
     bool isRegisteredLocked(const AIBinder* binder);
     void connectToVhal();
@@ -228,7 +229,6 @@ private:
     android::base::Result<void> notifyVhalNewPowerPolicy(const std::string& policyId);
     bool isPropertySupported(const int32_t prop);
     bool isPowerPolicyAppliedLocked() const;
-    android::base::Result<void> init(const sp<android::Looper>& looper);
 
     static void onBinderDied(void* cookie);
     static std::string callbackToString(const CallbackInfo& callback);
