@@ -27,3 +27,43 @@ runtime_resource_overlay {
         "car-resource-common"
     ],
 }
+
+///////////////////////////////////////////// Theme Orange ///////////////////////////////////////
+runtime_resource_overlay {
+    name: "CarFrameworkResVisualThemeOragneRROBase",
+    resource_dirs: ["res"],
+    certificate: "platform",
+    manifest: "AndroidManifest-dynamic.xml",
+    system_ext_specific: true,
+
+    static_libs: [
+        "car-resource-theme-orange-common"
+    ],
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.orange-android",
+    base: "CarFrameworkResVisualThemeOragneRROBase",
+    package_name: "android.googlecarui.theme.orange.rro",
+    target_package_name: "android",
+}
+
+///////////////////////////////////////////// Theme Pink /////////////////////////////////////////
+runtime_resource_overlay {
+    name: "CarFrameworkResVisualThemePinkRROBase",
+    resource_dirs: ["res"],
+    certificate: "platform",
+    manifest: "AndroidManifest-dynamic.xml",
+    system_ext_specific: true,
+
+    static_libs: [
+        "car-resource-theme-pink-common"
+    ],
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.pink-android",
+    base: "CarFrameworkResVisualThemePinkRROBase",
+    package_name: "android.googlecarui.theme.pink.rro",
+    target_package_name: "android",
+}
