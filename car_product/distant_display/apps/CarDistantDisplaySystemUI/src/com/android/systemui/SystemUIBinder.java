@@ -16,8 +16,8 @@
 
 package com.android.systemui;
 
-import com.android.systemui.car.distantdisplay.activity.window.ActivityWindowManager;
 import com.android.systemui.car.distantdisplay.activity.window.ActivityWindowModule;
+import com.android.systemui.car.distantdisplay.activity.window.DistantDisplayActivityWindowManager;
 
 import dagger.Binds;
 import dagger.Module;
@@ -31,7 +31,7 @@ abstract class SystemUIBinder extends CarSystemUIBinder {
 
     @Binds
     @IntoMap
-    @ClassKey(ActivityWindowManager.class)
+    @ClassKey(DistantDisplayActivityWindowManager.class)
     public abstract CoreStartable bindActivityWindowManager(
-            ActivityWindowManager activityWindowManager);
+            DistantDisplayActivityWindowManager activityWindowManager);
 }
