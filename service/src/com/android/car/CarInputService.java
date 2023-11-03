@@ -25,6 +25,9 @@ import static com.android.car.CarServiceUtils.getCommonHandlerThread;
 import static com.android.car.CarServiceUtils.getContentResolverForUser;
 import static com.android.car.CarServiceUtils.isEventOfType;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.internal.util.Preconditions.checkArgument;
+
+import static java.util.Objects.requireNonNull;
 
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -382,12 +385,16 @@ public class CarInputService extends ICarInput.Stub
     /**
      * This method registers a keyEventListener to listen on key events that it is interested in.
      *
-     * @param listener The listener to be registered.
-     * @param keyCodesOfInterest The events of interest that the listener is interested in.
-     * @throws IllegalArgumentException When an event is already registered to another listener
+     * @param listener the listener to be registered
+     * @param keyCodesOfInterest the events of interest that the listener is interested in
+     * @throws IllegalArgumentException when an event is already registered to another listener
      */
     public void registerKeyEventListener(KeyEventListener listener,
             List<Integer> keyCodesOfInterest) {
+        requireNonNull(listener, "Key event listener can not be null");
+        requireNonNull(keyCodesOfInterest, "Key events of interest can not be null");
+        checkArgument(!keyCodesOfInterest.isEmpty(),
+                "Key events of interest can not be empty");
         synchronized (mLock) {
             // Check for invalid key codes
             for (int i = 0; i < keyCodesOfInterest.size(); i++) {
@@ -400,6 +407,28 @@ public class CarInputService extends ICarInput.Stub
             }
             for (int i = 0; i < keyCodesOfInterest.size(); i++) {
                 mListeners.put(keyCodesOfInterest.get(i), listener);
+            }
+        }
+    }
+
+    /**
+     * Unregisters the key event listener for all the keys it currently listen to
+     *
+     * @param listener the listener to be unregistered
+     */
+    public void unregisterKeyEventListener(KeyEventListener listener) {
+        requireNonNull(listener, "Key event listener can not be null");
+        synchronized (mLock) {
+            var keysToRemove = new ArrayList<Integer>();
+            for (int c  = 0; c < mListeners.size(); c++) {
+                if (!mListeners.valueAt(c).equals(listener)) {
+                    continue;
+                }
+                keysToRemove.add(mListeners.keyAt(c));
+            }
+
+            for (int c = 0; c < keysToRemove.size(); c++) {
+                mListeners.delete(keysToRemove.get(c));
             }
         }
     }

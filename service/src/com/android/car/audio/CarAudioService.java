@@ -466,6 +466,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 mCarAudioPowerListener.stopListeningForPolicyChanges();
             }
             mAudioManager.clearAudioServerStateCallback();
+            mCarInputService.unregisterKeyEventListener(mCarKeyEventListener);
         }
     }
 
