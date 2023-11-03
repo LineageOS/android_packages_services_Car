@@ -1060,11 +1060,6 @@ public class CarPropertyManager extends CarManagerBase {
      * {@link VehiclePropertyIds#HVAC_POWER_ON} for hvac power dependent properties) to decide this
      * property's availability.
      *
-     * <p>
-     * If one {@link CarPropertyEventCallback} is already registered using
-     * {@link CarPropertyManager#subscribePropertyEvents}, caller must make sure the executor was
-     * null (using the default executor) when calling subscribePropertyEvents.
-     *
      * @param carPropertyEventCallback the CarPropertyEventCallback to be registered
      * @param propertyId               the property ID to subscribe
      * @param updateRateHz             how fast the property events are delivered in Hz
