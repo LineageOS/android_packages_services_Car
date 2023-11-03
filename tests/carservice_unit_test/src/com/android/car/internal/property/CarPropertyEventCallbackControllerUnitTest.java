@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.internal;
+package com.android.car.internal.property;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -63,6 +63,9 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     private static final CarPropertyValue<Integer> FRESH_CAR_PROPERTY_VALUE =
             new CarPropertyValue<>(FIRST_PROPERTY_ID, AREA_ID_1, FRESH_TIMESTAMP_NANOS,
                     INTEGER_VALUE_2);
+    private static final CarPropertyValue<Integer> FRESH_CAR_PROPERTY_SAME_VALUE =
+            new CarPropertyValue<>(FIRST_PROPERTY_ID, AREA_ID_1, FRESH_TIMESTAMP_NANOS,
+                    INTEGER_VALUE_1);
     private static final CarPropertyValue<Integer> ALMOST_FRESH_CAR_PROPERTY_VALUE =
             new CarPropertyValue<>(FIRST_PROPERTY_ID, AREA_ID_1, ALMOST_FRESH_TIMESTAMP_NANOS,
                     INTEGER_VALUE_2);
@@ -90,9 +93,10 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
-    public void add_getUpdateRateHzOnePropertyAdded() {
-        mCarPropertyEventCallbackController.add(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                FIRST_UPDATE_RATE_HZ);
+    public void testAddContinuousProperty_getUpdateRateHzOnePropertyAdded() {
+        mCarPropertyEventCallbackController.addContinuousProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS, FIRST_UPDATE_RATE_HZ,
+                /* enableVUR= */ false);
 
         assertThat(mCarPropertyEventCallbackController.getUpdateRateHz(FIRST_PROPERTY_ID,
                 AREA_ID_1)).isEqualTo(FIRST_UPDATE_RATE_HZ);
@@ -101,19 +105,20 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
-    public void add_getLatestRateIfSamePropertyAddedTwice() {
-        mCarPropertyEventCallbackController.add(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                FIRST_UPDATE_RATE_HZ);
-        mCarPropertyEventCallbackController.add(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                SECOND_BIGGER_UPDATE_RATE_HZ);
+    public void testAddContinuousProperty_getLatestRateIfSamePropertyAddedTwice() {
+        mCarPropertyEventCallbackController.addContinuousProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS, FIRST_UPDATE_RATE_HZ,
+                /* enableVUR= */ false);
+        mCarPropertyEventCallbackController.addContinuousProperty(FIRST_PROPERTY_ID,
+                REGISTERED_AREA_IDS, SECOND_BIGGER_UPDATE_RATE_HZ, /* enableVUR= */ false);
 
         assertThat(mCarPropertyEventCallbackController.getUpdateRateHz(FIRST_PROPERTY_ID,
                 AREA_ID_1)).isEqualTo(SECOND_BIGGER_UPDATE_RATE_HZ);
         assertThat(mCarPropertyEventCallbackController.getUpdateRateHz(FIRST_PROPERTY_ID,
                 AREA_ID_2)).isEqualTo(SECOND_BIGGER_UPDATE_RATE_HZ);
 
-        mCarPropertyEventCallbackController.add(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                SECOND_SMALLER_UPDATE_RATE_HZ);
+        mCarPropertyEventCallbackController.addContinuousProperty(FIRST_PROPERTY_ID,
+                REGISTERED_AREA_IDS, SECOND_SMALLER_UPDATE_RATE_HZ, /* enableVUR= */ false);
 
         assertThat(mCarPropertyEventCallbackController.getUpdateRateHz(FIRST_PROPERTY_ID,
                 AREA_ID_1)).isEqualTo(SECOND_SMALLER_UPDATE_RATE_HZ);
@@ -122,17 +127,19 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
-    public void getUpdateRateHz_rateNotFoundNoPropertyAdded() {
+    public void testGetUpdateRateHz_rateNotFoundNoPropertyAdded() {
         assertThat(mCarPropertyEventCallbackController.getUpdateRateHz(FIRST_PROPERTY_ID,
                 AREA_ID_1)).isEqualTo(0f);
     }
 
     @Test
-    public void getUpdateRateHz_multiplePropertiesAdded() {
-        mCarPropertyEventCallbackController.add(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                FIRST_UPDATE_RATE_HZ);
-        mCarPropertyEventCallbackController.add(SECOND_PROPERTY_ID, REGISTERED_AREA_IDS,
-                SECOND_BIGGER_UPDATE_RATE_HZ);
+    public void testGetUpdateRateHz_multiplePropertiesAdded() {
+        mCarPropertyEventCallbackController.addContinuousProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS, FIRST_UPDATE_RATE_HZ,
+                /* enableVUR= */ false);
+        mCarPropertyEventCallbackController.addContinuousProperty(
+                SECOND_PROPERTY_ID, REGISTERED_AREA_IDS, SECOND_BIGGER_UPDATE_RATE_HZ,
+                /* enableVUR= */ false);
 
         assertThat(mCarPropertyEventCallbackController.getUpdateRateHz(FIRST_PROPERTY_ID,
                 AREA_ID_1)).isEqualTo(FIRST_UPDATE_RATE_HZ);
@@ -145,7 +152,7 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
-    public void remove_doesNothingIfNoPropertyAdded() {
+    public void testRemove_doesNothingIfNoPropertyAdded() {
         assertThat(mCarPropertyEventCallbackController.remove(FIRST_PROPERTY_ID))
                 .isTrue();
         assertThat(mCarPropertyEventCallbackController.getUpdateRateHz(FIRST_PROPERTY_ID,
@@ -153,25 +160,28 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
-    public void remove_addThenRemoveProperty() {
-        mCarPropertyEventCallbackController.add(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                FIRST_UPDATE_RATE_HZ);
+    public void testRemove_addThenRemoveProperty() {
+        mCarPropertyEventCallbackController.addContinuousProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS, FIRST_UPDATE_RATE_HZ,
+                /* enableVUR= */ false);
 
         assertThat(mCarPropertyEventCallbackController.remove(FIRST_PROPERTY_ID)).isTrue();
     }
 
     @Test
-    public void remove_addTwoPropertiesRemoveOne() {
-        mCarPropertyEventCallbackController.add(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                FIRST_UPDATE_RATE_HZ);
-        mCarPropertyEventCallbackController.add(SECOND_PROPERTY_ID, REGISTERED_AREA_IDS,
-                FIRST_UPDATE_RATE_HZ);
+    public void testRemove_addTwoPropertiesRemoveOne() {
+        mCarPropertyEventCallbackController.addContinuousProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS, FIRST_UPDATE_RATE_HZ,
+                /* enableVUR= */ false);
+        mCarPropertyEventCallbackController.addContinuousProperty(
+                SECOND_PROPERTY_ID, REGISTERED_AREA_IDS, FIRST_UPDATE_RATE_HZ,
+                /* enableVUR= */ false);
 
         assertThat(mCarPropertyEventCallbackController.remove(FIRST_PROPERTY_ID)).isFalse();
     }
 
     @Test
-    public void onEvent_changeEvent_doesNothingIfNoPropertiesAdded() {
+    public void testOnEvent_changeEvent_doesNothingIfNoPropertiesAdded() {
         CarPropertyValue<Integer> carPropertyValue = new CarPropertyValue<>(FIRST_PROPERTY_ID,
                 AREA_ID_1, 567);
         mCarPropertyEventCallbackController.onEvent(
@@ -184,9 +194,9 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
-    public void onEvent_changeEvent_forwardsToCallback() {
-        mCarPropertyEventCallbackController.add(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+    public void testOnEvent_changeEvent_forwardsToCallback() {
+        mCarPropertyEventCallbackController.addOnChangeProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
         mCarPropertyEventCallbackController.onEvent(
                 new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
                         GOOD_CAR_PROPERTY_VALUE));
@@ -197,11 +207,11 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
-    public void onEvent_changeEvent_forwardsMultipleEvents() {
-        mCarPropertyEventCallbackController.add(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE);
-        mCarPropertyEventCallbackController.add(SECOND_PROPERTY_ID, REGISTERED_AREA_IDS,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+    public void testOnEvent_changeEvent_forwardsMultipleEvents() {
+        mCarPropertyEventCallbackController.addOnChangeProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
+        mCarPropertyEventCallbackController.addOnChangeProperty(
+                SECOND_PROPERTY_ID, REGISTERED_AREA_IDS);
         mCarPropertyEventCallbackController.onEvent(
                 new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
                         GOOD_CAR_PROPERTY_VALUE));
@@ -216,9 +226,9 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
-    public void onEvent_changeEvent_skipsStaleCarPropertyValues() {
-        mCarPropertyEventCallbackController.add(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+    public void testOnEvent_changeEvent_skipsStaleCarPropertyValues() {
+        mCarPropertyEventCallbackController.addOnChangeProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
         mCarPropertyEventCallbackController.onEvent(
                 new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
                         GOOD_CAR_PROPERTY_VALUE));
@@ -232,9 +242,10 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
-    public void onEvent_changeEvent_skipsCarPropertyValuesWithNonZeroUpdateRate() {
-        mCarPropertyEventCallbackController.add(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                FIRST_UPDATE_RATE_HZ);
+    public void testOnEvent_changeEvent_skipsCarPropertyValuesWithNonZeroUpdateRate() {
+        mCarPropertyEventCallbackController.addContinuousProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS, FIRST_UPDATE_RATE_HZ,
+                /* enableVUR= */ false);
         mCarPropertyEventCallbackController.onEvent(
                 new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
                         GOOD_CAR_PROPERTY_VALUE));
@@ -249,9 +260,9 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
-    public void onEvent_changeEvent_forwardsFreshCarPropertyValues() {
-        mCarPropertyEventCallbackController.add(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+    public void testOnEvent_changeEvent_forwardsFreshCarPropertyValues() {
+        mCarPropertyEventCallbackController.addOnChangeProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
         mCarPropertyEventCallbackController.onEvent(
                 new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
                         GOOD_CAR_PROPERTY_VALUE));
@@ -268,9 +279,10 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
-    public void onEvent_changeEvent_forwardsFreshCarPropertyValuesWithNonZeroUpdateRate() {
-        mCarPropertyEventCallbackController.add(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                FIRST_UPDATE_RATE_HZ);
+    public void testOnEvent_changeEvent_forwardsFreshCarPropertyValuesWithNonZeroUpdateRate() {
+        mCarPropertyEventCallbackController.addContinuousProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS, FIRST_UPDATE_RATE_HZ,
+                /* enableVUR= */ false);
         mCarPropertyEventCallbackController.onEvent(
                 new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
                         GOOD_CAR_PROPERTY_VALUE));
@@ -287,9 +299,9 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
-    public void onEvent_changeEvent_forwardsStaleCarPropertyValuesWithDifferentAreaId() {
-        mCarPropertyEventCallbackController.add(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+    public void testOnEvent_changeEvent_forwardsStaleCarPropertyValuesWithDifferentAreaId() {
+        mCarPropertyEventCallbackController.addOnChangeProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
         mCarPropertyEventCallbackController.onEvent(
                 new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
                         GOOD_CAR_PROPERTY_VALUE));
@@ -306,7 +318,7 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
-    public void onEvent_errorEvent_doesNothingIfNoPropertiesAdded() {
+    public void testOnEvent_errorEvent_doesNothingIfNoPropertiesAdded() {
         CarPropertyValue<Integer> carPropertyValue = new CarPropertyValue<>(FIRST_PROPERTY_ID,
                 AREA_ID_1, 567);
         mCarPropertyEventCallbackController.onEvent(
@@ -318,9 +330,9 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
-    public void onEvent_errorEvent_forwardsToCallback() {
-        mCarPropertyEventCallbackController.add(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+    public void testOnEvent_errorEvent_forwardsToCallback() {
+        mCarPropertyEventCallbackController.addOnChangeProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
         mCarPropertyEventCallbackController.onEvent(
                 new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_ERROR,
                         ERROR_CAR_PROPERTY_VALUE,
@@ -333,11 +345,11 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
-    public void onEvent_errorEvent_forwardsToMultipleProperties() {
-        mCarPropertyEventCallbackController.add(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE);
-        mCarPropertyEventCallbackController.add(SECOND_PROPERTY_ID, REGISTERED_AREA_IDS,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+    public void testOnEvent_errorEvent_forwardsToMultipleProperties() {
+        mCarPropertyEventCallbackController.addOnChangeProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
+        mCarPropertyEventCallbackController.addOnChangeProperty(
+                SECOND_PROPERTY_ID, REGISTERED_AREA_IDS);
         mCarPropertyEventCallbackController.onEvent(
                 new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_ERROR,
                         GOOD_CAR_PROPERTY_VALUE,
@@ -356,9 +368,9 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
-    public void onEvent_unknownEventType() {
-        mCarPropertyEventCallbackController.add(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+    public void testOnEvent_unknownEventType() {
+        mCarPropertyEventCallbackController.addOnChangeProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
         mCarPropertyEventCallbackController.onEvent(new CarPropertyEvent(
                 /* Unsupported event type: */ 2, ERROR_CAR_PROPERTY_VALUE));
 
@@ -368,23 +380,60 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
-    public void getSubscribedProperties_noProperties() {
+    public void testOnEvent_VUREnabled_forwardsEventIfValueIsDifferent() {
+        mCarPropertyEventCallbackController.addContinuousProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS, FIRST_UPDATE_RATE_HZ,
+                /* enableVUR= */ true);
+
+        mCarPropertyEventCallbackController.onEvent(
+                new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
+                        GOOD_CAR_PROPERTY_VALUE));
+        mCarPropertyEventCallbackController.onEvent(
+                new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
+                        FRESH_CAR_PROPERTY_VALUE));
+
+        verify(mCarPropertyEventCallback, times(2)).onChangeEvent(
+                mCarPropertyValueCaptor.capture());
+        assertThat(mCarPropertyValueCaptor.getAllValues()).containsExactly(GOOD_CAR_PROPERTY_VALUE,
+                FRESH_CAR_PROPERTY_VALUE);
+    }
+
+    @Test
+    public void testOnEvent_VUREnabled_ignoreEventIfValueIsSame() {
+        mCarPropertyEventCallbackController.addContinuousProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS, FIRST_UPDATE_RATE_HZ,
+                /* enableVUR= */ true);
+
+        mCarPropertyEventCallbackController.onEvent(
+                new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
+                        GOOD_CAR_PROPERTY_VALUE));
+        mCarPropertyEventCallbackController.onEvent(
+                new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
+                        FRESH_CAR_PROPERTY_SAME_VALUE));
+
+        verify(mCarPropertyEventCallback, times(1)).onChangeEvent(
+                mCarPropertyValueCaptor.capture());
+        assertThat(mCarPropertyValueCaptor.getAllValues()).containsExactly(GOOD_CAR_PROPERTY_VALUE);
+    }
+
+    @Test
+    public void testGetSubscribedProperties_noProperties() {
         assertThat(mCarPropertyEventCallbackController.getSubscribedProperties()).asList()
                 .isEmpty();
     }
 
     @Test
-    public void getSubscribedProperties_onePropertyAdded() {
-        mCarPropertyEventCallbackController.add(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+    public void testGetSubscribedProperties_onePropertyAdded() {
+        mCarPropertyEventCallbackController.addOnChangeProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
         assertThat(mCarPropertyEventCallbackController.getSubscribedProperties()).asList()
                 .containsExactly(FIRST_PROPERTY_ID);
     }
 
     @Test
-    public void getSubscribedProperties_onePropertyAddedThenRemoved() {
-        mCarPropertyEventCallbackController.add(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+    public void testGetSubscribedProperties_onePropertyAddedThenRemoved() {
+        mCarPropertyEventCallbackController.addOnChangeProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
         assertThat(mCarPropertyEventCallbackController.getSubscribedProperties()).asList()
                 .containsExactly(FIRST_PROPERTY_ID);
         assertThat(mCarPropertyEventCallbackController.remove(FIRST_PROPERTY_ID)).isTrue();

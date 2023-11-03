@@ -16,29 +16,25 @@
 
 package com.android.car.property;
 
-import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
-
-import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
-import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArraySet;
 import android.util.Log;
-import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.car.CarPropertyService;
-import com.android.car.internal.property.CarPropertyEventTracker;
+import com.android.car.internal.property.CarPropertyEventController;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /** Client class to keep track of listeners to {@link CarPropertyService}. */
-public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
+public final class CarPropertyServiceClient extends CarPropertyEventController
+        implements IBinder.DeathRecipient {
     private static final String TAG = CarLog.tagFor(CarPropertyServiceClient.class);
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
@@ -46,9 +42,6 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
     private final IBinder mListenerBinder;
     private final UnregisterCallback mUnregisterCallback;
     private final Object mLock = new Object();
-    @GuardedBy("mLock")
-    private final SparseArray<SparseArray<CarPropertyEventTracker>> mPropIdToAreaIdToCpeTracker =
-            new SparseArray<>();
     @GuardedBy("mLock")
     private boolean mIsDead;
 
@@ -80,63 +73,34 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
     }
 
     /**
-     * Store a property ID and area IDs with the update rate in hz that this
+     * Store a continuous property ID and area IDs with the update rate in hz that this
      * client is subscribed at.
      */
-    public void addProperty(int propertyId, int[] areaIds, float updateRateHz) {
+    @Override
+    public void addContinuousProperty(int propertyId, int[] areaIds, float updateRateHz,
+            boolean enableVUR) {
         synchronized (mLock) {
             if (mIsDead) {
+                Slogf.w(TAG, "addContinuousProperty: The client is already dead, ignore");
                 return;
             }
 
-            SparseArray<CarPropertyEventTracker> areaIdToCpeTracker =
-                    mPropIdToAreaIdToCpeTracker.get(propertyId);
-            if (areaIdToCpeTracker == null) {
-                areaIdToCpeTracker = new SparseArray<>(areaIds.length);
-                mPropIdToAreaIdToCpeTracker.put(propertyId, areaIdToCpeTracker);
-            }
-
-            for (int i = 0; i < areaIds.length; i++) {
-                areaIdToCpeTracker.put(areaIds[i], new CarPropertyEventTracker(updateRateHz));
-            }
+            super.addContinuousProperty(propertyId, areaIds, updateRateHz, enableVUR);
         }
     }
 
     /**
-     * Gets all the areaIds for the given propertyId
+     * Stores a newly subscribed on-change property and area IDs.
      */
-    public int[] getAreaIds(int propertyId) {
+    @Override
+    public void addOnChangeProperty(int propertyId, int[] areaIds) {
         synchronized (mLock) {
-            SparseArray<CarPropertyEventTracker> areaIdToCpeTracker =
-                    mPropIdToAreaIdToCpeTracker.get(propertyId);
-            if (areaIdToCpeTracker == null) {
-                Slogf.e(TAG, "getUpdateRateHz: update rate hz not found for propertyId=%s",
-                        VehiclePropertyIds.toString(propertyId));
-                return EMPTY_INT_ARRAY;
+            if (mIsDead) {
+                Slogf.w(TAG, "addOnChangeProperty: The client is already dead, ignore");
+                return;
             }
-            int[] areaIds = new int[areaIdToCpeTracker.size()];
-            for (int i = 0; i < areaIdToCpeTracker.size(); i++) {
-                areaIds[i] = areaIdToCpeTracker.keyAt(i);
-            }
-            return areaIds;
-        }
-    }
 
-    /**
-     * Return the update rate in hz that the property ID and area ID pair
-     * is subscribed at.
-     */
-    public float getUpdateRateHz(int propertyId, int areaId) {
-        synchronized (mLock) {
-            SparseArray<CarPropertyEventTracker> areaIdToCpeTracker =
-                    mPropIdToAreaIdToCpeTracker.get(propertyId);
-            if (areaIdToCpeTracker == null || areaIdToCpeTracker.get(areaId) == null) {
-                Slogf.e(TAG, "getUpdateRateHz: update rate hz not found for propertyId=%s",
-                        VehiclePropertyIds.toString(propertyId));
-                // Return 0 if property not found, since that is the slowest rate.
-                return 0f;
-            }
-            return areaIdToCpeTracker.get(areaId).getUpdateRateHz();
+            super.addOnChangeProperty(propertyId, areaIds);
         }
     }
 
@@ -148,15 +112,14 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
      *
      * @return {@code true} if there are no properties registered to this client
      */
-    public boolean removeProperties(ArraySet<Integer> propertyIds) {
+    @Override
+    public boolean remove(ArraySet<Integer> propertyIds) {
         synchronized (mLock) {
-            for (int i = 0; i < propertyIds.size(); i++) {
-                mPropIdToAreaIdToCpeTracker.delete(propertyIds.valueAt(i));
-            }
-            if (mPropIdToAreaIdToCpeTracker.size() == 0) {
+            boolean empty = super.remove(propertyIds);
+            if (empty) {
                 mListenerBinder.unlinkToDeath(this, /* flags= */ 0);
             }
-            return mPropIdToAreaIdToCpeTracker.size() == 0;
+            return empty;
         }
     }
 
@@ -175,11 +138,11 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
                 Slogf.d(TAG, "binderDied %s", mListenerBinder);
             }
 
-            // Because we set mIsDead to true here, we are sure mPropertyIdToUpdateRateHz will not
+            // Because we set mIsDead to true here, we are sure subscribeProperties will not
             // have new elements. The property IDs here cover all the properties that we need to
             // unregister.
-            for (int i = 0; i < mPropIdToAreaIdToCpeTracker.size(); i++) {
-                propertyIds.add(mPropIdToAreaIdToCpeTracker.keyAt(i));
+            for (int propertyId : getSubscribedProperties()) {
+                propertyIds.add(propertyId);
             }
         }
         try {
@@ -192,6 +155,8 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
     /**
      * Calls onEvent function on the listener if the binder is alive.
      *
+     * The property events will be filtered based on timestamp and whether VUR is on.
+     *
      * There is still chance when onEvent might fail because binderDied is not called before
      * this function.
      */
@@ -203,31 +168,23 @@ public final class CarPropertyServiceClient implements IBinder.DeathRecipient {
             }
             for (int i = 0; i < events.size(); i++) {
                 CarPropertyEvent event = events.get(i);
-                if (event.getEventType() == CarPropertyEvent.PROPERTY_EVENT_ERROR) {
-                    filteredEvents.add(event);
-                    continue;
-                }
-                CarPropertyValue<?> carPropertyValue = event.getCarPropertyValue();
-                int propertyId = carPropertyValue.getPropertyId();
-                int areaId = carPropertyValue.getAreaId();
-                SparseArray<CarPropertyEventTracker> areaIdToCpeTracker =
-                        mPropIdToAreaIdToCpeTracker.get(propertyId);
-
-                if (areaIdToCpeTracker == null || areaIdToCpeTracker.get(areaId) == null) {
-                    Slogf.w(TAG, "onEvent: Client not registered to propertyId=%s, areaId=0x%x,"
-                            + " timestampNanos=%d", VehiclePropertyIds.toString(propertyId), areaId,
-                            carPropertyValue.getTimestamp());
-                    continue;
-                }
-
-                CarPropertyEventTracker cpeTracker = areaIdToCpeTracker.get(areaId);
-                if (cpeTracker.hasNextUpdateTimeArrived(carPropertyValue)) {
+                if (shouldCallbackBeInvoked(event)) {
                     filteredEvents.add(event);
                 }
             }
         }
-        if (!filteredEvents.isEmpty()) {
-            mListener.onEvent(filteredEvents);
+        onFilteredEvents(filteredEvents);
+    }
+
+    /**
+     * Calls onEvent function on the listener if the binder is alive with no filtering.
+     *
+     * There is still chance when onEvent might fail because binderDied is not called before
+     * this function.
+     */
+    public void onFilteredEvents(List<CarPropertyEvent> events) throws RemoteException {
+        if (!events.isEmpty()) {
+            mListener.onEvent(events);
         }
     }
 
