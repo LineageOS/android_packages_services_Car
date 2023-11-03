@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.cluster;
-
+package android.car.cluster;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -32,10 +31,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
-import android.car.cluster.ClusterHomeManager;
-import android.car.cluster.ClusterState;
-import android.car.cluster.IClusterHomeService;
-import android.car.cluster.IClusterNavigationStateListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
