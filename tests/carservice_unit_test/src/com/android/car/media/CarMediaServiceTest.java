@@ -46,6 +46,9 @@ import static org.mockito.Mockito.when;
 import android.app.ActivityManager;
 import android.app.usage.UsageStatsManager;
 import android.car.Car;
+import android.car.hardware.power.CarPowerPolicy;
+import android.car.hardware.power.ICarPowerPolicyListener;
+import android.car.hardware.power.PowerComponent;
 import android.car.media.ICarMediaSourceListener;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.AndroidMockitoHelper;
@@ -105,6 +108,10 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     private static final KeyEvent MEDIA_KEY_EVENT =
             new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY);
 
+    private static final CarPowerPolicy POWER_POLICY_MEDIA_ENABLED =
+            new CarPowerPolicy("media", new int[]{PowerComponent.MEDIA}, new int[0]);
+    private static final CarPowerPolicy POWER_POLICY_MEDIA_DISABLED =
+            new CarPowerPolicy("media", new int[0], new int[0]);
     private static final ComponentName MEDIA_COMPONENT =
             new ComponentName(MEDIA_PACKAGE, MEDIA_CLASS);
     private static final ComponentName MEDIA_COMPONENT2 =
@@ -126,6 +133,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
 
     private CarMediaService mCarMediaService;
 
+    private ICarPowerPolicyListener mPowerPolicyListener;
     private KeyEventListener mKeyEventListener;
     private UserLifecycleListener mUserLifecycleListener;
 
@@ -159,8 +167,12 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
                 .thenReturn(OCCUPANT_ZONE_ID);
         when(mMockOccupantZoneService.getUserForOccupant(OCCUPANT_ZONE_ID))
                 .thenReturn(TEST_USER_ID);
+        when(mMockCarPowerManagementService.getCurrentPowerPolicy())
+                .thenReturn(POWER_POLICY_MEDIA_ENABLED);
 
         doReturn(mResources).when(mContext).getResources();
+        // config_mediaBootAutoplay = AUTOPLAY_CONFIG_RETAIN_PER_SOURCE
+        when(mResources.getInteger(R.integer.config_mediaBootAutoplay)).thenReturn(2);
         doReturn(mUserManager).when(mContext).getSystemService(UserManager.class);
         AndroidMockitoHelper.mockAmGetCurrentUser(TEST_USER_ID);
         mockGetCallingUserHandle(TEST_USER_ID);
@@ -168,10 +180,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
         doReturn(mMediaSessionManager).when(mContext).getSystemService(MediaSessionManager.class);
         doReturn(mMockUsageStatsManager).when(mContext).getSystemService(UsageStatsManager.class);
         mCarMediaService = new CarMediaService(mContext, mMockOccupantZoneService, mUserService,
-                mUserHandleHelper);
-        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
-        CarLocalServices.addService(CarPowerManagementService.class,
-                mMockCarPowerManagementService);
+                mMockCarPowerManagementService, mUserHandleHelper);
         CarLocalServices.removeServiceForTest(CarInputService.class);
         CarLocalServices.addService(CarInputService.class, mMockInputService);
         mockUserLifecycleEvents();
@@ -179,8 +188,40 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
 
     @After
     public void tearDown() {
-        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.removeServiceForTest(CarInputService.class);
+    }
+
+    @Test
+    public void testInit_startsMediaConnectorService() {
+        initMediaService(MEDIA_CLASS);
+
+        verify(mContext).startForegroundService(any());
+    }
+
+    @Test
+    public void testInit_powerDisabled_doesNotStartMediaConnectorService() {
+        when(mMockCarPowerManagementService.getCurrentPowerPolicy())
+                .thenReturn(POWER_POLICY_MEDIA_DISABLED);
+
+        initMediaService(MEDIA_CLASS);
+
+        verify(mContext, never()).startForegroundService(any());
+    }
+
+    @Test
+    public void testPowerPolicyListener_startsMediaConnectorService()
+            throws Exception {
+        when(mMockCarPowerManagementService.getCurrentPowerPolicy())
+                .thenReturn(POWER_POLICY_MEDIA_DISABLED);
+        when(mMockSharedPreferences.getInt(anyString(), anyInt()))
+                .thenReturn(PlaybackState.STATE_PLAYING);
+        initMediaService(MEDIA_CLASS);
+        mockPowerPolicyEvents();
+        verify(mContext, never()).startForegroundService(any());
+
+        sendPowerPolicyEvent(POWER_POLICY_MEDIA_ENABLED);
+
+        verify(mContext).startForegroundService(any());
     }
 
     @Test
@@ -778,6 +819,24 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
 
     private void mockUserUnlocked(boolean unlocked) {
         when(mUserManager.isUserUnlocked(any())).thenReturn(unlocked);
+    }
+
+    /** Sets {@code mPowerPolicyListener} to the power policy listener that is being registered. */
+    private void mockPowerPolicyEvents() {
+        ArgumentCaptor<ICarPowerPolicyListener> powerPolicyEventListenerCaptor =
+                ArgumentCaptor.forClass(ICarPowerPolicyListener.class);
+        verify(mMockCarPowerManagementService)
+                .addPowerPolicyListener(notNull(), powerPolicyEventListenerCaptor.capture());
+        mPowerPolicyListener = powerPolicyEventListenerCaptor.getValue();
+    }
+
+    /**
+     * Sends the given {@code powerPolicy} to the listener stored in {@code mPowerPolicyListener}.
+     */
+    private void sendPowerPolicyEvent(CarPowerPolicy powerPolicy) throws Exception {
+        checkState(mPowerPolicyListener != null,
+                "ICarPowerPolicyListener has not been registered to CarPowerManagementService.");
+        mPowerPolicyListener.onPolicyChanged(powerPolicy, powerPolicy);
     }
 
     /** Sets {@code mKeyEventListener} to the key event listener that is being registered. */
