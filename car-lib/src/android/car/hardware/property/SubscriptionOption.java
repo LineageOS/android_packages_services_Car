@@ -113,11 +113,16 @@ public final class SubscriptionOption {
      *
      * <p>This option is only meaningful for continuous property.
      *
+     * <p>By default, variable update rate is enabled for all [propId, areaId]s in this options,
+     * unless disabled via this function or not supported for a specific [propId, areaId]
+     * represented by
+     * {@link AreaIdConfig#isVariableUpdateRateSupported} returning {@code false}.
+     *
      * <p>For better system performance, it is STRONGLY RECOMMENDED NOT TO DISABLE variable
      * update rate unless the client relies on continuously arriving property update events
      * (e.g. for system health checking).
      *
-     * <p>If variable update rate is enabled (default), then client will receive property
+     * <p>If variable update rate is enabled, then client will receive property
      * update events only when the property's value changes (a.k.a behaves the same as an on-change
      * property).
      *

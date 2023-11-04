@@ -756,6 +756,7 @@ package android.car.hardware.property {
     method @Nullable public T getMaxValue();
     method @Nullable public T getMinValue();
     method @NonNull public java.util.List<T> getSupportedEnumValues();
+    method @FlaggedApi("android.car.feature.variable_update_rate") public boolean isVariableUpdateRateSupported();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.property.AreaIdConfig<java.lang.Object>> CREATOR;
   }

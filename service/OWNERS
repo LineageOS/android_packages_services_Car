@@ -19,8 +19,8 @@ per-file src/com/android/car/cluster/* = ycheo@google.com
 per-file src/com/android/car/hal/ClusterHalService.java = ycheo@google.com
 
 # Input
-per-file src/com/android/car/CarInputService.java = ycheo@google.com
-per-file src/com/android/car/hal/InputHalService.java = ycheo@google.com
+per-file src/com/android/car/CarInputService.java = ycheo@google.com, kanant@google.com
+per-file src/com/android/car/hal/InputHalService.java = ycheo@google.com, kanant@google.com
 
 # PackageManager
 per-file src/com/android/car/pm/AppBlockingPolicyProxy.java = ycheo@google.com

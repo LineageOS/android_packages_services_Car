@@ -1135,12 +1135,15 @@ public class CarPropertyManager extends CarManagerBase {
      * If the property has the change mode:
      * {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}, {@code updateRateHz} in
      * {@code SubscribeOption} specifies how frequent the property value has to be polled. If
-     * {@code disableVariableUpdateRate} is {@code false} (default), then the client
-     * will receive property update event only when the property's value changes (a.k.a behaves the
-     * same as {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}). If
-     * {@code disableVariableUpdateRate} is {@code true}, then the client will receive all the
-     * property update events based on the update rate even if the events contain the same property
-     * value. See {@link SubscribeOption.Builder#disableVariableUpdateRate} for more detail.
+     * {@code disableVariableUpdateRate} is {@code false} and variable update rate is supported
+     * based on {@link android.car.hardware.property.AreaIdConfig#isVariableUpdateRateSupported},
+     * then the client will receive property update event only when the property's value changes
+     * (a.k.a behaves the same as {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}).
+     * If {@code disableVariableUpdateRate} is {@code true} or variable update rate is not
+     * supported, then the client will receive all the property update events based on the update
+     * rate even if the events contain the same property value.
+     *
+     * <p>See {@link SubscribeOption.Builder#disableVariableUpdateRate} for more detail.
      *
      * <p>
      * <b>Note:</b> When a client registers to receive updates for a PropertyId for the
