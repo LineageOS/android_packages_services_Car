@@ -18,10 +18,12 @@ package com.android.car.internal.property;
 
 import static java.util.Objects.requireNonNull;
 
+import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.util.ArraySet;
+import android.util.Log;
 
 import com.android.car.internal.util.PairSparseArray;
 import com.android.internal.annotations.GuardedBy;
@@ -42,6 +44,7 @@ import com.android.internal.annotations.VisibleForTesting;
 public class CarPropertyEventController {
     // Abbreviating TAG because class name is longer than the 23 character Log tag limit.
     private static final String TAG = "CPEController";
+    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
     private final Object mLock = new Object();
     // For each property ID and area ID, track the property event information.
     @GuardedBy("mLock")
@@ -66,6 +69,12 @@ public class CarPropertyEventController {
         requireNonNull(areaIds);
         synchronized (mLock) {
             for (int areaId : areaIds) {
+                if (DBG) {
+                    Slogf.d(TAG, "Add new continuous property event tracker, property: %s, "
+                            + "areaId: %d, updateRate: %f Hz, enableVUR: %b",
+                            VehiclePropertyIds.toString(propertyId), areaId, updateRateHz,
+                            enableVUR);
+                }
                 mPropIdToAreaIdToCpeTracker.put(propertyId, areaId,
                         new ContCarPropertyEventTracker(updateRateHz, enableVUR));
             }
@@ -77,6 +86,10 @@ public class CarPropertyEventController {
         requireNonNull(areaIds);
         synchronized (mLock) {
             for (int areaId : areaIds) {
+                if (DBG) {
+                    Slogf.d(TAG, "Add new on-change property event tracker, property: %s, "
+                            + "areaId: %d", VehiclePropertyIds.toString(propertyId), areaId);
+                }
                 mPropIdToAreaIdToCpeTracker.put(propertyId, areaId,
                         new OnChangeCarPropertyEventTracker());
             }

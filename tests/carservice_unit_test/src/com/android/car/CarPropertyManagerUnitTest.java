@@ -1933,6 +1933,55 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
+    public void testSubscribePropertyEvents_withPropertyIdCallback() throws Exception {
+        assertThat(mCarPropertyManager.subscribePropertyEvents(
+                VENDOR_CONTINUOUS_PROPERTY, mCarPropertyEventCallback)).isTrue();
+
+        verify(mICarProperty).registerListener(eq(List.of(
+                        createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
+                                MIN_UPDATE_RATE_HZ, /* enableVUR= */ true))),
+                any(ICarPropertyEventListener.class));
+    }
+
+    @Test
+    public void testSubscribePropertyEvents_withPropertyIdUpdateRateCallback() throws Exception {
+        assertThat(mCarPropertyManager.subscribePropertyEvents(
+                VENDOR_CONTINUOUS_PROPERTY, CarPropertyManager.SENSOR_RATE_FAST,
+                mCarPropertyEventCallback)).isTrue();
+
+        verify(mICarProperty).registerListener(eq(List.of(
+                        createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
+                                CarPropertyManager.SENSOR_RATE_FAST, /* enableVUR= */ true))),
+                any(ICarPropertyEventListener.class));
+    }
+
+    @Test
+    public void testSubscribePropertyEvents_withPropertyIdAreaIdCallback() throws Exception {
+        assertThat(mCarPropertyManager.subscribePropertyEvents(
+                VENDOR_CONTINUOUS_PROPERTY, /* areaId= */ 0,
+                mCarPropertyEventCallback)).isTrue();
+
+        verify(mICarProperty).registerListener(eq(List.of(
+                        createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
+                                MIN_UPDATE_RATE_HZ, /* enableVUR= */ true))),
+                any(ICarPropertyEventListener.class));
+    }
+
+    @Test
+    public void testSubscribePropertyEvents_withPropertyIdAreaIdUpdateRateCallback()
+                throws Exception {
+        assertThat(mCarPropertyManager.subscribePropertyEvents(
+                VENDOR_CONTINUOUS_PROPERTY, /* areaId= */ 0,
+                CarPropertyManager.SENSOR_RATE_FAST,
+                mCarPropertyEventCallback)).isTrue();
+
+        verify(mICarProperty).registerListener(eq(List.of(
+                        createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
+                                CarPropertyManager.SENSOR_RATE_FAST, /* enableVUR= */ false))),
+                any(ICarPropertyEventListener.class));
+    }
+
+    @Test
     public void testRegisterCallback_registersAgainWithDifferentExecutor_throws() throws Exception {
         mCarPropertyManager.subscribePropertyEvents(List.of(
                         new Subscription.Builder(VENDOR_CONTINUOUS_PROPERTY).addAreaId(0)
