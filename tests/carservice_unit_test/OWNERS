@@ -16,9 +16,9 @@ per-file src/android/car/cluster/* = ycheo@google.com
 per-file src/com/android/car/hal/ClusterHalServiceTest.java = ycheo@google.com
 
 # Input
-per-file src/android/car/builtin/input/* = ycheo@google.com
-per-file src/com/android/car/CarInput*.java = ycheo@google.com
-per-file src/com/android/car/hal/InputHalServiceTest.java = ycheo@google.com
+per-file src/android/car/builtin/input/* = ycheo@google.com, kanant@google.com
+per-file src/com/android/car/CarInput*.java = ycheo@google.com, kanant@google.com
+per-file src/com/android/car/hal/InputHalServiceTest.java = ycheo@google.com, kanant@google.com
 
 # OccupantZone
 per-file src/com/android/car/CarOccupantZoneServiceTest.java = ycheo@google.com, oscarazu@google.com, ericjeong@google.com
