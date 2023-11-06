@@ -92,6 +92,7 @@ interface ICarPowerPolicyDelegate {
   /**
    * Enumeration of power states, matching those defined in CarPowerManager.
    */
+  @Backing(type="int")
   enum PowerState {
     INVALID = 0,
     WAIT_FOR_VHAL = 1,
