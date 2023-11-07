@@ -262,14 +262,15 @@
     <string name="radio_close" translatable="false">Close Tuner</string>
     <string name="radio_play" translatable="false">Playing</string>
     <string name="radio_stop" translatable="false">Stopped</string>
-    <string name="radio_cancel" translatable="false">Cancel Tuning Operations</string>
-    <string name="radio_warning" translatable="false">Error: %1$s</string>
+    <string name="radio_cancel" translatable="false">Cancel</string>
+    <string name="radio_fm_hd_state" translatable="false">FM HD</string>
+    <string name="radio_am_hd_state" translatable="false">AM HD</string>
+    <string name="radio_error" translatable="false">Error: %1$s</string>
+    <string name="radio_status" translatable="false">Tuning status: %1$s</string>
     <string name="radio_tune" translatable="false">Tune</string>
     <string name="radio_input_frequency" translatable="false">Frequency</string>
     <string name="radio_am" translatable="false">AM</string>
     <string name="radio_fm" translatable="false">FM</string>
-    <string name="radio_default_fm_frequency_input" translatable="false">97.3</string>
-    <string name="radio_default_am_frequency_input" translatable="false">700</string>
     <string name="radio_skip_subchannels" translatable="false">Skip subchannels?</string>
     <string name="radio_step" translatable="false">Step</string>
     <string name="radio_step_down" translatable="false">Step -</string>
