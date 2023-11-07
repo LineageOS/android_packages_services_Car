@@ -235,6 +235,11 @@
     <!-- Permission text: apps can control car seats [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_control_car_seats">Control car\u2019s seats.</string>
 
+    <!-- Permission text: apps can read state of car airbags. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_car_airbags">read car\u2019s airbags</string>
+    <!-- Permission text: apps can read state of car airbags. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_car_airbags">Read car\u2019s airbags.</string>
+
     <!-- Permission text: apps can enable/disable a seat's ability to deploy airbag(s) when triggered (e.g. by a crash). [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_control_car_airbags">control car\u2019s airbags</string>
     <!-- Permission text: apps can enable/disable a seat's ability to deploy airbag(s) when triggered (e.g. by a crash). [CHAR LIMIT=NONE] -->

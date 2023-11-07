@@ -70,6 +70,7 @@
         <permission name="android.car.permission.CONTROL_GLOVE_BOX"/>
         <permission name="android.car.permission.READ_CAR_INTERIOR_LIGHTS" />
         <permission name="android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS" />
+        <permission name="android.car.permission.READ_CAR_AIRBAGS"/>
         <permission name="android.car.permission.CONTROL_CAR_AIRBAGS"/>
         <permission name="android.car.permission.CAR_POWERTRAIN" />
         <permission name="android.car.permission.CONTROL_CAR_POWERTRAIN"/>

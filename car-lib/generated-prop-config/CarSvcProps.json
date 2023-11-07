@@ -1895,6 +1895,24 @@
       },
       "systemApi": true
     },
+    "SEAT_AIRBAGS_DEPLOYED": {
+      "propertyName": "SEAT_AIRBAGS_DEPLOYED",
+      "propertyId": 356518821,
+      "description": "State of deployment for seat airbags.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_CAR_AIRBAGS"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32
+      ]
+    },
     "SEAT_CUSHION_SIDE_SUPPORT_POS": {
       "propertyName": "SEAT_CUSHION_SIDE_SUPPORT_POS",
       "propertyId": 356518815,
