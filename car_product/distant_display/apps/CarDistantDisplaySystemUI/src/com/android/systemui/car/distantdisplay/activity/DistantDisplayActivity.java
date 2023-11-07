@@ -18,7 +18,10 @@ package com.android.systemui.car.distantdisplay.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.display.DisplayManager;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
@@ -26,12 +29,15 @@ import androidx.annotation.Nullable;
 import com.android.systemui.R;
 import com.android.systemui.car.distantdisplay.common.TaskViewController;
 
+/**
+ * The Activity which plays the role of Distant Display testing.
+ */
 public class DistantDisplayActivity extends Activity {
     public static final String TAG = DistantDisplayActivity.class.getSimpleName();
 
-
     /** Creates an intent that can be used to launch this activity. */
     public static Intent createIntent(Context context) {
+        Log.i(TAG, "createIntent");
         Intent intent = new Intent(context, DistantDisplayActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT);
         return intent;
@@ -40,10 +46,13 @@ public class DistantDisplayActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(TaskViewController.getTaskViewContainerLayoutResId());
+        Log.i(TAG, "onCreate");
+        setContentView(R.layout.car_distant_display_container);
         ViewGroup container = findViewById(R.id.taskview_container);
-        TaskViewController controller =
-                new TaskViewController(container.getContext());
-        controller.initialize(container, true);
+        TaskViewController controller = new TaskViewController(
+                getApplicationContext(),
+                getSystemService(DisplayManager.class),
+                (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE));
+        controller.initialize(container);
     }
 }
