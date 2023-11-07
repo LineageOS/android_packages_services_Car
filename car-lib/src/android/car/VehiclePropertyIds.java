@@ -3679,6 +3679,40 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
     public static final int SEAT_WALK_IN_POS = 356518819;
     /**
+     * Seat belt pretensioner deployed.
+     *
+     * <p>Property to relay information on whether the seat belt pretensioner has been deployed for
+     * a particular seat due to a collision. This is different from the regular seat belt tightening
+     * system that continuously adds tension to the seat belts so that they fit snugly around the
+     * person sitting in the seat, nor is it the seat belt retractor system that locks the seat belt
+     * in place during sudden brakes or when the user jerks the seat belt.
+     *
+     * <p>If this property is dependant on the state of other properties, and if those properties
+     * are currently in the state that doesn't support this property, reading this property will
+     * throw {@link android.car.hardware.property.PropertyNotAvailableException}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission "android.car.permission.READ_CAR_SEAT_BELTS" to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_CAR_SEAT_BELTS))
+    public static final int SEAT_BELT_PRETENSIONER_DEPLOYED = 354421670;
+    /**
      * Seat Occupancy.
      *
      * <p>Property Config:

@@ -1983,6 +1983,16 @@
       },
       "systemApi": true
     },
+    "SEAT_BELT_PRETENSIONER_DEPLOYED": {
+      "propertyName": "SEAT_BELT_PRETENSIONER_DEPLOYED",
+      "propertyId": 354421670,
+      "description": "Seat belt pretensioner deployed.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_CAR_SEAT_BELTS"
+      },
+      "systemApi": true
+    },
     "SEAT_OCCUPANCY": {
       "propertyName": "SEAT_OCCUPANCY",
       "propertyId": 356518832,
