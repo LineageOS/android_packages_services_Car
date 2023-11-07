@@ -139,23 +139,23 @@ public final class RadioTestFragment extends Fragment {
             }
 
             String tabTitle = getString(R.string.radio_fm_am_tuner);
-            RadioTunerFragment tunerFragment;
             if (mFmAmRadioTuner != null) {
                 mOpenTunerWarning.setText(getString(R.string.radio_error,
                         "Tuner exists, cannot open a new one"));
                 return;
             }
-            tunerFragment = new RadioTunerFragment(mRadioManager,
+            AmFmTunerFragment amFmTunerFragment;
+            amFmTunerFragment = new AmFmTunerFragment(mRadioManager,
                     mModules.get(moduleId).getId(), mFmBandConfig, mAmBandConfig, mHandler,
                     new TunerListener(tabTitle));
-            mFmAmRadioTuner = tunerFragment.getRadioTuner();
+            mFmAmRadioTuner = amFmTunerFragment.getRadioTuner();
             if (mFmAmRadioTuner == null) {
                 mOpenTunerWarning.setText(getString(R.string.radio_error,
                         "Cannot open new tuner"));
                 return;
             }
 
-            mTunerTabAdapter.addFragment(tunerFragment, tabTitle);
+            mTunerTabAdapter.addFragment(amFmTunerFragment, tabTitle);
             mTunerTabAdapter.notifyDataSetChanged();
             mTabLayoutMediator = new TabLayoutMediator(mTunerTabLayout, mTunerViewPager,
                     (tab, pos) -> tab.setText(mTunerTabAdapter.getPageTitle(pos)));
