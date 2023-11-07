@@ -238,6 +238,11 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     CarPermissionControllerRRO \
     CarSystemUIRRO \
+    CarSystemUIBottomRRO \
+    CarSystemUIBottomRoundedRRO \
+    CarSystemUILeftRRO \
+    CarSystemUIRightRRO \
+    CarSystemUIPersistentRRO \
 
 # System Server components
 # Order is important: if X depends on Y, then Y should precede X on the list.
