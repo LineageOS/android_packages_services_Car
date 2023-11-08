@@ -78,6 +78,7 @@ import com.android.car.internal.property.CarSubscribeOption;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.internal.annotations.VisibleForTesting;
 
 import org.junit.After;
 import org.junit.Before;
@@ -1578,10 +1579,9 @@ public class PropertyHalServiceTest {
         assertThat(mAsyncResultCaptor.getValue().getList().get(0).getErrorCode()).isEqualTo(
                 STATUS_OK);
 
-        // After the internal subscription is finished, the client subscription must be kept.
-        verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
-                PERF_VEHICLE_SPEED, new int[]{0}, 50f));
+        // After the internal subscription is finished, the client subscription must be kept,
+        // which causes no update to update rate.
+        verify(mVehicleHal, never()).subscribeProperty(any(), any());
 
         mPropertyHalService.unsubscribeProperty(PERF_VEHICLE_SPEED);
 
@@ -1634,8 +1634,7 @@ public class PropertyHalServiceTest {
         mPropertyHalService.subscribeProperty(carSubscribeOptions);
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getValue()).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 40f),
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 21f));
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 40f));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
@@ -1645,7 +1644,6 @@ public class PropertyHalServiceTest {
         mPropertyHalService.subscribeProperty(carSubscribeOptions);
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getValue()).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 40f),
                 new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 41f));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
@@ -1668,8 +1666,7 @@ public class PropertyHalServiceTest {
         mPropertyHalService.subscribeProperty(carSubscribeOptions);
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getValue()).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 30f),
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 21f));
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 30f));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
@@ -1679,7 +1676,6 @@ public class PropertyHalServiceTest {
         mPropertyHalService.subscribeProperty(carSubscribeOptions);
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getValue()).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 30f),
                 new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 31f));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
@@ -1688,11 +1684,8 @@ public class PropertyHalServiceTest {
         deliverOkayGetResult(getInvocationWrap.get(0), mPropValue2);
 
         // After the internal subscription is finished, the client subscription must be kept.
-
-        verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getValue()).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 30f),
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 31f));
+        // The internal subscription rate is lower than the client rate, so no rate change.
+        verify(mVehicleHal, never()).subscribeProperty(any(), any());
 
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         assertThat(mAsyncResultCaptor.getValue().getList().get(0).getErrorCode()).isEqualTo(
@@ -1739,29 +1732,20 @@ public class PropertyHalServiceTest {
         assertThat(setInvocationWrap).hasSize(2);
         assertThat(getInvocationWrap).hasSize(2);
 
-        // This subscribes two times because updateSubscriptionRateForHalPropIdLocked subscribe
-        // to the property when SET_HVAC_REQUEST_ID_1_5 gets called
         verify(mVehicleHal, times(2)).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getAllValues().get(0)).containsExactly(
                 new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 20f));
         assertThat(mListArgumentCaptor.getAllValues().get(1)).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 21f),
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 20f));
+                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 21f));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
         List<CarSubscribeOption> carSubscribeOptions = new ArrayList<>();
         carSubscribeOptions.add(createCarSubscriptionOption(PERF_VEHICLE_SPEED, new int[] {1},
                 /* updateRateHz= */ 40.0f));
-        mPropertyHalService.subscribeProperty(carSubscribeOptions);
-        carSubscribeOptions = new ArrayList<>();
         carSubscribeOptions.add(createCarSubscriptionOption(PERF_VEHICLE_SPEED, new int[] {2},
                 /* updateRateHz= */ 41.0f));
         mPropertyHalService.subscribeProperty(carSubscribeOptions);
-        clearInvocations(mVehicleHal);
-
-        deliverOkaySetResult(setInvocationWrap.get(0));
-        deliverOkayGetResult(getInvocationWrap.get(0), mPropValue2);
 
         // Subscription rate has to be updated according to client subscription.
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
@@ -1769,6 +1753,14 @@ public class PropertyHalServiceTest {
                 new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 40f),
                 new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{2}, 41f));
         clearInvocations(mVehicleHal);
+
+        deliverOkaySetResult(setInvocationWrap.get(0));
+        deliverOkayGetResult(getInvocationWrap.get(0), mPropValue2);
+
+        // Unsubscribing to internal rate 20.0f and 21.0f does not change the current client rate
+        // 40 and 41.
+        verify(mVehicleHal, never()).subscribeProperty(any(), any());
+
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
 
         mPropertyHalService.unsubscribeProperty(PERF_VEHICLE_SPEED);
@@ -1847,6 +1839,7 @@ public class PropertyHalServiceTest {
                 new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 50f));
         clearInvocations(mVehicleHal);
         mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
+        clearInvocations(mVehicleHal);
 
         // Finish the async set request.
         deliverOkaySetResult(setInvocationWrap.get(0));
@@ -1856,10 +1849,9 @@ public class PropertyHalServiceTest {
         assertThat(mAsyncResultCaptor.getValue().getList().get(0).getErrorCode()).isEqualTo(
                 STATUS_OK);
 
-        // After the internal subscription is finished, the client subscription must be kept.
-        verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
-        assertThat(mListArgumentCaptor.getAllValues().get(0)).containsExactly(
-                new HalSubscribeOptions(PERF_VEHICLE_SPEED, new int[]{1}, 50f));
+        // After the internal subscription is finished, the client is still subscribed at 50hz
+        // and no update rate change is required.
+        verify(mVehicleHal, never()).subscribeProperty(any(), any());
 
         mPropertyHalService.unsubscribeProperty(PERF_VEHICLE_SPEED);
 
@@ -2691,12 +2683,23 @@ public class PropertyHalServiceTest {
         verify(mVehicleHal).unsubscribeProperty(any(), eq(PERF_VEHICLE_SPEED));
     }
 
+    /** Creates a {@code CarSubscribeOption} with VUR off. */
+    @VisibleForTesting
     public static CarSubscribeOption createCarSubscriptionOption(int propertyId,
             int[] areaId, float updateRateHz) {
+        return createCarSubscriptionOption(propertyId, areaId, updateRateHz,
+                /* enableVUR= */ false);
+    }
+
+    /** Creates a {@code CarSubscribeOption}. */
+    @VisibleForTesting
+    public static CarSubscribeOption createCarSubscriptionOption(int propertyId,
+            int[] areaId, float updateRateHz, boolean enableVUR) {
         CarSubscribeOption options = new CarSubscribeOption();
         options.propertyId = propertyId;
         options.areaIds = areaId;
         options.updateRateHz = updateRateHz;
+        options.enableVariableUpdateRate = enableVUR;
         return options;
     }
 }

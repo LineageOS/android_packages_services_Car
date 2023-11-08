@@ -133,11 +133,11 @@ public abstract class HalPropConfig {
 
         HalAreaConfig[] halAreaConfigs = getAreaConfigs();
         if (halAreaConfigs.length == 0) {
-            carPropertyConfigBuilder.addAreaIdConfig(generateAreaIdConfig(clazz, /*areaId=*/0,
-                    /*minInt32Value=*/0, /*maxInt32Value=*/0,
-                    /*minFloatValue=*/0, /*maxFloatValue=*/0,
-                    /*minInt64Value=*/0, /*maxInt64Value=*/0,
-                    supportedEnumValues));
+            carPropertyConfigBuilder.addAreaIdConfig(generateAreaIdConfig(clazz, /* areaId= */ 0,
+                    /* minInt32Value= */ 0, /* maxInt32Value= */ 0,
+                    /* minFloatValue= */ 0, /* maxFloatValue= */ 0,
+                    /* minInt64Value= */ 0, /* maxInt64Value= */ 0,
+                    supportedEnumValues, /* supportVariableUpdateRate= */ false));
         } else {
             for (HalAreaConfig halAreaConfig : halAreaConfigs) {
                 if (!shouldConfigArrayDefineSupportedEnumValues) {
@@ -148,7 +148,8 @@ public abstract class HalPropConfig {
                                 halAreaConfig.getMinInt32Value(), halAreaConfig.getMaxInt32Value(),
                                 halAreaConfig.getMinFloatValue(), halAreaConfig.getMaxFloatValue(),
                                 halAreaConfig.getMinInt64Value(), halAreaConfig.getMaxInt64Value(),
-                                supportedEnumValues));
+                                supportedEnumValues,
+                                halAreaConfig.isVariableUpdateRateSupported()));
             }
         }
         return carPropertyConfigBuilder.build();
@@ -156,7 +157,7 @@ public abstract class HalPropConfig {
 
     private AreaIdConfig generateAreaIdConfig(Class<?> clazz, int areaId, int minInt32Value,
             int maxInt32Value, float minFloatValue, float maxFloatValue, long minInt64Value,
-            long maxInt64Value, long[] supportedEnumValues) {
+            long maxInt64Value, long[] supportedEnumValues, boolean supportVariableUpdateRate) {
         AreaIdConfig.Builder areaIdConfigBuilder = new AreaIdConfig.Builder(areaId);
         if (classMatched(Integer.class, clazz)) {
             if ((minInt32Value != 0 || maxInt32Value != 0)) {
@@ -185,6 +186,7 @@ public abstract class HalPropConfig {
         } else if (classMatched(Long.class, clazz) && (minInt64Value != 0 || maxInt64Value != 0)) {
             areaIdConfigBuilder.setMinValue(minInt64Value).setMaxValue(maxInt64Value);
         }
+        areaIdConfigBuilder.setSupportVariableUpdateRate(supportVariableUpdateRate);
         return areaIdConfigBuilder.build();
     }
 

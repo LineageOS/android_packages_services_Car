@@ -36,7 +36,6 @@ import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
 import static com.android.car.internal.property.CarPropertyHelper.isSystemProperty;
-import static com.android.car.internal.property.CarPropertyHelper.propertyIdsToString;
 import static com.android.car.internal.property.GetSetValueResult.newGetValueResult;
 import static com.android.car.internal.property.InputSanitizationUtils.sanitizeUpdateRateHz;
 
@@ -89,6 +88,8 @@ import com.android.car.internal.property.CarSubscribeOption;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.internal.property.SubscriptionManager;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.PairSparseArray;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -126,6 +127,9 @@ public class PropertyHalService extends HalServiceBase {
     // initial value is the same as the target value, we treat the async set as success.
     private static final int GET_INITIAL_VALUE_FOR_SET = 2;
     private static final float UPDATE_RATE_ERROR = -1f;
+
+    // A fake pending request ID for car property service.
+    private static final int CAR_PROP_SVC_REQUEST_ID = -1;
 
     // Only changed in testing.
     private PropertyHalServiceConfigs mPropertyHalServiceConfigs =
@@ -390,17 +394,26 @@ public class PropertyHalService extends HalServiceBase {
             new LongPendingRequestPool<>(mHandler.getLooper(), mTimeoutCallback);
     @GuardedBy("mLock")
     private PropertyHalListener mPropertyHalListener;
-    // A map from subscribed PropertyHalService property IDs to areaId to their current update rate
-    // in Hz. This value will be updated by {@link #subscribeProperty} or
-    // {@link #unsubscribeProperty}.
-    @GuardedBy("mLock")
-    private SparseArray<SparseArray<Float>> mSubscribedHalPropIdToAreaIdToUpdateRateHz =
-            new SparseArray<>();
     // A map to store pending async set request info that are currently waiting for property update
     // events.
     @GuardedBy("mLock")
     private final SparseArray<List<AsyncPropRequestInfo>> mHalPropIdToWaitingUpdateRequestInfo =
             new SparseArray<>();
+
+    // CarPropertyService subscribes to properties through PropertyHalService. Meanwhile,
+    // PropertyHalService internally also subscribes to some property for async set operations.
+    // We need to merge both of these subscription rate to VHAL.
+    //
+    // This manager uses async property request ID as key to store subscription caused by async
+    // set operations. It uses CAR_PROP_SVC_REQUEST_ID as a fake key to store subscription caused
+    // by car property service.
+    //
+    // For example, if we internally subscribed to [propA, areaA] at 10hz, client requests at 20hz,
+    // then we need to tell VHAL to update the rate to 20hz. If we internally subscribed at 20hz,
+    // client requests at 10hz, then we should do nothing, however, if we internally unsubscribe,
+    // then the [propA, areaA] should be subscribed at 10hz.
+    @GuardedBy("mLock")
+    private final SubscriptionManager<Integer> mSubManager = new SubscriptionManager<>();
 
     private class AsyncRequestTimeoutCallback implements TimeoutCallback {
         @Override
@@ -635,14 +648,12 @@ public class PropertyHalService extends HalServiceBase {
             List<GetSetValueResultWrapper> setValueResults = new ArrayList<>();
             List<AsyncPropRequestInfo> retryRequests = new ArrayList<>();
             synchronized (mLock) {
-                Set<Integer> updatedHalPropIds = new ArraySet<>();
                 for (int i = 0; i < getVehicleStubAsyncResults.size(); i++) {
                     GetVehicleStubAsyncResult getVehicleStubAsyncResult =
                             getVehicleStubAsyncResults.get(i);
                     int serviceRequestId = getVehicleStubAsyncResult.getServiceRequestId();
                     AsyncPropRequestInfo clientRequestInfo =
-                            getAndRemovePendingAsyncPropRequestInfoLocked(serviceRequestId,
-                                    updatedHalPropIds);
+                            getAndRemovePendingAsyncPropRequestInfoLocked(serviceRequestId);
                     if (clientRequestInfo == null) {
                         Slogf.w(TAG, "async request for ID: %d not found, ignore the result",
                                 serviceRequestId);
@@ -708,11 +719,10 @@ public class PropertyHalService extends HalServiceBase {
                         setValueResults.add(new GetSetValueResultWrapper(maybeSetResult,
                                 assocSetValueRequestInfo.getAsyncRequestStartTime(),
                                 assocSetValueRequestInfo.getRetryCount()));
-                        removePendingAsyncPropRequestInfoLocked(
-                                assocSetValueRequestInfo, updatedHalPropIds);
+                        removePendingAsyncPropRequestInfoLocked(assocSetValueRequestInfo);
                     }
                 }
-                updateSubscriptionRateForAsyncSetRequestLocked(updatedHalPropIds);
+                updateSubscriptionRateForAsyncSetRequestLocked();
             }
 
             sendGetValueResults(getValueResults);
@@ -730,7 +740,6 @@ public class PropertyHalService extends HalServiceBase {
                 List<SetVehicleStubAsyncResult> setVehicleStubAsyncResults) {
             List<GetSetValueResultWrapper> setValueResults = new ArrayList<>();
             List<AsyncPropRequestInfo> retryRequests = new ArrayList<>();
-            Set<Integer> updatedHalPropIds = new ArraySet<>();
             synchronized (mLock) {
                 for (int i = 0; i < setVehicleStubAsyncResults.size(); i++) {
                     SetVehicleStubAsyncResult setVehicleStubAsyncResult =
@@ -748,8 +757,7 @@ public class PropertyHalService extends HalServiceBase {
                     if (carPropMgrErrorCode == VehicleStub.STATUS_TRY_AGAIN) {
                         // The request might need to be retried.
                         retryRequests.add(clientRequestInfo);
-                        removePendingAsyncPropRequestInfoLocked(clientRequestInfo,
-                                updatedHalPropIds);
+                        removePendingAsyncPropRequestInfoLocked(clientRequestInfo);
                         continue;
                     }
 
@@ -760,8 +768,7 @@ public class PropertyHalService extends HalServiceBase {
                                         setVehicleStubAsyncResult.getVendorErrorCode()),
                                 clientRequestInfo.getAsyncRequestStartTime(),
                                 clientRequestInfo.getRetryCount()));
-                        removePendingAsyncPropRequestInfoLocked(clientRequestInfo,
-                                updatedHalPropIds);
+                        removePendingAsyncPropRequestInfoLocked(clientRequestInfo);
                         sSetAsyncEndToEndLatencyHistogram
                                 .logSample((float) System.currentTimeMillis()
                                 - clientRequestInfo.getAsyncRequestStartTime());
@@ -772,8 +779,7 @@ public class PropertyHalService extends HalServiceBase {
                     if (clientRequestInfo.success()) {
                         // If we have already received event for the target value or the initial
                         // value is already the target value. Mark the request as complete.
-                        removePendingAsyncPropRequestInfoLocked(clientRequestInfo,
-                                updatedHalPropIds);
+                        removePendingAsyncPropRequestInfoLocked(clientRequestInfo);
                         // If we don't wait for property update event, then we don't know when
                         // the property is updated to the target value. We set it to the
                         // current timestamp.
@@ -786,7 +792,7 @@ public class PropertyHalService extends HalServiceBase {
                                 clientRequestInfo.getRetryCount()));
                     }
                 }
-                updateSubscriptionRateForAsyncSetRequestLocked(updatedHalPropIds);
+                updateSubscriptionRateForAsyncSetRequestLocked();
             }
 
             sendSetValueResults(setValueResults);
@@ -830,13 +836,11 @@ public class PropertyHalService extends HalServiceBase {
         public void onRequestsTimeout(List<Integer> serviceRequestIds) {
             List<GetSetValueResultWrapper> timeoutGetResults = new ArrayList<>();
             List<GetSetValueResultWrapper> timeoutSetResults = new ArrayList<>();
-            Set<Integer> updatedHalPropIds = new ArraySet<>();
             synchronized (mLock) {
                 for (int i = 0; i < serviceRequestIds.size(); i++) {
                     int serviceRequestId = serviceRequestIds.get(i);
                     AsyncPropRequestInfo requestInfo =
-                            getAndRemovePendingAsyncPropRequestInfoLocked(serviceRequestId,
-                                    updatedHalPropIds);
+                            getAndRemovePendingAsyncPropRequestInfoLocked(serviceRequestId);
                     if (requestInfo == null) {
                         Slogf.w(TAG, "Service request ID %d time out but no "
                                 + "pending request is found. The request may have already been "
@@ -848,7 +852,7 @@ public class PropertyHalService extends HalServiceBase {
                     }
                     generateTimeoutResult(requestInfo, timeoutGetResults, timeoutSetResults);
                 }
-                updateSubscriptionRateForAsyncSetRequestLocked(updatedHalPropIds);
+                updateSubscriptionRateForAsyncSetRequestLocked();
             }
             sendGetValueResults(timeoutGetResults);
             sendSetValueResults(timeoutSetResults);
@@ -929,14 +933,14 @@ public class PropertyHalService extends HalServiceBase {
 
     @GuardedBy("mLock")
     @Nullable private AsyncPropRequestInfo getAndRemovePendingAsyncPropRequestInfoLocked(
-            int serviceRequestId, Set<Integer> updatedHalPropIds) {
+            int serviceRequestId) {
         AsyncPropRequestInfo requestInfo = getPendingAsyncPropRequestInfoLocked(serviceRequestId);
         if (requestInfo == null) {
             Slogf.w(TAG, "the request for propertyHalService request "
                     + "ID: %d already timed out or already completed", serviceRequestId);
             return null;
         }
-        removePendingAsyncPropRequestInfoLocked(requestInfo, updatedHalPropIds);
+        removePendingAsyncPropRequestInfoLocked(requestInfo);
         return requestInfo;
     }
 
@@ -952,18 +956,16 @@ public class PropertyHalService extends HalServiceBase {
      * their subscription rate need to be recalculated.
      */
     @GuardedBy("mLock")
-    private void removePendingAsyncPropRequestInfoLocked(
-            AsyncPropRequestInfo pendingRequest, Set<Integer> updatedHalPropIds) {
+    private void removePendingAsyncPropRequestInfoLocked(AsyncPropRequestInfo pendingRequest) {
         int serviceRequestId = pendingRequest.getServiceRequestId();
         mPendingAsyncRequests.removeRequest(serviceRequestId);
         if (pendingRequest.getRequestType() == SET) {
-            cleanupPendingAsyncSetRequestLocked(pendingRequest, updatedHalPropIds);
+            cleanupPendingAsyncSetRequestLocked(pendingRequest);
         }
     }
 
     @GuardedBy("mLock")
-    private void cleanupPendingAsyncSetRequestLocked(
-            AsyncPropRequestInfo pendingRequest, Set<Integer> updatedHalPropIds) {
+    private void cleanupPendingAsyncSetRequestLocked(AsyncPropRequestInfo pendingRequest) {
         int halPropId = managerToHalPropId(pendingRequest.getPropertyId());
         if (!pendingRequest.isWaitForPropertyUpdate()) {
             return;
@@ -995,7 +997,9 @@ public class PropertyHalService extends HalServiceBase {
         if (mHalPropIdToWaitingUpdateRequestInfo.get(halPropId).isEmpty()) {
             mHalPropIdToWaitingUpdateRequestInfo.remove(halPropId);
         }
-        updatedHalPropIds.add(halPropId);
+        // We no longer need to subscribe to the property.
+        mSubManager.stageUnregister(pendingRequest.getServiceRequestId(),
+                new ArraySet<Integer>(Set.of(halPropId)));
     }
 
     /**
@@ -1180,11 +1184,8 @@ public class PropertyHalService extends HalServiceBase {
             throws ServiceSpecificException {
         synchronized (mLock) {
             Set<Integer> halPropIdsToSubscribe = new ArraySet<>();
-            SparseArray<SparseArray<Float>> previousState =
-                    mSubscribedHalPropIdToAreaIdToUpdateRateHz.clone();
             // Even though this involves binder call, this must be done inside the lock so that
-            // the state in {@code mSubscribedHalPropIdToUpdateRateHz} is consistent with the
-            // state in VHAL.
+            // the state in {@code mSubManager} is consistent with the state in VHAL.
             for (int i = 0; i < carSubscribeOptions.size(); i++) {
                 CarSubscribeOption subscribeOption = carSubscribeOptions.get(i);
                 int mgrPropId = subscribeOption.propertyId;
@@ -1195,22 +1196,14 @@ public class PropertyHalService extends HalServiceBase {
                             VehiclePropertyIds.toString(mgrPropId), updateRateHz);
                 }
                 int halPropId = managerToHalPropId(mgrPropId);
-                if (!mSubscribedHalPropIdToAreaIdToUpdateRateHz.contains(halPropId)) {
-                    mSubscribedHalPropIdToAreaIdToUpdateRateHz.put(halPropId, new SparseArray<>());
-                }
-                for (int j = 0; j < areaIds.length; j++) {
-                    mSubscribedHalPropIdToAreaIdToUpdateRateHz.get(halPropId).put(areaIds[j],
-                            updateRateHz);
-                }
-                halPropIdsToSubscribe.add(halPropId);
+                // Note that we use halPropId instead of mgrPropId in mSubManager.
+                mSubManager.stageNewOptions(CAR_PROP_SVC_REQUEST_ID, List.of(newCarSubscribeOption(
+                        halPropId, areaIds, updateRateHz)));
             }
             try {
-                updateSubscriptionRateLocked(halPropIdsToSubscribe);
+                updateSubscriptionRateLocked();
             } catch (ServiceSpecificException e) {
-                // Restore previous state.
-                Slogf.e(TAG, "Failed to update subscription rate for subscribe, "
-                        + "restoring previous state", e);
-                mSubscribedHalPropIdToAreaIdToUpdateRateHz = previousState;
+                Slogf.e(TAG, "Failed to update subscription rate for subscribe", e);
                 throw e;
             }
         }
@@ -1229,23 +1222,14 @@ public class PropertyHalService extends HalServiceBase {
         int halPropId = managerToHalPropId(mgrPropId);
         synchronized (mLock) {
             // Even though this involves binder call, this must be done inside the lock so that
-            // the state in {@code mSubscribedHalPropIdToUpdateRateHz} is consistent with the
-            // state in VHAL.
-            if (mSubscribedHalPropIdToAreaIdToUpdateRateHz.get(halPropId) == null) {
-                Slogf.w(TAG, "property: %s is not subscribed.",
-                        VehiclePropertyIds.toString(mgrPropId));
-                return;
-            }
-            SparseArray<Float> previousAreaIdToUpdateRateHz =
-                    mSubscribedHalPropIdToAreaIdToUpdateRateHz.get(halPropId);
-            mSubscribedHalPropIdToAreaIdToUpdateRateHz.remove(halPropId);
+            // the state in {@code mSubManager} is consistent with the state in VHAL.
+            mSubManager.stageUnregister(CAR_PROP_SVC_REQUEST_ID, new ArraySet<Integer>(Set.of(
+                    halPropId)));
             try {
-                updateSubscriptionRateLocked(Set.of(halPropId));
+                updateSubscriptionRateLocked();
             } catch (ServiceSpecificException e) {
                 Slogf.e(TAG, "Failed to update subscription rate for unsubscribe, "
                         + "restoring previous state", e);
-                mSubscribedHalPropIdToAreaIdToUpdateRateHz.put(
-                        halPropId, previousAreaIdToUpdateRateHz);
                 throw e;
             }
         }
@@ -1279,11 +1263,12 @@ public class PropertyHalService extends HalServiceBase {
             Slogf.d(TAG, "release()");
         }
         synchronized (mLock) {
-            for (int i = 0; i < mSubscribedHalPropIdToAreaIdToUpdateRateHz.size(); i++) {
-                int halPropId = mSubscribedHalPropIdToAreaIdToUpdateRateHz.keyAt(i);
+            ArraySet<Integer> halPropIds = mSubManager.getCurrentSubscribedPropIds();
+            for (int i = 0; i < halPropIds.size(); i++) {
+                int halPropId = halPropIds.valueAt(i);
                 mVehicleHal.unsubscribePropertySafe(this, halPropId);
             }
-            mSubscribedHalPropIdToAreaIdToUpdateRateHz.clear();
+            mSubManager.clear();
             mHalPropIdToPropConfig.clear();
             mPropertyHalListener = null;
         }
@@ -1356,8 +1341,7 @@ public class PropertyHalService extends HalServiceBase {
     @GuardedBy("mLock")
     private void checkPendingWaitForUpdateRequestsLocked(int halPropId,
             CarPropertyValue<?> updatedValue,
-            Map<VehicleStubCallback, List<GetSetValueResultWrapper>> callbackToSetValueResults,
-            Set<Integer> updatedHalPropIds) {
+            Map<VehicleStubCallback, List<GetSetValueResultWrapper>> callbackToSetValueResults) {
         List<AsyncPropRequestInfo> pendingSetRequests = mHalPropIdToWaitingUpdateRequestInfo.get(
                 halPropId);
         if (pendingSetRequests == null) {
@@ -1389,28 +1373,26 @@ public class PropertyHalService extends HalServiceBase {
 
         for (AsyncPropRequestInfo finishedRequest : finishedPendingSetRequests) {
             // Pending set value request is now succeeded. Remove all record to the pending request.
-            removePendingAsyncPropRequestInfoLocked(finishedRequest, updatedHalPropIds);
+            removePendingAsyncPropRequestInfoLocked(finishedRequest);
         }
     }
 
+    private static ArrayList<HalSubscribeOptions> toHalSubscribeOptions(
+            ArrayList<CarSubscribeOption> carSubscribeOptions) {
+        ArrayList<HalSubscribeOptions> halOptions = new ArrayList<>();
+        for (int i = 0; i < carSubscribeOptions.size(); i++) {
+            CarSubscribeOption carOption = carSubscribeOptions.get(i);
+            halOptions.add(new HalSubscribeOptions(carOption.propertyId, carOption.areaIds,
+                    carOption.updateRateHz));
+        }
+        return halOptions;
+    }
+
     /**
-     * Calculate the new subscription rate for the hal property ID.
-     *
-     * PropertyHalService internally also subscribes to some property for async set operations.
-     * Here, we need to merge the subscription rate requested by the client (stored at
-     * {@code mSubscribedHalPropIdToAreaIdToUpdateRateHz}) and the subscription rate we issued
-     * internally (stored at {@code mHalPropIdToWaitingUpdateRequestInfo}).
-     *
-     * For example, if we internally subscribed to [propA, areaA] at 10hz, client requests at 20hz,
-     * then we need to tell VHAL to update the rate to 20hz. If we internally subscribed at 20hz,
-     * client requests at 10hz, then we should do nothing, however, if we internally unsubscribe,
-     * then the [propA, areaA] should be subscribed at 10hz.
+     * Apply the staged subscription rate in {@code mSubManager} to VHAL.
      *
      * Use {@code subscribeProperty} to update its subscription rate or {@code unsubscribeProperty}
      * if it is no longer subscribed.
-     *
-     * Note that {@code VehicleHal} subscription logic will ignore subscribe property request with
-     * the same subscription rate, so we do not need to check that here.
      *
      * This functions involves binder call to VHAL, but we intentionally keep this inside the
      * lock because we need to keep the subscription status consistent. If we do not use lock
@@ -1418,11 +1400,11 @@ public class PropertyHalService extends HalServiceBase {
      *
      * <ol>
      * <li>Lock is obtained by thread 1.
-     * <li>mHalPropIdToWaitingUpdateRequestInfo is updated by one thread to state 1.
+     * <li>mSubManager is updated by one thread to state 1.
      * <li>New update rate (local variable) is calculated based on state 1.
      * <li>Lock is released by thread 1.
      * <li>Lock is obtained by thread 2.
-     * <li>mHalPropIdToWaitingUpdateRequestInfo is updated by thread 2 to state 2.
+     * <li>mSubManager is updated by thread 2 to state 2.
      * <li>New update rate (local variable) is calculated based on state 2.
      * <li>Lock is released by thread 2.
      * <li>Thread 2 calls subscribeProperty to VHAL based on state 2.
@@ -1430,25 +1412,17 @@ public class PropertyHalService extends HalServiceBase {
      * <li>Now internally, the state is in state 2, but from VHAL side, it is in state 1.
      */
     @GuardedBy("mLock")
-    private void updateSubscriptionRateLocked(Set<Integer> halPropIds)
-            throws ServiceSpecificException {
-        if (halPropIds.isEmpty()) {
-            return;
-        }
-        if (DBG) {
-            Slogf.d(TAG, "updated subscription rate for hal prop IDs: %s",
-                    propertyIdsToString(halPropIds));
-        }
-        List<HalSubscribeOptions> halSubscribeOptionsToUpdate = new ArrayList<>();
-        Set<Integer> propIdsToUnsubscribe = new ArraySet<>();
-        generateHalSubscribeOptions(halPropIds, propIdsToUnsubscribe, halSubscribeOptionsToUpdate);
+    private void updateSubscriptionRateLocked() throws ServiceSpecificException {
+        ArrayList<CarSubscribeOption> diffSubscribeOptions = new ArrayList<>();
+        List<Integer> propIdsToUnsubscribe = new ArrayList<>();
+        mSubManager.diffBetweenCurrentAndStage(diffSubscribeOptions, propIdsToUnsubscribe);
         try {
-            if (!halSubscribeOptionsToUpdate.isEmpty()) {
+            if (!diffSubscribeOptions.isEmpty()) {
                 if (DBG) {
-                    Slogf.d(TAG, "subscribeProperty, options: %s", halSubscribeOptionsToUpdate);
+                    Slogf.d(TAG, "subscribeProperty, options: %s", diffSubscribeOptions);
                 }
                 // This may throw ServiceSpecificException.
-                mVehicleHal.subscribeProperty(this, halSubscribeOptionsToUpdate);
+                mVehicleHal.subscribeProperty(this, toHalSubscribeOptions(diffSubscribeOptions));
             }
             for (int halPropId : propIdsToUnsubscribe) {
                 if (DBG) {
@@ -1458,71 +1432,25 @@ public class PropertyHalService extends HalServiceBase {
                 // This may throw ServiceSpecificException.
                 mVehicleHal.unsubscribeProperty(this, halPropId);
             }
+            mSubManager.commit();
         } catch (IllegalArgumentException e) {
             Slogf.e(TAG, "Failed to subscribe/unsubscribe, property is not supported, this should "
                     + "not happen, caller must make sure the property is supported", e);
+            mSubManager.dropCommit();
             return;
+        } catch (Exception e) {
+            mSubManager.dropCommit();
+            throw e;
         }
     }
 
     @GuardedBy("mLock")
-    private void updateSubscriptionRateForAsyncSetRequestLocked(Set<Integer> halPropIds) {
+    private void updateSubscriptionRateForAsyncSetRequestLocked() {
         try {
-            updateSubscriptionRateLocked(halPropIds);
+            updateSubscriptionRateLocked();
         } catch (ServiceSpecificException e) {
-            Slogf.e(TAG, "failed to update subscription rate after we finish async set request "
-                    + " for property Ids: " + propertyIdsToString(halPropIds), e);
-        }
-    }
-
-    /**
-     * Calculate the new update rate for all the areaIds for the hal property IDs.
-     *
-     * If all of the areas for a property are not subscribed any more, the property ID will be
-     * added to {@code propIdsToUnsubscribe}. Otherwise, for each areaId, a new
-     * {@code HalSubscribeOptions} with the new update rate will be generated and added to
-     * {@code halSubscribeOptionsToUpdate}, which can then be passed to {@link VehicleHal} to update
-     * the update rate.
-     */
-    @GuardedBy("mLock")
-    private void generateHalSubscribeOptions(
-            Set<Integer> halPropIds, Set<Integer> propIdsToUnsubscribe,
-            List<HalSubscribeOptions> halSubscribeOptionsToUpdate) {
-        for (int halPropId : halPropIds) {
-            int[] areaIds = getAllAreaIdsLocked(halToManagerPropId(halPropId));
-            ArrayMap<Float, ArrayList<Integer>> updateRateHzToAreaIds = new ArrayMap<>();
-            for (int j = 0; j < areaIds.length; j++) {
-                Float newUpdateRateHz = calcNewUpdateRateHzLocked(halPropId, areaIds[j]);
-                if (newUpdateRateHz == null) {
-                    if (DBG) {
-                        Slogf.d(TAG, "halPropId %s and area Id %d will not be subscribed",
-                                halPropIdToName(halPropId), areaIds[j]);
-                    }
-                    continue;
-                } else {
-                    if (DBG) {
-                        Slogf.d(TAG, "halPropId %s and area Id %d, new update rate: %f",
-                                halPropIdToName(halPropId), areaIds[j], newUpdateRateHz);
-                    }
-                }
-                if (!updateRateHzToAreaIds.containsKey(newUpdateRateHz)) {
-                    updateRateHzToAreaIds.put(newUpdateRateHz, new ArrayList<>());
-                }
-                updateRateHzToAreaIds.get(newUpdateRateHz).add(areaIds[j]);
-            }
-            if (updateRateHzToAreaIds.isEmpty()) {
-                propIdsToUnsubscribe.add(halPropId);
-                continue;
-            }
-            for (int j = 0; j < updateRateHzToAreaIds.size(); j++) {
-                int[] filteredAreaIds = CarServiceUtils.toIntArray(
-                        updateRateHzToAreaIds.valueAt(j));
-                Float newUpdateRateHz = updateRateHzToAreaIds.keyAt(j);
-
-                HalSubscribeOptions options = new HalSubscribeOptions(halPropId, filteredAreaIds,
-                        newUpdateRateHz);
-                halSubscribeOptionsToUpdate.add(options);
-            }
+            Slogf.e(TAG, "failed to update subscription rate after we finish async set request", e);
+            return;
         }
     }
 
@@ -1537,7 +1465,6 @@ public class PropertyHalService extends HalServiceBase {
                 new ArrayMap<>();
 
         synchronized (mLock) {
-            Set<Integer> updatedHalPropIds = new ArraySet<>();
             for (HalPropValue halPropValue : halPropValues) {
                 if (halPropValue == null) {
                     continue;
@@ -1570,13 +1497,13 @@ public class PropertyHalService extends HalServiceBase {
                     eventsToDispatch.add(carPropertyEvent);
 
                     checkPendingWaitForUpdateRequestsLocked(halPropId, carPropertyValue,
-                            callbackToSetValueResults, updatedHalPropIds);
+                            callbackToSetValueResults);
                 } catch (IllegalStateException e) {
                     Slogf.w(TAG, "Drop event %s that does not have valid value", halPropValue);
                     continue;
                 }
             }
-            updateSubscriptionRateForAsyncSetRequestLocked(updatedHalPropIds);
+            updateSubscriptionRateForAsyncSetRequestLocked();
         }
 
         PropertyHalListener propertyHalListener;
@@ -1635,7 +1562,6 @@ public class PropertyHalService extends HalServiceBase {
                         carPropErrorCode);
             }
         }
-        Set<Integer> updatedHalPropIds = new ArraySet<>();
         Map<VehicleStubCallback, List<GetSetValueResultWrapper>> callbackToSetValueResults =
                 new ArrayMap<>();
         synchronized (mLock) {
@@ -1654,7 +1580,7 @@ public class PropertyHalService extends HalServiceBase {
                     if (pendingRequest.getAreaId() != vehiclePropError.areaId) {
                         continue;
                     }
-                    removePendingAsyncPropRequestInfoLocked(pendingRequest, updatedHalPropIds);
+                    removePendingAsyncPropRequestInfoLocked(pendingRequest);
                     int[] errorCodes = VehicleStub.convertHalToCarPropertyManagerError(
                             vehiclePropError.errorCode);
                     GetSetValueResult errorResult = pendingRequest.toErrorResult(
@@ -1665,7 +1591,7 @@ public class PropertyHalService extends HalServiceBase {
                     storeResultForRequest(errorResult, pendingRequest, callbackToSetValueResults);
                 }
             }
-            updateSubscriptionRateForAsyncSetRequestLocked(updatedHalPropIds);
+            updateSubscriptionRateForAsyncSetRequestLocked();
         }
         for (VehicleStubCallback callback : callbackToSetValueResults.keySet()) {
             callback.sendSetValueResults(callbackToSetValueResults.get(callback));
@@ -1682,6 +1608,7 @@ public class PropertyHalService extends HalServiceBase {
                 HalPropConfig halPropConfig = mHalPropIdToPropConfig.valueAt(i);
                 writer.println("    " + halPropConfig);
             }
+            mSubManager.dump(new IndentingPrintWriter(writer));
         }
     }
 
@@ -1793,35 +1720,6 @@ public class PropertyHalService extends HalServiceBase {
         sendVehicleStubRequests(GET, vehicleStubRequests, vehicleStubCallback);
     }
 
-    @GuardedBy("mLock")
-    @Nullable
-    private Float calcNewUpdateRateHzLocked(int halPropId, int areaId) {
-        Float maxUpdateRateHz = null;
-        List<AsyncPropRequestInfo> requests = mHalPropIdToWaitingUpdateRequestInfo.get(halPropId);
-        if (requests != null) {
-            for (int i = 0; i < requests.size(); i++) {
-                if (requests.get(i).getAreaId() != areaId) {
-                    continue;
-                }
-                float currentUpdateRateHz = requests.get(i).getUpdateRateHz();
-                if (maxUpdateRateHz == null || currentUpdateRateHz > maxUpdateRateHz) {
-                    maxUpdateRateHz = currentUpdateRateHz;
-                }
-            }
-        }
-        SparseArray<Float> areaIdToUpdateRateHz = mSubscribedHalPropIdToAreaIdToUpdateRateHz
-                .get(halPropId);
-        if (areaIdToUpdateRateHz == null) {
-            return maxUpdateRateHz;
-        }
-        Float subscribedUpdateRateHz = areaIdToUpdateRateHz.get(areaId);
-        if (subscribedUpdateRateHz != null && (
-                maxUpdateRateHz == null || subscribedUpdateRateHz > maxUpdateRateHz)) {
-            maxUpdateRateHz = subscribedUpdateRateHz;
-        }
-        return maxUpdateRateHz;
-    }
-
     private <T> List<T> filterWaitForUpdateRequests(List<T> requests,
             Function<T, Boolean> isWaitForPropertyUpdate) {
         List<T> waitForUpdateSetRequests = new ArrayList<>();
@@ -1831,6 +1729,15 @@ public class PropertyHalService extends HalServiceBase {
             }
         }
         return waitForUpdateSetRequests;
+    }
+
+    private static CarSubscribeOption newCarSubscribeOption(int propertyId, int[] areaIds,
+            float updateRateHz) {
+        CarSubscribeOption option = new CarSubscribeOption();
+        option.propertyId = propertyId;
+        option.areaIds = areaIds;
+        option.updateRateHz = updateRateHz;
+        return option;
     }
 
     /**
@@ -1846,7 +1753,6 @@ public class PropertyHalService extends HalServiceBase {
                 GET_INITIAL_VALUE_FOR_SET, serviceRequests, timeoutInMs,
                 vehicleStubCallback, /* assocSetValueRequestInfo= */ waitForUpdateSetRequestInfo,
                 /* outRequestInfo= */ null, asyncRequestStartTime);
-        Set<Integer> updatedHalPropIds = new ArraySet<>();
 
         // Subscribe to the property's change events before setting the property.
         synchronized (mLock) {
@@ -1863,10 +1769,16 @@ public class PropertyHalService extends HalServiceBase {
                     mHalPropIdToWaitingUpdateRequestInfo.put(halPropId, new ArrayList<>());
                 }
                 mHalPropIdToWaitingUpdateRequestInfo.get(halPropId).add(setRequestInfo);
-                updatedHalPropIds.add(halPropId);
+                // Internally subscribe to the propId, areaId for property update events.
+                // We use the pending async service request ID as client key.
+                mSubManager.stageNewOptions(setRequestInfo.getServiceRequestId(),
+                        // Note that we use halPropId instead of mgrPropId in mSubManager.
+                        List.of(newCarSubscribeOption(halPropId,
+                                new int[]{setRequestInfo.getAreaId()},
+                                setRequestInfo.getUpdateRateHz())));
             }
             try {
-                updateSubscriptionRateLocked(updatedHalPropIds);
+                updateSubscriptionRateLocked();
             } catch (ServiceSpecificException e) {
                 Slogf.e(TAG, "failed to update subscription rate after we start a new async set "
                         + "request, the request will likely time-out", e);
@@ -1954,15 +1866,13 @@ public class PropertyHalService extends HalServiceBase {
         if (serviceRequestIdsToCancel.isEmpty()) {
             return;
         }
-        Set<Integer> updatedHalPropIds = new ArraySet<>();
         for (int i = 0; i < serviceRequestIdsToCancel.size(); i++) {
             Slogf.w(TAG, "the request for propertyHalService request ID: %d is cancelled",
                     serviceRequestIdsToCancel.get(i));
-            getAndRemovePendingAsyncPropRequestInfoLocked(
-                    serviceRequestIdsToCancel.get(i), updatedHalPropIds);
+            getAndRemovePendingAsyncPropRequestInfoLocked(serviceRequestIdsToCancel.get(i));
         }
         try {
-            updateSubscriptionRateLocked(updatedHalPropIds);
+            updateSubscriptionRateLocked();
         } catch (ServiceSpecificException e) {
             Slogf.e(TAG, " failed to update subscription rate when an async set request is "
                     + "cancelled", e);

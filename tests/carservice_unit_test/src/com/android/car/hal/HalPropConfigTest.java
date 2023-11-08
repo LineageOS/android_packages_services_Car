@@ -123,6 +123,7 @@ public final class HalPropConfigTest {
         aidlAreaConfig.minFloatValue = MIN_FLOAT_VALUE;
         aidlAreaConfig.maxFloatValue = MAX_FLOAT_VALUE;
         aidlAreaConfig.supportedEnumValues = SUPPORTED_ENUM_VALUES;
+        aidlAreaConfig.supportVariableUpdateRate = true;
         return aidlAreaConfig;
     }
 
@@ -415,5 +416,28 @@ public final class HalPropConfigTest {
                         TEST_AREA_ID).getSupportedEnumValues())
                         .containsExactlyElementsIn(TEST_CONFIG_ARRAY_LIST);
         }
+    }
+
+    @Test
+    public void toCarPropertyConfig_aidlSupportVariableUpdateRate() {
+        VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
+        aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
+        HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
+
+        assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
+                TEST_AREA_ID).isVariableUpdateRateSupported()).isTrue();
+    }
+
+    @Test
+    public void toCarPropertyConfig_hidlSupportVariableUpdateRate() {
+        android.hardware.automotive.vehicle.V2_0.VehiclePropConfig hidlConfig =
+                getTestHidlPropConfig();
+        hidlConfig.areaConfigs =
+                new ArrayList<android.hardware.automotive.vehicle.V2_0.VehicleAreaConfig>(
+                        Arrays.asList(getTestHidlAreaConfig()));
+        HidlHalPropConfig halPropConfig = new HidlHalPropConfig(hidlConfig);
+
+        assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
+                TEST_AREA_ID).isVariableUpdateRateSupported()).isFalse();
     }
 }
