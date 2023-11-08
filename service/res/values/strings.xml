@@ -240,6 +240,11 @@
     <!-- Permission text: apps can read car seat belts [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_read_car_seat_belts">Read car\u2019s seat belts.</string>
 
+    <!-- Permission text: apps can read impact sensors information. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_impact_sensors">read car\u2019s impact sensors</string>
+    <!-- Permission text: apps can read impact sensors information. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_impact_sensors">Read car\u2019s impact sensors.</string>
+
     <!-- Permission text: apps can read state of car airbags. [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_read_car_airbags">read car\u2019s airbags</string>
     <!-- Permission text: apps can read state of car airbags. [CHAR LIMIT=NONE] -->
