@@ -64,7 +64,6 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.telecom.TelecomManager;
-import android.view.Display;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
@@ -88,12 +87,13 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
-public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
+public final class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Mock InputHalService mInputHalService;
     @Mock TelecomManager mTelecomManager;
@@ -373,6 +373,66 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
                 .that(thrown).hasMessageThat()
                 .contains("Event " + KeyEvent.keyCodeToString(KeyEvent.KEYCODE_HOME)
                         + " already registered to another listener");
+    }
+
+    @Test
+    public void registerKeyEventListener_withNullListener_fails() {
+        var interestedEvents = List.of(KeyEvent.KEYCODE_HOME, KeyEvent.KEYCODE_0);
+
+        NullPointerException thrown = Assert.assertThrows(NullPointerException.class,
+                () -> mCarInputService.registerKeyEventListener(/* listener= */ null,
+                        interestedEvents));
+
+        assertWithMessage("Register null key event listener exception")
+                .that(thrown).hasMessageThat().contains("Key event listener");
+    }
+
+    @Test
+    public void registerKeyEventListener_withNullKeyEventList_fails() {
+        CarInputService.KeyEventListener listener = mock(CarInputService.KeyEventListener.class);
+
+        NullPointerException thrown = Assert.assertThrows(NullPointerException.class,
+                () -> mCarInputService.registerKeyEventListener(listener,
+                        /* keyCodesOfInterest= */ null));
+
+        assertWithMessage("Register null key events of interest exception")
+                .that(thrown).hasMessageThat().contains("Key events of interest");
+    }
+
+    @Test
+    public void registerKeyEventListener_withEmptyKeyEventList_fails() {
+        CarInputService.KeyEventListener listener = mock(CarInputService.KeyEventListener.class);
+
+        IllegalArgumentException thrown = Assert.assertThrows(IllegalArgumentException.class,
+                () -> mCarInputService.registerKeyEventListener(listener,
+                        /* keyCodesOfInterest= */ Collections.emptyList()));
+
+        assertWithMessage("Register empty key events of interest exception")
+                .that(thrown).hasMessageThat().contains("Key events of interest");
+    }
+
+    @Test
+    public void unregisterKeyEventListener_withNullListener_fails() {
+        NullPointerException thrown = Assert.assertThrows(NullPointerException.class,
+                () -> mCarInputService.unregisterKeyEventListener(/* listener= */ null));
+
+        assertWithMessage("Unregister null key event listener exception")
+                .that(thrown).hasMessageThat().contains("Key event listener");
+    }
+
+    @Test
+    public void onKeyEvent_afterUnregistering_doesNotCallsListener() {
+        KeyEvent event = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_HOME);
+        CarInputService.KeyEventListener listener = mock(CarInputService.KeyEventListener.class);
+        var interestedEvents = List.of(KeyEvent.KEYCODE_HOME, KeyEvent.KEYCODE_0);
+        mCarInputService.registerKeyEventListener(listener, interestedEvents);
+        mCarInputService.unregisterKeyEventListener(listener);
+
+        mCarInputService.onKeyEvent(event, CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                PASSENGER_SEAT);
+
+        verify(listener, never()).onKeyEvent(event, CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                PASSENGER_SEAT);
     }
 
     @Test

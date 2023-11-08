@@ -147,6 +147,7 @@ import android.media.AudioFocusInfo;
 import android.media.AudioGain;
 import android.media.AudioManager;
 import android.media.AudioManager.AudioPlaybackCallback;
+import android.media.AudioManager.AudioServerStateCallback;
 import android.media.AudioPlaybackConfiguration;
 import android.media.IAudioService;
 import android.media.audio.common.AudioDevice;
@@ -2056,6 +2057,13 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         return captor.getValue();
     }
 
+    private AudioServerStateCallback getAudioServerStateCallback() {
+        ArgumentCaptor<AudioServerStateCallback> captor = ArgumentCaptor.forClass(
+                AudioServerStateCallback.class);
+        verify(mAudioManager).setAudioServerStateCallback(any(), captor.capture());
+        return captor.getValue();
+    }
+
     @Test
     public void getVolumeGroupIdForAudioContext_forPrimaryGroup() {
         mCarAudioService.init();
@@ -2139,6 +2147,30 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         nonVolumeGroupMutingAudioService.setAudioEnabled(/* enabled= */ true);
 
         verify(mAudioControlWrapperAidl, never()).onDevicesToMuteChange(any());
+    }
+
+    @Test
+    public void onAudioServerDown_forCarAudioServiceCallback() {
+        mCarAudioService.init();
+        AudioServerStateCallback callback = getAudioServerStateCallback();
+
+        callback.onAudioServerDown();
+
+        verify(mAudioControlWrapperAidl).onDevicesToMuteChange(any());
+    }
+
+    @Test
+    public void onAudioServerUp_forCarAudioServiceCallback() {
+        mCarAudioService.init();
+        AudioServerStateCallback callback = getAudioServerStateCallback();
+        callback.onAudioServerDown();
+
+        callback.onAudioServerUp();
+
+        expectWithMessage("Re-initialized Car Audio Service Zones")
+                .that(mCarAudioService.getAudioZoneIds()).asList()
+                .containsExactly(PRIMARY_AUDIO_ZONE, TEST_REAR_LEFT_ZONE_ID,
+                        TEST_REAR_RIGHT_ZONE_ID, TEST_FRONT_ZONE_ID, TEST_REAR_ROW_3_ZONE_ID);
     }
 
     @Test
