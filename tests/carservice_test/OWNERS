@@ -8,7 +8,7 @@ per-file src/com/android/car/audio/* = oscarazu@google.com, ericjeong@google.com
 per-file src/com/android/car/cluster/* = ycheo@google.com
 
 # Input
-per-file src/com/android/car/input/* = ycheo@google.com
+per-file src/com/android/car/input/* = ycheo@google.com, kanant@google.com
 
 # HAL
 per-file src/com/android/car/hal/test/*MockedVehiclHal.java = ericjeong@google.com
