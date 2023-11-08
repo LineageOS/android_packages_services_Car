@@ -103,7 +103,38 @@
                 android:layout_height="wrap_content"
                 android:singleLine="true"/>
         </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/browse_item_progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/media_browse_progress_bar_height"
+            android:layout_marginBottom="@dimen/media_browse_progress_bar_bottom_list_margin"
+            android:layout_marginEnd="@dimen/media_browse_progress_bar_bottom_list_margin"
+            android:visibility="gone"/>
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/browse_item_progress_new"
+        android:src="@drawable/browser_progress_new_indicator"
+        android:layout_width="@dimen/media_browse_list_item_icons_size"
+        android:layout_height="@dimen/media_browse_list_item_icons_size"
+        android:layout_marginStart="@dimen/media_browse_list_item_icon_margin"
+        android:layout_marginEnd="@dimen/media_browse_list_item_icon_margin"
+        android:padding="@dimen/media_browse_list_item_icons_no_touch_padding"
+        android:scaleType="fitCenter"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@id/browse_item_actions_container"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/browse_item_actions_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/right_arrow"
+        android:layout_alignWithParentIfMissing="true"
+        android:visibility="gone"/>
 
     <ImageView
         android:id="@+id/right_arrow"
