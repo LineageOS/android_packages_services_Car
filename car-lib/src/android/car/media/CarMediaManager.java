@@ -23,6 +23,7 @@ import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.content.ComponentName;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -122,10 +123,19 @@ public final class CarMediaManager extends CarManagerBase {
             ICarMediaSourceListener binderCallback = new ICarMediaSourceListener.Stub() {
                 @Override
                 public void onMediaSourceChanged(ComponentName componentName) {
-                    callback.onMediaSourceChanged(componentName);
+                    // Clear the calling identity to prevent the callback from seeing
+                    // the car service as the caller.
+                    long identity = Binder.clearCallingIdentity();
+                    try {
+                        callback.onMediaSourceChanged(componentName);
+                    } finally {
+                        Binder.restoreCallingIdentity(identity);
+                    }
                 }
             };
             synchronized (mLock) {
+                // Store the callback in a map, even though the mapping is not used.
+                // This is to prevent the callback instances from being garbage-collected.
                 mCallbackMap.put(callback, binderCallback);
             }
             mService.registerMediaSourceListener(binderCallback, mode,
