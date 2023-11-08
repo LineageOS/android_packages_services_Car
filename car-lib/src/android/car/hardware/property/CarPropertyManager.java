@@ -26,6 +26,7 @@ import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_
 import static java.lang.Integer.toHexString;
 import static java.util.Objects.requireNonNull;
 
+import android.annotation.CallbackExecutor;
 import android.annotation.FlaggedApi;
 import android.annotation.FloatRange;
 import android.annotation.IntDef;
@@ -1360,7 +1361,7 @@ public class CarPropertyManager extends CarManagerBase {
      */
     @FlaggedApi(FLAG_BATCHED_SUBSCRIPTIONS)
     public boolean subscribePropertyEvents(@NonNull List<Subscription> subscriptions,
-            @Nullable Executor callbackExecutor,
+            @Nullable @CallbackExecutor Executor callbackExecutor,
             @NonNull CarPropertyEventCallback carPropertyEventCallback) {
         // TODO(b/301169322): Create an unsubscribePropertyEvents
         requireNonNull(subscriptions);
@@ -2684,7 +2685,7 @@ public class CarPropertyManager extends CarManagerBase {
             @NonNull List<GetPropertyRequest> getPropertyRequests,
             long timeoutInMs,
             @Nullable CancellationSignal cancellationSignal,
-            @Nullable Executor callbackExecutor,
+            @Nullable @CallbackExecutor Executor callbackExecutor,
             @NonNull GetPropertyCallback getPropertyCallback) {
         if (DBG) {
             Log.d(TAG, "getPropertiesAsync, requests: " + getPropertyRequests + ", timeoutInMs: "
@@ -2740,7 +2741,7 @@ public class CarPropertyManager extends CarManagerBase {
     public void getPropertiesAsync(
             @NonNull List<GetPropertyRequest> getPropertyRequests,
             @Nullable CancellationSignal cancellationSignal,
-            @Nullable Executor callbackExecutor,
+            @Nullable @CallbackExecutor Executor callbackExecutor,
             @NonNull GetPropertyCallback getPropertyCallback) {
         getPropertiesAsync(getPropertyRequests, ASYNC_GET_DEFAULT_TIMEOUT_MS, cancellationSignal,
                 callbackExecutor, getPropertyCallback);
@@ -2801,7 +2802,7 @@ public class CarPropertyManager extends CarManagerBase {
             @NonNull List<SetPropertyRequest<?>> setPropertyRequests,
             long timeoutInMs,
             @Nullable CancellationSignal cancellationSignal,
-            @Nullable Executor callbackExecutor,
+            @Nullable @CallbackExecutor Executor callbackExecutor,
             @NonNull SetPropertyCallback setPropertyCallback) {
         if (DBG) {
             Log.d(TAG, "setPropertiesAsync, requests: " + setPropertyRequests + ", timeoutInMs: "
@@ -2858,7 +2859,7 @@ public class CarPropertyManager extends CarManagerBase {
     public void setPropertiesAsync(
             @NonNull List<SetPropertyRequest<?>> setPropertyRequests,
             @Nullable CancellationSignal cancellationSignal,
-            @Nullable Executor callbackExecutor,
+            @Nullable @CallbackExecutor Executor callbackExecutor,
             @NonNull SetPropertyCallback setPropertyCallback) {
         setPropertiesAsync(setPropertyRequests, ASYNC_GET_DEFAULT_TIMEOUT_MS, cancellationSignal,
                 callbackExecutor, setPropertyCallback);
