@@ -80,3 +80,4 @@ include packages/services/Car/cpp/evs/apps/sepolicy/evsapp.mk
 endif
 
 $(call inherit-product, device/sample/products/location_overlay.mk)
+$(call inherit-product, packages/services/Car/car_product/rro/ThemeSamples/product.mk)
