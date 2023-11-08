@@ -258,6 +258,7 @@
 
     <!-- radio test -->
     <string name="radio_fm_am_tuner" translatable="false">FM/AM Tuner</string>
+    <string name="radio_dab_tuner" translatable="false">DAB Tuner</string>
     <string name="radio_open">Open Tuner</string>
     <string name="radio_close" translatable="false">Close Tuner</string>
     <string name="radio_play" translatable="false">Playing</string>
