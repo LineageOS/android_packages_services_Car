@@ -16,6 +16,11 @@
 
 package com.android.car.portraitlauncher.panel;
 
+import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.ON_GRIP_BAR_CLICKED;
+import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.ON_GRIP_BAR_DRAG;
+import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.ON_PANEL_READY;
+import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.createReason;
+
 import android.annotation.NonNull;
 import android.annotation.SuppressLint;
 import android.app.TaskInfo;
@@ -268,66 +273,67 @@ public class TaskViewPanel extends RelativeLayout {
     }
 
     /** Transitions the panel into the open state. */
-    public void openPanel() {
-        openPanel(/* animated= */ true);
+    public void openPanel(TaskViewPanelStateChangeReason reason) {
+        openPanel(/* animated= */ true, reason);
     }
 
     /** Transitions the panel into the open state. */
-    public void openPanel(boolean animated) {
+    public void openPanel(boolean animated, TaskViewPanelStateChangeReason reason) {
         PanelAnimator animator =
                 animated ? new OpenPanelAnimator(this, mOpenState.mBounds) : null;
-        setActiveState(mOpenState, animator);
+        setActiveState(mOpenState, animator, reason);
     }
 
     /** Transitions the panel into the open state with overlay and centered icon. */
-    public void openPanelWithIcon() {
+    public void openPanelWithIcon(TaskViewPanelStateChangeReason reason) {
         PanelAnimator animator = new OpenPanelWithIconAnimator(this, mOpenState.mBounds,
                 mTaskViewOverlay);
-        setActiveState(mOpenState, animator);
+        setActiveState(mOpenState, animator, reason);
     }
 
     /** Transitions the panel into the close state. */
-    public void closePanel() {
-        closePanel(/* animated= */ true);
+    public void closePanel(TaskViewPanelStateChangeReason reason) {
+        closePanel(/* animated= */ true, reason);
     }
 
     /** Transitions the panel into the close state. */
-    public void closePanel(boolean animated) {
+    public void closePanel(boolean animated, TaskViewPanelStateChangeReason reason) {
         PanelAnimator animator =
                 animated ? new ClosePanelAnimator(this, mCloseState.mBounds) : null;
 
-        setActiveState(mCloseState, animator);
+        setActiveState(mCloseState, animator, reason);
     }
 
     /** Transitions the panel into the open state using the expand animation. */
-    public void expandPanel() {
+    public void expandPanel(TaskViewPanelStateChangeReason reason) {
         Point origin = new Point(mOpenState.mBounds.centerX(), mOpenState.mBounds.centerY());
         PanelAnimator animator =
                 new ExpandPanelAnimator(/* panel= */ this, origin, mOpenState.mBounds, mGripBar);
-        setActiveState(mOpenState, animator);
+        setActiveState(mOpenState, animator, reason);
     }
 
     /** Transitions the panel into the open state using the fade-in animation. */
-    public void fadeInPanel() {
+    public void fadeInPanel(TaskViewPanelStateChangeReason reason) {
         setActiveState(mOpenState,
-                new FadeInPanelAnimator(/* panel= */ this, mTaskView, mOpenState.mBounds));
+                new FadeInPanelAnimator(/* panel= */ this, mTaskView, mOpenState.mBounds), reason);
     }
 
     /** Transitions the panel into the close state using the fade-out animation. */
-    public void fadeOutPanel() {
+    public void fadeOutPanel(TaskViewPanelStateChangeReason reason) {
         PanelAnimator animator = new FadeOutPanelAnimator(/* panel= */ this, mTaskViewOverlay,
                 mTaskView, mCloseState.mBounds, mCloseState.mBounds.top);
-        setActiveState(mCloseState, animator);
+        setActiveState(mCloseState, animator, reason);
     }
 
     /**
      * Transitions the panel into the full screen state. During
      * transition,{@link mTaskViewOverlay} shows with given {@code drawable} at the center.
      */
-    public void openFullScreenPanel(boolean animated, boolean showToolBar, int bottomAdjustment) {
+    public void openFullScreenPanel(boolean animated, boolean showToolBar, int bottomAdjustment,
+            TaskViewPanelStateChangeReason reason) {
         mFullScreenState.mHasToolBar = showToolBar;
         mFullScreenState.mBounds.bottom = ((ViewGroup) getParent()).getHeight() - bottomAdjustment;
-        setActiveState(mFullScreenState, animated ? createFullScreenPanelAnimator() : null);
+        setActiveState(mFullScreenState, animated ? createFullScreenPanelAnimator() : null, reason);
     }
 
     /** Sets the state change listener for the panel. */
@@ -369,7 +375,7 @@ public class TaskViewPanel extends RelativeLayout {
     public void setReady(boolean isReady) {
         mIsReady = isReady;
         if (mIsReady) {
-            closePanel();
+            closePanel(createReason(ON_PANEL_READY));
         }
     }
 
@@ -391,7 +397,7 @@ public class TaskViewPanel extends RelativeLayout {
     private void setupGripBar() {
         mGripBar.setOnTouchListener(new OnPanelDragListener(getContext()) {
             @Override void onClick() {
-                closePanel();
+                closePanel(createReason(ON_GRIP_BAR_CLICKED));
             }
 
             @Override
@@ -410,9 +416,9 @@ public class TaskViewPanel extends RelativeLayout {
             public void onDragEnd(int deltaX, int deltaY) {
                 deltaY = Math.max(0, deltaY);
                 if (deltaY > mDragThreshold) {
-                    closePanel();
+                    closePanel(createReason(ON_GRIP_BAR_DRAG));
                 } else {
-                    openPanel();
+                    openPanel(createReason(ON_GRIP_BAR_DRAG));
                 }
             }
         });
@@ -492,7 +498,8 @@ public class TaskViewPanel extends RelativeLayout {
         mFullScreenState.mBounds.set(0, 0, parentWidth, parentHeight);
     }
 
-    private void setActiveState(State toState, PanelAnimator animator) {
+    private void setActiveState(State toState, PanelAnimator animator,
+            TaskViewPanelStateChangeReason reason) {
         if (!isReady()) {
             logIfDebuggable("Skipping state change. Not Ready.");
         }
@@ -504,7 +511,7 @@ public class TaskViewPanel extends RelativeLayout {
 
         State fromState = mActiveState;
         logIfDebuggable("Panel( " + getTag() + ") active state changes from " + fromState
-                + " to " + toState);
+                + " to " + toState + " with reason code = " + reason);
 
         if (mActiveAnimator != null) {
             logIfDebuggable("cancelling the old animation");
