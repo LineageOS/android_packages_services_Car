@@ -112,7 +112,8 @@ public final class AreaIdConfig<T> implements Parcelable {
      * If this returns {@code false}, variable update rate is always disabled for this area ID.
      *
      * If this returns {@code true}, variable update rate will be disabled if client calls
-     * {@link Subscription#disableVariableUpdateRate} or enabled otherwise.
+     * {@link Subscription.Builder#setVariableUpdateRateEnabled} with {@code false}, or enabled
+     * otherwise.
      *
      * @return whether variable update rate is supported.
      */
