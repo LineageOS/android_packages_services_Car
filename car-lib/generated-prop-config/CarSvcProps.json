@@ -428,6 +428,15 @@
         "value": "android.car.permission.ADJUST_RANGE_REMAINING"
       }
     },
+    "EV_BATTERY_AVERAGE_TEMPERATURE": {
+      "propertyName": "EV_BATTERY_AVERAGE_TEMPERATURE",
+      "propertyId": 291504910,
+      "description": "EV battery average temperature",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.CAR_ENERGY"
+      }
+    },
     "TIRE_PRESSURE": {
       "propertyName": "TIRE_PRESSURE",
       "propertyId": 392168201,
