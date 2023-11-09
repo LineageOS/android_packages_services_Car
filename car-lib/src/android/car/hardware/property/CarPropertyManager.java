@@ -17,6 +17,7 @@
 package android.car.hardware.property;
 
 import static android.car.feature.Flags.FLAG_BATCHED_SUBSCRIPTIONS;
+import static android.car.hardware.CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
@@ -1096,9 +1097,12 @@ public class CarPropertyManager extends CarManagerBase {
         for (int areaId : areaIds) {
             subscriptionOptionBuilder.addAreaId(areaId);
         }
+        SubscriptionOption subscribeOption = subscriptionOptionBuilder.build();
+        // Disable VUR for backward compatibility.
+        subscribeOption.disableVariableUpdateRate();
         try {
-            return subscribePropertyEvents(List.of(subscriptionOptionBuilder.build()),
-                    /* callbackExecutor= */ null, carPropertyEventCallback);
+            return subscribePropertyEvents(List.of(subscribeOption), /* callbackExecutor= */ null,
+                    carPropertyEventCallback);
         } catch (IllegalArgumentException e) {
             Log.w(TAG, "register: PropertyId=" + propertyId + ", exception=", e);
             return false;
@@ -1138,7 +1142,7 @@ public class CarPropertyManager extends CarManagerBase {
      * supported, then the client will receive all the property update events based on the update
      * rate even if the events contain the same property value.
      *
-     * <p>See {@link SubscribeOption.Builder#disableVariableUpdateRate} for more detail.
+     * <p>See {@link SubscriptionOption#disableVariableUpdateRate} for more detail.
      *
      * <p>
      * <b>Note:</b> When a client registers to receive updates for a PropertyId for the
@@ -2633,6 +2637,13 @@ public class CarPropertyManager extends CarManagerBase {
             carSubscribeOption.propertyId = propertyId;
             carSubscribeOption.areaIds = subscribeOption.getAreaIds();
             carSubscribeOption.updateRateHz = sanitizedUpdateRateHz;
+            if (carPropertyConfig.getChangeMode() == VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS) {
+                // TODO(b/308814366): Check whether VUR is supported here.
+                carSubscribeOption.enableVariableUpdateRate =
+                        !subscribeOption.isVariableUpdateRateDisabled();
+            } else {
+                carSubscribeOption.enableVariableUpdateRate = false;
+            }
             output.add(carSubscribeOption);
         }
         return output;

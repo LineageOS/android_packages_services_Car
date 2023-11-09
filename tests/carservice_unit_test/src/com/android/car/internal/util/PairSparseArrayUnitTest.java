@@ -163,4 +163,18 @@ public class PairSparseArrayUnitTest extends AbstractExtendedMockitoTestCase {
         expectThat(map.getSecondKeysForFirstKey(FOURTH_KEY)).containsExactly(FIRST_KEY, SECOND_KEY,
                 THIRD_KEY, FOURTH_KEY);
     }
+
+    @Test
+    public void test_getFirstKeys() {
+        PairSparseArray<Integer> map = new PairSparseArray<>(16);
+
+        map.put(FIRST_KEY, FIRST_KEY, VALUE_1);
+        map.put(SECOND_KEY, FIRST_KEY, VALUE_1);
+        map.put(THIRD_KEY, FIRST_KEY, VALUE_1);
+        map.put(FOURTH_KEY, FIRST_KEY, VALUE_1);
+        map.put(FOURTH_KEY, SECOND_KEY, VALUE_1);
+
+        assertThat(map.getFirstKeys()).containsExactly(
+                FIRST_KEY, SECOND_KEY, THIRD_KEY, FOURTH_KEY);
+    }
 }

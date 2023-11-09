@@ -1848,9 +1848,9 @@ public final class CarPropertyManagerUnitTest {
 
         verify(mICarProperty).registerListenerWithSubscribeOptions(
                 eq(List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
-                        CarPropertyManager.SENSOR_RATE_FAST), createCarSubscriptionOption(
-                                VENDOR_ON_CHANGE_PROPERTY, new int[]{0},
-                        CarPropertyManager.SENSOR_RATE_ONCHANGE))),
+                        CarPropertyManager.SENSOR_RATE_FAST, /* enableVUR= */ true),
+                        createCarSubscriptionOption(VENDOR_ON_CHANGE_PROPERTY, new int[]{0},
+                                CarPropertyManager.SENSOR_RATE_ONCHANGE))),
                 any(ICarPropertyEventListener.class));
     }
 
@@ -1866,7 +1866,7 @@ public final class CarPropertyManagerUnitTest {
                 mCarSubscribeOptionCaptor.capture(), any(ICarPropertyEventListener.class));
         assertThat(mCarSubscribeOptionCaptor.getValue()).isEqualTo(
                 List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[] {0},
-                        MIN_UPDATE_RATE_HZ)));
+                        MIN_UPDATE_RATE_HZ, /* enableVUR= */ true)));
     }
 
     @Test
@@ -1918,7 +1918,7 @@ public final class CarPropertyManagerUnitTest {
 
         verify(mICarProperty).registerListenerWithSubscribeOptions(eq(List.of(
                         createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
-                                CarPropertyManager.SENSOR_RATE_FAST))),
+                                CarPropertyManager.SENSOR_RATE_FAST, /* enableVUR= */ true))),
                 any(ICarPropertyEventListener.class));
         verify(mICarProperty).unregisterListener(eq(VENDOR_ON_CHANGE_PROPERTY),
                 any(ICarPropertyEventListener.class));
@@ -1962,9 +1962,9 @@ public final class CarPropertyManagerUnitTest {
 
         verify(mICarProperty).registerListenerWithSubscribeOptions(
                 eq(List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
-                        CarPropertyManager.SENSOR_RATE_FAST), createCarSubscriptionOption(
-                        VENDOR_ON_CHANGE_PROPERTY, new int[]{0},
-                        CarPropertyManager.SENSOR_RATE_ONCHANGE))),
+                        CarPropertyManager.SENSOR_RATE_FAST, /* enableVUR= */ true),
+                        createCarSubscriptionOption(VENDOR_ON_CHANGE_PROPERTY, new int[]{0},
+                                CarPropertyManager.SENSOR_RATE_ONCHANGE))),
                 any(ICarPropertyEventListener.class));
     }
 

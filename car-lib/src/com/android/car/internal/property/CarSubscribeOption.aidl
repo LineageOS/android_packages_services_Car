@@ -24,4 +24,5 @@ parcelable CarSubscribeOption {
     int propertyId;
     int[] areaIds;
     float updateRateHz;
+    boolean enableVariableUpdateRate;
 }

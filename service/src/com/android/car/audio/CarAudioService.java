@@ -84,6 +84,7 @@ import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
+import android.media.AudioManager.AudioServerStateCallback;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.Binder;
 import android.os.Handler;
@@ -210,6 +211,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private final CarAudioMirrorRequestHandler mCarAudioMirrorRequestHandler =
             new CarAudioMirrorRequestHandler();
     private final CarVolumeEventHandler mCarVolumeEventHandler = new CarVolumeEventHandler();
+    private final AudioServerStateCallback mAudioServerStateCallback;
 
     private AudioControlWrapper mAudioControlWrapper;
     private CarDucking mCarDucking;
@@ -381,6 +383,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         mUseCarVolumeGroupMuting = useCarVolumeGroupMuting;
         mPersistMasterMuteState = !mUseCarVolumeGroupMuting && mContext.getResources().getBoolean(
                 R.bool.audioPersistMasterMuteState);
+        mAudioServerStateCallback = new CarAudioServerStateCallback(this);
     }
 
     /**
@@ -407,6 +410,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             }
 
             mAudioManager.setSupportedSystemUsages(CarAudioContext.getSystemUsages());
+            mAudioManager.setAudioServerStateCallback(mContext.getMainExecutor(),
+                    mAudioServerStateCallback);
         }
 
         restoreMasterMuteState();
@@ -460,6 +465,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             if (mCarAudioPowerListener != null) {
                 mCarAudioPowerListener.stopListeningForPolicyChanges();
             }
+            mAudioManager.clearAudioServerStateCallback();
+            mCarInputService.unregisterKeyEventListener(mCarKeyEventListener);
         }
     }
 
