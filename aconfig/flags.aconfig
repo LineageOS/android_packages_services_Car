@@ -108,3 +108,11 @@ flag {
   description: "Controls whether to use global settings to control the day/night mode configuration"
   bug: "260762437"
 }
+
+# CarWifiService
+flag {
+  name: "persist_ap_settings"
+  namespace: "car_framework"
+  description: "Controls whether car persist ap settings can be configured"
+  bug: "301660611"
+}

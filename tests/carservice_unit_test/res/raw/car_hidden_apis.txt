@@ -18,6 +18,7 @@ android.car Car String CAR_INTENT_ACTION_RECEIVER_SERVICE
 android.car Car String CAR_SERVICE_BINDER_SERVICE_NAME
 android.car Car String CAR_SERVICE_INTERFACE_NAME
 android.car Car String CAR_TEMPLATE_HOST_RENDERER_SERVICE
+android.car Car String CAR_WIFI_SERVICE
 android.car Car String CLUSTER_HOME_SERVICE
 android.car Car String EXPERIMENTAL_CAR_KEYGUARD_SERVICE
 android.car Car String EXPERIMENTAL_CAR_USER_SERVICE
@@ -807,3 +808,4 @@ android.car.watchdog ResourceOveruseStats.Builder Builder setIoOveruseStats(IoOv
 android.car.watchdog ResourceOveruseStats.Builder Builder setPackageName(String value)
 android.car.watchdog ResourceOveruseStats.Builder Builder setUserHandle(UserHandle value)
 android.car.watchdog ResourceOveruseStats.Builder ResourceOveruseStats build()
+android.car.wifi CarWifiManager void onCarDisconnected()

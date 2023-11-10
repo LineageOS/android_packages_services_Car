@@ -81,6 +81,7 @@ public final class CarFeatureController implements CarServiceBase {
             Car.CAR_USER_SERVICE,
             Car.CAR_UX_RESTRICTION_SERVICE,
             Car.CAR_WATCHDOG_SERVICE,
+            Car.CAR_WIFI_SERVICE,
             Car.INFO_SERVICE,
             Car.PACKAGE_SERVICE,
             Car.POWER_SERVICE,
