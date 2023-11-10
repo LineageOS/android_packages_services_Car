@@ -120,8 +120,8 @@
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"Έλεγχος των αερόσακων του αυτοκινήτου."</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"πρόσβαση στις βασικές πληροφορίες του αυτοκινήτου"</string>
     <string name="car_permission_desc_car_info" msgid="2118081474543537653">"Πρόσβαση σε βασικές πληροφορίες του αυτοκινήτου."</string>
-    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"πρόσβαση στις προνομιακές πληροφορίες του αυτοκινήτου"</string>
-    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"Αποκτήστε πρόσβαση στις προνομιακές πληροφορίες του αυτοκινήτου."</string>
+    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"πρόσβαση στις απόρρητες πληροφορίες του αυτοκινήτου"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"Αποκτήστε πρόσβαση στις απόρρητες πληροφορίες του αυτοκινήτου."</string>
     <string name="car_permission_label_vendor_permission_info" msgid="4471260460536888654">"πρόσβαση στις πληροφορίες άδειας πωλητή του αυτοκινήτου"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Πρόσβαση στις πληροφορίες άδειας πωλητή του αυτοκινήτου."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"παρακολούθηση κατάστασης εξωτερικών φώτων του αυτοκινήτου"</string>
