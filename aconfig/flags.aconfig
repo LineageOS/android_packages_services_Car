@@ -62,3 +62,11 @@ flag {
   description: "Controls whether dump to proto is an option for car services"
   bug: "302596493"
 }
+
+# ClusterHomeManager
+flag {
+  name: "cluster_health_monitoring"
+  namespace: "car_framework"
+  description: "Controls whether to enable the health monitoring for Cluster"
+  bug: "285415531"
+}
