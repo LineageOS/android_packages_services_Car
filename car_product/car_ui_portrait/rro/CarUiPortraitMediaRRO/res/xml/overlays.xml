@@ -53,6 +53,9 @@
     <item target="bool/switch_to_playback_view_when_playable_item_is_clicked" value="@bool/switch_to_playback_view_when_playable_item_is_clicked" />
     <item target="bool/show_menu_item_selector" value="@bool/show_menu_item_selector" />
 
+    <item target="id/browse_item_actions_container" value="@id/browse_item_actions_container"/>
+    <item target="id/browse_item_progress_bar" value="@id/browse_item_progress_bar"/>
+    <item target="id/browse_item_progress_new" value="@id/browse_item_progress_new"/>
     <item target="id/browse_mini_control_bar_layout" value="@id/browse_mini_control_bar_layout"/>
     <item target="id/browse_mini_control_bar_content_tile" value="@id/browse_mini_control_bar_content_tile"/>
     <item target="id/browse_mini_control_bar_app_icon" value="@id/browse_mini_control_bar_app_icon"/>

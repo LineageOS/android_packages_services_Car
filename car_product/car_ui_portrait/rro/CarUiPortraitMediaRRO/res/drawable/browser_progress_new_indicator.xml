@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2021 The Android Open Source Project
+  ~ Copyright (C) 2022 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,10 +13,15 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <color name="button_background_color">#E8EAED</color>
-    <color name="fragment_error_text_primary_color">@color/car_ui_text_color_primary</color>
-    <color name="queue_playing_icon_color">@color/car_on_surface</color>
-    <color name="icon_tint">@color/car_ui_text_color_primary</color>
-    <color name="browse_progress_new_indicator_color">@color/car_green_color</color>
-</resources>
+
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+
+    <solid
+        android:color="@color/browse_progress_new_indicator_color" />
+
+    <size
+        android:width="@dimen/media_browse_progress_indicator_size"
+        android:height="@dimen/media_browse_progress_indicator_size" />
+
+</shape>
