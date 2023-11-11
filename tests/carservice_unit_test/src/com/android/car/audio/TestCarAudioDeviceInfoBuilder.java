@@ -18,6 +18,8 @@ package com.android.car.audio;
 
 import static org.mockito.Mockito.when;
 
+import android.media.AudioDeviceAttributes;
+
 import org.mockito.Mockito;
 
 public final class TestCarAudioDeviceInfoBuilder {
@@ -58,12 +60,15 @@ public final class TestCarAudioDeviceInfoBuilder {
     }
 
     CarAudioDeviceInfo build() {
+        AudioDeviceAttributes attributeMock = Mockito.mock(AudioDeviceAttributes.class);
+        when(attributeMock.getAddress()).thenReturn(mAddress);
         CarAudioDeviceInfo infoMock = Mockito.mock(CarAudioDeviceInfo.class);
         when(infoMock.getStepValue()).thenReturn(mStepValue);
         when(infoMock.getDefaultGain()).thenReturn(mDefaultGain);
         when(infoMock.getMaxGain()).thenReturn(mMaxGain);
         when(infoMock.getMinGain()).thenReturn(mMinGain);
         when(infoMock.getAddress()).thenReturn(mAddress);
+        when(infoMock.getAudioDevice()).thenReturn(attributeMock);
         return infoMock;
     }
 }

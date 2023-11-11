@@ -25,6 +25,7 @@ import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupEvent;
 import android.car.media.CarVolumeGroupInfo;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.util.ArrayMap;
 import android.util.ArraySet;
@@ -108,23 +109,23 @@ final class CarAudioZoneConfig {
     }
 
     /**
-     * @return Snapshot of available {@link AudioDeviceInfo}s in List.
+     * @return Snapshot of available {@link AudioDeviceAttributes}s in List.
      */
-    List<AudioDeviceInfo> getAudioDeviceInfos() {
-        final List<AudioDeviceInfo> devices = new ArrayList<>();
+    List<AudioDeviceAttributes> getAudioDevice() {
+        final List<AudioDeviceAttributes> devices = new ArrayList<>();
         for (int index = 0; index < mVolumeGroups.size(); index++) {
             CarVolumeGroup group = mVolumeGroups.get(index);
             List<String> addresses = group.getAddresses();
             for (int addressIndex = 0; addressIndex < addresses.size(); addressIndex++) {
                 devices.add(group.getCarAudioDeviceInfoForAddress(addresses.get(addressIndex))
-                        .getAudioDeviceInfo());
+                        .getAudioDevice());
             }
         }
         return devices;
     }
 
-    List<AudioDeviceInfo> getAudioDeviceInfosSupportingDynamicMix() {
-        List<AudioDeviceInfo> devices = new ArrayList<>();
+    List<AudioDeviceAttributes> getAudioDeviceSupportingDynamicMix() {
+        List<AudioDeviceAttributes> devices = new ArrayList<>();
         for (int index = 0; index <  mVolumeGroups.size(); index++) {
             CarVolumeGroup group = mVolumeGroups.get(index);
             List<String> addresses = group.getAddresses();
@@ -132,7 +133,7 @@ final class CarAudioZoneConfig {
                 String address = addresses.get(addressIndex);
                 CarAudioDeviceInfo info = group.getCarAudioDeviceInfoForAddress(address);
                 if (info.canBeRoutedWithDynamicPolicyMix()) {
-                    devices.add(info.getAudioDeviceInfo());
+                    devices.add(info.getAudioDevice());
                 }
             }
         }

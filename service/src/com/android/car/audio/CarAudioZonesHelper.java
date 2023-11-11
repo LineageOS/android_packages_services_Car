@@ -17,6 +17,19 @@ package com.android.car.audio;
 
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION_EVENT;
+import static android.media.AudioDeviceInfo.TYPE_AUX_LINE;
+import static android.media.AudioDeviceInfo.TYPE_BLE_BROADCAST;
+import static android.media.AudioDeviceInfo.TYPE_BLE_HEADSET;
+import static android.media.AudioDeviceInfo.TYPE_BLE_SPEAKER;
+import static android.media.AudioDeviceInfo.TYPE_BLUETOOTH_A2DP;
+import static android.media.AudioDeviceInfo.TYPE_BUILTIN_SPEAKER;
+import static android.media.AudioDeviceInfo.TYPE_BUS;
+import static android.media.AudioDeviceInfo.TYPE_HDMI;
+import static android.media.AudioDeviceInfo.TYPE_USB_ACCESSORY;
+import static android.media.AudioDeviceInfo.TYPE_USB_DEVICE;
+import static android.media.AudioDeviceInfo.TYPE_USB_HEADSET;
+import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADPHONES;
+import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET;
 
 import static com.android.car.audio.CarAudioService.CAR_DEFAULT_AUDIO_ATTRIBUTE;
 import static com.android.car.audio.CarAudioUtils.isMicrophoneInputDevice;
@@ -25,6 +38,7 @@ import static java.util.Locale.ROOT;
 
 import android.annotation.NonNull;
 import android.car.builtin.media.AudioManagerHelper;
+import android.car.feature.Flags;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
@@ -38,6 +52,8 @@ import android.util.SparseIntArray;
 import android.util.Xml;
 
 import com.android.car.audio.CarAudioContext.AudioContext;
+import com.android.car.internal.util.ConstantDebugUtils;
+import com.android.car.internal.util.DebugUtils;
 import com.android.internal.util.Preconditions;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -85,6 +101,7 @@ import java.util.stream.Collectors;
     private static final String ATTR_ZONE_NAME = "name";
     private static final String ATTR_CONFIG_NAME = "name";
     private static final String ATTR_DEVICE_ADDRESS = "address";
+    private static final String ATTR_DEVICE_TYPE = "type";
     private static final String ATTR_CONTEXT_NAME = "context";
     private static final String ATTR_ZONE_ID = "audioZoneId";
     private static final String ATTR_OCCUPANT_ZONE_ID = "occupantZoneId";
@@ -96,13 +113,15 @@ import java.util.stream.Collectors;
     private static final int SUPPORTED_VERSION_1 = 1;
     private static final int SUPPORTED_VERSION_2 = 2;
     private static final int SUPPORTED_VERSION_3 = 3;
+    private static final int SUPPORTED_VERSION_4 = 4;
     private static final SparseIntArray SUPPORTED_VERSIONS;
 
     static {
-        SUPPORTED_VERSIONS = new SparseIntArray(3);
+        SUPPORTED_VERSIONS = new SparseIntArray(4);
         SUPPORTED_VERSIONS.put(SUPPORTED_VERSION_1, SUPPORTED_VERSION_1);
         SUPPORTED_VERSIONS.put(SUPPORTED_VERSION_2, SUPPORTED_VERSION_2);
         SUPPORTED_VERSIONS.put(SUPPORTED_VERSION_3, SUPPORTED_VERSION_3);
+        SUPPORTED_VERSIONS.put(SUPPORTED_VERSION_4, SUPPORTED_VERSION_4);
     }
 
     private final AudioManager mAudioManager;
@@ -199,7 +218,7 @@ import java.util.stream.Collectors;
 
         if (SUPPORTED_VERSIONS.get(versionNumber, INVALID_VERSION) == INVALID_VERSION) {
             throw new IllegalArgumentException("Latest Supported version:"
-                    + SUPPORTED_VERSION_3 + " , got version:" + versionNumber);
+                    + SUPPORTED_VERSION_4 + " , got version:" + versionNumber);
         }
 
         mCurrentVersion = versionNumber;
@@ -243,8 +262,8 @@ import java.util.stream.Collectors;
 
     private void parseMirroringDevice(XmlPullParser parser) {
         String address = parser.getAttributeValue(NAMESPACE, ATTR_DEVICE_ADDRESS);
-        validateOutputDeviceExist(address);
-        CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
+        validateOutputAudioDevice(address, TYPE_BUS);
+        CarAudioDeviceInfo info = getCarAudioDeviceInfo(address, TYPE_BUS);
         if (mMirroringDevices.contains(info)) {
             throw new IllegalArgumentException(TAG_MIRRORING_DEVICE + " " + address
                     + " repeats, " + TAG_MIRRORING_DEVICES + " can not repeat.");
@@ -599,7 +618,8 @@ import java.util.stream.Collectors;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             if (Objects.equals(parser.getName(), TAG_AUDIO_ZONE_CONFIG)) {
-                if (zone.getId() == PRIMARY_AUDIO_ZONE && zoneConfigId > 0) {
+                if (isVersionLessThanFour() && zone.getId() == PRIMARY_AUDIO_ZONE
+                        && zoneConfigId > 0) {
                     throw new IllegalArgumentException(
                             "Primary zone cannot have multiple zone configurations");
                 }
@@ -678,9 +698,7 @@ import java.util.stream.Collectors;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             if (Objects.equals(parser.getName(), TAG_AUDIO_DEVICE)) {
-                String address = parser.getAttributeValue(NAMESPACE, ATTR_DEVICE_ADDRESS);
-                validateOutputDeviceExist(address);
-                parseVolumeGroupContexts(parser, groupFactory, address);
+                parseVolumeGroupDeviceToContextMapping(parser, groupFactory);
             } else {
                 skip(parser);
             }
@@ -688,16 +706,52 @@ import java.util.stream.Collectors;
         return groupFactory.getCarVolumeGroup(mUseCoreAudioVolume);
     }
 
-    private void validateOutputDeviceExist(String address) {
-        if (!mAddressToCarAudioDeviceInfo.containsKey(address)) {
-            throw new IllegalStateException(String.format(
-                    "Output device address %s does not belong to any configured output device.",
-                    address));
+    private void parseVolumeGroupDeviceToContextMapping(XmlPullParser parser,
+            CarVolumeGroupFactory groupFactory) throws XmlPullParserException, IOException {
+        String address = parser.getAttributeValue(NAMESPACE, ATTR_DEVICE_ADDRESS);
+        int type = TYPE_BUS;
+        if (Flags.carAudioDynamicDevices()) {
+            type = parseAudioDeviceType(parser);
+        }
+        validateOutputAudioDevice(address, type);
+        parseVolumeGroupContexts(parser, groupFactory, address, type);
+    }
+
+    private int parseAudioDeviceType(XmlPullParser parser) {
+        String typeString = parser.getAttributeValue(NAMESPACE, ATTR_DEVICE_TYPE);
+        if (typeString == null) {
+            return TYPE_BUS;
+        }
+        if (isVersionLessThanFour()) {
+            throw new IllegalArgumentException("Audio device type " + typeString
+                    + " not supported for versions less than " + SUPPORTED_VERSION_4
+                    + ", but current version is " + mCurrentVersion);
+        }
+        return ConstantDebugUtils.toValue(AudioDeviceInfo.class, typeString);
+    }
+
+    private boolean isVersionLessThanFour() {
+        return mCurrentVersion < SUPPORTED_VERSION_4;
+    }
+
+    private void validateOutputAudioDevice(String address, int type) {
+        if (!Flags.carAudioDynamicDevices() && TextUtils.isEmpty(address)) {
+            throw new IllegalStateException("Output device address must be specified");
+        }
+        if (!isValidAudioDeviceTypeOut(type)) {
+            throw new IllegalStateException("Output device type " + DebugUtils.constantToString(
+                    AudioDeviceInfo.class, /* prefix= */ "TYPE_", type) + " is not valid");
+        }
+
+        boolean requiresDeviceAddress = type == TYPE_BUS;
+        if (requiresDeviceAddress && !mAddressToCarAudioDeviceInfo.containsKey(address)) {
+            throw new IllegalStateException("Output device address " + address
+                    + " does not belong to any configured output device.");
         }
     }
 
     private void parseVolumeGroupContexts(
-            XmlPullParser parser, CarVolumeGroupFactory groupFactory, String address)
+            XmlPullParser parser, CarVolumeGroupFactory groupFactory, String address, int type)
             throws XmlPullParserException, IOException {
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
@@ -705,7 +759,7 @@ import java.util.stream.Collectors;
                 @AudioContext int carAudioContextId = parseCarAudioContextId(
                         parser.getAttributeValue(NAMESPACE, ATTR_CONTEXT_NAME));
                 validateCarAudioContextSupport(carAudioContextId);
-                CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
+                CarAudioDeviceInfo info = getCarAudioDeviceInfo(address, type);
                 groupFactory.setDeviceInfoForContext(carAudioContextId, info);
 
                 // If V1, default new contexts to same device as DEFAULT_AUDIO_USAGE
@@ -717,6 +771,16 @@ import java.util.stream.Collectors;
             // Always skip to upper level since we're at the lowest.
             skip(parser);
         }
+    }
+
+    private CarAudioDeviceInfo getCarAudioDeviceInfo(String address, int type) {
+        if (type == TYPE_BUS) {
+            return mAddressToCarAudioDeviceInfo.get(address);
+        }
+
+        String newAddress = address == null ? "" : address;
+        return new CarAudioDeviceInfo(mAudioManager,
+                new AudioDeviceAttributes(AudioDeviceAttributes.ROLE_OUTPUT, type, newAddress));
     }
 
     private boolean isVersionLessThanThree() {
@@ -772,5 +836,30 @@ import java.util.stream.Collectors;
 
     public List<CarAudioDeviceInfo> getMirrorDeviceInfos() {
         return mMirroringDevices;
+    }
+
+    /**
+     * Car audio service supports a subset of the output devices, including most dynamic
+     * devices, built in speaker, and bus devices.
+     */
+    private static boolean isValidAudioDeviceTypeOut(int type) {
+        switch (type) {
+            case TYPE_BUILTIN_SPEAKER:
+            case TYPE_WIRED_HEADSET:
+            case TYPE_WIRED_HEADPHONES:
+            case TYPE_BLUETOOTH_A2DP:
+            case TYPE_HDMI:
+            case TYPE_USB_ACCESSORY:
+            case TYPE_USB_DEVICE:
+            case TYPE_USB_HEADSET:
+            case TYPE_AUX_LINE:
+            case TYPE_BUS:
+            case TYPE_BLE_HEADSET:
+            case TYPE_BLE_SPEAKER:
+            case TYPE_BLE_BROADCAST:
+                return true;
+            default:
+                return false;
+        }
     }
 }

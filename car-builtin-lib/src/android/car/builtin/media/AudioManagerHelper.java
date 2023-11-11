@@ -156,7 +156,7 @@ public final class AudioManagerHelper {
      * @return
      */
     public static AudioGainInfo getAudioGainInfo(@NonNull AudioDeviceInfo deviceInfo) {
-        Objects.requireNonNull(deviceInfo);
+        Objects.requireNonNull(deviceInfo, "Audio device gain info can not be null");
         return new AudioGainInfo(getAudioGain(deviceInfo.getPort()));
     }
 

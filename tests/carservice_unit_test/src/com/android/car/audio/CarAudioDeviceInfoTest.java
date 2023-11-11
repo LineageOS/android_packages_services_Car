@@ -32,6 +32,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioGain;
 import android.media.AudioManager;
@@ -51,103 +52,121 @@ public class CarAudioDeviceInfoTest {
     private AudioManager mAudioManager;
 
     @Test
-    public void constructor_requiresNonNullGain() {
+    public void setAudioDeviceInfo_requiresNonNullGain() {
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
         AudioDeviceInfo audioDeviceInfo = mock(AudioDeviceInfo.class);
         when(audioDeviceInfo.getPort()).thenReturn(null);
 
         Throwable thrown = assertThrows(NullPointerException.class,
-                () -> new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo));
+                () -> info.setAudioDeviceInfo(audioDeviceInfo));
 
-        assertWithMessage("Constructor exception")
+        assertWithMessage("Null port exception")
                 .that(thrown).hasMessageThat().contains("Audio device port");
     }
 
     @Test
-    public void constructor_requiresJointModeGain() {
+    public void setAudioDeviceInfo_requiresJointModeGain() {
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
         AudioGain gainWithChannelMode = new GainBuilder().setMode(AudioGain.MODE_CHANNELS).build();
         AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo(
                 new AudioGain[]{gainWithChannelMode});
 
         Throwable thrown = assertThrows(IllegalStateException.class,
-                () -> new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo));
+                () -> info.setAudioDeviceInfo(audioDeviceInfo));
 
-        assertWithMessage("Constructor exception")
+        assertWithMessage("Null gain exception")
                 .that(thrown).hasMessageThat().contains("audio gain");
     }
 
     @Test
-    public void constructor_requiresMaxGainLargerThanMin() {
+    public void setAudioDeviceInfo_requiresMaxGainLargerThanMin() {
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
         AudioGain gainWithChannelMode = new GainBuilder().setMaxValue(10).setMinValue(20).build();
         AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo(
                 new AudioGain[]{gainWithChannelMode});
 
         Throwable thrown = assertThrows(IllegalArgumentException.class,
-                () -> new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo));
+                () -> info.setAudioDeviceInfo(audioDeviceInfo));
 
-        assertWithMessage("Constructor exception")
+        assertWithMessage("Min gain larger than max exception")
                 .that(thrown).hasMessageThat().contains("lower than");
     }
 
     @Test
-    public void constructor_requiresDefaultGainLargerThanMin() {
+    public void setAudioDeviceInfo_requiresDefaultGainLargerThanMin() {
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
         AudioGain gainWithChannelMode = new GainBuilder().setDefaultValue(10).setMinValue(
                 20).build();
         AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo(
                 new AudioGain[]{gainWithChannelMode});
 
         Throwable thrown = assertThrows(IllegalArgumentException.class,
-                () -> new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo));
+                () -> info.setAudioDeviceInfo(audioDeviceInfo));
 
-        assertWithMessage("Constructor exception")
+        assertWithMessage("Default gain lower than min exception")
                 .that(thrown).hasMessageThat().contains("not in range");
     }
 
     @Test
-    public void constructor_requiresDefaultGainSmallerThanMax() {
+    public void setAudioDeviceInfo_requiresDefaultGainSmallerThanMax() {
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
         AudioGain gainWithChannelMode = new GainBuilder().setDefaultValue(15).setMaxValue(
                 10).build();
         AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo(
                 new AudioGain[]{gainWithChannelMode});
 
         Throwable thrown = assertThrows(IllegalArgumentException.class,
-                () -> new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo));
+                () -> info.setAudioDeviceInfo(audioDeviceInfo));
 
-        assertWithMessage("Constructor exception")
+        assertWithMessage("Default gain larger than max exception")
                 .that(thrown).hasMessageThat().contains("not in range");
     }
 
     @Test
-    public void constructor_requiresGainStepSizeFactorOfRange() {
+    public void setAudioDeviceInfo_requiresGainStepSizeFactorOfRange() {
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
         AudioGain gainWithChannelMode = new GainBuilder().setStepSize(7).build();
         AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo(
                 new AudioGain[]{gainWithChannelMode});
 
         Throwable thrown = assertThrows(IllegalArgumentException.class,
-                () -> new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo));
+                () -> info.setAudioDeviceInfo(audioDeviceInfo));
 
-        assertWithMessage("Constructor exception")
+        assertWithMessage("Gain step not a factor of range exception")
                 .that(thrown).hasMessageThat().contains("greater than min gain to max gain range");
     }
 
     @Test
-    public void constructor_requiresGainStepSizeFactorOfRangeToDefault() {
+    public void setAudioDeviceInfo_requiresGainStepSizeFactorOfRangeToDefault() {
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
         AudioGain gainWithChannelMode = new GainBuilder().setStepSize(7).setMaxValue(98).build();
         AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo(
                 new AudioGain[]{gainWithChannelMode});
 
         Throwable thrown = assertThrows(IllegalArgumentException.class,
-                () -> new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo));
+                () -> info.setAudioDeviceInfo(audioDeviceInfo));
 
-        assertWithMessage("Constructor exception").that(thrown).hasMessageThat()
+        assertWithMessage("Default gain factor of step exception")
+                .that(thrown).hasMessageThat()
                 .contains("greater than min gain to default gain range");
     }
 
     @Test
     public void getSampleRate_withMultipleSampleRates_returnsMax() {
-        AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo();
+        AudioDeviceAttributes audioDevice = getMockAudioDevice();
+        AudioDeviceInfo deviceInfo = getMockAudioDeviceInfo();
         int[] sampleRates = new int[]{48000, 96000, 16000, 8000};
-        when(audioDeviceInfo.getSampleRates()).thenReturn(sampleRates);
-        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo);
+        when(deviceInfo.getSampleRates()).thenReturn(sampleRates);
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDevice);
+        info.setAudioDeviceInfo(deviceInfo);
+
 
         int sampleRate = info.getSampleRate();
 
@@ -156,9 +175,8 @@ public class CarAudioDeviceInfoTest {
 
     @Test
     public void getSampleRate_withNullSampleRate_returnsDefault() {
-        AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo();
-        when(audioDeviceInfo.getSampleRates()).thenReturn(null);
-        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo);
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
 
         int sampleRate = info.getSampleRate();
 
@@ -167,16 +185,17 @@ public class CarAudioDeviceInfoTest {
 
     @Test
     public void getAddress_returnsValueFromDeviceInfo() {
-        AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo();
-        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo);
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
 
         assertWithMessage("Device Info Address").that(info.getAddress()).isEqualTo(TEST_ADDRESS);
     }
 
     @Test
     public void getMaxGain_returnsValueFromDeviceInfo() {
-        AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo();
-        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo);
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
+        info.setAudioDeviceInfo(getMockAudioDeviceInfo());
 
         assertWithMessage("Device Info Max Gain")
                 .that(info.getMaxGain()).isEqualTo(MAX_GAIN);
@@ -184,8 +203,9 @@ public class CarAudioDeviceInfoTest {
 
     @Test
     public void getMinGain_returnsValueFromDeviceInfo() {
-        AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo();
-        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo);
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
+        info.setAudioDeviceInfo(getMockAudioDeviceInfo());
 
         assertWithMessage("Device Info Min Gain")
                 .that(info.getMinGain()).isEqualTo(MIN_GAIN);
@@ -193,8 +213,9 @@ public class CarAudioDeviceInfoTest {
 
     @Test
     public void getDefaultGain_returnsValueFromDeviceInfo() {
-        AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo();
-        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo);
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
+        info.setAudioDeviceInfo(getMockAudioDeviceInfo());
 
         assertWithMessage("Device Info Default Gain").that(info.getDefaultGain())
                 .isEqualTo(GainBuilder.DEFAULT_GAIN);
@@ -202,8 +223,9 @@ public class CarAudioDeviceInfoTest {
 
     @Test
     public void getStepValue_returnsValueFromDeviceInfo() {
-        AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo();
-        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo);
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
+        info.setAudioDeviceInfo(getMockAudioDeviceInfo());
 
         assertWithMessage("Device Info Step Vale").that(info.getStepValue())
                 .isEqualTo(STEP_SIZE);
@@ -211,8 +233,9 @@ public class CarAudioDeviceInfoTest {
 
     @Test
     public void getChannelCount_withNoChannelMasks_returnsOne() {
-        AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo();
-        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo);
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
+        info.setAudioDeviceInfo(getMockAudioDeviceInfo());
 
         int channelCount = info.getChannelCount();
 
@@ -221,10 +244,12 @@ public class CarAudioDeviceInfoTest {
 
     @Test
     public void getChannelCount_withMultipleChannels_returnsHighestCount() {
-        AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo();
-        when(audioDeviceInfo.getChannelMasks()).thenReturn(new int[]{CHANNEL_OUT_STEREO,
+        AudioDeviceAttributes audioDeviceAttribute = getMockAudioDevice();
+        AudioDeviceInfo deviceInfo = getMockAudioDeviceInfo();
+        when(deviceInfo.getChannelMasks()).thenReturn(new int[]{CHANNEL_OUT_STEREO,
                 CHANNEL_OUT_QUAD, CHANNEL_OUT_MONO});
-        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo);
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDeviceAttribute);
+        info.setAudioDeviceInfo(deviceInfo);
 
         int channelCount = info.getChannelCount();
 
@@ -232,18 +257,18 @@ public class CarAudioDeviceInfoTest {
     }
 
     @Test
-    public void getAudioDeviceInfo_returnsConstructorParameter() {
-        AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo();
-        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo);
+    public void getAudioDevice_returnsConstructorParameter() {
+        AudioDeviceAttributes audioDevice = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDevice);
 
-        assertWithMessage("Device Info Audio Device Information")
-                .that(info.getAudioDeviceInfo()).isEqualTo(audioDeviceInfo);
+        assertWithMessage("Device Info Audio Device Attributes")
+                .that(info.getAudioDevice()).isEqualTo(audioDevice);
     }
 
     @Test
     public void getEncodingFormat_returnsPCM16() {
-        AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo();
-        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo);
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
 
         assertWithMessage("Device Info Audio Encoding Format")
                 .that(info.getEncodingFormat()).isEqualTo(ENCODING_PCM_16BIT);
@@ -251,8 +276,8 @@ public class CarAudioDeviceInfoTest {
 
     @Test
     public void defaultDynamicPolicyMix_enabled() {
-        AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo();
-        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo);
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
 
         boolean initialState = info.canBeRoutedWithDynamicPolicyMix();
         assertWithMessage("Dynamic policy mix is enabled by default on Devices")
@@ -262,8 +287,8 @@ public class CarAudioDeviceInfoTest {
 
     @Test
     public void setGetCanBeRoutedWithDynamicPolicyMix() {
-        AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo();
-        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo);
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
 
         info.resetCanBeRoutedWithDynamicPolicyMix();
 
@@ -274,8 +299,8 @@ public class CarAudioDeviceInfoTest {
 
     @Test
     public void resetGetCanBeRoutedWithDynamicPolicyMix_isSticky() {
-        AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo();
-        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo);
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
 
         info.resetCanBeRoutedWithDynamicPolicyMix();
         // Setting twice, no-op, reset is fused.
@@ -296,5 +321,12 @@ public class CarAudioDeviceInfoTest {
                 .setAddressName(TEST_ADDRESS)
                 .setAudioGains(gains)
                 .build();
+    }
+
+    private AudioDeviceAttributes getMockAudioDevice() {
+        AudioDeviceAttributes attributeMock =  mock(AudioDeviceAttributes.class);
+        when(attributeMock.getAddress()).thenReturn(TEST_ADDRESS);
+
+        return attributeMock;
     }
 }

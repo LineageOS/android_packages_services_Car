@@ -32,7 +32,6 @@ import android.car.feature.Flags;
 import android.car.media.CarVolumeGroupInfo;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
-import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.os.UserHandle;
 import android.util.ArrayMap;
@@ -352,7 +351,7 @@ import java.util.Objects;
      * or {@code null} if the context does not exist in the volume group
      */
     @Nullable
-    AudioDeviceInfo getAudioDeviceForContext(int audioContext) {
+    AudioDeviceAttributes getAudioDeviceForContext(int audioContext) {
         String address = getAddressForContext(audioContext);
         if (address == null) {
             return null;
@@ -363,7 +362,7 @@ import java.util.Objects;
             return null;
         }
 
-        return info.getAudioDeviceInfo();
+        return info.getAudioDevice();
     }
 
     @AudioContext
@@ -841,7 +840,7 @@ import java.util.Objects;
         ArraySet<AudioDeviceAttributes> set = new ArraySet<>();
         int[] contexts = getContexts();
         for (int index = 0; index < contexts.length; index++) {
-            AudioDeviceAttributes device = getAudioDeviceAttributeForContext(contexts[index]);
+            AudioDeviceAttributes device = getAudioDeviceForContext(contexts[index]);
             if (device == null) {
                 Slogf.w(CarLog.TAG_AUDIO,
                         "getAudioDeviceAttributes: Could not find audio device for context "
@@ -851,11 +850,6 @@ import java.util.Objects;
             set.add(device);
         }
         return new ArrayList<>(set);
-    }
-
-    private AudioDeviceAttributes getAudioDeviceAttributeForContext(int context) {
-        AudioDeviceInfo info = getAudioDeviceForContext(context);
-        return info == null ? null : new AudioDeviceAttributes(info);
     }
 
     List<AudioAttributes> getAudioAttributes() {

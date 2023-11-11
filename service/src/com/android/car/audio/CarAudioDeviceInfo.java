@@ -15,7 +15,12 @@
  */
 package com.android.car.audio;
 
+import static android.media.AudioFormat.ENCODING_DEFAULT;
 import static android.media.AudioFormat.ENCODING_PCM_16BIT;
+import static android.media.AudioFormat.ENCODING_PCM_24BIT_PACKED;
+import static android.media.AudioFormat.ENCODING_PCM_32BIT;
+import static android.media.AudioFormat.ENCODING_PCM_8BIT;
+import static android.media.AudioFormat.ENCODING_PCM_FLOAT;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -23,6 +28,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.media.AudioManagerHelper.AudioGainInfo;
 import android.car.builtin.util.Slogf;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.util.proto.ProtoOutputStream;
@@ -35,19 +41,25 @@ import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 /**
- * A helper class wraps {@link AudioDeviceInfo}, and helps get/set the gain on a specific port
- * in terms of millibels.
+ * A helper class wraps {@link AudioDeviceAttributes}, and helps manage the details of the audio
+ * device: gains, format, sample rate, channel count
+ *
  * Note to the reader. For whatever reason, it seems that AudioGain contains only configuration
  * information (min/max/step, etc) while the AudioGainConfig class contains the
  * actual currently active gain value(s).
  */
-/* package */ class CarAudioDeviceInfo {
+/* package */ final class CarAudioDeviceInfo {
 
     public static final int DEFAULT_SAMPLE_RATE = 48000;
-    private final AudioDeviceInfo mAudioDeviceInfo;
-    private final int mSampleRate;
-    private final int mEncodingFormat;
-    private final int mChannelCount;
+    private static final int DEFAULT_NUM_CHANNELS = 1;
+    private static final int UNINITIALIZED_GAIN = -1;
+
+    /*
+     * PCM 16 bit is supposed to be guaranteed for all devices
+     * per {@link ENCODING_PCM_16BIT}'s documentation.
+     */
+    private static final int DEFAULT_ENCODING_FORMAT = ENCODING_PCM_16BIT;
+    private final AudioDeviceAttributes mAudioDeviceAttributes;
     private final AudioManager mAudioManager;
 
     private final Object mLock = new Object();
@@ -61,7 +73,12 @@ import com.android.internal.annotations.GuardedBy;
     private int mStepValue;
     @GuardedBy("mLock")
     private boolean mCanBeRoutedWithDynamicPolicyMixRule = true;
-
+    @GuardedBy("mLock")
+    private int mSampleRate;
+    @GuardedBy("mLock")
+    private int mEncodingFormat;
+    @GuardedBy("mLock")
+    private int mChannelCount;
 
     /**
      * We need to store the current gain because it is not accessible from the current
@@ -70,23 +87,50 @@ import com.android.internal.annotations.GuardedBy;
      */
     private int mCurrentGain;
 
-    CarAudioDeviceInfo(AudioManager audioManager, AudioDeviceInfo audioDeviceInfo) {
+    CarAudioDeviceInfo(AudioManager audioManager, AudioDeviceAttributes audioDeviceAttributes) {
         mAudioManager = audioManager;
-        mAudioDeviceInfo = audioDeviceInfo;
-        mSampleRate = getMaxSampleRate(audioDeviceInfo);
-        mEncodingFormat = ENCODING_PCM_16BIT;
-        mChannelCount = getMaxChannels(audioDeviceInfo);
-        AudioGainInfo audioGainInfo = AudioManagerHelper.getAudioGainInfo(audioDeviceInfo);
-        mDefaultGain = audioGainInfo.getDefaultGain();
-        mMaxGain = audioGainInfo.getMaxGain();
-        mMinGain = audioGainInfo.getMinGain();
-        mStepValue = audioGainInfo.getStepValue();
+        mAudioDeviceAttributes = audioDeviceAttributes;
+        // Device specific information will be initialized once an actual audio device info is set
+        mSampleRate = DEFAULT_SAMPLE_RATE;
+        mEncodingFormat = DEFAULT_ENCODING_FORMAT;
+        mChannelCount = DEFAULT_NUM_CHANNELS;
+        mDefaultGain = UNINITIALIZED_GAIN;
+        mMaxGain = UNINITIALIZED_GAIN;
+        mMinGain = UNINITIALIZED_GAIN;
+        mStepValue = UNINITIALIZED_GAIN;
 
-        mCurrentGain = -1; // Not initialized till explicitly set
+        mCurrentGain = UNINITIALIZED_GAIN; // Not initialized till explicitly set
     }
 
-    AudioDeviceInfo getAudioDeviceInfo() {
-        return mAudioDeviceInfo;
+    /**
+     * Sets the audio device info
+     *
+     * <p>Given that the audio device information may not be available at the time of construction,
+     * the method must call to set the audio device info, so that the actual details of the device
+     * are known.
+     *
+     * @param info that will be use to obtain the device specific information
+     */
+    void setAudioDeviceInfo(AudioDeviceInfo info) {
+        AudioGainInfo audioGainInfo = AudioManagerHelper.getAudioGainInfo(info);
+        synchronized (mLock) {
+            mDefaultGain = audioGainInfo.getDefaultGain();
+            mMaxGain = audioGainInfo.getMaxGain();
+            mMinGain = audioGainInfo.getMinGain();
+            mStepValue = audioGainInfo.getStepValue();
+            mChannelCount = getMaxChannels(info);
+            mSampleRate = getMaxSampleRate(info);
+            mEncodingFormat = getEncodingFormat(info);
+        }
+
+    }
+
+    AudioDeviceAttributes getAudioDevice() {
+        return mAudioDeviceAttributes;
+    }
+
+    String getAddress() {
+        return mAudioDeviceAttributes.getAddress();
     }
 
     /**
@@ -104,10 +148,6 @@ import com.android.internal.annotations.GuardedBy;
         synchronized (mLock) {
             return mCanBeRoutedWithDynamicPolicyMixRule;
         }
-    }
-
-    String getAddress() {
-        return mAudioDeviceInfo.getAddress();
     }
 
     int getDefaultGain() {
@@ -129,15 +169,21 @@ import com.android.internal.annotations.GuardedBy;
     }
 
     int getSampleRate() {
-        return mSampleRate;
+        synchronized (mLock) {
+            return mSampleRate;
+        }
     }
 
     int getEncodingFormat() {
-        return mEncodingFormat;
+        synchronized (mLock) {
+            return mEncodingFormat;
+        }
     }
 
     int getChannelCount() {
-        return mChannelCount;
+        synchronized (mLock) {
+            return mChannelCount;
+        }
     }
 
     int getStepValue() {
@@ -147,7 +193,6 @@ import com.android.internal.annotations.GuardedBy;
     }
 
 
-    // Input is in millibels
     void setCurrentGain(int gainInMillibels) {
         int gain = gainInMillibels;
         // Clamp the incoming value to our valid range.  Out of range values ARE legal input
@@ -194,6 +239,40 @@ import com.android.internal.annotations.GuardedBy;
         return sampleRate;
     }
 
+    private static int getEncodingFormat(AudioDeviceInfo info) {
+        int[] formats = info.getEncodings();
+        // If the formats are not specified, then arbitrary encoding are supported
+        if (formats == null) {
+            return DEFAULT_ENCODING_FORMAT;
+        }
+
+        for (int c = 0; c < formats.length; c++) {
+            // Audio policy mix limits linear PCMs
+            if (isEncodingLinearPcm(formats[c])) {
+                return formats[c];
+            }
+        }
+
+        return DEFAULT_ENCODING_FORMAT;
+    }
+
+    private static boolean isEncodingLinearPcm(int audioFormat) {
+        switch (audioFormat) {
+            case ENCODING_PCM_16BIT:
+            case ENCODING_PCM_8BIT:
+            case ENCODING_PCM_FLOAT:
+            case ENCODING_PCM_24BIT_PACKED:
+            case ENCODING_PCM_32BIT:
+            case ENCODING_DEFAULT:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /*
+     * If there are no profiles in the device this will return the {@link #DEFAULT_NUM_CHANNELS}
+     */
     private static int getMaxChannels(AudioDeviceInfo info) {
         int numChannels = 1;
         int[] channelMasks = info.getChannelMasks();
@@ -212,7 +291,7 @@ import com.android.internal.annotations.GuardedBy;
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public String toString() {
-        return "address: " + mAudioDeviceInfo.getAddress()
+        return "address: " + mAudioDeviceAttributes.getAddress()
                 + " sampleRate: " + getSampleRate()
                 + " encodingFormat: " + getEncodingFormat()
                 + " channelCount: " + getChannelCount()
@@ -224,7 +303,7 @@ import com.android.internal.annotations.GuardedBy;
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
-            writer.printf("CarAudioDeviceInfo Device(%s)\n", mAudioDeviceInfo.getAddress());
+            writer.printf("CarAudioDeviceInfo Device(%s)\n", mAudioDeviceAttributes.getAddress());
             writer.increaseIndent();
             writer.printf("Routing with Dynamic Mix enabled (%b)\n",
                     mCanBeRoutedWithDynamicPolicyMixRule);
@@ -240,7 +319,7 @@ import com.android.internal.annotations.GuardedBy;
     void dumpProto(long fieldId, ProtoOutputStream proto) {
         long token = proto.start(fieldId);
         synchronized (mLock) {
-            proto.write(CarAudioDeviceInfoProto.ADDRESS, mAudioDeviceInfo.getAddress());
+            proto.write(CarAudioDeviceInfoProto.ADDRESS, mAudioDeviceAttributes.getAddress());
             proto.write(CarAudioDeviceInfoProto.CAN_BE_ROUTED_WITH_DYNAMIC_POLICY_MIX_RULE,
                     mCanBeRoutedWithDynamicPolicyMixRule);
             proto.write(CarAudioDeviceInfoProto.SAMPLE_RATE, getSampleRate());
