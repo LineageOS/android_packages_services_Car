@@ -40,6 +40,7 @@ import android.car.test.AbstractExpectableTestCase;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
 import android.hardware.automotive.audiocontrol.Reasons;
 import android.media.AudioAttributes;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 
 import org.junit.Before;
@@ -428,13 +429,17 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     @Test
     public void getAudioDeviceInfos() {
         AudioDeviceInfo musicAudioDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+        AudioDeviceAttributes musicDeviceAttributes =
+                new AudioDeviceAttributes(musicAudioDeviceInfo);
         AudioDeviceInfo navAudioDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+        AudioDeviceAttributes navDeviceAttributes =
+                new AudioDeviceAttributes(navAudioDeviceInfo);
         CarAudioDeviceInfo musicCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
         CarAudioDeviceInfo navCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
         when(musicCarAudioDeviceInfo.getAddress()).thenReturn(MUSIC_ADDRESS);
         when(navCarAudioDeviceInfo.getAddress()).thenReturn(NAV_ADDRESS);
-        when(musicCarAudioDeviceInfo.getAudioDeviceInfo()).thenReturn(musicAudioDeviceInfo);
-        when(navCarAudioDeviceInfo.getAudioDeviceInfo()).thenReturn(navAudioDeviceInfo);
+        when(musicCarAudioDeviceInfo.getAudioDevice()).thenReturn(musicDeviceAttributes);
+        when(navCarAudioDeviceInfo.getAudioDevice()).thenReturn(navDeviceAttributes);
         when(navCarAudioDeviceInfo.canBeRoutedWithDynamicPolicyMix()).thenReturn(false);
         when(musicCarAudioDeviceInfo.canBeRoutedWithDynamicPolicyMix()).thenReturn(true);
         CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
@@ -447,8 +452,8 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
                 List.of(mockMusicGroup, mockNavGroupRoutingOnMusic));
 
         expectWithMessage("Zone configuration groups devices")
-                .that(zoneConfig.getAudioDeviceInfos())
-                .containsExactlyElementsIn(List.of(musicAudioDeviceInfo, navAudioDeviceInfo));
+                .that(zoneConfig.getAudioDevice())
+                .containsExactlyElementsIn(List.of(musicDeviceAttributes, navDeviceAttributes));
     }
 
     @Test
@@ -507,11 +512,13 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     @Test
     public void getAudioDeviceInfosSupportingDynamicMix() {
         AudioDeviceInfo musicAudioDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+        AudioDeviceAttributes musicDeviceAttributes =
+                new AudioDeviceAttributes(musicAudioDeviceInfo);
         CarAudioDeviceInfo musicCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
         CarAudioDeviceInfo navCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
         when(musicCarAudioDeviceInfo.getAddress()).thenReturn(MUSIC_ADDRESS);
         when(navCarAudioDeviceInfo.getAddress()).thenReturn(NAV_ADDRESS);
-        when(musicCarAudioDeviceInfo.getAudioDeviceInfo()).thenReturn(musicAudioDeviceInfo);
+        when(musicCarAudioDeviceInfo.getAudioDevice()).thenReturn(musicDeviceAttributes);
         when(navCarAudioDeviceInfo.canBeRoutedWithDynamicPolicyMix()).thenReturn(false);
         when(musicCarAudioDeviceInfo.canBeRoutedWithDynamicPolicyMix()).thenReturn(true);
         CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
@@ -524,8 +531,8 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
                 List.of(mockMusicGroup, mockNavGroupRoutingOnMusic));
 
         expectWithMessage("Dynamic mix ready devices")
-                .that(zoneConfig.getAudioDeviceInfosSupportingDynamicMix())
-                .containsExactly(musicAudioDeviceInfo);
+                .that(zoneConfig.getAudioDeviceSupportingDynamicMix())
+                .containsExactly(musicDeviceAttributes);
     }
 
     @Test

@@ -118,12 +118,12 @@ public class CarAudioZone {
     /**
      * @return Snapshot of available {@link AudioDeviceInfo}s in List.
      */
-    List<AudioDeviceInfo> getCurrentAudioDeviceInfos() {
-        return getCurrentCarAudioZoneConfig().getAudioDeviceInfos();
+    List<AudioDeviceAttributes> getCurrentAudioDevices() {
+        return getCurrentCarAudioZoneConfig().getAudioDevice();
     }
 
-    List<AudioDeviceInfo> getCurrentAudioDeviceInfosSupportingDynamicMix() {
-        return getCurrentCarAudioZoneConfig().getAudioDeviceInfosSupportingDynamicMix();
+    List<AudioDeviceAttributes> getCurrentAudioDeviceSupportingDynamicMix() {
+        return getCurrentCarAudioZoneConfig().getAudioDeviceSupportingDynamicMix();
     }
 
     int getCurrentVolumeGroupCount() {
@@ -271,12 +271,13 @@ public class CarAudioZone {
                 + " for audio context " + audioContext);
     }
 
-    public AudioDeviceInfo getAudioDeviceForContext(int audioContext) {
+    AudioDeviceAttributes getAudioDeviceForContext(int audioContext) {
         mCarAudioContext.preconditionCheckAudioContext(audioContext);
         for (CarVolumeGroup volumeGroup : getCurrentVolumeGroups()) {
-            AudioDeviceInfo deviceInfo = volumeGroup.getAudioDeviceForContext(audioContext);
-            if (deviceInfo != null) {
-                return deviceInfo;
+            AudioDeviceAttributes audioDeviceAttributes =
+                    volumeGroup.getAudioDeviceForContext(audioContext);
+            if (audioDeviceAttributes != null) {
+                return audioDeviceAttributes;
             }
         }
         // This should not happen unless something went wrong.

@@ -45,6 +45,7 @@ import android.car.builtin.media.AudioManagerHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
 import android.hardware.automotive.audiocontrol.Reasons;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioGain;
 import android.media.AudioManager;
@@ -148,9 +149,11 @@ public final class CarAudioVolumeGroupTest extends AbstractExtendedMockitoTestCa
     @Before
     public void setUp() {
         mMediaDeviceInfo = new CarAudioDeviceInfo(mAudioManager,
-                getMockAudioDeviceInfo(MEDIA_DEVICE_ADDRESS));
+                getMockAudioDevice(MEDIA_DEVICE_ADDRESS));
+        mMediaDeviceInfo.setAudioDeviceInfo(getMockAudioDeviceInfo(MEDIA_DEVICE_ADDRESS));
         mNavigationDeviceInfo = new CarAudioDeviceInfo(mAudioManager,
-                getMockAudioDeviceInfo(NAVIGATION_DEVICE_ADDRESS));
+                getMockAudioDevice(NAVIGATION_DEVICE_ADDRESS));
+        mNavigationDeviceInfo.setAudioDeviceInfo(getMockAudioDeviceInfo(NAVIGATION_DEVICE_ADDRESS));
     }
 
     @Test
@@ -640,16 +643,22 @@ public final class CarAudioVolumeGroupTest extends AbstractExtendedMockitoTestCa
         }
     }
 
-    private AudioDeviceInfo getMockAudioDeviceInfo(String address) {
+    private AudioDeviceAttributes getMockAudioDevice(String address) {
         AudioGain mockGain = new GainBuilder().build();
-        return getMockAudioDeviceInfo(new AudioGain[]{mockGain}, address);
+        return getMockAudioDevice(new AudioGain[]{mockGain}, address);
     }
 
-    private AudioDeviceInfo getMockAudioDeviceInfo(AudioGain[] gains, String address) {
-        return new AudioDeviceInfoBuilder()
+    private AudioDeviceAttributes getMockAudioDevice(AudioGain[] gains, String address) {
+        return new AudioDeviceAttributes(new AudioDeviceInfoBuilder()
                 .setAddressName(address)
                 .setAudioGains(gains)
-                .build();
+                .build());
+    }
+
+    private AudioDeviceInfo getMockAudioDeviceInfo(String address) {
+        AudioGain mockGain = new GainBuilder().build();
+        return new AudioDeviceInfoBuilder()
+                .setAddressName(address).setAudioGains(mockGain).build();
     }
 
     private HalAudioDeviceInfo createHalAudioDeviceInfo(int id, String name, int minVal,

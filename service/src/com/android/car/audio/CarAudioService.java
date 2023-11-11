@@ -41,7 +41,6 @@ import static android.view.KeyEvent.KEYCODE_VOLUME_DOWN;
 import static android.view.KeyEvent.KEYCODE_VOLUME_MUTE;
 import static android.view.KeyEvent.KEYCODE_VOLUME_UP;
 
-import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 import static com.android.car.audio.CarAudioUtils.convertVolumeChangeToEvent;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
@@ -50,6 +49,7 @@ import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -1205,7 +1205,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     private void handleEnableAudioMirrorForZones(int[] audioZoneIds, long requestId) {
-        AudioDeviceInfo mirrorDevice = mCarAudioMirrorRequestHandler.getAudioDeviceInfo(requestId);
+        AudioDeviceAttributes mirrorDevice =
+                mCarAudioMirrorRequestHandler.getAudioDevice(requestId);
         if (mirrorDevice == null) {
             Slogf.e(TAG, "handleEnableAudioMirrorForZones failed,"
                     + " audio mirror not allowed as there are no more mirror devices available");
@@ -1347,7 +1348,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     private void handleDisableAudioMirrorForZonesInConfig(int[] audioZoneIds, long requestId) {
-        AudioDeviceInfo mirrorDevice = mCarAudioMirrorRequestHandler.getAudioDeviceInfo(requestId);
+        AudioDeviceAttributes mirrorDevice =
+                mCarAudioMirrorRequestHandler.getAudioDevice(requestId);
         if (mirrorDevice == null) {
             Slogf.e(TAG, "handleDisableAudioMirrorForZonesInConfig failed,"
                     + " audio mirror not allowed as there are no more mirror devices available");
@@ -1470,7 +1472,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     @GuardedBy("mImplLock")
     private boolean setupAudioRoutingForUserInMirrorDeviceLocked(int[] audioZones,
-            AudioDeviceInfo mirrorDevice) {
+            AudioDeviceAttributes mirrorDevice) {
         int index;
         boolean succeeded = true;
         for (index = 0; index < audioZones.length; index++) {
@@ -1509,14 +1511,23 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         AudioDeviceInfo[] deviceInfos = mAudioManager.getDevices(
                 AudioManager.GET_DEVICES_OUTPUTS);
 
-        List<CarAudioDeviceInfo> infos = new ArrayList<>();
+        List<CarAudioDeviceInfo> carInfos = new ArrayList<>();
 
         for (int index = 0; index < deviceInfos.length; index++) {
-            if (deviceInfos[index].getType() == AudioDeviceInfo.TYPE_BUS) {
-                infos.add(new CarAudioDeviceInfo(mAudioManager, deviceInfos[index]));
+            if (!isValidDeviceType(deviceInfos[index].getType())) {
+                continue;
             }
+
+            AudioDeviceInfo info = deviceInfos[index];
+            AudioDeviceAttributes attributes = new AudioDeviceAttributes(info);
+            CarAudioDeviceInfo carInfo = new CarAudioDeviceInfo(mAudioManager, attributes);
+            // TODO(b/305301155): Move set audio device info closer to where it is used.
+            //  On dynamic configuration change for example
+            carInfo.setAudioDeviceInfo(info);
+
+            carInfos.add(carInfo);
         }
-        return infos;
+        return carInfos;
     }
 
     private AudioDeviceInfo[] getAllInputDevices() {
@@ -1599,8 +1610,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         // Mirror policy has to be set before general audio policy
         if (mUseDynamicRouting) {
             setupMirrorDevicePolicyLocked(builder);
-            CarAudioDynamicRouting.setupAudioDynamicRouting(builder, mCarAudioZones,
-                    mCarAudioContext);
+            CarAudioDynamicRouting.setupAudioDynamicRouting(mCarAudioContext, mAudioManager,
+                    builder, mCarAudioZones);
         }
         AudioPolicyVolumeCallbackInternal volumeCallbackInternal =
                 new AudioPolicyVolumeCallbackInternal() {
@@ -1676,7 +1687,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
 
         CarAudioDynamicRouting.setupAudioDynamicRoutingForMirrorDevice(mirrorPolicyBuilder,
-                mCarAudioMirrorRequestHandler.getMirroringDeviceInfos());
+                mCarAudioMirrorRequestHandler.getMirroringDeviceInfos(), mAudioManager);
     }
 
     @GuardedBy("mImplLock")
@@ -1731,6 +1742,13 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         mCarAudioModuleChangeMonitor = new CarAudioModuleChangeMonitor(mAudioControlWrapper,
                 new CarVolumeInfoWrapper(this), mCarAudioZones);
         mCarAudioModuleChangeMonitor.setModuleChangeCallback(mHalAudioModuleChangeCallback);
+    }
+
+    /*
+     * Currently only BUS and BUILT_SPEAKER devices are valid static devices.
+     */
+    private static boolean isValidDeviceType(int type) {
+        return type == AudioDeviceInfo.TYPE_BUS || type == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER;
     }
 
     /**
@@ -2230,24 +2248,38 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     @GuardedBy("mImplLock")
     private boolean shareUserIdMediaInMainZoneLocked(int userId, CarAudioZone audioZone) {
-        List<AudioDeviceInfo> devices = audioZone.getCurrentAudioDeviceInfos();
+        List<AudioDeviceInfo> devices = getAudioDeviceInfos(audioZone);
         CarAudioZone primaryAudioZone = getCarAudioZoneLocked(PRIMARY_AUDIO_ZONE);
-        devices.add(primaryAudioZone.getAudioDeviceForContext(mCarAudioContext
-                .getContextForAudioAttribute(MEDIA_AUDIO_ATTRIBUTE)));
+        AudioDeviceAttributes audioDeviceAttributes =
+                primaryAudioZone.getAudioDeviceForContext(mCarAudioContext
+                        .getContextForAudioAttribute(MEDIA_AUDIO_ATTRIBUTE));
+        devices.add(getAudioDeviceInfoOrThrowIfNotFound(audioDeviceAttributes));
 
         return setUserIdDeviceAffinityLocked(devices, userId, audioZone.getId());
     }
 
+    private AudioDeviceInfo getAudioDeviceInfoOrThrowIfNotFound(
+            AudioDeviceAttributes audioDeviceAttributes) {
+        AudioDeviceInfo info = CarAudioUtils.getAudioDeviceInfo(audioDeviceAttributes,
+                mAudioManager);
+        if (info != null) {
+            return info;
+        }
+        throw new IllegalStateException("Output audio device address "
+                + audioDeviceAttributes.getAddress() + " is not currently available");
+    }
+
     @GuardedBy("mImplLock")
     private boolean setupMirrorDeviceForUserIdLocked(int userId, CarAudioZone audioZone,
-            AudioDeviceInfo mirrorDevice) {
-        List<AudioDeviceInfo> devices = audioZone.getCurrentAudioDeviceInfos();
+                                                     AudioDeviceAttributes mirrorDevice) {
+        List<AudioDeviceAttributes> devices = audioZone.getCurrentAudioDevices();
         devices.add(mirrorDevice);
 
         Slogf.d(TAG, "setupMirrorDeviceForUserIdLocked for userId %d in zone %d", userId,
                 audioZone.getId());
 
-        return setUserIdDeviceAffinityLocked(devices, userId, audioZone.getId());
+        return setUserIdDeviceAffinityLocked(getAudioDeviceInfosFromAttributes(devices), userId,
+                audioZone.getId());
     }
 
     @GuardedBy("mImplLock")
@@ -2305,7 +2337,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     @GuardedBy("mImplLock")
     private boolean resetUserIdMediaInMainZoneLocked(int userId, CarAudioZone audioZone) {
-        List<AudioDeviceInfo> devices = audioZone.getCurrentAudioDeviceInfos();
+        List<AudioDeviceInfo> devices = getAudioDeviceInfos(audioZone);
         return setUserIdDeviceAffinityLocked(devices, userId, audioZone.getId());
     }
 
@@ -2317,7 +2349,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         int contextForUsage = mCarAudioContext.getContextForAudioAttribute(audioAttributes);
         Preconditions.checkArgument(!CarAudioContext.isInvalidContextId(contextForUsage),
                 "Invalid audio attribute usage %s", audioAttributes);
-        return getCarAudioZoneLocked(zoneId).getAudioDeviceForContext(contextForUsage);
+        return getAudioDeviceInfoOrThrowIfNotFound(getCarAudioZoneLocked(zoneId)
+                .getAudioDeviceForContext(contextForUsage));
     }
 
     @Override
@@ -2379,7 +2412,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         Slogf.d(TAG, "setZoneIdForUidNoCheck Calling uid %d mapped to %d", uid, zoneId);
         //Request to add uid device affinity
         List<AudioDeviceInfo> deviceInfos =
-                getCarAudioZoneLocked(zoneId).getCurrentAudioDeviceInfos();
+                getAudioDeviceInfos(getCarAudioZoneLocked(zoneId));
         if (mAudioPolicy.setUidDeviceAffinity(uid, deviceInfos)) {
             // TODO do not store uid mapping here instead use the uid
             //  device affinity in audio policy when available
@@ -2874,13 +2907,27 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     @GuardedBy("mImplLock")
     private void setUserIdDeviceAffinitiesLocked(CarAudioZone zone, @UserIdInt int userId,
             int audioZoneId) {
-        List<AudioDeviceInfo> infos = zone.getCurrentAudioDeviceInfosSupportingDynamicMix();
+        List<AudioDeviceInfo> infos = getAudioDeviceInfos(zone);
         if (!infos.isEmpty() && !mAudioPolicy.setUserIdDeviceAffinity(userId, infos)) {
             throw new IllegalStateException(String.format(
                     "setUserIdDeviceAffinity for userId %d in zone %d Failed,"
                             + " could not set audio routing.",
                     userId, audioZoneId));
         }
+    }
+
+    private List<AudioDeviceInfo> getAudioDeviceInfos(CarAudioZone zone) {
+        List<AudioDeviceAttributes> attributes = zone.getCurrentAudioDeviceSupportingDynamicMix();
+        return getAudioDeviceInfosFromAttributes(attributes);
+    }
+
+    private List<AudioDeviceInfo> getAudioDeviceInfosFromAttributes(
+            List<AudioDeviceAttributes> attributes) {
+        List<AudioDeviceInfo> devices = new ArrayList<>(attributes.size());
+        for (int i = 0; i < attributes.size(); i++) {
+            devices.add(getAudioDeviceInfoOrThrowIfNotFound(attributes.get(i)));
+        }
+        return devices;
     }
 
     private void resetZoneToDefaultUser(CarAudioZone zone, @UserIdInt int driverUserId) {

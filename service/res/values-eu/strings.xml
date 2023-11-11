@@ -67,9 +67,9 @@
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Komunikatu AOAP moduan USB bidezko gailuekin"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Gailuekin AOAP moduan komunikatzeko baimena ematen dio aplikazioari."</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Bidaiariak hautemateko sistema irakurtzeko sarbidea"</string>
-    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Bidaiariak hautemateko sistemaren egoerei eta detekzioei buruzko datuak irakurtzeko aukera ematen du"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Bidaiariak hautemateko sistemaren egoerei eta hautemateei buruzko datuak irakurtzeko aukera ematen du"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Kontrolatu Bidaiariak hautemateko sistemaren grafikoa"</string>
-    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Bidaiariak hautemateko sistemaren detekzioen grafikoa noiz hasi eta noiz bukatu kontrolatzeko aukera ematen du"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Bidaiariak hautemateko sistemaren hautemateen grafikoa noiz hasi eta noiz bukatu kontrolatzeko aukera ematen du"</string>
     <string name="car_permission_label_read_driver_monitoring_settings" msgid="5208935577581001710">"Irakurri gidaria kontrolatzeko autoko sistemaren ezarpenei buruzko informazioa"</string>
     <string name="car_permission_desc_read_driver_monitoring_settings" msgid="3721117607024237175">"Irakurri gidaria kontrolatzeko autoko sistemaren ezarpenei buruzko informazioa."</string>
     <string name="car_permission_label_control_driver_monitoring_settings" msgid="239453247872865455">"Kontrolatu gidaria kontrolatzeko autoko sistemaren ezarpenei buruzko informazioa"</string>
