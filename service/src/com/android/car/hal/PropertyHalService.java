@@ -1198,7 +1198,8 @@ public class PropertyHalService extends HalServiceBase {
                 int halPropId = managerToHalPropId(mgrPropId);
                 // Note that we use halPropId instead of mgrPropId in mSubManager.
                 mSubManager.stageNewOptions(CAR_PROP_SVC_REQUEST_ID, List.of(newCarSubscribeOption(
-                        halPropId, areaIds, updateRateHz)));
+                        halPropId, areaIds, updateRateHz,
+                        subscribeOption.enableVariableUpdateRate)));
             }
             try {
                 updateSubscriptionRateLocked();
@@ -1383,7 +1384,7 @@ public class PropertyHalService extends HalServiceBase {
         for (int i = 0; i < carSubscribeOptions.size(); i++) {
             CarSubscribeOption carOption = carSubscribeOptions.get(i);
             halOptions.add(new HalSubscribeOptions(carOption.propertyId, carOption.areaIds,
-                    carOption.updateRateHz));
+                    carOption.updateRateHz, carOption.enableVariableUpdateRate));
         }
         return halOptions;
     }
@@ -1732,11 +1733,12 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     private static CarSubscribeOption newCarSubscribeOption(int propertyId, int[] areaIds,
-            float updateRateHz) {
+            float updateRateHz, boolean enableVUR) {
         CarSubscribeOption option = new CarSubscribeOption();
         option.propertyId = propertyId;
         option.areaIds = areaIds;
         option.updateRateHz = updateRateHz;
+        option.enableVariableUpdateRate = enableVUR;
         return option;
     }
 
@@ -1771,11 +1773,14 @@ public class PropertyHalService extends HalServiceBase {
                 mHalPropIdToWaitingUpdateRequestInfo.get(halPropId).add(setRequestInfo);
                 // Internally subscribe to the propId, areaId for property update events.
                 // We use the pending async service request ID as client key.
+                // EnableVUR for continuous since we only want to know when the value is updated.
+                boolean enableVUR = (halPropConfig.getChangeMode()
+                        == CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS);
                 mSubManager.stageNewOptions(setRequestInfo.getServiceRequestId(),
                         // Note that we use halPropId instead of mgrPropId in mSubManager.
                         List.of(newCarSubscribeOption(halPropId,
                                 new int[]{setRequestInfo.getAreaId()},
-                                setRequestInfo.getUpdateRateHz())));
+                                setRequestInfo.getUpdateRateHz(), enableVUR)));
             }
             try {
                 updateSubscriptionRateLocked();

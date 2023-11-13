@@ -70,6 +70,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -133,7 +134,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     @GuardedBy("mLock")
     private final List<HalServiceBase> mAllServices;
     @GuardedBy("mLock")
-    private PairSparseArray<Float> mUpdateRateByPropIdAreaId = new PairSparseArray<>();
+    private PairSparseArray<RateInfo> mUpdateRateByPropIdAreaId = new PairSparseArray<>();
     @GuardedBy("mLock")
     private final SparseArray<HalPropConfig> mAllProperties = new SparseArray<>();
 
@@ -143,15 +144,33 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     // Used by injectVHALEvent for testing purposes.  Delimiter for an array of data
     private static final String DATA_DELIMITER = ",";
 
+    /** A structure to store update rate in hz and whether to enable VUR. */
+    private static final class RateInfo {
+        public float updateRateHz;
+        public boolean enableVariableUpdateRate;
+
+        RateInfo(float updateRateHz, boolean enableVariableUpdateRate) {
+            this.updateRateHz = updateRateHz;
+            this.enableVariableUpdateRate = enableVariableUpdateRate;
+        }
+    }
+
     /* package */ static final class HalSubscribeOptions {
         private final int mHalPropId;
         private final int[] mAreaIds;
         private final float mUpdateRateHz;
+        private final boolean mEnableVariableUpdateRate;
 
-        HalSubscribeOptions(int halPropId, int[] areaId, float updateRateHz) {
+        HalSubscribeOptions(int halPropId, int[] areaIds, float updateRateHz) {
+            this(halPropId, areaIds, updateRateHz, /* enableVariableUpdateRate= */ false);
+        }
+
+        HalSubscribeOptions(int halPropId, int[] areaIds, float updateRateHz,
+                boolean enableVariableUpdateRate) {
             mHalPropId = halPropId;
-            mAreaIds = areaId;
+            mAreaIds = areaIds;
             mUpdateRateHz = updateRateHz;
+            mEnableVariableUpdateRate = enableVariableUpdateRate;
         }
 
         int getHalPropId() {
@@ -164,6 +183,10 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
 
         float getUpdateRateHz() {
             return mUpdateRateHz;
+        }
+
+        boolean isVariableUpdateRateEnabled() {
+            return mEnableVariableUpdateRate;
         }
 
         @Override
@@ -179,7 +202,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             VehicleHal.HalSubscribeOptions o = (VehicleHal.HalSubscribeOptions) other;
 
             return mHalPropId == o.getHalPropId() && mUpdateRateHz == o.getUpdateRateHz()
-                    && Arrays.equals(mAreaIds, o.getAreaId());
+                    && Arrays.equals(mAreaIds, o.getAreaId())
+                    && mEnableVariableUpdateRate == o.isVariableUpdateRateEnabled();
         }
 
         @Override
@@ -187,17 +211,15 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             return "HalSubscribeOptions{"
                     + "PropertyId: " + mHalPropId
                     + ", AreaId: " + Arrays.toString(mAreaIds)
-                    + ", UpdateRateHz: " + mUpdateRateHz + "}";
+                    + ", UpdateRateHz: " + mUpdateRateHz
+                    + ", enableVariableUpdateRate: " + mEnableVariableUpdateRate
+                    + "}";
         }
 
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + mHalPropId;
-            result = prime * result + Float.hashCode(mUpdateRateHz);
-            result = prime * result + ((mAreaIds == null) ? 0 : Arrays.hashCode(mAreaIds));
-            return result;
+            return Objects.hash(mHalPropId, Arrays.hashCode(mAreaIds), mUpdateRateHz,
+                    mEnableVariableUpdateRate);
         }
     }
 
@@ -607,7 +629,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     public void subscribeProperty(HalServiceBase service, List<HalSubscribeOptions>
             halSubscribeOptions) throws IllegalArgumentException, ServiceSpecificException {
         synchronized (mLock) {
-            PairSparseArray<Float> previousState = cloneState(mUpdateRateByPropIdAreaId);
+            PairSparseArray<RateInfo> previousState = cloneState(mUpdateRateByPropIdAreaId);
             SubscribeOptions[] subscribeOptions = createVhalSubscribeOptionsLocked(
                     service, halSubscribeOptions);
             if (subscribeOptions.length == 0) {
@@ -647,9 +669,11 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         }
         List<SubscribeOptions> subscribeOptionsList = new ArrayList<>();
         for (int i = 0; i < halSubscribeOptions.size(); i++) {
-            int property = halSubscribeOptions.get(i).getHalPropId();
-            int[] areaIds = halSubscribeOptions.get(i).getAreaId();
-            float samplingRateHz = halSubscribeOptions.get(i).getUpdateRateHz();
+            HalSubscribeOptions halSubscribeOption = halSubscribeOptions.get(i);
+            int property = halSubscribeOption.getHalPropId();
+            int[] areaIds = halSubscribeOption.getAreaId();
+            float samplingRateHz = halSubscribeOption.getUpdateRateHz();
+            boolean enableVariableUpdateRate = halSubscribeOption.isVariableUpdateRateEnabled();
 
             HalPropConfig config;
             config = mAllProperties.get(property);
@@ -657,6 +681,12 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             if (config == null) {
                 throw new IllegalArgumentException("subscribe error: "
                         + toCarPropertyLog(property) + " is not supported");
+            }
+
+            if (config.getChangeMode() != VehiclePropertyChangeMode.CONTINUOUS) {
+                // enableVUR should be ignored if property is not continuous, but we set it to
+                // false to be safe.
+                enableVariableUpdateRate = false;
             }
 
             if (!isPropertySubscribable(config)) {
@@ -670,8 +700,9 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             SubscribeOptions opts = new SubscribeOptions();
             opts.propId = property;
             opts.sampleRate = samplingRateHz;
-            int[] filteredAreaIds = filterAlreadySubscribedAreasForSampleRate(property, areaIds,
-                    samplingRateHz);
+            opts.enableVariableUpdateRate = enableVariableUpdateRate;
+            RateInfo rateInfo = new RateInfo(samplingRateHz, enableVariableUpdateRate);
+            int[] filteredAreaIds = filterAreaIdsWithSameRateInfo(property, areaIds, rateInfo);
             opts.areaIds = filteredAreaIds;
             if (opts.areaIds.length == 0) {
                 if (DBG) {
@@ -684,28 +715,32 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             for (int j = 0; j < filteredAreaIds.length; j++) {
                 if (DBG) {
                     Slogf.d(CarLog.TAG_HAL, "Update subscription rate for propertyId:"
-                                    + " %s, areaId: %d, SampleRateHz: %f",
+                                    + " %s, areaId: %d, SampleRateHz: %f, enableVUR: %b",
                             VehiclePropertyIds.toString(opts.propId), filteredAreaIds[j],
-                            samplingRateHz);
+                            samplingRateHz, enableVariableUpdateRate);
                 }
-                mUpdateRateByPropIdAreaId.put(property, filteredAreaIds[j], samplingRateHz);
+                mUpdateRateByPropIdAreaId.put(property, filteredAreaIds[j], rateInfo);
             }
             subscribeOptionsList.add(opts);
         }
         return subscribeOptionsList.toArray(new SubscribeOptions[0]);
     }
 
-    private int[] filterAlreadySubscribedAreasForSampleRate(int property, int[] areaIds,
-            float sampleRateHz) {
+    private int[] filterAreaIdsWithSameRateInfo(int property, int[] areaIds, RateInfo rateInfo) {
         List<Integer> areaIdList = new ArrayList<>();
         synchronized (mLock) {
             for (int i = 0; i < areaIds.length; i++) {
-                Float savedSampleRateHz = mUpdateRateByPropIdAreaId.get(property, areaIds[i]);
-                if (savedSampleRateHz != null
-                        && Math.abs(savedSampleRateHz - sampleRateHz) < PRECISION_THRESHOLD) {
+                RateInfo savedRateInfo = mUpdateRateByPropIdAreaId.get(property, areaIds[i]);
+                if (savedRateInfo != null
+                        && (Math.abs(savedRateInfo.updateRateHz - rateInfo.updateRateHz)
+                                < PRECISION_THRESHOLD)
+                        && (savedRateInfo.enableVariableUpdateRate
+                                == rateInfo.enableVariableUpdateRate)) {
                     if (DBG) {
-                        Slogf.d(CarLog.TAG_HAL, "Property: %s is already subscribed at rate: %f hz",
-                                toCarPropertyLog(property), sampleRateHz);
+                        Slogf.d(CarLog.TAG_HAL, "Property: %s is already subscribed at rate: %f hz"
+                                + ", enableVUR: %b",
+                                toCarPropertyLog(property), rateInfo.updateRateHz,
+                                rateInfo.enableVariableUpdateRate);
                     }
                     continue;
                 }
@@ -763,7 +798,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             assertServiceOwnerLocked(service, property);
             int[] areaIds = getAllAreaIdsFromPropertyId(config);
             boolean isSubscribed = false;
-            PairSparseArray<Float> previousState = cloneState(mUpdateRateByPropIdAreaId);
+            PairSparseArray<RateInfo> previousState = cloneState(mUpdateRateByPropIdAreaId);
             for (int i = 0; i < areaIds.length; i++) {
                 int index = mUpdateRateByPropIdAreaId.indexOfKeyPair(property, areaIds[i]);
                 if (index >= 0) {
@@ -1481,8 +1516,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         return result;
     }
 
-    private PairSparseArray<Float> cloneState(PairSparseArray<Float> state) {
-        PairSparseArray<Float> cloned = new PairSparseArray<>();
+    private PairSparseArray<RateInfo> cloneState(PairSparseArray<RateInfo> state) {
+        PairSparseArray<RateInfo> cloned = new PairSparseArray<>();
         for (int i = 0; i < state.size(); i++) {
             int[] keyPair = state.keyPairAt(i);
             cloned.put(keyPair[0], keyPair[1], state.valueAt(i));

@@ -292,7 +292,9 @@ public final class SubscriptionManager<ClientType> {
      */
     public void commit() {
         if (mStagedAffectedPropIdAreaIds.isEmpty()) {
-            Log.w(TAG, "No changes has been staged, nothing to commit");
+            if (DBG) {
+                Log.d(TAG, "No changes has been staged, nothing to commit");
+            }
             return;
         }
         // Drop the current state.
@@ -307,7 +309,9 @@ public final class SubscriptionManager<ClientType> {
      */
     public void dropCommit() {
         if (mStagedAffectedPropIdAreaIds.isEmpty()) {
-            Log.w(TAG, "No changes has been staged, nothing to drop");
+            if (DBG) {
+                Log.d(TAG, "No changes has been staged, nothing to drop");
+            }
             return;
         }
         // Drop the staged state.
@@ -361,7 +365,9 @@ public final class SubscriptionManager<ClientType> {
     public void diffBetweenCurrentAndStage(List<CarSubscribeOption> outDiffSubscribeOptions,
             List<Integer> outPropertyIdsToUnsubscribe) {
         if (mStagedAffectedPropIdAreaIds.isEmpty()) {
-            Log.w(TAG, "No changes has been staged, no diff");
+            if (DBG) {
+                Log.d(TAG, "No changes has been staged, no diff");
+            }
             return;
         }
         ArraySet<Integer> possiblePropIdsToUnsubscribe = new ArraySet<>();

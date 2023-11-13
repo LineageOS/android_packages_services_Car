@@ -95,6 +95,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     private static final int SOME_FLOAT_VEC_PROPERTY = VehiclePropertyType.FLOAT_VEC | 0x07;
     private static final int SOME_INT64_PROPERTY = VehiclePropertyType.INT64 | 0x10;
     private static final int SOME_INT64_VEC_PROPERTY = VehiclePropertyType.INT64_VEC | 0x11;
+    private static final int CONTINUOUS_PROPERTY = VehiclePropertyType.INT32 | 0x12;
     private static final int UNSUPPORTED_PROPERTY = -1;
     private static final int GLOBAL_AREA_ID = 0;
     private static final int AREA_ID_1 = 1;
@@ -139,17 +140,22 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     /** Hal services configurations */
     private final ArrayList<VehiclePropConfig> mConfigs = new ArrayList<>();
 
-    private void init(VehiclePropConfig powerHalConfig, VehiclePropConfig propertyHalConfig)
+    private void init(VehiclePropConfig powerHalConfig, List<VehiclePropConfig> propertyHalConfigs)
             throws Exception {
         // Initialize PowerHAL service with a READ_WRITE and ON_CHANGE property
         when(mPowerHalService.getAllSupportedProperties()).thenReturn(
                 new int[]{SOME_READ_ON_CHANGE_PROPERTY});
         mConfigs.add(powerHalConfig);
 
-        // Initialize PropertyHAL service with a READ_WRITE and STATIC property
-        when(mPropertyHalService.getAllSupportedProperties()).thenReturn(
-                new int[]{SOME_READ_WRITE_STATIC_PROPERTY});
-        mConfigs.add(propertyHalConfig);
+        // Initialize PropertyHAL service.
+        int[] propIds = new int[propertyHalConfigs.size()];
+        int i = 0;
+        for (VehiclePropConfig propertyHalConfig : propertyHalConfigs) {
+            mConfigs.add(propertyHalConfig);
+            propIds[i] = propertyHalConfig.prop;
+            i++;
+        }
+        when(mPropertyHalService.getAllSupportedProperties()).thenReturn(propIds);
 
         // Initialize the remaining services with empty properties
         when(mInputHalService.getAllSupportedProperties()).thenReturn(new int[0]);
@@ -205,16 +211,21 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
             powerHalConfig.access = VehiclePropertyAccess.READ_WRITE;
             powerHalConfig.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
 
-            VehiclePropConfig propertyHalConfig = new VehiclePropConfig();
-            propertyHalConfig.prop = SOME_READ_WRITE_STATIC_PROPERTY;
-            propertyHalConfig.access = VehiclePropertyAccess.READ_WRITE;
-            propertyHalConfig.changeMode = VehiclePropertyChangeMode.STATIC;
+            VehiclePropConfig staticPropConfig = new VehiclePropConfig();
+            staticPropConfig.prop = SOME_READ_WRITE_STATIC_PROPERTY;
+            staticPropConfig.access = VehiclePropertyAccess.READ_WRITE;
+            staticPropConfig.changeMode = VehiclePropertyChangeMode.STATIC;
 
-            init(powerHalConfig, propertyHalConfig);
+            VehiclePropConfig continuousPropConfig = new VehiclePropConfig();
+            continuousPropConfig.prop = CONTINUOUS_PROPERTY;
+            continuousPropConfig.access = VehiclePropertyAccess.READ_WRITE;
+            continuousPropConfig.changeMode = VehiclePropertyChangeMode.CONTINUOUS;
+
+            init(powerHalConfig, List.of(staticPropConfig, continuousPropConfig));
 
             assertThat(VehicleHal.isPropertySubscribable(new AidlHalPropConfig(powerHalConfig)))
                     .isTrue();
-            assertThat(VehicleHal.isPropertySubscribable(new AidlHalPropConfig(propertyHalConfig)))
+            assertThat(VehicleHal.isPropertySubscribable(new AidlHalPropConfig(staticPropConfig)))
                     .isFalse();
         }
     }
@@ -290,7 +301,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         doAnswer(checkConfigs(new ArrayList<VehiclePropConfig>()))
                 .when(mDiagnosticHalService).takeProperties(any());
 
-        init(powerHalConfig, propertyHalConfig);
+        init(powerHalConfig, List.of(propertyHalConfig));
 
         verify(mPowerHalService).init();
         verify(mPropertyHalService).init();
@@ -353,7 +364,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         propertyHalConfig.access = VehiclePropertyAccess.READ_WRITE;
         propertyHalConfig.changeMode = VehiclePropertyChangeMode.STATIC;
 
-        init(powerHalConfig, propertyHalConfig);
+        init(powerHalConfig, List.of(propertyHalConfig));
         mVehicleHal.priorityInit();
 
         // getAllPropConfigs should only be called once.
@@ -651,6 +662,57 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testSubscribeProperty_enableVUR() throws Exception {
+        int[] areaIds = new int[] {AREA_ID_1};
+        HalSubscribeOptions option = new HalSubscribeOptions(CONTINUOUS_PROPERTY,
+                areaIds, ANY_SAMPLING_RATE_1, /*enableVariableUpdateRate=*/ true);
+        mVehicleHal.subscribeProperty(mPropertyHalService, List.of(option));
+
+        SubscribeOptions expectedOptions = createSubscribeOptions(CONTINUOUS_PROPERTY,
+                ANY_SAMPLING_RATE_1, areaIds, /*enableVUR=*/ true);
+
+        verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{expectedOptions}));
+    }
+
+    @Test
+    public void testSubscribeProperty_enableVUR_vurChange() throws Exception {
+        int[] areaIds = new int[] {AREA_ID_1};
+        HalSubscribeOptions option = new HalSubscribeOptions(CONTINUOUS_PROPERTY,
+                areaIds, ANY_SAMPLING_RATE_1, /*enableVariableUpdateRate=*/ true);
+        mVehicleHal.subscribeProperty(mPropertyHalService, List.of(option));
+
+        verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{createSubscribeOptions(
+                CONTINUOUS_PROPERTY, ANY_SAMPLING_RATE_1, areaIds, /*enableVUR=*/ true)}));
+
+        HalSubscribeOptions option2 = new HalSubscribeOptions(CONTINUOUS_PROPERTY,
+                areaIds, ANY_SAMPLING_RATE_1, /*enableVariableUpdateRate=*/ false);
+        clearInvocations(mSubscriptionClient);
+        mVehicleHal.subscribeProperty(mPropertyHalService, List.of(option2));
+
+        verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{createSubscribeOptions(
+                CONTINUOUS_PROPERTY, ANY_SAMPLING_RATE_1, areaIds, /*enableVUR=*/ false)}));
+
+        clearInvocations(mSubscriptionClient);
+        // No option change.
+        mVehicleHal.subscribeProperty(mPropertyHalService, List.of(option2));
+
+        verify(mSubscriptionClient, never()).subscribe(any());
+    }
+
+    @Test
+    public void testSubscribeProperty_enableVUR_falseForOnChangeProperty() throws Exception {
+        int[] areaIds = new int[] {AREA_ID_1};
+        HalSubscribeOptions option = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
+                areaIds, ANY_SAMPLING_RATE_1, /*enableVariableUpdateRate=*/ true);
+        mVehicleHal.subscribeProperty(mPowerHalService, List.of(option));
+
+        SubscribeOptions expectedOptions = createSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
+                ANY_SAMPLING_RATE_1, areaIds, /*enableVUR=*/ false);
+
+        verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{expectedOptions}));
+    }
+
+    @Test
     public void testSubscribeProperty_subscribeWithAreaId() throws Exception {
         int[] areaIds = new int[] {AREA_ID_1};
         HalSubscribeOptions option = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
@@ -865,14 +927,6 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
 
         verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{expectedOptions1,
                 expectedOptions2}));
-    }
-
-    private SubscribeOptions createSubscribeOptions(int propId, float sampleRate, int[] areaIds) {
-        SubscribeOptions opts = new SubscribeOptions();
-        opts.propId = propId;
-        opts.sampleRate = sampleRate;
-        opts.areaIds = areaIds;
-        return opts;
     }
 
     @Test
@@ -2148,5 +2202,19 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
 
         assertWithMessage("Multiple property types").that(thrown).hasMessageThat()
                 .contains("Unsupported property type: property");
+    }
+
+    private SubscribeOptions createSubscribeOptions(int propId, float sampleRateHz, int[] areaIds) {
+        return createSubscribeOptions(propId, sampleRateHz, areaIds, /*enableVUR=*/ false);
+    }
+
+    private SubscribeOptions createSubscribeOptions(int propId, float sampleRateHz, int[] areaIds,
+            boolean enableVUR) {
+        SubscribeOptions opts = new SubscribeOptions();
+        opts.propId = propId;
+        opts.sampleRate = sampleRateHz;
+        opts.areaIds = areaIds;
+        opts.enableVariableUpdateRate = enableVUR;
+        return opts;
     }
 }
