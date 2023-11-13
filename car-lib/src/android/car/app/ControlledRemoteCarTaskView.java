@@ -154,15 +154,20 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
             return;
         }
 
+        // Use mContext.getDisplay() instead of View#getDisplay() since
+        // ControlledRemoteCarTaskViews can be created using window context. Using
+        // View#getDisplay() would return null.
+        Display display = mContext.getDisplay();
+
         // Don't start activity when the display is off. This can happen when the taskview is not
         // attached to a window.
-        if (getDisplay() == null) {
+        if (display == null) {
             Slogf.w(TAG, "Can't start activity because display is not available in "
                     + "taskview yet.");
             return;
         }
         // Don't start activity when the display is off for ActivityVisibilityTests.
-        if (getDisplay().getState() != Display.STATE_ON) {
+        if (display.getState() != Display.STATE_ON) {
             Slogf.w(TAG, "Can't start activity due to the display is off");
             return;
         }
