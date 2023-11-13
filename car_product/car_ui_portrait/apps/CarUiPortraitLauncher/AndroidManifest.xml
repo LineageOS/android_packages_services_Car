@@ -33,7 +33,6 @@
         android:label="@string/app_title"
         android:theme="@style/Theme.CarUi.NoToolbar"
         tools:replace="android:label,android:theme"
-        android:directBootAware="true"
         tools:node="merge">
 
         <activity
@@ -73,7 +72,6 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.android.car.carlauncher.recents.CarQuickStepService"/>
         <activity
             android:name=".recents.PortraitCarRecentsActivity"
             android:excludeFromRecents="true"
