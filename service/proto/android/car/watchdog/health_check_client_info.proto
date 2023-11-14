@@ -23,8 +23,16 @@ import "performance_stats.proto";
 // Represents the registered client health check information.
 message HealthCheckClientInfo {
   enum ClientType {
-    REGULAR = 0;
-    CAR_WATCHDOG_SERVICE = 1;
+    CLIENT_TYPE_UNSPECIFIED = 0;
+    REGULAR = 1;
+    CAR_WATCHDOG_SERVICE = 2;
+  }
+
+  enum HealthCheckTimeout {
+    HEALTH_CHECK_TIMEOUT_UNSPECIFIED = 0;
+    CRITICAL = 1;
+    MODERATE = 2;
+    NORMAL = 3;
   }
 
   optional int32 pid = 1;
@@ -32,10 +40,4 @@ message HealthCheckClientInfo {
   optional ClientType client_type = 3;
   optional int64 start_time_millis = 4;
   optional HealthCheckTimeout health_check_timeout = 5;
-}
-
-enum HealthCheckTimeout {
-  NORMAL = 0;
-  MODERATE = 1;
-  CRITICAL = 2;
 }

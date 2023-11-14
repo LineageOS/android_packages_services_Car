@@ -779,7 +779,8 @@ TEST_F(WatchdogProcessServiceTest, TestOnDumpProto) {
 
     EXPECT_EQ(healthCheckClientInfo.client_type(), HealthCheckClientInfo_ClientType_REGULAR);
     EXPECT_EQ(healthCheckClientInfo.start_time_millis(), 1000);
-    EXPECT_EQ(healthCheckClientInfo.health_check_timeout(), 0);
+    EXPECT_EQ(healthCheckClientInfo.health_check_timeout(),
+              HealthCheckClientInfo_HealthCheckTimeout_CRITICAL);
 
     // Clean up test clients before exiting.
     mWatchdogProcessServicePeer->clearClientsByTimeout();
