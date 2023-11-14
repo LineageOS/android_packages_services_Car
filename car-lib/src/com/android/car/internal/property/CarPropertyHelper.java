@@ -64,7 +64,7 @@ public final class CarPropertyHelper {
      */
     @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
     private CarPropertyHelper() {
-        throw new IllegalArgumentException("Must never be called");
+        throw new UnsupportedOperationException("Must never be called");
     }
 
     /**
