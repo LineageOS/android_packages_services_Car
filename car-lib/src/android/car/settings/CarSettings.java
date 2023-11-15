@@ -16,6 +16,9 @@
 
 package android.car.settings;
 
+import static android.car.feature.Flags.FLAG_CAR_NIGHT_GLOBAL_SETTING;
+
+import android.annotation.FlaggedApi;
 import android.annotation.SystemApi;
 
 /**
@@ -159,6 +162,23 @@ public class CarSettings {
          */
         @SystemApi
         public static final String DISPLAY_POWER_MODE = "android.car.DISPLAY_POWER_MODE";
+
+        /**
+         * Indicates which {@link CarNightService.DayNightSensorMode} is currently set.
+         *
+         * <p>The mode is an integer (0, 1 or 2) where:
+         * <ul>
+         * <li>0 indicates sensor mode, where the {@link VehicleProperty.NIGHT_MODE} will be used
+         * to set the system's UI mode.
+         * <li>1 indicates the day UI mode should always be used
+         * <li>2 indicates the night UI mode should always be used
+         * </ul>
+         *
+         * @hide
+         */
+        @FlaggedApi(FLAG_CAR_NIGHT_GLOBAL_SETTING)
+        @SystemApi
+        public static final String FORCED_DAY_NIGHT_MODE = "android.car.FORCED_DAY_NIGHT_MODE";
     }
 
     /**
