@@ -39,6 +39,7 @@ import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
+import android.car.feature.Flags;
 import android.car.user.CarUserManager;
 import android.content.Context;
 import android.content.om.OverlayInfo;
@@ -786,6 +787,11 @@ public class ICarImpl extends ICar.Stub {
                 String[] services = new String[length];
                 System.arraycopy(args, 1, services, 0, length);
                 if (dumpToProto) {
+                    if (!Flags.carDumpToProto()) {
+                        writer.println("Cannot dump " + services[0]
+                                + " to proto since FLAG_CAR_DUMP_TO_PROTO is disabled");
+                        return;
+                    }
                     dumpServiceProto(writer, fd, services[0]);
                 } else {
                     dumpIndividualServices(writer, services);
