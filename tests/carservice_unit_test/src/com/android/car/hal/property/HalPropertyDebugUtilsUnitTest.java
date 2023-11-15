@@ -17,29 +17,58 @@
 package com.android.car.hal.property;
 
 import static com.android.car.hal.property.HalPropertyDebugUtils.toAccessString;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toAreaTypeString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toChangeModeString;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toGroupString;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toValueTypeString;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
+import android.hardware.automotive.vehicle.VehiclePropertyGroup;
+import android.hardware.automotive.vehicle.VehiclePropertyType;
 
 import org.junit.Test;
 
 public class HalPropertyDebugUtilsUnitTest {
 
     @Test
+    public void testToAreaTypeString() {
+        assertThat(toAreaTypeString(VehicleProperty.HVAC_AC_ON)).isEqualTo("SEAT(0x5000000)");
+        assertThat(toAreaTypeString(VehicleProperty.TIRE_PRESSURE)).isEqualTo("WHEEL(0x7000000)");
+        assertThat(toAreaTypeString(VehiclePropertyType.STRING)).isEqualTo(
+                "INVALID_VehicleArea(0x0)");
+    }
+
+    @Test
+    public void testToGroupString() {
+        assertThat(toGroupString(VehicleProperty.CURRENT_GEAR)).isEqualTo("SYSTEM(0x10000000)");
+        assertThat(toGroupString(VehiclePropertyGroup.VENDOR)).isEqualTo("VENDOR(0x20000000)");
+        assertThat(toGroupString(VehiclePropertyType.STRING)).isEqualTo(
+                "INVALID_VehiclePropertyGroup(0x0)");
+    }
+
+    @Test
+    public void testToValueTypeString() {
+        assertThat(toValueTypeString(VehicleProperty.CURRENT_GEAR)).isEqualTo("INT32(0x400000)");
+        assertThat(toValueTypeString(VehicleProperty.WHEEL_TICK)).isEqualTo("INT64_VEC(0x510000)");
+        assertThat(toValueTypeString(VehiclePropertyGroup.VENDOR)).isEqualTo(
+                "INVALID_VehiclePropertyType(0x0)");
+    }
+
+    @Test
     public void testToAccessString() {
         assertThat(toAccessString(VehiclePropertyAccess.READ_WRITE)).isEqualTo("READ_WRITE(0x3)");
-        assertThrows(IllegalArgumentException.class, () -> toAccessString(-1));
+        assertThat(toAccessString(-1)).isEqualTo("INVALID_VehiclePropertyAccess(0xffffffff)");
     }
 
     @Test
     public void testToChangeModeString() {
         assertThat(toChangeModeString(VehiclePropertyChangeMode.CONTINUOUS)).isEqualTo(
                 "CONTINUOUS(0x2)");
-        assertThrows(IllegalArgumentException.class, () -> toChangeModeString(-1));
+        assertThat(toChangeModeString(-1)).isEqualTo(
+                "INVALID_VehiclePropertyChangeMode(0xffffffff)");
     }
 }
