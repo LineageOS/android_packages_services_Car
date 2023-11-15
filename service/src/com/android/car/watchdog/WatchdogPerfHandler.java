@@ -398,7 +398,7 @@ public final class WatchdogPerfHandler {
     public void dumpProto(ProtoOutputStream proto) {
         synchronized (mLock) {
             long performanceDumpToken = proto.start(CarWatchdogDumpProto.PERFORMANCE_DUMP);
-            proto.write(PerformanceDump.CURRENT_UX_STATE, mCurrentUxState);
+            proto.write(PerformanceDump.CURRENT_UX_STATE, toProtoUxState(mCurrentUxState));
             for (int i = 0; i < mDisabledUserPackagesByUserId.size(); i++) {
                 for (int j = 0; j < mDisabledUserPackagesByUserId.valueAt(i).size(); j++) {
                     long disabledUserPackagesToken = proto.start(
@@ -2454,7 +2454,7 @@ public final class WatchdogPerfHandler {
             PackageIoUsage packageIoUsage = packageResourceUsage.ioUsage;
 
             proto.write(PerformanceDump.UsageByUserPackage.KILLABLE_STATE,
-                    packageResourceUsage.mKillableState);
+                    toProtoKillableState(packageResourceUsage.mKillableState));
 
             long packageIoUsageToken = proto.start(
                     PerformanceDump.UsageByUserPackage.PACKAGE_IO_USAGE);
@@ -2935,6 +2935,32 @@ public final class WatchdogPerfHandler {
                 return "UX_STATE_NO_INTERACTION";
             default:
                 return "UNKNOWN UX STATE";
+        }
+    }
+
+    private static int toProtoUxState(@UxStateType int uxState) {
+        switch (uxState) {
+            case UX_STATE_NO_DISTRACTION:
+                return PerformanceDump.UX_STATE_NO_DISTRACTION;
+            case UX_STATE_USER_NOTIFICATION:
+                return PerformanceDump.UX_STATE_USER_NOTIFICATION;
+            case UX_STATE_NO_INTERACTION:
+                return PerformanceDump.UX_STATE_NO_INTERACTION;
+            default:
+                return PerformanceDump.UX_STATE_UNSPECIFIED;
+        }
+    }
+
+    private static int toProtoKillableState(@KillableState int killableState) {
+        switch (killableState) {
+            case KILLABLE_STATE_YES:
+                return PerformanceDump.KILLABLE_STATE_YES;
+            case KILLABLE_STATE_NO:
+                return PerformanceDump.KILLABLE_STATE_NO;
+            case KILLABLE_STATE_NEVER:
+                return PerformanceDump.KILLABLE_STATE_NEVER;
+            default:
+                return PerformanceDump.KILLABLE_STATE_UNSPECIFIED;
         }
     }
 
