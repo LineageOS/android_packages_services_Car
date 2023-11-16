@@ -29,10 +29,8 @@ import static com.android.car.caruiportrait.common.service.CarUiPortraitService.
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_IMMERSIVE_MODE_REQUESTED;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_NOTIFICATIONS_VISIBILITY_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_RECENTS_VISIBILITY_CHANGE;
-import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_REGISTER_CLIENT;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_SUW_IN_PROGRESS;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_SYSUI_STARTED;
-import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_UNREGISTER_CLIENT;
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
@@ -43,9 +41,7 @@ import android.app.TaskInfo;
 import android.app.TaskStackListener;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Insets;
@@ -57,9 +53,7 @@ import android.hardware.input.InputManagerGlobal;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
-import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
@@ -87,8 +81,8 @@ import com.android.car.carlauncher.SemiControlledCarTaskViewCallbacks;
 import com.android.car.carlauncher.TaskViewManager;
 import com.android.car.carlauncher.homescreen.HomeCardModule;
 import com.android.car.carlauncher.taskstack.TaskStackChangeListeners;
-import com.android.car.caruiportrait.common.service.CarUiPortraitService;
 import com.android.car.portraitlauncher.R;
+import com.android.car.portraitlauncher.common.CarUiPortraitServiceManager;
 import com.android.car.portraitlauncher.common.IntentHandler;
 import com.android.car.portraitlauncher.common.UserUnlockReceiver;
 import com.android.car.portraitlauncher.controlbar.media.MediaIntentRouter;
@@ -182,18 +176,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private long mUnhandledImmersiveModeRequestTimestamp;
     private boolean mUnhandledImmersiveModeRequest;
 
-    /** Messenger for communicating with {@link CarUiPortraitService}. */
-    private Messenger mService = null;
-    /** Flag indicating whether or not {@link CarUiPortraitService} is bounded. */
-    private boolean mIsBound;
-
-    /**
-     * All messages from {@link CarUiPortraitService} are received in this handler.
-     */
-    private final Messenger mMessenger = new Messenger(new IncomingHandler());
-
-    /** Holds any messages fired before service connection is establish. */
-    private final List<Message> mMessageCache = new ArrayList<>();
+    private CarUiPortraitServiceManager mCarUiPortraitServiceManager;
 
     private CarUiPortraitDriveStateController mCarUiPortraitDriveStateController;
     private final UserUnlockReceiver mUserUnlockReceiver = new UserUnlockReceiver();
@@ -211,38 +194,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             options.setLaunchDisplayId(Display.DEFAULT_DISPLAY);
 
             startActivity(intent, options.toBundle());
-        }
-    };
-
-    /**
-     * Class for interacting with the main interface of the {@link CarUiPortraitService}.
-     */
-    private final ServiceConnection mConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            // Communicating with our service through an IDL interface, so get a client-side
-            // representation of that from the raw service object.
-            mService = new Messenger(service);
-
-            // Register to the service.
-            try {
-                Message msg = Message.obtain(null, MSG_REGISTER_CLIENT);
-                msg.replyTo = mMessenger;
-                mService.send(msg);
-            } catch (RemoteException e) {
-                // In this case the service has crashed before we could even
-                // do anything with it; we can count on soon being
-                // disconnected (and then reconnected if it can be restarted)
-                // so there is no need to do anything here.
-                Log.w(TAG, "can't connect to CarUiPortraitService: ", e);
-            }
-            for (Message msg : mMessageCache) {
-                notifySystemUI(msg);
-            }
-            mMessageCache.clear();
-        }
-
-        public void onServiceDisconnected(ComponentName className) {
-            mService = null;
         }
     };
 
@@ -574,7 +525,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         TaskStackChangeListeners.getInstance().registerTaskStackListener(mTaskStackListener);
 
         initializeCards();
-        doBindService();
+
+        mCarUiPortraitServiceManager = new CarUiPortraitServiceManager(/* activity= */ this,
+                new IncomingHandler());
 
         setUpRootTaskView();
 
@@ -677,7 +630,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         mTaskCategoryManager.onDestroy();
         mUserUnlockReceiver.unregister(this);
         TaskStackChangeListeners.getInstance().unregisterTaskStackListener(mTaskStackListener);
-        doUnbindService();
+        mCarUiPortraitServiceManager.onDestroy();
         super.onDestroy();
     }
 
@@ -1353,48 +1306,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 : ComponentName.unflattenFromString(cmpString);
     }
 
-    void doBindService() {
-        // Establish a connection with {@link CarUiPortraitService}. We use an explicit class
-        // name because there is no reason to be able to let other applications replace our
-        // component.
-        bindService(new Intent(this, CarUiPortraitService.class), mConnection,
-                Context.BIND_AUTO_CREATE);
-        mIsBound = true;
-    }
-
-    void doUnbindService() {
-        if (mIsBound) {
-            if (mService != null) {
-                try {
-                    Message msg = Message.obtain(null, MSG_UNREGISTER_CLIENT);
-                    msg.replyTo = mMessenger;
-                    mService.send(msg);
-                } catch (RemoteException e) {
-                    Log.w(TAG, "can't unregister to CarUiPortraitService: ", e);
-                }
-            }
-
-            // Detach our existing connection.
-            unbindService(mConnection);
-            mIsBound = false;
-        }
-    }
-
-    private void notifySystemUI(int key, int value) {
-        Message msg = Message.obtain(null, key, value, 0);
-        notifySystemUI(msg);
-    }
-
-    private void notifySystemUI(Message msg) {
-        try {
-            if (mService != null) {
-                mService.send(msg);
-            } else {
-                logIfDebuggable("Service is not connected yet! Caching the message:" + msg);
-                mMessageCache.add(msg);
-            }
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
+    void notifySystemUI(int key, int value) {
+        if (mCarUiPortraitServiceManager != null) {
+            mCarUiPortraitServiceManager.notifySystemUI(key, value);
         }
     }
 

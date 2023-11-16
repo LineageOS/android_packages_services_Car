@@ -56,9 +56,12 @@ public abstract class HalServiceBase {
     /**
      * Returns all property IDs this HalService can support. If return value is empty,
      * {@link #isSupportedProperty(int)} is used to query support for each property.
+     *
+     * Implementers should consider keeping this method package private to avoid exposing the
+     * internal array.
      */
     @NonNull
-    public abstract int[] getAllSupportedProperties();
+    abstract int[] getAllSupportedProperties();
 
     /**
      * Checks if given {@code propId} is supported.

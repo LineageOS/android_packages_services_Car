@@ -149,6 +149,7 @@ public class InputHalService extends HalServiceBase {
 
     @VisibleForTesting
     InputHalService(VehicleHal hal, LongSupplier uptimeSupplier) {
+        super();
         mHal = hal;
         mUptimeSupplier = uptimeSupplier;
     }
@@ -243,7 +244,7 @@ public class InputHalService extends HalServiceBase {
     }
 
     @Override
-    public int[] getAllSupportedProperties() {
+    int[] getAllSupportedProperties() {
         return SUPPORTED_PROPERTIES;
     }
 

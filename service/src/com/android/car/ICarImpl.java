@@ -39,6 +39,7 @@ import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
+import android.car.feature.Flags;
 import android.car.user.CarUserManager;
 import android.content.Context;
 import android.content.om.OverlayInfo;
@@ -349,7 +350,7 @@ public class ICarImpl extends ICar.Stub {
         mCarInputService = constructWithTrace(t, CarInputService.class,
                 () -> new CarInputService(serviceContext, mHal.getInputHal(), mCarUserService,
                         mCarOccupantZoneService, mCarBluetoothService, mCarPowerManagementService,
-                        mSystemInterface, userManager), allServices);
+                        mSystemInterface), allServices);
         mCarProjectionService = constructWithTrace(t, CarProjectionService.class,
                 () -> new CarProjectionService(serviceContext, null /* handler */, mCarInputService,
                         mCarBluetoothService), allServices);
@@ -407,7 +408,8 @@ public class ICarImpl extends ICar.Stub {
         mCarLocationService = constructWithTrace(t, CarLocationService.class,
                 () -> new CarLocationService(serviceContext), allServices);
         mCarMediaService = constructWithTrace(t, CarMediaService.class,
-                () -> new CarMediaService(serviceContext, mCarOccupantZoneService, mCarUserService),
+                () -> new CarMediaService(serviceContext, mCarOccupantZoneService, mCarUserService,
+                        mCarPowerManagementService),
                 allServices);
         mCarBugreportManagerService = constructWithTrace(t, CarBugreportManagerService.class,
                 () -> new CarBugreportManagerService(serviceContext), allServices);
@@ -786,6 +788,11 @@ public class ICarImpl extends ICar.Stub {
                 String[] services = new String[length];
                 System.arraycopy(args, 1, services, 0, length);
                 if (dumpToProto) {
+                    if (!Flags.carDumpToProto()) {
+                        writer.println("Cannot dump " + services[0]
+                                + " to proto since FLAG_CAR_DUMP_TO_PROTO is disabled");
+                        return;
+                    }
                     dumpServiceProto(writer, fd, services[0]);
                 } else {
                     dumpIndividualServices(writer, services);
