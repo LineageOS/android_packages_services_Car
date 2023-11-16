@@ -222,6 +222,12 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     @Override
     void onInitialized() {
         mContext.getMainExecutor().execute(() -> {
+            // Check for isReleased() because the car task view might have already been
+            // released but this code path is executed later because the executor was busy.
+            if (isReleased()) {
+                Slogf.w(TAG, "car task view has already been released");
+                return;
+            }
             startActivity();
         });
         mCallbackExecutor.execute(() -> mCallback.onTaskViewInitialized());
@@ -239,14 +245,25 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
         super.onTaskAppeared(taskInfo, leash);
         // Stop the start activity backoff because a task has already appeared.
         stopTheStartActivityBackoffIfExists();
-        mCallbackExecutor.execute(() -> mCallback.onTaskAppeared(taskInfo));
+        mCallbackExecutor.execute(() -> {
+            if (isReleased()) {
+                Slogf.w(TAG, "car task view has already been released");
+                return;
+            }
+            mCallback.onTaskAppeared(taskInfo);
+        });
     }
 
     @Override
     void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo) {
         super.onTaskInfoChanged(taskInfo);
-        mCallbackExecutor.execute(() -> mCallback.onTaskInfoChanged(taskInfo));
-
+        mCallbackExecutor.execute(() -> {
+            if (isReleased()) {
+                Slogf.w(TAG, "car task view has already been released");
+                return;
+            }
+            mCallback.onTaskInfoChanged(taskInfo);
+        });
     }
 
     @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
@@ -272,7 +289,13 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
                     + " in ControlledRemoteCarTaskView");
             startActivity();
         }
-        mCallbackExecutor.execute(() -> mCallback.onTaskVanished(taskInfo));
+        mCallbackExecutor.execute(() -> {
+            if (isReleased()) {
+                Slogf.w(TAG, "car task view has already been released");
+                return;
+            }
+            mCallback.onTaskVanished(taskInfo);
+        });
     }
 
     /**
