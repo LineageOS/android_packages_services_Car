@@ -43,9 +43,37 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/radio_cancel" />
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent" />
+                <TextView
+                    android:id="@+id/text_fm_hd_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_fm_hd_state"/>
+                <Switch
+                    android:id="@+id/toggle_fm_hd_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"/>
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent" />
+                <TextView
+                    android:id="@+id/text_am_hd_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_am_hd_state"
+                    android:visibility="gone" />
+                <Switch
+                    android:id="@+id/toggle_am_hd_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
             </LinearLayout>
             <TextView
-                android:id="@+id/warning_tune"
+                android:id="@+id/text_tuning_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/empty" />
@@ -65,13 +93,13 @@
                     android:text="@string/radio_input_frequency"/>
                 <EditText
                     android:id="@+id/input_am_fm_frequency"
-                    android:layout_width="150dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:maxLength="5"
                     android:inputType="numberDecimal"
                     android:hint="@string/empty"
                     android:autofillHints="@string/empty"
-                    android:text="@string/radio_default_fm_frequency_input"/>
+                    android:text="@string/empty"/>
                 <Space
                     android:layout_width="3dp"
                     android:layout_height="match_parent" />
@@ -127,19 +155,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/radio_step_up" />
-                <Space
-                    android:layout_width="3dp"
-                    android:layout_height="match_parent" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/radio_skip_subchannels"/>
-                <CheckBox android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/selection_step_skip_subchannels"/>
-                <Space
-                    android:layout_width="3dp"
-                    android:layout_height="match_parent" />
             </LinearLayout>
             <LinearLayout android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -229,6 +244,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/radio_program_list"/>
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="4" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="@string/radio_program_station_title"
+                android:layout_weight="3">
+            </TextView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="@string/empty"
+                android:layout_weight="1">
+            </TextView>
+        </LinearLayout>
         <ListView
             android:id="@+id/radio_program_list"
             android:layout_width="match_parent"

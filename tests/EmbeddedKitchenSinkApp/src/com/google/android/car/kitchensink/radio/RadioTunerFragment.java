@@ -17,6 +17,7 @@
 package com.google.android.car.kitchensink.radio;
 
 import android.annotation.Nullable;
+import android.hardware.radio.Flags;
 import android.hardware.radio.ProgramList;
 import android.hardware.radio.ProgramSelector;
 import android.hardware.radio.RadioManager;
@@ -34,6 +35,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
@@ -48,27 +50,38 @@ public final class RadioTunerFragment extends Fragment {
 
     private static final String TAG = RadioTunerFragment.class.getSimpleName();
     private static final CharSequence NULL_TUNER_WARNING = "Tuner cannot be null";
+    private static final CharSequence TUNING_TEXT = "Tuning...";
+    private static final CharSequence TUNING_COMPLETION_TEXT = "Tuning completes";
 
     private final RadioTuner mRadioTuner;
     private final RadioTestFragment.TunerListener mListener;
     private final ProgramList mFmAmProgramList;
+    private int mLastFmFrequency;
+    private int mLastAmFrequency;
+    private boolean mIsFmBand = true;
     private boolean mViewCreated = false;
 
     private ProgramInfoAdapter mProgramInfoAdapter;
 
+    private RadioButton mFmRadioButton;
+    private RadioButton mAmRadioButton;
+    private Switch mFmHdSwitch;
+    private Switch mAmHdSwitch;
     private EditText mFrequencyInput;
     private RadioGroup mFmAmBandSelection;
-    private CheckBox mStepChannelCheckBox;
     private CheckBox mSeekChannelCheckBox;
-    private TextView mWarningTextView;
+    private TextView mTuningTextView;
     private TextView mCurrentStationTextView;
     private TextView mCurrentChannelTextView;
     private TextView mCurrentSongTitleTextView;
     private TextView mCurrentArtistTextView;
 
-    RadioTunerFragment(RadioManager radioManager, int moduleId, RadioManager.BandConfig bandConfig,
+    RadioTunerFragment(RadioManager radioManager, int moduleId,
+                       RadioManager.BandConfig fmBandConfig, RadioManager.BandConfig amBandConfig,
                        Handler handler, RadioTestFragment.TunerListener tunerListener) {
-        mRadioTuner = radioManager.openTuner(moduleId, bandConfig, /* withAudio= */ true,
+        mLastFmFrequency = fmBandConfig.getLowerLimit();
+        mLastAmFrequency = amBandConfig.getLowerLimit();
+        mRadioTuner = radioManager.openTuner(moduleId, fmBandConfig, /* withAudio= */ true,
                 new RadioTunerCallbackImpl(), handler);
         mListener = Objects.requireNonNull(tunerListener, "Tuner listener can not be null");
         if (mRadioTuner == null) {
@@ -90,13 +103,14 @@ public final class RadioTunerFragment extends Fragment {
                 /* attachToRoot= */ false);
         Button closeButton = view.findViewById(R.id.button_radio_close);
         Button cancelButton = view.findViewById(R.id.button_radio_cancel);
-        mWarningTextView = view.findViewById(R.id.warning_tune);
+        mFmHdSwitch = view.findViewById(R.id.toggle_fm_hd_state);
+        mAmHdSwitch = view.findViewById(R.id.toggle_am_hd_state);
+        mTuningTextView = view.findViewById(R.id.text_tuning_status);
         mFrequencyInput = view.findViewById(R.id.input_am_fm_frequency);
         mFmAmBandSelection = view.findViewById(R.id.button_fm_am_selection);
-        RadioButton fmRadioButton = view.findViewById(R.id.button_radio_fm);
-        RadioButton amRadioButton = view.findViewById(R.id.button_radio_am);
+        mFmRadioButton = view.findViewById(R.id.button_radio_fm);
+        mAmRadioButton = view.findViewById(R.id.button_radio_am);
         Button tuneButton = view.findViewById(R.id.button_radio_tune);
-        mStepChannelCheckBox = view.findViewById(R.id.selection_step_skip_subchannels);
         Button stepUpButton = view.findViewById(R.id.button_radio_step_up);
         Button stepDownButton = view.findViewById(R.id.button_radio_step_down);
         mSeekChannelCheckBox = view.findViewById(R.id.selection_seek_skip_subchannels);
@@ -115,11 +129,32 @@ public final class RadioTunerFragment extends Fragment {
 
         closeButton.setOnClickListener((v) -> handleClose());
         cancelButton.setOnClickListener((v) -> handleCancel());
+        if (Flags.hdRadioImproved()) {
+            mAmHdSwitch.setVisibility(View.VISIBLE);
+            view.findViewById(R.id.text_am_hd_state).setVisibility(View.VISIBLE);
+            mFmHdSwitch.setChecked(!mRadioTuner.isConfigFlagSet(
+                    RadioManager.CONFIG_FORCE_ANALOG_FM));
+            mAmHdSwitch.setChecked(!mRadioTuner.isConfigFlagSet(
+                    RadioManager.CONFIG_FORCE_ANALOG_AM));
+        } else {
+            mFmHdSwitch.setChecked(!mRadioTuner.isConfigFlagSet(RadioManager.CONFIG_FORCE_ANALOG));
+        }
+        mFmHdSwitch.setOnCheckedChangeListener(
+                (buttonView, isChecked) -> handleHdEnable(/* isFm= */ true, isChecked));
+        mAmHdSwitch.setOnCheckedChangeListener(
+                (buttonView, isChecked) -> handleHdEnable(/* isFm= */ false, isChecked));
         tuneButton.setOnClickListener((v) -> tuneToInputStation());
-        fmRadioButton.setOnClickListener((v) -> mFrequencyInput
-                .setText(getString(R.string.radio_default_fm_frequency_input)));
-        amRadioButton.setOnClickListener((v) -> mFrequencyInput
-                .setText(getString(R.string.radio_default_am_frequency_input)));
+        mFmRadioButton.setOnClickListener((v) -> handleBandSwitching(/* isFm= */ true));
+        mAmRadioButton.setOnClickListener((v) -> handleBandSwitching(/* isFm= */ false));
+        if (mIsFmBand) {
+            mFmRadioButton.setChecked(true);
+            mFrequencyInput.setText(ProgramSelectorExt.formatAmFmFrequency(mLastFmFrequency,
+                    ProgramSelectorExt.NAME_NO_MODULATION));
+        } else {
+            mAmRadioButton.setChecked(true);
+            mFrequencyInput.setText(ProgramSelectorExt.formatAmFmFrequency(mLastAmFrequency,
+                    ProgramSelectorExt.NAME_NO_MODULATION));
+        }
         stepUpButton.setOnClickListener((v) -> handleStep(RadioTuner.DIRECTION_UP));
         stepDownButton.setOnClickListener((v) -> handleStep(RadioTuner.DIRECTION_DOWN));
         seekUpButton.setOnClickListener((v) -> handleSeek(RadioTuner.DIRECTION_UP));
@@ -146,14 +181,14 @@ public final class RadioTunerFragment extends Fragment {
 
     void handleTune(ProgramSelector sel) {
         if (mRadioTuner == null) {
-            mWarningTextView.setText(getString(R.string.radio_warning, NULL_TUNER_WARNING));
+            mTuningTextView.setText(getString(R.string.radio_error, NULL_TUNER_WARNING));
             return;
         }
-        mWarningTextView.setText(getString(R.string.empty));
+        mTuningTextView.setText(getString(R.string.radio_status, TUNING_TEXT));
         try {
             mRadioTuner.tune(sel);
         } catch (Exception e) {
-            mWarningTextView.setText(getString(R.string.radio_warning, e.getMessage()));
+            mTuningTextView.setText(getString(R.string.radio_error, e.getMessage()));
         }
         mListener.onTunerPlay();
     }
@@ -173,77 +208,168 @@ public final class RadioTunerFragment extends Fragment {
                     sel = ProgramSelector.createAmFmSelector(RadioManager.BAND_AM, amFrequency);
                     break;
                 default:
-                    mWarningTextView.setText(getString(R.string.radio_warning,
+                    mTuningTextView.setText(getString(R.string.radio_error,
                             "Unsupported input selector type"));
                     return;
             }
         } catch (Exception e) {
-            mWarningTextView.setText(getString(R.string.radio_warning, e.getMessage()));
+            mTuningTextView.setText(getString(R.string.radio_error, e.getMessage()));
             return;
         }
         handleTune(sel);
     }
 
+    private void handleBandSwitching(boolean isFm) {
+        if (isFm) {
+            mFrequencyInput.setText(ProgramSelectorExt.formatAmFmFrequency(mLastFmFrequency,
+                    ProgramSelectorExt.NAME_NO_MODULATION));
+        } else {
+            mFrequencyInput.setText(ProgramSelectorExt.formatAmFmFrequency(mLastAmFrequency,
+                    ProgramSelectorExt.NAME_NO_MODULATION));
+        }
+        mIsFmBand = isFm;
+        ProgramSelector initialSel = isFm ? ProgramSelector.createAmFmSelector(
+                RadioManager.BAND_FM, mLastFmFrequency)
+                : ProgramSelector.createAmFmSelector(RadioManager.BAND_AM, mLastAmFrequency);
+        handleTune(initialSel);
+    }
+
     private void handleStep(int direction) {
         if (mRadioTuner == null) {
-            mWarningTextView.setText(getString(R.string.radio_warning, NULL_TUNER_WARNING));
+            mTuningTextView.setText(getString(R.string.radio_error, NULL_TUNER_WARNING));
             return;
         }
-        mWarningTextView.setText(getString(R.string.empty));
+        mTuningTextView.setText(getString(R.string.radio_status, TUNING_TEXT));
         try {
-            mRadioTuner.step(direction, mStepChannelCheckBox.isChecked());
+            mRadioTuner.step(direction, /* skipSubChannel= */ false);
         } catch (Exception e) {
-            mWarningTextView.setText(getString(R.string.radio_warning, e.getMessage()));
+            mTuningTextView.setText(getString(R.string.radio_error, e.getMessage()));
         }
         mListener.onTunerPlay();
     }
 
     private void handleSeek(int direction) {
         if (mRadioTuner == null) {
-            mWarningTextView.setText(getString(R.string.radio_warning, NULL_TUNER_WARNING));
+            mTuningTextView.setText(getString(R.string.radio_error, NULL_TUNER_WARNING));
             return;
         }
-        mWarningTextView.setText(getString(R.string.empty));
+        mTuningTextView.setText(getString(R.string.radio_status, TUNING_TEXT));
         try {
             mRadioTuner.seek(direction, mSeekChannelCheckBox.isChecked());
         } catch (Exception e) {
-            mWarningTextView.setText(getString(R.string.radio_warning, e.getMessage()));
+            mTuningTextView.setText(getString(R.string.radio_error, e.getMessage()));
         }
         mListener.onTunerPlay();
     }
 
     private void handleClose() {
         if (mRadioTuner == null) {
-            mWarningTextView.setText(getString(R.string.radio_warning, NULL_TUNER_WARNING));
+            mTuningTextView.setText(getString(R.string.radio_error, NULL_TUNER_WARNING));
             return;
         }
-        mWarningTextView.setText(getString(R.string.empty));
+        mTuningTextView.setText(getString(R.string.empty));
         try {
             mRadioTuner.close();
             mListener.onTunerClosed();
         } catch (Exception e) {
-            mWarningTextView.setText(getString(R.string.radio_warning, e.getMessage()));
+            mTuningTextView.setText(getString(R.string.radio_error, e.getMessage()));
         }
     }
 
     private void handleCancel() {
         if (mRadioTuner == null) {
-            mWarningTextView.setText(getString(R.string.radio_warning, NULL_TUNER_WARNING));
+            mTuningTextView.setText(getString(R.string.radio_error, NULL_TUNER_WARNING));
             return;
         }
-        mWarningTextView.setText(getString(R.string.empty));
         try {
             mRadioTuner.cancel();
         } catch (Exception e) {
-            mWarningTextView.setText(getString(R.string.radio_warning, e.getMessage()));
+            mTuningTextView.setText(getString(R.string.radio_error, e.getMessage()));
+        }
+        mTuningTextView.setText(getString(R.string.radio_status, "Canceled"));
+    }
+
+    private void handleHdEnable(boolean isFm, boolean hdEnabled) {
+        if (mRadioTuner == null) {
+            mTuningTextView.setText(getString(R.string.radio_error, NULL_TUNER_WARNING));
+            return;
+        }
+        mTuningTextView.setText(getString(R.string.empty));
+        int configFlag;
+        if (Flags.hdRadioImproved()) {
+            configFlag = isFm ? RadioManager.CONFIG_FORCE_ANALOG_FM
+                    : RadioManager.CONFIG_FORCE_ANALOG_AM;
+        } else {
+            configFlag = RadioManager.CONFIG_FORCE_ANALOG;
+        }
+        try {
+            mRadioTuner.setConfigFlag(configFlag, !hdEnabled);
+        } catch (Exception e) {
+            mTuningTextView.setText(getString(R.string.radio_error, e.getMessage()));
+        }
+    }
+
+    private void setTuningStatus(RadioManager.ProgramInfo info) {
+        if (!mViewCreated) {
+            return;
+        }
+        if (info == null) {
+            mTuningTextView.setText(getString(R.string.radio_error, "Program info is null"));
+            return;
+        } else if (info.getSelector().getPrimaryId().getType()
+                != ProgramSelector.IDENTIFIER_TYPE_HD_STATION_ID_EXT) {
+            if (mTuningTextView.getText().toString().contains(TUNING_TEXT)) {
+                mTuningTextView.setText(getString(R.string.radio_status, TUNING_COMPLETION_TEXT));
+            }
+            return;
+        }
+        if (Flags.hdRadioImproved()) {
+            if (info.isSignalAcquired()) {
+                if (!info.isHdSisAvailable()) {
+                    mTuningTextView.setText(getString(R.string.radio_status,
+                            "Signal is acquired"));
+                } else {
+                    if (!info.isHdAudioAvailable()) {
+                        mTuningTextView.setText(getString(R.string.radio_status,
+                                "HD SIS is available"));
+                    } else {
+                        mTuningTextView.setText(getString(R.string.radio_status,
+                                TUNING_COMPLETION_TEXT));
+                    }
+                }
+            }
+        } else {
+            mTuningTextView.setText(getString(R.string.radio_status, TUNING_COMPLETION_TEXT));
         }
     }
 
     private void setProgramInfo(RadioManager.ProgramInfo info) {
         String channelText = null;
-        if (info != null && info.getSelector().getPrimaryId().getType()
-                == ProgramSelector.IDENTIFIER_TYPE_AMFM_FREQUENCY) {
-            channelText = ProgramSelectorExt.getDisplayName(info.getSelector(), /* flags= */ 0);
+        if (info != null) {
+            int primaryIdType = info.getSelector().getPrimaryId().getType();
+            if (primaryIdType == ProgramSelector.IDENTIFIER_TYPE_AMFM_FREQUENCY
+                    || primaryIdType == ProgramSelector.IDENTIFIER_TYPE_HD_STATION_ID_EXT) {
+                channelText = ProgramSelectorExt.getDisplayName(info.getSelector(), /* flags= */ 0);
+                long amFmFrequency = ProgramSelectorExt.getFrequency(info.getSelector());
+                mIsFmBand = ProgramSelectorExt.isFmFrequency(amFmFrequency);
+                if (mIsFmBand) {
+                    mLastFmFrequency = (int) amFmFrequency;
+                } else if (ProgramSelectorExt.isAmFrequency(amFmFrequency)) {
+                    mLastAmFrequency = (int) amFmFrequency;
+                }
+            }
+        }
+        if (!mViewCreated) {
+            return;
+        }
+        if (mIsFmBand) {
+            if (!mFmRadioButton.isChecked()) {
+                mFmRadioButton.setChecked(true);
+            }
+        } else {
+            if (!mAmRadioButton.isChecked()) {
+                mAmRadioButton.setChecked(true);
+            }
         }
         if (channelText == null) {
             channelText = getString(R.string.radio_na);
@@ -270,10 +396,25 @@ public final class RadioTunerFragment extends Fragment {
     private final class RadioTunerCallbackImpl extends RadioTuner.Callback {
         @Override
         public void onProgramInfoChanged(RadioManager.ProgramInfo info) {
+            setProgramInfo(info);
+            setTuningStatus(info);
+        }
+
+        @Override
+        public void onConfigFlagUpdated(int flag, boolean value) {
             if (!mViewCreated) {
                 return;
             }
-            setProgramInfo(info);
+            if (flag == RadioManager.CONFIG_FORCE_ANALOG) {
+                mFmHdSwitch.setChecked(!value);
+                mAmHdSwitch.setChecked(!value);
+            } else if (Flags.hdRadioImproved()) {
+                if (flag == RadioManager.CONFIG_FORCE_ANALOG_FM) {
+                    mFmHdSwitch.setChecked(!value);
+                } else if (flag == RadioManager.CONFIG_FORCE_ANALOG_AM) {
+                    mAmHdSwitch.setChecked(!value);
+                }
+            }
         }
 
         @Override
@@ -285,7 +426,7 @@ public final class RadioTunerFragment extends Fragment {
             if (selector != null) {
                 warning += " for selector " + selector;
             }
-            mWarningTextView.setText(getString(R.string.radio_warning, warning));
+            mTuningTextView.setText(getString(R.string.radio_error, warning));
         }
     }
 

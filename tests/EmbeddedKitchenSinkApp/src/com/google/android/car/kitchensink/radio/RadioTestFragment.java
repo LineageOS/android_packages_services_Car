@@ -63,6 +63,7 @@ public final class RadioTestFragment extends Fragment {
 
     private RadioManager mRadioManager;
     private RadioManager.BandConfig mFmBandConfig;
+    private RadioManager.BandConfig mAmBandConfig;
     private RadioTuner mFmAmRadioTuner;
 
     private List<RadioManager.ModuleProperties> mModules;
@@ -140,16 +141,16 @@ public final class RadioTestFragment extends Fragment {
             String tabTitle = getString(R.string.radio_fm_am_tuner);
             RadioTunerFragment tunerFragment;
             if (mFmAmRadioTuner != null) {
-                mOpenTunerWarning.setText(getString(R.string.radio_warning,
+                mOpenTunerWarning.setText(getString(R.string.radio_error,
                         "Tuner exists, cannot open a new one"));
                 return;
             }
             tunerFragment = new RadioTunerFragment(mRadioManager,
-                    mModules.get(moduleId).getId(), mFmBandConfig, mHandler,
+                    mModules.get(moduleId).getId(), mFmBandConfig, mAmBandConfig, mHandler,
                     new TunerListener(tabTitle));
             mFmAmRadioTuner = tunerFragment.getRadioTuner();
             if (mFmAmRadioTuner == null) {
-                mOpenTunerWarning.setText(getString(R.string.radio_warning,
+                mOpenTunerWarning.setText(getString(R.string.radio_error,
                         "Cannot open new tuner"));
                 return;
             }
@@ -173,7 +174,7 @@ public final class RadioTestFragment extends Fragment {
     private void connectRadio() {
         mRadioManager = mContext.getSystemService(RadioManager.class);
         if (mRadioManager == null) {
-            mOpenTunerWarning.setText(getString(R.string.radio_warning,
+            mOpenTunerWarning.setText(getString(R.string.radio_error,
                     "RadioManager is not found"));
             return;
         }
@@ -181,13 +182,13 @@ public final class RadioTestFragment extends Fragment {
         mModules = new ArrayList<>();
         int status = mRadioManager.listModules(mModules);
         if (status != RadioManager.STATUS_OK) {
-            mOpenTunerWarning.setText(getString(R.string.radio_warning,
+            mOpenTunerWarning.setText(getString(R.string.radio_error,
                     "Couldn't get radio module list"));
             return;
         }
 
         if (mModules.size() == 0) {
-            mOpenTunerWarning.setText(getString(R.string.radio_warning,
+            mOpenTunerWarning.setText(getString(R.string.radio_error,
                     "No radio modules on this device"));
             return;
         }
@@ -207,6 +208,7 @@ public final class RadioTestFragment extends Fragment {
             if (amBandDescriptor != null && fmBandDescriptor != null) {
                 mFirstAmFmModuleId = moduleIndex;
                 mFmBandConfig = new RadioManager.FmBandConfig.Builder(fmBandDescriptor).build();
+                mAmBandConfig = new RadioManager.AmBandConfig.Builder(amBandDescriptor).build();
                 break;
             }
         }

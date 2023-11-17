@@ -77,8 +77,5 @@
                  will be in different tasks, which will cause the test to fail.-->
         <item>android.server.wm.app/android.server.wm.app.AssistantActivity</item>
         <item>android.server.wm.app/android.server.wm.app.AnimationTestActivity</item>
-        <!-- TODO(b/297060765): TestActivity is expected to be at the top of the stack when
-                AssistantActivity hide. Put it in fullscreen panel to enforce it. -->
-        <item>android.server.wm.app/android.server.wm.app.TestActivity</item>
     </string-array>
 </resources>
