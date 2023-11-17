@@ -55,6 +55,7 @@ public final class CarPropertyValue<T> implements Parcelable {
     private final long mTimestampNanos;
     private final T mValue;
 
+    /** @removed accidentally exposed previously */
     @IntDef({
         STATUS_AVAILABLE,
         STATUS_UNAVAILABLE,
