@@ -15,11 +15,11 @@
  */
 package com.android.systemui.car.distantdisplay.activity.window;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.os.Build;
-
-import androidx.core.content.ContextCompat;
+import android.os.UserHandle;
 
 import com.android.systemui.car.distantdisplay.common.DistantDisplayReceiver;
 import com.android.systemui.car.distantdisplay.common.TaskViewController;
@@ -65,6 +65,9 @@ public class ActivityWindowController {
             mTaskViewController.unregister();
             mTaskViewController.initialize(displayId);
         });
-        ContextCompat.registerReceiver(mContext, receiver, filter, ContextCompat.RECEIVER_EXPORTED);
+        mContext.registerReceiverAsUser(receiver,
+                UserHandle.of(ActivityManager.getCurrentUser()),
+                filter, null, null,
+                Context.RECEIVER_EXPORTED);
     }
 }
