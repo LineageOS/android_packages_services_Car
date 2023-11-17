@@ -18,6 +18,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- The name of the package that will hold the system cluster service role. -->
     <string name="config_systemAutomotiveCluster" translatable="false">
-        com.android.designcompose.reference.driverui
+        com.android.car.driverui
     </string>
 </resources>

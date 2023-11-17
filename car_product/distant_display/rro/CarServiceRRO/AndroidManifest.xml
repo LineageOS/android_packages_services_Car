@@ -17,7 +17,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.android.car.updatable.rro">
     <application android:hasCode="false"/>
-    <overlay android:priority="10"
+    <overlay android:priority="9001"
              android:targetPackage="com.android.car.updatable"
              android:targetName="CarServiceCustomization"
              android:resourcesMap="@xml/overlays"
