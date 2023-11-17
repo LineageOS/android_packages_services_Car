@@ -77,5 +77,7 @@
                  will be in different tasks, which will cause the test to fail.-->
         <item>android.server.wm.app/android.server.wm.app.AssistantActivity</item>
         <item>android.server.wm.app/android.server.wm.app.AnimationTestActivity</item>
+        <!-- Add activity to full screen since focus is lost when all the windows are removed. -->
+        <item>android.server.wm.cts/android.server.wm.LayoutTests$TestActivity</item>
     </string-array>
 </resources>
