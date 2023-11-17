@@ -159,6 +159,35 @@ public class CarAudioDeviceInfoTest {
     }
 
     @Test
+    public void isActive_beforeSettingAudioDevice() {
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
+
+        assertWithMessage("Default is active status").that(info.isActive())
+                .isFalse();
+    }
+
+    @Test
+    public void isActive_afterSettingDeviceInfo() {
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
+        info.setAudioDeviceInfo(getMockAudioDeviceInfo());
+
+        assertWithMessage("Is active status").that(info.isActive()).isTrue();
+    }
+
+    @Test
+    public void isActive_afterResettingAudioDeviceToNull() {
+        AudioDeviceAttributes attributes = getMockAudioDevice();
+        CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
+        info.setAudioDeviceInfo(getMockAudioDeviceInfo());
+        info.setAudioDeviceInfo(null);
+
+        assertWithMessage("Is active status, after becoming inactive")
+                .that(info.isActive()).isFalse();
+    }
+
+    @Test
     public void getSampleRate_withMultipleSampleRates_returnsMax() {
         AudioDeviceAttributes audioDevice = getMockAudioDevice();
         AudioDeviceInfo deviceInfo = getMockAudioDeviceInfo();

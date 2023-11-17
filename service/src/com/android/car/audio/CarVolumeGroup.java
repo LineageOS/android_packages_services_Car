@@ -597,6 +597,7 @@ import java.util.Objects;
                 proto.write(GainInfo.ATTENUATED_GAIN_INDEX, mAttenuatedGainIndex);
             }
             proto.write(GainInfo.HAL_MUTED, isHalMutedLocked());
+            proto.write(GainInfo.IS_ACTIVE, isActive());
             proto.end(gainInfoToken);
 
         }
@@ -897,5 +898,16 @@ import java.util.Objects;
      */
     int calculateNewGainStageFromDeviceInfos() {
         return 0;
+    }
+
+    boolean isActive() {
+        for (int c = 0; c < mAddressToCarAudioDeviceInfo.size(); c++) {
+            CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.valueAt(c);
+            if (info.isActive()) {
+                continue;
+            }
+            return false;
+        }
+        return true;
     }
 }
