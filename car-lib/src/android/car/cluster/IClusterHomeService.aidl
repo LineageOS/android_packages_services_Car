@@ -21,6 +21,7 @@ import android.car.cluster.IClusterStateListener;
 import android.car.cluster.IClusterNavigationStateListener;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.SurfaceControl;
 
 /** @hide */
 interface IClusterHomeService {
@@ -63,4 +64,8 @@ interface IClusterHomeService {
     void unregisterClusterNavigationStateListener(in IClusterNavigationStateListener listener) = 10;
     /** Sends a heartbeat. */
     void sendHeartbeat(long epochTimeNs, in byte[] appMetadata) = 11;
+    /** Starts the visibility monitoring of the given Surface. */
+    void startVisibilityMonitoring(in SurfaceControl sc) = 12;
+    /** Stops the visibility monitoring. */
+    void stopVisibilityMonitoring() = 13;
 }

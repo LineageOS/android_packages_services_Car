@@ -16,18 +16,26 @@
 
 package android.car.cluster;
 
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
+import android.app.Activity;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.builtin.util.Slogf;
+import android.car.builtin.view.SurfaceControlHelper;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.view.SurfaceControl;
+import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnPreDrawListener;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.VisibleForTesting;
@@ -150,6 +158,8 @@ public class ClusterHomeManager extends CarManagerBase {
             new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<ClusterNavigationStateListenerRecord>
             mNavigationStateListeners = new CopyOnWriteArrayList<>();
+
+    private boolean mVisibilityMonitoringStarted = false;
 
     /** @hide */
     @VisibleForTesting
@@ -379,6 +389,83 @@ public class ClusterHomeManager extends CarManagerBase {
             mService.sendHeartbeat(epochTimeNs, appMetadata);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Starts the visibility monitoring of given {@link Activity}.
+     *
+     * Note: This is supposed to be called in {@link Activity#onStart()} generally.
+     *
+     * @param activity               the {@link Activity} to track the visibility of its Window
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
+    public void startVisibilityMonitoring(@NonNull Activity activity) {
+        // We'd like to check the permission locally too, since the actual execution happens later.
+        if (getContext().checkCallingOrSelfPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
+                != PERMISSION_GRANTED) {
+            throw new SecurityException(
+                    "requires permission " + Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL);
+        }
+        if (mVisibilityMonitoringStarted) {
+            Slogf.w(TAG, "startVisibilityMonitoring is already started");
+            return;
+        }
+        if (SurfaceControlHelper.getSurfaceControl(activity) != null) {
+            throw new IllegalStateException(
+                    "startVisibilityMonitoring is expected to be called before onAttachedToWindow");
+        }
+        mVisibilityMonitoringStarted = true;
+        ViewTreeObserver observer = getViewTreeObserver(activity);
+        // Can't use onWindowAttached, because SurfaceControl is available at the time, but invalid.
+        // TODO: b/286406553 - Move the callback below to onWindowAttached.
+        observer.addOnPreDrawListener(
+                new OnPreDrawListener() {
+                    @Override
+                    public boolean onPreDraw() {
+                        // The existing 'observer' would be invalid, so gets it again.
+                        ViewTreeObserver observer = getViewTreeObserver(activity);
+                        observer.removeOnPreDrawListener(this);
+                        startVisibilityMonitoringInternal(activity);
+                        return true;
+                    }
+                });
+        observer.addOnWindowAttachListener(
+                new ViewTreeObserver.OnWindowAttachListener() {
+                    @Override
+                    public void onWindowAttached() {
+                        // Using onPreDraw instead, check b/286406553.
+                    }
+
+                    @Override
+                    public void onWindowDetached() {
+                        ViewTreeObserver observer = getViewTreeObserver(activity);
+                        observer.removeOnWindowAttachListener(this);
+                        stopVisibilityMonitoringInternal();
+                    }
+                }
+        );
+    }
+
+    private static ViewTreeObserver getViewTreeObserver(@NonNull Activity activity) {
+        return activity.getWindow().getDecorView().getViewTreeObserver();
+    }
+
+    private void startVisibilityMonitoringInternal(Activity activity) {
+        SurfaceControl surfaceControl = SurfaceControlHelper.getSurfaceControl(activity);
+        try {
+            mService.startVisibilityMonitoring(surfaceControl);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Failed to startVisibilityMonitoring", e);
+        }
+    }
+
+    private void stopVisibilityMonitoringInternal() {
+        try {
+            mService.stopVisibilityMonitoring();
+            mVisibilityMonitoringStarted = false;
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Failed to stopVisibilityMonitoring", e);
         }
     }
 
