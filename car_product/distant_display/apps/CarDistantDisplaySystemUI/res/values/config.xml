@@ -20,23 +20,11 @@
         com.android.systemui.CarDistantDisplaySystemUIFactory
     </string>
 
-    <!-- Classes to start in addition to those started for CarSystemUI. -->
-    <string-array name="config_systemUIServiceComponentsInclude" translatable="false">
-        <item>com.android.systemui.car.systembar.CarSystemBar</item>
-        <item>com.android.systemui.car.voicerecognition.ConnectedDeviceVoiceRecognitionNotifier
-        </item>
-        <item>com.android.systemui.car.window.SystemUIOverlayWindowManager</item>
-        <item>com.android.systemui.car.toast.CarToastUI</item>
-        <item>com.android.systemui.car.volume.VolumeUI</item>
-        <item>com.android.systemui.car.cluster.ClusterDisplayController</item>
-        <item>com.android.systemui.car.distantdisplay.activity.window.ActivityWindowManager</item>
-    </string-array>
-
     <!-- display Id for distant display.  -->
     <integer name="config_distantDisplayId">3</integer>
 
-    <string-array name="config_navigationActivities" translatable="false">
-        <item>com.google.android.apps.maps/com.google.android.maps.MapsActivity</item>
-        <item>com.android.systemui/com.android.systemui.car.distantdisplay.activity.NavigationTaskViewWallpaperActivity</item>
+    <string-array name="config_restrictedActivities" translatable="false">
+        <item>com.android.car.carlauncher/com.android.car.carlauncher.AppGridActivity</item>
+        <item>com.google.android.apps.maps/com.google.android.maps.LimitedMapsActivity</item>
     </string-array>
 </resources>

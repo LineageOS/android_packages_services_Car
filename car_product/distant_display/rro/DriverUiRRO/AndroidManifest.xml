@@ -15,11 +15,11 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.designcompose.reference.driverui.rro">
+          package="com.android.car.driverui.rro">
     <application android:hasCode="false"/>
     <overlay android:priority="10"
              android:targetName="DriverUI"
-             android:targetPackage="com.android.designcompose.reference.driverui"
+             android:targetPackage="com.android.car.driverui"
              android:resourcesMap="@xml/overlays"
              android:isStatic="true" />
 </manifest>
