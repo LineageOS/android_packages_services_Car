@@ -135,6 +135,27 @@ constexpr const char* toString(std::variant<EventType, SwitchMessage> what) {
             what);
 }
 
+constexpr int toProtoEventType(EventType eventType) {
+    switch (eventType) {
+        case EventType::INIT:
+            return PerformanceProfilerDump::INIT;
+        case EventType::TERMINATED:
+            return PerformanceProfilerDump::TERMINATED;
+        case EventType::BOOT_TIME_COLLECTION:
+            return PerformanceProfilerDump::BOOT_TIME_COLLECTION;
+        case EventType::PERIODIC_COLLECTION:
+            return PerformanceProfilerDump::PERIODIC_COLLECTION;
+        case EventType::USER_SWITCH_COLLECTION:
+            return PerformanceProfilerDump::USER_SWITCH_COLLECTION;
+        case EventType::WAKE_UP_COLLECTION:
+            return PerformanceProfilerDump::WAKE_UP_COLLECTION;
+        case EventType::CUSTOM_COLLECTION:
+            return PerformanceProfilerDump::CUSTOM_COLLECTION;
+        default:
+            return PerformanceProfilerDump::EVENT_TYPE_UNSPECIFIED;
+    }
+}
+
 constexpr const char* toString(SystemState systemState) {
     switch (systemState) {
         case SystemState::NORMAL_MODE:
@@ -594,7 +615,7 @@ Result<void> WatchdogPerfService::onDumpProto(ProtoOutputStream& outProto) const
     uint64_t performanceProfilerDumpToken =
             outProto.start(CarWatchdogDaemonDump::PERFORMANCE_PROFILER_DUMP);
 
-    outProto.write(PerformanceProfilerDump::CURRENT_EVENT, mCurrCollectionEvent);
+    outProto.write(PerformanceProfilerDump::CURRENT_EVENT, toProtoEventType(mCurrCollectionEvent));
 
     DataProcessorInterface::CollectionIntervals collectionIntervals =
             {.mBoottimeIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(

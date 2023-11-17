@@ -31,13 +31,14 @@ message CarWatchdogDaemonDump {
 
 message PerformanceProfilerDump {
   enum EventType {
-    INIT = 0;
-    TERMINATED = 1;
-    BOOT_TIME_COLLECTION = 2;
-    PERIODIC_COLLECTION = 3;
-    USER_SWITCH_COLLECTION = 4;
-    WAKE_UP_COLLECTION = 5;
-    CUSTOM_COLLECTION = 6;
+    EVENT_TYPE_UNSPECIFIED = 0;
+    INIT = 1;
+    TERMINATED = 2;
+    BOOT_TIME_COLLECTION = 3;
+    PERIODIC_COLLECTION = 4;
+    USER_SWITCH_COLLECTION = 5;
+    WAKE_UP_COLLECTION = 6;
+    CUSTOM_COLLECTION = 7;
   }
   optional EventType current_event = 1;
   optional PerformanceStats performance_stats = 2;
@@ -58,9 +59,10 @@ message HealthCheckServiceDump {
 // Represents the VHAL health check information.
 message VhalHealthCheckInfo {
   enum CachingProgressState {
-    IN_PROGRESS = 0;
-    SUCCESS = 1;
-    FAILURE = 2;
+    CACHING_PROGRESS_STATE_UNSPECIFIED = 0;
+    IN_PROGRESS = 1;
+    SUCCESS = 2;
+    FAILURE = 3;
   }
 
   optional bool is_enabled = 1;
