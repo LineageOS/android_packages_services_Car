@@ -151,7 +151,7 @@ public final class OveruseConfigurationCache {
                 long packageByAppCategoryToken = proto.start(
                         OveruseConfigurationCacheDump.PACKAGES_BY_APP_CATEGORY);
                 proto.write(PackageByAppCategory.APPLICATION_CATEGORY,
-                        mPackagesByAppCategoryType.keyAt(i) + 1);
+                        toProtoApplicationCategory(mPackagesByAppCategoryType.keyAt(i)));
                 ArraySet<String> packages = mPackagesByAppCategoryType.valueAt(i);
                 for (int j = 0; j < packages.size(); j++) {
                     proto.write(PackageByAppCategory.PACKAGE_NAME,
@@ -164,7 +164,7 @@ public final class OveruseConfigurationCache {
                 long ioThresholdByComponentToken = proto.start(
                         OveruseConfigurationCacheDump.GENERIC_IO_THRESHOLDS_BY_COMPONENT);
                 proto.write(IoThresholdByComponent.COMPONENT_TYPE,
-                        mGenericIoThresholdsByComponent.keyAt(i));
+                        toProtoComponentType(mGenericIoThresholdsByComponent.keyAt(i)));
                 long perStateBytesToken = proto.start(IoThresholdByComponent.THRESHOLD);
                 PerStateBytes perStateBytes = mGenericIoThresholdsByComponent.valueAt(i);
                 proto.write(PerformanceDump.PerStateBytes.FOREGROUND_BYTES,
@@ -217,7 +217,7 @@ public final class OveruseConfigurationCache {
                 long ioThresholdsByAppCategoryTypeToken = proto.start(
                         OveruseConfigurationCacheDump.THRESHOLDS_BY_APP_CATEGORY);
                 proto.write(IoThresholdByAppCategory.APPLICATION_CATEGORY,
-                        mIoThresholdsByAppCategoryType.keyAt(i) + 1);
+                        toProtoApplicationCategory(mIoThresholdsByAppCategoryType.keyAt(i)));
                 long perStateBytesToken = proto.start(IoThresholdByAppCategory.THRESHOLD);
                 PerStateBytes perStateBytes = mIoThresholdsByAppCategoryType.valueAt(i);
                 proto.write(PerformanceDump.PerStateBytes.FOREGROUND_BYTES,
@@ -452,6 +452,32 @@ public final class OveruseConfigurationCache {
                 return "ComponentType.THIRD_PARTY";
             default:
                 return "ComponentType.UNKNOWN";
+        }
+    }
+
+    private static int toProtoApplicationCategory(@ApplicationCategoryType int type) {
+        switch (type) {
+            case ApplicationCategoryType.MAPS:
+                return PerformanceDump.MAPS;
+            case ApplicationCategoryType.MEDIA:
+                return PerformanceDump.MEDIA;
+            case ApplicationCategoryType.OTHERS:
+                return PerformanceDump.OTHERS;
+            default:
+                return PerformanceDump.APPLICATION_CATEGORY_UNSPECIFIED;
+        }
+    }
+
+    private static int toProtoComponentType(@ComponentType int type) {
+        switch (type) {
+            case ComponentType.SYSTEM:
+                return PerformanceDump.SYSTEM;
+            case ComponentType.VENDOR:
+                return PerformanceDump.VENDOR;
+            case ComponentType.THIRD_PARTY:
+                return PerformanceDump.THIRD_PARTY;
+            default:
+                return PerformanceDump.COMPONENT_TYPE_UNSPECIFIED;
         }
     }
 
