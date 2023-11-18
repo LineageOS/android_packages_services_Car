@@ -16,8 +16,10 @@
 
 package com.android.car;
 
-import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
+import static android.car.hardware.CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
 import static com.android.car.internal.property.CarPropertyHelper.propertyIdsToString;
 
@@ -29,6 +31,8 @@ import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
+import android.car.feature.FeatureFlags;
+import android.car.feature.FeatureFlagsImpl;
 import android.car.hardware.CarHvacFanDirection;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
@@ -68,6 +72,7 @@ import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.property.CarPropertyServiceClient;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 import com.android.modules.expresslog.Histogram;
 
@@ -194,12 +199,20 @@ public class CarPropertyService extends ICarProperty.Stub
     @GuardedBy("mLock")
     private int mSyncGetSetPropertyOpCount;
 
+    private FeatureFlags mFeatureFlags = new FeatureFlagsImpl();
+
     public CarPropertyService(Context context, PropertyHalService propertyHalService) {
         if (DBG) {
             Slogf.d(TAG, "CarPropertyService started!");
         }
         mPropertyHalService = propertyHalService;
         mContext = context;
+    }
+
+    /** Sets fake feature flag for unit testing. */
+    @VisibleForTesting
+    public void setFeatureFlags(FeatureFlags fakeFeatureFlags) {
+        mFeatureFlags = fakeFeatureFlags;
     }
 
     @Override
@@ -258,10 +271,14 @@ public class CarPropertyService extends ICarProperty.Stub
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dumpProto(ProtoOutputStream proto) {}
 
-    @Override
+    /**
+     * Subscribes to the property update events for the property ID.
+     *
+     * Used internally in car service.
+     */
     public void registerListener(int propertyId, float updateRateHz,
-            ICarPropertyEventListener carPropertyEventListener)
-            throws IllegalArgumentException, ServiceSpecificException {
+            boolean enableVariableUpdateRate,
+            ICarPropertyEventListener carPropertyEventListener) {
         CarSubscribeOption option = new CarSubscribeOption();
         int[] areaIds = EMPTY_INT_ARRAY;
         CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
@@ -272,7 +289,28 @@ public class CarPropertyService extends ICarProperty.Stub
         option.propertyId = propertyId;
         option.updateRateHz = updateRateHz;
         option.areaIds = areaIds;
+        option.enableVariableUpdateRate = enableVariableUpdateRate;
         registerListenerWithSubscribeOptions(List.of(option), carPropertyEventListener);
+    }
+
+    /**
+     * Subscribes to the property update events for the property ID with VUR enabled for continuous
+     * property.
+     *
+     * Used internally in car service.
+     */
+    public void registerListener(int propertyId, float updateRateHz,
+            ICarPropertyEventListener carPropertyEventListener)
+            throws IllegalArgumentException, ServiceSpecificException {
+        CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
+        boolean enableVariableUpdateRate = false;
+        // carPropertyConfig nullity check will be done in registerListenerWithSubscribeOptions
+        if (carPropertyConfig != null
+                && carPropertyConfig.getChangeMode() == VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS) {
+            enableVariableUpdateRate = true;
+        }
+        registerListener(propertyId, updateRateHz, enableVariableUpdateRate,
+                carPropertyEventListener);
     }
 
     /**
@@ -290,6 +328,23 @@ public class CarPropertyService extends ICarProperty.Stub
                     option.propertyId, option.areaIds);
             option.updateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(carPropertyConfig,
                     option.updateRateHz);
+
+            if (option.enableVariableUpdateRate) {
+                // If VUR feature is disabled, overwrite the VUR option to false.
+                if (!mFeatureFlags.variableUpdateRate()) {
+                    if (DBG) {
+                        Slogf.d(TAG, "VUR feature is not enabled, VUR is always off");
+                    }
+                    option.enableVariableUpdateRate = false;
+                } else if (carPropertyConfig.getChangeMode()
+                        != CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS) {
+                    // TODO(b/308814366): Check whether VUR is supported.
+                    if (DBG) {
+                        Slogf.d(TAG, "VUR is always off for non-continuous property");
+                    }
+                    option.enableVariableUpdateRate = false;
+                }
+            }
         }
     }
 
@@ -379,6 +434,28 @@ public class CarPropertyService extends ICarProperty.Stub
 
     /**
      * Register property listener for car service's internal usage.
+     *
+     * This function catches all exceptions and return {@code true} if succeed.
+     */
+    public boolean registerListenerSafe(int propertyId, float updateRateHz,
+            boolean enableVariableUpdateRate,
+            ICarPropertyEventListener iCarPropertyEventListener) {
+        try {
+            registerListener(propertyId, updateRateHz, enableVariableUpdateRate,
+                    iCarPropertyEventListener);
+            return true;
+        } catch (Exception e) {
+            Slogf.e(TAG, e, "registerListenerSafe() failed for property ID: %s updateRateHz: %f",
+                    VehiclePropertyIds.toString(propertyId), updateRateHz);
+            return false;
+        }
+    }
+
+    /**
+     * Register property listener for car service's internal usage with VUR enabled for continuous
+     * property.
+     *
+     * This function catches all exceptions and return {@code true} if succeed.
      */
     public boolean registerListenerSafe(int propertyId, float updateRateHz,
             ICarPropertyEventListener iCarPropertyEventListener) {
