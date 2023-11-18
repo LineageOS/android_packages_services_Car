@@ -124,7 +124,9 @@
           <item type="bool" name="config_assignPassengerActivityToForegroundCpuGroup"/>
           <item type="integer" name="config_notifyApStateChange_max_retry"/>
           <item type="integer" name="config_notifyApStateChange_retry_sleep_ms"/>
-
+          <item type="fraction" name="config_clusterHomeVisibility_minAlpha"/>
+          <item type="fraction" name="config_clusterHomeVisibility_minRendered"/>
+          <item type="integer" name="config_clusterHomeVisibility_stabilityMs"/>
           <!-- Params from config.xml that can be overlaid -->
 
           <!-- XML files that can be overlaid -->

@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.android.car.cluster;
+package android.car.cluster;
 
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -31,25 +33,30 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import android.app.Activity;
 import android.car.Car;
-import android.car.cluster.ClusterHomeManager;
-import android.car.cluster.ClusterState;
-import android.car.cluster.IClusterHomeService;
-import android.car.cluster.IClusterNavigationStateListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.view.SurfaceControl;
+import android.view.View;
+import android.view.ViewRootImpl;
+import android.view.ViewTreeObserver;
+import android.view.Window;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.concurrent.Executor;
 
-/** Unit tests for {@link ClusterHomeManager} */
+/**
+ * Unit tests for {@link ClusterHomeManager}
+ */
 @RunWith(MockitoJUnitRunner.class)
 public final class ClusterHomeManagerUnitTest {
     @Mock
@@ -66,6 +73,19 @@ public final class ClusterHomeManagerUnitTest {
 
     @Mock
     private ClusterHomeManager.ClusterNavigationStateListener mClusterNavigationStateListener;
+
+    @Mock
+    private Activity mActivity;
+    @Mock
+    private Window mWindow;
+    @Mock
+    private View mDecorView;
+    @Mock
+    private ViewTreeObserver mViewTreeObserver;
+    @Mock
+    private ViewRootImpl mViewRoot;
+    @Mock
+    private SurfaceControl mSurfaceControl;
 
     private ClusterHomeManager mClusterHomeManager;
     private final Executor mCurrentThreadExecutor = new Executor() {
@@ -250,8 +270,56 @@ public final class ClusterHomeManagerUnitTest {
 
         mClusterHomeManager
                 .unregisterClusterNavigationStateListener(mClusterNavigationStateListener);
-
         verifyNoMoreInteractions(mCar);
         verifyNoMoreInteractions(mService);
+    }
+
+    @Test
+    public void sendHeartbeat_serviceFailure() throws Exception {
+        RemoteException thrownException = new RemoteException();
+        doThrow(thrownException).when(mService).sendHeartbeat(anyLong(), any());
+
+        mClusterHomeManager.sendHeartbeat(System.nanoTime(), /* appMetadata= */ null);
+
+        verify(mCar).handleRemoteExceptionFromCarService(thrownException);
+    }
+
+    @Test
+    public void startVisibilityMonitoring_startsOrStopsMonitoring_perSurfaceReadiness()
+            throws Exception {
+        setUpActivity();
+
+        mClusterHomeManager.startVisibilityMonitoring(mActivity);
+
+        // Checks whether the necessary callbacks are registered.
+        ArgumentCaptor<ViewTreeObserver.OnPreDrawListener> onPreDrawListenerCaptor =
+                ArgumentCaptor.forClass(ViewTreeObserver.OnPreDrawListener.class);
+        verify(mViewTreeObserver).addOnPreDrawListener(onPreDrawListenerCaptor.capture());
+        assertThat(onPreDrawListenerCaptor).isNotNull();
+        ArgumentCaptor<ViewTreeObserver.OnWindowAttachListener> onWindowAttachListenerCaptor =
+                ArgumentCaptor.forClass(ViewTreeObserver.OnWindowAttachListener.class);
+        verify(mViewTreeObserver).addOnWindowAttachListener(onWindowAttachListenerCaptor.capture());
+        assertThat(onWindowAttachListenerCaptor).isNotNull();
+        verifyNoMoreInteractions(mService);
+
+        // Starts monitoring when the Surface is ready.
+        onPreDrawListenerCaptor.getValue().onPreDraw();
+        verify(mService).startVisibilityMonitoring(mSurfaceControl);
+
+        // Stops monitoring when the Surface is removed.
+        onWindowAttachListenerCaptor.getValue().onWindowDetached();
+        verify(mService).stopVisibilityMonitoring();
+    }
+
+    private void setUpActivity() {
+        when(mCar.getContext()).thenReturn(mActivity);
+        when(mActivity.checkCallingOrSelfPermission(anyString())).thenReturn(PERMISSION_GRANTED);
+        when(mActivity.getWindow()).thenReturn(mWindow);
+        when(mWindow.getDecorView()).thenReturn(mDecorView);
+        when(mDecorView.getViewTreeObserver()).thenReturn(mViewTreeObserver);
+        when(mDecorView.getViewRootImpl()).thenReturn(mViewRoot);
+        when(mViewRoot.getSurfaceControl()).thenReturn(
+                null,  // Supposed to be called in onCreate
+                mSurfaceControl);  // Supposed to be called in onAttachedToWindow
     }
 }

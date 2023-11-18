@@ -60,6 +60,7 @@ import static android.media.AudioManager.AUDIOFOCUS_LOSS;
 import static android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
 import static android.media.AudioManager.AUDIOFOCUS_NONE;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+import static android.media.AudioManager.ERROR;
 import static android.media.AudioManager.EXTRA_VOLUME_STREAM_TYPE;
 import static android.media.AudioManager.FLAG_FROM_KEY;
 import static android.media.AudioManager.FLAG_PLAY_SOUND;
@@ -486,6 +487,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Captor
     private ArgumentCaptor<BroadcastReceiver> mVolumeReceiverCaptor;
 
+    private int mRegistrationCount = 0;
+    private List<Integer> mAudioPolicyRegistrationStatus = new ArrayList<>();
+
     public CarAudioServiceUnitTest() {
         super(CarAudioService.TAG);
     }
@@ -742,8 +746,17 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mAudioManager.registerAudioPolicy(any())).thenAnswer(invocation -> {
             AudioPolicy policy = (AudioPolicy) invocation.getArguments()[0];
             policy.setRegistration(REGISTRATION_ID);
-            return SUCCESS;
+
+            return mAudioPolicyRegistrationStatus.get(mRegistrationCount++);
         });
+
+        // Policy register is called three times:
+        //  Audio volume control
+        //  Audio focus control
+        //  Audio routing control
+        mAudioPolicyRegistrationStatus.add(SUCCESS);
+        mAudioPolicyRegistrationStatus.add(SUCCESS);
+        mAudioPolicyRegistrationStatus.add(SUCCESS);
 
         IBinder mockBinder = mock(IBinder.class);
         when(mockBinder.queryLocalInterface(any())).thenReturn(mMockAudioService);
@@ -786,6 +799,39 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         expectWithMessage("Car Audio Service Construction")
                 .that(thrown).hasMessageThat().contains("Context");
+    }
+
+    @Test
+    public void init_withVolumeControlPolicyRegistrationError_fails() {
+        mAudioPolicyRegistrationStatus.set(0, ERROR);
+
+        IllegalStateException thrown =
+                assertThrows(IllegalStateException.class, () -> mCarAudioService.init());
+
+        expectWithMessage("Audio control policy registration exception").that(thrown)
+                .hasMessageThat().containsMatch("car audio service's volume control audio policy");
+    }
+
+    @Test
+    public void init_withFocusControlPolicyRegistrationError_fails() {
+        mAudioPolicyRegistrationStatus.set(1, ERROR);
+
+        IllegalStateException thrown =
+                assertThrows(IllegalStateException.class, () -> mCarAudioService.init());
+
+        expectWithMessage("Audio control policy registration exception").that(thrown)
+                .hasMessageThat().containsMatch("car audio service's focus control audio policy");
+    }
+
+    @Test
+    public void init_withAudioRoutingPolicyRegistrationError_fails() {
+        mAudioPolicyRegistrationStatus.set(2, ERROR);
+
+        IllegalStateException thrown =
+                assertThrows(IllegalStateException.class, () -> mCarAudioService.init());
+
+        expectWithMessage("Audio routing policy registration exception").that(thrown)
+                .hasMessageThat().containsMatch("Audio routing policy registration");
     }
 
     @Test
@@ -1925,7 +1971,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void isAudioFeatureEnabled_withDisabledAudioMirror() {
         CarAudioService carAudioService = getCarAudioServiceWithoutMirroring();
-        carAudioService.init();
 
         boolean isEnabled = carAudioService.isAudioFeatureEnabled(AUDIO_FEATURE_AUDIO_MIRRORING);
 
@@ -2185,6 +2230,10 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void onAudioServerUp_forCarAudioServiceCallback() {
         mCarAudioService.init();
+        // Audio policy registration will be called again for each registration
+        mAudioPolicyRegistrationStatus.add(SUCCESS);
+        mAudioPolicyRegistrationStatus.add(SUCCESS);
+        mAudioPolicyRegistrationStatus.add(SUCCESS);
         AudioServerStateCallback callback = getAudioServerStateCallback();
         callback.onAudioServerDown();
 
@@ -3630,7 +3679,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void registerAudioZonesMirrorStatusCallback_withoutMirroringEnabled() {
         CarAudioService carAudioService = getCarAudioServiceWithoutMirroring();
-        carAudioService.init();
         TestAudioZonesMirrorStatusCallbackCallback callback =
                 new TestAudioZonesMirrorStatusCallbackCallback(/* count= */ 1);
 
@@ -3869,7 +3917,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void canEnableAudioMirror_withMirroringDisabled() {
         CarAudioService carAudioService = getCarAudioServiceWithoutMirroring();
-        carAudioService.init();
 
         IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
                         mCarAudioService.canEnableAudioMirror());
@@ -4180,7 +4227,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void disableAudioMirrorForZone_withMirroringDisabled() {
         CarAudioService carAudioService = getCarAudioServiceWithoutMirroring();
-        carAudioService.init();
 
         IllegalStateException thrown =
                 assertThrows(IllegalStateException.class, () ->
@@ -4280,7 +4326,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void disableAudioMirror_withoutMirroringDisabled() {
         CarAudioService carAudioService = getCarAudioServiceWithoutMirroring();
-        carAudioService.init();
 
         IllegalStateException thrown =
                 assertThrows(IllegalStateException.class, () ->

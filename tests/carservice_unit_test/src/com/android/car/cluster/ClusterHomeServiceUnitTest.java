@@ -32,7 +32,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.car.CarOccupantZoneManager;
 import android.car.ICarOccupantZoneCallback;
@@ -45,6 +44,7 @@ import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Insets;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -54,8 +54,7 @@ import android.os.UserHandle;
 import android.view.Display;
 
 import com.android.car.CarOccupantZoneService;
-import com.android.car.am.CarActivityService;
-import com.android.car.am.CarActivityService.ActivityLaunchListener;
+import com.android.car.R;
 import com.android.car.am.FixedActivityService;
 import com.android.car.cluster.ClusterNavigationService.ContextOwner;
 import com.android.car.hal.ClusterHalService;
@@ -85,6 +84,8 @@ public class ClusterHomeServiceUnitTest {
     @Mock
     private Context mContext;
     @Mock
+    private Resources mResources;
+    @Mock
     private ClusterHalService mClusterHalService;
     @Mock
     private ClusterNavigationService mNavigationService;
@@ -92,8 +93,6 @@ public class ClusterHomeServiceUnitTest {
     private CarOccupantZoneService mOccupantZoneService;
     @Mock
     private FixedActivityService mFixedActivityService;
-    @Mock
-    private CarActivityService mCarActivityService;
     @Mock
     private DisplayManager mDisplayManager;
     @Mock
@@ -103,7 +102,6 @@ public class ClusterHomeServiceUnitTest {
     private int mClusterStateChanges;
     private byte[] mNavigationState;
     private ICarOccupantZoneCallback mOccupantZoneCallback;
-    private ActivityLaunchListener mActivityLaunchListener;
 
     private IClusterStateListener mClusterStateListener;
     private IClusterNavigationStateListener mClusterNavigationStateListener;
@@ -127,8 +125,15 @@ public class ClusterHomeServiceUnitTest {
 
     @Before
     public void setUp() {
-        when(mContext.getString(com.android.car.R.string.config_clusterHomeActivity))
+        when(mContext.getResources()).thenReturn(mResources);
+        when(mContext.getString(R.string.config_clusterHomeActivity))
                 .thenReturn(mClusterHomeActivity.flattenToString());
+        when(mResources.getFraction(R.fraction.config_clusterHomeVisibility_minAlpha, 1, 1))
+                .thenReturn(1.0f);
+        when(mResources.getFraction(R.fraction.config_clusterHomeVisibility_minRendered, 1, 1))
+                .thenReturn(0.9f);
+        when(mResources.getInteger(R.integer.config_clusterHomeVisibility_stabilityMs))
+                .thenReturn(100);
         when(mContext.getSystemService(DisplayManager.class)).thenReturn(mDisplayManager);
 
         when(mOccupantZoneService.getDisplayIdForDriver(DISPLAY_TYPE_INSTRUMENT_CLUSTER))
@@ -149,16 +154,9 @@ public class ClusterHomeServiceUnitTest {
             size.set(CLUSTER_WIDTH, CLUSTER_HEIGHT);
             return null;
         }).when(mClusterDisplay).getRealSize(any(Point.class));
-        doAnswer(invocation -> {
-            mActivityLaunchListener = invocation.getArgument(0);
-            assertThat(mActivityLaunchListener).isNotNull();
-            return null;
-        }).when(mCarActivityService).registerActivityLaunchListener(
-                any(ActivityLaunchListener.class));
 
         mClusterHomeService = new ClusterHomeService(mContext, mClusterHalService,
-                mNavigationService, mOccupantZoneService, mFixedActivityService,
-                mCarActivityService);
+                mNavigationService, mOccupantZoneService, mFixedActivityService);
         mClusterHomeService.init();
     }
 
@@ -376,21 +374,5 @@ public class ClusterHomeServiceUnitTest {
 
         verify(mClusterHalService).sendHeartbeat(
                 eq(epochTimeNs), eq(/* visibility= */ 0L), eq(EMPTY_BYTE_ARRAY));
-    }
-
-    @Test
-    public void sendHeartbeat_ReflectsClusterAppVisibility() {
-        byte[] appMetadata = new byte[] {(byte) 3, (byte) 2, (byte) 0, (byte) 1};
-        long epochTimeNs = 123456789;
-        ActivityManager.RunningTaskInfo clusterTask = new ActivityManager.RunningTaskInfo();
-        clusterTask.displayId = CLUSTER_DISPLAY_ID;
-        clusterTask.topActivity = mClusterHomeActivity;
-        clusterTask.isVisible = true;
-        mActivityLaunchListener.onActivityLaunch(clusterTask);
-
-        mClusterHomeService.sendHeartbeat(epochTimeNs, appMetadata);
-
-        verify(mClusterHalService).sendHeartbeat(
-                eq(epochTimeNs), eq(/* visibility= */ 1L), eq(appMetadata));
     }
 }

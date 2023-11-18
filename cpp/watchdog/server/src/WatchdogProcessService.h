@@ -297,6 +297,7 @@ private:
             uintptr_t binderPtrId, const Processor& processor);
     std::chrono::nanoseconds getTimeoutDurationNs(
             const aidl::android::automotive::watchdog::TimeoutLength& timeout);
+    static int toProtoClientType(ClientType clientType);
 
 private:
     const std::function<std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient>()>

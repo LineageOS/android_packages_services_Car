@@ -605,4 +605,11 @@
     <integer name="config_notifyApStateChange_max_retry">100</integer>
     <!-- Number of ms to sleep between retries for notifying AP power state change. -->
     <integer name="config_notifyApStateChange_retry_sleep_ms">100</integer>
+
+    <!-- Configurations for ClusterHome visibility monitoring.
+         Please refer to {@link SurfaceControl#TrustedPresentationThresholds} for the detail. -->
+    <fraction name="config_clusterHomeVisibility_minAlpha">100%</fraction>
+    <fraction name="config_clusterHomeVisibility_minRendered">99.9%</fraction>
+    <integer name="config_clusterHomeVisibility_stabilityMs">100</integer>
+
 </resources>

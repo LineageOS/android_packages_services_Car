@@ -266,7 +266,6 @@ public final class CarActivityService extends ICarActivityService.Stub
     }
 
     private void notifyActivityLaunch(TaskInfo taskInfo) {
-        ActivityLaunchListener listener;
         synchronized (mLock) {
             for (int i = 0, size = mActivityLaunchListeners.size(); i < size; ++i) {
                 mActivityLaunchListeners.get(i).onActivityLaunch(taskInfo);

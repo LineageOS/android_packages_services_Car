@@ -196,6 +196,19 @@ Result<pid_t> queryHidlServiceManagerForVhalPid(const sp<IServiceManager>& hidlS
     return pid;
 }
 
+int toProtoHealthCheckTimeout(TimeoutLength timeoutLength) {
+    switch (timeoutLength) {
+        case TimeoutLength::TIMEOUT_CRITICAL:
+            return HealthCheckClientInfo::CRITICAL;
+        case TimeoutLength::TIMEOUT_MODERATE:
+            return HealthCheckClientInfo::MODERATE;
+        case TimeoutLength::TIMEOUT_NORMAL:
+            return HealthCheckClientInfo::NORMAL;
+        default:
+            return HealthCheckClientInfo::HEALTH_CHECK_TIMEOUT_UNSPECIFIED;
+    }
+}
+
 }  // namespace
 
 WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) :
@@ -602,9 +615,10 @@ void WatchdogProcessService::onDumpProto(ProtoOutputStream& outProto) {
             outProto.write(UserPackageInfo::PACKAGE_NAME, clientInfo.kPackageName);
             outProto.end(userPackageInfoToken);
 
-            outProto.write(HealthCheckClientInfo::CLIENT_TYPE, clientInfo.kType);
+            outProto.write(HealthCheckClientInfo::CLIENT_TYPE, toProtoClientType(clientInfo.kType));
             outProto.write(HealthCheckClientInfo::START_TIME_MILLIS, clientInfo.kStartTimeMillis);
-            outProto.write(HealthCheckClientInfo::HEALTH_CHECK_TIMEOUT, static_cast<int>(timeout));
+            outProto.write(HealthCheckClientInfo::HEALTH_CHECK_TIMEOUT,
+                           toProtoHealthCheckTimeout(timeout));
             outProto.end(healthCheckClientInfoToken);
         }
     }
@@ -1357,6 +1371,17 @@ void WatchdogProcessService::PropertyChangeListener::onPropertySetError(
         }
         ALOGE("failed to set VHAL property, prop ID: %d, status: %d", error.propId,
               static_cast<int32_t>(error.status));
+    }
+}
+
+int WatchdogProcessService::toProtoClientType(ClientType clientType) {
+    switch (clientType) {
+        case ClientType::Regular:
+            return HealthCheckClientInfo::REGULAR;
+        case ClientType::Service:
+            return HealthCheckClientInfo::CAR_WATCHDOG_SERVICE;
+        default:
+            return HealthCheckClientInfo::CLIENT_TYPE_UNSPECIFIED;
     }
 }
 
