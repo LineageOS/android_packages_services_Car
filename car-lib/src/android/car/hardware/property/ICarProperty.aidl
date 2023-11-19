@@ -31,8 +31,6 @@ import com.android.car.internal.property.CarSubscribeOption;
  */
 interface ICarProperty {
 
-    void registerListener(int propId, float rate, in ICarPropertyEventListener callback) = 0;
-
     void unregisterListener(int propId, in ICarPropertyEventListener callback) = 1;
 
     CarPropertyConfigList getPropertyList() = 2;
