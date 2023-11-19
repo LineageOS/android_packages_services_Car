@@ -695,13 +695,13 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     }
 
     private void expectNoActivityStack() throws Exception {
-        when(mActivityService.getVisibleTasksInternal()).thenReturn(createEmptyTaskInfo());
+        when(mActivityService.getVisibleTasksInternal(anyInt())).thenReturn(createEmptyTaskInfo());
     }
 
     private void expectRootTaskInfo(List<ActivityManager.RunningTaskInfo>... taskInfos)
             throws Exception {
         OngoingStubbing<List<ActivityManager.RunningTaskInfo>> stub = when(
-                mActivityService.getVisibleTasksInternal());
+                mActivityService.getVisibleTasksInternal(anyInt()));
         for (List<ActivityManager.RunningTaskInfo> taskInfo : taskInfos) {
             stub = stub.thenReturn(taskInfo);
         }
