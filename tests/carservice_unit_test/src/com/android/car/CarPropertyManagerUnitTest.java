@@ -52,6 +52,7 @@ import static org.mockito.Mockito.when;
 import android.car.Car;
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
+import android.car.feature.FeatureFlags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.AreaIdConfig;
@@ -154,7 +155,8 @@ public final class CarPropertyManagerUnitTest {
     private Executor mMockExecutor1;
     @Mock
     private Executor mMockExecutor2;
-
+    @Mock
+    private FeatureFlags mFeatureFlags;
 
     @Captor
     private ArgumentCaptor<Integer> mPropertyIdCaptor;
@@ -203,6 +205,9 @@ public final class CarPropertyManagerUnitTest {
         when(mContinuousCarPropertyConfig.getMinSampleRate()).thenReturn(MIN_UPDATE_RATE_HZ);
         when(mContinuousCarPropertyConfig.getMaxSampleRate()).thenReturn(MAX_UPDATE_RATE_HZ);
         when(mContinuousCarPropertyConfig.getAreaIds()).thenReturn(new int[] {0});
+        AreaIdConfig areaIdConfig = mock(AreaIdConfig.class);
+        when(areaIdConfig.isVariableUpdateRateSupported()).thenReturn(true);
+        when(mContinuousCarPropertyConfig.getAreaIdConfig(0)).thenReturn(areaIdConfig);
         when(mOnChangeCarPropertyConfig.getChangeMode()).thenReturn(
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE);
         when(mOnChangeCarPropertyConfig.getAreaIds()).thenReturn(new int[] {0});
@@ -217,6 +222,9 @@ public final class CarPropertyManagerUnitTest {
         when(mICarProperty.getPropertyConfigList(new int[]{VENDOR_STATIC_PROPERTY})).thenReturn(
                 new CarPropertyConfigList(ImmutableList.of(mStaticCarPropertyConfig)));
         mCarPropertyManager = new CarPropertyManager(mCar, mICarProperty);
+        // Enable the features.
+        when(mFeatureFlags.variableUpdateRate()).thenReturn(true);
+        mCarPropertyManager.setFeatureFlags(mFeatureFlags);
     }
 
     @Test
