@@ -16,14 +16,17 @@
 
 package android.car.cluster;
 
+import static android.car.feature.Flags.FLAG_CLUSTER_HEALTH_MONITORING;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
+import android.annotation.SystemApi;
 import android.app.Activity;
 import android.car.Car;
 import android.car.CarManagerBase;
@@ -47,14 +50,23 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
-/** @hide */
-public class ClusterHomeManager extends CarManagerBase {
+/**
+ * Provides the api to manage {@code ClusterHome}.
+ *
+ * @hide
+ */
+@FlaggedApi(FLAG_CLUSTER_HEALTH_MONITORING)
+@SystemApi
+public final class ClusterHomeManager extends CarManagerBase {
     private static final String TAG = ClusterHomeManager.class.getSimpleName();
     /**
      * When the client reports ClusterHome state and if there is no UI in the sub area, it can
      * reports UI_TYPE_CLUSTER_NONE instead.
+     *
+     * @hide
      */
     public static final int UI_TYPE_CLUSTER_NONE = -1;
+    /** @hide */
     public static final int UI_TYPE_CLUSTER_HOME = 0;
 
     /** @hide */
@@ -68,14 +80,21 @@ public class ClusterHomeManager extends CarManagerBase {
     public @interface Config {}
 
     /** Bit fields indicates which fields of {@link ClusterState} are changed */
+    /** @hide */
     public static final int CONFIG_DISPLAY_ON_OFF = 0x01;
+    /** @hide */
     public static final int CONFIG_DISPLAY_BOUNDS = 0x02;
+    /** @hide */
     public static final int CONFIG_DISPLAY_INSETS = 0x04;
+    /** @hide */
     public static final int CONFIG_UI_TYPE = 0x08;
+    /** @hide */
     public static final int CONFIG_DISPLAY_ID = 0x10;
 
     /**
      * Callback for ClusterHome to get notifications when cluster state changes.
+     *
+     * @hide
      */
     public interface ClusterStateListener {
         /**
@@ -89,6 +108,8 @@ public class ClusterHomeManager extends CarManagerBase {
 
     /**
      * Callback for ClusterHome to get notifications when cluster navigation state changes.
+     *
+     * @hide
      */
     public interface ClusterNavigationStateListener {
         /** Called when the App who owns the navigation focus casts the new navigation state. */
@@ -173,6 +194,8 @@ public class ClusterHomeManager extends CarManagerBase {
 
     /**
      * Registers the callback for ClusterHome.
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
     public void registerClusterStateListener(
@@ -195,6 +218,8 @@ public class ClusterHomeManager extends CarManagerBase {
 
     /**
      * Registers the callback for ClusterHome.
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_MONITOR_CLUSTER_NAVIGATION_STATE)
     public void registerClusterNavigationStateListener(
@@ -218,6 +243,8 @@ public class ClusterHomeManager extends CarManagerBase {
 
     /**
      * Unregisters the callback.
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
     public void unregisterClusterStateListener(@NonNull ClusterStateListener callback) {
@@ -237,6 +264,8 @@ public class ClusterHomeManager extends CarManagerBase {
 
     /**
      * Unregisters the callback.
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_MONITOR_CLUSTER_NAVIGATION_STATE)
     public void unregisterClusterNavigationStateListener(
@@ -301,6 +330,8 @@ public class ClusterHomeManager extends CarManagerBase {
      * @param uiAvailability the byte array to represent the availability of ClusterUI.
      *    0 indicates non-available and 1 indicates available.
      *    Index 0 is reserved for ClusterHome, The other indexes are followed by OEM's definition.
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
     public void reportState(int uiTypeMain, int uiTypeSub, @NonNull byte[] uiAvailability) {
@@ -314,6 +345,8 @@ public class ClusterHomeManager extends CarManagerBase {
     /**
      * Requests to turn the cluster display on to show some ClusterUI.
      * @param uiType uiType that ClusterHome tries to show in main area
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
     public void requestDisplay(int uiType) {
@@ -326,6 +359,8 @@ public class ClusterHomeManager extends CarManagerBase {
 
     /**
      * Returns the current {@code ClusterState}.
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
     @Nullable
@@ -350,6 +385,8 @@ public class ClusterHomeManager extends CarManagerBase {
      * @param options additional options for how the Activity should be started
      * @param userId the user the new activity should run as
      * @return true if it launches the given Intent as FixedActivity successfully
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
     public boolean startFixedActivityModeAsUser(
@@ -367,6 +404,8 @@ public class ClusterHomeManager extends CarManagerBase {
      * finishing should not trigger re-launching any more. Note that Activity for non-current user
      * will be auto-stopped and there is no need to call this for user switching. Note that this
      * does not stop the activity but it will not be re-launched any more.
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
     public void stopFixedActivityMode() {
@@ -383,6 +422,7 @@ public class ClusterHomeManager extends CarManagerBase {
      * @param appMetadata the application specific metadata which will be delivered with
      *                    the heartbeat.
      */
+    @FlaggedApi(FLAG_CLUSTER_HEALTH_MONITORING)
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
     public void sendHeartbeat(long epochTimeNs, @Nullable byte[] appMetadata) {
         try {
@@ -399,6 +439,7 @@ public class ClusterHomeManager extends CarManagerBase {
      *
      * @param activity               the {@link Activity} to track the visibility of its Window
      */
+    @FlaggedApi(FLAG_CLUSTER_HEALTH_MONITORING)
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
     public void startVisibilityMonitoring(@NonNull Activity activity) {
         // We'd like to check the permission locally too, since the actual execution happens later.
@@ -469,6 +510,7 @@ public class ClusterHomeManager extends CarManagerBase {
         }
     }
 
+    /** @hide */
     @Override
     protected void onCarDisconnected() {
         mStateListeners.clear();
