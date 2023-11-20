@@ -15,6 +15,8 @@
  */
 package com.android.systemui.car.distantdisplay.activity.window;
 
+import android.util.Log;
+
 import com.android.systemui.CoreStartable;
 import com.android.systemui.dagger.SysUISingleton;
 
@@ -25,17 +27,17 @@ import javax.inject.Inject;
  */
 @SysUISingleton
 public class DistantDisplayActivityWindowManager implements CoreStartable {
-
+    public static final String TAG = DistantDisplayActivityWindowManager.class.getSimpleName();
     private final ActivityWindowController mActivityOverlayController;
 
     @Inject
-    public DistantDisplayActivityWindowManager(
-            ActivityWindowController activityOverlayController) {
+    public DistantDisplayActivityWindowManager(ActivityWindowController activityOverlayController) {
         mActivityOverlayController = activityOverlayController;
     }
 
     @Override
     public void start() {
+        Log.i(TAG, "start()");
         mActivityOverlayController.initialize();
     }
 }

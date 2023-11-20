@@ -15,36 +15,36 @@
  */
 package com.android.systemui.car.distantdisplay.common;
 
-import static com.android.systemui.car.distantdisplay.activity.MoveTaskReceiver.MOVE_ACTION;
+import static android.hardware.display.DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY;
+import static android.hardware.display.DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
 
-import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
-import android.car.Car;
-import android.car.app.CarActivityManager;
-import android.car.app.CarTaskViewController;
-import android.car.app.CarTaskViewControllerCallback;
-import android.car.app.CarTaskViewControllerHostLifecycle;
-import android.car.app.RemoteCarDefaultRootTaskView;
-import android.car.app.RemoteCarDefaultRootTaskViewCallback;
-import android.car.app.RemoteCarDefaultRootTaskViewConfig;
-import android.car.app.RemoteCarRootTaskView;
-import android.car.app.RemoteCarRootTaskViewCallback;
-import android.car.app.RemoteCarRootTaskViewConfig;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.hardware.display.DisplayManager;
+import android.hardware.display.VirtualDisplay;
 import android.media.session.MediaController;
 import android.media.session.MediaSessionManager;
 import android.os.Build;
 import android.os.UserHandle;
+import android.util.ArrayMap;
 import android.util.ArraySet;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
+import android.view.LayoutInflater;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
 import com.android.systemui.R;
@@ -67,54 +67,49 @@ import java.util.Set;
  */
 public class TaskViewController {
     public static final String TAG = TaskViewController.class.getSimpleName();
-
     private static final boolean DEBUG = Build.IS_ENG || Build.IS_USERDEBUG;
     private static final int DEFAULT_DISPLAY_ID = 0;
+    private static final String ROOT_SURFACE = "RootViewSurface";
+    private static final String NAVIGATION_SURFACE = "NavigationViewSurface";
 
-    private final UserUnlockReceiver mUserUnlockReceiver = new UserUnlockReceiver();
-    private final Context mContext;
-    private final MediaSessionManager mMediaSessionManager;
+    private static ArrayMap<SurfaceHolder, VirtualDisplay> sVirtualDisplays = new ArrayMap<>();
 
+    private Context mContext;
+    private DisplayManager mDisplayManager;
+    private LayoutInflater mInflater;
     private Intent mBaseIntentForTopTask;
-
-    private RemoteCarDefaultRootTaskView mDefaultRootTaskView = null;
     private Intent mBaseIntentForTopTaskDD;
-    private FrameLayout mNavigationView;
-    private boolean mNavigationTaskViewInitialized;
-    private boolean mRootTaskViewInitialized;
-    private FrameLayout mRootView;
-    private CarTaskViewControllerHostLifecycle mCarTaskViewControllerHostLifecycle;
-    private int mDistantDisplayId;
-    private CarTaskViewController mCarTaskViewController;
+    private MediaSessionManager mMediaSessionManager;
+    private SurfaceHolder mNavigationSurfaceHolder;
+    private SurfaceHolder mRootSurfaceHolder;
+    private SurfaceHolder.Callback mNavigationViewCallback;
+    private SurfaceHolder.Callback mRootViewCallback;
     private Set<ComponentName> mNavigationActivities;
-    private boolean mIsUserUnlocked;
 
     private final TaskStackChangeListener mTaskStackChangeLister = new TaskStackChangeListener() {
 
         @Override
         public void onTaskMovedToFront(ActivityManager.RunningTaskInfo taskInfo) {
-            logIfDebuggable("onTaskMovedToFront: " + taskInfo
-                    + " token: " + taskInfo.token + " displayId: " + taskInfo.displayId);
-
+            if (DEBUG) {
+                Log.d(TAG, "onTaskMovedToFront: displayId: " + taskInfo.displayId + ", " + taskInfo
+                        + " token: " + taskInfo.token);
+            }
             if (taskInfo.displayId == DEFAULT_DISPLAY_ID) {
                 mBaseIntentForTopTask = taskInfo.baseIntent;
-            } else if (taskInfo.displayId == mDistantDisplayId) {
+            } else if (taskInfo.displayId == getVirtualDisplayId(mRootSurfaceHolder)) {
                 mBaseIntentForTopTaskDD = taskInfo.baseIntent;
             }
         }
     };
 
-    public TaskViewController(Context context) {
+    public TaskViewController(
+            Context context, DisplayManager displayManager, LayoutInflater inflater) {
         mContext = context;
+        mDisplayManager = displayManager;
+        mInflater = inflater;
         mMediaSessionManager = mContext.getSystemService(MediaSessionManager.class);
-
-    }
-
-    /**
-     * Returns the resource id for the layout that acts as the container of the taskViews.
-     */
-    public static int getTaskViewContainerLayoutResId() {
-        return R.layout.car_ui_distant_display_taskview_container;
+        mNavigationViewCallback = new SurfaceHolderCallback(this, NAVIGATION_SURFACE, mContext);
+        mRootViewCallback = new SurfaceHolderCallback(this, ROOT_SURFACE, mContext);
     }
 
     private static ArraySet<ComponentName> convertToComponentNames(String[] componentStrings) {
@@ -126,25 +121,33 @@ public class TaskViewController {
     }
 
     /**
-     * Initializes and setups the TaskViews. This method accepts a container with taskviews and
-     * then attaches the task view to it. There are 2 task views created
-     * {@link RemoteCarDefaultRootTaskView} and {@link RemoteCarRootTaskView} for navigation space.
+     * Initializes and setups the TaskViews. This method accepts a container with the base layout
+     * then attaches the surface view to it. There are 2 surface views created.
      */
-    public void initialize(ViewGroup parent, boolean isUserUnlocked) {
-        mNavigationView = parent.findViewById(R.id.navigationView);
-        mRootView = parent.findViewById(R.id.rootView);
-        mIsUserUnlocked = isUserUnlocked;
+    public void initialize(ViewGroup parent) {
+        FrameLayout navigationViewLayout = parent.findViewById(R.id.navigationView);
+        FrameLayout rootVeiwLayout = parent.findViewById(R.id.rootView);
 
-        mDistantDisplayId = mContext.getResources().getInteger(R.integer.distant_display_id);
+        View navigationViewContainer = mInflater
+                .inflate(R.layout.car_distant_display_navigation_surfaceview, null);
+        ConstraintLayout navigationView = navigationViewContainer.findViewById(R.id.container);
+        SurfaceView view = navigationViewContainer.findViewById(R.id.content);
+        view.getHolder().addCallback(mNavigationViewCallback);
+        navigationViewLayout.addView(navigationView);
+        mNavigationSurfaceHolder = view.getHolder();
+
+        View rootViewContainer = mInflater
+                .inflate(R.layout.car_distant_display_root_surfaceview, null);
+        ConstraintLayout rootView = rootViewContainer.findViewById(R.id.container);
+        SurfaceView view1 = rootViewContainer.findViewById(R.id.content);
+        view1.getHolder().addCallback(mRootViewCallback);
+        rootVeiwLayout.addView(rootView);
+        mRootSurfaceHolder = view1.getHolder();
 
         mNavigationActivities = new HashSet<>(convertToComponentNames(mContext.getResources()
                 .getStringArray(R.array.config_navigationActivities)));
 
-        mayRegisterUserUnlockReceiver();
-        mCarTaskViewControllerHostLifecycle = new CarTaskViewControllerHostLifecycle();
-        mCarTaskViewControllerHostLifecycle.hostAppeared();
-
-        setupRemoteCarTaskView();
+        TaskStackChangeListeners.getInstance().registerTaskStackListener(mTaskStackChangeLister);
 
         if (DEBUG) {
             setupDebuggingThroughAdb();
@@ -152,24 +155,22 @@ public class TaskViewController {
     }
 
     private void setupDebuggingThroughAdb() {
-        IntentFilter filter = new IntentFilter(MOVE_ACTION);
+        IntentFilter filter = new IntentFilter(MoveTaskReceiver.MOVE_ACTION);
         MoveTaskReceiver receiver = new MoveTaskReceiver();
         receiver.registerOnChangeDisplayForTask(this::changeDisplayForTask);
+        //mContext.registerReceiver(receiver, filter);
         ContextCompat.registerReceiver(mContext, receiver, filter, ContextCompat.RECEIVER_EXPORTED);
     }
 
-    private void changeDisplayForTask(int oldDisplayId, int newDisplayId) {
-        if (!((oldDisplayId == DEFAULT_DISPLAY_ID && newDisplayId == mDistantDisplayId)
-                || (oldDisplayId == mDistantDisplayId && newDisplayId == DEFAULT_DISPLAY_ID))) {
-            Log.w(TAG, "moving task not supported from display " + oldDisplayId + " to "
-                    + newDisplayId);
-            return;
-        }
-        if (newDisplayId == DEFAULT_DISPLAY_ID && mBaseIntentForTopTaskDD != null) {
+    private void changeDisplayForTask(String movement) {
+        Log.i(TAG, "Handling movement command : " + movement);
+        if (movement.equals(MoveTaskReceiver.MOVE_FROM_DISTANT_DISPLAY)) {
             startActivityOnDisplay(mBaseIntentForTopTaskDD, DEFAULT_DISPLAY_ID);
-        } else if (newDisplayId == mDistantDisplayId && taskHasActiveMediaSession(
-                mBaseIntentForTopTask.getComponent().getPackageName())) {
-            startActivityOnDisplay(mBaseIntentForTopTask, mDistantDisplayId);
+        } else if (movement.equals(MoveTaskReceiver.MOVE_TO_DISTANT_DISPLAY)) {
+            if (taskHasActiveMediaSession(mBaseIntentForTopTask.getComponent().getPackageName())) {
+                startActivityOnDisplay(
+                        mBaseIntentForTopTask, getVirtualDisplayId(mRootSurfaceHolder));
+            }
         }
     }
 
@@ -184,6 +185,7 @@ public class TaskViewController {
             if (packageName.equals(ctrl.getPackageName())) {
                 return true;
             }
+            Log.i(TAG, "[" + packageName + "]" + " active media session: " + ctrl.getPackageName());
         }
         logIfDebuggable("package: " + packageName
                 + " does not have an active MediaSession, cannot move the Task");
@@ -191,6 +193,9 @@ public class TaskViewController {
     }
 
     private void startActivityOnDisplay(Intent intent, int displayId) {
+        if (intent == null) {
+            return;
+        }
         ActivityOptions options = ActivityOptions.makeCustomAnimation(mContext, /* enterResId=*/
                 0, /* exitResId= */ 0);
         options.setLaunchDisplayId(displayId);
@@ -198,117 +203,61 @@ public class TaskViewController {
         mContext.startActivityAsUser(intent, options.toBundle(), UserHandle.CURRENT);
     }
 
-    private void setupRemoteCarTaskView() {
-        Car.createCar(/* context= */ mContext, /* handler= */ null,
-                Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER,
-                (car, ready) -> {
-                    if (!ready) {
-                        Log.w(TAG, "CarService is not ready.");
-                        return;
-                    }
-                    CarActivityManager carAM = (CarActivityManager) car.getCarManager(
-                            Car.CAR_ACTIVITY_SERVICE);
-
-                    carAM.getCarTaskViewController(
-                            mContext,
-                            mCarTaskViewControllerHostLifecycle,
-                            mContext.getMainExecutor(),
-                            new CarTaskViewControllerCallback() {
-                                @Override
-                                public void onConnected(
-                                        CarTaskViewController carTaskViewController) {
-                                    mCarTaskViewController = carTaskViewController;
-                                    taskViewControllerReady();
-                                }
-
-                                @Override
-                                public void onDisconnected(
-                                        CarTaskViewController carTaskViewController) {
-                                }
-                            });
-                });
-
-        TaskStackChangeListeners.getInstance().registerTaskStackListener(mTaskStackChangeLister);
-    }
-
-    private void mayRegisterUserUnlockReceiver() {
-        if (mIsUserUnlocked) {
-            launchWallpaperActivities();
-            return;
+    private int getVirtualDisplayId(SurfaceHolder holder) {
+        VirtualDisplay display = getVirtualDisplay(holder);
+        if (display == null) {
+            Log.e(TAG, "Could not find virtual display with given holder");
+            return Display.INVALID_DISPLAY;
         }
-        mUserUnlockReceiver.register(mContext, this::onUserUnlocked);
+        return display.getDisplay().getDisplayId();
     }
 
-    private void onUserUnlocked() {
-        mIsUserUnlocked = true;
-        launchWallpaperActivities();
+    /**
+     * Provides a DisplayManager.
+     * This method will be called from the SurfaceHolderCallback to create a virtual display.
+     */
+    public DisplayManager getDisplayManager() {
+        return mDisplayManager;
     }
 
-    private void launchWallpaperActivities() {
-        if (!isSystemReady()) {
-            return;
+    private void launchActivity(int displayId, Intent intent) {
+        ActivityOptions options = ActivityOptions.makeCustomAnimation(mContext, 0, 0);
+        options.setLaunchDisplayId(displayId);
+        mContext.startActivityAsUser(intent, options.toBundle(), UserHandle.CURRENT);
+    }
+
+    /**
+     * Launches the wallpaper activity on a virtuall display which belongs to a surface.
+     * This method will be called when a virtual display is created from the SrufaceHolderCallback.
+     */
+    public void launchWallpaper(String surface) {
+        if (surface.equals(ROOT_SURFACE)) {
+            launchActivity(getVirtualDisplayId(mRootSurfaceHolder),
+                    RootTaskViewWallpaperActivity.createIntent(mContext));
+        } else if (surface.equals(NAVIGATION_SURFACE)) {
+            launchActivity(getVirtualDisplayId(mNavigationSurfaceHolder),
+                    NavigationTaskViewWallpaperActivity.createIntent(mContext));
+        } else {
+            Log.e(TAG, "Invalid surfacename : " + surface);
         }
-        startActivityOnDisplay(RootTaskViewWallpaperActivity.createIntent(mContext),
-                mDistantDisplayId);
-        startActivityOnDisplay(NavigationTaskViewWallpaperActivity.createIntent(mContext),
-                mDistantDisplayId);
     }
 
-    private boolean isSystemReady() {
-        return mIsUserUnlocked && mRootTaskViewInitialized && mNavigationTaskViewInitialized;
+    /**
+     * Gets a SurfaceHolder object and returns a VirtualDisplay it belongs to.
+     */
+    public VirtualDisplay getVirtualDisplay(SurfaceHolder holder) {
+        return sVirtualDisplays.get(holder);
     }
 
-    private void taskViewControllerReady() {
-        mCarTaskViewController.createRemoteCarDefaultRootTaskView(
-                new RemoteCarDefaultRootTaskViewConfig.Builder()
-                        .setDisplayId(mDistantDisplayId)
-                        .embedHomeTask(true)
-                        .embedRecentsTask(true)
-                        .build(),
-                mContext.getMainExecutor(),
-                new RemoteCarDefaultRootTaskViewCallback() {
-                    @Override
-                    public void onTaskViewCreated(@NonNull RemoteCarDefaultRootTaskView taskView) {
-                        Log.d(TAG, "default Root Task View is created: " + taskView);
-                        if (mDefaultRootTaskView == null) {
-                            mDefaultRootTaskView = taskView;
-                        }
-                        taskView.setZOrderMediaOverlay(true);
-                        mRootView.addView(taskView);
-                        taskView.updateWindowBounds();
-                    }
-
-                    @Override
-                    public void onTaskViewInitialized() {
-                        Log.d(TAG, "Default Root Task View is ready");
-                        mRootTaskViewInitialized = true;
-                        launchWallpaperActivities();
-                    }
-                }
-        );
-
-        mCarTaskViewController.createRemoteCarRootTaskView(
-                new RemoteCarRootTaskViewConfig.Builder()
-                        .setDisplayId(mDistantDisplayId)
-                        .setAllowListedActivities(mNavigationActivities.stream().toList())
-                        .build(),
-                mContext.getMainExecutor(),
-                new RemoteCarRootTaskViewCallback() {
-                    @Override
-                    public void onTaskViewCreated(@NonNull RemoteCarRootTaskView taskView) {
-                        Log.d(TAG, "Root Task View is created");
-                        taskView.setZOrderMediaOverlay(true);
-                        mNavigationView.addView(taskView);
-                    }
-
-                    @Override
-                    public void onTaskViewInitialized() {
-                        Log.d(TAG, "Root Task View is ready");
-                        mNavigationTaskViewInitialized = true;
-                        launchWallpaperActivities();
-                    }
-                }
-        );
+    /**
+     * Builds a DB with SurfaceHolder and mapped VirtualDisplay.
+     */
+    public void putVirtualDisplay(SurfaceHolder holder, VirtualDisplay display) {
+        if (sVirtualDisplays.get(holder) == null) {
+            sVirtualDisplays.put(holder, display);
+        } else {
+            Log.w(TAG, "surface holder with VD already exists.");
+        }
     }
 
     private static void logIfDebuggable(String message) {
@@ -316,4 +265,68 @@ public class TaskViewController {
             Log.d(TAG, message);
         }
     }
+
+    public static class SurfaceHolderCallback implements SurfaceHolder.Callback {
+
+        public static final String TAG = SurfaceHolderCallback.class.getSimpleName();
+        ;
+        private final String mSurfaceName;
+        private final TaskViewController mController;
+        private final Context mContext;
+
+        public SurfaceHolderCallback(TaskViewController controller, String name, Context context) {
+            Log.i(TAG, "Create SurfaceHolderCallback for " + name);
+            mSurfaceName = name;
+            mController = controller;
+            mContext = context;
+        }
+
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+            Log.i(TAG, "surfaceCreated, holder: " + holder);
+        }
+
+        @Override
+        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            Log.i(TAG, "surfaceChanged, holder: " + holder + ", size:" + width + "x" + height
+                    + ", format:" + format);
+
+            VirtualDisplay virtualDisplay = mController.getVirtualDisplay(holder);
+            if (virtualDisplay == null) {
+                virtualDisplay = createVirtualDisplay(holder.getSurface(), width, height);
+                mController.putVirtualDisplay(holder, virtualDisplay);
+                int displayId = virtualDisplay.getDisplay().getDisplayId();
+                Log.i(TAG, "Created a virtual display for " + mSurfaceName + ". ID: " + displayId);
+                mController.launchWallpaper(mSurfaceName);
+            } else {
+                Log.i(TAG, "SetSurface display_id: " + virtualDisplay.getDisplay().getDisplayId()
+                        + ", surface name:" + mSurfaceName);
+                virtualDisplay.setSurface(holder.getSurface());
+            }
+        }
+
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            Log.i(TAG, "surfaceDestroyed, holder: " + holder + ", detaching surface from"
+                    + " display, surface: " + holder.getSurface());
+            VirtualDisplay virtualDisplay = mController.getVirtualDisplay(holder);
+            if (virtualDisplay != null) {
+                virtualDisplay.setSurface(null);
+            }
+        }
+
+        private VirtualDisplay createVirtualDisplay(Surface surface, int width, int height) {
+            DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
+            Log.i(TAG, "createVirtualDisplay, surface: " + surface + ", width: " + width
+                    + "x" + height + " density: " + metrics.densityDpi);
+            return mController.getDisplayManager().createVirtualDisplay(
+                    /* projection= */ null, "DistantDisplay-" + mSurfaceName + "-VD",
+                    width, height, metrics.densityDpi, surface,
+                    VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY
+                            | VIRTUAL_DISPLAY_FLAG_PUBLIC,
+                    /* callback= */
+                    null, /* handler= */ null, "DistantDisplay-" + mSurfaceName);
+        }
+    }
+
 }

@@ -19,16 +19,14 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/car_ui_distant_display_root_taskview_wallpaper">
+    android:background="@drawable/car_distant_display_navigation_taskview_wallpaper">
 
-    <TextView
-        android:id="@+id/base_layer_failure_recovery_title"
+    <SurfaceView
+        android:id="@+id/content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:gravity="center"
-        android:textSize="64sp"
-        android:text="APPLICATION SPACE"
+        app:layout_constraintVertical_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"

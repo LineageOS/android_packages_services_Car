@@ -19,8 +19,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.android.systemui.R;
-
 /**
  * Receiver for testing purpose ONLY. This is acting as an entry point for moving the tasks until
  * UX figure out the specific place to trigger the move ia UI.
@@ -44,8 +42,10 @@ import com.android.systemui.R;
  * TODO(b/302548275) : once the CUJs are completed via UX remove this receiver.
  */
 public class MoveTaskReceiver extends BroadcastReceiver {
-
+    public static final String TAG = "MoveTaskReceiver";
     public static final String MOVE_ACTION = "com.android.systemui.car.intent.action.MOVE_TASK";
+    public static final String MOVE_TO_DISTANT_DISPLAY = "to_dd";
+    public static final String MOVE_FROM_DISTANT_DISPLAY = "from_dd";
 
     /**
      * Called when a request to move the task from one display to another comes in.
@@ -54,14 +54,11 @@ public class MoveTaskReceiver extends BroadcastReceiver {
         /**
          * Called when the request to move the task to another display comes in.
          *
-         * @param oldDisplayId displayId where the task is currently
-         * @param newDisplayId displayId of the display to where the task should be moved
+         * @param movement command which shows the movement direction
          */
-        void onTaskDisplayChangeRequest(int oldDisplayId, int newDisplayId);
+        void onTaskDisplayChangeRequest(String movement);
     }
 
-    public static String MOVE_TO_DISTANT_DISPLAY = "to_dd";
-    public static String MOVE_FROM_DISTANT_DISPLAY = "from_dd";
     private Callback mOnChangeDisplayForTask;
 
     @Override
@@ -71,12 +68,9 @@ public class MoveTaskReceiver extends BroadcastReceiver {
             return;
         }
         String data = intent.getStringExtra("move");
-        if (data.equals(MOVE_TO_DISTANT_DISPLAY)) {
-            mOnChangeDisplayForTask.onTaskDisplayChangeRequest(0,
-                    context.getResources().getInteger(R.integer.distant_display_id));
-        } else if (data.equals(MOVE_FROM_DISTANT_DISPLAY)) {
-            mOnChangeDisplayForTask.onTaskDisplayChangeRequest(
-                    context.getResources().getInteger(R.integer.distant_display_id), 0);
+
+        if (data.equals(MOVE_TO_DISTANT_DISPLAY) || data.equals(MOVE_FROM_DISTANT_DISPLAY)) {
+            mOnChangeDisplayForTask.onTaskDisplayChangeRequest(data);
         }
     }
 
