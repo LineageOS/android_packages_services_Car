@@ -16,6 +16,7 @@
 
 package android.car.hardware.property;
 
+import static android.car.feature.Flags.FLAG_BATCHED_SUBSCRIPTIONS;
 import static android.car.feature.Flags.FLAG_VARIABLE_UPDATE_RATE;
 
 import android.annotation.FlaggedApi;
@@ -31,16 +32,17 @@ import java.util.Set;
 
 /**
  * Represents the subscription data to {@link CarPropertyManager#subscribePropertyEvents}. To
- * create an SubscriptionOption use {@link SubscriptionOption.Builder}.
+ * create an Subscription use {@link Subscription.Builder}.
  */
-public final class SubscriptionOption {
+@FlaggedApi(FLAG_BATCHED_SUBSCRIPTIONS)
+public final class Subscription {
     private final int mPropertyId;
     @FloatRange(from = 0.0, to = 100.0)
     private final float mUpdateRateHz;
     private final int[] mAreaIds;
     private boolean mDisableVariableUpdateRate;
 
-    private SubscriptionOption(@NonNull Builder builder) {
+    private Subscription(@NonNull Builder builder) {
         mPropertyId = builder.mBuilderPropertyId;
         mUpdateRateHz = builder.mBuilderUpdateRateHz;
         mAreaIds = new int[builder.mBuilderAreaIds.size()];
@@ -150,7 +152,7 @@ public final class SubscriptionOption {
     }
 
     /**
-     * Builder for {@link SubscriptionOption}
+     * Builder for {@link Subscription}
      */
     public static final class Builder {
         private final int mBuilderPropertyId;
@@ -220,7 +222,7 @@ public final class SubscriptionOption {
         }
 
         /**
-         * Adds an areaId for the {@link SubscriptionOption} being built. If the areaId is already
+         * Adds an areaId for the {@link Subscription} being built. If the areaId is already
          * present, then the operation is ignored.
          *
          * @param areaId The areaId to add for the given builder
@@ -233,15 +235,15 @@ public final class SubscriptionOption {
         }
 
         /**
-         * Builds and returns the SubscriptionOption
+         * Builds and returns the Subscription
          *
          * @throws IllegalStateException if build is used more than once.
          */
         @NonNull
-        public SubscriptionOption build() {
+        public Subscription build() {
             checkNotUsed();
             mBuilderFieldsSet |= 0x1;
-            return new SubscriptionOption(this);
+            return new Subscription(this);
         }
 
         private void checkNotUsed() {

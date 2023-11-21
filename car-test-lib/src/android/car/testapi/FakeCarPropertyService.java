@@ -35,7 +35,7 @@ import com.android.car.internal.PropertyPermissionMapping;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarPropertyConfigList;
-import com.android.car.internal.property.CarSubscribeOption;
+import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
@@ -72,12 +72,12 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
             new PairSparseArray<>();
 
     @Override
-    public void registerListenerWithSubscribeOptions(List<CarSubscribeOption> subscribeOptions,
+    public void registerListener(List<CarSubscription> subscriptions,
             ICarPropertyEventListener listener) {
         synchronized (mLock) {
-            for (int i = 0; i < subscribeOptions.size(); i++) {
-                int propId = subscribeOptions.get(i).propertyId;
-                for (int areaId : subscribeOptions.get(i).areaIds) {
+            for (int i = 0; i < subscriptions.size(); i++) {
+                int propId = subscriptions.get(i).propertyId;
+                for (int areaId : subscriptions.get(i).areaIds) {
                     Set<ListenerInfo> propListeners = mListenersByPropIdAreaId.get(propId, areaId);
                     if (propListeners == null) {
                         propListeners = new ArraySet<>();

@@ -148,7 +148,7 @@ public final class InputSanitizationUtilsUnitTest {
 
     @Test
     public void testSanitizeEnableVariableUpdateRate() {
-        CarSubscribeOption inputOption = newCarSubscribeOption(PROPERTY_ID, new int[]{1, 2, 3},
+        CarSubscription inputOption = newCarSubscription(PROPERTY_ID, new int[]{1, 2, 3},
                 DEFAULT_UPDATE_RATE_HZ, true);
 
         FeatureFlags featureFlags = mock(FeatureFlags.class);
@@ -164,18 +164,18 @@ public final class InputSanitizationUtilsUnitTest {
         when(config.getAreaIdConfig(2)).thenThrow(new IllegalArgumentException());
         when(config.getAreaIdConfig(3)).thenReturn(areaIdConfigDisabled);
 
-        List<CarSubscribeOption> sanitizedOptions =
+        List<CarSubscription> sanitizedOptions =
                 InputSanitizationUtils.sanitizeEnableVariableUpdateRate(featureFlags, config,
                 inputOption);
 
         assertThat(sanitizedOptions).containsExactly(
-                newCarSubscribeOption(PROPERTY_ID, new int[]{1}, DEFAULT_UPDATE_RATE_HZ, true),
-                newCarSubscribeOption(PROPERTY_ID, new int[]{2, 3}, DEFAULT_UPDATE_RATE_HZ, false));
+                newCarSubscription(PROPERTY_ID, new int[]{1}, DEFAULT_UPDATE_RATE_HZ, true),
+                newCarSubscription(PROPERTY_ID, new int[]{2, 3}, DEFAULT_UPDATE_RATE_HZ, false));
     }
 
-    private static CarSubscribeOption newCarSubscribeOption(int propertyId, int[] areaIds,
+    private static CarSubscription newCarSubscription(int propertyId, int[] areaIds,
             float updateRateHz, boolean enableVUR) {
-        CarSubscribeOption option = new CarSubscribeOption();
+        CarSubscription option = new CarSubscription();
         option.propertyId = propertyId;
         option.areaIds = areaIds;
         option.updateRateHz = updateRateHz;
