@@ -18,11 +18,21 @@ package com.android.car.internal.property;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import android.car.VehicleAreaType;
+import android.car.feature.FeatureFlags;
 import android.car.hardware.CarPropertyConfig;
+import android.car.hardware.property.AreaIdConfig;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.List;
+
+@RunWith(MockitoJUnitRunner.class)
 public final class InputSanitizationUtilsUnitTest {
     private static final int PROPERTY_ID = 123;
     private static final float DEFAULT_UPDATE_RATE_HZ = 55.5f;
@@ -101,5 +111,75 @@ public final class InputSanitizationUtilsUnitTest {
                                         .build(),
                                 DEFAULT_UPDATE_RATE_HZ))
                 .isEqualTo(DEFAULT_UPDATE_RATE_HZ);
+    }
+
+    @Test
+    public void testIsVURAllowed() {
+        CarPropertyConfig config = mock(CarPropertyConfig.class);
+        when(config.getChangeMode()).thenReturn(
+                CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS);
+        FeatureFlags featureFlags = mock(FeatureFlags.class);
+        when(featureFlags.variableUpdateRate()).thenReturn(true);
+
+        assertThat(InputSanitizationUtils.isVURAllowed(featureFlags, config)).isTrue();
+    }
+
+    @Test
+    public void testIsVURAllowed_featureDisabled() {
+        CarPropertyConfig config = mock(CarPropertyConfig.class);
+        when(config.getChangeMode()).thenReturn(
+                CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS);
+        FeatureFlags featureFlags = mock(FeatureFlags.class);
+        when(featureFlags.variableUpdateRate()).thenReturn(false);
+
+        assertThat(InputSanitizationUtils.isVURAllowed(featureFlags, config)).isFalse();
+    }
+
+    @Test
+    public void testIsVURAllowed_propertyNotContinuous() {
+        CarPropertyConfig config = mock(CarPropertyConfig.class);
+        when(config.getChangeMode()).thenReturn(
+                CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE);
+        FeatureFlags featureFlags = mock(FeatureFlags.class);
+        when(featureFlags.variableUpdateRate()).thenReturn(true);
+
+        assertThat(InputSanitizationUtils.isVURAllowed(featureFlags, config)).isFalse();
+    }
+
+    @Test
+    public void testSanitizeEnableVariableUpdateRate() {
+        CarSubscribeOption inputOption = newCarSubscribeOption(PROPERTY_ID, new int[]{1, 2, 3},
+                DEFAULT_UPDATE_RATE_HZ, true);
+
+        FeatureFlags featureFlags = mock(FeatureFlags.class);
+        when(featureFlags.variableUpdateRate()).thenReturn(true);
+        CarPropertyConfig config = mock(CarPropertyConfig.class);
+        when(config.getChangeMode()).thenReturn(
+                CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS);
+        AreaIdConfig areaIdConfigEnabled = mock(AreaIdConfig.class);
+        when(areaIdConfigEnabled.isVariableUpdateRateSupported()).thenReturn(true);
+        AreaIdConfig areaIdConfigDisabled = mock(AreaIdConfig.class);
+        when(areaIdConfigDisabled.isVariableUpdateRateSupported()).thenReturn(false);
+        when(config.getAreaIdConfig(1)).thenReturn(areaIdConfigEnabled);
+        when(config.getAreaIdConfig(2)).thenThrow(new IllegalArgumentException());
+        when(config.getAreaIdConfig(3)).thenReturn(areaIdConfigDisabled);
+
+        List<CarSubscribeOption> sanitizedOptions =
+                InputSanitizationUtils.sanitizeEnableVariableUpdateRate(featureFlags, config,
+                inputOption);
+
+        assertThat(sanitizedOptions).containsExactly(
+                newCarSubscribeOption(PROPERTY_ID, new int[]{1}, DEFAULT_UPDATE_RATE_HZ, true),
+                newCarSubscribeOption(PROPERTY_ID, new int[]{2, 3}, DEFAULT_UPDATE_RATE_HZ, false));
+    }
+
+    private static CarSubscribeOption newCarSubscribeOption(int propertyId, int[] areaIds,
+            float updateRateHz, boolean enableVUR) {
+        CarSubscribeOption option = new CarSubscribeOption();
+        option.propertyId = propertyId;
+        option.areaIds = areaIds;
+        option.updateRateHz = updateRateHz;
+        option.enableVariableUpdateRate = enableVUR;
+        return option;
     }
 }

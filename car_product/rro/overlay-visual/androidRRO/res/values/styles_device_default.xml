@@ -164,8 +164,6 @@
     <style name="Widget.DeviceDefault.Button.Toggle" parent="android:Widget.Material.Button.Toggle">
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">none</item>
-        <item name="android:requiresFadingEdge">horizontal</item>
-        <item name="android:fadingEdgeLength">@*android:dimen/car_textview_fading_edge_length</item>
         <item name="android:background">@drawable/car_button_toggle_background</item>
         <item name="android:textAppearance">@style/TextAppearance.DeviceDefault.Widget.Button.Toggle</item>
         <item name="android:minHeight">@dimen/car_button_min_height</item>

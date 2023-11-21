@@ -211,7 +211,7 @@ public class CarPropertyService extends ICarProperty.Stub
 
     /** Sets fake feature flag for unit testing. */
     @VisibleForTesting
-    public void setFeatureFlags(FeatureFlags fakeFeatureFlags) {
+    void setFeatureFlags(FeatureFlags fakeFeatureFlags) {
         mFeatureFlags = fakeFeatureFlags;
     }
 
@@ -320,8 +320,10 @@ public class CarPropertyService extends ICarProperty.Stub
      *
      * @throws IllegalArgumentException if one of the options is not valid.
      */
-    private void validateAndSanitizeSubscribeOptions(List<CarSubscribeOption> subscribeOptions)
+    private List<CarSubscribeOption> validateAndSanitizeSubscribeOptions(
+                List<CarSubscribeOption> subscribeOptions)
             throws IllegalArgumentException {
+        List<CarSubscribeOption> sanitizedOptions = new ArrayList<>();
         for (int i = 0; i < subscribeOptions.size(); i++) {
             CarSubscribeOption option = subscribeOptions.get(i);
             CarPropertyConfig<?> carPropertyConfig = validateRegisterParameterAndGetConfig(
@@ -329,23 +331,10 @@ public class CarPropertyService extends ICarProperty.Stub
             option.updateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(carPropertyConfig,
                     option.updateRateHz);
 
-            if (option.enableVariableUpdateRate) {
-                // If VUR feature is disabled, overwrite the VUR option to false.
-                if (!mFeatureFlags.variableUpdateRate()) {
-                    if (DBG) {
-                        Slogf.d(TAG, "VUR feature is not enabled, VUR is always off");
-                    }
-                    option.enableVariableUpdateRate = false;
-                } else if (carPropertyConfig.getChangeMode()
-                        != CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS) {
-                    // TODO(b/308814366): Check whether VUR is supported.
-                    if (DBG) {
-                        Slogf.d(TAG, "VUR is always off for non-continuous property");
-                    }
-                    option.enableVariableUpdateRate = false;
-                }
-            }
+            sanitizedOptions.addAll(InputSanitizationUtils.sanitizeEnableVariableUpdateRate(
+                    mFeatureFlags, carPropertyConfig, option));
         }
+        return sanitizedOptions;
     }
 
     /**
@@ -379,7 +368,8 @@ public class CarPropertyService extends ICarProperty.Stub
         requireNonNull(subscribeOptions);
         requireNonNull(carPropertyEventListener);
 
-        validateAndSanitizeSubscribeOptions(subscribeOptions);
+        List<CarSubscribeOption> sanitizedOptions =
+                validateAndSanitizeSubscribeOptions(subscribeOptions);
 
         CarPropertyServiceClient finalClient;
         synchronized (mLock) {
@@ -392,18 +382,18 @@ public class CarPropertyService extends ICarProperty.Stub
                 return;
             }
 
-            for (int i = 0; i < subscribeOptions.size(); i++) {
-                CarSubscribeOption option = subscribeOptions.get(i);
+            for (int i = 0; i < sanitizedOptions.size(); i++) {
+                CarSubscribeOption option = sanitizedOptions.get(i);
                 sSubscriptionUpdateRateHistogram.logSample(option.updateRateHz);
                 if (DBG) {
                     Slogf.d(TAG, "registerListener after update rate sanitization, options: "
-                            + subscribeOptions.get(i));
+                            + sanitizedOptions.get(i));
                 }
             }
 
             // Store the new subscritpion state in the staging area. This does not affect the
             // current state.
-            mSubscriptionManager.stageNewOptions(client, subscribeOptions);
+            mSubscriptionManager.stageNewOptions(client, sanitizedOptions);
 
             // Try to apply the staged changes.
             try {
@@ -417,19 +407,16 @@ public class CarPropertyService extends ICarProperty.Stub
             // [propertyId -> subscribed clients list] map. Adds the property to the client's
             // [areaId -> update rate] map.
             mSubscriptionManager.commit();
-            for (int i = 0; i < subscribeOptions.size(); i++) {
-                CarSubscribeOption option = subscribeOptions.get(i);
+            for (int i = 0; i < sanitizedOptions.size(); i++) {
+                CarSubscribeOption option = sanitizedOptions.get(i);
                 client.addProperty(
                         option.propertyId, option.areaIds, option.updateRateHz);
             }
             finalClient = client;
         }
 
-        // We should use subscribeOptions instead of filteredSubscribeOptions here since even if
-        // the request may cause no new subscription because the [propId, areaId] is already
-        // subscribed at the target rate, we should still send initial values to the client.
         mHandler.post(() ->
-                getAndDispatchPropertyInitValue(subscribeOptions, finalClient));
+                getAndDispatchPropertyInitValue(sanitizedOptions, finalClient));
     }
 
     /**
@@ -1103,6 +1090,7 @@ public class CarPropertyService extends ICarProperty.Stub
             int[] areaIds) {
         CarPropertyConfig<?> carPropertyConfig = validateRegisterParameterAndGetConfig(propertyId);
         Preconditions.checkArgument(areaIds != null, "AreaIds must not be null");
+        Preconditions.checkArgument(areaIds.length != 0, "AreaIds must not be empty");
         for (int i = 0; i < areaIds.length; i++) {
             assertAreaIdIsSupported(areaIds[i], carPropertyConfig);
         }

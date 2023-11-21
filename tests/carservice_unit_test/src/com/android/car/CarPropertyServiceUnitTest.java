@@ -142,8 +142,10 @@ public final class CarPropertyServiceUnitTest {
 
         SparseArray<CarPropertyConfig<?>> configs = new SparseArray<>();
         configs.put(SPEED_ID, CarPropertyConfig.newBuilder(Float.class, SPEED_ID,
-                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1).addAreaConfig(GLOBAL_AREA_ID, null,
-                null).setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).setChangeMode(
+                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1).addAreaIdConfig(
+                        new AreaIdConfig.Builder<Float>(GLOBAL_AREA_ID)
+                        .setSupportVariableUpdateRate(true).build())
+                .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).setChangeMode(
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS).setMaxSampleRate(
                 100).setMinSampleRate(1).build());
         when(mHalService.isReadable(mContext, SPEED_ID)).thenReturn(true);
@@ -164,7 +166,8 @@ public final class CarPropertyServiceUnitTest {
                 .thenReturn(true);
         configs.put(CONTINUOUS_READ_ONLY_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
                 CONTINUOUS_READ_ONLY_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
-                1).addAreaConfig(GLOBAL_AREA_ID, null, null).setAccess(
+                1).addAreaIdConfig(new AreaIdConfig.Builder<Integer>(GLOBAL_AREA_ID)
+                        .setSupportVariableUpdateRate(true).build()).setAccess(
                 CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).setChangeMode(
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS).setMinSampleRate(
                 MIN_SAMPLE_RATE).setMaxSampleRate(MAX_SAMPLE_RATE).build());
@@ -953,6 +956,31 @@ public final class CarPropertyServiceUnitTest {
 
         verify(mHalService, never()).subscribeProperty(any());
         verify(mHalService).unsubscribeProperty(CONTINUOUS_ZONED_PROPERTY_ID);
+    }
+
+    @Test
+    public void testRegisterListenerWithSubscribeOptions_emptyAreaIds() throws Exception {
+        ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
+        IBinder mockBinder = mock(IBinder.class);
+        when(mockHandler.asBinder()).thenReturn(mockBinder);
+
+        assertThrows(IllegalArgumentException.class, () ->
+                mService.registerListenerWithSubscribeOptions(List.of(
+                        createCarSubscriptionOption(ON_CHANGE_ZONED_PROPERTY_ID, new int[]{}, 0f)),
+                mockHandler));
+    }
+
+    @Test
+    public void testRegisterListenerWithSubscribeOptions_nullAreaIds() throws Exception {
+        ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
+        IBinder mockBinder = mock(IBinder.class);
+        when(mockHandler.asBinder()).thenReturn(mockBinder);
+
+        assertThrows(IllegalArgumentException.class, () ->
+                mService.registerListenerWithSubscribeOptions(List.of(
+                        createCarSubscriptionOption(ON_CHANGE_ZONED_PROPERTY_ID,
+                                /* areaId= */ null, 0f)),
+                mockHandler));
     }
 
     @Test
