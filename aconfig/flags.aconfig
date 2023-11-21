@@ -40,7 +40,7 @@ flag {
   bug: "305301155"
 }
 
-#CarPropertyManager
+# CarPropertyManager
 flag {
   name: "batched_subscriptions"
   namespace: "car_framework"
