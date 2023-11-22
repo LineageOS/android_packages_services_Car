@@ -34,6 +34,7 @@ public final class TestCarAudioDeviceInfoBuilder {
     private int mDefaultGain = DEFAULT_GAIN;
     private int mMinGain = MIN_GAIN;
     private int mMaxGain = MAX_GAIN;
+    private boolean mIsActive = true;
 
     TestCarAudioDeviceInfoBuilder(String address) {
         mAddress = address;
@@ -59,6 +60,11 @@ public final class TestCarAudioDeviceInfoBuilder {
         return this;
     }
 
+    TestCarAudioDeviceInfoBuilder setIsActive(boolean isActive) {
+        mIsActive = isActive;
+        return this;
+    }
+
     CarAudioDeviceInfo build() {
         AudioDeviceAttributes attributeMock = Mockito.mock(AudioDeviceAttributes.class);
         when(attributeMock.getAddress()).thenReturn(mAddress);
@@ -69,6 +75,7 @@ public final class TestCarAudioDeviceInfoBuilder {
         when(infoMock.getMinGain()).thenReturn(mMinGain);
         when(infoMock.getAddress()).thenReturn(mAddress);
         when(infoMock.getAudioDevice()).thenReturn(attributeMock);
+        when(infoMock.isActive()).thenReturn(mIsActive);
         return infoMock;
     }
 }

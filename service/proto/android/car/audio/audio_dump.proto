@@ -82,6 +82,7 @@ message CarAudioDumpProto {
     optional int32 encoding_format = 4;
     optional int32 channel_count = 5;
     optional CarVolumeGain volume_gain = 6;
+    optional bool is_active = 7;
   }
 
   message CarVolumeGroupProto {
@@ -93,6 +94,7 @@ message CarAudioDumpProto {
       optional bool attenuated = 5;
       optional bool attenuated_gain_index = 6;
       optional bool hal_muted = 7;
+      optional bool is_active = 8;
     }
     message ContextToAddress {
       optional string context = 1;
@@ -118,6 +120,8 @@ message CarAudioDumpProto {
     optional int32 zone_id = 3;
     optional bool default = 4;
     repeated CarVolumeGroupProto volume_groups = 5;
+    optional bool is_active = 6;
+    optional bool is_selected = 7;
   }
 
   message CarAudioZoneProto {

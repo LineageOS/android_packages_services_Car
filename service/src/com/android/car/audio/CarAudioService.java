@@ -531,11 +531,11 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             writer.println("Configurations:");
             writer.increaseIndent();
             writer.printf("Run in legacy mode? %b\n", runInLegacyMode());
-            writer.printf("Rely on core audio for volume(%b)\n", mUseCoreAudioVolume);
-            writer.printf("Rely on core audio for routing(%b)\n",  mUseCoreAudioRouting);
+            writer.printf("Rely on core audio for volume? %b\n", mUseCoreAudioVolume);
+            writer.printf("Rely on core audio for routing? %b\n",  mUseCoreAudioRouting);
             writer.printf("Audio Patch APIs enabled? %b\n", areAudioPatchAPIsEnabled());
             writer.printf("Persist master mute state? %b\n", mPersistMasterMuteState);
-            writer.printf("Use hal ducking signals %b\n", mUseHalDuckingSignals);
+            writer.printf("Use hal ducking signals? %b\n", mUseHalDuckingSignals);
             writer.printf("Volume key event timeout ms: %d\n", mKeyEventTimeoutMs);
             if (mCarAudioConfigurationPath != null) {
                 writer.printf("Car audio configuration path: %s\n", mCarAudioConfigurationPath);
@@ -2661,13 +2661,26 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         verifyCanSwitchZoneConfigs(zoneConfig);
         mHandler.post(() -> {
             boolean isSuccessful = handleSwitchZoneConfig(zoneConfig);
+            CarAudioZoneConfigInfo updatedInfo = getAudioZoneConfigInfo(zoneConfig);
             try {
-                callback.onAudioZoneConfigSwitched(zoneConfig, isSuccessful);
+                callback.onAudioZoneConfigSwitched(updatedInfo, isSuccessful);
             } catch (RemoteException e) {
                 Slogf.e(TAG, e, "Could not inform zone configuration %s switch result",
-                        zoneConfig);
+                        updatedInfo);
             }
         });
+    }
+
+    @Nullable
+    private CarAudioZoneConfigInfo getAudioZoneConfigInfo(CarAudioZoneConfigInfo zoneConfig) {
+        List<CarAudioZoneConfigInfo> infos = getAudioZoneConfigInfos(zoneConfig.getZoneId());
+        for (int c = 0; c < infos.size(); c++) {
+            if (infos.get(c).getConfigId() != zoneConfig.getConfigId()) {
+                continue;
+            }
+            return infos.get(c);
+        }
+        return null;
     }
 
     private void verifyCanSwitchZoneConfigs(CarAudioZoneConfigInfo zoneConfig) {

@@ -1554,8 +1554,12 @@ package android.car.media {
   public final class CarAudioZoneConfigInfo implements android.os.Parcelable {
     method public int describeContents();
     method public int getConfigId();
+    method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") @NonNull public java.util.List<android.car.media.CarVolumeGroupInfo> getConfigVolumeGroups();
     method @NonNull public String getName();
     method public int getZoneId();
+    method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") public boolean hasSameConfigInfo(@NonNull android.car.media.CarAudioZoneConfigInfo);
+    method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") public boolean isActive();
+    method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") public boolean isSelected();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.media.CarAudioZoneConfigInfo> CREATOR;
   }
