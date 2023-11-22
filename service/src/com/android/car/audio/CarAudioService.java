@@ -213,6 +213,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private final CarVolumeEventHandler mCarVolumeEventHandler = new CarVolumeEventHandler();
     private final AudioServerStateCallback mAudioServerStateCallback;
 
+    private final CarAudioDeviceCallback mAudioDeviceInfoCallback;
+
     private AudioControlWrapper mAudioControlWrapper;
     private CarDucking mCarDucking;
     private CarVolumeGroupMuting mCarVolumeGroupMuting;
@@ -389,6 +391,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         mPersistMasterMuteState = !mUseCarVolumeGroupMuting && mContext.getResources().getBoolean(
                 R.bool.audioPersistMasterMuteState);
         mAudioServerStateCallback = new CarAudioServerStateCallback(this);
+        mAudioDeviceInfoCallback = new CarAudioDeviceCallback(this);
     }
 
     /**
@@ -420,6 +423,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             mAudioManager.setSupportedSystemUsages(CarAudioContext.getSystemUsages());
             mAudioManager.setAudioServerStateCallback(mContext.getMainExecutor(),
                     mAudioServerStateCallback);
+            mAudioManager.registerAudioDeviceCallback(mAudioDeviceInfoCallback, mHandler);
         }
 
         restoreMasterMuteState();
@@ -476,6 +480,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             }
             mAudioManager.clearAudioServerStateCallback();
             mCarInputService.unregisterKeyEventListener(mCarKeyEventListener);
+            mAudioManager.unregisterAudioDeviceCallback(mAudioDeviceInfoCallback);
         }
     }
 
@@ -3242,6 +3247,19 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         synchronized (mImplLock) {
             return getVolumeGroupIdForAudioAttributeLocked(audioZoneId, attributes);
         }
+    }
+
+    void audioDevicesAdded(AudioDeviceInfo[] addedDevices) {
+        Slogf.d(TAG, "Added audio devices " + Arrays.toString(addedDevices));
+        // TODO(b/305301155): Update audio zones with new devices
+        // Trigger callback for audio configuration updates
+    }
+
+    void audioDevicesRemoved(AudioDeviceInfo[] removedDevices) {
+        Slogf.d(TAG, "Removed audio devices " + Arrays.toString(removedDevices));
+        // TODO(b/305301155): Update audio zones with removed devices
+        // Also need to undo current routing for configurations that are active and the device is
+        // no longer available. Finally trigger callback for audio configuration updates
     }
 
     static final class SystemClockWrapper {
