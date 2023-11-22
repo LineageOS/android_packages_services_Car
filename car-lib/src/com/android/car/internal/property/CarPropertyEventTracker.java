@@ -16,55 +16,20 @@
 
 package com.android.car.internal.property;
 
-import android.car.VehiclePropertyIds;
-import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyValue;
-import android.util.Log;
 
-import java.time.Duration;
 
 /**
- * Tracks the next update timestamp for vehicle property listeners.
- * This class is not thread-safe.
+ * Records the previous property event information and tracks whether the new property event
+ * contains update.
  *
  * @hide
  */
-public final class CarPropertyEventTracker {
-    private static final String TAG = "CarPropertyEventTracker";
-    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
-    private static final float NANOSECONDS_PER_SECOND = Duration.ofSeconds(1).toNanos();
-    // Add a margin so that if an event timestamp is within
-    // 5% of the next timestamp, it will not be dropped.
-    private static final float UPDATE_PERIOD_OFFSET = 0.95f;
+public interface CarPropertyEventTracker {
 
-    private final float mUpdateRateHz;
-    private final long mUpdatePeriodNanos;
-    private long mNextUpdateTimeNanos = 0L;
+    /** Gets the update rate in Hz. */
+    float getUpdateRateHz();
 
-    public CarPropertyEventTracker(float updateRateHz) {
-        mUpdateRateHz = updateRateHz;
-        mUpdatePeriodNanos = mUpdateRateHz > 0
-                ? ((long) ((1.0 / mUpdateRateHz) * NANOSECONDS_PER_SECOND * UPDATE_PERIOD_OFFSET))
-                : 0L;
-    }
-
-    public float getUpdateRateHz() {
-        return mUpdateRateHz;
-    }
-
-    /** Returns true if the timestamp of the event is greater than the next update timestamp. */
-    public boolean hasNextUpdateTimeArrived(CarPropertyValue<?> carPropertyValue) {
-        int propertyId = carPropertyValue.getPropertyId();
-        if (carPropertyValue.getTimestamp() < mNextUpdateTimeNanos) {
-            if (DBG) {
-                Slogf.d(TAG, "hasNextUpdateTimeArrived: Dropping carPropertyEvent - propertyId=%s,"
-                        + " areaId=0x%x, because getTimestamp()=%d < nextUpdateTimeNanos=%d",
-                        VehiclePropertyIds.toString(propertyId), carPropertyValue.getAreaId(),
-                        carPropertyValue.getTimestamp(), mNextUpdateTimeNanos);
-            }
-            return false;
-        }
-        mNextUpdateTimeNanos = carPropertyValue.getTimestamp() + mUpdatePeriodNanos;
-        return true;
-    }
+    /** Returns true if the client needs to be updated for this event. */
+    boolean hasUpdate(CarPropertyValue<?> carPropertyValue);
 }

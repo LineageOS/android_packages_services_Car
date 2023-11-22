@@ -53,12 +53,12 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.android.car.internal.CarPropertyEventCallbackController;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.SingleMessageHandler;
 import com.android.car.internal.os.HandlerExecutor;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
+import com.android.car.internal.property.CarPropertyEventCallbackController;
 import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.GetSetValueResult;
@@ -1263,7 +1263,17 @@ public class CarPropertyManager extends CarManagerBase {
                     mCpeCallbackToCpeCallbackController.put(carPropertyEventCallback,
                             cpeCallbackController);
                 }
-                cpeCallbackController.add(propertyId, areaIds, sanitizedUpdateRateHz);
+                // After {@code sanitizeUpdateRateConvertToCarSubscriptions}, update rate must be 0
+                // for on-change property and non-0 for continuous property.
+                // There is an edge case where minSampleRate is 0 and client uses 0 as sample rate
+                // for continuous property. In this case, it is really impossible to do VUR so treat
+                // it as an on-change property is fine.
+                if (sanitizedUpdateRateHz == 0) {
+                    cpeCallbackController.addOnChangeProperty(propertyId, areaIds);
+                } else {
+                    cpeCallbackController.addContinuousProperty(propertyId, areaIds,
+                            sanitizedUpdateRateHz, option.enableVariableUpdateRate);
+                }
 
                 ArraySet<CarPropertyEventCallbackController> cpeCallbackControllerSet =
                         mPropIdToCpeCallbackControllerList.get(propertyId);
