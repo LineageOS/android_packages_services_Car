@@ -31,8 +31,11 @@ import java.util.Optional;
  * Class factory to provide AAECarSystemUI specific SystemUI components.
  */
 public class CarUiPortraitSystemUIInitializer extends CarSystemUIInitializer {
+    private final boolean mRegisterCarSystemUIProxy;
     public CarUiPortraitSystemUIInitializer(Context context) {
         super(context);
+        mRegisterCarSystemUIProxy = context.getResources().getBoolean(
+                R.bool.config_registerCarSystemUIProxy);
     }
 
     @Override
@@ -45,6 +48,10 @@ public class CarUiPortraitSystemUIInitializer extends CarSystemUIInitializer {
             SysUIComponent.Builder sysUIBuilder, WMComponent wm) {
         CarUiPortraitWMComponent carWm = (CarUiPortraitWMComponent) wm;
         boolean isSystemUser = UserHandle.myUserId() == UserHandle.USER_SYSTEM;
+
+        if (mRegisterCarSystemUIProxy && isSystemUser) {
+            carWm.getCarSystemUIProxy();
+        }
         return ((CarUiPortraitSysUIComponent.Builder) sysUIBuilder).setRootTaskDisplayAreaOrganizer(
                 isSystemUser ? Optional.of(carWm.getRootTaskDisplayAreaOrganizer())
                         : Optional.empty())

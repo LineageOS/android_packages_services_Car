@@ -25,17 +25,17 @@ import android.content.res.Resources;
 import android.graphics.Insets;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.graphics.Region;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.SurfaceView;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.Nullable;
 
-import com.android.car.carlauncher.CarTaskView;
 import com.android.car.portraitlauncher.R;
 import com.android.car.portraitlauncher.panel.animation.ClosePanelAnimator;
 import com.android.car.portraitlauncher.panel.animation.ExpandPanelAnimator;
@@ -182,8 +182,11 @@ public class TaskViewPanel extends RelativeLayout {
     /** A view that is shown on top of the task view and used to improve visual effects. */
     private TaskViewPanelOverlay mTaskViewOverlay;
 
-    /** The {@code CarTaskView} embedded in this panel. This is the main content of the panel. */
-    private CarTaskView mTaskView;
+    /**
+     * The {@code View} embedded in this panel, used to show application. This is the main
+     * content of the panel, should be instance of CarTaskView or RemoteCarTaskView.
+     */
+    private View mTaskView;
 
     /** The last reported window bounds of the task view. */
     private Rect mTaskViewWindowBounds;
@@ -300,20 +303,20 @@ public class TaskViewPanel extends RelativeLayout {
     public void expandPanel() {
         Point origin = new Point(mOpenState.mBounds.centerX(), mOpenState.mBounds.centerY());
         PanelAnimator animator =
-                new ExpandPanelAnimator(this, origin, mOpenState.mBounds, mGripBar);
+                new ExpandPanelAnimator(/* panel= */ this, origin, mOpenState.mBounds, mGripBar);
         setActiveState(mOpenState, animator);
     }
 
     /** Transitions the panel into the open state using the fade-in animation. */
     public void fadeInPanel() {
-        setActiveState(mOpenState, new FadeInPanelAnimator(this, mTaskView, mOpenState.mBounds));
+        setActiveState(mOpenState,
+                new FadeInPanelAnimator(/* panel= */ this, mTaskView, mOpenState.mBounds));
     }
 
     /** Transitions the panel into the close state using the fade-out animation. */
     public void fadeOutPanel() {
-        PanelAnimator animator =
-                new FadeOutPanelAnimator(this, mTaskViewOverlay, mTaskView, mCloseState.mBounds,
-                        mCloseState.mBounds.top);
+        PanelAnimator animator = new FadeOutPanelAnimator(/* panel= */ this, mTaskViewOverlay,
+                mTaskView, mCloseState.mBounds, mCloseState.mBounds.top);
         setActiveState(mCloseState, animator);
     }
 
@@ -356,8 +359,8 @@ public class TaskViewPanel extends RelativeLayout {
     }
 
     /** Updates the {@code TaskView} used in the panel. */
-    public void setTaskView(CarTaskView taskView) {
-        mTaskView = taskView;
+    public void setTaskView(SurfaceView surfaceView) {
+        mTaskView =  surfaceView;
         mTaskViewContainer.addView(mTaskView);
         onParentDimensionChanged();
     }
@@ -382,18 +385,6 @@ public class TaskViewPanel extends RelativeLayout {
         mTaskViewOverlay.refresh();
         mGripBar.refresh(theme);
         mBackgroundSurfaceView.refresh(theme);
-    }
-
-    /**
-     * Updates the Obscured touch region of the panel.
-     * This need to be called if there are areas that the task view should not receive a touch
-     * input due to other blocking views in the view hierarchy.
-     */
-    public void setObscuredTouchRegion(Region region) {
-        if (mTaskView == null) {
-            return;
-        }
-        mTaskView.setObscuredTouchRegion(region);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -428,7 +419,7 @@ public class TaskViewPanel extends RelativeLayout {
     }
 
     /** Returns the bounds of the task view once fully transitioned to the active state */
-    private Rect getTaskViewBounds(State state) {
+    public Rect getTaskViewBounds(State state) {
         Rect bounds = new Rect(state.mBounds);
         bounds.inset(mActiveState.mInsets);
 
@@ -452,11 +443,6 @@ public class TaskViewPanel extends RelativeLayout {
         updateInsets(mActiveState.mInsets);
         recalculateBounds();
         updateBounds(mActiveState.mBounds);
-        post(() -> {
-            if (mTaskView != null) {
-                mTaskView.onLocationChanged();
-            }
-        });
     }
 
     /** Sets a fixed background color for the task view. */
@@ -478,12 +464,6 @@ public class TaskViewPanel extends RelativeLayout {
         logIfDebuggable("onDimensionChanged: " + parentWidth + " " + parentHeight);
 
         recalculateBounds();
-
-        post(() -> {
-            if (mTaskView != null) {
-                mTaskView.onLocationChanged();
-            }
-        });
         updateBounds(mActiveState.mBounds);
     }
 
@@ -542,7 +522,6 @@ public class TaskViewPanel extends RelativeLayout {
         mActiveAnimator = animator;
 
         updateInsets(mActiveState.mInsets);
-        updateTaskViewWindowBounds();
 
         if (animated) {
             // Change toolbar and grip bar visibilities before the animation for better animation.
@@ -585,19 +564,14 @@ public class TaskViewPanel extends RelativeLayout {
         }
     }
 
-    private void updateTaskViewWindowBounds() {
-        // Due to performance issues we only set the window bounds when the panel is transitioning
-        // to a visible state and only if the window bounds is not changed since the last visible
-        // state.
-        Rect taskViewBounds = getTaskViewBounds(mActiveState);
-        if (!mActiveState.isVisible() || taskViewBounds.equals(mTaskViewWindowBounds)) {
-            return;
-        }
-        mTaskViewWindowBounds = taskViewBounds;
-        logIfDebuggable("TaskView bounds: " + mTaskViewWindowBounds);
-        if (mTaskView != null) {
-            mTaskView.setWindowBounds(taskViewBounds);
-        }
+    /** Returns true if bounds of taskview changed with given state. */
+    public boolean isBoundsChanged(State state, Rect newBounds) {
+        return state.isVisible() && !newBounds.equals(mTaskViewWindowBounds);
+    }
+
+    /** Updates bounds for {@link mTaskView}. */
+    public void updateTaskViewBounds(Rect bounds) {
+        mTaskViewWindowBounds = bounds;
     }
 
     private void updateInsets(Insets insets) {
