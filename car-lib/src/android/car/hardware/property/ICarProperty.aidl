@@ -24,48 +24,48 @@ import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
-import com.android.car.internal.property.CarSubscribeOption;
+import com.android.car.internal.property.CarSubscription;
 
 /**
  * @hide
  */
 interface ICarProperty {
 
-    void unregisterListener(int propId, in ICarPropertyEventListener callback) = 1;
+    void registerListener(in List<CarSubscription> carSubscription,
+                in ICarPropertyEventListener callback);
 
-    CarPropertyConfigList getPropertyList() = 2;
+    void unregisterListener(int propId, in ICarPropertyEventListener callback);
 
-    CarPropertyValue getProperty(int prop, int zone) = 3;
+    CarPropertyConfigList getPropertyList();
 
-    void setProperty(in CarPropertyValue prop, in ICarPropertyEventListener callback) = 4;
+    CarPropertyValue getProperty(int prop, int zone);
 
-    String getReadPermission(int propId) = 5;
+    void setProperty(in CarPropertyValue prop, in ICarPropertyEventListener callback);
 
-    String getWritePermission(int propId) = 6;
+    String getReadPermission(int propId);
 
-    CarPropertyConfigList getPropertyConfigList(in int[] propIds) = 7;
+    String getWritePermission(int propId);
+
+    CarPropertyConfigList getPropertyConfigList(in int[] propIds);
 
     /**
      * Gets CarPropertyValues asynchronously.
      */
     void getPropertiesAsync(in AsyncPropertyServiceRequestList asyncPropertyServiceRequests,
                 in IAsyncPropertyResultCallback asyncPropertyResultCallback,
-                long timeoutInMs) = 8;
+                long timeoutInMs);
 
     /**
      * Cancel on-going async requests.
      *
      * @param serviceRequestIds A list of async get/set property request IDs.
      */
-    void cancelRequests(in int[] serviceRequestIds) = 9;
+    void cancelRequests(in int[] serviceRequestIds);
 
     /**
      * Sets CarPropertyValues asynchronously.
      */
     void setPropertiesAsync(in AsyncPropertyServiceRequestList asyncPropertyServiceRequests,
                 in IAsyncPropertyResultCallback asyncPropertyResultCallback,
-                long timeoutInMs) = 10;
-
-    void registerListenerWithSubscribeOptions(in List<CarSubscribeOption> subscribeOptions,
-                in ICarPropertyEventListener callback) = 11;
+                long timeoutInMs);
 }

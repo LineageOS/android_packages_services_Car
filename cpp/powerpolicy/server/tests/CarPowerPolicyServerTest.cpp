@@ -91,13 +91,13 @@ public:
         return mServerProxy->unregisterPowerPolicyChangeCallback(callback);
     }
 
-    void onBinderDied(void* cookie) { mServer->onBinderDied(cookie); }
+    void onClientBinderDied(void* cookie) { mServer->onClientBinderDied(cookie); }
 
     std::vector<CallbackInfo> getPolicyChangeCallbacks() {
         return mServer->getPolicyChangeCallbacks();
     }
 
-    size_t countOnBinderDiedContexts() { return mServer->countOnBinderDiedContexts(); }
+    size_t countOnClientBinderDiedContexts() { return mServer->countOnClientBinderDiedContexts(); }
 
     std::unordered_set<void*> getCookies() { return mLinkUnlinkImpl->getCookies(); }
 
@@ -198,15 +198,15 @@ TEST_F(CarPowerPolicyServerTest, TestOnBinderDied) {
     ScopedAStatus status = server->registerPowerPolicyChangeCallback(callbackOne, filter);
     ASSERT_TRUE(status.isOk()) << status.getMessage();
     ASSERT_EQ(server->getPolicyChangeCallbacks().size(), static_cast<size_t>(1));
-    ASSERT_EQ(server->countOnBinderDiedContexts(), static_cast<size_t>(1));
+    ASSERT_EQ(server->countOnClientBinderDiedContexts(), static_cast<size_t>(1));
     ASSERT_EQ(server->getCookies().size(), static_cast<size_t>(1));
 
     void* cookie = *(server->getCookies().begin());
-    server->onBinderDied(cookie);
+    server->onClientBinderDied(cookie);
 
     ASSERT_TRUE(server->getPolicyChangeCallbacks().empty());
 
-    ASSERT_EQ(server->countOnBinderDiedContexts(), static_cast<size_t>(0));
+    ASSERT_EQ(server->countOnClientBinderDiedContexts(), static_cast<size_t>(0));
 }
 
 TEST_F(CarPowerPolicyServerTest, TestUnregisterCallback) {

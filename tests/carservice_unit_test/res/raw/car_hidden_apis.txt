@@ -230,11 +230,11 @@ android.car.cluster ClusterHomeManager void registerClusterNavigationStateListen
 android.car.cluster ClusterHomeManager void registerClusterStateListener(Executor executor, ClusterStateListener callback)
 android.car.cluster ClusterHomeManager void reportState(int uiTypeMain, int uiTypeSub, byte[] uiAvailability)
 android.car.cluster ClusterHomeManager void requestDisplay(int uiType)
-android.car.cluster ClusterHomeManager void sendHeartbeat(long epochTimeNs, byte[] appMetadata)
-android.car.cluster ClusterHomeManager void startVisibilityMonitoring(Activity activity)
 android.car.cluster ClusterHomeManager void stopFixedActivityMode()
 android.car.cluster ClusterHomeManager void unregisterClusterNavigationStateListener(ClusterNavigationStateListener callback)
 android.car.cluster ClusterHomeManager void unregisterClusterStateListener(ClusterStateListener callback)
+android.car.cluster ClusterHomeManager.ClusterNavigationStateListener void onNavigationState(byte[] navigationState)
+android.car.cluster ClusterHomeManager.ClusterStateListener void onClusterStateChanged(ClusterState state, int changes)
 android.car.cluster.renderer InstrumentClusterRenderingService ComponentName getComponentFromPackage(String packageName)
 android.car.cluster.renderer InstrumentClusterRenderingService String EXTRA_BUNDLE_KEY_FOR_INSTRUMENT_CLUSTER_HELPER
 android.car.cluster.renderer InstrumentClusterRenderingService void setClusterActivityLaunchOptions(String category, ActivityOptions activityOptions)

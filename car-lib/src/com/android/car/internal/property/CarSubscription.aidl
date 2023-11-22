@@ -20,7 +20,7 @@ package com.android.car.internal.property;
  * @hide
  */
 @JavaDerive(equals = true, toString = true)
-parcelable CarSubscribeOption {
+parcelable CarSubscription {
     int propertyId;
     int[] areaIds;
     float updateRateHz;

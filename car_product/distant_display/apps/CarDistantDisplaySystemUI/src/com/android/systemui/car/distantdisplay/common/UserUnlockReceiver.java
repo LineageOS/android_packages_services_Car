@@ -22,18 +22,21 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.util.Log;
 
 /**
  * Broadcast receiver which observes {@link ACTION_USER_UNLOCKED}.
  */
 public class UserUnlockReceiver extends BroadcastReceiver {
-    private Callback mCallback;
+    public static final String TAG = UserUnlockReceiver.class.getSimpleName();
+    public Callback mCallback;
 
     /**
      * Registers a broadcastReceiver to listen to {@link ACTION_USER_UNLOCKED} with given
      * {@code callback} to react on this action.
      */
     public void register(Context context, Callback callback) {
+        Log.i(TAG, "register()");
         mCallback = callback;
         IntentFilter intentFilter = new IntentFilter(ACTION_USER_UNLOCKED);
         context.registerReceiver(this, intentFilter);
@@ -41,9 +44,11 @@ public class UserUnlockReceiver extends BroadcastReceiver {
 
     /** Unregisters this observer. */
     public void unregister(Context context) {
+        Log.i(TAG, "unregister()");
         context.unregisterReceiver(this);
         mCallback = null;
     }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         if (mCallback == null || !ACTION_USER_UNLOCKED.equals(intent.getAction())) {

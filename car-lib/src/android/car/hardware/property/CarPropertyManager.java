@@ -60,7 +60,7 @@ import com.android.car.internal.os.HandlerExecutor;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarPropertyHelper;
-import com.android.car.internal.property.CarSubscribeOption;
+import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
@@ -1091,7 +1091,7 @@ public class CarPropertyManager extends CarManagerBase {
         }
         // We require updateRateHz to be within 0 and 100, however, in the previous implementation,
         // we did not actually check this range. In order to prevent the existing behavior, and
-        // to prevent SubscriptionOption.Builder.setUpdateRateHz to throw exception, we fit the
+        // to prevent Subscription.Builder.setUpdateRateHz to throw exception, we fit the
         // input within the expected range.
         if (updateRateHz > 100.0f) {
             updateRateHz = 100.0f;
@@ -1099,13 +1099,13 @@ public class CarPropertyManager extends CarManagerBase {
         if (updateRateHz < 0.0f) {
             updateRateHz = 0.0f;
         }
-        SubscriptionOption.Builder subscriptionOptionBuilder = new SubscriptionOption
+        Subscription.Builder subscriptionBuilder = new Subscription
                 .Builder(propertyId).setUpdateRateHz(updateRateHz);
-        SubscriptionOption subscribeOption = subscriptionOptionBuilder.build();
+        Subscription subscription = subscriptionBuilder.build();
         // Disable VUR for backward compatibility.
-        subscribeOption.disableVariableUpdateRate();
+        subscription.disableVariableUpdateRate();
         try {
-            return subscribePropertyEvents(List.of(subscribeOption), /* callbackExecutor= */ null,
+            return subscribePropertyEvents(List.of(subscription), /* callbackExecutor= */ null,
                     carPropertyEventCallback);
         } catch (IllegalArgumentException e) {
             Log.w(TAG, "register: PropertyId=" + propertyId + ", exception=", e);
@@ -1114,17 +1114,35 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * Registers {@link CarPropertyEventCallback} to get PropertyId updates. Multiple callbacks can
-     * be registered for a single [PropertyId, areaId] or the same callback can be used for
-     * different [PropertyId, areaId]s. If the same callback is registered again for the same
-     * [PropertyId, areaId], it will be updated to new {@code updateRateHz}. If the
+     * Registers {@link CarPropertyEventCallback} to get PropertyId updates.
+     *
+     * <p>
+     * If caller don't need use different subscription options among different areaIds for
+     * one property (e.g. 1 Hz update rate for front-left and 5 Hz update rate for front-right), it
+     * is recommended to use one {@link Subscription} per property ID.
+     *
+     * <p>
+     * Multiple callbacks can be registered for a single [PropertyId, AreaId]. One callback can
+     * be used for different [PropertyId, AreaId]s. But it is only allowed to have one subscription
+     * for one [PropertyId, AreaId, callback] combination at a time. A new subscription with the
+     * same [PropertyId, AreaId, callback] will overwrite the existing subscription.
+     *
+     * <p>
+     * It is allowed to have the same PropertyId in different {@link Subscription}s
+     * provided in one call. However, they must have non-overlapping AreaIds. A.k.a., one
+     * [PropertyId, AreaId] must only be associated with one {@link Subscription} within one call.
+     * Otherwise, {@link IllegalArgumentException} will be thrown.
+     *
+     *
+     * <p>
+     * If the
      * {@code callbackExecutor} is {@code null}, the callback will be executed on the default event
-     * handler thread. If no areaIds are specified, then it will subscribe to all areaIds for that
+     * handler thread. If no AreaIds are specified, then it will subscribe to all AreaIds for that
      * PropertyId.
      *
      * <p>
      * Only one executor can be registered to a callback. The callback must be unregistered before
-     * trying to register another executor for the same callback. (E.G. A callback cannot have
+     * trying to register another executor for the same callback. (A callback cannot have
      * multiple executors)
      *
      * <p>
@@ -1137,7 +1155,7 @@ public class CarPropertyManager extends CarManagerBase {
      * <p>
      * If the property has the change mode:
      * {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}, {@code updateRateHz} in
-     * {@code SubscribeOption} specifies how frequent the property value has to be polled. If
+     * {@code Subscription} specifies how frequent the property value has to be polled. If
      * {@code disableVariableUpdateRate} is {@code false} and variable update rate is supported
      * based on {@link android.car.hardware.property.AreaIdConfig#isVariableUpdateRateSupported},
      * then the client will receive property update event only when the property's value changes
@@ -1146,12 +1164,12 @@ public class CarPropertyManager extends CarManagerBase {
      * supported, then the client will receive all the property update events based on the update
      * rate even if the events contain the same property value.
      *
-     * <p>See {@link SubscriptionOption#disableVariableUpdateRate} for more detail.
+     * <p>See {@link Subscription#disableVariableUpdateRate} for more detail.
      *
      * <p>
      * <b>Note:</b> When a client registers to receive updates for a PropertyId for the
      * first time, it will receive the current value of the PropertyId through a change
-     * event for the specified areaId if the PropertyId is currently available to be
+     * event for the specified AreaId if the PropertyId is currently available to be
      * reading. If the PropertyId is currently not available for reading or in error state,
      * a PropertyId change event with a unavailable or error status will be generated
      *
@@ -1159,18 +1177,13 @@ public class CarPropertyManager extends CarManagerBase {
      * PropertyId change events containing the PropertyId's initial value will be
      * generated once their power state is on.
      *
-     * <p>If the update rate specified in the {@code SubscribeOptions} for a given PropertyId is
+     * <p>If the update rate specified in the {@code subscriptions} for a given PropertyId is
      * higher than the PropertyId's maximum sample rate, the subscription will be registered at the
      * PropertyId's maximum sample rate specified by {@link CarPropertyConfig#getMaxSampleRate()}.
 
-     * <p>If the update rate specified in the {@code SubscribeOptions} for a given PropertyId is
+     * <p>If the update rate specified in the {@code subscriptions} for a given PropertyId is
      * lower than the PropertyId's minimum sample rate, the subscription will be registered at the
      * PropertyId's minimum sample rate specified by {@link CarPropertyConfig#getMinSampleRate()}.
-     *
-     * <p>It is allowed to have the same PropertyId in different {@link SubscriptionOption}s
-     * provided in one call. However, they must have non-overlapping areaIds. A.k.a., one
-     * [PropertyId, areaId] must only be associated with one {@link SubscriptionOption}. Otherwise,
-     * {@link IllegalArgumentException} will be thrown.
      *
      * <p>
      * <b>Note:</b>Caller must check the value of {@link CarPropertyValue#getStatus()} for
@@ -1190,34 +1203,35 @@ public class CarPropertyManager extends CarManagerBase {
      * {@link CarPropertyManager#registerCallback}, caller must make sure the executor is
      * null (using the default executor) for subscribePropertyEvents.
      *
-     * @param subscribeOptions The subscribe options, which includes propertyID, areaID, and
-     *                         updateRateHz.
+     * @param subscriptions A list of subscriptions to add, which specifies PropertyId, AreaId, and
+     *                      updateRateHz. Caller should typically use one Subscription for one
+     *                      property ID.
      * @param callbackExecutor The executor in which the callback is done on.
      * @param carPropertyEventCallback The callback to deliver property update events.
      * @return {@code true} if the listener is successfully registered
      * @throws SecurityException if missing the appropriate permission.
-     * @throws IllegalArgumentException if there are over-lapping areaIds or the executor is
+     * @throws IllegalArgumentException if there are over-lapping AreaIds or the executor is
      *                                  registered to another callback or one of the properties does
      *                                  not have a corresponding CarPropertyConfig.
      */
     @FlaggedApi(FLAG_BATCHED_SUBSCRIPTIONS)
-    public boolean subscribePropertyEvents(@NonNull List<SubscriptionOption> subscribeOptions,
+    public boolean subscribePropertyEvents(@NonNull List<Subscription> subscriptions,
             @Nullable Executor callbackExecutor,
             @NonNull CarPropertyEventCallback carPropertyEventCallback) {
         // TODO(b/301169322): Create an unsubscribePropertyEvents
-        requireNonNull(subscribeOptions);
+        requireNonNull(subscriptions);
         requireNonNull(carPropertyEventCallback);
-        validateAreaDisjointness(subscribeOptions);
+        validateAreaDisjointness(subscriptions);
         if (DBG) {
-            Log.d(TAG, String.format("subscribePropertyEvents, callback: %s SubscribeOptions: %s",
-                             carPropertyEventCallback, subscribeOptions));
+            Log.d(TAG, String.format("subscribePropertyEvents, callback: %s subscriptions: %s",
+                             carPropertyEventCallback, subscriptions));
         }
         if (callbackExecutor == null) {
             callbackExecutor = mExecutor;
         }
 
-        List<CarSubscribeOption> carSubscribeOptions =
-                sanitizeUpdateRateConvertToCarSubscribeOptions(subscribeOptions);
+        List<CarSubscription> carSubscriptions =
+                sanitizeUpdateRateConvertToCarSubscriptions(subscriptions);
 
         synchronized (mLock) {
             CarPropertyEventCallbackController cpeCallbackController =
@@ -1228,16 +1242,16 @@ public class CarPropertyManager extends CarManagerBase {
                         + " this callback, please use the same executor.");
             }
 
-            mSubscriptionManager.stageNewOptions(carPropertyEventCallback, carSubscribeOptions);
+            mSubscriptionManager.stageNewOptions(carPropertyEventCallback, carSubscriptions);
 
             if (!applySubscriptionChangesLocked()) {
                 return false;
             }
 
-            // Must use carSubscribeOptions instead of subscribeOptions here since we need to use
+            // Must use carSubscriptions instead of subscribeOptions here since we need to use
             // sanitized update rate.
-            for (int i = 0; i < carSubscribeOptions.size(); i++) {
-                CarSubscribeOption option = carSubscribeOptions.get(i);
+            for (int i = 0; i < carSubscriptions.size(); i++) {
+                CarSubscription option = carSubscriptions.get(i);
                 int propertyId = option.propertyId;
                 float sanitizedUpdateRateHz = option.updateRateHz;
                 int[] areaIds = option.areaIds;
@@ -1264,15 +1278,15 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * Checks if any subscribeOptions have overlapping [propertyId, areaId] pairs.
+     * Checks if any subscription have overlapping [propertyId, areaId] pairs.
      *
-     * @param subscribeOptions The list of SubscriptionOption to check.
+     * @param subscriptions The list of subscriptions to check.
      */
-    private void validateAreaDisjointness(List<SubscriptionOption> subscribeOptions) {
+    private void validateAreaDisjointness(List<Subscription> subscriptions) {
         PairSparseArray<Object> propertyToAreaId = new PairSparseArray<>();
         Object placeHolder = new Object();
-        for (int i = 0; i < subscribeOptions.size(); i++) {
-            SubscriptionOption option = subscribeOptions.get(i);
+        for (int i = 0; i < subscriptions.size(); i++) {
+            Subscription option = subscriptions.get(i);
             int propertyId = option.getPropertyId();
             int[] areaIds = option.getAreaIds();
             for (int areaId : areaIds) {
@@ -1322,27 +1336,27 @@ public class CarPropertyManager extends CarManagerBase {
      */
     @GuardedBy("mLock")
     private boolean applySubscriptionChangesLocked() {
-        List<CarSubscribeOption> updatedCarSubscribeOptions = new ArrayList<>();
+        List<CarSubscription> updatedCarSubscriptions = new ArrayList<>();
         List<Integer> propertiesToUnsubscribe = new ArrayList<>();
 
-        mSubscriptionManager.diffBetweenCurrentAndStage(updatedCarSubscribeOptions,
+        mSubscriptionManager.diffBetweenCurrentAndStage(updatedCarSubscriptions,
                 propertiesToUnsubscribe);
 
-        if (propertiesToUnsubscribe.isEmpty() && updatedCarSubscribeOptions.isEmpty()) {
+        if (propertiesToUnsubscribe.isEmpty() && updatedCarSubscriptions.isEmpty()) {
             Log.d(TAG, "There is nothing to subscribe or unsubscribe to CarPropertyService");
             mSubscriptionManager.commit();
             return true;
         }
 
         if (DBG) {
-            Log.d(TAG, "updatedCarSubscribeOptions to subscribe is: "
-                    + updatedCarSubscribeOptions + " and the list of properties to unsubscribe is: "
+            Log.d(TAG, "updatedCarSubscriptions to subscribe is: "
+                    + updatedCarSubscriptions + " and the list of properties to unsubscribe is: "
                     + CarPropertyHelper.propertyIdsToString(propertiesToUnsubscribe));
         }
 
         try {
-            if (!updatedCarSubscribeOptions.isEmpty()) {
-                if (!registerLocked(updatedCarSubscribeOptions)) {
+            if (!updatedCarSubscriptions.isEmpty()) {
+                if (!registerLocked(updatedCarSubscriptions)) {
                     mSubscriptionManager.dropCommit();
                     return false;
                 }
@@ -1374,9 +1388,9 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws SecurityException if missing the appropriate permission.
      */
     @GuardedBy("mLock")
-    private boolean registerLocked(List<CarSubscribeOption> options) {
+    private boolean registerLocked(List<CarSubscription> options) {
         try {
-            mService.registerListenerWithSubscribeOptions(options, mCarPropertyEventToService);
+            mService.registerListener(options, mCarPropertyEventToService);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
             return false;
@@ -2622,12 +2636,12 @@ public class CarPropertyManager extends CarManagerBase {
         return requestIds;
     }
 
-    private List<CarSubscribeOption> sanitizeUpdateRateConvertToCarSubscribeOptions(
-            List<SubscriptionOption> subscribeOptions) throws IllegalArgumentException {
-        List<CarSubscribeOption> output = new ArrayList<>();
-        for (int i = 0; i < subscribeOptions.size(); i++) {
-            SubscriptionOption subscribeOption = subscribeOptions.get(i);
-            int propertyId = subscribeOption.getPropertyId();
+    private List<CarSubscription> sanitizeUpdateRateConvertToCarSubscriptions(
+            List<Subscription> subscriptions) throws IllegalArgumentException {
+        List<CarSubscription> output = new ArrayList<>();
+        for (int i = 0; i < subscriptions.size(); i++) {
+            Subscription subscription = subscriptions.get(i);
+            int propertyId = subscription.getPropertyId();
             CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
             if (carPropertyConfig == null) {
                 String errorMessage = "propertyId is not in carPropertyConfig list: "
@@ -2636,19 +2650,19 @@ public class CarPropertyManager extends CarManagerBase {
                 throw new IllegalArgumentException(errorMessage);
             }
             float sanitizedUpdateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(
-                    carPropertyConfig, subscribeOption.getUpdateRateHz());
-            CarSubscribeOption carSubscribeOption = new CarSubscribeOption();
-            carSubscribeOption.propertyId = propertyId;
-            carSubscribeOption.areaIds = subscribeOption.getAreaIds();
-            if (carSubscribeOption.areaIds.length == 0) {
+                    carPropertyConfig, subscription.getUpdateRateHz());
+            CarSubscription carSubscription = new CarSubscription();
+            carSubscription.propertyId = propertyId;
+            carSubscription.areaIds = subscription.getAreaIds();
+            if (carSubscription.areaIds.length == 0) {
                 // Subscribe to all areaIds if not specified.
-                carSubscribeOption.areaIds = carPropertyConfig.getAreaIds();
+                carSubscription.areaIds = carPropertyConfig.getAreaIds();
             }
-            carSubscribeOption.enableVariableUpdateRate =
-                    !subscribeOption.isVariableUpdateRateDisabled();
-            carSubscribeOption.updateRateHz = sanitizedUpdateRateHz;
+            carSubscription.enableVariableUpdateRate =
+                    !subscription.isVariableUpdateRateDisabled();
+            carSubscription.updateRateHz = sanitizedUpdateRateHz;
             output.addAll(InputSanitizationUtils.sanitizeEnableVariableUpdateRate(
-                    mFeatureFlags, carPropertyConfig, carSubscribeOption));
+                    mFeatureFlags, carPropertyConfig, carSubscription));
         }
         return output;
     }

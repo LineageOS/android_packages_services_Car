@@ -160,4 +160,6 @@
     <uses-permission android:name="android.car.permission.QUERY_DISPLAY_COMPATIBILITY" />
     <!-- permissions required for CarRemoteAccessManagerTest -->
     <uses-permission android:name="android.car.permission.CONTROL_REMOTE_ACCESS" />
+    <!-- permissions required for ClusterHomeManagerTest -->
+    <uses-permission android:name="android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL" />
 </manifest>

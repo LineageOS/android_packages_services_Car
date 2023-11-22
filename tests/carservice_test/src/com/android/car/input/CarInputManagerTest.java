@@ -42,6 +42,7 @@ import android.util.Pair;
 import android.view.KeyEvent;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 
 import com.android.car.CarServiceUtils;
@@ -61,6 +62,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@FlakyTest(bugId = 311029405)
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public final class CarInputManagerTest extends MockedCarTestBase {

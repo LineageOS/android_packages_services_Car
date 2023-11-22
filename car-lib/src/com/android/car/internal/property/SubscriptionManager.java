@@ -227,7 +227,7 @@ public final class SubscriptionManager<ClientType> {
      * and the staging state. Apply them to the lower layer, and either commit the change after
      * the operation succeeds or drop the change after the operation failed.
      */
-    public void stageNewOptions(ClientType client, List<CarSubscribeOption> options) {
+    public void stageNewOptions(ClientType client, List<CarSubscription> options) {
         if (DBG) {
             Log.d(TAG, "stageNewOptions: options: " + options);
         }
@@ -235,7 +235,7 @@ public final class SubscriptionManager<ClientType> {
         cloneCurrentToStageIfClean();
 
         for (int i = 0; i < options.size(); i++) {
-            CarSubscribeOption option = options.get(i);
+            CarSubscription option = options.get(i);
             int propertyId = option.propertyId;
             for (int areaId : option.areaIds) {
                 mStagedAffectedPropIdAreaIds.add(new int[]{propertyId, areaId});
@@ -358,11 +358,11 @@ public final class SubscriptionManager<ClientType> {
     /**
      * Calculates the difference between the staged state and current state.
      *
-     * @param outDiffSubscribeOptions The output subscribe options that has changed. This includes
+     * @param outDiffSubscriptions The output subscriptions that has changed. This includes
      *      both new subscriptions and updated subscriptions with a new update rate.
      * @param outPropertyIdsToUnsubscribe The output property IDs that need to be unsubscribed.
      */
-    public void diffBetweenCurrentAndStage(List<CarSubscribeOption> outDiffSubscribeOptions,
+    public void diffBetweenCurrentAndStage(List<CarSubscription> outDiffSubscriptions,
             List<Integer> outPropertyIdsToUnsubscribe) {
         if (mStagedAffectedPropIdAreaIds.isEmpty()) {
             if (DBG) {
@@ -403,7 +403,7 @@ public final class SubscriptionManager<ClientType> {
                 continue;
             }
         }
-        outDiffSubscribeOptions.addAll(getCarSubscribeOption(diffRateInfoByPropIdAreaId));
+        outDiffSubscriptions.addAll(getCarSubscription(diffRateInfoByPropIdAreaId));
         for (int i = 0; i < possiblePropIdsToUnsubscribe.size(); i++) {
             int possiblePropIdToUnsubscribe = possiblePropIdsToUnsubscribe.valueAt(i);
             if (mStagedUpdateRateHzByClientByPropIdAreaId.getSecondKeysForFirstKey(
@@ -421,7 +421,7 @@ public final class SubscriptionManager<ClientType> {
     }
 
     /**
-     * Generates the {@code CarSubscribeOption} instances.
+     * Generates the {@code CarSubscription} instances.
      *
      * Converts [[propId, areaId] -> updateRateHz] map to
      * [propId -> [updateRateHz -> list of areaIds]] and then generates subscribe option for each
@@ -429,9 +429,9 @@ public final class SubscriptionManager<ClientType> {
      *
      * @param diffRateInfoByPropIdAreaId A [[propId, areaId] -> updateRateHz] map.
      */
-    private static List<CarSubscribeOption> getCarSubscribeOption(
+    private static List<CarSubscription> getCarSubscription(
             PairSparseArray<RateInfo> diffRateInfoByPropIdAreaId) {
-        List<CarSubscribeOption> carSubscribeOptions = new ArrayList<>();
+        List<CarSubscription> carSubscriptions = new ArrayList<>();
         ArraySet<Integer> propertyIds = diffRateInfoByPropIdAreaId.getFirstKeys();
         for (int propertyIdIndex = 0; propertyIdIndex < propertyIds.size(); propertyIdIndex++) {
             int propertyId = propertyIds.valueAt(propertyIdIndex);
@@ -449,19 +449,19 @@ public final class SubscriptionManager<ClientType> {
                 areaIdsByRateInfo.get(rateInfo).add(areaId);
             }
 
-            // Convert each update rate to a new CarSubscribeOption.
+            // Convert each update rate to a new CarSubscription.
             for (int i = 0; i < areaIdsByRateInfo.size(); i++) {
-                CarSubscribeOption option = new CarSubscribeOption();
+                CarSubscription option = new CarSubscription();
                 option.propertyId = propertyId;
                 option.areaIds = convertToIntArray(areaIdsByRateInfo.valueAt(i));
                 option.updateRateHz = areaIdsByRateInfo.keyAt(i).updateRateHz;
                 option.enableVariableUpdateRate =
                         areaIdsByRateInfo.keyAt(i).enableVariableUpdateRate;
-                carSubscribeOptions.add(option);
+                carSubscriptions.add(option);
             }
         }
 
-        return carSubscribeOptions;
+        return carSubscriptions;
     }
 
     private void cloneCurrentToStageIfClean() {

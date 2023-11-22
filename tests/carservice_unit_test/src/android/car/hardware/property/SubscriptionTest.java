@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package android.car.hardware.property;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
-
-import android.car.hardware.property.CarPropertyManager;
-import android.car.hardware.property.SubscriptionOption;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -29,11 +26,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-public final class SubscriptionOptionTest {
+public final class SubscriptionTest {
     @Test
     public void testBuilder_noUpdateRateSet() {
-        SubscriptionOption.Builder builder = new SubscriptionOption.Builder(/* propertyId= */ 52);
-        SubscriptionOption option = builder.build();
+        Subscription.Builder builder = new Subscription.Builder(/* propertyId= */ 52);
+        Subscription option = builder.build();
 
         assertWithMessage("No update rate set PropertyId").that(option
                         .getPropertyId()).isEqualTo(52);
@@ -45,9 +42,9 @@ public final class SubscriptionOptionTest {
     @Test
     public void testBuilder_withUpdateRateSet() {
         int propertyId = 52;
-        SubscriptionOption.Builder builder = new SubscriptionOption.Builder(propertyId);
+        Subscription.Builder builder = new Subscription.Builder(propertyId);
         builder.setUpdateRateHz(/* updateRateHz= */ 55.01f);
-        SubscriptionOption option = builder.build();
+        Subscription option = builder.build();
 
         assertWithMessage("Update rate set PropertyId").that(option.getPropertyId())
                 .isEqualTo(propertyId);
@@ -59,12 +56,12 @@ public final class SubscriptionOptionTest {
 
     @Test
     public void testAddAreaId_withMultipleAreas() {
-        SubscriptionOption.Builder builder = new SubscriptionOption.Builder(/* propertyId= */ 98);
+        Subscription.Builder builder = new Subscription.Builder(/* propertyId= */ 98);
         builder.setUpdateRateHz(/* updateRateHz= */ 55.01f);
         builder.addAreaId(/* areaId= */ 0x1);
         builder.addAreaId(/* areaId= */ 0x2);
         builder.addAreaId(/* areaId= */ 0x4);
-        SubscriptionOption option = builder.build();
+        Subscription option = builder.build();
 
         assertWithMessage("Multiple areaIds PropertyId").that(option.getPropertyId())
                 .isEqualTo(98);
@@ -76,12 +73,12 @@ public final class SubscriptionOptionTest {
 
     @Test
     public void testAddAreaId_withOverlappingAreas() {
-        SubscriptionOption.Builder builder = new SubscriptionOption.Builder(/* propertyId= */ 98);
+        Subscription.Builder builder = new Subscription.Builder(/* propertyId= */ 98);
         builder.setUpdateRateHz(/* updateRateHz= */ 55.01f);
         builder.addAreaId(/* areaId= */ 0x1);
         builder.addAreaId(/* areaId= */ 0x2);
         builder.addAreaId(/* areaId= */ 0x2);
-        SubscriptionOption option = builder.build();
+        Subscription option = builder.build();
 
         assertWithMessage("Overlapping areaIds PropertyId").that(option.getPropertyId())
                 .isEqualTo(98);
@@ -93,7 +90,7 @@ public final class SubscriptionOptionTest {
 
     @Test
     public void testSetUpdateRateHz_throws() throws Exception {
-        SubscriptionOption.Builder builder = new SubscriptionOption.Builder(/* propertyId= */ 98);
+        Subscription.Builder builder = new Subscription.Builder(/* propertyId= */ 98);
         IllegalArgumentException thrown =
                 assertThrows(IllegalArgumentException.class, () -> builder.setUpdateRateHz(150.0f));
 
@@ -104,9 +101,9 @@ public final class SubscriptionOptionTest {
     @Test
     public void testSetRateUI() {
         int propertyId = 4231;
-        SubscriptionOption.Builder builder = new SubscriptionOption.Builder(propertyId);
+        Subscription.Builder builder = new Subscription.Builder(propertyId);
         builder.setUpdateRateUi();
-        SubscriptionOption option = builder.build();
+        Subscription option = builder.build();
 
         assertWithMessage("setUI propertyId").that(option.getPropertyId())
                 .isEqualTo(propertyId);
@@ -119,9 +116,9 @@ public final class SubscriptionOptionTest {
     @Test
     public void testSetRateNormal() {
         int propertyId = 12;
-        SubscriptionOption.Builder builder = new SubscriptionOption.Builder(propertyId);
+        Subscription.Builder builder = new Subscription.Builder(propertyId);
         builder.setUpdateRateNormal();
-        SubscriptionOption option = builder.build();
+        Subscription option = builder.build();
 
         assertWithMessage("Set update rate normal PropertyId").that(option
                         .getPropertyId()).isEqualTo(propertyId);
@@ -134,9 +131,9 @@ public final class SubscriptionOptionTest {
     @Test
     public void testSetRateFast() {
         int propertyId = 33;
-        SubscriptionOption.Builder builder = new SubscriptionOption.Builder(propertyId);
+        Subscription.Builder builder = new Subscription.Builder(propertyId);
         builder.setUpdateRateFast();
-        SubscriptionOption option = builder.build();
+        Subscription option = builder.build();
 
         assertWithMessage("Set update rate fast PropertyId").that(option.getPropertyId())
                 .isEqualTo(propertyId);
@@ -149,9 +146,9 @@ public final class SubscriptionOptionTest {
     @Test
     public void testSetRateFastest() {
         int propertyId = 24;
-        SubscriptionOption.Builder builder = new SubscriptionOption.Builder(propertyId);
+        Subscription.Builder builder = new Subscription.Builder(propertyId);
         builder.setUpdateRateFastest();
-        SubscriptionOption option = builder.build();
+        Subscription option = builder.build();
 
         assertWithMessage("Set update rate fastest PropertyId").that(option
                         .getPropertyId()).isEqualTo(propertyId);
@@ -164,7 +161,7 @@ public final class SubscriptionOptionTest {
     @Test
     public void testSubscripTionOptionBuildTwice() {
         int propertyId = 24;
-        SubscriptionOption.Builder builder = new SubscriptionOption.Builder(propertyId);
+        Subscription.Builder builder = new Subscription.Builder(propertyId);
         builder.build();
 
         IllegalStateException thrown = assertThrows(IllegalStateException.class,

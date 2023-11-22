@@ -62,7 +62,7 @@ public class RootTaskViewWallpaperActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.car_ui_distant_display_root_taskview_wallpaper_activity);
+        setContentView(R.layout.car_distant_display_root_wallpaper_activity);
         WindowCompat.setDecorFitsSystemWindows(getWindow(), /* decorFitsSystemWindows= */ false);
         mContainer = findViewById(R.id.container);
         getWindow().getDecorView().getRootView().setOnApplyWindowInsetsListener(

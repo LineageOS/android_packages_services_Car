@@ -35,7 +35,7 @@ import com.android.systemui.R;
  * Used as the static wallpaper in navigation layer.
  */
 public class NavigationTaskViewWallpaperActivity extends Activity {
-    private static final String TAG =
+    public static final String TAG =
             NavigationTaskViewWallpaperActivity.class.getSimpleName();
 
     private ViewGroup mContainer;
@@ -64,7 +64,7 @@ public class NavigationTaskViewWallpaperActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.car_ui_distant_display_navigation_taskview_wallpaper_activity);
+        setContentView(R.layout.car_distant_display_navigation_wallpaper_activity);
         WindowCompat.setDecorFitsSystemWindows(getWindow(), /* decorFitsSystemWindows= */ false);
         mContainer = findViewById(R.id.container);
         getWindow().getDecorView().getRootView().setOnApplyWindowInsetsListener(

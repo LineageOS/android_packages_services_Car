@@ -692,6 +692,34 @@ Result<void> PolicyManager::dump(int fd, const Vector<String16>& /*args*/) {
     return {};
 }
 
+std::string PolicyManager::getDefaultPolicyGroup() const {
+    return mDefaultPolicyGroup;
+}
+
+std::vector<int32_t> PolicyManager::getCustomComponents() const {
+    std::vector<int32_t> customComponents;
+    for (const auto& [_, component] : mCustomComponents) {
+        customComponents.push_back(component);
+    }
+
+    return customComponents;
+}
+
+std::vector<CarPowerPolicy> PolicyManager::getRegisteredPolicies() const {
+    std::vector<CarPowerPolicy> registeredPolicies;
+    auto policyMapToVector =
+            [&registeredPolicies](
+                    const std::unordered_map<std::string, CarPowerPolicyPtr>& policyMap) {
+                for (const auto& [_, policy] : policyMap) {
+                    registeredPolicies.push_back(*policy);
+                }
+            };
+    policyMapToVector(mPreemptivePowerPolicies);
+    policyMapToVector(mRegisteredPowerPolicies);
+
+    return registeredPolicies;
+}
+
 void PolicyManager::readPowerPolicyConfiguration() {
     XMLDocument xmlDoc;
     xmlDoc.LoadFile(kVendorPolicyFile);
@@ -794,10 +822,6 @@ void PolicyManager::initPreemptivePowerPolicy() {
     mPreemptivePowerPolicies.emplace(kSystemPolicyIdSuspendPrep,
                                      createPolicy(kSystemPolicyIdSuspendPrep, kNoComponents,
                                                   kSuspendPrepDisabledComponents, {}, {}));
-}
-
-std::string PolicyManager::getDefaultPolicyGroup() const {
-    return mDefaultPolicyGroup;
 }
 
 }  // namespace powerpolicy

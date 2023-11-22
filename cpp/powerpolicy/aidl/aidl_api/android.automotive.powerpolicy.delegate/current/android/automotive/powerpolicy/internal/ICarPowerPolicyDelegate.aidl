@@ -39,6 +39,7 @@ interface ICarPowerPolicyDelegate {
   void setPowerPolicyGroup(in @utf8InCpp String policyGroupId);
   void notifyPowerPolicyDefinition(in @utf8InCpp String policyId, in @utf8InCpp String[] enabledComponents, in @utf8InCpp String[] disabledComponents);
   void notifyPowerStateChange(in android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate.PowerState state);
+  @Backing(type="int")
   enum PowerState {
     INVALID = 0,
     WAIT_FOR_VHAL = 1,
