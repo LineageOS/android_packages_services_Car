@@ -56,12 +56,39 @@ final class CarAudioDynamicRouting {
     static void setupAudioDynamicRouting(CarAudioContext carAudioContext, AudioManager audioManager,
             AudioPolicy.Builder builder, SparseArray<CarAudioZone> carAudioZones) {
         for (int i = 0; i < carAudioZones.size(); i++) {
-            List<CarAudioZoneConfig> zoneConfigs =
-                    carAudioZones.valueAt(i).getAllCarAudioZoneConfigs();
+            CarAudioZone zone = carAudioZones.valueAt(i);
+            List<CarAudioZoneConfig> zoneConfigs = zone.getAllCarAudioZoneConfigs();
+            CarAudioZoneConfig defaultConfig = null;
+            boolean foundSelected = false;
             for (int configIndex = 0; configIndex < zoneConfigs.size(); configIndex++) {
-                setupAudioDynamicRoutingForZoneConfig(builder, zoneConfigs.get(configIndex),
-                        carAudioContext, audioManager);
+                CarAudioZoneConfig config = zoneConfigs.get(configIndex);
+                // Default config will be added at the end
+                if (config.isDefault()) {
+                    defaultConfig = config;
+                    continue;
+                }
+                if (!config.isSelected() || !config.isActive()) {
+                    continue;
+                }
+                foundSelected = true;
+                setupAudioDynamicRoutingForZoneConfig(builder, config, carAudioContext,
+                        audioManager);
             }
+            // Always setup default configuration at the end, so that zone routing has a backup for
+            // routing in case the dynamic device disconnects.
+            if (defaultConfig.isSelected()) {
+                foundSelected = true;
+            }
+
+            if (!foundSelected) {
+                throw new IllegalStateException("Selected configuration for zone " + zone.getId()
+                + " was not available");
+            }
+
+            // Default configuration should always be available, in case the dynamic
+            // device disappears the default configuration will be selected
+            setupAudioDynamicRoutingForZoneConfig(builder, defaultConfig, carAudioContext,
+                    audioManager);
         }
     }
 

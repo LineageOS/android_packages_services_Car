@@ -1653,7 +1653,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private void setupControlAndRoutingAudioPoliciesLocked() {
         setupVolumeControlAudioPolicyLocked();
         setupFocusControlAudioPolicyLocked();
-        setupRoutingAudioPolicyLocked();
+        mRoutingAudioPolicy = setupRoutingAudioPolicyLocked();
         setupOccupantZoneInfoLocked();
         setupCoreAudioVolumeCallback();
     }
@@ -1684,10 +1684,10 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     @GuardedBy("mImplLock")
-    private void setupRoutingAudioPolicyLocked() {
+    private AudioPolicy setupRoutingAudioPolicyLocked() {
         if (!mUseDynamicRouting) {
             Slogf.i(TAG, "Not using dynamic audio routing, routing audio policy not setup");
-            return;
+            return null;
         }
         AudioPolicy.Builder builder = new AudioPolicy.Builder(mContext);
         builder.setLooper(Looper.getMainLooper());
@@ -1697,11 +1697,13 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         CarAudioDynamicRouting.setupAudioDynamicRouting(mCarAudioContext, mAudioManager, builder,
                 mCarAudioZones);
 
-        mRoutingAudioPolicy = builder.build();
-        int r = mAudioManager.registerAudioPolicy(mRoutingAudioPolicy);
+        AudioPolicy routingAudioPolicy = builder.build();
+        int r = mAudioManager.registerAudioPolicy(routingAudioPolicy);
         if (r != AudioManager.SUCCESS) {
             throw new IllegalStateException("Audio routing policy registration, error: " + r);
         }
+
+        return routingAudioPolicy;
     }
 
     @GuardedBy("mImplLock")

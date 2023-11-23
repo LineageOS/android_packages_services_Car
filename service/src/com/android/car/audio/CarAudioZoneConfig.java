@@ -411,7 +411,7 @@ final class CarAudioZoneConfig {
         return new CarAudioZoneConfigInfo(mName, mZoneId, mZoneConfigId);
     }
 
-    private boolean isActive() {
+    boolean isActive() {
         for (int c = 0; c < mVolumeGroups.size(); c++) {
             if (mVolumeGroups.get(c).isActive()) {
                 continue;
