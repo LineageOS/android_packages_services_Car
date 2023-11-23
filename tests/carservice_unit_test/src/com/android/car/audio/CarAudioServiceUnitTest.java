@@ -835,6 +835,24 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void init_initializesAudioServiceCallbacks() {
+        mCarAudioService.init();
+
+        verify(mAudioManager).setAudioServerStateCallback(any(), any());
+        verify(mAudioManager).registerAudioDeviceCallback(any(), any());
+    }
+
+    @Test
+    public void release_initializesAudioServiceCallbacks() {
+        mCarAudioService.init();
+
+        mCarAudioService.release();
+
+        verify(mAudioManager).unregisterAudioDeviceCallback(any());
+        verify(mAudioManager).clearAudioServerStateCallback();
+    }
+
+    @Test
     public void getAudioZoneIds_withBaseConfiguration_returnAllTheZones() {
         mCarAudioService.init();
 
@@ -2116,20 +2134,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         runnable.serviceDied();
 
         verify(mAudioControlWrapperAidl).setModuleChangeCallback(any());
-    }
-
-    private ICarOccupantZoneCallback getOccupantZoneCallback() {
-        ArgumentCaptor<ICarOccupantZoneCallback> captor =
-                ArgumentCaptor.forClass(ICarOccupantZoneCallback.class);
-        verify(mMockOccupantZoneService).registerCallback(captor.capture());
-        return captor.getValue();
-    }
-
-    private AudioServerStateCallback getAudioServerStateCallback() {
-        ArgumentCaptor<AudioServerStateCallback> captor = ArgumentCaptor.forClass(
-                AudioServerStateCallback.class);
-        verify(mAudioManager).setAudioServerStateCallback(any(), captor.capture());
-        return captor.getValue();
     }
 
     @Test
@@ -4745,6 +4749,20 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         verify(mCarVolumeCallbackHandler, never()).onGroupMuteChange(anyInt(), anyInt(), anyInt());
         expectWithMessage("Volume event callback reception status")
                 .that(volumeEventCallback.waitForCallback()).isFalse();
+    }
+
+    private ICarOccupantZoneCallback getOccupantZoneCallback() {
+        ArgumentCaptor<ICarOccupantZoneCallback> captor =
+                ArgumentCaptor.forClass(ICarOccupantZoneCallback.class);
+        verify(mMockOccupantZoneService).registerCallback(captor.capture());
+        return captor.getValue();
+    }
+
+    private AudioServerStateCallback getAudioServerStateCallback() {
+        ArgumentCaptor<AudioServerStateCallback> captor = ArgumentCaptor.forClass(
+                AudioServerStateCallback.class);
+        verify(mAudioManager).setAudioServerStateCallback(any(), captor.capture());
+        return captor.getValue();
     }
 
     private String removeUpToEquals(String command) {

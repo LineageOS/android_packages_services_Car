@@ -50,12 +50,14 @@
                     android:id="@+id/text_fm_hd_state"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/radio_fm_hd_state"/>
+                    android:text="@string/radio_fm_hd_state"
+                    android:visibility="gone" />
                 <Switch
                     android:id="@+id/toggle_fm_hd_state"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"/>
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
                 <Space
                     android:layout_width="3dp"
                     android:layout_height="match_parent" />
@@ -77,9 +79,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/empty" />
-            <LinearLayout android:layout_width="match_parent"
+            <LinearLayout android:id="@+id/layout_tune"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:orientation="horizontal"
+                android:visibility="gone" >
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -128,13 +132,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/radio_tune" />
-                <Space
-                    android:layout_width="3dp"
-                    android:layout_height="match_parent" />
             </LinearLayout>
-            <LinearLayout android:layout_width="match_parent"
+            <LinearLayout android:id="@+id/layout_step"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:orientation="horizontal"
+                android:visibility="gone" >
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -200,7 +203,7 @@
                 android:weightSum="2" >
                 <TextView
                     android:id="@+id/radio_current_station_info"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/empty"
                     android:layout_weight="1" />
@@ -209,7 +212,7 @@
                     android:layout_height="match_parent" />
                 <TextView
                     android:id="@+id/radio_current_channel_info"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/empty"
                     android:layout_weight="1" />
@@ -220,7 +223,7 @@
                 android:weightSum="2" >
                 <TextView
                     android:id="@+id/radio_current_song_info"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/empty"
                     android:layout_weight="1" />
@@ -229,7 +232,7 @@
                     android:layout_height="match_parent" />
                 <TextView
                     android:id="@+id/radio_current_artist_info"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/empty"
                     android:layout_weight="1" />
@@ -249,14 +252,14 @@
             android:orientation="horizontal"
             android:weightSum="4" >
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:text="@string/radio_program_station_title"
                 android:layout_weight="3">
             </TextView>
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:text="@string/empty"

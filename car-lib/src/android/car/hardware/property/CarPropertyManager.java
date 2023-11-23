@@ -1079,7 +1079,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @param propertyId               the property ID to subscribe
      * @param updateRateHz             how fast the property events are delivered in Hz
      * @return {@code true} if the listener is successfully registered
-     * @throws SecurityException if missing the appropriate permission.
+     * @throws SecurityException if missing the appropriate property access permission.
      */
     @SuppressWarnings("FormatString")
     public boolean registerCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback,
@@ -1209,8 +1209,8 @@ public class CarPropertyManager extends CarManagerBase {
      * @param callbackExecutor The executor in which the callback is done on.
      * @param carPropertyEventCallback The callback to deliver property update events.
      * @return {@code true} if the listener is successfully registered
-     * @throws SecurityException if missing the appropriate permission.
-     * @throws IllegalArgumentException if there are over-lapping AreaIds or the executor is
+     * @throws SecurityException if missing the appropriate property access permission.
+     * @throws IllegalArgumentException if there are over-lapping areaIds or the executor is
      *                                  registered to another callback or one of the properties does
      *                                  not have a corresponding CarPropertyConfig.
      */
@@ -1332,7 +1332,7 @@ public class CarPropertyManager extends CarManagerBase {
      * any property.
      *
      * @return {@code true} if the property has been successfully registered with the service.
-     * @throws SecurityException if missing the appropriate permission.
+     * @throws SecurityException if missing the appropriate property access permission.
      */
     @GuardedBy("mLock")
     private boolean applySubscriptionChangesLocked() {
@@ -1385,7 +1385,7 @@ public class CarPropertyManager extends CarManagerBase {
      * Called when {@code propertyId} registration needs to be updated.
      *
      * @return {@code true} if registration was successful, otherwise {@code false}.
-     * @throws SecurityException if missing the appropriate permission.
+     * @throws SecurityException if missing the appropriate property access permission.
      */
     @GuardedBy("mLock")
     private boolean registerLocked(List<CarSubscription> options) {
@@ -1408,7 +1408,7 @@ public class CarPropertyManager extends CarManagerBase {
      * Called when {@code propertyId} needs to be unregistered.
      *
      * @return {@code true} if unregistering was successful, otherwise {@code false}.
-     * @throws SecurityException if missing the appropriate permission.
+     * @throws SecurityException if missing the appropriate property access permission.
      */
     @GuardedBy("mLock")
     private boolean unregisterLocked(int propertyId) {
@@ -1433,7 +1433,36 @@ public class CarPropertyManager extends CarManagerBase {
      * multiple registrations for this {@link CarPropertyEventCallback}, all listening will be
      * stopped.
      *
-     * @throws SecurityException if missing the appropriate permission.
+     * @throws SecurityException if missing the appropriate property access permission.
+     */
+    @FlaggedApi(FLAG_BATCHED_SUBSCRIPTIONS)
+    public void unsubscribePropertyEvents(
+            @NonNull CarPropertyEventCallback carPropertyEventCallback) {
+        requireNonNull(carPropertyEventCallback);
+        if (DBG) {
+            Log.d(TAG, "unsubscribePropertyEvents, callback: " + carPropertyEventCallback);
+        }
+        int[] propertyIds;
+        synchronized (mLock) {
+            CarPropertyEventCallbackController cpeCallbackController =
+                    mCpeCallbackToCpeCallbackController.get(carPropertyEventCallback);
+            if (cpeCallbackController == null) {
+                Log.w(TAG, "unsubscribePropertyEvents: callback was not previously registered.");
+                return;
+            }
+            propertyIds = cpeCallbackController.getSubscribedProperties();
+        }
+        for (int i = 0; i < propertyIds.length; i++) {
+            unsubscribePropertyEvents(carPropertyEventCallback, propertyIds[i]);
+        }
+    }
+
+    /**
+     * Stop getting property updates for the given {@link CarPropertyEventCallback}. If there are
+     * multiple registrations for this {@link CarPropertyEventCallback}, all listening will be
+     * stopped.
+     *
+     * @throws SecurityException if missing the appropriate property access permission.
      */
     public void unregisterCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback) {
         if (DBG) {
@@ -1450,8 +1479,81 @@ public class CarPropertyManager extends CarManagerBase {
             }
             propertyIds = cpeCallbackController.getSubscribedProperties();
         }
+        ArrayList<Integer> propertyIdsList = new ArrayList<>(propertyIds.length);
         for (int i = 0; i < propertyIds.length; i++) {
-            unregisterCallback(carPropertyEventCallback, propertyIds[i]);
+            propertyIdsList.add(propertyIds[i]);
+        }
+        unsubscribePropertyEvents(carPropertyEventCallback, propertyIdsList);
+    }
+
+    /**
+     * Stop getting update for {@code propertyId} to the given {@link CarPropertyEventCallback}. If
+     * the same {@link CarPropertyEventCallback} is used for other properties, those subscriptions
+     * will not be affected.
+     *
+     * @throws SecurityException if missing the appropriate property access permission.
+     */
+    @FlaggedApi(FLAG_BATCHED_SUBSCRIPTIONS)
+    public void unsubscribePropertyEvents(
+            @NonNull CarPropertyEventCallback carPropertyEventCallback, int propertyId) {
+        requireNonNull(carPropertyEventCallback);
+        unsubscribePropertyEvents(carPropertyEventCallback, List.of(propertyId));
+    }
+
+    private void unsubscribePropertyEvents(CarPropertyEventCallback carPropertyEventCallback,
+            List<Integer> propertyIds) {
+        synchronized (mLock) {
+            CarPropertyEventCallbackController cpeCallbackController =
+                    mCpeCallbackToCpeCallbackController.get(carPropertyEventCallback);
+            if (cpeCallbackController == null) {
+                return;
+            }
+            for (int i = 0; i < propertyIds.size(); i++) {
+                int propertyId = propertyIds.get(i);
+                if (DBG) {
+                    Log.d(TAG, String.format(
+                            "unsubscribePropertyEvents, callback: %s, property Id: %s",
+                            carPropertyEventCallback, VehiclePropertyIds.toString(propertyId)));
+                }
+                CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
+                if (carPropertyConfig == null) {
+                    Log.e(TAG, "unsubscribePropertyEvents: propertyId="
+                            + VehiclePropertyIds.toString(propertyId)
+                            + " is not in carPropertyConfig list."
+                    );
+                    continue;
+                }
+                ArraySet<CarPropertyEventCallbackController> cpeCallbackControllerSet =
+                        mPropIdToCpeCallbackControllerList.get(propertyId);
+
+                if (cpeCallbackControllerSet == null) {
+                    Log.e(TAG,
+                            "unsubscribePropertyEvents: callback was not previously registered.");
+                    continue;
+                } else if (!cpeCallbackControllerSet.contains(cpeCallbackController)) {
+                    Log.e(TAG,
+                            "unsubscribePropertyEvents: callback was not previously registered for"
+                                    + " propertyId=" + VehiclePropertyIds.toString(propertyId));
+                    continue;
+                }
+
+                mSubscriptionManager.stageUnregister(carPropertyEventCallback,
+                        new ArraySet<>(Set.of(propertyId)));
+
+                if (!applySubscriptionChangesLocked()) {
+                    continue;
+                }
+
+                boolean allPropertiesRemoved = cpeCallbackController.remove(propertyId);
+                if (allPropertiesRemoved) {
+                    mCpeCallbackToCpeCallbackController.remove(carPropertyEventCallback);
+                }
+
+                cpeCallbackControllerSet.remove(cpeCallbackController);
+                if (cpeCallbackControllerSet.isEmpty()) {
+                    mPropIdToCpeCallbackControllerList.remove(propertyId);
+                }
+            }
         }
     }
 
@@ -1460,7 +1562,7 @@ public class CarPropertyManager extends CarManagerBase {
      * the same {@link CarPropertyEventCallback} is used for other properties, those subscriptions
      * will not be affected.
      *
-     * @throws SecurityException if missing the appropriate permission.
+     * @throws SecurityException if missing the appropriate property access permission.
      */
     @SuppressWarnings("FormatString")
     public void unregisterCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback,
