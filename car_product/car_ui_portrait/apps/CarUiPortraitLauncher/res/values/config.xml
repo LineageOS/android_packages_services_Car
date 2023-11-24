@@ -16,6 +16,11 @@
   -->
 
 <resources>
+    <!-- Determines whether the CarUiPortraitHomeScreen uses RemoteCarRootTaskView to host taskviews
+    . Uses CarTaskView is set to false. config_registerCarSystemUIProxy should be set to false if
+    this value is false.  -->
+    <bool name="use_remoteCarTaskView">true</bool>
+
     <string-array name="config_backgroundActivities" translatable="false">
         <item>com.google.android.apps.maps/com.google.android.maps.MapsActivity</item>
         <item>com.android.car.portraitlauncher/com.android.car.portraitlauncher.homeactivities.BackgroundPanelBaseActivity</item>

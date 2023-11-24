@@ -115,6 +115,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
     private CarAudioDeviceInfo mMediaDeviceInfo;
     private CarAudioDeviceInfo mNavigationDeviceInfo;
+    private CarAudioDeviceInfo mInactiveMediaDeviceInfo;
 
     @Mock
     CarAudioSettings mSettingsMock;
@@ -129,6 +130,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         mMediaDeviceInfo = new TestCarAudioDeviceInfoBuilder(MEDIA_DEVICE_ADDRESS).build();
         mNavigationDeviceInfo = new TestCarAudioDeviceInfoBuilder(NAVIGATION_DEVICE_ADDRESS)
                 .build();
+        mInactiveMediaDeviceInfo =
+                new TestCarAudioDeviceInfoBuilder(MEDIA_DEVICE_ADDRESS).setIsActive(false).build();
     }
 
     @Test
@@ -1706,6 +1709,21 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
                 .containsExactlyElementsIn(expectedUsagesForNavAddress);
     }
 
+    @Test
+    public void isActive() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+
+        expectWithMessage("Active status").that(carVolumeGroup.isActive()).isTrue();
+    }
+
+    @Test
+    public void isActive_withInactiveGroup() {
+        CarVolumeGroup carVolumeGroup = testInactiveVolumeGroupSetup();
+
+        expectWithMessage("Active status, with inactive group")
+                .that(carVolumeGroup.isActive()).isFalse();
+    }
+
     private CarVolumeGroup getCarVolumeGroupWithMusicBound() {
         CarVolumeGroupFactory factory = getFactory(/* useCarVolumeGroupMute= */ true);
         factory.setDeviceInfoForContext(TEST_MEDIA_CONTEXT_ID, mMediaDeviceInfo);
@@ -1732,6 +1750,20 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
     private CarVolumeGroup testVolumeGroupSetup() {
         return testVolumeGroupSetup(/* useCarVolumeGroupMute= */ true);
+    }
+
+    private CarVolumeGroup testInactiveVolumeGroupSetup() {
+        CarVolumeGroupFactory factory = getFactory(/* useCarVolumeGroupMute= */ true);
+
+        factory.setDeviceInfoForContext(TEST_MEDIA_CONTEXT_ID, mInactiveMediaDeviceInfo);
+        factory.setDeviceInfoForContext(TEST_CALL_CONTEXT_ID, mInactiveMediaDeviceInfo);
+        factory.setDeviceInfoForContext(TEST_CALL_RING_CONTEXT_ID, mInactiveMediaDeviceInfo);
+
+        factory.setDeviceInfoForContext(TEST_NAVIGATION_CONTEXT_ID, mNavigationDeviceInfo);
+        factory.setDeviceInfoForContext(TEST_ALARM_CONTEXT_ID, mNavigationDeviceInfo);
+        factory.setDeviceInfoForContext(TEST_NOTIFICATION_CONTEXT_ID, mNavigationDeviceInfo);
+
+        return factory.getCarVolumeGroup(/* useCoreAudioVolume= */ false);
     }
 
     private CarVolumeGroup testVolumeGroupSetup(boolean useCarVolumeGroupMute) {

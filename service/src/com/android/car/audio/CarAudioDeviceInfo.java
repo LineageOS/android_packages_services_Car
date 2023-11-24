@@ -25,6 +25,7 @@ import static android.media.AudioFormat.ENCODING_PCM_FLOAT;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.annotation.Nullable;
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.media.AudioManagerHelper.AudioGainInfo;
 import android.car.builtin.util.Slogf;
@@ -85,7 +86,10 @@ import com.android.internal.annotations.GuardedBy;
      * audio engine implementation. It would be nice if AudioPort#activeConfig() would return it,
      * but in the current implementation, that function actually works only for mixer ports.
      */
+    @GuardedBy("mLock")
     private int mCurrentGain;
+    @GuardedBy("mLock")
+    private boolean mIsActive;
 
     CarAudioDeviceInfo(AudioManager audioManager, AudioDeviceAttributes audioDeviceAttributes) {
         mAudioManager = audioManager;
@@ -109,9 +113,23 @@ import com.android.internal.annotations.GuardedBy;
      * the method must call to set the audio device info, so that the actual details of the device
      * are known.
      *
+     * <p>Setting the audio device info to {@code null} means the device is not active, such is
+     * the case for dynamic audio devices that should disappear on disconnection.
+     *
      * @param info that will be use to obtain the device specific information
      */
-    void setAudioDeviceInfo(AudioDeviceInfo info) {
+    void setAudioDeviceInfo(@Nullable AudioDeviceInfo info) {
+        resetAudioDeviceInfoToDefault();
+
+        if (info == null) {
+            // Already reset to default, no need to do anything else
+            return;
+        }
+
+        setAudioDeviceInfoWithNewInfo(info);
+    }
+
+    private void setAudioDeviceInfoWithNewInfo(AudioDeviceInfo info) {
         AudioGainInfo audioGainInfo = AudioManagerHelper.getAudioGainInfo(info);
         synchronized (mLock) {
             mDefaultGain = audioGainInfo.getDefaultGain();
@@ -121,8 +139,22 @@ import com.android.internal.annotations.GuardedBy;
             mChannelCount = getMaxChannels(info);
             mSampleRate = getMaxSampleRate(info);
             mEncodingFormat = getEncodingFormat(info);
+            mIsActive = true;
         }
+    }
 
+    private void resetAudioDeviceInfoToDefault() {
+        synchronized (mLock) {
+            mSampleRate = DEFAULT_SAMPLE_RATE;
+            mEncodingFormat = DEFAULT_ENCODING_FORMAT;
+            mChannelCount = DEFAULT_NUM_CHANNELS;
+            mDefaultGain = UNINITIALIZED_GAIN;
+            mMaxGain = UNINITIALIZED_GAIN;
+            mMinGain = UNINITIALIZED_GAIN;
+            mStepValue = UNINITIALIZED_GAIN;
+            mCurrentGain = UNINITIALIZED_GAIN;
+            mIsActive = false;
+        }
     }
 
     AudioDeviceAttributes getAudioDevice() {
@@ -304,7 +336,9 @@ import com.android.internal.annotations.GuardedBy;
     void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
             writer.printf("CarAudioDeviceInfo Device(%s)\n", mAudioDeviceAttributes.getAddress());
+            writer.printf("CarAudioDeviceInfo Type(%s)\n", mAudioDeviceAttributes.getType());
             writer.increaseIndent();
+            writer.printf("Is active (%b)\n", mIsActive);
             writer.printf("Routing with Dynamic Mix enabled (%b)\n",
                     mCanBeRoutedWithDynamicPolicyMixRule);
             writer.printf("sample rate / encoding format / channel count: %d %d %d\n",
@@ -331,8 +365,15 @@ import com.android.internal.annotations.GuardedBy;
             proto.write(CarAudioDumpProto.CarVolumeGain.MAX_GAIN_INDEX, mMaxGain);
             proto.write(CarAudioDumpProto.CarVolumeGain.DEFAULT_GAIN_INDEX, mDefaultGain);
             proto.write(CarAudioDumpProto.CarVolumeGain.CURRENT_GAIN_INDEX, mCurrentGain);
+            proto.write(CarAudioDeviceInfoProto.IS_ACTIVE , mIsActive);
             proto.end(volumeGainToken);
         }
         proto.end(token);
+    }
+
+    public boolean isActive() {
+        synchronized (mLock) {
+            return mIsActive;
+        }
     }
 }

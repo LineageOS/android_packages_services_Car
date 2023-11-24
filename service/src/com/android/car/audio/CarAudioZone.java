@@ -203,13 +203,30 @@ public class CarAudioZone {
 
     void setCurrentCarZoneConfig(CarAudioZoneConfigInfo configInfoSwitchedTo) {
         synchronized (mLock) {
+            if (mCurrentConfigId == configInfoSwitchedTo.getConfigId()) {
+                return;
+            }
+            CarAudioZoneConfig previousConfig = mCarAudioZoneConfigs.get(mCurrentConfigId);
+            previousConfig.setIsSelected(false);
             mCurrentConfigId = configInfoSwitchedTo.getConfigId();
+            CarAudioZoneConfig current = mCarAudioZoneConfigs.get(mCurrentConfigId);
+            current.setIsSelected(true);
         }
     }
 
     void init() {
         for (int index = 0; index < mCarAudioZoneConfigs.size(); index++) {
-            mCarAudioZoneConfigs.valueAt(index).synchronizeCurrentGainIndex();
+            CarAudioZoneConfig config = mCarAudioZoneConfigs.valueAt(index);
+            config.synchronizeCurrentGainIndex();
+            // mCurrentConfigId should be the default config, but this may change in the future
+            // The configuration could be loaded from audio settings instead
+            if (!config.isDefault()) {
+                continue;
+            }
+            synchronized (mLock) {
+                mCurrentConfigId = config.getZoneConfigId();
+            }
+            config.setIsSelected(true);
         }
     }
 

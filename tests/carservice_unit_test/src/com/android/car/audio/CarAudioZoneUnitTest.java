@@ -170,6 +170,8 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
 
         mTestAudioZone.init();
 
+        expectWithMessage("Default configuration on init")
+                .that(mTestAudioZone.getCurrentCarAudioZoneConfig()).isEqualTo(mMockZoneConfig0);
         verify(mMockZoneConfig0).synchronizeCurrentGainIndex();
         verify(mMockZoneConfig1).synchronizeCurrentGainIndex();
     }
@@ -250,6 +252,8 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
         expectWithMessage("Current zone config info after switching zone configuration")
                 .that(mTestAudioZone.isCurrentZoneConfig(currentZoneConfigInfoToSwitch))
                 .isTrue();
+        verify(mMockZoneConfig1).setIsSelected(true);
+        verify(mMockZoneConfig0).setIsSelected(false);
     }
 
     @Test

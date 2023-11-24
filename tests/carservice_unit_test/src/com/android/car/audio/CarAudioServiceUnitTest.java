@@ -119,6 +119,7 @@ import android.car.VehicleAreaSeat;
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.media.AudioManagerHelper.AudioPatchInfo;
 import android.car.builtin.os.UserManagerHelper;
+import android.car.feature.Flags;
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioPatchHandle;
 import android.car.media.CarAudioZoneConfigInfo;
@@ -166,9 +167,11 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
 import android.os.UserHandle;
+import android.platform.test.flag.junit.SetFlagsRule;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.util.NoSuchPropertyException;
 import android.view.KeyEvent;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -193,6 +196,7 @@ import com.android.car.test.utils.TemporaryFile;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -489,6 +493,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     private int mRegistrationCount = 0;
     private List<Integer> mAudioPolicyRegistrationStatus = new ArrayList<>();
+
+    @Rule
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     public CarAudioServiceUnitTest() {
         super(CarAudioService.TAG);
@@ -4025,7 +4032,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         callback.waitForCallback();
         expectWithMessage("Updated zone configuration")
-                .that(callback.getZoneConfig()).isEqualTo(zoneConfigSwitchTo);
+                .that(callback.getZoneConfig())
+                .isEqualTo(getUpdatedCarAudioZoneConfigInfo(zoneConfigSwitchTo));
         expectWithMessage("Zone configuration switching status")
                 .that(callback.getSwitchStatus()).isTrue();
     }
@@ -4106,7 +4114,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         callback.waitForCallback();
         expectWithMessage("Updated zone configuration with pending focus")
-                .that(callback.getZoneConfig()).isEqualTo(zoneConfigSwitchTo);
+                .that(callback.getZoneConfig())
+                .isEqualTo(getUpdatedCarAudioZoneConfigInfo(zoneConfigSwitchTo));
         expectWithMessage("Zone configuration switching status with pending focus")
                 .that(callback.getSwitchStatus()).isTrue();
         List<Integer> focusChanges = getFocusChanges(audioFocusInfo);
@@ -4132,7 +4141,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         callback.waitForCallback();
         expectWithMessage("Updated zone configuration with pending focus")
-                .that(callback.getZoneConfig()).isEqualTo(zoneConfigSwitchTo);
+                .that(callback.getZoneConfig())
+                .isEqualTo(getUpdatedCarAudioZoneConfigInfo(zoneConfigSwitchTo));
         expectWithMessage("Zone configuration switching status with pending focus")
                 .that(callback.getSwitchStatus()).isTrue();
         verify(mAudioControlWrapperAidl, times(2))
@@ -4177,7 +4187,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         callback.waitForCallback();
         expectWithMessage("Updated zone configuration")
-                .that(callback.getZoneConfig()).isEqualTo(zoneConfigSwitchTo);
+                .that(callback.getZoneConfig())
+                .isEqualTo(getUpdatedCarAudioZoneConfigInfo(zoneConfigSwitchTo));
         expectWithMessage("Zone configuration switching status")
                 .that(callback.getSwitchStatus()).isTrue();
         volumeEventCallback.waitForCallback();
@@ -4213,6 +4224,36 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .that(mCarAudioService.getVolumeGroupInfosForZone(TEST_REAR_LEFT_ZONE_ID))
                 .containsExactly(mTestSecondaryZoneConfig1VolumeInfo0,
                         mTestSecondaryZoneConfig1VolumeInfo1);
+    }
+
+    @Test
+    public void switchZoneToConfig_withDynamicDevicesFlagEnabled() throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        mCarAudioService.init();
+        SwitchAudioZoneConfigCallbackImpl callback = new SwitchAudioZoneConfigCallbackImpl();
+        assignOccupantToAudioZones();
+        CarAudioZoneConfigInfo previousConfig = mCarAudioService
+                .getCurrentAudioZoneConfigInfo(TEST_REAR_LEFT_ZONE_ID);
+        CarAudioZoneConfigInfo zoneConfigSwitchTo = getZoneConfigToSwitch(TEST_REAR_LEFT_ZONE_ID);
+
+        mCarAudioService.switchZoneToConfig(zoneConfigSwitchTo, callback);
+
+        callback.waitForCallback();
+        expectWithMessage("Updated zone configuration, with dynamic devices enabled")
+                .that(callback.getZoneConfig().hasSameConfigInfo(zoneConfigSwitchTo)).isTrue();
+        expectWithMessage("Zone configuration switched status, with dynamic devices enabled")
+                .that(callback.getSwitchStatus()).isTrue();
+        CarAudioZoneConfigInfo switchedInfo = mCarAudioService
+                .getCurrentAudioZoneConfigInfo(TEST_REAR_LEFT_ZONE_ID);
+        expectWithMessage("Switched config active status")
+                .that(switchedInfo.isActive()).isTrue();
+        expectWithMessage("Switched config selected status")
+                .that(switchedInfo.isSelected()).isTrue();
+        CarAudioZoneConfigInfo previousUpdated = getUpdatedCarAudioZoneConfigInfo(previousConfig);
+        expectWithMessage("Previous config active status")
+                .that(previousUpdated.isActive()).isTrue();
+        expectWithMessage("Previous config selected status")
+                .that(previousUpdated.isSelected()).isFalse();
     }
 
     @Test
@@ -4749,6 +4790,16 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         verify(mCarVolumeCallbackHandler, never()).onGroupMuteChange(anyInt(), anyInt(), anyInt());
         expectWithMessage("Volume event callback reception status")
                 .that(volumeEventCallback.waitForCallback()).isFalse();
+    }
+
+    private CarAudioZoneConfigInfo getUpdatedCarAudioZoneConfigInfo(
+            CarAudioZoneConfigInfo previousConfig) {
+        List<CarAudioZoneConfigInfo> infos =
+                mCarAudioService.getAudioZoneConfigInfos(previousConfig.getZoneId());
+        CarAudioZoneConfigInfo previousUpdated = infos.stream()
+                .filter(i-> i.hasSameConfigInfo(previousConfig)).findFirst().orElseThrow(
+                        () -> new NoSuchPropertyException("Missing previously selected config"));
+        return previousUpdated;
     }
 
     private ICarOccupantZoneCallback getOccupantZoneCallback() {
