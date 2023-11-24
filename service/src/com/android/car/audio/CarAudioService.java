@@ -3266,15 +3266,46 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     void audioDevicesAdded(AudioDeviceInfo[] addedDevices) {
         Slogf.d(TAG, "Added audio devices " + Arrays.toString(addedDevices));
-        // TODO(b/305301155): Update audio zones with new devices
-        // Trigger callback for audio configuration updates
+        List<AudioDeviceInfo> devices = filterBusDevices(addedDevices);
+
+        if (devices.isEmpty()) {
+            return;
+        }
+
+        synchronized (mImplLock) {
+            for (int c = 0; c < mCarAudioZones.size(); c++) {
+                mCarAudioZones.valueAt(c).audioDevicesAdded(devices);
+            }
+        }
+        // TODO(b/305301155): Trigger callback for audio configuration updates
     }
 
     void audioDevicesRemoved(AudioDeviceInfo[] removedDevices) {
         Slogf.d(TAG, "Removed audio devices " + Arrays.toString(removedDevices));
-        // TODO(b/305301155): Update audio zones with removed devices
-        // Also need to undo current routing for configurations that are active and the device is
-        // no longer available. Finally trigger callback for audio configuration updates
+        List<AudioDeviceInfo> devices = filterBusDevices(removedDevices);
+
+        if (devices.isEmpty()) {
+            return;
+        }
+
+        synchronized (mImplLock) {
+            for (int c = 0; c < mCarAudioZones.size(); c++) {
+                mCarAudioZones.valueAt(c).audioDevicesRemoved(devices);
+            }
+        }
+        // TODO(b/305301155): Undo current routing for configurations that are active and the
+        //  device is no longer available. Finally trigger callback for audio configuration updates
+    }
+
+    private static List<AudioDeviceInfo> filterBusDevices(AudioDeviceInfo[] infos) {
+        List<AudioDeviceInfo> devices = new ArrayList<>();
+        for (int c = 0; c < infos.length; c++) {
+            if (infos[c].isSource() || infos[c].getType() == AudioDeviceInfo.TYPE_BUS) {
+                continue;
+            }
+            devices.add(infos[c]);
+        }
+        return devices;
     }
 
     static final class SystemClockWrapper {

@@ -719,6 +719,50 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
                 .that(mTestAudioZone.getCarAudioContext()).isEqualTo(TEST_CAR_AUDIO_CONTEXT);
     }
 
+    @Test
+    public void audioDevicesAdded() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        AudioDeviceInfo testDevice = mock(AudioDeviceInfo.class);
+        List<AudioDeviceInfo> infos = List.of(testDevice);
+
+        mTestAudioZone.audioDevicesAdded(infos);
+
+        verify(mMockZoneConfig0).audioDevicesAdded(infos);
+    }
+
+    @Test
+    public void audioDevicesAdded_withNullDevices() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+
+        NullPointerException thrown = assertThrows(NullPointerException.class,
+                () -> mTestAudioZone.audioDevicesAdded(/* devices= */ null));
+
+        expectWithMessage("Audio devices added null devices exception").that(thrown)
+                .hasMessageThat().contains("Audio devices");
+    }
+
+    @Test
+    public void audioDevicesRemoved() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        AudioDeviceInfo testDevice = mock(AudioDeviceInfo.class);
+        List<AudioDeviceInfo> infos = List.of(testDevice);
+
+        mTestAudioZone.audioDevicesRemoved(infos);
+
+        verify(mMockZoneConfig0).audioDevicesRemoved(infos);
+    }
+
+    @Test
+    public void audioDevicesRemoved_withNullDevices() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+
+        NullPointerException thrown = assertThrows(NullPointerException.class,
+                        () -> mTestAudioZone.audioDevicesRemoved(/* devices= */ null));
+
+        expectWithMessage("Audio devices removed null devices exception").that(thrown)
+                .hasMessageThat().contains("Audio devices");
+    }
+
     private CarAudioZoneConfigInfo getNonCurrentZoneConfigInfo() {
         CarAudioZoneConfigInfo currentZoneConfigInfo = mTestAudioZone
                 .getCurrentCarAudioZoneConfig().getCarAudioZoneConfigInfo();

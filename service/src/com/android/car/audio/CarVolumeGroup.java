@@ -32,6 +32,7 @@ import android.car.feature.Flags;
 import android.car.media.CarVolumeGroupInfo;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.os.UserHandle;
 import android.util.ArrayMap;
@@ -317,14 +318,15 @@ import java.util.Objects;
 
     @Nullable
     CarAudioDeviceInfo getCarAudioDeviceInfoForAddress(String address) {
-        return mAddressToCarAudioDeviceInfo.get(address);
+        synchronized (mLock) {
+            return mAddressToCarAudioDeviceInfo.get(address);
+        }
     }
 
-    @AudioContext
     int[] getContexts() {
-        final int[] carAudioContexts = new int[mContextToAddress.size()];
-        for (int i = 0; i < carAudioContexts.length; i++) {
-            carAudioContexts[i] = mContextToAddress.keyAt(i);
+        int[] carAudioContexts = new int[mContextToDevices.size()];
+        for (int i = 0; i < mContextToDevices.size(); i++) {
+            carAudioContexts[i] = mContextToDevices.keyAt(i);
         }
         return carAudioContexts;
     }
@@ -349,7 +351,9 @@ import java.util.Objects;
      */
     @Nullable
     String getAddressForContext(int audioContext) {
-        return mContextToAddress.get(audioContext);
+        synchronized (mLock) {
+            return mContextToAddress.get(audioContext);
+        }
     }
 
     /**
@@ -363,7 +367,10 @@ import java.util.Objects;
             return null;
         }
 
-        CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
+        CarAudioDeviceInfo info;
+        synchronized (mLock) {
+            info = mAddressToCarAudioDeviceInfo.get(address);
+        }
         if (info == null) {
             return null;
         }
@@ -374,17 +381,21 @@ import java.util.Objects;
     @AudioContext
     List<Integer> getContextsForAddress(@NonNull String address) {
         List<Integer> carAudioContexts = new ArrayList<>();
-        for (int i = 0; i < mContextToAddress.size(); i++) {
-            String value = mContextToAddress.valueAt(i);
-            if (address.equals(value)) {
-                carAudioContexts.add(mContextToAddress.keyAt(i));
+        synchronized (mLock) {
+            for (int i = 0; i < mContextToAddress.size(); i++) {
+                String value = mContextToAddress.valueAt(i);
+                if (address.equals(value)) {
+                    carAudioContexts.add(mContextToAddress.keyAt(i));
+                }
             }
         }
         return carAudioContexts;
     }
 
     List<String> getAddresses() {
-        return new ArrayList<>(mAddressToCarAudioDeviceInfo.keySet());
+        synchronized (mLock) {
+            return new ArrayList<>(mAddressToCarAudioDeviceInfo.keySet());
+        }
     }
 
     List<Integer> getAllSupportedUsagesForAddress(@NonNull String address) {
@@ -515,9 +526,8 @@ import java.util.Objects;
                         mCarAudioContext.toString(mContextToAddress.keyAt(i)),
                         mContextToAddress.valueAt(i));
             }
-            for (int i = 0; i < mAddressToCarAudioDeviceInfo.size(); i++) {
-                String address = mAddressToCarAudioDeviceInfo.keyAt(i);
-                CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
+            for (int i = 0; i < mContextToDevices.size(); i++) {
+                CarAudioDeviceInfo info = mContextToDevices.valueAt(i);
                 info.dump(writer);
             }
             writer.printf("Reported reasons:\n");
@@ -578,9 +588,8 @@ import java.util.Objects;
                 proto.end(contextToAddressMappingToken);
             }
 
-            for (int i = 0; i < mAddressToCarAudioDeviceInfo.size(); i++) {
-                String address = mAddressToCarAudioDeviceInfo.keyAt(i);
-                CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
+            for (int i = 0; i < mContextToDevices.size(); i++) {
+                CarAudioDeviceInfo info = mContextToDevices.valueAt(i);
                 info.dumpProto(CarVolumeGroupProto.CAR_AUDIO_DEVICE_INFOS, proto);
             }
 
@@ -861,15 +870,16 @@ import java.util.Objects;
 
     List<AudioAttributes> getAudioAttributes() {
         List<AudioAttributes> audioAttributes = new ArrayList<>();
-        for (int index = 0; index < mContextToAddress.size(); index++) {
-            int context = mContextToAddress.keyAt(index);
-            AudioAttributes[] contextAttributes =
-                    mCarAudioContext.getAudioAttributesForContext(context);
-            for (int attrIndex = 0; attrIndex < contextAttributes.length; attrIndex++) {
-                audioAttributes.add(contextAttributes[attrIndex]);
+        synchronized (mLock) {
+            for (int index = 0; index < mContextToAddress.size(); index++) {
+                int context = mContextToAddress.keyAt(index);
+                AudioAttributes[] contextAttributes =
+                        mCarAudioContext.getAudioAttributesForContext(context);
+                for (int attrIndex = 0; attrIndex < contextAttributes.length; attrIndex++) {
+                    audioAttributes.add(contextAttributes[attrIndex]);
+                }
             }
         }
-
         return audioAttributes;
     }
 
@@ -907,13 +917,65 @@ import java.util.Objects;
     }
 
     boolean isActive() {
-        for (int c = 0; c < mAddressToCarAudioDeviceInfo.size(); c++) {
-            CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.valueAt(c);
-            if (info.isActive()) {
-                continue;
+        synchronized (mLock) {
+            for (int c = 0; c < mAddressToCarAudioDeviceInfo.size(); c++) {
+                CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.valueAt(c);
+                if (info.isActive()) {
+                    continue;
+                }
+                return false;
             }
-            return false;
         }
         return true;
+    }
+
+    public void audioDevicesAdded(List<AudioDeviceInfo> devices) {
+        Objects.requireNonNull(devices, "Audio devices can not be null");
+        if (isActive()) {
+            return;
+        }
+
+        boolean updated = false;
+        for (int c = 0; c < mContextToDevices.size(); c++) {
+            if (!mContextToDevices.valueAt(c).audioDevicesAdded(devices)) {
+                continue;
+            }
+            updated = true;
+        }
+        if (!updated) {
+            return;
+        }
+        synchronized (mLock) {
+            updateAudioDevicesMappingLocked();
+        }
+    }
+
+    public void audioDevicesRemoved(List<AudioDeviceInfo> devices) {
+        Objects.requireNonNull(devices, "Audio devices can not be null");
+        boolean updated = false;
+        for (int c = 0; c < mContextToDevices.size(); c++) {
+            if (!mContextToDevices.valueAt(c).audioDevicesRemoved(devices)) {
+                continue;
+            }
+            updated = true;
+        }
+        if (!updated) {
+            return;
+        }
+        synchronized (mLock) {
+            updateAudioDevicesMappingLocked();
+        }
+    }
+
+    @GuardedBy("mLock")
+    private void updateAudioDevicesMappingLocked() {
+        mAddressToCarAudioDeviceInfo.clear();
+        mContextToAddress.clear();
+        for (int c = 0; c < mContextToDevices.size(); c++) {
+            CarAudioDeviceInfo info = mContextToDevices.valueAt(c);
+            int audioContext = mContextToDevices.keyAt(c);
+            mAddressToCarAudioDeviceInfo.put(info.getAddress(), info);
+            mContextToAddress.put(audioContext, info.getAddress());
+        }
     }
 }
