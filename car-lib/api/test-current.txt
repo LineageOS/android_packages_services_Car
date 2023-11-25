@@ -333,6 +333,7 @@ package android.car {
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_STEERING_WHEEL) public static final int STEERING_WHEEL_HEIGHT_POS = 289410018; // 0x11400be2
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_STEERING_WHEEL) public static final int STEERING_WHEEL_LOCKED = 287312869; // 0x11200be5
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_STEERING_WHEEL) public static final int STEERING_WHEEL_THEFT_LOCK_ENABLED = 287312868; // 0x11200be4
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CAR_DRIVING_STATE)) public static final int VEHICLE_DRIVING_AUTOMATION_CURRENT_LEVEL = 289410892; // 0x11400f4c
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_WINDSHIELD_WIPERS)) public static final int WINDSHIELD_WIPERS_PERIOD = 322964421; // 0x13400bc5
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_WINDSHIELD_WIPERS)) public static final int WINDSHIELD_WIPERS_STATE = 322964422; // 0x13400bc6
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_WINDSHIELD_WIPERS, android.car.Car.PERMISSION_CONTROL_WINDSHIELD_WIPERS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_WINDSHIELD_WIPERS)) public static final int WINDSHIELD_WIPERS_SWITCH = 322964423; // 0x13400bc7
@@ -1438,6 +1439,16 @@ package android.car.hardware.property {
     field public static final int STATE_NOT_PRESENT = 1; // 0x1
     field public static final int STATE_PRESENT = 2; // 0x2
     field public static final int STATE_UNKNOWN = 0; // 0x0
+  }
+
+  @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public final class VehicleAutonomousState {
+    method @NonNull public static String toString(int);
+    field public static final int LEVEL_0 = 0; // 0x0
+    field public static final int LEVEL_1 = 1; // 0x1
+    field public static final int LEVEL_2 = 2; // 0x2
+    field public static final int LEVEL_3 = 3; // 0x3
+    field public static final int LEVEL_4 = 4; // 0x4
+    field public static final int LEVEL_5 = 5; // 0x5
   }
 
   public final class VehicleLightState {
