@@ -306,6 +306,7 @@ package android.car {
     field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DRIVER_MONITORING_STATES)) public static final int DRIVER_DROWSINESS_ATTENTION_WARNING = 289411100; // 0x1140101c
     field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS, android.car.Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS)) public static final int DRIVER_DROWSINESS_ATTENTION_WARNING_ENABLED = 287313947; // 0x1120101b
     field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_CAR_DYNAMICS_STATE, android.car.Car.PERMISSION_CONTROL_CAR_DYNAMICS_STATE})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_DYNAMICS_STATE)) public static final int ELECTRONIC_STABILITY_CONTROL_ENABLED = 287310862; // 0x1120040e
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CAR_DYNAMICS_STATE)) public static final int ELECTRONIC_STABILITY_CONTROL_STATE = 289408015; // 0x1140040f
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_ADAS_SETTINGS, android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int EMERGENCY_LANE_KEEP_ASSIST_ENABLED = 287313933; // 0x1120100d
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int EMERGENCY_LANE_KEEP_ASSIST_STATE = 289411086; // 0x1140100e
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_ENGINE_DETAILED) public static final int ENGINE_IDLE_AUTO_STOP_ENABLED = 287310624; // 0x11200320
@@ -1357,6 +1358,13 @@ package android.car.hardware.property {
     field public static final int NO_WARNING = 1; // 0x1
     field public static final int OTHER = 0; // 0x0
     field public static final int WARNING = 2; // 0x2
+  }
+
+  @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public final class ElectronicStabilityControlState {
+    method @NonNull public static String toString(int);
+    field public static final int ACTIVATED = 2; // 0x2
+    field public static final int ENABLED = 1; // 0x1
+    field public static final int OTHER = 0; // 0x0
   }
 
   public class EmergencyLaneKeepAssistState {

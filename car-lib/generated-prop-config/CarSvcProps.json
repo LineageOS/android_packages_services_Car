@@ -663,6 +663,27 @@
       },
       "systemApi": true
     },
+    "ELECTRONIC_STABILITY_CONTROL_STATE": {
+      "propertyName": "ELECTRONIC_STABILITY_CONTROL_STATE",
+      "propertyId": 289408015,
+      "description": "Electronic Stability Control (ESC) state.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.CAR_DYNAMICS_STATE"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        0,
+        1,
+        2,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
+      ]
+    },
     "HVAC_FAN_SPEED": {
       "propertyName": "HVAC_FAN_SPEED",
       "propertyId": 356517120,
