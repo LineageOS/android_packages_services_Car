@@ -754,16 +754,10 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
             AudioPolicy policy = (AudioPolicy) invocation.getArguments()[0];
             policy.setRegistration(REGISTRATION_ID);
 
-            return mAudioPolicyRegistrationStatus.get(mRegistrationCount++);
+            // Only return an specific result if testing failures at different phases.
+            return mAudioPolicyRegistrationStatus.isEmpty()
+                    ? SUCCESS : mAudioPolicyRegistrationStatus.get(mRegistrationCount++);
         });
-
-        // Policy register is called three times:
-        //  Audio volume control
-        //  Audio focus control
-        //  Audio routing control
-        mAudioPolicyRegistrationStatus.add(SUCCESS);
-        mAudioPolicyRegistrationStatus.add(SUCCESS);
-        mAudioPolicyRegistrationStatus.add(SUCCESS);
 
         IBinder mockBinder = mock(IBinder.class);
         when(mockBinder.queryLocalInterface(any())).thenReturn(mMockAudioService);
@@ -810,7 +804,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void init_withVolumeControlPolicyRegistrationError_fails() {
-        mAudioPolicyRegistrationStatus.set(0, ERROR);
+        mAudioPolicyRegistrationStatus.add(ERROR);
 
         IllegalStateException thrown =
                 assertThrows(IllegalStateException.class, () -> mCarAudioService.init());
@@ -821,7 +815,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void init_withFocusControlPolicyRegistrationError_fails() {
-        mAudioPolicyRegistrationStatus.set(1, ERROR);
+        mAudioPolicyRegistrationStatus.add(SUCCESS);
+        mAudioPolicyRegistrationStatus.add(ERROR);
 
         IllegalStateException thrown =
                 assertThrows(IllegalStateException.class, () -> mCarAudioService.init());
@@ -832,7 +827,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void init_withAudioRoutingPolicyRegistrationError_fails() {
-        mAudioPolicyRegistrationStatus.set(2, ERROR);
+        mAudioPolicyRegistrationStatus.add(SUCCESS);
+        mAudioPolicyRegistrationStatus.add(SUCCESS);
+        mAudioPolicyRegistrationStatus.add(ERROR);
 
         IllegalStateException thrown =
                 assertThrows(IllegalStateException.class, () -> mCarAudioService.init());
@@ -2241,10 +2238,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void onAudioServerUp_forCarAudioServiceCallback() {
         mCarAudioService.init();
-        // Audio policy registration will be called again for each registration
-        mAudioPolicyRegistrationStatus.add(SUCCESS);
-        mAudioPolicyRegistrationStatus.add(SUCCESS);
-        mAudioPolicyRegistrationStatus.add(SUCCESS);
         AudioServerStateCallback callback = getAudioServerStateCallback();
         callback.onAudioServerDown();
 
