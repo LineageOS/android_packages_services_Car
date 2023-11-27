@@ -2110,6 +2110,41 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
     public static final int PER_DISPLAY_BRIGHTNESS = 289475076;
     /**
+     * Valet mode enabled
+     *
+     * <p>This property allows the user to enable/disable valet mode in their vehicle. Valet mode is
+     * a privacy and security setting that prevents an untrusted driver to access more private areas
+     * in the vehicle, such as the glove box or the trunk(s).
+     *
+     * <p>This property is defined as read_write, but OEMs have the option to implement it as read
+     * only.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_VALET_MODE} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_VALET_MODE} to read property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_VALET_MODE} to write
+     *  property.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(
+            anyOf = {Car.PERMISSION_READ_VALET_MODE, Car.PERMISSION_CONTROL_VALET_MODE}))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_VALET_MODE))
+    public static final int VALET_MODE_ENABLED = 287312389;
+    /**
      * Property to feed H/W input events to android.
      *
      * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
