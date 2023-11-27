@@ -590,6 +590,14 @@ public final class Car {
     public static final String PERMISSION_CAR_DYNAMICS_STATE =
             "android.car.permission.CAR_DYNAMICS_STATE";
 
+    /** Permission necessary to control car's dynamics state.
+     *  @hide
+     */
+    @FlaggedApi(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    public static final String PERMISSION_CONTROL_CAR_DYNAMICS_STATE =
+            "android.car.permission.CONTROL_CAR_DYNAMICS_STATE";
+
     /** Permission necessary to access car's fuel door and ev charge port. */
     public static final String PERMISSION_ENERGY_PORTS = "android.car.permission.CAR_ENERGY_PORTS";
 

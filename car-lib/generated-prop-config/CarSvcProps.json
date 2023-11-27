@@ -640,6 +640,29 @@
         "value": "android.car.permission.CAR_DYNAMICS_STATE"
       }
     },
+    "ELECTRONIC_STABILITY_CONTROL_ENABLED": {
+      "propertyName": "ELECTRONIC_STABILITY_CONTROL_ENABLED",
+      "propertyId": 287310862,
+      "description": "Enable or disable Electronic Stability Control (ESC).",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_DYNAMICS_STATE"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_CAR_DYNAMICS_STATE"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_CAR_DYNAMICS_STATE"
+      },
+      "systemApi": true
+    },
     "HVAC_FAN_SPEED": {
       "propertyName": "HVAC_FAN_SPEED",
       "propertyId": 356517120,
