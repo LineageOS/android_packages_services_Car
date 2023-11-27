@@ -35,8 +35,10 @@ public:
     MOCK_METHOD(android::base::Result<void>, initWatchdogServiceHelper,
                 (const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper),
                 (override));
-    MOCK_METHOD((std::unordered_map<uid_t, std::string>), getPackageNamesForUids,
-                (const std::vector<uid_t>& uids), (override));
+    MOCK_METHOD(void, asyncFetchPackageNamesForUids,
+                (const std::vector<uid_t>&,
+                 const std::function<void(std::unordered_map<uid_t, std::string>)>&),
+                (override));
     MOCK_METHOD(
             (std::unordered_map<uid_t, aidl::android::automotive::watchdog::internal::PackageInfo>),
             getPackageInfosForUids, (const std::vector<uid_t>& uids), (override));

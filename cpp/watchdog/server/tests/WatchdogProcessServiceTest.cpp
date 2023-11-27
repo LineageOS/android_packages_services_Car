@@ -17,8 +17,10 @@
 #include "MockAIBinderDeathRegistrationWrapper.h"
 #include "MockCarWatchdogServiceForSystem.h"
 #include "MockHidlServiceManager.h"
+#include "MockPackageInfoResolver.h"
 #include "MockVhalClient.h"
 #include "MockWatchdogServiceHelper.h"
+#include "PackageInfoResolver.h"
 #include "WatchdogProcessService.h"
 #include "WatchdogServiceHelper.h"
 
@@ -133,8 +135,9 @@ public:
         mWatchdogProcessService->mVhalProcessIdentifier = processIdentifier;
 
         WatchdogProcessService::ClientInfoMap clientInfoMap;
-        WatchdogProcessService::ClientInfo clientInfo(nullptr, 1, 1, "shell", 1000,
+        WatchdogProcessService::ClientInfo clientInfo(nullptr, 1, 1, 1000,
                                                       WatchdogProcessService(nullptr));
+        clientInfo.packageName = "shell";
         clientInfoMap.insert({100, clientInfo});
         mWatchdogProcessService->mClientsByTimeout.clear();
         mWatchdogProcessService->mClientsByTimeout.insert(
@@ -142,6 +145,20 @@ public:
     }
 
     void clearClientsByTimeout() { mWatchdogProcessService->mClientsByTimeout.clear(); }
+
+    bool hasClientInfoWithPackageName(TimeoutLength timeoutLength, std::string packageName) {
+        auto clientInfoMap = mWatchdogProcessService->mClientsByTimeout[timeoutLength];
+        for (const auto& [_, clientInfo] : clientInfoMap) {
+            if (clientInfo.packageName == packageName) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void setPackageInfoResolver(const sp<PackageInfoResolverInterface>& packageInfoResolver) {
+        mWatchdogProcessService->mPackageInfoResolver = packageInfoResolver;
+    }
 
 private:
     sp<WatchdogProcessService> mWatchdogProcessService;
@@ -168,6 +185,7 @@ protected:
         mSupportedVehicleProperties = {VehicleProperty::VHAL_HEARTBEAT};
         mNotSupportedVehicleProperties = {VehicleProperty::WATCHDOG_ALIVE,
                                           VehicleProperty::WATCHDOG_TERMINATED_PROCESS};
+        mMockPackageInfoResolver = sp<MockPackageInfoResolver>::make();
         startService();
     }
 
@@ -178,6 +196,7 @@ protected:
         mMockVhalClient.reset();
         mMockVehicle.reset();
         mMessageHandler.clear();
+        mMockPackageInfoResolver.clear();
     }
 
     void startService() {
@@ -190,6 +209,7 @@ protected:
                                                  mMockDeathRegistrationWrapper);
         mWatchdogProcessServicePeer =
                 std::make_unique<internal::WatchdogProcessServicePeer>(mWatchdogProcessService);
+        mWatchdogProcessServicePeer->setPackageInfoResolver(mMockPackageInfoResolver);
 
         expectGetPropConfigs(mSupportedVehicleProperties, mNotSupportedVehicleProperties);
 
@@ -303,6 +323,7 @@ protected:
     sp<MockAIBinderDeathRegistrationWrapper> mMockDeathRegistrationWrapper;
     std::vector<VehicleProperty> mSupportedVehicleProperties;
     std::vector<VehicleProperty> mNotSupportedVehicleProperties;
+    sp<MockPackageInfoResolver> mMockPackageInfoResolver;
 
 private:
     class MessageHandlerImpl : public android::MessageHandler {
@@ -784,6 +805,43 @@ TEST_F(WatchdogProcessServiceTest, TestOnDumpProto) {
 
     // Clean up test clients before exiting.
     mWatchdogProcessServicePeer->clearClientsByTimeout();
+}
+
+TEST_F(WatchdogProcessServiceTest, TestRegisterClientWithPackageName) {
+    std::shared_ptr<ICarWatchdogClient> client = SharedRefBase::make<ICarWatchdogClientDefault>();
+    ON_CALL(*mMockPackageInfoResolver, asyncFetchPackageNamesForUids(_, _))
+            .WillByDefault([&](const std::vector<uid_t>& uids,
+                               const std::function<void(std::unordered_map<uid_t, std::string>)>&
+                                       callback) {
+                callback({{uids[0], "shell"}});
+            });
+
+    ASSERT_FALSE(mWatchdogProcessServicePeer
+                         ->hasClientInfoWithPackageName(TimeoutLength::TIMEOUT_CRITICAL, "shell"));
+
+    auto status = mWatchdogProcessService->registerClient(client, TimeoutLength::TIMEOUT_CRITICAL);
+
+    ASSERT_TRUE(mWatchdogProcessServicePeer
+                        ->hasClientInfoWithPackageName(TimeoutLength::TIMEOUT_CRITICAL, "shell"));
+}
+
+TEST_F(WatchdogProcessServiceTest, TestRegisterClientWithPackageNameAndNonExistentUid) {
+    std::shared_ptr<ICarWatchdogClient> client = SharedRefBase::make<ICarWatchdogClientDefault>();
+    ON_CALL(*mMockPackageInfoResolver, asyncFetchPackageNamesForUids(_, _))
+            .WillByDefault([&](const std::vector<uid_t>& uids,
+                               const std::function<void(std::unordered_map<uid_t, std::string>)>&
+                                       callback) {
+                callback({});
+                ALOGI("No corresponding packageName for uid: %i", uids[0]);
+            });
+
+    ASSERT_FALSE(mWatchdogProcessServicePeer
+                         ->hasClientInfoWithPackageName(TimeoutLength::TIMEOUT_CRITICAL, "shell"));
+
+    auto status = mWatchdogProcessService->registerClient(client, TimeoutLength::TIMEOUT_CRITICAL);
+
+    ASSERT_FALSE(mWatchdogProcessServicePeer
+                         ->hasClientInfoWithPackageName(TimeoutLength::TIMEOUT_CRITICAL, "shell"));
 }
 
 }  // namespace watchdog
