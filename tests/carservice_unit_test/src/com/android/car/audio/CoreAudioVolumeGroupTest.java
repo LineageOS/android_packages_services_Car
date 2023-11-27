@@ -63,7 +63,6 @@ import android.car.Car;
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.media.AudioManager;
-import android.util.ArrayMap;
 import android.util.SparseArray;
 
 import org.junit.Before;
@@ -157,30 +156,25 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         mOemContext = new CarAudioContext(
                 List.of(OEM_CONTEXT_INFO), /* useCoreAudioRouting= */ true);
 
-        SparseArray<String> musicContextToAddress = new SparseArray<>();
-        musicContextToAddress.put(MUSIC_STRATEGY_ID, MUSIC_DEVICE_ADDRESS);
-        ArrayMap<String, CarAudioDeviceInfo> musicMap = new ArrayMap<>();
-        musicMap.put(MUSIC_DEVICE_ADDRESS, mOemInfoMock);
+        SparseArray<CarAudioDeviceInfo> musicContextToDeviceInfo = new SparseArray<>();
+        musicContextToDeviceInfo.put(MUSIC_STRATEGY_ID, mOemInfoMock);
+        when(mOemInfoMock.getAddress()).thenReturn(MUSIC_DEVICE_ADDRESS);
         mMusicCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, mMusicContext,
-                mSettingsMock, musicContextToAddress, musicMap,
-                PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, MUSIC_CAR_GROUP_ID, MUSIC_GROUP_NAME,
-                /* useCarVolumeGroupMute= */ false);
+                mSettingsMock, musicContextToDeviceInfo, PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID,
+                MUSIC_CAR_GROUP_ID, MUSIC_GROUP_NAME, /* useCarVolumeGroupMute= */ false);
 
-        SparseArray<String> navContextToAddress = new SparseArray<>();
-        navContextToAddress.put(NAV_STRATEGY_ID, NAV_DEVICE_ADDRESS);
-        ArrayMap<String, CarAudioDeviceInfo> navMap = new ArrayMap<>();
-        navMap.put(NAV_DEVICE_ADDRESS, mNavInfoMock);
+        SparseArray<CarAudioDeviceInfo> navContextToDeviceInfo = new SparseArray<>();
+        navContextToDeviceInfo.put(NAV_STRATEGY_ID, mNavInfoMock);
+        when(mNavInfoMock.getAddress()).thenReturn(NAV_DEVICE_ADDRESS);
         mNavCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, mNavContext,
-            mSettingsMock, navContextToAddress, navMap,
-            PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, NAV_CAR_GROUP_ID, NAV_GROUP_NAME,
-            /* useCarVolumeGroupMute= */ false);
+                mSettingsMock, navContextToDeviceInfo, PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID,
+                NAV_CAR_GROUP_ID, NAV_GROUP_NAME, /* useCarVolumeGroupMute= */ false);
 
-        SparseArray<String> oemContextToAddress = new SparseArray<>();
-        oemContextToAddress.put(OEM_STRATEGY_ID, OEM_DEVICE_ADDRESS);
-        ArrayMap<String, CarAudioDeviceInfo> oemMap = new ArrayMap<>();
-        oemMap.put(OEM_DEVICE_ADDRESS, mOemInfoMock);
+        SparseArray<CarAudioDeviceInfo> oemContextToDeviceInfo = new SparseArray<>();
+        oemContextToDeviceInfo.put(OEM_STRATEGY_ID, mOemInfoMock);
+        when(mOemInfoMock.getAddress()).thenReturn(OEM_DEVICE_ADDRESS);
         mOemCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, mOemContext,
-                mSettingsMock, oemContextToAddress, oemMap,
+                mSettingsMock, oemContextToDeviceInfo,
                 PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, OEM_CAR_GROUP_ID, OEM_GROUP_NAME,
                 /* useCarVolumeGroupMute= */ false);
     }

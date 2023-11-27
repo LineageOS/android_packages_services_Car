@@ -84,12 +84,15 @@ import java.util.Objects;
     private final String mName;
     protected final int mZoneId;
     protected final int mConfigId;
-    protected final SparseArray<String> mContextToAddress;
-    protected final ArrayMap<String, CarAudioDeviceInfo> mAddressToCarAudioDeviceInfo;
+    protected final SparseArray<CarAudioDeviceInfo> mContextToDevices;
 
     protected final Object mLock = new Object();
     private final CarAudioContext mCarAudioContext;
 
+    @GuardedBy("mLock")
+    protected final SparseArray<String> mContextToAddress;
+    @GuardedBy("mLock")
+    protected final ArrayMap<String, CarAudioDeviceInfo> mAddressToCarAudioDeviceInfo;
     @GuardedBy("mLock")
     protected int mStoredGainIndex;
 
@@ -148,24 +151,27 @@ import java.util.Objects;
     protected List<Integer> mReasons = new ArrayList<>();
 
     protected CarVolumeGroup(CarAudioContext carAudioContext, CarAudioSettings settingsManager,
-            SparseArray<String> contextToAddress, ArrayMap<String,
-            CarAudioDeviceInfo> addressToCarAudioDeviceInfo, int zoneId, int configId,
+            SparseArray<CarAudioDeviceInfo> contextToDevices, int zoneId, int configId,
             int volumeGroupId, String name, boolean useCarVolumeGroupMute) {
         mSettingsManager = settingsManager;
-        mContextToAddress = contextToAddress;
-        mAddressToCarAudioDeviceInfo = addressToCarAudioDeviceInfo;
         mCarAudioContext = carAudioContext;
+        mContextToDevices = contextToDevices;
         mZoneId = zoneId;
         mConfigId = configId;
         mId = volumeGroupId;
         mName = Objects.requireNonNull(name, "Volume group name cannot be null");
         mUseCarVolumeGroupMute = useCarVolumeGroupMute;
+        mContextToAddress = new SparseArray<>(contextToDevices.size());
+        mAddressToCarAudioDeviceInfo = new ArrayMap<>(contextToDevices.size());
         List<AudioAttributes> volumeAttributes = new ArrayList<>();
-        for (int index = 0; index <  contextToAddress.size(); index++) {
-            int context = contextToAddress.keyAt(index);
+        for (int index = 0; index <  contextToDevices.size(); index++) {
+            int context = contextToDevices.keyAt(index);
+            CarAudioDeviceInfo info = contextToDevices.valueAt(index);
             List<AudioAttributes> audioAttributes =
                     Arrays.asList(mCarAudioContext.getAudioAttributesForContext(context));
             volumeAttributes.addAll(audioAttributes);
+            mContextToAddress.put(context, info.getAddress());
+            mAddressToCarAudioDeviceInfo.put(info.getAddress(), info);
         }
 
         mHasCriticalAudioContexts = containsCriticalAttributes(volumeAttributes);
