@@ -51,7 +51,6 @@ import android.util.Log;
 import android.view.Display;
 import android.view.SurfaceControl;
 
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 
 import com.android.wm.shell.ShellTaskOrganizer;
@@ -78,7 +77,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 
-@FlakyTest(bugId = 309175126)
 @RunWith(MockitoJUnitRunner.class)
 @MediumTest
 public class CarActivityServiceTaskMonitorUnitTest {
