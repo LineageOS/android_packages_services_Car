@@ -6961,6 +6961,43 @@ public final class VehiclePropertyIds {
     public static final int LOW_SPEED_COLLISION_WARNING_STATE = 289411106;
 
     /**
+     * Enable or disable Cross Traffic Monitoring.
+     *
+     * <p>Returns true if Cross Traffic Monitoring is enabled and false if Cross Traffic Monitoring
+     * is disabled. When Cross Traffic Monitoring is enabled, the ADAS system in the vehicle should
+     * be turned on and monitoring for potential sideways collisions.
+     *
+     * <p>This property is defined as read_write, but OEMs have the option to implement it as read
+     * only.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to read
+     *  property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
+     *  property.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_READ_ADAS_SETTINGS,
+            Car.PERMISSION_CONTROL_ADAS_SETTINGS}))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
+    public static final int CROSS_TRAFFIC_MONITORING_ENABLED = 287313955;
+
+    /**
      * @deprecated to prevent others from instantiating this class
      */
     @Deprecated
