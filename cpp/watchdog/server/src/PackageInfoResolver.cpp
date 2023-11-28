@@ -23,9 +23,12 @@
 #include <aidl/android/automotive/watchdog/internal/UidType.h>
 #include <android-base/strings.h>
 #include <cutils/android_filesystem_config.h>
+#include <processgroup/sched_policy.h>
 
 #include <inttypes.h>
+#include <pthread.h>
 
+#include <future>  // NOLINT(build/c++11)
 #include <iterator>
 #include <string_view>
 
@@ -48,6 +51,9 @@ using PackageToAppCategoryMap = std::unordered_map<std::string, ApplicationCateg
 namespace {
 
 constexpr const char* kSharedPackagePrefix = "shared:";
+constexpr const char* kServiceName = "PkgInfoResolver";
+
+const int32_t MSG_RESOLVE_PACKAGE_NAME = 0;
 
 ComponentType getComponentTypeForNativeUid(uid_t uid, std::string_view packageName,
                                            const std::vector<std::string>& vendorPackagePrefixes) {
@@ -101,6 +107,12 @@ sp<PackageInfoResolverInterface> PackageInfoResolver::getInstance() {
 }
 
 void PackageInfoResolver::terminate() {
+    sInstance->mShouldTerminateLooper.store(true);
+    sInstance->mHandlerLooper->removeMessages(sInstance->mMessageHandler);
+    sInstance->mHandlerLooper->wake();
+    if (sInstance->mHandlerThread.joinable()) {
+        sInstance->mHandlerThread.join();
+    }
     sInstance.clear();
 }
 
@@ -197,23 +209,14 @@ void PackageInfoResolver::updatePackageInfos(const std::vector<uid_t>& uids) {
     }
 }
 
-std::unordered_map<uid_t, std::string> PackageInfoResolver::getPackageNamesForUids(
-        const std::vector<uid_t>& uids) {
-    std::unordered_map<uid_t, std::string> uidToPackageNameMapping;
-    if (uids.empty()) {
-        return uidToPackageNameMapping;
-    }
-    updatePackageInfos(uids);
-    {
-        std::shared_lock readLock(mRWMutex);
-        for (const auto& uid : uids) {
-            if (mUidToPackageInfoMapping.find(uid) != mUidToPackageInfoMapping.end()) {
-                uidToPackageNameMapping[uid] =
-                        mUidToPackageInfoMapping.at(uid).packageIdentifier.name;
-            }
-        }
-    }
-    return uidToPackageNameMapping;
+void PackageInfoResolver::asyncFetchPackageNamesForUids(
+        const std::vector<uid_t>& uids,
+        const std::function<void(std::unordered_map<uid_t, std::string>)>& callback) {
+    std::shared_lock writeLock(mRWMutex);
+    mPendingPackageNames.push_back(std::make_pair(uids, callback));
+
+    mHandlerLooper->removeMessages(mMessageHandler, MSG_RESOLVE_PACKAGE_NAME);
+    mHandlerLooper->sendMessage(mMessageHandler, Message(MSG_RESOLVE_PACKAGE_NAME));
 }
 
 std::unordered_map<uid_t, PackageInfo> PackageInfoResolver::getPackageInfosForUids(
@@ -232,6 +235,80 @@ std::unordered_map<uid_t, PackageInfo> PackageInfoResolver::getPackageInfosForUi
         }
     }
     return uidToPackageInfoMapping;
+}
+
+void PackageInfoResolver::resolvePackageName() {
+    std::vector<std::pair<std::vector<uid_t>,
+                          std::function<void(std::unordered_map<uid_t, std::string>)>>>
+            uidsToCallbacks;
+    {
+        std::shared_lock writeLock(mRWMutex);
+        swap(mPendingPackageNames, uidsToCallbacks);
+    }
+
+    std::vector<uid_t> allUids;
+    for (const auto& uidsToCallback : uidsToCallbacks) {
+        auto uids = uidsToCallback.first;
+        allUids.insert(allUids.end(), uids.begin(), uids.end());
+    }
+    updatePackageInfos(allUids);
+
+    for (const auto& uidsToCallback : uidsToCallbacks) {
+        auto uids = uidsToCallback.first;
+        auto callback = uidsToCallback.second;
+        std::unordered_map<uid_t, std::string> uidToPackageNameMapping;
+        if (uids.empty()) {
+            callback(uidToPackageNameMapping);
+            continue;
+        }
+        for (const auto& uid : uids) {
+            std::shared_lock readLock(mRWMutex);
+            if (mUidToPackageInfoMapping.find(uid) != mUidToPackageInfoMapping.end()) {
+                uidToPackageNameMapping[uid] =
+                        mUidToPackageInfoMapping.at(uid).packageIdentifier.name;
+            }
+        }
+        callback(uidToPackageNameMapping);
+    }
+}
+
+void PackageInfoResolver::startLooper() {
+    auto promise = std::promise<void>();
+    auto checkLooperSet = promise.get_future();
+    mHandlerThread = std::thread([&]() {
+        mHandlerLooper->setLooper(Looper::prepare(/* opts= */ 0));
+        if (set_sched_policy(0, SP_BACKGROUND) != 0) {
+            ALOGW("Failed to set background scheduling priority to %s thread", kServiceName);
+        }
+        if (int result = pthread_setname_np(pthread_self(), kServiceName); result != 0) {
+            ALOGE("Failed to set %s thread name: %d", kServiceName, result);
+        }
+        mShouldTerminateLooper.store(false);
+        promise.set_value();
+
+        // Loop while PackageInfoResolver is active.
+        // This looper is used to handle package name resolution in asyncFetchPackageNamesForUids.
+        while (!mShouldTerminateLooper) {
+            mHandlerLooper->pollAll(/* timeoutMillis= */ -1);
+        }
+    });
+
+    // Wait until the looper is initialized to ensure no messages get posted
+    // before the looper initialization. Otherwise, messages may be sent to the
+    // looper before it is initialized.
+    if (checkLooperSet.wait_for(std::chrono::seconds(1)) != std::future_status::ready) {
+        ALOGW("Failed to start looper for %s", kServiceName);
+    }
+}
+
+void PackageInfoResolver::MessageHandlerImpl::handleMessage(const Message& message) {
+    switch (message.what) {
+        case MSG_RESOLVE_PACKAGE_NAME:
+            kService->resolvePackageName();
+            break;
+        default:
+            ALOGW("Unknown message: %d", message.what);
+    }
 }
 
 }  // namespace watchdog
