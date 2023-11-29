@@ -92,6 +92,8 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     @Mock
     private CarVolumeGroup mMockMusicGroup;
     @Mock
+    private CarVolumeGroup mMockInactiveMusicGroup;
+    @Mock
     private CarVolumeGroup mMockNavGroup;
     @Mock
     private CarVolumeGroup mMockVoiceGroup;
@@ -106,6 +108,10 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
         mMockMusicGroup = new VolumeGroupBuilder().setName(TEST_MUSIC_GROUP_NAME)
                 .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS)
                 .setZoneId(TEST_ZONE_ID).setGroupId(TEST_MUSIC_GROUP_ID).build();
+
+        mMockInactiveMusicGroup = new VolumeGroupBuilder().setName(TEST_MUSIC_GROUP_NAME)
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS)
+                .setZoneId(TEST_ZONE_ID).setIsActive(false).setGroupId(TEST_MUSIC_GROUP_ID).build();
 
         mMockNavGroup = new VolumeGroupBuilder().setName(TEST_NAV_GROUP_NAME)
                 .addDeviceAddressAndContexts(TEST_NAVIGATION_CONTEXT, NAV_ADDRESS)
@@ -207,6 +213,25 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
                 .build();
 
         expectWithMessage("Non-default zone configuration").that(zoneConfig.isDefault()).isFalse();
+    }
+
+    @Test
+    public void isActive_returnsTrue() {
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.addVolumeGroup(mMockMusicGroup)
+                .addVolumeGroup(mMockNavGroup).addVolumeGroup(mMockVoiceGroup).build();
+
+        expectWithMessage("Zone configuration active status")
+                .that(zoneConfig.isActive()).isTrue();
+    }
+
+    @Test
+    public void isActive_withInactiveVolumeGroup() {
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder
+                .addVolumeGroup(mMockInactiveMusicGroup).addVolumeGroup(mMockNavGroup)
+                .addVolumeGroup(mMockVoiceGroup).build();
+
+        expectWithMessage("Zone configuration active status with inactive volume group")
+                .that(zoneConfig.isActive()).isFalse();
     }
 
     @Test

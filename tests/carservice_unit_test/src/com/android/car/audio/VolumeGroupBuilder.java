@@ -49,6 +49,7 @@ public final class VolumeGroupBuilder {
     private boolean mIsMuted;
     private int mZoneId;
     private int mId;
+    private boolean mIsActive = true;
 
     /**
      * Add name for volume group
@@ -105,6 +106,14 @@ public final class VolumeGroupBuilder {
     }
 
     /**
+     * Sets is active for volume group
+     */
+    public VolumeGroupBuilder setIsActive(boolean isActive) {
+        mIsActive = isActive;
+        return this;
+    }
+
+    /**
      * Builds car volume group
      */
     public CarVolumeGroup build() {
@@ -156,6 +165,8 @@ public final class VolumeGroupBuilder {
 
         when(carVolumeGroup.calculateNewGainStageFromDeviceInfos())
                 .thenReturn(EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED);
+
+        when(carVolumeGroup.isActive()).thenReturn(mIsActive);
 
         return carVolumeGroup;
     }

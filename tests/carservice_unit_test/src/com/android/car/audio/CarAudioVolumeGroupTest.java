@@ -56,7 +56,6 @@ import android.media.audio.common.AudioPort;
 import android.media.audio.common.AudioPortDeviceExt;
 import android.media.audio.common.AudioPortExt;
 import android.os.UserHandle;
-import android.util.ArrayMap;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
@@ -581,25 +580,22 @@ public final class CarAudioVolumeGroupTest extends AbstractExtendedMockitoTestCa
     }
 
     private CarAudioVolumeGroup testVolumeGroupSetup(CarAudioSettings settings) {
-        SparseArray<String> contextToAddress = new SparseArray<>();
-        ArrayMap<String, CarAudioDeviceInfo> addressToCarAudioDeviceInfo = new ArrayMap<>();
+        SparseArray<CarAudioDeviceInfo> contextToDeviceInfo = new SparseArray<>();
 
         doReturn(true).when(() -> AudioManagerHelper
                 .setAudioDeviceGain(any(), any(), anyInt(), anyBoolean()));
 
-        addressToCarAudioDeviceInfo.put(mMediaDeviceInfo.getAddress(), mMediaDeviceInfo);
-        contextToAddress.put(TEST_MEDIA_CONTEXT_ID, mMediaDeviceInfo.getAddress());
-        contextToAddress.put(TEST_CALL_CONTEXT_ID, mMediaDeviceInfo.getAddress());
-        contextToAddress.put(TEST_CALL_RING_CONTEXT_ID, mMediaDeviceInfo.getAddress());
+        contextToDeviceInfo.put(TEST_MEDIA_CONTEXT_ID, mMediaDeviceInfo);
+        contextToDeviceInfo.put(TEST_CALL_CONTEXT_ID, mMediaDeviceInfo);
+        contextToDeviceInfo.put(TEST_CALL_RING_CONTEXT_ID, mMediaDeviceInfo);
 
-        addressToCarAudioDeviceInfo.put(mNavigationDeviceInfo.getAddress(), mNavigationDeviceInfo);
-        contextToAddress.put(TEST_NAVIGATION_CONTEXT_ID, mNavigationDeviceInfo.getAddress());
-        contextToAddress.put(TEST_ALARM_CONTEXT_ID, mNavigationDeviceInfo.getAddress());
-        contextToAddress.put(TEST_NOTIFICATION_CONTEXT_ID, mNavigationDeviceInfo.getAddress());
+        contextToDeviceInfo.put(TEST_NAVIGATION_CONTEXT_ID, mNavigationDeviceInfo);
+        contextToDeviceInfo.put(TEST_ALARM_CONTEXT_ID, mNavigationDeviceInfo);
+        contextToDeviceInfo.put(TEST_NOTIFICATION_CONTEXT_ID, mNavigationDeviceInfo);
 
-        return new CarAudioVolumeGroup(TEST_CAR_AUDIO_CONTEXT, settings, contextToAddress,
-                addressToCarAudioDeviceInfo, ZONE_ID, ZONE_CONFIG_ID, GROUP_ID, GROUP_NAME,
-                STEP_SIZE, DEFAULT_GAIN, MIN_GAIN, MAX_GAIN, /* useCoreAudioVolume= */ false);
+        return new CarAudioVolumeGroup(TEST_CAR_AUDIO_CONTEXT, settings, contextToDeviceInfo,
+                ZONE_ID, ZONE_CONFIG_ID, GROUP_ID, GROUP_NAME, STEP_SIZE, DEFAULT_GAIN, MIN_GAIN,
+                MAX_GAIN, /* useCarVolumeGroupMute= */ false);
     }
 
     private static final class SettingsBuilder {
