@@ -36,8 +36,12 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
+import com.android.car.broadcastradio.support.platform.ProgramInfoExt;
+
 import com.google.android.car.kitchensink.R;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 
 public class RadioTunerFragment extends Fragment {
@@ -283,8 +287,11 @@ public class RadioTunerFragment extends Fragment {
             if (mProgramList == null) {
                 Log.e(TAG, "Program list is null");
             }
-            mProgramInfoAdapter.updateProgramInfos(mProgramList.toList()
-                    .toArray(new RadioManager.ProgramInfo[0]));
+            List<RadioManager.ProgramInfo> list = mProgramList.toList();
+            Comparator<RadioManager.ProgramInfo> selectorComparator =
+                    new ProgramInfoExt.ProgramInfoComparator();
+            list.sort(selectorComparator);
+            mProgramInfoAdapter.updateProgramInfos(list.toArray(new RadioManager.ProgramInfo[0]));
         }
     }
 }
