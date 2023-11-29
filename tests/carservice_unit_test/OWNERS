@@ -1,3 +1,5 @@
+# Bug component: 1316886
+
 # ActivityManager
 per-file src/com/android/car/am/* = ycheo@google.com
 
