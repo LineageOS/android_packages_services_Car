@@ -111,6 +111,9 @@ public final class AmFmTunerFragment extends RadioTunerFragment {
         }
         stepUpButton.setOnClickListener((v) -> handleStep(RadioTuner.DIRECTION_UP));
         stepDownButton.setOnClickListener((v) -> handleStep(RadioTuner.DIRECTION_DOWN));
+
+        mProgramInfoAdapter = new AmFmProgramInfoAdapter(getContext(), R.layout.program_info_item,
+                new RadioManager.ProgramInfo[]{}, this);
     }
 
     private void tuneToInputStation() {
