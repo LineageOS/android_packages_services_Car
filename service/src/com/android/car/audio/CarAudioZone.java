@@ -403,4 +403,18 @@ public class CarAudioZone {
 
         return zoneConfigInfos;
     }
+
+    void audioDevicesAdded(List<AudioDeviceInfo> devices) {
+        Objects.requireNonNull(devices, "Audio devices can not be null");
+        for (int c = 0; c < mCarAudioZoneConfigs.size(); c++) {
+            mCarAudioZoneConfigs.valueAt(c).audioDevicesAdded(devices);
+        }
+    }
+
+    void audioDevicesRemoved(List<AudioDeviceInfo> devices) {
+        Objects.requireNonNull(devices, "Audio devices can not be null");
+        for (int c = 0; c < mCarAudioZoneConfigs.size(); c++) {
+            mCarAudioZoneConfigs.valueAt(c).audioDevicesRemoved(devices);
+        }
+    }
 }

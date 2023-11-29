@@ -633,6 +633,87 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
                 .that(zoneConfigInfo).isEqualTo(zoneConfigInfoExpected);
     }
 
+    @Test
+    public void audioDevicesAdded_withAlreadyActiveGroups() {
+        AudioDeviceInfo musicAudioDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.addVolumeGroup(mMockMusicGroup)
+                .addVolumeGroup(mMockNavGroup).addVolumeGroup(mMockVoiceGroup).build();
+
+        zoneConfig.audioDevicesAdded(List.of(musicAudioDeviceInfo));
+
+        verify(mMockMusicGroup, never()).audioDevicesAdded(any());
+        verify(mMockNavGroup, never()).audioDevicesAdded(any());
+        verify(mMockVoiceGroup, never()).audioDevicesAdded(any());
+    }
+
+    @Test
+    public void audioDevicesAdded_withInactiveGroups() {
+        AudioDeviceInfo musicAudioDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder
+                .addVolumeGroup(mMockInactiveMusicGroup).addVolumeGroup(mMockNavGroup)
+                .addVolumeGroup(mMockVoiceGroup).build();
+
+        zoneConfig.audioDevicesAdded(List.of(musicAudioDeviceInfo));
+
+        verify(mMockInactiveMusicGroup).audioDevicesAdded(any());
+        verify(mMockNavGroup).audioDevicesAdded(any());
+        verify(mMockVoiceGroup).audioDevicesAdded(any());
+    }
+
+    @Test
+    public void audioDevicesAdded_withInactiveGroups_andNullDevices() {
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder
+                .addVolumeGroup(mMockInactiveMusicGroup).addVolumeGroup(mMockNavGroup)
+                .addVolumeGroup(mMockVoiceGroup).build();
+
+        NullPointerException thrown =
+                assertThrows(NullPointerException.class,
+                        () -> zoneConfig.audioDevicesAdded(/* devices= */ null));
+
+        expectWithMessage("Audio devices added null devices exception").that(thrown)
+                .hasMessageThat().contains("Audio devices");
+    }
+
+    @Test
+    public void audioDevicesRemoved_withAlreadyActiveGroups() {
+        AudioDeviceInfo musicAudioDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.addVolumeGroup(mMockMusicGroup)
+                .addVolumeGroup(mMockNavGroup).addVolumeGroup(mMockVoiceGroup).build();
+
+        zoneConfig.audioDevicesRemoved(List.of(musicAudioDeviceInfo));
+
+        verify(mMockMusicGroup).audioDevicesRemoved(any());
+        verify(mMockNavGroup).audioDevicesRemoved(any());
+        verify(mMockVoiceGroup).audioDevicesRemoved(any());
+    }
+
+    @Test
+    public void audioDevicesRemoved_withInactiveGroups() {
+        AudioDeviceInfo musicAudioDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder
+                .addVolumeGroup(mMockInactiveMusicGroup).addVolumeGroup(mMockNavGroup)
+                .addVolumeGroup(mMockVoiceGroup).build();
+
+        zoneConfig.audioDevicesRemoved(List.of(musicAudioDeviceInfo));
+
+        verify(mMockInactiveMusicGroup).audioDevicesRemoved(any());
+        verify(mMockNavGroup).audioDevicesRemoved(any());
+        verify(mMockVoiceGroup).audioDevicesRemoved(any());
+    }
+
+    @Test
+    public void audioDevicesRemoved_withInactiveGroups_andNullDevices() {
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder
+                .addVolumeGroup(mMockInactiveMusicGroup).addVolumeGroup(mMockNavGroup)
+                .addVolumeGroup(mMockVoiceGroup).build();
+
+        NullPointerException thrown = assertThrows(NullPointerException.class,
+                () -> zoneConfig.audioDevicesRemoved(/* devices= */ null));
+
+        expectWithMessage("Audio devices removed null devices exception").that(thrown)
+                .hasMessageThat().contains("Audio devices");
+    }
+
     private CarAudioZoneConfig buildZoneConfig(List<CarVolumeGroup> volumeGroups) {
         CarAudioZoneConfig.Builder carAudioZoneConfigBuilder =
                 new CarAudioZoneConfig.Builder("Primary zone config 0",
