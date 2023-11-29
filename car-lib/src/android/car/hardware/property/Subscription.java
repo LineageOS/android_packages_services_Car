@@ -53,7 +53,7 @@ public final class Subscription {
     }
 
     /**
-     * Gets the {@link CarPropertyManager#SENSOR_RATE_UI} which is 1hz.
+     * Gets the {@link CarPropertyManager#SENSOR_RATE_UI} which is 5hz.
      *
      * @return {@link CarPropertyManager#SENSOR_RATE_UI}
      */
@@ -62,7 +62,7 @@ public final class Subscription {
     }
 
     /**
-     * Gets the {@link CarPropertyManager#SENSOR_RATE_NORMAL} which is 5hz.
+     * Gets the {@link CarPropertyManager#SENSOR_RATE_NORMAL} which is 1hz.
      *
      * @return {@link CarPropertyManager#SENSOR_RATE_NORMAL}
      */
@@ -166,8 +166,16 @@ public final class Subscription {
 
         /**
          * Sets the update rate in Hz for continuous property.
-         * For {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE} properties, this
+         *
+         * <p>For {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE} properties, this
          * operation has no effect and update rate is defaulted to {@code 0}.
+         *
+         * <p>The update rate decides the hardware polling rate (if supported) and will be sanitized
+         * to a range between {@link CarPropertyConfig#getMinSampleRate} and
+         * {@link CarPropertyConfig#getMaxSampleRate}.
+         *
+         * <p>For better system performance, it is recommended to set this to the smallest
+         * reasonable value, e.g. {@link CarPropertyManager.SENSOR_RATE_NORMAL}.
          *
          * @param updateRateHz The update rate to set for the given builder
          * @return The original Builder object. This value cannot be {@code null}.
