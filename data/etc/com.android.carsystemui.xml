@@ -36,5 +36,7 @@
         <permission name="android.car.permission.MANAGE_CAR_SYSTEM_UI"/>
         <!-- used for querying AutoEnhance packages -->
         <permission name="android.car.permission.QUERY_DISPLAY_COMPATIBILITY"/>
+        <!-- used for receiving broadcasted dock events -->
+        <permission name="com.android.car.docklib.permission.BROADCAST_RECEIVER"/>
     </privapp-permissions>
 </permissions>
