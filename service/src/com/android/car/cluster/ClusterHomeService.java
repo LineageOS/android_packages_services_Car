@@ -186,7 +186,8 @@ public class ClusterHomeService extends IClusterHomeService.Stub
             new ICarOccupantZoneCallback.Stub() {
                 @Override
                 public void onOccupantZoneConfigChanged(int flags) throws RemoteException {
-                    if ((flags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY) != 0) {
+                    if ((flags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY) != 0
+                            || (flags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER) != 0) {
                         initClusterDisplay();
                     }
                 }
