@@ -20,6 +20,7 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.media.CarAudioPatchHandle;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupInfo;
+import android.car.media.IAudioZoneConfigurationsChangeCallback;
 import android.car.media.IAudioZonesMirrorStatusCallback;
 import android.car.media.ICarVolumeEventCallback;
 import android.car.media.IMediaAudioRequestStatusCallback;
@@ -88,6 +89,10 @@ interface ICarAudio {
     List<CarAudioZoneConfigInfo> getAudioZoneConfigInfos(int zoneId);
     void switchZoneToConfig(in CarAudioZoneConfigInfo zoneConfig,
             in ISwitchAudioZoneConfigCallback callback);
+    boolean registerAudioZoneConfigsChangeCallback(
+            in IAudioZoneConfigurationsChangeCallback callback);
+    boolean unregisterAudioZoneConfigsChangeCallback(
+            in IAudioZoneConfigurationsChangeCallback callback);
 
     boolean registerAudioZonesMirrorStatusCallback(in IAudioZonesMirrorStatusCallback callback);
     void unregisterAudioZonesMirrorStatusCallback(in IAudioZonesMirrorStatusCallback callback);

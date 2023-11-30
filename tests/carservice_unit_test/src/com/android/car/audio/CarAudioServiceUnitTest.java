@@ -125,6 +125,7 @@ import android.car.media.CarAudioPatchHandle;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupEvent;
 import android.car.media.CarVolumeGroupInfo;
+import android.car.media.IAudioZoneConfigurationsChangeCallback;
 import android.car.media.IAudioZonesMirrorStatusCallback;
 import android.car.media.ICarVolumeEventCallback;
 import android.car.media.IMediaAudioRequestStatusCallback;
@@ -4250,6 +4251,80 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void registerAudioZoneConfigsChangeCallback() {
+        IAudioZoneConfigurationsChangeCallback callback =
+                new TestAudioZoneConfigurationsChangeCallback();
+        mCarAudioService.init();
+
+        boolean registered = mCarAudioService.registerAudioZoneConfigsChangeCallback(callback);
+
+        expectWithMessage("Car audio zone configuration change register status")
+                .that(registered).isTrue();
+    }
+
+    @Test
+    public void registerAudioZoneConfigsChangeCallback_multipleTimes() {
+        IAudioZoneConfigurationsChangeCallback callback =
+                new TestAudioZoneConfigurationsChangeCallback();
+        mCarAudioService.init();
+        mCarAudioService.registerAudioZoneConfigsChangeCallback(callback);
+
+        boolean registered = mCarAudioService.registerAudioZoneConfigsChangeCallback(callback);
+
+        expectWithMessage("Car audio zone configuration change re-register status")
+                .that(registered).isTrue();
+    }
+
+    @Test
+    public void registerAudioZoneConfigsChangeCallback_withNullCallback() {
+        mCarAudioService.init();
+
+        NullPointerException thrown = assertThrows(NullPointerException.class,
+                () -> mCarAudioService.registerAudioZoneConfigsChangeCallback(null));
+
+        expectWithMessage("Car audio zone configuration change registration exception")
+                .that(thrown).hasMessageThat().contains("Car audio zone configs");
+    }
+
+    @Test
+    public void unregisterAudioZoneConfigsChangeCallback() {
+        IAudioZoneConfigurationsChangeCallback callback =
+                new TestAudioZoneConfigurationsChangeCallback();
+        mCarAudioService.init();
+        mCarAudioService.registerAudioZoneConfigsChangeCallback(callback);
+
+        boolean registered = mCarAudioService.unregisterAudioZoneConfigsChangeCallback(callback);
+
+        expectWithMessage("Car audio zone configuration change un-register status")
+                .that(registered).isTrue();
+    }
+
+    @Test
+    public void unregisterAudioZoneConfigsChangeCallback_afterUnregister_fails() {
+        IAudioZoneConfigurationsChangeCallback callback =
+                new TestAudioZoneConfigurationsChangeCallback();
+        mCarAudioService.init();
+        mCarAudioService.registerAudioZoneConfigsChangeCallback(callback);
+        mCarAudioService.unregisterAudioZoneConfigsChangeCallback(callback);
+
+        boolean registered = mCarAudioService.unregisterAudioZoneConfigsChangeCallback(callback);
+
+        expectWithMessage("Car audio zone configuration change un-register multiple times status")
+                .that(registered).isFalse();
+    }
+
+    @Test
+    public void unregisterAudioZoneConfigsChangeCallback_withNullCallback() {
+        mCarAudioService.init();
+
+        NullPointerException thrown = assertThrows(NullPointerException.class,
+                () -> mCarAudioService.unregisterAudioZoneConfigsChangeCallback(null));
+
+        expectWithMessage("Car audio zone configuration change un-registration exception")
+                .that(thrown).hasMessageThat().contains("Car audio zone configs");
+    }
+
+    @Test
     public void disableAudioMirrorForZone_withInvalidZone() throws Exception {
         mCarAudioService.init();
         assignOccupantToAudioZones();
@@ -5191,6 +5266,16 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
             }
         }
         return null;
+    }
+
+    private static final class TestAudioZoneConfigurationsChangeCallback
+            extends IAudioZoneConfigurationsChangeCallback.Stub {
+
+        @Override
+        public void onAudioZoneConfigurationsChanged(List<CarAudioZoneConfigInfo> configs,
+                int status) {
+
+        }
     }
 
     private static final class TestPrimaryZoneMediaAudioRequestCallback extends
