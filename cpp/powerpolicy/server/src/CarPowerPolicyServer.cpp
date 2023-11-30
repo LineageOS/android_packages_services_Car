@@ -791,7 +791,7 @@ void CarPowerPolicyServer::handleApplyPowerPolicyRequest(const int32_t requestId
         return;
     }
     if (callback != nullptr) {
-        callback->onApplyPowerPolicySucceeded(requestId);
+        callback->onApplyPowerPolicySucceeded(requestId, *mComponentHandler.getAccumulatedPolicy());
     }
 }
 

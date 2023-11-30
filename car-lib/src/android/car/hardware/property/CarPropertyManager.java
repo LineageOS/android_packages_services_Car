@@ -17,6 +17,7 @@
 package android.car.hardware.property;
 
 import static android.car.feature.Flags.FLAG_BATCHED_SUBSCRIPTIONS;
+import static android.car.feature.Flags.FLAG_VARIABLE_UPDATE_RATE;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
@@ -90,6 +91,10 @@ public class CarPropertyManager extends CarManagerBase {
     private static final int MSG_GENERIC_EVENT = 0;
     private static final int SYNC_OP_RETRY_SLEEP_IN_MS = 10;
     private static final int SYNC_OP_RETRY_MAX_COUNT = 10;
+    // The default update rate used when subscribePropertyEvents does not contain updateRateHz as
+    // an argument.
+    private static final float DEFAULT_UPDATE_RATE_HZ = 1f;
+
     /**
      * The default timeout in MS for {@link CarPropertyManager#getPropertiesAsync}.
      */
@@ -146,30 +151,52 @@ public class CarPropertyManager extends CarManagerBase {
      */
     public interface CarPropertyEventCallback {
         /**
-         * Called when a property is updated
+         * Called when a property is updated.
+         *
+         * <p>For an on-change property or a continuous property with Variable Update Rate enabled
+         * (by default), this is called when a property's value or status changes.
+         *
+         * <p>For a continuous property with VUR disabled, this is called periodically based on
+         * the update rate.
+         *
+         * <p>This will also be called once to deliver the initial value (or a value with
+         * unavailable or error status) for every new subscription.
          *
          * @param value the new value of the property
          */
         void onChangeEvent(CarPropertyValue value);
 
         /**
-         * Called when an error is detected when setting a property.
+         * Called when an error happens for a recent {@link CarPropertyManager#setProperty}.
          *
          * @param propertyId the property ID which has detected an error
          * @param areaId the area ID which has detected an error
+         *
+         * <p>Client is recommended to override
+         * {@link CarPropertyEventCallback#onErrorEvent(int, int, int)} and override this as no-op.
+         *
+         * <p>For legacy clients, {@link CarPropertyEventCallback#onErrorEvent(int, int, int)}
+         * should use the default implementation, which will internally call this.
          *
          * @see CarPropertyEventCallback#onErrorEvent(int, int, int)
          */
         void onErrorEvent(int propertyId, int areaId);
 
         /**
-         * Called when an error is detected when setting a property.
+         * Called when an error happens for a recent {@link CarPropertyManager#setProperty}.
+         *
+         * <p>Note that {@link CarPropertyManager#setPropertiesAsync} will not trigger this. In the
+         * case of failure, {@link CarPropertyManager.SetPropertyCallback#onFailure} will be called.
          *
          * <p>Clients which changed the property value in the areaId most recently will receive
          * this callback. If multiple clients set a property for the same area ID simultaneously,
          * which one takes precedence is undefined. Typically, the last set operation
          * (in the order that they are issued to car's ECU) overrides the previous set operations.
          * The delivered error reflects the error happened in the last set operation.
+         *
+         * <p>If clients override this, implementation does not have to call
+         * {@link CarPropertyEventCallback#onErrorEvent(int, int)} inside this function.
+         * {@link CarPropertyEventCallback#onErrorEvent(int, int)} should be overridden as no-op.
          *
          * @param propertyId the property ID which is detected an error
          * @param areaId the area ID which is detected an error
@@ -1045,11 +1072,10 @@ public class CarPropertyManager extends CarManagerBase {
      * </ul>
      *
      * <p>
-     * <b>Note:</b> If the client registers a callback for updates for a property for the first
-     * time, it will receive the property's current value via a change event upon registration if
-     * the property's value is currently available for reading. If the property is currently not
-     * available for reading or in error state, a property change event with a unavailable or
-     * error status will be generated.
+     * <b>Note:</b> When this function is called, the callback will receive the current
+     * values for all the areaIds for the property through property change events if they are
+     * currently okay for reading. If they are not available for reading or in error state,
+     * property change events with a unavailable or error status will be generated.
      *
      * <p>For properties that might be unavailable for reading because their power state
      * is off, property change events containing the property's initial value will be generated
@@ -1114,25 +1140,142 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * Registers {@link CarPropertyEventCallback} to get PropertyId updates.
+     * Subscribes to property events for all areaIds for the property.
+     *
+     * <p>For continuous property, variable update rate is enabled. The update rate is 1Hz or
+     * the max supported rate (if lower than 1hz).
+     *
+     * @param propertyId The ID for the property to subscribe to.
+     * @param carPropertyEventCallback The callback to deliver property update/error events.
+     *
+     * @see #subscribePropertyEvents(int, int, float, boolean, CarPropertyEventCallback) for more
+     * options.
+     */
+    @FlaggedApi(FLAG_VARIABLE_UPDATE_RATE)
+    public boolean subscribePropertyEvents(int propertyId,
+            @NonNull CarPropertyEventCallback carPropertyEventCallback) {
+        return subscribePropertyEvents(List.of(
+                new Subscription.Builder(propertyId).setUpdateRateHz(DEFAULT_UPDATE_RATE_HZ)
+                .build()), /* callbackExecutor= */ null, carPropertyEventCallback);
+    }
+
+    /**
+     * Subscribes to property events for all areaIds for the property.
+     *
+     * <p>For continuous property, variable update rate is enabled.
+     *
+     * @param propertyId The ID for the property to subscribe to.
+     * @param updateRateHz Only meaningful for continuous property. The update rate in Hz. A common
+     *      value is 1Hz. See {@link Subscription.Builder#setUpdateRateHz} for detail.
+     * @param carPropertyEventCallback The callback to deliver property update/error events.
+     *
+     * @see #subscribePropertyEvents(int, int, float, boolean, CarPropertyEventCallback) for more
+     * options.
+     */
+    @FlaggedApi(FLAG_VARIABLE_UPDATE_RATE)
+    public boolean subscribePropertyEvents(int propertyId,
+            @FloatRange(from = 0.0, to = 100.0) float updateRateHz,
+            @NonNull CarPropertyEventCallback carPropertyEventCallback) {
+        return subscribePropertyEvents(List.of(
+                new Subscription.Builder(propertyId).setUpdateRateHz(updateRateHz).build()),
+                /* callbackExecutor= */ null, carPropertyEventCallback);
+    }
+
+
+    /**
+     * Subscribes to property events for the specific area ID for the property.
+     *
+     * <p>For continuous property, variable update rate is enabled. The update rate is 1Hz or
+     * the max supported rate (if lower than 1hz).
+     *
+     * @param propertyId The ID for the property to subscribe to.
+     * @param areaId The ID for the area to subscribe to.
+     * @param carPropertyEventCallback The callback to deliver property update/error events.
+     *
+     * @see #subscribePropertyEvents(int, int, float, boolean, CarPropertyEventCallback) for more
+     * options.
+     */
+    @FlaggedApi(FLAG_VARIABLE_UPDATE_RATE)
+    public boolean subscribePropertyEvents(int propertyId, int areaId,
+            @NonNull CarPropertyEventCallback carPropertyEventCallback) {
+        return subscribePropertyEvents(List.of(
+                new Subscription.Builder(propertyId).addAreaId(areaId).setUpdateRateHz(1f)
+                        .build()),
+                /* callbackExecutor= */ null, carPropertyEventCallback);
+    }
+
+    /**
+     * Subscribes to property events for the specific area ID for the property.
+     *
+     * <p>For continuous property, variable update rate is enabled.
+     *
+     * <p>A property event is used to indicate a property's value/status changes (a.k.a
+     * property update event) or used to indicate a previous {@link #setProperty} operation failed
+     * (a.k.a property error event).
+     *
+     * <p>It is allowed to register multiple {@code carPropertyEventCallback} for a single
+     * [PropertyId, areaId]. All the registered callbacks will be invoked.
+     *
+     * <p>It is only allowed to have one {@code updateRateHz} for a single
+     * [propertyId, areaId, carPropertyEventCallback] combination. A new {@code updateRateHz} for
+     * such combination will update the {@code updateRateHz}.
+     *
+     * <p>It is only allowed to have one {@code disableVariableUpdateRate} setting for a single
+     * [propertyId, areaId, carPropertyEventCallback] combination. A new setting will overwrite
+     * the current setting for the combination.
+     *
+     * <p>The {@code carPropertyEventCallback} is executed on a single default event handler thread.
+     *
+     * <p>
+     * <b>Note:</b> When this function is called, the callback will receive the current
+     * values of the subscribed [propertyId, areaId]s through property change events if they are
+     * currently okay for reading. If they are not available for reading or in error state,
+     * property change events with a unavailable or error status will be generated.
+     *
+     * @param propertyId The ID for the property to subscribe to.
+     * @param areaId The ID for the area to subscribe to.
+     * @param updateRateHz Only meaningful for continuous property. The update rate in Hz. A common
+     *      value is 1Hz. See {@link Subscription.Builder#setUpdateRateHz} for detail.
+     * @param carPropertyEventCallback The callback to deliver property update/error events.
+     *
+     * @see #subscribePropertyEvents(List, Executor, CarPropertyEventCallback) for
+     * more detailed explanation on property subscription and batched subscription usage.
+     */
+    @FlaggedApi(FLAG_VARIABLE_UPDATE_RATE)
+    public boolean subscribePropertyEvents(int propertyId, int areaId,
+            @FloatRange(from = 0.0, to = 100.0) float updateRateHz,
+            @NonNull CarPropertyEventCallback carPropertyEventCallback) {
+        Subscription option = new Subscription.Builder(propertyId).addAreaId(areaId)
+                .setUpdateRateHz(updateRateHz).build();
+        option.disableVariableUpdateRate();
+        return subscribePropertyEvents(List.of(option), /* callbackExecutor= */ null,
+                carPropertyEventCallback);
+    }
+
+    /**
+     * Subscribes to multiple [propertyId, areaId]s for property events.
      *
      * <p>
      * If caller don't need use different subscription options among different areaIds for
      * one property (e.g. 1 Hz update rate for front-left and 5 Hz update rate for front-right), it
      * is recommended to use one {@link Subscription} per property ID.
      *
-     * <p>
-     * Multiple callbacks can be registered for a single [PropertyId, AreaId]. One callback can
-     * be used for different [PropertyId, AreaId]s. But it is only allowed to have one subscription
-     * for one [PropertyId, AreaId, callback] combination at a time. A new subscription with the
-     * same [PropertyId, AreaId, callback] will overwrite the existing subscription.
+     * <p>It is allowed to register multiple {@code carPropertyEventCallback} for a single
+     * [PropertyId, areaId]. All the registered callbacks will be invoked.
+     *
+     * <p>It is only allowed to have one {@code updateRateHz} for a single
+     * [propertyId, areaId, carPropertyEventCallback] combination. A new {@code updateRateHz} for
+     * such combination will update the {@code updateRateHz}.
+     *
+     * <p>It is only allowed to have one {@code disableVariableUpdateRate} setting for a single
+     * [propertyId, areaId, carPropertyEventCallback] combination. A new setting will overwrite
+     * the current setting for the combination.
      *
      * <p>
      * It is allowed to have the same PropertyId in different {@link Subscription}s
      * provided in one call. However, they must have non-overlapping AreaIds. A.k.a., one
      * [PropertyId, AreaId] must only be associated with one {@link Subscription} within one call.
      * Otherwise, {@link IllegalArgumentException} will be thrown.
-     *
      *
      * <p>
      * If the
@@ -1144,6 +1287,10 @@ public class CarPropertyManager extends CarManagerBase {
      * Only one executor can be registered to a callback. The callback must be unregistered before
      * trying to register another executor for the same callback. (A callback cannot have
      * multiple executors)
+     *
+     * <p>Only one executor can be registered to a callback. The callback must be unregistered
+     * before trying to register another executor for the same callback. (E.G. A callback cannot
+     * have multiple executors)
      *
      * <p>
      * <b>Note:</b>Rate has no effect if the property has one of the following change modes:
@@ -1167,11 +1314,10 @@ public class CarPropertyManager extends CarManagerBase {
      * <p>See {@link Subscription#disableVariableUpdateRate} for more detail.
      *
      * <p>
-     * <b>Note:</b> When a client registers to receive updates for a PropertyId for the
-     * first time, it will receive the current value of the PropertyId through a change
-     * event for the specified AreaId if the PropertyId is currently available to be
-     * reading. If the PropertyId is currently not available for reading or in error state,
-     * a PropertyId change event with a unavailable or error status will be generated
+     * <b>Note:</b> When this function is called, the callback will receive the current
+     * values of the subscribed [propertyId, areaId]s through property change events if they are
+     * currently okay for reading. If they are not available for reading or in error state,
+     * property change events with a unavailable or error status will be generated.
      *
      * <p>For properties that might be unavailable for reading because their power state is off,
      * PropertyId change events containing the PropertyId's initial value will be
@@ -1207,7 +1353,7 @@ public class CarPropertyManager extends CarManagerBase {
      *                      updateRateHz. Caller should typically use one Subscription for one
      *                      property ID.
      * @param callbackExecutor The executor in which the callback is done on.
-     * @param carPropertyEventCallback The callback to deliver property update events.
+     * @param carPropertyEventCallback The callback to deliver property update/error events.
      * @return {@code true} if the listener is successfully registered
      * @throws SecurityException if missing the appropriate property access permission.
      * @throws IllegalArgumentException if there are over-lapping areaIds or the executor is
@@ -1248,7 +1394,7 @@ public class CarPropertyManager extends CarManagerBase {
                 return false;
             }
 
-            // Must use carSubscriptions instead of subscribeOptions here since we need to use
+            // Must use carSubscriptions instead of Subscriptions here since we need to use
             // sanitized update rate.
             for (int i = 0; i < carSubscriptions.size(); i++) {
                 CarSubscription option = carSubscriptions.get(i);
@@ -1334,12 +1480,6 @@ public class CarPropertyManager extends CarManagerBase {
 
     /**
      * Update the property ID and area IDs subscription in {@link #mService}.
-     *
-     * @param subscribeOptions The subscribe options, which includes propertyID, areaID, and
-     *                         updateRateHz
-     * @param cpeCallbackController the controller for the callback being registered or
-     * unregistered. If it is {@code null}, then the callback has not been previously registered for
-     * any property.
      *
      * @return {@code true} if the property has been successfully registered with the service.
      * @throws SecurityException if missing the appropriate property access permission.
@@ -2240,6 +2380,21 @@ public class CarPropertyManager extends CarManagerBase {
      *         might be unavailable for a while, or when unexpected error happens.
      *     <li>{@link IllegalArgumentException} when the [propertyId, areaId] is not supported.
      * </ul>
+     *
+     * <p>Returning from this method does not necessary mean the set operation succeeded. In order
+     * to determine whether the operation succeeded/failed, Client should use
+     * {@link CarPropertyManager#registerCallback} to register for property updates for this
+     * [propertyId, areaId] before the set operation. The operation succeeded when
+     * {@link CarPropertyEventCallback#onChangeEvent} is called with the value to be set. The
+     * operation failed when {@link CarPropertyEventCallback#onErrorEvent} is called for this
+     * [propertyId, areaId]. Note that the registration must happen before the set operation
+     * otherwise the callback might be invoked after the set operation, but before the registration.
+     *
+     *
+     * <p>Note that if the value to set is the same as the current value, the set request will
+     * still be sent to vehicle hardware, however, a new property change event will not be
+     * generated for the set operation. If client want to prevent the set request to be sent,
+     * client must use {@link getProperty} to check the current value before calling this.
      *
      * @param clazz the class object for the CarPropertyValue
      * @param propertyId the property ID to modify

@@ -36,8 +36,12 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
+import com.android.car.broadcastradio.support.platform.ProgramInfoExt;
+
 import com.google.android.car.kitchensink.R;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 
 public class RadioTunerFragment extends Fragment {
@@ -52,7 +56,7 @@ public class RadioTunerFragment extends Fragment {
     private final ProgramList mProgramList;
     protected boolean mViewCreated = false;
 
-    private ProgramInfoAdapter mProgramInfoAdapter;
+    protected ProgramInfoAdapter mProgramInfoAdapter;
 
     private CheckBox mSeekChannelCheckBox;
     protected TextView mTuningTextView;
@@ -94,9 +98,6 @@ public class RadioTunerFragment extends Fragment {
         mCurrentChannelTextView = view.findViewById(R.id.radio_current_channel_info);
         mCurrentSongTitleTextView = view.findViewById(R.id.radio_current_song_info);
         mCurrentArtistTextView = view.findViewById(R.id.radio_current_artist_info);
-        mProgramInfoAdapter = new ProgramInfoAdapter(getContext(), R.layout.program_info_item,
-                new RadioManager.ProgramInfo[]{}, this);
-        programListView.setAdapter(mProgramInfoAdapter);
 
         registerProgramListListener();
 
@@ -106,12 +107,15 @@ public class RadioTunerFragment extends Fragment {
         seekDownButton.setOnClickListener((v) -> handleSeek(RadioTuner.DIRECTION_DOWN));
 
         setupTunerView(view);
+        programListView.setAdapter(mProgramInfoAdapter);
 
         mViewCreated = true;
         return view;
     }
 
     void setupTunerView(View view) {
+        mProgramInfoAdapter = new ProgramInfoAdapter(getContext(), R.layout.program_info_item,
+                new RadioManager.ProgramInfo[]{}, this);
     }
 
     @Override
@@ -219,6 +223,9 @@ public class RadioTunerFragment extends Fragment {
     }
 
     private void setProgramInfo(RadioManager.ProgramInfo info) {
+        if (!mViewCreated) {
+            return;
+        }
         CharSequence channelText = getChannelName(info);
         mCurrentChannelTextView.setText(getString(R.string.radio_current_channel_info,
                 channelText));
@@ -234,7 +241,7 @@ public class RadioTunerFragment extends Fragment {
         return "";
     }
 
-    private CharSequence getMetadataText(RadioManager.ProgramInfo info, String metadataType) {
+    CharSequence getMetadataText(RadioManager.ProgramInfo info, String metadataType) {
         String naText = getString(R.string.radio_na);
         if (info == null || info.getMetadata() == null) {
             return naText;
@@ -280,8 +287,11 @@ public class RadioTunerFragment extends Fragment {
             if (mProgramList == null) {
                 Log.e(TAG, "Program list is null");
             }
-            mProgramInfoAdapter.updateProgramInfos(mProgramList.toList()
-                    .toArray(new RadioManager.ProgramInfo[0]));
+            List<RadioManager.ProgramInfo> list = mProgramList.toList();
+            Comparator<RadioManager.ProgramInfo> selectorComparator =
+                    new ProgramInfoExt.ProgramInfoComparator();
+            list.sort(selectorComparator);
+            mProgramInfoAdapter.updateProgramInfos(list.toArray(new RadioManager.ProgramInfo[0]));
         }
     }
 }

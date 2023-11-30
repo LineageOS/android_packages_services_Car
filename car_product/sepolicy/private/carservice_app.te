@@ -114,6 +114,9 @@ carwatchdog_client_domain(carservice_app)
 # Allow CarPowerManagementService to access car power policy daemon
 allow carservice_app carpowerpolicyd_service:service_manager find;
 
+# Allow CarPowerManagementService to serve a callback from car power policy daemon
+carpowerpolicy_callback_domain(carservice_app)
+
 # For ActivityBlockingActiviy
 allow carservice_app gpu_device:chr_file rw_file_perms;
 allow carservice_app gpu_device:dir r_dir_perms;

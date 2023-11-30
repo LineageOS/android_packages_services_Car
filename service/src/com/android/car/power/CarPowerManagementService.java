@@ -1992,10 +1992,18 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
 
         @Override
-        public void onApplyPowerPolicySucceeded(int requestId) {
-            // TODO(b/303675851): implement this
-            // Count down latch corresponding to requestId
-            // Update async policy request to succeeded
+        public void onApplyPowerPolicySucceeded(int requestId,
+                android.frameworks.automotive.powerpolicy.CarPowerPolicy accumulatedPolicy) {
+            AsyncPolicyRequest policyRequest;
+            synchronized (mLock) {
+                policyRequest = mRequestIdToPolicyRequest.get(requestId);
+            }
+            if (policyRequest == null) {
+                Slogf.e(TAG, "No power policy request exists for request ID %d", requestId);
+                return;
+            }
+            CarPowerPolicy accumulatedPowerPolicy = convertPowerPolicyFromDaemon(accumulatedPolicy);
+            policyRequest.onPolicyRequestSucceeded(accumulatedPowerPolicy);
         }
 
         @Override
@@ -2143,12 +2151,16 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private static final class AsyncPolicyRequest {
-        private final CountDownLatch mPolicyRequestLatch = new CountDownLatch(1);
+        private final Object mLock = new Object();
         private final int mRequestId;
         private final String mPolicyId;
         private final long mTimeoutMs;
+        private final CountDownLatch mPolicyRequestLatch = new CountDownLatch(1);
+        @GuardedBy("mLock")
         private boolean mPolicyRequestSucceeded;
+        @GuardedBy("mLock")
         private CarPowerPolicy mAccumulatedPolicy;
+        @GuardedBy("mLock")
         @PowerPolicyFailureReason
         private int mFailureReason;
 
@@ -2167,20 +2179,34 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
 
         public boolean isSuccessful() {
-            return mPolicyRequestSucceeded;
+            synchronized (mLock) {
+                return mPolicyRequestSucceeded;
+            }
         }
 
         public CarPowerPolicy getAccumulatedPolicy() {
-            return mAccumulatedPolicy;
+            synchronized (mLock) {
+                return mAccumulatedPolicy;
+            }
         }
 
         @PowerPolicyFailureReason
         public int getFailureReason() {
-            return mFailureReason;
+            synchronized (mLock) {
+                return mFailureReason;
+            }
         }
 
         public boolean await() throws InterruptedException {
             return mPolicyRequestLatch.await(mTimeoutMs, TimeUnit.MILLISECONDS);
+        }
+
+        public void onPolicyRequestSucceeded(CarPowerPolicy accumulatedPolicy) {
+            synchronized (mLock) {
+                mPolicyRequestSucceeded = true;
+                mAccumulatedPolicy = accumulatedPolicy;
+            }
+            mPolicyRequestLatch.countDown();
         }
     }
 

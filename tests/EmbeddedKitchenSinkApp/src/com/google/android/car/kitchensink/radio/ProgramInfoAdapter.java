@@ -17,8 +17,8 @@
 package com.google.android.car.kitchensink.radio;
 
 import android.content.Context;
-import android.hardware.radio.ProgramSelector;
 import android.hardware.radio.RadioManager;
+import android.hardware.radio.RadioMetadata;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,16 +26,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.android.car.broadcastradio.support.platform.ProgramSelectorExt;
-
 import com.google.android.car.kitchensink.R;
 
-public final class ProgramInfoAdapter extends ArrayAdapter<RadioManager.ProgramInfo> {
+public class ProgramInfoAdapter extends ArrayAdapter<RadioManager.ProgramInfo> {
 
     private RadioTunerFragment mFragment;
     private Context mContext;
     private int mLayoutResourceId;
-    private RadioManager.ProgramInfo[] mProgramInfos;
+    protected RadioManager.ProgramInfo[] mProgramInfos;
     public ProgramInfoAdapter(Context context, int layoutResourceId,
                               RadioManager.ProgramInfo[] programInfos,
                               RadioTunerFragment fragment) {
@@ -59,13 +57,8 @@ public final class ProgramInfoAdapter extends ArrayAdapter<RadioManager.ProgramI
             vh = (ViewHolder) convertView.getTag();
         }
         if (mProgramInfos[position] != null) {
-            int programType = mProgramInfos[position].getSelector().getPrimaryId().getType();
-            String programSelectorText = "";
-            if (programType == ProgramSelector.IDENTIFIER_TYPE_AMFM_FREQUENCY
-                    || programType == ProgramSelector.IDENTIFIER_TYPE_HD_STATION_ID_EXT) {
-                programSelectorText = ProgramSelectorExt.getDisplayName(
-                        mProgramInfos[position].getSelector(), /* flags= */ 0);
-            }
+            CharSequence programSelectorText = mFragment.getMetadataText(mProgramInfos[position],
+                    RadioMetadata.METADATA_KEY_RDS_PS) + "\n" + getChannelDisplayName(position);
             vh.programSelectorText.setText(programSelectorText);
             vh.tuneButton.setVisibility(View.VISIBLE);
 
@@ -84,6 +77,10 @@ public final class ProgramInfoAdapter extends ArrayAdapter<RadioManager.ProgramI
     void updateProgramInfos(RadioManager.ProgramInfo[] programInfos) {
         mProgramInfos = programInfos;
         notifyDataSetChanged();
+    }
+
+    String getChannelDisplayName(int position) {
+        return "";
     }
 
     private static final class ViewHolder {
