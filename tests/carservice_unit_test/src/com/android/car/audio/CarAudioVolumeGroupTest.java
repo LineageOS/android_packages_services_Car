@@ -571,10 +571,12 @@ public final class CarAudioVolumeGroupTest extends AbstractExtendedMockitoTestCa
         CarAudioDeviceInfo mockCarDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
         when(mockCarDeviceInfo.getAddress()).thenReturn(TEST_MEDIA_PORT_NAME);
         when(mockCarDeviceInfo.isActive()).thenReturn(false);
+        when(mockCarDeviceInfo.audioDevicesAdded(any())).thenReturn(true);
         CarAudioVolumeGroup carVolumeGroup = getCarAudioVolumeGroupWithDevice(mockCarDeviceInfo);
 
-        carVolumeGroup.audioDevicesAdded(List.of(mockInfo));
+        boolean updated = carVolumeGroup.audioDevicesAdded(List.of(mockInfo));
 
+        expectWithMessage("Added devices status while inactive").that(updated).isTrue();
         List<AudioDeviceInfo> devices = captureAddedDevices(mockCarDeviceInfo);
         expectWithMessage("Devices added while inactive").that(devices).containsExactly(mockInfo);
     }
@@ -588,8 +590,9 @@ public final class CarAudioVolumeGroupTest extends AbstractExtendedMockitoTestCa
         when(mockCarDeviceInfo.isActive()).thenReturn(true);
         CarAudioVolumeGroup carVolumeGroup = getCarAudioVolumeGroupWithDevice(mockCarDeviceInfo);
 
-        carVolumeGroup.audioDevicesAdded(List.of(mockInfo));
+        boolean updated = carVolumeGroup.audioDevicesAdded(List.of(mockInfo));
 
+        expectWithMessage("Added devices status while active").that(updated).isFalse();
         verify(mockCarDeviceInfo, never()).audioDevicesAdded(any());
     }
 
@@ -608,14 +611,31 @@ public final class CarAudioVolumeGroupTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    public void audioDevicesRemoved() {
+    public void audioDevicesRemoved_whileActive() {
         AudioDeviceInfo mockInfo = Mockito.mock(AudioDeviceInfo.class);
         CarAudioDeviceInfo mockCarDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
         when(mockCarDeviceInfo.getAddress()).thenReturn(TEST_MEDIA_PORT_NAME);
+        when(mockCarDeviceInfo.audioDevicesRemoved(any())).thenReturn(true);
         CarAudioVolumeGroup carVolumeGroup = getCarAudioVolumeGroupWithDevice(mockCarDeviceInfo);
 
-        carVolumeGroup.audioDevicesRemoved(List.of(mockInfo));
+        boolean updated = carVolumeGroup.audioDevicesRemoved(List.of(mockInfo));
 
+        expectWithMessage("Removed devices status while active").that(updated).isTrue();
+        List<AudioDeviceInfo> devices = captureRemovedDevices(mockCarDeviceInfo);
+        expectWithMessage("Devices removed").that(devices).containsExactly(mockInfo);
+    }
+
+    @Test
+    public void audioDevicesRemoved_whileInactive() {
+        AudioDeviceInfo mockInfo = Mockito.mock(AudioDeviceInfo.class);
+        CarAudioDeviceInfo mockCarDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        when(mockCarDeviceInfo.getAddress()).thenReturn(TEST_MEDIA_PORT_NAME);
+        when(mockCarDeviceInfo.audioDevicesRemoved(any())).thenReturn(false);
+        CarAudioVolumeGroup carVolumeGroup = getCarAudioVolumeGroupWithDevice(mockCarDeviceInfo);
+
+        boolean updated = carVolumeGroup.audioDevicesRemoved(List.of(mockInfo));
+
+        expectWithMessage("Removed devices status while inactive").that(updated).isFalse();
         List<AudioDeviceInfo> devices = captureRemovedDevices(mockCarDeviceInfo);
         expectWithMessage("Devices removed").that(devices).containsExactly(mockInfo);
     }

@@ -639,8 +639,9 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
         CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.addVolumeGroup(mMockMusicGroup)
                 .addVolumeGroup(mMockNavGroup).addVolumeGroup(mMockVoiceGroup).build();
 
-        zoneConfig.audioDevicesAdded(List.of(musicAudioDeviceInfo));
+        boolean status = zoneConfig.audioDevicesAdded(List.of(musicAudioDeviceInfo));
 
+        expectWithMessage("Added device status with already active group").that(status).isFalse();
         verify(mMockMusicGroup, never()).audioDevicesAdded(any());
         verify(mMockNavGroup, never()).audioDevicesAdded(any());
         verify(mMockVoiceGroup, never()).audioDevicesAdded(any());
@@ -653,8 +654,9 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
                 .addVolumeGroup(mMockInactiveMusicGroup).addVolumeGroup(mMockNavGroup)
                 .addVolumeGroup(mMockVoiceGroup).build();
 
-        zoneConfig.audioDevicesAdded(List.of(musicAudioDeviceInfo));
+        boolean status = zoneConfig.audioDevicesAdded(List.of(musicAudioDeviceInfo));
 
+        expectWithMessage("Added device status with inactive group").that(status).isTrue();
         verify(mMockInactiveMusicGroup).audioDevicesAdded(any());
         verify(mMockNavGroup).audioDevicesAdded(any());
         verify(mMockVoiceGroup).audioDevicesAdded(any());
@@ -680,8 +682,9 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
         CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.addVolumeGroup(mMockMusicGroup)
                 .addVolumeGroup(mMockNavGroup).addVolumeGroup(mMockVoiceGroup).build();
 
-        zoneConfig.audioDevicesRemoved(List.of(musicAudioDeviceInfo));
+        boolean status = zoneConfig.audioDevicesRemoved(List.of(musicAudioDeviceInfo));
 
+        expectWithMessage("Removed device status with active groups").that(status).isFalse();
         verify(mMockMusicGroup).audioDevicesRemoved(any());
         verify(mMockNavGroup).audioDevicesRemoved(any());
         verify(mMockVoiceGroup).audioDevicesRemoved(any());
@@ -694,8 +697,9 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
                 .addVolumeGroup(mMockInactiveMusicGroup).addVolumeGroup(mMockNavGroup)
                 .addVolumeGroup(mMockVoiceGroup).build();
 
-        zoneConfig.audioDevicesRemoved(List.of(musicAudioDeviceInfo));
+        boolean status = zoneConfig.audioDevicesRemoved(List.of(musicAudioDeviceInfo));
 
+        expectWithMessage("Removed device status with inactive group").that(status).isTrue();
         verify(mMockInactiveMusicGroup).audioDevicesRemoved(any());
         verify(mMockNavGroup).audioDevicesRemoved(any());
         verify(mMockVoiceGroup).audioDevicesRemoved(any());
