@@ -65,4 +65,10 @@
     <string name="config_VoiceAssistantActivity" translatable="false">
         com.google.android.carassistant/com.google.android.apps.gsa.binaries.auto.app.voiceplate.VoicePlateActivity
     </string>
+
+    <!-- Determines which system bar to use for display compat toolbar. -->
+    <!-- 0 disabled -->
+    <!-- 1 left -->
+    <!-- 2 right -->
+    <integer name="config_showDisplayCompatToolbarOnSystemBar">0</integer>
 </resources>

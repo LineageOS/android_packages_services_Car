@@ -2008,14 +2008,26 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
         @Override
         public void onApplyPowerPolicyFailed(int requestId, int reason) {
-            // TODO(b/303676148): implement this
-            // Update async policy request to failed and add failure reason
+            AsyncPolicyRequest policyRequest;
+            synchronized (mLock) {
+                policyRequest = mRequestIdToPolicyRequest.get(requestId);
+            }
+            if (policyRequest == null) {
+                Slogf.e(TAG, "No power policy request exists for request ID %d", requestId);
+                return;
+            }
+            policyRequest.onPolicyRequestFailed(reason);
         }
 
         @Override
         public void onPowerPolicyChanged(
                 android.frameworks.automotive.powerpolicy.CarPowerPolicy accumulatedPolicy) {
-            // TODO(b/308192386): implement this
+            synchronized (mLock) {
+                mCurrentAccumulatedPowerPolicy = convertPowerPolicyFromDaemon(accumulatedPolicy);
+            }
+            String policyId = accumulatedPolicy.policyId;
+            Slogf.i(TAG, "Queueing power policy notification (id: %s) in the handler", policyId);
+            mHandler.handlePowerPolicyNotification(policyId);
         }
 
         @Override
@@ -2208,11 +2220,40 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
             mPolicyRequestLatch.countDown();
         }
+
+        public void onPolicyRequestFailed(@PowerPolicyFailureReason int reason) {
+            synchronized (mLock) {
+                mFailureReason = reason;
+            }
+            mPolicyRequestLatch.countDown();
+        }
     }
 
     private AsyncPolicyRequest generateAsyncPolicyRequest(String policyId, long timeoutMs) {
         int requestId = mPolicyRequestIdCounter.getAndIncrement();
         return new AsyncPolicyRequest(requestId, policyId, timeoutMs);
+    }
+
+    @PolicyOperationStatus.ErrorCode
+    private int getPolicyRequestError(int requestId, @PowerPolicyFailureReason int reason) {
+        switch(reason) {
+            case PowerPolicyFailureReason.POWER_POLICY_FAILURE_UNKNOWN:
+                Slogf.w(TAG, "Power policy request %d failed for unknown reason",
+                        requestId);
+                return PolicyOperationStatus.ERROR_APPLY_POWER_POLICY;
+            case PowerPolicyFailureReason.POWER_POLICY_FAILURE_NOT_REGISTERED_ID:
+                Slogf.w(TAG, "Power policy request %d failed due to unregistered"
+                        + "power policy ID", requestId);
+                return PolicyOperationStatus.ERROR_NOT_REGISTERED_POWER_POLICY_ID;
+            case PowerPolicyFailureReason.POWER_POLICY_FAILURE_CANNOT_OVERRIDE:
+                Slogf.w(TAG, "Power policy request %d failed because current non-"
+                        + "preemptive power policy cannot be overridden", requestId);
+                return PolicyOperationStatus.ERROR_APPLY_POWER_POLICY;
+            default:
+                Slogf.w(TAG, "Reason for power policy request %d failing is "
+                        + "undefined", requestId);
+                return PolicyOperationStatus.ERROR_APPLY_POWER_POLICY;
+        }
     }
 
     @PolicyOperationStatus.ErrorCode
@@ -2231,8 +2272,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 daemon.applyPowerPolicyAsync(requestId, policyId, /* force= */ false);
                 boolean policyRequestServed = request.await();
                 if (!policyRequestServed) {
-                    Slogf.w(TAG, "Power policy request (ID: %d) successful application timed "
-                            + "out", requestId);
+                    Slogf.w(TAG, "Power policy request (ID: %d) successful application timed out"
+                            + " after %d ms", requestId, DEFAULT_POWER_POLICY_REQUEST_TIMEOUT_MS);
                     return PolicyOperationStatus.ERROR_APPLY_POWER_POLICY;
                 }
             } catch (IllegalArgumentException e) {
@@ -2259,7 +2300,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 }
             }
             if (!request.isSuccessful()) {
-                // TODO(b/303676148): fill out failure reason errors
+                return getPolicyRequestError(requestId, request.getFailureReason());
             }
             CarPowerPolicy accumulatedPolicy = request.getAccumulatedPolicy();
             synchronized (mLock) {

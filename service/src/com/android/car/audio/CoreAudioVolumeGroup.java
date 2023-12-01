@@ -26,7 +26,6 @@ import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
-import android.util.ArrayMap;
 import android.util.SparseArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -57,12 +56,11 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
     private int mAmLastAudibleGainIndex;
 
     CoreAudioVolumeGroup(AudioManager audioManager, CarAudioContext carAudioContext,
-            CarAudioSettings settingsManager,
-            SparseArray<String> contextToAddress, ArrayMap<String,
-            CarAudioDeviceInfo> addressToCarAudioDeviceInfo, int zoneId, int configId,
-            int volumeGroupId, String name, boolean useCarVolumeGroupMute) {
-        super(carAudioContext, settingsManager, contextToAddress, addressToCarAudioDeviceInfo,
-                        zoneId, configId, volumeGroupId, name, useCarVolumeGroupMute);
+            CarAudioSettings settingsManager, SparseArray<CarAudioDeviceInfo> contextToDevices,
+            int zoneId, int configId, int volumeGroupId, String name,
+            boolean useCarVolumeGroupMute) {
+        super(carAudioContext, settingsManager, contextToDevices, zoneId, configId, volumeGroupId,
+                name, useCarVolumeGroupMute);
         mAudioManager = audioManager;
         mAudioAttributes = CoreAudioHelper.selectAttributesForVolumeGroupName(name);
         mAmId = CoreAudioHelper.getVolumeGroupIdForAudioAttributes(mAudioAttributes);

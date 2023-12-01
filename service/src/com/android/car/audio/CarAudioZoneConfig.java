@@ -411,7 +411,7 @@ final class CarAudioZoneConfig {
         return new CarAudioZoneConfigInfo(mName, mZoneId, mZoneConfigId);
     }
 
-    private boolean isActive() {
+    boolean isActive() {
         for (int c = 0; c < mVolumeGroups.size(); c++) {
             if (mVolumeGroups.get(c).isActive()) {
                 continue;
@@ -455,6 +455,26 @@ final class CarAudioZoneConfig {
             }
         }
         return events;
+    }
+
+    void audioDevicesAdded(List<AudioDeviceInfo> devices) {
+        Objects.requireNonNull(devices, "Audio devices can not be null");
+        // Consider that this may change in the future when multiple devices are supported
+        // per device type. When that happens we may need a way determine where the devices
+        // should be attached. The same pattern is followed in the method called from here on
+        if (isActive()) {
+            return;
+        }
+        for (int c = 0; c < mVolumeGroups.size(); c++) {
+            mVolumeGroups.get(c).audioDevicesAdded(devices);
+        }
+    }
+
+    void audioDevicesRemoved(List<AudioDeviceInfo> devices) {
+        Objects.requireNonNull(devices, "Audio devices can not be null");
+        for (int c = 0; c < mVolumeGroups.size(); c++) {
+            mVolumeGroups.get(c).audioDevicesRemoved(devices);
+        }
     }
 
     static final class Builder {
