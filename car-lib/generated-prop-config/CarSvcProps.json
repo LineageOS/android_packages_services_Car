@@ -1387,6 +1387,29 @@
       },
       "systemApi": true
     },
+    "HEAD_UP_DISPLAY_ENABLED": {
+      "propertyName": "HEAD_UP_DISPLAY_ENABLED",
+      "propertyId": 354421254,
+      "description": "Head up display (HUD) enabled",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_HEAD_UP_DISPLAY"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_HEAD_UP_DISPLAY"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_HEAD_UP_DISPLAY"
+      },
+      "systemApi": true
+    },
     "HW_KEY_INPUT": {
       "propertyName": "HW_KEY_INPUT",
       "propertyId": 289475088,

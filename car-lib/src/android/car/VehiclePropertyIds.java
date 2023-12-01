@@ -2218,6 +2218,42 @@ public final class VehiclePropertyIds {
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_VALET_MODE))
     public static final int VALET_MODE_ENABLED = 287312389;
     /**
+     * Head up display (HUD) enabled
+     *
+     * <p>This property allows the user to turn on/off the HUD for their seat.
+     *
+     * <p>Each HUD in the vehicle will be assigned to the seat that is intended to use it. For
+     * example, if there is a single HUD in the vehicle that is used by the driver so that they no
+     * longer need to continuously look at the instrument cluster, then this property will be
+     * defined with a single area ID that is equal to the driver's seat area ID.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_HEAD_UP_DISPLAY} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_HEAD_UP_DISPLAY} to read
+     *  property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_HEAD_UP_DISPLAY} to write
+     *  property.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(
+            anyOf = {Car.PERMISSION_READ_HEAD_UP_DISPLAY, Car.PERMISSION_CONTROL_HEAD_UP_DISPLAY}))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_HEAD_UP_DISPLAY))
+    public static final int HEAD_UP_DISPLAY_ENABLED = 354421254;
+    /**
      * Property to feed H/W input events to android.
      *
      * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
