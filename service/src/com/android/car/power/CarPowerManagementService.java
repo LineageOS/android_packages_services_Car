@@ -2083,15 +2083,15 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
             mPowerComponentHandler.registerCustomComponents(customComponents);
             initializeRegisteredPowerPolicies(powerPolicyInitData.registeredPolicies);
-            android.frameworks.automotive.powerpolicy.CarPowerPolicy currentPowerPolicy =
-                    powerPolicyInitData.currentPowerPolicy;
+            CarPowerPolicy currentPowerPolicy = convertPowerPolicyFromDaemon(
+                    powerPolicyInitData.currentPowerPolicy);
             synchronized (mLock) {
-                mCurrentPowerPolicyId = currentPowerPolicy.policyId;
+                mCurrentPowerPolicyId = currentPowerPolicy.getPolicyId();
+                mCurrentAccumulatedPowerPolicy = currentPowerPolicy;
             }
-            mPowerComponentHandler.applyPowerPolicy(
-                    convertPowerPolicyFromDaemon(currentPowerPolicy));
+            mPowerComponentHandler.applyPowerPolicy(currentPowerPolicy);
             notifyPowerPolicyChange(
-                    currentPowerPolicy.policyId, /* upToDaemon= */ false, /* force= */ false);
+                    currentPowerPolicy.getPolicyId(), /* upToDaemon= */ false, /* force= */ false);
         } else {
             Slogf.i(TAG, "CPMS is taking control from carpowerpolicyd");
             ICarPowerPolicySystemNotification daemon;
