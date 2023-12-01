@@ -1540,6 +1540,8 @@ package android.car.media {
     field public static final int AUDIO_REQUEST_STATUS_CANCELLED = 3; // 0x3
     field public static final int AUDIO_REQUEST_STATUS_REJECTED = 2; // 0x2
     field public static final int AUDIO_REQUEST_STATUS_STOPPED = 4; // 0x4
+    field @FlaggedApi(android.car.feature.Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES) public static final int CONFIG_STATUS_AUTO_SWITCHED = 2; // 0x2
+    field @FlaggedApi(android.car.feature.Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES) public static final int CONFIG_STATUS_CHANGED = 1; // 0x1
     field public static final int INVALID_AUDIO_ZONE = -1; // 0xffffffff
     field public static final long INVALID_REQUEST_ID = -1L; // 0xffffffffffffffffL
     field public static final int PRIMARY_AUDIO_ZONE = 0; // 0x0
