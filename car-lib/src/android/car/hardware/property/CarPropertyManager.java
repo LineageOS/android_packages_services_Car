@@ -26,6 +26,7 @@ import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_
 import static java.lang.Integer.toHexString;
 import static java.util.Objects.requireNonNull;
 
+import android.annotation.CallbackExecutor;
 import android.annotation.FlaggedApi;
 import android.annotation.FloatRange;
 import android.annotation.IntDef;
@@ -1125,11 +1126,9 @@ public class CarPropertyManager extends CarManagerBase {
         if (updateRateHz < 0.0f) {
             updateRateHz = 0.0f;
         }
-        Subscription.Builder subscriptionBuilder = new Subscription
-                .Builder(propertyId).setUpdateRateHz(updateRateHz);
-        Subscription subscription = subscriptionBuilder.build();
         // Disable VUR for backward compatibility.
-        subscription.disableVariableUpdateRate();
+        Subscription subscription = new Subscription.Builder(propertyId)
+                .setUpdateRateHz(updateRateHz).setVariableUpdateRateEnabled(false).build();
         try {
             return subscribePropertyEvents(List.of(subscription), /* callbackExecutor= */ null,
                     carPropertyEventCallback);
@@ -1220,7 +1219,7 @@ public class CarPropertyManager extends CarManagerBase {
      * [propertyId, areaId, carPropertyEventCallback] combination. A new {@code updateRateHz} for
      * such combination will update the {@code updateRateHz}.
      *
-     * <p>It is only allowed to have one {@code disableVariableUpdateRate} setting for a single
+     * <p>It is only allowed to have one {@code setVariableUpdateRateEnabled} setting for a single
      * [propertyId, areaId, carPropertyEventCallback] combination. A new setting will overwrite
      * the current setting for the combination.
      *
@@ -1245,10 +1244,9 @@ public class CarPropertyManager extends CarManagerBase {
     public boolean subscribePropertyEvents(int propertyId, int areaId,
             @FloatRange(from = 0.0, to = 100.0) float updateRateHz,
             @NonNull CarPropertyEventCallback carPropertyEventCallback) {
-        Subscription option = new Subscription.Builder(propertyId).addAreaId(areaId)
-                .setUpdateRateHz(updateRateHz).build();
-        option.disableVariableUpdateRate();
-        return subscribePropertyEvents(List.of(option), /* callbackExecutor= */ null,
+        Subscription subscription = new Subscription.Builder(propertyId).addAreaId(areaId)
+                .setUpdateRateHz(updateRateHz).setVariableUpdateRateEnabled(false).build();
+        return subscribePropertyEvents(List.of(subscription), /* callbackExecutor= */ null,
                 carPropertyEventCallback);
     }
 
@@ -1267,7 +1265,7 @@ public class CarPropertyManager extends CarManagerBase {
      * [propertyId, areaId, carPropertyEventCallback] combination. A new {@code updateRateHz} for
      * such combination will update the {@code updateRateHz}.
      *
-     * <p>It is only allowed to have one {@code disableVariableUpdateRate} setting for a single
+     * <p>It is only allowed to have one {@code setVariableUpdateRateEnabled} setting for a single
      * [propertyId, areaId, carPropertyEventCallback] combination. A new setting will overwrite
      * the current setting for the combination.
      *
@@ -1303,15 +1301,16 @@ public class CarPropertyManager extends CarManagerBase {
      * If the property has the change mode:
      * {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}, {@code updateRateHz} in
      * {@code Subscription} specifies how frequent the property value has to be polled. If
-     * {@code disableVariableUpdateRate} is {@code false} and variable update rate is supported
-     * based on {@link android.car.hardware.property.AreaIdConfig#isVariableUpdateRateSupported},
+     * {@code setVariableUpdateRateEnabled} is not called with {@code false} and variable update
+     * rate is supported based on
+     * {@link android.car.hardware.property.AreaIdConfig#isVariableUpdateRateSupported},
      * then the client will receive property update event only when the property's value changes
      * (a.k.a behaves the same as {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}).
-     * If {@code disableVariableUpdateRate} is {@code true} or variable update rate is not
-     * supported, then the client will receive all the property update events based on the update
-     * rate even if the events contain the same property value.
+     * If {@code setVariableUpdateRateEnabled} is called with {@code false} or variable update rate
+     * is not supported, then the client will receive all the property update events based on the
+     * update rate even if the events contain the same property value.
      *
-     * <p>See {@link Subscription#disableVariableUpdateRate} for more detail.
+     * <p>See {@link Subscription.Builder#setVariableUpdateRateEnabled} for more detail.
      *
      * <p>
      * <b>Note:</b> When this function is called, the callback will receive the current
@@ -1362,7 +1361,7 @@ public class CarPropertyManager extends CarManagerBase {
      */
     @FlaggedApi(FLAG_BATCHED_SUBSCRIPTIONS)
     public boolean subscribePropertyEvents(@NonNull List<Subscription> subscriptions,
-            @Nullable Executor callbackExecutor,
+            @Nullable @CallbackExecutor Executor callbackExecutor,
             @NonNull CarPropertyEventCallback carPropertyEventCallback) {
         // TODO(b/301169322): Create an unsubscribePropertyEvents
         requireNonNull(subscriptions);
@@ -2686,7 +2685,7 @@ public class CarPropertyManager extends CarManagerBase {
             @NonNull List<GetPropertyRequest> getPropertyRequests,
             long timeoutInMs,
             @Nullable CancellationSignal cancellationSignal,
-            @Nullable Executor callbackExecutor,
+            @Nullable @CallbackExecutor Executor callbackExecutor,
             @NonNull GetPropertyCallback getPropertyCallback) {
         if (DBG) {
             Log.d(TAG, "getPropertiesAsync, requests: " + getPropertyRequests + ", timeoutInMs: "
@@ -2742,7 +2741,7 @@ public class CarPropertyManager extends CarManagerBase {
     public void getPropertiesAsync(
             @NonNull List<GetPropertyRequest> getPropertyRequests,
             @Nullable CancellationSignal cancellationSignal,
-            @Nullable Executor callbackExecutor,
+            @Nullable @CallbackExecutor Executor callbackExecutor,
             @NonNull GetPropertyCallback getPropertyCallback) {
         getPropertiesAsync(getPropertyRequests, ASYNC_GET_DEFAULT_TIMEOUT_MS, cancellationSignal,
                 callbackExecutor, getPropertyCallback);
@@ -2803,7 +2802,7 @@ public class CarPropertyManager extends CarManagerBase {
             @NonNull List<SetPropertyRequest<?>> setPropertyRequests,
             long timeoutInMs,
             @Nullable CancellationSignal cancellationSignal,
-            @Nullable Executor callbackExecutor,
+            @Nullable @CallbackExecutor Executor callbackExecutor,
             @NonNull SetPropertyCallback setPropertyCallback) {
         if (DBG) {
             Log.d(TAG, "setPropertiesAsync, requests: " + setPropertyRequests + ", timeoutInMs: "
@@ -2860,7 +2859,7 @@ public class CarPropertyManager extends CarManagerBase {
     public void setPropertiesAsync(
             @NonNull List<SetPropertyRequest<?>> setPropertyRequests,
             @Nullable CancellationSignal cancellationSignal,
-            @Nullable Executor callbackExecutor,
+            @Nullable @CallbackExecutor Executor callbackExecutor,
             @NonNull SetPropertyCallback setPropertyCallback) {
         setPropertiesAsync(setPropertyRequests, ASYNC_GET_DEFAULT_TIMEOUT_MS, cancellationSignal,
                 callbackExecutor, setPropertyCallback);
@@ -2926,7 +2925,7 @@ public class CarPropertyManager extends CarManagerBase {
                 carSubscription.areaIds = carPropertyConfig.getAreaIds();
             }
             carSubscription.enableVariableUpdateRate =
-                    !subscription.isVariableUpdateRateDisabled();
+                    subscription.isVariableUpdateRateEnabled();
             carSubscription.updateRateHz = sanitizedUpdateRateHz;
             output.addAll(InputSanitizationUtils.sanitizeEnableVariableUpdateRate(
                     mFeatureFlags, carPropertyConfig, carSubscription));
