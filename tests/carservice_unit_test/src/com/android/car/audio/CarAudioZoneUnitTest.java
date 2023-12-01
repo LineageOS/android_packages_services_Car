@@ -720,13 +720,28 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    public void audioDevicesAdded() {
+    public void audioDevicesAdded_withConfigUpdated() {
+        when(mMockZoneConfig0.audioDevicesAdded(any())).thenReturn(true);
         mTestAudioZone.addZoneConfig(mMockZoneConfig0);
         AudioDeviceInfo testDevice = mock(AudioDeviceInfo.class);
         List<AudioDeviceInfo> infos = List.of(testDevice);
 
-        mTestAudioZone.audioDevicesAdded(infos);
+        boolean updated = mTestAudioZone.audioDevicesAdded(infos);
 
+        expectWithMessage("Added audio devices updated status").that(updated).isTrue();
+        verify(mMockZoneConfig0).audioDevicesAdded(infos);
+    }
+
+    @Test
+    public void audioDevicesAdded_withConfigNotUpdated() {
+        when(mMockZoneConfig0.audioDevicesAdded(any())).thenReturn(false);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        AudioDeviceInfo testDevice = mock(AudioDeviceInfo.class);
+        List<AudioDeviceInfo> infos = List.of(testDevice);
+
+        boolean updated = mTestAudioZone.audioDevicesAdded(infos);
+
+        expectWithMessage("Added audio devices not updated status").that(updated).isFalse();
         verify(mMockZoneConfig0).audioDevicesAdded(infos);
     }
 
@@ -742,13 +757,28 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    public void audioDevicesRemoved() {
+    public void audioDevicesRemoved_withConfigUpdated() {
+        when(mMockZoneConfig0.audioDevicesRemoved(any())).thenReturn(true);
         mTestAudioZone.addZoneConfig(mMockZoneConfig0);
         AudioDeviceInfo testDevice = mock(AudioDeviceInfo.class);
         List<AudioDeviceInfo> infos = List.of(testDevice);
 
-        mTestAudioZone.audioDevicesRemoved(infos);
+        boolean updated = mTestAudioZone.audioDevicesRemoved(infos);
 
+        expectWithMessage("Removed audio devices updated status").that(updated).isTrue();
+        verify(mMockZoneConfig0).audioDevicesRemoved(infos);
+    }
+
+    @Test
+    public void audioDevicesRemoved_withConfigNotUpdated() {
+        when(mMockZoneConfig0.audioDevicesRemoved(any())).thenReturn(false);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        AudioDeviceInfo testDevice = mock(AudioDeviceInfo.class);
+        List<AudioDeviceInfo> infos = List.of(testDevice);
+
+        boolean updated = mTestAudioZone.audioDevicesRemoved(infos);
+
+        expectWithMessage("Removed audio devices not updated status").that(updated).isFalse();
         verify(mMockZoneConfig0).audioDevicesRemoved(infos);
     }
 

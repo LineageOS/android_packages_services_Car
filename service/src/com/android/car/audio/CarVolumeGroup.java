@@ -929,10 +929,10 @@ import java.util.Objects;
         return true;
     }
 
-    public void audioDevicesAdded(List<AudioDeviceInfo> devices) {
+    public boolean audioDevicesAdded(List<AudioDeviceInfo> devices) {
         Objects.requireNonNull(devices, "Audio devices can not be null");
         if (isActive()) {
-            return;
+            return false;
         }
 
         boolean updated = false;
@@ -943,14 +943,15 @@ import java.util.Objects;
             updated = true;
         }
         if (!updated) {
-            return;
+            return false;
         }
         synchronized (mLock) {
             updateAudioDevicesMappingLocked();
         }
+        return true;
     }
 
-    public void audioDevicesRemoved(List<AudioDeviceInfo> devices) {
+    public boolean audioDevicesRemoved(List<AudioDeviceInfo> devices) {
         Objects.requireNonNull(devices, "Audio devices can not be null");
         boolean updated = false;
         for (int c = 0; c < mContextToDevices.size(); c++) {
@@ -960,11 +961,12 @@ import java.util.Objects;
             updated = true;
         }
         if (!updated) {
-            return;
+            return false;
         }
         synchronized (mLock) {
             updateAudioDevicesMappingLocked();
         }
+        return true;
     }
 
     @GuardedBy("mLock")
