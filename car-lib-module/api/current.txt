@@ -935,7 +935,6 @@ package android.car.hardware.property {
   }
 
   @FlaggedApi("android.car.feature.batched_subscriptions") public final class Subscription {
-    method @FlaggedApi("android.car.feature.variable_update_rate") public void disableVariableUpdateRate();
     method @Nullable public int[] getAreaIds();
     method public int getPropertyId();
     method public float getUpdateRateFast();
@@ -943,7 +942,7 @@ package android.car.hardware.property {
     method public float getUpdateRateHz();
     method public float getUpdateRateNormal();
     method public float getUpdateRateUi();
-    method @FlaggedApi("android.car.feature.variable_update_rate") public boolean isVariableUpdateRateDisabled();
+    method @FlaggedApi("android.car.feature.variable_update_rate") public boolean isVariableUpdateRateEnabled();
   }
 
   public static final class Subscription.Builder {
@@ -955,6 +954,7 @@ package android.car.hardware.property {
     method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateHz(@FloatRange(from=0.0, to=100.0) float);
     method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateNormal();
     method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateUi();
+    method @FlaggedApi("android.car.feature.variable_update_rate") @NonNull public android.car.hardware.property.Subscription.Builder setVariableUpdateRateEnabled(boolean);
   }
 
   public class VehicleElectronicTollCollectionCardStatus {

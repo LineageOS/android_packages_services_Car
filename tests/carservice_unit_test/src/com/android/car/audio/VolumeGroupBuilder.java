@@ -23,6 +23,7 @@ import static com.android.car.audio.GainBuilder.MAX_GAIN;
 import static com.android.car.audio.GainBuilder.STEP_SIZE;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -167,6 +168,9 @@ public final class VolumeGroupBuilder {
                 .thenReturn(EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED);
 
         when(carVolumeGroup.isActive()).thenReturn(mIsActive);
+
+        when(carVolumeGroup.audioDevicesAdded(anyList())).thenReturn(!mIsActive);
+        when(carVolumeGroup.audioDevicesRemoved(anyList())).thenReturn(!mIsActive);
 
         return carVolumeGroup;
     }
