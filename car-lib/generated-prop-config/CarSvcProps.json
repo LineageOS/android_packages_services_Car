@@ -3690,6 +3690,29 @@
         -5,
         -6
       ]
+    },
+    "LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_ENABLED": {
+      "propertyName": "LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_ENABLED",
+      "propertyId": 287313957,
+      "description": "Enable or disable Low Speed Automatic Emergency Braking.",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_ADAS_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+      },
+      "systemApi": true
     }
   }
 }
