@@ -326,6 +326,7 @@ package android.car {
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_ADAS_SETTINGS, android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int LANE_KEEP_ASSIST_ENABLED = 287313928; // 0x11201008
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int LANE_KEEP_ASSIST_STATE = 289411081; // 0x11401009
     field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_ADAS_SETTINGS, android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_ENABLED = 287313957; // 0x11201025
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_STATE = 289411110; // 0x11401026
     field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_ADAS_SETTINGS, android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int LOW_SPEED_COLLISION_WARNING_ENABLED = 287313953; // 0x11201021
     field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int LOW_SPEED_COLLISION_WARNING_STATE = 289411106; // 0x11401022
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_MIRRORS) public static final int MIRROR_AUTO_FOLD_ENABLED = 337644358; // 0x14200b46
@@ -1400,6 +1401,14 @@ package android.car.hardware.property {
     field public static final int ENABLED = 1; // 0x1
     field public static final int OTHER = 0; // 0x0
     field public static final int USER_OVERRIDE = 4; // 0x4
+  }
+
+  @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public final class LowSpeedAutomaticEmergencyBrakingState {
+    method @NonNull public static String toString(int);
+    field public static final int ACTIVATED = 2; // 0x2
+    field public static final int ENABLED = 1; // 0x1
+    field public static final int OTHER = 0; // 0x0
+    field public static final int USER_OVERRIDE = 3; // 0x3
   }
 
   @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public final class LowSpeedCollisionWarningState {

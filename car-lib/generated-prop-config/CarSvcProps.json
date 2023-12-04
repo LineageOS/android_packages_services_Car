@@ -3713,6 +3713,28 @@
         "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
       },
       "systemApi": true
+    },
+    "LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_STATE": {
+      "propertyName": "LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_STATE",
+      "propertyId": 289411110,
+      "description": "Low Speed Automatic Emergency Braking state.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ADAS_STATES"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        0,
+        1,
+        2,
+        3,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
+      ]
     }
   }
 }

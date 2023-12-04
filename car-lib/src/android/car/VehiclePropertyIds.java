@@ -5653,7 +5653,9 @@ public final class VehiclePropertyIds {
      *
      * <p>Returns the current state of AEB. This property will always return a valid state defined
      * in {@link android.car.hardware.property.AutomaticEmergencyBrakingState} or {@link
-     * android.car.hardware.property.ErrorState}.
+     * android.car.hardware.property.ErrorState}. This property should apply for higher speed
+     * applications only. For representing the state of the low speed automatic emergency braking
+     * system, {@link LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_STATE} should be used.
      *
      * <p>If AEB includes forward collision warnings before activating the brakes, those warnings
      * will be surfaced through the Forward Collision Warning (FCW) properties.
@@ -7114,6 +7116,51 @@ public final class VehiclePropertyIds {
             Car.PERMISSION_CONTROL_ADAS_SETTINGS}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
     public static final int LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_ENABLED = 287313957;
+
+    /**
+     * Low Speed Automatic Emergency Braking state.
+     *
+     * <p>Returns the current state of Low Speed Automatic Emergency Braking. This property will
+     * always return a valid state defined in {@link
+     * android.car.hardware.property.LowSpeedAutomaticEmergencyBrakingState} or {@link
+     * android.car.hardware.property.ErrorState}.
+     *
+     * <p>If Low Speed Automatic Emergency Braking includes collision warnings before activating the
+     * brakes, those warnings will be surfaced through use of {@link
+     * android.car.VehiclePropertyIds#LOW_SPEED_COLLISION_WARNING_ENABLED} and {@link
+     * android.car.VehiclePropertyIds#LOW_SPEED_COLLISION_WARNING_STATE}.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.LowSpeedAutomaticEmergencyBrakingState} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @data_enum {@link android.car.hardware.property.LowSpeedAutomaticEmergencyBrakingState}
+     * @data_enum {@link ErrorState}
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_STATES))
+    public static final int LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_STATE = 289411110;
+
     /**
      * @deprecated to prevent others from instantiating this class
      */
