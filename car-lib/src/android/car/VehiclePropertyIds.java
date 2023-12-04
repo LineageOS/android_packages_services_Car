@@ -34,6 +34,7 @@ import android.car.hardware.property.CruiseControlCommand;
 import android.car.hardware.property.CruiseControlState;
 import android.car.hardware.property.CruiseControlType;
 import android.car.hardware.property.DriverDistractionState;
+import android.car.hardware.property.DriverDistractionWarning;
 import android.car.hardware.property.DriverDrowsinessAttentionState;
 import android.car.hardware.property.DriverDrowsinessAttentionWarning;
 import android.car.hardware.property.EmergencyLaneKeepAssistState;
@@ -6555,6 +6556,48 @@ public final class VehiclePropertyIds {
     @RequiresPermission.Write(@RequiresPermission(
             Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS))
     public static final int DRIVER_DISTRACTION_WARNING_ENABLED = 287313951;
+
+    /**
+     * Driver distraction warning.
+     *
+     * <p>Returns whether a warning is being sent to the driver for being distracted.
+     *
+     * <p>Generally, this property should return a valid state defined in the {@link
+     * android.car.hardware.property.DriverDistractionWarning} or {@link
+     * android.car.hardware.property.ErrorState}. For example, if the feature is not available due
+     * to some temporary state, that information should be conveyed through an {@link
+     * android.car.hardware.property.ErrorState}.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.DriverDistractionWarning} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_STATES} to
+     *  read property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @data_enum {@link DriverDistractionWarning}
+     * @data_enum {@link ErrorState}
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DRIVER_MONITORING_STATES))
+    public static final int DRIVER_DISTRACTION_WARNING = 289411104;
 
     /**
      * @deprecated to prevent others from instantiating this class
