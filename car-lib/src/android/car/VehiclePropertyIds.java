@@ -6521,6 +6521,42 @@ public final class VehiclePropertyIds {
     public static final int DRIVER_DISTRACTION_STATE = 289411102;
 
     /**
+     * Enable or disable driver distraction warnings.
+     *
+     * <p>Set true to enable driver distraction warnings and false to disable driver distraction
+     * warnings. When driver distraction warnings are enabled, the driver distraction monitoring
+     * system inside the vehicle should warn the driver when it detects the driver is distracted.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_SETTINGS}
+     *  or Signature|Privileged permission {@link
+     *  Car#PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS} to read property.
+     *  <li>Signature|Privileged permission {@link
+     *  Car#PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS} to write property.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {
+            Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS,
+            Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS}))
+    @RequiresPermission.Write(@RequiresPermission(
+            Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS))
+    public static final int DRIVER_DISTRACTION_WARNING_ENABLED = 287313951;
+
+    /**
      * @deprecated to prevent others from instantiating this class
      */
     @Deprecated
