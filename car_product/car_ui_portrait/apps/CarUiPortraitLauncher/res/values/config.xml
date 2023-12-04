@@ -85,6 +85,6 @@
         <!-- Add activity to full screen since focus is lost when all the windows are removed. -->
         <item>android.server.wm.cts/android.server.wm.LayoutTests$TestActivity</item>
         <!-- Add activity to full screen due to some issue with focus. -->
-        <item>android.server.wm.cts/android.server.wm.WindowUntrustedTouchTest$TestActivity</item>
+        <item>android.server.wm.cts/android.server.wm.window.WindowUntrustedTouchTest$TestActivity</item>
     </string-array>
 </resources>
