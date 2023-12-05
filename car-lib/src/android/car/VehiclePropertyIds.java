@@ -4344,6 +4344,44 @@ public final class VehiclePropertyIds {
      */
     @RequiresPermission(ACCESS_FINE_LOCATION)
     public static final int LOCATION_CHARACTERIZATION = 289410064;
+
+    /**
+     * Static data for the position of each ultrasonic sensor installed on the vehicle.
+     *
+     * <p>Each individual sensor is identified by its unique {@link AreaIdConfig#getAreaId()} and
+     * returns the sensor's position formatated as [x, y, z] where:
+     *
+     * <ul>
+     *  <li>x is the position of the sensor along the x-axis relative to the origin of the Android
+     *  Automotive sensor coordinate frame in millimeters.
+     *  <li>y is the position of the sensor along the y-axis relative to the origin of the Android
+     *  Automotive sensor coordinate frame in millimeters.
+     *  <li>z is the position of the sensor along the z-axis relative to the origin of the Android
+     *  Automotive sensor coordinate frame in millimeters.
+     * </ul>
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_VENDOR}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer[]} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ULTRASONICS_SENSOR_DATA} to
+     *  read property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA))
+    public static final int ULTRASONICS_SENSOR_POSITION = 406916128;
+
     /**
      * OBD2 Live Sensor Data.
      *

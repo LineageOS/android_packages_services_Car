@@ -147,6 +147,7 @@
         <permission name="android.car.permission.SET_CAR_VENDOR_CATEGORY_9"/>
         <permission name="android.car.permission.GET_CAR_VENDOR_CATEGORY_10"/>
         <permission name="android.car.permission.SET_CAR_VENDOR_CATEGORY_10"/>
+        <permission name="android.car.permission.READ_ULTRASONICS_SENSOR_DATA"/>
 
         <!-- use for CarWatchdogReliabilityTest -->
         <permission name="android.car.permission.USE_CAR_WATCHDOG"/>
