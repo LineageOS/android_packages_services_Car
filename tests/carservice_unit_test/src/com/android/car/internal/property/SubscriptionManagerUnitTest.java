@@ -244,7 +244,7 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
         CarSubscription option2 = getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2});
         option1.enableVariableUpdateRate = false;
         option2.enableVariableUpdateRate = true;
-        // client1 disables VUR.
+        // client1 disables Vur.
         mSubscriptionManager.stageNewOptions(mClient1, List.of(option1));
 
         List<CarSubscription> outDiffSubscribeOptions = new ArrayList<>();
@@ -258,18 +258,18 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
         outDiffSubscribeOptions.clear();
 
         mSubscriptionManager.commit();
-        // Only client2 enables VUR, so combined VUR is still disabled.
+        // Only client2 enables Vur, so combined Vur is still disabled.
         mSubscriptionManager.stageNewOptions(mClient2, List.of(option2));
 
         mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
                 outPropertyIdsToUnsubscribe);
 
         expectThat(outPropertyIdsToUnsubscribe).isEmpty();
-        expectWithMessage("Only one client enables VUR must cause VUR disabled as combined")
+        expectWithMessage("Only one client enables Vur must cause Vur disabled as combined")
                 .that(outDiffSubscribeOptions).isEmpty();
 
         mSubscriptionManager.commit();
-        // Unregisters client1, so only client2 is registered with VUR enabled.
+        // Unregisters client1, so only client2 is registered with Vur enabled.
         mSubscriptionManager.stageUnregister(mClient1, new ArraySet<Integer>(Set.of(
                 PROPERTY1)));
 
@@ -277,7 +277,7 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
                 outPropertyIdsToUnsubscribe);
 
         expectThat(outPropertyIdsToUnsubscribe).isEmpty();
-        expectWithMessage("VUR must be enabled when only one client registers with VUR enabled")
+        expectWithMessage("Vur must be enabled when only one client registers with Vur enabled")
                 .that(outDiffSubscribeOptions).containsExactly(option2);
     }
 

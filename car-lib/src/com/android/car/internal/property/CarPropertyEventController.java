@@ -65,18 +65,18 @@ public class CarPropertyEventController {
 
     /** Tracks the continuous property ID and area IDs at the given update rate. */
     public void addContinuousProperty(int propertyId, int[] areaIds, float updateRateHz,
-            boolean enableVUR) {
+            boolean enableVur) {
         requireNonNull(areaIds);
         synchronized (mLock) {
             for (int areaId : areaIds) {
                 if (DBG) {
                     Slogf.d(TAG, "Add new continuous property event tracker, property: %s, "
-                            + "areaId: %d, updateRate: %f Hz, enableVUR: %b",
+                            + "areaId: %d, updateRate: %f Hz, enableVur: %b",
                             VehiclePropertyIds.toString(propertyId), areaId, updateRateHz,
-                            enableVUR);
+                            enableVur);
                 }
                 mPropIdToAreaIdToCpeTracker.put(propertyId, areaId,
-                        new ContCarPropertyEventTracker(updateRateHz, enableVUR));
+                        new ContCarPropertyEventTracker(updateRateHz, enableVur));
             }
         }
     }

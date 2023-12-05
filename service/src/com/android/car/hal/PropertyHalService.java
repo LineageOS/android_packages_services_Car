@@ -1733,12 +1733,12 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     private static CarSubscription newCarSubscription(int propertyId, int[] areaIds,
-            float updateRateHz, boolean enableVUR) {
+            float updateRateHz, boolean enableVur) {
         CarSubscription option = new CarSubscription();
         option.propertyId = propertyId;
         option.areaIds = areaIds;
         option.updateRateHz = updateRateHz;
-        option.enableVariableUpdateRate = enableVUR;
+        option.enableVariableUpdateRate = enableVur;
         return option;
     }
 
@@ -1773,14 +1773,14 @@ public class PropertyHalService extends HalServiceBase {
                 mHalPropIdToWaitingUpdateRequestInfo.get(halPropId).add(setRequestInfo);
                 // Internally subscribe to the propId, areaId for property update events.
                 // We use the pending async service request ID as client key.
-                // EnableVUR for continuous since we only want to know when the value is updated.
-                boolean enableVUR = (halPropConfig.getChangeMode()
+                // Enable VUR for continuous since we only want to know when the value is updated.
+                boolean enableVur = (halPropConfig.getChangeMode()
                         == CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS);
                 mSubManager.stageNewOptions(setRequestInfo.getServiceRequestId(),
                         // Note that we use halPropId instead of mgrPropId in mSubManager.
                         List.of(newCarSubscription(halPropId,
                                 new int[]{setRequestInfo.getAreaId()},
-                                setRequestInfo.getUpdateRateHz(), enableVUR)));
+                                setRequestInfo.getUpdateRateHz(), enableVur)));
             }
             try {
                 updateSubscriptionRateLocked();

@@ -53,75 +53,75 @@ public final class ContCarPropertyEventTrackerUnitTest {
     private static final CarPropertyValue<Integer> STALE_CAR_PROPERTY_VALUE =
             new CarPropertyValue<>(FIRST_PROPERTY_ID, AREA_ID_1, STALE_TIMESTAMP_NANOS,
                     INTEGER_VALUE_1);
-    private ContCarPropertyEventTracker mNoVURTracker;
-    private ContCarPropertyEventTracker mVURTracker;
+    private ContCarPropertyEventTracker mNoVurTracker;
+    private ContCarPropertyEventTracker mVurTracker;
 
     @Before
     public void setup() {
-        mNoVURTracker = new ContCarPropertyEventTracker(
-                FIRST_UPDATE_RATE_HZ, /* enableVUR= */ false);
-        mVURTracker = new ContCarPropertyEventTracker(
-                FIRST_UPDATE_RATE_HZ, /* enableVUR= */ true);
+        mNoVurTracker = new ContCarPropertyEventTracker(
+                FIRST_UPDATE_RATE_HZ, /* enableVur= */ false);
+        mVurTracker = new ContCarPropertyEventTracker(
+                FIRST_UPDATE_RATE_HZ, /* enableVur= */ true);
     }
 
     @Test
     public void testHasUpdate_returnsTrueForFirstEvent() {
-        assertThat(mNoVURTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE)).isTrue();
+        assertThat(mNoVurTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE)).isTrue();
     }
 
     @Test
     public void testHasUpdate_returnsTrueForFirstEvent_vur() {
-        assertThat(mVURTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE)).isTrue();
+        assertThat(mVurTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE)).isTrue();
     }
 
     @Test
     public void testHasUpdate_returnsFalseForStaleEvent() {
-        assertThat(mNoVURTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE)).isTrue();
-        assertThat(mNoVURTracker.hasUpdate(STALE_CAR_PROPERTY_VALUE)).isFalse();
+        assertThat(mNoVurTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE)).isTrue();
+        assertThat(mNoVurTracker.hasUpdate(STALE_CAR_PROPERTY_VALUE)).isFalse();
     }
 
     @Test
     public void testHasUpdate_returnsFalseForStaleEvent_vur() {
-        assertThat(mVURTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE)).isTrue();
-        assertThat(mVURTracker.hasUpdate(STALE_CAR_PROPERTY_VALUE)).isFalse();
+        assertThat(mVurTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE)).isTrue();
+        assertThat(mVurTracker.hasUpdate(STALE_CAR_PROPERTY_VALUE)).isFalse();
     }
 
     @Test
     public void testHasUpdate_returnsFalseForEventArrivedTooEarly() {
-        assertThat(mNoVURTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE))
+        assertThat(mNoVurTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE))
                 .isTrue();
-        assertThat(mNoVURTracker.hasUpdate(TOO_EARLY_CAR_PROPERTY_VALUE)).isFalse();
+        assertThat(mNoVurTracker.hasUpdate(TOO_EARLY_CAR_PROPERTY_VALUE)).isFalse();
     }
 
     @Test
     public void testHasUpdate_returnsFalseForEventArrivedTooEarly_vur() {
-        assertThat(mVURTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE)).isTrue();
-        assertThat(mVURTracker.hasUpdate(TOO_EARLY_CAR_PROPERTY_VALUE)).isFalse();
+        assertThat(mVurTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE)).isTrue();
+        assertThat(mVurTracker.hasUpdate(TOO_EARLY_CAR_PROPERTY_VALUE)).isFalse();
     }
 
     @Test
     public void testHasUpdate_returnsTrueForEventWithinOffset() {
-        assertThat(mNoVURTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE)).isTrue();
-        assertThat(mNoVURTracker.hasUpdate(ALMOST_FRESH_CAR_PROPERTY_VALUE)).isTrue();
+        assertThat(mNoVurTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE)).isTrue();
+        assertThat(mNoVurTracker.hasUpdate(ALMOST_FRESH_CAR_PROPERTY_VALUE)).isTrue();
     }
 
     @Test
     public void testHasUpdate_returnsTrueForFreshEvent() {
-        assertThat(mNoVURTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE)).isTrue();
-        assertThat(mNoVURTracker.hasUpdate(FRESH_CAR_PROPERTY_VALUE)).isTrue();
+        assertThat(mNoVurTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE)).isTrue();
+        assertThat(mNoVurTracker.hasUpdate(FRESH_CAR_PROPERTY_VALUE)).isTrue();
     }
 
     @Test
     public void testHasUpdate_returnsFalseIfValueIsTheSame_vur() {
-        assertThat(mVURTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE)).isTrue();
+        assertThat(mVurTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE)).isTrue();
         // FRESH_CAR_PROPERTY_VALUE has the same value as GOOD_CAR_PROPERTY_VALUE.
-        assertThat(mVURTracker.hasUpdate(FRESH_CAR_PROPERTY_VALUE)).isFalse();
+        assertThat(mVurTracker.hasUpdate(FRESH_CAR_PROPERTY_VALUE)).isFalse();
     }
 
     @Test
     public void testHasUpdate_returnsTrueIfValueIsDifferent_vur() {
-        assertThat(mVURTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE)).isTrue();
+        assertThat(mVurTracker.hasUpdate(GOOD_CAR_PROPERTY_VALUE)).isTrue();
         // FRESH_CAR_PROPERTY_VALUE has the same value as GOOD_CAR_PROPERTY_VALUE.
-        assertThat(mVURTracker.hasUpdate(FRESH_CAR_PROPERTY_VALUE_VALUE_2)).isTrue();
+        assertThat(mVurTracker.hasUpdate(FRESH_CAR_PROPERTY_VALUE_VALUE_2)).isTrue();
     }
 }
