@@ -56,12 +56,10 @@ cc_defaults {
         "-Wthread-safety",
     ],
     export_include_dirs: [
-        "include",
-    ],
-    local_include_dirs: [
-        "include",
-        "stats/include",
-        "wrappers/include",
+        ".",
+        "./include",
+        "./stats/include",
+        "./wrappers/include",
     ],
     product_variables: {
         debuggable: {
@@ -95,40 +93,23 @@ filegroup {
 }
 
 cc_library_static {
-    name : "libevsmanagerd",
+    name : "libevsmanagerd_static",
     defaults : ["evsmanagerd_defaults"],
     srcs : [":evsmanagerd_sources"],
-    export_include_dirs : ["."],
+    export_include_dirs : [
+        "./include",
+        "./stats/include",
+        "./wrappers/include"
+    ],
 }
 
 cc_binary {
     name: "evsmanagerd",
     defaults: ["evsmanagerd_defaults"],
-    static_libs: ["libevsmanagerd"],
+    static_libs: ["libevsmanagerd_static"],
     srcs: ["src/service.cpp"],
     init_rc: ["evsmanagerd.rc"],
     vintf_fragments: ["manifest_evsmanagerd.xml"],
-}
-
-cc_fuzz {
-    name: "evs_enumerator_fuzzer",
-    defaults: [
-        "evsmanagerd_defaults",
-        "service_fuzzer_defaults",
-        "fuzzer_disable_leaks",
-    ],
-    static_libs: [
-        "liblog",
-    ],
-    srcs: [
-        ":evsmanagerd_sources",
-        "src/EnumeratorFuzzer.cpp",
-    ],
-    fuzz_config: {
-        cc: [
-            "keithmok@google.com",
-        ],
-    },
 }
 
 cc_test {
@@ -140,9 +121,9 @@ cc_test {
     ],
     srcs: [
         ":evsmanagerd_sources",
-        "tests/**/*.cpp"
+        "tests/unit/**/*.cpp"
     ],
-    local_include_dirs: ["tests/include"],
+    local_include_dirs: ["tests/unit/include"],
     shared_libs: [
         "libcamera_client",
         "libnativewindow",
@@ -151,7 +132,7 @@ cc_test {
     static_libs: [
         "libgmock",
         "libgtest",
-        "libevsmanagerd",
+        "libevsmanagerd_static",
     ],
 }
 
@@ -160,13 +141,13 @@ cc_test_library {
     defaults: ["android.hardware.graphics.common-ndk_static"],
     local_include_dirs: [
         "include",
-        "tests/include"
+        "tests/unit/include"
     ],
-    export_include_dirs: ["tests/include"],
+    export_include_dirs: ["tests/unit/include"],
     srcs: [
-        "tests/src/MockEvsHal.cpp",
-        "tests/src/MockHidlEvsHal.cpp",
-        "tests/src/MockHidlEvsHal_1_0.cpp",
+        "tests/unit/src/MockEvsHal.cpp",
+        "tests/unit/src/MockHidlEvsHal.cpp",
+        "tests/unit/src/MockHidlEvsHal_1_0.cpp",
     ],
     shared_libs: [
         "android.hardware.automotive.evs@1.0",
@@ -189,6 +170,11 @@ cc_test_library {
         "libgtest",
     ],
     cflags: ["-DLOG_TAG=\"MockEVS\""],
+}
+
+cc_library_headers {
+    name: "libmockevshal_headers",
+    export_include_dirs: ["tests/unit/include"],
 }
 
 cc_library {
