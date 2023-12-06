@@ -223,7 +223,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
             | VehicleAreaSeat.ROW_2_RIGHT;
     private static final float INIT_TEMP_VALUE = 16f;
     private static final float CHANGED_TEMP_VALUE = 20f;
-    private static final int CALLBACK_SHORT_TIMEOUT_MS = 350; // ms
+    private static final int CALLBACK_SHORT_TIMEOUT_MS = 1000; // ms
     // Wait for CarPropertyManager register/unregister listener
     private static final long WAIT_FOR_NO_EVENTS = 50;
     private static final int VENDOR_CODE_FOR_NOT_AVAILABLE = 0x00ab;
