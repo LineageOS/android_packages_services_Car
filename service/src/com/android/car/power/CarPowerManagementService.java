@@ -522,7 +522,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
-            writer.println("*PowerManagementService*");
+            writer.println("*CarPowerManagementService*");
             writer.printf("mCurrentState: %s\n", mCurrentState);
             writer.printf("mShutdownStartTime: %d\n", mShutdownStartTime);
             writer.printf("mLastSleepEntryTime: %d\n", mLastSleepEntryTime);
