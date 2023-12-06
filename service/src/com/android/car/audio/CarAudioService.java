@@ -70,6 +70,7 @@ import android.car.media.CarAudioPatchHandle;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupEvent;
 import android.car.media.CarVolumeGroupInfo;
+import android.car.media.IAudioZoneConfigurationsChangeCallback;
 import android.car.media.IAudioZonesMirrorStatusCallback;
 import android.car.media.ICarAudio;
 import android.car.media.ICarVolumeCallback;
@@ -91,6 +92,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.SystemProperties;
@@ -310,6 +312,10 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     @GuardedBy("mImplLock")
     private final SparseArray<DeathRecipient>
             mUserAssignedToPrimaryZoneToCallbackDeathRecipient = new SparseArray<>();
+
+    @GuardedBy("mImplLock")
+    private final RemoteCallbackList<IAudioZoneConfigurationsChangeCallback> mZoneConfigCallbacks =
+            new RemoteCallbackList<>();
 
     // TODO do not store uid mapping here instead use the uid
     //  device affinity in audio policy when available
@@ -2667,6 +2673,30 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                         updatedInfo);
             }
         });
+    }
+
+    @Override
+    public boolean registerAudioZoneConfigsChangeCallback(
+            IAudioZoneConfigurationsChangeCallback callback) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        requireNonLegacyRouting();
+        Objects.requireNonNull(callback, "Car audio zone configs callback can not be null");
+
+        synchronized (mImplLock) {
+            return mZoneConfigCallbacks.register(callback);
+        }
+    }
+
+    @Override
+    public boolean unregisterAudioZoneConfigsChangeCallback(
+            IAudioZoneConfigurationsChangeCallback callback) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        requireNonLegacyRouting();
+        Objects.requireNonNull(callback, "Car audio zone configs callback can not be null");
+
+        synchronized (mImplLock) {
+            return mZoneConfigCallbacks.unregister(callback);
+        }
     }
 
     @Nullable
