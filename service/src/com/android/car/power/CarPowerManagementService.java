@@ -19,6 +19,8 @@ package com.android.car.power;
 import static android.car.feature.Flags.carPowerPolicyRefactoring;
 import static android.car.hardware.power.CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE;
 import static android.car.hardware.power.CarPowerManager.STATE_SHUTDOWN_PREPARE;
+import static android.car.hardware.power.PowerComponentUtil.FIRST_POWER_COMPONENT;
+import static android.car.hardware.power.PowerComponentUtil.LAST_POWER_COMPONENT;
 import static android.net.ConnectivityManager.TETHERING_WIFI;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -283,8 +285,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     // TODO(b/286303350): remove after policy refactor, since daemon will be source of truth
     @GuardedBy("mLock")
     private String mCurrentPowerPolicyId;
-    @GuardedBy("mLock")
-    private CarPowerPolicy mCurrentAccumulatedPowerPolicy;
     // TODO(b/286303350): remove after policy refactor, since daemon will control power policy
     @GuardedBy("mLock")
     private String mPendingPowerPolicyId;
@@ -295,6 +295,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     // TODO(b/286303350): remove after policy refactor, since daemon will control power policy
     @GuardedBy("mLock")
     private boolean mHasControlOverDaemon;
+    @GuardedBy("mLock")
+    private CarPowerPolicy mCurrentAccumulatedPowerPolicy = getInitialAccumulatedPowerPolicy();
     private AtomicBoolean mIsListenerWaitingCancelled = new AtomicBoolean(false);
     private final Semaphore mListenerCompletionSem = new Semaphore(/* permits= */ 0);
     @GuardedBy("mLock")
@@ -2039,6 +2041,18 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         public int getInterfaceVersion() {
             return ICarPowerPolicyDelegateCallback.VERSION;
         }
+    }
+
+    private static CarPowerPolicy getInitialAccumulatedPowerPolicy() {
+        String initialPolicyId = "";
+        int[] enabledComponents = new int[0];
+        int[] disabledComponents = new int[LAST_POWER_COMPONENT - FIRST_POWER_COMPONENT + 1];
+        int disabledIndex = 0;
+        for (int component = FIRST_POWER_COMPONENT; component <= LAST_POWER_COMPONENT;
+                component++) {
+            disabledComponents[disabledIndex++] = component;
+        }
+        return new CarPowerPolicy(initialPolicyId, enabledComponents, disabledComponents);
     }
 
     private void initializeRegisteredPowerPolicies(
