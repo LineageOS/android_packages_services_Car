@@ -16,9 +16,6 @@
 
 package android.car.hardware.property;
 
-import static android.car.feature.Flags.FLAG_BATCHED_SUBSCRIPTIONS;
-import static android.car.feature.Flags.FLAG_VARIABLE_UPDATE_RATE;
-
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
@@ -39,6 +36,7 @@ import android.car.CarManagerBase;
 import android.car.VehiclePropertyIds;
 import android.car.feature.FeatureFlags;
 import android.car.feature.FeatureFlagsImpl;
+import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.os.Binder;
@@ -1150,7 +1148,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @see #subscribePropertyEvents(int, int, float, boolean, CarPropertyEventCallback) for more
      * options.
      */
-    @FlaggedApi(FLAG_VARIABLE_UPDATE_RATE)
+    @FlaggedApi(Flags.FLAG_VARIABLE_UPDATE_RATE)
     public boolean subscribePropertyEvents(int propertyId,
             @NonNull CarPropertyEventCallback carPropertyEventCallback) {
         return subscribePropertyEvents(List.of(
@@ -1171,7 +1169,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @see #subscribePropertyEvents(int, int, float, boolean, CarPropertyEventCallback) for more
      * options.
      */
-    @FlaggedApi(FLAG_VARIABLE_UPDATE_RATE)
+    @FlaggedApi(Flags.FLAG_VARIABLE_UPDATE_RATE)
     public boolean subscribePropertyEvents(int propertyId,
             @FloatRange(from = 0.0, to = 100.0) float updateRateHz,
             @NonNull CarPropertyEventCallback carPropertyEventCallback) {
@@ -1194,7 +1192,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @see #subscribePropertyEvents(int, int, float, boolean, CarPropertyEventCallback) for more
      * options.
      */
-    @FlaggedApi(FLAG_VARIABLE_UPDATE_RATE)
+    @FlaggedApi(Flags.FLAG_VARIABLE_UPDATE_RATE)
     public boolean subscribePropertyEvents(int propertyId, int areaId,
             @NonNull CarPropertyEventCallback carPropertyEventCallback) {
         return subscribePropertyEvents(List.of(
@@ -1240,7 +1238,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @see #subscribePropertyEvents(List, Executor, CarPropertyEventCallback) for
      * more detailed explanation on property subscription and batched subscription usage.
      */
-    @FlaggedApi(FLAG_VARIABLE_UPDATE_RATE)
+    @FlaggedApi(Flags.FLAG_VARIABLE_UPDATE_RATE)
     public boolean subscribePropertyEvents(int propertyId, int areaId,
             @FloatRange(from = 0.0, to = 100.0) float updateRateHz,
             @NonNull CarPropertyEventCallback carPropertyEventCallback) {
@@ -1359,7 +1357,7 @@ public class CarPropertyManager extends CarManagerBase {
      *                                  registered to another callback or one of the properties does
      *                                  not have a corresponding CarPropertyConfig.
      */
-    @FlaggedApi(FLAG_BATCHED_SUBSCRIPTIONS)
+    @FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS)
     public boolean subscribePropertyEvents(@NonNull List<Subscription> subscriptions,
             @Nullable @CallbackExecutor Executor callbackExecutor,
             @NonNull CarPropertyEventCallback carPropertyEventCallback) {
@@ -1584,7 +1582,7 @@ public class CarPropertyManager extends CarManagerBase {
      *
      * @throws SecurityException if missing the appropriate property access permission.
      */
-    @FlaggedApi(FLAG_BATCHED_SUBSCRIPTIONS)
+    @FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS)
     public void unsubscribePropertyEvents(
             @NonNull CarPropertyEventCallback carPropertyEventCallback) {
         requireNonNull(carPropertyEventCallback);
@@ -1642,7 +1640,7 @@ public class CarPropertyManager extends CarManagerBase {
      *
      * @throws SecurityException if missing the appropriate property access permission.
      */
-    @FlaggedApi(FLAG_BATCHED_SUBSCRIPTIONS)
+    @FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS)
     public void unsubscribePropertyEvents(
             @NonNull CarPropertyEventCallback carPropertyEventCallback, int propertyId) {
         requireNonNull(carPropertyEventCallback);
