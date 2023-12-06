@@ -553,7 +553,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     @GuardedBy("mLock")
     private void startMediaConnectorServiceLocked(@Nullable ComponentName playbackMediaSource,
             boolean startPlayback, @UserIdInt int userId) {
-        Context userContext = getOrCreateUserMediaPlayContextLocked(userId).mContext;
+        UserMediaPlayContext userMediaPlayContext = getOrCreateUserMediaPlayContextLocked(userId);
+        Context userContext = userMediaPlayContext.mContext;
         if (userContext == null) {
             Slogf.wtf(TAG,
                     "Cannot start MediaConnection service. User %d has not been initialized",
@@ -569,6 +570,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         }
 
         ComponentName result = userContext.startForegroundService(serviceStart);
+        userMediaPlayContext.mStartedMediaConnectorService = result;
         Slogf.i(TAG, "startMediaConnectorService user: %d, source: %s, result: %s", userId,
                 playbackMediaSource, result);
     }
@@ -668,6 +670,10 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                 writer.increaseIndent();
                 UserMediaPlayContext userMediaContext = mUserMediaPlayContexts.valueAt(i);
                 writer.printf("Pending init: %b\n", userMediaContext.mPendingInit);
+                writer.printf("MediaConnectorService: %s\n",
+                        userMediaContext.mStartedMediaConnectorService != null
+                                ? userMediaContext.mStartedMediaConnectorService
+                                        .flattenToShortString()  : "");
                 dumpCurrentMediaComponentLocked(writer, "playback", MEDIA_SOURCE_MODE_PLAYBACK,
                         userId);
                 dumpCurrentMediaComponentLocked(writer, "browse", MEDIA_SOURCE_MODE_BROWSE,
@@ -1079,6 +1085,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         // The component name of the last media source that was removed while being primary.
         private final ComponentName[] mRemovedMediaSourceComponents;
         private boolean mPendingInit;
+        // This field is used for test/debugging.
+        private ComponentName mStartedMediaConnectorService;
 
         private final RemoteCallbackList<ICarMediaSourceListener>[] mMediaSourceListeners;
         private MediaSessionUpdater mMediaSessionUpdater;
