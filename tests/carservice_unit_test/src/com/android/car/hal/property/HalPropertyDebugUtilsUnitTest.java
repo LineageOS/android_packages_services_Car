@@ -35,6 +35,29 @@ import org.junit.Test;
 public class HalPropertyDebugUtilsUnitTest {
 
     @Test
+    public void testToPropertyIdString() {
+        assertThat(HalPropertyDebugUtils.toPropertyIdString(
+                android.hardware.automotive.vehicle.VehicleProperty.ABS_ACTIVE)).isEqualTo(
+                "ABS_ACTIVE(0x1120040a)");
+        assertThat(HalPropertyDebugUtils.toPropertyIdString(
+                android.hardware.automotive.vehicle.VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS))
+                .isEqualTo("VEHICLE_SPEED_DISPLAY_UNITS(0x11400605)");
+        assertThat(HalPropertyDebugUtils.toPropertyIdString(VehiclePropertyGroup.VENDOR)).isEqualTo(
+                "VENDOR_PROPERTY(0x" + Integer.toHexString(VehiclePropertyGroup.VENDOR) + ")");
+        assertThat(HalPropertyDebugUtils.toPropertyIdString(-1)).isEqualTo(
+                "INVALID_PROPERTY_ID(0x" + Integer.toHexString(-1) + ")");
+    }
+
+    @Test
+    public void testToPropertyId() {
+        assertThat(HalPropertyDebugUtils.toPropertyId("ABS_ACTIVE")).isEqualTo(
+                android.hardware.automotive.vehicle.VehicleProperty.ABS_ACTIVE);
+        assertThat(HalPropertyDebugUtils.toPropertyId("VEHICLE_SPEED_DISPLAY_UNITS")).isEqualTo(
+                android.hardware.automotive.vehicle.VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
+        assertThat(HalPropertyDebugUtils.toPropertyId("saljflsadj")).isNull();
+    }
+
+    @Test
     public void testToAreaTypeString() {
         assertThat(toAreaTypeString(VehicleProperty.HVAC_AC_ON)).isEqualTo("SEAT(0x5000000)");
         assertThat(toAreaTypeString(VehicleProperty.TIRE_PRESSURE)).isEqualTo("WHEEL(0x7000000)");
