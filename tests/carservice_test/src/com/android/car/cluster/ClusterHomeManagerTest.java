@@ -68,6 +68,8 @@ import java.util.concurrent.TimeUnit;
 
 public class ClusterHomeManagerTest extends MockedCarTestBase {
     private static final String TAG = ClusterHomeManagerTest.class.getSimpleName();
+
+    private static final int CONFIG_CLUSTER_HOME_SERVICE_FULL_MODE = 0;
     private static final long TEST_TIMEOUT_MS = 5_000;
 
     private static final int UI_TYPE_1 = 1;
@@ -144,6 +146,8 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
                 new String[]{occupantDisplayMapping.toString()});
         resources.overrideResource(com.android.car.R.array.config_allowed_optional_car_features,
                 ENABLED_OPTIONAL_FEATURES);
+        resources.overrideResource(com.android.car.R.integer.config_clusterHomeServiceMode,
+                CONFIG_CLUSTER_HOME_SERVICE_FULL_MODE);
     }
 
     private int getClusterDisplayPort() {
