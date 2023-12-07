@@ -16,6 +16,8 @@
 
 package com.android.car.hal.property;
 
+import static java.lang.Integer.toHexString;
+
 import android.annotation.Nullable;
 import android.hardware.automotive.vehicle.VehicleProperty;
 
@@ -46,14 +48,15 @@ public final class HalPropertyIdDebugUtils {
      * Gets a user-friendly representation string representation of {@code propertyId}.
      */
     public static String toDebugString(int propertyId) {
+        String hexSuffix = "(0x" + toHexString(propertyId) + ")";
         if (isDefined(propertyId)) {
-            return toName(propertyId);
+            return toName(propertyId) + hexSuffix;
         } else if (CarPropertyHelper.isVendorProperty(propertyId)) {
-            return "VENDOR_PROPERTY(0x" + Integer.toHexString(propertyId) + ")";
+            return "VENDOR_PROPERTY" + hexSuffix;
         } else if (CarPropertyHelper.isBackportedProperty(propertyId)) {
-            return "BACKPORTED_PROPERTY(0x" + Integer.toHexString(propertyId) + ")";
+            return "BACKPORTED_PROPERTY" + hexSuffix;
         }
-        return "0x" + Integer.toHexString(propertyId);
+        return "INVALID_PROPERTY_ID" + hexSuffix;
     }
 
     /**
