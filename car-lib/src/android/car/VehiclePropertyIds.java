@@ -16,12 +16,14 @@
 
 package android.car;
 
+import static android.car.feature.Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.property.VehiclePropertyIdDebugUtils.isDefined;
 import static com.android.car.internal.property.VehiclePropertyIdDebugUtils.toName;
 
+import android.annotation.FlaggedApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.hardware.CarHvacFanDirection;
@@ -6271,6 +6273,43 @@ public final class VehiclePropertyIds {
     @SystemApi
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DRIVER_MONITORING_STATES))
     public static final int HANDS_ON_DETECTION_WARNING = 289411096;
+
+    /**
+     * Enable or disable driver drowsiness and attention monitoring.
+     *
+     * <p>Set true to enable driver drowsiness and attention monitoring and false to disable driver
+     * drowsiness and attention monitoring. When driver drowsiness and attention monitoring is
+     * enabled, a system inside the vehicle will monitor the drowsiness and attention level of the
+     * driver and warn the driver if needed.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_SETTINGS}
+     *  or Signature|Privileged permission {@link
+     *  Car#PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS} to read property.
+     *  <li>Signature|Privileged permission {@link
+     *  Car#PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS} to write property.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {
+            Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS,
+            Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS}))
+    @RequiresPermission.Write(@RequiresPermission(
+            Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS))
+    public static final int DRIVER_DROWSINESS_ATTENTION_SYSTEM_ENABLED = 287313945;
 
     /**
      * @deprecated to prevent others from instantiating this class

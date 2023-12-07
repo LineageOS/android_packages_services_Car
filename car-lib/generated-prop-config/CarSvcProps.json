@@ -3250,6 +3250,29 @@
         -5,
         -6
       ]
+    },
+    "DRIVER_DROWSINESS_ATTENTION_SYSTEM_ENABLED": {
+      "propertyName": "DRIVER_DROWSINESS_ATTENTION_SYSTEM_ENABLED",
+      "propertyId": 287313945,
+      "description": "Enable or disable driver drowsiness and attention monitoring.",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_DRIVER_MONITORING_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
+      },
+      "systemApi": true
     }
   }
 }
