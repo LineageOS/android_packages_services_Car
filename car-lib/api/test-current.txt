@@ -291,6 +291,7 @@ package android.car {
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int CRUISE_CONTROL_TARGET_SPEED = 291508243; // 0x11601013
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_ADAS_STATES, android.car.Car.PERMISSION_CONTROL_ADAS_STATES})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_STATES)) public static final int CRUISE_CONTROL_TYPE = 289411088; // 0x11401010
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_DOORS) public static final int DOOR_CHILD_LOCK_ENABLED = 371198723; // 0x16200b03
+    field @FlaggedApi(android.car.feature.Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES) @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DRIVER_MONITORING_STATES)) public static final int DRIVER_DROWSINESS_ATTENTION_STATE = 289411098; // 0x1140101a
     field @FlaggedApi(android.car.feature.Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES) @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS, android.car.Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS)) public static final int DRIVER_DROWSINESS_ATTENTION_SYSTEM_ENABLED = 287313945; // 0x11201019
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_ADAS_SETTINGS, android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int EMERGENCY_LANE_KEEP_ASSIST_ENABLED = 287313933; // 0x1120100d
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int EMERGENCY_LANE_KEEP_ASSIST_STATE = 289411086; // 0x1140100e
@@ -1301,6 +1302,20 @@ package android.car.hardware.property {
     field public static final int OTHER = 0; // 0x0
     field public static final int PREDICTIVE = 3; // 0x3
     field public static final int STANDARD = 1; // 0x1
+  }
+
+  @FlaggedApi(android.car.feature.Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES) public final class DriverDrowsinessAttentionState {
+    method @NonNull public static String toString(int);
+    field public static final int KSS_RATING_1_EXTREMELY_ALERT = 1; // 0x1
+    field public static final int KSS_RATING_2_VERY_ALERT = 2; // 0x2
+    field public static final int KSS_RATING_3_ALERT = 3; // 0x3
+    field public static final int KSS_RATING_4_RATHER_ALERT = 4; // 0x4
+    field public static final int KSS_RATING_5_NEITHER_ALERT_NOR_SLEEPY = 5; // 0x5
+    field public static final int KSS_RATING_6_SOME_SLEEPINESS = 6; // 0x6
+    field public static final int KSS_RATING_7_SLEEPY_NO_EFFORT = 7; // 0x7
+    field public static final int KSS_RATING_8_SLEEPY_SOME_EFFORT = 8; // 0x8
+    field public static final int KSS_RATING_9_VERY_SLEEPY = 9; // 0x9
+    field public static final int OTHER = 0; // 0x0
   }
 
   public class EmergencyLaneKeepAssistState {
