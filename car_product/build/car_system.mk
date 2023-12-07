@@ -237,12 +237,9 @@ PRODUCT_PACKAGES += \
 # RROs
 PRODUCT_PACKAGES += \
     CarPermissionControllerRRO \
-    CarSystemUIRRO \
-    CarSystemUIBottomRRO \
-    CarSystemUIBottomRoundedRRO \
-    CarSystemUILeftRRO \
-    CarSystemUIRightRRO \
-    CarSystemUIPersistentRRO \
+    CarSystemUIRRO
+
+$(call inherit-product-if-exists, packages/apps/Car/SystemUI/samples/systemui_sample_rros.mk)
 
 # System Server components
 # Order is important: if X depends on Y, then Y should precede X on the list.
