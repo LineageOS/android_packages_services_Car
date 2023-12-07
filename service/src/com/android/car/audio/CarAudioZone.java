@@ -98,6 +98,20 @@ public class CarAudioZone {
         }
     }
 
+    @Nullable
+    CarAudioZoneConfigInfo getDefaultAudioZoneConfigInfo() {
+        for (int c = 0; c < mCarAudioZoneConfigs.size(); c++) {
+            if (!mCarAudioZoneConfigs.valueAt(c).isDefault()) {
+                continue;
+            }
+            return mCarAudioZoneConfigs.valueAt(c).getCarAudioZoneConfigInfo();
+        }
+        // Should not be able to get here, for fully validated configuration.
+        Slogf.wtf(CarLog.TAG_AUDIO, "Audio zone " + mId
+                + " does not have a default configuration");
+        return null;
+    }
+
     List<CarAudioZoneConfig> getAllCarAudioZoneConfigs() {
         List<CarAudioZoneConfig> zoneConfigList = new ArrayList<>(mCarAudioZoneConfigs.size());
         for (int index = 0; index < mCarAudioZoneConfigs.size(); index++) {
