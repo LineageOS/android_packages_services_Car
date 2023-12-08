@@ -23,8 +23,8 @@ import static com.android.car.hal.property.HalPropertyDebugUtils.toAccessString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toAreaTypeString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toChangeModeString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toGroupString;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toPropertyIdString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toValueTypeString;
-import static com.android.car.hal.property.HalPropertyIdDebugUtils.toDebugString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.util.ConstantDebugUtils.toName;
@@ -1071,7 +1071,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 areaId, List.of(data.split(DATA_DELIMITER)), timestampNanos);
         if (halPropValue == null) {
             throw new IllegalArgumentException(
-                    "Unsupported property type: propertyId=" + toDebugString(propertyId)
+                    "Unsupported property type: propertyId=" + toPropertyIdString(propertyId)
                             + ", areaId=" + toDebugString(propertyId, areaId));
         }
         set(halPropValue);
@@ -1174,7 +1174,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             synchronized (mLock) {
                 HalPropConfig config = mAllProperties.get(propertyId);
                 if (config == null) {
-                    writer.printf("Property: %s not supported by HAL\n", toDebugString(propertyId));
+                    writer.printf("Property: %s not supported by HAL\n",
+                            toPropertyIdString(propertyId));
                     return;
                 }
                 dumpPropertyValueByConfig(writer, config);
@@ -1185,7 +1186,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 dumpPropValue(writer, value);
             } catch (RuntimeException e) {
                 writer.printf("Cannot get property value for property: %s in areaId: %s.\n",
-                        toDebugString(propertyId), toDebugString(propertyId, areaId));
+                        toPropertyIdString(propertyId), toDebugString(propertyId, areaId));
             }
         }
     }
@@ -1231,7 +1232,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 dumpPropValue(writer, value);
             } catch (RuntimeException e) {
                 writer.printf("Can not get property value for property: %s, areaId: %s\n",
-                        toDebugString(propertyId), toDebugString(propertyId, /*areaId=*/0));
+                        toPropertyIdString(propertyId), toDebugString(propertyId, /*areaId=*/0));
             }
         } else {
             for (HalAreaConfig areaConfig : areaConfigs) {
@@ -1242,7 +1243,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 } catch (RuntimeException e) {
                     writer.printf(
                             "Can not get property value for property: %s in areaId: %s\n",
-                            toDebugString(propertyId), toDebugString(propertyId, areaId));
+                            toPropertyIdString(propertyId), toDebugString(propertyId, areaId));
                 }
             }
         }
@@ -1284,9 +1285,9 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         writer.printf(
                 "Property:%s, group:%s, areaType:%s, valueType:%s,\n    access:%s, changeMode:%s, "
                         + "configArray:%s, minSampleRateHz:%f, maxSampleRateHz:%f\n",
-                toDebugString(propertyId), toGroupString(propertyId), toAreaTypeString(propertyId),
-                toValueTypeString(propertyId), toAccessString(config.getAccess()),
-                toChangeModeString(config.getChangeMode()),
+                toPropertyIdString(propertyId), toGroupString(propertyId),
+                toAreaTypeString(propertyId), toValueTypeString(propertyId),
+                toAccessString(config.getAccess()), toChangeModeString(config.getChangeMode()),
                 Arrays.toString(config.getConfigArray()), config.getMinSampleRate(),
                 config.getMaxSampleRate());
         if (config.getAreaConfigs() == null) {
@@ -1502,7 +1503,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         writer.printf("Property: %s, area ID: %s, status: %s, timestampNanos: %d, "
                         + "floatValues: %s, int32Values: %s, int64Values: %s, bytes: %s, string: "
                         + "%s\n",
-                toDebugString(value.getPropId()),
+                toPropertyIdString(value.getPropId()),
                 toDebugString(value.getPropId(), value.getAreaId()),
                 toName(VehiclePropertyStatus.class, value.getStatus()), value.getTimestamp(),
                 value.dumpFloatValues(), value.dumpInt32Values(),

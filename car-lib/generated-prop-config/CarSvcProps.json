@@ -3273,6 +3273,57 @@
         "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
       },
       "systemApi": true
+    },
+    "DRIVER_DROWSINESS_ATTENTION_STATE": {
+      "propertyName": "DRIVER_DROWSINESS_ATTENTION_STATE",
+      "propertyId": 289411098,
+      "description": "Driver drowsiness and attention level state.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
+      ]
+    },
+    "DRIVER_DROWSINESS_ATTENTION_WARNING_ENABLED": {
+      "propertyName": "DRIVER_DROWSINESS_ATTENTION_WARNING_ENABLED",
+      "propertyId": 287313947,
+      "description": "Enable or disable driver drowsiness and attention warnings.",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_DRIVER_MONITORING_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
+      },
+      "systemApi": true
     }
   }
 }

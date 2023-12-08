@@ -22,6 +22,7 @@ import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_OEM_AUDIO_SERVICE;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_EVENTS;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
+import static android.car.media.CarAudioManager.CONFIG_STATUS_CHANGED;
 import static android.car.media.CarAudioManager.CarAudioFeature;
 import static android.car.media.CarAudioManager.INVALID_REQUEST_ID;
 import static android.car.media.CarAudioManager.INVALID_VOLUME_GROUP_ID;
@@ -313,8 +314,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private final SparseArray<DeathRecipient>
             mUserAssignedToPrimaryZoneToCallbackDeathRecipient = new SparseArray<>();
 
-    @GuardedBy("mImplLock")
-    private final RemoteCallbackList<IAudioZoneConfigurationsChangeCallback> mZoneConfigCallbacks =
+    private final RemoteCallbackList<IAudioZoneConfigurationsChangeCallback> mConfigsCallbacks =
             new RemoteCallbackList<>();
 
     // TODO do not store uid mapping here instead use the uid
@@ -625,6 +625,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
                 mCarAudioMirrorRequestHandler.dump(writer);
                 mMediaRequestHandler.dump(writer);
+                writer.printf("Number of car audio configs callback registered: %d",
+                        mConfigsCallbacks.getRegisteredCallbackCount());
             }
             writer.decreaseIndent();
         }
@@ -1695,20 +1697,27 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             Slogf.i(TAG, "Not using dynamic audio routing, routing audio policy not setup");
             return null;
         }
+        TimingsTraceLog log = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
+        log.traceBegin("routing-policy");
         AudioPolicy.Builder builder = new AudioPolicy.Builder(mContext);
         builder.setLooper(Looper.getMainLooper());
 
         // Mirror policy has to be set before general audio policy
+        log.traceBegin("routing-policy-setup");
         setupMirrorDevicePolicyLocked(builder);
         CarAudioDynamicRouting.setupAudioDynamicRouting(mCarAudioContext, mAudioManager, builder,
                 mCarAudioZones);
+        log.traceEnd();
 
         AudioPolicy routingAudioPolicy = builder.build();
+        log.traceBegin("routing-policy-register");
         int r = mAudioManager.registerAudioPolicy(routingAudioPolicy);
+        log.traceEnd();
+
+        log.traceEnd();
         if (r != AudioManager.SUCCESS) {
             throw new IllegalStateException("Audio routing policy registration, error: " + r);
         }
-
         return routingAudioPolicy;
     }
 
@@ -2682,9 +2691,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         requireNonLegacyRouting();
         Objects.requireNonNull(callback, "Car audio zone configs callback can not be null");
 
-        synchronized (mImplLock) {
-            return mZoneConfigCallbacks.register(callback);
-        }
+        return mConfigsCallbacks.register(callback);
     }
 
     @Override
@@ -2694,9 +2701,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         requireNonLegacyRouting();
         Objects.requireNonNull(callback, "Car audio zone configs callback can not be null");
 
-        synchronized (mImplLock) {
-            return mZoneConfigCallbacks.unregister(callback);
-        }
+        return mConfigsCallbacks.unregister(callback);
     }
 
     @Nullable
@@ -2755,11 +2760,14 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private boolean handleSwitchZoneConfig(CarAudioZoneConfigInfo zoneConfig) {
         int zoneId = zoneConfig.getZoneId();
         CarAudioZone zone;
+        TimingsTraceLog log = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
+        log.traceBegin("switch-config-" + zoneConfig.getConfigId());
         synchronized (mImplLock) {
             zone = getCarAudioZoneLocked(zoneId);
         }
         if (zone.isCurrentZoneConfig(zoneConfig)) {
             Slogf.w(TAG, "handleSwitchZoneConfig switch current zone configuration");
+            log.traceEnd();
             return true;
         }
 
@@ -2769,6 +2777,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             Slogf.w(TAG, "handleSwitchZoneConfig failed, occupant %s in audio zone %d is "
                             + "currently sharing to primary zone, undo audio sharing in primary "
                             + "zone before switching zone configuration", info, zoneId);
+            log.traceEnd();
             return false;
         }
 
@@ -2777,6 +2786,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             Slogf.w(TAG, "handleSwitchZoneConfig failed, audio zone %d is currently in a mirroring"
                     + "configuration, undo audio mirroring before switching zone configuration",
                     zoneId);
+            log.traceEnd();
             return false;
         }
 
@@ -2788,6 +2798,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             if (userId == UserManagerHelper.USER_NULL) {
                 Slogf.w(TAG, "handleSwitchZoneConfig failed, audio zone configuration switching "
                         + "not allowed for unassigned audio zone %d", zoneId);
+                log.traceEnd();
                 return false;
             }
             List<AudioFocusInfo> pendingFocusInfos =
@@ -2795,33 +2806,48 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
             CarAudioZoneConfig prevZoneConfig = zone.getCurrentCarAudioZoneConfig();
             try {
+                log.traceBegin("switch-config-set-" + zoneConfig.getConfigId());
                 zone.setCurrentCarZoneConfig(zoneConfig);
-                newAudioPolicy = setupRoutingAudioPolicyLocked();
+                CarAudioZoneConfig newZoneConfig = zone.getCurrentCarAudioZoneConfig();
+                // Default config always exists in the policy, so should be able to switch to
+                // default without creating a new policy
+                newAudioPolicy = newZoneConfig.isDefault()
+                        ? mRoutingAudioPolicy : setupRoutingAudioPolicyLocked();
                 setAllUserIdDeviceAffinitiesToNewPolicyLocked(newAudioPolicy);
                 zone.updateVolumeGroupsSettingsForUser(userId);
                 carVolumeGroupInfoList = getVolumeGroupInfosForZoneLocked(zoneId);
-            } catch (IllegalStateException e) {
+            } catch (Exception e) {
+                Slogf.e(TAG, "Failed to switch configuration id " + zoneConfig.getConfigId());
                 zone.setCurrentCarZoneConfig(prevZoneConfig.getCarAudioZoneConfigInfo());
                 succeeded = false;
                 // No need to unset the user id device affinities, since the policy is removed
-                if (newAudioPolicy != null) {
+                if (newAudioPolicy != null && newAudioPolicy != mRoutingAudioPolicy) {
                     mAudioManager.unregisterAudioPolicyAsync(newAudioPolicy);
                 }
+            } finally {
+                log.traceEnd();
             }
+            log.traceBegin("switch-config-focus" + zoneConfig.getConfigId());
             mFocusHandler.reevaluateAndRegainAudioFocusList(pendingFocusInfos);
+            log.traceEnd();
             if (succeeded) {
                 swapRoutingAudioPolicyLocked(newAudioPolicy);
             }
         }
         if (!succeeded) {
+            log.traceEnd();
             return false;
         }
+        log.traceEnd();
         callbackVolumeGroupEvent(getVolumeGroupEventsForSwitchZoneConfig(carVolumeGroupInfoList));
         return true;
     }
 
     @GuardedBy("mImplLock")
     private void swapRoutingAudioPolicyLocked(AudioPolicy newAudioPolicy) {
+        if (newAudioPolicy == mRoutingAudioPolicy) {
+            return;
+        }
         AudioPolicy previousRoutingPolicy = mRoutingAudioPolicy;
         mRoutingAudioPolicy = newAudioPolicy;
         if (previousRoutingPolicy == null) {
@@ -2832,15 +2858,20 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     @GuardedBy("mImplLock")
     private void setAllUserIdDeviceAffinitiesToNewPolicyLocked(AudioPolicy newAudioPolicy) {
+        TimingsTraceLog log = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
+        log.traceBegin("device-affinities-all-zones");
         for (int c = 0; c < mAudioZoneIdToUserIdMapping.size(); c++) {
             int zoneId = mAudioZoneIdToUserIdMapping.keyAt(c);
             int userId = mAudioZoneIdToUserIdMapping.valueAt(c);
             if (userId == UserManagerHelper.USER_NULL) {
                 continue;
             }
+            log.traceBegin("device-affinities-" + zoneId);
             CarAudioZone zone = getCarAudioZoneLocked(zoneId);
             resetUserIdDeviceAffinitiesLocked(newAudioPolicy, userId, zone);
+            log.traceEnd();
         }
+        log.traceEnd();
     }
 
     @GuardedBy("mImplLock")
@@ -3373,12 +3404,20 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             return;
         }
 
+        List<CarAudioZoneConfigInfo> updatedInfos = new ArrayList<>();
         synchronized (mImplLock) {
             for (int c = 0; c < mCarAudioZones.size(); c++) {
-                mCarAudioZones.valueAt(c).audioDevicesAdded(devices);
+                CarAudioZone zone = mCarAudioZones.valueAt(c);
+                if (!zone.audioDevicesAdded(devices)) {
+                    continue;
+                }
+                updatedInfos.addAll(zone.getCarAudioZoneConfigInfos());
             }
         }
-        // TODO(b/305301155): Trigger callback for audio configuration updates
+        mHandler.post(() -> {
+            triggerAudioZoneConfigInfosUpdated(new AudioZoneConfigCallbackInfo(updatedInfos,
+                    CONFIG_STATUS_CHANGED));
+        });
     }
 
     void audioDevicesRemoved(AudioDeviceInfo[] removedDevices) {
@@ -3389,13 +3428,62 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             return;
         }
 
+        handleDevicesRemoved(devices);
+    }
+
+    private void handleDevicesRemoved(List<AudioDeviceInfo> devices) {
+        List<AudioZoneConfigCallbackInfo> callbackInfos = new ArrayList<>();
+        List<CarAudioZoneConfigInfo> updatedInfos = new ArrayList<>();
         synchronized (mImplLock) {
             for (int c = 0; c < mCarAudioZones.size(); c++) {
-                mCarAudioZones.valueAt(c).audioDevicesRemoved(devices);
+                CarAudioZone zone = mCarAudioZones.valueAt(c);
+                if (!zone.audioDevicesRemoved(devices)) {
+                    continue;
+                }
+                CarAudioZoneConfigInfo prevConfig =
+                        zone.getCurrentCarAudioZoneConfig().getCarAudioZoneConfigInfo();
+                if (!prevConfig.isSelected() || prevConfig.isActive()) {
+                    // Only update the infos if it is not auto switching
+                    // Otherwise let auto switching handle the callback for the config info
+                    // change
+                    updatedInfos.addAll(zone.getCarAudioZoneConfigInfos());
+                    continue;
+                }
+                // Current config is no longer active, switch back to default and trigger
+                // callback with auto switched signal
+                CarAudioZoneConfigInfo defaultConfig = zone.getDefaultAudioZoneConfigInfo();
+                handleSwitchZoneConfig(defaultConfig);
+                CarAudioZoneConfigInfo updatedConfig = getAudioZoneConfigInfo(defaultConfig);
+                CarAudioZoneConfigInfo updatedPrevInfo = getAudioZoneConfigInfo(prevConfig);
+                callbackInfos.add(new AudioZoneConfigCallbackInfo(
+                        List.of(updatedConfig, updatedPrevInfo),
+                        CarAudioManager.CONFIG_STATUS_AUTO_SWITCHED));
             }
         }
-        // TODO(b/305301155): Undo current routing for configurations that are active and the
-        //  device is no longer available. Finally trigger callback for audio configuration updates
+        callbackInfos.add(new AudioZoneConfigCallbackInfo(updatedInfos, CONFIG_STATUS_CHANGED));
+        mHandler.post(() -> {
+            for (int c = 0; c < callbackInfos.size(); c++) {
+                triggerAudioZoneConfigInfosUpdated(callbackInfos.get(c));
+            }
+        });
+    }
+
+    private void triggerAudioZoneConfigInfosUpdated(AudioZoneConfigCallbackInfo configsInfo) {
+        if (configsInfo.mInfos.isEmpty()) {
+            return;
+        }
+        int n = mConfigsCallbacks.beginBroadcast();
+        while (n > 0) {
+            n--;
+            IAudioZoneConfigurationsChangeCallback callback = mConfigsCallbacks.getBroadcastItem(n);
+            try {
+                callback.onAudioZoneConfigurationsChanged(configsInfo.mInfos, configsInfo.mStatus);
+            } catch (RemoteException e) {
+                Slogf.e(TAG, "Failed to trigger audio zone config changed callback "
+                        + configsInfo.mStatus + " callback[" + n + "] " + callback.asBinder());
+            }
+        }
+        mConfigsCallbacks.finishBroadcast();
     }
 
     private static List<AudioDeviceInfo> filterBusDevices(AudioDeviceInfo[] infos) {
@@ -3474,6 +3562,16 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         AudioFocusStackRequest(AudioFocusStack stack, int originalZoneId) {
             mOriginalZoneId = originalZoneId;
             mStack = stack;
+        }
+    }
+
+    private static final class AudioZoneConfigCallbackInfo {
+        private final List<CarAudioZoneConfigInfo> mInfos;
+        private final int mStatus;
+
+        AudioZoneConfigCallbackInfo(List<CarAudioZoneConfigInfo> infos, int status) {
+            mInfos = infos;
+            mStatus = status;
         }
     }
 }

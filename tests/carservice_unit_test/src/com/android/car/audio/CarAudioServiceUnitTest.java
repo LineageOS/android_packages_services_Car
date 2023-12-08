@@ -26,6 +26,8 @@ import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_EVENT
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
 import static android.car.media.CarAudioManager.AUDIO_MIRROR_CAN_ENABLE;
 import static android.car.media.CarAudioManager.AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES;
+import static android.car.media.CarAudioManager.CONFIG_STATUS_AUTO_SWITCHED;
+import static android.car.media.CarAudioManager.CONFIG_STATUS_CHANGED;
 import static android.car.media.CarAudioManager.INVALID_AUDIO_ZONE;
 import static android.car.media.CarAudioManager.INVALID_REQUEST_ID;
 import static android.car.media.CarAudioManager.INVALID_VOLUME_GROUP_ID;
@@ -52,6 +54,7 @@ import static android.media.AudioAttributes.USAGE_UNKNOWN;
 import static android.media.AudioAttributes.USAGE_VEHICLE_STATUS;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
+import static android.media.AudioDeviceInfo.TYPE_BLUETOOTH_A2DP;
 import static android.media.AudioDeviceInfo.TYPE_BUILTIN_MIC;
 import static android.media.AudioDeviceInfo.TYPE_FM_TUNER;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN;
@@ -145,6 +148,7 @@ import android.hardware.automotive.audiocontrol.IAudioControl;
 import android.hardware.automotive.audiocontrol.Reasons;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
+import android.media.AudioDeviceCallback;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFocusInfo;
 import android.media.AudioGain;
@@ -238,6 +242,10 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final String PRIMARY_ZONE_FM_TUNER_ADDRESS = "FM Tuner";
     private static final String SECONDARY_ZONE_CONFIG_NAME_1 = "secondary zone config 1";
     private static final String SECONDARY_ZONE_CONFIG_NAME_2 = "secondary zone config 2";
+    private static final String DEFAULT_CONFIG_NAME_DYNAMIC_DEVICES = "primary zone config 0";
+    private static final String SECONDARY_CONFIG_NAME_DYNAMIC_DEVICES = "primary zone BT media";
+    private static final String TERTIARY_CONFIG_NAME_DYNAMIC_DEVICES =
+            "primary zone headphones media";
     private static final String MIRROR_OFF_SIGNAL = "mirroring=off";
     // From the car audio configuration file in /res/raw/car_audio_configuration.xml
     private static final int TEST_REAR_LEFT_ZONE_ID = 1;
@@ -467,6 +475,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private TemporaryFile mTemporaryAudioConfigurationWithoutZoneMappingFile;
     private TemporaryFile mTemporaryAudioConfigurationWithoutMirroringFile;
     private TemporaryFile mTemporaryAudioConfigurationWithOEMContexts;
+    private TemporaryFile mTemporaryAudioConfigurationWithDynamicDevices;
     private Context mContext;
     private AudioDeviceInfo mMicrophoneInputDevice;
     private AudioDeviceInfo mFmTunerInputDevice;
@@ -477,6 +486,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private AudioDeviceInfo mSecondaryConfig0Group0Device;
     private AudioDeviceInfo mSecondaryConfig1Group0Device;
     private AudioDeviceInfo mSecondaryConfig1Group1Device;
+
+    private AudioDeviceInfo mBTAudioDeviceInfo;
 
     private CarVolumeGroupInfo mTestPrimaryZoneVolumeInfo0;
     private CarVolumeGroupInfo mTestPrimaryZoneUmMutedVolueInfo0;
@@ -537,7 +548,14 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                     + mTemporaryAudioConfigurationWithOEMContexts.getPath());
         }
 
-
+        try (InputStream configurationStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_using_dynamic_routing)) {
+            mTemporaryAudioConfigurationWithDynamicDevices = new TemporaryFile("xml");
+            mTemporaryAudioConfigurationWithDynamicDevices.write(
+                    new String(configurationStream.readAllBytes()));
+            Log.i(TAG, "Temporary Car Audio Configuration with OEM Context File Location: "
+                    + mTemporaryAudioConfigurationWithDynamicDevices.getPath());
+        }
 
         try (InputStream configurationStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_without_zone_mapping)) {
@@ -581,8 +599,12 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @After
     public void tearDown() throws Exception {
+        mTemporaryAudioConfigurationUsingCoreAudioFile.close();
         mTemporaryAudioConfigurationFile.close();
         mTemporaryAudioConfigurationWithoutZoneMappingFile.close();
+        mTemporaryAudioConfigurationWithoutMirroringFile.close();
+        mTemporaryAudioConfigurationWithOEMContexts.close();
+        mTemporaryAudioConfigurationWithDynamicDevices.close();
         CarLocalServices.removeServiceForTest(CarOemProxyService.class);
         CarLocalServices.removeServiceForTest(CarOccupantZoneService.class);
     }
@@ -845,6 +867,25 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         verify(mAudioManager).setAudioServerStateCallback(any(), any());
         verify(mAudioManager).registerAudioDeviceCallback(any(), any());
+    }
+
+    @Test
+    public void init_withDynamicDevices() {
+        CarAudioService audioServiceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
+
+        audioServiceWithDynamicDevices.init();
+
+        List<CarAudioZoneConfigInfo> zoneConfigInfos =
+                audioServiceWithDynamicDevices.getAudioZoneConfigInfos(PRIMARY_AUDIO_ZONE);
+        List<String> names = zoneConfigInfos.stream().map(config -> config.getName()).toList();
+        expectWithMessage("Dynamic configuration names").that(names).containsExactly(
+                DEFAULT_CONFIG_NAME_DYNAMIC_DEVICES, SECONDARY_CONFIG_NAME_DYNAMIC_DEVICES,
+                TERTIARY_CONFIG_NAME_DYNAMIC_DEVICES);
+        CarAudioZoneConfigInfo btConfig = zoneConfigInfos.stream()
+                .filter(config -> config.getName().equals(SECONDARY_CONFIG_NAME_DYNAMIC_DEVICES))
+                .findFirst().orElseThrow();
+        expectWithMessage("Bluetooth configuration by default active status")
+                .that(btConfig.isActive()).isFalse();
     }
 
     @Test
@@ -3996,10 +4037,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         List<CarAudioZoneConfigInfo> zoneConfigInfos =
                 mCarAudioService.getAudioZoneConfigInfos(TEST_REAR_LEFT_ZONE_ID);
 
-        List<String> zoneConfigNames = new ArrayList(zoneConfigInfos.size());
-        for (int index = 0; index < zoneConfigInfos.size(); index++) {
-            zoneConfigNames.add(zoneConfigInfos.get(index).getName());
-        }
+        List<String> zoneConfigNames = zoneConfigInfos.stream().map(cf -> cf.getName()).toList();
         expectWithMessage("Zone configurations for secondary zone").that(zoneConfigNames)
                 .containsExactly(SECONDARY_ZONE_CONFIG_NAME_1, SECONDARY_ZONE_CONFIG_NAME_2);
     }
@@ -4284,6 +4322,125 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         expectWithMessage("Car audio zone configuration change registration exception")
                 .that(thrown).hasMessageThat().contains("Car audio zone configs");
+    }
+
+    @Test
+    public void onAudioDevicesAdded_forDynamicDevicesEnabled() throws Exception {
+        CarAudioService audioServiceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
+        audioServiceWithDynamicDevices.init();
+        TestAudioZoneConfigurationsChangeCallback
+                configCallback = getRegisteredZoneConfigCallback(audioServiceWithDynamicDevices);
+        AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
+
+        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+
+        configCallback.waitForCallback();
+        List<CarAudioZoneConfigInfo> zoneConfigInfos =
+                audioServiceWithDynamicDevices.getAudioZoneConfigInfos(PRIMARY_AUDIO_ZONE);
+        CarAudioZoneConfigInfo btConfig = zoneConfigInfos.stream()
+                .filter(config -> config.getName().equals(SECONDARY_CONFIG_NAME_DYNAMIC_DEVICES))
+                .findFirst().orElseThrow();
+        expectWithMessage("Enabled bluetooth configuration").that(btConfig.isActive()).isTrue();
+    }
+
+    @Test
+    public void onAudioDevicesAdded_forDynamicDevicesEnabled_triggersCallback() throws Exception {
+        CarAudioService serviceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
+        serviceWithDynamicDevices.init();
+        TestAudioZoneConfigurationsChangeCallback
+                configCallback = getRegisteredZoneConfigCallback(serviceWithDynamicDevices);
+        AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
+
+        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+
+        configCallback.waitForCallback();
+        expectWithMessage("Enabled dynamic config callback status").that(configCallback.mStatus)
+                .isEqualTo(CONFIG_STATUS_CHANGED);
+        CarAudioZoneConfigInfo btConfig = configCallback.mInfos.stream()
+                .filter(config -> config.getName().equals(SECONDARY_CONFIG_NAME_DYNAMIC_DEVICES))
+                .findFirst().orElseThrow();
+        expectWithMessage("Callback enabled bluetooth configuration").that(btConfig.isActive())
+                .isTrue();
+    }
+
+    @Test
+    public void onAudioDevicesRemoved_forDynamicDevicesEnabled_triggersCallback()
+            throws Exception {
+        CarAudioService serviceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
+        serviceWithDynamicDevices.init();
+        AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
+        TestAudioZoneConfigurationsChangeCallback
+                configCallback = getRegisteredZoneConfigCallback(serviceWithDynamicDevices);
+        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        configCallback.waitForCallback();
+        configCallback.reset();
+
+        deviceCallback.onAudioDevicesRemoved(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+
+        configCallback.waitForCallback();
+        expectWithMessage("Disabled dynamic config callback status").that(configCallback.mStatus)
+                .isEqualTo(CONFIG_STATUS_CHANGED);
+        CarAudioZoneConfigInfo btConfig = configCallback.mInfos.stream()
+                .filter(config -> config.getName().equals(SECONDARY_CONFIG_NAME_DYNAMIC_DEVICES))
+                .findFirst().orElseThrow();
+        expectWithMessage("Callback disabled bluetooth configuration").that(btConfig.isActive())
+                .isFalse();
+    }
+
+    @Test
+    public void onAudioDevicesRemoved_afterAdded_forDynamicDevicesEnabled() throws Exception {
+        CarAudioService audioServiceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
+        audioServiceWithDynamicDevices.init();
+        TestAudioZoneConfigurationsChangeCallback
+                configCallback = getRegisteredZoneConfigCallback(audioServiceWithDynamicDevices);
+        AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
+        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        configCallback.waitForCallback();
+        configCallback.reset();
+
+        deviceCallback.onAudioDevicesRemoved(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+
+        configCallback.waitForCallback();
+        List<CarAudioZoneConfigInfo> zoneConfigInfos =
+                audioServiceWithDynamicDevices.getAudioZoneConfigInfos(PRIMARY_AUDIO_ZONE);
+        CarAudioZoneConfigInfo btConfig = zoneConfigInfos.stream()
+                .filter(config -> config.getName().equals(SECONDARY_CONFIG_NAME_DYNAMIC_DEVICES))
+                .findFirst().orElseThrow();
+        expectWithMessage("Enabled bluetooth configuration after removed device")
+                .that(btConfig.isActive()).isFalse();
+    }
+
+    @Test
+    public void onAudioDevicesRemoved_forSelectedDynamicDevicesEnabled_triggersCallback()
+            throws Exception {
+        SwitchAudioZoneConfigCallbackImpl switchCallback = new SwitchAudioZoneConfigCallbackImpl();
+        CarAudioService serviceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
+        serviceWithDynamicDevices.init();
+        assignOccupantToAudioZones();
+        AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
+        TestAudioZoneConfigurationsChangeCallback
+                configCallback = getRegisteredZoneConfigCallback(serviceWithDynamicDevices);
+        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        configCallback.waitForCallback();
+        configCallback.reset();
+        List<CarAudioZoneConfigInfo> infos =
+                serviceWithDynamicDevices.getAudioZoneConfigInfos(PRIMARY_AUDIO_ZONE);
+        CarAudioZoneConfigInfo btConfig = infos.stream().filter(
+                config -> config.getName().equals(SECONDARY_CONFIG_NAME_DYNAMIC_DEVICES))
+                .findFirst().orElseThrow();
+        serviceWithDynamicDevices.switchZoneToConfig(btConfig, switchCallback);
+        switchCallback.waitForCallback();
+
+        deviceCallback.onAudioDevicesRemoved(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+
+        configCallback.waitForCallback();
+        CarAudioZoneConfigInfo updatedBTConfig = configCallback.mInfos.stream().filter(
+                        config -> config.getName().equals(SECONDARY_CONFIG_NAME_DYNAMIC_DEVICES))
+                .findFirst().orElseThrow();
+        expectWithMessage("Disabled selected dynamic config callback status")
+                .that(configCallback.mStatus).isEqualTo(CONFIG_STATUS_AUTO_SWITCHED);
+        expectWithMessage("Callback disabled selected bluetooth configuration")
+                .that(updatedBTConfig.isActive()).isFalse();
     }
 
     @Test
@@ -4860,6 +5017,31 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .that(volumeEventCallback.waitForCallback()).isFalse();
     }
 
+    private static TestAudioZoneConfigurationsChangeCallback getRegisteredZoneConfigCallback(
+            CarAudioService audioServiceWithDynamicDevices) {
+        TestAudioZoneConfigurationsChangeCallback configCallback =
+                new TestAudioZoneConfigurationsChangeCallback();
+        audioServiceWithDynamicDevices.registerAudioZoneConfigsChangeCallback(configCallback);
+        return configCallback;
+    }
+
+    private AudioDeviceCallback captureAudioDeviceCallback() {
+        ArgumentCaptor<AudioDeviceCallback> captor =
+                ArgumentCaptor.forClass(AudioDeviceCallback.class);
+        verify(mAudioManager).registerAudioDeviceCallback(captor.capture(), any());
+        return captor.getValue();
+    }
+
+    private CarAudioService setUpAudioServiceWithDynamicDevices() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        when(mMockResources.getBoolean(audioUseCoreVolume)).thenReturn(true);
+        when(mMockResources.getBoolean(audioUseCoreRouting)).thenReturn(false);
+        CarAudioService audioServiceWithDynamicDevices = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationWithDynamicDevices.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        return audioServiceWithDynamicDevices;
+    }
+
     private CarAudioZoneConfigInfo getUpdatedCarAudioZoneConfigInfo(
             CarAudioZoneConfigInfo previousConfig) {
         List<CarAudioZoneConfigInfo> infos =
@@ -5109,6 +5291,11 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .setAudioGains(new AudioGain[] {new GainBuilder().build()})
                 .setAddressName(SECONDARY_TEST_DEVICE_CONFIG_1_1)
                 .build();
+        mBTAudioDeviceInfo = new AudioDeviceInfoBuilder()
+                .setAudioGains(new AudioGain[] {new GainBuilder().build()})
+                .setAddressName(SECONDARY_TEST_DEVICE_CONFIG_1_1)
+                .setType(TYPE_BLUETOOTH_A2DP)
+                .build();
         return new AudioDeviceInfo[] {
                 mMediaOutputDevice,
                 mNavOutputDevice,
@@ -5271,10 +5458,26 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final class TestAudioZoneConfigurationsChangeCallback
             extends IAudioZoneConfigurationsChangeCallback.Stub {
 
+        private List<CarAudioZoneConfigInfo> mInfos;
+        private int mStatus = INVALID_STATUS;
+
+        private CountDownLatch mStatusLatch = new CountDownLatch(1);
         @Override
         public void onAudioZoneConfigurationsChanged(List<CarAudioZoneConfigInfo> configs,
                 int status) {
+            mInfos = configs;
+            mStatus = status;
+            mStatusLatch.countDown();
+        }
 
+        private void waitForCallback() throws Exception {
+            mStatusLatch.await(TEST_CALLBACK_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        }
+
+        public void reset() {
+            mInfos = null;
+            mStatus = INVALID_STATUS;
+            mStatusLatch = new CountDownLatch(1);
         }
     }
 

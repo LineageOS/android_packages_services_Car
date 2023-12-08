@@ -332,6 +332,9 @@ public final class CarAudioManager extends CarManagerBase {
     @GuardedBy("mLock")
     private AudioZonesMirrorStatusCallbackWrapper mAudioZonesMirrorStatusCallbackWrapper;
 
+    @GuardedBy("mLock")
+    private AudioZoneConfigurationsChangeCallbackWrapper mZoneConfigurationsChangeCallbackWrapper;
+
     private final ConcurrentHashMap<Long, MediaAudioRequestStatusCallbackWrapper>
             mRequestIdToMediaAudioRequestStatusCallbacks = new ConcurrentHashMap<>();
 
@@ -956,6 +959,105 @@ public final class CarAudioManager extends CarManagerBase {
                 new SwitchAudioZoneConfigCallbackWrapper(executor, callback);
         try {
             mService.switchZoneToConfig(zoneConfig, wrapper);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Sets the audio zone configurations change callback
+     *
+     * <p><b>Note:</b> There are two types on configuration changes.
+     *
+     * <p>Config active status changes, signaled by status {@link #CONFIG_STATUS_CHANGED},
+     * represent changes to the configurations due to a configuration becoming active or inactive as
+     * a result of a dynamic device being connected or disconnected respectively.
+     *
+     * <p>Config auto switch changes, signaled by status {@link #CONFIG_STATUS_AUTO_SWITCHED},
+     * represent changes to the configurations due a currently selected configuration becoming
+     * inactive as a result of a dynamic device being disconnected.
+     *
+     * @param executor Executor on which callback will be invoked
+     * @param callback Callback that will be triggered on audio configuration changes
+     * @return {@code true} if the callback is successfully registered, {@code false} otherwise
+     * @throws NullPointerException if either executor or callback are {@code null}
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     * @throws IllegalStateException if there is a callback already set
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    @FlaggedApi(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
+    public boolean setAudioZoneConfigsChangeCallback(@NonNull @CallbackExecutor Executor executor,
+            @NonNull AudioZoneConfigurationsChangeCallback callback) {
+        Objects.requireNonNull(executor, "Executor can not be null");
+        Objects.requireNonNull(callback, "Audio zone configs change callback can not be null");
+
+        synchronized (mLock) {
+            if (mZoneConfigurationsChangeCallbackWrapper != null) {
+                throw new IllegalStateException("Audio zone configs change "
+                        + "callback is already set");
+            }
+        }
+        AudioZoneConfigurationsChangeCallbackWrapper wrapper =
+                new AudioZoneConfigurationsChangeCallbackWrapper(executor, callback);
+
+        boolean succeeded;
+        try {
+            succeeded = mService.registerAudioZoneConfigsChangeCallback(wrapper);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, false);
+        }
+
+        if (!succeeded) {
+            return false;
+        }
+        boolean error;
+        synchronized (mLock) {
+            error = mZoneConfigurationsChangeCallbackWrapper != null;
+            if (!error) {
+                mZoneConfigurationsChangeCallbackWrapper = wrapper;
+            }
+        }
+
+        // In case there was an error, unregister the listener and throw an exception
+        if (error) {
+            try {
+                mService.unregisterAudioZoneConfigsChangeCallback(wrapper);
+            } catch (RemoteException e) {
+                handleRemoteExceptionFromCarService(e);
+            }
+
+            throw new IllegalStateException("Audio zone config change callback is already set");
+        }
+        return true;
+    }
+
+    /**
+     * Clears the currently set {@code AudioZoneConfigurationsChangeCallback}
+     *
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    @FlaggedApi(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
+    public void clearAudioZoneConfigsCallback() {
+        AudioZoneConfigurationsChangeCallbackWrapper wrapper;
+
+        synchronized (mLock) {
+            if (mZoneConfigurationsChangeCallbackWrapper == null) {
+                Log.w(TAG, "Audio zone configs callback was already cleared");
+                return;
+            }
+            wrapper = mZoneConfigurationsChangeCallbackWrapper;
+            mZoneConfigurationsChangeCallbackWrapper = null;
+        }
+
+        try {
+            mService.unregisterAudioZoneConfigsChangeCallback(wrapper);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
@@ -2100,6 +2202,31 @@ public final class CarAudioManager extends CarManagerBase {
             try {
                 mExecutor.execute(() -> mCallback.onAudioZonesMirrorStatusChanged(
                         asList(mirroredAudioZones), status));
+            } finally {
+                Binder.restoreCallingIdentity(identity);
+            }
+        }
+    }
+
+    private static final class AudioZoneConfigurationsChangeCallbackWrapper extends
+            IAudioZoneConfigurationsChangeCallback.Stub {
+
+        private final Executor mExecutor;
+        private final AudioZoneConfigurationsChangeCallback mCallback;
+
+        private AudioZoneConfigurationsChangeCallbackWrapper(Executor executor,
+                AudioZoneConfigurationsChangeCallback callback) {
+            mExecutor = executor;
+            mCallback = callback;
+        }
+
+        @Override
+        public void onAudioZoneConfigurationsChanged(List<CarAudioZoneConfigInfo> configs,
+                int status) {
+            long identity = Binder.clearCallingIdentity();
+            try {
+                mExecutor.execute(() -> mCallback.onAudioZoneConfigurationsChanged(configs,
+                        status));
             } finally {
                 Binder.restoreCallingIdentity(identity);
             }
