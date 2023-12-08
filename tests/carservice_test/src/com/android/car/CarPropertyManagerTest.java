@@ -274,6 +274,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
             getContext().getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.R;
         } else if (mTestName.getMethodName().endsWith("AfterS")) {
             getContext().getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.S;
+        } else if (mTestName.getMethodName().endsWith("AfterU")) {
+            getContext().getApplicationInfo().targetSdkVersion =
+                    Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
         }
     }
 
@@ -752,10 +755,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         assertThrows(IllegalStateException.class,
                 () -> mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_ACCESS_DENIED, 0));
 
-        assertThrows(IllegalArgumentException.class,
-                () -> mManager.getProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0));
-        assertThrows(IllegalArgumentException.class,
-                () -> mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0));
+        assertThat(mManager.getProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0)).isNull();
+        assertThat(mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0)).isEqualTo(0);
+        assertThat(mManager.getProperty(PROP_UNSUPPORTED, 0)).isNull();
 
         assertThrows(IllegalStateException.class,
                 () -> mManager.getProperty(PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE, 0));
@@ -785,10 +787,10 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 () -> mManager.getProperty(PROP_CAUSE_STATUS_CODE_ACCESS_DENIED, 0));
         assertThrows(PropertyAccessDeniedSecurityException.class,
                 () -> mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_ACCESS_DENIED, 0));
-        assertThrows(IllegalArgumentException.class,
-                () -> mManager.getProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0));
-        assertThrows(IllegalArgumentException.class,
-                () -> mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0));
+
+        assertThat(mManager.getProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0)).isNull();
+        assertThat(mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0)).isEqualTo(0);
+        assertThat(mManager.getProperty(PROP_UNSUPPORTED, 0)).isNull();
 
         assertThrows(PropertyNotAvailableAndRetryException.class,
                 () -> mManager.getProperty(PROP_CAUSE_STATUS_CODE_TRY_AGAIN, 0));
@@ -809,10 +811,21 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 () -> mManager.getProperty(NULL_VALUE_PROP, 0));
         assertThrows(PropertyNotAvailableException.class,
                 () -> mManager.getIntProperty(NULL_VALUE_PROP, 0));
-        assertThrows(IllegalArgumentException.class,
-                () -> mManager.getProperty(PROP_UNSUPPORTED, 0));
         assertThrows(PropertyNotAvailableException.class,
                 () -> mManager.getIntProperty(NULL_VALUE_PROP, 0));
+    }
+
+    @Test
+    public void testGetter_notSupportedPropertyAfterU() {
+        Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
+                .isAtLeast(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mManager.getProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0));
+        assertThrows(IllegalArgumentException.class,
+                () -> mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0));
+        assertThrows(IllegalArgumentException.class,
+                () -> mManager.getProperty(PROP_UNSUPPORTED, 0));
     }
 
     @Test
