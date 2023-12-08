@@ -50,6 +50,11 @@ cc_test {
         "packages/services/Car/cpp/computepipe",
         "packages/services/Car/cpp/computepipe/runner/graph",
     ],
+    arch: {
+        riscv64: {
+            enabled: false,
+        },
+    },
 }
 
 cc_test {
