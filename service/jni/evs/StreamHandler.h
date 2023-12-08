@@ -44,20 +44,21 @@ public:
             EvsServiceCallback* callback, int maxNumFramesInFlight);
     virtual ~StreamHandler();
     void shutdown();
-    bool startStream();
-    bool asyncStopStream();
-    void blockingStopStream();
-    bool isRunning();
-    void doneWithFrame(const ::aidl::android::hardware::automotive::evs::BufferDesc& buffer);
-    void doneWithFrame(int bufferId);
+    bool startStream() EXCLUDES(mLock);
+    void blockingStopStream() EXCLUDES(mLock);
+    bool isRunning() EXCLUDES(mLock);
+    void doneWithFrame(const ::aidl::android::hardware::automotive::evs::BufferDesc& buffer)
+            EXCLUDES(mLock);
+    void doneWithFrame(int bufferId) EXCLUDES(mLock);
 
 private:
     // Implementation for ::aidl::android::hardware::automotive::evs::IEvsCameraStream
     ::ndk::ScopedAStatus deliverFrame(
             const std::vector<::aidl::android::hardware::automotive::evs::BufferDesc>& buffer)
-            override;
+            override EXCLUDES(mLock);
     ::ndk::ScopedAStatus notify(
-            const ::aidl::android::hardware::automotive::evs::EvsEventDesc& event) override;
+            const ::aidl::android::hardware::automotive::evs::EvsEventDesc& event) override
+            EXCLUDES(mLock);
 
     // Values initialized as startup
     std::shared_ptr<::aidl::android::hardware::automotive::evs::IEvsCamera> mEvsCamera;
@@ -74,7 +75,10 @@ private:
 
     std::list<::aidl::android::hardware::automotive::evs::BufferDesc> mReceivedBuffers
             GUARDED_BY(mLock);
-    int mMaxNumFramesInFlight;
+    int mMaxNumFramesInFlightPerClient;
+
+    // Track number of active streaming clients.
+    int mNumClients GUARDED_BY(mLock);
 };
 
 }  // namespace android::automotive::evs

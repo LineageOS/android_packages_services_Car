@@ -37,4 +37,7 @@
     <color name="car_internal_user_background_icon_8">#2f211C</color><!-- orange -->
 
     <color name="car_internal_user_icon_default_background_color">#131313</color>
+
+    <color name="car_internal_guest_user_avatar_color">#DADCE0</color>
+    <color name="car_internal_guest_user_background_color">#202124</color>
 </resources>

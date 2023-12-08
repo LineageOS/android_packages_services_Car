@@ -413,7 +413,6 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             mNextPowerState = getLastShutdownState();
             mIsReadyForRemoteTask = true;
             mIsWakeupRequired = false;
-            mNotifyApPowerStateRetryCount += 1;
         }
 
         mPowerService.registerListenerWithCompletion(mCarPowerStateListener);
@@ -539,8 +538,10 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_REMOTE_ACCESS);
         Preconditions.checkArgument(callback != null, "callback cannot be null");
         int callingUid = mDep.getCallingUid();
+        RemoteTaskClientServiceConnection connection = null;
+        String uidName;
         synchronized (mLock) {
-            String uidName = getNameForUidLocked(callingUid);
+            uidName = getNameForUidLocked(callingUid);
             Slogf.i(TAG, "removeCarRemoteTaskClient from uid: %s", uidName);
             ClientToken token = mClientTokenByUidName.get(uidName);
             if (token == null) {
@@ -559,9 +560,16 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             }
             callback.asBinder().unlinkToDeath(token, /* flags= */ 0);
             token.setCallback(null);
+            connection = getServiceConnectionLocked(uidName);
         }
-        // TODO(b/261337288): Shutdown if there are pending remote tasks and no client is
-        // registered.
+        if (connection == null) {
+            Slogf.w(TAG, "No active service connection for uid: %s", uidName);
+            return;
+        }
+        connection.removeAllActiveTasks();
+        Slogf.i(TAG, "All active tasks removed for uid: %s, after %d ms, check whether we should "
+                + "shutdown", uidName, mTaskUnbindDelayMs);
+        mHandler.postMaybeShutdown(/* delayMs= */ mTaskUnbindDelayMs);
     }
 
     @GuardedBy("mLock")
@@ -965,7 +973,10 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         synchronized (mLock) {
             isReadyForRemoteTask = mIsReadyForRemoteTask;
             isWakeupRequired = mIsWakeupRequired;
-            if (mNotifyApPowerStateRetryCount == NOTIFY_AP_STATE_MAX_RETRY) {
+            mNotifyApPowerStateRetryCount++;
+            if (mNotifyApPowerStateRetryCount > NOTIFY_AP_STATE_MAX_RETRY) {
+                Slogf.e(TAG, "Reached max retry count for trying to notify AP state change, "
+                        + "Failed to notify AP state Change!!!");
                 return;
             }
         }
@@ -973,6 +984,14 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             Slogf.e(TAG, "Cannot notify AP state change, waiting for "
                     + NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS + "ms and retry");
             mHandler.postNotifyApStateChange(NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS);
+            return;
+        }
+        synchronized (mLock) {
+            mNotifyApPowerStateRetryCount = 0;
+        }
+        if (DEBUG) {
+            Slogf.d(TAG, "Notified AP about new state, isReadyForRemoteTask: %B, "
+                    + "isWakeupRequired: %B", isReadyForRemoteTask, isWakeupRequired);
         }
     }
 
@@ -1525,20 +1544,32 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                     mActiveTasks.remove(tasks.valueAt(i));
                 }
                 if (mActiveTasks.isEmpty()) {
-                    // All active tasks are completed for this package, we can now unbind the
-                    // service after mTaskUnbindDelayMs.
-                    Slogf.i(TAG, "All tasks completed for service: %s", mIntent);
-                    long currentTimeMs = SystemClock.uptimeMillis();
-                    if (DEBUG) {
-                        Slogf.d(TAG, "Unbind remote task client service: %s after %d ms, "
-                                + "current time: %d ms", mIntent, mTaskUnbindDelayMs,
-                                currentTimeMs);
-                    }
-                    mTaskTimeoutMs = currentTimeMs + mTaskUnbindDelayMs;
-                    mHandler.postServiceTimeout(mUid, mTaskTimeoutMs);
+                    handleAllTasksCompletionLocked();
                 }
             }
             return true;
+        }
+
+        public void removeAllActiveTasks() {
+            synchronized (mServiceLock) {
+                mActiveTasks.clear();
+                handleAllTasksCompletionLocked();
+            }
+        }
+
+        @GuardedBy("mServiceLock")
+        private void handleAllTasksCompletionLocked() {
+            // All active tasks are completed for this package, we can now unbind the service after
+            // mTaskUnbindDelayMs.
+            Slogf.i(TAG, "All tasks completed for service: %s", mIntent);
+            long currentTimeMs = SystemClock.uptimeMillis();
+            if (DEBUG) {
+                Slogf.d(TAG, "Unbind remote task client service: %s after %d ms, "
+                        + "current time: %d ms", mIntent, mTaskUnbindDelayMs,
+                        currentTimeMs);
+            }
+            mTaskTimeoutMs = currentTimeMs + mTaskUnbindDelayMs;
+            mHandler.postServiceTimeout(mUid, mTaskTimeoutMs);
         }
     }
 

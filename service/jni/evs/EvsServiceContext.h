@@ -80,12 +80,12 @@ public:
      *         service or to register a death recipient.
      *         true otherwise.
      */
-    bool initialize(JNIEnv* env, jobject thiz) ACQUIRE(mLock);
+    bool initialize(JNIEnv* env, jobject thiz) EXCLUDES(mLock);
 
     /*
      * Deinitialize the service context and releases the resources.
      */
-    void deinitialize() ACQUIRE(mLock);
+    void deinitialize() EXCLUDES(mLock);
 
     /*
      * Requests to open a target camera device.
@@ -95,43 +95,46 @@ public:
      *              a camera device, or fails to initialize a stream handler;
      *              true otherwise.
      */
-    bool openCamera(const char* id) ACQUIRE(mLock);
+    bool openCamera(const char* id) EXCLUDES(mLock);
 
     /*
      * Requests to close an active camera device.
      */
-    void closeCamera();
+    void closeCamera() EXCLUDES(mLock);
 
     /*
      * Requests to start a video stream from a successfully opened camera device.
      */
-    bool startVideoStream();
+    bool startVideoStream() EXCLUDES(mLock);
 
     /*
      * Requests to stop an active video stream.
      */
-    void stopVideoStream();
+    void stopVideoStream() EXCLUDES(mLock);
 
     /*
      * Notifies that the client finishes with this buffer.
      *
      * @param frame a consumed frame buffer
      */
-    void doneWithFrame(int bufferId);
+    void doneWithFrame(int bufferId) EXCLUDES(mLock);
 
     /*
      * Tells whether or not we're connected to the Extended View System service
      */
-    bool isAvailable() ACQUIRE(mLock) {
+    bool isAvailable() EXCLUDES(mLock) {
         std::lock_guard<std::mutex> lock(mLock);
+        return isAvailableLocked();
+    }
+
+    bool isAvailableLocked() REQUIRES(mLock) {
         return mServiceFactory != nullptr && mServiceFactory->getService() != nullptr;
     }
 
     /*
      * Tells whether or not a target camera device is opened
      */
-    bool isCameraOpened() ACQUIRE(mLock) {
-        std::lock_guard<std::mutex> lock(mLock);
+    bool isCameraOpenedLocked() REQUIRES(mLock) {
         return mCamera != nullptr;
     }
 
@@ -214,7 +217,7 @@ private:
 
     // Maximum number of frames CarEvsService can hold.  This number has been
     // chosen heuristically.
-    static constexpr int kMaxNumFramesInFlight = 6;
+    static constexpr int kMaxNumFramesInFlight = 10;
 
     // EVS service reserves a display ID 255 to allow the clients to open the main
     // display exclusively.

@@ -22,11 +22,13 @@ import android.content.Context;
 import android.content.pm.UserInfo;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
+import android.os.Handler;
 
 import com.android.car.qc.QCItem;
 import com.android.car.qc.QCRow;
 import com.android.systemui.R;
 import com.android.systemui.car.CarServiceProvider;
+import com.android.systemui.dagger.qualifiers.Background;
 import com.android.systemui.settings.UserTracker;
 
 import javax.inject.Inject;
@@ -38,8 +40,8 @@ public class CarUiPortraitProfileSwitcher extends ProfileSwitcher {
 
     @Inject
     public CarUiPortraitProfileSwitcher(Context context, UserTracker userTracker,
-            CarServiceProvider carServiceProvider) {
-        super(context, userTracker, carServiceProvider);
+            CarServiceProvider carServiceProvider,  @Background Handler handler) {
+        super(context, userTracker, carServiceProvider, handler);
 
     }
 
@@ -51,6 +53,15 @@ public class CarUiPortraitProfileSwitcher extends ProfileSwitcher {
         return super.createUserProfileRow(userInfo);
     }
 
+    @Override
+    protected QCRow createGuestProfileRow() {
+        if (mUserTracker.getUserInfo() != null && mUserTracker.getUserInfo().isGuest()) {
+            return createGuestProfileRowForCurrentProfile();
+        } else {
+            return super.createGuestProfileRow();
+        }
+    }
+
     private QCRow createUserProfileRowForCurrentProfile(UserInfo userInfo) {
         QCItem.ActionHandler actionHandler = (item, context, intent) -> {
             if (mPendingUserAdd) {
@@ -60,6 +71,23 @@ public class CarUiPortraitProfileSwitcher extends ProfileSwitcher {
         };
         return createUserProfileRowForCurrentProfile(userInfo.name,
                 mUserIconProvider.getDrawableWithBadge(mContext, userInfo), actionHandler);
+    }
+
+    private QCRow createGuestProfileRowForCurrentProfile() {
+        QCItem.ActionHandler actionHandler = (item, context, intent) -> {
+            if (mPendingUserAdd) {
+                return;
+            }
+            UserInfo guest = createNewOrFindExistingGuest(mContext);
+            if (guest != null) {
+                switchUser(guest.id);
+            }
+        };
+
+        return createUserProfileRowForCurrentProfile(
+                mContext.getString(com.android.internal.R.string.guest_name),
+                mUserIconProvider.getRoundedGuestDefaultIcon(mContext),
+                actionHandler);
     }
 
     private QCRow createUserProfileRowForCurrentProfile(String title, Drawable iconDrawable,

@@ -20,6 +20,8 @@
 <!-- These resources are around just to allow their values to be customized
      for different hardware and product builds.  Do not translate. -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- The dreams feature (screensavers) is not supported in android auto -->
+    <bool name="config_dreamsSupported">false</bool>
     <!-- Disable local-display-mirror-content -->
     <bool name="config_localDisplaysMirrorContent">false</bool>
     <!-- Enable multi-user. -->
@@ -205,4 +207,8 @@
     <string name="config_recentsComponentName" translatable="false">
         com.android.car.carlauncher/.recents.CarRecentsActivity
     </string>
+
+    <!-- Disable the "Share" action item shown in the context menu that appears upon long-pressing
+        on selected text. -->
+    <bool name="config_textShareSupported">false</bool>
 </resources>

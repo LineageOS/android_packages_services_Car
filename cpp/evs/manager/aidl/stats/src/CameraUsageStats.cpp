@@ -36,7 +36,12 @@ namespace aidl::android::automotive::evs::implementation {
 void CameraUsageStats::updateFrameStatsOnArrivalLocked(const std::vector<BufferDesc>& bufs) {
     const auto now = ::android::uptimeMillis();
     for (const auto& b : bufs) {
-        mBufferHistory.insert_or_assign(b.bufferId, now);
+        auto it = mBufferHistory.find(b.bufferId);
+        if (it != mBufferHistory.end()) {
+            it->second.timestamp = now;
+        } else {
+            mBufferHistory.insert({b.bufferId, now});
+        }
     }
 }
 

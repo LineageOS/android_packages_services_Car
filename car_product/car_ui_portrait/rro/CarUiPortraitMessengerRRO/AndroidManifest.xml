@@ -21,6 +21,7 @@
              android:targetName="CarMessengerApp"
              android:targetPackage="com.android.car.messenger"
              android:resourcesMap="@xml/overlays"
-             android:category="caruiportrait.carmessenger"
-             android:isStatic="false" />
+             android:requiredSystemPropertyName="car.ui.config"
+             android:requiredSystemPropertyValue="rickybobby"
+             android:isStatic="true" />
 </manifest>

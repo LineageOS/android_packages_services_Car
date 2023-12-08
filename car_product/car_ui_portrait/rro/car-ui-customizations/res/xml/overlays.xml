@@ -59,7 +59,8 @@
     <item target="bool/car_ui_scrollbar_enable" value="@bool/car_ui_scrollbar_enable" />
     <item target="bool/car_ui_is_light_theme" value="@bool/car_ui_is_light_theme" />
 
-    <item target="style/Preference.CarUi.Icon" value="@style/PreferenceCarUiIcon" />
+    <item target="style/Preference.CarUi.Icon" value="@style/Preference.CarUi.Icon" />
+    <item target="style/Preference.CarUi.Divider" value="@style/Preference.CarUi.Divider" />
     <item target="style/TextAppearance.CarUi.AlertDialog.Title" value="@style/TextAppearance.CarUi.AlertDialog.Title" />
     <item target="style/TextAppearance.CarUi.AlertDialog.Subtitle" value="@style/TextAppearance.CarUi.AlertDialog.Subtitle" />
     <item target="style/TextAppearance.CarUi.PreferenceCategoryTitle" value="@style/TextAppearance.CarUi.PreferenceCategoryTitle" />
@@ -68,6 +69,8 @@
     <item target="style/TextAppearance.CarUi.Widget" value="@style/TextAppearance.CarUi.Widget" />
     <item target="style/TextAppearance.CarUi.Widget.Toolbar" value="@style/TextAppearance.CarUi.Widget.Toolbar" />
     <item target="style/TextAppearance.CarUi.Widget.Toolbar.Title" value="@style/TextAppearance.CarUi.Widget.Toolbar.Title" />
+
+    <item target="style/Widget.CarUi.SeekbarPreference.Seekbar" value="@style/Widget.CarUi.SeekbarPreference.Seekbar" />
 
     <item target="attr/state_ux_restricted" value="@attr/state_ux_restricted"/>
 
@@ -113,4 +116,5 @@
     <item target="attr/layout_goneMarginStart" value="@attr/layout_goneMarginStart"/>
     <item target="attr/layout_goneMarginEnd" value="@attr/layout_goneMarginEnd"/>
     <item target="attr/layout_constraintHorizontal_chainStyle" value="@attr/layout_constraintHorizontal_chainStyle"/>
+    <item target="attr/layout_constraintVertical_chainStyle" value="@attr/layout_constraintVertical_chainStyle"/>
 </overlay>

@@ -25,6 +25,7 @@ import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.IBinder;
 
 /**
  * Provides the access to the hidden fields of {@code android.app.TaskInfo}.
@@ -49,6 +50,12 @@ public class TaskInfoHelper {
     @AddedIn(PlatformVersion.TIRAMISU_0)
     public static boolean isVisible(@NonNull TaskInfo task) {
         return task.isVisible && task.isRunning && !task.isSleeping;
+    }
+
+    /** Returns the binder token of the task. */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_1)
+    public static IBinder getToken(@NonNull TaskInfo task) {
+        return task.token.asBinder();
     }
 
     /** Returns the string representation of the task */

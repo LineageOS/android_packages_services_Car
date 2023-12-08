@@ -293,6 +293,7 @@ public final class GenerateAPI {
     }
 
     private static void write(String filePath, List<String> data) throws IOException {
+        Collections.sort(data);
         Path file = Paths.get(filePath);
         Files.write(file, data, StandardCharsets.UTF_8);
     }

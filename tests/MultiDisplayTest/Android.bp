@@ -22,7 +22,10 @@ android_app {
     name: "MultiDisplayTest",
 
     // Only compile source java files in this apk.
-    srcs: ["src/**/*.java"],
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.proto",
+    ],
 
     enforce_uses_libs: false,
     dex_preopt: {
@@ -40,5 +43,7 @@ android_app {
         "androidx.fragment_fragment",
         "androidx.recyclerview_recyclerview",
     ],
+
+    required: ["allowed_privapp_com.google.android.car.multidisplaytest"],
 
 }

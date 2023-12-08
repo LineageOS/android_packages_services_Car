@@ -18,6 +18,8 @@ package com.android.car.internal.property;
 
 import android.annotation.SuppressLint;
 import android.car.VehiclePropertyIds;
+import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.VehicleHalStatusCode;
 import android.car.hardware.property.VehicleHalStatusCode.VehicleHalStatusCodeInt;
 import android.util.Log;
 import android.util.SparseArray;
@@ -117,6 +119,25 @@ public final class CarPropertyHelper {
         return vhalErrorCode >>> VENDOR_ERROR_CODE_SHIFT;
     }
 
+    /**
+     * Returns {@code true} if {@code vehicleHalStatusCode} is one of the not available
+     * {@link VehicleHalStatusCode} values}. Otherwise returns {@code false}.
+     */
+    public static boolean isNotAvailableVehicleHalStatusCode(
+            @VehicleHalStatusCodeInt int vehicleHalStatusCode) {
+        switch (vehicleHalStatusCode) {
+            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE:
+            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED:
+            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW:
+            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH:
+            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY:
+            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     private static SparseArray<String> cachePropertyIdsToNameMapping() {
         SparseArray<String> propertyIdsToNameMapping = sPropertyIdToPropertyNameHolder.get();
         if (propertyIdsToNameMapping == null) {
@@ -166,5 +187,43 @@ public final class CarPropertyHelper {
      */
     private static boolean isVendorProperty(int propertyId) {
         return (propertyId & VEHICLE_PROPERTY_GROUP_MASK) == VEHICLE_PROPERTY_GROUP_VENDOR;
+    }
+
+
+    /**
+     * Gets the default value for a {@link CarPropertyValue} class type.
+     */
+    public static <T> T getDefaultValue(Class<T> clazz) {
+        if (clazz.equals(Boolean.class)) {
+            return (T) Boolean.FALSE;
+        }
+        if (clazz.equals(Integer.class)) {
+            return (T) Integer.valueOf(0);
+        }
+        if (clazz.equals(Long.class)) {
+            return (T) Long.valueOf(0);
+        }
+        if (clazz.equals(Float.class)) {
+            return (T) Float.valueOf(0f);
+        }
+        if (clazz.equals(Integer[].class)) {
+            return (T) new Integer[0];
+        }
+        if (clazz.equals(Long[].class)) {
+            return (T) new Long[0];
+        }
+        if (clazz.equals(Float[].class)) {
+            return (T) new Float[0];
+        }
+        if (clazz.equals(byte[].class)) {
+            return (T) new byte[0];
+        }
+        if (clazz.equals(Object[].class)) {
+            return (T) new Object[0];
+        }
+        if (clazz.equals(String.class)) {
+            return (T) new String("");
+        }
+        throw new IllegalArgumentException("Unexpected class: " + clazz);
     }
 }

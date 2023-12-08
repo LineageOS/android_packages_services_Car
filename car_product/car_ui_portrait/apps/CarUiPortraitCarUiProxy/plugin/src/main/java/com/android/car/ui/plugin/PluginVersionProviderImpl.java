@@ -21,9 +21,14 @@ import android.content.res.AssetManager;
 import android.util.Log;
 import android.util.SparseArray;
 
+import androidx.annotation.NonNull;
+
 import com.android.car.ui.plugin.oemapis.PluginVersionProviderOEMV1;
 
-import com.chassis.car.ui.plugin.PluginFactoryImpl;
+import com.chassis.car.ui.plugin.PluginFactoryImplV2;
+import com.chassis.car.ui.plugin.PluginFactoryImplV5;
+import com.chassis.car.ui.plugin.PluginFactoryImplV6;
+import com.chassis.car.ui.plugin.PluginFactoryImplV7;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -31,22 +36,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Builds a Plugin that will delegate to the standard car-ui-lib implementation. The main benefit
+ * Builds a plugin that will delegate to the standard car-ui-lib implementation. The main benefit
  * of this is so that customizations can be applied to the car-ui-lib via a RRO without the need to
  * target each app specifically. Note: it only applies to the components that come through the
  * plugin system.
  */
 public class PluginVersionProviderImpl implements PluginVersionProviderOEMV1 {
     public static final String TAG = "PluginVersionProvider";
-    public static final String SHARED_LIBRARY_PACKAGE = "com.android.car.ui.sharedlibrary";
 
     private static final List<String> DENIED_PACKAGES = new ArrayList<>(List.of(
             // TODO(b/260267959) remove.
             "com.android.vending"
     ));
 
+    /**
+     * This method returns different implementations of {@code PluginFactoryOEMV#} depending on the
+     * max version supported by an app (i.e., if an app uses an older version of car-ui-lib).
+     */
     @Override
-    public Object getPluginFactory(int maxVersion, Context context, String packageName) {
+    public Object getPluginFactory(
+            int maxVersion, @NonNull Context context, @NonNull String packageName) {
 
         if (DENIED_PACKAGES.contains(packageName)) {
             return null;
@@ -59,15 +68,36 @@ public class PluginVersionProviderImpl implements PluginVersionProviderOEMV1 {
             if (id == 0x01 || id == 0x7f) {
                 continue;
             }
-            if (SHARED_LIBRARY_PACKAGE.equals(r.valueAt(i))) {
+            if (context.getPackageName().equals(r.valueAt(i))) {
                 Log.d(TAG, "PluginVersionProviderImpl : getPluginFactory: rewriting R prefix"
-                        + " values for " + SHARED_LIBRARY_PACKAGE + " to: "
+                        + " values for " + context.getPackageName() + " to: "
                         + Integer.toHexString(id));
                 rewriteRValues(context.getClassLoader(), r.valueAt(i), id);
             }
         }
 
-        return new PluginFactoryImpl(new PluginContextWrapper(context));
+        Context pluginContext = new PluginContextWrapper(context, packageName);
+        switch (maxVersion) {
+            // There was a bug in car-ui-lib which only passed 1 as the max supported version of the
+            // car-ui-lib plugin, even when there were more versions supported (e.g., V2, V3, V4).
+            // This was eventually fixed when support for V5 was added. The guidance for oems is to
+            // return a PluginFactoryV2 whenever the max version is less than 5 because apps only
+            // supporting PluginFactoryV1 will never be deployed on system supporting car-ui-lib
+            // plugin. Furthermore, system apps developed on sc-car or newer branches will support
+            // PluginFactoryV2 or newer.
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                return new PluginFactoryImplV2(pluginContext);
+            case 5:
+                return new PluginFactoryImplV5(pluginContext);
+            case 6:
+                return new PluginFactoryImplV6(pluginContext);
+            // Keep the newest version as default case and add old versions above
+            default:
+                return new PluginFactoryImplV7(pluginContext);
+        }
     }
 
     /**
@@ -84,6 +114,7 @@ public class PluginVersionProviderImpl implements PluginVersionProviderOEMV1 {
             return (SparseArray<String>) invoke;
         } catch (NoSuchMethodException e) {
             // No rewriting to be done.
+            Log.e(TAG, "getAssignedPackageIdentifiers method not found");
             return new SparseArray<>();
         } catch (IllegalAccessException e) {
             cause = e;
@@ -114,9 +145,11 @@ public class PluginVersionProviderImpl implements PluginVersionProviderOEMV1 {
         } catch (ClassNotFoundException e) {
             // This is not necessarily an error, as some packages do not ship with resources
             // (or they do not need rewriting).
+            Log.e(TAG, "R class not found for package " + packageName);
             return;
         } catch (NoSuchMethodException e) {
             // No rewriting to be done.
+            Log.e(TAG, "onResourcesLoaded method not found for package " + packageName);
             return;
         } catch (IllegalAccessException e) {
             cause = e;

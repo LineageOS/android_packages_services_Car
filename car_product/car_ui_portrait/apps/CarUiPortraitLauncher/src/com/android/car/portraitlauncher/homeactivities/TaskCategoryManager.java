@@ -16,22 +16,31 @@
 
 package com.android.car.portraitlauncher.homeactivities;
 
+import android.annotation.MainThread;
 import android.app.ActivityManager;
 import android.app.TaskInfo;
 import android.car.media.CarMediaIntents;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Build;
-import android.os.UserHandle;
+import android.text.TextUtils;
 import android.util.ArraySet;
 import android.util.Log;
 
+import androidx.car.app.CarContext;
+
 import com.android.car.carlauncher.AppGridActivity;
+import com.android.car.carlauncher.CarLauncherUtils;
 import com.android.car.portraitlauncher.R;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,100 +51,49 @@ import java.util.Set;
 class TaskCategoryManager {
     public static final String TAG = TaskCategoryManager.class.getSimpleName();
     private static final boolean DBG = Build.IS_DEBUGGABLE;
-    private final ComponentName mBlankActivityComponent;
+    /** Stub geo data to help query navigation intent. */
+    private static final String STUB_GEO_DATA = "geo:0.0,0,0";
+
     private final ComponentName mAppGridActivityComponent;
     private final ComponentName mNotificationActivityComponent;
     private final ComponentName mRecentsActivityComponent;
     private final ArraySet<ComponentName> mIgnoreOpeningRootTaskViewComponentsSet;
     private final Set<ComponentName> mFullScreenActivities;
     private final Set<ComponentName> mBackgroundActivities;
-
-    private ComponentName mCurrentBackgroundApp;
-
     private final Context mContext;
+    private final ApplicationInstallUninstallReceiver mApplicationInstallUninstallReceiver;
+    private final Set<OnApplicationInstallUninstallListener>
+            mOnApplicationInstallUninstallListeners;
+    private ComponentName mCurrentBackgroundApp;
 
     TaskCategoryManager(Context context) {
         mContext = context;
 
-        mFullScreenActivities = convertToComponentNames(mContext.getResources()
-                .getStringArray(R.array.config_fullScreenActivities));
-        mBackgroundActivities = convertToComponentNames(mContext.getResources()
-                .getStringArray(R.array.config_backgroundActivities));
+        mFullScreenActivities = new HashSet<>();
+        mBackgroundActivities = new HashSet<>();
         mIgnoreOpeningRootTaskViewComponentsSet = convertToComponentNames(mContext.getResources()
                 .getStringArray(R.array.config_ignoreOpeningForegroundDA));
         mAppGridActivityComponent = new ComponentName(context, AppGridActivity.class);
-        mBlankActivityComponent = new ComponentName(context, BlankActivity.class);
         mNotificationActivityComponent = ComponentName.unflattenFromString(
                 mContext.getResources().getString(R.string.config_notificationActivity));
         mRecentsActivityComponent = ComponentName.unflattenFromString(mContext.getResources()
                 .getString(com.android.internal.R.string.config_recentsComponentName));
 
+        mOnApplicationInstallUninstallListeners = new HashSet<>();
+
         updateVoicePlateActivityMap();
+        updateBackgroundActivityMap();
+
+        mApplicationInstallUninstallReceiver = registerApplicationInstallUninstallReceiver(
+                mContext);
     }
 
-    void updateVoicePlateActivityMap() {
-        Context currentUserContext = mContext.createContextAsUser(
-                UserHandle.of(ActivityManager.getCurrentUser()), /* flags= */ 0);
-
-        Intent voiceIntent = new Intent(Intent.ACTION_VOICE_ASSIST, /* uri= */ null);
-        List<ResolveInfo> result = currentUserContext.getPackageManager().queryIntentActivities(
-                voiceIntent, PackageManager.MATCH_ALL);
-
-        for (ResolveInfo info : result) {
-            if (mFullScreenActivities.add(info.activityInfo.getComponentName())) {
-                logIfDebuggable("adding the following component to show on fullscreen: "
-                        + info.activityInfo.getComponentName());
-            }
-        }
-    }
-
-    boolean isBackgroundApp(TaskInfo taskInfo) {
-        return mBackgroundActivities.contains(taskInfo.baseActivity);
-    }
-
-    boolean isBackgroundApp(ComponentName componentName) {
-        return mBackgroundActivities.contains(componentName);
-    }
-
-    boolean isCurrentBackgroundApp(ComponentName componentName) {
-        return mCurrentBackgroundApp != null && mCurrentBackgroundApp.equals(componentName);
-    }
-
-    ComponentName getCurrentBackgroundApp() {
-        return mCurrentBackgroundApp;
-    }
-
-    void setCurrentBackgroundApp(ComponentName componentName) {
-        mCurrentBackgroundApp = componentName;
-    }
-
-    boolean isBlankActivity(ActivityManager.RunningTaskInfo taskInfo) {
-        return mBlankActivityComponent.equals(taskInfo.baseActivity);
-    }
-
-    boolean isAppGridActivity(TaskInfo taskInfo) {
-        return mAppGridActivityComponent.equals(taskInfo.baseActivity);
-    }
-
-    public Set<ComponentName> getFullScreenActivities() {
-        return mFullScreenActivities;
-    }
-
-    boolean isFullScreenActivity(TaskInfo taskInfo) {
-        return mFullScreenActivities.contains(taskInfo.baseActivity);
-    }
-
-    boolean isNotificationActivity(TaskInfo taskInfo) {
-        return mNotificationActivityComponent.equals(taskInfo.baseActivity);
-    }
-
-    boolean isRecentsActivity(TaskInfo taskInfo) {
-        return mRecentsActivityComponent.equals(taskInfo.baseActivity);
-    }
-
-    boolean shouldIgnoreOpeningForegroundDA(TaskInfo taskInfo) {
-        return taskInfo.baseIntent != null && mIgnoreOpeningRootTaskViewComponentsSet.contains(
-                taskInfo.baseIntent.getComponent());
+    /**
+     * Refresh {@code mFullScreenActivities} and {@code mBackgroundActivities}.
+     */
+    void refresh() {
+        updateVoicePlateActivityMap();
+        updateBackgroundActivityMap();
     }
 
     static boolean isHomeIntent(TaskInfo taskInfo) {
@@ -164,5 +122,194 @@ class TaskCategoryManager {
             componentNames.add(ComponentName.unflattenFromString(componentStrings[i]));
         }
         return componentNames;
+    }
+
+    void updateVoicePlateActivityMap() {
+        mFullScreenActivities.clear();
+        Intent voiceIntent = new Intent(Intent.ACTION_VOICE_ASSIST, /* uri= */ null);
+        List<ResolveInfo> result = mContext.getPackageManager().queryIntentActivitiesAsUser(
+                voiceIntent, PackageManager.MATCH_ALL, ActivityManager.getCurrentUser());
+
+        for (ResolveInfo info : result) {
+            if (info == null || info.activityInfo == null
+                    || info.activityInfo.getComponentName() == null) {
+                continue;
+            }
+            if (mFullScreenActivities.add(info.activityInfo.getComponentName())) {
+                logIfDebuggable("adding the following component to show on fullscreen: "
+                        + info.activityInfo.getComponentName());
+            }
+        }
+
+        mFullScreenActivities.addAll(convertToComponentNames(mContext.getResources()
+                .getStringArray(R.array.config_fullScreenActivities)));
+    }
+
+    void updateBackgroundActivityMap() {
+        mBackgroundActivities.clear();
+        Intent intent = new Intent(CarContext.ACTION_NAVIGATE, Uri.parse(STUB_GEO_DATA));
+        List<ResolveInfo> result = mContext.getPackageManager().queryIntentActivitiesAsUser(
+                intent, PackageManager.MATCH_ALL, ActivityManager.getCurrentUser());
+
+        for (ResolveInfo info : result) {
+            if (info == null || info.activityInfo == null
+                    || info.activityInfo.getComponentName() == null) {
+                continue;
+            }
+            mBackgroundActivities.add(info.getComponentInfo().getComponentName());
+        }
+        mBackgroundActivities.addAll(convertToComponentNames(mContext.getResources()
+                .getStringArray(R.array.config_backgroundActivities)));
+    }
+
+    /**
+     * Returns whether the {@code TaskCategoryManager} is ready. If maps intent can be resolved,
+     * the {@code TaskCategoryManager} is ready.
+     */
+    public boolean isReady() {
+        Intent intent = CarLauncherUtils.getMapsIntent(mContext);
+        return intent.resolveActivity(mContext.getPackageManager()) != null;
+    }
+
+    void registerOnApplicationInstallUninstallListener(
+            OnApplicationInstallUninstallListener onApplicationInstallUninstallListener) {
+        mOnApplicationInstallUninstallListeners.add(onApplicationInstallUninstallListener);
+    }
+
+    void unregisterOnApplicationInstallUninstallListener(
+            OnApplicationInstallUninstallListener onApplicationInstallUninstallListener) {
+        mOnApplicationInstallUninstallListeners.remove(onApplicationInstallUninstallListener);
+    }
+
+    boolean isBackgroundApp(TaskInfo taskInfo) {
+        return mBackgroundActivities.contains(taskInfo.baseActivity);
+    }
+
+    boolean isBackgroundApp(ComponentName componentName) {
+        return mBackgroundActivities.contains(componentName);
+    }
+
+    boolean isCurrentBackgroundApp(ComponentName componentName) {
+        return mCurrentBackgroundApp != null && mCurrentBackgroundApp.equals(componentName);
+    }
+
+    ComponentName getCurrentBackgroundApp() {
+        return mCurrentBackgroundApp;
+    }
+
+    void setCurrentBackgroundApp(ComponentName componentName) {
+        mCurrentBackgroundApp = componentName;
+    }
+
+    boolean isAppGridActivity(ComponentName componentName) {
+        return mAppGridActivityComponent.equals(componentName);
+    }
+
+    boolean isAppGridActivity(TaskInfo taskInfo) {
+        return mAppGridActivityComponent.equals(taskInfo.baseActivity);
+    }
+
+    ComponentName getAppGridActivity() {
+        return mAppGridActivityComponent;
+    }
+
+    Set<ComponentName> getFullScreenActivities() {
+        return mFullScreenActivities;
+    }
+
+    Set<ComponentName> getBackgroundActivities() {
+        return mBackgroundActivities;
+    }
+
+    boolean isFullScreenActivity(TaskInfo taskInfo) {
+        return mFullScreenActivities.contains(taskInfo.baseActivity);
+    }
+
+    boolean isNotificationActivity(TaskInfo taskInfo) {
+        return mNotificationActivityComponent.equals(taskInfo.baseActivity);
+    }
+
+    boolean isRecentsActivity(TaskInfo taskInfo) {
+        return mRecentsActivityComponent.equals(taskInfo.baseActivity);
+    }
+
+    boolean shouldIgnoreOpeningForegroundDA(TaskInfo taskInfo) {
+        return taskInfo.baseIntent != null && mIgnoreOpeningRootTaskViewComponentsSet.contains(
+                taskInfo.baseIntent.getComponent());
+    }
+
+    public void onDestroy() {
+        mOnApplicationInstallUninstallListeners.clear();
+        mContext.unregisterReceiver(mApplicationInstallUninstallReceiver);
+    }
+
+    /**
+     * Returns a list of activities that are tracked as background activities with given
+     * {@code packageName}.
+     */
+    List<ComponentName> getBackgroundActivitiesFromPackage(String packageName) {
+        List<ComponentName> list = new ArrayList<>();
+        for (ComponentName componentName : mBackgroundActivities) {
+            if (componentName.getPackageName().equals(packageName)) {
+                list.add(componentName);
+            }
+        }
+        return list;
+    }
+
+    private ApplicationInstallUninstallReceiver registerApplicationInstallUninstallReceiver(
+            Context context) {
+        ApplicationInstallUninstallReceiver
+                installUninstallReceiver = new ApplicationInstallUninstallReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addDataScheme("package");
+        context.registerReceiver(installUninstallReceiver, filter);
+        return installUninstallReceiver;
+    }
+
+    /**
+     * Listener for application installation and uninstallation.
+     */
+    interface OnApplicationInstallUninstallListener {
+        /**
+         * Invoked when intent with {@link Intent.ACTION_PACKAGE_ADDED) is received.
+         */
+        void onAppInstalled(String packageName);
+        /**
+         * Invoked when intent with {@link Intent.ACTION_PACKAGE_REMOVED}} is received.
+         */
+        void onAppUninstall(String packageName);
+    }
+
+    private class ApplicationInstallUninstallReceiver extends BroadcastReceiver {
+        @MainThread
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String packageName = intent.getData().getSchemeSpecificPart();
+            String action = intent.getAction();
+            if (TextUtils.isEmpty(packageName) && TextUtils.isEmpty(action)) {
+                logIfDebuggable(
+                        "Invalid intent with packageName=" + packageName + ", action=" + action);
+                // Ignoring empty announcements
+                return;
+            }
+            updateBackgroundActivityMap();
+
+            if (Intent.ACTION_PACKAGE_ADDED.equals(action)) {
+                for (OnApplicationInstallUninstallListener listener :
+                        mOnApplicationInstallUninstallListeners) {
+                    listener.onAppInstalled(packageName);
+                }
+            } else if (Intent.ACTION_PACKAGE_REMOVED.equals(action)) {
+                for (OnApplicationInstallUninstallListener listener :
+                        mOnApplicationInstallUninstallListeners) {
+                    listener.onAppUninstall(packageName);
+                }
+            } else {
+                logIfDebuggable("Skip action " + action + " for package" + packageName);
+            }
+        }
     }
 }

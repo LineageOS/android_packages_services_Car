@@ -469,6 +469,46 @@ public final class MediaRequestHandlerTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void getAssignedRequestIdForOccupantZoneId_withoutRequest() throws Exception {
+        long requestId = mMediaRequestHandler.getAssignedRequestIdForOccupantZoneId(
+                TEST_PASSENGER_OCCUPANT_ZONE_ID);
+
+        expectWithMessage("Request id for unset occupant zone id")
+                .that(requestId).isEqualTo(INVALID_REQUEST_ID);
+    }
+
+    @Test
+    public void getAssignedRequestIdForOccupantZoneId_withoutApproval() throws Exception {
+        mMediaRequestHandler
+                .registerPrimaryZoneMediaAudioRequestCallback(mTestZoneAudioRequestCallback);
+        mMediaRequestHandler.requestMediaAudioOnPrimaryZone(
+                mTestMediaRequestStatusCallback, TEST_PASSENGER_OCCUPANT);
+
+        long requestId = mMediaRequestHandler.getAssignedRequestIdForOccupantZoneId(
+                TEST_PASSENGER_OCCUPANT_ZONE_ID);
+
+        expectWithMessage("Unapproved request id for zone id").that(requestId)
+                .isEqualTo(INVALID_REQUEST_ID);
+    }
+
+    @Test
+    public void getAssignedRequestIdForOccupantZoneId_afterApproval() throws Exception {
+        mMediaRequestHandler
+                .registerPrimaryZoneMediaAudioRequestCallback(mTestZoneAudioRequestCallback);
+        long approvedRequestId = mMediaRequestHandler.requestMediaAudioOnPrimaryZone(
+                mTestMediaRequestStatusCallback, TEST_PASSENGER_OCCUPANT);
+        mMediaRequestHandler.acceptMediaAudioRequest(mTestZoneAudioRequestCallback,
+                approvedRequestId);
+        mTestMediaRequestStatusCallback.waitForCallback();
+
+        long requestId = mMediaRequestHandler.getAssignedRequestIdForOccupantZoneId(
+                TEST_PASSENGER_OCCUPANT_ZONE_ID);
+
+        expectWithMessage("Approved request id for zone id").that(requestId)
+                .isEqualTo(approvedRequestId);
+    }
+
+    @Test
     public void isMediaAudioAllowedInPrimaryZone_withoutRequest() {
         boolean allowed = mMediaRequestHandler
                 .isMediaAudioAllowedInPrimaryZone(TEST_PASSENGER_OCCUPANT);

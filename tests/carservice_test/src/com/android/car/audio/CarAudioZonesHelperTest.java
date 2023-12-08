@@ -70,6 +70,77 @@ import java.util.stream.Collectors;
 public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     private static final String TAG = CarAudioZonesHelperTest.class.getSimpleName();
 
+    private static final CarAudioContextInfo OEM_CONTEXT_INFO_MUSIC =
+            new CarAudioContextInfo(new AudioAttributes[] {
+                    CarAudioContext.getAudioAttributeFromUsage(AudioAttributes.USAGE_UNKNOWN),
+                    CarAudioContext.getAudioAttributeFromUsage(AudioAttributes.USAGE_GAME),
+                    CarAudioContext.getAudioAttributeFromUsage(AudioAttributes.USAGE_MEDIA)
+            }, "OEM_MUSIC", 1);
+
+    private static final CarAudioContextInfo OEM_CONTEXT_INFO_NAVIGATION =
+            new CarAudioContextInfo(new AudioAttributes[] {
+                    CarAudioContext.getAudioAttributeFromUsage(AudioAttributes
+                            .USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)}, "OEM_NAVIGATION", 2);
+
+    private static final CarAudioContextInfo OEM_CONTEXT_INFO_VOICE_COMMAND =
+            new CarAudioContextInfo(new AudioAttributes[] {
+                    CarAudioContext.getAudioAttributeFromUsage(
+                            AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY),
+                    CarAudioContext.getAudioAttributeFromUsage(AudioAttributes.USAGE_ASSISTANT)
+            }, "OEM_VOICE_COMMAND", 3);
+
+    private static final CarAudioContextInfo OEM_CONTEXT_INFO_CALL_RING =
+            new CarAudioContextInfo(new AudioAttributes[] {
+                    CarAudioContext.getAudioAttributeFromUsage(
+                            AudioAttributes.USAGE_NOTIFICATION_RINGTONE)}, "OEM_CALL_RING", 4);
+
+    private static final CarAudioContextInfo OEM_CONTEXT_INFO_CALL =
+            new CarAudioContextInfo(new AudioAttributes[] {
+                    CarAudioContext.getAudioAttributeFromUsage(
+                            AudioAttributes.USAGE_VOICE_COMMUNICATION),
+                    CarAudioContext.getAudioAttributeFromUsage(
+                            AudioAttributes.USAGE_CALL_ASSISTANT),
+                    CarAudioContext.getAudioAttributeFromUsage(AudioAttributes
+                            .USAGE_VOICE_COMMUNICATION_SIGNALLING)
+            }, "OEM_CALL", 5);
+
+    private static final CarAudioContextInfo OEM_CONTEXT_INFO_ALARM =
+            new CarAudioContextInfo(new AudioAttributes[]{
+                    CarAudioContext.getAudioAttributeFromUsage(AudioAttributes.USAGE_ALARM)
+            }, "OEM_ALARM", 6);
+
+    private static final CarAudioContextInfo OEM_CONTEXT_INFO_NOTIFICATION =
+            new CarAudioContextInfo(new AudioAttributes[]{
+                    CarAudioContext.getAudioAttributeFromUsage(AudioAttributes.USAGE_NOTIFICATION),
+                    CarAudioContext.getAudioAttributeFromUsage(
+                            AudioAttributes.USAGE_NOTIFICATION_EVENT)}, "OEM_NOTIFICATION", 7);
+
+    private static final CarAudioContextInfo OEM_CONTEXT_INFO_SYSTEM_SOUND =
+            new CarAudioContextInfo(new AudioAttributes[]{
+                    CarAudioContext.getAudioAttributeFromUsage(
+                            AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)},
+                    "OEM_SYSTEM_SOUND", 8);
+
+    private static final CarAudioContextInfo OEM_CONTEXT_INFO_EMERGENCY =
+            new CarAudioContextInfo(new AudioAttributes[]{
+                    CarAudioContext.getAudioAttributeFromUsage(AudioAttributes.USAGE_EMERGENCY)
+            }, "OEM_EMERGENCY", 9);
+
+    private static final CarAudioContextInfo OEM_CONTEXT_INFO_SAFETY =
+            new CarAudioContextInfo(new AudioAttributes[]{
+                    CarAudioContext.getAudioAttributeFromUsage(AudioAttributes.USAGE_SAFETY)
+            }, "OEM_SAFETY", 10);
+
+    private static final CarAudioContextInfo OEM_CONTEXT_INFO_VEHICLE_STATUS =
+            new CarAudioContextInfo(new AudioAttributes[]{
+                    CarAudioContext.getAudioAttributeFromUsage(
+                            AudioAttributes.USAGE_VEHICLE_STATUS)}, "OEM_VEHICLE_STATUS", 11);
+
+    private static final CarAudioContextInfo OEM_CONTEXT_INFO_ANNOUNCEMENT =
+            new CarAudioContextInfo(new AudioAttributes[]{
+                    CarAudioContext.getAudioAttributeFromUsage(AudioAttributes.USAGE_ANNOUNCEMENT)
+            }, "OEM_ANNOUNCEMENT", 12);
+
     public static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
             new CarAudioContext(CarAudioContext.getAllContextsInfo(),
                     /* useCoreAudioRouting= */ false);
@@ -514,6 +585,29 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         expectWithMessage("Contexts of secondary zone address" + BUS_100_ADDRESS)
                 .that(contextForBusList).containsExactlyElementsIn(TEST_CAR_AUDIO_CONTEXT
                 .getAllContextsIds());
+    }
+
+    @Test
+    public void getCarAudioContext_withOEMContexts() throws Exception {
+        try (InputStream oemDefinedContextStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_using_oem_defined_context)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    oemDefinedContextStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                    /* useCoreAudioRouting= */ false);
+            cazh.loadAudioZones();
+
+            CarAudioContext contexts = cazh.getCarAudioContext();
+
+            assertWithMessage("OEM defined contexts")
+                    .that(contexts.getContextsInfo()).containsExactly(OEM_CONTEXT_INFO_MUSIC,
+                            OEM_CONTEXT_INFO_NAVIGATION, OEM_CONTEXT_INFO_VOICE_COMMAND,
+                            OEM_CONTEXT_INFO_CALL_RING, OEM_CONTEXT_INFO_CALL,
+                            OEM_CONTEXT_INFO_ALARM, OEM_CONTEXT_INFO_NOTIFICATION,
+                            OEM_CONTEXT_INFO_SYSTEM_SOUND, OEM_CONTEXT_INFO_EMERGENCY,
+                            OEM_CONTEXT_INFO_SAFETY, OEM_CONTEXT_INFO_VEHICLE_STATUS,
+                            OEM_CONTEXT_INFO_ANNOUNCEMENT);
+        }
     }
 
     @Test

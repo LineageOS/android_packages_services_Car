@@ -30,6 +30,7 @@ android_test {
     platform_apis: true,
 
     libs: [
+        "android.car",
         "android.test.base",
         "android.test.mock",
         "android.test.runner",

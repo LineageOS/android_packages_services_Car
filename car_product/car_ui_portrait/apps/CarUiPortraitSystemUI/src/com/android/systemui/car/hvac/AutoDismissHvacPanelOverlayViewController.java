@@ -24,6 +24,8 @@ import android.app.UiModeManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Handler;
+import android.view.MotionEvent;
+import android.view.View;
 
 import com.android.systemui.R;
 import com.android.systemui.car.CarDeviceProvisionedController;
@@ -72,6 +74,15 @@ public class AutoDismissHvacPanelOverlayViewController extends HvacPanelOverlayV
         mResources = resources;
         mHandler = handler;
         mContext = context;
+    }
+
+    @Override
+    protected void onTouchEvent(View view, MotionEvent event) {
+        int hvacHeight = mResources.getDimensionPixelSize(R.dimen.hvac_panel_full_expanded_height);
+        if (isPanelExpanded() && (event.getY() < (view.getHeight() - hvacHeight))
+                && (event.getAction() == MotionEvent.ACTION_UP)) {
+            mHandler.post(mAutoDismiss);
+        }
     }
 
     @Override

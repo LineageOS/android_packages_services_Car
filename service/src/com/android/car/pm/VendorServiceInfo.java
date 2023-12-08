@@ -22,6 +22,8 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.text.TextUtils;
 
+import com.android.internal.annotations.VisibleForTesting;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -30,9 +32,14 @@ import java.lang.annotation.RetentionPolicy;
  * immutable object to store only service configuration.
  */
 final class VendorServiceInfo {
+
+    @VisibleForTesting
+    static final int DEFAULT_MAX_RETRIES = 6;
+
     private static final String KEY_BIND = "bind";
     private static final String KEY_USER_SCOPE = "user";
     private static final String KEY_TRIGGER = "trigger";
+    private static final String KEY_MAX_RETRIES = "maxRetries";
 
     private static final int USER_SCOPE_ALL = 0;
     private static final int USER_SCOPE_SYSTEM = 1;
@@ -76,15 +83,17 @@ final class VendorServiceInfo {
     private final @Bind int mBind;
     private final @UserScope int mUserScope;
     private final @Trigger int mTrigger;
+    private final int mMaxRetries;
     @Nullable
     private final ComponentName mComponentName;
 
     private VendorServiceInfo(@Nullable ComponentName componentName, @Bind int bind,
-            @UserScope int userScope, @Trigger int trigger) {
+            @UserScope int userScope, @Trigger int trigger, int maxRetries) {
         mComponentName = componentName;
         mUserScope = userScope;
         mTrigger = trigger;
         mBind = bind;
+        mMaxRetries = maxRetries;
     }
 
     boolean isAllUserService() {
@@ -131,6 +140,10 @@ final class VendorServiceInfo {
         return mBind == START_FOREGROUND;
     }
 
+    int getMaxRetries() {
+        return mMaxRetries;
+    }
+
     Intent getIntent() {
         Intent intent = new Intent();
         intent.setComponent(mComponentName);
@@ -154,6 +167,7 @@ final class VendorServiceInfo {
         int bind = START;
         int userScope = USER_SCOPE_ALL;
         int trigger = TRIGGER_UNLOCKED;
+        int maxRetries = DEFAULT_MAX_RETRIES;
 
         if (serviceParamTokens.length == 2) {
             for (String keyValueStr : serviceParamTokens[1].split(",")) {
@@ -220,13 +234,22 @@ final class VendorServiceInfo {
                                 throw new IllegalArgumentException("Unexpected trigger: " + val);
                         }
                         break;
+                    case KEY_MAX_RETRIES:
+                        try {
+                            maxRetries = Integer.parseInt(val);
+                        } catch (NumberFormatException e) {
+                            throw new IllegalArgumentException(
+                                    "Cannot parse the specified `maxRetries` into an integer: "
+                                            + val);
+                        }
+                        break;
                     default:
                         throw new IllegalArgumentException("Unexpected token: " + key);
                 }
             }
         }
 
-        return new VendorServiceInfo(cn, bind, userScope, trigger);
+        return new VendorServiceInfo(cn, bind, userScope, trigger, maxRetries);
     }
 
     @Override
@@ -236,6 +259,7 @@ final class VendorServiceInfo {
                 + ", bind=" + bindToString(mBind)
                 + ", trigger=" + triggerToString(mTrigger)
                 + ", userScope=" + userScopeToString(mUserScope)
+                + (mMaxRetries == DEFAULT_MAX_RETRIES ? "" : ", maxRetries=" + mMaxRetries)
                 + '}';
     }
 

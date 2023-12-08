@@ -75,9 +75,6 @@ public:
     // Dumps the help text.
     virtual bool dumpHelpText(int fd) const = 0;
 
-    // Notifies that CarWatchdogService was registered
-    virtual void onCarWatchdogServiceRegistered() = 0;
-
     // Below API is from internal/ICarWatchdog.aidl. Please refer to the AIDL for description.
     virtual android::base::Result<void> updateResourceOveruseConfigurations(
             const std::vector<
