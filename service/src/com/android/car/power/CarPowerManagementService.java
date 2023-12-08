@@ -2045,6 +2045,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             android.frameworks.automotive.powerpolicy.CarPowerPolicy[] policies) {
         for (int i = 0; i < policies.length; i++) {
             CarPowerPolicy policy = convertPowerPolicyFromDaemon(policies[i]);
+            // All system power policies are pre-registered in PolicyReader
+            if (PolicyReader.isSystemPowerPolicy(policy.getPolicyId())) {
+                continue;
+            }
             List<String> enabledComponents = PowerComponentUtil.powerComponentsToStrings(
                     Lists.asImmutableList(policy.getEnabledComponents()));
             List<String> disabledComponents = PowerComponentUtil.powerComponentsToStrings(

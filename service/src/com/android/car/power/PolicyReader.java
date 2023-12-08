@@ -431,9 +431,7 @@ public final class PolicyReader {
     @VisibleForTesting
     void initPolicies() {
         mRegisteredPowerPolicies = new ArrayMap<>();
-        if (!carPowerPolicyRefactoring()) {
-            registerBasicPowerPolicies();
-        }
+        registerBasicPowerPolicies();
 
         mPolicyGroups = new ArrayMap<>();
 
