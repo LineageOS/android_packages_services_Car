@@ -85,7 +85,7 @@ public final class SubscriptionManager<ClientType> {
         @Override
         public String toString() {
             return String.format(
-                    "RateInfo{updateRateHz: %f, enableVUR: %b}", updateRateHz,
+                    "RateInfo{updateRateHz: %f, enableVur: %b}", updateRateHz,
                     enableVariableUpdateRate);
         }
 
@@ -495,7 +495,7 @@ public final class SubscriptionManager<ClientType> {
             for (ClientType client : clients) {
                 writer.println("Client " + client + ": Subscribed at "
                         + rateInfoForClients.getUpdateRateHz(client) + " hz"
-                        + ", enableVUR: "
+                        + ", enableVur: "
                         + rateInfoForClients.isVariableUpdateRateEnabled(client));
             }
             writer.decreaseIndent();

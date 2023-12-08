@@ -114,36 +114,36 @@ public final class InputSanitizationUtilsUnitTest {
     }
 
     @Test
-    public void testIsVURAllowed() {
+    public void testIsVurAllowed() {
         CarPropertyConfig config = mock(CarPropertyConfig.class);
         when(config.getChangeMode()).thenReturn(
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS);
         FeatureFlags featureFlags = mock(FeatureFlags.class);
         when(featureFlags.variableUpdateRate()).thenReturn(true);
 
-        assertThat(InputSanitizationUtils.isVURAllowed(featureFlags, config)).isTrue();
+        assertThat(InputSanitizationUtils.isVurAllowed(featureFlags, config)).isTrue();
     }
 
     @Test
-    public void testIsVURAllowed_featureDisabled() {
+    public void testIsVurAllowed_featureDisabled() {
         CarPropertyConfig config = mock(CarPropertyConfig.class);
         when(config.getChangeMode()).thenReturn(
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS);
         FeatureFlags featureFlags = mock(FeatureFlags.class);
         when(featureFlags.variableUpdateRate()).thenReturn(false);
 
-        assertThat(InputSanitizationUtils.isVURAllowed(featureFlags, config)).isFalse();
+        assertThat(InputSanitizationUtils.isVurAllowed(featureFlags, config)).isFalse();
     }
 
     @Test
-    public void testIsVURAllowed_propertyNotContinuous() {
+    public void testIsVurAllowed_propertyNotContinuous() {
         CarPropertyConfig config = mock(CarPropertyConfig.class);
         when(config.getChangeMode()).thenReturn(
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE);
         FeatureFlags featureFlags = mock(FeatureFlags.class);
         when(featureFlags.variableUpdateRate()).thenReturn(true);
 
-        assertThat(InputSanitizationUtils.isVURAllowed(featureFlags, config)).isFalse();
+        assertThat(InputSanitizationUtils.isVurAllowed(featureFlags, config)).isFalse();
     }
 
     @Test
@@ -174,12 +174,12 @@ public final class InputSanitizationUtilsUnitTest {
     }
 
     private static CarSubscription newCarSubscription(int propertyId, int[] areaIds,
-            float updateRateHz, boolean enableVUR) {
+            float updateRateHz, boolean enableVur) {
         CarSubscription option = new CarSubscription();
         option.propertyId = propertyId;
         option.areaIds = areaIds;
         option.updateRateHz = updateRateHz;
-        option.enableVariableUpdateRate = enableVUR;
+        option.enableVariableUpdateRate = enableVur;
         return option;
     }
 }
