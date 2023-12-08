@@ -171,6 +171,7 @@ public final class VolumeGroupBuilder {
 
         when(carVolumeGroup.audioDevicesAdded(anyList())).thenReturn(!mIsActive);
         when(carVolumeGroup.audioDevicesRemoved(anyList())).thenReturn(!mIsActive);
+        when(carVolumeGroup.validateDeviceTypes(any())).thenReturn(true);
 
         return carVolumeGroup;
     }

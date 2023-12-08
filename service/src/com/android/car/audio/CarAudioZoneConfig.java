@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * A class encapsulates the configuration of an audio zone in car.
@@ -236,16 +237,22 @@ final class CarAudioZoneConfig {
      * <li>All contexts are assigned</li>
      * <li>One device should not appear in two groups</li>
      * <li>All gain controllers in the same group have same step value</li>
+     * <li>Device types can not repeat for multiple volume groups in a configuration, see
+     * {@link CarVolumeGroup#validateDeviceTypes(Set)} for further information.
+     * When using core audio routing, device types is not considered</li>
+     * <li>Dynamic device types can only appear alone in volume group, see
+     * {@link CarVolumeGroup#validateDeviceTypes(Set)} for further information.
+     * When using core audio routing device types is not considered</li>
      * </ul>
      *
-     * Note that it is fine that there are devices which do not appear in any group. Those devices
-     * may be reserved for other purposes.
-     * Step value validation is done in
-     * {@link CarVolumeGroup.Builder#setDeviceInfoForContext(int, CarAudioDeviceInfo)}
+     * <p>Note that it is fine that there are devices which do not appear in any group.
+     * Those devices may be reserved for other purposes. Step value validation is done in
+     * {@link CarVolumeGroupFactory#setDeviceInfoForContext(int, CarAudioDeviceInfo)}
      */
     boolean validateVolumeGroups(CarAudioContext carAudioContext, boolean useCoreAudioRouting) {
         ArraySet<Integer> contexts = new ArraySet<>();
         ArraySet<String> addresses = new ArraySet<>();
+        ArraySet<Integer> dynamicDeviceTypesInConfig = new ArraySet<>();
         for (int index = 0; index <  mVolumeGroups.size(); index++) {
             CarVolumeGroup group = mVolumeGroups.get(index);
             // One context should not appear in two groups
@@ -268,6 +275,11 @@ final class CarAudioZoneConfig {
                     Slogf.w(CarLog.TAG_AUDIO, "Address appears in two groups: " + address);
                     return false;
                 }
+            }
+            if (!useCoreAudioRouting && !group.validateDeviceTypes(dynamicDeviceTypesInConfig)) {
+                Slogf.w(CarLog.TAG_AUDIO, "Failed to validate device types for config "
+                        + getName());
+                return false;
             }
         }
 

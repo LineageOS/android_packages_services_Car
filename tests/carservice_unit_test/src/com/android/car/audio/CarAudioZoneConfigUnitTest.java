@@ -422,6 +422,38 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
+    public void validateVolumeGroups_withInvalidDeviceTypesInGroup() {
+        CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS).build();
+        CarVolumeGroup mockNavGroupRoutingOnMusic = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_NAVIGATION_CONTEXT, NAV_ADDRESS).build();
+        when(mockNavGroupRoutingOnMusic.validateDeviceTypes(any())).thenReturn(false);
+        CarVolumeGroup mockAllOtherContextsGroup = mockContextsExceptMediaAndNavigation();
+        CarAudioZoneConfig zoneConfig = buildZoneConfig(
+                List.of(mockMusicGroup, mockNavGroupRoutingOnMusic, mockAllOtherContextsGroup));
+
+        expectWithMessage("Valid status for config with invalid group device types")
+                .that(zoneConfig.validateVolumeGroups(TEST_CAR_AUDIO_CONTEXT,
+                        /* useCoreAudioRouting= */ false)).isFalse();
+    }
+
+    @Test
+    public void validateVolumeGroups_withInvalidDeviceTypesInGroupAndCoreAudioRouting() {
+        CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS).build();
+        CarVolumeGroup mockNavGroupRoutingOnMusic = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_NAVIGATION_CONTEXT, NAV_ADDRESS).build();
+        when(mockNavGroupRoutingOnMusic.validateDeviceTypes(any())).thenReturn(false);
+        CarVolumeGroup mockAllOtherContextsGroup = mockContextsExceptMediaAndNavigation();
+        CarAudioZoneConfig zoneConfig = buildZoneConfig(
+                List.of(mockMusicGroup, mockNavGroupRoutingOnMusic, mockAllOtherContextsGroup));
+
+        expectWithMessage("Valid status for config with core audio routing and invalid types")
+                .that(zoneConfig.validateVolumeGroups(TEST_CAR_AUDIO_CONTEXT,
+                        /* useCoreAudioRouting= */ true)).isTrue();
+    }
+
+    @Test
     public void validateZoneConfigs_withAddressSharedAmongGroupNotUsingCoreAudioRouting_fails() {
         CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
                 .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS).build();
