@@ -27,6 +27,7 @@ import android.automotive.watchdog.internal.PackageMetadata;
 import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
 import android.automotive.watchdog.internal.ResourceOveruseConfiguration;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
+import android.car.builtin.util.Slogf;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseArray;
@@ -46,6 +47,7 @@ import java.util.function.BiFunction;
  * setting the cache.
  */
 public final class OveruseConfigurationCache {
+    private static final String TAG = OveruseConfigurationCache.class.getSimpleName();
     static final PerStateBytes DEFAULT_THRESHOLD =
             constructPerStateBytes(Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE);
 
@@ -179,6 +181,10 @@ public final class OveruseConfigurationCache {
                         return copyPerStateBytes(threshold);
                     }
                     break;
+                default:
+                    // THIRD_PARTY and UNKNOWN components are set with the
+                    // default thresholds.
+                    break;
             }
             threshold = fetchAppCategorySpecificThresholdLocked(genericPackageName);
             if (threshold != null) {
@@ -265,6 +271,9 @@ public final class OveruseConfigurationCache {
                         ioConfig.packageSpecificThresholds, mIoThresholdsByVendorPackages);
                 setIoThresholdsByAppCategoryTypeLocked(ioConfig.categorySpecificThresholds);
                 break;
+            default:
+                Slogf.i(TAG, "Ignoring I/O overuse threshold for invalid component type: %d",
+                        componentType);
         }
     }
 
@@ -282,6 +291,10 @@ public final class OveruseConfigurationCache {
                     mIoThresholdsByAppCategoryType.append(ApplicationCategoryType.MEDIA,
                             threshold.perStateWriteBytes);
                     break;
+                default:
+                    Slogf.i(TAG,
+                            "Ignoring I/O overuse threshold for invalid application category: %s",
+                            threshold.name);
             }
         }
     }

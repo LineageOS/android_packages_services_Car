@@ -17,7 +17,6 @@
 package com.android.car.portraitlauncher.panel.animation;
 
 import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 
 import android.graphics.Rect;
 import android.view.View;
@@ -25,6 +24,8 @@ import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.Interpolator;
 import android.view.animation.PathInterpolator;
+
+import com.android.car.portraitlauncher.panel.TaskViewPanelOverlay;
 
 /**
  * A {@code PanelAnimator} to animate the panel into the open state using the fade-in animation.
@@ -40,9 +41,10 @@ public class FadeOutPanelAnimator extends PanelAnimator {
     private static final float FADE_OUT_ALPHA = 0;
     private static final float FADE_IN_ALPHA = 1;
 
-    private final View mOverlay;
+    private final TaskViewPanelOverlay mOverlay;
     private final View mTaskView;
     private final Rect mBounds;
+    private final float mOffScreenYPosition;
     private ViewPropertyAnimator mOverlayAnimator;
     private ViewPropertyAnimator mTaskViewAnimator;
 
@@ -54,20 +56,24 @@ public class FadeOutPanelAnimator extends PanelAnimator {
      *                the {@code TaskView}.
      * @param taskView The task view of the panel.
      * @param toBounds The final bounds of the panel within its parent
+     * @param offScreenYPosition Y value that can be applied to a panel to get it off the screen.
+     *                        This is needed to hide panels during the animation.
      */
-    public FadeOutPanelAnimator(ViewGroup panel, View overlay, View taskView,
-            Rect toBounds) {
+    public FadeOutPanelAnimator(ViewGroup panel, TaskViewPanelOverlay overlay, View taskView,
+            Rect toBounds, float offScreenYPosition) {
         super(panel);
         mOverlay = overlay;
         mTaskView = taskView;
         mBounds = toBounds;
+        mOffScreenYPosition = offScreenYPosition;
     }
 
     @Override
     public void animate(Runnable endAction) {
-        mOverlay.setVisibility(VISIBLE);
+        mOverlay.show(/* withIcon= */ false);
         mOverlay.setAlpha(FADE_OUT_ALPHA);
-        // First fade in the overlay and then fade-out the whole panel.
+        // First fade in the overlay with scaling down the task view and then fade-out the whole
+        // panel.
         // This is necessary since we cannot fade the task views.
         mOverlayAnimator = mOverlay.animate().alpha(FADE_IN_ALPHA)
                 .setDuration(OVERLAY_FADE_IN_DURATION)
@@ -75,9 +81,9 @@ public class FadeOutPanelAnimator extends PanelAnimator {
                     mPanel.animate().alpha(FADE_OUT_ALPHA).setDuration(PANEL_FADE_OUT_DURATION)
                             .withEndAction(() -> {
                                 mOverlay.setVisibility(GONE);
-                                mTaskView.setVisibility(VISIBLE);
                                 mTaskView.setScaleX(INITIAL_SCALE);
                                 mTaskView.setScaleY(INITIAL_SCALE);
+                                mTaskView.setTranslationY(0);
                                 mPanel.setAlpha(FADE_IN_ALPHA);
                                 endAction.run();
                             });
@@ -89,7 +95,10 @@ public class FadeOutPanelAnimator extends PanelAnimator {
                     // Restore the initial scale
                     mTaskView.setScaleX(INITIAL_SCALE);
                     mTaskView.setScaleY(INITIAL_SCALE);
-                    mTaskView.setVisibility(GONE);
+                    // Move the task view out of the screen to make it not visible. We cannot reset
+                    // the visibility to View.GONE because it causes WM to take a screenshot in a
+                    // state where the overlay might be covering the task view.
+                    mTaskView.setTranslationY(mOffScreenYPosition - mTaskView.getY());
                 });
     }
 
@@ -103,9 +112,9 @@ public class FadeOutPanelAnimator extends PanelAnimator {
             mTaskViewAnimator.cancel();
         }
         mOverlay.setVisibility(GONE);
-        mTaskView.setVisibility(VISIBLE);
         mTaskView.setScaleX(INITIAL_SCALE);
         mTaskView.setScaleY(INITIAL_SCALE);
+        mTaskView.setTranslationY(0);
         mPanel.setAlpha(FADE_IN_ALPHA);
         updateBounds(mBounds);
     }

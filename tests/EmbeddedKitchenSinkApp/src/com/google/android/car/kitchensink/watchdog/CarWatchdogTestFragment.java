@@ -451,6 +451,8 @@ public class CarWatchdogTestFragment extends Fragment {
                 return "I/O overuse warning notification";
             case NOTIFICATION_TYPE_OVERUSE:
                 return "I/O overuse exceeding notification";
+            default:
+                Log.e(TAG, "Invalid notification type: " + type);
         }
         return "Unknown notification type";
     }

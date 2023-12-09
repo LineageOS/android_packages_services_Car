@@ -29,10 +29,15 @@ import android.car.app.ICarTaskViewHost;
  */
 interface ICarSystemUIProxy {
     /**
+     * @deprecated, use createRootTaskView()
+     */
+    ICarTaskViewHost createControlledCarTaskView(in ICarTaskViewClient client);
+
+    /**
      * Creates the host side of the task view and links the provided {@code carTaskVIewClient}
      * to the same.
      *
      * @return a handle to the host side of task view.
      */
-    ICarTaskViewHost createControlledCarTaskView(in ICarTaskViewClient client);
+    ICarTaskViewHost createCarTaskView(in ICarTaskViewClient client);
 }

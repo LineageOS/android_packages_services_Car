@@ -21,6 +21,7 @@
              android:targetName="CarDialerApp"
              android:targetPackage="com.android.car.dialer"
              android:resourcesMap="@xml/overlays"
-             android:category="caruiportrait.cardialer"
-             android:isStatic="false" />
+             android:requiredSystemPropertyName="car.ui.config"
+             android:requiredSystemPropertyValue="rickybobby"
+             android:isStatic="true" />
 </manifest>

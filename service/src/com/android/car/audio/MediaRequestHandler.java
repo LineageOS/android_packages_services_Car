@@ -224,6 +224,23 @@ final class MediaRequestHandler {
         }
     }
 
+    long getAssignedRequestIdForOccupantZoneId(int occupantZoneId) {
+        CarOccupantZoneManager.OccupantZoneInfo occupantZoneInfo = null;
+        synchronized (mLock) {
+            for (int index = 0; index < mAssignedOccupants.size(); index++) {
+                CarOccupantZoneManager.OccupantZoneInfo info = mAssignedOccupants.valueAt(index);
+                if (info.zoneId != occupantZoneId) {
+                    continue;
+                }
+                occupantZoneInfo = info;
+                break;
+            }
+        }
+
+        return occupantZoneInfo == null
+                ? INVALID_REQUEST_ID : getRequestIdForOccupant(occupantZoneInfo);
+    }
+
     List<Long> getRequestsOwnedByApprover(IPrimaryZoneMediaAudioRequestCallback callback) {
         List<Long> ownedRequests = new ArrayList<>();
         synchronized (mLock) {
@@ -397,8 +414,8 @@ final class MediaRequestHandler {
                 InternalMediaAudioRequest value = mMediaAudioRequestIdToCallback.valueAt(index);
                 writer.printf("%d : %s\n", key, value);
             }
-            writer.increaseIndent();
-            writer.printf("Request id to approver[%d]\n", mRequestIdToApprover.size());
+            writer.decreaseIndent();
+            writer.printf("Request id to approver[%d]:\n", mRequestIdToApprover.size());
             writer.increaseIndent();
             for (int index = 0; index < mRequestIdToApprover.size(); index++) {
                 long key = mRequestIdToApprover.keyAt(index);

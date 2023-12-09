@@ -38,7 +38,11 @@ public class CarEvsCameraActivity extends Activity {
         try {
             CarEvsManager evsManager = (CarEvsManager) car.getCarManager(
                     Car.CAR_EVS_SERVICE);
-            if (evsManager.startActivity(CarEvsManager.SERVICE_TYPE_REARVIEW) != ERROR_NONE) {
+            String config = getApplicationContext().getResources()
+                    .getString(R.string.config_evsCameraType);
+            int type = config == null ?
+                    CarEvsManager.SERVICE_TYPE_REARVIEW : getServiceType(config);
+            if (evsManager.startActivity(type) != ERROR_NONE) {
                 Log.e(TAG, "Failed to start a camera preview activity");
             }
         } finally {
@@ -48,6 +52,23 @@ public class CarEvsCameraActivity extends Activity {
     };
 
     private Car mCar;
+
+    static int getServiceType(String rawString) {
+        switch (rawString) {
+            case "REARVIEW": return CarEvsManager.SERVICE_TYPE_REARVIEW;
+            case "SURROUNDVIEW": return CarEvsManager.SERVICE_TYPE_SURROUNDVIEW;
+            case "FRONTVIEW": return CarEvsManager.SERVICE_TYPE_FRONTVIEW;
+            case "LEFTVIEW": return CarEvsManager.SERVICE_TYPE_LEFTVIEW;
+            case "RIGHTVIEW": return CarEvsManager.SERVICE_TYPE_RIGHTVIEW;
+            case "DRIVERVIEW": return CarEvsManager.SERVICE_TYPE_DRIVERVIEW;
+            case "FRONT_PASSENGERSVIEW": return CarEvsManager.SERVICE_TYPE_FRONT_PASSENGERSVIEW;
+            case "REAR_PASSENGERSVIEW": return CarEvsManager.SERVICE_TYPE_REAR_PASSENGERSVIEW;
+            case "USER_DEFINEDVIEW": return CarEvsManager.SERVICE_TYPE_USER_DEFINED;
+            default:
+                Log.w(TAG, "Unknown service type: " + rawString);
+                return CarEvsManager.SERVICE_TYPE_REARVIEW;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

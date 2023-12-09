@@ -124,18 +124,19 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
             }
             Log.d(TAG, "Stopping car service for test");
             mTestManager.stopCarService(mToken);
-            CarApiTestBase.executeShellCommand(
-                    "dumpsys android.hardware.automotive.vehicle.IVehicle/default "
-                            + "--genTestVendorConfigs");
+            String result = CarApiTestBase.executeShellCommand(
+                    "dumpsys car_service gen-test-vendor-configs");
             Log.d(TAG, "Starting car service for test");
             mTestManager.startCarService(mToken);
 
             List<CarPropertyConfig> carPropertyConfigsList = mCarPropertyManager.getPropertyList();
-
             resultSet = new ArraySet<>();
             for (int i = 0; i < carPropertyConfigsList.size(); i++) {
                 resultSet.add(carPropertyConfigsList.get(i).getPropertyId());
             }
+            assumeTrue("successfully generated vendor configs, VHAL gen-test-vendor-configs "
+                            + "debug command is supported",
+                    result.equals("successfully generated vendor configs\n"));
             for (int i = STARTING_TEST_CODES; i < END_TEST_CODES; i++) {
                 assertThat(i).isIn(resultSet);
             }
@@ -151,11 +152,13 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
         try {
             Log.d(TAG, "Stopping car service for test");
             mTestManager.stopCarService(mToken);
-            CarApiTestBase.executeShellCommand(
-                    "dumpsys android.hardware.automotive.vehicle.IVehicle/default "
-                            + "--genTestVendorConfigs");
+            String result = CarApiTestBase.executeShellCommand(
+                    "dumpsys car_service gen-test-vendor-configs");
             Log.d(TAG, "Starting car service for test");
             mTestManager.startCarService(mToken);
+            assumeTrue("successfully generated vendor configs, VHAL gen-test-vendor-configs "
+                            + "debug command is supported",
+                    result.equals("successfully generated vendor configs\n"));
             Executor callbackExecutor = new HandlerExecutor(mHandler);
             Set<Integer> setPropertyIds = new ArraySet<>();
             List<CarPropertyManager.SetPropertyRequest<?>> setPropertyRequests = new ArrayList<>();
@@ -191,11 +194,13 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
         try {
             Log.d(TAG, "Stopping car service for test");
             mTestManager.stopCarService(mToken);
-            CarApiTestBase.executeShellCommand(
-                    "dumpsys android.hardware.automotive.vehicle.IVehicle/default "
-                            + "--genTestVendorConfigs");
+            String result = CarApiTestBase.executeShellCommand(
+                    "dumpsys car_service gen-test-vendor-configs");
             Log.d(TAG, "Starting car service for test");
             mTestManager.startCarService(mToken);
+            assumeTrue("successfully generated vendor configs, VHAL gen-test-vendor-configs "
+                            + "debug command is supported",
+                    result.equals("successfully generated vendor configs\n"));
 
             Executor callbackExecutor = new HandlerExecutor(mHandler);
             Set<Integer> getPropertyIds = new ArraySet<>();
@@ -227,9 +232,9 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
     private void restoreCarService() throws Exception {
         Log.d(TAG, "Stopping car service for test");
         mTestManager.stopCarService(mToken);
-        CarApiTestBase.executeShellCommand(
-                "dumpsys android.hardware.automotive.vehicle.IVehicle/default "
-                        + "--restoreVendorConfigs");
+        String result = CarApiTestBase.executeShellCommand(
+                "dumpsys car_service restore-vendor-configs");
+        assertThat(result.equals("successfully restored vendor configs\n")).isTrue();
         Log.d(TAG, "Starting car service for test");
         mTestManager.startCarService(mToken);
     }

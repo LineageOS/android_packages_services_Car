@@ -53,10 +53,7 @@ public:
           mId(deviceId),
           mStreamConfig(cfg),
           mTimeCreatedMs(::android::uptimeMillis()),
-          mUsageStats(new CameraUsageStats(recordId)) {
-        mCurrentRequests = &mFrameRequests[0];
-        mNextRequests = &mFrameRequests[1];
-    }
+          mUsageStats(new CameraUsageStats(recordId)) {}
 
     virtual ~HalCamera();
 
@@ -104,7 +101,7 @@ private:
         STOPPED,
         RUNNING,
         STOPPING,
-    } mStreamState = STOPPED;
+    } mStreamState GUARDED_BY(mFrameMutex) = STOPPED;
 
     struct FrameRecord {
         uint32_t frameId;
@@ -121,14 +118,9 @@ private:
         int64_t timestamp = -1;
     };
 
-    void cancelCaptureRequestFromClientLocked(std::deque<FrameRequest>* requests,
-                                              const VirtualCamera* client) REQUIRES(mFrameMutex);
-
     // synchronization
     mutable std::mutex mFrameMutex;
-    std::deque<FrameRequest> mFrameRequests[2] GUARDED_BY(mFrameMutex);
-    std::deque<FrameRequest>* mCurrentRequests PT_GUARDED_BY(mFrameMutex);
-    std::deque<FrameRequest>* mNextRequests PT_GUARDED_BY(mFrameMutex);
+    std::deque<FrameRequest> mNextRequests GUARDED_BY(mFrameMutex);
 
     // Time this object was created
     int64_t mTimeCreatedMs;

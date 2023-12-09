@@ -28,7 +28,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.os.UserHandle;
 
 import com.android.internal.util.UserIcons;
 
@@ -96,10 +95,15 @@ class CarUserIconProvider {
         return userIconBitmap;
     }
 
+    static Bitmap getGuestDefaultUserIcon(Resources resources) {
+        return UserIcons.convertToBitmap(
+                resources.getDrawable(R.drawable.car_internal_guest_user_icon, null));
+    }
+
     @ColorInt
     static int getUserNameIconColor(@NonNull Context context, @NonNull UserInfo userInfo) {
         if (userInfo.isGuest()) {
-            throw new IllegalArgumentException("Cannot get user background color for guest user");
+            return context.getColor(R.color.car_internal_guest_user_avatar_color);
         }
         return context.getColor(USER_NAME_ICON_COLORS[userInfo.id % USER_NAME_ICON_COLORS.length]);
     }
@@ -107,14 +111,9 @@ class CarUserIconProvider {
     @ColorInt
     static int getUserBackgroundIconColor(@NonNull Context context, @NonNull UserInfo userInfo) {
         if (userInfo.isGuest()) {
-            throw new IllegalArgumentException("Cannot get user background color for guest user");
+            return context.getColor(R.color.car_internal_guest_user_background_color);
         }
         return context.getColor(
                 USER_BACKGROUND_ICON_COLORS[userInfo.id % USER_BACKGROUND_ICON_COLORS.length]);
-    }
-
-    private static Bitmap getGuestDefaultUserIcon(Resources resources) {
-        return UserIcons.convertToBitmap(UserIcons.getDefaultUserIcon(
-                resources, /*userId=*/ UserHandle.USER_NULL, /*light=*/ false));
     }
 }

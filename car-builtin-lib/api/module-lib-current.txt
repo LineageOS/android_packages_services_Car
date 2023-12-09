@@ -19,6 +19,7 @@ package android.car.builtin.annotation {
     enum_constant public static final android.car.builtin.annotation.PlatformVersion TIRAMISU_2;
     enum_constant public static final android.car.builtin.annotation.PlatformVersion TIRAMISU_3;
     enum_constant public static final android.car.builtin.annotation.PlatformVersion UPSIDE_DOWN_CAKE_0;
+    enum_constant public static final android.car.builtin.annotation.PlatformVersion UPSIDE_DOWN_CAKE_1;
   }
 
 }
@@ -65,6 +66,7 @@ package android.car.builtin.app {
   public class TaskInfoHelper {
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) @NonNull public static android.graphics.Rect getBounds(@NonNull android.app.TaskInfo);
     method public static int getDisplayId(@NonNull android.app.TaskInfo);
+    method public static android.os.IBinder getToken(@NonNull android.app.TaskInfo);
     method public static int getUserId(@NonNull android.app.TaskInfo);
     method public static boolean isVisible(@NonNull android.app.TaskInfo);
     method public static String toString(@Nullable android.app.TaskInfo);

@@ -191,7 +191,7 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
                 Log.i(TAG, "removing users at end of " + getTestName() + ": " + mUsersToRemove);
                 for (Integer userId : mUsersToRemove) {
                     if (hasUser(userId)) {
-                        removeUser(userId);
+                        mUserManager.removeUser(userId);
                     }
                 }
             } else {

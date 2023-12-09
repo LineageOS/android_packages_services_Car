@@ -52,6 +52,14 @@
             android:layout_height="@dimen/bug_report_voice_recording_height"
             android:layout_width="match_parent"/>
         <TextView
+            android:id="@+id/voice_recording_timer_text_view"
+            android:layout_marginTop="@dimen/bug_report_voice_recording_margin_top"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/bug_report_voice_recording_height"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/bugreport_text"
+            android:gravity="center"/>
+        <TextView
             android:id="@+id/voice_recording_finished_text_view"
             android:layout_marginTop="@dimen/bug_report_voice_recording_margin_top"
             android:layout_width="match_parent"
@@ -75,6 +83,13 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/bug_report_button_margin_top"
             android:text="@string/bugreport_dialog_cancel"/>
+        <Button
+            android:id="@+id/button_record_again"
+            style="@style/standard_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/bug_report_button_margin_top"
+            android:text="@string/bugreport_dialog_record_again"/>
     </LinearLayout>
 
     <LinearLayout

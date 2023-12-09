@@ -65,4 +65,8 @@ ifeq ($(ENABLE_PASSENGER_SYSTEMUI_RRO), true)
 PRODUCT_PACKAGES += CarSystemUIPassengerOverlay
 endif  # ENABLE_PASSENGER_SYSTEMUI_RRO
 
+ifneq (,$(filter true,$(ENABLE_EVS_SAMPLE) $(ENABLE_SAMPLE_EVS_APP)))
+include packages/services/Car/cpp/evs/apps/sepolicy/evsapp.mk
+endif
+
 $(call inherit-product, device/sample/products/location_overlay.mk)

@@ -21,6 +21,7 @@
              android:targetName="CarMediaCommon"
              android:targetPackage="com.android.car.media"
              android:resourcesMap="@xml/overlays"
-             android:category="caruiportrait.media.common"
-             android:isStatic="false" />
+             android:requiredSystemPropertyName="car.ui.config"
+             android:requiredSystemPropertyValue="rickybobby"
+             android:isStatic="true" />
 </manifest>

@@ -21,6 +21,11 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
      package="com.google.android.car.multidisplaytest">
+
+    <!-- Used for OccupantConnectionFragment -->
+    <uses-permission android:name="android.car.permission.MANAGE_OCCUPANT_CONNECTION"/>
+    <uses-permission android:name="android.car.permission.MANAGE_REMOTE_DEVICE"/>
+
     <application android:label="MD Test">
         <activity android:name="MDTest"
              android:label="@string/app_title_always"
@@ -32,5 +37,15 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <activity android:name=".occupantconnection.PermissionActivity"/>
+
+        <service android:name=".occupantconnection.ReceiverService"
+                 android:permission="android.car.occupantconnection.permission.BIND_RECEIVER_SERVICE"
+                 android:exported="true">
+            <intent-filter>
+                <action android:name="android.car.intent.action.RECEIVER_SERVICE" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>

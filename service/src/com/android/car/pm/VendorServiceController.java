@@ -490,9 +490,8 @@ final class VendorServiceController implements UserLifecycleListener {
      */
     @VisibleForTesting
     public static final class VendorServiceConnection implements ServiceConnection, Executor {
-        private static final int REBIND_DELAY_MS = 5000;
-        private static final int MAX_RECENT_FAILURES = 5;
-        private static final int FAILURE_COUNTER_RESET_TIMEOUT = 5 * 60 * 1000; // 5 min.
+        private static final int INITIAL_REBIND_DELAY_MS = 4000; // 4 sec.
+        private static final int DEFAULT_FAILURE_COUNTER_RESET_TIMEOUT = 5 * 60 * 1000; // 5 min.
         private static final int MSG_REBIND = 0;
         private static final int MSG_FAILURE_COUNTER_RESET = 1;
 
@@ -627,8 +626,13 @@ final class VendorServiceController implements UserLifecycleListener {
             int currentUserId = ActivityManager.getCurrentUser();
             if (isUserInScope(mUser.getIdentifier(), mVendorServiceInfo, mCarUserService,
                     currentUserId)) {
+                // Double the delay after each failure.
+                int rebindDelay = INITIAL_REBIND_DELAY_MS * (1 << mRecentFailures);
+                Slogf.i(TAG, "tryToRebind(): after " + mRecentFailures + " recent failures,"
+                        + " trying to rebind service " + mVendorServiceInfo.toShortString()
+                        + " for user " + mUser.getIdentifier() + " in " + rebindDelay + "ms");
                 mFailureHandler.sendMessageDelayed(
-                        mFailureHandler.obtainMessage(MSG_REBIND), REBIND_DELAY_MS);
+                        mFailureHandler.obtainMessage(MSG_REBIND), rebindDelay);
                 scheduleResetFailureCounter();
             } else {
                 Slogf.w(TAG, "No need to rebind anymore as the service no longer satisfies "
@@ -638,22 +642,34 @@ final class VendorServiceController implements UserLifecycleListener {
 
         private void scheduleResetFailureCounter() {
             mFailureHandler.removeMessages(MSG_FAILURE_COUNTER_RESET);
+            // Reset the failure counter after the timeout. We take the max, to ensure
+            // that we are not resetting the counter before exhausting all retries.
+            int failureCounterResetTimeout =
+                    INITIAL_REBIND_DELAY_MS * (1 << (mVendorServiceInfo.getMaxRetries() + 1));
+            failureCounterResetTimeout =
+                    failureCounterResetTimeout > DEFAULT_FAILURE_COUNTER_RESET_TIMEOUT
+                            ? failureCounterResetTimeout : DEFAULT_FAILURE_COUNTER_RESET_TIMEOUT;
             mFailureHandler.sendMessageDelayed(
                     mFailureHandler.obtainMessage(MSG_FAILURE_COUNTER_RESET),
-                    FAILURE_COUNTER_RESET_TIMEOUT);
+                    failureCounterResetTimeout);
         }
 
         private void handleFailureMessage(Message msg) {
             switch (msg.what) {
                 case MSG_REBIND: {
-                    if (mRecentFailures < MAX_RECENT_FAILURES && !mBound) {
+                    if (mBound) {
+                        Slogf.d(TAG, "Service " + mVendorServiceInfo.toShortString()
+                                + " is already bound. Ignoring MSG_REBIND");
+                    } else if (mRecentFailures < mVendorServiceInfo.getMaxRetries()) {
                         Slogf.i(TAG, "Attempting to rebind to the service "
-                                + mVendorServiceInfo.toShortString());
+                                + mVendorServiceInfo.toShortString() + " (" + (mRecentFailures + 1)
+                                + " out of " + mVendorServiceInfo.getMaxRetries() + " max tries)");
                         ++mRecentFailures;
                         startOrBindService();
                     } else {
-                        Slogf.w(TAG, "Exceeded maximum number of attempts to rebind"
-                                + "to the service " + mVendorServiceInfo.toShortString());
+                        Slogf.w(TAG, "Exceeded maximum number of attempts ("
+                                + mVendorServiceInfo.getMaxRetries() + ") to rebind to the service "
+                                + mVendorServiceInfo.toShortString());
                     }
                     break;
                 }

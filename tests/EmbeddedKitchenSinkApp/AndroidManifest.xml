@@ -230,6 +230,9 @@
     <!-- use for BiometricPromptTestFragment to test the API -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
 
+    <!-- To view dumpsys output -->
+    <uses-permission android:name="android.permission.DUMP"/>
+
     <!-- Allow backup is set to false for KitchenSinkApp to avoid infinite loop during backup -->
     <application android:label="@string/app_title"
                  android:allowBackup="false"
@@ -432,17 +435,5 @@
                 <action android:name="android.car.remoteaccess.RemoteTaskClientService" />
             </intent-filter>
         </service>
-
-        <service
-            android:name=".autofill.KitchenSinkAutofillService"
-            android:label="KS Autofill"
-            android:permission="android.permission.BIND_AUTOFILL_SERVICE"
-            android:exported="true">
-
-            <intent-filter>
-                <action android:name="android.service.autofill.AutofillService" />
-            </intent-filter>
-        </service>
-
     </application>
 </manifest>

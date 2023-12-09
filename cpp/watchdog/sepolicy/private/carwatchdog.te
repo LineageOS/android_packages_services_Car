@@ -9,6 +9,9 @@ add_service(carwatchdogd, carwatchdogd_service)
 binder_use(carwatchdogd)
 binder_service(carwatchdogd)
 
+# Read carwatchdog configuration properties
+get_prop(carwatchdogd, carwatchdog_config_prop)
+
 # Configration to communicate with VHAL.
 hwbinder_use(carwatchdogd)
 get_prop(carwatchdogd, hwservicemanager_prop)

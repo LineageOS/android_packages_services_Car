@@ -19,7 +19,8 @@
     <dimen name="car_portrait_ui_button_radius">44dp</dimen>
     <dimen name="car_portrait_ui_window_rounded_corner_radius">48dp</dimen>
 
-    <dimen name="car_portrait_ui_toast_margin">24dp</dimen>
+    <dimen name="car_portrait_ui_toast_margin">48dp</dimen>
+    <dimen name="car_portrait_ui_toast_icon_margin">24dp</dimen>
     <dimen name="car_portrait_ui_toast_icon_size">48dp</dimen>
     <dimen name="car_portrait_ui_toast_bottom_margin">32dp</dimen>
 
@@ -27,6 +28,9 @@
     <dimen name="car_portrait_ui_tab_height">96dp</dimen>
     <dimen name="car_portrait_ui_tab_margin_horizontal">16dp</dimen>
 
-    <dimen name="car_alert_dialog_vertical_margin">32dp</dimen>
-    <dimen name="car_alert_dialog_horizontal_margin">48dp</dimen>
+    <dimen name="car_alert_dialog_padding">24dp</dimen>
+    <dimen name="car_alert_dialog_icon_size">64dp</dimen>
+    <dimen name="car_alert_dialog_button_spacing">16dp</dimen>
+
+    <dimen name="car_panel_border_width">3dp</dimen>
 </resources>

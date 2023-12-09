@@ -34,6 +34,7 @@ public:
     MOCK_METHOD(android::base::Result<void>, init, (), (override));
     MOCK_METHOD(void, terminate, (), (override));
     MOCK_METHOD(android::base::Result<void>, onSystemStartup, (), (override));
+    MOCK_METHOD(void, onCarWatchdogServiceRegistered, (), (override));
     MOCK_METHOD(android::base::Result<void>, onBoottimeCollection,
                 (time_t, const wp<UidStatsCollectorInterface>&,
                  const wp<ProcStatCollectorInterface>&,

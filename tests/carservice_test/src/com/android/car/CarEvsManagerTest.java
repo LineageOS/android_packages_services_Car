@@ -27,6 +27,7 @@ import android.car.evs.CarEvsManager.CarEvsStreamEvent;
 import android.car.evs.CarEvsStatus;
 import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.util.Log;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.runner.AndroidJUnit4;
@@ -63,6 +64,7 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
     private static final int SMALL_NAP_MS = 500;
     private static final int ACTIVITY_REQUEST_TIMEOUT_SEC = 3;
     private static final int STREAM_REQUEST_TIMEOUT_SEC = 1;
+    private static final int STREAM_EVENT_TIMEOUT_SEC = 2;
 
     // Will return frame buffers in the order they arrived.
     private static final int INDEX_TO_FIRST_ELEM = 0;
@@ -70,14 +72,15 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
     private final ArrayList<CarEvsBufferDescriptor> mReceivedBuffers = new ArrayList<>();
     private final ExecutorService mCallbackExecutor = Executors.newFixedThreadPool(1);
     private final Semaphore mFrameReceivedSignal = new Semaphore(0);
-    private final Semaphore mServiceInRequestedState = new Semaphore(0);
-    private final Semaphore mServiceInActiveState = new Semaphore(0);
+    private final Semaphore mStreamEventOccurred = new Semaphore(0);
 
     private final Car mCar = Car.createCar(ApplicationProvider.getApplicationContext());
     private final CarEvsManager mEvsManager =
             (CarEvsManager) mCar.getCarManager(Car.CAR_EVS_SERVICE);
     private final EvsStreamCallbackImpl mStreamCallback = new EvsStreamCallbackImpl();
     private final EvsStatusListenerImpl mStatusListener = new EvsStatusListenerImpl();
+
+    private @CarEvsStreamEvent int mLastStreamEvent;
 
     @Before
     public void setUp() {
@@ -89,8 +92,7 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
 
         // Drains all permits
         mFrameReceivedSignal.drainPermits();
-        mServiceInRequestedState.drainPermits();
-        mServiceInActiveState.drainPermits();
+        mStreamEventOccurred.drainPermits();
 
         // Ensures no stream is active
         mEvsManager.stopVideoStream();
@@ -109,33 +111,6 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
     }
 
     @Test
-    public void testSetStatusListener() throws Exception {
-        // Registers a status listener and start monitoring the CarEvsService's state changes.
-        mEvsManager.setStatusListener(mCallbackExecutor, mStatusListener);
-
-        // Requests to start the rearview activity.
-        assertThat(
-                mEvsManager.startActivity(CarEvsManager.SERVICE_TYPE_REARVIEW)
-        ).isEqualTo(CarEvsManager.ERROR_NONE);
-
-        // Waits until the CarEvsService enters the REQUESTED state.
-        assertThat(
-                mServiceInRequestedState.tryAcquire(ACTIVITY_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
-        ).isTrue();
-
-        // Waits until the CarEvsService starts a video stream; it enters the ACTIVE state.
-        assertThat(
-                mServiceInActiveState.tryAcquire(STREAM_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
-        ).isTrue();
-
-        // Requests to stop the rearview activity.
-        mEvsManager.stopActivity();
-
-        // Unregisters a status listener.
-        mEvsManager.clearStatusListener();
-    }
-
-    @Test
     public void testStartAndStopVideoStream() throws Exception {
         // Registers a status listener and start monitoring the CarEvsService's state changes.
         mEvsManager.setStatusListener(mCallbackExecutor, mStatusListener);
@@ -146,12 +121,7 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
                         /* token = */ null, mCallbackExecutor, mStreamCallback)
         ).isEqualTo(CarEvsManager.ERROR_NONE);
 
-        // Waits until the service starts the video stream.
-        assertThat(
-                mServiceInActiveState.tryAcquire(STREAM_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
-        ).isTrue();
-
-        // Then, waits for a few frames frame buffers
+        // Waits for a few frame buffers
         for (int i = 0; i < NUMBER_OF_FRAMES_TO_WAIT; ++i) {
             assertThat(
                     mFrameReceivedSignal.tryAcquire(FRAME_TIMEOUT_MS, TimeUnit.MILLISECONDS)
@@ -175,9 +145,8 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
         // Checks a current status a few hundreds milliseconds after.  CarEvsService will move into
         // the inactive state when it gets a stream-stopped event from the EVS manager.
         SystemClock.sleep(SMALL_NAP_MS);
-        status = mEvsManager.getCurrentStatus();
-        assertThat(status).isNotNull();
-        assertThat(status.getState()).isEqualTo(CarEvsManager.SERVICE_STATE_INACTIVE);
+        assertThat(mStreamCallback.waitForStreamEvent(CarEvsManager.STREAM_EVENT_STREAM_STOPPED))
+                .isTrue();
 
         // Unregister a listener
         mEvsManager.clearStatusListener();
@@ -198,23 +167,7 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
     private final class EvsStatusListenerImpl implements CarEvsManager.CarEvsStatusListener {
         @Override
         public void onStatusChanged(CarEvsStatus status) {
-            switch (status.getState()) {
-                case CarEvsManager.SERVICE_STATE_REQUESTED:
-                    mServiceInRequestedState.release();
-                    break;
-
-                case CarEvsManager.SERVICE_STATE_ACTIVE:
-                    mServiceInActiveState.release();
-                    break;
-
-                case CarEvsManager.SERVICE_STATE_UNAVAILABLE:
-                    // Nothing to do
-                    break;
-
-                default:
-                    // Nothing to do
-                    break;
-            }
+            Log.i(TAG, "Received a notification of status changed to " + status.getState());
         }
     }
 
@@ -225,19 +178,8 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
     private final class EvsStreamCallbackImpl implements CarEvsManager.CarEvsStreamCallback {
         @Override
         public void onStreamEvent(@CarEvsStreamEvent int event) {
-            switch(event) {
-                case CarEvsManager.STREAM_EVENT_STREAM_STARTED:
-                    // Ignores this event for now because our reference EVS HAL does not send this
-                    // event.
-                    break;
-
-                case CarEvsManager.STREAM_EVENT_STREAM_STOPPED:
-                    break;
-
-                default:
-                    // Ignores other stream events in this test.
-                    break;
-            }
+            mLastStreamEvent = event;
+            mStreamEventOccurred.release();
         }
 
         @Override
@@ -247,6 +189,23 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
 
             // Notifies a new frame's arrival
             mFrameReceivedSignal.release();
+        }
+
+        public boolean waitForStreamEvent(@CarEvsStreamEvent int expected) {
+            while (mLastStreamEvent != expected) {
+                try {
+                    if (!mStreamEventOccurred.tryAcquire(STREAM_EVENT_TIMEOUT_SEC,
+                            TimeUnit.SECONDS)) {
+                        Log.e(TAG, "No stream event is received before the timer expired.");
+                        return false;
+                    }
+                } catch (InterruptedException e) {
+                    Log.e(TAG, "Current waiting thread is interrupted. ", e);
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

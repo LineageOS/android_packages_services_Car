@@ -20,6 +20,7 @@ import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAt
 
 import android.annotation.MainThread;
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
@@ -34,6 +35,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Build;
+import android.graphics.Region;
 import android.os.UserManager;
 import android.view.Display;
 import android.view.SurfaceControl;
@@ -47,7 +49,7 @@ import java.util.concurrent.Executor;
  * The underlying task will be restarted if it is crashed depending on the
  * {@code autoRestartOnCrash}.
  *
- * It should be preferred when:
+ * <p>It should be preferred when:
  * <ul>
  *     <li>The underlying task is meant to be started by the host and be there forever.</li>
  * </ul>
@@ -66,6 +68,49 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     private final Context mContext;
     private final ControlledRemoteCarTaskViewConfig mConfig;
     private final Rect mTmpRect = new Rect();
+
+    private ActivityManager.RunningTaskInfo mTaskInfo;
+
+    final ICarTaskViewClient mICarTaskViewClient = new ICarTaskViewClient.Stub() {
+        @Override
+        public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo, SurfaceControl leash) {
+            mTaskInfo = taskInfo;
+            updateWindowBounds();
+            if (taskInfo.taskDescription != null) {
+                ViewHelper.seResizeBackgroundColor(
+                        ControlledRemoteCarTaskView.this,
+                        taskInfo.taskDescription.getBackgroundColor());
+            }
+            ControlledRemoteCarTaskView.this.onTaskAppeared(taskInfo, leash);
+        }
+
+        @Override
+        public void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo) {
+            if (taskInfo.taskDescription != null) {
+                ViewHelper.seResizeBackgroundColor(
+                        ControlledRemoteCarTaskView.this,
+                        taskInfo.taskDescription.getBackgroundColor());
+            }
+            ControlledRemoteCarTaskView.this.onTaskInfoChanged(taskInfo);
+        }
+
+        @Override
+        public void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo) {
+            mTaskInfo = null;
+            ControlledRemoteCarTaskView.this.onTaskVanished(taskInfo);
+        }
+
+        @Override
+        public void setResizeBackgroundColor(SurfaceControl.Transaction t, int color) {
+            ViewHelper.seResizeBackgroundColor(ControlledRemoteCarTaskView.this, color);
+        }
+
+        @Override
+        public Rect getCurrentBoundsOnScreen() {
+            ViewHelper.getBoundsOnScreen(ControlledRemoteCarTaskView.this, mTmpRect);
+            return mTmpRect;
+        }
+    };
 
     ControlledRemoteCarTaskView(
             @NonNull Context context,
@@ -146,8 +191,9 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
 
     @Override
     void onReleased() {
+        mTaskInfo = null;
         mCallbackExecutor.execute(() -> mCallback.onTaskViewReleased());
-        mCarTaskViewController.onControlledRemoteCarTaskViewReleased(this);
+        mCarTaskViewController.onRemoteCarTaskViewReleased(this);
     }
 
     @Override
@@ -192,6 +238,19 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
         mCallbackExecutor.execute(() -> mCallback.onTaskVanished(taskInfo));
     }
 
+    /**
+     * @return the {@link android.app.ActivityManager.RunningTaskInfo} of the task currently
+     * running in the TaskView.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @MainThread
+    @Override
+    @Nullable
+    public ActivityManager.RunningTaskInfo getTaskInfo() {
+        return mTaskInfo;
+    }
+
     ControlledRemoteCarTaskViewConfig getConfig() {
         return mConfig;
     }
@@ -210,6 +269,79 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
                 + "  taskId=" + (getTaskInfo() == null ? "null" : getTaskInfo().taskId) + "\n"
                 + (withBounds ? ("  boundsOnScreen=" + mTmpRect) : "")
                 + "}\n";
+    }
 
+    // Since SurfaceView is public, these methods need to be overridden. Details in b/296680464.
+    @Override
+    @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @MainThread
+    public void addInsets(int index, int type, @NonNull Rect frame) {
+        super.addInsets(index, type, frame);
+    }
+
+    @Override
+    @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public void removeInsets(int index, int type) {
+        super.removeInsets(index, type);
+    }
+
+    @Override
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @MainThread
+    public void release() {
+        super.release();
+    }
+
+    @Override
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+    }
+
+
+    @Override
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+    }
+
+    @Override
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @MainThread
+    public boolean isInitialized() {
+        return super.isInitialized();
+    }
+
+    @Override
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @MainThread
+    public void setObscuredTouchRegion(@NonNull Region obscuredRegion) {
+        super.setObscuredTouchRegion(obscuredRegion);
+    }
+
+    @Override
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @MainThread
+    public void setObscuredTouchRect(@NonNull Rect obscuredRect) {
+        super.setObscuredTouchRect(obscuredRect);
+    }
+
+    @Override
+    @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @MainThread
+    public void updateWindowBounds() {
+        super.updateWindowBounds();
     }
 }

@@ -305,6 +305,9 @@ void WatchdogPerfService::setSystemState(SystemState systemState) {
 
 void WatchdogPerfService::onCarWatchdogServiceRegistered() {
     Mutex::Autolock lock(mMutex);
+    for (const auto& processor : mDataProcessors) {
+        processor->onCarWatchdogServiceRegistered();
+    }
     if (mUnsentResourceStats.empty()) {
         return;
     }
