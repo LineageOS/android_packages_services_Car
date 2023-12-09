@@ -68,4 +68,15 @@ interface ICarProperty {
     void setPropertiesAsync(in AsyncPropertyServiceRequestList asyncPropertyServiceRequests,
                 in IAsyncPropertyResultCallback asyncPropertyResultCallback,
                 long timeoutInMs);
+
+    /**
+     * Returns the property IDs that are supported but the caller does not have read permission for.
+     */
+    int[] getSupportedNoReadPermPropIds(in int[] propIds);
+
+    /**
+     * Returns whether the property is supported and the caller only has write permission, but
+     * no read permission for the property.
+     */
+    boolean isSupportedAndHasWritePermissionOnly(int propId);
 }

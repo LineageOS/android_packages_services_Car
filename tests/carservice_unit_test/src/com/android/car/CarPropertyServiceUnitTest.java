@@ -1526,4 +1526,29 @@ public final class CarPropertyServiceUnitTest {
         assertWithMessage("All setProperty operations finished within 10 seconds")
                 .that(finishCd.await(10, TimeUnit.SECONDS)).isTrue();
     }
+
+    @Test
+    public void getSupportedNoReadPermPropIds() throws Exception {
+        int invalidPropertyID = -1;
+        assertThat(mService.getSupportedNoReadPermPropIds(new int[] {
+                CONTINUOUS_READ_ONLY_PROPERTY_ID, WRITE_ONLY_INT_PROPERTY_ID, invalidPropertyID
+        })).isEqualTo(new int[]{WRITE_ONLY_INT_PROPERTY_ID});
+    }
+
+    @Test
+    public void isSupportedAndHasWritePermissionOnly_unsupported() throws Exception {
+        assertThat(mService.isSupportedAndHasWritePermissionOnly(-1)).isFalse();
+    }
+
+    @Test
+    public void isSupportedAndHasWritePermissionOnly_writeOnly() throws Exception {
+        assertThat(mService.isSupportedAndHasWritePermissionOnly(WRITE_ONLY_INT_PROPERTY_ID))
+                .isTrue();
+    }
+
+    @Test
+    public void isSupportedAndHasWritePermissionOnly_readOnly() throws Exception {
+        assertThat(mService.isSupportedAndHasWritePermissionOnly(CONTINUOUS_READ_ONLY_PROPERTY_ID))
+                .isFalse();
+    }
 }
