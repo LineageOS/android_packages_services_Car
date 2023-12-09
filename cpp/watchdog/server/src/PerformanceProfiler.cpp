@@ -620,18 +620,23 @@ void PerformanceProfiler::dumpStatsRecordsProto(const CollectionInfo& collection
         uint64_t statsRecordToken = outProto.start(StatsCollection::RECORDS);
 
         outProto.write(StatsRecord::ID, id++);
-        struct tm* timeinfo = localtime(&record.time);
+        struct tm timeinfo;
+        memset(&timeinfo, 0, sizeof(timeinfo));
+        if (!localtime_r(&record.time, &timeinfo)) {
+            ALOGE("Failed to obtain localtime: %s", strerror(errno));
+            return;
+        }
 
         uint64_t dateToken = outProto.start(StatsRecord::DATE);
-        outProto.write(Date::YEAR, timeinfo->tm_year + 1900);
-        outProto.write(Date::MONTH, timeinfo->tm_mon + 1);
-        outProto.write(Date::DAY, timeinfo->tm_mday);
+        outProto.write(Date::YEAR, timeinfo.tm_year + 1900);
+        outProto.write(Date::MONTH, timeinfo.tm_mon);
+        outProto.write(Date::DAY, timeinfo.tm_mday);
         outProto.end(dateToken);
 
         uint64_t timeOfDayToken = outProto.start(StatsRecord::TIME);
-        outProto.write(TimeOfDay::HOURS, timeinfo->tm_hour);
-        outProto.write(TimeOfDay::MINUTES, timeinfo->tm_min);
-        outProto.write(TimeOfDay::SECONDS, timeinfo->tm_sec);
+        outProto.write(TimeOfDay::HOURS, timeinfo.tm_hour);
+        outProto.write(TimeOfDay::MINUTES, timeinfo.tm_min);
+        outProto.write(TimeOfDay::SECONDS, timeinfo.tm_sec);
         outProto.end(timeOfDayToken);
 
         uint64_t systemWideStatsToken = outProto.start(StatsRecord::SYSTEM_WIDE_STATS);
