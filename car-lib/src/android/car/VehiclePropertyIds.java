@@ -33,6 +33,7 @@ import android.car.hardware.property.BlindSpotWarningState;
 import android.car.hardware.property.CruiseControlCommand;
 import android.car.hardware.property.CruiseControlState;
 import android.car.hardware.property.CruiseControlType;
+import android.car.hardware.property.DriverDistractionState;
 import android.car.hardware.property.DriverDrowsinessAttentionState;
 import android.car.hardware.property.DriverDrowsinessAttentionWarning;
 import android.car.hardware.property.EmergencyLaneKeepAssistState;
@@ -6473,6 +6474,51 @@ public final class VehiclePropertyIds {
     @RequiresPermission.Write(@RequiresPermission(
             Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS))
     public static final int DRIVER_DISTRACTION_SYSTEM_ENABLED = 287313949;
+
+    /**
+     * Driver distraction state.
+     *
+     * <p>Returns the current detected driver distraction state.
+     *
+     * <p>Generally, this property should return a valid state defined in the {@link
+     * android.car.hardware.property.DriverDistractionState} or {@link
+     * android.car.hardware.property.ErrorState}. For example, if the feature is not available due
+     * to some temporary state, that information should be conveyed through {@link
+     * android.car.hardware.property.ErrorState}.
+     *
+     * <p>If the vehicle is sending a warning to the user because the driver is too distracted, the
+     * warning should be surfaced through {@link #DRIVER_DISTRACTION_WARNING}.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.DriverDistractionState} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_STATES} to
+     *  read property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @data_enum {@link DriverDistractionState}
+     * @data_enum {@link ErrorState}
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DRIVER_MONITORING_STATES))
+    public static final int DRIVER_DISTRACTION_STATE = 289411102;
 
     /**
      * @deprecated to prevent others from instantiating this class

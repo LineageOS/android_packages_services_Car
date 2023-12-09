@@ -3368,6 +3368,27 @@
         "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
       },
       "systemApi": true
+    },
+    "DRIVER_DISTRACTION_STATE": {
+      "propertyName": "DRIVER_DISTRACTION_STATE",
+      "propertyId": 289411102,
+      "description": "Driver distraction state.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        0,
+        1,
+        2,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
+      ]
     }
   }
 }
