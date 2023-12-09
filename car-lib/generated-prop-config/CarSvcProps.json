@@ -3324,6 +3324,27 @@
         "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
       },
       "systemApi": true
+    },
+    "DRIVER_DROWSINESS_ATTENTION_WARNING": {
+      "propertyName": "DRIVER_DROWSINESS_ATTENTION_WARNING",
+      "propertyId": 289411100,
+      "description": "Driver drowsiness and attention warning.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        0,
+        1,
+        2,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
+      ]
     }
   }
 }

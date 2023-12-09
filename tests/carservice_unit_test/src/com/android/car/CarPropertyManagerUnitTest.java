@@ -21,6 +21,7 @@ import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 import static android.car.VehiclePropertyIds.INFO_EV_CONNECTOR_TYPE;
 import static android.car.VehiclePropertyIds.INFO_FUEL_DOOR_LOCATION;
 import static android.car.VehiclePropertyIds.INVALID;
+import static android.car.VehiclePropertyIds.INITIAL_USER_INFO;
 import static android.car.hardware.property.CarPropertyManager.GetPropertyResult;
 import static android.car.hardware.property.CarPropertyManager.PropertyAsyncError;
 import static android.car.hardware.property.CarPropertyManager.SENSOR_RATE_ONCHANGE;
@@ -98,6 +99,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
@@ -237,9 +239,37 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
-    public void testGetProperty_unsupportedProperty() throws Exception {
+    public void testGetProperty_unsupportedProperty_exceptionAtU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+
         assertThrows(IllegalArgumentException.class,
                 () -> mCarPropertyManager.getProperty(INVALID, 0));
+    }
+
+    @Test
+    public void testGetProperty_unsupportedProperty_nullBeforeU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+
+        assertThat(mCarPropertyManager.getProperty(INVALID, 0)).isNull();
+    }
+
+    @Test
+    public void testGetProperty_unsupportedPropertyInSvc_exceptionAtU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                        new IllegalArgumentException());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+    }
+
+    @Test
+    public void testGetProperty_unsupportedPropertyInSvc_nullBeforeU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                        new IllegalArgumentException());
+
+        assertThat(mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0)).isNull();
     }
 
     @Test
@@ -1856,7 +1886,7 @@ public final class CarPropertyManagerUnitTest {
 
         verify(mICarProperty).registerListener(
                 eq(List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
-                        CarPropertyManager.SENSOR_RATE_FAST, /* enableVUR= */ true),
+                        CarPropertyManager.SENSOR_RATE_FAST, /* enableVur= */ true),
                         createCarSubscriptionOption(VENDOR_ON_CHANGE_PROPERTY, new int[]{0},
                                 CarPropertyManager.SENSOR_RATE_ONCHANGE))),
                 any(ICarPropertyEventListener.class));
@@ -1874,7 +1904,7 @@ public final class CarPropertyManagerUnitTest {
                 mCarSubscriptionCaptor.capture(), any(ICarPropertyEventListener.class));
         assertThat(mCarSubscriptionCaptor.getValue()).isEqualTo(
                 List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[] {0},
-                        MIN_UPDATE_RATE_HZ, /* enableVUR= */ true)));
+                        MIN_UPDATE_RATE_HZ, /* enableVur= */ true)));
     }
 
     @Test
@@ -1926,7 +1956,7 @@ public final class CarPropertyManagerUnitTest {
 
         verify(mICarProperty).registerListener(eq(List.of(
                         createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
-                                CarPropertyManager.SENSOR_RATE_FAST, /* enableVUR= */ true))),
+                                CarPropertyManager.SENSOR_RATE_FAST, /* enableVur= */ true))),
                 any(ICarPropertyEventListener.class));
         verify(mICarProperty).unregisterListener(eq(VENDOR_ON_CHANGE_PROPERTY),
                 any(ICarPropertyEventListener.class));
@@ -1939,7 +1969,7 @@ public final class CarPropertyManagerUnitTest {
 
         verify(mICarProperty).registerListener(eq(List.of(
                         createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
-                                MIN_UPDATE_RATE_HZ, /* enableVUR= */ true))),
+                                MIN_UPDATE_RATE_HZ, /* enableVur= */ true))),
                 any(ICarPropertyEventListener.class));
     }
 
@@ -1951,7 +1981,7 @@ public final class CarPropertyManagerUnitTest {
 
         verify(mICarProperty).registerListener(eq(List.of(
                         createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
-                                CarPropertyManager.SENSOR_RATE_FAST, /* enableVUR= */ true))),
+                                CarPropertyManager.SENSOR_RATE_FAST, /* enableVur= */ true))),
                 any(ICarPropertyEventListener.class));
     }
 
@@ -1963,7 +1993,7 @@ public final class CarPropertyManagerUnitTest {
 
         verify(mICarProperty).registerListener(eq(List.of(
                         createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
-                                MIN_UPDATE_RATE_HZ, /* enableVUR= */ true))),
+                                MIN_UPDATE_RATE_HZ, /* enableVur= */ true))),
                 any(ICarPropertyEventListener.class));
     }
 
@@ -1977,7 +2007,7 @@ public final class CarPropertyManagerUnitTest {
 
         verify(mICarProperty).registerListener(eq(List.of(
                         createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
-                                CarPropertyManager.SENSOR_RATE_FAST, /* enableVUR= */ false))),
+                                CarPropertyManager.SENSOR_RATE_FAST, /* enableVur= */ false))),
                 any(ICarPropertyEventListener.class));
     }
 
@@ -2019,7 +2049,7 @@ public final class CarPropertyManagerUnitTest {
 
         verify(mICarProperty).registerListener(
                 eq(List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
-                        CarPropertyManager.SENSOR_RATE_FAST, /* enableVUR= */ true),
+                        CarPropertyManager.SENSOR_RATE_FAST, /* enableVur= */ true),
                         createCarSubscriptionOption(VENDOR_ON_CHANGE_PROPERTY, new int[]{0},
                                 CarPropertyManager.SENSOR_RATE_ONCHANGE))),
                 any(ICarPropertyEventListener.class));
@@ -2346,7 +2376,7 @@ public final class CarPropertyManagerUnitTest {
                 mCarSubscriptionCaptor.capture(), any(ICarPropertyEventListener.class));
         assertThat(mCarSubscriptionCaptor.getAllValues()).containsExactly(
                 List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
-                        FIRST_UPDATE_RATE_HZ, /* enableVUR= */ true))
+                        FIRST_UPDATE_RATE_HZ, /* enableVur= */ true))
         );
     }
 
@@ -2683,6 +2713,80 @@ public final class CarPropertyManagerUnitTest {
     public void testIsPropertyAvailable_unsupported() throws Exception {
         assertThat(mCarPropertyManager.isPropertyAvailable(/* propId= */ 0, /* areaId= */ 0))
                 .isFalse();
+    }
+
+    @Test
+    public void testGetCarPropertyConfig_userHalProperty() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.getCarPropertyConfig(INITIAL_USER_INFO));
+    }
+
+    @Test
+    public void testGetPropertyList_userHalProperty() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.getPropertyList(
+                        new ArraySet<Integer>(Set.of(HVAC_TEMPERATURE_SET, INITIAL_USER_INFO))));
+    }
+
+    @Test
+    public void testGetAreaId_userHalProperty()  throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.getAreaId(INITIAL_USER_INFO, /* area= */ 0));
+    }
+
+    @Test
+    public void testGetReadPermission_userHalProperty() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.getReadPermission(INITIAL_USER_INFO));
+    }
+
+    @Test
+    public void testGetWritePermission_userHalProperty() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.getWritePermission(INITIAL_USER_INFO));
+    }
+
+    @Test
+    public void testIsPropertyAvailable_userHalProperty() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.isPropertyAvailable(INITIAL_USER_INFO, /* areaId= */ 0));
+    }
+
+    @Test
+    public void testGetProperty_userHalProperty() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.getProperty(INITIAL_USER_INFO, /* areaId= */ 0));
+    }
+
+    @Test
+    public void testGetBooleanProperty_userHalProperty() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.getBooleanProperty(INITIAL_USER_INFO, /* areaId= */ 0));
+    }
+
+    @Test
+    public void testSetBooleanProperty_userHalProperty() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.setBooleanProperty(INITIAL_USER_INFO, /* areaId= */ 0,
+                        true));
     }
 
     private static int combineErrors(int systemError, int vendorError) {

@@ -551,7 +551,7 @@ public final class CarPropertyServiceUnitTest {
         verify(mMockHandler1, timeout(5000)).onEvent(any());
 
         verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(SPEED_ID,
-                new int[]{0}, 10f, /* enableVUR= */ true)));
+                new int[]{0}, 10f, /* enableVur= */ true)));
         verify(mHalService).getProperty(SPEED_ID, 0);
 
         // Clean up invocation state.
@@ -564,7 +564,7 @@ public final class CarPropertyServiceUnitTest {
         verify(mMockHandler2, timeout(5000)).onEvent(any());
 
         verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(SPEED_ID,
-                new int[]{0}, 20f, /* enableVUR= */ true)));
+                new int[]{0}, 20f, /* enableVur= */ true)));
         verify(mHalService).getProperty(SPEED_ID, 0);
 
         // Clean up invocation state.
@@ -577,7 +577,7 @@ public final class CarPropertyServiceUnitTest {
         verify(mHalService, never()).unsubscribeProperty(anyInt());
         // The subscription rate must be updated.
         verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(SPEED_ID,
-                new int[]{0}, 10f, /* enableVUR= */ true)));
+                new int[]{0}, 10f, /* enableVur= */ true)));
 
         // Unregister the first listener. We have no more listeners, must cause unsubscription.
         mService.unregisterListener(SPEED_ID, mMockHandler1);
@@ -709,7 +709,7 @@ public final class CarPropertyServiceUnitTest {
     }
 
     @Test
-    public void testRegisterListenerWithSubscription_enableVUR() throws Exception {
+    public void testRegisterListenerWithSubscription_enableVur() throws Exception {
         ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
         IBinder mockBinder = mock(IBinder.class);
         when(mockHandler.asBinder()).thenReturn(mockBinder);
@@ -722,13 +722,13 @@ public final class CarPropertyServiceUnitTest {
         when(mHalService.getProperty(HVAC_TEMP, 0)).thenReturn(hvacValue);
 
         List<CarSubscription> subscribeOptions = List.of(
-                createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVUR= */ true),
-                // This is an on-change property, so VUR must have no effect.
-                createCarSubscriptionOption(HVAC_TEMP, new int[]{0}, 0f, /* enableVUR= */ true));
+                createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVur= */ true),
+                // This is an on-change property, so Vur must have no effect.
+                createCarSubscriptionOption(HVAC_TEMP, new int[]{0}, 0f, /* enableVur= */ true));
         List<CarSubscription> sanitizedOptions = List.of(
-                createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVUR= */ true),
-                // This is an on-change property, so VUR must have no effect.
-                createCarSubscriptionOption(HVAC_TEMP, new int[]{0}, 0f, /* enableVUR= */ false));
+                createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVur= */ true),
+                // This is an on-change property, so Vur must have no effect.
+                createCarSubscriptionOption(HVAC_TEMP, new int[]{0}, 0f, /* enableVur= */ false));
         mService.registerListener(subscribeOptions, mockHandler);
 
         // Verify the two initial value responses arrive.
@@ -737,7 +737,7 @@ public final class CarPropertyServiceUnitTest {
     }
 
     @Test
-    public void testRegisterListenerWithSubscription_VURFeatureOff() throws Exception {
+    public void testRegisterListenerWithSubscription_VurFeatureOff() throws Exception {
         when(mFeatureFlags.variableUpdateRate()).thenReturn(false);
 
         ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
@@ -752,9 +752,9 @@ public final class CarPropertyServiceUnitTest {
         when(mHalService.getProperty(HVAC_TEMP, 0)).thenReturn(hvacValue);
 
         List<CarSubscription> subscribeOptions = List.of(
-                createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVUR= */ true));
+                createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVur= */ true));
         List<CarSubscription> sanitizedOptions = List.of(
-                createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVUR= */ false));
+                createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVur= */ false));
         mService.registerListener(subscribeOptions, mockHandler);
 
         // Verify the two initial value responses arrive.
@@ -1364,39 +1364,39 @@ public final class CarPropertyServiceUnitTest {
     }
 
     @Test
-    public void registerListener_VURDefaultOn() {
+    public void registerListener_VurDefaultOn() {
         mService.registerListener(CONTINUOUS_READ_ONLY_PROPERTY_ID, MIN_SAMPLE_RATE,
                 mICarPropertyEventListener);
 
         verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(
                 CONTINUOUS_READ_ONLY_PROPERTY_ID, new int[]{0}, MIN_SAMPLE_RATE,
-                /* enableVUR= */ true)));
+                /* enableVur= */ true)));
     }
 
     @Test
-    public void registerListener_VURExplicitOn() {
+    public void registerListener_VurExplicitOn() {
         mService.registerListener(CONTINUOUS_READ_ONLY_PROPERTY_ID, MIN_SAMPLE_RATE,
-                /* enableVUR= */ true,
+                /* enableVariableUpdateRate= */ true,
                 mICarPropertyEventListener);
 
         verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(
                 CONTINUOUS_READ_ONLY_PROPERTY_ID, new int[]{0}, MIN_SAMPLE_RATE,
-                /* enableVUR= */ true)));
+                /* enableVur= */ true)));
     }
 
     @Test
-    public void registerListener_VURExplicitOff() {
+    public void registerListener_VurExplicitOff() {
         mService.registerListener(CONTINUOUS_READ_ONLY_PROPERTY_ID, MIN_SAMPLE_RATE,
-                /* enableVUR= */ false,
+                /* enableVariableUpdateRate= */ false,
                 mICarPropertyEventListener);
 
         verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(
                 CONTINUOUS_READ_ONLY_PROPERTY_ID, new int[]{0}, MIN_SAMPLE_RATE,
-                /* enableVUR= */ false)));
+                /* enableVur= */ false)));
     }
 
     @Test
-    public void registerListener_VURFalseWhenFeatureOff() {
+    public void registerListener_VurFalseWhenFeatureOff() {
         when(mFeatureFlags.variableUpdateRate()).thenReturn(false);
 
         mService.registerListener(CONTINUOUS_READ_ONLY_PROPERTY_ID, MIN_SAMPLE_RATE,
@@ -1404,7 +1404,7 @@ public final class CarPropertyServiceUnitTest {
 
         verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(
                 CONTINUOUS_READ_ONLY_PROPERTY_ID, new int[]{0}, MIN_SAMPLE_RATE,
-                /* enableVUR= */ false)));
+                /* enableVur= */ false)));
     }
 
     @Test
@@ -1413,7 +1413,7 @@ public final class CarPropertyServiceUnitTest {
                 mICarPropertyEventListener);
         verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(
                 CONTINUOUS_READ_ONLY_PROPERTY_ID, new int[]{0}, MIN_SAMPLE_RATE,
-                /* enableVUR= */ true)));
+                /* enableVur= */ true)));
     }
 
     @Test
@@ -1422,18 +1422,18 @@ public final class CarPropertyServiceUnitTest {
                 mICarPropertyEventListener);
         verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(
                 CONTINUOUS_READ_ONLY_PROPERTY_ID, new int[]{0}, MAX_SAMPLE_RATE,
-                /* enableVUR= */ true)));
+                /* enableVur= */ true)));
     }
 
     @Test
-    public void registerListenerSafe_VURExplicitOn() {
+    public void registerListenerSafe_VurExplicitOn() {
         mService.registerListenerSafe(CONTINUOUS_READ_ONLY_PROPERTY_ID, MIN_SAMPLE_RATE,
-                /* enableVUR= */ true,
+                /* enableVariableUpdateRate= */ true,
                 mICarPropertyEventListener);
 
         verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(
                 CONTINUOUS_READ_ONLY_PROPERTY_ID, new int[]{0}, MIN_SAMPLE_RATE,
-                /* enableVUR= */ true)));
+                /* enableVur= */ true)));
     }
 
     @Test

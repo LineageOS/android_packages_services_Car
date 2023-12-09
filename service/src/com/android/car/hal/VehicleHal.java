@@ -698,7 +698,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
 
             if (enableVariableUpdateRate) {
                 if (config.getChangeMode() != VehiclePropertyChangeMode.CONTINUOUS) {
-                    // enableVUR should be ignored if property is not continuous, but we set it to
+                    // enableVur should be ignored if property is not continuous, but we set it to
                     // false to be safe.
                     enableVariableUpdateRate = false;
                     Slogf.w(CarLog.TAG_HAL, "VUR is always off for non-continuous property: "
@@ -736,7 +736,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             for (int j = 0; j < filteredAreaIds.length; j++) {
                 if (DBG) {
                     Slogf.d(CarLog.TAG_HAL, "Update subscription rate for propertyId:"
-                                    + " %s, areaId: %d, SampleRateHz: %f, enableVUR: %b",
+                                    + " %s, areaId: %d, SampleRateHz: %f, enableVur: %b",
                             VehiclePropertyIds.toString(opts.propId), filteredAreaIds[j],
                             samplingRateHz, enableVariableUpdateRate);
                 }
@@ -759,7 +759,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                                 == rateInfo.enableVariableUpdateRate)) {
                     if (DBG) {
                         Slogf.d(CarLog.TAG_HAL, "Property: %s is already subscribed at rate: %f hz"
-                                + ", enableVUR: %b",
+                                + ", enableVur: %b",
                                 toCarPropertyLog(property), rateInfo.updateRateHz,
                                 rateInfo.enableVariableUpdateRate);
                     }

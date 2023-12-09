@@ -1113,12 +1113,12 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
 
     @Test
     public void testNotifyShutdownStarting_noNotifyVehicleInUse() throws Exception {
+        setVehicleInUse(true);
         // Should be notified shutdown at 5100 - 5000 = 100ms.
         mService = newServiceWithSystemUpTime(5100);
         runBootComplete();
         mService.init();
         prepareCarRemoteTaskClient();
-        setVehicleInUse(true);
 
         SystemClock.sleep(1000);
         assertWithMessage("client is not notifyed shutdown when vehicle is in use").that(

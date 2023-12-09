@@ -39,24 +39,24 @@ public final class ContCarPropertyEventTracker implements CarPropertyEventTracke
     // 5% of the next timestamp, it will not be dropped.
     private static final float UPDATE_PERIOD_OFFSET = 0.95f;
 
-    private final boolean mEnableVUR;
+    private final boolean mEnableVur;
     private final float mUpdateRateHz;
     private final long mUpdatePeriodNanos;
     private long mNextUpdateTimeNanos;
     private Object mCurrentValue;
     private @PropertyStatus int mCurrentStatus;
 
-    public ContCarPropertyEventTracker(float updateRateHz, boolean enableVUR) {
+    public ContCarPropertyEventTracker(float updateRateHz, boolean enableVur) {
         if (DBG) {
             Slogf.d(TAG, "new continuous car property event tracker, updateRateHz: %f, "
-                    + ", enableVUR: %b", updateRateHz, enableVUR);
+                    + ", enableVur: %b", updateRateHz, enableVur);
         }
         // updateRateHz should be sanitized before.
         Preconditions.checkArgument(updateRateHz > 0, "updateRateHz must be a positive number");
         mUpdateRateHz = updateRateHz;
         mUpdatePeriodNanos =
                 (long) ((1.0 / mUpdateRateHz) * NANOSECONDS_PER_SECOND * UPDATE_PERIOD_OFFSET);
-        mEnableVUR = enableVUR;
+        mEnableVur = enableVur;
     }
 
     @Override
@@ -76,7 +76,7 @@ public final class ContCarPropertyEventTracker implements CarPropertyEventTracke
             return false;
         }
         mNextUpdateTimeNanos = carPropertyValue.getTimestamp() + mUpdatePeriodNanos;
-        if (mEnableVUR) {
+        if (mEnableVur) {
             int status = carPropertyValue.getStatus();
             Object value = carPropertyValue.getValue();
             if (status == mCurrentStatus && Objects.deepEquals(value, mCurrentValue)) {

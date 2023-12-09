@@ -78,14 +78,14 @@ public final class CarPropertyServiceClient extends CarPropertyEventController
      */
     @Override
     public void addContinuousProperty(int propertyId, int[] areaIds, float updateRateHz,
-            boolean enableVUR) {
+            boolean enableVur) {
         synchronized (mLock) {
             if (mIsDead) {
                 Slogf.w(TAG, "addContinuousProperty: The client is already dead, ignore");
                 return;
             }
 
-            super.addContinuousProperty(propertyId, areaIds, updateRateHz, enableVUR);
+            super.addContinuousProperty(propertyId, areaIds, updateRateHz, enableVur);
         }
     }
 
