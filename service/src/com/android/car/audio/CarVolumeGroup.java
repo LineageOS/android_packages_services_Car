@@ -19,6 +19,19 @@ import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_ATTENUATION_CHANG
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_BLOCKED_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED;
+import static android.media.AudioDeviceInfo.TYPE_AUX_LINE;
+import static android.media.AudioDeviceInfo.TYPE_BLE_BROADCAST;
+import static android.media.AudioDeviceInfo.TYPE_BLE_HEADSET;
+import static android.media.AudioDeviceInfo.TYPE_BLE_SPEAKER;
+import static android.media.AudioDeviceInfo.TYPE_BLUETOOTH_A2DP;
+import static android.media.AudioDeviceInfo.TYPE_BUILTIN_SPEAKER;
+import static android.media.AudioDeviceInfo.TYPE_BUS;
+import static android.media.AudioDeviceInfo.TYPE_HDMI;
+import static android.media.AudioDeviceInfo.TYPE_USB_ACCESSORY;
+import static android.media.AudioDeviceInfo.TYPE_USB_DEVICE;
+import static android.media.AudioDeviceInfo.TYPE_USB_HEADSET;
+import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADPHONES;
+import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET;
 
 import static com.android.car.audio.hal.HalAudioGainCallback.reasonToString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
@@ -48,6 +61,7 @@ import com.android.car.audio.CarAudioDumpProto.CarVolumeGroupProto.ContextToAddr
 import com.android.car.audio.CarAudioDumpProto.CarVolumeGroupProto.GainInfo;
 import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.DebugUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
@@ -56,6 +70,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * A class encapsulates a volume group in car.
@@ -978,6 +993,74 @@ import java.util.Objects;
             int audioContext = mContextToDevices.keyAt(c);
             mAddressToCarAudioDeviceInfo.put(info.getAddress(), info);
             mContextToAddress.put(audioContext, info.getAddress());
+        }
+    }
+
+    /**
+     * Determines if device types assign to volume groups are valid based on the following rules:
+     * <ul>
+     * <li>Dynamic device types (non BUS) for this group should not appear in the
+     * {@code dynamicDeviceTypesInConfig} passed in parameter</li>
+     * <li>Dynamic device types should appear alone in volume group</li>
+     * </ul>
+     *
+     * @param dynamicDeviceTypesInConfig Devices already seen in other volume groups for the same
+     * configuration, groups checks if the device types for the volume group already exists here
+     * and return {@code false} if so. Also adds any non-existing device types for the group.
+     * @return {@code true} if the rules defined above are valid for the group, {@code false}
+     * otherwise
+     */
+    boolean validateDeviceTypes(Set<Integer> dynamicDeviceTypesInConfig) {
+        List<AudioDeviceAttributes> devices = getAudioDeviceAttributes();
+        boolean hasNonBusDevice = false;
+        for (int c = 0; c < devices.size(); c++) {
+            int deviceType = devices.get(c).getType();
+            // BUS devices are handled by address name check
+            if (deviceType == TYPE_BUS) {
+                continue;
+            }
+            hasNonBusDevice = true;
+            int convertedType = convertDeviceType(deviceType);
+            if (dynamicDeviceTypesInConfig.add(convertedType)) {
+                continue;
+            }
+            Slogf.e(CarLog.TAG_AUDIO, "Car volume groups defined in"
+                    + " car_audio_configuration.xml shared the dynamic device type "
+                    + DebugUtils.constantToString(AudioDeviceInfo.class, /* prefix= */ "TYPE_",
+                    deviceType) + " in multiple volume groups in the same configuration");
+            return false;
+        }
+        if (!hasNonBusDevice || devices.size() == 1) {
+            return true;
+        }
+        Slogf.e(CarLog.TAG_AUDIO, "Car volume group " + getName()
+                + " defined in car_audio_configuration.xml"
+                + " has multiple devices for a dynamic device group."
+                + " Groups with dynamic devices can only have a single device.");
+        return false;
+    }
+
+    // Given the current limitation in BT stack where there can only be one BT device available
+    // of any type, we need to consider all BT types as the same, we are picking TYPE_BLUETOOTH_A2DP
+    // for verification purposes, could pick any of them.
+    private static int convertDeviceType(int type) {
+        switch (type) {
+            case TYPE_BLUETOOTH_A2DP: // fall through
+            case TYPE_BLE_HEADSET: // fall through
+            case TYPE_BLE_SPEAKER: // fall through
+            case TYPE_BLE_BROADCAST:
+                return TYPE_BLUETOOTH_A2DP;
+            case TYPE_BUILTIN_SPEAKER: // fall through
+            case TYPE_WIRED_HEADSET: // fall through
+            case TYPE_WIRED_HEADPHONES: // fall through
+            case TYPE_HDMI: // fall through
+            case TYPE_USB_ACCESSORY: // fall through
+            case TYPE_USB_DEVICE: // fall through
+            case TYPE_USB_HEADSET: // fall through
+            case TYPE_AUX_LINE: // fall through
+            case TYPE_BUS:
+            default:
+                return type;
         }
     }
 }
