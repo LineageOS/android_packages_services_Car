@@ -4424,6 +4424,43 @@ public final class VehiclePropertyIds {
     public static final int ULTRASONICS_SENSOR_ORIENTATION = 406916129;
 
     /**
+     * Static data for the field of view of each ultrasonic sensor in degrees.
+     *
+     * <p>Each individual sensor is identified by its {@link AreaIdConfig#getAreaId()} and returns
+     * the sensor's field of view formatted as [horizontal, vertical] where:
+     *
+     * <ul>
+     *  <li>horizontal is the horizontal field of view for the specified ultrasonic sensor in
+     *  degrees.
+     *  <li>vertical is the vertical field of view for the associated specified ultrasonic sensor in
+     *  degrees.
+     * </ul>
+     *
+     * <p>This assumes each sensor uses the same axes conventions as Android Automotive.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_VENDOR}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer[]} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ULTRASONICS_SENSOR_DATA} to
+     *  read property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA))
+    public static final int ULTRASONICS_SENSOR_FIELD_OF_VIEW = 406916130;
+
+    /**
      * OBD2 Live Sensor Data.
      *
      * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.

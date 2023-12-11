@@ -2330,6 +2330,16 @@
       },
       "systemApi": true
     },
+    "ULTRASONICS_SENSOR_FIELD_OF_VIEW": {
+      "propertyName": "ULTRASONICS_SENSOR_FIELD_OF_VIEW",
+      "propertyId": 406916130,
+      "description": "Static data for the field of view of each ultrasonic sensor in degrees.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
+      },
+      "systemApi": true
+    },
     "OBD2_LIVE_FRAME": {
       "propertyName": "OBD2_LIVE_FRAME",
       "propertyId": 299896064,
