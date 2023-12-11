@@ -2340,6 +2340,16 @@
       },
       "systemApi": true
     },
+    "ULTRASONICS_SENSOR_DETECTION_RANGE": {
+      "propertyName": "ULTRASONICS_SENSOR_DETECTION_RANGE",
+      "propertyId": 406916131,
+      "description": "Static data for the detection range of each ultrasonic sensor in millimeters.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
+      },
+      "systemApi": true
+    },
     "OBD2_LIVE_FRAME": {
       "propertyName": "OBD2_LIVE_FRAME",
       "propertyId": 299896064,
