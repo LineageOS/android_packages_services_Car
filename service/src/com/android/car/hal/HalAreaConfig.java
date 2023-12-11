@@ -21,11 +21,6 @@ package com.android.car.hal;
  */
 public abstract class HalAreaConfig {
     /**
-     * Get the access mode.
-     */
-    public abstract int getAccess();
-
-    /**
      * Get the area ID.
      */
     public abstract int getAreaId();

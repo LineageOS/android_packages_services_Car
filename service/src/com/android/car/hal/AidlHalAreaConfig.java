@@ -29,14 +29,6 @@ public final class AidlHalAreaConfig extends HalAreaConfig {
     }
 
     /**
-     * Get the access mode.
-     */
-    @Override
-    public int getAccess() {
-        return mConfig.access;
-    }
-
-    /**
      * Get the area ID.
      */
     @Override
