@@ -4553,6 +4553,44 @@ public final class VehiclePropertyIds {
     public static final int ULTRASONICS_SENSOR_SUPPORTED_RANGES = 406916132;
 
     /**
+     * The distance reading of the nearest detected object per sensor in millimeters.
+     *
+     * <p>Each individual sensor is identified by its {@link AreaIdConfig#getAreaId()} and returns
+     * the sensor's measured distance formatted as [distance, distance_error] where:
+     *
+     * <ul>
+     *  <li>distance is the measured distance of the nearest object in millimeters. If only a range
+     *  is supported, this value must be set to the minimum supported distance in the detected range
+     *  as specified in {@link #ULTRASONICS_SENSOR_SUPPORTED_RANGES}.
+     *  <li>distance_error is the error of the measured distance value in millimeters.
+     * </ul>
+     *
+     * <p>If no object is detected, an empty vector will be returned. If distance_error is not
+     * available then an array of only the measured distance will be returned.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_VENDOR}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Integer[]} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ULTRASONICS_SENSOR_DATA} to
+     *  read property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA))
+    public static final int ULTRASONICS_SENSOR_MEASURED_DISTANCE = 406916133;
+
+    /**
      * OBD2 Live Sensor Data.
      *
      * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
