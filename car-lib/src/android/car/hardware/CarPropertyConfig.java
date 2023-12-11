@@ -28,7 +28,6 @@ import android.car.VehiclePropertyIds;
 import android.car.hardware.property.AreaIdConfig;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 import android.util.SparseArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -49,7 +48,6 @@ import java.util.List;
  *
  */
 public final class CarPropertyConfig<T> implements Parcelable {
-    private static final String TAG = CarPropertyConfig.class.getSimpleName();
     private final int mAccess;
     private final int mAreaType;
     private final int mChangeMode;
@@ -552,14 +550,12 @@ public final class CarPropertyConfig<T> implements Parcelable {
 
 
     /**
-     * Builder for making new {@code CarPropertyConfig} objects.
-     *
      * @param <T>
      * @hide
      * */
     @SystemApi
     public static class Builder<T> {
-        private int mAccess = VEHICLE_PROPERTY_ACCESS_NONE;
+        private int mAccess;
         private final int mAreaType;
         private int mChangeMode;
         private final ArrayList<Integer> mConfigArray = new ArrayList<>();
@@ -579,17 +575,13 @@ public final class CarPropertyConfig<T> implements Parcelable {
         /**
          * Add supported areas parameter to {@link CarPropertyConfig}
          *
-         * <p>This function uses the access set in the builder to define the area ID's access level.
-         * Make sure to call {@link CarPropertyConfig.Builder#setAccess(int)} before calling this
-         * function.
-         *
          * @return Builder<T>
          * @removed - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
          */
         @Deprecated
         public Builder<T> addAreas(int[] areaIds) {
             for (int areaId : areaIds) {
-                mAreaIdConfigs.add(new AreaIdConfig.Builder<T>(mAccess, areaId).build());
+                mAreaIdConfigs.add(new AreaIdConfig.Builder<T>(areaId).build());
             }
             return this;
         }
@@ -597,33 +589,25 @@ public final class CarPropertyConfig<T> implements Parcelable {
         /**
          * Add {@code areaId} to {@link CarPropertyConfig}
          *
-         * <p>This function uses the access set in the builder to define the area's access level.
-         * Make sure to call {@link CarPropertyConfig.Builder#setAccess(int)} before calling this
-         * function.
-         *
          * @return Builder<T>
          * @removed - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
          */
         @Deprecated
         public Builder<T> addArea(int areaId) {
-            mAreaIdConfigs.add(new AreaIdConfig.Builder<T>(mAccess, areaId).build());
+            mAreaIdConfigs.add(new AreaIdConfig.Builder<T>(areaId).build());
             return this;
         }
 
         /**
          * Add {@code areaConfig} to {@link CarPropertyConfig}
          *
-         * <p>This function uses the access set in the builder to define the area's access level.
-         * Make sure to call {@link CarPropertyConfig.Builder#setAccess(int)} before calling this
-         * function.
-         *
          * @return Builder<T>
          * @removed - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
          */
         @Deprecated
         public Builder<T> addAreaConfig(int areaId, T min, T max) {
-            mAreaIdConfigs.add(new AreaIdConfig.Builder<T>(mAccess, areaId).setMinValue(min)
-                    .setMaxValue(max).build());
+            mAreaIdConfigs.add(new AreaIdConfig.Builder<T>(areaId).setMinValue(min).setMaxValue(
+                    max).build());
             return this;
         }
 
@@ -704,48 +688,9 @@ public final class CarPropertyConfig<T> implements Parcelable {
          * Builds a new {@link CarPropertyConfig}.
          */
         public CarPropertyConfig<T> build() {
-            mAccess = getCommonAccessFromAreaIdConfigs();
             return new CarPropertyConfig<>(mAccess, mAreaType, mChangeMode, mConfigArray,
                                            mConfigString, mMaxSampleRate, mMinSampleRate,
                                            mPropertyId, mAreaIdConfigs, mType);
-        }
-
-        private @VehiclePropertyAccessType int getCommonAccessFromAreaIdConfigs() {
-            boolean readOnlyPresent = false;
-            boolean writeOnlyPresent = false;
-            boolean readWritePresent = false;
-            for (int i = 0; i < mAreaIdConfigs.size(); i++) {
-                AreaIdConfig<?> areaIdConfig = mAreaIdConfigs.get(i);
-                int access = areaIdConfig.getAccess();
-                switch (access) {
-                    case VEHICLE_PROPERTY_ACCESS_READ:
-                        readOnlyPresent = true;
-                        break;
-                    case VEHICLE_PROPERTY_ACCESS_WRITE:
-                        writeOnlyPresent = true;
-                        break;
-                    case VEHICLE_PROPERTY_ACCESS_READ_WRITE:
-                        readWritePresent = true;
-                        break;
-                    default:
-                        Log.e(TAG, "AreaId config has an invalid VehiclePropertyAccess value: "
-                                + access);
-                        return VEHICLE_PROPERTY_ACCESS_NONE;
-                }
-            }
-
-            if (writeOnlyPresent) {
-                if (!readOnlyPresent && !readWritePresent) {
-                    return VEHICLE_PROPERTY_ACCESS_WRITE;
-                }
-                Log.e(TAG, "Config cannot set write-only access for some areaId configs and "
-                        + "read/read-write access for other areaIds per property");
-                return VEHICLE_PROPERTY_ACCESS_NONE;
-            }
-            if (readOnlyPresent) {
-                return VEHICLE_PROPERTY_ACCESS_READ;
-            }
-            return VEHICLE_PROPERTY_ACCESS_READ_WRITE;
         }
     }
 
