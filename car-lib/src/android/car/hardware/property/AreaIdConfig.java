@@ -16,14 +16,12 @@
 
 package android.car.hardware.property;
 
-import static android.car.feature.Flags.FLAG_AREA_ID_CONFIG_ACCESS;
 import static android.car.feature.Flags.FLAG_VARIABLE_UPDATE_RATE;
 
 import android.annotation.FlaggedApi;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
-import android.car.hardware.CarPropertyConfig;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -39,7 +37,6 @@ public final class AreaIdConfig<T> implements Parcelable {
     @NonNull
     public static final Parcelable.Creator<AreaIdConfig<Object>> CREATOR = getCreator();
 
-    private final @CarPropertyConfig.VehiclePropertyAccessType int mAccess;
     private final int mAreaId;
     @Nullable private final T mMinValue;
     @Nullable private final T mMaxValue;
@@ -48,8 +45,7 @@ public final class AreaIdConfig<T> implements Parcelable {
 
     private AreaIdConfig(
             int areaId, @Nullable T minValue, @Nullable T maxValue, List<T> supportedEnumValues,
-            int access, boolean supportVariableUpdateRate) {
-        mAccess = access;
+            boolean supportVariableUpdateRate) {
         mAreaId = areaId;
         mMinValue = minValue;
         mMaxValue = maxValue;
@@ -59,7 +55,6 @@ public final class AreaIdConfig<T> implements Parcelable {
 
     @SuppressWarnings("unchecked")
     private AreaIdConfig(Parcel in) {
-        mAccess = in.readInt();
         mAreaId = in.readInt();
         mMinValue = (T) in.readValue(getClass().getClassLoader());
         mMaxValue = (T) in.readValue(getClass().getClassLoader());
@@ -84,23 +79,6 @@ public final class AreaIdConfig<T> implements Parcelable {
                 return areaIdConfigs;
             }
         };
-    }
-
-    /**
-     * Return the access type of the car property at the current areaId.
-     * <p>The access type could be one of the following:
-     * <ul>
-     *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_NONE}</li>
-     *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}</li>
-     *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}</li>
-     *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}</li>
-     * </ul>
-     *
-     * @return the access type of the car property at the current areaId.
-     */
-    @FlaggedApi(FLAG_AREA_ID_CONFIG_ACCESS)
-    public @CarPropertyConfig.VehiclePropertyAccessType int getAccess() {
-        return mAccess;
     }
 
     /**
@@ -160,7 +138,6 @@ public final class AreaIdConfig<T> implements Parcelable {
 
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
-        dest.writeInt(mAccess);
         dest.writeInt(mAreaId);
         dest.writeValue(mMinValue);
         dest.writeValue(mMaxValue);
@@ -171,9 +148,7 @@ public final class AreaIdConfig<T> implements Parcelable {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("AreaIdConfig{")
-                .append("mAccess=").append(mAccess)
-                .append("mAreaId=").append(mAreaId);
+        sb.append("AreaIdConfig{").append("mAreaId=").append(mAreaId);
         if (mMinValue != null) {
             sb.append(", mMinValue=").append(mMinValue);
         }
@@ -197,7 +172,6 @@ public final class AreaIdConfig<T> implements Parcelable {
      */
     @SystemApi
     public static final class Builder<T> {
-        private final int mAccess;
         private final int mAreaId;
         private T mMinValue = null;
         private T mMaxValue = null;
@@ -205,13 +179,6 @@ public final class AreaIdConfig<T> implements Parcelable {
         private boolean mSupportVariableUpdateRate = false;
 
         public Builder(int areaId) {
-            mAccess = 0;
-            mAreaId = areaId;
-        }
-
-        @FlaggedApi(FLAG_AREA_ID_CONFIG_ACCESS)
-        public Builder(int access, int areaId) {
-            mAccess = access;
             mAreaId = areaId;
         }
 
@@ -252,7 +219,7 @@ public final class AreaIdConfig<T> implements Parcelable {
         /** Builds a new {@link android.car.hardware.property.AreaIdConfig}. */
         @NonNull
         public AreaIdConfig<T> build() {
-            return new AreaIdConfig<>(mAreaId, mMinValue, mMaxValue, mSupportedEnumValues, mAccess,
+            return new AreaIdConfig<>(mAreaId, mMinValue, mMaxValue, mSupportedEnumValues,
                     mSupportVariableUpdateRate);
         }
     }

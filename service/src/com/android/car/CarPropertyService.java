@@ -562,7 +562,8 @@ public class CarPropertyService extends ICarProperty.Stub
         // would do nothing.
         // We also need to consider the case where the client has write-only permission and uses
         // setProperty before, we must remove the listener associated with property set error.
-        assertConfigNotNullAndGetConfig(propertyId);
+        CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
+        assertConfigIsNotNull(propertyId, carPropertyConfig);
 
         if (DBG) {
             Slogf.d(TAG,
@@ -1023,18 +1024,24 @@ public class CarPropertyService extends ICarProperty.Stub
         mPropertyHalService.cancelRequests(serviceRequestIds);
     }
 
-    private static void assertPropertyIsReadable(CarPropertyConfig<?> carPropertyConfig,
-            int areaId) {
-        int accessLevel = carPropertyConfig.getAreaIdConfig(areaId).getAccess();
+    private static void assertPropertyIsReadable(CarPropertyConfig<?> carPropertyConfig) {
         Preconditions.checkArgument(
-                accessLevel == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ
-                        || accessLevel == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
-                "Property: %s is not readable at areaId: %d",
-                VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()), areaId);
+                carPropertyConfig.getAccess() == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ
+                        || carPropertyConfig.getAccess()
+                        == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
+                "Property is not readable: %s",
+                VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()));
     }
 
-    private static void assertAreaIdIsSupported(CarPropertyConfig<?> carPropertyConfig,
-            int areaId) {
+    private static void assertConfigIsNotNull(int propertyId,
+            CarPropertyConfig<?> carPropertyConfig) {
+        Preconditions.checkArgument(carPropertyConfig != null,
+                "property ID is not in carPropertyConfig list, and so it is not supported: %s",
+                VehiclePropertyIds.toString(propertyId));
+    }
+
+    private static void assertAreaIdIsSupported(int areaId,
+            CarPropertyConfig<?> carPropertyConfig) {
         Preconditions.checkArgument(ArrayUtils.contains(carPropertyConfig.getAreaIds(), areaId),
                 "area ID: 0x" + toHexString(areaId) + " not supported for property ID: "
                         + VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()));
@@ -1057,36 +1064,31 @@ public class CarPropertyService extends ICarProperty.Stub
         }
     }
 
-    private CarPropertyConfig assertConfigNotNullAndGetConfig(int propertyId) {
+    private CarPropertyConfig validateRegisterParameterAndGetConfig(int propertyId) {
         CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
-        Preconditions.checkArgument(carPropertyConfig != null,
-                "property ID is not in carPropertyConfig list, and so it is not supported: %s",
-                VehiclePropertyIds.toString(propertyId));
+        assertConfigIsNotNull(propertyId, carPropertyConfig);
+        assertPropertyIsReadable(carPropertyConfig);
+        assertReadPermissionGranted(propertyId);
         return carPropertyConfig;
-    }
-
-    private void assertIfReadableAtAreaIds(CarPropertyConfig<?> carPropertyConfig, int[] areaIds) {
-        for (int i = 0; i < areaIds.length; i++) {
-            assertAreaIdIsSupported(carPropertyConfig, areaIds[i]);
-            assertPropertyIsReadable(carPropertyConfig, areaIds[i]);
-        }
-        assertReadPermissionGranted(carPropertyConfig.getPropertyId());
     }
 
     private CarPropertyConfig validateRegisterParameterAndGetConfig(int propertyId,
             int[] areaIds) {
-        CarPropertyConfig<?> carPropertyConfig = assertConfigNotNullAndGetConfig(propertyId);
+        CarPropertyConfig<?> carPropertyConfig = validateRegisterParameterAndGetConfig(propertyId);
         Preconditions.checkArgument(areaIds != null, "AreaIds must not be null");
         Preconditions.checkArgument(areaIds.length != 0, "AreaIds must not be empty");
-        assertIfReadableAtAreaIds(carPropertyConfig, areaIds);
+        for (int i = 0; i < areaIds.length; i++) {
+            assertAreaIdIsSupported(areaIds[i], carPropertyConfig);
+        }
         return carPropertyConfig;
     }
 
     private void validateGetParameters(int propertyId, int areaId) {
-        CarPropertyConfig<?> carPropertyConfig = assertConfigNotNullAndGetConfig(propertyId);
-        assertAreaIdIsSupported(carPropertyConfig, areaId);
-        assertPropertyIsReadable(carPropertyConfig, areaId);
+        CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
+        assertConfigIsNotNull(propertyId, carPropertyConfig);
+        assertPropertyIsReadable(carPropertyConfig);
         assertReadPermissionGranted(propertyId);
+        assertAreaIdIsSupported(areaId, carPropertyConfig);
     }
 
     private void validateSetParameters(CarPropertyValue<?> carPropertyValue) {
@@ -1094,16 +1096,16 @@ public class CarPropertyService extends ICarProperty.Stub
         int propertyId = carPropertyValue.getPropertyId();
         int areaId = carPropertyValue.getAreaId();
         Object valueToSet = carPropertyValue.getValue();
-        CarPropertyConfig<?> carPropertyConfig = assertConfigNotNullAndGetConfig(propertyId);
-        assertAreaIdIsSupported(carPropertyConfig, areaId);
+        CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
+        assertConfigIsNotNull(propertyId, carPropertyConfig);
 
         // Assert property is writable.
-        int accessLevel = carPropertyConfig.getAreaIdConfig(areaId).getAccess();
         Preconditions.checkArgument(
-                accessLevel == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE
-                        || accessLevel == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
-                "Property: %s is not writable at areaId: %d",
-                VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()), areaId);
+                carPropertyConfig.getAccess() == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE
+                        || carPropertyConfig.getAccess()
+                        == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
+                "Property is not writable: %s",
+                VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()));
 
         // Assert write permission is granted.
         if (!mPropertyHalService.isWritable(mContext, propertyId)) {
@@ -1111,6 +1113,8 @@ public class CarPropertyService extends ICarProperty.Stub
                     "Platform does not have permission to write value for property ID: "
                             + VehiclePropertyIds.toString(propertyId));
         }
+
+        assertAreaIdIsSupported(areaId, carPropertyConfig);
 
         // Assert set value is valid for property.
         Preconditions.checkArgument(valueToSet != null,

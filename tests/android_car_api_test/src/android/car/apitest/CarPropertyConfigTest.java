@@ -234,68 +234,6 @@ public final class CarPropertyConfigTest extends CarPropertyTestBase {
     }
 
     @Test
-    public void getAccess_returnsAccessOfOneAndOnlyAreaIdConfig() {
-        AreaIdConfig<Long> areaIdConfig = new AreaIdConfig.Builder<Long>(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
-                VehicleAreaWindow.WINDOW_REAR_WINDSHIELD).build();
-        CarPropertyConfig<Long> carPropertyConfig = CarPropertyConfig.newBuilder(Long.class,
-                LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW).addAreaIdConfig(
-                areaIdConfig).build();
-
-        assertThat(carPropertyConfig.getAccess()).isEqualTo(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE);
-    }
-
-    @Test
-    public void getAccess_returnsSubsetAccessOfAreaIdConfigs() {
-        AreaIdConfig<Long> areaIdConfigReadWrite = new AreaIdConfig.Builder<Long>(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
-                VehicleAreaWindow.WINDOW_REAR_WINDSHIELD).build();
-        AreaIdConfig<Long> areaIdConfigRead = new AreaIdConfig.Builder<Long>(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ,
-                VehicleAreaWindow.WINDOW_FRONT_WINDSHIELD).build();
-        CarPropertyConfig<Long> carPropertyConfig = CarPropertyConfig.newBuilder(Long.class,
-                LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW).addAreaIdConfig(
-                areaIdConfigReadWrite).addAreaIdConfig(areaIdConfigRead).build();
-
-        assertThat(carPropertyConfig.getAccess()).isEqualTo(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ);
-    }
-
-    @Test
-    public void getAccess_returnsNoneOnInvalidAreaIdConfigAccess() {
-        AreaIdConfig<Long> areaIdConfig = new AreaIdConfig.Builder<Long>(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_NONE,
-                VehicleAreaWindow.WINDOW_REAR_WINDSHIELD).build();
-        CarPropertyConfig<Long> carPropertyConfig = CarPropertyConfig.newBuilder(Long.class,
-                LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW).addAreaIdConfig(
-                areaIdConfig).build();
-
-        assertThat(carPropertyConfig.getAccess()).isEqualTo(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_NONE);
-    }
-
-    @Test
-    public void getAccess_returnsNoneOnInvalidAreaIdConfigAccessCombinations() {
-        AreaIdConfig<Long> areaIdConfigReadWrite = new AreaIdConfig.Builder<Long>(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
-                VehicleAreaWindow.WINDOW_REAR_WINDSHIELD).build();
-        AreaIdConfig<Long> areaIdConfigRead = new AreaIdConfig.Builder<Long>(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ,
-                VehicleAreaWindow.WINDOW_FRONT_WINDSHIELD).build();
-        AreaIdConfig<Long> areaIdConfigWrite = new AreaIdConfig.Builder<Long>(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE,
-                VehicleAreaWindow.WINDOW_ROW_1_LEFT).build();
-        CarPropertyConfig<Long> carPropertyConfig = CarPropertyConfig.newBuilder(Long.class,
-                LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW).addAreaIdConfig(
-                areaIdConfigReadWrite).addAreaIdConfig(areaIdConfigRead).addAreaIdConfig(
-                areaIdConfigWrite).build();
-
-        assertThat(carPropertyConfig.getAccess()).isEqualTo(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_NONE);
-    }
-
-    @Test
     public void getAreaIdConfigs_returnsEmptyIfNoAreaIdsSupplied() {
         CarPropertyConfig<Long> carPropertyConfig = CarPropertyConfig.newBuilder(Long.class,
                 LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW).build();
@@ -306,7 +244,6 @@ public final class CarPropertyConfigTest extends CarPropertyTestBase {
     @Test
     public void getAreaIdConfigs_returnsAreaIdConfigThatIsSupplied() {
         AreaIdConfig<Long> areaIdConfig = new AreaIdConfig.Builder<Long>(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 VehicleAreaWindow.WINDOW_REAR_WINDSHIELD).build();
         CarPropertyConfig<Long> carPropertyConfig = CarPropertyConfig.newBuilder(Long.class,
                 LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW).addAreaIdConfig(
@@ -318,10 +255,8 @@ public final class CarPropertyConfigTest extends CarPropertyTestBase {
     @Test
     public void getAreaIdConfigs_returnsMultipleAreaIdConfigsThatAreSupplied() {
         AreaIdConfig<Long> areaIdConfig = new AreaIdConfig.Builder<Long>(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 VehicleAreaWindow.WINDOW_REAR_WINDSHIELD).build();
         AreaIdConfig<Long> areaIdConfig2 = new AreaIdConfig.Builder<Long>(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 VehicleAreaWindow.WINDOW_FRONT_WINDSHIELD).build();
         CarPropertyConfig<Long> carPropertyConfig = CarPropertyConfig.newBuilder(Long.class,
                 LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW).addAreaIdConfig(
@@ -343,7 +278,6 @@ public final class CarPropertyConfigTest extends CarPropertyTestBase {
     @Test
     public void getAreaIdConfig_returnsAreaIdConfigThatIsSupplied() {
         AreaIdConfig<Long> areaIdConfig = new AreaIdConfig.Builder<Long>(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 VehicleAreaWindow.WINDOW_REAR_WINDSHIELD).build();
         CarPropertyConfig<Long> carPropertyConfig = CarPropertyConfig.newBuilder(Long.class,
                 LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW).addAreaIdConfig(
@@ -356,10 +290,8 @@ public final class CarPropertyConfigTest extends CarPropertyTestBase {
     @Test
     public void getAreaIdConfig_returnsMultipleAreaIdConfigsThatAreSupplied() {
         AreaIdConfig<Long> areaIdConfig = new AreaIdConfig.Builder<Long>(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 VehicleAreaWindow.WINDOW_REAR_WINDSHIELD).build();
         AreaIdConfig<Long> areaIdConfig2 = new AreaIdConfig.Builder<Long>(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 VehicleAreaWindow.WINDOW_FRONT_WINDSHIELD).build();
         CarPropertyConfig<Long> carPropertyConfig = CarPropertyConfig.newBuilder(Long.class,
                 LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW).addAreaIdConfig(
@@ -382,7 +314,6 @@ public final class CarPropertyConfigTest extends CarPropertyTestBase {
     @Test
     public void getAreaIds_returnsAreaIdThatIsSupplied() {
         AreaIdConfig<Long> areaIdConfig = new AreaIdConfig.Builder<Long>(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 VehicleAreaWindow.WINDOW_REAR_WINDSHIELD).build();
         CarPropertyConfig<Long> carPropertyConfig = CarPropertyConfig.newBuilder(Long.class,
                 LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW).addAreaIdConfig(
@@ -396,10 +327,8 @@ public final class CarPropertyConfigTest extends CarPropertyTestBase {
     @Test
     public void getAreaIds_returnsMultipleAreaIdsThatAreSupplied() {
         AreaIdConfig<Long> areaIdConfig = new AreaIdConfig.Builder<Long>(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 VehicleAreaWindow.WINDOW_REAR_WINDSHIELD).build();
         AreaIdConfig<Long> areaIdConfig2 = new AreaIdConfig.Builder<Long>(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 VehicleAreaWindow.WINDOW_FRONT_WINDSHIELD).build();
         CarPropertyConfig<Long> carPropertyConfig = CarPropertyConfig.newBuilder(Long.class,
                 LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW).addAreaIdConfig(

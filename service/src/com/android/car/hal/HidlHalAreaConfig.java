@@ -21,23 +21,13 @@ import static com.android.car.internal.common.CommonConstants.EMPTY_LONG_ARRAY;
 import android.hardware.automotive.vehicle.V2_0.VehicleAreaConfig;
 
 /**
- * HidlHalAreaConfig is a HalAreaConfig with a HIDL backend.
+ * HidlHalAreaConfig is a HalAreaConfig with an AIDL backend.
  */
 public final class HidlHalAreaConfig extends HalAreaConfig {
     private final VehicleAreaConfig mConfig;
-    private final int mAccess;
 
-    public HidlHalAreaConfig(VehicleAreaConfig config, int access) {
+    public HidlHalAreaConfig(VehicleAreaConfig config) {
         mConfig = config;
-        mAccess = access;
-    }
-
-    /**
-     * Get the access mode.
-     */
-    @Override
-    public int getAccess() {
-        return mAccess;
     }
 
     /**

@@ -1176,7 +1176,6 @@ package android.car.hardware.property {
 
   public static final class AreaIdConfig.Builder<T> {
     ctor public AreaIdConfig.Builder(int);
-    ctor @FlaggedApi(android.car.feature.Flags.FLAG_AREA_ID_CONFIG_ACCESS) public AreaIdConfig.Builder(int, int);
     method @NonNull public android.car.hardware.property.AreaIdConfig<T> build();
     method @NonNull public android.car.hardware.property.AreaIdConfig.Builder<T> setMaxValue(T);
     method @NonNull public android.car.hardware.property.AreaIdConfig.Builder<T> setMinValue(T);

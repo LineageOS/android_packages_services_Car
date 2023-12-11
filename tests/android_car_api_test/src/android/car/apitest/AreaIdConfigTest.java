@@ -29,19 +29,13 @@ import java.util.List;
  * Unit tests for {@link AreaIdConfig}
  */
 public class AreaIdConfigTest {
-    private static final int ACCESS = 1;
     private static final int AREA_ID = 99;
     private static final int MAX_VALUE = 10;
     private static final int MIN_VALUE = 1;
     private static final List<Integer> SUPPORTED_ENUM_VALUES = List.of(2, 3, 4);
     private static final AreaIdConfig<Integer> AREA_ID_CONFIG = new AreaIdConfig.Builder<Integer>(
-            ACCESS, AREA_ID).setMaxValue(MAX_VALUE).setMinValue(MIN_VALUE).setSupportedEnumValues(
+            AREA_ID).setMaxValue(MAX_VALUE).setMinValue(MIN_VALUE).setSupportedEnumValues(
             SUPPORTED_ENUM_VALUES).setSupportVariableUpdateRate(true).build();
-
-    @Test
-    public void getAccess_returnsExpectedValue() {
-        assertThat(AREA_ID_CONFIG.getAccess()).isEqualTo(ACCESS);
-    }
 
     @Test
     public void getAreaId_returnsExpectedValue() {
@@ -55,7 +49,7 @@ public class AreaIdConfigTest {
 
     @Test
     public void getMinValue_returnsNullIfNotSet() {
-        assertThat(new AreaIdConfig.Builder<Long>(ACCESS, AREA_ID).build().getMinValue()).isNull();
+        assertThat(new AreaIdConfig.Builder<Long>(AREA_ID).build().getMinValue()).isNull();
     }
 
     @Test
@@ -65,7 +59,7 @@ public class AreaIdConfigTest {
 
     @Test
     public void getMaxValue_returnsNullIfNotSet() {
-        assertThat(new AreaIdConfig.Builder<Long>(ACCESS, AREA_ID).build().getMaxValue()).isNull();
+        assertThat(new AreaIdConfig.Builder<Long>(AREA_ID).build().getMaxValue()).isNull();
     }
 
     @Test
@@ -77,7 +71,7 @@ public class AreaIdConfigTest {
     @Test
     public void getSupportedEnumValues_returnsEmptyListIfNoSet() {
         assertThat(new AreaIdConfig.Builder<Long>(
-                ACCESS, AREA_ID).build().getSupportedEnumValues()).isEmpty();
+                AREA_ID).build().getSupportedEnumValues()).isEmpty();
     }
 
     @Test

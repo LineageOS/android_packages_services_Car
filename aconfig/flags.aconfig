@@ -55,13 +55,6 @@ flag {
   bug: "300700719"
 }
 
-flag {
-  name: "area_id_config_access"
-  namespace: "car_framework"
-  description: "Controls whether apps can use the new access level APIs added to AreaIdConfig"
-  bug: "290801790"
-}
-
 # CarServiceBase
 flag {
   name: "car_dump_to_proto"

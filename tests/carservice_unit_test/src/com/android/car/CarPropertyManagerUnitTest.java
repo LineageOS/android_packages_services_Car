@@ -2092,8 +2092,7 @@ public final class CarPropertyManagerUnitTest {
         List<CarPropertyConfig> configs = List.of(
                 CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
                                 VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
-                        .addAreaIdConfig(new AreaIdConfig.Builder<Float>(
-                                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, 0).build())
+                        .addAreaIdConfig(new AreaIdConfig.Builder<Float>(0).build())
                         .setChangeMode(CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS)
                         .setMinSampleRate(0f)
                         .setMaxSampleRate(10f).build());
@@ -2535,9 +2534,7 @@ public final class CarPropertyManagerUnitTest {
         List<CarPropertyConfig> configs = List.of(
                 CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
                                 VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
-                        .addAreaIdConfig(new AreaIdConfig.Builder<Float>(
-                                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, 0).build())
-                        .build());
+                        .addAreaIdConfig(new AreaIdConfig.Builder<Float>(0).build()).build());
         when(mICarProperty.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET})).thenReturn(
                 new CarPropertyConfigList(configs));
         ICarPropertyEventListener listener = getCarPropertyEventListener();
@@ -2555,9 +2552,7 @@ public final class CarPropertyManagerUnitTest {
         List<CarPropertyConfig> configs = List.of(
                 CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
                                 VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
-                        .addAreaIdConfig(new AreaIdConfig.Builder<Float>(
-                                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, 0).build())
-                        .build());
+                        .addAreaIdConfig(new AreaIdConfig.Builder<Float>(0).build()).build());
         when(mICarProperty.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET})).thenReturn(
                 new CarPropertyConfigList(configs));
         ICarPropertyEventListener listener = getCarPropertyEventListener();
