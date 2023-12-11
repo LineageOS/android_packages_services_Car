@@ -143,7 +143,8 @@ public final class CarPropertyServiceUnitTest {
         SparseArray<CarPropertyConfig<?>> configs = new SparseArray<>();
         configs.put(SPEED_ID, CarPropertyConfig.newBuilder(Float.class, SPEED_ID,
                 VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1).addAreaIdConfig(
-                        new AreaIdConfig.Builder<Float>(GLOBAL_AREA_ID)
+                        new AreaIdConfig.Builder<Float>(
+                                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, GLOBAL_AREA_ID)
                         .setSupportVariableUpdateRate(true).build())
                 .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).setChangeMode(
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS).setMaxSampleRate(
@@ -152,21 +153,24 @@ public final class CarPropertyServiceUnitTest {
         // HVAC_TEMP is actually not a global property, but for simplicity, make it global here.
         configs.put(HVAC_TEMP, CarPropertyConfig.newBuilder(Float.class, HVAC_TEMP,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
-                .addAreaConfig(GLOBAL_AREA_ID, null, null)
-                .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ)
+                .addAreaIdConfig(new AreaIdConfig.Builder(
+                        CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, GLOBAL_AREA_ID).build())
                 .build());
         when(mHalService.isReadable(mContext, HVAC_TEMP)).thenReturn(true);
         configs.put(VehiclePropertyIds.GEAR_SELECTION,
                 CarPropertyConfig.newBuilder(Integer.class, VehiclePropertyIds.GEAR_SELECTION,
                                 VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
-                        .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ)
+                        .addAreaIdConfig(new AreaIdConfig.Builder(
+                                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, GLOBAL_AREA_ID)
+                                .build())
                         .build());
         // Property with read or read/write access
         when(mHalService.isReadable(mContext, CONTINUOUS_READ_ONLY_PROPERTY_ID))
                 .thenReturn(true);
         configs.put(CONTINUOUS_READ_ONLY_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
                 CONTINUOUS_READ_ONLY_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
-                1).addAreaIdConfig(new AreaIdConfig.Builder<Integer>(GLOBAL_AREA_ID)
+                1).addAreaIdConfig(new AreaIdConfig.Builder<Integer>(
+                        CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, GLOBAL_AREA_ID)
                         .setSupportVariableUpdateRate(true).build()).setAccess(
                 CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).setChangeMode(
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS).setMinSampleRate(
@@ -174,63 +178,76 @@ public final class CarPropertyServiceUnitTest {
         when(mHalService.isWritable(mContext, WRITE_ONLY_INT_PROPERTY_ID))
                 .thenReturn(true);
         configs.put(WRITE_ONLY_INT_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
-                WRITE_ONLY_INT_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
-                1).addAreaConfig(GLOBAL_AREA_ID, MIN_INT_VALUE, MAX_INT_VALUE).setAccess(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build());
+                WRITE_ONLY_INT_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(
+                        CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE, GLOBAL_AREA_ID)
+                        .setMinValue(MIN_INT_VALUE).setMaxValue(MAX_INT_VALUE).build())
+                .build());
         when(mHalService.isWritable(mContext, WRITE_ONLY_LONG_PROPERTY_ID))
                 .thenReturn(true);
         configs.put(WRITE_ONLY_LONG_PROPERTY_ID, CarPropertyConfig.newBuilder(Long.class,
-                WRITE_ONLY_LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
-                1).addAreaConfig(GLOBAL_AREA_ID, MIN_LONG_VALUE, MAX_LONG_VALUE).setAccess(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build());
+                WRITE_ONLY_LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Long>(
+                        CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE, GLOBAL_AREA_ID)
+                        .setMinValue(MIN_LONG_VALUE).setMaxValue(MAX_LONG_VALUE).build())
+                .build());
         when(mHalService.isWritable(mContext, WRITE_ONLY_FLOAT_PROPERTY_ID))
                 .thenReturn(true);
         configs.put(WRITE_ONLY_FLOAT_PROPERTY_ID, CarPropertyConfig.newBuilder(Float.class,
-                WRITE_ONLY_FLOAT_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
-                1).addAreaConfig(GLOBAL_AREA_ID, MIN_FLOAT_VALUE, MAX_FLOAT_VALUE).setAccess(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build());
+                WRITE_ONLY_FLOAT_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Float>(
+                        CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE, GLOBAL_AREA_ID)
+                        .setMinValue(MIN_FLOAT_VALUE).setMaxValue(MAX_FLOAT_VALUE).build())
+                .build());
         when(mHalService.isWritable(mContext, WRITE_ONLY_ENUM_PROPERTY_ID))
                 .thenReturn(true);
         configs.put(WRITE_ONLY_ENUM_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
                 WRITE_ONLY_ENUM_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
-                1).addAreaIdConfig(new AreaIdConfig.Builder(GLOBAL_AREA_ID).setSupportedEnumValues(
-                SUPPORTED_ENUM_VALUES).build()).setAccess(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build());
+                1).addAreaIdConfig(new AreaIdConfig.Builder(
+                        CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE, GLOBAL_AREA_ID)
+                .setSupportedEnumValues(SUPPORTED_ENUM_VALUES).build()).build());
         when(mHalService.isWritable(mContext, WRITE_ONLY_OTHER_ENUM_PROPERTY_ID))
                 .thenReturn(true);
         configs.put(WRITE_ONLY_OTHER_ENUM_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
                 WRITE_ONLY_OTHER_ENUM_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
-                1).addAreaIdConfig(new AreaIdConfig.Builder(GLOBAL_AREA_ID).setSupportedEnumValues(
-                SUPPORTED_ENUM_VALUES).build()).setAccess(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build());
+                1).addAreaIdConfig(new AreaIdConfig.Builder(
+                        CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE, GLOBAL_AREA_ID)
+                .setSupportedEnumValues(SUPPORTED_ENUM_VALUES).build()).build());
         when(mHalService.isReadable(mContext, ON_CHANGE_READ_WRITE_PROPERTY_ID))
                 .thenReturn(true);
         when(mHalService.isWritable(mContext, ON_CHANGE_READ_WRITE_PROPERTY_ID))
                 .thenReturn(true);
         configs.put(ON_CHANGE_READ_WRITE_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
-                ON_CHANGE_READ_WRITE_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
-                1).addAreaConfig(GLOBAL_AREA_ID, null, null).setAccess(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE).setChangeMode(
-                CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE).build());
+                ON_CHANGE_READ_WRITE_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1)
+                .addAreaIdConfig(new AreaIdConfig.Builder(
+                        CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE, GLOBAL_AREA_ID)
+                        .build())
+                .setChangeMode(CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE).build());
         configs.put(NO_PERMISSION_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
-                NO_PERMISSION_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
-                1).addAreaConfig(GLOBAL_AREA_ID, null, null).setAccess(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE).build());
+                NO_PERMISSION_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1)
+                .addAreaIdConfig(new AreaIdConfig.Builder(
+                        CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE, GLOBAL_AREA_ID)
+                        .build()).build());
 
         when(mHalService.isReadable(mContext, READ_WRITE_INT_PROPERTY_ID))
                 .thenReturn(true);
         when(mHalService.isWritable(mContext, READ_WRITE_INT_PROPERTY_ID))
                 .thenReturn(true);
         configs.put(READ_WRITE_INT_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
-                READ_WRITE_INT_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
-                1).addAreaConfig(GLOBAL_AREA_ID, MIN_INT_VALUE, MAX_INT_VALUE).setAccess(
-                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE).build());
+                READ_WRITE_INT_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(
+                        CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE, GLOBAL_AREA_ID)
+                        .setMinValue(MIN_INT_VALUE).setMaxValue(MAX_INT_VALUE).build())
+                .build());
 
         configs.put(ON_CHANGE_ZONED_PROPERTY_ID, CarPropertyConfig.newBuilder(Float.class,
                 ON_CHANGE_ZONED_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW, 1)
-                .addAreaConfig(VehicleAreaWindow.WINDOW_ROW_1_LEFT, null, null)
-                .addAreaConfig(VehicleAreaWindow.WINDOW_ROW_1_RIGHT, null, null)
-                .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Float>(
+                        CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ,
+                        VehicleAreaWindow.WINDOW_ROW_1_LEFT).build())
+                .addAreaIdConfig(new AreaIdConfig.Builder<Float>(
+                        CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ,
+                        VehicleAreaWindow.WINDOW_ROW_1_RIGHT).build())
                 .setChangeMode(CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE)
                 .setMaxSampleRate(100)
                 .setMinSampleRate(1)
@@ -239,9 +256,12 @@ public final class CarPropertyServiceUnitTest {
 
         configs.put(CONTINUOUS_ZONED_PROPERTY_ID, CarPropertyConfig.newBuilder(Float.class,
                 CONTINUOUS_ZONED_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW, 1)
-                .addAreaConfig(VehicleAreaWindow.WINDOW_ROW_1_LEFT, null, null)
-                .addAreaConfig(VehicleAreaWindow.WINDOW_ROW_1_RIGHT, null, null)
-                .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Float>(
+                        CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ,
+                        VehicleAreaWindow.WINDOW_ROW_1_LEFT).build())
+                .addAreaIdConfig(new AreaIdConfig.Builder<Float>(
+                        CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ,
+                        VehicleAreaWindow.WINDOW_ROW_1_RIGHT).build())
                 .setChangeMode(CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS)
                 .setMaxSampleRate(100)
                 .setMinSampleRate(1)
