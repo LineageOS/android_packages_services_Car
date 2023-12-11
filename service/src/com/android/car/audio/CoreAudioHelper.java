@@ -102,7 +102,7 @@ final class CoreAudioHelper {
      * given {@link AudioAttributes} if found, {@link #INVALID_STRATEGY} id otherwise.
      */
     public static int getStrategyForAudioAttributes(AudioAttributes attributes) {
-        Preconditions.checkNotNull(attributes, "Audio Attributes must not be null");
+        Preconditions.checkNotNull(attributes, "Audio Attributes can not be null");
         for (int index = 0; index < getAudioProductStrategies().size(); index++) {
             AudioProductStrategy strategy = getAudioProductStrategies().get(index);
             if (strategy.supportsAudioAttributes(attributes)) {
@@ -113,7 +113,7 @@ final class CoreAudioHelper {
     }
 
     public static int getStrategyForContextName(String contextName) {
-        Preconditions.checkNotNull(contextName, "Context name must not be null");
+        Preconditions.checkNotNull(contextName, "Context name can not be null");
         for (int index = 0; index < getAudioProductStrategies().size(); index++) {
             AudioProductStrategy strategy = getAudioProductStrategies().get(index);
             if (Objects.equals(strategy.getName(), contextName)) {
@@ -137,6 +137,20 @@ final class CoreAudioHelper {
         int strategyId = getStrategyForAudioAttributes(attributes);
         return strategyId == INVALID_STRATEGY
                 ? getStrategyForAudioAttributes(DEFAULT_ATTRIBUTES) : strategyId;
+    }
+
+    @Nullable
+    static AudioProductStrategy getProductStrategyForAudioAttributes(
+            AudioAttributes attributes) {
+        Preconditions.checkNotNull(attributes, "Audio attributes can not be null");
+        for (int index = 0; index < getAudioProductStrategies().size(); index++) {
+            AudioProductStrategy strategy = getAudioProductStrategies().get(index);
+            if (!strategy.supportsAudioAttributes(attributes)) {
+                continue;
+            }
+            return strategy;
+        }
+        return null;
     }
 
     /**
@@ -236,7 +250,7 @@ final class CoreAudioHelper {
      */
     @Nullable
     public static String getVolumeGroupNameForAudioAttributes(AudioAttributes attributes) {
-        Preconditions.checkNotNull(attributes, "Audio Attributes must not be null");
+        Preconditions.checkNotNull(attributes, "Audio Attributes can not be null");
         int volumeGroupId = getVolumeGroupIdForAudioAttributes(attributes);
         return volumeGroupId != AudioVolumeGroup.DEFAULT_VOLUME_GROUP
                 ? getVolumeGroupNameFromCoreId(volumeGroupId) : null;
@@ -261,7 +275,7 @@ final class CoreAudioHelper {
      * if found, {@link #INVALID_GROUP_ID} otherwise.
      */
     public static int getVolumeGroupIdForAudioAttributes(AudioAttributes attributes) {
-        Preconditions.checkNotNull(attributes, "Audio Attributes must not be null");
+        Preconditions.checkNotNull(attributes, "Audio Attributes can not be null");
         for (int index = 0; index < getAudioProductStrategies().size(); index++) {
             AudioProductStrategy strategy = getAudioProductStrategies().get(index);
             int volumeGroupId =
