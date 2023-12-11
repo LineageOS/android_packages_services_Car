@@ -2320,6 +2320,16 @@
       },
       "systemApi": true
     },
+    "ULTRASONICS_SENSOR_ORIENTATION": {
+      "propertyName": "ULTRASONICS_SENSOR_ORIENTATION",
+      "propertyId": 406916129,
+      "description": "Static data for the orientation of each ultrasonic sensor installed on the vehicle.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
+      },
+      "systemApi": true
+    },
     "OBD2_LIVE_FRAME": {
       "propertyName": "OBD2_LIVE_FRAME",
       "propertyId": 299896064,
