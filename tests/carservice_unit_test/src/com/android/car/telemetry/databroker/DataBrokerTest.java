@@ -33,7 +33,6 @@ import android.annotation.Nullable;
 import android.car.AbstractExtendedMockitoCarServiceTestCase;
 import android.car.builtin.util.TimingsTraceLog;
 import android.car.hardware.CarPropertyConfig;
-import android.car.hardware.property.AreaIdConfig;
 import android.car.telemetry.TelemetryProto;
 import android.content.Context;
 import android.content.ServiceConnection;
@@ -89,10 +88,8 @@ public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestC
     private static final int PRIORITY_LOW = 100;
     private static final long TIMEOUT_MS = 15_000L;
     private static final CarPropertyConfig<Integer> PROP_CONFIG =
-            CarPropertyConfig.newBuilder(Integer.class, PROP_ID, PROP_AREA)
-                    .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(
-                            CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, /* areaId */ 0).build())
-                    .build();
+            CarPropertyConfig.newBuilder(Integer.class, PROP_ID, PROP_AREA).setAccess(
+                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
     private static final TelemetryProto.VehiclePropertyPublisher
             VEHICLE_PROPERTY_PUBLISHER_CONFIGURATION =
             TelemetryProto.VehiclePropertyPublisher.newBuilder().setReadRate(
