@@ -4494,6 +4494,65 @@ public final class VehiclePropertyIds {
     public static final int ULTRASONICS_SENSOR_DETECTION_RANGE = 406916131;
 
     /**
+     * Static data for the supported ranges of each ultrasonic sensor in millimeters.
+     *
+     * <p>For ultrasonic sensors that only support readings within a specific range. For example, if
+     * an ultrasonic sensor detects an object at 700mm, but can only report that an object has been
+     * detected between 500mm and 1000mm.
+     *
+     * <p>Each individual sensor is identified by its {@link AreaIdConfig#getAreaId()} and returns
+     * the sensor's supported ranges formatted as [range_min_1, range_max_1, range_min_2,
+     * range_max_2, ...] where:
+     *
+     * <ul>
+     *  <li>range_min_1 is the minimum of one supported range by the specified sensor in
+     *  millimeters, inclusive.
+     *  <li>range_max_1 is the maximum of one supported range by the specified sensor in
+     *  millimeters, inclusive.
+     *  <li> range_min_2 is the minimum of another supported range by the specified sensor in
+     *  millimeters, inclusive.
+     *  <li> range_max_2 is the maximum of another supported range by the specified sensor in
+     *  millimeters, inclusive.
+     * </ul>
+     *
+     * <p>For example, if an ultrasonic sensor supports the ranges 150mm to  499mm, 500mm to 999mm,
+     * and 1000mm to 1500mm, then the property should be set to:
+     * <ul>
+     *  <li>value[0] = 150
+     *  <li>value[1] = 499
+     *  <li>value[2] = 500
+     *  <li>value[3] = 999
+     *  <li>value[4] = 1000
+     *  <li>value[5] = 1500
+     * </ul>
+     *
+     * <p>If this property is not defined, all the values within the
+     * {@link #ULTRASONICS_SENSOR_DETECTION_RANGE} for the specified sensor are assumed to be
+     * supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_VENDOR}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer[]} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ULTRASONICS_SENSOR_DATA} to
+     *  read property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA))
+    public static final int ULTRASONICS_SENSOR_SUPPORTED_RANGES = 406916132;
+
+    /**
      * OBD2 Live Sensor Data.
      *
      * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
