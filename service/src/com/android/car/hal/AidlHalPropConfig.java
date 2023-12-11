@@ -21,7 +21,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
-import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
@@ -80,9 +79,6 @@ public final class AidlHalPropConfig extends HalPropConfig {
         int size = mConfig.areaConfigs.length;
         HalAreaConfig[] areaConfigs = new HalAreaConfig[size];
         for (int i = 0; i < size; i++) {
-            if (mConfig.areaConfigs[i].access == VehiclePropertyAccess.NONE) {
-                mConfig.areaConfigs[i].access = mConfig.access;
-            }
             areaConfigs[i] = new AidlHalAreaConfig(mConfig.areaConfigs[i]);
         }
         return areaConfigs;

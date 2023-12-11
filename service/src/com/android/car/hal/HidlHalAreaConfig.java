@@ -19,6 +19,7 @@ package com.android.car.hal;
 import static com.android.car.internal.common.CommonConstants.EMPTY_LONG_ARRAY;
 
 import android.hardware.automotive.vehicle.V2_0.VehicleAreaConfig;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 
 /**
  * HidlHalAreaConfig is a HalAreaConfig with a HIDL backend.
@@ -26,6 +27,11 @@ import android.hardware.automotive.vehicle.V2_0.VehicleAreaConfig;
 public final class HidlHalAreaConfig extends HalAreaConfig {
     private final VehicleAreaConfig mConfig;
     private final int mAccess;
+
+    public HidlHalAreaConfig(VehicleAreaConfig config) {
+        mConfig = config;
+        mAccess = VehiclePropertyAccess.NONE;
+    }
 
     public HidlHalAreaConfig(VehicleAreaConfig config, int access) {
         mConfig = config;
