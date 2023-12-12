@@ -5295,6 +5295,45 @@ public final class VehiclePropertyIds {
     public static final int GENERAL_SAFETY_REGULATION_COMPLIANCE = 289410887;
 
     /**
+     * Current state of vehicle autonomy.
+     *
+     * <p>Defines the level of autonomy currently engaged in the vehicle from the SAE standard
+     * levels 0-5, with 0 representing no autonomy and 5 representing full driving automation. These
+     * levels are defined in accordance with the standards set in the
+     * <a href="https://www.sae.org/standards/content/j3016_202104/">J3016_202104 revision</a> of
+     * the SAE automation level taxonomy and its clarification for international audiences
+     * <a href="https://www.sae.org/blog/sae-j3016-update">here</a>.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.VehicleAutonomousState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission "android.car.permission.CAR_DRIVING_STATE" to
+     *  read property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @data_enum {@link android.car.hardware.property.VehicleAutonomousState}
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_CAR_DRIVING_STATE))
+    public static final int VEHICLE_DRIVING_AUTOMATION_CURRENT_LEVEL = 289410892;
+
+    /**
      * Enable or disable Automatic Emergency Braking (AEB).
      *
      * <p>Returns true if AEB is enabled and false if AEB is disabled. When AEB is enabled, the ADAS
