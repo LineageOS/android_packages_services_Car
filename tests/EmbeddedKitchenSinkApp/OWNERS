@@ -37,3 +37,6 @@ per-file src/com/google/android/car/kitchensink/property/* = ericjeong@google.co
 
 # Sensor
 per-file src/com/google/android/car/kitchensink/sensor/* = ericjeong@google.com, tylertrephan@google.com, evaschen@google.com
+
+# res folder
+per-file res/** = oscarazu@google.com, salsavage@google.com, chengandrew@google.com, twasilczyk@google.com, xuweilin@google.com, lakshmana@google.com, tylertrephan@google.com, shanyu@google.com, evaschen@google.com
