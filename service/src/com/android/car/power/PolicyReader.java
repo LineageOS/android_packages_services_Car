@@ -333,7 +333,7 @@ public final class PolicyReader {
             writer.printf("\n");
             writer.increaseIndent();
             for (int i = 0; i < size; i++) {
-                writer.println(toString(mRegisteredPowerPolicies.valueAt(i)));
+                writer.println(mRegisteredPowerPolicies.valueAt(i).toString());
             }
             writer.decreaseIndent();
         }
@@ -362,7 +362,7 @@ public final class PolicyReader {
         writer.println("Preemptive power policy:");
         writer.increaseIndent();
         for (int i = 0; i < mPreemptivePowerPolicies.size(); i++) {
-            writer.println(toString(mPreemptivePowerPolicies.valueAt(i)));
+            writer.println(mPreemptivePowerPolicies.valueAt(i).toString());
         }
         writer.decreaseIndent();
     }
@@ -914,13 +914,6 @@ public final class PolicyReader {
     boolean isOverridableComponent(int component) {
         return component >= MINIMUM_CUSTOM_COMPONENT_VALUE // custom components are overridable
             || SYSTEM_POLICY_CONFIGURABLE_COMPONENTS.contains(component);
-    }
-
-    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    private String toString(CarPowerPolicy policy) {
-        return policy.getPolicyId() + "(enabledComponents: "
-                + componentsToString(policy.getEnabledComponents()) + " | disabledComponents: "
-                + componentsToString(policy.getDisabledComponents()) + ")";
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
