@@ -346,6 +346,10 @@ import java.util.Set;
         return carAudioContexts;
     }
 
+    protected AudioAttributes[] getAudioAttributesForContext(int context) {
+        return mCarAudioContext.getAudioAttributesForContext(context);
+    }
+
     /**
      * Returns the id of the volume group.
      * <p> Note that all clients are already developed in the way that when they get the number of
@@ -918,6 +922,9 @@ import java.util.Set;
             }
             info.updateAudioDeviceInfo(halDeviceInfo);
         }
+    }
+
+    void updateDevices(boolean useCoreAudioRouting) {
     }
 
     /**

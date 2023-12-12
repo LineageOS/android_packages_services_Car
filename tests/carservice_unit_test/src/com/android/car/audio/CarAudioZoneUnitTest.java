@@ -260,7 +260,7 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
     public void isCurrentZoneConfig_forCurrentConfig_returnsFalse() {
         mTestAudioZone.addZoneConfig(mMockZoneConfig0);
         mTestAudioZone.addZoneConfig(mMockZoneConfig1);
-        CarAudioZoneConfigInfo nonCurrentZoneConfigInfo = getNonCurrentZoneConfigInfo();
+        CarAudioZoneConfigInfo nonCurrentZoneConfigInfo = getFirstNonCurrentZoneConfigInfo();
 
         expectWithMessage("Non-current zone config info")
                 .that(mTestAudioZone.isCurrentZoneConfig(nonCurrentZoneConfigInfo))
@@ -268,10 +268,10 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    public void setCurrentCarZoneConfig() {
+    public void setCurrentCarZoneConfig_withCoreAudioRoutingDisabled() {
         mTestAudioZone.addZoneConfig(mMockZoneConfig0);
         mTestAudioZone.addZoneConfig(mMockZoneConfig1);
-        CarAudioZoneConfigInfo currentZoneConfigInfoToSwitch = getNonCurrentZoneConfigInfo();
+        CarAudioZoneConfigInfo currentZoneConfigInfoToSwitch = getFirstNonCurrentZoneConfigInfo();
 
         mTestAudioZone.setCurrentCarZoneConfig(currentZoneConfigInfoToSwitch);
 
@@ -279,6 +279,29 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
                 .that(mTestAudioZone.isCurrentZoneConfig(currentZoneConfigInfoToSwitch))
                 .isTrue();
         verify(mMockZoneConfig1).setIsSelected(true);
+        verify(mMockZoneConfig1).updateVolumeDevices(/* useCoreAudioRouting= */ false);
+        verify(mMockZoneConfig0).setIsSelected(false);
+    }
+
+    @Test
+    public void setCurrentCarZoneConfig_withCoreAudioRoutingEnabled() {
+        CarAudioContext contextWithCoreAudioRouting =
+                new CarAudioContext(CarAudioContext.getAllContextsInfo(),
+                        /* useCoreAudioRouting= */ true);
+        CarAudioZone testAudioZone = new CarAudioZone(contextWithCoreAudioRouting, TEST_ZONE_NAME,
+                TEST_ZONE_ID);
+        testAudioZone.addZoneConfig(mMockZoneConfig0);
+        testAudioZone.addZoneConfig(mMockZoneConfig1);
+        CarAudioZoneConfigInfo currentZoneConfigInfoToSwitch =
+                getFirstNonCurrentZoneConfigInfo(testAudioZone);
+
+        testAudioZone.setCurrentCarZoneConfig(currentZoneConfigInfoToSwitch);
+
+        expectWithMessage("Current zone config info after switching zone configuration"
+                + "with core audio routing")
+                .that(testAudioZone.isCurrentZoneConfig(currentZoneConfigInfoToSwitch)).isTrue();
+        verify(mMockZoneConfig1).setIsSelected(true);
+        verify(mMockZoneConfig1).updateVolumeDevices(/* useCoreAudioRouting= */ true);
         verify(mMockZoneConfig0).setIsSelected(false);
     }
 
@@ -819,11 +842,10 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
                 .hasMessageThat().contains("Audio devices");
     }
 
-    private CarAudioZoneConfigInfo getNonCurrentZoneConfigInfo() {
-        CarAudioZoneConfigInfo currentZoneConfigInfo = mTestAudioZone
-                .getCurrentCarAudioZoneConfig().getCarAudioZoneConfigInfo();
-        List<CarAudioZoneConfigInfo> zoneConfigInfoList = mTestAudioZone
-                .getCarAudioZoneConfigInfos();
+    private CarAudioZoneConfigInfo getFirstNonCurrentZoneConfigInfo(CarAudioZone audioZone) {
+        CarAudioZoneConfigInfo currentZoneConfigInfo = audioZone.getCurrentCarAudioZoneConfig()
+                .getCarAudioZoneConfigInfo();
+        List<CarAudioZoneConfigInfo> zoneConfigInfoList = audioZone.getCarAudioZoneConfigInfos();
         for (int index = 0; index < zoneConfigInfoList.size(); index++) {
             CarAudioZoneConfigInfo zoneConfigInfo = zoneConfigInfoList.get(index);
             if (!currentZoneConfigInfo.equals(zoneConfigInfo)) {
@@ -831,6 +853,10 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
             }
         }
         return null;
+    }
+
+    private CarAudioZoneConfigInfo getFirstNonCurrentZoneConfigInfo() {
+        return getFirstNonCurrentZoneConfigInfo(mTestAudioZone);
     }
 
     private static final class TestCarAudioZoneConfigBuilder {

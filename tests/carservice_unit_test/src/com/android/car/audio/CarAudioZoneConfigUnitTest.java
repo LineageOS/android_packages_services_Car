@@ -282,6 +282,30 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
+    public void updateVolumeDevices_withUseCoreAudioRoutingEnabled() {
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.addVolumeGroup(mMockMusicGroup)
+                .addVolumeGroup(mMockNavGroup).build();
+        boolean useCoreAudioRouting = true;
+
+        zoneConfig.updateVolumeDevices(useCoreAudioRouting);
+
+        verify(mMockMusicGroup).updateDevices(useCoreAudioRouting);
+        verify(mMockNavGroup).updateDevices(useCoreAudioRouting);
+    }
+
+    @Test
+    public void updateVolumeDevices_withUseCoreAudioRoutingDisabled() {
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.addVolumeGroup(mMockMusicGroup)
+                .addVolumeGroup(mMockNavGroup).build();
+        boolean useCoreAudioRouting = false;
+
+        zoneConfig.updateVolumeDevices(useCoreAudioRouting);
+
+        verify(mMockMusicGroup).updateDevices(useCoreAudioRouting);
+        verify(mMockNavGroup).updateDevices(useCoreAudioRouting);
+    }
+
+    @Test
     public void validateCanUseDynamicMixRouting_addressSharedAmongGroups_forbidUseDynamicRouting() {
         CarAudioDeviceInfo musicCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
         CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
