@@ -163,7 +163,7 @@ import java.util.Objects;
 
             for (int c = 0; c < devices.size(); c++) {
                 if (getTypeLocked() != devices.get(c).getType()
-                        || getAddressLocked() != devices.get(c).getAddress()) {
+                        || !getAddressLocked().equals(devices.get(c).getAddress())) {
                     continue;
                 }
                 setAudioDeviceInfoLocked(null);
@@ -314,7 +314,7 @@ import java.util.Objects;
 
         // BUS device type can not be unset
         if ((getTypeLocked() == TYPE_BUS)
-                && (info == null || getAddressLocked() != info.getAddress())) {
+                && (info == null || !getAddressLocked().equals(info.getAddress()))) {
             return;
         }
 
