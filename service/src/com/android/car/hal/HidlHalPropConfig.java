@@ -76,7 +76,7 @@ public final class HidlHalPropConfig extends HalPropConfig {
         int size = mConfig.areaConfigs.size();
         HalAreaConfig[] areaConfigs = new HalAreaConfig[size];
         for (int i = 0; i < size; i++) {
-            areaConfigs[i] = new HidlHalAreaConfig(mConfig.areaConfigs.get(i));
+            areaConfigs[i] = new HidlHalAreaConfig(mConfig.areaConfigs.get(i), mConfig.access);
         }
         return areaConfigs;
     }
