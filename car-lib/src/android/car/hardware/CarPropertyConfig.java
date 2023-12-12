@@ -25,6 +25,7 @@ import android.annotation.SystemApi;
 import android.car.VehicleAreaType;
 import android.car.VehicleAreaType.VehicleAreaTypeValue;
 import android.car.VehiclePropertyIds;
+import android.car.feature.Flags;
 import android.car.hardware.property.AreaIdConfig;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -48,6 +49,7 @@ import java.util.List;
  *
  */
 public final class CarPropertyConfig<T> implements Parcelable {
+    private static final String TAG = CarPropertyConfig.class.getSimpleName();
     private final int mAccess;
     private final int mAreaType;
     private final int mChangeMode;
@@ -564,12 +566,14 @@ public final class CarPropertyConfig<T> implements Parcelable {
 
 
     /**
+     * Builder for making new {@code CarPropertyConfig} objects.
+     *
      * @param <T>
      * @hide
      * */
     @SystemApi
     public static class Builder<T> {
-        private int mAccess;
+        private int mAccess = VEHICLE_PROPERTY_ACCESS_NONE;
         private final int mAreaType;
         private int mChangeMode;
         private final ArrayList<Integer> mConfigArray = new ArrayList<>();
@@ -589,13 +593,20 @@ public final class CarPropertyConfig<T> implements Parcelable {
         /**
          * Add supported areas parameter to {@link CarPropertyConfig}
          *
+         * <p>This function uses the access set in the builder to define the area ID's access level.
+         * Make sure to call {@link CarPropertyConfig.Builder#setAccess(int)} before calling this
+         * function.
+         *
          * @return Builder<T>
          * @deprecated - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
          */
         @Deprecated
         public Builder<T> addAreas(int[] areaIds) {
             for (int areaId : areaIds) {
-                mAreaIdConfigs.add(new AreaIdConfig.Builder<T>(areaId).build());
+                AreaIdConfig.Builder<T> areaIdConfigBuilder = Flags.areaIdConfigAccess()
+                        ? new AreaIdConfig.Builder<T>(mAccess, areaId)
+                        : new AreaIdConfig.Builder<T>(areaId);
+                mAreaIdConfigs.add(areaIdConfigBuilder.build());
             }
             return this;
         }
@@ -603,25 +614,38 @@ public final class CarPropertyConfig<T> implements Parcelable {
         /**
          * Add {@code areaId} to {@link CarPropertyConfig}
          *
+         * <p>This function uses the access set in the builder to define the area's access level.
+         * Make sure to call {@link CarPropertyConfig.Builder#setAccess(int)} before calling this
+         * function.
+         *
          * @return Builder<T>
          * @deprecated - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
          */
         @Deprecated
         public Builder<T> addArea(int areaId) {
-            mAreaIdConfigs.add(new AreaIdConfig.Builder<T>(areaId).build());
+            AreaIdConfig.Builder<T> areaIdConfigBuilder = Flags.areaIdConfigAccess()
+                    ? new AreaIdConfig.Builder<T>(mAccess, areaId)
+                    : new AreaIdConfig.Builder<T>(areaId);
+            mAreaIdConfigs.add(areaIdConfigBuilder.build());
             return this;
         }
 
         /**
          * Add {@code areaConfig} to {@link CarPropertyConfig}
          *
+         * <p>This function uses the access set in the builder to define the area's access level.
+         * Make sure to call {@link CarPropertyConfig.Builder#setAccess(int)} before calling this
+         * function.
+         *
          * @return Builder<T>
          * @deprecated - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
          */
         @Deprecated
         public Builder<T> addAreaConfig(int areaId, T min, T max) {
-            mAreaIdConfigs.add(new AreaIdConfig.Builder<T>(areaId).setMinValue(min).setMaxValue(
-                    max).build());
+            AreaIdConfig.Builder<T> areaIdConfigBuilder = Flags.areaIdConfigAccess()
+                    ? new AreaIdConfig.Builder<T>(mAccess, areaId)
+                    : new AreaIdConfig.Builder<T>(areaId);
+            mAreaIdConfigs.add(areaIdConfigBuilder.setMinValue(min).setMaxValue(max).build());
             return this;
         }
 
