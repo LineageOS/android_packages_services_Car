@@ -33,7 +33,7 @@
     </string-array>
 
     <!-- display Id for distant display.  -->
-    <integer name="config_distantDisplayId">2</integer>
+    <integer name="config_distantDisplayId">3</integer>
 
     <string-array name="config_navigationActivities" translatable="false">
         <item>com.google.android.apps.maps/com.google.android.maps.MapsActivity</item>
