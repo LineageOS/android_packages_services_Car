@@ -17,10 +17,8 @@ package com.android.systemui.car.distantdisplay.activity.window;
 
 import android.app.ActivityOptions;
 import android.content.Context;
-import android.hardware.display.DisplayManager;
 import android.os.UserHandle;
 import android.util.Log;
-import android.view.Display;
 
 import com.android.systemui.R;
 import com.android.systemui.car.CarDeviceProvisionedController;
@@ -30,6 +28,7 @@ import com.android.systemui.car.distantdisplay.common.UserUnlockReceiver;
 import com.android.systemui.dagger.SysUISingleton;
 
 import javax.inject.Inject;
+
 
 /**
  * Controller that decides who will host the TaskView based on the flags. Host can either be an
@@ -41,13 +40,11 @@ public class ActivityWindowController {
     public static final String TAG = ActivityWindowController.class.getSimpleName();
     private final UserUnlockReceiver mUserUnlockReceiver = new UserUnlockReceiver();
     private final Context mContext;
-    private final DisplayManager mDisplayManager;
     private final int mDistantDisplayId;
     private final CarDeviceProvisionedController mCarDeviceProvisionedController;
     private boolean mUserSetupInProgress;
     private boolean mIsUserUnlocked;
     private boolean mDistantDisplayActivityStarted;
-
 
     private final CarDeviceProvisionedListener mCarDeviceProvisionedListener =
             new CarDeviceProvisionedListener() {
@@ -64,9 +61,8 @@ public class ActivityWindowController {
     public ActivityWindowController(Context context,
             CarDeviceProvisionedController deviceProvisionedController) {
         mContext = context;
-        mDisplayManager = mContext.getSystemService(DisplayManager.class);
-        mDistantDisplayId = findDisplay(
-                mContext.getResources().getInteger(R.integer.config_distantDisplayId));
+        mDistantDisplayId =
+                mContext.getResources().getInteger(R.integer.config_distantDisplayId);
         mCarDeviceProvisionedController = deviceProvisionedController;
         mCarDeviceProvisionedController.addCallback(mCarDeviceProvisionedListener);
     }
@@ -101,20 +97,9 @@ public class ActivityWindowController {
             return;
         }
         ActivityOptions options = ActivityOptions.makeCustomAnimation(mContext, 0, 0);
-        options.setLaunchDisplayId(
-                mContext.getResources().getInteger(R.integer.config_distantDisplayId));
+        options.setLaunchDisplayId(mDistantDisplayId);
         mContext.startActivityAsUser(DistantDisplayActivity.createIntent(mContext),
                 options.toBundle(), UserHandle.CURRENT);
         mDistantDisplayActivityStarted = true;
-    }
-
-    private int findDisplay(int distantDisplayId) {
-        for (Display display : mDisplayManager.getDisplays()) {
-            if (display.getDisplayId() == distantDisplayId) {
-                return display.getDisplayId();
-            }
-        }
-        Log.e(TAG, "Could not find a display id" + distantDisplayId);
-        return Display.INVALID_DISPLAY;
     }
 }
