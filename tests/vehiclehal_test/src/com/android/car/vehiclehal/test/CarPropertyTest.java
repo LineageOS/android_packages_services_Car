@@ -22,8 +22,10 @@ import static java.lang.Integer.toHexString;
 
 import android.car.Car;
 import android.car.VehiclePropertyIds;
+import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback;
 import android.car.hardware.property.VehicleVendorPermission;
@@ -369,39 +371,77 @@ public class CarPropertyTest extends E2eCarTestBase {
     public void checkSystemPropertyPermission() {
         CarPropertyManager propMgr = (CarPropertyManager) mCar.getCarManager(Car.PROPERTY_SERVICE);
         List<CarPropertyConfig> configs = propMgr.getPropertyList();
-        for (CarPropertyConfig cfg : configs) {
+        for (CarPropertyConfig<?> cfg : configs) {
             if ((cfg.getPropertyId() & VehiclePropertyGroup.MASK) == VehiclePropertyGroup.SYSTEM) {
                 String readPermission = propMgr.getReadPermission(cfg.getPropertyId());
                 String writePermission = propMgr.getWritePermission(cfg.getPropertyId());
-                int accessModel = cfg.getAccess();
-                switch (accessModel) {
-                    case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_NONE:
-                        assertWithMessage("cfg: " + cfg + " must not have read permission").that(
-                                readPermission).isNull();
-                        assertWithMessage("cfg: " + cfg + " must not have write permission").that(
-                                writePermission).isNull();
-                        break;
-                    case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE:
-                        assertWithMessage("cfg: " + cfg + " must have read permission").that(
-                                readPermission).isNotNull();
-                        assertWithMessage("cfg: " + cfg + " must have write permission").that(
-                                writePermission).isNotNull();
-                        break;
-                    case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE:
-                        assertWithMessage("cfg: " + cfg + " must not have read permission").that(
-                                readPermission).isNull();
-                        assertWithMessage("cfg: " + cfg + " must have write permission").that(
-                                writePermission).isNotNull();
-                        break;
-                    case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ:
-                        assertWithMessage("cfg: " + cfg + " must have read permission").that(
-                                readPermission).isNotNull();
-                        assertWithMessage("cfg: " + cfg + " must not have write permission").that(
-                                writePermission).isNull();
-                        break;
-                    default:
-                        Assert.fail(String.format("PropertyId: %d has an invalid access model: %d",
-                                cfg.getPropertyId(), accessModel));
+                if (Flags.areaIdConfigAccess()) {
+                    for (AreaIdConfig<?> areaIdConfig : cfg.getAreaIdConfigs()) {
+                        int accessModel = areaIdConfig.getAccess();
+                        switch (accessModel) {
+                            case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_NONE:
+                                assertWithMessage("cfg: " + cfg + " must not have read permission")
+                                        .that(readPermission).isNull();
+                                assertWithMessage("cfg: " + cfg + " must not have write permission")
+                                        .that(writePermission).isNull();
+                                break;
+                            case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE:
+                                assertWithMessage("cfg: " + cfg + " must have read permission")
+                                        .that(readPermission).isNotNull();
+                                assertWithMessage("cfg: " + cfg + " must have write permission")
+                                        .that(writePermission).isNotNull();
+                                break;
+                            case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE:
+                                assertWithMessage("cfg: " + cfg + " must not have read permission")
+                                        .that(readPermission).isNull();
+                                assertWithMessage("cfg: " + cfg + " must have write permission")
+                                        .that(writePermission).isNotNull();
+                                break;
+                            case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ:
+                                assertWithMessage("cfg: " + cfg + " must have read permission")
+                                        .that(readPermission).isNotNull();
+                                assertWithMessage("cfg: " + cfg + " must not have write permission")
+                                        .that(writePermission).isNull();
+                                break;
+                            default:
+                                Assert.fail(
+                                        String.format(
+                                                "PropertyId: %d has an invalid access model: %d",
+                                                cfg.getPropertyId(), accessModel));
+                        }
+                    }
+                } else {
+                    int accessModel = cfg.getAccess();
+                    switch (accessModel) {
+                        case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_NONE:
+                            assertWithMessage("cfg: " + cfg + " must not have read permission")
+                                    .that(readPermission).isNull();
+                            assertWithMessage("cfg: " + cfg + " must not have write permission")
+                                    .that(writePermission).isNull();
+                            break;
+                        case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE:
+                            assertWithMessage("cfg: " + cfg + " must have read permission")
+                                    .that(readPermission).isNotNull();
+                            assertWithMessage("cfg: " + cfg + " must have write permission")
+                                    .that(writePermission).isNotNull();
+                            break;
+                        case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE:
+                            assertWithMessage("cfg: " + cfg + " must not have read permission")
+                                    .that(readPermission).isNull();
+                            assertWithMessage("cfg: " + cfg + " must have write permission")
+                                    .that(writePermission).isNotNull();
+                            break;
+                        case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ:
+                            assertWithMessage("cfg: " + cfg + " must have read permission")
+                                    .that(readPermission).isNotNull();
+                            assertWithMessage("cfg: " + cfg + " must not have write permission")
+                                    .that(writePermission).isNull();
+                            break;
+                        default:
+                            Assert.fail(String.format(
+                                    "PropertyId: %d has an invalid access model: %d",
+                                    cfg.getPropertyId(), accessModel));
+                    }
                 }
             }
         }

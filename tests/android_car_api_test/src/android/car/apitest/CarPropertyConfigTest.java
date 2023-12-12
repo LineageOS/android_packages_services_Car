@@ -245,6 +245,7 @@ public final class CarPropertyConfigTest extends CarPropertyTestBase {
     @Test
     public void getAreaIdConfigs_returnsAreaIdConfigThatIsSupplied() {
         AreaIdConfig<Long> areaIdConfig = new AreaIdConfig.Builder<Long>(
+                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 VehicleAreaWindow.WINDOW_REAR_WINDSHIELD).build();
         CarPropertyConfig<Long> carPropertyConfig = CarPropertyConfig.newBuilder(Long.class,
                 LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW).addAreaIdConfig(
@@ -256,8 +257,10 @@ public final class CarPropertyConfigTest extends CarPropertyTestBase {
     @Test
     public void getAreaIdConfigs_returnsMultipleAreaIdConfigsThatAreSupplied() {
         AreaIdConfig<Long> areaIdConfig = new AreaIdConfig.Builder<Long>(
+                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 VehicleAreaWindow.WINDOW_REAR_WINDSHIELD).build();
         AreaIdConfig<Long> areaIdConfig2 = new AreaIdConfig.Builder<Long>(
+                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 VehicleAreaWindow.WINDOW_FRONT_WINDSHIELD).build();
         CarPropertyConfig<Long> carPropertyConfig = CarPropertyConfig.newBuilder(Long.class,
                 LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW).addAreaIdConfig(
@@ -279,6 +282,7 @@ public final class CarPropertyConfigTest extends CarPropertyTestBase {
     @Test
     public void getAreaIdConfig_returnsAreaIdConfigThatIsSupplied() {
         AreaIdConfig<Long> areaIdConfig = new AreaIdConfig.Builder<Long>(
+                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 VehicleAreaWindow.WINDOW_REAR_WINDSHIELD).build();
         CarPropertyConfig<Long> carPropertyConfig = CarPropertyConfig.newBuilder(Long.class,
                 LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW).addAreaIdConfig(
@@ -291,8 +295,10 @@ public final class CarPropertyConfigTest extends CarPropertyTestBase {
     @Test
     public void getAreaIdConfig_returnsMultipleAreaIdConfigsThatAreSupplied() {
         AreaIdConfig<Long> areaIdConfig = new AreaIdConfig.Builder<Long>(
+                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 VehicleAreaWindow.WINDOW_REAR_WINDSHIELD).build();
         AreaIdConfig<Long> areaIdConfig2 = new AreaIdConfig.Builder<Long>(
+                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 VehicleAreaWindow.WINDOW_FRONT_WINDSHIELD).build();
         CarPropertyConfig<Long> carPropertyConfig = CarPropertyConfig.newBuilder(Long.class,
                 LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW).addAreaIdConfig(
@@ -315,6 +321,7 @@ public final class CarPropertyConfigTest extends CarPropertyTestBase {
     @Test
     public void getAreaIds_returnsAreaIdThatIsSupplied() {
         AreaIdConfig<Long> areaIdConfig = new AreaIdConfig.Builder<Long>(
+                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 VehicleAreaWindow.WINDOW_REAR_WINDSHIELD).build();
         CarPropertyConfig<Long> carPropertyConfig = CarPropertyConfig.newBuilder(Long.class,
                 LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW).addAreaIdConfig(
@@ -328,8 +335,10 @@ public final class CarPropertyConfigTest extends CarPropertyTestBase {
     @Test
     public void getAreaIds_returnsMultipleAreaIdsThatAreSupplied() {
         AreaIdConfig<Long> areaIdConfig = new AreaIdConfig.Builder<Long>(
+                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 VehicleAreaWindow.WINDOW_REAR_WINDSHIELD).build();
         AreaIdConfig<Long> areaIdConfig2 = new AreaIdConfig.Builder<Long>(
+                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 VehicleAreaWindow.WINDOW_FRONT_WINDSHIELD).build();
         CarPropertyConfig<Long> carPropertyConfig = CarPropertyConfig.newBuilder(Long.class,
                 LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW).addAreaIdConfig(

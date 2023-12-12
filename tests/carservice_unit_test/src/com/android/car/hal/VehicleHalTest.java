@@ -1003,7 +1003,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testUnsubscribeProperty_unSubscribableProperty() throws Exception {
         //Act
-        mVehicleHal.unsubscribeProperty(mPowerHalService, SOME_READ_WRITE_STATIC_PROPERTY);
+        mVehicleHal.unsubscribeProperty(mPropertyHalService, SOME_READ_WRITE_STATIC_PROPERTY);
 
         // Assert
         verify(mSubscriptionClient, never()).unsubscribe(anyInt());
