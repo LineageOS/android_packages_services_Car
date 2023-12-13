@@ -16,17 +16,22 @@
 
 package com.android.car;
 
+import static android.car.settings.CarSettings.Global.FORCED_DAY_NIGHT_MODE;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.IntDef;
 import android.app.UiModeManager;
 import android.car.builtin.util.Slogf;
+import android.car.feature.Flags;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.Context;
+import android.database.ContentObserver;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.RemoteException;
+import android.provider.Settings;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -76,6 +81,16 @@ public class CarNightService implements CarServiceBase {
                 }
             };
 
+    private final ContentObserver mForcedNightModeObserver =
+            new ContentObserver(null /* handler */) {
+                @Override
+                public void onChange(boolean selfChange) {
+                    synchronized (mLock) {
+                        forceDayNightModeInternal(getForcedDayNightModeSetting());
+                    }
+                }
+            };
+
     /**
      * Acts on {@link CarPropertyEvent} events marked with {@link
      * CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE} and marked with {@link
@@ -121,6 +136,12 @@ public class CarNightService implements CarServiceBase {
         }
     }
 
+    @DayNightSensorMode
+    private int getForcedDayNightModeSetting() {
+        return Settings.Global.getInt(mContext.getContentResolver(),
+                FORCED_DAY_NIGHT_MODE, FORCED_SENSOR_MODE);
+    }
+
     /**
      * Sets {@link UiModeManager} to night mode according to the {@link DayNightSensorMode} passed
      * as parameter.
@@ -130,30 +151,35 @@ public class CarNightService implements CarServiceBase {
      */
     public int forceDayNightMode(@DayNightSensorMode int mode) {
         synchronized (mLock) {
-            if (mUiModeManager == null) {
-                return -1;
-            }
-            int resultMode;
-            switch (mode) {
-                case FORCED_SENSOR_MODE:
-                    resultMode = mNightSetting;
-                    mForcedMode = FORCED_SENSOR_MODE;
-                    break;
-                case FORCED_DAY_MODE:
-                    resultMode = UiModeManager.MODE_NIGHT_NO;
-                    mForcedMode = FORCED_DAY_MODE;
-                    break;
-                case FORCED_NIGHT_MODE:
-                    resultMode = UiModeManager.MODE_NIGHT_YES;
-                    mForcedMode = FORCED_NIGHT_MODE;
-                    break;
-                default:
-                    Slogf.e(CarLog.TAG_SENSOR, "Unknown forced day/night mode " + mode);
-                    return -1;
-            }
-            mUiModeManager.setNightMode(resultMode);
-            return mUiModeManager.getNightMode();
+            return forceDayNightModeInternal(mode);
         }
+    }
+
+    @GuardedBy("mLock")
+    private int forceDayNightModeInternal(@DayNightSensorMode int mode) {
+        if (mUiModeManager == null) {
+            return -1;
+        }
+        int resultMode;
+        switch (mode) {
+            case FORCED_SENSOR_MODE:
+                resultMode = mNightSetting;
+                mForcedMode = FORCED_SENSOR_MODE;
+                break;
+            case FORCED_DAY_MODE:
+                resultMode = UiModeManager.MODE_NIGHT_NO;
+                mForcedMode = FORCED_DAY_MODE;
+                break;
+            case FORCED_NIGHT_MODE:
+                resultMode = UiModeManager.MODE_NIGHT_YES;
+                mForcedMode = FORCED_NIGHT_MODE;
+                break;
+            default:
+                Slogf.e(CarLog.TAG_SENSOR, "Unknown forced day/night mode " + mode);
+                return -1;
+        }
+        mUiModeManager.setNightMode(resultMode);
+        return mUiModeManager.getNightMode();
     }
 
     CarNightService(Context context, CarPropertyService propertyService) {
@@ -171,6 +197,19 @@ public class CarNightService implements CarServiceBase {
             Slogf.d(CarLog.TAG_SENSOR, "CAR dayNight init.");
         }
         synchronized (mLock) {
+            if (Flags.carNightGlobalSetting()) {
+                mContext.getContentResolver().registerContentObserver(
+                        Settings.Global.getUriFor(FORCED_DAY_NIGHT_MODE),
+                        false /* notifyForDescendants */,
+                        mForcedNightModeObserver);
+                mForcedMode = getForcedDayNightModeSetting();
+                if (mForcedMode != FORCED_SENSOR_MODE) {
+                    // Only update the mode if it's not currently sensor mode. If it is sensor mode,
+                    // it will be updated by the setNightModeLocked call below.
+                    forceDayNightModeInternal(mForcedMode);
+                }
+            }
+
             mCarPropertyService.registerListenerSafe(VehicleProperty.NIGHT_MODE, 0,
                     mICarPropertyEventListener);
             CarPropertyValue propertyValue = mCarPropertyService.getPropertySafe(

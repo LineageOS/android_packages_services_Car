@@ -78,3 +78,11 @@ flag {
   description: "Enables use of vehicle properties introduced in Android V"
   bug: "309529020"
 }
+
+# CarNightService
+flag {
+  name: "car_night_global_setting"
+  namespace: "car_framework"
+  description: "Controls whether to use global settings to control the day/night mode configuration"
+  bug: "260762437"
+}

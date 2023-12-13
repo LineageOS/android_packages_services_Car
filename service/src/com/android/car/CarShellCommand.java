@@ -22,6 +22,7 @@ import static android.car.Car.PERMISSION_CONTROL_CAR_POWER_POLICY;
 import static android.car.Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG;
 import static android.car.Car.PERMISSION_USE_CAR_WATCHDOG;
 import static android.car.VehicleAreaSeat.SEAT_UNKNOWN;
+import static android.car.settings.CarSettings.Global.FORCED_DAY_NIGHT_MODE;
 import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_SUCCEEDED;
 import static android.hardware.automotive.vehicle.UserIdentificationAssociationSetValue.ASSOCIATE_CURRENT_USER;
 import static android.hardware.automotive.vehicle.UserIdentificationAssociationSetValue.DISASSOCIATE_ALL_USERS;
@@ -57,6 +58,7 @@ import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.widget.LockPatternHelper;
 import android.car.content.pm.CarPackageManager;
+import android.car.feature.Flags;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.RotaryEvent;
@@ -113,6 +115,7 @@ import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.SparseArray;
@@ -2744,22 +2747,27 @@ final class CarShellCommand extends BasicShellCommandHandler {
                         arg, PARAM_DAY_MODE, PARAM_NIGHT_MODE, PARAM_SENSOR_MODE);
                 return;
         }
-        int current = mCarNightService.forceDayNightMode(mode);
-        String currentMode = null;
-        switch (current) {
-            case UiModeManager.MODE_NIGHT_AUTO:
-                currentMode = PARAM_SENSOR_MODE;
-                break;
-            case UiModeManager.MODE_NIGHT_YES:
-                currentMode = PARAM_NIGHT_MODE;
-                break;
-            case UiModeManager.MODE_NIGHT_NO:
-                currentMode = PARAM_DAY_MODE;
-                break;
-            default:
-                break;
+        if (Flags.carNightGlobalSetting()) {
+            Settings.Global.putInt(mContext.getContentResolver(), FORCED_DAY_NIGHT_MODE, mode);
+            writer.println("DayNightMode changed to: " + arg);
+        } else {
+            int current = mCarNightService.forceDayNightMode(mode);
+            String currentMode = null;
+            switch (current) {
+                case UiModeManager.MODE_NIGHT_AUTO:
+                    currentMode = PARAM_SENSOR_MODE;
+                    break;
+                case UiModeManager.MODE_NIGHT_YES:
+                    currentMode = PARAM_NIGHT_MODE;
+                    break;
+                case UiModeManager.MODE_NIGHT_NO:
+                    currentMode = PARAM_DAY_MODE;
+                    break;
+                default:
+                    break;
+            }
+            writer.println("DayNightMode changed to: " + currentMode);
         }
-        writer.println("DayNightMode changed to: " + currentMode);
     }
 
     private void runSuspendCommand(String[] args, IndentingPrintWriter writer) {
