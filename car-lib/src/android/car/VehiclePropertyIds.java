@@ -3465,6 +3465,46 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_AIRBAGS)
     public static final int SEAT_AIRBAG_ENABLED = 354421662;
     /**
+     * State of deployment for seat airbags.
+     *
+     * <p>Bit flag property to relay information on which airbags have been deployed in the vehicle
+     * at each seat, vs which ones are currently still armed. When SEAT_AIRBAG_ENABLED is set to
+     * false at a particular areaId, this property will be UNAVAILABLE at that areaId.
+     *
+     * <p>Enums apply to each seat, not the global vehicle. For example,
+     * {@link android.car.hardware.property.VehicleAirbagLocation#CURTAIN} at the driver seat areaId
+     * represents whether the driver side curtain airbag has been deployed. Multiple bit flags can
+     * be set to indicate that multiple different airbags have been deployed for the seat.
+     *
+     * <p>For each seat area ID, the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.VehicleAirbagLocation} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission "android.car.permission.READ_CAR_AIRBAGS" to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @data_enum {@link android.car.hardware.property.VehicleAirbagLocation}
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_CAR_AIRBAGS))
+    public static final int SEAT_AIRBAGS_DEPLOYED = 356518821;
+    /**
      * Represents property for seat’s hipside (bottom cushion’s side) support position.
      *
      * <p>This property is not in any particular unit but in a specified range of relative

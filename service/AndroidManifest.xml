@@ -143,6 +143,14 @@
          android:label="@string/car_permission_label_control_car_seats"
          android:description="@string/car_permission_desc_control_car_seats"/>
 
+    <!-- Allows an application to read state of car airbags.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.READ_CAR_AIRBAGS"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_read_car_airbags"
+        android:description="@string/car_permission_desc_read_car_airbags"/>
+
     <!-- Allows an application to enable/disable a seat's ability to deploy airbag(s) when triggered
          (e.g. by a crash).
          <p>Protection level: signature|privileged

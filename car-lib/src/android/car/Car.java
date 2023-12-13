@@ -1287,6 +1287,15 @@ public final class Car {
             "android.car.permission.QUERY_DISPLAY_COMPATIBILITY";
 
     /**
+     * Permission necessary to read state of car airbags.
+     * @hide
+     */
+    @FlaggedApi(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    public static final String PERMISSION_READ_CAR_AIRBAGS =
+            "android.car.permission.READ_CAR_AIRBAGS";
+
+    /**
      * Intent for connecting to the template renderer. Services that handle this intent must also
      * hold {@link #PERMISSION_TEMPLATE_RENDERER}. Applications would not bind to this service
      * directly, but instead they would use
