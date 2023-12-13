@@ -22,6 +22,7 @@
 #include "shader_projectedTex.h"
 #include "shader_simpleTex.h"
 
+#include <aidl/android/hardware/automotive/evs/Stream.h>
 #include <android-base/logging.h>
 #include <math/mat4.h>
 #include <math/vec3.h>
@@ -30,6 +31,7 @@ namespace {
 
 using aidl::android::hardware::automotive::evs::BufferDesc;
 using aidl::android::hardware::automotive::evs::IEvsEnumerator;
+using aidl::android::hardware::automotive::evs::Stream;
 
 // Simple aliases to make geometric math using vectors more readable
 const unsigned X = 0;
@@ -142,8 +144,11 @@ bool RenderTopView::activate() {
 
     // Set up streaming video textures for our associated cameras
     for (auto&& cam : mActiveCameras) {
-        cam.tex.reset(
-                createVideoTexture(mEnumerator, cam.info.cameraId.c_str(), nullptr, sDisplay));
+        // We are passing an empty stream configuration; this will make EVS
+        // choose the default stream configuration.
+        std::unique_ptr<Stream> emptyCfg(new Stream());
+        cam.tex.reset(createVideoTexture(mEnumerator, cam.info.cameraId.c_str(),
+                                         std::move(emptyCfg), sDisplay));
         if (!cam.tex) {
             LOG(ERROR) << "Failed to set up video texture for " << cam.info.cameraId << " ("
                        << cam.info.function << ")";
