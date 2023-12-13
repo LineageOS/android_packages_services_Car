@@ -25,7 +25,9 @@ import static com.google.android.car.kitchensink.audio.AudioPlayer.PLAYER_STATE_
 import static com.google.android.car.kitchensink.audio.AudioPlayer.PLAYER_STATE_STOPPED;
 import static com.google.android.car.kitchensink.audio.AudioTestFragment.getAudioLogTag;
 
+import android.annotation.Nullable;
 import android.media.AudioAttributes;
+import android.media.AudioRouting;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
@@ -55,23 +57,37 @@ public final class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.View
     public final class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView mUsageTextView;
         private final TextView mStatusTextView;
+        private final TextView mDeviceInfoTextView;
         private AudioPlayer mPlayer;
 
         private ViewHolder(View v) {
             super(v);
             mUsageTextView = v.findViewById(R.id.player_usage);
             mStatusTextView = v.findViewById(R.id.player_status);
+            mDeviceInfoTextView = v.findViewById(R.id.player_device);
             v.findViewById(R.id.player_start).setOnClickListener(e -> startPlayer());
             v.findViewById(R.id.player_play_once).setOnClickListener(e -> {
                 startPlayer();
                 mHandler.postDelayed(() -> stopPlayer(), STOP_DELAY_TIME_MS);
             });
             v.findViewById(R.id.player_stop).setOnClickListener(e -> stopPlayer());
+            setAudioRoutingInfo(null);
         }
 
         private void setPlayer(AudioPlayer audioPlayer) {
             mPlayer = audioPlayer;
-            mUsageTextView.setText(AudioAttributes.usageToString(mPlayer.getUsage()));
+            mPlayer.setAudioRoutingListener(router -> setAudioRoutingInfo(router));
+            mUsageTextView.setText(AudioAttributes.usageToString(
+                    mPlayer.getUsage()).replace("USAGE_", ""));
+        }
+
+        private void setAudioRoutingInfo(@Nullable AudioRouting router) {
+            String deviceAddress = "None";
+            if (router != null && router.getRoutedDevice() != null) {
+                deviceAddress = router.getRoutedDevice().getAddress();
+            }
+            mDeviceInfoTextView.setText(mDeviceInfoTextView.getContext()
+                    .getString(R.string.audio_device_selected, deviceAddress));
         }
 
         private void startPlayer() {
@@ -81,26 +97,35 @@ public final class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.View
         }
 
         private void handleStateChange(@AudioPlayerState int state) {
+            int resourceId;
             switch (state) {
                 case PLAYER_STATE_STARTED:
-                    mStatusTextView.setText(R.string.player_started);
-                    return;
+                    resourceId = R.string.player_started;
+                    break;
                 case PLAYER_STATE_DELAYED:
-                    mStatusTextView.setText(R.string.player_delayed);
-                    return;
+                    resourceId = R.string.player_delayed;
+                    break;
                 case PLAYER_STATE_PAUSED:
-                    mStatusTextView.setText(R.string.player_paused);
-                    return;
+                    resourceId = R.string.player_paused;
+                    break;
                 case PLAYER_STATE_STOPPED:
                 case PLAYER_STATE_COMPLETED:
                 default:
-                    mStatusTextView.setText(R.string.player_stopped);
+                    resourceId = R.string.player_stopped;
             }
+            mStatusTextView.setText(resourceId);
+
+            // Device info handled by callback, can return from here.
+            if (state == PLAYER_STATE_STARTED) {
+                return;
+            }
+            setAudioRoutingInfo(null);
         }
 
         private void stopPlayer() {
             mPlayer.stop();
             mStatusTextView.setText(R.string.player_stopped);
+            setAudioRoutingInfo(null);
         }
     }
 
@@ -111,7 +136,6 @@ public final class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.View
 
         return new ViewHolder(playerView);
     }
-
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
