@@ -96,6 +96,7 @@ package android.car {
     field public static final String PERMISSION_READ_ADAS_STATES = "android.car.permission.READ_ADAS_STATES";
     field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public static final String PERMISSION_READ_CAR_AIRBAGS = "android.car.permission.READ_CAR_AIRBAGS";
     field public static final String PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE = "android.car.permission.READ_CAR_OCCUPANT_AWARENESS_STATE";
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public static final String PERMISSION_READ_CAR_SEAT_BELTS = "android.car.permission.READ_CAR_SEAT_BELTS";
     field public static final String PERMISSION_READ_CAR_VENDOR_PERMISSION_INFO = "android.car.permission.READ_CAR_VENDOR_PERMISSION_INFO";
     field public static final String PERMISSION_READ_DRIVER_MONITORING_SETTINGS = "android.car.permission.READ_DRIVER_MONITORING_SETTINGS";
     field public static final String PERMISSION_READ_DRIVER_MONITORING_STATES = "android.car.permission.READ_DRIVER_MONITORING_STATES";
@@ -322,6 +323,7 @@ package android.car {
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_MIRRORS) public static final int MIRROR_AUTO_TILT_ENABLED = 337644359; // 0x14200b47
     field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_CAR_AIRBAGS)) public static final int SEAT_AIRBAGS_DEPLOYED = 356518821; // 0x15400ba5
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_AIRBAGS) public static final int SEAT_AIRBAG_ENABLED = 354421662; // 0x15200b9e
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_CAR_SEAT_BELTS)) public static final int SEAT_BELT_PRETENSIONER_DEPLOYED = 354421670; // 0x15200ba6
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_SEATS) public static final int SEAT_CUSHION_SIDE_SUPPORT_MOVE = 356518816; // 0x15400ba0
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_SEATS) public static final int SEAT_CUSHION_SIDE_SUPPORT_POS = 356518815; // 0x15400b9f
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_SEATS) public static final int SEAT_EASY_ACCESS_ENABLED = 354421661; // 0x15200b9d
