@@ -870,6 +870,30 @@ public final class VehiclePropertyIds {
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_ADJUST_RANGE_REMAINING))
     public static final int RANGE_REMAINING = 291504904;
     /**
+     * EV battery average temperature
+     *
+     * <p>Exposes the temperature of the battery in an EV. If multiple batteries exist in the EV, or
+     * multiple temperature sensors exist, this property will be set to a meaningful weighted
+     * average that best represents the overall temperature of the battery system.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
+     *  <li>Property is not writable.
+     * </ul>
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    public static final int EV_BATTERY_AVERAGE_TEMPERATURE = 291504910;
+    /**
      * Tire pressure in kilopascals.
      *
      * <p>For each area ID listed in {@link android.car.hardware.CarPropertyConfig#getAreaIds}, the
