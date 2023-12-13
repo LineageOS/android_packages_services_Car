@@ -17,6 +17,7 @@
 package com.android.car.hal;
 
 import android.car.VehicleAreaType;
+import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.AreaIdConfig;
 import android.hardware.automotive.vehicle.VehicleArea;
@@ -205,6 +206,11 @@ public abstract class HalPropConfig {
             case VehicleArea.WHEEL:
                 return VehicleAreaType.VEHICLE_AREA_TYPE_WHEEL;
             default:
+                if (Flags.androidVicVehicleProperties()) {
+                    if (halArea == VehicleArea.VENDOR) {
+                        return VehicleAreaType.VEHICLE_AREA_TYPE_VENDOR;
+                    }
+                }
                 throw new RuntimeException("Unsupported area type " + halArea);
         }
     }

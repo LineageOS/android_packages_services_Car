@@ -272,6 +272,7 @@ package android.car {
     field public static final int VEHICLE_AREA_TYPE_GLOBAL = 0; // 0x0
     field public static final int VEHICLE_AREA_TYPE_MIRROR = 5; // 0x5
     field public static final int VEHICLE_AREA_TYPE_SEAT = 3; // 0x3
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public static final int VEHICLE_AREA_TYPE_VENDOR = 7; // 0x7
     field public static final int VEHICLE_AREA_TYPE_WHEEL = 6; // 0x6
     field public static final int VEHICLE_AREA_TYPE_WINDOW = 2; // 0x2
   }
