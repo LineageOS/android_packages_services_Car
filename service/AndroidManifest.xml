@@ -159,6 +159,22 @@
         android:label="@string/car_permission_label_read_impact_sensors"
         android:description="@string/car_permission_desc_read_impact_sensors"/>
 
+    <!-- Allows an application to read valet mode.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.READ_VALET_MODE"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_read_valet_mode"
+        android:description="@string/car_permission_desc_read_valet_mode"/>
+
+    <!-- Allows an application to control valet mode.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CONTROL_VALET_MODE"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_control_valet_mode"
+        android:description="@string/car_permission_desc_control_valet_mode"/>
+
     <!-- Allows an application to read state of car airbags.
          <p>Protection level: signature|privileged
     -->

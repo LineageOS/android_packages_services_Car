@@ -245,6 +245,16 @@
     <!-- Permission text: apps can read impact sensors information. [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_read_impact_sensors">Read car\u2019s impact sensors.</string>
 
+    <!-- Permission text: apps can read valet mode. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_valet_mode">read valet mode</string>
+    <!-- Permission text: apps can read valet mode. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_valet_mode">Read valet mode.</string>
+
+    <!-- Permission text: apps can control valet mode. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_valet_mode">control valet mode</string>
+    <!-- Permission text: apps can control valet mode. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_valet_mode">Control valet mode.</string>
+
     <!-- Permission text: apps can read state of car airbags. [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_read_car_airbags">read car\u2019s airbags</string>
     <!-- Permission text: apps can read state of car airbags. [CHAR LIMIT=NONE] -->

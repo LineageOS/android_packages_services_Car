@@ -1320,6 +1320,29 @@
       "description": "Property to represent brightness of the displays which are controlled separately.",
       "deprecated": true
     },
+    "VALET_MODE_ENABLED": {
+      "propertyName": "VALET_MODE_ENABLED",
+      "propertyId": 287312389,
+      "description": "Valet mode enabled",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_VALET_MODE"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_VALET_MODE"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_VALET_MODE"
+      },
+      "systemApi": true
+    },
     "HW_KEY_INPUT": {
       "propertyName": "HW_KEY_INPUT",
       "propertyId": 289475088,
