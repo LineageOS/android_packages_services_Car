@@ -67,6 +67,7 @@
         <permission name="android.car.permission.CAR_DISPLAY_IN_CLUSTER"/>
         <permission name="android.car.permission.CAR_DRIVING_STATE"/>
         <permission name="android.car.permission.CAR_DYNAMICS_STATE"/>
+        <permission name="android.car.permission.CONTROL_CAR_DYNAMICS_STATE"/>
         <permission name="android.car.permission.CAR_EXTERIOR_LIGHTS"/>
         <permission name="android.car.permission.CAR_IDENTIFICATION"/>
         <permission name="android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL"/>

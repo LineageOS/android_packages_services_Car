@@ -1301,6 +1301,42 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CAR_DYNAMICS_STATE)
     public static final int TRACTION_CONTROL_ACTIVE = 287310859;
     /**
+     * Enable or disable Electronic Stability Control (ESC).
+     *
+     * <p>Returns true if ESC is enabled and false if ESC is disabled. When ESC is enabled, a system
+     * in the vehicle should be controlling the tires during instances with high risk of skidding to
+     * actively prevent the same from happening.
+     *
+     * <p>This property is defined as read_write, but OEMs have the option to implement it as read
+     * only.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CAR_DYNAMICS_STATE} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_DYNAMICS_STATE} to read
+     *  property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_DYNAMICS_STATE} to
+     *  write property.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_CAR_DYNAMICS_STATE,
+            Car.PERMISSION_CONTROL_CAR_DYNAMICS_STATE}))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_CAR_DYNAMICS_STATE))
+    public static final int ELECTRONIC_STABILITY_CONTROL_ENABLED = 287310862;
+    /**
      * Fan speed setting.
      *
      * <p>Property Config:
