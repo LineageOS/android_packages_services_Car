@@ -151,6 +151,14 @@
         android:label="@string/car_permission_label_read_car_seat_belts"
         android:description="@string/car_permission_desc_read_car_seat_belts"/>
 
+    <!-- Allows an application to read read impact sensors information.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.READ_IMPACT_SENSORS"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_read_impact_sensors"
+        android:description="@string/car_permission_desc_read_impact_sensors"/>
+
     <!-- Allows an application to read state of car airbags.
          <p>Protection level: signature|privileged
     -->

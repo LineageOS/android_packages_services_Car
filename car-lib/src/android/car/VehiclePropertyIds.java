@@ -594,6 +594,42 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CAR_ENGINE_DETAILED)
     public static final int ENGINE_IDLE_AUTO_STOP_ENABLED = 287310624;
     /**
+     * Impact detected.
+     *
+     * <p>Bit flag property to relay information on whether an impact has occurred on a particular
+     * side of the vehicle as described through the {@link
+     * android.car.hardware.property.ImpactSensorLocation} enum. As a bit flag property, this
+     * property can be set to multiple ORed together values of the enum when necessary.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which bit flags
+     * from {@link android.car.hardware.property.ImpactSensorLocation} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission "android.car.permission.READ_IMPACT_SENSORS" to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @data_enum {@link android.car.hardware.property.ImpactSensorLocation}
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_IMPACT_SENSORS))
+    public static final int IMPACT_DETECTED = 289407792;
+    /**
      * Reports wheel ticks.
      *
      * <p>Property Config:

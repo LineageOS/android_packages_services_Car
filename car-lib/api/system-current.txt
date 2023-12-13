@@ -100,6 +100,7 @@ package android.car {
     field public static final String PERMISSION_READ_CAR_VENDOR_PERMISSION_INFO = "android.car.permission.READ_CAR_VENDOR_PERMISSION_INFO";
     field public static final String PERMISSION_READ_DRIVER_MONITORING_SETTINGS = "android.car.permission.READ_DRIVER_MONITORING_SETTINGS";
     field public static final String PERMISSION_READ_DRIVER_MONITORING_STATES = "android.car.permission.READ_DRIVER_MONITORING_STATES";
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public static final String PERMISSION_READ_IMPACT_SENSORS = "android.car.permission.READ_IMPACT_SENSORS";
     field public static final String PERMISSION_READ_WINDSHIELD_WIPERS = "android.car.permission.READ_WINDSHIELD_WIPERS";
     field public static final String PERMISSION_RECEIVE_CAR_AUDIO_DUCKING_EVENTS = "android.car.permission.RECEIVE_CAR_AUDIO_DUCKING_EVENTS";
     field public static final String PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY = "android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY";
@@ -306,6 +307,7 @@ package android.car {
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS, android.car.Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS)) public static final int HANDS_ON_DETECTION_ENABLED = 287313942; // 0x11201016
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DRIVER_MONITORING_STATES)) public static final int HANDS_ON_DETECTION_WARNING = 289411096; // 0x11401018
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_CLIMATE) public static final int HVAC_ELECTRIC_DEFROSTER_ON = 320865556; // 0x13200514
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_IMPACT_SENSORS)) public static final int IMPACT_DETECTED = 289407792; // 0x11400330
     field @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_STATES)) public static final int LANE_CENTERING_ASSIST_COMMAND = 289411083; // 0x1140100b
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_ADAS_SETTINGS, android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int LANE_CENTERING_ASSIST_ENABLED = 287313930; // 0x1120100a
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int LANE_CENTERING_ASSIST_STATE = 289411084; // 0x1140100c
@@ -1321,6 +1323,17 @@ package android.car.hardware.property {
     field public static final int NO_WARNING = 1; // 0x1
     field public static final int OTHER = 0; // 0x0
     field public static final int WARNING = 2; // 0x2
+  }
+
+  @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public final class ImpactSensorLocation {
+    method @NonNull public static String toString(int);
+    field public static final int FRONT = 2; // 0x2
+    field public static final int FRONT_LEFT_DOOR_SIDE = 4; // 0x4
+    field public static final int FRONT_RIGHT_DOOR_SIDE = 8; // 0x8
+    field public static final int OTHER = 1; // 0x1
+    field public static final int REAR = 64; // 0x40
+    field public static final int REAR_LEFT_DOOR_SIDE = 16; // 0x10
+    field public static final int REAR_RIGHT_DOOR_SIDE = 32; // 0x20
   }
 
   public final class LaneCenteringAssistCommand {

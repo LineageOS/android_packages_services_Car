@@ -289,6 +289,25 @@
       },
       "systemApi": true
     },
+    "IMPACT_DETECTED": {
+      "propertyName": "IMPACT_DETECTED",
+      "propertyId": 289407792,
+      "description": "Impact detected.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_IMPACT_SENSORS"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64
+      ]
+    },
     "WHEEL_TICK": {
       "propertyName": "WHEEL_TICK",
       "propertyId": 290521862,
