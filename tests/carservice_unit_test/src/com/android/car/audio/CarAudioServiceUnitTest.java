@@ -772,6 +772,20 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void init_withRepeatedDynamicDevicesInConfig_fails() throws Exception {
+        setUpTempFileForAudioConfiguration(
+                R.raw.car_audio_configuration_repeated_dynamic_devices_in_config);
+        CarAudioService service = setUpAudioServiceWithDynamicDevices(mTempCarAudioConfigFile);
+
+        RuntimeException thrown =
+                assertThrows(RuntimeException.class, () -> service.init());
+
+        expectWithMessage("Car audio zone config with multiple dynamic devices exception")
+                .that(thrown).hasMessageThat()
+                .containsMatch("Invalid zone configurations for zone");
+    }
+
+    @Test
     public void init_withFocusControlPolicyRegistrationError_fails() throws Exception {
         mAudioPolicyRegistrationStatus.add(SUCCESS);
         mAudioPolicyRegistrationStatus.add(ERROR);

@@ -499,6 +499,12 @@ final class CarAudioZoneConfig {
         return updated;
     }
 
+    void updateVolumeDevices(boolean useCoreAudioRouting) {
+        for (int c = 0; c < mVolumeGroups.size(); c++) {
+            mVolumeGroups.get(c).updateDevices(useCoreAudioRouting);
+        }
+    }
+
     static final class Builder {
         private final int mZoneId;
         private final int mZoneConfigId;

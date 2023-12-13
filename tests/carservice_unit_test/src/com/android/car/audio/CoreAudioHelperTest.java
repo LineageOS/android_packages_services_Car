@@ -45,6 +45,8 @@ import static com.android.car.audio.CoreAudioRoutingUtils.OEM_STRATEGY_ID;
 import static com.android.car.audio.CoreAudioRoutingUtils.UNSUPPORTED_ATTRIBUTES;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
+import static org.junit.Assert.assertThrows;
+
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioProductStrategy;
@@ -120,6 +122,35 @@ public final class CoreAudioHelperTest extends AbstractExtendedMockitoTestCase {
                 .that(CoreAudioHelper.getStrategyForAudioAttributesOrDefault(
                         UNSUPPORTED_ATTRIBUTES))
                 .isEqualTo(MUSIC_STRATEGY_ID);
+    }
+
+    @Test
+    public void getProductStrategyForAudioAttributes_withValidAttributes_succeeds() {
+        expectWithMessage("Music product strategy")
+                .that(CoreAudioHelper.getProductStrategyForAudioAttributes(MUSIC_ATTRIBUTES))
+                .isEqualTo(MUSIC_STRATEGY);
+        expectWithMessage("Navigation product strategy")
+                .that(CoreAudioHelper.getProductStrategyForAudioAttributes(NAV_ATTRIBUTES))
+                .isEqualTo(NAV_STRATEGY);
+        expectWithMessage("OEM product strategy")
+                .that(CoreAudioHelper.getProductStrategyForAudioAttributes(OEM_ATTRIBUTES))
+                .isEqualTo(OEM_STRATEGY);
+    }
+
+    @Test
+    public void getProductStrategyForAudioAttributes_withInvalidAttributes_returnsNull() {
+        expectWithMessage("Null product strategy for invalid audio attribute")
+                .that(CoreAudioHelper.getProductStrategyForAudioAttributes(UNSUPPORTED_ATTRIBUTES))
+                .isNull();
+    }
+
+    @Test
+    public void getProductStrategyForAudioAttributes_withNullAttributes_fails() {
+        NullPointerException exception = assertThrows(NullPointerException.class, () ->
+                CoreAudioHelper.getProductStrategyForAudioAttributes(null));
+
+        expectWithMessage("Null audio attributes exception").that(exception).hasMessageThat()
+                .contains("Audio attributes");
     }
 
     @Test

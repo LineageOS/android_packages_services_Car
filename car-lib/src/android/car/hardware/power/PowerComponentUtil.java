@@ -244,4 +244,23 @@ public final class PowerComponentUtil {
         }
         return powerComponents;
     }
+
+    /**
+     * Convert list of {@link PowerComponent} to string containing a list of the components,
+     * each separated by a comma and a space. (Example: "AUDIO, WIFI")
+     */
+    @NonNull
+    public static String powerComponentsToString(Iterable<Integer> components) {
+        StringBuilder builder = new StringBuilder();
+        Iterator<Integer> componentsIterator = components.iterator();
+        // Do first element separately to not start the list with a comma
+        if (componentsIterator.hasNext()) {
+            builder.append(powerComponentToString(componentsIterator.next()));
+        }
+        while (componentsIterator.hasNext()) {
+            builder.append(
+                    String.format(", %s", powerComponentToString(componentsIterator.next())));
+        }
+        return builder.toString();
+    }
 }

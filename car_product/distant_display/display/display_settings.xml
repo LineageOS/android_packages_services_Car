@@ -19,9 +19,9 @@
     <!-- Use physical port number instead of local id -->
     <config identifier="1" />
 
-    <display name="port:130"
-             forcedDensity="160"
+    <display name="port:68"
+             forcedDensity="213"
              forcedWidth="4000"
-             forcedHeight="1080" />
+             forcedHeight="800" />
 
 </display-settings>

@@ -20,17 +20,24 @@ import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED;
 
 import static com.android.car.CarLog.TAG_AUDIO;
+import static com.android.car.audio.CoreAudioHelper.getProductStrategyForAudioAttributes;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.media.AudioAttributes;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioManager;
+import android.media.audiopolicy.AudioProductStrategy;
+import android.util.ArraySet;
 import android.util.SparseArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A class encapsulates a volume group in car.
@@ -281,6 +288,41 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
         }
         return returnedFlags;
     }
+
+    @Override
+    void updateDevices(boolean useCoreAudioRouting) {
+        // If not using core audio routing, than device need to be updated to match the information
+        // for audio attributes to core volume groups.
+        if (useCoreAudioRouting) {
+            return;
+        }
+
+        int[] contexts = getContexts();
+        for (int c = 0; c < contexts.length; c++) {
+            int context = contexts[c];
+            AudioAttributes[] audioAttributes = getAudioAttributesForContext(context);
+            AudioDeviceAttributes device = getAudioDeviceForContext(context);
+            setPreferredDeviceForAudioAttribute(Arrays.asList(audioAttributes), device);
+        }
+
+    }
+
+    private void setPreferredDeviceForAudioAttribute(List<AudioAttributes> audioAttributes,
+            AudioDeviceAttributes audioDeviceAttributes) {
+        ArraySet<Integer> strategiesSet = new ArraySet<>();
+        for (int c = 0; c < audioAttributes.size(); c++) {
+            AudioProductStrategy strategy =
+                    getProductStrategyForAudioAttributes(audioAttributes.get(c));
+            if (strategy == null) {
+                continue;
+            }
+            if (!strategiesSet.add(strategy.getId())) {
+                continue;
+            }
+            mAudioManager.setPreferredDeviceForStrategy(strategy, audioDeviceAttributes);
+        }
+    }
+
 
     @Override
     protected int getDefaultGainIndex() {
