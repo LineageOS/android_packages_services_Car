@@ -6812,6 +6812,47 @@ public final class VehiclePropertyIds {
     public static final int LOW_SPEED_COLLISION_WARNING_ENABLED = 287313953;
 
     /**
+     * Low Speed Collision Warning State state.
+     *
+     * <p>Returns the current state of Low Speed Collision Warning. This property will always return
+     * a valid state defined in {@link android.car.hardware.property.LowSpeedCollisionWarningState}
+     * or {@link android.car.hardware.property.ErrorState}. This property is different from the
+     * pre-existing {@link VehiclePropertyIds#FORWARD_COLLISION_WARNING_ENABLED}, which applies to
+     * higher speed applications only. If the vehicle doesn't have a separate collision detection
+     * system for low speed environments, this property will not be implemented.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.LowSpeedCollisionWarningState} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @data_enum {@link android.car.hardware.property.LowSpeedCollisionWarningState}
+     * @data_enum {@link ErrorState}
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_STATES))
+    public static final int LOW_SPEED_COLLISION_WARNING_STATE = 289411106;
+
+    /**
      * @deprecated to prevent others from instantiating this class
      */
     @Deprecated

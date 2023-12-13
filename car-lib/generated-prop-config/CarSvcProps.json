@@ -3530,6 +3530,27 @@
         "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
       },
       "systemApi": true
+    },
+    "LOW_SPEED_COLLISION_WARNING_STATE": {
+      "propertyName": "LOW_SPEED_COLLISION_WARNING_STATE",
+      "propertyId": 289411106,
+      "description": "Low Speed Collision Warning State state.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ADAS_STATES"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        0,
+        1,
+        2,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
+      ]
     }
   }
 }
