@@ -3618,6 +3618,29 @@
         -5,
         -6
       ]
+    },
+    "CROSS_TRAFFIC_MONITORING_ENABLED": {
+      "propertyName": "CROSS_TRAFFIC_MONITORING_ENABLED",
+      "propertyId": 287313955,
+      "description": "Enable or disable Cross Traffic Monitoring.",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_ADAS_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+      },
+      "systemApi": true
     }
   }
 }
