@@ -292,6 +292,7 @@ package android.car {
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_ADAS_SETTINGS, android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int BLIND_SPOT_WARNING_ENABLED = 287313924; // 0x11201004
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int BLIND_SPOT_WARNING_STATE = 339742725; // 0x14401005
     field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_ADAS_SETTINGS, android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int CROSS_TRAFFIC_MONITORING_ENABLED = 287313955; // 0x11201023
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int CROSS_TRAFFIC_MONITORING_WARNING_STATE = 289411108; // 0x11401024
     field @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_STATES)) public static final int CRUISE_CONTROL_COMMAND = 289411090; // 0x11401012
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_ADAS_SETTINGS, android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int CRUISE_CONTROL_ENABLED = 287313935; // 0x1120100f
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int CRUISE_CONTROL_STATE = 289411089; // 0x11401011
@@ -1296,6 +1297,18 @@ package android.car.hardware.property {
 
   public static final class CarPropertyManager.PropertyAsyncError {
     method public int getVendorErrorCode();
+  }
+
+  @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public final class CrossTrafficMonitoringWarningState {
+    method @NonNull public static String toString(int);
+    field public static final int NO_WARNING = 1; // 0x1
+    field public static final int OTHER = 0; // 0x0
+    field public static final int WARNING_FRONT_BOTH = 4; // 0x4
+    field public static final int WARNING_FRONT_LEFT = 2; // 0x2
+    field public static final int WARNING_FRONT_RIGHT = 3; // 0x3
+    field public static final int WARNING_REAR_BOTH = 7; // 0x7
+    field public static final int WARNING_REAR_LEFT = 5; // 0x5
+    field public static final int WARNING_REAR_RIGHT = 6; // 0x6
   }
 
   public class CruiseControlCommand {
