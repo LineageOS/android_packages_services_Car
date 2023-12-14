@@ -87,4 +87,8 @@
         <!-- Add activity to full screen due to some issue with focus. -->
         <item>android.server.wm.cts/android.server.wm.window.WindowUntrustedTouchTest$TestActivity</item>
     </string-array>
+
+    <!-- Calm mode overrides -->
+    <string name="config_calmMode_componentName">com.android.car.portraitlauncher/com.android.car.portraitlauncher.calmmode.CalmModeActivity</string>
+
 </resources>
