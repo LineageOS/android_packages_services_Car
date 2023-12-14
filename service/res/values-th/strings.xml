@@ -34,6 +34,10 @@
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"เข้าถึงความเร็วของรถ"</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"เข้าถึงสภาวะไดนามิกของรถ"</string>
     <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"เข้าถึงสภาวะไดนามิกของรถ"</string>
+    <!-- no translation found for car_permission_label_control_vehicle_dynamics_state (1912154069363074986) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_vehicle_dynamics_state (5603436779163086928) -->
+    <skip />
     <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"เข้าถึงช่องทางของผู้ขายรถ"</string>
     <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"เข้าถึงช่องทางของผู้ขายรถเพื่อแลกเปลี่ยนข้อมูลเฉพาะของรถยนต์"</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"จัดการวิทยุในรถ"</string>
@@ -116,6 +120,26 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"ควบคุมกระจกรถ"</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"ควบคุมที่นั่งในรถ"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"ควบคุมที่นั่งในรถ"</string>
+    <!-- no translation found for car_permission_label_read_car_seat_belts (2051828795852087659) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_seat_belts (7076977711613912339) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_impact_sensors (9193288836326363975) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_impact_sensors (6479840965130272944) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_valet_mode (1807900160666761320) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_valet_mode (8645550481045813299) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_valet_mode (180432980177027905) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_valet_mode (8442573192492763994) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_car_airbags (5495423499616379238) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_airbags (7961580013929420722) -->
+    <skip />
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"ควบคุมถุงลมนิรภัยของรถ"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"ควบคุมถุงลมนิรภัยของรถ"</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"เข้าถึงข้อมูลเบื้องต้นของรถ"</string>
