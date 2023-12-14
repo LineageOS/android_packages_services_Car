@@ -464,6 +464,14 @@
          android:label="@string/car_permission_label_vms_subscriber"
          android:description="@string/car_permission_desc_vms_subscriber"/>
 
+    <!-- Allows an application to read ultrasonics sensor data.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
+         android:protectionLevel="signature|privileged"
+         android:label="@string/car_permission_label_read_ultrasonics_sensor_data"
+         android:description="@string/car_permission_desc_read_ultrasonics_sensor_data"/>
+
     <!-- Allows an application to read the vehicle driving state.
          <p>Protection level: signature|privileged
     -->

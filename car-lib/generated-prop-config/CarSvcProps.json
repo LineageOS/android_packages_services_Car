@@ -2331,6 +2331,16 @@
         256
       ]
     },
+    "ULTRASONICS_SENSOR_POSITION": {
+      "propertyName": "ULTRASONICS_SENSOR_POSITION",
+      "propertyId": 406916128,
+      "description": "Static data for the position of each ultrasonic sensor installed on the vehicle.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
+      },
+      "systemApi": true
+    },
     "OBD2_LIVE_FRAME": {
       "propertyName": "OBD2_LIVE_FRAME",
       "propertyId": 299896064,

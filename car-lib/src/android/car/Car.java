@@ -17,6 +17,7 @@
 package android.car;
 
 import static android.car.CarLibLog.TAG_CAR;
+import static android.car.feature.Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES;
 
 import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
@@ -932,6 +933,15 @@ public final class Car {
      */
     @SystemApi
     public static final String PERMISSION_VMS_SUBSCRIBER = "android.car.permission.VMS_SUBSCRIBER";
+
+    /**
+     * Permission necessary to read ultrasonics sensor data.
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    public static final String PERMISSION_READ_ULTRASONICS_SENSOR_DATA =
+            "android.car.permission.READ_ULTRASONICS_SENSOR_DATA";
 
     /**
      * Permissions necessary to read diagnostic information, including vendor-specific bits.
