@@ -138,6 +138,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
      *   <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_DOOR}</li>
      *   <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_MIRROR}</li>
      *   <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_WHEEL}</li>
+     *   <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_VENDOR}</li>
      * </ul>
      *
      * @return the area type of the car property.

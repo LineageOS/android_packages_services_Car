@@ -590,6 +590,14 @@ public final class Car {
     public static final String PERMISSION_CAR_DYNAMICS_STATE =
             "android.car.permission.CAR_DYNAMICS_STATE";
 
+    /** Permission necessary to control car's dynamics state.
+     *  @hide
+     */
+    @FlaggedApi(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    public static final String PERMISSION_CONTROL_CAR_DYNAMICS_STATE =
+            "android.car.permission.CONTROL_CAR_DYNAMICS_STATE";
+
     /** Permission necessary to access car's fuel door and ev charge port. */
     public static final String PERMISSION_ENERGY_PORTS = "android.car.permission.CAR_ENERGY_PORTS";
 
@@ -1285,6 +1293,51 @@ public final class Car {
     @SystemApi
     public static final String PERMISSION_QUERY_DISPLAY_COMPATIBILITY =
             "android.car.permission.QUERY_DISPLAY_COMPATIBILITY";
+
+    /**
+     * Permission necessary to read state of car airbags.
+     * @hide
+     */
+    @FlaggedApi(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    public static final String PERMISSION_READ_CAR_AIRBAGS =
+            "android.car.permission.READ_CAR_AIRBAGS";
+
+    /**
+     * Permission necessary to read state of seat belts.
+     * @hide
+     */
+    @FlaggedApi(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    public static final String PERMISSION_READ_CAR_SEAT_BELTS =
+            "android.car.permission.READ_CAR_SEAT_BELTS";
+
+    /**
+     * Permission necessary to read impact sensors information.
+     * @hide
+     */
+    @FlaggedApi(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    public static final String PERMISSION_READ_IMPACT_SENSORS =
+            "android.car.permission.READ_IMPACT_SENSORS";
+
+    /**
+     * Permission necessary to read valet mode
+     * @hide
+     */
+    @FlaggedApi(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    public static final String PERMISSION_READ_VALET_MODE =
+            "android.car.permission.READ_VALET_MODE";
+
+    /**
+     * Permission necessary to control valet mode
+     * @hide
+     */
+    @FlaggedApi(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    public static final String PERMISSION_CONTROL_VALET_MODE =
+            "android.car.permission.CONTROL_VALET_MODE";
 
     /**
      * Intent for connecting to the template renderer. Services that handle this intent must also

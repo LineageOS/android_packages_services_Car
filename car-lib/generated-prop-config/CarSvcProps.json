@@ -289,6 +289,25 @@
       },
       "systemApi": true
     },
+    "IMPACT_DETECTED": {
+      "propertyName": "IMPACT_DETECTED",
+      "propertyId": 289407792,
+      "description": "Impact detected.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_IMPACT_SENSORS"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64
+      ]
+    },
     "WHEEL_TICK": {
       "propertyName": "WHEEL_TICK",
       "propertyId": 290521862,
@@ -407,6 +426,15 @@
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.ADJUST_RANGE_REMAINING"
+      }
+    },
+    "EV_BATTERY_AVERAGE_TEMPERATURE": {
+      "propertyName": "EV_BATTERY_AVERAGE_TEMPERATURE",
+      "propertyId": 291504910,
+      "description": "EV battery average temperature",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.CAR_ENERGY"
       }
     },
     "TIRE_PRESSURE": {
@@ -611,6 +639,50 @@
         "type": "single",
         "value": "android.car.permission.CAR_DYNAMICS_STATE"
       }
+    },
+    "ELECTRONIC_STABILITY_CONTROL_ENABLED": {
+      "propertyName": "ELECTRONIC_STABILITY_CONTROL_ENABLED",
+      "propertyId": 287310862,
+      "description": "Enable or disable Electronic Stability Control (ESC).",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_DYNAMICS_STATE"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_CAR_DYNAMICS_STATE"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_CAR_DYNAMICS_STATE"
+      },
+      "systemApi": true
+    },
+    "ELECTRONIC_STABILITY_CONTROL_STATE": {
+      "propertyName": "ELECTRONIC_STABILITY_CONTROL_STATE",
+      "propertyId": 289408015,
+      "description": "Electronic Stability Control (ESC) state.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.CAR_DYNAMICS_STATE"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        0,
+        1,
+        2,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
+      ]
     },
     "HVAC_FAN_SPEED": {
       "propertyName": "HVAC_FAN_SPEED",
@@ -1292,6 +1364,29 @@
       "description": "Property to represent brightness of the displays which are controlled separately.",
       "deprecated": true
     },
+    "VALET_MODE_ENABLED": {
+      "propertyName": "VALET_MODE_ENABLED",
+      "propertyId": 287312389,
+      "description": "Valet mode enabled",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_VALET_MODE"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_VALET_MODE"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_VALET_MODE"
+      },
+      "systemApi": true
+    },
     "HW_KEY_INPUT": {
       "propertyName": "HW_KEY_INPUT",
       "propertyId": 289475088,
@@ -1895,6 +1990,24 @@
       },
       "systemApi": true
     },
+    "SEAT_AIRBAGS_DEPLOYED": {
+      "propertyName": "SEAT_AIRBAGS_DEPLOYED",
+      "propertyId": 356518821,
+      "description": "State of deployment for seat airbags.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_CAR_AIRBAGS"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32
+      ]
+    },
     "SEAT_CUSHION_SIDE_SUPPORT_POS": {
       "propertyName": "SEAT_CUSHION_SIDE_SUPPORT_POS",
       "propertyId": 356518815,
@@ -1962,6 +2075,16 @@
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
+      },
+      "systemApi": true
+    },
+    "SEAT_BELT_PRETENSIONER_DEPLOYED": {
+      "propertyName": "SEAT_BELT_PRETENSIONER_DEPLOYED",
+      "propertyId": 354421670,
+      "description": "Seat belt pretensioner deployed.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_CAR_SEAT_BELTS"
       },
       "systemApi": true
     },
@@ -3451,6 +3574,73 @@
         -5,
         -6
       ]
+    },
+    "LOW_SPEED_COLLISION_WARNING_ENABLED": {
+      "propertyName": "LOW_SPEED_COLLISION_WARNING_ENABLED",
+      "propertyId": 287313953,
+      "description": "Enable or disable Low Speed Collision Warning.",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_ADAS_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+      },
+      "systemApi": true
+    },
+    "LOW_SPEED_COLLISION_WARNING_STATE": {
+      "propertyName": "LOW_SPEED_COLLISION_WARNING_STATE",
+      "propertyId": 289411106,
+      "description": "Low Speed Collision Warning State state.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ADAS_STATES"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        0,
+        1,
+        2,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
+      ]
+    },
+    "CROSS_TRAFFIC_MONITORING_ENABLED": {
+      "propertyName": "CROSS_TRAFFIC_MONITORING_ENABLED",
+      "propertyId": 287313955,
+      "description": "Enable or disable Cross Traffic Monitoring.",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_ADAS_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+      },
+      "systemApi": true
     }
   }
 }

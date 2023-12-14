@@ -143,6 +143,46 @@
          android:label="@string/car_permission_label_control_car_seats"
          android:description="@string/car_permission_desc_control_car_seats"/>
 
+    <!-- Allows an application to read state of seat belts.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.READ_CAR_SEAT_BELTS"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_read_car_seat_belts"
+        android:description="@string/car_permission_desc_read_car_seat_belts"/>
+
+    <!-- Allows an application to read read impact sensors information.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.READ_IMPACT_SENSORS"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_read_impact_sensors"
+        android:description="@string/car_permission_desc_read_impact_sensors"/>
+
+    <!-- Allows an application to read valet mode.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.READ_VALET_MODE"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_read_valet_mode"
+        android:description="@string/car_permission_desc_read_valet_mode"/>
+
+    <!-- Allows an application to control valet mode.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CONTROL_VALET_MODE"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_control_valet_mode"
+        android:description="@string/car_permission_desc_control_valet_mode"/>
+
+    <!-- Allows an application to read state of car airbags.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.READ_CAR_AIRBAGS"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_read_car_airbags"
+        android:description="@string/car_permission_desc_read_car_airbags"/>
+
     <!-- Allows an application to enable/disable a seat's ability to deploy airbag(s) when triggered
          (e.g. by a crash).
          <p>Protection level: signature|privileged
@@ -236,6 +276,15 @@
          android:protectionLevel="signature|privileged"
          android:label="@string/car_permission_label_vehicle_dynamics_state"
          android:description="@string/car_permission_desc_vehicle_dynamics_state"/>
+
+    <!-- Allows an application to control the vehicle dynamic state information. For example, it
+         allows an application to enable/disable ESC.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CONTROL_CAR_DYNAMICS_STATE"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_control_vehicle_dynamics_state"
+        android:description="@string/car_permission_desc_control_vehicle_dynamics_state"/>
 
     <!-- Allows an application to access the vehicle vendor channel to exchange vendor-specific
          information.
