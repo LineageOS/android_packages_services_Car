@@ -4420,6 +4420,47 @@ public final class VehiclePropertyIds {
     public static final int ULTRASONICS_SENSOR_POSITION = 406916128;
 
     /**
+     * Static data for the orientation of each ultrasonic sensor installed on the vehicle.
+     *
+     * <p>Each individual sensor is identified by its {@link AreaIdConfig#getAreaId()} and returns
+     * the sensor's orientation formatted as [qw, qx, qy, qz] where:
+     *
+     * <ul>
+     *  <li>qw is the quaternion coefficient w within the quaterinion (w + xi + yj + zk) describing
+     *  the rotation of the sensor relative to the Android Automotive sensor coordinate frame.
+     *  <li>qx is the quaternion coefficient x within the quaterinion (w + xi + yj + zk) describing
+     *  the rotation of the sensor relative to the Android Automotive sensor coordinate frame.
+     *  <li>qy is the quaternion coefficient y within the quaterinion (w + xi + yj + zk) describing
+     *  the rotation of the sensor relative to the Android Automotive sensor coordinate frame.
+     *  <li>qz is the quaternion coefficient z within the quaterinion (w + xi + yj + zk) describing
+     *  the rotation of the sensor relative to the Android Automotive sensor coordinate frame.
+     * </ul>
+     *
+     * <p>This assumes each sensor uses the same axes conventions as Android Automotive.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_VENDOR}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer[]} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ULTRASONICS_SENSOR_DATA} to
+     *  read property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA))
+    public static final int ULTRASONICS_SENSOR_ORIENTATION = 406916129;
+
+    /**
      * OBD2 Live Sensor Data.
      *
      * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
