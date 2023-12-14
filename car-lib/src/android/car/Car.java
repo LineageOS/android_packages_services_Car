@@ -1350,6 +1350,24 @@ public final class Car {
             "android.car.permission.CONTROL_VALET_MODE";
 
     /**
+     * Permission necessary to read head up display
+     * @hide
+     */
+    @FlaggedApi(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    public static final String PERMISSION_READ_HEAD_UP_DISPLAY =
+            "android.car.permission.READ_HEAD_UP_DISPLAY";
+
+    /**
+     * Permission necessary to control head up display
+     * @hide
+     */
+    @FlaggedApi(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    public static final String PERMISSION_CONTROL_HEAD_UP_DISPLAY =
+            "android.car.permission.CONTROL_HEAD_UP_DISPLAY";
+
+    /**
      * Intent for connecting to the template renderer. Services that handle this intent must also
      * hold {@link #PERMISSION_TEMPLATE_RENDERER}. Applications would not bind to this service
      * directly, but instead they would use

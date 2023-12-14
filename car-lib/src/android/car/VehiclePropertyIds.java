@@ -2218,6 +2218,42 @@ public final class VehiclePropertyIds {
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_VALET_MODE))
     public static final int VALET_MODE_ENABLED = 287312389;
     /**
+     * Head up display (HUD) enabled
+     *
+     * <p>This property allows the user to turn on/off the HUD for their seat.
+     *
+     * <p>Each HUD in the vehicle will be assigned to the seat that is intended to use it. For
+     * example, if there is a single HUD in the vehicle that is used by the driver so that they no
+     * longer need to continuously look at the instrument cluster, then this property will be
+     * defined with a single area ID that is equal to the driver's seat area ID.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_HEAD_UP_DISPLAY} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_HEAD_UP_DISPLAY} to read
+     *  property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_HEAD_UP_DISPLAY} to write
+     *  property.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(
+            anyOf = {Car.PERMISSION_READ_HEAD_UP_DISPLAY, Car.PERMISSION_CONTROL_HEAD_UP_DISPLAY}))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_HEAD_UP_DISPLAY))
+    public static final int HEAD_UP_DISPLAY_ENABLED = 354421254;
+    /**
      * Property to feed H/W input events to android.
      *
      * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
@@ -5787,7 +5823,9 @@ public final class VehiclePropertyIds {
      * Enable or disable Automatic Emergency Braking (AEB).
      *
      * <p>Returns true if AEB is enabled and false if AEB is disabled. When AEB is enabled, the ADAS
-     * system in the vehicle should be turned on and monitoring to avoid potential collisions.
+     * system in the vehicle should be turned on and monitoring to avoid potential collisions. This
+     * property applies for higher speed applications only. For enabling low speed automatic
+     * emergency braking, {@link LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_ENABLED} will be used.
      *
      * <p>This property is defined as read_write, but OEMs have the option to implement it as read
      * only.
@@ -5823,7 +5861,9 @@ public final class VehiclePropertyIds {
      *
      * <p>Returns the current state of AEB. This property will always return a valid state defined
      * in {@link android.car.hardware.property.AutomaticEmergencyBrakingState} or {@link
-     * android.car.hardware.property.ErrorState}.
+     * android.car.hardware.property.ErrorState}. This property should apply for higher speed
+     * applications only. For representing the state of the low speed automatic emergency braking
+     * system, {@link LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_STATE} should be used.
      *
      * <p>If AEB includes forward collision warnings before activating the brakes, those warnings
      * will be surfaced through the Forward Collision Warning (FCW) properties.
@@ -7243,6 +7283,91 @@ public final class VehiclePropertyIds {
     @SystemApi
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_STATES))
     public static final int CROSS_TRAFFIC_MONITORING_WARNING_STATE = 289411108;
+
+    /**
+     * Enable or disable Low Speed Automatic Emergency Braking.
+     *
+     * <p>Returns true if Low Speed Automatic Emergency Braking is enabled or false if Low Speed
+     * Automatic Emergency Braking is disabled. When Low Speed Automatic Emergency Braking is
+     * enabled, the ADAS system in the vehicle will be turned on and monitoring to avoid potential
+     * collisions in low speed conditions. This property is different from the pre-existing
+     * AUTOMATIC_EMERGENCY_BRAKING_ENABLED, which should apply to higher speed applications only. If
+     * the vehicle doesn't have a separate collision avoidance system for low speed environments,
+     * this property will not be implemented.
+     *
+     * <p>This property is defined as read_write, but OEMs have the option to implement it as read
+     * only.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to read
+     *  property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
+     *  property.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_READ_ADAS_SETTINGS,
+            Car.PERMISSION_CONTROL_ADAS_SETTINGS}))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
+    public static final int LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_ENABLED = 287313957;
+
+    /**
+     * Low Speed Automatic Emergency Braking state.
+     *
+     * <p>Returns the current state of Low Speed Automatic Emergency Braking. This property will
+     * always return a valid state defined in {@link
+     * android.car.hardware.property.LowSpeedAutomaticEmergencyBrakingState} or {@link
+     * android.car.hardware.property.ErrorState}.
+     *
+     * <p>If Low Speed Automatic Emergency Braking includes collision warnings before activating the
+     * brakes, those warnings will be surfaced through use of {@link
+     * android.car.VehiclePropertyIds#LOW_SPEED_COLLISION_WARNING_ENABLED} and {@link
+     * android.car.VehiclePropertyIds#LOW_SPEED_COLLISION_WARNING_STATE}.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.LowSpeedAutomaticEmergencyBrakingState} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @data_enum {@link android.car.hardware.property.LowSpeedAutomaticEmergencyBrakingState}
+     * @data_enum {@link ErrorState}
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_STATES))
+    public static final int LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_STATE = 289411110;
 
     /**
      * @deprecated to prevent others from instantiating this class
