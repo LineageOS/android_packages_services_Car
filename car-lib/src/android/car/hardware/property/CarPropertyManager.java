@@ -2174,7 +2174,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws IllegalArgumentException when the [propertyId, areaId] is not supported for U and
      * later client, or when the property is of wrong type.
      *
-     * @return the value of a float property or 0.
+     * @return the value of a float property or {@code 0}.
      */
     public float getFloatProperty(int propertyId, int areaId) {
         CarPropertyValue<Float> carProp = getProperty(Float.class, propertyId, areaId);
@@ -2202,7 +2202,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws IllegalArgumentException when the [propertyId, areaId] is not supported for U and
      * later client, or when the property is of wrong type.
      *
-     * @return the value of aa integer property or 0.
+     * @return the value of aa integer property or {@code 0}.
      */
     public int getIntProperty(int propertyId, int areaId) {
         CarPropertyValue<Integer> carProp = getProperty(Integer.class, propertyId, areaId);
