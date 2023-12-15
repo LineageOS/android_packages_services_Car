@@ -95,7 +95,7 @@ import com.android.car.carlauncher.taskstack.TaskStackChangeListeners;
 import com.android.car.portraitlauncher.R;
 import com.android.car.portraitlauncher.common.CarUiPortraitServiceManager;
 import com.android.car.portraitlauncher.common.IntentHandler;
-import com.android.car.portraitlauncher.common.UserUnlockReceiver;
+import com.android.car.portraitlauncher.common.UserEventReceiver;
 import com.android.car.portraitlauncher.controlbar.media.MediaIntentRouter;
 import com.android.car.portraitlauncher.panel.TaskViewPanel;
 
@@ -164,7 +164,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             "SAVED_BACKGROUND_APP_COMPONENT_NAME";
     private static final IActivityTaskManager sActivityTaskManager =
             ActivityTaskManager.getService();
-    private final UserUnlockReceiver mUserUnlockReceiver = new UserUnlockReceiver();
+    private final UserEventReceiver mUserEventReceiver = new UserEventReceiver();
     private final Configuration mConfiguration = new Configuration();
     private int mStatusBarHeight;
     private FrameLayout mContainer;
@@ -547,7 +547,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
         setContentView(R.layout.car_ui_portrait_launcher);
 
-        registerUserUnlockReceiver();
+        registerUserEventReceiver();
 
         mTaskCategoryManager = new TaskCategoryManager(getApplicationContext());
         if (savedInstanceState != null) {
@@ -641,12 +641,23 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         mAppGridTaskViewPanel.closePanel(createReason(ON_HOME_INTENT));
     }
 
-    private void registerUserUnlockReceiver() {
-        UserUnlockReceiver.Callback callback = () -> {
-            logIfDebuggable("On user unlock");
-            initTaskViews();
+    private void registerUserEventReceiver() {
+        UserEventReceiver.Callback callback = new UserEventReceiver.Callback() {
+            @Override
+            public void onUserSwitching() {
+                logIfDebuggable("On user switching");
+                if (!isFinishing()) {
+                    finish();
+                }
+            }
+
+            @Override
+            public void onUserUnlock() {
+                logIfDebuggable("On user unlock");
+                initTaskViews();
+            }
         };
-        mUserUnlockReceiver.register(this, callback);
+        mUserEventReceiver.register(this, callback);
     }
 
     private void initializeCards() {
@@ -722,7 +733,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         mTaskViewControllerWrapper.onDestroy();
         mRootTaskViewPanel.onDestroy();
         mTaskCategoryManager.onDestroy();
-        mUserUnlockReceiver.unregister(this);
+        mUserEventReceiver.unregister();
         TaskStackChangeListeners.getInstance().unregisterTaskStackListener(mTaskStackListener);
         mCarUiPortraitServiceManager.onDestroy();
         super.onDestroy();
@@ -1120,12 +1131,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
      * {@code
      * mRootTaskViewPanel} are ready.
      *
-     * <p>Note: 1. After flashing device and FRX, {@link UserUnlockReceiver} doesn't receive
+     * <p>Note: 1. After flashing device and FRX, {@link UserEventReceiver} doesn't receive
      * {@link  Intent.ACTION_USER_UNLOCKED}, but PackageManager already starts
      * resolving intent right after {@code mRootTaskViewPanel} is ready. So initialize
      * {@link RemoteCarTaskView}s directly. 2. For device boot later, PackageManager starts to
      * resolving intent after {@link Intent.ACTION_USER_UNLOCKED}, so wait
-     * until {@link UserUnlockReceiver} notify {@link CarUiPortraitHomeScreen}.
+     * until {@link UserEventReceiver} notify {@link CarUiPortraitHomeScreen}.
      */
     private void initTaskViews() {
         if (!mTaskCategoryManager.isReady() || !mRootTaskViewPanel.isReady()
