@@ -2404,6 +2404,16 @@
       },
       "systemApi": true
     },
+    "ULTRASONICS_SENSOR_MEASURED_DISTANCE": {
+      "propertyName": "ULTRASONICS_SENSOR_MEASURED_DISTANCE",
+      "propertyId": 406916133,
+      "description": "The distance reading of the nearest detected object per sensor in millimeters.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
+      },
+      "systemApi": true
+    },
     "OBD2_LIVE_FRAME": {
       "propertyName": "OBD2_LIVE_FRAME",
       "propertyId": 299896064,
