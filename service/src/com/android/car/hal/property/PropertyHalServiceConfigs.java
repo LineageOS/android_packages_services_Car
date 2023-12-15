@@ -569,15 +569,21 @@ public class PropertyHalServiceConfigs {
 
     private static boolean checkFormatForAllProperties(HalPropValue propValue) {
         int propId = propValue.getPropId();
-        //Records sum size of int32values, floatValue, int64Values, bytes, String
+        int vehiclePropertyType = propId & VehiclePropertyType.MASK;
+
+        // Records sum size of int32values, floatValue, int64Values, bytes, String
         int sizeOfAllValue = propValue.getInt32ValuesSize() + propValue.getFloatValuesSize()
                 + propValue.getInt64ValuesSize() + propValue.getByteValuesSize()
                 + propValue.getStringValue().length();
-        if (sizeOfAllValue == 0) {
+        if (sizeOfAllValue == 0
+                && vehiclePropertyType != VehiclePropertyType.FLOAT_VEC
+                && vehiclePropertyType != VehiclePropertyType.INT64_VEC
+                && vehiclePropertyType != VehiclePropertyType.INT32_VEC) {
             Slogf.e(TAG, "Property value is empty: " + propValue);
             return false;
         }
-        switch (propId & VehiclePropertyType.MASK) {
+
+        switch (vehiclePropertyType) {
             case VehiclePropertyType.BOOLEAN:
             case VehiclePropertyType.INT32:
                 return sizeOfAllValue == 1 && propValue.getInt32ValuesSize() == 1;

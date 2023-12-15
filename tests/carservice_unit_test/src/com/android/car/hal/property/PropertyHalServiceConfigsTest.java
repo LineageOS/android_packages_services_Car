@@ -113,6 +113,20 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
             PROP_VALUE_BUILDER.build(VehicleProperty.HVAC_FAN_DIRECTION, /*areaId=*/0,
                     /*timestamp=*/SystemClock.elapsedRealtimeNanos(), /*status=*/0,
                     CarHvacFanDirection.FACE | 0x100);
+    private static final HalPropValue ULTRASONCIS_SENSOR_MEASURED_DISTANCE_WITH_ERROR_VALID =
+            PROP_VALUE_BUILDER.build(
+                    /*prop=*/ VehiclePropertyIds.ULTRASONICS_SENSOR_MEASURED_DISTANCE,
+                    /*areaId=*/ 1,
+                    /*timestamp=*/ SystemClock.elapsedRealtimeNanos(),
+                    /*status=*/ 0,
+                    /*values=*/ new int[]{300, 10});
+    private static final HalPropValue ULTRASONCIS_SENSOR_MEASURED_DISTANCE_EMPTY_ARRAY_VALID =
+            PROP_VALUE_BUILDER.build(
+                    /*prop=*/ VehiclePropertyIds.ULTRASONICS_SENSOR_MEASURED_DISTANCE,
+                    /*areaId=*/ 1,
+                    /*timestamp=*/ SystemClock.elapsedRealtimeNanos(),
+                    /*status=*/ 0,
+                    /*values=*/ new int[]{});
 
     @Before
     public void setUp() {
@@ -147,6 +161,12 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
         assertThat(mPropertyHalServiceConfigs.checkPayload(GEAR_WITH_INVALID_TYPE_VALUE)).isFalse();
         assertThat(mPropertyHalServiceConfigs.checkPayload(HVAC_FAN_DIRECTIONS_VALID)).isTrue();
         assertThat(mPropertyHalServiceConfigs.checkPayload(HVAC_FAN_DIRECTIONS_INVALID)).isFalse();
+        assertThat(mPropertyHalServiceConfigs
+                .checkPayload(ULTRASONCIS_SENSOR_MEASURED_DISTANCE_WITH_ERROR_VALID))
+                .isTrue();
+        assertThat(mPropertyHalServiceConfigs
+                .checkPayload(ULTRASONCIS_SENSOR_MEASURED_DISTANCE_EMPTY_ARRAY_VALID))
+                .isTrue();
     }
 
     /**
