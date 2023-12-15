@@ -71,9 +71,9 @@
             android:gravity="start" />
         <TextView
             android:id="@+id/player_device"
-            android:layout_width="300dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/audio_device_selected"
+            android:text="@{@string/audio_device_selected(@string/long_device_name)}"
             android:gravity="start" />
     </LinearLayout>
 </ScrollView>
