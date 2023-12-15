@@ -118,6 +118,7 @@
     <string name="media_with_delayed_focus" translatable="false">Media With Delayed Focus</string>
     <string name="player_not_started" translatable="false">Player Not Started</string>
     <string name="audio_device_selected" translatable="false">Device: %1$s</string>
+    <string name="long_device_name" translatable="false">VERY_LONG_NAME_DEVICE_THAT_FITS</string>
     <string name="player_paused" translatable="false">Player Paused</string>
     <string name="player_started" translatable="false">Player Started</string>
     <string name="player_delayed" translatable="false">Player Delayed</string>
