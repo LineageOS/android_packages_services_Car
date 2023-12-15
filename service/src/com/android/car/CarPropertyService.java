@@ -1014,6 +1014,28 @@ public class CarPropertyService extends ICarProperty.Stub
         sSetAsyncLatencyHistogram.logSample((float) (System.currentTimeMillis() - currentTime));
     }
 
+    @Override
+    public int[] getSupportedNoReadPermPropIds(int[] propertyIds) {
+        List<Integer> noReadPermPropertyIds = new ArrayList<>();
+        for (int propertyId : propertyIds) {
+            if (getCarPropertyConfig(propertyId) == null) {
+                // Not supported
+                continue;
+            }
+            if (!mPropertyHalService.isReadable(mContext, propertyId)) {
+                noReadPermPropertyIds.add(propertyId);
+            }
+        }
+        return ArrayUtils.convertToIntArray(noReadPermPropertyIds);
+    }
+
+    @Override
+    public boolean isSupportedAndHasWritePermissionOnly(int propertyId) {
+        return getCarPropertyConfig(propertyId) != null
+                && mPropertyHalService.isWritable(mContext, propertyId)
+                && !mPropertyHalService.isReadable(mContext, propertyId);
+    }
+
     /**
      * Cancel on-going async requests.
      *

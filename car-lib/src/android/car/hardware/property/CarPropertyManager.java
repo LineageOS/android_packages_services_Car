@@ -1100,11 +1100,27 @@ public class CarPropertyManager extends CarManagerBase {
      * {@link VehiclePropertyIds#HVAC_POWER_ON} for hvac power dependent properties) to decide this
      * property's availability.
      *
+     * <p>
+     * If the registration failed, this will return {@code false}. Caller must check the return
+     * value to make sure the registration succeeded.
+     *
+     * <p>
+     * If the property is not supported, this will return {@code false}.
+     *
+     * <p>
+     * If the property is supported and the caller does not have read or write permission to it,
+     * this will return {@code false}.
+     *
+     * <p>
+     * If the caller has write permission but does not have read permission, this will throw
+     * {@code SecurityException}.
+     *
      * @param carPropertyEventCallback the CarPropertyEventCallback to be registered
      * @param propertyId               the property ID to subscribe
      * @param updateRateHz             how fast the property events are delivered in Hz
-     * @return {@code true} if the listener is successfully registered
-     * @throws SecurityException if missing the appropriate property access permission.
+     * @return {@code true} if the listener is successfully registered.
+     * @throws SecurityException if the property is supported and the caller has write permission,
+     *                           but does not have read permission.
      */
     @SuppressWarnings("FormatString")
     public boolean registerCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback,
@@ -1114,6 +1130,21 @@ public class CarPropertyManager extends CarManagerBase {
                             + "updateRateHz: %f", carPropertyEventCallback,
                     VehiclePropertyIds.toString(propertyId), updateRateHz));
         }
+
+        boolean hasWritePermissionOnly = false;
+        try {
+            hasWritePermissionOnly = mService.isSupportedAndHasWritePermissionOnly(propertyId);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+            return false;
+        }
+
+        if (hasWritePermissionOnly) {
+            throw new SecurityException(
+                    "Only has write permission, missing read permission for property: "
+                    + CarPropertyHelper.propertyIdsToString(List.of(propertyId)));
+        }
+
         // We require updateRateHz to be within 0 and 100, however, in the previous implementation,
         // we did not actually check this range. In order to prevent the existing behavior, and
         // to prevent Subscription.Builder.setUpdateRateHz to throw exception, we fit the
@@ -1130,7 +1161,7 @@ public class CarPropertyManager extends CarManagerBase {
         try {
             return subscribePropertyEvents(List.of(subscription), /* callbackExecutor= */ null,
                     carPropertyEventCallback);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | SecurityException e) {
             Log.w(TAG, "register: PropertyId=" + propertyId + ", exception=", e);
             return false;
         }
@@ -1144,6 +1175,12 @@ public class CarPropertyManager extends CarManagerBase {
      *
      * @param propertyId The ID for the property to subscribe to.
      * @param carPropertyEventCallback The callback to deliver property update/error events.
+     * @return {@code true} if the listener is successfully registered
+     * @throws SecurityException if the caller does not have read permission to one of the supported
+     *                           properties.
+     * @throws IllegalArgumentException if there are over-lapping areaIds or the executor is
+     *                                  registered to another callback or one of the properties are
+     *                                  not supported.
      *
      * @see #subscribePropertyEvents(int, int, float, boolean, CarPropertyEventCallback) for more
      * options.
@@ -1165,6 +1202,12 @@ public class CarPropertyManager extends CarManagerBase {
      * @param updateRateHz Only meaningful for continuous property. The update rate in Hz. A common
      *      value is 1Hz. See {@link Subscription.Builder#setUpdateRateHz} for detail.
      * @param carPropertyEventCallback The callback to deliver property update/error events.
+     * @return {@code true} if the listener is successfully registered
+     * @throws SecurityException if the caller does not have read permission to one of the supported
+     *                           properties.
+     * @throws IllegalArgumentException if there are over-lapping areaIds or the executor is
+     *                                  registered to another callback or one of the properties are
+     *                                  not supported.
      *
      * @see #subscribePropertyEvents(int, int, float, boolean, CarPropertyEventCallback) for more
      * options.
@@ -1188,6 +1231,12 @@ public class CarPropertyManager extends CarManagerBase {
      * @param propertyId The ID for the property to subscribe to.
      * @param areaId The ID for the area to subscribe to.
      * @param carPropertyEventCallback The callback to deliver property update/error events.
+     * @return {@code true} if the listener is successfully registered
+     * @throws SecurityException if the caller does not have read permission to one of the supported
+     *                           properties.
+     * @throws IllegalArgumentException if there are over-lapping areaIds or the executor is
+     *                                  registered to another callback or one of the properties are
+     *                                  not supported.
      *
      * @see #subscribePropertyEvents(int, int, float, boolean, CarPropertyEventCallback) for more
      * options.
@@ -1234,6 +1283,12 @@ public class CarPropertyManager extends CarManagerBase {
      * @param updateRateHz Only meaningful for continuous property. The update rate in Hz. A common
      *      value is 1Hz. See {@link Subscription.Builder#setUpdateRateHz} for detail.
      * @param carPropertyEventCallback The callback to deliver property update/error events.
+     * @return {@code true} if the listener is successfully registered
+     * @throws SecurityException if the caller does not have read permission to one of the supported
+     *                           properties.
+     * @throws IllegalArgumentException if there are over-lapping areaIds or the executor is
+     *                                  registered to another callback or one of the properties are
+     *                                  not supported.
      *
      * @see #subscribePropertyEvents(List, Executor, CarPropertyEventCallback) for
      * more detailed explanation on property subscription and batched subscription usage.
@@ -1352,16 +1407,16 @@ public class CarPropertyManager extends CarManagerBase {
      * @param callbackExecutor The executor in which the callback is done on.
      * @param carPropertyEventCallback The callback to deliver property update/error events.
      * @return {@code true} if the listener is successfully registered
-     * @throws SecurityException if missing the appropriate property access permission.
+     * @throws SecurityException if the caller does not have read permission to one of the supported
+     *                           properties.
      * @throws IllegalArgumentException if there are over-lapping areaIds or the executor is
-     *                                  registered to another callback or one of the properties does
-     *                                  not have a corresponding CarPropertyConfig.
+     *                                  registered to another callback or one of the properties are
+     *                                  not supported.
      */
     @FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS)
     public boolean subscribePropertyEvents(@NonNull List<Subscription> subscriptions,
             @Nullable @CallbackExecutor Executor callbackExecutor,
             @NonNull CarPropertyEventCallback carPropertyEventCallback) {
-        // TODO(b/301169322): Create an unsubscribePropertyEvents
         requireNonNull(subscriptions);
         requireNonNull(carPropertyEventCallback);
         validateAreaDisjointness(subscriptions);
@@ -1369,6 +1424,23 @@ public class CarPropertyManager extends CarManagerBase {
             Log.d(TAG, String.format("subscribePropertyEvents, callback: %s subscriptions: %s",
                              carPropertyEventCallback, subscriptions));
         }
+        int[] noReadPermPropertyIds;
+        try {
+            noReadPermPropertyIds = getSupportedNoReadPermPropIds(subscriptions);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+            return false;
+        }
+        if (noReadPermPropertyIds.length != 0) {
+            // propertyIdsToString does not work primitive array.
+            List<Integer> noReadPermPropertyIdsCopy = new ArrayList<>();
+            for (int i = 0; i < noReadPermPropertyIds.length; i++) {
+                noReadPermPropertyIdsCopy.add(noReadPermPropertyIds[i]);
+            }
+            throw new SecurityException("Do not have read permissions for properties: "
+                    + CarPropertyHelper.propertyIdsToString(noReadPermPropertyIdsCopy));
+        }
+
         if (callbackExecutor == null) {
             callbackExecutor = mExecutor;
         }
@@ -1388,6 +1460,7 @@ public class CarPropertyManager extends CarManagerBase {
             mSubscriptionManager.stageNewOptions(carPropertyEventCallback, carSubscriptions);
 
             if (!applySubscriptionChangesLocked()) {
+                Log.e(TAG, "Subscription failed: failed to apply subscription changes");
                 return false;
             }
 
@@ -1580,7 +1653,8 @@ public class CarPropertyManager extends CarManagerBase {
      * multiple registrations for this {@link CarPropertyEventCallback}, all listening will be
      * stopped.
      *
-     * @throws SecurityException if missing the appropriate property access permission.
+     * @throws SecurityException if the caller does not have read permission to the properties
+     *                           registered for this callback.
      */
     @FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS)
     public void unsubscribePropertyEvents(
@@ -1609,7 +1683,8 @@ public class CarPropertyManager extends CarManagerBase {
      * multiple registrations for this {@link CarPropertyEventCallback}, all listening will be
      * stopped.
      *
-     * @throws SecurityException if missing the appropriate property access permission.
+     * @throws SecurityException if the caller does not have read permission to the properties
+     *                           registered for this callback.
      */
     public void unregisterCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback) {
         if (DBG) {
@@ -1638,7 +1713,7 @@ public class CarPropertyManager extends CarManagerBase {
      * the same {@link CarPropertyEventCallback} is used for other properties, those subscriptions
      * will not be affected.
      *
-     * @throws SecurityException if missing the appropriate property access permission.
+     * @throws SecurityException if the caller does not have read permission to the property.
      */
     @FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS)
     public void unsubscribePropertyEvents(
@@ -1709,7 +1784,7 @@ public class CarPropertyManager extends CarManagerBase {
      * the same {@link CarPropertyEventCallback} is used for other properties, those subscriptions
      * will not be affected.
      *
-     * @throws SecurityException if missing the appropriate property access permission.
+     * @throws SecurityException if the caller does not have read permission to the property.
      */
     @SuppressWarnings("FormatString")
     public void unregisterCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback,
@@ -3122,6 +3197,20 @@ public class CarPropertyManager extends CarManagerBase {
                 throw new IllegalArgumentException("Unsupported property: "
                         + VehiclePropertyIds.toString(propId) + " (" + propId + ")");
         }
+    }
+
+    private int[] getSupportedNoReadPermPropIds(List<Subscription> subscriptions)
+            throws RemoteException {
+        ArraySet<Integer> propertyIds = new ArraySet<>();
+        for (int i = 0; i < subscriptions.size(); i++) {
+            propertyIds.add(subscriptions.get(i).getPropertyId());
+        }
+        int[] propertyIdsArray = new int[propertyIds.size()];
+        for (int i = 0; i < propertyIds.size(); i++) {
+            propertyIdsArray[i] = propertyIds.valueAt(i);
+        }
+
+        return mService.getSupportedNoReadPermPropIds(propertyIdsArray);
     }
 
 }

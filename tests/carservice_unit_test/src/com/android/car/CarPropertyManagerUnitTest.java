@@ -223,6 +223,7 @@ public final class CarPropertyManagerUnitTest {
                 new CarPropertyConfigList(ImmutableList.of(mOnChangeCarPropertyConfig)));
         when(mICarProperty.getPropertyConfigList(new int[]{VENDOR_STATIC_PROPERTY})).thenReturn(
                 new CarPropertyConfigList(ImmutableList.of(mStaticCarPropertyConfig)));
+        when(mICarProperty.getSupportedNoReadPermPropIds(any())).thenReturn(new int[0]);
         mCarPropertyManager = new CarPropertyManager(mCar, mICarProperty);
         // Enable the features.
         when(mFeatureFlags.variableUpdateRate()).thenReturn(true);
@@ -1754,18 +1755,6 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
-    public void testRegisterCallback_SecurityException() throws RemoteException {
-        doThrow(SecurityException.class).when(mICarProperty).registerListener(
-                eq(List.of(createCarSubscriptionOption(VENDOR_ON_CHANGE_PROPERTY, new int[] {0},
-                        CarPropertyManager.SENSOR_RATE_ONCHANGE))),
-                any(ICarPropertyEventListener.class));
-
-        assertThrows(SecurityException.class,
-                () -> mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
-                        VENDOR_ON_CHANGE_PROPERTY, CarPropertyManager.SENSOR_RATE_ONCHANGE));
-    }
-
-    @Test
     public void testRegisterCallback_registersTwiceWithHigherRateCallback() throws RemoteException {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
@@ -1874,6 +1863,26 @@ public final class CarPropertyManagerUnitTest {
         assertThat(mCarSubscriptionCaptor.getValue()).isEqualTo(
                 List.of(createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[] {0},
                         MIN_UPDATE_RATE_HZ)));
+    }
+
+    @Test
+    public void testRegisterCallback_isSupportedAndHasWritePermissionOnly() throws Exception {
+        int propId = VENDOR_CONTINUOUS_PROPERTY;
+        when(mICarProperty.isSupportedAndHasWritePermissionOnly(propId)).thenReturn(true);
+
+        assertThrows(SecurityException.class, () -> mCarPropertyManager.registerCallback(
+                mCarPropertyEventCallback, VENDOR_CONTINUOUS_PROPERTY, 0));
+    }
+
+    @Test
+    public void testRegisterCallback_isSupportedAndHasWritePermissionOnly_remoteException()
+            throws Exception {
+        int propId = VENDOR_CONTINUOUS_PROPERTY;
+        when(mICarProperty.isSupportedAndHasWritePermissionOnly(propId)).thenThrow(
+                new RemoteException());
+
+        assertThat(mCarPropertyManager.registerCallback(
+                mCarPropertyEventCallback, VENDOR_CONTINUOUS_PROPERTY, 0)).isFalse();
     }
 
     @Test
@@ -2009,6 +2018,27 @@ public final class CarPropertyManagerUnitTest {
                         createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
                                 CarPropertyManager.SENSOR_RATE_FAST, /* enableVur= */ false))),
                 any(ICarPropertyEventListener.class));
+    }
+
+    @Test
+    public void testSubscribePropertyEvents_noReadPermission() throws Exception {
+        int propId = VENDOR_CONTINUOUS_PROPERTY;
+        when(mICarProperty.getSupportedNoReadPermPropIds(any()))
+                .thenReturn(new int[] {propId});
+
+        assertThrows(SecurityException.class, () -> mCarPropertyManager.subscribePropertyEvents(
+                propId, mCarPropertyEventCallback));
+    }
+
+    @Test
+    public void testSubscribePropertyEvents_getSupportedNoReadPermPropIds_remoteException()
+            throws Exception {
+        int propId = VENDOR_CONTINUOUS_PROPERTY;
+        when(mICarProperty.getSupportedNoReadPermPropIds(any()))
+                .thenThrow(new RemoteException());
+
+        assertThat(mCarPropertyManager.subscribePropertyEvents(
+                propId, mCarPropertyEventCallback)).isFalse();
     }
 
     @Test

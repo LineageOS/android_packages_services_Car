@@ -185,6 +185,16 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
     }
 
     @Override
+    public int[] getSupportedNoReadPermPropIds(int[] propertyids) {
+        return new int[0];
+    }
+
+    @Override
+    public boolean isSupportedAndHasWritePermissionOnly(int propertyId) {
+        return false;
+    }
+
+    @Override
     public CarPropertyController addProperty(Integer propId, Object value) {
         int areaType = getVehicleAreaType(propId);
         Class<?> type = getPropertyType(propId);

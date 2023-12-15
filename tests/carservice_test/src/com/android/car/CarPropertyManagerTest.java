@@ -324,6 +324,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 case VehiclePropertyIds.FUEL_DOOR_OPEN:
                 case VehiclePropertyIds.EPOCH_TIME:
                 case PROP_ERROR_EVENT_NOT_AVAILABLE_DISABLED:
+                case VehiclePropertyIds.DISTANCE_DISPLAY_UNITS:
                     break;
                 default:
                     Assert.fail("Unexpected CarPropertyConfig: " + cfg);
@@ -570,6 +571,111 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 CUSTOM_SEAT_MIXED_PROP_ID_1, VehicleAreaSeat.ROW_3_CENTER));
         assertThrows(IllegalArgumentException.class, () -> mManager.getAreaId(FAKE_PROPERTY_ID,
                 VehicleAreaSeat.ROW_1_LEFT));
+    }
+
+    // subscribePropertyEvents will throw SecurityException when the caller does not have read
+    // or write permission.
+    @Test
+    public void testSubscribePropertyEvents_noReadOrWritePermission() throws Exception {
+        // FUEL_DOOR_OPEN requires either Car.PERMISSION_ENERGY_PORTS or
+        // Car.PERMISSION_CONTROL_ENERGY_PORTS for read.
+        int propId = VehiclePropertyIds.FUEL_DOOR_OPEN;
+        ((MockedCarTestContext) getContext()).setDeniedPermissions(
+                new String[]{Car.PERMISSION_ENERGY_PORTS, Car.PERMISSION_CONTROL_ENERGY_PORTS});
+
+        TestCallback callback = new TestCallback(/* initValueCount= */ 0,
+                /* changeEventCount= */ 0, /* errorEventCount= */ 0);
+
+        assertThrows(SecurityException.class, () -> mManager.subscribePropertyEvents(
+                propId, callback));
+    }
+
+    // subscribePropertyEvents will throw SecurityException when the caller only has write
+    // permission.
+    @Test
+    public void testSubscribePropertyEvents_onlyWritePermission() throws Exception {
+        // DISTANCE_DISPLAY_UNITS requires Car.PERMISSION_READ_DISPLAY_UNITS for read.
+        // Car.PERMISSION_CONTROL_DISPLAY_UNITS and Car.PERMISSION_VENDOR_EXTENSION for write.
+        int propId = VehiclePropertyIds.DISTANCE_DISPLAY_UNITS;
+        ((MockedCarTestContext) getContext()).setDeniedPermissions(
+                new String[]{Car.PERMISSION_READ_DISPLAY_UNITS});
+
+        TestCallback callback = new TestCallback(/* initValueCount= */ 0,
+                /* changeEventCount= */ 0, /* errorEventCount= */ 0);
+
+        assertThrows(SecurityException.class, () -> mManager.subscribePropertyEvents(
+                propId, callback));
+    }
+
+    // subscribePropertyEvents will throw IllegalArgumentException when the property is not
+    // supported.
+    @Test
+    public void testSubscribePropertyEvents_unsupportedProperty() throws Exception {
+        TestCallback callback = new TestCallback(/* initValueCount= */ 0,
+                /* changeEventCount= */ 0, /* errorEventCount= */ 0);
+
+        // EV_BATTERY_LEVEL is not supported by mocked VHAL.
+        assertThrows(IllegalArgumentException.class, () -> mManager.subscribePropertyEvents(
+                VehiclePropertyIds.EV_BATTERY_LEVEL, callback));
+    }
+
+    // subscribePropertyEvents will throw IllegalArgumentException when the property is not
+    // supported even when the client does not have read permission.
+    @Test
+    public void testSubscribePropertyEvents_unsupportedProperty_noPermission() throws Exception {
+        ((MockedCarTestContext) getContext()).setDeniedPermissions(
+                new String[]{Car.PERMISSION_ENERGY});
+        TestCallback callback = new TestCallback(/* initValueCount= */ 0,
+                /* changeEventCount= */ 0, /* errorEventCount= */ 0);
+
+        // EV_BATTERY_LEVEL is not supported by mocked VHAL.
+        assertThrows(IllegalArgumentException.class, () -> mManager.subscribePropertyEvents(
+                VehiclePropertyIds.EV_BATTERY_LEVEL, callback));
+    }
+
+    // registerCallback will return False when caller does not have read or write permission.
+    @Test
+    public void testRegisterCallback_noReadOrWritePermission() throws Exception {
+        // FUEL_DOOR_OPEN requires either Car.PERMISSION_ENERGY_PORTS or
+        // Car.PERMISSION_CONTROL_ENERGY_PORTS for read.
+        int propId = VehiclePropertyIds.FUEL_DOOR_OPEN;
+        ((MockedCarTestContext) getContext()).setDeniedPermissions(
+                new String[]{Car.PERMISSION_ENERGY_PORTS, Car.PERMISSION_CONTROL_ENERGY_PORTS});
+
+        TestCallback callback = new TestCallback(/* initValueCount= */ 0,
+                /* changeEventCount= */ 0, /* errorEventCount= */ 0);
+
+        assertThat(mManager.registerCallback(
+                callback, propId, CarPropertyManager.SENSOR_RATE_ONCHANGE)).isFalse();
+    }
+
+    // registerCallback will return False when the property is not supported.
+    @Test
+    public void testRegisterCallback_unsupportedProperty() throws Exception {
+        TestCallback callback = new TestCallback(/* initValueCount= */ 0,
+                /* changeEventCount= */ 0, /* errorEventCount= */ 0);
+
+        // EV_BATTERY_LEVEL is not supported by mocked VHAL.
+        assertThat(mManager.registerCallback(
+                callback, VehiclePropertyIds.EV_BATTERY_LEVEL,
+                CarPropertyManager.SENSOR_RATE_ONCHANGE)).isFalse();
+    }
+
+    // registerCallback with a supported property with only the write permission will throw
+    // SecurityException.
+    @Test
+    public void testRegisterCallback_onlyWritePermission() throws Exception {
+        // DISTANCE_DISPLAY_UNITS requires Car.PERMISSION_READ_DISPLAY_UNITS for read.
+        // Car.PERMISSION_CONTROL_DISPLAY_UNITS and Car.PERMISSION_VENDOR_EXTENSION for write.
+        int propId = VehiclePropertyIds.DISTANCE_DISPLAY_UNITS;
+        ((MockedCarTestContext) getContext()).setDeniedPermissions(
+                new String[]{Car.PERMISSION_READ_DISPLAY_UNITS});
+
+        TestCallback callback = new TestCallback(/* initValueCount= */ 0,
+                /* changeEventCount= */ 0, /* errorEventCount= */ 0);
+
+        assertThrows(SecurityException.class, () -> mManager.registerCallback(
+                callback, propId, CarPropertyManager.SENSOR_RATE_ONCHANGE));
     }
 
     @Test
@@ -1435,6 +1541,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         addAidlProperty(PROP_WITH_WRITE_ONLY_PERMISSION, handler);
 
         addAidlProperty(PROP_UNSUPPORTED, handler);
+        addAidlProperty(VehicleProperty.DISTANCE_DISPLAY_UNITS);
     }
 
     private class PropertyHandler implements VehicleHalPropertyHandler {
