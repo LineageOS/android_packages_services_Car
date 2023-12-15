@@ -2331,6 +2331,56 @@
         256
       ]
     },
+    "ULTRASONICS_SENSOR_POSITION": {
+      "propertyName": "ULTRASONICS_SENSOR_POSITION",
+      "propertyId": 406916128,
+      "description": "Static data for the position of each ultrasonic sensor installed on the vehicle.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
+      },
+      "systemApi": true
+    },
+    "ULTRASONICS_SENSOR_ORIENTATION": {
+      "propertyName": "ULTRASONICS_SENSOR_ORIENTATION",
+      "propertyId": 406916129,
+      "description": "Static data for the orientation of each ultrasonic sensor installed on the vehicle.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
+      },
+      "systemApi": true
+    },
+    "ULTRASONICS_SENSOR_FIELD_OF_VIEW": {
+      "propertyName": "ULTRASONICS_SENSOR_FIELD_OF_VIEW",
+      "propertyId": 406916130,
+      "description": "Static data for the field of view of each ultrasonic sensor in degrees.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
+      },
+      "systemApi": true
+    },
+    "ULTRASONICS_SENSOR_DETECTION_RANGE": {
+      "propertyName": "ULTRASONICS_SENSOR_DETECTION_RANGE",
+      "propertyId": 406916131,
+      "description": "Static data for the detection range of each ultrasonic sensor in millimeters.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
+      },
+      "systemApi": true
+    },
+    "ULTRASONICS_SENSOR_SUPPORTED_RANGES": {
+      "propertyName": "ULTRASONICS_SENSOR_SUPPORTED_RANGES",
+      "propertyId": 406916132,
+      "description": "Static data for the supported ranges of each ultrasonic sensor in millimeters.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
+      },
+      "systemApi": true
+    },
     "OBD2_LIVE_FRAME": {
       "propertyName": "OBD2_LIVE_FRAME",
       "propertyId": 299896064,
@@ -3641,6 +3691,32 @@
         "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
       },
       "systemApi": true
+    },
+    "CROSS_TRAFFIC_MONITORING_WARNING_STATE": {
+      "propertyName": "CROSS_TRAFFIC_MONITORING_WARNING_STATE",
+      "propertyId": 289411108,
+      "description": "Cross Traffic Monitoring Warning state.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ADAS_STATES"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
+      ]
     }
   }
 }

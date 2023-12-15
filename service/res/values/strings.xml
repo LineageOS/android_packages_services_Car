@@ -159,6 +159,11 @@
     <!-- Permission text: apps can receive VMS messages from the car [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_vms_subscriber">Subscribe to VMS messages</string>
 
+    <!-- Permission text: apps can read ultrasonics sensor data [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_ultrasonics_sensor_data">Read ultrasonics sensor data.</string>
+    <!-- Permission text: apps can read ultrasonics sensor data [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_ultrasonics_sensor_data">Read ultrasonics sensor data from the car.</string>
+
     <!-- Permission text: apps can monitor flash storage usage [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_storage_monitoring">Flash storage monitoring</string>
     <!-- Permission text: apps can monitor flash storage usage [CHAR LIMIT=NONE] -->
