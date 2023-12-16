@@ -21,8 +21,10 @@ import static java.lang.Integer.toHexString;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback;
+import android.car.hardware.property.Subscription;
 import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
@@ -45,14 +47,17 @@ import java.util.Arrays;
 import java.util.List;
 
 class PropertyListAdapter extends BaseAdapter implements ListAdapter {
-    private static final float DEFAULT_RATE = 1f;
+    private static final float DEFAULT_RATE_HZ = 1f;
     private static final String TAG = "PropertyListAdapter";
     private static final String OFF = "Off";
     private static final String ON = "On";
     private static final String MAX_SAMPLE_RATE = "Maximum sample rate";
     private static final String AVG_SAMPLE_RATE = "Average sample rate";
+    private static final String VUR = "VUR";
     private static final String[] DROP_MENU_FOR_CONTINUOUS =
             new String[]{OFF, MAX_SAMPLE_RATE, AVG_SAMPLE_RATE};
+    private static final String[] DROP_MENU_FOR_CONTINUOUS_VUR =
+            new String[]{OFF, VUR, MAX_SAMPLE_RATE, AVG_SAMPLE_RATE};
     private static final String[] DROP_MENU_FOR_ON_CHANGE = new String[]{OFF, ON};
     private final Context mContext;
     private final PropertyListEventListener mListener;
@@ -100,7 +105,11 @@ class PropertyListAdapter extends BaseAdapter implements ListAdapter {
 
         CarPropertyConfig c = mPropInfo.get(position).mConfig;
         if (c.getChangeMode() == CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS) {
-            mItems = DROP_MENU_FOR_CONTINUOUS;
+            if (isVurSupportedForAtLeastOneAreaId(c)) {
+                mItems = DROP_MENU_FOR_CONTINUOUS_VUR;
+            } else {
+                mItems = DROP_MENU_FOR_CONTINUOUS;
+            }
         } else {
             mItems = DROP_MENU_FOR_ON_CHANGE;
         }
@@ -118,25 +127,33 @@ class PropertyListAdapter extends BaseAdapter implements ListAdapter {
                 int propId = c.getPropertyId();
                 try {
                     if (OFF.equals(item)) {
-                        mMgr.unregisterCallback(mListener, propId);
-                    } else if (MAX_SAMPLE_RATE.equals(item)) {
-                        mListener.addPropertySelectedSampleRate(propId, c.getMaxSampleRate());
+                        mMgr.unsubscribePropertyEvents(mListener, propId);
+                    } else if (VUR.equals(item)) {
+                        // Default update rate is 1hz.
+                        mListener.addPropertySelectedSampleRate(propId, DEFAULT_RATE_HZ);
                         mListener.updatePropertyStartTime(propId);
                         mListener.resetEventCountForProperty(propId);
-                        mMgr.registerCallback(mListener, propId, c.getMaxSampleRate());
-                    } else if (AVG_SAMPLE_RATE.equals(item)) {
-                        mListener.addPropertySelectedSampleRate(propId,
-                                (c.getMaxSampleRate() + c.getMinSampleRate()) / 2);
+
+                        // By default, VUR is on.
+                        mMgr.subscribePropertyEvents(propId, mListener);
+                    } else {
+                        float updateRateHz = 0;
+                        if (MAX_SAMPLE_RATE.equals(item)) {
+                            updateRateHz = c.getMaxSampleRate();
+                        } else if (AVG_SAMPLE_RATE.equals(item)) {
+                            updateRateHz = (c.getMaxSampleRate() + c.getMinSampleRate()) / 2;
+                        } else if (ON.equals(item)) {
+                            updateRateHz = DEFAULT_RATE_HZ;
+                        }
+                        mListener.addPropertySelectedSampleRate(propId, updateRateHz);
                         mListener.updatePropertyStartTime(propId);
                         mListener.resetEventCountForProperty(propId);
-                        mMgr.registerCallback(mListener, propId,
-                                (c.getMaxSampleRate() + c.getMinSampleRate()) / 2);
-                    } else if (ON.equals(item)) {
-                        mListener.addPropertySelectedSampleRate(propId,
-                                DEFAULT_RATE);
-                        mListener.updatePropertyStartTime(propId);
-                        mListener.resetEventCountForProperty(propId);
-                        mMgr.registerCallback(mListener, propId, DEFAULT_RATE);
+
+                        mMgr.subscribePropertyEvents(List.of(
+                                new Subscription.Builder(propId).setUpdateRateHz(updateRateHz)
+                                .setVariableUpdateRateEnabled(false)
+                                .build()),
+                                /* callbackExecutor= */ null, mListener);
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Unhandled exception: ", e);
@@ -149,6 +166,17 @@ class PropertyListAdapter extends BaseAdapter implements ListAdapter {
             }
         });
         return view;
+    }
+
+    private boolean isVurSupportedForAtLeastOneAreaId(CarPropertyConfig carPropertyConfig) {
+        List<AreaIdConfig<?>> areaIdConfigs = carPropertyConfig.getAreaIdConfigs();
+        for (int i = 0; i < areaIdConfigs.size(); i++) {
+            AreaIdConfig<?> areaIdConfig = areaIdConfigs.get(i);
+            if (areaIdConfig.isVariableUpdateRateSupported()) {
+                return true;
+            }
+        }
+        return false;
     }
 
 

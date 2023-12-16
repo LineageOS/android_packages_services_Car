@@ -16,12 +16,14 @@
 
 package android.car;
 
+import static android.car.feature.Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.property.VehiclePropertyIdDebugUtils.isDefined;
 import static com.android.car.internal.property.VehiclePropertyIdDebugUtils.toName;
 
+import android.annotation.FlaggedApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.hardware.CarHvacFanDirection;
@@ -31,6 +33,10 @@ import android.car.hardware.property.BlindSpotWarningState;
 import android.car.hardware.property.CruiseControlCommand;
 import android.car.hardware.property.CruiseControlState;
 import android.car.hardware.property.CruiseControlType;
+import android.car.hardware.property.DriverDistractionState;
+import android.car.hardware.property.DriverDistractionWarning;
+import android.car.hardware.property.DriverDrowsinessAttentionState;
+import android.car.hardware.property.DriverDrowsinessAttentionWarning;
 import android.car.hardware.property.EmergencyLaneKeepAssistState;
 import android.car.hardware.property.ErrorState;
 import android.car.hardware.property.EvChargeState;
@@ -588,6 +594,42 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CAR_ENGINE_DETAILED)
     public static final int ENGINE_IDLE_AUTO_STOP_ENABLED = 287310624;
     /**
+     * Impact detected.
+     *
+     * <p>Bit flag property to relay information on whether an impact has occurred on a particular
+     * side of the vehicle as described through the {@link
+     * android.car.hardware.property.ImpactSensorLocation} enum. As a bit flag property, this
+     * property can be set to multiple ORed together values of the enum when necessary.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which bit flags
+     * from {@link android.car.hardware.property.ImpactSensorLocation} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission "android.car.permission.READ_IMPACT_SENSORS" to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @data_enum {@link android.car.hardware.property.ImpactSensorLocation}
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_IMPACT_SENSORS))
+    public static final int IMPACT_DETECTED = 289407792;
+    /**
      * Reports wheel ticks.
      *
      * <p>Property Config:
@@ -827,6 +869,30 @@ public final class VehiclePropertyIds {
             Car.PERMISSION_ADJUST_RANGE_REMAINING}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_ADJUST_RANGE_REMAINING))
     public static final int RANGE_REMAINING = 291504904;
+    /**
+     * EV battery average temperature
+     *
+     * <p>Exposes the temperature of the battery in an EV. If multiple batteries exist in the EV, or
+     * multiple temperature sensors exist, this property will be set to a meaningful weighted
+     * average that best represents the overall temperature of the battery system.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
+     *  <li>Property is not writable.
+     * </ul>
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    public static final int EV_BATTERY_AVERAGE_TEMPERATURE = 291504910;
     /**
      * Tire pressure in kilopascals.
      *
@@ -1234,6 +1300,79 @@ public final class VehiclePropertyIds {
      */
     @RequiresPermission(Car.PERMISSION_CAR_DYNAMICS_STATE)
     public static final int TRACTION_CONTROL_ACTIVE = 287310859;
+    /**
+     * Enable or disable Electronic Stability Control (ESC).
+     *
+     * <p>Returns true if ESC is enabled and false if ESC is disabled. When ESC is enabled, a system
+     * in the vehicle should be controlling the tires during instances with high risk of skidding to
+     * actively prevent the same from happening.
+     *
+     * <p>This property is defined as read_write, but OEMs have the option to implement it as read
+     * only.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CAR_DYNAMICS_STATE} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_DYNAMICS_STATE} to read
+     *  property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_DYNAMICS_STATE} to
+     *  write property.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_CAR_DYNAMICS_STATE,
+            Car.PERMISSION_CONTROL_CAR_DYNAMICS_STATE}))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_CAR_DYNAMICS_STATE))
+    public static final int ELECTRONIC_STABILITY_CONTROL_ENABLED = 287310862;
+    /**
+     * Electronic Stability Control (ESC) state.
+     *
+     * <p>Returns the current state of ESC. This property will always return a valid state defined
+     * in {@link android.car.hardware.property.ElectronicStabilityControlState} or {@link
+     * android.car.hardware.property.ErrorState}.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.ElectronicStabilityControlState} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CAR_DYNAMICS_STATE} to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @data_enum {@link android.car.hardware.property.ElectronicStabilityControlState}
+     * @data_enum {@link ErrorState}
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_CAR_DYNAMICS_STATE))
+    public static final int ELECTRONIC_STABILITY_CONTROL_STATE = 289408015;
     /**
      * Fan speed setting.
      *
@@ -2043,6 +2182,77 @@ public final class VehiclePropertyIds {
     @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
     public static final int PER_DISPLAY_BRIGHTNESS = 289475076;
+    /**
+     * Valet mode enabled
+     *
+     * <p>This property allows the user to enable/disable valet mode in their vehicle. Valet mode is
+     * a privacy and security setting that prevents an untrusted driver to access more private areas
+     * in the vehicle, such as the glove box or the trunk(s).
+     *
+     * <p>This property is defined as read_write, but OEMs have the option to implement it as read
+     * only.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_VALET_MODE} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_VALET_MODE} to read property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_VALET_MODE} to write
+     *  property.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(
+            anyOf = {Car.PERMISSION_READ_VALET_MODE, Car.PERMISSION_CONTROL_VALET_MODE}))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_VALET_MODE))
+    public static final int VALET_MODE_ENABLED = 287312389;
+    /**
+     * Head up display (HUD) enabled
+     *
+     * <p>This property allows the user to turn on/off the HUD for their seat.
+     *
+     * <p>Each HUD in the vehicle will be assigned to the seat that is intended to use it. For
+     * example, if there is a single HUD in the vehicle that is used by the driver so that they no
+     * longer need to continuously look at the instrument cluster, then this property will be
+     * defined with a single area ID that is equal to the driver's seat area ID.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_HEAD_UP_DISPLAY} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_HEAD_UP_DISPLAY} to read
+     *  property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_HEAD_UP_DISPLAY} to write
+     *  property.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(
+            anyOf = {Car.PERMISSION_READ_HEAD_UP_DISPLAY, Car.PERMISSION_CONTROL_HEAD_UP_DISPLAY}))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_HEAD_UP_DISPLAY))
+    public static final int HEAD_UP_DISPLAY_ENABLED = 354421254;
     /**
      * Property to feed H/W input events to android.
      *
@@ -3459,6 +3669,46 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_AIRBAGS)
     public static final int SEAT_AIRBAG_ENABLED = 354421662;
     /**
+     * State of deployment for seat airbags.
+     *
+     * <p>Bit flag property to relay information on which airbags have been deployed in the vehicle
+     * at each seat, vs which ones are currently still armed. When SEAT_AIRBAG_ENABLED is set to
+     * false at a particular areaId, this property will be UNAVAILABLE at that areaId.
+     *
+     * <p>Enums apply to each seat, not the global vehicle. For example,
+     * {@link android.car.hardware.property.VehicleAirbagLocation#CURTAIN} at the driver seat areaId
+     * represents whether the driver side curtain airbag has been deployed. Multiple bit flags can
+     * be set to indicate that multiple different airbags have been deployed for the seat.
+     *
+     * <p>For each seat area ID, the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.VehicleAirbagLocation} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission "android.car.permission.READ_CAR_AIRBAGS" to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @data_enum {@link android.car.hardware.property.VehicleAirbagLocation}
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_CAR_AIRBAGS))
+    public static final int SEAT_AIRBAGS_DEPLOYED = 356518821;
+    /**
      * Represents property for seat’s hipside (bottom cushion’s side) support position.
      *
      * <p>This property is not in any particular unit but in a specified range of relative
@@ -3632,6 +3882,40 @@ public final class VehiclePropertyIds {
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
     public static final int SEAT_WALK_IN_POS = 356518819;
+    /**
+     * Seat belt pretensioner deployed.
+     *
+     * <p>Property to relay information on whether the seat belt pretensioner has been deployed for
+     * a particular seat due to a collision. This is different from the regular seat belt tightening
+     * system that continuously adds tension to the seat belts so that they fit snugly around the
+     * person sitting in the seat, nor is it the seat belt retractor system that locks the seat belt
+     * in place during sudden brakes or when the user jerks the seat belt.
+     *
+     * <p>If this property is dependant on the state of other properties, and if those properties
+     * are currently in the state that doesn't support this property, reading this property will
+     * throw {@link android.car.hardware.property.PropertyNotAvailableException}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission "android.car.permission.READ_CAR_SEAT_BELTS" to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_CAR_SEAT_BELTS))
+    public static final int SEAT_BELT_PRETENSIONER_DEPLOYED = 354421670;
     /**
      * Seat Occupancy.
      *
@@ -4133,6 +4417,252 @@ public final class VehiclePropertyIds {
      */
     @RequiresPermission(ACCESS_FINE_LOCATION)
     public static final int LOCATION_CHARACTERIZATION = 289410064;
+
+    /**
+     * Static data for the position of each ultrasonic sensor installed on the vehicle.
+     *
+     * <p>Each individual sensor is identified by its unique {@link AreaIdConfig#getAreaId()} and
+     * returns the sensor's position formatated as [x, y, z] where:
+     *
+     * <ul>
+     *  <li>x is the position of the sensor along the x-axis relative to the origin of the Android
+     *  Automotive sensor coordinate frame in millimeters.
+     *  <li>y is the position of the sensor along the y-axis relative to the origin of the Android
+     *  Automotive sensor coordinate frame in millimeters.
+     *  <li>z is the position of the sensor along the z-axis relative to the origin of the Android
+     *  Automotive sensor coordinate frame in millimeters.
+     * </ul>
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_VENDOR}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer[]} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ULTRASONICS_SENSOR_DATA} to
+     *  read property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA))
+    public static final int ULTRASONICS_SENSOR_POSITION = 406916128;
+
+    /**
+     * Static data for the orientation of each ultrasonic sensor installed on the vehicle.
+     *
+     * <p>Each individual sensor is identified by its {@link AreaIdConfig#getAreaId()} and returns
+     * the sensor's orientation formatted as [qw, qx, qy, qz] where:
+     *
+     * <ul>
+     *  <li>qw is the quaternion coefficient w within the quaterinion (w + xi + yj + zk) describing
+     *  the rotation of the sensor relative to the Android Automotive sensor coordinate frame.
+     *  <li>qx is the quaternion coefficient x within the quaterinion (w + xi + yj + zk) describing
+     *  the rotation of the sensor relative to the Android Automotive sensor coordinate frame.
+     *  <li>qy is the quaternion coefficient y within the quaterinion (w + xi + yj + zk) describing
+     *  the rotation of the sensor relative to the Android Automotive sensor coordinate frame.
+     *  <li>qz is the quaternion coefficient z within the quaterinion (w + xi + yj + zk) describing
+     *  the rotation of the sensor relative to the Android Automotive sensor coordinate frame.
+     * </ul>
+     *
+     * <p>This assumes each sensor uses the same axes conventions as Android Automotive.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_VENDOR}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer[]} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ULTRASONICS_SENSOR_DATA} to
+     *  read property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA))
+    public static final int ULTRASONICS_SENSOR_ORIENTATION = 406916129;
+
+    /**
+     * Static data for the field of view of each ultrasonic sensor in degrees.
+     *
+     * <p>Each individual sensor is identified by its {@link AreaIdConfig#getAreaId()} and returns
+     * the sensor's field of view formatted as [horizontal, vertical] where:
+     *
+     * <ul>
+     *  <li>horizontal is the horizontal field of view for the specified ultrasonic sensor in
+     *  degrees.
+     *  <li>vertical is the vertical field of view for the associated specified ultrasonic sensor in
+     *  degrees.
+     * </ul>
+     *
+     * <p>This assumes each sensor uses the same axes conventions as Android Automotive.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_VENDOR}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer[]} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ULTRASONICS_SENSOR_DATA} to
+     *  read property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA))
+    public static final int ULTRASONICS_SENSOR_FIELD_OF_VIEW = 406916130;
+
+    /**
+     * Static data for the detection range of each ultrasonic sensor in millimeters.
+     *
+     * <p>Each individual sensor is identified by its {@link AreaIdConfig#getAreaId()} and returns
+     * the sensor's detection range formatted as [minimum, maximum] where:
+     *
+     * <ul>
+     *  <li>minimum is the minimum range detectable by the ultrasonic sensor in millimeters.
+     *  <li>maximum is the maximum range detectable by the ultrasonic sensor in millimeters.
+     * </ul>
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_VENDOR}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer[]} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ULTRASONICS_SENSOR_DATA} to
+     *  read property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA))
+    public static final int ULTRASONICS_SENSOR_DETECTION_RANGE = 406916131;
+
+    /**
+     * Static data for the supported ranges of each ultrasonic sensor in millimeters.
+     *
+     * <p>For ultrasonic sensors that only support readings within a specific range. For example, if
+     * an ultrasonic sensor detects an object at 700mm, but can only report that an object has been
+     * detected between 500mm and 1000mm.
+     *
+     * <p>Each individual sensor is identified by its {@link AreaIdConfig#getAreaId()} and returns
+     * the sensor's supported ranges formatted as [range_min_1, range_max_1, range_min_2,
+     * range_max_2, ...] where:
+     *
+     * <ul>
+     *  <li>range_min_1 is the minimum of one supported range by the specified sensor in
+     *  millimeters, inclusive.
+     *  <li>range_max_1 is the maximum of one supported range by the specified sensor in
+     *  millimeters, inclusive.
+     *  <li> range_min_2 is the minimum of another supported range by the specified sensor in
+     *  millimeters, inclusive.
+     *  <li> range_max_2 is the maximum of another supported range by the specified sensor in
+     *  millimeters, inclusive.
+     * </ul>
+     *
+     * <p>For example, if an ultrasonic sensor supports the ranges 150mm to  499mm, 500mm to 999mm,
+     * and 1000mm to 1500mm, then the property should be set to:
+     * <ul>
+     *  <li>value[0] = 150
+     *  <li>value[1] = 499
+     *  <li>value[2] = 500
+     *  <li>value[3] = 999
+     *  <li>value[4] = 1000
+     *  <li>value[5] = 1500
+     * </ul>
+     *
+     * <p>If this property is not defined, all the values within the
+     * {@link #ULTRASONICS_SENSOR_DETECTION_RANGE} for the specified sensor are assumed to be
+     * supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_VENDOR}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer[]} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ULTRASONICS_SENSOR_DATA} to
+     *  read property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA))
+    public static final int ULTRASONICS_SENSOR_SUPPORTED_RANGES = 406916132;
+
+    /**
+     * The distance reading of the nearest detected object per sensor in millimeters.
+     *
+     * <p>Each individual sensor is identified by its {@link AreaIdConfig#getAreaId()} and returns
+     * the sensor's measured distance formatted as [distance, distance_error] where:
+     *
+     * <ul>
+     *  <li>distance is the measured distance of the nearest object in millimeters. If only a range
+     *  is supported, this value must be set to the minimum supported distance in the detected range
+     *  as specified in {@link #ULTRASONICS_SENSOR_SUPPORTED_RANGES}.
+     *  <li>distance_error is the error of the measured distance value in millimeters.
+     * </ul>
+     *
+     * <p>If no object is detected, an empty vector will be returned. If distance_error is not
+     * available then an array of only the measured distance will be returned.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_VENDOR}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Integer[]} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ULTRASONICS_SENSOR_DATA} to
+     *  read property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA))
+    public static final int ULTRASONICS_SENSOR_MEASURED_DISTANCE = 406916133;
+
     /**
      * OBD2 Live Sensor Data.
      *
@@ -5289,10 +5819,51 @@ public final class VehiclePropertyIds {
     public static final int GENERAL_SAFETY_REGULATION_COMPLIANCE = 289410887;
 
     /**
+     * Current state of vehicle autonomy.
+     *
+     * <p>Defines the level of autonomy currently engaged in the vehicle from the SAE standard
+     * levels 0-5, with 0 representing no autonomy and 5 representing full driving automation. These
+     * levels are defined in accordance with the standards set in the
+     * <a href="https://www.sae.org/standards/content/j3016_202104/">J3016_202104 revision</a> of
+     * the SAE automation level taxonomy and its clarification for international audiences
+     * <a href="https://www.sae.org/blog/sae-j3016-update">here</a>.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.VehicleAutonomousState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission "android.car.permission.CAR_DRIVING_STATE" to
+     *  read property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @data_enum {@link android.car.hardware.property.VehicleAutonomousState}
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_CAR_DRIVING_STATE))
+    public static final int VEHICLE_DRIVING_AUTOMATION_CURRENT_LEVEL = 289410892;
+
+    /**
      * Enable or disable Automatic Emergency Braking (AEB).
      *
      * <p>Returns true if AEB is enabled and false if AEB is disabled. When AEB is enabled, the ADAS
-     * system in the vehicle should be turned on and monitoring to avoid potential collisions.
+     * system in the vehicle should be turned on and monitoring to avoid potential collisions. This
+     * property applies for higher speed applications only. For enabling low speed automatic
+     * emergency braking, {@link LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_ENABLED} will be used.
      *
      * <p>This property is defined as read_write, but OEMs have the option to implement it as read
      * only.
@@ -5328,7 +5899,9 @@ public final class VehiclePropertyIds {
      *
      * <p>Returns the current state of AEB. This property will always return a valid state defined
      * in {@link android.car.hardware.property.AutomaticEmergencyBrakingState} or {@link
-     * android.car.hardware.property.ErrorState}.
+     * android.car.hardware.property.ErrorState}. This property should apply for higher speed
+     * applications only. For representing the state of the low speed automatic emergency braking
+     * system, {@link LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_STATE} should be used.
      *
      * <p>If AEB includes forward collision warnings before activating the brakes, those warnings
      * will be surfaced through the Forward Collision Warning (FCW) properties.
@@ -6271,6 +6844,568 @@ public final class VehiclePropertyIds {
     @SystemApi
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DRIVER_MONITORING_STATES))
     public static final int HANDS_ON_DETECTION_WARNING = 289411096;
+
+    /**
+     * Enable or disable driver drowsiness and attention monitoring.
+     *
+     * <p>Set true to enable driver drowsiness and attention monitoring and false to disable driver
+     * drowsiness and attention monitoring. When driver drowsiness and attention monitoring is
+     * enabled, a system inside the vehicle will monitor the drowsiness and attention level of the
+     * driver and warn the driver if needed.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_SETTINGS}
+     *  or Signature|Privileged permission {@link
+     *  Car#PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS} to read property.
+     *  <li>Signature|Privileged permission {@link
+     *  Car#PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS} to write property.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {
+            Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS,
+            Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS}))
+    @RequiresPermission.Write(@RequiresPermission(
+            Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS))
+    public static final int DRIVER_DROWSINESS_ATTENTION_SYSTEM_ENABLED = 287313945;
+
+    /**
+     * Driver drowsiness and attention level state.
+     *
+     * <p>Returns the current detected state of driver drowiness and attention level based on the
+     * Karolinska Sleepiness Scale (KSS).
+     *
+     * <p>Generally, this property should return a valid state defined in the {@link
+     * android.car.hardware.property.DriverDrowsinessAttentionState} or {@link
+     * android.car.hardware.property.ErrorState}. For example, if the feature is not available due
+     * to some temporary state, that information should be conveyed through {@link
+     * android.car.hardware.property.ErrorState}.
+     *
+     * <p>If the vehicle is sending a warning to the user because the driver is too drowsy, the
+     * warning should be surfaced through {@link #DRIVER_DROWSINESS_ATTENTION_WARNING}.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.DriverDrowsinessAttentionState} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_STATES} to
+     *  read property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @data_enum {@link DriverDrowsinessAttentionState}
+     * @data_enum {@link ErrorState}
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DRIVER_MONITORING_STATES))
+    public static final int DRIVER_DROWSINESS_ATTENTION_STATE = 289411098;
+
+    /**
+     * Enable or disable driver drowsiness and attention warnings.
+     *
+     * <p>Set true to enable driver drowsiness and attention warnings and false to disable driver
+     * drowsiness and attention warnings. When driver drowsiness and attention warnings are enabled,
+     * the driver drowsiness and attention monitoring system inside the vehicle should warn the
+     * driver when it detects the driver is drowsy or not attentive.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_SETTINGS}
+     *  or Signature|Privileged permission {@link
+     *  Car#PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS} to read property.
+     *  <li>Signature|Privileged permission {@link
+     *  Car#PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS} to write property.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {
+            Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS,
+            Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS}))
+    @RequiresPermission.Write(@RequiresPermission(
+            Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS))
+    public static final int DRIVER_DROWSINESS_ATTENTION_WARNING_ENABLED = 287313947;
+
+    /**
+     * Driver drowsiness and attention warning.
+     *
+     * <p>Returns whether a warning is being sent to the driver for being drowsy or not attentive.
+     *
+     * <p>Generally, this property should return a valid state defined in the {@link
+     * android.car.hardware.property.DriverDrowsinessAttentionWarning} or {@link
+     * android.car.hardware.property.ErrorState}. For example, if the feature is not available due
+     * to some temporary state, that information should be conveyed through an {@link
+     * android.car.hardware.property.ErrorState}.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.DriverDrowsinessAttentionWarning} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_STATES} to
+     *  read property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @data_enum {@link DriverDrowsinessAttentionWarning}
+     * @data_enum {@link ErrorState}
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DRIVER_MONITORING_STATES))
+    public static final int DRIVER_DROWSINESS_ATTENTION_WARNING = 289411100;
+
+   /**
+     * Enable or disable driver distraction monitoring.
+     *
+     * <p>Set true to enable driver distraction monitoring and false to disable driver distraction
+     * monitoring. When driver distraction monitoring is enabled, a system inside the vehicle should
+     * be monitoring the distraction level of the driver and warn the driver if needed.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_SETTINGS}
+     *  or Signature|Privileged permission {@link
+     *  Car#PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS} to read property.
+     *  <li>Signature|Privileged permission {@link
+     *  Car#PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS} to write property.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {
+            Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS,
+            Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS}))
+    @RequiresPermission.Write(@RequiresPermission(
+            Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS))
+    public static final int DRIVER_DISTRACTION_SYSTEM_ENABLED = 287313949;
+
+    /**
+     * Driver distraction state.
+     *
+     * <p>Returns the current detected driver distraction state.
+     *
+     * <p>Generally, this property should return a valid state defined in the {@link
+     * android.car.hardware.property.DriverDistractionState} or {@link
+     * android.car.hardware.property.ErrorState}. For example, if the feature is not available due
+     * to some temporary state, that information should be conveyed through {@link
+     * android.car.hardware.property.ErrorState}.
+     *
+     * <p>If the vehicle is sending a warning to the user because the driver is too distracted, the
+     * warning should be surfaced through {@link #DRIVER_DISTRACTION_WARNING}.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.DriverDistractionState} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_STATES} to
+     *  read property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @data_enum {@link DriverDistractionState}
+     * @data_enum {@link ErrorState}
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DRIVER_MONITORING_STATES))
+    public static final int DRIVER_DISTRACTION_STATE = 289411102;
+
+    /**
+     * Enable or disable driver distraction warnings.
+     *
+     * <p>Set true to enable driver distraction warnings and false to disable driver distraction
+     * warnings. When driver distraction warnings are enabled, the driver distraction monitoring
+     * system inside the vehicle should warn the driver when it detects the driver is distracted.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_SETTINGS}
+     *  or Signature|Privileged permission {@link
+     *  Car#PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS} to read property.
+     *  <li>Signature|Privileged permission {@link
+     *  Car#PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS} to write property.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {
+            Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS,
+            Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS}))
+    @RequiresPermission.Write(@RequiresPermission(
+            Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS))
+    public static final int DRIVER_DISTRACTION_WARNING_ENABLED = 287313951;
+
+    /**
+     * Driver distraction warning.
+     *
+     * <p>Returns whether a warning is being sent to the driver for being distracted.
+     *
+     * <p>Generally, this property should return a valid state defined in the {@link
+     * android.car.hardware.property.DriverDistractionWarning} or {@link
+     * android.car.hardware.property.ErrorState}. For example, if the feature is not available due
+     * to some temporary state, that information should be conveyed through an {@link
+     * android.car.hardware.property.ErrorState}.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.DriverDistractionWarning} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_STATES} to
+     *  read property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @data_enum {@link DriverDistractionWarning}
+     * @data_enum {@link ErrorState}
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DRIVER_MONITORING_STATES))
+    public static final int DRIVER_DISTRACTION_WARNING = 289411104;
+    /**
+     * Enable or disable Low Speed Collision Warning.
+     *
+     * <p>Returns true if low speed collision warning is enabled and false if low speed collision
+     * warning is disabled. When low speed collision warning is enabled, the ADAS system in the
+     * vehicle will warn the driver of potential collisions at low speeds. This property is
+     * different from the pre-existing {@link VehiclePropertyIds#FORWARD_COLLISION_WARNING_ENABLED},
+     * which applies to higher speed applications only. If the vehicle doesn't have a separate
+     * collision detection system for low speed environments, this property will not be implemented.
+     *
+     * <p>This property is defined as read_write, but OEMs have the option to implement it as read
+     * only.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to read
+     *  property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
+     *  property.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_READ_ADAS_SETTINGS,
+            Car.PERMISSION_CONTROL_ADAS_SETTINGS}))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
+    public static final int LOW_SPEED_COLLISION_WARNING_ENABLED = 287313953;
+
+    /**
+     * Low Speed Collision Warning State state.
+     *
+     * <p>Returns the current state of Low Speed Collision Warning. This property will always return
+     * a valid state defined in {@link android.car.hardware.property.LowSpeedCollisionWarningState}
+     * or {@link android.car.hardware.property.ErrorState}. This property is different from the
+     * pre-existing {@link VehiclePropertyIds#FORWARD_COLLISION_WARNING_ENABLED}, which applies to
+     * higher speed applications only. If the vehicle doesn't have a separate collision detection
+     * system for low speed environments, this property will not be implemented.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.LowSpeedCollisionWarningState} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @data_enum {@link android.car.hardware.property.LowSpeedCollisionWarningState}
+     * @data_enum {@link ErrorState}
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_STATES))
+    public static final int LOW_SPEED_COLLISION_WARNING_STATE = 289411106;
+
+    /**
+     * Enable or disable Cross Traffic Monitoring.
+     *
+     * <p>Returns true if Cross Traffic Monitoring is enabled and false if Cross Traffic Monitoring
+     * is disabled. When Cross Traffic Monitoring is enabled, the ADAS system in the vehicle should
+     * be turned on and monitoring for potential sideways collisions.
+     *
+     * <p>This property is defined as read_write, but OEMs have the option to implement it as read
+     * only.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to read
+     *  property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
+     *  property.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_READ_ADAS_SETTINGS,
+            Car.PERMISSION_CONTROL_ADAS_SETTINGS}))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
+    public static final int CROSS_TRAFFIC_MONITORING_ENABLED = 287313955;
+
+    /**
+     * Cross Traffic Monitoring Warning state.
+     *
+     * <p>Returns the current state of Cross Traffic Monitoring Warning. This property will always
+     * return a valid state defined in {@link
+     * android.car.hardware.property.CrossTrafficMonitoringWarningState} or {@link
+     * android.car.hardware.property.ErrorState}.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.CrossTrafficMonitoringWarningState} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @data_enum {@link android.car.hardware.property.CrossTrafficMonitoringWarningState}
+     * @data_enum {@link ErrorState}
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_STATES))
+    public static final int CROSS_TRAFFIC_MONITORING_WARNING_STATE = 289411108;
+
+    /**
+     * Enable or disable Low Speed Automatic Emergency Braking.
+     *
+     * <p>Returns true if Low Speed Automatic Emergency Braking is enabled or false if Low Speed
+     * Automatic Emergency Braking is disabled. When Low Speed Automatic Emergency Braking is
+     * enabled, the ADAS system in the vehicle will be turned on and monitoring to avoid potential
+     * collisions in low speed conditions. This property is different from the pre-existing
+     * AUTOMATIC_EMERGENCY_BRAKING_ENABLED, which should apply to higher speed applications only. If
+     * the vehicle doesn't have a separate collision avoidance system for low speed environments,
+     * this property will not be implemented.
+     *
+     * <p>This property is defined as read_write, but OEMs have the option to implement it as read
+     * only.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to read
+     *  property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
+     *  property.
+     * </ul>
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_READ_ADAS_SETTINGS,
+            Car.PERMISSION_CONTROL_ADAS_SETTINGS}))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
+    public static final int LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_ENABLED = 287313957;
+
+    /**
+     * Low Speed Automatic Emergency Braking state.
+     *
+     * <p>Returns the current state of Low Speed Automatic Emergency Braking. This property will
+     * always return a valid state defined in {@link
+     * android.car.hardware.property.LowSpeedAutomaticEmergencyBrakingState} or {@link
+     * android.car.hardware.property.ErrorState}.
+     *
+     * <p>If Low Speed Automatic Emergency Braking includes collision warnings before activating the
+     * brakes, those warnings will be surfaced through use of {@link
+     * android.car.VehiclePropertyIds#LOW_SPEED_COLLISION_WARNING_ENABLED} and {@link
+     * android.car.VehiclePropertyIds#LOW_SPEED_COLLISION_WARNING_STATE}.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.LowSpeedAutomaticEmergencyBrakingState} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @data_enum {@link android.car.hardware.property.LowSpeedAutomaticEmergencyBrakingState}
+     * @data_enum {@link ErrorState}
+     *
+     * @hide
+     */
+    @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_STATES))
+    public static final int LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_STATE = 289411110;
 
     /**
      * @deprecated to prevent others from instantiating this class

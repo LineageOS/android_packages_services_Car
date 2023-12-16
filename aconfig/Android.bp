@@ -48,6 +48,13 @@ java_aconfig_library {
     defaults: ["car-framework-aconfig-java-defaults"],
 }
 
+java_aconfig_library {
+    name: "android.car.feature-aconfig-java-host",
+    aconfig_declarations: "android.car.feature-aconfig",
+    defaults: ["car-framework-aconfig-java-defaults"],
+    host_supported: true,
+}
+
 cc_aconfig_library {
     name: "android.car.feature-aconfig-cpp",
     aconfig_declarations: "android.car.feature-aconfig",

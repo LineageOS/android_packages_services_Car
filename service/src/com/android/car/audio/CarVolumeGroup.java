@@ -19,6 +19,19 @@ import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_ATTENUATION_CHANG
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_BLOCKED_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED;
+import static android.media.AudioDeviceInfo.TYPE_AUX_LINE;
+import static android.media.AudioDeviceInfo.TYPE_BLE_BROADCAST;
+import static android.media.AudioDeviceInfo.TYPE_BLE_HEADSET;
+import static android.media.AudioDeviceInfo.TYPE_BLE_SPEAKER;
+import static android.media.AudioDeviceInfo.TYPE_BLUETOOTH_A2DP;
+import static android.media.AudioDeviceInfo.TYPE_BUILTIN_SPEAKER;
+import static android.media.AudioDeviceInfo.TYPE_BUS;
+import static android.media.AudioDeviceInfo.TYPE_HDMI;
+import static android.media.AudioDeviceInfo.TYPE_USB_ACCESSORY;
+import static android.media.AudioDeviceInfo.TYPE_USB_DEVICE;
+import static android.media.AudioDeviceInfo.TYPE_USB_HEADSET;
+import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADPHONES;
+import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET;
 
 import static com.android.car.audio.hal.HalAudioGainCallback.reasonToString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
@@ -32,6 +45,7 @@ import android.car.feature.Flags;
 import android.car.media.CarVolumeGroupInfo;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.os.UserHandle;
 import android.util.ArrayMap;
@@ -47,6 +61,7 @@ import com.android.car.audio.CarAudioDumpProto.CarVolumeGroupProto.ContextToAddr
 import com.android.car.audio.CarAudioDumpProto.CarVolumeGroupProto.GainInfo;
 import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.DebugUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
@@ -55,6 +70,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * A class encapsulates a volume group in car.
@@ -84,12 +100,15 @@ import java.util.Objects;
     private final String mName;
     protected final int mZoneId;
     protected final int mConfigId;
-    protected final SparseArray<String> mContextToAddress;
-    protected final ArrayMap<String, CarAudioDeviceInfo> mAddressToCarAudioDeviceInfo;
+    protected final SparseArray<CarAudioDeviceInfo> mContextToDevices;
 
     protected final Object mLock = new Object();
     private final CarAudioContext mCarAudioContext;
 
+    @GuardedBy("mLock")
+    protected final SparseArray<String> mContextToAddress;
+    @GuardedBy("mLock")
+    protected final ArrayMap<String, CarAudioDeviceInfo> mAddressToCarAudioDeviceInfo;
     @GuardedBy("mLock")
     protected int mStoredGainIndex;
 
@@ -148,24 +167,27 @@ import java.util.Objects;
     protected List<Integer> mReasons = new ArrayList<>();
 
     protected CarVolumeGroup(CarAudioContext carAudioContext, CarAudioSettings settingsManager,
-            SparseArray<String> contextToAddress, ArrayMap<String,
-            CarAudioDeviceInfo> addressToCarAudioDeviceInfo, int zoneId, int configId,
+            SparseArray<CarAudioDeviceInfo> contextToDevices, int zoneId, int configId,
             int volumeGroupId, String name, boolean useCarVolumeGroupMute) {
         mSettingsManager = settingsManager;
-        mContextToAddress = contextToAddress;
-        mAddressToCarAudioDeviceInfo = addressToCarAudioDeviceInfo;
         mCarAudioContext = carAudioContext;
+        mContextToDevices = contextToDevices;
         mZoneId = zoneId;
         mConfigId = configId;
         mId = volumeGroupId;
         mName = Objects.requireNonNull(name, "Volume group name cannot be null");
         mUseCarVolumeGroupMute = useCarVolumeGroupMute;
+        mContextToAddress = new SparseArray<>(contextToDevices.size());
+        mAddressToCarAudioDeviceInfo = new ArrayMap<>(contextToDevices.size());
         List<AudioAttributes> volumeAttributes = new ArrayList<>();
-        for (int index = 0; index <  contextToAddress.size(); index++) {
-            int context = contextToAddress.keyAt(index);
+        for (int index = 0; index <  contextToDevices.size(); index++) {
+            int context = contextToDevices.keyAt(index);
+            CarAudioDeviceInfo info = contextToDevices.valueAt(index);
             List<AudioAttributes> audioAttributes =
                     Arrays.asList(mCarAudioContext.getAudioAttributesForContext(context));
             volumeAttributes.addAll(audioAttributes);
+            mContextToAddress.put(context, info.getAddress());
+            mAddressToCarAudioDeviceInfo.put(info.getAddress(), info);
         }
 
         mHasCriticalAudioContexts = containsCriticalAttributes(volumeAttributes);
@@ -311,16 +333,21 @@ import java.util.Objects;
 
     @Nullable
     CarAudioDeviceInfo getCarAudioDeviceInfoForAddress(String address) {
-        return mAddressToCarAudioDeviceInfo.get(address);
+        synchronized (mLock) {
+            return mAddressToCarAudioDeviceInfo.get(address);
+        }
     }
 
-    @AudioContext
     int[] getContexts() {
-        final int[] carAudioContexts = new int[mContextToAddress.size()];
-        for (int i = 0; i < carAudioContexts.length; i++) {
-            carAudioContexts[i] = mContextToAddress.keyAt(i);
+        int[] carAudioContexts = new int[mContextToDevices.size()];
+        for (int i = 0; i < mContextToDevices.size(); i++) {
+            carAudioContexts[i] = mContextToDevices.keyAt(i);
         }
         return carAudioContexts;
+    }
+
+    protected AudioAttributes[] getAudioAttributesForContext(int context) {
+        return mCarAudioContext.getAudioAttributesForContext(context);
     }
 
     /**
@@ -343,7 +370,9 @@ import java.util.Objects;
      */
     @Nullable
     String getAddressForContext(int audioContext) {
-        return mContextToAddress.get(audioContext);
+        synchronized (mLock) {
+            return mContextToAddress.get(audioContext);
+        }
     }
 
     /**
@@ -357,7 +386,10 @@ import java.util.Objects;
             return null;
         }
 
-        CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
+        CarAudioDeviceInfo info;
+        synchronized (mLock) {
+            info = mAddressToCarAudioDeviceInfo.get(address);
+        }
         if (info == null) {
             return null;
         }
@@ -368,17 +400,21 @@ import java.util.Objects;
     @AudioContext
     List<Integer> getContextsForAddress(@NonNull String address) {
         List<Integer> carAudioContexts = new ArrayList<>();
-        for (int i = 0; i < mContextToAddress.size(); i++) {
-            String value = mContextToAddress.valueAt(i);
-            if (address.equals(value)) {
-                carAudioContexts.add(mContextToAddress.keyAt(i));
+        synchronized (mLock) {
+            for (int i = 0; i < mContextToAddress.size(); i++) {
+                String value = mContextToAddress.valueAt(i);
+                if (address.equals(value)) {
+                    carAudioContexts.add(mContextToAddress.keyAt(i));
+                }
             }
         }
         return carAudioContexts;
     }
 
     List<String> getAddresses() {
-        return new ArrayList<>(mAddressToCarAudioDeviceInfo.keySet());
+        synchronized (mLock) {
+            return new ArrayList<>(mAddressToCarAudioDeviceInfo.keySet());
+        }
     }
 
     List<Integer> getAllSupportedUsagesForAddress(@NonNull String address) {
@@ -509,9 +545,8 @@ import java.util.Objects;
                         mCarAudioContext.toString(mContextToAddress.keyAt(i)),
                         mContextToAddress.valueAt(i));
             }
-            for (int i = 0; i < mAddressToCarAudioDeviceInfo.size(); i++) {
-                String address = mAddressToCarAudioDeviceInfo.keyAt(i);
-                CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
+            for (int i = 0; i < mContextToDevices.size(); i++) {
+                CarAudioDeviceInfo info = mContextToDevices.valueAt(i);
                 info.dump(writer);
             }
             writer.printf("Reported reasons:\n");
@@ -572,9 +607,8 @@ import java.util.Objects;
                 proto.end(contextToAddressMappingToken);
             }
 
-            for (int i = 0; i < mAddressToCarAudioDeviceInfo.size(); i++) {
-                String address = mAddressToCarAudioDeviceInfo.keyAt(i);
-                CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
+            for (int i = 0; i < mContextToDevices.size(); i++) {
+                CarAudioDeviceInfo info = mContextToDevices.valueAt(i);
                 info.dumpProto(CarVolumeGroupProto.CAR_AUDIO_DEVICE_INFOS, proto);
             }
 
@@ -597,6 +631,7 @@ import java.util.Objects;
                 proto.write(GainInfo.ATTENUATED_GAIN_INDEX, mAttenuatedGainIndex);
             }
             proto.write(GainInfo.HAL_MUTED, isHalMutedLocked());
+            proto.write(GainInfo.IS_ACTIVE, isActive());
             proto.end(gainInfoToken);
 
         }
@@ -854,15 +889,16 @@ import java.util.Objects;
 
     List<AudioAttributes> getAudioAttributes() {
         List<AudioAttributes> audioAttributes = new ArrayList<>();
-        for (int index = 0; index < mContextToAddress.size(); index++) {
-            int context = mContextToAddress.keyAt(index);
-            AudioAttributes[] contextAttributes =
-                    mCarAudioContext.getAudioAttributesForContext(context);
-            for (int attrIndex = 0; attrIndex < contextAttributes.length; attrIndex++) {
-                audioAttributes.add(contextAttributes[attrIndex]);
+        synchronized (mLock) {
+            for (int index = 0; index < mContextToAddress.size(); index++) {
+                int context = mContextToAddress.keyAt(index);
+                AudioAttributes[] contextAttributes =
+                        mCarAudioContext.getAudioAttributesForContext(context);
+                for (int attrIndex = 0; attrIndex < contextAttributes.length; attrIndex++) {
+                    audioAttributes.add(contextAttributes[attrIndex]);
+                }
             }
         }
-
         return audioAttributes;
     }
 
@@ -888,6 +924,9 @@ import java.util.Objects;
         }
     }
 
+    void updateDevices(boolean useCoreAudioRouting) {
+    }
+
     /**
      * Calculates the new gain stages from list of assigned audio device infos
      *
@@ -897,5 +936,138 @@ import java.util.Objects;
      */
     int calculateNewGainStageFromDeviceInfos() {
         return 0;
+    }
+
+    boolean isActive() {
+        synchronized (mLock) {
+            for (int c = 0; c < mAddressToCarAudioDeviceInfo.size(); c++) {
+                CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.valueAt(c);
+                if (info.isActive()) {
+                    continue;
+                }
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean audioDevicesAdded(List<AudioDeviceInfo> devices) {
+        Objects.requireNonNull(devices, "Audio devices can not be null");
+        if (isActive()) {
+            return false;
+        }
+
+        boolean updated = false;
+        for (int c = 0; c < mContextToDevices.size(); c++) {
+            if (!mContextToDevices.valueAt(c).audioDevicesAdded(devices)) {
+                continue;
+            }
+            updated = true;
+        }
+        if (!updated) {
+            return false;
+        }
+        synchronized (mLock) {
+            updateAudioDevicesMappingLocked();
+        }
+        return true;
+    }
+
+    public boolean audioDevicesRemoved(List<AudioDeviceInfo> devices) {
+        Objects.requireNonNull(devices, "Audio devices can not be null");
+        boolean updated = false;
+        for (int c = 0; c < mContextToDevices.size(); c++) {
+            if (!mContextToDevices.valueAt(c).audioDevicesRemoved(devices)) {
+                continue;
+            }
+            updated = true;
+        }
+        if (!updated) {
+            return false;
+        }
+        synchronized (mLock) {
+            updateAudioDevicesMappingLocked();
+        }
+        return true;
+    }
+
+    @GuardedBy("mLock")
+    private void updateAudioDevicesMappingLocked() {
+        mAddressToCarAudioDeviceInfo.clear();
+        mContextToAddress.clear();
+        for (int c = 0; c < mContextToDevices.size(); c++) {
+            CarAudioDeviceInfo info = mContextToDevices.valueAt(c);
+            int audioContext = mContextToDevices.keyAt(c);
+            mAddressToCarAudioDeviceInfo.put(info.getAddress(), info);
+            mContextToAddress.put(audioContext, info.getAddress());
+        }
+    }
+
+    /**
+     * Determines if device types assign to volume groups are valid based on the following rules:
+     * <ul>
+     * <li>Dynamic device types (non BUS) for this group should not appear in the
+     * {@code dynamicDeviceTypesInConfig} passed in parameter</li>
+     * <li>Dynamic device types should appear alone in volume group</li>
+     * </ul>
+     *
+     * @param dynamicDeviceTypesInConfig Devices already seen in other volume groups for the same
+     * configuration, groups checks if the device types for the volume group already exists here
+     * and return {@code false} if so. Also adds any non-existing device types for the group.
+     * @return {@code true} if the rules defined above are valid for the group, {@code false}
+     * otherwise
+     */
+    boolean validateDeviceTypes(Set<Integer> dynamicDeviceTypesInConfig) {
+        List<AudioDeviceAttributes> devices = getAudioDeviceAttributes();
+        boolean hasNonBusDevice = false;
+        for (int c = 0; c < devices.size(); c++) {
+            int deviceType = devices.get(c).getType();
+            // BUS devices are handled by address name check
+            if (deviceType == TYPE_BUS) {
+                continue;
+            }
+            hasNonBusDevice = true;
+            int convertedType = convertDeviceType(deviceType);
+            if (dynamicDeviceTypesInConfig.add(convertedType)) {
+                continue;
+            }
+            Slogf.e(CarLog.TAG_AUDIO, "Car volume groups defined in"
+                    + " car_audio_configuration.xml shared the dynamic device type "
+                    + DebugUtils.constantToString(AudioDeviceInfo.class, /* prefix= */ "TYPE_",
+                    deviceType) + " in multiple volume groups in the same configuration");
+            return false;
+        }
+        if (!hasNonBusDevice || devices.size() == 1) {
+            return true;
+        }
+        Slogf.e(CarLog.TAG_AUDIO, "Car volume group " + getName()
+                + " defined in car_audio_configuration.xml"
+                + " has multiple devices for a dynamic device group."
+                + " Groups with dynamic devices can only have a single device.");
+        return false;
+    }
+
+    // Given the current limitation in BT stack where there can only be one BT device available
+    // of any type, we need to consider all BT types as the same, we are picking TYPE_BLUETOOTH_A2DP
+    // for verification purposes, could pick any of them.
+    private static int convertDeviceType(int type) {
+        switch (type) {
+            case TYPE_BLUETOOTH_A2DP: // fall through
+            case TYPE_BLE_HEADSET: // fall through
+            case TYPE_BLE_SPEAKER: // fall through
+            case TYPE_BLE_BROADCAST:
+                return TYPE_BLUETOOTH_A2DP;
+            case TYPE_BUILTIN_SPEAKER: // fall through
+            case TYPE_WIRED_HEADSET: // fall through
+            case TYPE_WIRED_HEADPHONES: // fall through
+            case TYPE_HDMI: // fall through
+            case TYPE_USB_ACCESSORY: // fall through
+            case TYPE_USB_DEVICE: // fall through
+            case TYPE_USB_HEADSET: // fall through
+            case TYPE_AUX_LINE: // fall through
+            case TYPE_BUS:
+            default:
+                return type;
+        }
     }
 }

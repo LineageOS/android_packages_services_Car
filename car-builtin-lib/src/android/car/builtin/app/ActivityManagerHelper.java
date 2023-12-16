@@ -176,6 +176,17 @@ public final class ActivityManagerHelper {
     }
 
     /**
+     * Makes the root task of the given taskId focused.
+     */
+    public static void setFocusedRootTask(int taskId) {
+        try {
+            getActivityManager().setFocusedRootTask(taskId);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Failed to setFocusedRootTask", e);
+        }
+    }
+
+    /**
      * Makes the task of the given taskId focused.
      */
     public static void setFocusedTask(int taskId) {

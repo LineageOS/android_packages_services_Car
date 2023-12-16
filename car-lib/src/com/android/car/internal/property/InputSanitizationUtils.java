@@ -72,7 +72,7 @@ public final class InputSanitizationUtils {
      * in CarServiceUnitTest, it is loaded using a different class loader.
      */
     @VisibleForTesting
-    public static boolean isVURAllowed(FeatureFlags featureFlags,
+    public static boolean isVurAllowed(FeatureFlags featureFlags,
             CarPropertyConfig<?> carPropertyConfig) {
         if (!featureFlags.variableUpdateRate()) {
             if (DBG) {
@@ -91,18 +91,18 @@ public final class InputSanitizationUtils {
     }
 
     /**
-     * Sanitizes the enableVUR option in {@code CarSubscription}.
+     * Sanitizes the enableVur option in {@code CarSubscription}.
      *
      * <p>Overwrite it to false if:
      *
      * <ul>
-     * <li>VUR feature is disabled.</li>
+     * <li>Vur feature is disabled.</li>
      * <li>Property is not continuous.</li>
-     * <li>VUR is not supported for the specific area.</li>
+     * <li>Vur is not supported for the specific area.</li>
      * </ul>
      *
      * @return a list of sanitized subscribe options. We may return more than one option because
-     * part of the areaIds support VUR, the rest does not.
+     * part of the areaIds support Vur, the rest does not.
      */
     public static List<CarSubscription> sanitizeEnableVariableUpdateRate(
             FeatureFlags featureFlags, CarPropertyConfig<?> carPropertyConfig,
@@ -113,12 +113,12 @@ public final class InputSanitizationUtils {
                 + VehiclePropertyIds.toString(inputOption.propertyId));
         List<CarSubscription> sanitizedOptions = new ArrayList<>();
         if (!inputOption.enableVariableUpdateRate) {
-            // We will only overwrite enableVUR to off.
+            // We will only overwrite enableVur to off.
             sanitizedOptions.add(inputOption);
             return sanitizedOptions;
         }
         // If VUR feature is disabled, overwrite the VUR option to false.
-        if (!isVURAllowed(featureFlags, carPropertyConfig)) {
+        if (!isVurAllowed(featureFlags, carPropertyConfig)) {
             inputOption.enableVariableUpdateRate = false;
             sanitizedOptions.add(inputOption);
             return sanitizedOptions;
@@ -140,20 +140,20 @@ public final class InputSanitizationUtils {
             }
             disabledAreaIds.add(areaId);
         }
-        CarSubscription disabledVUROption = new CarSubscription();
-        disabledVUROption.propertyId = inputOption.propertyId;
-        disabledVUROption.areaIds = convertToIntArray(disabledAreaIds);
-        disabledVUROption.updateRateHz = inputOption.updateRateHz;
-        disabledVUROption.enableVariableUpdateRate = false;
+        CarSubscription disabledVurOption = new CarSubscription();
+        disabledVurOption.propertyId = inputOption.propertyId;
+        disabledVurOption.areaIds = convertToIntArray(disabledAreaIds);
+        disabledVurOption.updateRateHz = inputOption.updateRateHz;
+        disabledVurOption.enableVariableUpdateRate = false;
 
-        CarSubscription enabledVUROption = new CarSubscription();
-        enabledVUROption.propertyId = inputOption.propertyId;
-        enabledVUROption.areaIds = convertToIntArray(enabledAreaIds);
-        enabledVUROption.updateRateHz = inputOption.updateRateHz;
-        enabledVUROption.enableVariableUpdateRate = true;
+        CarSubscription enabledVurOption = new CarSubscription();
+        enabledVurOption.propertyId = inputOption.propertyId;
+        enabledVurOption.areaIds = convertToIntArray(enabledAreaIds);
+        enabledVurOption.updateRateHz = inputOption.updateRateHz;
+        enabledVurOption.enableVariableUpdateRate = true;
 
-        sanitizedOptions.add(enabledVUROption);
-        sanitizedOptions.add(disabledVUROption);
+        sanitizedOptions.add(enabledVurOption);
+        sanitizedOptions.add(disabledVurOption);
         return sanitizedOptions;
     }
 }

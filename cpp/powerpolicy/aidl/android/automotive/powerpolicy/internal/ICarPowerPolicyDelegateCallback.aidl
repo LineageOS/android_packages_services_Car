@@ -44,8 +44,9 @@ interface ICarPowerPolicyDelegateCallback {
    * This is called when car power policy daemon completes the power policy application.
    *
    * @param requestId ID returned by {@code applyPowerPolicyAsync}.
+   * @param accumulatedPolicy the current accumulated power policy after the request was applied.
    */
-  oneway void onApplyPowerPolicySucceeded(int requestId);
+  oneway void onApplyPowerPolicySucceeded(int requestId, in CarPowerPolicy accumulatedPolicy);
 
   /**
    * This is called when car power policy daemon fails to apply the power policy.

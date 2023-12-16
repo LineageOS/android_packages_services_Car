@@ -1,3 +1,5 @@
+# Bug component: 1316886
+
 # ActivityManager
 per-file src/com/android/car/am/* = ycheo@google.com
 
@@ -65,3 +67,6 @@ per-file src/com/android/car/hal/fakevhal/*.java = ericjeong@google.com, tylertr
 per-file src/com/android/car/hal/Hal*.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
 per-file src/com/android/car/hal/VehicleHal*.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
 per-file src/com/android/car/*VehicleStubUnitTest.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+
+# res folder
+per-file res/** = oscarazu@google.com, salsavage@google.com, chengandrew@google.com, kanant@google.com, tylertrephan@google.com, shanyu@google.com, aaqibismail@google.com, lakshmana@google.com, jahdiel@google.com

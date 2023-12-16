@@ -23,6 +23,7 @@ import static java.lang.Integer.toHexString;
 import android.annotation.Nullable;
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyType;
+import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
@@ -181,6 +182,16 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
     @Override
     public String getWritePermission(int propId) throws RemoteException {
         return mConfigs.containsKey(propId) ? mPermissions.getWritePermission(propId) : null;
+    }
+
+    @Override
+    public int[] getSupportedNoReadPermPropIds(int[] propertyids) {
+        return new int[0];
+    }
+
+    @Override
+    public boolean isSupportedAndHasWritePermissionOnly(int propertyId) {
+        return false;
     }
 
     @Override
@@ -349,18 +360,24 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
             case VehicleArea.WHEEL:
                 return VehicleAreaType.VEHICLE_AREA_TYPE_WHEEL;
             default:
+                if (Flags.androidVicVehicleProperties()) {
+                    if (halArea == VehicleArea.VENDOR) {
+                        return VehicleAreaType.VEHICLE_AREA_TYPE_VENDOR;
+                    }
+                }
                 throw new RuntimeException("Unsupported area type " + halArea);
         }
     }
 
     /** Copy from VHAL generated file VehicleArea.java */
     private static final class VehicleArea {
-        static final int GLOBAL = 16777216 /* 0x01000000 */;
-        static final int WINDOW = 50331648 /* 0x03000000 */;
-        static final int MIRROR = 67108864 /* 0x04000000 */;
-        static final int SEAT = 83886080 /* 0x05000000 */;
-        static final int DOOR = 100663296 /* 0x06000000 */;
-        static final int WHEEL = 117440512 /* 0x07000000 */;
-        static final int MASK = 251658240 /* 0x0f000000 */;
+        static final int GLOBAL = 0x01000000;
+        static final int WINDOW = 0x03000000;
+        static final int MIRROR = 0x04000000;
+        static final int SEAT = 0x05000000;
+        static final int DOOR = 0x06000000;
+        static final int WHEEL = 0x07000000;
+        static final int VENDOR = 0x08000000;
+        static final int MASK = 0x0f000000;
     }
 }

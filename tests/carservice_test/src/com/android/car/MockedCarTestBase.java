@@ -15,6 +15,8 @@
  */
 package com.android.car;
 
+import static android.content.pm.PackageManager.PERMISSION_DENIED;
+
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doNothing;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
@@ -39,6 +41,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.UserHandle;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -80,6 +83,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Base class for testing with mocked vehicle HAL (=car).
@@ -650,21 +654,44 @@ public class MockedCarTestBase {
      * a {@link MockResources}, so tests are free to set resources. This class represents an
      * alternative of using Mockito spy (see b/148240178).
      *
+     * This class also overwrites {@code checkCallingOrSelfPermission} to allow setting caller's
+     * permissions. By default, caller is typically within the same process so permission will
+     * always be granted. Caller can use {@code setDeniedPermissions} to set permissions
+     * that should not be granted.
+     *
      * Tests may specialize this class. If they decide so, then they are required to override
      * {@link createMockedCarTestContext} to provide their own context.
      */
     protected static class MockedCarTestContext extends ContextWrapper {
 
         private final Resources mMockedResources;
+        private final Set<String> mDeniedPermissions = new ArraySet<>();
 
         protected MockedCarTestContext(Context base) {
             super(base);
             mMockedResources = new MockResources(base.getResources());
         }
 
+        /**
+         * Sets the permissions that should be denied.
+         */
+        public void setDeniedPermissions(String[] permissions) {
+            for (String permission : permissions) {
+                mDeniedPermissions.add(permission);
+            }
+        }
+
         @Override
         public Resources getResources() {
             return mMockedResources;
+        }
+
+        @Override
+        public int checkCallingOrSelfPermission(String permission) {
+            if (mDeniedPermissions.contains(permission)) {
+                return PERMISSION_DENIED;
+            }
+            return super.checkCallingOrSelfPermission(permission);
         }
     }
 

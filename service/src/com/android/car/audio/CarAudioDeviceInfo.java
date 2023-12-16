@@ -15,6 +15,7 @@
  */
 package com.android.car.audio;
 
+import static android.media.AudioDeviceInfo.TYPE_BUS;
 import static android.media.AudioFormat.ENCODING_DEFAULT;
 import static android.media.AudioFormat.ENCODING_PCM_16BIT;
 import static android.media.AudioFormat.ENCODING_PCM_24BIT_PACKED;
@@ -25,6 +26,7 @@ import static android.media.AudioFormat.ENCODING_PCM_FLOAT;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.annotation.Nullable;
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.media.AudioManagerHelper.AudioGainInfo;
 import android.car.builtin.util.Slogf;
@@ -39,6 +41,9 @@ import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * A helper class wraps {@link AudioDeviceAttributes}, and helps manage the details of the audio
@@ -59,10 +64,11 @@ import com.android.internal.annotations.GuardedBy;
      * per {@link ENCODING_PCM_16BIT}'s documentation.
      */
     private static final int DEFAULT_ENCODING_FORMAT = ENCODING_PCM_16BIT;
-    private final AudioDeviceAttributes mAudioDeviceAttributes;
     private final AudioManager mAudioManager;
 
     private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private AudioDeviceAttributes mAudioDeviceAttributes;
     @GuardedBy("mLock")
     private int mDefaultGain;
     @GuardedBy("mLock")
@@ -85,7 +91,10 @@ import com.android.internal.annotations.GuardedBy;
      * audio engine implementation. It would be nice if AudioPort#activeConfig() would return it,
      * but in the current implementation, that function actually works only for mixer ports.
      */
+    @GuardedBy("mLock")
     private int mCurrentGain;
+    @GuardedBy("mLock")
+    private boolean mIsActive;
 
     CarAudioDeviceInfo(AudioManager audioManager, AudioDeviceAttributes audioDeviceAttributes) {
         mAudioManager = audioManager;
@@ -102,6 +111,68 @@ import com.android.internal.annotations.GuardedBy;
         mCurrentGain = UNINITIALIZED_GAIN; // Not initialized till explicitly set
     }
 
+    boolean isActive() {
+        synchronized (mLock) {
+            return isActiveLocked();
+        }
+    }
+
+    /**
+     * Updates the volume group with new audio device information if the device info matches
+     *
+     * <p>Note only updates car audio devices that are dynamic (i.e. non bus devices)
+     *
+     * @param devices List of audio devices that will be use for update
+     * @return {@code true} if the device is updated, {@code false} otherwise.
+     */
+    boolean audioDevicesAdded(List<AudioDeviceInfo> devices) {
+        Objects.requireNonNull(devices, "Audio devices can not be null");
+        // Audio device type bus do not allow for devices to be swapped at run time.
+        synchronized (mLock) {
+            if (getTypeLocked() == TYPE_BUS || isActiveLocked()) {
+                return false;
+            }
+
+            for (int c = 0; c < devices.size(); c++) {
+                if (getTypeLocked() != devices.get(c).getType()) {
+                    continue;
+                }
+                setAudioDeviceInfoLocked(devices.get(c));
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Updates the volume group with removed device information if the device info matches
+     *
+     * <p>Note only updates car audio devices that are dynamic (i.e. non bus devices)
+     *
+     * @param devices List of audio devices that will be use for update
+     * @return {@code true} if the device is removed, {@code false} otherwise.
+     */
+    public boolean audioDevicesRemoved(List<AudioDeviceInfo> devices) {
+        Objects.requireNonNull(devices, "Audio devices can not be null");
+        // Audio device type bus do not allow for devices to be swapped at run time.
+        synchronized (mLock) {
+            if (getTypeLocked() == TYPE_BUS) {
+                return false;
+            }
+
+            for (int c = 0; c < devices.size(); c++) {
+                if (getTypeLocked() != devices.get(c).getType()
+                        || !getAddressLocked().equals(devices.get(c).getAddress())) {
+                    continue;
+                }
+                setAudioDeviceInfoLocked(null);
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Sets the audio device info
      *
@@ -109,28 +180,33 @@ import com.android.internal.annotations.GuardedBy;
      * the method must call to set the audio device info, so that the actual details of the device
      * are known.
      *
+     * <p>Setting the audio device info to {@code null} means the device is not active, such is
+     * the case for dynamic audio devices that should disappear on disconnection.
+     *
      * @param info that will be use to obtain the device specific information
      */
-    void setAudioDeviceInfo(AudioDeviceInfo info) {
-        AudioGainInfo audioGainInfo = AudioManagerHelper.getAudioGainInfo(info);
+    void setAudioDeviceInfo(@Nullable AudioDeviceInfo info) {
         synchronized (mLock) {
-            mDefaultGain = audioGainInfo.getDefaultGain();
-            mMaxGain = audioGainInfo.getMaxGain();
-            mMinGain = audioGainInfo.getMinGain();
-            mStepValue = audioGainInfo.getStepValue();
-            mChannelCount = getMaxChannels(info);
-            mSampleRate = getMaxSampleRate(info);
-            mEncodingFormat = getEncodingFormat(info);
+            setAudioDeviceInfoLocked(info);
         }
-
     }
 
     AudioDeviceAttributes getAudioDevice() {
-        return mAudioDeviceAttributes;
+        synchronized (mLock) {
+            return mAudioDeviceAttributes;
+        }
     }
 
     String getAddress() {
-        return mAudioDeviceAttributes.getAddress();
+        synchronized (mLock) {
+            return getAddressLocked();
+        }
+    }
+
+    int getType() {
+        synchronized (mLock) {
+            return getTypeLocked();
+        }
     }
 
     /**
@@ -225,6 +301,82 @@ import com.android.internal.annotations.GuardedBy;
         }
     }
 
+    @GuardedBy("mLock")
+    private int getTypeLocked() {
+        return mAudioDeviceAttributes.getType();
+    }
+
+    @GuardedBy("mLock")
+    private void setAudioDeviceInfoLocked(AudioDeviceInfo info) {
+        if (info != null && info.getType() != getTypeLocked()) {
+            return;
+        }
+
+        // BUS device type can not be unset
+        if ((getTypeLocked() == TYPE_BUS)
+                && (info == null || !getAddressLocked().equals(info.getAddress()))) {
+            return;
+        }
+
+        resetAudioDeviceInfoToDefaultLocked();
+
+        if (info == null) {
+            return;
+        }
+
+        setAudioDeviceInfoWithNewInfoLocked(info);
+    }
+
+    @GuardedBy("mLock")
+    private void setAudioDeviceInfoWithNewInfoLocked(AudioDeviceInfo info) {
+        setAudioGainInfoIfNeededLocked(info);
+        mIsActive = true;
+    }
+
+    @GuardedBy("mLock")
+    private void setAudioGainInfoIfNeededLocked(AudioDeviceInfo info) {
+        mAudioDeviceAttributes = new AudioDeviceAttributes(info);
+        // Only audio device bus supports audio gain management by car audio service
+        // Dynamic devices only support core audio volume management
+        if (info.getType() != TYPE_BUS) {
+            return;
+        }
+        AudioGainInfo audioGainInfo = AudioManagerHelper.getAudioGainInfo(info);
+        mDefaultGain = audioGainInfo.getDefaultGain();
+        mMaxGain = audioGainInfo.getMaxGain();
+        mMinGain = audioGainInfo.getMinGain();
+        mStepValue = audioGainInfo.getStepValue();
+        mChannelCount = getMaxChannels(info);
+        mSampleRate = getMaxSampleRate(info);
+        mEncodingFormat = getEncodingFormat(info);
+    }
+
+    @GuardedBy("mLock")
+    private void resetAudioDeviceInfoToDefaultLocked() {
+        int type = mAudioDeviceAttributes.getType();
+        mAudioDeviceAttributes = new AudioDeviceAttributes(AudioDeviceAttributes.ROLE_OUTPUT,
+                type, /* address= */ "");
+        mSampleRate = DEFAULT_SAMPLE_RATE;
+        mEncodingFormat = DEFAULT_ENCODING_FORMAT;
+        mChannelCount = DEFAULT_NUM_CHANNELS;
+        mDefaultGain = UNINITIALIZED_GAIN;
+        mMaxGain = UNINITIALIZED_GAIN;
+        mMinGain = UNINITIALIZED_GAIN;
+        mStepValue = UNINITIALIZED_GAIN;
+        mCurrentGain = UNINITIALIZED_GAIN;
+        mIsActive = false;
+    }
+
+    @GuardedBy("mLock")
+    private String getAddressLocked() {
+        return mAudioDeviceAttributes.getAddress();
+    }
+
+    @GuardedBy("mLock")
+    private boolean isActiveLocked() {
+        return mIsActive;
+    }
+
     private static int getMaxSampleRate(AudioDeviceInfo info) {
         int[] sampleRates = info.getSampleRates();
         if (sampleRates == null || sampleRates.length == 0) {
@@ -291,11 +443,15 @@ import com.android.internal.annotations.GuardedBy;
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public String toString() {
-        return "address: " + mAudioDeviceAttributes.getAddress()
+        int currentGain;
+        synchronized (mLock) {
+            currentGain = mCurrentGain;
+        }
+        return "address: " + getAddress()
                 + " sampleRate: " + getSampleRate()
                 + " encodingFormat: " + getEncodingFormat()
                 + " channelCount: " + getChannelCount()
-                + " currentGain: " + mCurrentGain
+                + " currentGain: " + currentGain
                 + " maxGain: " + getMaxGain()
                 + " minGain: " + getMinGain();
     }
@@ -304,7 +460,9 @@ import com.android.internal.annotations.GuardedBy;
     void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
             writer.printf("CarAudioDeviceInfo Device(%s)\n", mAudioDeviceAttributes.getAddress());
+            writer.printf("CarAudioDeviceInfo Type(%s)\n", mAudioDeviceAttributes.getType());
             writer.increaseIndent();
+            writer.printf("Is active (%b)\n", mIsActive);
             writer.printf("Routing with Dynamic Mix enabled (%b)\n",
                     mCanBeRoutedWithDynamicPolicyMixRule);
             writer.printf("sample rate / encoding format / channel count: %d %d %d\n",
@@ -331,6 +489,7 @@ import com.android.internal.annotations.GuardedBy;
             proto.write(CarAudioDumpProto.CarVolumeGain.MAX_GAIN_INDEX, mMaxGain);
             proto.write(CarAudioDumpProto.CarVolumeGain.DEFAULT_GAIN_INDEX, mDefaultGain);
             proto.write(CarAudioDumpProto.CarVolumeGain.CURRENT_GAIN_INDEX, mCurrentGain);
+            proto.write(CarAudioDeviceInfoProto.IS_ACTIVE , mIsActive);
             proto.end(volumeGainToken);
         }
         proto.end(token);

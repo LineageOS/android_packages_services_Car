@@ -50,7 +50,7 @@ import java.util.concurrent.Executor;
  * System is not running.
  *
  * <p>The remote task client registers to {@link CarRemoteAccessManager} to listen to remote access
- * events. At {@link RemoteTaskClientCallback#onClientRegistered} it is required to share
+ * events. At {@link RemoteTaskClientCallback#onRegistrationUpdated} it is required to share
  * {@code serviceId}, {@code deviceId} and {@code clientId} with the cloud service which will use
  * the IDs to wake the vehicle. At {@link RemoteTaskClientCallback#onRemoteTaskRequested}, it starts
  * executing the given task. It is supposed to call {@link #reportRemoteTaskDone(String)} when it
@@ -77,7 +77,7 @@ import java.util.concurrent.Executor;
  * <p>For serverless setup, there is a pre-configured set of serverless remote task clients. They
  * register to {@link CarRemoteAccessManager} to listen to remote access events.
  * {@link RemoteTaskClientCallback#onServerlessClientRegistered} will be called instead of
- * {@link RemoteTaskClientCallback#onClientRegistered} and there is no cloud service involved.
+ * {@link RemoteTaskClientCallback#onRegistrationUpdated} and there is no cloud service involved.
  * {@link RemoteTaskClientCallback#onRemoteTaskRequested} will be invoked when the task is to be
  * executed. It is supposed to call {@link #reportRemoteTaskDone(String)} when it
  * finishes the given task. Once the task completion is reported or the timeout expires, Android
@@ -285,7 +285,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          * <p>For a serverless remote task client, the {@link onServerlessClientRegistered} will be
          * called instead of this.
          *
-         * @param info {@link RemoteTaskClientRegistrationIfno} which contains wake-up service ID,
+         * @param info {@link RemoteTaskClientRegistrationInfo} which contains wake-up service ID,
          *             vehicle ID, processor ID and client ID.
          */
         void onRegistrationUpdated(@NonNull RemoteTaskClientRegistrationInfo info);

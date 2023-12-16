@@ -64,6 +64,7 @@ package android.car {
     field public static final String PERMISSION_CONTROL_CAR_APP_LAUNCH = "android.car.permission.CONTROL_CAR_APP_LAUNCH";
     field public static final String PERMISSION_CONTROL_CAR_CLIMATE = "android.car.permission.CONTROL_CAR_CLIMATE";
     field public static final String PERMISSION_CONTROL_CAR_DOORS = "android.car.permission.CONTROL_CAR_DOORS";
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public static final String PERMISSION_CONTROL_CAR_DYNAMICS_STATE = "android.car.permission.CONTROL_CAR_DYNAMICS_STATE";
     field public static final String PERMISSION_CONTROL_CAR_EVS_ACTIVITY = "android.car.permission.CONTROL_CAR_EVS_ACTIVITY";
     field public static final String PERMISSION_CONTROL_CAR_FEATURES = "android.car.permission.CONTROL_CAR_FEATURES";
     field public static final String PERMISSION_CONTROL_CAR_MIRRORS = "android.car.permission.CONTROL_CAR_MIRRORS";
@@ -76,10 +77,12 @@ package android.car {
     field public static final String PERMISSION_CONTROL_ENERGY_PORTS = "android.car.permission.CONTROL_CAR_ENERGY_PORTS";
     field public static final String PERMISSION_CONTROL_EXTERIOR_LIGHTS = "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS";
     field public static final String PERMISSION_CONTROL_GLOVE_BOX = "android.car.permission.CONTROL_GLOVE_BOX";
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public static final String PERMISSION_CONTROL_HEAD_UP_DISPLAY = "android.car.permission.CONTROL_HEAD_UP_DISPLAY";
     field public static final String PERMISSION_CONTROL_POWERTRAIN = "android.car.permission.CONTROL_CAR_POWERTRAIN";
     field public static final String PERMISSION_CONTROL_REMOTE_ACCESS = "android.car.permission.CONTROL_REMOTE_ACCESS";
     field public static final String PERMISSION_CONTROL_SHUTDOWN_PROCESS = "android.car.permission.CONTROL_SHUTDOWN_PROCESS";
     field public static final String PERMISSION_CONTROL_STEERING_WHEEL = "android.car.permission.CONTROL_STEERING_WHEEL";
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public static final String PERMISSION_CONTROL_VALET_MODE = "android.car.permission.CONTROL_VALET_MODE";
     field public static final String PERMISSION_CONTROL_WINDSHIELD_WIPERS = "android.car.permission.CONTROL_WINDSHIELD_WIPERS";
     field public static final String PERMISSION_EXTERIOR_LIGHTS = "android.car.permission.CAR_EXTERIOR_LIGHTS";
     field public static final String PERMISSION_MANAGE_CAR_SYSTEM_UI = "android.car.permission.MANAGE_CAR_SYSTEM_UI";
@@ -91,13 +94,19 @@ package android.car {
     field public static final String PERMISSION_MIRROR_DISPLAY = "android.car.permission.MIRROR_DISPLAY";
     field @Deprecated public static final String PERMISSION_MOCK_VEHICLE_HAL = "android.car.permission.CAR_MOCK_VEHICLE_HAL";
     field public static final String PERMISSION_MONITOR_CAR_EVS_STATUS = "android.car.permission.MONITOR_CAR_EVS_STATUS";
-    field @FlaggedApi(android.car.feature.Flags.FLAG_DISPLAY_COMPATIBILITY) public static final String PERMISSION_QUERY_DISPLAY_COMPATIBILITY = "android.car.permission.QUERY_DISPLAY_COMPATIBILITY";
+    field @FlaggedApi("android.car.feature.display_compatibility") public static final String PERMISSION_QUERY_DISPLAY_COMPATIBILITY = "android.car.permission.QUERY_DISPLAY_COMPATIBILITY";
     field public static final String PERMISSION_READ_ADAS_SETTINGS = "android.car.permission.READ_ADAS_SETTINGS";
     field public static final String PERMISSION_READ_ADAS_STATES = "android.car.permission.READ_ADAS_STATES";
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public static final String PERMISSION_READ_CAR_AIRBAGS = "android.car.permission.READ_CAR_AIRBAGS";
     field public static final String PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE = "android.car.permission.READ_CAR_OCCUPANT_AWARENESS_STATE";
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public static final String PERMISSION_READ_CAR_SEAT_BELTS = "android.car.permission.READ_CAR_SEAT_BELTS";
     field public static final String PERMISSION_READ_CAR_VENDOR_PERMISSION_INFO = "android.car.permission.READ_CAR_VENDOR_PERMISSION_INFO";
     field public static final String PERMISSION_READ_DRIVER_MONITORING_SETTINGS = "android.car.permission.READ_DRIVER_MONITORING_SETTINGS";
     field public static final String PERMISSION_READ_DRIVER_MONITORING_STATES = "android.car.permission.READ_DRIVER_MONITORING_STATES";
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public static final String PERMISSION_READ_HEAD_UP_DISPLAY = "android.car.permission.READ_HEAD_UP_DISPLAY";
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public static final String PERMISSION_READ_IMPACT_SENSORS = "android.car.permission.READ_IMPACT_SENSORS";
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public static final String PERMISSION_READ_ULTRASONICS_SENSOR_DATA = "android.car.permission.READ_ULTRASONICS_SENSOR_DATA";
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public static final String PERMISSION_READ_VALET_MODE = "android.car.permission.READ_VALET_MODE";
     field public static final String PERMISSION_READ_WINDSHIELD_WIPERS = "android.car.permission.READ_WINDSHIELD_WIPERS";
     field public static final String PERMISSION_RECEIVE_CAR_AUDIO_DUCKING_EVENTS = "android.car.permission.RECEIVE_CAR_AUDIO_DUCKING_EVENTS";
     field public static final String PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY = "android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY";
@@ -159,7 +168,7 @@ package android.car {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void addKeyEventHandler(@NonNull java.util.Set<java.lang.Integer>, @Nullable java.util.concurrent.Executor, @NonNull android.car.CarProjectionManager.ProjectionKeyEventHandler);
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public java.util.List<java.lang.Integer> getAvailableWifiChannels(int);
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public android.os.Bundle getProjectionOptions();
-    method @FlaggedApi(android.car.feature.Flags.FLAG_PROJECTION_QUERY_BT_PROFILE_INHIBIT) @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public boolean isBluetoothProfileInhibited(@NonNull android.bluetooth.BluetoothDevice, int);
+    method @FlaggedApi("android.car.feature.projection_query_bt_profile_inhibit") @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public boolean isBluetoothProfileInhibited(@NonNull android.bluetooth.BluetoothDevice, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void registerProjectionListener(@NonNull android.car.CarProjectionManager.CarProjectionListener, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void registerProjectionRunner(@NonNull android.content.Intent);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION_STATUS) public void registerProjectionStatusListener(@NonNull android.car.CarProjectionManager.ProjectionStatusListener);
@@ -285,12 +294,24 @@ package android.car {
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int AUTOMATIC_EMERGENCY_BRAKING_STATE = 289411073; // 0x11401001
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_ADAS_SETTINGS, android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int BLIND_SPOT_WARNING_ENABLED = 287313924; // 0x11201004
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int BLIND_SPOT_WARNING_STATE = 339742725; // 0x14401005
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_ADAS_SETTINGS, android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int CROSS_TRAFFIC_MONITORING_ENABLED = 287313955; // 0x11201023
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int CROSS_TRAFFIC_MONITORING_WARNING_STATE = 289411108; // 0x11401024
     field @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_STATES)) public static final int CRUISE_CONTROL_COMMAND = 289411090; // 0x11401012
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_ADAS_SETTINGS, android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int CRUISE_CONTROL_ENABLED = 287313935; // 0x1120100f
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int CRUISE_CONTROL_STATE = 289411089; // 0x11401011
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int CRUISE_CONTROL_TARGET_SPEED = 291508243; // 0x11601013
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_ADAS_STATES, android.car.Car.PERMISSION_CONTROL_ADAS_STATES})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_STATES)) public static final int CRUISE_CONTROL_TYPE = 289411088; // 0x11401010
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_DOORS) public static final int DOOR_CHILD_LOCK_ENABLED = 371198723; // 0x16200b03
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DRIVER_MONITORING_STATES)) public static final int DRIVER_DISTRACTION_STATE = 289411102; // 0x1140101e
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS, android.car.Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS)) public static final int DRIVER_DISTRACTION_SYSTEM_ENABLED = 287313949; // 0x1120101d
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DRIVER_MONITORING_STATES)) public static final int DRIVER_DISTRACTION_WARNING = 289411104; // 0x11401020
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS, android.car.Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS)) public static final int DRIVER_DISTRACTION_WARNING_ENABLED = 287313951; // 0x1120101f
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DRIVER_MONITORING_STATES)) public static final int DRIVER_DROWSINESS_ATTENTION_STATE = 289411098; // 0x1140101a
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS, android.car.Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS)) public static final int DRIVER_DROWSINESS_ATTENTION_SYSTEM_ENABLED = 287313945; // 0x11201019
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DRIVER_MONITORING_STATES)) public static final int DRIVER_DROWSINESS_ATTENTION_WARNING = 289411100; // 0x1140101c
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS, android.car.Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS)) public static final int DRIVER_DROWSINESS_ATTENTION_WARNING_ENABLED = 287313947; // 0x1120101b
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_CAR_DYNAMICS_STATE, android.car.Car.PERMISSION_CONTROL_CAR_DYNAMICS_STATE})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_DYNAMICS_STATE)) public static final int ELECTRONIC_STABILITY_CONTROL_ENABLED = 287310862; // 0x1120040e
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CAR_DYNAMICS_STATE)) public static final int ELECTRONIC_STABILITY_CONTROL_STATE = 289408015; // 0x1140040f
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_ADAS_SETTINGS, android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int EMERGENCY_LANE_KEEP_ASSIST_ENABLED = 287313933; // 0x1120100d
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int EMERGENCY_LANE_KEEP_ASSIST_STATE = 289411086; // 0x1140100e
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_ENGINE_DETAILED) public static final int ENGINE_IDLE_AUTO_STOP_ENABLED = 287310624; // 0x11200320
@@ -301,7 +322,9 @@ package android.car {
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DRIVER_MONITORING_STATES)) public static final int HANDS_ON_DETECTION_DRIVER_STATE = 289411095; // 0x11401017
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS, android.car.Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS)) public static final int HANDS_ON_DETECTION_ENABLED = 287313942; // 0x11201016
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DRIVER_MONITORING_STATES)) public static final int HANDS_ON_DETECTION_WARNING = 289411096; // 0x11401018
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_HEAD_UP_DISPLAY, android.car.Car.PERMISSION_CONTROL_HEAD_UP_DISPLAY})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_HEAD_UP_DISPLAY)) public static final int HEAD_UP_DISPLAY_ENABLED = 354421254; // 0x15200a06
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_CLIMATE) public static final int HVAC_ELECTRIC_DEFROSTER_ON = 320865556; // 0x13200514
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_IMPACT_SENSORS)) public static final int IMPACT_DETECTED = 289407792; // 0x11400330
     field @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_STATES)) public static final int LANE_CENTERING_ASSIST_COMMAND = 289411083; // 0x1140100b
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_ADAS_SETTINGS, android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int LANE_CENTERING_ASSIST_ENABLED = 287313930; // 0x1120100a
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int LANE_CENTERING_ASSIST_STATE = 289411084; // 0x1140100c
@@ -309,9 +332,15 @@ package android.car {
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int LANE_DEPARTURE_WARNING_STATE = 289411079; // 0x11401007
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_ADAS_SETTINGS, android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int LANE_KEEP_ASSIST_ENABLED = 287313928; // 0x11201008
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int LANE_KEEP_ASSIST_STATE = 289411081; // 0x11401009
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_ADAS_SETTINGS, android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_ENABLED = 287313957; // 0x11201025
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_STATE = 289411110; // 0x11401026
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_ADAS_SETTINGS, android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int LOW_SPEED_COLLISION_WARNING_ENABLED = 287313953; // 0x11201021
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int LOW_SPEED_COLLISION_WARNING_STATE = 289411106; // 0x11401022
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_MIRRORS) public static final int MIRROR_AUTO_FOLD_ENABLED = 337644358; // 0x14200b46
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_MIRRORS) public static final int MIRROR_AUTO_TILT_ENABLED = 337644359; // 0x14200b47
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_CAR_AIRBAGS)) public static final int SEAT_AIRBAGS_DEPLOYED = 356518821; // 0x15400ba5
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_AIRBAGS) public static final int SEAT_AIRBAG_ENABLED = 354421662; // 0x15200b9e
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_CAR_SEAT_BELTS)) public static final int SEAT_BELT_PRETENSIONER_DEPLOYED = 354421670; // 0x15200ba6
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_SEATS) public static final int SEAT_CUSHION_SIDE_SUPPORT_MOVE = 356518816; // 0x15400ba0
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_SEATS) public static final int SEAT_CUSHION_SIDE_SUPPORT_POS = 356518815; // 0x15400b9f
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_SEATS) public static final int SEAT_EASY_ACCESS_ENABLED = 354421661; // 0x15200b9d
@@ -325,6 +354,14 @@ package android.car {
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_STEERING_WHEEL) public static final int STEERING_WHEEL_HEIGHT_POS = 289410018; // 0x11400be2
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_STEERING_WHEEL) public static final int STEERING_WHEEL_LOCKED = 287312869; // 0x11200be5
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_STEERING_WHEEL) public static final int STEERING_WHEEL_THEFT_LOCK_ENABLED = 287312868; // 0x11200be4
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA)) public static final int ULTRASONICS_SENSOR_DETECTION_RANGE = 406916131; // 0x18410c23
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA)) public static final int ULTRASONICS_SENSOR_FIELD_OF_VIEW = 406916130; // 0x18410c22
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA)) public static final int ULTRASONICS_SENSOR_MEASURED_DISTANCE = 406916133; // 0x18410c25
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA)) public static final int ULTRASONICS_SENSOR_ORIENTATION = 406916129; // 0x18410c21
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA)) public static final int ULTRASONICS_SENSOR_POSITION = 406916128; // 0x18410c20
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA)) public static final int ULTRASONICS_SENSOR_SUPPORTED_RANGES = 406916132; // 0x18410c24
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_VALET_MODE, android.car.Car.PERMISSION_CONTROL_VALET_MODE})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_VALET_MODE)) public static final int VALET_MODE_ENABLED = 287312389; // 0x11200a05
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CAR_DRIVING_STATE)) public static final int VEHICLE_DRIVING_AUTOMATION_CURRENT_LEVEL = 289410892; // 0x11400f4c
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_WINDSHIELD_WIPERS)) public static final int WINDSHIELD_WIPERS_PERIOD = 322964421; // 0x13400bc5
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_WINDSHIELD_WIPERS)) public static final int WINDSHIELD_WIPERS_STATE = 322964422; // 0x13400bc6
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_WINDSHIELD_WIPERS, android.car.Car.PERMISSION_CONTROL_WINDSHIELD_WIPERS})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_WINDSHIELD_WIPERS)) public static final int WINDSHIELD_WIPERS_SWITCH = 322964423; // 0x13400bc7
@@ -569,9 +606,9 @@ package android.car.cluster {
     method @NonNull public android.os.Bundle toBundle();
   }
 
-  @FlaggedApi(android.car.feature.Flags.FLAG_CLUSTER_HEALTH_MONITORING) public final class ClusterHomeManager {
-    method @FlaggedApi(android.car.feature.Flags.FLAG_CLUSTER_HEALTH_MONITORING) @RequiresPermission(android.car.Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL) public void sendHeartbeat(long, @Nullable byte[]);
-    method @FlaggedApi(android.car.feature.Flags.FLAG_CLUSTER_HEALTH_MONITORING) @RequiresPermission(android.car.Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL) public void startVisibilityMonitoring(@NonNull android.app.Activity);
+  @FlaggedApi("android.car.feature.cluster_health_monitoring") public final class ClusterHomeManager {
+    method @FlaggedApi("android.car.feature.cluster_health_monitoring") @RequiresPermission(android.car.Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL) public void sendHeartbeat(long, @Nullable byte[]);
+    method @FlaggedApi("android.car.feature.cluster_health_monitoring") @RequiresPermission(android.car.Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL) public void startVisibilityMonitoring(@NonNull android.app.Activity);
   }
 
 }
@@ -651,7 +688,7 @@ package android.car.content.pm {
   public final class CarPackageManager {
     method @Deprecated @NonNull @RequiresPermission(android.Manifest.permission.QUERY_ALL_PACKAGES) public android.car.CarVersion getTargetCarVersion(@NonNull String) throws android.content.pm.PackageManager.NameNotFoundException;
     method public boolean isActivityBackedBySafeActivity(android.content.ComponentName);
-    method @FlaggedApi(android.car.feature.Flags.FLAG_DISPLAY_COMPATIBILITY) @RequiresPermission(allOf={android.car.Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY, android.Manifest.permission.QUERY_ALL_PACKAGES}) public boolean requiresDisplayCompat(@NonNull String) throws android.content.pm.PackageManager.NameNotFoundException;
+    method @FlaggedApi("android.car.feature.display_compatibility") @RequiresPermission(allOf={android.car.Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY, android.Manifest.permission.QUERY_ALL_PACKAGES}) public boolean requiresDisplayCompat(@NonNull String) throws android.content.pm.PackageManager.NameNotFoundException;
     method @Deprecated public void setAppBlockingPolicy(String, android.car.content.pm.CarAppBlockingPolicy, int);
     method public void setEnableActivityBlocking(boolean);
     field @Deprecated public static final int FLAG_SET_POLICY_ADD = 2; // 0x2
@@ -1274,6 +1311,18 @@ package android.car.hardware.property {
     method public int getVendorErrorCode();
   }
 
+  @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public final class CrossTrafficMonitoringWarningState {
+    method @NonNull public static String toString(int);
+    field public static final int NO_WARNING = 1; // 0x1
+    field public static final int OTHER = 0; // 0x0
+    field public static final int WARNING_FRONT_BOTH = 4; // 0x4
+    field public static final int WARNING_FRONT_LEFT = 2; // 0x2
+    field public static final int WARNING_FRONT_RIGHT = 3; // 0x3
+    field public static final int WARNING_REAR_BOTH = 7; // 0x7
+    field public static final int WARNING_REAR_LEFT = 5; // 0x5
+    field public static final int WARNING_REAR_RIGHT = 6; // 0x6
+  }
+
   public class CruiseControlCommand {
     method @NonNull public static String toString(int);
     field public static final int ACTIVATE = 1; // 0x1
@@ -1300,6 +1349,48 @@ package android.car.hardware.property {
     field public static final int OTHER = 0; // 0x0
     field public static final int PREDICTIVE = 3; // 0x3
     field public static final int STANDARD = 1; // 0x1
+  }
+
+  @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public final class DriverDistractionState {
+    method @NonNull public static String toString(int);
+    field public static final int DISTRACTED = 2; // 0x2
+    field public static final int NOT_DISTRACTED = 1; // 0x1
+    field public static final int OTHER = 0; // 0x0
+  }
+
+  @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public final class DriverDistractionWarning {
+    method @NonNull public static String toString(int);
+    field public static final int NO_WARNING = 1; // 0x1
+    field public static final int OTHER = 0; // 0x0
+    field public static final int WARNING = 2; // 0x2
+  }
+
+  @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public final class DriverDrowsinessAttentionState {
+    method @NonNull public static String toString(int);
+    field public static final int KSS_RATING_1_EXTREMELY_ALERT = 1; // 0x1
+    field public static final int KSS_RATING_2_VERY_ALERT = 2; // 0x2
+    field public static final int KSS_RATING_3_ALERT = 3; // 0x3
+    field public static final int KSS_RATING_4_RATHER_ALERT = 4; // 0x4
+    field public static final int KSS_RATING_5_NEITHER_ALERT_NOR_SLEEPY = 5; // 0x5
+    field public static final int KSS_RATING_6_SOME_SLEEPINESS = 6; // 0x6
+    field public static final int KSS_RATING_7_SLEEPY_NO_EFFORT = 7; // 0x7
+    field public static final int KSS_RATING_8_SLEEPY_SOME_EFFORT = 8; // 0x8
+    field public static final int KSS_RATING_9_VERY_SLEEPY = 9; // 0x9
+    field public static final int OTHER = 0; // 0x0
+  }
+
+  @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public final class DriverDrowsinessAttentionWarning {
+    method @NonNull public static String toString(int);
+    field public static final int NO_WARNING = 1; // 0x1
+    field public static final int OTHER = 0; // 0x0
+    field public static final int WARNING = 2; // 0x2
+  }
+
+  @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public final class ElectronicStabilityControlState {
+    method @NonNull public static String toString(int);
+    field public static final int ACTIVATED = 2; // 0x2
+    field public static final int ENABLED = 1; // 0x1
+    field public static final int OTHER = 0; // 0x0
   }
 
   public class EmergencyLaneKeepAssistState {
@@ -1352,6 +1443,17 @@ package android.car.hardware.property {
     field public static final int WARNING = 2; // 0x2
   }
 
+  @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public final class ImpactSensorLocation {
+    method @NonNull public static String toString(int);
+    field public static final int FRONT = 2; // 0x2
+    field public static final int FRONT_LEFT_DOOR_SIDE = 4; // 0x4
+    field public static final int FRONT_RIGHT_DOOR_SIDE = 8; // 0x8
+    field public static final int OTHER = 1; // 0x1
+    field public static final int REAR = 64; // 0x40
+    field public static final int REAR_LEFT_DOOR_SIDE = 16; // 0x10
+    field public static final int REAR_RIGHT_DOOR_SIDE = 32; // 0x20
+  }
+
   public final class LaneCenteringAssistCommand {
     method @NonNull public static String toString(int);
     field public static final int ACTIVATE = 1; // 0x1
@@ -1385,6 +1487,21 @@ package android.car.hardware.property {
     field public static final int USER_OVERRIDE = 4; // 0x4
   }
 
+  @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public final class LowSpeedAutomaticEmergencyBrakingState {
+    method @NonNull public static String toString(int);
+    field public static final int ACTIVATED = 2; // 0x2
+    field public static final int ENABLED = 1; // 0x1
+    field public static final int OTHER = 0; // 0x0
+    field public static final int USER_OVERRIDE = 3; // 0x3
+  }
+
+  @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public final class LowSpeedCollisionWarningState {
+    method @NonNull public static String toString(int);
+    field public static final int NO_WARNING = 1; // 0x1
+    field public static final int OTHER = 0; // 0x0
+    field public static final int WARNING = 2; // 0x2
+  }
+
   public class PropertyNotAvailableException extends java.lang.IllegalStateException {
     method public int getVendorErrorCode();
   }
@@ -1395,6 +1512,26 @@ package android.car.hardware.property {
     field public static final int STATE_NOT_PRESENT = 1; // 0x1
     field public static final int STATE_PRESENT = 2; // 0x2
     field public static final int STATE_UNKNOWN = 0; // 0x0
+  }
+
+  @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public final class VehicleAirbagLocation {
+    method @NonNull public static String toString(int);
+    field public static final int CURTAIN = 32; // 0x20
+    field public static final int FRONT = 2; // 0x2
+    field public static final int KNEE = 4; // 0x4
+    field public static final int LEFT_SIDE = 8; // 0x8
+    field public static final int OTHER = 1; // 0x1
+    field public static final int RIGHT_SIDE = 16; // 0x10
+  }
+
+  @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public final class VehicleAutonomousState {
+    method @NonNull public static String toString(int);
+    field public static final int LEVEL_0 = 0; // 0x0
+    field public static final int LEVEL_1 = 1; // 0x1
+    field public static final int LEVEL_2 = 2; // 0x2
+    field public static final int LEVEL_3 = 3; // 0x3
+    field public static final int LEVEL_4 = 4; // 0x4
+    field public static final int LEVEL_5 = 5; // 0x5
   }
 
   public final class VehicleLightState {
@@ -1555,6 +1692,10 @@ package android.car.input {
 
 package android.car.media {
 
+  @FlaggedApi("android.car.feature.car_audio_dynamic_devices") public interface AudioZoneConfigurationsChangeCallback {
+    method public default void onAudioZoneConfigurationsChanged(@NonNull java.util.List<android.car.media.CarAudioZoneConfigInfo>, int);
+  }
+
   public interface AudioZonesMirrorStatusCallback {
     method public void onAudioZonesMirrorStatusChanged(@NonNull java.util.List<java.lang.Integer>, int);
   }
@@ -1563,6 +1704,7 @@ package android.car.media {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public boolean allowMediaAudioOnPrimaryZone(long, boolean);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public int canEnableAudioMirror();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public boolean cancelMediaAudioOnPrimaryZone(long);
+    method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void clearAudioZoneConfigsCallback();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void clearAudioZonesMirrorStatusCallback();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void clearPrimaryZoneMediaAudioRequestCallback();
     method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public android.car.media.CarAudioPatchHandle createAudioPatch(String, int, int);
@@ -1601,6 +1743,7 @@ package android.car.media {
     method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void releaseAudioPatch(android.car.media.CarAudioPatchHandle);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public long requestMediaAudioOnPrimaryZone(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, @NonNull java.util.concurrent.Executor, @NonNull android.car.media.MediaAudioRequestStatusCallback);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public boolean resetMediaAudioOnPrimaryZone(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public boolean setAudioZoneConfigsChangeCallback(@NonNull java.util.concurrent.Executor, @NonNull android.car.media.AudioZoneConfigurationsChangeCallback);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public boolean setAudioZoneMirrorStatusCallback(@NonNull java.util.concurrent.Executor, @NonNull android.car.media.AudioZonesMirrorStatusCallback);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public void setBalanceTowardRight(float);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public void setFadeTowardFront(float);
@@ -1618,6 +1761,8 @@ package android.car.media {
     field public static final int AUDIO_REQUEST_STATUS_CANCELLED = 3; // 0x3
     field public static final int AUDIO_REQUEST_STATUS_REJECTED = 2; // 0x2
     field public static final int AUDIO_REQUEST_STATUS_STOPPED = 4; // 0x4
+    field @FlaggedApi("android.car.feature.car_audio_dynamic_devices") public static final int CONFIG_STATUS_AUTO_SWITCHED = 2; // 0x2
+    field @FlaggedApi("android.car.feature.car_audio_dynamic_devices") public static final int CONFIG_STATUS_CHANGED = 1; // 0x1
     field public static final int INVALID_AUDIO_ZONE = -1; // 0xffffffff
     field public static final long INVALID_REQUEST_ID = -1L; // 0xffffffffffffffffL
     field public static final int PRIMARY_AUDIO_ZONE = 0; // 0x0
@@ -1632,8 +1777,12 @@ package android.car.media {
   public final class CarAudioZoneConfigInfo implements android.os.Parcelable {
     method public int describeContents();
     method public int getConfigId();
+    method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") @NonNull public java.util.List<android.car.media.CarVolumeGroupInfo> getConfigVolumeGroups();
     method @NonNull public String getName();
     method public int getZoneId();
+    method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") public boolean hasSameConfigInfo(@NonNull android.car.media.CarAudioZoneConfigInfo);
+    method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") public boolean isActive();
+    method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") public boolean isSelected();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.media.CarAudioZoneConfigInfo> CREATOR;
   }
@@ -1708,7 +1857,7 @@ package android.car.media {
   public final class CarVolumeGroupInfo implements android.os.Parcelable {
     method public int describeContents();
     method @NonNull public java.util.List<android.media.AudioAttributes> getAudioAttributes();
-    method @FlaggedApi(android.car.feature.Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES) @NonNull public java.util.List<android.media.AudioDeviceAttributes> getAudioDeviceAttributes();
+    method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") @NonNull public java.util.List<android.media.AudioDeviceAttributes> getAudioDeviceAttributes();
     method public int getId();
     method public int getMaxVolumeGainIndex();
     method public int getMinVolumeGainIndex();
@@ -1729,7 +1878,7 @@ package android.car.media {
     method @NonNull public android.car.media.CarVolumeGroupInfo build();
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAttenuated(boolean);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAudioAttributes(@NonNull java.util.List<android.media.AudioAttributes>);
-    method @FlaggedApi(android.car.feature.Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES) @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAudioDeviceAttributes(@NonNull java.util.List<android.media.AudioDeviceAttributes>);
+    method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAudioDeviceAttributes(@NonNull java.util.List<android.media.AudioDeviceAttributes>);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setBlocked(boolean);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMaxVolumeGainIndex(int);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMinVolumeGainIndex(int);
@@ -2083,10 +2232,10 @@ package android.car.projection {
 package android.car.remoteaccess {
 
   public final class CarRemoteAccessManager {
-    method @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void addServerlessRemoteTaskClient(@NonNull String, @NonNull String);
-    method @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) @Nullable @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskScheduler getInVehicleTaskScheduler();
-    method @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public boolean isTaskScheduleSupported();
-    method @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void removeServerlessRemoteTaskClient(@NonNull String);
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void addServerlessRemoteTaskClient(@NonNull String, @NonNull String);
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @Nullable @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskScheduler getInVehicleTaskScheduler();
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public boolean isTaskScheduleSupported();
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void removeServerlessRemoteTaskClient(@NonNull String);
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void setPowerStatePostTaskExecution(int, boolean);
     field public static final int NEXT_POWER_STATE_OFF = 2; // 0x2
     field public static final int NEXT_POWER_STATE_ON = 1; // 0x1
@@ -2094,32 +2243,32 @@ package android.car.remoteaccess {
     field public static final int NEXT_POWER_STATE_SUSPEND_TO_RAM = 3; // 0x3
   }
 
-  @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) public final class CarRemoteAccessManager.InVehicleTaskScheduler {
-    method @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public java.util.List<android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo> getAllScheduledTasks() throws android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
-    method @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public boolean isTaskScheduled(@NonNull String) throws android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
-    method @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void scheduleTask(@NonNull android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo) throws android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
-    method @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void unscheduleAllTasks() throws android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
-    method @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void unscheduleTask(@NonNull String) throws android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
+  @FlaggedApi("android.car.feature.serverless_remote_access") public final class CarRemoteAccessManager.InVehicleTaskScheduler {
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public java.util.List<android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo> getAllScheduledTasks() throws android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public boolean isTaskScheduled(@NonNull String) throws android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void scheduleTask(@NonNull android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo) throws android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void unscheduleAllTasks() throws android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void unscheduleTask(@NonNull String) throws android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
   }
 
-  @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) public static final class CarRemoteAccessManager.InVehicleTaskSchedulerException extends java.lang.Exception {
+  @FlaggedApi("android.car.feature.serverless_remote_access") public static final class CarRemoteAccessManager.InVehicleTaskSchedulerException extends java.lang.Exception {
   }
 
-  @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) public static final class CarRemoteAccessManager.ScheduleInfo {
-    method @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) public int getCount();
-    method @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) @NonNull public java.time.Duration getPeriodic();
-    method @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) @NonNull public String getScheduleId();
-    method @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) public long getStartTimeInEpochSeconds();
-    method @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) @NonNull public byte[] getTaskData();
+  @FlaggedApi("android.car.feature.serverless_remote_access") public static final class CarRemoteAccessManager.ScheduleInfo {
+    method @FlaggedApi("android.car.feature.serverless_remote_access") public int getCount();
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @NonNull public java.time.Duration getPeriodic();
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @NonNull public String getScheduleId();
+    method @FlaggedApi("android.car.feature.serverless_remote_access") public long getStartTimeInEpochSeconds();
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @NonNull public byte[] getTaskData();
     field @NonNull public static final java.time.Duration PERIODIC_DAILY;
     field @NonNull public static final java.time.Duration PERIODIC_WEEKLY;
   }
 
-  @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) public static final class CarRemoteAccessManager.ScheduleInfo.Builder {
-    ctor @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) public CarRemoteAccessManager.ScheduleInfo.Builder(@NonNull String, @NonNull byte[], long);
-    method @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) @NonNull public android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo build();
-    method @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) @NonNull public android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo.Builder setCount(int);
-    method @FlaggedApi(android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS) @NonNull public android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo.Builder setPeriodic(@NonNull java.time.Duration);
+  @FlaggedApi("android.car.feature.serverless_remote_access") public static final class CarRemoteAccessManager.ScheduleInfo.Builder {
+    ctor @FlaggedApi("android.car.feature.serverless_remote_access") public CarRemoteAccessManager.ScheduleInfo.Builder(@NonNull String, @NonNull byte[], long);
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @NonNull public android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo build();
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @NonNull public android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo.Builder setCount(int);
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @NonNull public android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo.Builder setPeriodic(@NonNull java.time.Duration);
   }
 
 }
@@ -2132,6 +2281,7 @@ package android.car.settings {
   public static final class CarSettings.Global {
     field public static final String DISPLAY_INPUT_LOCK = "android.car.DISPLAY_INPUT_LOCK";
     field public static final String DISPLAY_POWER_MODE = "android.car.DISPLAY_POWER_MODE";
+    field @FlaggedApi("android.car.feature.car_night_global_setting") public static final String FORCED_DAY_NIGHT_MODE = "android.car.FORCED_DAY_NIGHT_MODE";
     field public static final String GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE = "android.car.GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE";
   }
 

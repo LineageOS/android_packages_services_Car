@@ -16,10 +16,13 @@
 
 package com.google.android.car.kitchensink.property;
 
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
 import static java.lang.Integer.toHexString;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.Car;
 import android.car.VehiclePropertyIds;
 import android.car.VehiclePropertyType;
 import android.car.hardware.CarPropertyValue;
@@ -57,6 +60,13 @@ import java.util.stream.Collectors;
 
 public class PropertyTestFragment extends Fragment implements OnItemSelectedListener {
     private static final String TAG = "PropertyTestFragment";
+    private static final int KS_PERMISSIONS_REQUEST = 1;
+
+    // The dangerous permissions that need to be granted at run-time.
+    private static final String[] REQUIRED_DANGEROUS_PERMISSIONS = new String[]{
+        Car.PERMISSION_ENERGY,
+        Car.PERMISSION_SPEED
+    };
 
     private Context mContext;
     private KitchenSinkHelper mKitchenSinkHelper;
@@ -105,6 +115,32 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                 }
     };
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            int[] grantResults) {
+        for (int i = 0; i < grantResults.length; i++) {
+            if (grantResults[i] != PERMISSION_GRANTED) {
+                Log.w(TAG, "Permission: " + permissions[i] + " is not granted, "
+                        + "some properties might not be listed");
+            }
+        }
+        Runnable r = () -> {
+            mMgr = mKitchenSinkHelper.getPropertyManager();
+            populateConfigList();
+            mListView.setAdapter(new PropertyListAdapter(mPropInfo, mMgr, mEventLog, mScrollView,
+                    mContext));
+
+            // Configure dropdown menu for propertyId spinner
+            ArrayAdapter<PropertyInfo> adapter =
+                    new ArrayAdapter<PropertyInfo>(mContext, android.R.layout.simple_spinner_item,
+                            mPropInfo);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mPropertyId.setAdapter(adapter);
+            mPropertyId.setOnItemSelectedListener(this);
+        };
+        mKitchenSinkHelper.requestRefreshManager(r, new Handler(getContext().getMainLooper()));
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -125,22 +161,6 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                     "context does not implement " + KitchenSinkHelper.class.getSimpleName());
         }
         mKitchenSinkHelper = (KitchenSinkHelper) mContext;
-
-        final Runnable r = () -> {
-            mMgr = mKitchenSinkHelper.getPropertyManager();
-            populateConfigList();
-            mListView.setAdapter(new PropertyListAdapter(mPropInfo, mMgr, mEventLog, mScrollView,
-                    mContext));
-
-            // Configure dropdown menu for propertyId spinner
-            ArrayAdapter<PropertyInfo> adapter =
-                    new ArrayAdapter<PropertyInfo>(mContext, android.R.layout.simple_spinner_item,
-                            mPropInfo);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            mPropertyId.setAdapter(adapter);
-            mPropertyId.setOnItemSelectedListener(this);
-        };
-        mKitchenSinkHelper.requestRefreshManager(r, new Handler(getContext().getMainLooper()));
 
         // Configure listeners for buttons
         Button b = view.findViewById(R.id.bGetProperty);
@@ -248,6 +268,8 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         b.setOnClickListener(v -> {
             mEventLog.setText("");
         });
+
+        requestPermissions(REQUIRED_DANGEROUS_PERMISSIONS, KS_PERMISSIONS_REQUEST);
 
         return view;
     }

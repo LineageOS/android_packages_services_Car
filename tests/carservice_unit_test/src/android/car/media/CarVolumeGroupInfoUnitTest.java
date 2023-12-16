@@ -129,8 +129,8 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     @RequiresFlagsEnabled(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
     public void build_buildsGroupInfo_withNullAudioDevices_fails() {
         NullPointerException thrown = assertThrows(NullPointerException.class, () ->
-                new CarVolumeGroupInfo.Builder(/* name= */ null,
-                        TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID).setAudioDeviceAttributes(null)
+                new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID,
+                        TEST_PRIMARY_GROUP_ID).setAudioDeviceAttributes(null)
         );
 
         expectWithMessage("Null audio devices exception")

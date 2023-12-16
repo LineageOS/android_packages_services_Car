@@ -18,6 +18,8 @@ package com.android.car.hal.property;
 
 import static com.android.car.internal.util.ConstantDebugUtils.toName;
 
+import static java.lang.Integer.toHexString;
+
 import android.annotation.Nullable;
 import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleAreaDoor;
@@ -58,9 +60,9 @@ public final class HalAreaIdDebugUtils {
         switch (propertyId & VehicleArea.MASK) {
             case VehicleArea.GLOBAL -> {
                 if (areaId == 0) {
-                    return "GLOBAL";
+                    return "GLOBAL(0x0)";
                 } else {
-                    return "INVALID_GLOBAL_AREA_TYPE(0x" + Integer.toHexString(areaId) + ")";
+                    return "INVALID_GLOBAL_AREA_ID(0x" + toHexString(areaId) + ")";
                 }
             }
             case VehicleArea.DOOR -> {
@@ -87,7 +89,7 @@ public final class HalAreaIdDebugUtils {
                 return convertAreaIdToDebugString(VehicleAreaWindow.class, areaId);
             }
             default -> {
-                return "UNKNOWN_AREA_TYPE(0x" + Integer.toHexString(areaId) + ")";
+                return "UNKNOWN_AREA_ID(0x" + toHexString(areaId) + ")";
             }
         }
     }
@@ -117,9 +119,10 @@ public final class HalAreaIdDebugUtils {
         }
 
         if ((areaId | areaBitMask) != areaBitMask || output.isEmpty()) {
-            output += "INVALID_" + clazz.getSimpleName() + "(0x" + Integer.toHexString(areaId)
-                    + ")";
+            output += "INVALID_" + clazz.getSimpleName() + "_AREA_ID";
         }
+
+        output += "(0x" + toHexString(areaId) + ")";
         return output;
     }
 

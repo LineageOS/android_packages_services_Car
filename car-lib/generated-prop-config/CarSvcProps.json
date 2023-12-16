@@ -289,6 +289,25 @@
       },
       "systemApi": true
     },
+    "IMPACT_DETECTED": {
+      "propertyName": "IMPACT_DETECTED",
+      "propertyId": 289407792,
+      "description": "Impact detected.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_IMPACT_SENSORS"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64
+      ]
+    },
     "WHEEL_TICK": {
       "propertyName": "WHEEL_TICK",
       "propertyId": 290521862,
@@ -407,6 +426,15 @@
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.ADJUST_RANGE_REMAINING"
+      }
+    },
+    "EV_BATTERY_AVERAGE_TEMPERATURE": {
+      "propertyName": "EV_BATTERY_AVERAGE_TEMPERATURE",
+      "propertyId": 291504910,
+      "description": "EV battery average temperature",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.CAR_ENERGY"
       }
     },
     "TIRE_PRESSURE": {
@@ -611,6 +639,50 @@
         "type": "single",
         "value": "android.car.permission.CAR_DYNAMICS_STATE"
       }
+    },
+    "ELECTRONIC_STABILITY_CONTROL_ENABLED": {
+      "propertyName": "ELECTRONIC_STABILITY_CONTROL_ENABLED",
+      "propertyId": 287310862,
+      "description": "Enable or disable Electronic Stability Control (ESC).",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_DYNAMICS_STATE"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_CAR_DYNAMICS_STATE"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_CAR_DYNAMICS_STATE"
+      },
+      "systemApi": true
+    },
+    "ELECTRONIC_STABILITY_CONTROL_STATE": {
+      "propertyName": "ELECTRONIC_STABILITY_CONTROL_STATE",
+      "propertyId": 289408015,
+      "description": "Electronic Stability Control (ESC) state.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.CAR_DYNAMICS_STATE"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        0,
+        1,
+        2,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
+      ]
     },
     "HVAC_FAN_SPEED": {
       "propertyName": "HVAC_FAN_SPEED",
@@ -1292,6 +1364,52 @@
       "description": "Property to represent brightness of the displays which are controlled separately.",
       "deprecated": true
     },
+    "VALET_MODE_ENABLED": {
+      "propertyName": "VALET_MODE_ENABLED",
+      "propertyId": 287312389,
+      "description": "Valet mode enabled",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_VALET_MODE"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_VALET_MODE"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_VALET_MODE"
+      },
+      "systemApi": true
+    },
+    "HEAD_UP_DISPLAY_ENABLED": {
+      "propertyName": "HEAD_UP_DISPLAY_ENABLED",
+      "propertyId": 354421254,
+      "description": "Head up display (HUD) enabled",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_HEAD_UP_DISPLAY"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_HEAD_UP_DISPLAY"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_HEAD_UP_DISPLAY"
+      },
+      "systemApi": true
+    },
     "HW_KEY_INPUT": {
       "propertyName": "HW_KEY_INPUT",
       "propertyId": 289475088,
@@ -1895,6 +2013,24 @@
       },
       "systemApi": true
     },
+    "SEAT_AIRBAGS_DEPLOYED": {
+      "propertyName": "SEAT_AIRBAGS_DEPLOYED",
+      "propertyId": 356518821,
+      "description": "State of deployment for seat airbags.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_CAR_AIRBAGS"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32
+      ]
+    },
     "SEAT_CUSHION_SIDE_SUPPORT_POS": {
       "propertyName": "SEAT_CUSHION_SIDE_SUPPORT_POS",
       "propertyId": 356518815,
@@ -1962,6 +2098,16 @@
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
+      },
+      "systemApi": true
+    },
+    "SEAT_BELT_PRETENSIONER_DEPLOYED": {
+      "propertyName": "SEAT_BELT_PRETENSIONER_DEPLOYED",
+      "propertyId": 354421670,
+      "description": "Seat belt pretensioner deployed.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_CAR_SEAT_BELTS"
       },
       "systemApi": true
     },
@@ -2207,6 +2353,66 @@
         128,
         256
       ]
+    },
+    "ULTRASONICS_SENSOR_POSITION": {
+      "propertyName": "ULTRASONICS_SENSOR_POSITION",
+      "propertyId": 406916128,
+      "description": "Static data for the position of each ultrasonic sensor installed on the vehicle.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
+      },
+      "systemApi": true
+    },
+    "ULTRASONICS_SENSOR_ORIENTATION": {
+      "propertyName": "ULTRASONICS_SENSOR_ORIENTATION",
+      "propertyId": 406916129,
+      "description": "Static data for the orientation of each ultrasonic sensor installed on the vehicle.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
+      },
+      "systemApi": true
+    },
+    "ULTRASONICS_SENSOR_FIELD_OF_VIEW": {
+      "propertyName": "ULTRASONICS_SENSOR_FIELD_OF_VIEW",
+      "propertyId": 406916130,
+      "description": "Static data for the field of view of each ultrasonic sensor in degrees.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
+      },
+      "systemApi": true
+    },
+    "ULTRASONICS_SENSOR_DETECTION_RANGE": {
+      "propertyName": "ULTRASONICS_SENSOR_DETECTION_RANGE",
+      "propertyId": 406916131,
+      "description": "Static data for the detection range of each ultrasonic sensor in millimeters.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
+      },
+      "systemApi": true
+    },
+    "ULTRASONICS_SENSOR_SUPPORTED_RANGES": {
+      "propertyName": "ULTRASONICS_SENSOR_SUPPORTED_RANGES",
+      "propertyId": 406916132,
+      "description": "Static data for the supported ranges of each ultrasonic sensor in millimeters.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
+      },
+      "systemApi": true
+    },
+    "ULTRASONICS_SENSOR_MEASURED_DISTANCE": {
+      "propertyName": "ULTRASONICS_SENSOR_MEASURED_DISTANCE",
+      "propertyId": 406916133,
+      "description": "The distance reading of the nearest detected object per sensor in millimeters.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
+      },
+      "systemApi": true
     },
     "OBD2_LIVE_FRAME": {
       "propertyName": "OBD2_LIVE_FRAME",
@@ -2708,6 +2914,24 @@
       "dataEnums": [
         0,
         1
+      ]
+    },
+    "VEHICLE_DRIVING_AUTOMATION_CURRENT_LEVEL": {
+      "propertyName": "VEHICLE_DRIVING_AUTOMATION_CURRENT_LEVEL",
+      "propertyId": 289410892,
+      "description": "Current state of vehicle autonomy.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.CAR_DRIVING_STATE"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
       ]
     },
     "AUTOMATIC_EMERGENCY_BRAKING_ENABLED": {
@@ -3243,6 +3467,327 @@
         0,
         1,
         2,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
+      ]
+    },
+    "DRIVER_DROWSINESS_ATTENTION_SYSTEM_ENABLED": {
+      "propertyName": "DRIVER_DROWSINESS_ATTENTION_SYSTEM_ENABLED",
+      "propertyId": 287313945,
+      "description": "Enable or disable driver drowsiness and attention monitoring.",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_DRIVER_MONITORING_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
+      },
+      "systemApi": true
+    },
+    "DRIVER_DROWSINESS_ATTENTION_STATE": {
+      "propertyName": "DRIVER_DROWSINESS_ATTENTION_STATE",
+      "propertyId": 289411098,
+      "description": "Driver drowsiness and attention level state.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
+      ]
+    },
+    "DRIVER_DROWSINESS_ATTENTION_WARNING_ENABLED": {
+      "propertyName": "DRIVER_DROWSINESS_ATTENTION_WARNING_ENABLED",
+      "propertyId": 287313947,
+      "description": "Enable or disable driver drowsiness and attention warnings.",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_DRIVER_MONITORING_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
+      },
+      "systemApi": true
+    },
+    "DRIVER_DROWSINESS_ATTENTION_WARNING": {
+      "propertyName": "DRIVER_DROWSINESS_ATTENTION_WARNING",
+      "propertyId": 289411100,
+      "description": "Driver drowsiness and attention warning.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        0,
+        1,
+        2,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
+      ]
+    },
+    "DRIVER_DISTRACTION_SYSTEM_ENABLED": {
+      "propertyName": "DRIVER_DISTRACTION_SYSTEM_ENABLED",
+      "propertyId": 287313949,
+      "description": "Enable or disable driver distraction monitoring.",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_DRIVER_MONITORING_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
+      },
+      "systemApi": true
+    },
+    "DRIVER_DISTRACTION_STATE": {
+      "propertyName": "DRIVER_DISTRACTION_STATE",
+      "propertyId": 289411102,
+      "description": "Driver distraction state.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        0,
+        1,
+        2,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
+      ]
+    },
+    "DRIVER_DISTRACTION_WARNING_ENABLED": {
+      "propertyName": "DRIVER_DISTRACTION_WARNING_ENABLED",
+      "propertyId": 287313951,
+      "description": "Enable or disable driver distraction warnings.",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_DRIVER_MONITORING_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
+      },
+      "systemApi": true
+    },
+    "DRIVER_DISTRACTION_WARNING": {
+      "propertyName": "DRIVER_DISTRACTION_WARNING",
+      "propertyId": 289411104,
+      "description": "Driver distraction warning.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        0,
+        1,
+        2,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
+      ]
+    },
+    "LOW_SPEED_COLLISION_WARNING_ENABLED": {
+      "propertyName": "LOW_SPEED_COLLISION_WARNING_ENABLED",
+      "propertyId": 287313953,
+      "description": "Enable or disable Low Speed Collision Warning.",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_ADAS_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+      },
+      "systemApi": true
+    },
+    "LOW_SPEED_COLLISION_WARNING_STATE": {
+      "propertyName": "LOW_SPEED_COLLISION_WARNING_STATE",
+      "propertyId": 289411106,
+      "description": "Low Speed Collision Warning State state.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ADAS_STATES"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        0,
+        1,
+        2,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
+      ]
+    },
+    "CROSS_TRAFFIC_MONITORING_ENABLED": {
+      "propertyName": "CROSS_TRAFFIC_MONITORING_ENABLED",
+      "propertyId": 287313955,
+      "description": "Enable or disable Cross Traffic Monitoring.",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_ADAS_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+      },
+      "systemApi": true
+    },
+    "CROSS_TRAFFIC_MONITORING_WARNING_STATE": {
+      "propertyName": "CROSS_TRAFFIC_MONITORING_WARNING_STATE",
+      "propertyId": 289411108,
+      "description": "Cross Traffic Monitoring Warning state.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ADAS_STATES"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        -1,
+        -2,
+        -3,
+        -4,
+        -5,
+        -6
+      ]
+    },
+    "LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_ENABLED": {
+      "propertyName": "LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_ENABLED",
+      "propertyId": 287313957,
+      "description": "Enable or disable Low Speed Automatic Emergency Braking.",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_ADAS_SETTINGS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
+      },
+      "systemApi": true
+    },
+    "LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_STATE": {
+      "propertyName": "LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_STATE",
+      "propertyId": 289411110,
+      "description": "Low Speed Automatic Emergency Braking state.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_ADAS_STATES"
+      },
+      "systemApi": true,
+      "dataEnums": [
+        0,
+        1,
+        2,
+        3,
         -1,
         -2,
         -3,

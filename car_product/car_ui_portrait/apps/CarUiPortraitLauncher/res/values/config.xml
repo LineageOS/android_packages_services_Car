@@ -16,6 +16,11 @@
   -->
 
 <resources>
+    <!-- Determines whether the CarUiPortraitHomeScreen uses RemoteCarRootTaskView to host taskviews
+    . Uses CarTaskView is set to false. config_registerCarSystemUIProxy should be set to false if
+    this value is false.  -->
+    <bool name="use_remoteCarTaskView">true</bool>
+
     <string-array name="config_backgroundActivities" translatable="false">
         <item>com.google.android.apps.maps/com.google.android.maps.MapsActivity</item>
         <item>com.android.car.portraitlauncher/com.android.car.portraitlauncher.homeactivities.BackgroundPanelBaseActivity</item>
@@ -79,5 +84,11 @@
         <item>android.server.wm.app/android.server.wm.app.AnimationTestActivity</item>
         <!-- Add activity to full screen since focus is lost when all the windows are removed. -->
         <item>android.server.wm.cts/android.server.wm.LayoutTests$TestActivity</item>
+        <!-- Add activity to full screen due to some issue with focus. -->
+        <item>android.server.wm.cts/android.server.wm.window.WindowUntrustedTouchTest$TestActivity</item>
     </string-array>
+
+    <!-- Calm mode overrides -->
+    <string name="config_calmMode_componentName">com.android.car.portraitlauncher/com.android.car.portraitlauncher.calmmode.CalmModeActivity</string>
+
 </resources>

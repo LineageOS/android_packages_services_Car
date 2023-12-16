@@ -40,12 +40,13 @@ public final class Subscription {
     @FloatRange(from = 0.0, to = 100.0)
     private final float mUpdateRateHz;
     private final int[] mAreaIds;
-    private boolean mDisableVariableUpdateRate;
+    private final boolean mVariableUpdateRateEnabled;
 
     private Subscription(@NonNull Builder builder) {
         mPropertyId = builder.mBuilderPropertyId;
         mUpdateRateHz = builder.mBuilderUpdateRateHz;
         mAreaIds = new int[builder.mBuilderAreaIds.size()];
+        mVariableUpdateRateEnabled = builder.mVariableUpdateRateEnabled;
         int index = 0;
         for (Integer i : builder.mBuilderAreaIds) {
             mAreaIds[index++] = i;
@@ -53,7 +54,7 @@ public final class Subscription {
     }
 
     /**
-     * Gets the {@link CarPropertyManager#SENSOR_RATE_UI} which is 1hz.
+     * Gets the {@link CarPropertyManager#SENSOR_RATE_UI} which is 5hz.
      *
      * @return {@link CarPropertyManager#SENSOR_RATE_UI}
      */
@@ -62,7 +63,7 @@ public final class Subscription {
     }
 
     /**
-     * Gets the {@link CarPropertyManager#SENSOR_RATE_NORMAL} which is 5hz.
+     * Gets the {@link CarPropertyManager#SENSOR_RATE_NORMAL} which is 1hz.
      *
      * @return {@link CarPropertyManager#SENSOR_RATE_NORMAL}
      */
@@ -111,44 +112,11 @@ public final class Subscription {
     }
 
     /**
-     * Disables variable update rate.
-     *
-     * <p>This option is only meaningful for continuous property.
-     *
-     * <p>By default, variable update rate is enabled for all [propId, areaId]s in this options,
-     * unless disabled via this function or not supported for a specific [propId, areaId]
-     * represented by
-     * {@link AreaIdConfig#isVariableUpdateRateSupported} returning {@code false}.
-     *
-     * <p>For better system performance, it is STRONGLY RECOMMENDED NOT TO DISABLE variable
-     * update rate unless the client relies on continuously arriving property update events
-     * (e.g. for system health checking).
-     *
-     * <p>If variable update rate is enabled, then client will receive property
-     * update events only when the property's value changes (a.k.a behaves the same as an on-change
-     * property).
-     *
-     * <p>If variable update rate is disabled, then client will receive all the property
-     * update events based on the update rate even if the events contain the same property value.
-     *
-     * <p>E.g. a vehicle speed subscribed at 10hz will cause the vehicle hardware to poll 10
-     * times per second. If the vehicle is initially parked at time 0s, and start moving at
-     * speed 1 at time 1s. If variable update rate is enabled, the client will receive one
-     * initial value of speed 0 at time 0s, and one value of speed 1 at time 1s. If variable
-     * update rate is disabled, the client will receive 10 events of speed 0 from 0s to 1s, and
-     * 10 events of speed 1 from 1s to 2s.
+     * @return whether variable update rate is enabled.
      */
     @FlaggedApi(FLAG_VARIABLE_UPDATE_RATE)
-    public void disableVariableUpdateRate() {
-        mDisableVariableUpdateRate = true;
-    }
-
-    /**
-     * @return whether variable update rate is disabled.
-     */
-    @FlaggedApi(FLAG_VARIABLE_UPDATE_RATE)
-    public boolean isVariableUpdateRateDisabled() {
-        return mDisableVariableUpdateRate;
+    public boolean isVariableUpdateRateEnabled() {
+        return mVariableUpdateRateEnabled;
     }
 
     /**
@@ -159,6 +127,8 @@ public final class Subscription {
         private float mBuilderUpdateRateHz = CarPropertyManager.SENSOR_RATE_ONCHANGE;
         private final Set<Integer> mBuilderAreaIds = new ArraySet<>();
         private long mBuilderFieldsSet = 0L;
+        // By default variable update rate is enabled.
+        private boolean mVariableUpdateRateEnabled = true;
 
         public Builder(int propertyId) {
             this.mBuilderPropertyId = propertyId;
@@ -166,8 +136,16 @@ public final class Subscription {
 
         /**
          * Sets the update rate in Hz for continuous property.
-         * For {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE} properties, this
+         *
+         * <p>For {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE} properties, this
          * operation has no effect and update rate is defaulted to {@code 0}.
+         *
+         * <p>The update rate decides the hardware polling rate (if supported) and will be sanitized
+         * to a range between {@link CarPropertyConfig#getMinSampleRate} and
+         * {@link CarPropertyConfig#getMaxSampleRate}.
+         *
+         * <p>For better system performance, it is recommended to set this to the smallest
+         * reasonable value, e.g. {@link CarPropertyManager.SENSOR_RATE_NORMAL}.
          *
          * @param updateRateHz The update rate to set for the given builder
          * @return The original Builder object. This value cannot be {@code null}.
@@ -231,6 +209,44 @@ public final class Subscription {
         @NonNull
         public Builder addAreaId(int areaId) {
             mBuilderAreaIds.add(areaId);
+            return this;
+        }
+
+        /**
+         * Enables/Disables variable update rate.
+         *
+         * <p>This option is only meaningful for continuous property.
+         *
+         * <p>By default, variable update rate is enabled for all [propId, areaId]s in this options,
+         * unless disabled via this function or not supported for a specific [propId, areaId]
+         * represented by
+         * {@link AreaIdConfig#isVariableUpdateRateSupported} returning {@code false}.
+         *
+         * <p>For better system performance, it is STRONGLY RECOMMENDED NOT TO DISABLE variable
+         * update rate unless the client relies on continuously arriving property update events
+         * (e.g. for system health checking).
+         *
+         * <p>If variable update rate is enabled, then client will receive property
+         * update events only when the property's value changes (a.k.a behaves the same as an
+         * on-change property).
+         *
+         * <p>If variable update rate is disabled, then client will receive all the property
+         * update events based on the update rate even if the events contain the same property
+         * value.
+         *
+         * <p>E.g. a vehicle speed subscribed at 10hz will cause the vehicle hardware to poll 10
+         * times per second. If the vehicle is initially parked at time 0s, and start moving at
+         * speed 1 at time 1s. If variable update rate is enabled, the client will receive one
+         * initial value of speed 0 at time 0s, and one value of speed 1 at time 1s. If variable
+         * update rate is disabled, the client will receive 10 events of speed 0 from 0s to 1s, and
+         * 10 events of speed 1 from 1s to 2s.
+         *
+         * @return The original Builder object. This value cannot be {@code null}.
+         */
+        @FlaggedApi(FLAG_VARIABLE_UPDATE_RATE)
+        @NonNull
+        public Builder setVariableUpdateRateEnabled(boolean enabled) {
+            mVariableUpdateRateEnabled = enabled;
             return this;
         }
 

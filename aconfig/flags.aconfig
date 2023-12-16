@@ -40,7 +40,7 @@ flag {
   bug: "305301155"
 }
 
-#CarPropertyManager
+# CarPropertyManager
 flag {
   name: "batched_subscriptions"
   namespace: "car_framework"
@@ -69,4 +69,20 @@ flag {
   namespace: "car_framework"
   description: "Controls whether to enable the health monitoring for Cluster"
   bug: "285415531"
+}
+
+# VehiclePropertyIds
+flag {
+  name: "android_vic_vehicle_properties"
+  namespace: "car_framework"
+  description: "Enables use of vehicle properties introduced in Android V"
+  bug: "309529020"
+}
+
+# CarNightService
+flag {
+  name: "car_night_global_setting"
+  namespace: "car_framework"
+  description: "Controls whether to use global settings to control the day/night mode configuration"
+  bug: "260762437"
 }

@@ -57,6 +57,10 @@
     <string name="car_permission_label_vehicle_dynamics_state">access car\u2019s dynamics state</string>
     <!-- Permission text: can access your car's dynamic state [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_vehicle_dynamics_state">Access your car\u2019s dynamics state.</string>
+    <!-- Permission text: can control your car's dynamics state [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_vehicle_dynamics_state">control car\u2019s dynamics state</string>
+    <!-- Permission text: can control your car's dynamics state [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_vehicle_dynamics_state">Control your car\u2019s dynamics state.</string>
     <!-- Permission text: apps can access car-manufacturer specific data [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_vendor_extension">access car\u2019s vendor channel</string>
     <!-- Permission text: apps can access car-manufacturer specific data [CHAR LIMIT=NONE] -->
@@ -155,6 +159,11 @@
     <!-- Permission text: apps can receive VMS messages from the car [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_vms_subscriber">Subscribe to VMS messages</string>
 
+    <!-- Permission text: apps can read ultrasonics sensor data [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_ultrasonics_sensor_data">Read ultrasonics sensor data.</string>
+    <!-- Permission text: apps can read ultrasonics sensor data [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_ultrasonics_sensor_data">Read ultrasonics sensor data from the car.</string>
+
     <!-- Permission text: apps can monitor flash storage usage [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_storage_monitoring">Flash storage monitoring</string>
     <!-- Permission text: apps can monitor flash storage usage [CHAR LIMIT=NONE] -->
@@ -234,6 +243,41 @@
     <string name="car_permission_label_control_car_seats">control car\u2019s seats</string>
     <!-- Permission text: apps can control car seats [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_control_car_seats">Control car\u2019s seats.</string>
+
+    <!-- Permission text: apps can read car seat belts [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_car_seat_belts">read car\u2019s seat belts</string>
+    <!-- Permission text: apps can read car seat belts [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_car_seat_belts">Read car\u2019s seat belts.</string>
+
+    <!-- Permission text: apps can read impact sensors information. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_impact_sensors">read car\u2019s impact sensors</string>
+    <!-- Permission text: apps can read impact sensors information. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_impact_sensors">Read car\u2019s impact sensors.</string>
+
+    <!-- Permission text: apps can read valet mode. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_valet_mode">read valet mode</string>
+    <!-- Permission text: apps can read valet mode. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_valet_mode">Read valet mode.</string>
+
+    <!-- Permission text: apps can control valet mode. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_valet_mode">control valet mode</string>
+    <!-- Permission text: apps can control valet mode. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_valet_mode">Control valet mode.</string>
+
+    <!-- Permission text: apps can read head up display. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_head_up_display">read head up display</string>
+    <!-- Permission text: apps can read head up display. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_head_up_display">Read head up display.</string>
+
+    <!-- Permission text: apps can control head up display. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_head_up_display">control head up display</string>
+    <!-- Permission text: apps can control head up display. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_head_up_display">Control head up display.</string>
+
+    <!-- Permission text: apps can read state of car airbags. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_car_airbags">read car\u2019s airbags</string>
+    <!-- Permission text: apps can read state of car airbags. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_car_airbags">Read car\u2019s airbags.</string>
 
     <!-- Permission text: apps can enable/disable a seat's ability to deploy airbag(s) when triggered (e.g. by a crash). [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_control_car_airbags">control car\u2019s airbags</string>

@@ -240,12 +240,13 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mFileHwStateMonitoring = new TemporaryFile("HW_STATE_MONITORING");
         mFileKernelSilentMode = new TemporaryFile("KERNEL_SILENT_MODE");
         mFileHwStateMonitoring.write(NONSILENT_STRING);
-        mPowerPolicyDaemon = new FakeCarPowerPolicyDaemon();
         mPowerComponentHandler = new PowerComponentHandler(mContext, mSystemInterface,
                 new AtomicFile(mComponentStateFile.getFile()));
-        mService = new CarPowerManagementService(mContext, mResources, mPowerHal, mSystemInterface,
-                mUserManager, mUserService, mPowerPolicyDaemon, mPowerComponentHandler,
-               mScreenOffHandler, mFileHwStateMonitoring.getFile().getPath(),
+        mPowerPolicyDaemon = new FakeCarPowerPolicyDaemon();
+        mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
+                mSystemInterface, mUserManager, mUserService, mPowerPolicyDaemon,
+                mPowerComponentHandler, mScreenOffHandler,
+                mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class, mService);
@@ -758,9 +759,10 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
             assertWithMessage(
                     "Calling definePowerPolicyFromCommand with args: "
                             + Arrays.toString(args) + " must succeed").that(status).isTrue();
-            assertWithMessage("Power policy daemon must have " + policyId
-                    + " as last defined policy id").that(
-                            mPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(policyId);
+            String lastDefinedPolicyMsg = "Power policy daemon must have " + policyId
+                    + " as last defined policy id";
+            assertWithMessage(lastDefinedPolicyMsg).that(
+                    mPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(policyId);
         }
     }
 
@@ -1256,10 +1258,11 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .thenReturn(true);
         when(mWifiManager.isWifiEnabled()).thenReturn(true);
         when(mWifiManager.isWifiApEnabled()).thenReturn(true);
-        mService = new CarPowerManagementService(mContext, mResources, mPowerHal, mSystemInterface,
-                mUserManager, mUserService, mPowerPolicyDaemon, mPowerComponentHandler,
-                mScreenOffHandler, mFileHwStateMonitoring.getFile().getPath(),
-                mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
+        mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
+                    mSystemInterface, mUserManager, mUserService, mPowerPolicyDaemon,
+                    mPowerComponentHandler, mScreenOffHandler,
+                    mFileHwStateMonitoring.getFile().getPath(),
+                    mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class, mService);
         mService.init();
@@ -1462,7 +1465,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 policyIdCustomOtherOff);
         PollingCheck.check("Current power policy of listener is null", WAIT_TIMEOUT_LONG_MS,
                 () -> listener.getCurrentPowerPolicy() != null);
-        assertThat(mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(policyIdCustomOtherOff);
     }
 
     @Test
@@ -1517,7 +1519,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         assertWithMessage("Custom components is missing from accumulated policy").that(
                 listener.getCurrentPowerPolicy().getEnabledComponents()).asList().contains(
                 custom_component_1000);
-        assertThat(mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(policyIdCustomOtherOff);
+        assertThat(mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(
+                policyIdCustomOtherOff);
         // Change again and ensure no notification
         // This policy doesn't change state of component_1000
         mService.applyPowerPolicy(policyIdCustom);

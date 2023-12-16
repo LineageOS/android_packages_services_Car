@@ -99,9 +99,6 @@ binder_status_t WatchdogInternalHandler::dump(int fd, const char** args, uint32_
         (EqualsIgnoreCase(args[0], kHelpFlag) || EqualsIgnoreCase(args[0], kHelpShortFlag))) {
         return dumpHelpText(fd, "");
     }
-    if (numArgs == 1 && (EqualsIgnoreCase(args[0], kDumpProtoFlag))) {
-        return dumpProto(fd);
-    }
     if (EqualsIgnoreCase(args[0], kStartCustomCollectionFlag) ||
         EqualsIgnoreCase(args[0], kEndCustomCollectionFlag)) {
         if (auto result = mWatchdogPerfService->onCustomCollection(fd, args, numArgs);
@@ -141,6 +138,9 @@ binder_status_t WatchdogInternalHandler::dump(int fd, const char** args, uint32_
     }
     std::vector<const char*> argsVector;
     for (uint32_t i = 0; i < numArgs; ++i) {
+        if (EqualsIgnoreCase(args[i], kDumpProtoFlag)) {
+            return dumpProto(fd);
+        }
         argsVector.push_back(args[i]);
     }
     dumpHelpText(fd,

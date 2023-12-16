@@ -19,7 +19,9 @@ package com.google.android.car.kitchensink.radio;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioManager.GET_DEVICES_INPUTS;
 
+import android.annotation.IntDef;
 import android.content.Context;
+import android.hardware.radio.ProgramSelector;
 import android.hardware.radio.RadioManager;
 import android.hardware.radio.RadioTuner;
 import android.media.AudioAttributes;
@@ -30,6 +32,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,15 +48,29 @@ import com.google.android.car.kitchensink.R;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public final class RadioTestFragment extends Fragment {
 
     public static final String FRAGMENT_NAME = "Radio";
 
+    private static final int TUNER_TYPE_INVALID = 0;
+    private static final int TUNER_TYPE_AM_FM = 1;
+    private static final int TUNER_TYPE_DAB = 2;
+    @IntDef(prefix = { "TUNER_TYPE_" }, value = {
+            TUNER_TYPE_INVALID ,
+            TUNER_TYPE_AM_FM,
+            TUNER_TYPE_DAB,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface TunerType {}
+
     private static final String TAG = RadioTestFragment.class.getSimpleName();
-    private static final int INVALID_MODULR_ID = -1;
+    private static final int INVALID_MODULE_ID = -1;
 
     private Handler mHandler;
     private Context mContext;
@@ -64,10 +81,13 @@ public final class RadioTestFragment extends Fragment {
     private RadioManager mRadioManager;
     private RadioManager.BandConfig mFmBandConfig;
     private RadioManager.BandConfig mAmBandConfig;
+    private SparseArray<String> mDabFrequencyToLabelMap;
     private RadioTuner mFmAmRadioTuner;
+    private RadioTuner mDabRadioTuner;
 
     private List<RadioManager.ModuleProperties> mModules;
-    private int mFirstAmFmModuleId = INVALID_MODULR_ID;
+    private int mFirstAmFmModuleId = INVALID_MODULE_ID;
+    private int mFirstDabModuleId = INVALID_MODULE_ID;
 
     private TextView mOpenTunerWarning;
     private TextView mPlayingStatus;
@@ -90,6 +110,7 @@ public final class RadioTestFragment extends Fragment {
 
         RadioGroup tunerTypeSelection = view.findViewById(R.id.selection_tuner_type);
         RadioButton amFmTunerButton = view.findViewById(R.id.button_am_fm_type_tuner);
+        RadioButton dabTunerButton = view.findViewById(R.id.button_dab_type_tuner);
         Button openTunerButton = view.findViewById(R.id.button_radio_open);
         mOpenTunerWarning = view.findViewById(R.id.warning_open_tuner);
 
@@ -119,39 +140,55 @@ public final class RadioTestFragment extends Fragment {
 
         connectRadio();
 
-        if (mFirstAmFmModuleId != INVALID_MODULR_ID) {
+        if (mFirstDabModuleId != INVALID_MODULE_ID) {
+            dabTunerButton.setVisibility(View.VISIBLE);
+            tunerTypeSelection.check(R.id.button_dab_type_tuner);
+        }
+        if (mFirstAmFmModuleId != INVALID_MODULE_ID) {
             amFmTunerButton.setVisibility(View.VISIBLE);
             tunerTypeSelection.check(R.id.button_am_fm_type_tuner);
-        } else {
+        } else if (mFirstDabModuleId == INVALID_MODULE_ID) {
             openTunerButton.setVisibility(View.INVISIBLE);
         }
 
         openTunerButton.setOnClickListener(v -> {
             mOpenTunerWarning.setText(getString(R.string.empty));
             int selectedButtonId = tunerTypeSelection.getCheckedRadioButtonId();
-            int moduleId;
-            switch (selectedButtonId) {
-                case R.id.button_am_fm_type_tuner:
-                    moduleId = mFirstAmFmModuleId;
-                    break;
-                default:
-                    return;
-            }
-
-            String tabTitle = getString(R.string.radio_fm_am_tuner);
+            String tabTitle;
             RadioTunerFragment tunerFragment;
-            if (mFmAmRadioTuner != null) {
-                mOpenTunerWarning.setText(getString(R.string.radio_error,
-                        "Tuner exists, cannot open a new one"));
-                return;
-            }
-            tunerFragment = new RadioTunerFragment(mRadioManager,
-                    mModules.get(moduleId).getId(), mFmBandConfig, mAmBandConfig, mHandler,
-                    new TunerListener(tabTitle));
-            mFmAmRadioTuner = tunerFragment.getRadioTuner();
-            if (mFmAmRadioTuner == null) {
-                mOpenTunerWarning.setText(getString(R.string.radio_error,
-                        "Cannot open new tuner"));
+            if (selectedButtonId == R.id.button_am_fm_type_tuner) {
+                tabTitle = getString(R.string.radio_fm_am_tuner);
+                if (mFmAmRadioTuner != null) {
+                    mOpenTunerWarning.setText(getString(R.string.radio_error,
+                            "FM/AM tuner exists, cannot open a new one"));
+                    return;
+                }
+                tunerFragment = new AmFmTunerFragment(mRadioManager,
+                        mModules.get(mFirstAmFmModuleId).getId(), mFmBandConfig, mAmBandConfig,
+                        mHandler, new TunerListener(tabTitle, TUNER_TYPE_AM_FM));
+                mFmAmRadioTuner = tunerFragment.getRadioTuner();
+                if (mFmAmRadioTuner == null) {
+                    mOpenTunerWarning.setText(getString(R.string.radio_error,
+                            "Cannot open new AM/FM tuner"));
+                    return;
+                }
+            } else if (selectedButtonId == R.id.button_dab_type_tuner) {
+                tabTitle = getString(R.string.radio_dab_tuner);
+                if (mDabRadioTuner != null) {
+                    mOpenTunerWarning.setText(getString(R.string.radio_error,
+                            "DAB tuner exists, cannot open a new one"));
+                    return;
+                }
+                tunerFragment = new DabTunerFragment(mRadioManager, mDabFrequencyToLabelMap,
+                        mModules.get(mFirstDabModuleId).getId(), mHandler,
+                        new TunerListener(tabTitle, TUNER_TYPE_DAB));
+                mDabRadioTuner = tunerFragment.getRadioTuner();
+                if (mDabRadioTuner == null) {
+                    mOpenTunerWarning.setText(getString(R.string.radio_error,
+                            "Cannot open new DAB tuner"));
+                    return;
+                }
+            } else {
                 return;
             }
 
@@ -196,20 +233,39 @@ public final class RadioTestFragment extends Fragment {
         RadioManager.AmBandDescriptor amBandDescriptor = null;
         RadioManager.FmBandDescriptor fmBandDescriptor = null;
         for (int moduleIndex = 0; moduleIndex < mModules.size(); moduleIndex++) {
-            for (RadioManager.BandDescriptor band : mModules.get(moduleIndex).getBands()) {
-                int bandType = band.getType();
-                if (bandType == RadioManager.BAND_AM || bandType == RadioManager.BAND_AM_HD) {
-                    amBandDescriptor = (RadioManager.AmBandDescriptor) band;
+            RadioManager.ModuleProperties moduleProperties = mModules.get(moduleIndex);
+            if (mFirstAmFmModuleId == INVALID_MODULE_ID && (moduleProperties
+                    .isProgramIdentifierSupported(ProgramSelector.IDENTIFIER_TYPE_AMFM_FREQUENCY)
+                    || moduleProperties.isProgramIdentifierSupported(
+                            ProgramSelector.IDENTIFIER_TYPE_RDS_PI)
+                    || moduleProperties.isProgramIdentifierSupported(
+                            ProgramSelector.IDENTIFIER_TYPE_HD_STATION_ID_EXT))) {
+                for (RadioManager.BandDescriptor band : moduleProperties.getBands()) {
+                    int bandType = band.getType();
+                    if (bandType == RadioManager.BAND_AM || bandType == RadioManager.BAND_AM_HD) {
+                        amBandDescriptor = (RadioManager.AmBandDescriptor) band;
+                    }
+                    if (bandType == RadioManager.BAND_FM || bandType == RadioManager.BAND_FM_HD) {
+                        fmBandDescriptor = (RadioManager.FmBandDescriptor) band;
+                    }
                 }
-                if (bandType == RadioManager.BAND_FM || bandType == RadioManager.BAND_FM_HD) {
-                    fmBandDescriptor = (RadioManager.FmBandDescriptor) band;
+                if (amBandDescriptor != null && fmBandDescriptor != null) {
+                    mFirstAmFmModuleId = moduleIndex;
+                    mFmBandConfig = new RadioManager.FmBandConfig.Builder(fmBandDescriptor).build();
+                    mAmBandConfig = new RadioManager.AmBandConfig.Builder(amBandDescriptor).build();
                 }
             }
-            if (amBandDescriptor != null && fmBandDescriptor != null) {
-                mFirstAmFmModuleId = moduleIndex;
-                mFmBandConfig = new RadioManager.FmBandConfig.Builder(fmBandDescriptor).build();
-                mAmBandConfig = new RadioManager.AmBandConfig.Builder(amBandDescriptor).build();
-                break;
+            if (mFirstDabModuleId == INVALID_MODULE_ID
+                    && (moduleProperties.isProgramIdentifierSupported(
+                            ProgramSelector.IDENTIFIER_TYPE_DAB_DMB_SID_EXT)
+                    || moduleProperties.isProgramIdentifierSupported(
+                            ProgramSelector.IDENTIFIER_TYPE_DAB_SID_EXT))) {
+                Map<String, Integer> dabFrequencyTable = moduleProperties.getDabFrequencyTable();
+                if (dabFrequencyTable != null) {
+                    mDabFrequencyToLabelMap = RadioTestFragmentUtils.getDabFrequencyToLabelMap(
+                            dabFrequencyTable);
+                    mFirstDabModuleId = moduleIndex;
+                }
             }
         }
     }
@@ -250,14 +306,27 @@ public final class RadioTestFragment extends Fragment {
 
     final class TunerListener {
         private final String mTunerTabTitle;
-        TunerListener(String tunerTabTitle) {
+        @TunerType
+        private final int mTunerType;
+        TunerListener(String tunerTabTitle, @TunerType int tunerType) {
             mTunerTabTitle = tunerTabTitle;
+            mTunerType = tunerType;
         }
         public void onTunerClosed() {
             if (mTunerTabAdapter != null) {
                 mTunerTabAdapter.removeFragment(mTunerTabTitle);
                 mTunerTabAdapter.notifyDataSetChanged();
-                mFmAmRadioTuner = null;
+                switch (mTunerType) {
+                    case TUNER_TYPE_AM_FM:
+                        mFmAmRadioTuner = null;
+                        break;
+                    case TUNER_TYPE_DAB:
+                        mDabRadioTuner = null;
+                        break;
+                    default:
+                        Log.e(TAG, "Unsupported tuner type " + mTunerType);
+                        break;
+                }
                 handleHwAudioSourceStop();
                 mOpenTunerWarning.setText(getString(R.string.empty));
             }

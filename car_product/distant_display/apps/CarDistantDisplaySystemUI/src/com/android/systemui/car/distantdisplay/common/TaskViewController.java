@@ -17,9 +17,11 @@ package com.android.systemui.car.distantdisplay.common;
 
 import static android.hardware.display.DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY;
 import static android.hardware.display.DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
+import static android.hardware.display.DisplayManager.VIRTUAL_DISPLAY_FLAG_SECURE;
 
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
+import android.app.ActivityTaskManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -77,27 +79,34 @@ public class TaskViewController {
     private Context mContext;
     private DisplayManager mDisplayManager;
     private LayoutInflater mInflater;
+    private Integer mBaseIntentForTopTaskId;
     private Intent mBaseIntentForTopTask;
-    private Intent mBaseIntentForTopTaskDD;
     private MediaSessionManager mMediaSessionManager;
     private SurfaceHolder mNavigationSurfaceHolder;
     private SurfaceHolder mRootSurfaceHolder;
     private SurfaceHolder.Callback mNavigationViewCallback;
     private SurfaceHolder.Callback mRootViewCallback;
     private Set<ComponentName> mNavigationActivities;
+    private OrderedHashSet<Integer> mDistantDisplayForegroundTask;
 
     private final TaskStackChangeListener mTaskStackChangeLister = new TaskStackChangeListener() {
 
         @Override
         public void onTaskMovedToFront(ActivityManager.RunningTaskInfo taskInfo) {
-            if (DEBUG) {
-                Log.d(TAG, "onTaskMovedToFront: displayId: " + taskInfo.displayId + ", " + taskInfo
-                        + " token: " + taskInfo.token);
-            }
+            logIfDebuggable("onTaskMovedToFront: displayId: " + taskInfo.displayId + ", " + taskInfo
+                    + " token: " + taskInfo.token);
+
             if (taskInfo.displayId == DEFAULT_DISPLAY_ID) {
+                mBaseIntentForTopTaskId = taskInfo.taskId;
                 mBaseIntentForTopTask = taskInfo.baseIntent;
-            } else if (taskInfo.displayId == getVirtualDisplayId(mRootSurfaceHolder)) {
-                mBaseIntentForTopTaskDD = taskInfo.baseIntent;
+            } else if (taskInfo.displayId == getVirtualDisplayId(mRootSurfaceHolder)
+                    || taskInfo.displayId == mContext.getResources().getInteger(
+                    R.integer.config_distantDisplayId)) {
+                if (taskInfo.baseIntent.getComponent().getPackageName().equals(
+                        mContext.getPackageName())) {
+                    return;
+                }
+                mDistantDisplayForegroundTask.add(taskInfo.taskId);
             }
         }
     };
@@ -107,6 +116,7 @@ public class TaskViewController {
         mContext = context;
         mDisplayManager = displayManager;
         mInflater = inflater;
+        mDistantDisplayForegroundTask = new OrderedHashSet<Integer>();
         mMediaSessionManager = mContext.getSystemService(MediaSessionManager.class);
         mNavigationViewCallback = new SurfaceHolderCallback(this, NAVIGATION_SURFACE, mContext);
         mRootViewCallback = new SurfaceHolderCallback(this, ROOT_SURFACE, mContext);
@@ -158,19 +168,31 @@ public class TaskViewController {
         IntentFilter filter = new IntentFilter(MoveTaskReceiver.MOVE_ACTION);
         MoveTaskReceiver receiver = new MoveTaskReceiver();
         receiver.registerOnChangeDisplayForTask(this::changeDisplayForTask);
-        //mContext.registerReceiver(receiver, filter);
         ContextCompat.registerReceiver(mContext, receiver, filter, ContextCompat.RECEIVER_EXPORTED);
     }
 
     private void changeDisplayForTask(String movement) {
         Log.i(TAG, "Handling movement command : " + movement);
-        if (movement.equals(MoveTaskReceiver.MOVE_FROM_DISTANT_DISPLAY)) {
-            startActivityOnDisplay(mBaseIntentForTopTaskDD, DEFAULT_DISPLAY_ID);
+        if (movement.equals(MoveTaskReceiver.MOVE_FROM_DISTANT_DISPLAY)
+                && !mDistantDisplayForegroundTask.isEmpty()) {
+            int lastTask = mDistantDisplayForegroundTask.getLast();
+            moveTaskToDisplay(lastTask, DEFAULT_DISPLAY_ID);
+            mDistantDisplayForegroundTask.remove(lastTask);
         } else if (movement.equals(MoveTaskReceiver.MOVE_TO_DISTANT_DISPLAY)) {
             if (taskHasActiveMediaSession(mBaseIntentForTopTask.getComponent().getPackageName())) {
-                startActivityOnDisplay(
-                        mBaseIntentForTopTask, getVirtualDisplayId(mRootSurfaceHolder));
+                moveTaskToDisplay(mBaseIntentForTopTaskId,
+                        getVirtualDisplayId(mRootSurfaceHolder));
             }
+        } else {
+            moveTaskToDisplay(mBaseIntentForTopTaskId, Integer.parseInt(movement));
+        }
+    }
+
+    private void moveTaskToDisplay(int taskId, int displayId) {
+        try {
+            ActivityTaskManager.getService().moveRootTaskToDisplay(taskId, displayId);
+        } catch (Exception e) {
+            Log.e(TAG, "Error moving task " + taskId + " to display " + displayId, e);
         }
     }
 
@@ -323,10 +345,9 @@ public class TaskViewController {
                     /* projection= */ null, "DistantDisplay-" + mSurfaceName + "-VD",
                     width, height, metrics.densityDpi, surface,
                     VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY
-                            | VIRTUAL_DISPLAY_FLAG_PUBLIC,
+                            | VIRTUAL_DISPLAY_FLAG_PUBLIC | VIRTUAL_DISPLAY_FLAG_SECURE,
                     /* callback= */
                     null, /* handler= */ null, "DistantDisplay-" + mSurfaceName);
         }
     }
-
 }

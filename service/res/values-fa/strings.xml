@@ -34,6 +34,10 @@
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"دسترسی به سرعت خودرو."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"دسترسی به وضعیت دینامیک خودرو"</string>
     <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"به وضعیت دینامیک خودرو دسترسی پیدا کنید."</string>
+    <!-- no translation found for car_permission_label_control_vehicle_dynamics_state (1912154069363074986) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_vehicle_dynamics_state (5603436779163086928) -->
+    <skip />
     <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"دسترسی به کانال فروشنده خودرو"</string>
     <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"دسترسی به کانال فروشنده خودروی شما برای تبادل اطلاعات خاص خودرو."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"مدیریت رادیوی خودرو"</string>
@@ -116,6 +120,26 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"آینه‌های خودرو را کنترل کنید."</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"کنترل صندلی‌های خودرو"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"صندلی‌های خودرو را کنترل کنید."</string>
+    <!-- no translation found for car_permission_label_read_car_seat_belts (2051828795852087659) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_seat_belts (7076977711613912339) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_impact_sensors (9193288836326363975) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_impact_sensors (6479840965130272944) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_valet_mode (1807900160666761320) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_valet_mode (8645550481045813299) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_valet_mode (180432980177027905) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_valet_mode (8442573192492763994) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_car_airbags (5495423499616379238) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_airbags (7961580013929420722) -->
+    <skip />
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"کنترل کیسه هوای خودرو."</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"کنترل کیسه هوای خودرو."</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"دسترسی به اطلاعات اصلی خودرو"</string>
@@ -206,10 +230,10 @@
     <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"بازتاب دادن صفحه «برنامه‌های» دیگر."</string>
     <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"بازتاب دادن نمایشگر کاربران دیگر"</string>
     <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"بازتاب دادن نمایشگر کاربران دیگر."</string>
-    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"پراکسی میانای کاربری سیستمی ارائه دهید که برنامه‌های دیگر بتوانند بااستفاده از آن میانای کاربری سیستم را مدیریت کنند و نمای وظیفه ایجاد کنند."</string>
-    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"پراکسی میانای کاربری سیستمی ارائه دهید که برنامه‌های دیگر بتوانند بااستفاده از آن میانای کاربری سیستم را مدیریت کنند و نمای وظیفه ایجاد کنند."</string>
-    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"برای ایجاد نمای وظیفه یا مطلع شدن از تغییرات میانای کاربری سیستم، با میانای کاربری سیستم خودرو ارتباط برقرار کنید."</string>
-    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"برای ایجاد نمای وظیفه یا مطلع شدن از تغییرات میانای کاربری سیستم، با میانای کاربری سیستم خودرو ارتباط برقرار کنید."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"پراکسی واسط کاربر سیستمی ارائه دهید که برنامه‌های دیگر بتوانند بااستفاده از آن واسط کاربر سیستم را مدیریت کنند و نمای وظیفه ایجاد کنند."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"پراکسی واسط کاربر سیستمی ارائه دهید که برنامه‌های دیگر بتوانند بااستفاده از آن واسط کاربر سیستم را مدیریت کنند و نمای وظیفه ایجاد کنند."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"برای ایجاد نمای وظیفه یا مطلع شدن از تغییرات واسط کاربر سیستم، با واسط کاربر سیستم خودرو ارتباط برقرار کنید."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"برای ایجاد نمای وظیفه یا مطلع شدن از تغییرات واسط کاربر سیستم، با واسط کاربر سیستم خودرو ارتباط برقرار کنید."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"گذرگاه CAN ناموفق بود"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"گذرگاه CAN پاسخ نمی‌دهد. محفظه ضبط‌وپخش را جدا و سپس وصل کنید و خودرو را دوباره روشن کنید"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"دستگاه من"</string>

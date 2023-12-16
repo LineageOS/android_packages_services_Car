@@ -92,6 +92,8 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     @Mock
     private CarVolumeGroup mMockMusicGroup;
     @Mock
+    private CarVolumeGroup mMockInactiveMusicGroup;
+    @Mock
     private CarVolumeGroup mMockNavGroup;
     @Mock
     private CarVolumeGroup mMockVoiceGroup;
@@ -106,6 +108,10 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
         mMockMusicGroup = new VolumeGroupBuilder().setName(TEST_MUSIC_GROUP_NAME)
                 .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS)
                 .setZoneId(TEST_ZONE_ID).setGroupId(TEST_MUSIC_GROUP_ID).build();
+
+        mMockInactiveMusicGroup = new VolumeGroupBuilder().setName(TEST_MUSIC_GROUP_NAME)
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS)
+                .setZoneId(TEST_ZONE_ID).setIsActive(false).setGroupId(TEST_MUSIC_GROUP_ID).build();
 
         mMockNavGroup = new VolumeGroupBuilder().setName(TEST_NAV_GROUP_NAME)
                 .addDeviceAddressAndContexts(TEST_NAVIGATION_CONTEXT, NAV_ADDRESS)
@@ -210,6 +216,25 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
+    public void isActive_returnsTrue() {
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.addVolumeGroup(mMockMusicGroup)
+                .addVolumeGroup(mMockNavGroup).addVolumeGroup(mMockVoiceGroup).build();
+
+        expectWithMessage("Zone configuration active status")
+                .that(zoneConfig.isActive()).isTrue();
+    }
+
+    @Test
+    public void isActive_withInactiveVolumeGroup() {
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder
+                .addVolumeGroup(mMockInactiveMusicGroup).addVolumeGroup(mMockNavGroup)
+                .addVolumeGroup(mMockVoiceGroup).build();
+
+        expectWithMessage("Zone configuration active status with inactive volume group")
+                .that(zoneConfig.isActive()).isFalse();
+    }
+
+    @Test
     public void getVolumeGroupCount() {
         CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.addVolumeGroup(mMockMusicGroup)
                 .addVolumeGroup(mMockNavGroup).addVolumeGroup(mMockVoiceGroup).build();
@@ -254,6 +279,30 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
 
         verify(mMockMusicGroup).loadVolumesSettingsForUser(userId);
         verify(mMockNavGroup).loadVolumesSettingsForUser(userId);
+    }
+
+    @Test
+    public void updateVolumeDevices_withUseCoreAudioRoutingEnabled() {
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.addVolumeGroup(mMockMusicGroup)
+                .addVolumeGroup(mMockNavGroup).build();
+        boolean useCoreAudioRouting = true;
+
+        zoneConfig.updateVolumeDevices(useCoreAudioRouting);
+
+        verify(mMockMusicGroup).updateDevices(useCoreAudioRouting);
+        verify(mMockNavGroup).updateDevices(useCoreAudioRouting);
+    }
+
+    @Test
+    public void updateVolumeDevices_withUseCoreAudioRoutingDisabled() {
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.addVolumeGroup(mMockMusicGroup)
+                .addVolumeGroup(mMockNavGroup).build();
+        boolean useCoreAudioRouting = false;
+
+        zoneConfig.updateVolumeDevices(useCoreAudioRouting);
+
+        verify(mMockMusicGroup).updateDevices(useCoreAudioRouting);
+        verify(mMockNavGroup).updateDevices(useCoreAudioRouting);
     }
 
     @Test
@@ -392,6 +441,38 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
                 List.of(mockMusicGroup, mockNavGroupRoutingOnMusic, mockAllOtherContextsGroup));
 
         expectWithMessage("Volume group validates when using core audio routing")
+                .that(zoneConfig.validateVolumeGroups(TEST_CAR_AUDIO_CONTEXT,
+                        /* useCoreAudioRouting= */ true)).isTrue();
+    }
+
+    @Test
+    public void validateVolumeGroups_withInvalidDeviceTypesInGroup() {
+        CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS).build();
+        CarVolumeGroup mockNavGroupRoutingOnMusic = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_NAVIGATION_CONTEXT, NAV_ADDRESS).build();
+        when(mockNavGroupRoutingOnMusic.validateDeviceTypes(any())).thenReturn(false);
+        CarVolumeGroup mockAllOtherContextsGroup = mockContextsExceptMediaAndNavigation();
+        CarAudioZoneConfig zoneConfig = buildZoneConfig(
+                List.of(mockMusicGroup, mockNavGroupRoutingOnMusic, mockAllOtherContextsGroup));
+
+        expectWithMessage("Valid status for config with invalid group device types")
+                .that(zoneConfig.validateVolumeGroups(TEST_CAR_AUDIO_CONTEXT,
+                        /* useCoreAudioRouting= */ false)).isFalse();
+    }
+
+    @Test
+    public void validateVolumeGroups_withInvalidDeviceTypesInGroupAndCoreAudioRouting() {
+        CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS).build();
+        CarVolumeGroup mockNavGroupRoutingOnMusic = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_NAVIGATION_CONTEXT, NAV_ADDRESS).build();
+        when(mockNavGroupRoutingOnMusic.validateDeviceTypes(any())).thenReturn(false);
+        CarVolumeGroup mockAllOtherContextsGroup = mockContextsExceptMediaAndNavigation();
+        CarAudioZoneConfig zoneConfig = buildZoneConfig(
+                List.of(mockMusicGroup, mockNavGroupRoutingOnMusic, mockAllOtherContextsGroup));
+
+        expectWithMessage("Valid status for config with core audio routing and invalid types")
                 .that(zoneConfig.validateVolumeGroups(TEST_CAR_AUDIO_CONTEXT,
                         /* useCoreAudioRouting= */ true)).isTrue();
     }
@@ -606,6 +687,91 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
 
         expectWithMessage("Zone configuration info")
                 .that(zoneConfigInfo).isEqualTo(zoneConfigInfoExpected);
+    }
+
+    @Test
+    public void audioDevicesAdded_withAlreadyActiveGroups() {
+        AudioDeviceInfo musicAudioDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.addVolumeGroup(mMockMusicGroup)
+                .addVolumeGroup(mMockNavGroup).addVolumeGroup(mMockVoiceGroup).build();
+
+        boolean status = zoneConfig.audioDevicesAdded(List.of(musicAudioDeviceInfo));
+
+        expectWithMessage("Added device status with already active group").that(status).isFalse();
+        verify(mMockMusicGroup, never()).audioDevicesAdded(any());
+        verify(mMockNavGroup, never()).audioDevicesAdded(any());
+        verify(mMockVoiceGroup, never()).audioDevicesAdded(any());
+    }
+
+    @Test
+    public void audioDevicesAdded_withInactiveGroups() {
+        AudioDeviceInfo musicAudioDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder
+                .addVolumeGroup(mMockInactiveMusicGroup).addVolumeGroup(mMockNavGroup)
+                .addVolumeGroup(mMockVoiceGroup).build();
+
+        boolean status = zoneConfig.audioDevicesAdded(List.of(musicAudioDeviceInfo));
+
+        expectWithMessage("Added device status with inactive group").that(status).isTrue();
+        verify(mMockInactiveMusicGroup).audioDevicesAdded(any());
+        verify(mMockNavGroup).audioDevicesAdded(any());
+        verify(mMockVoiceGroup).audioDevicesAdded(any());
+    }
+
+    @Test
+    public void audioDevicesAdded_withInactiveGroups_andNullDevices() {
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder
+                .addVolumeGroup(mMockInactiveMusicGroup).addVolumeGroup(mMockNavGroup)
+                .addVolumeGroup(mMockVoiceGroup).build();
+
+        NullPointerException thrown =
+                assertThrows(NullPointerException.class,
+                        () -> zoneConfig.audioDevicesAdded(/* devices= */ null));
+
+        expectWithMessage("Audio devices added null devices exception").that(thrown)
+                .hasMessageThat().contains("Audio devices");
+    }
+
+    @Test
+    public void audioDevicesRemoved_withAlreadyActiveGroups() {
+        AudioDeviceInfo musicAudioDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.addVolumeGroup(mMockMusicGroup)
+                .addVolumeGroup(mMockNavGroup).addVolumeGroup(mMockVoiceGroup).build();
+
+        boolean status = zoneConfig.audioDevicesRemoved(List.of(musicAudioDeviceInfo));
+
+        expectWithMessage("Removed device status with active groups").that(status).isFalse();
+        verify(mMockMusicGroup).audioDevicesRemoved(any());
+        verify(mMockNavGroup).audioDevicesRemoved(any());
+        verify(mMockVoiceGroup).audioDevicesRemoved(any());
+    }
+
+    @Test
+    public void audioDevicesRemoved_withInactiveGroups() {
+        AudioDeviceInfo musicAudioDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder
+                .addVolumeGroup(mMockInactiveMusicGroup).addVolumeGroup(mMockNavGroup)
+                .addVolumeGroup(mMockVoiceGroup).build();
+
+        boolean status = zoneConfig.audioDevicesRemoved(List.of(musicAudioDeviceInfo));
+
+        expectWithMessage("Removed device status with inactive group").that(status).isTrue();
+        verify(mMockInactiveMusicGroup).audioDevicesRemoved(any());
+        verify(mMockNavGroup).audioDevicesRemoved(any());
+        verify(mMockVoiceGroup).audioDevicesRemoved(any());
+    }
+
+    @Test
+    public void audioDevicesRemoved_withInactiveGroups_andNullDevices() {
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder
+                .addVolumeGroup(mMockInactiveMusicGroup).addVolumeGroup(mMockNavGroup)
+                .addVolumeGroup(mMockVoiceGroup).build();
+
+        NullPointerException thrown = assertThrows(NullPointerException.class,
+                () -> zoneConfig.audioDevicesRemoved(/* devices= */ null));
+
+        expectWithMessage("Audio devices removed null devices exception").that(thrown)
+                .hasMessageThat().contains("Audio devices");
     }
 
     private CarAudioZoneConfig buildZoneConfig(List<CarVolumeGroup> volumeGroups) {

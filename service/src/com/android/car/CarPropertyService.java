@@ -409,8 +409,15 @@ public class CarPropertyService extends ICarProperty.Stub
             mSubscriptionManager.commit();
             for (int i = 0; i < sanitizedOptions.size(); i++) {
                 CarSubscription option = sanitizedOptions.get(i);
-                client.addProperty(
-                        option.propertyId, option.areaIds, option.updateRateHz);
+                // After {@code validateAndSanitizeSubscriptions}, update rate must be 0 for
+                // on-change property and non-0 for continuous property.
+                if (option.updateRateHz != 0) {
+                    client.addContinuousProperty(
+                            option.propertyId, option.areaIds, option.updateRateHz,
+                            option.enableVariableUpdateRate);
+                } else {
+                    client.addOnChangeProperty(option.propertyId, option.areaIds);
+                }
             }
             finalClient = client;
         }
@@ -582,26 +589,6 @@ public class CarPropertyService extends ICarProperty.Stub
         }
     }
 
-    /**
-     * Gets the max update rate for each areaId for the given clients.
-     */
-    @GuardedBy("mLock")
-    SparseArray<Float> getMaxUpdateRateHzByAreaIdLocked(
-            int propertyId, ArraySet<CarPropertyServiceClient> clients) {
-        SparseArray<Float> maxUpdateRateHzByAreaId = new SparseArray<>();
-        for (int i = 0; i < clients.size(); i++) {
-            CarPropertyServiceClient client = clients.valueAt(i);
-            for (int areaId : client.getAreaIds(propertyId)) {
-                float currentUpdateRateHz = client.getUpdateRateHz(propertyId, areaId);
-                if (!maxUpdateRateHzByAreaId.contains(areaId)
-                        || maxUpdateRateHzByAreaId.get(areaId) < currentUpdateRateHz) {
-                    maxUpdateRateHzByAreaId.put(areaId, currentUpdateRateHz);
-                }
-            }
-        }
-        return maxUpdateRateHzByAreaId;
-    }
-
     private void unregisterListenerBinderForProps(List<Integer> propertyIds, IBinder listenerBinder)
             throws ServiceSpecificException {
         synchronized (mLock) {
@@ -642,7 +629,7 @@ public class CarPropertyService extends ICarProperty.Stub
             }
 
             mSubscriptionManager.commit();
-            boolean allPropertiesRemoved = client.removeProperties(validPropertyIds);
+            boolean allPropertiesRemoved = client.remove(validPropertyIds);
             if (allPropertiesRemoved) {
                 mClientMap.remove(listenerBinder);
             }
@@ -814,6 +801,9 @@ public class CarPropertyService extends ICarProperty.Stub
                 Slogf.w(TAG, "the ICarPropertyEventListener is already dead");
                 return;
             }
+            // Note that here we are not calling addContinuousProperty or addOnChangeProperty
+            // for this client because we will not enable filtering in this client, so no need to
+            // record these filtering information.
             mClientMap.put(listenerBinder, client);
             updateSetOperationRecorderLocked(carPropertyValue.getPropertyId(),
                     carPropertyValue.getAreaId(), client);
@@ -929,20 +919,16 @@ public class CarPropertyService extends ICarProperty.Stub
 
         }
         if (lastOperatedClient != null) {
-            dispatchToLastClient(property, areaId, errorCode, lastOperatedClient);
-        }
-    }
-
-    private void dispatchToLastClient(int property, int areaId, int errorCode,
-            CarPropertyServiceClient lastOperatedClient) {
-        try {
-            List<CarPropertyEvent> eventList = new ArrayList<>();
-            eventList.add(
-                    CarPropertyEvent.createErrorEventWithErrorCode(property, areaId,
-                            errorCode));
-            lastOperatedClient.onEvent(eventList);
-        } catch (RemoteException ex) {
-            Slogf.e(TAG, "onEvent calling failed: " + ex);
+            try {
+                List<CarPropertyEvent> eventList = new ArrayList<>();
+                eventList.add(
+                        CarPropertyEvent.createErrorEventWithErrorCode(property, areaId,
+                                errorCode));
+                // We want all the error events to be delivered to this client with no filtering.
+                lastOperatedClient.onFilteredEvents(eventList);
+            } catch (RemoteException ex) {
+                Slogf.e(TAG, "onFilteredEvents calling failed: " + ex);
+            }
         }
     }
 
@@ -1026,6 +1012,28 @@ public class CarPropertyService extends ICarProperty.Stub
                     .currentTimeMillis() - currentTime));
         }
         sSetAsyncLatencyHistogram.logSample((float) (System.currentTimeMillis() - currentTime));
+    }
+
+    @Override
+    public int[] getSupportedNoReadPermPropIds(int[] propertyIds) {
+        List<Integer> noReadPermPropertyIds = new ArrayList<>();
+        for (int propertyId : propertyIds) {
+            if (getCarPropertyConfig(propertyId) == null) {
+                // Not supported
+                continue;
+            }
+            if (!mPropertyHalService.isReadable(mContext, propertyId)) {
+                noReadPermPropertyIds.add(propertyId);
+            }
+        }
+        return ArrayUtils.convertToIntArray(noReadPermPropertyIds);
+    }
+
+    @Override
+    public boolean isSupportedAndHasWritePermissionOnly(int propertyId) {
+        return getCarPropertyConfig(propertyId) != null
+                && mPropertyHalService.isWritable(mContext, propertyId)
+                && !mPropertyHalService.isReadable(mContext, propertyId);
     }
 
     /**

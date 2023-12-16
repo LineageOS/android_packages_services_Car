@@ -56,6 +56,7 @@
     <uses-permission android:name="android.car.permission.READ_CAR_STEERING"/>
     <uses-permission android:name="android.car.permission.STORAGE_MONITORING"/>
     <uses-permission android:name="android.car.permission.CAR_DYNAMICS_STATE"/>
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_DYNAMICS_STATE"/>
     <uses-permission android:name="android.car.permission.CONTROL_APP_BLOCKING"/>
     <!-- use for CarServiceTest -->
     <uses-permission android:name="android.car.permission.USE_CAR_TELEMETRY_SERVICE"/>
@@ -72,9 +73,17 @@
     <uses-permission android:name="android.car.permission.CONTROL_CAR_MIRRORS" />
     <uses-permission android:name="android.car.permission.CONTROL_GLOVE_BOX" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_SEATS" />
+    <uses-permission android:name="android.car.permission.READ_CAR_SEAT_BELTS" />
+    <uses-permission android:name="android.car.permission.READ_IMPACT_SENSORS" />
+    <uses-permission android:name="android.car.permission.READ_VALET_MODE" />
+    <uses-permission android:name="android.car.permission.CONTROL_VALET_MODE" />
+    <uses-permission android:name="android.car.permission.READ_HEAD_UP_DISPLAY" />
+    <uses-permission android:name="android.car.permission.CONTROL_HEAD_UP_DISPLAY" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_WINDOWS" />
+    <uses-permission android:name="android.car.permission.READ_CAR_AIRBAGS"/>
     <uses-permission android:name="android.car.permission.CONTROL_CAR_AIRBAGS"/>
     <uses-permission android:name="android.car.permission.READ_CAR_DISPLAY_UNITS" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_DISPLAY_UNITS" />
     <uses-permission android:name="android.car.permission.CAR_IDENTIFICATION" />
     <uses-permission android:name="android.car.permission.PERMISSION_ADJUST_RANGE_REMAINING" />
     <uses-permission android:name="android.car.permission.PERMISSION_CAR_ENGINE_DETAILED" />
@@ -86,6 +95,7 @@
     <uses-permission android:name="android.car.permission.READ_WINDSHIELD_WIPERS" />
     <uses-permission android:name="android.car.permission.CONTROL_WINDSHIELD_WIPERS" />
     <uses-permission android:name="android.car.permission.CAR_EPOCH_TIME" />
+    <uses-permission android:name="android.car.permission.READ_ULTRASONICS_SENSOR_DATA" />
     <!-- use for CarServiceTest -->
     <uses-permission android:name="android.car.permission.VMS_PUBLISHER"/>
     <!-- use for CarServiceTest -->

@@ -44,6 +44,10 @@ public class CarUiPortraitTemperatureControlView extends LinearLayout implements
     protected static final int BUTTON_REPEAT_INTERVAL_MS = 500;
 
     private static final int INVALID_ID = -1;
+    /**
+     * @see android.car.VehiclePropertyIds#HVAC_TEMPERATURE_SET
+     */
+    private static final int HVAC_TEMPERATURE_SET_CONFIG_ARRAY_SIZE = 6;
 
     private final int mAreaId;
     private final int mAvailableTextColor;
@@ -139,12 +143,14 @@ public class CarUiPortraitTemperatureControlView extends LinearLayout implements
     @Override
     public void setConfigInfo(CarPropertyConfig<?> carPropertyConfig) {
         List<Integer> configArray = carPropertyConfig.getConfigArray();
-        // Need to divide by 10 because config array values are temperature values that have been
-        // multiplied by 10.
+        if (configArray.size() != HVAC_TEMPERATURE_SET_CONFIG_ARRAY_SIZE) {
+            return;
+        }
+        // Need to divide by 10 because config array values are
+        // temperature values that have been multiplied by 10.
         mMinTempC = configArray.get(0) / 10f;
         mMaxTempC = configArray.get(1) / 10f;
         mTemperatureIncrementCelsius = configArray.get(2) / 10f;
-
         mMinTempF = configArray.get(3) / 10f;
         mTemperatureIncrementFahrenheit = configArray.get(5) / 10f;
     }

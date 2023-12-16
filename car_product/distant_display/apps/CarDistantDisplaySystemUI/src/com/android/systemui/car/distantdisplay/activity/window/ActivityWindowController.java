@@ -17,17 +17,18 @@ package com.android.systemui.car.distantdisplay.activity.window;
 
 import android.app.ActivityOptions;
 import android.content.Context;
-import android.hardware.display.DisplayManager;
 import android.os.UserHandle;
 import android.util.Log;
-import android.view.Display;
 
 import com.android.systemui.R;
+import com.android.systemui.car.CarDeviceProvisionedController;
+import com.android.systemui.car.CarDeviceProvisionedListener;
 import com.android.systemui.car.distantdisplay.activity.DistantDisplayActivity;
 import com.android.systemui.car.distantdisplay.common.UserUnlockReceiver;
 import com.android.systemui.dagger.SysUISingleton;
 
 import javax.inject.Inject;
+
 
 /**
  * Controller that decides who will host the TaskView based on the flags. Host can either be an
@@ -39,15 +40,31 @@ public class ActivityWindowController {
     public static final String TAG = ActivityWindowController.class.getSimpleName();
     private final UserUnlockReceiver mUserUnlockReceiver = new UserUnlockReceiver();
     private final Context mContext;
-    private final DisplayManager mDisplayManager;
     private final int mDistantDisplayId;
+    private final CarDeviceProvisionedController mCarDeviceProvisionedController;
+    private boolean mUserSetupInProgress;
+    private boolean mIsUserUnlocked;
+    private boolean mDistantDisplayActivityStarted;
+
+    private final CarDeviceProvisionedListener mCarDeviceProvisionedListener =
+            new CarDeviceProvisionedListener() {
+                @Override
+                public void onUserSetupInProgressChanged() {
+                    mUserSetupInProgress = mCarDeviceProvisionedController
+                            .isCurrentUserSetupInProgress();
+
+                    startDistantDisplayActivity();
+                }
+            };
 
     @Inject
-    public ActivityWindowController(Context context) {
+    public ActivityWindowController(Context context,
+            CarDeviceProvisionedController deviceProvisionedController) {
         mContext = context;
-        mDisplayManager = mContext.getSystemService(DisplayManager.class);
-        mDistantDisplayId = findDisplay(
-                mContext.getResources().getInteger(R.integer.config_distantDisplayId));
+        mDistantDisplayId =
+                mContext.getResources().getInteger(R.integer.config_distantDisplayId);
+        mCarDeviceProvisionedController = deviceProvisionedController;
+        mCarDeviceProvisionedController.addCallback(mCarDeviceProvisionedListener);
     }
 
     /**
@@ -59,21 +76,30 @@ public class ActivityWindowController {
 
     private void registerUserUnlockReceiver() {
         UserUnlockReceiver.Callback callback = () -> {
-            ActivityOptions options = ActivityOptions.makeCustomAnimation(mContext, 0, 0);
-            options.setLaunchDisplayId(mDistantDisplayId);
-            mContext.startActivityAsUser(DistantDisplayActivity.createIntent(mContext),
-                    options.toBundle(), UserHandle.CURRENT);
+            mIsUserUnlocked = true;
+            startDistantDisplayActivity();
         };
         mUserUnlockReceiver.register(mContext, callback);
     }
 
-    private int findDisplay(int distantDisplayId) {
-        for (Display display : mDisplayManager.getDisplays()) {
-            if (display.getDisplayId() == distantDisplayId) {
-                return display.getDisplayId();
-            }
+    private void startDistantDisplayActivity() {
+        if (mUserSetupInProgress) {
+            Log.w(TAG, "user unlocked but suw still in progress, can't launch activity");
+            return;
         }
-        Log.e(TAG, "Could not find a display id" + distantDisplayId);
-        return Display.INVALID_DISPLAY;
+        if (!mIsUserUnlocked) {
+            Log.w(TAG, "user is NOT unlocked, can't launch activity");
+            return;
+        }
+        // check if the activity is already started.
+        if (mDistantDisplayActivityStarted) {
+            Log.w(TAG, "distant display activity already started");
+            return;
+        }
+        ActivityOptions options = ActivityOptions.makeCustomAnimation(mContext, 0, 0);
+        options.setLaunchDisplayId(mDistantDisplayId);
+        mContext.startActivityAsUser(DistantDisplayActivity.createIntent(mContext),
+                options.toBundle(), UserHandle.CURRENT);
+        mDistantDisplayActivityStarted = true;
     }
 }

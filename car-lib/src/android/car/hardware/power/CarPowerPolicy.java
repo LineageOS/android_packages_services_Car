@@ -16,6 +16,8 @@
 
 package android.car.hardware.power;
 
+import static android.car.hardware.power.PowerComponentUtil.powerComponentsToString;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.NonNull;
@@ -24,6 +26,7 @@ import android.os.Parcelable;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.AnnotationValidations;
 import com.android.car.internal.util.DataClass;
+import com.android.car.internal.util.Lists;
 
 /**
  * Car power policy definition.
@@ -33,19 +36,19 @@ public final class CarPowerPolicy implements Parcelable {
     /**
      * ID of power policy.
      */
-    private final @NonNull String mPolicyId;
+    private @NonNull String mPolicyId = "";
 
     /**
      * List of enabled components. Components are one of
      * {@code android.frameworks.automotive.powerpolicy.PowerComponent}.
      */
-    private final @NonNull int[] mEnabledComponents;
+    private @NonNull int[] mEnabledComponents = new int[]{};
 
     /**
      * List of disabled components. Components are one of
      * {@code android.frameworks.automotive.powerpolicy.PowerComponent}.
      */
-    private final @NonNull int[] mDisabledComponents;
+    private @NonNull int[] mDisabledComponents = new int[]{};
 
     /**
      * Returns {@code true} if the given component is enabled in the power policy. Otherwise,
@@ -58,6 +61,14 @@ public final class CarPowerPolicy implements Parcelable {
             }
         }
         return false;
+    }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    public String toString() {
+        return String.format("%s(enabledComponents: %s, disabledComponents: %s)", mPolicyId,
+                powerComponentsToString(Lists.asImmutableList(mEnabledComponents)),
+                powerComponentsToString(Lists.asImmutableList(mDisabledComponents)));
     }
 
 

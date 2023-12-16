@@ -17,7 +17,6 @@ package com.android.car.property;
 
 import static android.car.hardware.property.CarPropertyEvent.PROPERTY_EVENT_ERROR;
 import static android.car.hardware.property.CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE;
-import static android.car.hardware.property.CarPropertyManager.SENSOR_RATE_ONCHANGE;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -70,6 +69,9 @@ public class CarPropertyServiceClientUnitTest {
     private static final CarPropertyValue<Integer> FRESH_CAR_PROPERTY_VALUE =
             new CarPropertyValue<>(FIRST_PROPERTY_ID, AREA_ID_1, FRESH_TIMESTAMP_NANOS,
                     INTEGER_VALUE_2);
+    private static final CarPropertyValue<Integer> FRESH_CAR_PROPERTY_SAME_VALUE =
+            new CarPropertyValue<>(FIRST_PROPERTY_ID, AREA_ID_1, FRESH_TIMESTAMP_NANOS,
+                    INTEGER_VALUE_1);
     private static final CarPropertyValue<Integer> ALMOST_FRESH_CAR_PROPERTY_VALUE =
             new CarPropertyValue<>(FIRST_PROPERTY_ID, AREA_ID_1, ALMOST_FRESH_TIMESTAMP_NANOS,
                     INTEGER_VALUE_2);
@@ -103,10 +105,12 @@ public class CarPropertyServiceClientUnitTest {
                 mUnregisterCallback);
     }
 
+    // Most of the logic in CarPropertyServiceClient is already tested in
+    // CarPropertyEventCallbackControllerUnitTest since they all use CarPropertyEventController.
     @Test
-    public void addProperty_getUpdateRateHzOnePropertyAdded() {
-        mCarPropertyServiceClient.addProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                FIRST_UPDATE_RATE_HZ);
+    public void testAddContinuousProperty_getUpdateRateHzOnePropertyAdded() {
+        mCarPropertyServiceClient.addContinuousProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
+                FIRST_UPDATE_RATE_HZ, /* enableVur= */ false);
 
         assertThat(mCarPropertyServiceClient.getUpdateRateHz(FIRST_PROPERTY_ID, AREA_ID_1))
                 .isEqualTo(FIRST_UPDATE_RATE_HZ);
@@ -115,19 +119,19 @@ public class CarPropertyServiceClientUnitTest {
     }
 
     @Test
-    public void addProperty_getLatestRateIfSamePropertyAddedTwice() {
-        mCarPropertyServiceClient.addProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                FIRST_UPDATE_RATE_HZ);
-        mCarPropertyServiceClient.addProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                SECOND_BIGGER_UPDATE_RATE_HZ);
+    public void testAddContinuousProperty_getLatestRateIfSamePropertyAddedTwice() {
+        mCarPropertyServiceClient.addContinuousProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
+                FIRST_UPDATE_RATE_HZ, /* enableVur= */ false);
+        mCarPropertyServiceClient.addContinuousProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
+                SECOND_BIGGER_UPDATE_RATE_HZ, /* enableVur= */ false);
 
         assertThat(mCarPropertyServiceClient.getUpdateRateHz(FIRST_PROPERTY_ID, AREA_ID_1))
                 .isEqualTo(SECOND_BIGGER_UPDATE_RATE_HZ);
         assertThat(mCarPropertyServiceClient.getUpdateRateHz(FIRST_PROPERTY_ID, AREA_ID_2))
                 .isEqualTo(SECOND_BIGGER_UPDATE_RATE_HZ);
 
-        mCarPropertyServiceClient.addProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                SECOND_SMALLER_UPDATE_RATE_HZ);
+        mCarPropertyServiceClient.addContinuousProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
+                SECOND_SMALLER_UPDATE_RATE_HZ, /* enableVur= */ false);
 
         assertThat(mCarPropertyServiceClient.getUpdateRateHz(FIRST_PROPERTY_ID, AREA_ID_1))
                 .isEqualTo(SECOND_SMALLER_UPDATE_RATE_HZ);
@@ -136,10 +140,10 @@ public class CarPropertyServiceClientUnitTest {
     }
 
     @Test
-    public void addProperty_rateNotFoundIfBinderDead() {
+    public void testAddContinuousProperty_rateNotFoundIfBinderDead() {
         mCarPropertyServiceClient.binderDied();
-        mCarPropertyServiceClient.addProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                FIRST_UPDATE_RATE_HZ);
+        mCarPropertyServiceClient.addContinuousProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
+                FIRST_UPDATE_RATE_HZ, /* enableVur= */ false);
 
         assertThat(mCarPropertyServiceClient.getUpdateRateHz(FIRST_PROPERTY_ID, AREA_ID_1))
                 .isEqualTo(0f);
@@ -148,7 +152,7 @@ public class CarPropertyServiceClientUnitTest {
     }
 
     @Test
-    public void getUpdateRateHz_rateNotFoundNoPropertyAdded() {
+    public void testGetUpdateRateHz_rateNotFoundNoPropertyAdded() {
         assertThat(mCarPropertyServiceClient.getUpdateRateHz(FIRST_PROPERTY_ID, AREA_ID_1))
                 .isEqualTo(0f);
         assertThat(mCarPropertyServiceClient.getUpdateRateHz(FIRST_PROPERTY_ID, AREA_ID_2))
@@ -156,25 +160,25 @@ public class CarPropertyServiceClientUnitTest {
     }
 
     @Test
-    public void removeProperties_doesNothingIfNoPropertyAdded() {
-        assertThat(mCarPropertyServiceClient.removeProperties(
+    public void testRemove_multipleProperties_doesNothingIfNoPropertyAdded() {
+        assertThat(mCarPropertyServiceClient.remove(
                 new ArraySet<>(Set.of(FIRST_PROPERTY_ID)))).isTrue();
         verify(mListenerBinder).unlinkToDeath(any(), anyInt());
     }
 
     @Test
-    public void removeProperties_onePropertyRemoved() {
-        mCarPropertyServiceClient.addProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                FIRST_UPDATE_RATE_HZ);
-        mCarPropertyServiceClient.addProperty(SECOND_PROPERTY_ID, REGISTERED_AREA_IDS,
-                FIRST_UPDATE_RATE_HZ);
+    public void testRemove_multipleProperties_onePropertyRemoved() {
+        mCarPropertyServiceClient.addContinuousProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
+                FIRST_UPDATE_RATE_HZ, /* enableVur= */ false);
+        mCarPropertyServiceClient.addContinuousProperty(SECOND_PROPERTY_ID, REGISTERED_AREA_IDS,
+                FIRST_UPDATE_RATE_HZ, /* enableVur= */ false);
 
-        assertThat(mCarPropertyServiceClient.removeProperties(
+        assertThat(mCarPropertyServiceClient.remove(
                 new ArraySet<>(Set.of(FIRST_PROPERTY_ID)))).isFalse();
     }
 
     @Test
-    public void onEvent_listenerNotCalledIfNoPropertyAdded() throws RemoteException {
+    public void testOnEvent_listenerNotCalledIfNoPropertyAdded() throws RemoteException {
         List<CarPropertyEvent> events = List.of(
                 new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE, GOOD_CAR_PROPERTY_VALUE));
 
@@ -184,7 +188,7 @@ public class CarPropertyServiceClientUnitTest {
     }
 
     @Test
-    public void onEvent_listenerNotCalledIfBinderDead() throws RemoteException {
+    public void testOnEvent_listenerNotCalledIfBinderDead() throws RemoteException {
         List<CarPropertyEvent> events = List.of(
                 new CarPropertyEvent(PROPERTY_EVENT_ERROR, ERROR_CAR_PROPERTY_VALUE));
 
@@ -195,9 +199,8 @@ public class CarPropertyServiceClientUnitTest {
     }
 
     @Test
-    public void onEvent_listenerCalledForErrorEvents() throws RemoteException {
-        mCarPropertyServiceClient.addProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                SENSOR_RATE_ONCHANGE);
+    public void testOnEvent_listenerCalledForErrorEvents() throws RemoteException {
+        mCarPropertyServiceClient.addOnChangeProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
         List<CarPropertyEvent> events = List.of(
                 new CarPropertyEvent(PROPERTY_EVENT_ERROR, ERROR_CAR_PROPERTY_VALUE));
 
@@ -208,9 +211,8 @@ public class CarPropertyServiceClientUnitTest {
     }
 
     @Test
-    public void onEvent_listenerCalledForChangeEvents() throws RemoteException {
-        mCarPropertyServiceClient.addProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                SENSOR_RATE_ONCHANGE);
+    public void testOnEvent_listenerCalledForChangeEvents() throws RemoteException {
+        mCarPropertyServiceClient.addOnChangeProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
         List<CarPropertyEvent> events = List.of(
                 new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE, GOOD_CAR_PROPERTY_VALUE));
 
@@ -221,11 +223,9 @@ public class CarPropertyServiceClientUnitTest {
     }
 
     @Test
-    public void onEvent_listenerCalledForMultipleProperties() throws RemoteException {
-        mCarPropertyServiceClient.addProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                SENSOR_RATE_ONCHANGE);
-        mCarPropertyServiceClient.addProperty(SECOND_PROPERTY_ID, REGISTERED_AREA_IDS,
-                SENSOR_RATE_ONCHANGE);
+    public void testOnEvent_listenerCalledForMultipleProperties() throws RemoteException {
+        mCarPropertyServiceClient.addOnChangeProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
+        mCarPropertyServiceClient.addOnChangeProperty(SECOND_PROPERTY_ID, REGISTERED_AREA_IDS);
         List<CarPropertyEvent> events = List.of(
                 new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE, GOOD_CAR_PROPERTY_VALUE),
                 new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
@@ -238,9 +238,8 @@ public class CarPropertyServiceClientUnitTest {
     }
 
     @Test
-    public void onEvent_listenerNotCalledForStaleCarPropertyValues() throws RemoteException {
-        mCarPropertyServiceClient.addProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                SENSOR_RATE_ONCHANGE);
+    public void testOnEvent_listenerNotCalledForStaleCarPropertyValues() throws RemoteException {
+        mCarPropertyServiceClient.addOnChangeProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
         List<CarPropertyEvent> goodEvents = List.of(
                 new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE, GOOD_CAR_PROPERTY_VALUE));
         List<CarPropertyEvent> staleEvents = List.of(
@@ -254,10 +253,10 @@ public class CarPropertyServiceClientUnitTest {
     }
 
     @Test
-    public void onEvent_listenerNotCalledForCarPropertyValuesBeforeNextUpdateTime()
+    public void testOnEvent_listenerNotCalledForCarPropertyValuesBeforeNextUpdateTime()
             throws RemoteException {
-        mCarPropertyServiceClient.addProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                FIRST_UPDATE_RATE_HZ);
+        mCarPropertyServiceClient.addContinuousProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
+                FIRST_UPDATE_RATE_HZ, /* enableVur= */ false);
         List<CarPropertyEvent> goodEvents = List.of(
                 new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE, GOOD_CAR_PROPERTY_VALUE));
         List<CarPropertyEvent> tooEarlyEvents = List.of(
@@ -272,9 +271,8 @@ public class CarPropertyServiceClientUnitTest {
     }
 
     @Test
-    public void onEvent_listenerCalledForFreshCarPropertyValues() throws RemoteException {
-        mCarPropertyServiceClient.addProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                SENSOR_RATE_ONCHANGE);
+    public void testOnEvent_listenerCalledForFreshCarPropertyValues() throws RemoteException {
+        mCarPropertyServiceClient.addOnChangeProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
         List<CarPropertyEvent> goodEvents = List.of(
                 new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE, GOOD_CAR_PROPERTY_VALUE));
         List<CarPropertyEvent> freshEvents = List.of(
@@ -290,10 +288,10 @@ public class CarPropertyServiceClientUnitTest {
     }
 
     @Test
-    public void onEvent_listenerCalledForFreshCarPropertyValuesNonZeroUpdateRate()
+    public void testOnEvent_listenerCalledForFreshCarPropertyValuesNonZeroUpdateRate()
             throws RemoteException {
-        mCarPropertyServiceClient.addProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                FIRST_UPDATE_RATE_HZ);
+        mCarPropertyServiceClient.addContinuousProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
+                FIRST_UPDATE_RATE_HZ, /* enableVur= */ false);
         List<CarPropertyEvent> goodEvents = List.of(
                 new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE, GOOD_CAR_PROPERTY_VALUE));
         List<CarPropertyEvent> freshEvents = List.of(
@@ -309,12 +307,10 @@ public class CarPropertyServiceClientUnitTest {
     }
 
     @Test
-    public void onEvent_listenerCalledForCarPropertyValuesWithDifferentPropertyId()
+    public void testOnEvent_listenerCalledForCarPropertyValuesWithDifferentPropertyId()
             throws RemoteException {
-        mCarPropertyServiceClient.addProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                SENSOR_RATE_ONCHANGE);
-        mCarPropertyServiceClient.addProperty(SECOND_PROPERTY_ID, REGISTERED_AREA_IDS,
-                SENSOR_RATE_ONCHANGE);
+        mCarPropertyServiceClient.addOnChangeProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
+        mCarPropertyServiceClient.addOnChangeProperty(SECOND_PROPERTY_ID, REGISTERED_AREA_IDS);
         List<CarPropertyEvent> goodEvents = List.of(
                 new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE, GOOD_CAR_PROPERTY_VALUE));
         List<CarPropertyEvent> staleEvents = List.of(
@@ -331,10 +327,9 @@ public class CarPropertyServiceClientUnitTest {
     }
 
     @Test
-    public void onEvent_listenerCalledForCarPropertyValuesWithDifferentAreaId()
+    public void testOnEvent_listenerCalledForCarPropertyValuesWithDifferentAreaId()
             throws RemoteException {
-        mCarPropertyServiceClient.addProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS,
-                SENSOR_RATE_ONCHANGE);
+        mCarPropertyServiceClient.addOnChangeProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
         List<CarPropertyEvent> goodEvents = List.of(
                 new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE, GOOD_CAR_PROPERTY_VALUE));
         List<CarPropertyEvent> staleEvents = List.of(
@@ -348,5 +343,43 @@ public class CarPropertyServiceClientUnitTest {
                 mCarPropertyEventListCaptor.capture());
         assertThat(mCarPropertyEventListCaptor.getAllValues()).containsExactly(goodEvents,
                 staleEvents);
+    }
+
+    @Test
+    public void testOnEvent_VurEnabled_forwardsEventIfValueIsDifferent() throws Exception {
+        mCarPropertyServiceClient.addContinuousProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS, FIRST_UPDATE_RATE_HZ,
+                /* enableVur= */ true);
+        List<CarPropertyEvent> goodEvents = List.of(
+                new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE, GOOD_CAR_PROPERTY_VALUE));
+        List<CarPropertyEvent> freshEvents = List.of(
+                new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE, FRESH_CAR_PROPERTY_VALUE));
+
+        mCarPropertyServiceClient.onEvent(goodEvents);
+        mCarPropertyServiceClient.onEvent(freshEvents);
+
+        verify(mICarPropertyEventListener, times(2)).onEvent(
+                mCarPropertyEventListCaptor.capture());
+        assertThat(mCarPropertyEventListCaptor.getAllValues()).containsExactly(goodEvents,
+                freshEvents);
+    }
+
+    @Test
+    public void testOnEvent_VurEnabled_ignoreEventIfValueIsSame() throws Exception {
+        mCarPropertyServiceClient.addContinuousProperty(
+                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS, FIRST_UPDATE_RATE_HZ,
+                /* enableVur= */ true);
+        List<CarPropertyEvent> goodEvents = List.of(
+                new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE, GOOD_CAR_PROPERTY_VALUE));
+        List<CarPropertyEvent> sameValueEvents = List.of(
+                new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
+                        FRESH_CAR_PROPERTY_SAME_VALUE));
+
+        mCarPropertyServiceClient.onEvent(goodEvents);
+        mCarPropertyServiceClient.onEvent(sameValueEvents);
+
+        verify(mICarPropertyEventListener, times(1)).onEvent(
+                mCarPropertyEventListCaptor.capture());
+        assertThat(mCarPropertyEventListCaptor.getAllValues()).containsExactly(goodEvents);
     }
 }

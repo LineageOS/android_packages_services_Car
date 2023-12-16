@@ -20,14 +20,13 @@
     android:weightSum="4" >
     <TextView
         android:id="@+id/text_selector"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:gravity="center"
         android:layout_weight="3">
     </TextView>
     <Button
         android:id="@+id/button_tune"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:gravity="center"
         android:text="@string/radio_tune"

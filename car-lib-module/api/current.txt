@@ -272,6 +272,7 @@ package android.car {
     field public static final int VEHICLE_AREA_TYPE_GLOBAL = 0; // 0x0
     field public static final int VEHICLE_AREA_TYPE_MIRROR = 5; // 0x5
     field public static final int VEHICLE_AREA_TYPE_SEAT = 3; // 0x3
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public static final int VEHICLE_AREA_TYPE_VENDOR = 7; // 0x7
     field public static final int VEHICLE_AREA_TYPE_WHEEL = 6; // 0x6
     field public static final int VEHICLE_AREA_TYPE_WINDOW = 2; // 0x2
   }
@@ -336,6 +337,7 @@ package android.car {
     field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_RPM = 291504901; // 0x11600305
     field @RequiresPermission(android.car.Car.PERMISSION_EXTERIOR_ENVIRONMENT) public static final int ENV_OUTSIDE_TEMPERATURE = 291505923; // 0x11600703
     field @RequiresPermission("android.car.permission.CAR_EPOCH_TIME") public static final int EPOCH_TIME = 290457094; // 0x11500606
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_ENERGY)) public static final int EV_BATTERY_AVERAGE_TEMPERATURE = 291504910; // 0x1160030e
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DISPLAY_UNITS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(allOf={android.car.Car.PERMISSION_CONTROL_DISPLAY_UNITS, "android.car.permission.CAR_VENDOR_EXTENSION"})) public static final int EV_BATTERY_DISPLAY_UNITS = 289408515; // 0x11400603
     field @RequiresPermission(android.car.Car.PERMISSION_ENERGY) public static final int EV_BATTERY_INSTANTANEOUS_CHARGE_RATE = 291504908; // 0x1160030c
     field @RequiresPermission(android.car.Car.PERMISSION_ENERGY) public static final int EV_BATTERY_LEVEL = 291504905; // 0x11600309
@@ -781,9 +783,15 @@ package android.car.hardware.property {
     method public void setPropertiesAsync(@NonNull java.util.List<android.car.hardware.property.CarPropertyManager.SetPropertyRequest<?>>, long, @Nullable android.os.CancellationSignal, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.SetPropertyCallback);
     method public void setPropertiesAsync(@NonNull java.util.List<android.car.hardware.property.CarPropertyManager.SetPropertyRequest<?>>, @Nullable android.os.CancellationSignal, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.SetPropertyCallback);
     method public <E> void setProperty(@NonNull Class<E>, int, int, @NonNull E);
+    method @FlaggedApi("android.car.feature.variable_update_rate") public boolean subscribePropertyEvents(int, @NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
+    method @FlaggedApi("android.car.feature.variable_update_rate") public boolean subscribePropertyEvents(int, @FloatRange(from=0.0, to=100.0) float, @NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
+    method @FlaggedApi("android.car.feature.variable_update_rate") public boolean subscribePropertyEvents(int, int, @NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
+    method @FlaggedApi("android.car.feature.variable_update_rate") public boolean subscribePropertyEvents(int, int, @FloatRange(from=0.0, to=100.0) float, @NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     method @FlaggedApi("android.car.feature.batched_subscriptions") public boolean subscribePropertyEvents(@NonNull java.util.List<android.car.hardware.property.Subscription>, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     method public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     method public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int);
+    method @FlaggedApi("android.car.feature.batched_subscriptions") public void unsubscribePropertyEvents(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
+    method @FlaggedApi("android.car.feature.batched_subscriptions") public void unsubscribePropertyEvents(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int);
     field public static final long ASYNC_GET_DEFAULT_TIMEOUT_MS = 10000L; // 0x2710L
     field public static final int CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED = 4; // 0x4
     field public static final int CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG = 2; // 0x2
@@ -929,7 +937,6 @@ package android.car.hardware.property {
   }
 
   @FlaggedApi("android.car.feature.batched_subscriptions") public final class Subscription {
-    method @FlaggedApi("android.car.feature.variable_update_rate") public void disableVariableUpdateRate();
     method @Nullable public int[] getAreaIds();
     method public int getPropertyId();
     method public float getUpdateRateFast();
@@ -937,7 +944,7 @@ package android.car.hardware.property {
     method public float getUpdateRateHz();
     method public float getUpdateRateNormal();
     method public float getUpdateRateUi();
-    method @FlaggedApi("android.car.feature.variable_update_rate") public boolean isVariableUpdateRateDisabled();
+    method @FlaggedApi("android.car.feature.variable_update_rate") public boolean isVariableUpdateRateEnabled();
   }
 
   public static final class Subscription.Builder {
@@ -949,6 +956,7 @@ package android.car.hardware.property {
     method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateHz(@FloatRange(from=0.0, to=100.0) float);
     method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateNormal();
     method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateUi();
+    method @FlaggedApi("android.car.feature.variable_update_rate") @NonNull public android.car.hardware.property.Subscription.Builder setVariableUpdateRateEnabled(boolean);
   }
 
   public class VehicleElectronicTollCollectionCardStatus {

@@ -33,6 +33,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/radio_fm_am_tuner" />
+            <RadioButton
+                android:id="@+id/button_dab_type_tuner"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_dab_tuner" />
         </RadioGroup>
         <Space
             android:layout_width="3dp"

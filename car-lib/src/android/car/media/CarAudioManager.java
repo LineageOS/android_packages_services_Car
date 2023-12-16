@@ -20,6 +20,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DE
 import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 
 import android.annotation.CallbackExecutor;
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -31,6 +32,7 @@ import android.car.CarLibLog;
 import android.car.CarManagerBase;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
+import android.car.feature.Flags;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
@@ -274,6 +276,45 @@ public final class CarAudioManager extends CarManagerBase {
     @Retention(RetentionPolicy.SOURCE)
     public @interface AudioMirrorStatus {}
 
+    /**
+     * Status indicating the dynamic audio configurations info have been updated.
+     *
+     * <p><b>Note</b> The list of devices on audio
+     * {@link AudioZoneConfigurationsChangeCallback#onAudioZoneConfigurationsUpdated}, will contain
+     * all the configuration and each configuration can be perused to find availability status.
+     * For an active configuration becoming disabled due to device availability, the
+     * {@link #CONFIG_STATUS_AUTO_SWITCHED} will be triggered instead.
+     *
+     * <p><b>Note</b> This API will only be triggered when a configuration's active status has
+     * changed due to a device connection state changing.
+     *
+     * @hide
+     */
+    @SystemApi
+    @FlaggedApi(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
+    public static final int CONFIG_STATUS_CHANGED = 1;
+
+    /**
+     * Status indicating the dynamic audio config info has auto switched.
+     *
+     * <p><b>Note</b> The list of devices on audio
+     * {@link AudioZoneConfigurationsChangeCallback#onAudioZoneConfigurationsUpdated}, will
+     * contain the previously selected configuration and the newly selected configuration only.
+     *
+     *  @hide
+     */
+    @SystemApi
+    @FlaggedApi(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
+    public static final int CONFIG_STATUS_AUTO_SWITCHED = 2;
+
+    /** @hide */
+    @IntDef(flag = false, prefix = "CONFIG_STATUS_", value = {
+            CONFIG_STATUS_CHANGED,
+            CONFIG_STATUS_AUTO_SWITCHED,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface AudioConfigStatus {}
+
     private final ICarAudio mService;
     private final CopyOnWriteArrayList<CarVolumeCallback> mCarVolumeCallbacks;
     private final CopyOnWriteArrayList<CarVolumeGroupEventCallbackWrapper>
@@ -290,6 +331,9 @@ public final class CarAudioManager extends CarManagerBase {
 
     @GuardedBy("mLock")
     private AudioZonesMirrorStatusCallbackWrapper mAudioZonesMirrorStatusCallbackWrapper;
+
+    @GuardedBy("mLock")
+    private AudioZoneConfigurationsChangeCallbackWrapper mZoneConfigurationsChangeCallbackWrapper;
 
     private final ConcurrentHashMap<Long, MediaAudioRequestStatusCallbackWrapper>
             mRequestIdToMediaAudioRequestStatusCallbacks = new ConcurrentHashMap<>();
@@ -921,6 +965,105 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
+     * Sets the audio zone configurations change callback
+     *
+     * <p><b>Note:</b> There are two types on configuration changes.
+     *
+     * <p>Config active status changes, signaled by status {@link #CONFIG_STATUS_CHANGED},
+     * represent changes to the configurations due to a configuration becoming active or inactive as
+     * a result of a dynamic device being connected or disconnected respectively.
+     *
+     * <p>Config auto switch changes, signaled by status {@link #CONFIG_STATUS_AUTO_SWITCHED},
+     * represent changes to the configurations due a currently selected configuration becoming
+     * inactive as a result of a dynamic device being disconnected.
+     *
+     * @param executor Executor on which callback will be invoked
+     * @param callback Callback that will be triggered on audio configuration changes
+     * @return {@code true} if the callback is successfully registered, {@code false} otherwise
+     * @throws NullPointerException if either executor or callback are {@code null}
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     * @throws IllegalStateException if there is a callback already set
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    @FlaggedApi(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
+    public boolean setAudioZoneConfigsChangeCallback(@NonNull @CallbackExecutor Executor executor,
+            @NonNull AudioZoneConfigurationsChangeCallback callback) {
+        Objects.requireNonNull(executor, "Executor can not be null");
+        Objects.requireNonNull(callback, "Audio zone configs change callback can not be null");
+
+        synchronized (mLock) {
+            if (mZoneConfigurationsChangeCallbackWrapper != null) {
+                throw new IllegalStateException("Audio zone configs change "
+                        + "callback is already set");
+            }
+        }
+        AudioZoneConfigurationsChangeCallbackWrapper wrapper =
+                new AudioZoneConfigurationsChangeCallbackWrapper(executor, callback);
+
+        boolean succeeded;
+        try {
+            succeeded = mService.registerAudioZoneConfigsChangeCallback(wrapper);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, false);
+        }
+
+        if (!succeeded) {
+            return false;
+        }
+        boolean error;
+        synchronized (mLock) {
+            error = mZoneConfigurationsChangeCallbackWrapper != null;
+            if (!error) {
+                mZoneConfigurationsChangeCallbackWrapper = wrapper;
+            }
+        }
+
+        // In case there was an error, unregister the listener and throw an exception
+        if (error) {
+            try {
+                mService.unregisterAudioZoneConfigsChangeCallback(wrapper);
+            } catch (RemoteException e) {
+                handleRemoteExceptionFromCarService(e);
+            }
+
+            throw new IllegalStateException("Audio zone config change callback is already set");
+        }
+        return true;
+    }
+
+    /**
+     * Clears the currently set {@code AudioZoneConfigurationsChangeCallback}
+     *
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    @FlaggedApi(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
+    public void clearAudioZoneConfigsCallback() {
+        AudioZoneConfigurationsChangeCallbackWrapper wrapper;
+
+        synchronized (mLock) {
+            if (mZoneConfigurationsChangeCallbackWrapper == null) {
+                Log.w(TAG, "Audio zone configs callback was already cleared");
+                return;
+            }
+            wrapper = mZoneConfigurationsChangeCallbackWrapper;
+            mZoneConfigurationsChangeCallbackWrapper = null;
+        }
+
+        try {
+            mService.unregisterAudioZoneConfigsChangeCallback(wrapper);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
      * Gets the audio zones currently available
      *
      * @return audio zone ids
@@ -1326,7 +1469,7 @@ public final class CarAudioManager extends CarManagerBase {
     /**
      * Enables audio mirror for a set of audio zones
      *
-     * <p><b>Note:<b/> The results will be notified in the {@link AudioZonesMirrorStatusCallback}
+     * <p><b>Note:</b> The results will be notified in the {@link AudioZonesMirrorStatusCallback}
      * set via {@link #setAudioZoneMirrorStatusCallback(Executor, AudioZonesMirrorStatusCallback)}
      *
      * @param audioZonesToMirror List of audio zones that should have audio mirror enabled,
@@ -1363,7 +1506,7 @@ public final class CarAudioManager extends CarManagerBase {
      * configuration. The zones previously mirroring in the audio mirroring configuration, will
      * continue to mirror and the mirroring will be further extended to the new zones.
      *
-     * <p><b>Note:<b/> The results will be notified in the {@link AudioZonesMirrorStatusCallback}
+     * <p><b>Note:</b> The results will be notified in the {@link AudioZonesMirrorStatusCallback}
      * set via {@link #setAudioZoneMirrorStatusCallback(Executor, AudioZonesMirrorStatusCallback)}.
      * For example, to further extend a mirroring request currently containing zones 1 and 2, with
      * a new zone (3) Simply call the API with zone 3 in the list, after the completion of audio
@@ -1399,7 +1542,7 @@ public final class CarAudioManager extends CarManagerBase {
     /**
      * Disables audio mirror for a particular audio zone
      *
-     * <p><b>Note:<b/> The results will be notified in the {@link AudioZonesMirrorStatusCallback}
+     * <p><b>Note:</b> The results will be notified in the {@link AudioZonesMirrorStatusCallback}
      * set via {@link #setAudioZoneMirrorStatusCallback(Executor, AudioZonesMirrorStatusCallback)}.
      * The results will contain the information for the audio zones whose mirror was cancelled.
      * For example, if the mirror configuration only has two zones, mirroring will be undone for
@@ -1430,7 +1573,7 @@ public final class CarAudioManager extends CarManagerBase {
     /**
      * Disables audio mirror for all the zones mirroring in a particular request
      *
-     * <p><b>Note:<b/> The results will be notified in the {@link AudioZonesMirrorStatusCallback}
+     * <p><b>Note:</b> The results will be notified in the {@link AudioZonesMirrorStatusCallback}
      * set via {@link #setAudioZoneMirrorStatusCallback(Executor, AudioZonesMirrorStatusCallback)}
      *
      * @param mirrorId Whose audio mirroring should be disabled as obtained via
@@ -1722,7 +1865,7 @@ public final class CarAudioManager extends CarManagerBase {
     /**
      * Returns the whether a volume group is muted
      *
-     * <p><b>Note:<b/> If {@link #AUDIO_FEATURE_VOLUME_GROUP_MUTING} is disabled this will always
+     * <p><b>Note:</b> If {@link #AUDIO_FEATURE_VOLUME_GROUP_MUTING} is disabled this will always
      * return {@code false} as group mute is disabled.
      *
      * @param zoneId The zone id whose volume groups is queried.
@@ -1745,7 +1888,7 @@ public final class CarAudioManager extends CarManagerBase {
     /**
      * Sets a volume group mute
      *
-     * <p><b>Note:<b/> If {@link #AUDIO_FEATURE_VOLUME_GROUP_MUTING} is disabled this will throw an
+     * <p><b>Note:</b> If {@link #AUDIO_FEATURE_VOLUME_GROUP_MUTING} is disabled this will throw an
      * error indicating the issue.
      *
      * @param zoneId The zone id whose volume groups will be changed.
@@ -1925,7 +2068,7 @@ public final class CarAudioManager extends CarManagerBase {
          * The changed-to global mute state is not included, the caller is encouraged to
          * get the current global mute state via AudioManager.
          *
-         * <p><b>Note:<b/> If {@link CarAudioManager#AUDIO_FEATURE_VOLUME_GROUP_MUTING} is disabled
+         * <p><b>Note:</b> If {@link CarAudioManager#AUDIO_FEATURE_VOLUME_GROUP_MUTING} is disabled
          * this will be triggered on mute changes. Otherwise, car audio mute changes will trigger
          * {@link #onGroupMuteChanged(int, int, int)}
          *
@@ -2059,6 +2202,31 @@ public final class CarAudioManager extends CarManagerBase {
             try {
                 mExecutor.execute(() -> mCallback.onAudioZonesMirrorStatusChanged(
                         asList(mirroredAudioZones), status));
+            } finally {
+                Binder.restoreCallingIdentity(identity);
+            }
+        }
+    }
+
+    private static final class AudioZoneConfigurationsChangeCallbackWrapper extends
+            IAudioZoneConfigurationsChangeCallback.Stub {
+
+        private final Executor mExecutor;
+        private final AudioZoneConfigurationsChangeCallback mCallback;
+
+        private AudioZoneConfigurationsChangeCallbackWrapper(Executor executor,
+                AudioZoneConfigurationsChangeCallback callback) {
+            mExecutor = executor;
+            mCallback = callback;
+        }
+
+        @Override
+        public void onAudioZoneConfigurationsChanged(List<CarAudioZoneConfigInfo> configs,
+                int status) {
+            long identity = Binder.clearCallingIdentity();
+            try {
+                mExecutor.execute(() -> mCallback.onAudioZoneConfigurationsChanged(configs,
+                        status));
             } finally {
                 Binder.restoreCallingIdentity(identity);
             }
