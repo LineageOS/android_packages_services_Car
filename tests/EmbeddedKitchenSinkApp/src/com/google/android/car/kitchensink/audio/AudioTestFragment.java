@@ -80,13 +80,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
 
 import com.android.internal.util.Preconditions;
 
 import com.google.android.car.kitchensink.R;
 import com.google.android.car.kitchensink.audio.AudioPlayer.PlayStateListener;
-import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -144,10 +142,6 @@ public class AudioTestFragment extends Fragment {
     private Spinner mDeviceAddressSpinner;
     private ArrayAdapter<CarAudioZoneDeviceInfo> mDeviceAddressAdapter;
     private LinearLayout mDeviceAddressLayout;
-
-    private TabLayout mPlayerTabLayout;
-    private ViewPager mViewPager;
-    private CarAudioZoneTabAdapter mAudioPlayerZoneAdapter;
 
     private final Object mLock = new Object();
 
@@ -242,8 +236,7 @@ public class AudioTestFragment extends Fragment {
         TextView currentZoneIdTextView = view.findViewById(R.id.activity_current_zone);
         setActivityCurrentZoneId(currentZoneIdTextView);
 
-        mAudioManager = (AudioManager) mContext.getSystemService(
-                Context.AUDIO_SERVICE);
+        mAudioManager = mContext.getSystemService(AudioManager.class);
         mAudioFocusHandler = new FocusHandler(
                 view.findViewById(R.id.button_focus_request_selection),
                 view.findViewById(R.id.button_audio_focus_request),
@@ -693,17 +686,7 @@ public class AudioTestFragment extends Fragment {
     }
 
     private void setUpCarSoundsLayouts(View view) {
-        mPlayerTabLayout = view.findViewById(R.id.audio_player_tabs);
-        mViewPager = view.findViewById(R.id.zones_player_view_pager);
-        mAudioPlayerZoneAdapter = new CarAudioZoneTabAdapter(getChildFragmentManager());
-        mViewPager.setAdapter(mAudioPlayerZoneAdapter);
-        mAudioPlayerZoneAdapter.addFragment(
-                new AudioSystemPlayerFragment(mCarAudioManager, mAudioManager),
-                "System Players");
-        mAudioPlayerZoneAdapter.addFragment(new AudioTransientPlayersFragment(),
-                "Transient Sound Players");
-        mAudioPlayerZoneAdapter.notifyDataSetChanged();
-        mPlayerTabLayout.setupWithViewPager(mViewPager);
+        AudioPlayersTabControllers.setUpAudioPlayersTab(view, getChildFragmentManager());
     }
 
     private void handleNavStart() {

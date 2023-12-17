@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.google.android.car.kitchensink.R;
 
@@ -65,6 +66,8 @@ public final class AudioConfigurationTestFragment extends Fragment {
                     }
                     mCarAudioManager = (CarAudioManager) car.getCarManager(Car.AUDIO_SERVICE);
                     handleSetUpZoneConfigurationSelection(view);
+                    FragmentManager fragmentManager = getChildFragmentManager();
+                    AudioPlayersTabControllers.setUpAudioPlayersTab(view, fragmentManager);
                 });
     }
 
