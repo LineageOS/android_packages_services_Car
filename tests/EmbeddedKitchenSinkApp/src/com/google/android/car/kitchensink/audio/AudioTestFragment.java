@@ -213,7 +213,8 @@ public class AudioTestFragment extends Fragment {
         try {
             mZoneConfigController = new ZoneConfigSelectionController(view, mCarAudioManager,
                     mContext, getCurrentZoneId(mContext, mCarAudioManager),
-                    this::updateDeviceAddressPlayer);
+                    (autoSelected) -> updateDeviceAddressPlayer(),
+                    /* configUpdatedListener= */ null);
         } catch (Exception e) {
             Log.e(TAG, "Failed to setup car audio zone config selection view", e);
         }

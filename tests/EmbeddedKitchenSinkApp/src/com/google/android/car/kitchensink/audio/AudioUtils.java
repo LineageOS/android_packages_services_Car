@@ -17,8 +17,13 @@
 package com.google.android.car.kitchensink.audio;
 
 import android.car.media.CarAudioManager;
+import android.car.media.CarAudioZoneConfigInfo;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+
+import androidx.annotation.Nullable;
+
+import java.util.List;
 
 final class AudioUtils {
 
@@ -30,5 +35,14 @@ final class AudioUtils {
         ApplicationInfo info = context.getPackageManager().getApplicationInfo(
                 context.getPackageName(), /* flags= */ 0);
         return manager.getZoneIdForUid(info.uid);
+    }
+
+    @Nullable
+    static CarAudioZoneConfigInfo getCarAudioZoneConfigInfoOrNull(
+            List<CarAudioZoneConfigInfo> configs, int zoneId, int configId) {
+        CarAudioZoneConfigInfo info = configs.stream()
+                .filter(c -> c.getZoneId() == zoneId && c.getConfigId() == configId)
+                .findFirst().orElse(null);
+        return info;
     }
 }
