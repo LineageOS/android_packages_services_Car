@@ -279,6 +279,13 @@ public:
      */
     virtual std::unique_ptr<ISubscriptionClient> getSubscriptionClient(
             std::shared_ptr<ISubscriptionCallback> callback) = 0;
+
+    /**
+     * Gets the VHAL interface version used by VHAL.
+     *
+     * This is only useful for AIDL VHAL.
+     */
+    virtual int32_t getRemoteInterfaceVersion() { return 0; }
 };
 
 }  // namespace vhal
