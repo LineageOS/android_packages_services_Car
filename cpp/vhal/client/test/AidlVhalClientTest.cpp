@@ -960,6 +960,46 @@ TEST_F(AidlVhalClientTest, testGetRemoteInterfaceVersion) {
     ASSERT_THAT(getClient()->getRemoteInterfaceVersion(), Gt(1));
 }
 
+TEST_F(AidlVhalClientTest, testSubscribeOptionsBuilder) {
+    auto optionsBuilder = SubscribeOptionsBuilder(TEST_PROP_ID);
+    optionsBuilder.setSampleRate(1.23f);
+    optionsBuilder.addAreaId(1);
+    optionsBuilder.addAreaId(2);
+    optionsBuilder.setResolution(2.34f);
+
+    auto options = optionsBuilder.build();
+
+    ASSERT_EQ(options,
+              (SubscribeOptions{
+                      .propId = TEST_PROP_ID,
+                      .areaIds = {1, 2},
+                      .sampleRate = 1.23f,
+                      .resolution = 2.34f,
+                      // VUR is true by default
+                      .enableVariableUpdateRate = true,
+              }));
+}
+
+TEST_F(AidlVhalClientTest, testSubscribeOptionsBuilder_disableVur) {
+    auto optionsBuilder = SubscribeOptionsBuilder(TEST_PROP_ID);
+    optionsBuilder.setSampleRate(1.23f);
+    optionsBuilder.addAreaId(1);
+    optionsBuilder.addAreaId(2);
+    optionsBuilder.setResolution(2.34f);
+    optionsBuilder.setEnableVariableUpdateRate(false);
+
+    auto options = optionsBuilder.build();
+
+    ASSERT_EQ(options,
+              (SubscribeOptions{
+                      .propId = TEST_PROP_ID,
+                      .areaIds = {1, 2},
+                      .sampleRate = 1.23f,
+                      .resolution = 2.34f,
+                      .enableVariableUpdateRate = false,
+              }));
+}
+
 }  // namespace aidl_test
 }  // namespace vhal
 }  // namespace automotive
