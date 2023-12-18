@@ -259,6 +259,24 @@ public final class CarTaskViewController {
         }
     }
 
+    /**
+     * Brings all the embedded controlled tasks to the front.
+     */
+    @MainThread
+    void showEmbeddedControlledTasks() {
+        if (mReleased) {
+            throw new IllegalStateException("CarTaskViewController is already released");
+        }
+        for (int i = 0, length = mRemoteCarTaskViews.size(); i < length; i++) {
+            RemoteCarTaskView carTaskView = mRemoteCarTaskViews.get(i);
+            // TODO(b/267314188): Add a new method in ICarSystemUI to call
+            // showEmbeddedTask in a single WCT for multiple tasks.
+            if (carTaskView instanceof ControlledRemoteCarTaskView) {
+                carTaskView.showEmbeddedTask();
+            }
+        }
+    }
+
     boolean isHostVisible() {
         return mLifecycle.isVisible();
     }

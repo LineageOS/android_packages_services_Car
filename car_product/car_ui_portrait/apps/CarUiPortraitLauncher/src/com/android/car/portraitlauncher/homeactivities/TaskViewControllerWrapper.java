@@ -66,8 +66,10 @@ abstract class TaskViewControllerWrapper {
     /**
      * Brings the embedded task to the front for all the taskviews. Does nothing if there is no
      * task.
+     *
+     * @param taskViewIds the Ids of the task views which the embedded tasks should be shown for.
      */
-    abstract void showEmbeddedTasks();
+    abstract void showEmbeddedTasks(int[] taskViewIds);
 
     /**
      * Updates the WM bounds for the underlying task as per the current view bounds for all the
@@ -106,8 +108,8 @@ abstract class TaskViewControllerWrapper {
     /** Returns the task info of the top task running in the default taskview with root task. */
     abstract ActivityManager.RunningTaskInfo getRootTaskInfo();
 
-    /** Moves the taskview with given {@code taskViewId} to the front. */
-    abstract void moveToFront(int taskViewId);
+    /** Moves the taskview with given {@code taskViewId} to the back. */
+    abstract void moveToBack(int taskViewId);
 
     /**
      * Triggers the change in the WM bounds as per the {@code newBounds} received on the taskview
@@ -116,13 +118,17 @@ abstract class TaskViewControllerWrapper {
     abstract void setWindowBounds(Rect taskViewBounds, int taskViewId);
 
     /**
-     * Updates the window visibility associated with the default taskview with root task.
-     * @param visibility {true} if window needs to be displayed {false} otherwise
+     * Updates the visibility of the task in the taskview with given {@code taskViewId}.
+     * @param visibility {true} if window needs to be displayed {false} otherwise.
+     * @param taskViewId Identifier associate with the taskview.
      */
-    abstract void updateCarDefaultTaskViewVisibility(boolean visibility);
+    abstract void updateTaskVisibility(boolean visibility, int taskViewId);
 
     /** Returns the taskview with given {@code taskViewId}. */
     abstract SurfaceView getTaskView(int taskViewId);
+
+    /** Returns the task id of the top child task in with given {@code taskViewId}. */
+    abstract int getTaskId(int taskViewId);
 
     /**
      * A callback interface for {@link TaskViewControllerWrapper}.
@@ -150,6 +156,21 @@ abstract class TaskViewControllerWrapper {
          */
         void onTaskViewCreated(@NonNull SurfaceView surfaceView);
 
+        /**
+         * Called when a task with this {@code taskInfo} appears in the task view.
+         */
+        default void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo) {
+
+        }
+
+        /**
+         * Called when a task's information has changed in this task view.
+         *
+         * @param taskInfo the new task info for the task
+         */
+        default void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo) {
+
+        }
         /**
          * Called when the underlying {@link CarTaskView} or {@link RemoteCarTaskView} is
          * initialized.

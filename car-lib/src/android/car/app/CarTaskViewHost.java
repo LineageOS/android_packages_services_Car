@@ -80,6 +80,20 @@ public interface CarTaskViewHost {
     void showEmbeddedTask();
 
     /**
+     * Sets the visibility of the embedded task.
+     *
+     * @hide
+     */
+    void setTaskVisibility(boolean visibility);
+
+    /**
+     * Reorders the embedded task to top when {@code onTop} is {@code true} and to bottom when
+     * its {@code false}.
+     *
+     * @hide
+     */
+    void reorderTask(boolean onTop);
+    /**
      * Adds the given {@code insets} on the Task.
      *
      * <p>

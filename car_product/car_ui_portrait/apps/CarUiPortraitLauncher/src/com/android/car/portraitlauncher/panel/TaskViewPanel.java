@@ -571,11 +571,6 @@ public class TaskViewPanel extends RelativeLayout {
         }
     }
 
-    /** Returns true if bounds of taskview changed with given state. */
-    public boolean isBoundsChanged(State state, Rect newBounds) {
-        return state.isVisible() && !newBounds.equals(mTaskViewWindowBounds);
-    }
-
     /** Updates bounds for {@link mTaskView}. */
     public void updateTaskViewBounds(Rect bounds) {
         mTaskViewWindowBounds = bounds;
