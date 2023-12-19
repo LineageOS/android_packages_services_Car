@@ -94,7 +94,7 @@ interface ICarRemoteAccessService {
     /**
      * Gets all pending scheduled tasks for this client.
      */
-    List<TaskScheduleInfo> getAllScheduledTasks();
+    List<TaskScheduleInfo> getAllPendingScheduledTasks();
 
     /**
      * For testing only. Add a package as a new serverless remote access client.
