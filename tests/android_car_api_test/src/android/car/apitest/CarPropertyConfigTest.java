@@ -24,7 +24,8 @@ import android.car.VehicleAreaType;
 import android.car.VehicleAreaWindow;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.AreaIdConfig;
-import android.test.suitebuilder.annotation.MediumTest;
+
+import androidx.test.filters.MediumTest;
 
 import org.junit.Test;
 

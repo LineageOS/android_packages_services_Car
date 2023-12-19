@@ -26,8 +26,8 @@ import android.car.CarBugreportManager;
 import android.car.CarBugreportManager.CarBugreportManagerCallback;
 import android.os.FileUtils;
 import android.os.ParcelFileDescriptor;
-import android.test.suitebuilder.annotation.LargeTest;
 
+import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnit4;
 

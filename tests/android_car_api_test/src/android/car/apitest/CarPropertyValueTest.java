@@ -20,7 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.car.VehicleAreaType;
 import android.car.hardware.CarPropertyValue;
-import android.test.suitebuilder.annotation.MediumTest;
+
+import androidx.test.filters.MediumTest;
 
 import org.junit.Test;
 

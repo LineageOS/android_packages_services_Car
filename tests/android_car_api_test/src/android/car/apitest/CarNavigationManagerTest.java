@@ -37,8 +37,9 @@ import android.car.cluster.navigation.NavigationState.Step;
 import android.car.cluster.navigation.NavigationState.Timestamp;
 import android.car.navigation.CarNavigationStatusManager;
 import android.os.Bundle;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
+
+import androidx.test.filters.MediumTest;
 
 import org.junit.Before;
 import org.junit.Test;
