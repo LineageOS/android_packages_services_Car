@@ -34,6 +34,7 @@ import android.graphics.Rect;
 import android.graphics.Region;
 import android.os.Binder;
 import android.os.UserManager;
+import android.util.Log;
 import android.view.Display;
 import android.view.SurfaceControl;
 
@@ -66,6 +67,7 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     private final Rect mTmpRect = new Rect();
 
     private ActivityManager.RunningTaskInfo mTaskInfo;
+    @Nullable private RunnerWithBackoff mStartActivityWithBackoff;
 
     final ICarTaskViewClient mICarTaskViewClient = new ICarTaskViewClient.Stub() {
         @Override
@@ -137,6 +139,9 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
         mUserManager = userManager;
 
         mCallbackExecutor.execute(() -> mCallback.onTaskViewCreated(this));
+        if (mConfig.mShouldAutoRestartOnTaskRemoval) {
+            mStartActivityWithBackoff = new RunnerWithBackoff(this::startActivityInternal);
+        }
     }
 
     /**
@@ -147,6 +152,25 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
     @MainThread
     public void startActivity() {
+        if (mStartActivityWithBackoff == null) {
+            startActivityInternal();
+            return;
+        }
+        mStartActivityWithBackoff.stop();
+        mStartActivityWithBackoff.start();
+    }
+
+    private void stopTheStartActivityBackoffIfExists() {
+        if (mStartActivityWithBackoff == null) {
+            if (CarTaskViewController.DBG) {
+                Log.d(TAG, "mStartActivityWithBackoff is not present.");
+            }
+            return;
+        }
+        mStartActivityWithBackoff.stop();
+    }
+
+    private void startActivityInternal() {
         if (!mUserManager.isUserUnlocked()) {
             if (CarTaskViewController.DBG) {
                 Slogf.d(TAG, "Can't start activity due to user is isn't unlocked");
@@ -213,6 +237,8 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     @Override
     void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo, SurfaceControl leash) {
         super.onTaskAppeared(taskInfo, leash);
+        // Stop the start activity backoff because a task has already appeared.
+        stopTheStartActivityBackoffIfExists();
         mCallbackExecutor.execute(() -> mCallback.onTaskAppeared(taskInfo));
     }
 
@@ -233,7 +259,6 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
                 Slogf.d(TAG, "Embedded task not available, starting it now.");
             }
             startActivity();
-            return;
         }
     }
 
@@ -299,6 +324,7 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     @MainThread
     public void release() {
         super.release();
+        stopTheStartActivityBackoffIfExists();
     }
 
     @Override
