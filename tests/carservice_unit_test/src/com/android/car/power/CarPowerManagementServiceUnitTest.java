@@ -72,7 +72,6 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.os.UserManager;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.util.ArrayMap;
 import android.util.AtomicFile;
 import android.util.Log;
@@ -83,6 +82,7 @@ import android.util.SparseLongArray;
 import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
+import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.CarLocalServices;
