@@ -27,6 +27,8 @@ import static org.mockito.Mockito.when;
 
 import android.car.Car;
 import android.car.VehiclePropertyIds;
+import android.car.feature.FakeFeatureFlagsImpl;
+import android.car.feature.Flags;
 import android.car.hardware.CarHvacFanDirection;
 import android.car.test.AbstractExpectableTestCase;
 import android.content.Context;
@@ -128,9 +130,14 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
                     /*status=*/ 0,
                     /*values=*/ new int[]{});
 
+    private FakeFeatureFlagsImpl mFakeFeatureFlags;
+
     @Before
     public void setUp() {
-        mPropertyHalServiceConfigs = new PropertyHalServiceConfigs();
+        mFakeFeatureFlags = new FakeFeatureFlagsImpl();
+        mFakeFeatureFlags.setFlag(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES, true);
+
+        mPropertyHalServiceConfigs = new PropertyHalServiceConfigs(mFakeFeatureFlags);
 
         when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_CAR_ENGINE_DETAILED))
                 .thenReturn(PackageManager.PERMISSION_GRANTED);
@@ -654,5 +661,17 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
         assertThat(mPropertyHalServiceConfigs.halToManagerPropId(
                 VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS)).isEqualTo(
                 VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS);
+    }
+
+
+    @Test
+    public void testVicVehiclePropertiesFlagDisabled() throws Exception {
+        int vicProperty = VehiclePropertyIds.DRIVER_DROWSINESS_ATTENTION_SYSTEM_ENABLED;
+        mFakeFeatureFlags.setFlag(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES, false);
+
+        mPropertyHalServiceConfigs = new PropertyHalServiceConfigs(mFakeFeatureFlags);
+
+        assertThat(mPropertyHalServiceConfigs.getAllSystemHalPropIds()).doesNotContain(vicProperty);
+        assertThat(mPropertyHalServiceConfigs.isSupportedProperty(vicProperty)).isFalse();
     }
 }
