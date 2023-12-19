@@ -27,6 +27,7 @@ android_test {
 
     libs: [
         "android.test.base",
+        "android.test.mock",
     ],
 
     optimize: {
@@ -34,6 +35,7 @@ android_test {
     },
 
     static_libs: [
+        "android.car",
         "android.car.testapi",
         "android.car.test.utils",
         "androidx.test.core",
@@ -41,9 +43,15 @@ android_test {
         "androidx.test.espresso.core",
         "androidx.test.espresso.intents",
         "androidx.test.ext.junit",
+        "mockito-target-extended-minus-junit4",
         "truth",
         "ub-uiautomator",
-        "CarLauncher-core",
+        "CarUiPortraitLauncher-core",
+    ],
+
+    jni_libs: [
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
     ],
 
     platform_apis: true,
