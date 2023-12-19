@@ -19,14 +19,22 @@ package {
 cc_defaults {
     name: "evsmanagerd_fuzz_default",
     defaults: ["evsmanagerd_defaults"],
+    shared_libs: [
+        "libcamera_client",
+        "libnativewindow",
+    ],
     static_libs: [
         "libbinder_random_parcel",
         "libevsmanagerd_static",
         "liblog",
+        "libmockevshal",
         "libgmock",
         "libgtest",
     ],
     header_libs: ["libmockevshal_headers"],
+    srcs: [
+        "Common.cpp",
+    ],
     cflags: [
         "-Wno-unused-parameter",
     ],

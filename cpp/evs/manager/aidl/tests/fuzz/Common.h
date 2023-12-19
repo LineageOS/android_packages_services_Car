@@ -16,26 +16,36 @@
 
 #pragma once
 
-#include <stdlib.h>
+#include "MockEvsHal.h"
+
+#include <cstdlib>
+
+namespace {
+
+#define EVS_FUZZ_BASE_ENUM                                         \
+    EVS_FUZZ_NOTIFY,                  /* verify notify*/           \
+            EVS_FUZZ_GET_HW_CAMERA,   /* verify getHalCameras*/    \
+            EVS_FUZZ_DELIVER_FRAME,   /* verify deliverFrame */    \
+            EVS_FUZZ_DONE_WITH_FRAME, /* verify doneWithFrame */   \
+            EVS_FUZZ_SET_PRIMARY,     /* verify setPrimary */      \
+            EVS_FUZZ_FORCE_PRIMARY,   /* verify forcePrimary */    \
+            EVS_FUZZ_UNSET_PRIMARY,   /* verify unsetPrimary */    \
+            EVS_FUZZ_SET_PARAMETER,   /* verify setIntParameter */ \
+            EVS_FUZZ_GET_PARAMETER,   /* verify getIntParameter */ \
+            EVS_FUZZ_API_SUM
+
+inline const char* kMockHWEnumeratorName = "hw/fuzzEVSMock";
+inline constexpr uint64_t startMockHWCameraId = 1024;
+inline constexpr uint64_t endMockHWCameraId = 1028;
+inline constexpr uint64_t startMockHWDisplayId = 256;
+inline constexpr uint64_t endMockHWDisplayId = 258;
+
+}  // namespace
 
 namespace aidl::android::automotive::evs::implementation {
 
-#define EVS_FUZZ_BASE_ENUM                                               \
-    EVS_FUZZ_NOTIFY,                      /* verify notify*/             \
-            EVS_FUZZ_GET_HW_CAMERA,       /* verify getHalCameras*/      \
-            EVS_FUZZ_DELIVER_FRAME,       /* verify deliverFrame */      \
-            EVS_FUZZ_DONE_WITH_FRAME,     /* verify doneWithFrame */     \
-            EVS_FUZZ_SET_PRIMARY,         /* verify setPrimary */        \
-            EVS_FUZZ_FORCE_PRIMARY,       /* verify forcePrimary */      \
-            EVS_FUZZ_UNSET_PRIMARY,       /* verify unsetPrimary */      \
-            EVS_FUZZ_SET_PARAMETER,       /* verify setIntParameter */   \
-            EVS_FUZZ_GET_PARAMETER,       /* verify getIntParameter */   \
-            EVS_FUZZ_API_SUM
-
-const char* kMockHWEnumeratorName = "hw/fuzzEVSMock";
-const uint64_t startMockHWCameraId = 1024;
-const uint64_t endMockHWCameraId = 1028;
-const uint64_t startMockHWDisplayId = 256;
-const uint64_t endMockHWDisplayId = 258;
+std::shared_ptr<MockEvsHal> initializeMockEvsHal();
+std::shared_ptr<aidl::android::hardware::automotive::evs::IEvsCamera> openFirstCamera(
+        const std::shared_ptr<MockEvsHal>& handle);
 
 }  // namespace aidl::android::automotive::evs::implementation
