@@ -460,21 +460,10 @@
                     android:layout_height="wrap_content"
                     android:text="@string/stop" />
             </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
+            <include android:id="@+id/audio_players"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" >
-                <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/audio_player_tabs"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
-                </com.google.android.material.tabs.TabLayout>
-                <androidx.viewpager.widget.ViewPager
-                    android:id="@+id/zones_player_view_pager"
-                    android:layout_width="match_parent"
-                    android:layout_height="300dp" >
-                </androidx.viewpager.widget.ViewPager>
-            </LinearLayout>
+                layout="@layout/audio_player_tabs" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

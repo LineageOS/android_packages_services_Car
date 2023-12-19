@@ -53,6 +53,7 @@ import com.google.android.car.kitchensink.activityresolver.ActivityResolverFragm
 import com.google.android.car.kitchensink.admin.DevicePolicyFragment;
 import com.google.android.car.kitchensink.alertdialog.AlertDialogTestFragment;
 import com.google.android.car.kitchensink.assistant.CarAssistantFragment;
+import com.google.android.car.kitchensink.audio.AudioConfigurationTestFragment;
 import com.google.android.car.kitchensink.audio.AudioMirrorTestFragment;
 import com.google.android.car.kitchensink.audio.AudioTestFragment;
 import com.google.android.car.kitchensink.audio.AudioUserAssignmentFragment;
@@ -243,6 +244,8 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
             new Pair<>(AudioTestFragment.FRAGMENT_NAME, AudioTestFragment.class),
             new Pair<>(AudioUserAssignmentFragment.FRAGMENT_NAME,
                     AudioUserAssignmentFragment.class),
+            new Pair<>(AudioConfigurationTestFragment.FRAGMENT_NAME,
+                    AudioConfigurationTestFragment.class),
             new Pair<>(AudioRecorderTestFragment.FRAGMENT_NAME,
                     AudioRecorderTestFragment.class),
             new Pair<>(CarAudioInputTestFragment.FRAGMENT_NAME,
