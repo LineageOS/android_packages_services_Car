@@ -27,6 +27,8 @@ import android.util.Dumpable;
 import android.util.DumpableContainer;
 import android.util.Log;
 
+import com.android.car.internal.ICarBase;
+
 import java.util.function.Supplier;
 
 /**
@@ -37,9 +39,9 @@ public abstract class CarManagerBase {
 
     private static final boolean DEBUG = Log.isLoggable(TAG_CAR, Log.DEBUG);
 
-    protected final Car mCar;
+    protected final ICarBase mCar;
 
-    public CarManagerBase(Car car) {
+    public CarManagerBase(ICarBase car) {
         mCar = car;
     }
 

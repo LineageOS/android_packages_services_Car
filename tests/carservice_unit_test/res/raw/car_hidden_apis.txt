@@ -57,9 +57,9 @@ android.car CarLibLog String TAG_DIAGNOSTIC
 android.car CarLibLog String TAG_INPUT
 android.car CarLibLog String TAG_NAV
 android.car CarLibLog String TAG_SENSOR
-android.car CarManagerBase Car mCar
 android.car CarManagerBase Context getContext()
 android.car CarManagerBase Handler getEventHandler()
+android.car CarManagerBase ICarBase mCar
 android.car CarManagerBase T addDumpable(Object container, Supplier<T> dumpableSupplier)
 android.car CarManagerBase T handleExceptionFromCarService(Exception e, T returnValue)
 android.car CarManagerBase T handleRemoteExceptionFromCarService(RemoteException e, T returnValue)
