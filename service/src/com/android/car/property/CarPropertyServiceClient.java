@@ -47,6 +47,7 @@ public final class CarPropertyServiceClient extends CarPropertyEventController
 
     public CarPropertyServiceClient(ICarPropertyEventListener listener,
             UnregisterCallback unregisterCallback) {
+        super(/* useSystemLogger= */ true);
         mListener = listener;
         mListenerBinder = listener.asBinder();
         mUnregisterCallback = unregisterCallback;

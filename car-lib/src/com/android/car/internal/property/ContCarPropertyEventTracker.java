@@ -16,10 +16,8 @@
 
 package com.android.car.internal.property;
 
-import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.CarPropertyValue.PropertyStatus;
-import android.util.Log;
 
 import com.android.internal.util.Preconditions;
 
@@ -33,12 +31,12 @@ import java.util.Objects;
  */
 public final class ContCarPropertyEventTracker implements CarPropertyEventTracker{
     private static final String TAG = "ContCarPropertyEventTracker";
-    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     private static final float NANOSECONDS_PER_SECOND = Duration.ofSeconds(1).toNanos();
     // Add a margin so that if an event timestamp is within
     // 5% of the next timestamp, it will not be dropped.
     private static final float UPDATE_PERIOD_OFFSET = 0.95f;
 
+    private final Logger mLogger;
     private final boolean mEnableVur;
     private final float mUpdateRateHz;
     private final long mUpdatePeriodNanos;
@@ -46,10 +44,13 @@ public final class ContCarPropertyEventTracker implements CarPropertyEventTracke
     private Object mCurrentValue;
     private @PropertyStatus int mCurrentStatus;
 
-    public ContCarPropertyEventTracker(float updateRateHz, boolean enableVur) {
-        if (DBG) {
-            Slogf.d(TAG, "new continuous car property event tracker, updateRateHz: %f, "
-                    + ", enableVur: %b", updateRateHz, enableVur);
+    public ContCarPropertyEventTracker(boolean useSystemLogger, float updateRateHz,
+            boolean enableVur) {
+        mLogger = new Logger(useSystemLogger, TAG);
+        if (mLogger.dbg()) {
+            mLogger.logD(String.format(
+                    "new continuous car property event tracker, updateRateHz: %f, "
+                    + ", enableVur: %b", updateRateHz, enableVur));
         }
         // updateRateHz should be sanitized before.
         Preconditions.checkArgument(updateRateHz > 0, "updateRateHz must be a positive number");
@@ -68,10 +69,10 @@ public final class ContCarPropertyEventTracker implements CarPropertyEventTracke
     @Override
     public boolean hasUpdate(CarPropertyValue<?> carPropertyValue) {
         if (carPropertyValue.getTimestamp() < mNextUpdateTimeNanos) {
-            if (DBG) {
-                Slogf.d(TAG, "hasUpdate: Dropping carPropertyValue: %s, "
+            if (mLogger.dbg()) {
+                mLogger.logD(String.format("hasUpdate: Dropping carPropertyValue: %s, "
                         + "because getTimestamp()=%d < nextUpdateTimeNanos=%d",
-                        carPropertyValue, carPropertyValue.getTimestamp(), mNextUpdateTimeNanos);
+                        carPropertyValue, carPropertyValue.getTimestamp(), mNextUpdateTimeNanos));
             }
             return false;
         }
@@ -80,10 +81,10 @@ public final class ContCarPropertyEventTracker implements CarPropertyEventTracke
             int status = carPropertyValue.getStatus();
             Object value = carPropertyValue.getValue();
             if (status == mCurrentStatus && Objects.deepEquals(value, mCurrentValue)) {
-                if (DBG) {
-                    Slogf.d(TAG, "hasUpdate: Dropping carPropertyValue: %s, "
+                if (mLogger.dbg()) {
+                    mLogger.logD(String.format("hasUpdate: Dropping carPropertyValue: %s, "
                             + "because VUR is enabled and value is the same",
-                            carPropertyValue);
+                            carPropertyValue));
                 }
                 return false;
             }
