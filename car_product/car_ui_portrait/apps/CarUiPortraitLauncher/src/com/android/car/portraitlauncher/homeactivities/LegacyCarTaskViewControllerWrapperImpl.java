@@ -49,8 +49,8 @@ final class LegacyCarTaskViewControllerWrapperImpl extends TaskViewControllerWra
     }
 
     @Override
-    void setSystemOverlayInsets(Rect bottomInsets, Rect topInsets, int panel) {
-        CarTaskView targetTaskView = (CarTaskView) getTaskView(panel);
+    void setSystemOverlayInsets(Rect bottomInsets, Rect topInsets, int taskViewId) {
+        CarTaskView targetTaskView = (CarTaskView) getTaskView(taskViewId);
         if (targetTaskView == null) {
             return;
         }
@@ -61,8 +61,8 @@ final class LegacyCarTaskViewControllerWrapperImpl extends TaskViewControllerWra
     }
 
     @Override
-    void setObscuredTouchRegion(Region obscuredTouchRegion, int panel) {
-        CarTaskView targetTaskView = (CarTaskView) getTaskView(panel);
+    void setObscuredTouchRegion(Region obscuredTouchRegion, int taskViewId) {
+        CarTaskView targetTaskView = (CarTaskView) getTaskView(taskViewId);
 
         if (targetTaskView == null) {
             return;
@@ -71,7 +71,7 @@ final class LegacyCarTaskViewControllerWrapperImpl extends TaskViewControllerWra
     }
 
     @Override
-    void showEmbeddedTasks() {
+    void showEmbeddedTasks(int[] taskViewIds) {
         mTaskViewManager.showEmbeddedTasks();
     }
 
@@ -143,14 +143,14 @@ final class LegacyCarTaskViewControllerWrapperImpl extends TaskViewControllerWra
     }
 
     @Override
-    void moveToFront(int taskViewId) {
+    void moveToBack(int taskViewId) {
         logIfDebuggable("updateLaunchRootCarTaskVisibility");
         mTaskViewManager.updateLaunchRootCarTaskVisibility(/* visibility= */ false);
     }
 
     @Override
-    public void setWindowBounds(Rect taskViewBounds, int panel) {
-        CarTaskView targetTaskView = (CarTaskView) getTaskView(panel);
+    public void setWindowBounds(Rect taskViewBounds, int taskViewId) {
+        CarTaskView targetTaskView = (CarTaskView) getTaskView(taskViewId);
         if (targetTaskView == null) {
             return;
         }
@@ -158,12 +158,19 @@ final class LegacyCarTaskViewControllerWrapperImpl extends TaskViewControllerWra
     }
 
     @Override
-    void updateCarDefaultTaskViewVisibility(boolean visibility) {
+    void updateTaskVisibility(boolean visibility, int taskViewId) {
+        logIfDebuggable("updateTaskVisibility, taskViewId=" + taskViewId);
         mTaskViewManager.updateLaunchRootCarTaskVisibility(visibility);
     }
 
     @Override
     SurfaceView getTaskView(int taskViewId) {
         return mTaskViewsMap.get(taskViewId);
+    }
+
+    @Override
+    int getTaskId(int taskViewId) {
+        ActivityManager.RunningTaskInfo taskInfo = mTaskViewManager.getTopTaskInLaunchRootTask();
+        return taskInfo == null ? -1 : taskInfo.taskId;
     }
 }

@@ -70,7 +70,7 @@ final class CarTaskViewControllerSupervisor {
             mCarTaskViewControllerHostLifecycleObserver =
             new CarTaskViewControllerHostLifecycleObserver() {
                 public void onHostAppeared(CarTaskViewControllerHostLifecycle lifecycle) {
-                    mActivityHolders.get(lifecycle).maybeShowEmbeddedTasks();
+                    mActivityHolders.get(lifecycle).maybeShowControlledTasks();
                 }
 
                 @Override
@@ -228,12 +228,12 @@ final class CarTaskViewControllerSupervisor {
             mCarActivityService = carActivityService;
         }
 
-        private void maybeShowEmbeddedTasks() {
+        private void maybeShowControlledTasks() {
             synchronized (mLock) {
                 if (mCarTaskViewController == null || !mCarTaskViewController.isHostVisible()) {
                     return;
                 }
-                mCarTaskViewController.showEmbeddedTasks();
+                mCarTaskViewController.showEmbeddedControlledTasks();
             }
         }
 
@@ -303,7 +303,7 @@ final class CarTaskViewControllerSupervisor {
             // Only called when USER_LIFECYCLE_EVENT_TYPE_UNLOCKED.
             for (int i = mActivityHolders.size() - 1; i >= 0; --i) {
                 ActivityHolder activityHolder = mActivityHolders.valueAt(i);
-                activityHolder.maybeShowEmbeddedTasks();
+                activityHolder.maybeShowControlledTasks();
             }
         }
     };

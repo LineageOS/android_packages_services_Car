@@ -40,4 +40,6 @@ oneway interface ICarTaskViewHost {
    void showEmbeddedTask();
    void addInsets(int index, int type, in Rect frame);
    void removeInsets(int index, int type);
+   void setTaskVisibility(boolean visibility);
+   void reorderTask(boolean onTop);
 }

@@ -77,6 +77,16 @@ final class CarTaskViewHostAidlToImplAdapter extends ICarTaskViewHost.Stub {
     }
 
     @Override
+    public void setTaskVisibility(boolean visibility) {
+        mCarTaskViewHost.setTaskVisibility(visibility);
+    }
+
+    @Override
+    public void reorderTask(boolean onTop) {
+        mCarTaskViewHost.reorderTask(onTop);
+    }
+
+    @Override
     public void addInsets(int index, int type, @NonNull Rect frame) {
         mCarTaskViewHost.addInsets(index, type, frame);
     }
