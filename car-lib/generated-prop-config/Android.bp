@@ -20,6 +20,7 @@ filegroup {
     name: "CarSvcProps_JSON",
     visibility: [
         "//packages/services/Car/service",
+        "//cts/tests/tests/car",
     ],
     srcs: [
         "CarSvcProps.json",
