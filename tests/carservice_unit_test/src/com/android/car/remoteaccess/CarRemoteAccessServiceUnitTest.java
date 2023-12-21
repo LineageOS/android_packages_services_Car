@@ -1528,7 +1528,7 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
     }
 
     @Test
-    public void testGetAllScheduledTasks() throws Exception {
+    public void testGetAllPendingScheduledTasks() throws Exception {
         prepareTaskSchedule();
         ScheduleInfo scheduleInfo = new ScheduleInfo();
         scheduleInfo.scheduleId = TEST_SCHEDULE_ID;
@@ -1536,10 +1536,10 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
         scheduleInfo.count = TEST_TASK_COUNT;
         scheduleInfo.startTimeInEpochSeconds = TEST_START_TIME;
         scheduleInfo.periodicInSeconds = TEST_PERIODIC;
-        when(mRemoteAccessHalWrapper.getAllScheduledTasks(CLIENT_ID_SERVERLESS))
+        when(mRemoteAccessHalWrapper.getAllPendingScheduledTasks(CLIENT_ID_SERVERLESS))
                 .thenReturn(List.of(scheduleInfo));
 
-        List<TaskScheduleInfo> taskScheduleInfoList = mService.getAllScheduledTasks();
+        List<TaskScheduleInfo> taskScheduleInfoList = mService.getAllPendingScheduledTasks();
 
         assertWithMessage("TaskScheduleInfo list").that(taskScheduleInfoList).hasSize(1);
         assertWithMessage("TaskScheduleInfo").that(taskScheduleInfoList.get(0)).isEqualTo(
@@ -1547,31 +1547,31 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
     }
 
     @Test
-    public void testGetAllScheduledTasks_unsupported() throws Exception {
+    public void testGetAllPendingScheduledTasks_unsupported() throws Exception {
         mService.init();
 
-        assertThrows(IllegalStateException.class, () -> mService.getAllScheduledTasks());
+        assertThrows(IllegalStateException.class, () -> mService.getAllPendingScheduledTasks());
     }
 
     @Test
-    public void testGetAllScheduledTasks_remoteException() throws Exception {
+    public void testGetAllPendingScheduledTasks_remoteException() throws Exception {
         prepareTaskSchedule();
-        when(mRemoteAccessHalWrapper.getAllScheduledTasks(CLIENT_ID_SERVERLESS))
+        when(mRemoteAccessHalWrapper.getAllPendingScheduledTasks(CLIENT_ID_SERVERLESS))
                 .thenThrow(new RemoteException());
 
         ServiceSpecificException e = assertThrows(ServiceSpecificException.class, () ->
-                mService.getAllScheduledTasks());
+                mService.getAllPendingScheduledTasks());
         assertThat(e.errorCode).isEqualTo(SERVICE_ERROR_CODE_GENERAL);
     }
 
     @Test
-    public void testGetAllScheduledTasks_serviceSpecificException() throws Exception {
+    public void testGetAllPendingScheduledTasks_serviceSpecificException() throws Exception {
         prepareTaskSchedule();
-        when(mRemoteAccessHalWrapper.getAllScheduledTasks(CLIENT_ID_SERVERLESS))
+        when(mRemoteAccessHalWrapper.getAllPendingScheduledTasks(CLIENT_ID_SERVERLESS))
                 .thenThrow(new ServiceSpecificException(1234));
 
         ServiceSpecificException e = assertThrows(ServiceSpecificException.class, () ->
-                mService.getAllScheduledTasks());
+                mService.getAllPendingScheduledTasks());
         assertThat(e.errorCode).isEqualTo(SERVICE_ERROR_CODE_GENERAL);
     }
 

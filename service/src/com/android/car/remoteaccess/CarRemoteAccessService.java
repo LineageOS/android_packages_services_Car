@@ -893,16 +893,16 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     }
 
     /**
-     * {@link android.car.remoteaccess.CarRemoteAccessManager#getAllScheduledTasks}
+     * {@link android.car.remoteaccess.CarRemoteAccessManager#getAllPendingScheduledTasks}
      */
     @Override
-    public List<TaskScheduleInfo> getAllScheduledTasks() {
+    public List<TaskScheduleInfo> getAllPendingScheduledTasks() {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_REMOTE_ACCESS);
         String clientId = getServerlessCallerClientId();
         List<TaskScheduleInfo> taskScheduleInfoList = new ArrayList<>();
         try {
-            List<ScheduleInfo> halScheduleInfoList = mRemoteAccessHalWrapper.getAllScheduledTasks(
-                    clientId);
+            List<ScheduleInfo> halScheduleInfoList =
+                    mRemoteAccessHalWrapper.getAllPendingScheduledTasks(clientId);
             for (int i = 0; i < halScheduleInfoList.size(); i++) {
                 ScheduleInfo halScheduleInfo = halScheduleInfoList.get(i);
                 TaskScheduleInfo taskScheduleInfo = new TaskScheduleInfo();
@@ -916,7 +916,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             return taskScheduleInfoList;
         } catch (RemoteException | ServiceSpecificException e) {
             throw new ServiceSpecificException(SERVICE_ERROR_CODE_GENERAL,
-                    "failed to call IRemoteAccess.getAllScheduledTasks with clientId: "
+                    "failed to call IRemoteAccess.getAllPendingScheduledTasks with clientId: "
                     + clientId + ", error: " + e);
         }
     }

@@ -455,12 +455,12 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExtendedMockit
     }
 
     @Test
-    public void testGetAllScheduledTasks() throws Exception {
+    public void testGetAllPendingScheduledTasks() throws Exception {
         when(mService.isTaskScheduleSupported()).thenReturn(true);
-        when(mService.getAllScheduledTasks()).thenReturn(List.of(getTestTaskScheduleInfo()));
+        when(mService.getAllPendingScheduledTasks()).thenReturn(List.of(getTestTaskScheduleInfo()));
 
         List<ScheduleInfo> scheduleInfoList = mRemoteAccessManager.getInVehicleTaskScheduler()
-                .getAllScheduledTasks();
+                .getAllPendingScheduledTasks();
 
         assertThat(scheduleInfoList).hasSize(1);
         ScheduleInfo scheduleInfo = scheduleInfoList.get(0);
@@ -477,13 +477,13 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExtendedMockit
     }
 
     @Test
-    public void testGetAllScheduledTasks_ServiceSpecificException() throws Exception {
+    public void testGetAllPendingScheduledTasks_ServiceSpecificException() throws Exception {
         when(mService.isTaskScheduleSupported()).thenReturn(true);
         doThrow(new ServiceSpecificException(SERVICE_ERROR_CODE_GENERAL)).when(mService)
-                .getAllScheduledTasks();
+                .getAllPendingScheduledTasks();
 
         assertThrows(InVehicleTaskSchedulerException.class, () ->
-                mRemoteAccessManager.getInVehicleTaskScheduler().getAllScheduledTasks());
+                mRemoteAccessManager.getInVehicleTaskScheduler().getAllPendingScheduledTasks());
     }
 
     @Test

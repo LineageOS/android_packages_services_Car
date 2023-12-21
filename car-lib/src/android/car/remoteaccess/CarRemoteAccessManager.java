@@ -906,10 +906,12 @@ public final class CarRemoteAccessManager extends CarManagerBase {
         @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
         @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
         @NonNull
-        public List<ScheduleInfo> getAllScheduledTasks() throws InVehicleTaskSchedulerException {
+        public List<ScheduleInfo> getAllPendingScheduledTasks()
+                throws InVehicleTaskSchedulerException {
             List<ScheduleInfo> scheduleInfoList = new ArrayList<>();
             try {
-                List<TaskScheduleInfo> taskScheduleInfoList = mService.getAllScheduledTasks();
+                List<TaskScheduleInfo> taskScheduleInfoList =
+                        mService.getAllPendingScheduledTasks();
                 for (int i = 0; i < taskScheduleInfoList.size(); i++) {
                     scheduleInfoList.add(fromTaskScheduleInfo(taskScheduleInfoList.get(i)));
                 }

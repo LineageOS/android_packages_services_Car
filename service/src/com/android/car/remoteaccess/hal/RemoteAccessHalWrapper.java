@@ -256,19 +256,20 @@ public final class RemoteAccessHalWrapper implements IBinder.DeathRecipient {
     }
 
     /**
-     * Check {@link IRemoteAccess#getAllScheduledTasks}.
+     * Check {@link IRemoteAccess#getAllPendingScheduledTasks}.
      *
      * <p>Client should check {@link isTaskScheduleSupported} is {@code true} before calling this.
      *
      * <p>Client should handle the thrown exception.
      */
-    public List<ScheduleInfo> getAllScheduledTasks(String clientId)
+    public List<ScheduleInfo> getAllPendingScheduledTasks(String clientId)
             throws RemoteException, ServiceSpecificException {
         try {
             IRemoteAccess remoteAccessHal = getRemoteAccessHal();
-            return remoteAccessHal.getAllScheduledTasks(clientId);
+            return remoteAccessHal.getAllPendingScheduledTasks(clientId);
         } catch (RemoteException | ServiceSpecificException e) {
-            Slogf.w(TAG, e, "Failed to call getAllScheduledTasks with clientId: %s", clientId);
+            Slogf.w(TAG, e, "Failed to call getAllPendingScheduledTasks with clientId: %s",
+                    clientId);
             throw e;
         }
     }
