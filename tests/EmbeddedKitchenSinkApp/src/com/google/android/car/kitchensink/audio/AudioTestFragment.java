@@ -46,6 +46,7 @@ import static com.google.android.car.kitchensink.R.raw.ring_classic_01;
 import static com.google.android.car.kitchensink.R.raw.turnright;
 import static com.google.android.car.kitchensink.R.raw.well_worth_the_wait;
 import static com.google.android.car.kitchensink.audio.AudioPlayer.PLAYER_STATE_COMPLETED;
+import static com.google.android.car.kitchensink.audio.AudioUtils.getCurrentZoneId;
 
 import android.car.Car;
 import android.car.CarAppFocusManager;
@@ -54,8 +55,6 @@ import android.car.CarAppFocusManager.OnAppFocusOwnershipCallback;
 import android.car.CarOccupantZoneManager;
 import android.car.media.CarAudioManager;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFocusRequest;
@@ -81,13 +80,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
 
 import com.android.internal.util.Preconditions;
 
 import com.google.android.car.kitchensink.R;
 import com.google.android.car.kitchensink.audio.AudioPlayer.PlayStateListener;
-import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -145,10 +142,6 @@ public class AudioTestFragment extends Fragment {
     private Spinner mDeviceAddressSpinner;
     private ArrayAdapter<CarAudioZoneDeviceInfo> mDeviceAddressAdapter;
     private LinearLayout mDeviceAddressLayout;
-
-    private TabLayout mPlayerTabLayout;
-    private ViewPager mViewPager;
-    private CarAudioZoneTabAdapter mAudioPlayerZoneAdapter;
 
     private final Object mLock = new Object();
 
@@ -219,7 +212,9 @@ public class AudioTestFragment extends Fragment {
         Log.e(TAG, "Setup car audio zone config selection view");
         try {
             mZoneConfigController = new ZoneConfigSelectionController(view, mCarAudioManager,
-                    mContext, getCurrentZoneId(), this::updateDeviceAddressPlayer);
+                    mContext, getCurrentZoneId(mContext, mCarAudioManager),
+                    (autoSelected) -> updateDeviceAddressPlayer(),
+                    /* configUpdatedListener= */ null);
         } catch (Exception e) {
             Log.e(TAG, "Failed to setup car audio zone config selection view", e);
         }
@@ -242,8 +237,7 @@ public class AudioTestFragment extends Fragment {
         TextView currentZoneIdTextView = view.findViewById(R.id.activity_current_zone);
         setActivityCurrentZoneId(currentZoneIdTextView);
 
-        mAudioManager = (AudioManager) mContext.getSystemService(
-                Context.AUDIO_SERVICE);
+        mAudioManager = mContext.getSystemService(AudioManager.class);
         mAudioFocusHandler = new FocusHandler(
                 view.findViewById(R.id.button_focus_request_selection),
                 view.findViewById(R.id.button_audio_focus_request),
@@ -495,9 +489,9 @@ public class AudioTestFragment extends Fragment {
     private void setActivityCurrentZoneId(TextView currentZoneIdTextView) {
         if (mCarAudioManager.isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING)) {
             try {
-                int audioZoneId = getCurrentZoneId();
+                int audioZoneId = getCurrentZoneId(mContext, mCarAudioManager);
                 currentZoneIdTextView.setText(Integer.toString(audioZoneId));
-            } catch (PackageManager.NameNotFoundException e) {
+            } catch (Exception e) {
                 Log.e(TAG, "setActivityCurrentZoneId Failed to find name: " , e);
             }
         }
@@ -693,17 +687,7 @@ public class AudioTestFragment extends Fragment {
     }
 
     private void setUpCarSoundsLayouts(View view) {
-        mPlayerTabLayout = view.findViewById(R.id.audio_player_tabs);
-        mViewPager = view.findViewById(R.id.zones_player_view_pager);
-        mAudioPlayerZoneAdapter = new CarAudioZoneTabAdapter(getChildFragmentManager());
-        mViewPager.setAdapter(mAudioPlayerZoneAdapter);
-        mAudioPlayerZoneAdapter.addFragment(
-                new AudioSystemPlayerFragment(mCarAudioManager, mAudioManager),
-                "System Players");
-        mAudioPlayerZoneAdapter.addFragment(new AudioTransientPlayersFragment(),
-                "Transient Sound Players");
-        mAudioPlayerZoneAdapter.notifyDataSetChanged();
-        mPlayerTabLayout.setupWithViewPager(mViewPager);
+        AudioPlayersTabControllers.setUpAudioPlayersTab(view, getChildFragmentManager());
     }
 
     private void handleNavStart() {
@@ -791,12 +775,6 @@ public class AudioTestFragment extends Fragment {
             Log.i(TAG, "Radio end");
         }
         mAudioManager.abandonAudioFocus(mRadioFocusListener, mRadioAudioAttrib);
-    }
-
-    private int getCurrentZoneId() throws PackageManager.NameNotFoundException {
-        ApplicationInfo info = mContext.getPackageManager().getApplicationInfo(
-                mContext.getPackageName(), 0);
-        return mCarAudioManager.getZoneIdForUid(info.uid);
     }
 
     private void setUpDeviceAddressPlayer() {

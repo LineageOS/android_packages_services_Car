@@ -59,7 +59,9 @@ final class ZoneConfigSelectionController {
 
     private final CarAudioManager mCarAudioManager;
     private final int mAudioZone;
-    private final CarAudioZoneConfigUpdatedListener mConfigUpdatedListener;
+    private final CarAudioZoneConfigSelectedListener mConfigSelectedListener;
+    @Nullable
+    private final CarAudioZoneConfigsUpdatedListener mConfigUpdatedListener;
     private final SwitchAudioZoneConfigCallback mSwitchAudioZoneConfigCallback =
             (zoneConfig, isSuccessful) -> {
                 Log.i(TAG, "Car audio zone switching to " + zoneConfig + " successful? "
@@ -67,16 +69,18 @@ final class ZoneConfigSelectionController {
                 if (!isSuccessful) {
                     return;
                 }
-                updateSelectedAudioZoneConfig(zoneConfig);
+                updateSelectedAudioZoneConfig(zoneConfig, /* autoSelected= */ false);
             };
     @GuardedBy("mLock")
     private CarAudioZoneConfigInfo mZoneConfigInfoSelected;
 
     ZoneConfigSelectionController(View view, CarAudioManager carAudioManager, Context context,
-            int audioZone, CarAudioZoneConfigUpdatedListener configUpdatedListener) {
+            int audioZone, CarAudioZoneConfigSelectedListener configSelectedListener,
+            @Nullable CarAudioZoneConfigsUpdatedListener configUpdatedListener) {
         mCarAudioManager = carAudioManager;
         mContext = context;
         mAudioZone = audioZone;
+        mConfigSelectedListener = configSelectedListener;
         mConfigUpdatedListener = configUpdatedListener;
         mZoneConfigurationLayout = view.findViewById(R.id.audio_zone_configuration_layout);
         mCurrentZoneConfigurationView = view.findViewById(R.id.text_current_configuration);
@@ -142,6 +146,9 @@ final class ZoneConfigSelectionController {
         }
         mZoneConfigurationSpinner.setAdapter(mZoneConfigurationAdapter);
         mZoneConfigurationSpinner.setEnabled(true);
+        int selected = mZoneConfigurationAdapter.getPosition(
+                new CarAudioZoneConfigInfoWrapper(currentZoneConfigInfo));
+        mZoneConfigurationSpinner.setSelection(selected);
 
         if (Flags.carAudioDynamicDevices()) {
             mCarAudioManager.setAudioZoneConfigsChangeCallback(mContext.getMainExecutor(),
@@ -163,6 +170,10 @@ final class ZoneConfigSelectionController {
         if (DBG) {
             Log.d(TAG, "Switch to zone configuration selected: " + zoneConfigInfoSelected);
         }
+        switchToAudioConfiguration(zoneConfigInfoSelected);
+    }
+
+    private void switchToAudioConfiguration(CarAudioZoneConfigInfo zoneConfigInfoSelected) {
         CarAudioZoneConfigInfo info = getUpdatedConfigInfo(zoneConfigInfoSelected);
         if (Flags.carAudioDynamicDevices()) {
             if (!info.isActive()) {
@@ -196,21 +207,25 @@ final class ZoneConfigSelectionController {
         }
     }
 
-    private void updateSelectedAudioZoneConfig(CarAudioZoneConfigInfo zoneConfig) {
+    private void updateSelectedAudioZoneConfig(CarAudioZoneConfigInfo zoneConfig,
+            boolean autoSelected) {
         mCurrentZoneConfigurationView.setText(zoneConfig.getName());
-        mConfigUpdatedListener.configUpdated();
+        mConfigSelectedListener.configSelected(autoSelected);
     }
 
     private void handleAudioZoneConfigsUpdated(List<CarAudioZoneConfigInfo> configs, int status) {
         if (status == CONFIG_STATUS_CHANGED) {
             showToast("Config status changed " + status);
+            if (mConfigUpdatedListener != null) {
+                mConfigUpdatedListener.configsUpdated(configs);
+            }
             return;
         }
         for (CarAudioZoneConfigInfo info : configs) {
             if (!info.isSelected()) {
                 continue;
             }
-            updateSelectedAudioZoneConfig(info);
+            updateSelectedAudioZoneConfig(info, /* autoSelected= */ true);
             showToast(info.getName() + ": auto selected");
             return;
         }
@@ -235,9 +250,16 @@ final class ZoneConfigSelectionController {
         mCarAudioManager.clearAudioZoneConfigsCallback();
     }
 
-    interface CarAudioZoneConfigUpdatedListener {
+    void connectToConfig(CarAudioZoneConfigInfo info) {
+        switchToAudioConfiguration(info);
+    }
 
-        void configUpdated();
+    interface CarAudioZoneConfigSelectedListener {
+        void configSelected(boolean autoSelected);
+    }
+
+    interface CarAudioZoneConfigsUpdatedListener {
+        void configsUpdated(List<CarAudioZoneConfigInfo> configs);
     }
 
     private static final class CarAudioZoneConfigInfoWrapper {
@@ -254,6 +276,22 @@ final class ZoneConfigSelectionController {
         @Override
         public String toString() {
             return mZoneConfigInfo.getName() + ", Id: " + mZoneConfigInfo.getConfigId();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof CarAudioZoneConfigInfoWrapper)) {
+                return false;
+            }
+            CarAudioZoneConfigInfoWrapper wrapper = (CarAudioZoneConfigInfoWrapper) o;
+            return Flags.carAudioDynamicDevices()
+                    ? mZoneConfigInfo.hasSameConfigInfo(wrapper.mZoneConfigInfo)
+                    : mZoneConfigInfo.equals(wrapper.mZoneConfigInfo);
+        }
+
+        @Override
+        public int hashCode() {
+            return mZoneConfigInfo.hashCode();
         }
     }
 }
