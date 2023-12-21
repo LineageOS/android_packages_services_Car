@@ -181,8 +181,10 @@
     <string name="do_not_auto_connect" translatable="false">Do not auto connect</string>
     <string name="connect_to_last_selected" translatable="false">Auto connect to last selected</string>
     <string name="connect_to_configuration" translatable="false">Auto connect to config</string>
-    <string name="auto_connect_config_name" translatable="false">Config: %1$s</string>
+    <string name="config_name" translatable="false">Config: %1$s</string>
     <string name="long_config_name" translatable="false">LongPlaceHolderConfigName</string>
+    <string name="generic_name_and_id" translatable="false">%1$s : %2$d</string>
+    <string name="generic_status_name_and_status" translatable="false">%1$s : %2$b</string>
 
     <!-- Audio Input-->
     <string name="play_audio_input" translatable="false">Play</string>
