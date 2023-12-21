@@ -43,9 +43,12 @@ android_app {
     libs: ["android.car"],
 
     static_libs: [
-      "car-service-common-util-static-lib",
-      "car-experimental-api-static-lib",
+        "car-service-common-util-static-lib",
+        "car-experimental-api-static-lib",
     ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
 }
 
 //####################################################################################
@@ -64,9 +67,12 @@ android_library {
     ],
 
     static_libs: [
-      "car-service-common-util-static-lib",
-      "car-experimental-api-static-lib",
+        "car-service-common-util-static-lib",
+        "car-experimental-api-static-lib",
     ],
 
     min_sdk_version: "25",
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
 }
