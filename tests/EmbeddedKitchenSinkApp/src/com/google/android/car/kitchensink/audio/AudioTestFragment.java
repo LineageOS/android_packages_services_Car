@@ -28,6 +28,10 @@ import static android.media.AudioAttributes.USAGE_ASSISTANCE_SONIFICATION;
 import static android.media.AudioAttributes.USAGE_ASSISTANT;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
+import static android.media.AudioDeviceInfo.TYPE_BLE_BROADCAST;
+import static android.media.AudioDeviceInfo.TYPE_BLE_HEADSET;
+import static android.media.AudioDeviceInfo.TYPE_BLE_SPEAKER;
+import static android.media.AudioDeviceInfo.TYPE_BLUETOOTH_A2DP;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE;
@@ -48,14 +52,19 @@ import static com.google.android.car.kitchensink.R.raw.well_worth_the_wait;
 import static com.google.android.car.kitchensink.audio.AudioPlayer.PLAYER_STATE_COMPLETED;
 import static com.google.android.car.kitchensink.audio.AudioUtils.getCurrentZoneId;
 
+import android.Manifest;
 import android.car.Car;
 import android.car.CarAppFocusManager;
 import android.car.CarAppFocusManager.OnAppFocusChangedListener;
 import android.car.CarAppFocusManager.OnAppFocusOwnershipCallback;
 import android.car.CarOccupantZoneManager;
+import android.car.feature.Flags;
 import android.car.media.CarAudioManager;
+import android.car.media.CarAudioZoneConfigInfo;
+import android.car.media.CarVolumeGroupInfo;
 import android.content.Context;
 import android.media.AudioAttributes;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
@@ -85,6 +94,7 @@ import com.android.internal.util.Preconditions;
 
 import com.google.android.car.kitchensink.R;
 import com.google.android.car.kitchensink.audio.AudioPlayer.PlayStateListener;
+import com.google.android.car.kitchensink.bluetooth.BluetoothPermissionChecker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -142,6 +152,7 @@ public class AudioTestFragment extends Fragment {
     private Spinner mDeviceAddressSpinner;
     private ArrayAdapter<CarAudioZoneDeviceInfo> mDeviceAddressAdapter;
     private LinearLayout mDeviceAddressLayout;
+    private boolean mDeviceAddressAvailable = false;
 
     private final Object mLock = new Object();
 
@@ -199,13 +210,64 @@ public class AudioTestFragment extends Fragment {
                     mAppFocusManager.addFocusListener(listener, APP_FOCUS_TYPE_VOICE_COMMAND);
 
                     mCarAudioManager = (CarAudioManager) car.getCarManager(Car.AUDIO_SERVICE);
-
+                    handleBluetoothPermissionIfNeeded();
                     handleSetUpZoneSelection();
 
                     handleSetUpZoneConfigurationSelection(view);
-
-                    setUpDeviceAddressPlayer();
                 });
+    }
+
+    private void handleBluetoothPermissionIfNeeded() {
+        for (int zoneId : mCarAudioManager.getAudioZoneIds()) {
+            List<CarAudioZoneConfigInfo> infos = mCarAudioManager.getAudioZoneConfigInfos(zoneId);
+            if (!infos.stream().anyMatch(info-> configHasBluetoothDevice(info))) {
+                continue;
+            }
+            checkBluetoothPermissions();
+            return;
+        }
+        setBluetoothAvailable(true);
+    }
+
+    private boolean configHasBluetoothDevice(CarAudioZoneConfigInfo info) {
+        return Flags.carAudioDynamicDevices()
+                && info.getConfigVolumeGroups().stream()
+                .anyMatch(group -> groupHasBluetoothDevice(group));
+    }
+
+    private boolean groupHasBluetoothDevice(CarVolumeGroupInfo group) {
+        return group.getAudioDeviceAttributes().stream()
+                .anyMatch(device-> isBluetoothDevice(device));
+    }
+
+    private boolean isBluetoothDevice(AudioDeviceAttributes device) {
+        switch (device.getType()) {
+            case TYPE_BLUETOOTH_A2DP: // fall through
+            case TYPE_BLE_HEADSET: // fall through
+            case TYPE_BLE_SPEAKER: // fall through
+            case TYPE_BLE_BROADCAST:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private void checkBluetoothPermissions() {
+        if (!BluetoothPermissionChecker.isPermissionGranted(getActivity(),
+                Manifest.permission.BLUETOOTH_CONNECT)) {
+            BluetoothPermissionChecker.requestPermission(Manifest.permission.BLUETOOTH_CONNECT,
+                    this, () -> setBluetoothAvailable(true),
+                    () -> setBluetoothAvailable(false));
+            return;
+        }
+        setBluetoothAvailable(true);
+    }
+
+    private void setBluetoothAvailable(boolean hasPermission) {
+        // Since there is an existing BT device available
+        // the fragment must rely on having BT permission to find it.
+        mDeviceAddressAvailable = hasPermission;
+        setUpDeviceAddressPlayer();
     }
 
     private void handleSetUpZoneConfigurationSelection(View view) {
@@ -778,7 +840,8 @@ public class AudioTestFragment extends Fragment {
     }
 
     private void setUpDeviceAddressPlayer() {
-        if (!mCarAudioManager.isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING)) {
+        if (!mDeviceAddressAvailable
+                || !mCarAudioManager.isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING)) {
             mDeviceAddressLayout.setVisibility(View.GONE);
             return;
         }
