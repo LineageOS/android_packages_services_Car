@@ -23,8 +23,8 @@ package {
 genrule {
     name: "statslog-Car-java-gen",
     tools: ["stats-log-api-gen"],
-    cmd: "$(location stats-log-api-gen) --java $(out) --module car --javaPackage com.android.car"
-        + " --javaClass CarStatsLog",
+    cmd: "$(location stats-log-api-gen) --java $(out) --module car --javaPackage com.android.car" +
+        " --javaClass CarStatsLog",
     out: ["com/android/car/CarStatsLog.java"],
 }
 
@@ -43,7 +43,7 @@ java_defaults {
         ":iscriptexecutor_aidl",
         "proto/**/*.proto",
         "src/**/*.java",
-        ],
+    ],
 
     aidl: {
         include_dirs: [
@@ -74,7 +74,7 @@ java_defaults {
     ],
 
     static_libs: [
-        "android.automotive.telemetry.internal-V2-java",  // ICarTelemetryInternal
+        "android.automotive.telemetry.internal-V2-java", // ICarTelemetryInternal
         "android.automotive.watchdog.internal-V3-java",
         "android.frameworks.automotive.powerpolicy.internal-V1-java",
         "android.frameworks.automotive.powerpolicy-V2-java",
@@ -114,7 +114,7 @@ java_defaults {
         "//packages/services/Car:__subpackages__",
     ],
 
-    defaults: [ "carservice-updatable-min-java-defaults" ],
+    defaults: ["carservice-updatable-min-java-defaults"],
 
     // TODO(b/288271411): enable it when car mainline module is supported
     // min_sdk_version: "33",
@@ -128,6 +128,9 @@ android_app {
     privileged: true,
 
     required: ["allowed_privapp_com.android.car"],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
 }
 
 // Added to car.framework module
@@ -138,6 +141,9 @@ android_app {
     privileged: true,
 
     apex_available: ["com.android.car.framework"],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
 }
 
 java_library {
@@ -161,6 +167,9 @@ java_library {
         "android.hardware.automotive.vehicle-V2-java",
         "android.hardware.automotive.vehicle-V2.0-java",
     ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
 }
 
 // Minimum code shared with carservice builtin.
@@ -174,8 +183,11 @@ java_library {
     ],
 
     libs: [
-            "android.car",
+        "android.car",
     ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
 }
 
 //####################################################################################
@@ -187,7 +199,10 @@ android_library {
 
     defaults: ["carservice-updatable-min-java-defaults"],
 
-    manifest: "EmptyAndroidManifest.xml"
+    manifest: "EmptyAndroidManifest.xml",
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
 }
 
 filegroup {
