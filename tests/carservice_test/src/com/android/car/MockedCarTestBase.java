@@ -20,6 +20,8 @@ import static android.content.pm.PackageManager.PERMISSION_DENIED;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doNothing;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -38,6 +40,7 @@ import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemN
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.UserHandle;
 import android.util.ArrayMap;
@@ -94,6 +97,7 @@ public class MockedCarTestBase {
     protected static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
     protected static final long SHORT_WAIT_TIMEOUT_MS = 500;
     private static final int STATE_HANDLING_TIMEOUT = 5_000;
+    private static final int MAIN_LOOPER_TIMEOUT_MS = 1_000;
     private static final String TAG = MockedCarTestBase.class.getSimpleName();
     private static final IBinder sCarServiceToken = new Binder();
     private static boolean sRealCarServiceReleased;
@@ -357,7 +361,6 @@ public class MockedCarTestBase {
     }
 
     @After
-    @UiThreadTest
     public void tearDown() throws Exception {
         Log.i(TAG, "tearDown");
 
@@ -380,9 +383,14 @@ public class MockedCarTestBase {
             mHidlMockedVehicleHal = null;
             mAidlMockedVehicleHal = null;
         } finally {
-            if (mSession != null) {
-                mSession.finishMocking();
-            }
+            // Wait for the main looper to handle the current queued tasks before finishing the
+            // mocking session since the task might use the mocked object.
+            assertWithMessage("main looper not idle in %sms", MAIN_LOOPER_TIMEOUT_MS)
+                    .that(Handler.getMain().runWithScissors(() -> {
+                        if (mSession != null) {
+                            mSession.finishMocking();
+                        }
+                    }, MAIN_LOOPER_TIMEOUT_MS)).isTrue();
         }
     }
 

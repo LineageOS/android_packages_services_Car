@@ -444,6 +444,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             Slogf.d(TAG_EVS, "Finalizing the service");
         }
 
+        mDisplayManager.unregisterDisplayListener(mDisplayListener);
+
         if (mUseGearSelection && mPropertyService != null) {
             if (DBG) {
                 Slogf.d(TAG_EVS, "Unregister a property listener in release()");

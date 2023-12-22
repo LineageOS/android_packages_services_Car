@@ -339,32 +339,34 @@ public final class RemoteAccessHalWrapperUnitTest extends AbstractExtendedMockit
     }
 
     @Test
-    public void testGetAllScheduledTasks() throws Exception {
+    public void testGetAllPendingScheduledTasks() throws Exception {
         setUpNormalHalService();
         ScheduleInfo mockScheduleInfo = mock(ScheduleInfo.class);
         List<ScheduleInfo> scheduleInfo = new ArrayList<>();
         scheduleInfo.add(mockScheduleInfo);
 
-        doReturn(scheduleInfo).when(mRemoteAccessHal).getAllScheduledTasks(TEST_CLIENT_ID);
+        doReturn(scheduleInfo).when(mRemoteAccessHal).getAllPendingScheduledTasks(TEST_CLIENT_ID);
 
-        assertThat(mHalWrapper.getAllScheduledTasks(TEST_CLIENT_ID)).isEqualTo(scheduleInfo);
+        assertThat(mHalWrapper.getAllPendingScheduledTasks(TEST_CLIENT_ID)).isEqualTo(scheduleInfo);
     }
 
     @Test
-    public void testGetAllScheduledTasks_remoteException() throws Exception {
+    public void testGetAllPendingScheduledTasks_remoteException() throws Exception {
         setUpNormalHalService();
-        doThrow(new RemoteException()).when(mRemoteAccessHal).getAllScheduledTasks(TEST_CLIENT_ID);
-
-        assertThrows(RemoteException.class, () -> mHalWrapper.getAllScheduledTasks(TEST_CLIENT_ID));
-    }
-
-    @Test
-    public void testGetAllScheduledTasks_serviceSpecificException() throws Exception {
-        setUpNormalHalService();
-        doThrow(new ServiceSpecificException(0)).when(mRemoteAccessHal).getAllScheduledTasks(
+        doThrow(new RemoteException()).when(mRemoteAccessHal).getAllPendingScheduledTasks(
                 TEST_CLIENT_ID);
 
-        assertThrows(ServiceSpecificException.class, () -> mHalWrapper.getAllScheduledTasks(
+        assertThrows(RemoteException.class, () -> mHalWrapper.getAllPendingScheduledTasks(
+                TEST_CLIENT_ID));
+    }
+
+    @Test
+    public void testGetAllPendingScheduledTasks_serviceSpecificException() throws Exception {
+        setUpNormalHalService();
+        doThrow(new ServiceSpecificException(0)).when(mRemoteAccessHal).getAllPendingScheduledTasks(
+                TEST_CLIENT_ID);
+
+        assertThrows(ServiceSpecificException.class, () -> mHalWrapper.getAllPendingScheduledTasks(
                 TEST_CLIENT_ID));
     }
 

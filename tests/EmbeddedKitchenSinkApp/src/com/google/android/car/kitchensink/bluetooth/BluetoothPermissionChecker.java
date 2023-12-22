@@ -27,12 +27,27 @@ public final class BluetoothPermissionChecker {
     private BluetoothPermissionChecker() {
     }
 
-    static boolean isPermissionGranted(Activity mActivity, String permission) {
+    /**
+     * Determines if the activity has the required permissions
+     *
+     * @param mActivity activity to query for permission
+     * @param permission permission to verify
+     * @return {@code true} if the activity has the permission, {@code false} otherwise
+     */
+    public static boolean isPermissionGranted(Activity mActivity, String permission) {
         return mActivity.checkSelfPermission(permission)
                 == PackageManager.PERMISSION_GRANTED;
     }
 
-    static void requestPermission(String permission, Fragment fragment,
+    /**
+     * Request permission from user
+     *
+     * @param permission permission to request
+     * @param fragment parent fragment where request originated
+     * @param isGrantedRunnable callback that is triggered if the permission is grated
+     * @param isNotGrantedRunnable callback that is triggered is the permission is not grated
+     */
+    public static void requestPermission(String permission, Fragment fragment,
             @Nullable Runnable isGrantedRunnable, @Nullable Runnable isNotGrantedRunnable) {
         fragment.registerForActivityResult(new ActivityResultContracts.RequestPermission(),
                 isGranted -> {

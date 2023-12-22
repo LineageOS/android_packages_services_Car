@@ -19,7 +19,7 @@ package com.google.android.car.kitchensink.audio;
 import static android.car.media.CarAudioManager.INVALID_AUDIO_ZONE;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 
-import static com.google.android.car.kitchensink.R.string.auto_connect_config_name;
+import static com.google.android.car.kitchensink.R.string.config_name;
 import static com.google.android.car.kitchensink.audio.AudioUtils.getCarAudioZoneConfigInfoOrNull;
 import static com.google.android.car.kitchensink.audio.AudioUtils.getCurrentZoneId;
 
@@ -60,6 +60,7 @@ public final class AudioConfigurationTestFragment extends Fragment {
     private ZoneConfigSelectionController mZoneConfigController;
     private RadioGroup mAutoConnectGroup;
     private TextView mAutoConfigNameTextView;
+    private AudioConfigurationInformationTabs mAudioConfigsTabs;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle) {
@@ -86,11 +87,23 @@ public final class AudioConfigurationTestFragment extends Fragment {
                         return;
                     }
                     mCarAudioManager = (CarAudioManager) car.getCarManager(Car.AUDIO_SERVICE);
-                    handleSetUpZoneConfigurationSelection(view);
                     FragmentManager fragmentManager = getChildFragmentManager();
                     AudioPlayersTabControllers.setUpAudioPlayersTab(view, fragmentManager);
+                    handleSetUpConfigurationInfoTabs(view, fragmentManager);
+                    handleSetUpZoneConfigurationSelection(view);
                     handleSetUpConfigurationAutoSelection(view);
                 });
+    }
+
+    private void handleSetUpConfigurationInfoTabs(View view, FragmentManager fragmentManager) {
+        int zoneId = PRIMARY_AUDIO_ZONE;
+        try {
+            zoneId = getCurrentZoneId(mContext, mCarAudioManager);
+        } catch (Exception e) {
+            Log.e(TAG, "handleSetUpConfigurationInfoTabs could not get audio zone");
+        }
+        mAudioConfigsTabs = new AudioConfigurationInformationTabs(view, mCarAudioManager,
+                fragmentManager, zoneId);
     }
 
     private void handleSetUpConfigurationAutoSelection(View view) {
@@ -174,7 +187,7 @@ public final class AudioConfigurationTestFragment extends Fragment {
             name = info.getName();
         }
         editor.putInt(getConfigIdKeyForZone(zoneId), configId).apply();
-        mAutoConfigNameTextView.setText(mContext.getString(auto_connect_config_name, name));
+        mAutoConfigNameTextView.setText(mContext.getString(config_name, name));
     }
 
     private void handleSetUpZoneConfigurationSelection(View view) {
@@ -188,6 +201,7 @@ public final class AudioConfigurationTestFragment extends Fragment {
     }
 
     private void configsUpdatedListener(List<CarAudioZoneConfigInfo> configs) {
+        handleUpdateConfigTabs(configs);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
         int zoneId = INVALID_AUDIO_ZONE;
         try {
@@ -206,7 +220,14 @@ public final class AudioConfigurationTestFragment extends Fragment {
         if (info == null) {
             return;
         }
+        if (!info.isActive() || info.isSelected()) {
+            return;
+        }
         mZoneConfigController.connectToConfig(info);
+    }
+
+    private void handleUpdateConfigTabs(List<CarAudioZoneConfigInfo> configs) {
+        mAudioConfigsTabs.updateConfigs(configs);
     }
 
     private String getConfigIdKeyForZone(int zoneId) {
@@ -214,17 +235,18 @@ public final class AudioConfigurationTestFragment extends Fragment {
     }
 
     private void configurationSelected(boolean autoSelected) {
-        if (autoSelected) {
-            return;
-        }
-        if (mAutoConnectGroup.getCheckedRadioButtonId() != R.id.connect_to_last_selected) {
-            return;
-        }
         int zoneId = PRIMARY_AUDIO_ZONE;
         try {
             zoneId = getCurrentZoneId(mContext, mCarAudioManager);
         } catch (Exception e) {
             Log.e(TAG, "Could not find zone to query configurations", e);
+        }
+        handleUpdateConfigTabs(mCarAudioManager.getAudioZoneConfigInfos(zoneId));
+        if (autoSelected) {
+            return;
+        }
+        if (mAutoConnectGroup.getCheckedRadioButtonId() != R.id.connect_to_last_selected) {
+            return;
         }
         setAutoConnectConfiguration(mCarAudioManager.getCurrentAudioZoneConfigInfo(zoneId));
     }

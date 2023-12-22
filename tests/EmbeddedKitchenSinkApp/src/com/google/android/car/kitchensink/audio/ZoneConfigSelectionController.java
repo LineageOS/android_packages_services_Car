@@ -214,11 +214,11 @@ final class ZoneConfigSelectionController {
     }
 
     private void handleAudioZoneConfigsUpdated(List<CarAudioZoneConfigInfo> configs, int status) {
+        if (mConfigUpdatedListener != null) {
+            mConfigUpdatedListener.configsUpdated(configs);
+        }
         if (status == CONFIG_STATUS_CHANGED) {
             showToast("Config status changed " + status);
-            if (mConfigUpdatedListener != null) {
-                mConfigUpdatedListener.configsUpdated(configs);
-            }
             return;
         }
         for (CarAudioZoneConfigInfo info : configs) {
