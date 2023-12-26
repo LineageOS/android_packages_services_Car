@@ -200,10 +200,10 @@
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"نظارت بر وضعیت دیگر مناطق سرنشین در خودرو و برنامه‌های همتای نصب‌شده در این مناطق، و مدیریت انرژی این مناطق (برنامه‌های همتا یعنی برنامه‌هایی که نام بسته مشابه با تماس‌گیرنده دارند)."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"برقراری اتصال و ارتباط با برنامه‌های همتای نصب‌شده در سایر مناطق سرنشین در خودرو (برنامه‌های همتا یعنی برنامه‌هایی که نام بسته مشابه با تماس‌گیرنده دارند)."</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"برقراری اتصال و ارتباط با برنامه‌های همتای نصب‌شده در سایر مناطق سرنشین در خودرو (برنامه‌های همتا یعنی برنامه‌هایی که نام بسته مشابه با تماس‌گیرنده دارند)."</string>
-    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"بازتاب دادن صفحه «برنامه‌های» دیگر"</string>
-    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"بازتاب دادن صفحه «برنامه‌های» دیگر."</string>
-    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"بازتاب دادن نمایشگر کاربران دیگر"</string>
-    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"بازتاب دادن نمایشگر کاربران دیگر."</string>
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"قرینه‌سازی صفحه «برنامه‌های» دیگر"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"قرینه‌سازی صفحه «برنامه‌های» دیگر."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"قرینه‌سازی صفحه کاربران دیگر"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"قرینه‌سازی نمایشگر کاربران دیگر."</string>
     <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"پراکسی واسط کاربر سیستمی ارائه دهید که برنامه‌های دیگر بتوانند بااستفاده از آن واسط کاربر سیستم را مدیریت کنند و نمای وظیفه ایجاد کنند."</string>
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"پراکسی واسط کاربر سیستمی ارائه دهید که برنامه‌های دیگر بتوانند بااستفاده از آن واسط کاربر سیستم را مدیریت کنند و نمای وظیفه ایجاد کنند."</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"برای ایجاد نمای وظیفه یا مطلع شدن از تغییرات واسط کاربر سیستم، با واسط کاربر سیستم خودرو ارتباط برقرار کنید."</string>
