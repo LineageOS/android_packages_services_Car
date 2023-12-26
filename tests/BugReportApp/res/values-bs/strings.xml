@@ -30,7 +30,7 @@
     <string name="bugreport_dialog_show_bugreports" msgid="6964385141627170297">"Prikaži izvještaje o greškama"</string>
     <string name="bugreport_dialog_close" msgid="289925437277364266">"Zatvori"</string>
     <string name="bugreport_dialog_title" msgid="3315160684205929910">"Govorite i opišite problem"</string>
-    <string name="bugreport_dialog_add_audio_to_existing" msgid="4958460267276935700">"Zvučna poruka za izvještaj o grešci u %s"</string>
+    <string name="bugreport_dialog_add_audio_to_existing" msgid="4958460267276935700">"Audio poruka za izvještaj o grešci u %s"</string>
     <string name="bugreport_dialog_recording_finished" msgid="3982335902169398758">"Snimanje je završeno"</string>
     <string name="bugreport_dialog_in_progress_title" msgid="1663500052146177338">"Kreiranje izvještaja o grešci je u toku"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"Prikupljen je izvještaj o greškama"</string>
