@@ -176,8 +176,8 @@ UidResourceUsageStats constructUidResourceUsageStats(
         processCpuUsageStats.push_back({
                 .pid = processCpuValue.pid,
                 .name = processCpuValue.comm,
-                .cpuTimeMillis = static_cast<int64_t>(processCpuValue.cpuTime),
-                .cpuCycles = static_cast<int64_t>(processCpuValue.cpuCycles),
+                .cpuTimeMillis = processCpuValue.cpuTime,
+                .cpuCycles = processCpuValue.cpuCycles,
         });
     }
 
@@ -192,14 +192,14 @@ UidResourceUsageStats constructUidResourceUsageStats(
         ioUsageStats.writtenBytes.backgroundBytes = ioWritesStatsView.bytes[UidState::BACKGROUND];
     }
 
-    int64_t cpuTimeMillis = static_cast<int64_t>(procCpuStatsView.cpuTime);
+    int64_t cpuTimeMillis = procCpuStatsView.cpuTime;
     // clang-format off
     return UidResourceUsageStats{
             .packageIdentifier = std::move(packageIdentifier),
             .uidUptimeMillis = uidUptimeMillis,
             .cpuUsageStats = {
                     .cpuTimeMillis = cpuTimeMillis,
-                    .cpuCycles = static_cast<int64_t>(procCpuStatsView.cpuCycles),
+                    .cpuCycles = procCpuStatsView.cpuCycles,
                     .cpuTimePercentage = percentage(cpuTimeMillis, totalCpuTimeMillis),
             },
             .processCpuUsageStats = std::move(processCpuUsageStats),
@@ -273,8 +273,9 @@ UserPackageStats::UserPackageStats(ProcStatType procStatType, const UidStats& ui
     uid = uidStats.uid();
     genericPackageName = uidStats.genericPackageName();
     if (procStatType == CPU_TIME) {
-        statsView = UserPackageStats::ProcCpuStatsView{.cpuTime = value,
-                                                       .cpuCycles = uidStats.procStats.cpuCycles};
+        statsView = UserPackageStats::ProcCpuStatsView{.cpuTime = static_cast<int64_t>(value),
+                                                       .cpuCycles = static_cast<int64_t>(
+                                                               uidStats.procStats.cpuCycles)};
         auto& procCpuStatsView = std::get<UserPackageStats::ProcCpuStatsView>(statsView);
         procCpuStatsView.topNProcesses.resize(topNProcessCount);
         cacheTopNProcessCpuStats(uidStats, topNProcessCount, &procCpuStatsView.topNProcesses);
@@ -382,7 +383,7 @@ void UserPackageStats::cacheTopNProcessCpuStats(
         std::vector<UserPackageStats::ProcCpuStatsView::ProcessCpuValue>* topNProcesses) {
     int cachedProcessCount = 0;
     for (const auto& [pid, processStats] : uidStats.procStats.processStatsByPid) {
-        uint64_t cpuTime = processStats.cpuTimeMillis;
+        int64_t cpuTime = processStats.cpuTimeMillis;
         if (cpuTime == 0) {
             continue;
         }
@@ -393,7 +394,8 @@ void UserPackageStats::cacheTopNProcessCpuStats(
                                               .pid = pid,
                                               .comm = processStats.comm,
                                               .cpuTime = cpuTime,
-                                              .cpuCycles = processStats.totalCpuCycles,
+                                              .cpuCycles = static_cast<int64_t>(
+                                                      processStats.totalCpuCycles),
                                       });
                 topNProcesses->pop_back();
                 ++cachedProcessCount;
