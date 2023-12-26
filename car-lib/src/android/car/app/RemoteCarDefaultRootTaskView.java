@@ -25,6 +25,8 @@ import android.graphics.Rect;
 import android.os.Binder;
 import android.view.SurfaceControl;
 
+import com.android.internal.annotations.GuardedBy;
+
 import java.util.concurrent.Executor;
 
 /**
@@ -46,29 +48,33 @@ public final class RemoteCarDefaultRootTaskView extends RemoteCarTaskView {
     private final RemoteCarDefaultRootTaskViewConfig mConfig;
     private final Rect mTmpRect = new Rect();
     private final RootTaskStackManager mRootTaskStackManager = new RootTaskStackManager();
+    private final Object mLock = new Object();
 
+    @GuardedBy("mLock")
     private ActivityManager.RunningTaskInfo mRootTask;
 
     final ICarTaskViewClient mICarTaskViewClient = new ICarTaskViewClient.Stub() {
         @Override
         public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo, SurfaceControl leash) {
-            if (mRootTask == null) {
-                mRootTask = taskInfo;
-                // If onTaskAppeared() is called, it implicitly means that super.isInitialized()
-                // is true, as the root task is created only after initialization.
-                long identity = Binder.clearCallingIdentity();
-                try {
-                    mCallbackExecutor.execute(() -> mCallback.onTaskViewInitialized());
-                } finally {
-                    Binder.restoreCallingIdentity(identity);
-                }
+            synchronized (mLock) {
+                if (mRootTask == null) {
+                    mRootTask = taskInfo;
+                    // If onTaskAppeared() is called, it implicitly means that super.isInitialized()
+                    // is true, as the root task is created only after initialization.
+                    long identity = Binder.clearCallingIdentity();
+                    try {
+                        mCallbackExecutor.execute(() -> mCallback.onTaskViewInitialized());
+                    } finally {
+                        Binder.restoreCallingIdentity(identity);
+                    }
 
-                if (taskInfo.taskDescription != null) {
-                    ViewHelper.seResizeBackgroundColor(
-                            RemoteCarDefaultRootTaskView.this,
-                            taskInfo.taskDescription.getBackgroundColor());
+                    if (taskInfo.taskDescription != null) {
+                        ViewHelper.seResizeBackgroundColor(
+                                RemoteCarDefaultRootTaskView.this,
+                                taskInfo.taskDescription.getBackgroundColor());
+                    }
+                    updateWindowBounds();
                 }
-                updateWindowBounds();
             }
 
             mRootTaskStackManager.taskAppeared(taskInfo, leash);
@@ -82,10 +88,15 @@ public final class RemoteCarDefaultRootTaskView extends RemoteCarTaskView {
 
         @Override
         public void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo) {
-            if (mRootTask.taskId == taskInfo.taskId && taskInfo.taskDescription != null) {
-                ViewHelper.seResizeBackgroundColor(
-                        RemoteCarDefaultRootTaskView.this,
-                        taskInfo.taskDescription.getBackgroundColor());
+            synchronized (mLock) {
+                if (mRootTask == null) {
+                    return;
+                }
+                if (mRootTask.taskId == taskInfo.taskId && taskInfo.taskDescription != null) {
+                    ViewHelper.seResizeBackgroundColor(
+                            RemoteCarDefaultRootTaskView.this,
+                            taskInfo.taskDescription.getBackgroundColor());
+                }
             }
             mRootTaskStackManager.taskInfoChanged(taskInfo);
             long identity = Binder.clearCallingIdentity();
@@ -98,8 +109,13 @@ public final class RemoteCarDefaultRootTaskView extends RemoteCarTaskView {
 
         @Override
         public void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo) {
-            if (mRootTask.taskId == taskInfo.taskId) {
-                mRootTask = null;
+            synchronized (mLock) {
+                if (mRootTask == null) {
+                    return;
+                }
+                if (mRootTask.taskId == taskInfo.taskId) {
+                    mRootTask = null;
+                }
             }
             mRootTaskStackManager.taskVanished(taskInfo);
             long identity = Binder.clearCallingIdentity();
@@ -157,7 +173,9 @@ public final class RemoteCarDefaultRootTaskView extends RemoteCarTaskView {
 
     @Override
     public boolean isInitialized() {
-        return super.isInitialized() && mRootTask != null;
+        synchronized (mLock) {
+            return super.isInitialized() && mRootTask != null;
+        }
     }
 
     @Override
@@ -169,7 +187,9 @@ public final class RemoteCarDefaultRootTaskView extends RemoteCarTaskView {
     @Nullable
     @Override
     public ActivityManager.RunningTaskInfo getTaskInfo() {
-        return mRootTask;
+        synchronized (mLock) {
+            return mRootTask;
+        }
     }
 
     RemoteCarDefaultRootTaskViewConfig getConfig() {
