@@ -2287,6 +2287,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 mRequestIdToPolicyRequest.put(requestId, request);
             }
             try {
+                Slogf.i(TAG, "Request(%d) of applying power policy(%s) to CPPD in async", requestId,
+                        policyId);
                 daemon.applyPowerPolicyAsync(requestId, policyId, /* force= */ false);
                 boolean policyRequestServed = request.await();
                 if (!policyRequestServed) {
@@ -2318,10 +2320,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 }
             }
             if (!request.isSuccessful()) {
+                Slogf.w(TAG, "Failed to apply power policy, failure reason = %d",
+                        request.getFailureReason());
                 return getPolicyRequestError(requestId, request.getFailureReason());
             }
             CarPowerPolicy accumulatedPolicy = request.getAccumulatedPolicy();
             synchronized (mLock) {
+                mCurrentPowerPolicyId = policyId;
                 mCurrentAccumulatedPowerPolicy = accumulatedPolicy;
             }
             if (delayNotification) {
@@ -3153,18 +3158,19 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             writer.println("Policy ID cannot be null");
             return false;
         }
+        int status;
         if (carPowerPolicyRefactoring()) {
-            applyPowerPolicy(powerPolicyId, /* delayNotification= */ false, /* upToDaemon= */ false,
-                    /* force= */ false);
+            status = applyPowerPolicy(powerPolicyId, /* delayNotification= */ false,
+                    /* upToDaemon= */ false, /* force= */ false);
         } else {
             boolean isPreemptive = mPolicyReader.isPreemptivePowerPolicy(powerPolicyId);
-            int status = isPreemptive ? applyPreemptivePowerPolicy(powerPolicyId)
+            status = isPreemptive ? applyPreemptivePowerPolicy(powerPolicyId)
                     : applyPowerPolicy(powerPolicyId, /* delayNotification= */ false,
                             /* upToDaemon= */ true, /* force= */ false);
-            if (status != PolicyOperationStatus.OK) {
-                writer.println(PolicyOperationStatus.errorCodeToString(status));
-                return false;
-            }
+        }
+        if (status != PolicyOperationStatus.OK) {
+            writer.println(PolicyOperationStatus.errorCodeToString(status));
+            return false;
         }
         writer.printf("Power policy(%s) is successfully applied.\n", powerPolicyId);
         return true;
