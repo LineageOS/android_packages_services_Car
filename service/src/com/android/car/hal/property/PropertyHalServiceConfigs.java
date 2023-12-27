@@ -170,10 +170,15 @@ public class PropertyHalServiceConfigs {
         } else {
             mFeatureFlags = featureFlags;
         }
-        InputStream defaultConfigInputStream = this.getClass().getClassLoader()
-                .getResourceAsStream(CONFIG_RESOURCE_NAME);
-        mHalPropIdToCarSvcConfig = parseJsonConfig(defaultConfigInputStream,
-                "defaultResource");
+        try (InputStream defaultConfigInputStream = this.getClass().getClassLoader()
+                    .getResourceAsStream(CONFIG_RESOURCE_NAME)) {
+            mHalPropIdToCarSvcConfig = parseJsonConfig(defaultConfigInputStream,
+                    "defaultResource");
+        } catch (IOException e) {
+            String errorMsg = "failed to close resource input stream for: " + CONFIG_RESOURCE_NAME;
+            Slogf.e(TAG, errorMsg, e);
+            throw new IllegalStateException(errorMsg, e);
+        }
         List<Integer> halPropIdMgrIds = new ArrayList<>();
         for (int i = 0; i < mHalPropIdToCarSvcConfig.size(); i++) {
             CarSvcPropertyConfig config = mHalPropIdToCarSvcConfig.valueAt(i);
