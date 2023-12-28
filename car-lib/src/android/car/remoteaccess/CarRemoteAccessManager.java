@@ -33,6 +33,7 @@ import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.util.Log;
 
+import com.android.car.internal.ICarBase;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
@@ -330,7 +331,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
     }
 
     /** @hide */
-    public CarRemoteAccessManager(Car car, IBinder service) {
+    public CarRemoteAccessManager(ICarBase car, IBinder service) {
         super(car);
         mService = ICarRemoteAccessService.Stub.asInterface(service);
     }

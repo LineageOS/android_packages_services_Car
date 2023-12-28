@@ -37,6 +37,7 @@ android_ravenwood_test {
     name: "CarLibHostUnitTest",
     static_libs: [
         "android.car-no-dep",
+        "android.car.test.utils",
         "androidx.annotation_annotation",
         "androidx.test.rules",
         "mockito_ravenwood",
