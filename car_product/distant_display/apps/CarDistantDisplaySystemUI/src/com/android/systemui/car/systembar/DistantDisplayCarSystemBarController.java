@@ -20,15 +20,10 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
-import com.android.systemui.broadcast.BroadcastDispatcher;
-import com.android.systemui.car.CarServiceProvider;
-import com.android.systemui.car.privacy.CameraPrivacyElementsProviderImpl;
-import com.android.systemui.car.privacy.MicPrivacyElementsProviderImpl;
-import com.android.systemui.car.qc.SystemUIQCViewController;
 import com.android.systemui.car.statusbar.UserNameViewController;
+import com.android.systemui.car.statusicon.StatusIconPanelViewController;
 import com.android.systemui.car.statusicon.ui.DistantDisplayStatusIconController;
 import com.android.systemui.settings.UserTracker;
-import com.android.systemui.statusbar.policy.ConfigurationController;
 
 import dagger.Lazy;
 
@@ -41,25 +36,18 @@ public class DistantDisplayCarSystemBarController extends CarSystemBarController
     public DistantDisplayCarSystemBarController(Context context,
             UserTracker userTracker,
             CarSystemBarViewFactory carSystemBarViewFactory,
-            CarServiceProvider carServiceProvider,
-            BroadcastDispatcher broadcastDispatcher,
-            ConfigurationController configurationController,
             ButtonSelectionStateController buttonSelectionStateController,
             Lazy<UserNameViewController> userNameViewControllerLazy,
             Lazy<MicPrivacyChipViewController> micPrivacyChipViewControllerLazy,
             Lazy<CameraPrivacyChipViewController> cameraPrivacyChipViewControllerLazy,
             ButtonRoleHolderController buttonRoleHolderController,
             SystemBarConfigs systemBarConfigs,
-            Provider<SystemUIQCViewController> qcViewControllerProvider,
-            Lazy<MicPrivacyElementsProviderImpl> micPrivacyElementsProvider,
-            Lazy<CameraPrivacyElementsProviderImpl> cameraPrivacyElementsProvider,
+            Provider<StatusIconPanelViewController.Builder> panelControllerBuilderProvider,
             DistantDisplayStatusIconController distantDisplayStatusIconController) {
-        super(context, userTracker, carSystemBarViewFactory, carServiceProvider,
-                broadcastDispatcher,
-                configurationController, buttonSelectionStateController, userNameViewControllerLazy,
-                micPrivacyChipViewControllerLazy, cameraPrivacyChipViewControllerLazy,
-                buttonRoleHolderController, systemBarConfigs, qcViewControllerProvider,
-                micPrivacyElementsProvider, cameraPrivacyElementsProvider);
+        super(context, userTracker, carSystemBarViewFactory, buttonSelectionStateController,
+                userNameViewControllerLazy, micPrivacyChipViewControllerLazy,
+                cameraPrivacyChipViewControllerLazy, buttonRoleHolderController, systemBarConfigs,
+                panelControllerBuilderProvider);
         mDistantDisplayStatusIconController = distantDisplayStatusIconController;
     }
 
