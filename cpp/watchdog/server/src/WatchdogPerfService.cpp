@@ -882,7 +882,8 @@ Result<void> WatchdogPerfService::collectLocked(WatchdogPerfService::EventMetada
         return Error() << "No collectors enabled";
     }
 
-    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now());
     int64_t timeSinceBootMs = kGetElapsedTimeSinceBootMsFunc();
 
     if (mUidStatsCollector->enabled()) {

@@ -62,7 +62,8 @@ constexpr int kTestTopNStatsPerCategory = 5;
 constexpr int kTestTopNStatsPerSubcategory = 5;
 constexpr int kTestMaxUserSwitchEvents = 3;
 constexpr std::chrono::seconds kTestSystemEventDataCacheDurationSec = 60s;
-constexpr time_t kTestNow = static_cast<time_t>(1'683'270'000);
+const auto kTestNow = std::chrono::time_point_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::from_time_t(1'683'270'000));
 
 int64_t getTestElapsedRealtimeSinceBootMs() {
     return 20'000;
@@ -111,10 +112,10 @@ MATCHER_P(ProcessCpuValueEq, expected, "") {
                                           &UserPackageStats::ProcCpuStatsView::ProcessCpuValue::
                                                   comm,
                                           Eq(expected.comm)),
-                                    Field("cpuTime",
+                                    Field("cpuTimeMs",
                                           &UserPackageStats::ProcCpuStatsView::ProcessCpuValue::
-                                                  cpuTime,
-                                          Eq(expected.cpuTime)),
+                                                  cpuTimeMs,
+                                          Eq(expected.cpuTimeMs)),
                                     Field("cpuCycles",
                                           &UserPackageStats::ProcCpuStatsView::ProcessCpuValue::
                                                   cpuCycles,
@@ -129,8 +130,9 @@ MATCHER_P(ProcCpuStatsViewEq, expected, "") {
     for (const auto& processValue : expected.topNProcesses) {
         processValueMatchers.push_back(ProcessCpuValueEq(processValue));
     }
-    return ExplainMatchResult(AllOf(Field("cpuTime", &UserPackageStats::ProcCpuStatsView::cpuTime,
-                                          Eq(expected.cpuTime)),
+    return ExplainMatchResult(AllOf(Field("cpuTimeMs",
+                                          &UserPackageStats::ProcCpuStatsView::cpuTimeMs,
+                                          Eq(expected.cpuTimeMs)),
                                     Field("cpuCycles",
                                           &UserPackageStats::ProcCpuStatsView::cpuCycles,
                                           Eq(expected.cpuCycles)),
@@ -985,8 +987,8 @@ TEST_F(PerformanceProfilerTest, TestOnUserSwitchCollection) {
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(nextUidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(nextProcStatInfo));
 
-    ASSERT_RESULT_OK(mCollector->onUserSwitchCollection(kTestNow + 2, 100, 101,
-                                                        mMockUidStatsCollector,
+    ASSERT_RESULT_OK(mCollector->onUserSwitchCollection(kTestNow + std::chrono::seconds(2), 100,
+                                                        101, mMockUidStatsCollector,
                                                         mMockProcStatCollector));
 
     auto& continuationActualInfos = mCollectorPeer->getUserSwitchCollectionInfos();
@@ -1432,8 +1434,7 @@ TEST_F(PerformanceProfilerTest, TestBoottimeCollectionCacheEviction) {
 
     // Call |onPeriodicCollection| 1 hour past the last boot-time collection event.
     ASSERT_RESULT_OK(
-            mCollector->onPeriodicCollection(kTestNow +
-                                                     kTestSystemEventDataCacheDurationSec.count(),
+            mCollector->onPeriodicCollection(kTestNow + kTestSystemEventDataCacheDurationSec,
                                              SystemState::NORMAL_MODE, mMockUidStatsCollector,
                                              mMockProcStatCollector, &resourceStats));
 
@@ -1460,8 +1461,7 @@ TEST_F(PerformanceProfilerTest, TestWakeUpCollectionCacheEviction) {
 
     // Call |onPeriodicCollection| 1 hour past the last wake-up collection event.
     ASSERT_RESULT_OK(
-            mCollector->onPeriodicCollection(kTestNow +
-                                                     kTestSystemEventDataCacheDurationSec.count(),
+            mCollector->onPeriodicCollection(kTestNow + kTestSystemEventDataCacheDurationSec,
                                              SystemState::NORMAL_MODE, mMockUidStatsCollector,
                                              mMockProcStatCollector, &resourceStats));
 
@@ -1477,20 +1477,20 @@ TEST_F(PerformanceProfilerTest, TestUserSwitchCollectionCacheEviction) {
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(uidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillRepeatedly(Return(procStatInfo));
 
-    time_t updatedNow = kTestNow;
+    auto updatedNow = kTestNow;
 
     for (userid_t userId = 100; userId < 100 + kTestMaxUserSwitchEvents; ++userId) {
         ASSERT_RESULT_OK(mCollector->onUserSwitchCollection(updatedNow, userId, userId + 1,
                                                             mMockUidStatsCollector,
                                                             mMockProcStatCollector));
-        updatedNow += kTestSystemEventDataCacheDurationSec.count();
+        updatedNow += kTestSystemEventDataCacheDurationSec;
     }
 
     const auto& actual = mCollectorPeer->getUserSwitchCollectionInfos();
 
     EXPECT_THAT(actual.size(), kTestMaxUserSwitchEvents);
 
-    updatedNow = kTestNow + kTestSystemEventDataCacheDurationSec.count();
+    updatedNow = kTestNow + kTestSystemEventDataCacheDurationSec;
     ResourceStats resourceStats = {};
     for (int i = 1; i <= kTestMaxUserSwitchEvents; ++i) {
         ASSERT_RESULT_OK(mCollector->onPeriodicCollection(updatedNow, SystemState::NORMAL_MODE,
@@ -1502,7 +1502,7 @@ TEST_F(PerformanceProfilerTest, TestUserSwitchCollectionCacheEviction) {
         EXPECT_THAT(actual.size(), kTestMaxUserSwitchEvents - i)
                 << "User-switch collection size is incorrect";
 
-        updatedNow += kTestSystemEventDataCacheDurationSec.count();
+        updatedNow += kTestSystemEventDataCacheDurationSec;
     }
 }
 
