@@ -162,6 +162,7 @@ message TimeOfDay {
   // allow the value 60 if it allows leap-seconds.
   optional int32 seconds = 3;
 
-  // Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
-  optional int32 nanos = 4;
+  // Modified from nanoseconds.
+  // Fractions of seconds in milliseconds. Must be from 0 to 999.
+  optional int32 millis = 4;
 }
