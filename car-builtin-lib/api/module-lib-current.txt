@@ -177,8 +177,8 @@ package android.car.builtin.input {
 package android.car.builtin.job {
 
   public final class JobSchedulerHelper {
-    method public static int getNumberOfPendingJobs(android.content.Context);
-    method public static int getNumberOfRunningJobsAtIdle(android.content.Context);
+    method public static java.util.List<android.app.job.JobInfo> getPendingJobs(android.content.Context);
+    method public static java.util.List<android.app.job.JobInfo> getRunningJobsAtIdle(android.content.Context);
   }
 
 }
