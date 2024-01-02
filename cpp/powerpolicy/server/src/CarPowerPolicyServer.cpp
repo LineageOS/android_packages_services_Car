@@ -292,6 +292,16 @@ ScopedAStatus CarPowerPolicyDelegate::notifyPowerPolicyDefinition(
             "notifyPowerPolicyDefinition");
 }
 
+ScopedAStatus CarPowerPolicyDelegate::notifyPowerPolicyGroupDefinition(
+        const std::string& policyGroupId, const std::vector<std::string>& powerPolicyPerState) {
+    return runWithService(
+            [policyGroupId, powerPolicyPerState](CarPowerPolicyServer* service) -> ScopedAStatus {
+                return service->notifyPowerPolicyGroupDefinition(policyGroupId,
+                                                                 powerPolicyPerState);
+            },
+            "notifyPowerPolicyGroupDefinition");
+}
+
 ScopedAStatus CarPowerPolicyDelegate::notifyPowerStateChange(
         [[maybe_unused]] ::aidl::android::automotive::powerpolicy::internal::
                 ICarPowerPolicyDelegate::PowerState in_state) {
@@ -538,6 +548,24 @@ ScopedAStatus CarPowerPolicyServer::notifyPowerPolicyDefinition(
                 fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
                                                     StringPrintf("Failed to notify power policy "
                                                                  "definition: %s",
+                                                                 ret.error().message().c_str())
+                                                            .c_str());
+    }
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::notifyPowerPolicyGroupDefinition(
+        const std::string& policyGroupId, const std::vector<std::string>& powerPolicyPerState) {
+    ScopedAStatus status = checkSystemPermission();
+    if (!status.isOk()) {
+        return status;
+    }
+    const auto& ret = mPolicyManager.definePowerPolicyGroup(policyGroupId, powerPolicyPerState);
+    if (!ret.ok()) {
+        return ScopedAStatus::
+                fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                    StringPrintf("Failed to notify power policy "
+                                                                 "group definition: %s",
                                                                  ret.error().message().c_str())
                                                             .c_str());
     }

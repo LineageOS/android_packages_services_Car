@@ -87,6 +87,8 @@ const int32_t INVALID_CUSTOM_POWER_COMPONENT = -1;
 const int32_t MINIMUM_CUSTOM_COMPONENT_VALUE =
         static_cast<int>(PowerComponent::MINIMUM_CUSTOM_COMPONENT_VALUE);
 const int32_t INVALID_VEHICLE_POWER_STATE = -1;
+const int32_t WAIT_FOR_VHAL_STATE = static_cast<int32_t>(VehicleApPowerStateReport::WAIT_FOR_VHAL);
+const int32_t ON_STATE = static_cast<int32_t>(VehicleApPowerStateReport::ON);
 
 constexpr const char kPowerComponentPrefix[] = "POWER_COMPONENT_";
 constexpr const char kSystemPolicyPrefix[] = "system_power_policy_";
@@ -178,10 +180,10 @@ const char* safePtrPrint(const char* ptr) {
 
 int32_t toVehiclePowerState(const char* state) {
     if (!strcmp(state, kPowerTransitionWaitForVhal)) {
-        return static_cast<int32_t>(VehicleApPowerStateReport::WAIT_FOR_VHAL);
+        return WAIT_FOR_VHAL_STATE;
     }
     if (!strcmp(state, kPowerTransitionOn)) {
-        return static_cast<int32_t>(VehicleApPowerStateReport::ON);
+        return ON_STATE;
     }
     return INVALID_VEHICLE_POWER_STATE;
 }
@@ -657,6 +659,30 @@ Result<void> PolicyManager::definePowerPolicy(const std::string& policyId,
         return ret;
     }
     mRegisteredPowerPolicies.emplace(policyId, policy);
+    return {};
+}
+
+Result<void> PolicyManager::definePowerPolicyGroup(
+        const std::string& policyGroupId, const std::vector<std::string>& powerPolicyPerState) {
+    if (isPowerPolicyGroupAvailable(policyGroupId)) {
+        return Error() << StringPrintf("%s is already registered", policyGroupId.c_str());
+    }
+    if (powerPolicyPerState.size() != 2) {
+        return Error() << StringPrintf(
+                       "Power policies for both WaitForVHAL and On should be given");
+    }
+    PolicyGroup policyGroup;
+    int32_t i = 0;
+    for (const int32_t powerState : {WAIT_FOR_VHAL_STATE, ON_STATE}) {
+        if (const auto& policy = getPowerPolicy(powerPolicyPerState[i]); policy.ok()) {
+            policyGroup[powerState] = powerPolicyPerState[i];
+        } else if (!powerPolicyPerState[i].empty()) {
+            return Error() << StringPrintf(
+                           "Power policy group with unregistered policy cannot be registered");
+        }
+        i++;
+    }
+    mPolicyGroups.emplace(policyGroupId, policyGroup);
     return {};
 }
 

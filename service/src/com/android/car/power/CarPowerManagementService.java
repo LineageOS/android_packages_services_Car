@@ -195,6 +195,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     // Default timeout for power policy change requests
     private static final int DEFAULT_POWER_POLICY_REQUEST_TIMEOUT_MS = 5_000;
 
+    private static final int INDEX_WAIT_FOR_VHAL = 0;
+    private static final int INDEX_ON = 1;
+
     private final Object mLock = new Object();
     private final Object mSimulationWaitObject = new Object();
 
@@ -3185,11 +3188,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * @return {@code true}, if successful. Otherwise, {@code false}.
      */
     public boolean definePowerPolicyGroupFromCommand(String[] args, IndentingPrintWriter writer) {
-        if (carPowerPolicyRefactoring()) {
-            // TODO(b/305805440): add support once AIDL interface is updated
-            throw new UnsupportedOperationException("Power policy groups cannot be defined from "
-                    + " a command");
-        }
         if (args.length < 3 || args.length > 4) {
             writer.println("Invalid syntax");
             return false;
@@ -3197,6 +3195,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         String policyGroupId = args[1];
         int index = 2;
         SparseArray<String> defaultPolicyPerState = new SparseArray<>();
+        String[] powerPolicyPerState = {"", ""};
         while (index < args.length) {
             String[] tokens = args[index].split(":");
             if (tokens.length != 2) {
@@ -3209,7 +3208,32 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 return false;
             }
             defaultPolicyPerState.put(state, tokens[1]);
+            switch (state) {
+                case VehicleApPowerStateReport.WAIT_FOR_VHAL:
+                    powerPolicyPerState[INDEX_WAIT_FOR_VHAL] = tokens[1];
+                    break;
+                case VehicleApPowerStateReport.ON:
+                    powerPolicyPerState[INDEX_ON] = tokens[1];
+                    break;
+            }
             index++;
+        }
+        if (carPowerPolicyRefactoring()) {
+            ICarPowerPolicyDelegate daemon;
+            synchronized (mLock) {
+                daemon = mRefactoredCarPowerPolicyDaemon;
+            }
+            try {
+                daemon.notifyPowerPolicyGroupDefinition(policyGroupId, powerPolicyPerState);
+            } catch (IllegalArgumentException e) {
+                Slogf.w(TAG, e, "The given policy group ID(%s) or mapping between power state and"
+                        + " policy is invalid", policyGroupId);
+                return false;
+            } catch (RemoteException e) {
+                Slogf.w(TAG, e, "Calling ICarPowerPolicyDelegate.notifyPowerPolicyGroupDefinition"
+                        + " failed");
+                return false;
+            }
         }
         int status = mPolicyReader.definePowerPolicyGroup(policyGroupId,
                 defaultPolicyPerState);
