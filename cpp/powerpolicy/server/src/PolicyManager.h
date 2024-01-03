@@ -55,6 +55,7 @@ constexpr const char kSystemPolicyIdSuspendPrep[] = "system_power_policy_suspend
 namespace internal {
 
 class PolicyManagerPeer;
+class CarPowerPolicyServerPeer;
 
 }  // namespace internal
 
@@ -104,7 +105,8 @@ private:
     std::unordered_map<std::string, int32_t> mCustomComponents;
 
     // For unit tests.
-    friend class internal::PolicyManagerPeer;
+    friend class android::frameworks::automotive::powerpolicy::internal::PolicyManagerPeer;
+    friend class android::frameworks::automotive::powerpolicy::internal::CarPowerPolicyServerPeer;
 };
 
 }  // namespace powerpolicy
