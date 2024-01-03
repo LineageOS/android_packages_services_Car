@@ -1764,6 +1764,7 @@ TEST_F(PerformanceProfilerTest, TestOnDumpProto) {
              .mCustomIntervalMillis = std::chrono::milliseconds(10000)};
 
     ResourceStats actualResourceStats = {};
+    int userId = 100;
 
     ASSERT_RESULT_OK(mCollector->onPeriodicCollection(kTestNow, SystemState::NORMAL_MODE,
                                                       mMockUidStatsCollector,
@@ -1781,6 +1782,10 @@ TEST_F(PerformanceProfilerTest, TestOnDumpProto) {
                                                     mMockUidStatsCollector, mMockProcStatCollector,
                                                     &actualResourceStats));
 
+    ASSERT_RESULT_OK(mCollector->onUserSwitchCollection(kTestNow, userId, userId + 1,
+                                                        mMockUidStatsCollector,
+                                                        mMockProcStatCollector));
+
     util::ProtoOutputStream proto;
     mCollector->onDumpProto(collectionIntervals, proto);
 
@@ -1793,6 +1798,17 @@ TEST_F(PerformanceProfilerTest, TestOnDumpProto) {
     for (auto& record : bootTimeStats.records()) {
         EXPECT_THAT(record,
                     StatsRecordProtoEq(userPackageSummaryStats, systemSummaryStats, kTestNow));
+    }
+
+    for (const auto& userSwitchStat : performanceStats.user_switch_stats()) {
+        EXPECT_EQ(userSwitchStat.to_user_id(), userId + 1);
+        EXPECT_EQ(userSwitchStat.from_user_id(), userId);
+        auto userSwitchCollection = userSwitchStat.user_switch_collection();
+        EXPECT_EQ(userSwitchCollection.collection_interval_millis(), 100);
+        for (const auto& record : userSwitchCollection.records()) {
+            EXPECT_THAT(record,
+                        StatsRecordProtoEq(userPackageSummaryStats, systemSummaryStats, kTestNow));
+        }
     }
 
     auto wakeUpStats = performanceStats.wake_up_stats();

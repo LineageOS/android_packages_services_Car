@@ -22,7 +22,7 @@ package android.automotive.watchdog;
 message PerformanceStats {
   optional StatsCollection boot_time_stats = 1;
   optional StatsCollection wake_up_stats = 2;
-  repeated StatsCollection user_switch_stats = 3;
+  repeated UserSwitchStatsCollection user_switch_stats = 3;
   optional StatsCollection last_n_minutes_stats = 4;
   optional StatsCollection custom_collection_stats = 5;
 }
@@ -31,6 +31,13 @@ message PerformanceStats {
 message StatsCollection {
   optional int64 collection_interval_millis = 1;
   repeated StatsRecord records = 2;
+}
+
+// Represents user switch performance stats captured during a single event.
+message UserSwitchStatsCollection {
+  optional int32 to_user_id = 1;
+  optional int32 from_user_id = 2;
+  optional StatsCollection user_switch_collection = 3;
 }
 
 // Represents the performance stats captured during a single poll.
