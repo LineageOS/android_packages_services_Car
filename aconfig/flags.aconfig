@@ -40,6 +40,13 @@ flag {
   bug: "305301155"
 }
 
+flag {
+    name: "car_audio_min_max_activation_volume"
+    namespace: "car_framework"
+    description: "Controls whether car audio can be configured with min/max activation volume"
+    bug: "310667172"
+}
+
 # CarPropertyManager
 flag {
   name: "batched_subscriptions"
