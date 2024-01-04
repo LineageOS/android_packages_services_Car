@@ -120,20 +120,20 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"கார் கண்ணாடிகளை நிர்வகிக்க வேண்டும்."</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"காரின் இருக்கைகளை நிர்வகிக்க வேண்டும்"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"காரின் இருக்கைகளை நிர்வகிக்க வேண்டும்."</string>
-    <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"காரின் சீட் பெல்ட்டுகளைப் படித்தல்"</string>
-    <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"காரின் சீட் பெல்ட்டுகளைப் படித்தல்."</string>
-    <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"காரின் மோதலைக் கண்டறியும் சென்சார்களைப் படித்தல்."</string>
-    <string name="car_permission_desc_read_impact_sensors" msgid="6479840965130272944">"காரின் மோதலைக் கண்டறியும் சென்சார்களைப் படித்தல்."</string>
-    <string name="car_permission_label_read_valet_mode" msgid="1807900160666761320">"பணியாளரே பார்க்கிங் செய்யும் பயன்முறையைப் படித்தல்"</string>
-    <string name="car_permission_desc_read_valet_mode" msgid="8645550481045813299">"பணியாளரே பார்க்கிங் செய்யும் பயன்முறையைப் படித்தல்."</string>
-    <string name="car_permission_label_control_valet_mode" msgid="180432980177027905">"பணியாளரே பார்க்கிங் செய்யும் பயன்முறையைக் கட்டுப்படுத்துதல்"</string>
-    <string name="car_permission_desc_control_valet_mode" msgid="8442573192492763994">"பணியாளரே பார்க்கிங் செய்யும் பயன்முறையைக் கட்டுப்படுத்துதல்."</string>
+    <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"காரின் சீட் பெல்ட்டுகள் பற்றித் தெரிந்துகொள்ளுதல்"</string>
+    <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"காரின் சீட் பெல்ட்டுகள் பற்றித் தெரிந்துகொள்ளுதல்."</string>
+    <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"காரின் மோதலைக் கண்டறியும் சென்சார்களைப் படித்தல்"</string>
+    <string name="car_permission_desc_read_impact_sensors" msgid="6479840965130272944">"காரின் மோதலைக் கண்டறியும் சென்சார்கள் பற்றித் தெரிந்துகொள்ளுதல்."</string>
+    <string name="car_permission_label_read_valet_mode" msgid="1807900160666761320">"வேலட் பயன்முறை பற்றித் தெரிந்துகொள்ளுதல்"</string>
+    <string name="car_permission_desc_read_valet_mode" msgid="8645550481045813299">"வேலட் பயன்முறை பற்றித் தெரிந்துகொள்ளுதல்."</string>
+    <string name="car_permission_label_control_valet_mode" msgid="180432980177027905">"வேலட் பயன்முறையைக் கட்டுப்படுத்துதல்"</string>
+    <string name="car_permission_desc_control_valet_mode" msgid="8442573192492763994">"வேலட் பயன்முறையைக் கட்டுப்படுத்துதல்."</string>
     <string name="car_permission_label_read_head_up_display" msgid="9201863445296851274">"தகவல் திரையைப் படித்தல்"</string>
     <string name="car_permission_desc_read_head_up_display" msgid="8907865450351134443">"தகவல் திரையைப் படிக்கும்."</string>
     <string name="car_permission_label_control_head_up_display" msgid="2990483192001919370">"தகவல் திரையைக் கட்டுப்படுத்துதல்"</string>
     <string name="car_permission_desc_control_head_up_display" msgid="483313982751387504">"தகவல் திரையைக் கட்டுப்படுத்தும்."</string>
-    <string name="car_permission_label_read_car_airbags" msgid="5495423499616379238">"காரின் ஏர்பேக்குகளைப் படித்தல்"</string>
-    <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"காரின் ஏர்பேக்குகளைப் படித்தல்."</string>
+    <string name="car_permission_label_read_car_airbags" msgid="5495423499616379238">"காரின் ஏர்பேக்குகள் பற்றித் தெரிந்துகொள்ளுதல்"</string>
+    <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"காரின் ஏர்பேக்குகள் பற்றித் தெரிந்துகொள்ளுதல்."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"காரின் ஏர்பேக்குகளைக் கட்டுப்படுத்துதல்"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"காரின் ஏர்பேக்குகளைக் கட்டுப்படுத்தும்."</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"காரின் அடிப்படைத் தகவலை அணுக வேண்டும்"</string>
