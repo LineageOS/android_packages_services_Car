@@ -19,11 +19,9 @@ package com.android.car.internal.property;
 import static java.util.Objects.requireNonNull;
 
 import android.car.VehiclePropertyIds;
-import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.util.ArraySet;
-import android.util.Log;
 
 import com.android.car.internal.util.PairSparseArray;
 import com.android.internal.annotations.GuardedBy;
@@ -44,12 +42,18 @@ import com.android.internal.annotations.VisibleForTesting;
 public class CarPropertyEventController {
     // Abbreviating TAG because class name is longer than the 23 character Log tag limit.
     private static final String TAG = "CPEController";
-    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
+    private final Logger mLogger;
+    private final boolean mUseSystemLogger;
     private final Object mLock = new Object();
     // For each property ID and area ID, track the property event information.
     @GuardedBy("mLock")
     private final PairSparseArray<CarPropertyEventTracker> mPropIdToAreaIdToCpeTracker =
             new PairSparseArray<>();
+
+    public CarPropertyEventController(boolean useSystemLogger) {
+        mUseSystemLogger = useSystemLogger;
+        mLogger = new Logger(useSystemLogger, TAG);
+    }
 
     /** Gets the update rate in Hz for the property ID, area ID. */
     @VisibleForTesting
@@ -69,14 +73,15 @@ public class CarPropertyEventController {
         requireNonNull(areaIds);
         synchronized (mLock) {
             for (int areaId : areaIds) {
-                if (DBG) {
-                    Slogf.d(TAG, "Add new continuous property event tracker, property: %s, "
+                if (mLogger.dbg()) {
+                    mLogger.logD(String.format(
+                            "Add new continuous property event tracker, property: %s, "
                             + "areaId: %d, updateRate: %f Hz, enableVur: %b",
                             VehiclePropertyIds.toString(propertyId), areaId, updateRateHz,
-                            enableVur);
+                            enableVur));
                 }
                 mPropIdToAreaIdToCpeTracker.put(propertyId, areaId,
-                        new ContCarPropertyEventTracker(updateRateHz, enableVur));
+                        new ContCarPropertyEventTracker(mUseSystemLogger, updateRateHz, enableVur));
             }
         }
     }
@@ -86,12 +91,13 @@ public class CarPropertyEventController {
         requireNonNull(areaIds);
         synchronized (mLock) {
             for (int areaId : areaIds) {
-                if (DBG) {
-                    Slogf.d(TAG, "Add new on-change property event tracker, property: %s, "
-                            + "areaId: %d", VehiclePropertyIds.toString(propertyId), areaId);
+                if (mLogger.dbg()) {
+                    mLogger.logD(String.format(
+                            "Add new on-change property event tracker, property: %s, "
+                            + "areaId: %d", VehiclePropertyIds.toString(propertyId), areaId));
                 }
                 mPropIdToAreaIdToCpeTracker.put(propertyId, areaId,
-                        new OnChangeCarPropertyEventTracker());
+                        new OnChangeCarPropertyEventTracker(mUseSystemLogger));
             }
         }
     }
@@ -153,7 +159,7 @@ public class CarPropertyEventController {
         synchronized (mLock) {
             CarPropertyEventTracker tracker = mPropIdToAreaIdToCpeTracker.get(propertyId, areaId);
             if (tracker == null) {
-                Slogf.w(TAG, "shouldCallbackBeInvoked: callback not registered for event: "
+                mLogger.logW("shouldCallbackBeInvoked: callback not registered for event: "
                         + carPropertyEvent);
                 return false;
             }

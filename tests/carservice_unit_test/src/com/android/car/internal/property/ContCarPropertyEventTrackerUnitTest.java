@@ -59,9 +59,9 @@ public final class ContCarPropertyEventTrackerUnitTest {
     @Before
     public void setup() {
         mNoVurTracker = new ContCarPropertyEventTracker(
-                FIRST_UPDATE_RATE_HZ, /* enableVur= */ false);
+                /* useSystemLogger= */ false, FIRST_UPDATE_RATE_HZ, /* enableVur= */ false);
         mVurTracker = new ContCarPropertyEventTracker(
-                FIRST_UPDATE_RATE_HZ, /* enableVur= */ true);
+                /* useSystemLogger= */ false, FIRST_UPDATE_RATE_HZ, /* enableVur= */ true);
     }
 
     @Test
