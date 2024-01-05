@@ -28,6 +28,8 @@ android_app {
 
     privileged: true,
 
+    system_ext_specific: true,
+
     certificate: "platform",
 
     optimize: {
