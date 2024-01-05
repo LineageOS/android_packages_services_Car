@@ -144,6 +144,9 @@ public:
     ndk::ScopedAStatus notifyPowerPolicyDefinition(
             const std::string& policyId, const std::vector<std::string>& enabledComponents,
             const std::vector<std::string>& disabledComponents) override EXCLUDES(mMutex);
+    ndk::ScopedAStatus notifyPowerPolicyGroupDefinition(
+            const std::string& policyGroupId,
+            const std::vector<std::string>& powerPolicyPerState) override;
     ndk::ScopedAStatus notifyPowerStateChange(
             ::aidl::android::automotive::powerpolicy::internal::ICarPowerPolicyDelegate::PowerState
                     in_state);
@@ -213,6 +216,8 @@ public:
     ndk::ScopedAStatus notifyPowerPolicyDefinition(
             const std::string& policyId, const std::vector<std::string>& enabledComponents,
             const std::vector<std::string>& disabledComponents);
+    ndk::ScopedAStatus notifyPowerPolicyGroupDefinition(
+            const std::string& policyGroupId, const std::vector<std::string>& powerPolicyPerState);
 
     // Internal implementation of ICarPowerPolicyDelegate.aidl.
     ndk::ScopedAStatus applyPowerPolicyAsync(int32_t requestId, const std::string& policyId,
