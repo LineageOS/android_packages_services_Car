@@ -22,6 +22,7 @@
 #include "SilentModeHandler.h"
 
 #include <aidl/android/automotive/powerpolicy/internal/BnCarPowerPolicyDelegate.h>
+#include <aidl/android/automotive/powerpolicy/internal/PowerPolicyInitData.h>
 #include <aidl/android/frameworks/automotive/powerpolicy/BnCarPowerPolicyServer.h>
 #include <aidl/android/frameworks/automotive/powerpolicy/internal/BnCarPowerPolicySystemNotification.h>
 #include <android-base/result.h>

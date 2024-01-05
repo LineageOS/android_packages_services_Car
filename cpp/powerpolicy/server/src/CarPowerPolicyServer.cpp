@@ -597,6 +597,7 @@ ScopedAStatus CarPowerPolicyServer::notifyCarServiceReadyInternal(
     aidlReturn->registeredCustomComponents = std::move(mPolicyManager.getCustomComponents());
     aidlReturn->currentPowerPolicy = *mCurrentPowerPolicyMeta.powerPolicy;
     aidlReturn->registeredPolicies = std::move(mPolicyManager.getRegisteredPolicies());
+    ALOGI("CarService registers ICarPowerPolicyDelegateCallback");
     return ScopedAStatus::ok();
 }
 
@@ -765,6 +766,7 @@ void CarPowerPolicyServer::handleVhalDeath() {
 }
 
 void CarPowerPolicyServer::handleApplyPowerPolicyRequest(const int32_t requestId) {
+    ALOGI("Handling request ID(%d) to apply power policy", requestId);
     PolicyRequest policyRequest;
     std::shared_ptr<ICarPowerPolicyDelegateCallback> callback;
     {
@@ -823,11 +825,6 @@ bool CarPowerPolicyServer::canApplyPowerPolicyLocked(const CarPowerPolicyMeta& p
                                                      const bool force,
                                                      std::vector<CallbackInfo>& outClients) {
     const std::string& policyId = policyMeta.powerPolicy->policyId;
-    if (mVhalService == nullptr) {
-        ALOGI("%s is queued and will be applied after VHAL gets ready", policyId.c_str());
-        mPendingPowerPolicyId = policyId;
-        return false;
-    }
     bool isPolicyApplied = isPowerPolicyAppliedLocked();
     if (isPolicyApplied && mCurrentPowerPolicyMeta.powerPolicy->policyId == policyId) {
         ALOGI("Applying policy skipped: the given policy(ID: %s) is the current policy",
@@ -853,6 +850,7 @@ bool CarPowerPolicyServer::canApplyPowerPolicyLocked(const CarPowerPolicyMeta& p
     mCurrentPowerPolicyMeta = policyMeta;
     outClients = mPolicyChangeCallbacks;
     mLastApplyPowerPolicyUptimeMs = uptimeMillis();
+    ALOGD("CurrentPowerPolicyMeta is updated to %s", policyId.c_str());
     return true;
 }
 
@@ -870,6 +868,7 @@ void CarPowerPolicyServer::applyAndNotifyPowerPolicy(const CarPowerPolicyMeta& p
             callback = ICarPowerPolicyDelegateCallback::fromBinder(mPowerPolicyDelegateCallback);
         }
         if (callback != nullptr) {
+            ALOGD("Asking CPMS to update power components for policy(%s)", policyId.c_str());
             callback->updatePowerComponents(*policy);
         } else {
             ALOGW("CarService isn't ready to update power components for policy(%s)",

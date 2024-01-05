@@ -220,10 +220,10 @@
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Supervisar els estats de les zones d\'altres ocupants del cotxe i de les aplicacions semblants (aplicacions que tenen el mateix nom de paquet que la persona que truca) instal·lades en aquestes zones, i gestionar l\'energia en aquestes zones."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"establir la connexió i comunicar-se amb aplicacions semblants (aplicacions que tenen el mateix nom de paquet que la persona que truca) instal·lades en les zones d\'altres ocupants del cotxe"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Establir la connexió i comunicar-se amb aplicacions semblants (aplicacions que tenen el mateix nom de paquet que la persona que truca) instal·lades en les zones d\'altres ocupants del cotxe."</string>
-    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"replicar la pantalla d\'altres aplicacions"</string>
-    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Replicar la pantalla d\'altres aplicacions."</string>
-    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"replicar la pantalla d\'altres usuaris"</string>
-    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Replicar la pantalla d\'altres usuaris."</string>
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"duplicar la pantalla d\'altres aplicacions"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Duplicar la pantalla d\'altres aplicacions."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"duplicar la pantalla d\'altres usuaris"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Duplicar la pantalla d\'altres usuaris."</string>
     <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"Proporcionar un servidor intermediari de la IU del sistema que altres aplicacions puguin utilitzar per gestionar la IU del sistema i crear visualitzacions de tasques."</string>
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Proporcionar un servidor intermediari de la IU del sistema que altres aplicacions puguin utilitzar per gestionar la IU del sistema i crear visualitzacions de tasques."</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Comunicar-se amb la IU del sistema del cotxe per crear visualitzacions de tasques o per rebre notificacions sobre els canvis en la IU del sistema."</string>
