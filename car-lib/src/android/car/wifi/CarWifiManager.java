@@ -22,16 +22,20 @@ import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.feature.Flags;
+import android.os.IBinder;
+import android.os.RemoteException;
 
 /**
  * CarWifiManager provides API to allow for applications to perform Wi-Fi specific operations.
  */
 @FlaggedApi(Flags.FLAG_PERSIST_AP_SETTINGS)
 public final class CarWifiManager extends CarManagerBase {
+    private final ICarWifi mService;
 
     /** @hide */
-    public CarWifiManager(Car car) {
+    public CarWifiManager(Car car, IBinder service) {
         super(car);
+        mService = ICarWifi.Stub.asInterface(service);
     }
 
     /** @hide */
@@ -47,7 +51,10 @@ public final class CarWifiManager extends CarManagerBase {
     @FlaggedApi(Flags.FLAG_PERSIST_AP_SETTINGS)
     @RequiresPermission(Car.PERMISSION_READ_PERSIST_TETHERING_SETTINGS)
     public boolean canControlPersistTetheringSettings() {
-        // TODO (b/301660611) Implement canControlPersistTetheringSettings
-        return false;
+        try {
+            return mService.canControlPersistTetheringSettings();
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, false);
+        }
     }
 }
