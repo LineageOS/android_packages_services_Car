@@ -16,6 +16,7 @@
 
 #include <aidl/android/hardware/automotive/vehicle/BnVehicle.h>
 #include <android/binder_ibinder.h>
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <AidlHalPropValue.h>
@@ -59,6 +60,7 @@ using ::aidl::android::hardware::automotive::vehicle::VehiclePropValues;
 
 using ::ndk::ScopedAStatus;
 using ::ndk::SharedRefBase;
+using ::testing::Gt;
 
 class MockVhal final : public BnVehicle {
 public:
@@ -951,6 +953,11 @@ TEST_F(AidlVhalClientTest, testUnubscribeError) {
     auto result = subscriptionClient->unsubscribe({TEST_PROP_ID});
 
     ASSERT_FALSE(result.ok());
+}
+
+TEST_F(AidlVhalClientTest, testGetRemoteInterfaceVersion) {
+    // The AIDL VHAL should be v2 or higher.
+    ASSERT_THAT(getClient()->getRemoteInterfaceVersion(), Gt(1));
 }
 
 }  // namespace aidl_test

@@ -91,6 +91,8 @@ public:
     std::unique_ptr<ISubscriptionClient> getSubscriptionClient(
             std::shared_ptr<ISubscriptionCallback> callback) override;
 
+    int32_t getRemoteInterfaceVersion() override;
+
     // Converts a non-okay status to an error {@code Result}.
     template <class T>
     inline static VhalClientResult<T> statusToError(const ndk::ScopedAStatus& status,
