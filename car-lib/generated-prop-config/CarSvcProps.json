@@ -306,7 +306,8 @@
         16,
         32,
         64
-      ]
+      ],
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "WHEEL_TICK": {
       "propertyName": "WHEEL_TICK",
@@ -435,7 +436,8 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENERGY"
-      }
+      },
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "TIRE_PRESSURE": {
       "propertyName": "TIRE_PRESSURE",
@@ -661,7 +663,8 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_DYNAMICS_STATE"
       },
-      "systemApi": true
+      "systemApi": true,
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "ELECTRONIC_STABILITY_CONTROL_STATE": {
       "propertyName": "ELECTRONIC_STABILITY_CONTROL_STATE",
@@ -682,7 +685,8 @@
         -4,
         -5,
         -6
-      ]
+      ],
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "HVAC_FAN_SPEED": {
       "propertyName": "HVAC_FAN_SPEED",
@@ -1385,7 +1389,8 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_VALET_MODE"
       },
-      "systemApi": true
+      "systemApi": true,
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "HEAD_UP_DISPLAY_ENABLED": {
       "propertyName": "HEAD_UP_DISPLAY_ENABLED",
@@ -1408,7 +1413,8 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_HEAD_UP_DISPLAY"
       },
-      "systemApi": true
+      "systemApi": true,
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "HW_KEY_INPUT": {
       "propertyName": "HW_KEY_INPUT",
@@ -2029,7 +2035,8 @@
         8,
         16,
         32
-      ]
+      ],
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "SEAT_CUSHION_SIDE_SUPPORT_POS": {
       "propertyName": "SEAT_CUSHION_SIDE_SUPPORT_POS",
@@ -2109,7 +2116,8 @@
         "type": "single",
         "value": "android.car.permission.READ_CAR_SEAT_BELTS"
       },
-      "systemApi": true
+      "systemApi": true,
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "SEAT_OCCUPANCY": {
       "propertyName": "SEAT_OCCUPANCY",
@@ -2362,7 +2370,8 @@
         "type": "single",
         "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
       },
-      "systemApi": true
+      "systemApi": true,
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "ULTRASONICS_SENSOR_ORIENTATION": {
       "propertyName": "ULTRASONICS_SENSOR_ORIENTATION",
@@ -2372,7 +2381,8 @@
         "type": "single",
         "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
       },
-      "systemApi": true
+      "systemApi": true,
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "ULTRASONICS_SENSOR_FIELD_OF_VIEW": {
       "propertyName": "ULTRASONICS_SENSOR_FIELD_OF_VIEW",
@@ -2382,7 +2392,8 @@
         "type": "single",
         "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
       },
-      "systemApi": true
+      "systemApi": true,
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "ULTRASONICS_SENSOR_DETECTION_RANGE": {
       "propertyName": "ULTRASONICS_SENSOR_DETECTION_RANGE",
@@ -2392,7 +2403,8 @@
         "type": "single",
         "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
       },
-      "systemApi": true
+      "systemApi": true,
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "ULTRASONICS_SENSOR_SUPPORTED_RANGES": {
       "propertyName": "ULTRASONICS_SENSOR_SUPPORTED_RANGES",
@@ -2402,7 +2414,8 @@
         "type": "single",
         "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
       },
-      "systemApi": true
+      "systemApi": true,
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "ULTRASONICS_SENSOR_MEASURED_DISTANCE": {
       "propertyName": "ULTRASONICS_SENSOR_MEASURED_DISTANCE",
@@ -2412,7 +2425,8 @@
         "type": "single",
         "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
       },
-      "systemApi": true
+      "systemApi": true,
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "OBD2_LIVE_FRAME": {
       "propertyName": "OBD2_LIVE_FRAME",
@@ -2932,7 +2946,8 @@
         3,
         4,
         5
-      ]
+      ],
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "AUTOMATIC_EMERGENCY_BRAKING_ENABLED": {
       "propertyName": "AUTOMATIC_EMERGENCY_BRAKING_ENABLED",
@@ -3496,7 +3511,8 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
       },
-      "systemApi": true
+      "systemApi": true,
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "DRIVER_DROWSINESS_ATTENTION_STATE": {
       "propertyName": "DRIVER_DROWSINESS_ATTENTION_STATE",
@@ -3524,7 +3540,8 @@
         -4,
         -5,
         -6
-      ]
+      ],
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "DRIVER_DROWSINESS_ATTENTION_WARNING_ENABLED": {
       "propertyName": "DRIVER_DROWSINESS_ATTENTION_WARNING_ENABLED",
@@ -3547,7 +3564,8 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
       },
-      "systemApi": true
+      "systemApi": true,
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "DRIVER_DROWSINESS_ATTENTION_WARNING": {
       "propertyName": "DRIVER_DROWSINESS_ATTENTION_WARNING",
@@ -3568,7 +3586,8 @@
         -4,
         -5,
         -6
-      ]
+      ],
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "DRIVER_DISTRACTION_SYSTEM_ENABLED": {
       "propertyName": "DRIVER_DISTRACTION_SYSTEM_ENABLED",
@@ -3591,7 +3610,8 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
       },
-      "systemApi": true
+      "systemApi": true,
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "DRIVER_DISTRACTION_STATE": {
       "propertyName": "DRIVER_DISTRACTION_STATE",
@@ -3612,7 +3632,8 @@
         -4,
         -5,
         -6
-      ]
+      ],
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "DRIVER_DISTRACTION_WARNING_ENABLED": {
       "propertyName": "DRIVER_DISTRACTION_WARNING_ENABLED",
@@ -3635,7 +3656,8 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
       },
-      "systemApi": true
+      "systemApi": true,
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "DRIVER_DISTRACTION_WARNING": {
       "propertyName": "DRIVER_DISTRACTION_WARNING",
@@ -3656,7 +3678,8 @@
         -4,
         -5,
         -6
-      ]
+      ],
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "LOW_SPEED_COLLISION_WARNING_ENABLED": {
       "propertyName": "LOW_SPEED_COLLISION_WARNING_ENABLED",
@@ -3679,7 +3702,8 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
       },
-      "systemApi": true
+      "systemApi": true,
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "LOW_SPEED_COLLISION_WARNING_STATE": {
       "propertyName": "LOW_SPEED_COLLISION_WARNING_STATE",
@@ -3700,7 +3724,8 @@
         -4,
         -5,
         -6
-      ]
+      ],
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "CROSS_TRAFFIC_MONITORING_ENABLED": {
       "propertyName": "CROSS_TRAFFIC_MONITORING_ENABLED",
@@ -3723,7 +3748,8 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
       },
-      "systemApi": true
+      "systemApi": true,
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "CROSS_TRAFFIC_MONITORING_WARNING_STATE": {
       "propertyName": "CROSS_TRAFFIC_MONITORING_WARNING_STATE",
@@ -3749,7 +3775,8 @@
         -4,
         -5,
         -6
-      ]
+      ],
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_ENABLED": {
       "propertyName": "LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_ENABLED",
@@ -3772,7 +3799,8 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
       },
-      "systemApi": true
+      "systemApi": true,
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     },
     "LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_STATE": {
       "propertyName": "LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_STATE",
@@ -3794,7 +3822,8 @@
         -4,
         -5,
         -6
-      ]
+      ],
+      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
     }
   }
 }

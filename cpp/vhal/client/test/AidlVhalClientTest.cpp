@@ -16,6 +16,7 @@
 
 #include <aidl/android/hardware/automotive/vehicle/BnVehicle.h>
 #include <android/binder_ibinder.h>
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <AidlHalPropValue.h>
@@ -59,6 +60,7 @@ using ::aidl::android::hardware::automotive::vehicle::VehiclePropValues;
 
 using ::ndk::ScopedAStatus;
 using ::ndk::SharedRefBase;
+using ::testing::Gt;
 
 class MockVhal final : public BnVehicle {
 public:
@@ -951,6 +953,51 @@ TEST_F(AidlVhalClientTest, testUnubscribeError) {
     auto result = subscriptionClient->unsubscribe({TEST_PROP_ID});
 
     ASSERT_FALSE(result.ok());
+}
+
+TEST_F(AidlVhalClientTest, testGetRemoteInterfaceVersion) {
+    // The AIDL VHAL should be v2 or higher.
+    ASSERT_THAT(getClient()->getRemoteInterfaceVersion(), Gt(1));
+}
+
+TEST_F(AidlVhalClientTest, testSubscribeOptionsBuilder) {
+    auto optionsBuilder = SubscribeOptionsBuilder(TEST_PROP_ID);
+    optionsBuilder.setSampleRate(1.23f);
+    optionsBuilder.addAreaId(1);
+    optionsBuilder.addAreaId(2);
+    optionsBuilder.setResolution(2.34f);
+
+    auto options = optionsBuilder.build();
+
+    ASSERT_EQ(options,
+              (SubscribeOptions{
+                      .propId = TEST_PROP_ID,
+                      .areaIds = {1, 2},
+                      .sampleRate = 1.23f,
+                      .resolution = 2.34f,
+                      // VUR is true by default
+                      .enableVariableUpdateRate = true,
+              }));
+}
+
+TEST_F(AidlVhalClientTest, testSubscribeOptionsBuilder_disableVur) {
+    auto optionsBuilder = SubscribeOptionsBuilder(TEST_PROP_ID);
+    optionsBuilder.setSampleRate(1.23f);
+    optionsBuilder.addAreaId(1);
+    optionsBuilder.addAreaId(2);
+    optionsBuilder.setResolution(2.34f);
+    optionsBuilder.setEnableVariableUpdateRate(false);
+
+    auto options = optionsBuilder.build();
+
+    ASSERT_EQ(options,
+              (SubscribeOptions{
+                      .propId = TEST_PROP_ID,
+                      .areaIds = {1, 2},
+                      .sampleRate = 1.23f,
+                      .resolution = 2.34f,
+                      .enableVariableUpdateRate = false,
+              }));
 }
 
 }  // namespace aidl_test

@@ -135,11 +135,74 @@ class ISubscriptionClient {
 public:
     virtual ~ISubscriptionClient() = default;
 
+    // Subscribes to properties. It is recommended to use SubscribeOptionsBuilder to build
+    // the options.
     virtual VhalClientResult<void> subscribe(
             const std::vector<aidl::android::hardware::automotive::vehicle::SubscribeOptions>&
                     options) = 0;
 
     virtual VhalClientResult<void> unsubscribe(const std::vector<int32_t>& propIds) = 0;
+};
+
+class SubscribeOptionsBuilder {
+private:
+    int32_t mPropId;
+    std::vector<int32_t> mAreaIds;
+    float mSampleRate = 0;
+    float mResolution = 0.0f;
+    // VUR is on by default.
+    bool mEnableVariableUpdateRate = true;
+
+public:
+    explicit SubscribeOptionsBuilder(int32_t propId) : mPropId(propId) {}
+
+    // Sets the sample rate.
+    void setSampleRate(float sampleRate) { mSampleRate = sampleRate; }
+
+    // Adds an area ID to subscribe.
+    //
+    // Only supported for AIDL VHAL client.
+    //
+    // For HIDL VHAL client, per-area ID subscription is not supported, this is ignored and all
+    // area IDs for the property will be subscribed.
+    void addAreaId(int32_t areaId) { mAreaIds.push_back(areaId); }
+
+    // Sets the resolution of property updates for continuous property.
+    //
+    // Only supported for continuous property. Ignored for non-cotinuous property.
+    //
+    // Only supported for AIDL VHAL client. Ignored for HIDL VHAL client.
+    //
+    // This value indicates the resolution at which continuous property updates should be sent to
+    // the platform. For example, if resolution is 0.01, the subscribed property value should be
+    // rounded to two decimal places.
+    //
+    // The resolution must be an integer power of 10, (e.g. 0.01, 0.1, 1, 10, etc.).
+    void setResolution(float resolution) { mResolution = resolution; }
+
+    // Sets whether to enable varialbe update rate.
+    //
+    // Only supported for continuous property. Ignored for non-cotinuous property.
+    //
+    // Only supported for AIDL VHAL client. Ignored for HIDL VHAL client.
+    //
+    // If variable update rate is enabled, for each given areaId, if VHAL supports variable update
+    // rate for the [propId, areaId], VHAL must ignore duplicate property value events
+    // and only sends changed value events (a.k.a treat continuous as an on-change property).
+    void setEnableVariableUpdateRate(bool enableVariableUpdateRate) {
+        mEnableVariableUpdateRate = enableVariableUpdateRate;
+    }
+
+    // Builds the SubscribeOptions.
+    aidl::android::hardware::automotive::vehicle::SubscribeOptions build() {
+        return {
+                .propId = mPropId,
+                .areaIds = mAreaIds,
+                .sampleRate = mSampleRate,
+                .resolution = mResolution,
+                .enableVariableUpdateRate = mEnableVariableUpdateRate,
+        };
+    }
 };
 
 // IVhalClient is a thread-safe client for AIDL or HIDL VHAL backend.
@@ -279,6 +342,13 @@ public:
      */
     virtual std::unique_ptr<ISubscriptionClient> getSubscriptionClient(
             std::shared_ptr<ISubscriptionCallback> callback) = 0;
+
+    /**
+     * Gets the VHAL interface version used by VHAL.
+     *
+     * This is only useful for AIDL VHAL.
+     */
+    virtual int32_t getRemoteInterfaceVersion() { return 0; }
 };
 
 }  // namespace vhal

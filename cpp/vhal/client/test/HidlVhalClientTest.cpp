@@ -475,6 +475,11 @@ TEST_F(HidlVhalClientTest, testUnubscribeError) {
     ASSERT_FALSE(result.ok());
 }
 
+TEST_F(HidlVhalClientTest, testGetRemoteInterfaceVersion) {
+    // getRemoteInterfaceVersion will always return 0 for HIDL client.
+    ASSERT_EQ(getClient()->getRemoteInterfaceVersion(), 0);
+}
+
 }  // namespace hidl_test
 }  // namespace vhal
 }  // namespace automotive
