@@ -88,6 +88,16 @@
         <item>android.server.wm.cts/android.server.wm.window.WindowUntrustedTouchTest$TestActivity</item>
         <!-- Add activity to full screen due to slow animations  -->
         <item>android.server.wm.cts/android.server.wm.display.DisplayHashManagerTest$TestActivity</item>
+        <!-- TODO(b/308859591): Remove activities from full screen config once proper solution
+            found. -->
+        <!-- START: Add activities to full screen since the panel open animation interferes with the
+            screenshot which is taken in the test. This is likely due to the core transitions being
+            completed right away but surface animations taking time to complete. -->
+        <item>android.server.wm.cts/android.server.wm.activity.ActivityTransitionTests$LauncherActivity</item>
+        <item>android.server.wm.cts/android.server.wm.activity.ActivityTransitionTests$EdgeExtensionActivity</item>
+        <item>android.server.wm.cts/android.server.wm.activity.ActivityTransitionTests$CustomWindowAnimationActivity</item>
+        <item>android.server.wm.cts/android.server.wm.activity.ActivityTransitionTests$TransitionActivity</item>
+        <!-- END -->
     </string-array>
 
     <!-- Calm mode overrides -->
