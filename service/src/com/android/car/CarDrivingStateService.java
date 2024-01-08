@@ -62,7 +62,6 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
     private static final boolean DBG = false;
     private static final int MAX_TRANSITION_LOG_SIZE = 20;
     private static final int PROPERTY_UPDATE_RATE = 5; // Update rate in Hz
-    private static final int NOT_RECEIVED = -1;
     private final Context mContext;
     private final CarPropertyService mPropertyService;
     // List of clients listening to driving state events.
@@ -95,28 +94,13 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
     @GuardedBy("mLock")
     private SparseBooleanArray mOptionalPropertiesSupported;
     @GuardedBy("mLock")
-    private int mLastGear;
-
+    private CarPropertyValue mLastParkingBrake;
     @GuardedBy("mLock")
-    private long mLastGearTimestamp = NOT_RECEIVED;
-
+    private CarPropertyValue mLastGear;
     @GuardedBy("mLock")
-    private float mLastSpeed;
-
+    private CarPropertyValue mLastSpeed;
     @GuardedBy("mLock")
-    private long mLastSpeedTimestamp = NOT_RECEIVED;
-
-    @GuardedBy("mLock")
-    private boolean mLastParkingBrakeState;
-
-    @GuardedBy("mLock")
-    private long mLastParkingBrakeTimestamp = NOT_RECEIVED;
-
-    @GuardedBy("mLock")
-    private long mLastIgnitionStateTimestamp = NOT_RECEIVED;
-
-    @GuardedBy("mLock")
-    private int mLastIgnitionState = NOT_RECEIVED;
+    private CarPropertyValue mLastIgnitionState;
 
     @GuardedBy("mLock")
     private List<Integer> mSupportedGears;
@@ -370,65 +354,40 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
             return;
         }
         CarPropertyValue value = event.getCarPropertyValue();
-        int propId = value.getPropertyId();
-        long curTimestamp = value.getTimestamp();
         if (DBG) {
-            Slogf.d(TAG, "Property Changed: propId=" + propId);
+            Slogf.d(TAG, "Property Changed: " + value);
         }
-        switch (propId) {
+        switch (value.getPropertyId()) {
             case VehicleProperty.PERF_VEHICLE_SPEED:
-                float curSpeed = (Float) value.getValue();
+                mLastSpeed = value;
                 if (DBG) {
-                    Slogf.d(TAG, "Speed: " + curSpeed + "@" + curTimestamp);
-                }
-                if (curTimestamp > mLastSpeedTimestamp) {
-                    mLastSpeedTimestamp = curTimestamp;
-                    mLastSpeed = curSpeed;
-                } else if (DBG) {
-                    Slogf.d(TAG, "Ignoring speed with older timestamp:" + curTimestamp);
+                    Slogf.d(TAG, "mLastSpeed: " + mLastSpeed);
                 }
                 break;
             case VehicleProperty.GEAR_SELECTION:
                 if (mSupportedGears == null) {
                     mSupportedGears = getSupportedGears();
                 }
-                int curGear = (Integer) value.getValue();
+                mLastGear = value;
                 if (DBG) {
-                    Slogf.d(TAG, "Gear: " + curGear + "@" + curTimestamp);
-                }
-                if (curTimestamp > mLastGearTimestamp) {
-                    mLastGearTimestamp = curTimestamp;
-                    mLastGear = (Integer) value.getValue();
-                } else if (DBG) {
-                    Slogf.d(TAG, "Ignoring Gear with older timestamp:" + curTimestamp);
+                    Slogf.d(TAG, "mLastGear: " + mLastGear);
                 }
                 break;
             case VehicleProperty.PARKING_BRAKE_ON:
-                boolean curParkingBrake = (boolean) value.getValue();
+                mLastParkingBrake = value;
                 if (DBG) {
-                    Slogf.d(TAG, "Parking Brake: " + curParkingBrake + "@" + curTimestamp);
-                }
-                if (curTimestamp > mLastParkingBrakeTimestamp) {
-                    mLastParkingBrakeTimestamp = curTimestamp;
-                    mLastParkingBrakeState = curParkingBrake;
-                } else if (DBG) {
-                    Slogf.d(TAG, "Ignoring Parking Brake status with an older timestamp:"
-                            + curTimestamp);
+                    Slogf.d(TAG, "mLastParkingBrake: " + mLastParkingBrake);
                 }
                 break;
             case VehicleProperty.IGNITION_STATE:
-                int curIgnitionState = (Integer) value.getValue();
+                mLastIgnitionState = value;
                 if (DBG) {
-                    Slogf.d(TAG, "Ignition State: " + curIgnitionState + "@" + curTimestamp);
+                    Slogf.d(TAG, "mLastIgnitionState: " + mLastIgnitionState);
                 }
-                if (curTimestamp > mLastIgnitionStateTimestamp) {
-                    mLastIgnitionStateTimestamp = curTimestamp;
-                    mLastIgnitionState = (Integer) value.getValue();
-                } else if (DBG) {
-                    Slogf.d(TAG, "Ignoring Ignition State with older timestamp:" + curTimestamp);
-                }
+                break;
             default:
-                Slogf.e(TAG, "Received property event for unhandled propId=" + propId);
+                Slogf.e(TAG,
+                        "Received property event for unhandled propId=" + value.getPropertyId());
                 break;
         }
 
@@ -475,6 +434,11 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
         mTransitionLogs.add(tLog);
     }
 
+    private static boolean isPropertyStatusAvailable(CarPropertyValue<?> carPropertyValue) {
+        return carPropertyValue != null
+                && carPropertyValue.getStatus() == CarPropertyValue.STATUS_AVAILABLE;
+    }
+
     /**
      * Infers the current driving state of the car from the other Car Sensor properties like
      * Current Gear, Speed etc.
@@ -486,8 +450,9 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
     private int inferDrivingStateLocked() {
         updateVehiclePropertiesIfNeededLocked();
         if (DBG) {
-            Slogf.d(TAG, "Last known Gear:" + mLastGear + " Last known speed:" + mLastSpeed
-                    + " Last known ignition state: " + mLastIgnitionState);
+            Slogf.d(TAG,
+                    "inferDrivingStateLocked mLastGear: " + mLastGear + "mLastSpeed: " + mLastSpeed
+                            + "mLastIgnitionState: " + mLastIgnitionState);
         }
 
         /*
@@ -501,7 +466,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
                 3a. if speed == 0, then driving state is idling
                 3b. if speed != 0, then driving state is moving
                 3c. if speed is unavailable,
-                    3ca. If ignition state is supported and ignition state == locked or acc or
+                    3ca. If ignition state is supported and ignition state == lock or acc or
                     off, then driving state is parked
                     3cb. else driving state is unknown
          */
@@ -511,13 +476,13 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
         }
 
         // We don't know if the vehicle is parked, let's look at the speed.
-        if (mLastSpeedTimestamp == NOT_RECEIVED) {
+        if (!isPropertyStatusAvailable(mLastSpeed)) {
             if (isOptionalPropertySupportedLocked(VehicleProperty.IGNITION_STATE)
                     && isVehicleKnownToBeInLockOrAccOrOffIgnitionStateLocked()) {
                 return CarDrivingStateEvent.DRIVING_STATE_PARKED;
             }
             return CarDrivingStateEvent.DRIVING_STATE_UNKNOWN;
-        } else if (mLastSpeed == 0f) {
+        } else if (mLastSpeed.getValue().equals(0f)) {
             return CarDrivingStateEvent.DRIVING_STATE_IDLING;
         } else {
             return CarDrivingStateEvent.DRIVING_STATE_MOVING;
@@ -533,12 +498,10 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
      */
     @GuardedBy("mLock")
     private boolean isVehicleKnownToBeInLockOrAccOrOffIgnitionStateLocked() {
-        if (mLastIgnitionStateTimestamp != NOT_RECEIVED) {
-            return mLastIgnitionState == VehicleIgnitionState.ACC
-                    || mLastIgnitionState == VehicleIgnitionState.OFF
-                    || mLastIgnitionState == VehicleIgnitionState.LOCK;
-        }
-        return false;
+        return isPropertyStatusAvailable(mLastIgnitionState)
+                && (mLastIgnitionState.getValue().equals(VehicleIgnitionState.ACC)
+                || mLastIgnitionState.getValue().equals(VehicleIgnitionState.OFF)
+                || mLastIgnitionState.getValue().equals(VehicleIgnitionState.LOCK));
     }
 
     /**
@@ -550,13 +513,14 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
     @GuardedBy("mLock")
     private boolean isVehicleKnownToBeParkedLocked() {
         // If we know the gear is in park, return true
-        if (mLastGearTimestamp != NOT_RECEIVED && mLastGear == VehicleGear.GEAR_PARK) {
+        if (isPropertyStatusAvailable(mLastGear) && mLastGear.getValue()
+                .equals(VehicleGear.GEAR_PARK)) {
             return true;
-        } else if (mLastParkingBrakeTimestamp != NOT_RECEIVED) {
+        } else if (isPropertyStatusAvailable(mLastParkingBrake)) {
             // if gear is not in park or unknown, look for status of parking brake if transmission
             // type is manual.
             if (isCarManualTransmissionTypeLocked()) {
-                return mLastParkingBrakeState;
+                return (boolean) mLastParkingBrake.getValue();
             }
         }
         // if neither information is available, return false to indicate we can't determine
@@ -584,53 +548,48 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
      */
     @GuardedBy("mLock")
     private void updateVehiclePropertiesIfNeededLocked() {
-        if (mLastGearTimestamp == NOT_RECEIVED) {
+        if (mLastGear == null) {
             CarPropertyValue propertyValue = mPropertyService.getPropertySafe(
                     VehicleProperty.GEAR_SELECTION,
                     VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL);
             if (propertyValue != null) {
-                mLastGear = (Integer) propertyValue.getValue();
-                mLastGearTimestamp = propertyValue.getTimestamp();
+                mLastGear = propertyValue;
                 if (DBG) {
                     Slogf.d(TAG, "updateVehiclePropertiesIfNeeded: gear:" + mLastGear);
                 }
             }
         }
 
-        if (mLastParkingBrakeTimestamp == NOT_RECEIVED) {
+        if (mLastParkingBrake == null) {
             CarPropertyValue propertyValue = mPropertyService.getPropertySafe(
                     VehicleProperty.PARKING_BRAKE_ON,
                     VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL);
             if (propertyValue != null) {
-                mLastParkingBrakeState = (boolean) propertyValue.getValue();
-                mLastParkingBrakeTimestamp = propertyValue.getTimestamp();
+                mLastParkingBrake = propertyValue;
                 if (DBG) {
-                    Slogf.d(TAG, "updateVehiclePropertiesIfNeeded: brake:"
-                            + mLastParkingBrakeState);
+                    Slogf.d(TAG, "updateVehiclePropertiesIfNeeded: brake:" + mLastParkingBrake);
                 }
             }
         }
 
-        if (mLastSpeedTimestamp == NOT_RECEIVED) {
+        if (mLastSpeed == null) {
             CarPropertyValue propertyValue = mPropertyService.getPropertySafe(
                     VehicleProperty.PERF_VEHICLE_SPEED,
                     VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL);
             if (propertyValue != null) {
-                mLastSpeed = (float) propertyValue.getValue();
-                mLastSpeedTimestamp = propertyValue.getTimestamp();
+                mLastSpeed = propertyValue;
                 if (DBG) {
                     Slogf.d(TAG, "updateVehiclePropertiesIfNeeded: speed:" + mLastSpeed);
                 }
             }
         }
 
-        if (mLastIgnitionStateTimestamp == NOT_RECEIVED) {
+        if (mLastIgnitionState == null) {
             CarPropertyValue propertyValue = mPropertyService.getPropertySafe(
                     VehicleProperty.IGNITION_STATE,
                     VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL);
             if (propertyValue != null) {
-                mLastIgnitionState = (int) propertyValue.getValue();
-                mLastIgnitionStateTimestamp = propertyValue.getTimestamp();
+                mLastIgnitionState = propertyValue;
                 if (DBG) {
                     Slogf.d(TAG, "updateVehiclePropertiesIfNeeded: ignition state:"
                             + mLastIgnitionState);
@@ -642,5 +601,4 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
     private static CarDrivingStateEvent createDrivingStateEvent(int eventValue) {
         return new CarDrivingStateEvent(eventValue, SystemClock.elapsedRealtimeNanos());
     }
-
 }

@@ -1491,10 +1491,9 @@ public class PropertyHalService extends HalServiceBase {
                 // Check payload if it is an userdebug build.
                 if (BuildHelper.isDebuggableBuild()
                         && !mPropertyHalServiceConfigs.checkPayload(halPropValue)) {
-                    Slogf.w(TAG,
+                    Slogf.wtf(TAG,
                             "Drop event for property: %s because it is failed "
                                     + "in payload checking.", halPropValue);
-                    continue;
                 }
                 int mgrPropId = halToManagerPropId(halPropId);
                 if (DBG && halPropValue.getStatus() != VehiclePropertyStatus.AVAILABLE) {
