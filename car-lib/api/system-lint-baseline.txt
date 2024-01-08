@@ -2335,6 +2335,8 @@ UnflaggedApi: android.car.drivingstate.CarUxRestrictionsManager#saveUxRestrictio
     New API must be flagged with @FlaggedApi: method android.car.drivingstate.CarUxRestrictionsManager.saveUxRestrictionsConfigurationForNextBoot(android.car.drivingstate.CarUxRestrictionsConfiguration)
 UnflaggedApi: android.car.drivingstate.CarUxRestrictionsManager#saveUxRestrictionsConfigurationForNextBoot(java.util.List<android.car.drivingstate.CarUxRestrictionsConfiguration>):
     New API must be flagged with @FlaggedApi: method android.car.drivingstate.CarUxRestrictionsManager.saveUxRestrictionsConfigurationForNextBoot(java.util.List<android.car.drivingstate.CarUxRestrictionsConfiguration>)
+UnflaggedApi: android.car.drivingstate.CarUxRestrictionsManager#setListener(int, android.car.drivingstate.CarUxRestrictionsManager.OnUxRestrictionsChangedListener):
+    New API must be flagged with @FlaggedApi: method android.car.drivingstate.CarUxRestrictionsManager.setListener(int,android.car.drivingstate.CarUxRestrictionsManager.OnUxRestrictionsChangedListener)
 UnflaggedApi: android.car.drivingstate.CarUxRestrictionsManager#setRestrictionMode(String):
     New API must be flagged with @FlaggedApi: method android.car.drivingstate.CarUxRestrictionsManager.setRestrictionMode(String)
 UnflaggedApi: android.car.evs.CarEvsBufferDescriptor:
