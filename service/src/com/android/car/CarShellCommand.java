@@ -35,7 +35,7 @@ import static android.hardware.automotive.vehicle.UserIdentificationAssociationT
 import static android.media.AudioManager.FLAG_SHOW_UI;
 
 import static com.android.car.CarServiceUtils.toIntArray;
-import static com.android.car.hal.property.HalAreaIdDebugUtils.toDebugString;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toAreaIdString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toPropertyIdString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toPropertyId;
 import static com.android.car.power.PolicyReader.POWER_STATE_ON;
@@ -3215,7 +3215,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             value = args[2];
         }
         String debugOutput = "Injecting VHAL event: property=" + toPropertyIdString(propertyId)
-                + ", areaId=" + toDebugString(propertyId, areaId) + ", value=" + value + (
+                + ", areaId=" + toAreaIdString(propertyId, areaId) + ", value=" + value + (
                 TextUtils.isEmpty(delayTimeSeconds) ? ""
                         : ", delayTimeSeconds=" + delayTimeSeconds);
         Slogf.i(TAG, debugOutput);
@@ -3239,7 +3239,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         int errorCode = Integer.decode(args[3]);
         Slogf.i(TAG,
                 "Injecting VHAL error event: property=" + toPropertyIdString(
-                        propertyId) + ", areaId=" + toDebugString(propertyId, areaId)
+                        propertyId) + ", areaId=" + toAreaIdString(propertyId, areaId)
                         + ", errorCode=" + errorCode);
         VehiclePropError vehiclePropError = new VehiclePropError();
         vehiclePropError.propId = propertyId;
@@ -3305,16 +3305,16 @@ final class CarShellCommand extends BasicShellCommandHandler {
         int areaId = decodeAreaId(args[2]);
         String value = args[3];
         Slogf.i(TAG, "Setting vehicle property ID= %s, areaId= %s, value= %s",
-                toPropertyIdString(propertyId), toDebugString(propertyId, areaId), value);
+                toPropertyIdString(propertyId), toAreaIdString(propertyId, areaId), value);
         if (areaId == 0 && !isPropertyAreaTypeGlobal(propertyId)) {
             writer.printf("Property area type is inconsistent with given area ID: %s\n",
-                    toDebugString(propertyId, areaId));
+                    toAreaIdString(propertyId, areaId));
             return;
         }
         try {
             mHal.setPropertyFromCommand(propertyId, areaId, value, writer);
             writer.printf("Property %s area ID %s is set to %s successfully\n",
-                    toPropertyIdString(propertyId), toDebugString(propertyId, areaId), value);
+                    toPropertyIdString(propertyId), toAreaIdString(propertyId, areaId), value);
         } catch (Exception e) {
             writer.printf("Cannot set a property: %s\n", e);
         }
