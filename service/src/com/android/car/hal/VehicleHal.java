@@ -687,7 +687,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
 
             if (config == null) {
                 throw new IllegalArgumentException("subscribe error: "
-                        + toCarPropertyLog(property) + " is not supported");
+                        + toPropertyIdString(property) + " is not supported");
             }
 
             if (enableVariableUpdateRate) {
@@ -696,7 +696,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                     // false to be safe.
                     enableVariableUpdateRate = false;
                     Slogf.w(CarLog.TAG_HAL, "VUR is always off for non-continuous property: "
-                            + toCarPropertyLog(property));
+                            + toPropertyIdString(property));
                 }
                 if (!mFeatureFlags.variableUpdateRate()) {
                     enableVariableUpdateRate = false;
@@ -753,7 +753,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                     if (DBG) {
                         Slogf.d(CarLog.TAG_HAL, "Property: %s is already subscribed at rate: %f hz"
                                 + ", enableVur: %b",
-                                toCarPropertyLog(property), rateInfo.updateRateHz,
+                                toPropertyIdString(property), rateInfo.updateRateHz,
                                 rateInfo.enableVariableUpdateRate);
                     }
                     continue;
@@ -784,7 +784,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             unsubscribeProperty(service, property);
         } catch (ServiceSpecificException e) {
             Slogf.w(CarLog.TAG_SERVICE, "Failed to unsubscribe: "
-                    + toCarPropertyLog(property), e);
+                    + toPropertyIdString(property), e);
         }
     }
 
@@ -796,18 +796,18 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             throws ServiceSpecificException {
         if (DBG) {
             Slogf.d(CarLog.TAG_HAL, "unsubscribeProperty, service:" + service
-                    + ", " + toCarPropertyLog(property));
+                    + ", " + toPropertyIdString(property));
         }
         synchronized (mLock) {
             HalPropConfig config = mAllProperties.get(property);
             if (config == null) {
-                Slogf.w(CarLog.TAG_HAL, "unsubscribeProperty " + toCarPropertyLog(property)
+                Slogf.w(CarLog.TAG_HAL, "unsubscribeProperty " + toPropertyIdString(property)
                         + " does not exist");
                 return;
             }
             if (isStaticProperty(config)) {
                 Slogf.w(CarLog.TAG_HAL, "Unsubscribe to a static property: "
-                        + toCarPropertyLog(property) + ", do nothing");
+                        + toPropertyIdString(property) + ", do nothing");
                 return;
             }
             assertServiceOwnerLocked(service, property);
@@ -816,7 +816,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             PairSparseArray<RateInfo> previousState = cloneState(mUpdateRateByPropIdAreaId);
             for (int i = 0; i < areaIds.length; i++) {
                 if (!isPropIdAreaIdReadable(config, areaIds[i])) {
-                    Slogf.w(CarLog.TAG_HAL, "Cannot unsubscribe to " + toCarPropertyLog(property)
+                    Slogf.w(CarLog.TAG_HAL, "Cannot unsubscribe to " + toPropertyIdString(property)
                             + " at areaId " + toAreaIdString(property, areaIds[i])
                             + " the property's access mode does not contain READ");
                     continue;
@@ -829,7 +829,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             }
             if (!isSubscribed) {
                 if (DBG) {
-                    Slogf.d(CarLog.TAG_HAL, "Property " + toCarPropertyLog(property)
+                    Slogf.d(CarLog.TAG_HAL, "Property " + toPropertyIdString(property)
                             + " was not subscribed, do nothing");
                 }
                 return;
@@ -913,7 +913,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     public HalPropValue get(int propertyId, int areaId)
             throws IllegalArgumentException, ServiceSpecificException {
         if (DBG) {
-            Slogf.d(CarLog.TAG_HAL, "get, " + toCarPropertyLog(propertyId)
+            Slogf.d(CarLog.TAG_HAL, "get, " + toPropertyIdString(propertyId)
                     + toAreaIdString(propertyId, areaId));
         }
         return getValueWithRetry(mPropValueBuilder.build(propertyId, areaId));
@@ -1076,14 +1076,14 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     static boolean isPropertySubscribable(HalPropConfig config) {
         if (isStaticProperty(config)) {
             Slogf.w(CarLog.TAG_HAL, "Subscribe to a static property: "
-                    + toCarPropertyLog(config.getPropId()) + ", do nothing");
+                    + toPropertyIdString(config.getPropId()) + ", do nothing");
             return false;
         }
         if (config.getAreaConfigs().length == 0) {
             boolean hasReadAccess = hasReadAccess(config.getAccess());
             if (!hasReadAccess) {
                 Slogf.w(CarLog.TAG_HAL, "Cannot unsubscribe to "
-                        + toCarPropertyLog(config.getPropId())
+                        + toPropertyIdString(config.getPropId())
                         + " the property's access mode does not contain READ");
             }
             return hasReadAccess;
@@ -1091,7 +1091,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         for (HalAreaConfig halAreaConfig : config.getAreaConfigs()) {
             if (!isPropIdAreaIdReadable(config, halAreaConfig.getAreaId())) {
                 Slogf.w(CarLog.TAG_HAL, "Cannot unsubscribe to "
-                        + toCarPropertyLog(config.getPropId()) + " at areaId "
+                        + toPropertyIdString(config.getPropId()) + " at areaId "
                         + toAreaIdString(config.getPropId(), halAreaConfig.getAreaId())
                         + " the property's access mode does not contain READ");
                 return false;
@@ -1526,7 +1526,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         void submit(HalPropValue propValue)
                 throws IllegalArgumentException, ServiceSpecificException {
             if (DBG) {
-                Slogf.d(CarLog.TAG_HAL, "set, " + toCarPropertyLog(mPropId)
+                Slogf.d(CarLog.TAG_HAL, "set, " + toPropertyIdString(mPropId)
                         + toAreaIdString(mPropId, mAreaId));
             }
             setValueWithRetry(propValue);
@@ -1538,11 +1538,6 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 toPropertyIdString(value.getPropId()),
                 toAreaIdString(value.getPropId(), value.getAreaId()),
                 toStatusString(value.getStatus()), value.getTimestamp(), toValueString(value));
-    }
-
-    private static String toCarPropertyLog(int propId) {
-        return String.format("property Id: %d // 0x%x, property name: %s ", propId, propId,
-                VehiclePropertyIds.toString(propId));
     }
 
     interface RetriableAction {
@@ -1559,7 +1554,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         HalPropValue result = retrier.invokeAction();
         if (DBG) {
             Slogf.d(CarLog.TAG_HAL, "Invoked retriable action for %sProperty: %s, for retrier: %s",
-                    operation, toCarPropertyLog(requestValue.getPropId()), retrier);
+                    operation, toPropertyIdString(requestValue.getPropId()), retrier);
         }
         return result;
     }
@@ -1634,7 +1629,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         private HalPropValue sleepAndTryAgain(Exception e)
                 throws ServiceSpecificException, IllegalArgumentException {
             Slogf.d(CarLog.TAG_HAL, "trying the request: "
-                    + toCarPropertyLog(mRequestValue.getPropId()) + ", "
+                    + toPropertyIdString(mRequestValue.getPropId()) + ", "
                     + toAreaIdString(mRequestValue.getPropId(), mRequestValue.getAreaId())
                     + " again...");
             try {
