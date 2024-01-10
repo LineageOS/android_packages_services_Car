@@ -2130,9 +2130,13 @@ public final class VehiclePropertyIds {
      *
      * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * @deprecated use {@link android.car.hardware.power.CarPowerManager} instead.
+     * use {@link android.car.hardware.power.CarPowerManager} instead.
+     *
+     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
+     *
+     * @to_be_deprecated
      */
-    @Deprecated
+    @RequiresPermission(Car.PERMISSION_CAR_POWER)
     public static final int AP_POWER_STATE_REQ = 289475072;
     /**
      * Property to report power state of application processor.
@@ -2141,9 +2145,12 @@ public final class VehiclePropertyIds {
      *
      * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * @deprecated use {@link android.car.hardware.power.CarPowerManager} instead.
+     * use {@link android.car.hardware.power.CarPowerManager} instead.
+     *
+     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
+     *
+     * @to_be_deprecated
      */
-    @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
     public static final int AP_POWER_STATE_REPORT = 289475073;
     /**
@@ -2153,9 +2160,12 @@ public final class VehiclePropertyIds {
      *
      * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * @deprecated use {@link android.car.hardware.power.CarPowerManager} instead.
+     * use {@link android.car.hardware.power.CarPowerManager} instead.
+     *
+     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
+     *
+     * @to_be_deprecated
      */
-    @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
     public static final int AP_POWER_BOOTUP_REASON = 289409538;
     /**
@@ -2165,9 +2175,12 @@ public final class VehiclePropertyIds {
      *
      * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * @deprecated use {@link android.car.hardware.power.CarPowerManager} instead.
+     * use {@link android.car.hardware.power.CarPowerManager} instead.
+     *
+     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
+     *
+     * @to_be_deprecated
      */
-    @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
     public static final int DISPLAY_BRIGHTNESS = 289409539;
     /**
@@ -2177,9 +2190,12 @@ public final class VehiclePropertyIds {
      *
      * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * @deprecated use {@link android.car.hardware.power.CarPowerManager} instead.
+     * use {@link android.car.hardware.power.CarPowerManager} instead.
+     *
+     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
+     *
+     * @to_be_deprecated
      */
-    @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
     public static final int PER_DISPLAY_BRIGHTNESS = 289475076;
     /**
@@ -2260,9 +2276,12 @@ public final class VehiclePropertyIds {
      *
      * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * @deprecated use {@link android.car.input.CarInputManager} instead.
+     * use {@link android.car.input.CarInputManager} instead.
+     *
+     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
+     *
+     * @to_be_deprecated
      */
-    @Deprecated
     public static final int HW_KEY_INPUT = 289475088;
     /**
      * Door position.
@@ -3343,6 +3362,7 @@ public final class VehiclePropertyIds {
      * {@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}.
      */
     @Deprecated
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
     public static final int SEAT_HEADREST_HEIGHT_POS = 289409941;
 
     /**
@@ -4376,9 +4396,13 @@ public final class VehiclePropertyIds {
      *
      * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * @deprecated use {@link android.car.vms.VmsClientManager} instead.
+     * use {@link android.car.vms.VmsClientManager} instead.
+     *
+     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
+     *
+     * @to_be_deprecated
      */
-    @Deprecated
+    @RequiresPermission(anyOf = {Car.PERMISSION_VMS_PUBLISHER, Car.PERMISSION_VMS_SUBSCRIBER})
     public static final int VEHICLE_MAP_SERVICE = 299895808;
     /**
      * Characterization of inputs used for computing location.
@@ -4670,9 +4694,13 @@ public final class VehiclePropertyIds {
      *
      * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * @deprecated use {@link android.car.diagnostic.CarDiagnosticManager} instead.
+     * use {@link android.car.diagnostic.CarDiagnosticManager} instead.
+     *
+     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
+     *
+     * @to_be_deprecated
      */
-    @Deprecated
+    @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
     public static final int OBD2_LIVE_FRAME = 299896064;
     /**
      * OBD2 Freeze Frame Sensor Data.
@@ -4681,9 +4709,13 @@ public final class VehiclePropertyIds {
      *
      * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * @deprecated use {@link android.car.diagnostic.CarDiagnosticManager} instead.
+     * use {@link android.car.diagnostic.CarDiagnosticManager} instead.
+     *
+     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
+     *
+     * @to_be_deprecated
      */
-    @Deprecated
+    @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
     public static final int OBD2_FREEZE_FRAME = 299896065;
     /**
      * OBD2 Freeze Frame Information.
@@ -4692,9 +4724,13 @@ public final class VehiclePropertyIds {
      *
      * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * @deprecated use {@link android.car.diagnostic.CarDiagnosticManager} instead.
+     * use {@link android.car.diagnostic.CarDiagnosticManager} instead.
+     *
+     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
+     *
+     * @to_be_deprecated
      */
-    @Deprecated
+    @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
     public static final int OBD2_FREEZE_FRAME_INFO = 299896066;
     /**
      * OBD2 Freeze Frame Clear.
@@ -4703,9 +4739,13 @@ public final class VehiclePropertyIds {
      *
      * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
-     * @deprecated use {@link android.car.diagnostic.CarDiagnosticManager} instead.
+     * use {@link android.car.diagnostic.CarDiagnosticManager} instead.
+     *
+     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
+     *
+     * @to_be_deprecated
      */
-    @Deprecated
+    @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR)
     public static final int OBD2_FREEZE_FRAME_CLEAR = 299896067;
     /**
      * Headlights State.
