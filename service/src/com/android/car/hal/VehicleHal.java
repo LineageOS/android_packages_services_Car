@@ -24,8 +24,6 @@ import static com.android.car.hal.property.HalPropertyDebugUtils.toAreaTypeStrin
 import static com.android.car.hal.property.HalPropertyDebugUtils.toChangeModeString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toGroupString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toPropertyIdString;
-import static com.android.car.hal.property.HalPropertyDebugUtils.toStatusString;
-import static com.android.car.hal.property.HalPropertyDebugUtils.toValueString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toValueTypeString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
@@ -351,8 +349,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 int propId = v.getPropId();
                 HalServiceBase service = mPropertyHandlers.get(propId);
                 if (service == null) {
-                    Slogf.e(CarLog.TAG_HAL,
-                            "handleOnPropertyEvent: HalService not found for prop: 0x%x", propId);
+                    Slogf.e(CarLog.TAG_HAL, "handleOnPropertyEvent: HalService not found for %s",
+                            v);
                     continue;
                 }
                 service.getDispatchList().add(v);
@@ -415,8 +413,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     }
 
     private static String errorMessage(String action, HalPropValue propValue, String errorMsg) {
-        return String.format("Failed to %s value for: 0x%x, areaId: 0x%x, error: %s", action,
-                propValue.getPropId(), propValue.getAreaId(), errorMsg);
+        return String.format("Failed to %s value for: %s, error: %s", action,
+                propValue, errorMsg);
     }
 
     private HalPropValue getValueWithRetry(HalPropValue value) {
@@ -1581,18 +1579,14 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         void submit(HalPropValue propValue)
                 throws IllegalArgumentException, ServiceSpecificException {
             if (DBG) {
-                Slogf.d(CarLog.TAG_HAL, "set, " + toPropertyIdString(mPropId)
-                        + toAreaIdString(mPropId, mAreaId));
+                Slogf.d(CarLog.TAG_HAL, "set - " + propValue);
             }
             setValueWithRetry(propValue);
         }
     }
 
     private static void dumpPropValue(PrintWriter writer, HalPropValue value) {
-        writer.printf("Property: %s, area ID: %s, status: %s, timestampNanos: %d, value: %s\n",
-                toPropertyIdString(value.getPropId()),
-                toAreaIdString(value.getPropId(), value.getAreaId()),
-                toStatusString(value.getStatus()), value.getTimestamp(), toValueString(value));
+        writer.println(value);
     }
 
     interface RetriableAction {
@@ -1608,8 +1602,10 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 sleepBetweenRetryMs, maxRetries);
         HalPropValue result = retrier.invokeAction();
         if (DBG) {
-            Slogf.d(CarLog.TAG_HAL, "Invoked retriable action for %sProperty: %s, for retrier: %s",
-                    operation, toPropertyIdString(requestValue.getPropId()), retrier);
+            Slogf.d(CarLog.TAG_HAL,
+                    "Invoked retriable action for %s - RequestValue: %s - ResultValue: %s, for "
+                            + "retrier: %s",
+                    operation, requestValue, result, retrier);
         }
         return result;
     }

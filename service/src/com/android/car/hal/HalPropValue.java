@@ -16,17 +16,25 @@
 
 package com.android.car.hal;
 
+import static com.android.car.hal.property.HalPropertyDebugUtils.toAreaIdString;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toPropertyIdString;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toStatusString;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toValueString;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyValue;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.util.Log;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.property.CarPropertyHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * HalPropValue represents a vehicle property value.
@@ -243,6 +251,18 @@ public abstract class HalPropValue {
             return false;
         }
         return true;
+    }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public String toString() {
+        StringJoiner debugStringJoiner = new StringJoiner(", ", "{", "}");
+        debugStringJoiner.add("Property ID: " + toPropertyIdString(getPropId()));
+        debugStringJoiner.add("Area ID: " + toAreaIdString(getPropId(), getAreaId()));
+        debugStringJoiner.add("ElapsedRealtimeNanos: " + getTimestamp());
+        debugStringJoiner.add("Status: " + toStatusString(getStatus()));
+        debugStringJoiner.add("Value: " + toValueString(this));
+        return "HalPropValue" + debugStringJoiner;
     }
 
     /**
