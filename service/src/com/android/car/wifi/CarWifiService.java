@@ -33,8 +33,10 @@ import android.car.hardware.power.ICarPowerStateListener;
 import android.car.wifi.ICarWifi;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.ContentObserver;
 import android.net.TetheringManager;
 import android.net.TetheringManager.StartTetheringCallback;
+import android.net.wifi.SoftApConfiguration;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.SoftApCallback;
 import android.os.Handler;
@@ -90,6 +92,7 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
                 public void onStateChanged(int state, int failureReason) {
                     switch (state) {
                         case WIFI_AP_STATE_ENABLED -> {
+                            Slogf.i(TAG, "AP enabled successfully");
                             synchronized (mLock) {
                                 if (mSharedPreferences != null) {
                                     Slogf.i(TAG,
@@ -102,6 +105,13 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
                                                     true)
                                             .apply();
                                 }
+                            }
+
+                            // If the setting is enabled, tethering sessions should remain on even
+                            // if no devices are connected to it.
+                            if (mIsPersistTetheringCapabilitiesEnabled
+                                    && mIsPersistTetheringSettingEnabled) {
+                                setSoftApAutoShutdownEnabled(/* enable= */ false);
                             }
                         }
                         case WIFI_AP_STATE_DISABLED -> {
@@ -127,6 +137,26 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
                         default -> {
                         }
                     }
+                }
+            };
+
+    private final ContentObserver mPersistTetheringObserver =
+            new ContentObserver(mHandler) {
+                @Override
+                public void onChange(boolean selfChange) {
+                    if (!mIsPersistTetheringCapabilitiesEnabled) {
+                        Slogf.i(TAG, "Persist tethering capability is not enabled");
+                        return;
+                    }
+
+                    Slogf.i(TAG, "%s setting has changed", ENABLE_TETHERING_PERSISTING);
+                    // If the persist tethering setting is turned off, auto shutdown must be
+                    // re-enabled.
+                    boolean persistTetheringSettingEnabled =
+                            mFeatureFlags.persistApSettings() && TextUtils.equals("true",
+                                    Settings.Global.getString(mContext.getContentResolver(),
+                                            ENABLE_TETHERING_PERSISTING));
+                    setSoftApAutoShutdownEnabled(!persistTetheringSettingEnabled);
                 }
             };
 
@@ -156,6 +186,7 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
     @Override
     public void init() {
         if (!mIsPersistTetheringCapabilitiesEnabled) {
+            Slogf.w(TAG, "Persist tethering capability is not enabled");
             return;
         }
 
@@ -164,25 +195,40 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
         mWifiManager.registerSoftApCallback(mHandler::post, mSoftApCallback);
         mCarUserService.runOnUser0Unlock(this::onSystemUserUnlocked);
         mCarPowerManagementService.registerListener(mCarPowerStateListener);
+
+        if (mFeatureFlags.persistApSettings()) {
+            mContext.getContentResolver().registerContentObserver(Settings.Global.getUriFor(
+                            ENABLE_TETHERING_PERSISTING), /* notifyForDescendants= */ false,
+                    mPersistTetheringObserver);
+        }
     }
 
     @Override
     public void release() {
         if (!mIsPersistTetheringCapabilitiesEnabled) {
+            Slogf.w(TAG, "Persist tethering capability is not enabled");
             return;
         }
 
         mWifiManager.unregisterSoftApCallback(mSoftApCallback);
         mCarPowerManagementService.unregisterListener(mCarPowerStateListener);
+
+        if (mFeatureFlags.persistApSettings()) {
+            mContext.getContentResolver().unregisterContentObserver(mPersistTetheringObserver);
+        }
     }
 
     @Override
     public void dump(IndentingPrintWriter writer) {
         writer.println("**CarWifiService**");
+        writer.println();
+        writer.println("Persist Tethering");
         writer.println("mIsPersistTetheringCapabilitiesEnabled: "
                 + mIsPersistTetheringCapabilitiesEnabled);
         writer.println("mIsPersistTetheringSettingEnabled: " + mIsPersistTetheringSettingEnabled);
         writer.println("Tethering enabled: " + mWifiManager.isWifiApEnabled());
+        writer.println("Auto shutdown enabled: "
+                + mWifiManager.getSoftApConfiguration().isAutoShutdownEnabled());
     }
 
     /**
@@ -257,5 +303,13 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
         if (mCarPowerManagementService.getPowerState() == CarPowerManager.STATE_ON) {
             startTethering();
         }
+    }
+
+    private void setSoftApAutoShutdownEnabled(boolean enable) {
+        SoftApConfiguration config = new SoftApConfiguration.Builder(
+                mWifiManager.getSoftApConfiguration())
+                .setAutoShutdownEnabled(enable)
+                .build();
+        mWifiManager.setSoftApConfiguration(config);
     }
 }
