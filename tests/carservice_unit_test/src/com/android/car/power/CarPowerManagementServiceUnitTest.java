@@ -41,6 +41,8 @@ import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate;
+import android.automotive.powerpolicy.internal.ICarPowerPolicyDelegateCallback;
+import android.automotive.powerpolicy.internal.PowerPolicyInitData;
 import android.car.Car;
 import android.car.ICarResultReceiver;
 import android.car.builtin.app.VoiceInteractionHelper;
@@ -52,6 +54,7 @@ import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.hardware.power.PowerComponent;
+import android.car.hardware.power.PowerComponentUtil;
 import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.JavaMockitoHelper;
@@ -70,6 +73,7 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.os.UserManager;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.util.ArrayMap;
 import android.util.AtomicFile;
 import android.util.Log;
 import android.util.SparseArray;
@@ -115,7 +119,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -140,6 +146,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     public static final String SYSTEM_POWER_POLICY_NO_USER_INTERACTION =
             "system_power_policy_no_user_interaction";
     public static final String SYSTEM_POWER_POLICY_INITIAL_ON = "system_power_policy_initial_on";
+    private static final String POWER_POLICY_VALID = "policy_id_valid";
 
     private final FakeFeatureFlagsImpl mFeatureFlags = new FakeFeatureFlagsImpl();
     private final MockDisplayInterface mDisplayInterface = new MockDisplayInterface();
@@ -159,6 +166,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private TemporaryFile mFileHwStateMonitoring;
     private TemporaryFile mFileKernelSilentMode;
     private FakeCarPowerPolicyDaemon mPowerPolicyDaemon;
+    private FakeRefactoredCarPowerPolicyDaemon mRefactoredPowerPolicyDaemon;
     private boolean mVoiceInteractionEnabled;
     private FakeScreenOffHandler mScreenOffHandler;
 
@@ -213,55 +221,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarServiceUtils.finishAllHandlerTasks();
         mIOInterface.tearDown();
-    }
-
-    private void setCarPowerPolicyRefactoringFeatureFlag(boolean flagValue) {
-        mFeatureFlags.setFlag(Flags.FLAG_CAR_POWER_POLICY_REFACTORING, flagValue);
-    }
-
-    /**
-     * Helper method to create mService and initialize a test case
-     */
-    private void setService() throws Exception {
-        doReturn(mResources).when(mContext).getResources();
-        // During the test, changing Wifi state according to a power policy takes long time, leading
-        // to timeout. Also, we don't want to actually change Wifi state.
-        doReturn(mWifiManager).when(mContext).getSystemService(WifiManager.class);
-        doReturn(mTetheringManager).when(mContext).getSystemService(TetheringManager.class);
-        when(mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs))
-                .thenReturn(900);
-        when(mResources.getInteger(R.integer.config_maxSuspendWaitDuration))
-                .thenReturn(WAKE_UP_DELAY);
-        when(mResources.getBoolean(R.bool.config_enablePassengerDisplayPowerSaving))
-                .thenReturn(false);
-        doReturn(true).when(() -> VoiceInteractionHelper.isAvailable());
-        doAnswer(invocation -> {
-            mVoiceInteractionEnabled = (boolean) invocation.getArguments()[0];
-            return null;
-        }).when(() -> VoiceInteractionHelper.setEnabled(anyBoolean()));
-
-        Log.i(TAG, "setService(): overridden overlay properties: "
-                + ", maxGarageModeRunningDurationInSecs="
-                + mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs));
-        mFileHwStateMonitoring = new TemporaryFile("HW_STATE_MONITORING");
-        mFileKernelSilentMode = new TemporaryFile("KERNEL_SILENT_MODE");
-        mFileHwStateMonitoring.write(NONSILENT_STRING);
-        mPowerComponentHandler = new PowerComponentHandler(mContext, mSystemInterface,
-                new AtomicFile(mComponentStateFile.getFile()));
-        mPowerPolicyDaemon = new FakeCarPowerPolicyDaemon();
-        setCarPowerPolicyRefactoringFeatureFlag(false);
-        mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
-                mSystemInterface, mUserManager, mUserService, mPowerPolicyDaemon,
-                mPowerComponentHandler, mScreenOffHandler,
-                mFileHwStateMonitoring.getFile().getPath(),
-                mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
-        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
-        CarLocalServices.addService(CarPowerManagementService.class, mService);
-        mService.init();
-        mService.setShutdownTimersForTest(0, 0);
-        mPowerHal.setSignalListener(mPowerSignalListener);
-        mService.scheduleNextWakeupTime(WAKE_UP_DELAY);
-        assertStateReceived(MockedPowerHalService.SET_WAIT_FOR_VHAL, 0);
     }
 
     @Test
@@ -721,14 +680,20 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
-    public void testDefinePowerPolicy_validPolicy() {
-        String policyId = "policy_id_valid";
+    public void testDefineValidPowerPolicy_powerPolicyRefactorFlagDisabled() {
+        definePowerPolicyValid();
 
-        int status = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "BLUETOOTH"},
-                new String[]{"WIFI"});
+        assertThat(mPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(POWER_POLICY_VALID);
+    }
 
-        assertThat(status).isEqualTo(PolicyOperationStatus.OK);
-        assertThat(mPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(policyId);
+    @Test
+    public void testDefineValidPowerPolicy_powerPolicyRefactorFlagEnabled() throws Exception {
+        setRefactoredService();
+
+        definePowerPolicyValid();
+
+        assertThat(mRefactoredPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(
+                POWER_POLICY_VALID);
     }
 
     @Test
@@ -1123,7 +1088,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         CarPowerPolicyFilter[] filters = CarPowerPolicyFilter.CREATOR.newArray(1);
         assertThat(filters.length).isEqualTo(1);
     }
-
 
     @Test
     public void testPowerPolicyAfterShutdownCancel() throws Exception {
@@ -1669,6 +1633,71 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         expectDisplayBrightnessChangeApplied(displayId, brightness);
     }
 
+    private void setCarPowerPolicyRefactoringFeatureFlag(boolean flagValue) {
+        mFeatureFlags.setFlag(Flags.FLAG_CAR_POWER_POLICY_REFACTORING, flagValue);
+    }
+
+    /**
+     * Helper method to create mService and initialize a test case
+     */
+    private void setService() throws Exception {
+        doReturn(mResources).when(mContext).getResources();
+        // During the test, changing Wifi state according to a power policy takes long time, leading
+        // to timeout. Also, we don't want to actually change Wifi state.
+        doReturn(mWifiManager).when(mContext).getSystemService(WifiManager.class);
+        doReturn(mTetheringManager).when(mContext).getSystemService(TetheringManager.class);
+        when(mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs))
+                .thenReturn(900);
+        when(mResources.getInteger(R.integer.config_maxSuspendWaitDuration))
+                .thenReturn(WAKE_UP_DELAY);
+        when(mResources.getBoolean(R.bool.config_enablePassengerDisplayPowerSaving))
+                .thenReturn(false);
+        doReturn(true).when(() -> VoiceInteractionHelper.isAvailable());
+        doAnswer(invocation -> {
+            mVoiceInteractionEnabled = (boolean) invocation.getArguments()[0];
+            return null;
+        }).when(() -> VoiceInteractionHelper.setEnabled(anyBoolean()));
+
+        mFileHwStateMonitoring = new TemporaryFile("HW_STATE_MONITORING");
+        mFileKernelSilentMode = new TemporaryFile("KERNEL_SILENT_MODE");
+        mFileHwStateMonitoring.write(NONSILENT_STRING);
+        mPowerComponentHandler = new PowerComponentHandler(mContext, mSystemInterface,
+                new AtomicFile(mComponentStateFile.getFile()));
+        mPowerPolicyDaemon = new FakeCarPowerPolicyDaemon();
+        setCarPowerPolicyRefactoringFeatureFlag(false);
+        mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
+                mSystemInterface, mUserManager, mUserService, mPowerPolicyDaemon,
+                mPowerComponentHandler, mScreenOffHandler,
+                mFileHwStateMonitoring.getFile().getPath(),
+                mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
+        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        CarLocalServices.addService(CarPowerManagementService.class, mService);
+        mService.init();
+        mService.setShutdownTimersForTest(0, 0);
+        mPowerHal.setSignalListener(mPowerSignalListener);
+        mService.scheduleNextWakeupTime(WAKE_UP_DELAY);
+        assertStateReceived(MockedPowerHalService.SET_WAIT_FOR_VHAL, 0);
+    }
+
+    /**
+     * Helper method to set up service for test cases that use the refactored power policy in CPMS
+     */
+    private void setRefactoredService() throws Exception {
+        mRefactoredPowerPolicyDaemon = new FakeRefactoredCarPowerPolicyDaemon();
+        setCarPowerPolicyRefactoringFeatureFlag(true);
+        mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
+                mSystemInterface, mUserManager, mUserService, mRefactoredPowerPolicyDaemon,
+                mPowerComponentHandler, mFeatureFlags, mScreenOffHandler,
+                mFileHwStateMonitoring.getFile().getPath(),
+                mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
+        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        CarLocalServices.addService(CarPowerManagementService.class, mService);
+        mService.init();
+        mService.setShutdownTimersForTest(0, 0);
+        mService.scheduleNextWakeupTime(WAKE_UP_DELAY);
+        assertStateReceived(MockedPowerHalService.SET_WAIT_FOR_VHAL, 0);
+    }
+
     private void suspendDevice() throws Exception {
         mService.handleOn();
         mPowerSignalListener.addEventListener(PowerHalService.SET_DEEP_SLEEP_ENTRY);
@@ -1816,6 +1845,12 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 context.getResources().openRawResource(resourceId));
     }
 
+    private void definePowerPolicyValid() {
+        int status = mService.definePowerPolicy(POWER_POLICY_VALID,
+                new String[]{"AUDIO", "BLUETOOTH"}, new String[]{"WIFI"});
+        assertThat(status).isEqualTo(PolicyOperationStatus.OK);
+    }
+
     private MockedPowerPolicyListener setUpPowerPolicy(String policyId, String[] enabledComponents,
             String[] disabledComponents, int... filterComponentValues) {
         mService.definePowerPolicy(policyId, enabledComponents, disabledComponents);
@@ -1900,7 +1935,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         waitForPolicyId(policyId,
                 () -> policyId.equals(mPowerPolicyDaemon.getLastNotifiedPolicyId()));
     }
-
 
     private void grantPowerPolicyPermission() {
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
@@ -2376,6 +2410,54 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         @Override
         public int getInterfaceVersion() {
             return ICarPowerPolicySystemNotification.VERSION;
+        }
+    }
+
+    static final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDelegate.Default {
+        private ArrayMap<String,
+                android.frameworks.automotive.powerpolicy.CarPowerPolicy> mPolicies =
+                new ArrayMap<>();
+        private String mLastDefinedPolicyId;
+
+        @Override
+        public PowerPolicyInitData notifyCarServiceReady(ICarPowerPolicyDelegateCallback callback) {
+            Log.i(TAG, "Fake refactored CPPD was notified that car service is ready");
+            return new PowerPolicyInitData();
+        }
+
+        private int[] convertIntIterableToArray(Iterable<Integer> iterable) {
+            List<Integer> list = new ArrayList<>();
+            iterable.forEach(list::add);
+            return list.stream().mapToInt(i->i).toArray();
+        }
+        @Override
+        public void notifyPowerPolicyDefinition(String policyId, String[] enabledComponents,
+                String[] disabledComponents) {
+            mLastDefinedPolicyId = policyId;
+            android.frameworks.automotive.powerpolicy.CarPowerPolicy policy =
+                    new android.frameworks.automotive.powerpolicy.CarPowerPolicy();
+            policy.policyId = policyId;
+            policy.enabledComponents = convertIntIterableToArray(
+                    PowerComponentUtil.toPowerComponents(List.of(enabledComponents),
+                            /* prefix= */ false));
+            policy.disabledComponents = convertIntIterableToArray(
+                    PowerComponentUtil.toPowerComponents(List.of(disabledComponents),
+                            /* prefix= */ false));
+            mPolicies.put(policyId, policy);
+        }
+
+        public String getLastDefinedPolicyId() {
+            return mLastDefinedPolicyId;
+        }
+
+        @Override
+        public int getInterfaceVersion() {
+            return ICarPowerPolicyDelegate.VERSION;
+        }
+
+        @Override
+        public String getInterfaceHash() {
+            return ICarPowerPolicyDelegate.HASH;
         }
     }
 
