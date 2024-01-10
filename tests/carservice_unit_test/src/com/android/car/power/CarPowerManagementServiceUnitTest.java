@@ -697,14 +697,21 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
-    public void testDefinePowerPolicy_doubleRegistered() {
-        String policyId = "policy_id_valid";
-        int status = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "BLUETOOTH"},
-                new String[]{"WIFI"});
-        assertThat(status).isEqualTo(PolicyOperationStatus.OK);
+    public void testDefineDoubleRegisteredPowerPolicy_powerPolicyRefactorFlagDisabled() {
+        definePowerPolicyValid();
 
-        status = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "BLUETOOTH"},
-                new String[]{"WIFI", "NFC"});
+        int status = mService.definePowerPolicy(POWER_POLICY_VALID, new String[]{}, new String[]{});
+
+        assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_DOUBLE_REGISTERED_POWER_POLICY_ID);
+    }
+
+    @Test
+    public void testDefineDoubleRegisteredPowerPolicy_powerPolicyRefactorFlagEnabled()
+            throws Exception {
+        setRefactoredService();
+        definePowerPolicyValid();
+
+        int status = mService.definePowerPolicy(POWER_POLICY_VALID, new String[]{}, new String[]{});
 
         assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_DOUBLE_REGISTERED_POWER_POLICY_ID);
     }
@@ -712,7 +719,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     @Test
     public void testDefinePowerPolicy_invalidComponent() {
         String policyId = "policy_id_for_invalid_component";
-
         int status = mService.definePowerPolicy(
                 policyId, new String[]{"AUDIO", "INVALID_COMPONENT"}, new String[]{"WIFI"});
 
