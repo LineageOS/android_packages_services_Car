@@ -574,7 +574,6 @@ Result<void> PerformanceProfiler::onDump(int fd) const {
     return {};
 }
 
-// TODO(b/278740423): Add a test to verify proto output.
 Result<void> PerformanceProfiler::onDumpProto(
         const CollectionIntervals& collectionIntervals, ProtoOutputStream& outProto) const {
     Mutex::Autolock lock(mMutex);

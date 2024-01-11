@@ -98,7 +98,7 @@ message PackageTaskStateStats {
   optional UserPackageInfo user_package_info = 1;
   optional int32 io_blocked_task_count = 2;
   optional int32 total_task_count = 3;
-  optional ProcessTaskStateStats process_task_state_stats = 4;
+  repeated ProcessTaskStateStats process_task_state_stats = 4;
 }
 
 // Represents the major page fault stats for a user package.
