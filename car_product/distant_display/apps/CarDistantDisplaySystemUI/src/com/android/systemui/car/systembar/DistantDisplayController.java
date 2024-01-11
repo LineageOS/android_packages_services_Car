@@ -21,6 +21,7 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.media.MediaDescription;
@@ -202,17 +203,30 @@ public class DistantDisplayController {
      * {@link com.android.systemui.car.distantdisplay.common.DistantDisplayQcItem}
      */
     public DistantDisplayQcItem getMetadata() {
-        Optional<MediaController> mediaControllerFromActiveMediaSession =
+        Optional<MediaController> optionalMediaController =
                 getMediaControllerFromActiveMediaSession();
-        if (mediaControllerFromActiveMediaSession.isEmpty()) return null;
+        if (optionalMediaController.isEmpty()) return null;
 
-        MediaDescription mediaDescription =
-                mediaControllerFromActiveMediaSession.get().getMetadata().getDescription();
-        CharSequence mediaTitle = mediaDescription.getTitle();
-        DistantDisplayQcItem distantDisplayQcItem = new DistantDisplayQcItem.Builder()
-                .setTitle((String) mediaTitle)
+        MediaController mediaController = optionalMediaController.get();
+        String packageName = mediaController.getPackageName();
+        Drawable mediaAppIcon = null;
+        String mediaAppName = "";
+        try {
+            ApplicationInfo applicationInfo = mPackageManager.getApplicationInfoAsUser(packageName,
+                    PackageManager.GET_META_DATA, mUserTracker.getUserId());
+            mediaAppName = (String) applicationInfo.loadLabel(mPackageManager);
+            mediaAppIcon = applicationInfo.loadIcon(mPackageManager);
+        } catch (PackageManager.NameNotFoundException e) {
+            logIfDebuggable("Error retrieving application info");
+        }
+        MediaDescription mediaDescription = mediaController.getMetadata().getDescription();
+        String mediaTitle = (String) mediaDescription.getTitle();
+        DistantDisplayQcItem distantDisplayControlQcItem = new DistantDisplayQcItem.Builder()
+                .setTitle(mediaTitle)
+                .setSubtitle(mediaAppName)
+                .setIcon(mediaAppIcon)
                 .build();
-        return distantDisplayQcItem;
+        return distantDisplayControlQcItem;
     }
 
     /**
@@ -269,6 +283,7 @@ public class DistantDisplayController {
         List<MediaController> activeSessionsForUser = mMediaSessionManager.getActiveSessionsForUser(
                 null, mUserTracker.getUserHandle());
         if (activeSessionsForUser.isEmpty()) return false;
+
         return activeSessionsForUser.stream().anyMatch(
                 controller -> controller.getPackageName().equals(packageName));
     }
@@ -276,6 +291,11 @@ public class DistantDisplayController {
     private boolean isVideoApp(String packageName) {
         return AppCategoryDetector.isVideoApp(mUserTracker.getUserContext().getPackageManager(),
                 packageName);
+    }
+
+    private ActivityManager.RunningTaskInfo getForegroundTaskOnDisplay(int displayId) {
+        int taskId = mForegroundTasksOnDisplays.get(displayId, INVALID_TASK_ID);
+        return taskId == INVALID_TASK_ID ? null : mTasks.get(taskId);
     }
 
     private boolean canMoveAppFromDisplay(int displayId) {
@@ -286,11 +306,6 @@ public class DistantDisplayController {
         boolean hasMediaSession = hasActiveMediaSession(
                 mForegroundTaskOnDisplay.baseActivity.getPackageName());
         return isVideo && hasMediaSession;
-    }
-
-    private ActivityManager.RunningTaskInfo getForegroundTaskOnDisplay(int displayId) {
-        int taskId = mForegroundTasksOnDisplays.get(displayId, INVALID_TASK_ID);
-        return taskId == INVALID_TASK_ID ? null : mTasks.get(taskId);
     }
 
     private void updateButtonState() {
