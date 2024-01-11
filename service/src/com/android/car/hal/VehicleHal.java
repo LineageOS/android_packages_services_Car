@@ -705,8 +705,14 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 }
             }
 
-            if (!isPropertySubscribable(config)) {
-                Slogf.w(CarLog.TAG_HAL, "Cannot subscribe to " + toCarPropertyLog(property));
+            if (isStaticProperty(config)) {
+                Slogf.w(CarLog.TAG_HAL, "Subscribe to a static property: "
+                        + toCarPropertyLog(property) + ", do nothing");
+                continue;
+            }
+            if (!isReadable(config)) {
+                Slogf.w(CarLog.TAG_HAL, "Cannot subscribe to " + toCarPropertyLog(property)
+                        + " the property's access mode does not contain READ");
                 continue;
             }
 
@@ -807,8 +813,14 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                         + " does not exist");
                 return;
             }
-            if (!isPropertySubscribable(config)) {
-                Slogf.w(CarLog.TAG_HAL, "Cannot unsubscribe " + toCarPropertyLog(property));
+            if (isStaticProperty(config)) {
+                Slogf.w(CarLog.TAG_HAL, "Unsubscribe to a static property: "
+                        + toCarPropertyLog(property) + ", do nothing");
+                return;
+            }
+            if (!isReadable(config)) {
+                Slogf.w(CarLog.TAG_HAL, "Cannot unsubscribe to " + toCarPropertyLog(property)
+                        + " the property's access mode does not contain READ");
                 return;
             }
             assertServiceOwnerLocked(service, property);
@@ -1047,9 +1059,11 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         return new HalPropValueSetter(propId, areaId);
     }
 
+    /**
+     * Returns whether the property is readable and not static.
+     */
     static boolean isPropertySubscribable(HalPropConfig config) {
-        return (config.getAccess() & VehiclePropertyAccess.READ) != 0
-                && (config.getChangeMode() != VehiclePropertyChangeMode.STATIC);
+        return isReadable(config) && !isStaticProperty(config);
     }
 
     /**
@@ -1528,6 +1542,15 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             cloned.put(keyPair[0], keyPair[1], state.valueAt(i));
         }
         return cloned;
+    }
+
+    private static boolean isStaticProperty(HalPropConfig config) {
+        return config.getChangeMode() == VehiclePropertyChangeMode.STATIC;
+    }
+
+    // Returns whether the property has READ or READ_WRITE access.
+    private static boolean isReadable(HalPropConfig config) {
+        return (config.getAccess() & VehiclePropertyAccess.READ) != 0;
     }
 
     private static final class Retrier {
