@@ -148,6 +148,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     public static final String SYSTEM_POWER_POLICY_INITIAL_ON = "system_power_policy_initial_on";
     private static final String POWER_POLICY_VALID = "policy_id_valid";
     private static final String POWER_POLICY_INVALID_COMPONENT = "policy_id_for_invalid_component";
+    private static final String POWER_POLICY_VALID_COMMAND = "policy_id_valid_command";
 
     private final FakeFeatureFlagsImpl mFeatureFlags = new FakeFeatureFlagsImpl();
     private final MockDisplayInterface mDisplayInterface = new MockDisplayInterface();
@@ -745,23 +746,37 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_INVALID_POWER_COMPONENT);
     }
 
+
     @Test
-    public void testDefinePowerPolicyFromCommand_validCommand() {
-        String policyId = "policy_id_valid_command";
-        String[] args = {"define-power-policy", policyId, "--enable", "AUDIO,BLUETOOTH",
-                "--disable", "ETHERNET,WIFI"};
+    public void testDefinePowerPolicyFromValidCommand_powerPolicyRefactorFlagDisabled() {
+        String[] args = {"define-power-policy", POWER_POLICY_VALID_COMMAND,
+                "--enable", "AUDIO,BLUETOOTH", "--disable", "ETHERNET,WIFI"};
 
-        try (IndentingPrintWriter writer = new IndentingPrintWriter(new StringWriter(), "  ")) {
-            boolean status = mService.definePowerPolicyFromCommand(args, writer);
+        boolean status = definePowerPolicyFromCommand(args);
 
-            assertWithMessage(
-                    "Calling definePowerPolicyFromCommand with args: "
-                            + Arrays.toString(args) + " must succeed").that(status).isTrue();
-            String lastDefinedPolicyMsg = "Power policy daemon must have " + policyId
-                    + " as last defined policy id";
-            assertWithMessage(lastDefinedPolicyMsg).that(
-                    mPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(policyId);
-        }
+        assertWithMessage("Calling definePowerPolicyFromCommand with args: "
+                + Arrays.toString(args) + " must succeed").that(status).isTrue();
+        assertWithMessage("Power policy daemon must have "
+                + POWER_POLICY_VALID_COMMAND + " as last defined policy id").that(
+                        mPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(
+                                POWER_POLICY_VALID_COMMAND);
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromValidCommand_powerPolicyRefactorFlagEnabled()
+            throws Exception {
+        setRefactoredService();
+        String[] args = {"define-power-policy", POWER_POLICY_VALID_COMMAND,
+                "--enable", "AUDIO,BLUETOOTH", "--disable", "ETHERNET,WIFI"};
+
+        boolean status = definePowerPolicyFromCommand(args);
+
+        assertWithMessage("Calling definePowerPolicyFromCommand with args: "
+                + Arrays.toString(args) + " must succeed").that(status).isTrue();
+        assertWithMessage("Refactored power policy daemon must have "
+                + POWER_POLICY_VALID_COMMAND + " as last defined policy id").that(
+                        mRefactoredPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(
+                                POWER_POLICY_VALID_COMMAND);
     }
 
     @Test
@@ -1869,6 +1884,12 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         Context context = InstrumentationRegistry.getInstrumentation().getContext();
         mService.readPowerPolicyFromXml(
                 context.getResources().openRawResource(resourceId));
+    }
+
+    private boolean definePowerPolicyFromCommand(String[] args) {
+        try (IndentingPrintWriter writer = new IndentingPrintWriter(new StringWriter(), "  ")) {
+            return mService.definePowerPolicyFromCommand(args, writer);
+        }
     }
 
     private MockedPowerPolicyListener setUpPowerPolicy(String policyId, String[] enabledComponents,
