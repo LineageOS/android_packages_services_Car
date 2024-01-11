@@ -1925,6 +1925,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
+    @VisibleForTesting
+    int getNumberOfCurrentPolicyRequests() {
+        synchronized (mLock) {
+            return mRequestIdToPolicyRequest.size();
+        }
+    }
+
     /**
      * @see android.car.hardware.power.CarPowerManager#addPowerPolicyListener
      */
@@ -2550,16 +2557,20 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
+    @GuardedBy("mLock")
+    private android.os.IInterface getPowerPolicyDaemonLocked() {
+        if (mFeatureFlags.carPowerPolicyRefactoring()) {
+            return mRefactoredCarPowerPolicyDaemon;
+        } else {
+            return mCarPowerPolicyDaemon;
+        }
+    }
+
     private void connectToPowerPolicyDaemon() {
         synchronized (mLock) {
-            if (mFeatureFlags.carPowerPolicyRefactoring()) {
-                if (mRefactoredCarPowerPolicyDaemon != null || mConnectionInProgress) {
-                    return;
-                }
-            } else {
-                if (mCarPowerPolicyDaemon != null || mConnectionInProgress) {
-                    return;
-                }
+            android.os.IInterface powerPolicyDaemon = getPowerPolicyDaemonLocked();
+            if (powerPolicyDaemon != null || mConnectionInProgress) {
+                return;
             }
             mConnectionInProgress = true;
         }
