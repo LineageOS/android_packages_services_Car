@@ -15,15 +15,19 @@
  */
 package com.android.systemui.car.distantdisplay.activity.window;
 
-import android.app.ActivityOptions;
 import android.content.Context;
-import android.os.UserHandle;
+import android.content.IntentFilter;
+import android.hardware.display.DisplayManager;
+import android.os.Build;
 import android.util.Log;
+import android.view.LayoutInflater;
 
-import com.android.systemui.R;
+import androidx.core.content.ContextCompat;
+
 import com.android.systemui.car.CarDeviceProvisionedController;
 import com.android.systemui.car.CarDeviceProvisionedListener;
-import com.android.systemui.car.distantdisplay.activity.DistantDisplayActivity;
+import com.android.systemui.car.distantdisplay.common.DistantDisplayReceiver;
+import com.android.systemui.car.distantdisplay.common.TaskViewController;
 import com.android.systemui.car.distantdisplay.common.UserUnlockReceiver;
 import com.android.systemui.dagger.SysUISingleton;
 
@@ -39,12 +43,11 @@ import javax.inject.Inject;
 public class ActivityWindowController {
     public static final String TAG = ActivityWindowController.class.getSimpleName();
     private final UserUnlockReceiver mUserUnlockReceiver = new UserUnlockReceiver();
+    private static final boolean DEBUG = Build.IS_ENG || Build.IS_USERDEBUG;
     private final Context mContext;
-    private final int mDistantDisplayId;
     private final CarDeviceProvisionedController mCarDeviceProvisionedController;
     private boolean mUserSetupInProgress;
     private boolean mIsUserUnlocked;
-    private boolean mDistantDisplayActivityStarted;
 
     private final CarDeviceProvisionedListener mCarDeviceProvisionedListener =
             new CarDeviceProvisionedListener() {
@@ -52,7 +55,6 @@ public class ActivityWindowController {
                 public void onUserSetupInProgressChanged() {
                     mUserSetupInProgress = mCarDeviceProvisionedController
                             .isCurrentUserSetupInProgress();
-
                     startDistantDisplayActivity();
                 }
             };
@@ -61,8 +63,6 @@ public class ActivityWindowController {
     public ActivityWindowController(Context context,
             CarDeviceProvisionedController deviceProvisionedController) {
         mContext = context;
-        mDistantDisplayId =
-                mContext.getResources().getInteger(R.integer.config_distantDisplayId);
         mCarDeviceProvisionedController = deviceProvisionedController;
         mCarDeviceProvisionedController.addCallback(mCarDeviceProvisionedListener);
     }
@@ -91,15 +91,23 @@ public class ActivityWindowController {
             Log.w(TAG, "user is NOT unlocked, can't launch activity");
             return;
         }
-        // check if the activity is already started.
-        if (mDistantDisplayActivityStarted) {
-            Log.w(TAG, "distant display activity already started");
-            return;
+
+        TaskViewController controller = new TaskViewController(
+                mContext,
+                mContext.getSystemService(DisplayManager.class),
+                (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE));
+
+        if (DEBUG) {
+            // TODO(b/319879239): remove the broadcast receiver once the binder service is
+            //  implemented.
+            setupDebuggingThroughAdb(controller);
         }
-        ActivityOptions options = ActivityOptions.makeCustomAnimation(mContext, 0, 0);
-        options.setLaunchDisplayId(mDistantDisplayId);
-        mContext.startActivityAsUser(DistantDisplayActivity.createIntent(mContext),
-                options.toBundle(), UserHandle.CURRENT);
-        mDistantDisplayActivityStarted = true;
+    }
+
+    private void setupDebuggingThroughAdb(TaskViewController controller) {
+        IntentFilter filter = new IntentFilter(DistantDisplayReceiver.DISTANT_DISPLAY);
+        DistantDisplayReceiver receiver = new DistantDisplayReceiver();
+        receiver.register(controller::initialize);
+        ContextCompat.registerReceiver(mContext, receiver, filter, ContextCompat.RECEIVER_EXPORTED);
     }
 }
