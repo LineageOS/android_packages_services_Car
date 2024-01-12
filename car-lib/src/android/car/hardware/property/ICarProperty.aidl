@@ -25,6 +25,7 @@ import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarSubscription;
+import com.android.car.internal.property.GetPropertyConfigListResult;
 
 /**
  * @hide
@@ -46,7 +47,7 @@ interface ICarProperty {
 
     String getWritePermission(int propId);
 
-    CarPropertyConfigList getPropertyConfigList(in int[] propIds);
+    GetPropertyConfigListResult getPropertyConfigList(in int[] propIds);
 
     /**
      * Gets CarPropertyValues asynchronously.

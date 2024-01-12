@@ -65,11 +65,13 @@ import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.property.CarSubscription;
+import com.android.car.internal.property.GetPropertyConfigListResult;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
 import com.android.car.internal.property.SubscriptionManager;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.internal.util.IntArray;
 import com.android.car.property.CarPropertyServiceClient;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -642,15 +644,15 @@ public class CarPropertyService extends ICarProperty.Stub
     @NonNull
     @Override
     public CarPropertyConfigList getPropertyList() {
-        int[] allPropId;
+        int[] allPropIds;
         // Avoid permission checking under lock.
         synchronized (mLock) {
-            allPropId = new int[mPropertyIdToCarPropertyConfig.size()];
+            allPropIds = new int[mPropertyIdToCarPropertyConfig.size()];
             for (int i = 0; i < mPropertyIdToCarPropertyConfig.size(); i++) {
-                allPropId[i] = mPropertyIdToCarPropertyConfig.keyAt(i);
+                allPropIds[i] = mPropertyIdToCarPropertyConfig.keyAt(i);
             }
         }
-        return getPropertyConfigList(allPropId);
+        return getPropertyConfigList(allPropIds).carPropertyConfigList;
     }
 
     /**
@@ -659,25 +661,35 @@ public class CarPropertyService extends ICarProperty.Stub
      */
     @NonNull
     @Override
-    public CarPropertyConfigList getPropertyConfigList(int[] propIds) {
+    public GetPropertyConfigListResult getPropertyConfigList(int[] propIds) {
+        GetPropertyConfigListResult result = new GetPropertyConfigListResult();
         List<CarPropertyConfig> availableProp = new ArrayList<>();
-        if (propIds == null) {
-            return new CarPropertyConfigList(availableProp);
-        }
-        for (int propId : propIds) {
-            synchronized (mLock) {
-                // Check if context already granted permission first
-                if ((mPropertyHalService.isReadable(mContext, propId)
-                        || mPropertyHalService.isWritable(mContext, propId))
-                        && mPropertyIdToCarPropertyConfig.contains(propId)) {
-                    availableProp.add(mPropertyIdToCarPropertyConfig.get(propId));
+        IntArray missingPermissionPropIds = new IntArray(availableProp.size());
+        IntArray unsupportedPropIds = new IntArray(availableProp.size());
+
+        synchronized (mLock) {
+            for (int propId : propIds) {
+                if (!mPropertyIdToCarPropertyConfig.contains(propId)) {
+                    unsupportedPropIds.add(propId);
+                    continue;
                 }
+
+                if (!mPropertyHalService.isReadable(mContext, propId)
+                        && !mPropertyHalService.isWritable(mContext, propId)) {
+                    missingPermissionPropIds.add(propId);
+                    continue;
+                }
+
+                availableProp.add(mPropertyIdToCarPropertyConfig.get(propId));
             }
         }
         if (DBG) {
             Slogf.d(TAG, "getPropertyList returns " + availableProp.size() + " configs");
         }
-        return new CarPropertyConfigList(availableProp);
+        result.carPropertyConfigList = new CarPropertyConfigList(availableProp);
+        result.missingPermissionPropIds = missingPermissionPropIds.toArray();
+        result.unsupportedPropIds = unsupportedPropIds.toArray();
+        return result;
     }
 
     @Nullable
