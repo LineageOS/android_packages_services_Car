@@ -48,13 +48,16 @@ public class DisplaySwitcher extends BaseLocalQCProvider implements
     @Override
     public QCItem getQCItem() {
         QCList.Builder listBuilder = new QCList.Builder();
-        DistantDisplayQcItem mediaMetadata =
+        DistantDisplayQcItem metadata =
                 mDistantDisplayController.getMetadata();
-        if (mediaMetadata != null) {
-            QCRow mediaMetadataRow = new QCRow.Builder()
-                    .setTitle(mediaMetadata.getTitle())
-                    .build();
-            listBuilder.addRow(mediaMetadataRow);
+        if (metadata != null) {
+            QCRow.Builder builder = new QCRow.Builder()
+                    .setTitle(metadata.getTitle())
+                    .setSubtitle(metadata.getSubtitle());
+            if (metadata.getIcon() != null) {
+                builder.setIcon(Icon.createWithBitmap(drawableToBitmap(metadata.getIcon())));
+            }
+            listBuilder.addRow(builder.build());
         }
         DistantDisplayQcItem controls = mDistantDisplayController.getControls();
         if (controls != null) {
