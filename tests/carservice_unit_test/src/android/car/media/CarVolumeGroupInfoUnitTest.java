@@ -28,10 +28,7 @@ import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.os.Parcel;
-import android.platform.test.annotations.RequiresFlagsDisabled;
-import android.platform.test.annotations.RequiresFlagsEnabled;
-import android.platform.test.flag.junit.CheckFlagsRule;
-import android.platform.test.flag.junit.DeviceFlagsValueProvider;
+import android.platform.test.flag.junit.SetFlagsRule;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -78,12 +75,12 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
                     .setMuted(TEST_DEFAULT_MUTE_STATE);
 
     @Rule
-    public final CheckFlagsRule mCheckFlagsRule =
-            DeviceFlagsValueProvider.createCheckFlagsRule();
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
     public void build_buildsGroupInfo() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+
         CarVolumeGroupInfo info = new CarVolumeGroupInfo
                 .Builder(TEST_GROUP_NAME, TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID)
                 .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
@@ -99,8 +96,9 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    @RequiresFlagsDisabled(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
     public void build_buildsGroupInfo_withoutAudioDevices_succeeds() {
+        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+
         CarVolumeGroupInfo info = new CarVolumeGroupInfo
                 .Builder(TEST_GROUP_NAME, TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID)
                 .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
@@ -112,8 +110,9 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
     public void build_buildsGroupInfo_withAudioDevices_succeeds() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+
         CarVolumeGroupInfo info = new CarVolumeGroupInfo
                 .Builder(TEST_GROUP_NAME, TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID)
                 .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
@@ -126,8 +125,9 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
     public void build_buildsGroupInfo_withNullAudioDevices_fails() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+
         NullPointerException thrown = assertThrows(NullPointerException.class, () ->
                 new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID,
                         TEST_PRIMARY_GROUP_ID).setAudioDeviceAttributes(null)
@@ -322,8 +322,8 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    @RequiresFlagsDisabled(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
     public void hashCode_forSameContent_forDynamicFlagsDisabled() {
+        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarVolumeGroupInfo infoWithSameContent = new CarVolumeGroupInfo.Builder(TEST_VOLUME_INFO)
                 .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                 .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
@@ -334,8 +334,8 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
     public void hashCode_forSameContent_forDynamicFlagsEnabled() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarVolumeGroupInfo originalInfo = new CarVolumeGroupInfo.Builder(TEST_VOLUME_INFO)
                 .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                 .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
