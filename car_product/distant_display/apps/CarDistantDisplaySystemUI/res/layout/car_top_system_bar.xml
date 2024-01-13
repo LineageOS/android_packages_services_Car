@@ -79,15 +79,23 @@
                  android:contentDescription="@string/system_bar_mic_privacy_chip"
         />
 
-        <com.android.systemui.car.systembar.DistantDisplayButton
-            android:id="@+id/distant_display_nav"
-            android:contentDescription="@string/system_bar_climate_control_label"
-            style="@style/SystemBarButton"
-            systemui:icon="@drawable/car_ui_distant_display_navigation_icon"
-            systemui:selectedIcon="@drawable/car_ui_distant_display_navigation_icon_selected"
-            systemui:broadcast="true"
-            android:layout_toLeftOf="@id/user_name_container"/>
-
+        <FrameLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/distant_display_nav_container"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_toLeftOf="@id/user_name_container"
+            style="@style/QuickControlEntryPointButton">
+                <ImageView
+                    android:id="@+id/distant_display_nav"
+                    android:layout_height="match_parent"
+                    android:layout_width="@dimen/distant_display_button_size"
+                    android:scaleType="center"
+                    android:layout_gravity="center"
+                    android:tint="@color/system_bar_icon_color_with_selection"
+                    android:background="@drawable/status_icon_background"
+                    android:src="@drawable/ic_sys_ui_send_to_distant_display"/>
+        </FrameLayout>
 
         <FrameLayout
             android:id="@+id/user_name_container"

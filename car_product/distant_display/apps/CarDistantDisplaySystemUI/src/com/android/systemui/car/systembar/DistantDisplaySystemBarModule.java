@@ -25,6 +25,7 @@ import com.android.systemui.car.privacy.CameraPrivacyElementsProviderImpl;
 import com.android.systemui.car.privacy.MicPrivacyElementsProviderImpl;
 import com.android.systemui.car.qc.SystemUIQCViewController;
 import com.android.systemui.car.statusbar.UserNameViewController;
+import com.android.systemui.car.statusicon.ui.DistantDisplayStatusIconController;
 import com.android.systemui.dagger.SysUISingleton;
 import com.android.systemui.settings.UserTracker;
 import com.android.systemui.statusbar.policy.ConfigurationController;
@@ -59,13 +60,13 @@ public class DistantDisplaySystemBarModule {
             Provider<SystemUIQCViewController> qcViewControllerProvider,
             Lazy<MicPrivacyElementsProviderImpl> micPrivacyElementsProvider,
             Lazy<CameraPrivacyElementsProviderImpl> cameraPrivacyElementsProvider,
-            DistantDisplayButtonController distantDisplayButtonController) {
+            DistantDisplayStatusIconController distantDisplayStatusIconController) {
         return new DistantDisplayCarSystemBarController(context, userTracker,
                 carSystemBarViewFactory, carServiceProvider, broadcastDispatcher,
                 configurationController, buttonSelectionStateController, userNameViewControllerLazy,
                 micPrivacyChipViewControllerLazy, cameraPrivacyChipViewControllerLazy,
                 buttonRoleHolderController, systemBarConfigs, qcViewControllerProvider,
                 micPrivacyElementsProvider, cameraPrivacyElementsProvider,
-                distantDisplayButtonController);
+                distantDisplayStatusIconController);
     }
 }

@@ -53,9 +53,7 @@ import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioManager;
 import android.os.UserHandle;
-import android.platform.test.annotations.RequiresFlagsEnabled;
-import android.platform.test.flag.junit.CheckFlagsRule;
-import android.platform.test.flag.junit.DeviceFlagsValueProvider;
+import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.ArraySet;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
@@ -126,7 +124,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     AudioManager mAudioManagerMock;
 
     @Rule
-    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     @Before
     public void setUp() {
@@ -319,8 +317,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
     public void getAudioDeviceAttribute_returnsExpectedDevice() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
         CarVolumeGroupInfo info = carVolumeGroup.getCarVolumeGroupInfo();
 
