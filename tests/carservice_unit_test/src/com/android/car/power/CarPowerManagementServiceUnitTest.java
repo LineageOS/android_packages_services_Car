@@ -44,6 +44,8 @@ import android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate;
 import android.car.Car;
 import android.car.ICarResultReceiver;
 import android.car.builtin.app.VoiceInteractionHelper;
+import android.car.feature.FakeFeatureFlagsImpl;
+import android.car.feature.Flags;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
@@ -139,6 +141,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
             "system_power_policy_no_user_interaction";
     public static final String SYSTEM_POWER_POLICY_INITIAL_ON = "system_power_policy_initial_on";
 
+    private final FakeFeatureFlagsImpl mFeatureFlags = new FakeFeatureFlagsImpl();
     private final MockDisplayInterface mDisplayInterface = new MockDisplayInterface();
     private final MockSystemStateInterface mSystemStateInterface = new MockSystemStateInterface();
     private final MockWakeLockInterface mWakeLockInterface = new MockWakeLockInterface();
@@ -158,7 +161,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private FakeCarPowerPolicyDaemon mPowerPolicyDaemon;
     private boolean mVoiceInteractionEnabled;
     private FakeScreenOffHandler mScreenOffHandler;
-
 
     @Mock
     private UserManager mUserManager;
@@ -213,6 +215,10 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mIOInterface.tearDown();
     }
 
+    private void setCarPowerPolicyRefactoringFeatureFlag(boolean flagValue) {
+        mFeatureFlags.setFlag(Flags.FLAG_CAR_POWER_POLICY_REFACTORING, flagValue);
+    }
+
     /**
      * Helper method to create mService and initialize a test case
      */
@@ -243,6 +249,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mPowerComponentHandler = new PowerComponentHandler(mContext, mSystemInterface,
                 new AtomicFile(mComponentStateFile.getFile()));
         mPowerPolicyDaemon = new FakeCarPowerPolicyDaemon();
+        setCarPowerPolicyRefactoringFeatureFlag(false);
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
                 mSystemInterface, mUserManager, mUserService, mPowerPolicyDaemon,
                 mPowerComponentHandler, mScreenOffHandler,
