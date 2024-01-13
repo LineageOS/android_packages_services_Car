@@ -16,7 +16,6 @@
 
 package com.android.car.power;
 
-import static android.car.feature.Flags.carPowerPolicyRefactoring;
 import static android.car.hardware.power.PowerComponentUtil.FIRST_POWER_COMPONENT;
 import static android.car.hardware.power.PowerComponentUtil.INVALID_POWER_COMPONENT;
 import static android.car.hardware.power.PowerComponentUtil.LAST_POWER_COMPONENT;
@@ -35,6 +34,7 @@ import static org.xmlpull.v1.XmlPullParser.TEXT;
 
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
+import android.car.feature.FeatureFlags;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.PowerComponent;
 import android.hardware.automotive.vehicle.VehicleApPowerStateReport;
@@ -167,6 +167,8 @@ public final class PolicyReader {
         POWER_POLICY_SUSPEND_PREP = new CarPowerPolicy(POWER_POLICY_ID_SUSPEND_PREP,
                 NO_COMPONENTS.clone(), SUSPEND_PREP_DISABLED_COMPONENTS.clone());
     }
+    // Allows for injecting mock feature flag values during testing
+    private FeatureFlags mFeatureFlags;
 
     private ArrayMap<String, CarPowerPolicy> mRegisteredPowerPolicies;
     // TODO(b/286303350): remove once power policy refactor complete
@@ -232,9 +234,10 @@ public final class PolicyReader {
         return mDefaultPolicyGroupId;
     }
 
-    void init() {
+    void init(FeatureFlags fakeFeatureFlags) {
+        mFeatureFlags = fakeFeatureFlags;
         initPolicies();
-        if (!carPowerPolicyRefactoring()) {
+        if (!mFeatureFlags.carPowerPolicyRefactoring()) {
             readPowerPolicyConfiguration();
         }
     }
