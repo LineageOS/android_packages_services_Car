@@ -259,7 +259,7 @@ public class CarAudioZone {
         }
         writer.decreaseIndent();
         writer.println();
-        writer.printf("Audio Zone Configurations\n");
+        writer.printf("Audio Zone Configurations[%d]\n", mCarAudioZoneConfigs.size());
         writer.increaseIndent();
         for (int i = 0; i < mCarAudioZoneConfigs.size(); i++) {
             mCarAudioZoneConfigs.valueAt(i).dump(writer);
