@@ -25,4 +25,5 @@ parcelable CarSubscription {
     int[] areaIds;
     float updateRateHz;
     boolean enableVariableUpdateRate;
+    float resolution = 0.0f;
 }
