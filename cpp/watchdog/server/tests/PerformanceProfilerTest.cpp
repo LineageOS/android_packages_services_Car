@@ -32,6 +32,9 @@
 #include <type_traits>
 #include <vector>
 
+#include <carwatchdog_daemon_dump.pb.h>
+#include <performance_stats.pb.h>
+
 namespace android {
 namespace automotive {
 namespace watchdog {
@@ -45,6 +48,8 @@ using ::android::RefBase;
 using ::android::sp;
 using ::android::base::ReadFdToString;
 using ::android::base::Result;
+using ::android::util::ProtoReader;
+using ::google::protobuf::RepeatedPtrField;
 using ::testing::_;
 using ::testing::AllOf;
 using ::testing::ElementsAreArray;
@@ -53,10 +58,13 @@ using ::testing::ExplainMatchResult;
 using ::testing::Field;
 using ::testing::IsSubsetOf;
 using ::testing::Matcher;
+using ::testing::Property;
 using ::testing::Return;
 using ::testing::Test;
 using ::testing::UnorderedElementsAreArray;
 using ::testing::VariantWith;
+
+using time_point_ms = std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds>;
 
 constexpr int kTestTopNStatsPerCategory = 5;
 constexpr int kTestTopNStatsPerSubcategory = 5;
@@ -687,6 +695,231 @@ ResourceStats getResourceStatsForSampledStats(int multiplier = 1) {
     // clang-format on
 }
 
+MATCHER_P(UserPackageInfoProtoEq, expected, "") {
+    return ExplainMatchResult(AllOf(Property("user_id", &UserPackageInfo::user_id,
+                                             static_cast<int>(multiuser_get_user_id(expected.uid))),
+                                    Property("package_name", &UserPackageInfo::package_name,
+                                             expected.genericPackageName)),
+                              arg, result_listener);
+}
+
+MATCHER_P(CpuStatsProtoEq, expected, "") {
+    return ExplainMatchResult(AllOf(Property("cpu_time_millis",
+                                             &PackageCpuStats_CpuStats::cpu_time_millis,
+                                             expected.cpuTimeMs),
+                                    Property("cpu_cycles", &PackageCpuStats_CpuStats::cpu_cycles,
+                                             expected.cpuCycles)),
+                              arg, result_listener);
+}
+
+MATCHER_P(ProcessCpuStatsProtoEq, expected, "") {
+    return ExplainMatchResult(AllOf(Property("command", &PackageCpuStats_ProcessCpuStats::command,
+                                             expected.comm),
+                                    Property("cpu_stats",
+                                             &PackageCpuStats_ProcessCpuStats::cpu_stats,
+                                             CpuStatsProtoEq(expected))),
+                              arg, result_listener);
+}
+
+MATCHER_P(PackageCpuStatsProtoEq, expected, "") {
+    const auto& procCpuStatsView =
+            std::get_if<UserPackageStats::ProcCpuStatsView>(&expected.statsView);
+    std::vector<Matcher<const PackageCpuStats_ProcessCpuStats&>> processCpuStatsMatchers;
+    for (const auto& expectedProcessCpuValue : procCpuStatsView->topNProcesses) {
+        processCpuStatsMatchers.push_back(ProcessCpuStatsProtoEq(expectedProcessCpuValue));
+    }
+    return ExplainMatchResult(AllOf(Property("user_package_info",
+                                             &PackageCpuStats::user_package_info,
+                                             UserPackageInfoProtoEq(expected)),
+                                    Property("cpu_stats", &PackageCpuStats::cpu_stats,
+                                             CpuStatsProtoEq(*procCpuStatsView)),
+                                    Property("process_cpu_stats",
+                                             &PackageCpuStats::process_cpu_stats,
+                                             ElementsAreArray(processCpuStatsMatchers))),
+                              arg, result_listener);
+}
+
+MATCHER_P4(StorageIoStatsProtoEq, fgBytes, fgFsync, bgBytes, byFsync, "") {
+    return ExplainMatchResult(AllOf(Property("fg_bytes", &StorageIoStats::fg_bytes, fgBytes),
+                                    Property("fg_fsync", &StorageIoStats::fg_fsync, fgFsync),
+                                    Property("bg_bytes", &StorageIoStats::bg_bytes, bgBytes),
+                                    Property("bg_fsync", &StorageIoStats::bg_fsync, byFsync)),
+                              arg, result_listener);
+}
+
+MATCHER_P(PackageStorageIoStatsProtoEq, expected, "") {
+    const auto& ioStatsView = std::get_if<UserPackageStats::IoStatsView>(&expected.statsView);
+    return ExplainMatchResult(AllOf(Property("user_package_info",
+                                             &PackageStorageIoStats::user_package_info,
+                                             UserPackageInfoProtoEq(expected)),
+                                    Property("storage_io_stats",
+                                             &PackageStorageIoStats::storage_io_stats,
+                                             StorageIoStatsProtoEq(ioStatsView->bytes[FOREGROUND],
+                                                                   ioStatsView->fsync[FOREGROUND],
+                                                                   ioStatsView->bytes[BACKGROUND],
+                                                                   ioStatsView
+                                                                           ->fsync[BACKGROUND]))),
+                              arg, result_listener);
+}
+
+MATCHER_P(ProcessTaskStateStatsProtoEq, expected, "") {
+    return ExplainMatchResult(AllOf(Property("command",
+                                             &PackageTaskStateStats_ProcessTaskStateStats::command,
+                                             expected.comm),
+                                    Property("io_blocked_task_count",
+                                             &PackageTaskStateStats_ProcessTaskStateStats::
+                                                     io_blocked_task_count,
+                                             expected.value)),
+                              arg, result_listener);
+}
+
+MATCHER_P2(PackageTaskStateStatsProtoEq, expected, taskCountByUid, "") {
+    const auto& procSingleStatsView =
+            std::get_if<UserPackageStats::ProcSingleStatsView>(&expected.statsView);
+    std::vector<Matcher<const PackageTaskStateStats_ProcessTaskStateStats&>>
+            processTaskStateStatsMatchers;
+    for (const auto& expectedProcessValue : procSingleStatsView->topNProcesses) {
+        processTaskStateStatsMatchers.push_back(ProcessTaskStateStatsProtoEq(expectedProcessValue));
+    }
+    return ExplainMatchResult(AllOf(Property("user_package_info",
+                                             &PackageTaskStateStats::user_package_info,
+                                             UserPackageInfoProtoEq(expected)),
+                                    Property("io_blocked_task_count",
+                                             &PackageTaskStateStats::io_blocked_task_count,
+                                             procSingleStatsView->value),
+                                    Property("total_task_count",
+                                             &PackageTaskStateStats::total_task_count,
+                                             taskCountByUid.at(expected.uid)),
+                                    Property("process_task_state_stats",
+                                             &PackageTaskStateStats::process_task_state_stats,
+                                             ElementsAreArray(processTaskStateStatsMatchers))),
+                              arg, result_listener);
+}
+
+MATCHER_P(PackageMajorPageFaultsProtoEq, expected, "") {
+    const auto& procSingleStatsView =
+            std::get_if<UserPackageStats::ProcSingleStatsView>(&expected.statsView);
+    return ExplainMatchResult(AllOf(Property("user_package_info",
+                                             &PackageMajorPageFaults::user_package_info,
+                                             UserPackageInfoProtoEq(expected)),
+                                    Property("major_page_faults_count",
+                                             &PackageMajorPageFaults::major_page_faults_count,
+                                             procSingleStatsView->value)),
+                              arg, result_listener);
+}
+
+MATCHER_P(DateProtoEq, expected, "") {
+    return ExplainMatchResult(AllOf(Property("year", &Date::year, expected.tm_year + 1900),
+                                    Property("month", &Date::month, expected.tm_mon),
+                                    Property("day", &Date::day, expected.tm_mday)),
+                              arg, result_listener);
+}
+
+MATCHER_P2(TimeOfDayProtoEq, expected, nowTimeMs, "") {
+    return ExplainMatchResult(AllOf(Property("hours", &TimeOfDay::hours, expected.tm_hour),
+                                    Property("minutes", &TimeOfDay::minutes, expected.tm_min),
+                                    Property("seconds", &TimeOfDay::seconds, expected.tm_sec),
+                                    Property("millis", &TimeOfDay::millis, nowTimeMs.count())),
+                              arg, result_listener);
+}
+
+MATCHER_P2(SystemWideStatsProtoEq, userPackageSummaryStats, systemSummaryStats, "") {
+    return ExplainMatchResult(AllOf(Property("io_wait_time_millis",
+                                             &SystemWideStats::io_wait_time_millis,
+                                             systemSummaryStats.cpuIoWaitTimeMillis),
+                                    Property("idle_cpu_time_millis",
+                                             &SystemWideStats::idle_cpu_time_millis,
+                                             systemSummaryStats.cpuIdleTimeMillis),
+                                    Property("total_cpu_time_millis",
+                                             &SystemWideStats::total_cpu_time_millis,
+                                             systemSummaryStats.totalCpuTimeMillis),
+                                    Property("total_cpu_cycles", &SystemWideStats::total_cpu_cycles,
+                                             systemSummaryStats.totalCpuCycles),
+                                    Property("total_context_switches",
+                                             &SystemWideStats::total_context_switches,
+                                             systemSummaryStats.contextSwitchesCount),
+                                    Property("total_io_blocked_processes",
+                                             &SystemWideStats::total_io_blocked_processes,
+                                             systemSummaryStats.ioBlockedProcessCount),
+                                    Property("total_major_page_faults",
+                                             &SystemWideStats::total_major_page_faults,
+                                             userPackageSummaryStats.totalMajorFaults),
+                                    Property("total_storage_io_stats",
+                                             &SystemWideStats::total_storage_io_stats,
+                                             StorageIoStatsProtoEq(userPackageSummaryStats
+                                                                           .totalIoStats
+                                                                                   [WRITE_BYTES]
+                                                                                   [FOREGROUND],
+                                                                   userPackageSummaryStats
+                                                                           .totalIoStats
+                                                                                   [FSYNC_COUNT]
+                                                                                   [FOREGROUND],
+                                                                   userPackageSummaryStats
+                                                                           .totalIoStats
+                                                                                   [WRITE_BYTES]
+                                                                                   [BACKGROUND],
+                                                                   userPackageSummaryStats
+                                                                           .totalIoStats
+                                                                                   [FSYNC_COUNT]
+                                                                                   [BACKGROUND]))),
+                              arg, result_listener);
+}
+
+MATCHER_P3(StatsRecordProtoEq, userPackageSummaryStats, systemSummaryStats, nowMs, "") {
+    struct tm timeinfo;
+    memset(&timeinfo, 0, sizeof(timeinfo));
+    auto dateTime = std::chrono::system_clock::to_time_t(nowMs);
+    auto nowTimeMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+            nowMs - std::chrono::system_clock::from_time_t(dateTime));
+    localtime_r(&dateTime, &timeinfo);
+
+    std::vector<Matcher<const PackageCpuStats&>> packageCpuStatsMatchers;
+    for (const auto& expectedProcCpuStatsView : userPackageSummaryStats.topNCpuTimes) {
+        packageCpuStatsMatchers.push_back(PackageCpuStatsProtoEq(expectedProcCpuStatsView));
+    }
+    std::vector<Matcher<const PackageStorageIoStats&>> packageStorageReadIoStatsMatchers;
+    for (const auto& expectedPackageStorageReadIoStat : userPackageSummaryStats.topNIoReads) {
+        packageStorageReadIoStatsMatchers.push_back(
+                PackageStorageIoStatsProtoEq(expectedPackageStorageReadIoStat));
+    }
+    std::vector<Matcher<const PackageStorageIoStats&>> packageStorageWriteIoStatsMatchers;
+    for (const auto& expectedPackageStorageWriteIoStat : userPackageSummaryStats.topNIoWrites) {
+        packageStorageWriteIoStatsMatchers.push_back(
+                PackageStorageIoStatsProtoEq(expectedPackageStorageWriteIoStat));
+    }
+    std::vector<Matcher<const PackageTaskStateStats&>> packageTaskStateStatsMatchers;
+    for (const auto& expectedPackageTaskStateStat : userPackageSummaryStats.topNIoBlocked) {
+        packageTaskStateStatsMatchers.push_back(
+                PackageTaskStateStatsProtoEq(expectedPackageTaskStateStat,
+                                             userPackageSummaryStats.taskCountByUid));
+    }
+    std::vector<Matcher<const PackageMajorPageFaults&>> packageMajorPageFaultsMatchers;
+    for (const auto& expectedPackageMajorPageFault : userPackageSummaryStats.topNMajorFaults) {
+        packageMajorPageFaultsMatchers.push_back(
+                PackageMajorPageFaultsProtoEq(expectedPackageMajorPageFault));
+    }
+    return ExplainMatchResult(AllOf(Property("date", &StatsRecord::date, DateProtoEq(timeinfo)),
+                                    Property("time", &StatsRecord::time,
+                                             TimeOfDayProtoEq(timeinfo, nowTimeMs)),
+                                    Property("system_wide_stats", &StatsRecord::system_wide_stats,
+                                             SystemWideStatsProtoEq(userPackageSummaryStats,
+                                                                    systemSummaryStats)),
+                                    Property("package_cpu_stats", &StatsRecord::package_cpu_stats,
+                                             ElementsAreArray(packageCpuStatsMatchers)),
+                                    Property("package_storage_io_read_stats",
+                                             &StatsRecord::package_storage_io_read_stats,
+                                             ElementsAreArray(packageStorageReadIoStatsMatchers)),
+                                    Property("package_storage_io_read_stats",
+                                             &StatsRecord::package_storage_io_write_stats,
+                                             ElementsAreArray(packageStorageWriteIoStatsMatchers)),
+                                    Property("package_task_state_stats",
+                                             &StatsRecord::package_task_state_stats,
+                                             ElementsAreArray(packageTaskStateStatsMatchers)),
+                                    Property("package_major_page_faults",
+                                             &StatsRecord::package_major_page_faults,
+                                             ElementsAreArray(packageMajorPageFaultsMatchers))),
+                              arg, result_listener);
+}
 }  // namespace
 
 namespace internal {
@@ -789,6 +1022,16 @@ protected:
         ASSERT_RESULT_OK(mCollector->onCustomCollectionDump(dump.fd));
 
         checkDumpFd(/*wantedEmptyCollectionInstances=*/0, dump.fd);
+    }
+
+    std::string toString(util::ProtoOutputStream* proto) {
+        std::string content;
+        content.reserve(proto->size());
+        sp<ProtoReader> reader = proto->data();
+        while (reader->hasNext()) {
+            content.push_back(reader->next());
+        }
+        return content;
     }
 
 private:
@@ -1503,6 +1746,74 @@ TEST_F(PerformanceProfilerTest, TestUserSwitchCollectionCacheEviction) {
                 << "User-switch collection size is incorrect";
 
         updatedNow += kTestSystemEventDataCacheDurationSec;
+    }
+}
+
+TEST_F(PerformanceProfilerTest, TestOnDumpProto) {
+    auto [uidStats, userPackageSummaryStats] = sampleUidStats();
+    auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillRepeatedly(Return(procStatInfo));
+
+    DataProcessorInterface::CollectionIntervals collectionIntervals =
+            {.mBoottimeIntervalMillis = std::chrono::milliseconds(1),
+             .mPeriodicIntervalMillis = std::chrono::milliseconds(10),
+             .mUserSwitchIntervalMillis = std::chrono::milliseconds(100),
+             .mWakeUpIntervalMillis = std::chrono::milliseconds(1000),
+             .mCustomIntervalMillis = std::chrono::milliseconds(10000)};
+
+    ResourceStats actualResourceStats = {};
+
+    ASSERT_RESULT_OK(mCollector->onPeriodicCollection(kTestNow, SystemState::NORMAL_MODE,
+                                                      mMockUidStatsCollector,
+                                                      mMockProcStatCollector,
+                                                      &actualResourceStats));
+
+    ASSERT_RESULT_OK(mCollector->onBoottimeCollection(kTestNow, mMockUidStatsCollector,
+                                                      mMockProcStatCollector,
+                                                      &actualResourceStats));
+
+    ASSERT_RESULT_OK(mCollector->onWakeUpCollection(kTestNow, mMockUidStatsCollector,
+                                                    mMockProcStatCollector));
+
+    ASSERT_RESULT_OK(mCollector->onCustomCollection(kTestNow, SystemState::NORMAL_MODE, {},
+                                                    mMockUidStatsCollector, mMockProcStatCollector,
+                                                    &actualResourceStats));
+
+    util::ProtoOutputStream proto;
+    mCollector->onDumpProto(collectionIntervals, proto);
+
+    PerformanceProfilerDump performanceProfilerDump;
+    ASSERT_TRUE(performanceProfilerDump.ParseFromString(toString(&proto)));
+
+    PerformanceStats performanceStats = performanceProfilerDump.performance_stats();
+    auto bootTimeStats = performanceStats.boot_time_stats();
+    EXPECT_EQ(bootTimeStats.collection_interval_millis(), 1);
+    for (auto& record : bootTimeStats.records()) {
+        EXPECT_THAT(record,
+                    StatsRecordProtoEq(userPackageSummaryStats, systemSummaryStats, kTestNow));
+    }
+
+    auto wakeUpStats = performanceStats.wake_up_stats();
+    EXPECT_EQ(wakeUpStats.collection_interval_millis(), 1000);
+    for (auto& record : wakeUpStats.records()) {
+        EXPECT_THAT(record,
+                    StatsRecordProtoEq(userPackageSummaryStats, systemSummaryStats, kTestNow));
+    }
+
+    auto lastNMinutesStats = performanceStats.last_n_minutes_stats();
+    EXPECT_EQ(lastNMinutesStats.collection_interval_millis(), 10);
+    for (auto& record : lastNMinutesStats.records()) {
+        EXPECT_THAT(record,
+                    StatsRecordProtoEq(userPackageSummaryStats, systemSummaryStats, kTestNow));
+    }
+
+    auto customCollectionStats = performanceStats.custom_collection_stats();
+    EXPECT_EQ(customCollectionStats.collection_interval_millis(), 10000);
+    for (auto& record : customCollectionStats.records()) {
+        EXPECT_THAT(record,
+                    StatsRecordProtoEq(userPackageSummaryStats, systemSummaryStats, kTestNow));
     }
 }
 
