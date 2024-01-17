@@ -1508,7 +1508,8 @@ public class CarPropertyManager extends CarManagerBase {
                     cpeCallbackController.addOnChangeProperty(propertyId, areaIds);
                 } else {
                     cpeCallbackController.addContinuousProperty(propertyId, areaIds,
-                            sanitizedUpdateRateHz, option.enableVariableUpdateRate);
+                            sanitizedUpdateRateHz, option.enableVariableUpdateRate,
+                            option.resolution);
                 }
 
                 ArraySet<CarPropertyEventCallbackController> cpeCallbackControllerSet =
@@ -3193,6 +3194,10 @@ public class CarPropertyManager extends CarManagerBase {
             carSubscription.enableVariableUpdateRate =
                     subscription.isVariableUpdateRateEnabled();
             carSubscription.updateRateHz = sanitizedUpdateRateHz;
+            float resolution = mFeatureFlags.subscriptionWithResolution()
+                    ? subscription.getResolution() : 0.0f;
+            carSubscription.resolution = InputSanitizationUtils.sanitizeResolution(mFeatureFlags,
+                    carPropertyConfig, resolution);
             output.addAll(InputSanitizationUtils.sanitizeEnableVariableUpdateRate(
                     mFeatureFlags, carPropertyConfig, carSubscription));
         }

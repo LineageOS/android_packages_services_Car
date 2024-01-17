@@ -52,28 +52,36 @@ public final class CarPropertyEventCallbackController extends CarPropertyEventCo
      */
     public void onEvent(CarPropertyEvent carPropertyEvent) {
         requireNonNull(carPropertyEvent);
-        if (!shouldCallbackBeInvoked(carPropertyEvent)) {
+        CarPropertyValue<?> carPropertyValue =
+                getCarPropertyValueIfCallbackRequired(carPropertyEvent);
+        if (carPropertyValue == null) {
             if (DBG) {
                 Log.d(TAG, "onEvent should not be invoked, event: " + carPropertyEvent);
             }
             return;
         }
-        CarPropertyValue<?> carPropertyValue = carPropertyEvent.getCarPropertyValue();
-        switch (carPropertyEvent.getEventType()) {
+        CarPropertyEvent updatedCarPropertyEvent;
+        if (!carPropertyValue.equals(carPropertyEvent.getCarPropertyValue())) {
+            updatedCarPropertyEvent = new CarPropertyEvent(carPropertyEvent.getEventType(),
+                    carPropertyValue, carPropertyEvent.getErrorCode());
+        } else {
+            updatedCarPropertyEvent = carPropertyEvent;
+        }
+        switch (updatedCarPropertyEvent.getEventType()) {
             case CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE:
                 mExecutor.execute(() -> mCarPropertyEventCallback.onChangeEvent(carPropertyValue));
                 break;
             case CarPropertyEvent.PROPERTY_EVENT_ERROR:
                 if (DBG) {
-                    Log.d(TAG, "onErrorEvent for event: " + carPropertyEvent);
+                    Log.d(TAG, "onErrorEvent for event: " + updatedCarPropertyEvent);
                 }
                 mExecutor.execute(() -> mCarPropertyEventCallback.onErrorEvent(
                         carPropertyValue.getPropertyId(), carPropertyValue.getAreaId(),
-                        carPropertyEvent.getErrorCode()));
+                        updatedCarPropertyEvent.getErrorCode()));
                 break;
             default:
-                Log.e(TAG, "onEvent: unknown errorCode=" + carPropertyEvent.getErrorCode()
-                        + ", for event: " + carPropertyEvent);
+                Log.e(TAG, "onEvent: unknown errorCode=" + updatedCarPropertyEvent.getErrorCode()
+                        + ", for event: " + updatedCarPropertyEvent);
                 break;
         }
     }

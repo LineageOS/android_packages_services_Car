@@ -940,6 +940,7 @@ package android.car.hardware.property {
   @FlaggedApi("android.car.feature.batched_subscriptions") public final class Subscription {
     method @Nullable public int[] getAreaIds();
     method public int getPropertyId();
+    method @FlaggedApi("android.car.feature.subscription_with_resolution") public float getResolution();
     method public float getUpdateRateFast();
     method public float getUpdateRateFastest();
     method public float getUpdateRateHz();
@@ -952,6 +953,7 @@ package android.car.hardware.property {
     ctor public Subscription.Builder(int);
     method @NonNull public android.car.hardware.property.Subscription.Builder addAreaId(int);
     method @NonNull public android.car.hardware.property.Subscription build();
+    method @FlaggedApi("android.car.feature.subscription_with_resolution") @NonNull public android.car.hardware.property.Subscription.Builder setResolution(float);
     method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateFast();
     method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateFastest();
     method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateHz(@FloatRange(from=0.0, to=100.0) float);

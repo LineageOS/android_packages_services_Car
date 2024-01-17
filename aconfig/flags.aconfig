@@ -91,6 +91,13 @@ flag {
   bug: "290801790"
 }
 
+flag {
+  name: "subscription_with_resolution"
+  namespace: "car_framework"
+  description: "Controls whether to round incoming property events to the resolution requested"
+  bug: "276124296"
+}
+
 # CarServiceBase
 flag {
   name: "car_dump_to_proto"

@@ -282,6 +282,7 @@ public final class CarPropertyServiceUnitTest {
         when(mHalService.getPropertyList()).thenReturn(mConfigs);
 
         when(mFeatureFlags.variableUpdateRate()).thenReturn(true);
+        when(mFeatureFlags.subscriptionWithResolution()).thenReturn(true);
 
         mService = new CarPropertyService(mContext, mHalService);
         mService.setFeatureFlags(mFeatureFlags);
@@ -776,7 +777,7 @@ public final class CarPropertyServiceUnitTest {
     }
 
     @Test
-    public void testRegisterListenerWithSubscription_enableVur() throws Exception {
+    public void testRegisterListenerWithSubscription_enableVurAndResolution() throws Exception {
         ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
         IBinder mockBinder = mock(IBinder.class);
         when(mockHandler.asBinder()).thenReturn(mockBinder);
@@ -789,13 +790,17 @@ public final class CarPropertyServiceUnitTest {
         when(mHalService.getProperty(HVAC_TEMP, 0)).thenReturn(hvacValue);
 
         List<CarSubscription> subscribeOptions = List.of(
-                createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVur= */ true),
+                createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVur= */ true,
+                        /* resolution */ 1.0f),
                 // This is an on-change property, so Vur must have no effect.
-                createCarSubscriptionOption(HVAC_TEMP, new int[]{0}, 0f, /* enableVur= */ true));
+                createCarSubscriptionOption(HVAC_TEMP, new int[]{0}, 0f, /* enableVur= */ true,
+                        /* resolution */ 1.0f));
         List<CarSubscription> sanitizedOptions = List.of(
-                createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVur= */ true),
+                createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVur= */ true,
+                        /* resolution */ 1.0f),
                 // This is an on-change property, so Vur must have no effect.
-                createCarSubscriptionOption(HVAC_TEMP, new int[]{0}, 0f, /* enableVur= */ false));
+                createCarSubscriptionOption(HVAC_TEMP, new int[]{0}, 0f, /* enableVur= */ false,
+                        /* resolution */ 0.0f));
         mService.registerListener(subscribeOptions, mockHandler);
 
         // Verify the two initial value responses arrive.
@@ -822,6 +827,34 @@ public final class CarPropertyServiceUnitTest {
                 createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVur= */ true));
         List<CarSubscription> sanitizedOptions = List.of(
                 createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVur= */ false));
+        mService.registerListener(subscribeOptions, mockHandler);
+
+        // Verify the two initial value responses arrive.
+        verify(mockHandler, timeout(5000)).onEvent(mPropertyEventCaptor.capture());
+        verify(mHalService).subscribeProperty(sanitizedOptions);
+    }
+
+    @Test
+    public void testRegisterListenerWithSubscription_ResolutionFeatureOff() throws Exception {
+        when(mFeatureFlags.subscriptionWithResolution()).thenReturn(false);
+
+        ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
+        IBinder mockBinder = mock(IBinder.class);
+        when(mockHandler.asBinder()).thenReturn(mockBinder);
+        long timestampNanos = Duration.ofSeconds(1).toNanos();
+        CarPropertyValue<Float> speedValue = new CarPropertyValue<>(
+                SPEED_ID, 0, timestampNanos, 0f);
+        when(mHalService.getProperty(SPEED_ID, 0)).thenReturn(speedValue);
+        CarPropertyValue<Float> hvacValue = new CarPropertyValue<>(
+                HVAC_TEMP, 0, timestampNanos, 0f);
+        when(mHalService.getProperty(HVAC_TEMP, 0)).thenReturn(hvacValue);
+
+        List<CarSubscription> subscribeOptions = List.of(
+                createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVur= */ true,
+                        /* resolution */ 1.0f));
+        List<CarSubscription> sanitizedOptions = List.of(
+                createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f, /* enableVur= */ true,
+                        /* resolution */ 0.0f));
         mService.registerListener(subscribeOptions, mockHandler);
 
         // Verify the two initial value responses arrive.
@@ -1437,7 +1470,7 @@ public final class CarPropertyServiceUnitTest {
 
         verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(
                 CONTINUOUS_READ_ONLY_PROPERTY_ID, new int[]{0}, MIN_SAMPLE_RATE,
-                /* enableVur= */ true)));
+                /* enableVur= */ true, /* resolution */ 0.0f)));
     }
 
     @Test
@@ -1448,7 +1481,7 @@ public final class CarPropertyServiceUnitTest {
 
         verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(
                 CONTINUOUS_READ_ONLY_PROPERTY_ID, new int[]{0}, MIN_SAMPLE_RATE,
-                /* enableVur= */ true)));
+                /* enableVur= */ true, /* resolution */ 0.0f)));
     }
 
     @Test
@@ -1459,7 +1492,7 @@ public final class CarPropertyServiceUnitTest {
 
         verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(
                 CONTINUOUS_READ_ONLY_PROPERTY_ID, new int[]{0}, MIN_SAMPLE_RATE,
-                /* enableVur= */ false)));
+                /* enableVur= */ false, /* resolution */ 0.0f)));
     }
 
     @Test
@@ -1471,7 +1504,31 @@ public final class CarPropertyServiceUnitTest {
 
         verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(
                 CONTINUOUS_READ_ONLY_PROPERTY_ID, new int[]{0}, MIN_SAMPLE_RATE,
-                /* enableVur= */ false)));
+                /* enableVur= */ false, /* resolution */ 0.0f)));
+    }
+
+    @Test
+    public void registerListener_Resolution() {
+        mService.registerListener(CONTINUOUS_READ_ONLY_PROPERTY_ID, MIN_SAMPLE_RATE,
+                /* enableVariableUpdateRate= */ true, /* resolution */ 1.0f,
+                mICarPropertyEventListener);
+
+        verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(
+                CONTINUOUS_READ_ONLY_PROPERTY_ID, new int[]{0}, MIN_SAMPLE_RATE,
+                /* enableVur= */ true, /* resolution */ 1.0f)));
+    }
+
+    @Test
+    public void registerListener_ResolutionZeroWhenFeatureOff() {
+        when(mFeatureFlags.subscriptionWithResolution()).thenReturn(false);
+
+        mService.registerListener(CONTINUOUS_READ_ONLY_PROPERTY_ID, MIN_SAMPLE_RATE,
+                /* enableVariableUpdateRate= */ true, /* resolution */ 1.0f,
+                mICarPropertyEventListener);
+
+        verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(
+                CONTINUOUS_READ_ONLY_PROPERTY_ID, new int[]{0}, MIN_SAMPLE_RATE,
+                /* enableVur= */ true, /* resolution */ 0.0f)));
     }
 
     @Test
@@ -1480,7 +1537,7 @@ public final class CarPropertyServiceUnitTest {
                 mICarPropertyEventListener);
         verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(
                 CONTINUOUS_READ_ONLY_PROPERTY_ID, new int[]{0}, MIN_SAMPLE_RATE,
-                /* enableVur= */ true)));
+                /* enableVur= */ true, /* resolution */ 0.0f)));
     }
 
     @Test
@@ -1489,7 +1546,7 @@ public final class CarPropertyServiceUnitTest {
                 mICarPropertyEventListener);
         verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(
                 CONTINUOUS_READ_ONLY_PROPERTY_ID, new int[]{0}, MAX_SAMPLE_RATE,
-                /* enableVur= */ true)));
+                /* enableVur= */ true, /* resolution */ 0.0f)));
     }
 
     @Test
@@ -1500,7 +1557,7 @@ public final class CarPropertyServiceUnitTest {
 
         verify(mHalService).subscribeProperty(List.of(createCarSubscriptionOption(
                 CONTINUOUS_READ_ONLY_PROPERTY_ID, new int[]{0}, MIN_SAMPLE_RATE,
-                /* enableVur= */ true)));
+                /* enableVur= */ true, /* resolution */ 0.0f)));
     }
 
     @Test
