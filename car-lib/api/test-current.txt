@@ -1782,6 +1782,7 @@ package android.car.media {
     method public int getZoneId();
     method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") public boolean hasSameConfigInfo(@NonNull android.car.media.CarAudioZoneConfigInfo);
     method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") public boolean isActive();
+    method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") public boolean isDefault();
     method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") public boolean isSelected();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.media.CarAudioZoneConfigInfo> CREATOR;
