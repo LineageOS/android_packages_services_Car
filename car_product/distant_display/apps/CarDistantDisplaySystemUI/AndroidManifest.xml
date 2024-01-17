@@ -67,23 +67,20 @@
                 <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>
-        <activity
-            android:name=".car.distantdisplay.activity.DistantDisplayActivity"
-            android:exported="true"
-            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
-            android:documentLaunchMode="never"
-            android:excludeFromRecents="true">
-            <meta-data android:name="distractionOptimized" android:value="true"/>
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-            </intent-filter>
-        </activity>
         <receiver
             android:name=".car.distantdisplay.activity.MoveTaskReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.android.systemui.car.intent.action.MOVE_TASK"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".car.distantdisplay.common.DistantDisplayReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.systemui.car.intent.action.DISTANT_DISPLAY"/>
             </intent-filter>
         </receiver>
     </application>
