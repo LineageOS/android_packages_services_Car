@@ -483,7 +483,13 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
 
     protected void switchUser(@UserIdInt int userId, int timeoutMs,
             @NonNull ResultCallbackImpl<UserSwitchResult> callback) {
-        mCarUserService.switchUser(userId, timeoutMs, callback);
+        mCarUserService.switchUser(userId, timeoutMs, callback, /* ignoreUxRestriction= */ false);
+        waitForHandlerThreadToFinish();
+    }
+
+    protected void switchUserIgnoringUxRestriction(@UserIdInt int userId, int timeoutMs,
+            @NonNull ResultCallbackImpl<UserSwitchResult> callback) {
+        mCarUserService.switchUser(userId, timeoutMs, callback, /* ignoreUxRestriction= */ true);
         waitForHandlerThreadToFinish();
     }
 

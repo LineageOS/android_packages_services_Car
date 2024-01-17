@@ -916,7 +916,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     @Override
     public void switchUser(@UserIdInt int targetUserId, int timeoutMs,
-            @NonNull ResultCallbackImpl<UserSwitchResult> callback) {
+            @NonNull ResultCallbackImpl<UserSwitchResult> callback, boolean ignoreUxRestriction) {
         EventLogHelper.writeCarUserServiceSwitchUserReq(targetUserId, timeoutMs);
         checkManageOrCreateUsersPermission("switchUser");
         Objects.requireNonNull(callback);
@@ -932,7 +932,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return;
         }
         mHandler.post(() -> handleSwitchUser(targetUser, timeoutMs, callback,
-                /* isLogout= */ false));
+                /* isLogout= */ false, ignoreUxRestriction));
     }
 
     @Override
@@ -953,11 +953,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
 
         mHandler.post(() -> handleSwitchUser(targetUser, timeoutMs, callback,
-                /* isLogout= */ true));
+                /* isLogout= */ true,  /* ignoreUxRestriction= */ false));
     }
 
     private void handleSwitchUser(@NonNull UserHandle targetUser, int timeoutMs,
-            @NonNull ResultCallbackImpl<UserSwitchResult> callback, boolean isLogout) {
+            @NonNull ResultCallbackImpl<UserSwitchResult> callback, boolean isLogout,
+            boolean ignoreUxRestriction) {
         int currentUser = ActivityManager.getCurrentUser();
         int targetUserId = targetUser.getIdentifier();
         if (currentUser == targetUserId) {
@@ -969,7 +970,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return;
         }
 
-        if (isUxRestricted()) {
+        if (!ignoreUxRestriction && isUxRestricted()) {
             sendUserSwitchResult(callback, isLogout,
                     UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
             return;
