@@ -141,6 +141,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private static final String NONSILENT_STRING = "0";
     private static final String NORMAL_BOOT = "reboot,shell";
 
+    private static final String COMMAND_DEFINE_POLICY = "define-power-policy";
+
     private static final int CURRENT_USER_ID = 42;
     public static final String SYSTEM_POWER_POLICY_ALL_ON = "system_power_policy_all_on";
     public static final String SYSTEM_POWER_POLICY_NO_USER_INTERACTION =
@@ -749,7 +751,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Test
     public void testDefinePowerPolicyFromValidCommand_powerPolicyRefactorFlagDisabled() {
-        String[] args = {"define-power-policy", POWER_POLICY_VALID_COMMAND,
+        String[] args = {COMMAND_DEFINE_POLICY, POWER_POLICY_VALID_COMMAND,
                 "--enable", "AUDIO,BLUETOOTH", "--disable", "ETHERNET,WIFI"};
 
         boolean status = definePowerPolicyFromCommand(args);
@@ -766,7 +768,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     public void testDefinePowerPolicyFromValidCommand_powerPolicyRefactorFlagEnabled()
             throws Exception {
         setRefactoredService();
-        String[] args = {"define-power-policy", POWER_POLICY_VALID_COMMAND,
+        String[] args = {COMMAND_DEFINE_POLICY, POWER_POLICY_VALID_COMMAND,
                 "--enable", "AUDIO,BLUETOOTH", "--disable", "ETHERNET,WIFI"};
 
         boolean status = definePowerPolicyFromCommand(args);
@@ -780,29 +782,69 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
-    public void testDefinePowerPolicyFromCommand_tooFewArgs() {
-        String[] args = {"define-power-policy"};
+    public void testDefinePowerPolicyFromCommand_tooFewArgs_powerPolicyRefactorFlagDisabled() {
+        String[] args = {COMMAND_DEFINE_POLICY};
 
         assertDefinePowerPolicyFromCommandFailed(args);
     }
 
     @Test
-    public void testDefinePowerPolicyFromCommand_missingEnabledComp() {
-        String[] args = {"define-power-policy", "policy_id_no_enabled", "--enable"};
+    public void testDefinePowerPolicyFromCommand_tooFewArgs_powerPolicyRefactorFlagEnabled()
+            throws Exception {
+        setRefactoredService();
+
+        String[] args = {COMMAND_DEFINE_POLICY};
 
         assertDefinePowerPolicyFromCommandFailed(args);
     }
 
     @Test
-    public void testDefinePowerPolicyFromCommand_missingDisabledComp() {
-        String[] args = {"define-power-policy", "policy_id_no_disabled", "--disable"};
+    public void testDefinePowerPolicyFromCommand_missingEnComp_powerPolicyRefactorFlagDisabled() {
+        String[] args = {COMMAND_DEFINE_POLICY, "policy_id_no_enabled", "--enable"};
 
         assertDefinePowerPolicyFromCommandFailed(args);
     }
 
     @Test
-    public void testDefinePowerPolicyFromCommand_unknownArg() {
-        String[] args = {"define-power-policy", "policy_id_unknown_arg", "--unknown_arg"};
+    public void testDefinePowerPolicyFromCommand_missingEnComp_powerPolicyRefactorFlagEnabled()
+            throws Exception {
+        setRefactoredService();
+
+        String[] args = {COMMAND_DEFINE_POLICY, "policy_id_no_enabled", "--enable"};
+
+        assertDefinePowerPolicyFromCommandFailed(args);
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromCommand_missingDisComp_powerPolicyRefactorFlagDisabled() {
+        String[] args = {COMMAND_DEFINE_POLICY, "policy_id_no_disabled", "--disable"};
+
+        assertDefinePowerPolicyFromCommandFailed(args);
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromCommand_missingDisComp_powerPolicyRefactorFlagEnabled()
+            throws Exception {
+        setRefactoredService();
+
+        String[] args = {COMMAND_DEFINE_POLICY, "policy_id_no_disabled", "--disable"};
+
+        assertDefinePowerPolicyFromCommandFailed(args);
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromCommand_unknownArg_powerPolicyRefactorFlagDisabled() {
+        String[] args = {COMMAND_DEFINE_POLICY, "policy_id_unknown_arg", "--unknown_arg"};
+
+        assertDefinePowerPolicyFromCommandFailed(args);
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromCommand_unknownArg_powerPolicyRefactorFlagEnabled()
+            throws Exception {
+        setRefactoredService();
+
+        String[] args = {COMMAND_DEFINE_POLICY, "policy_id_unknown_arg", "--unknown_arg"};
 
         assertDefinePowerPolicyFromCommandFailed(args);
     }
