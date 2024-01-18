@@ -317,6 +317,10 @@ UnflaggedApi: android.car.Car#getCarManager(Class<T>):
     New API must be flagged with @FlaggedApi: method android.car.Car.getCarManager(Class<T>)
 UnflaggedApi: android.car.Car#getCarManager(String):
     New API must be flagged with @FlaggedApi: method android.car.Car.getCarManager(String)
+UnflaggedApi: android.car.Car#getCarVersion():
+    New API must be flagged with @FlaggedApi: method android.car.Car.getCarVersion()
+UnflaggedApi: android.car.Car#getPlatformVersion():
+    New API must be flagged with @FlaggedApi: method android.car.Car.getPlatformVersion()
 UnflaggedApi: android.car.Car#isConnected():
     New API must be flagged with @FlaggedApi: method android.car.Car.isConnected()
 UnflaggedApi: android.car.Car#isConnecting():
