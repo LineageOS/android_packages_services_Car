@@ -175,10 +175,7 @@ public final class CarPackageManager extends CarManagerBase {
      * <p>And for {@link android.os.Build.VERSION_CODES#TIRAMISU Android 13} first update:
      *
      * <code><meta-data android:name="android.car.targetCarVersion" android:value="33:1"/></code>
-     *
-     * @deprecated Car version is no longer supported by the CarService.
      */
-    @Deprecated
     public static final String MANIFEST_METADATA_TARGET_CAR_VERSION =
             "android.car.targetCarVersion";
 
@@ -464,12 +461,10 @@ public final class CarPackageManager extends CarManagerBase {
      * @throws NameNotFoundException If the given package does not exist for the user.
      *
      * @hide
-     * @deprecated CarVersion is no longer supported by the CarService.
      */
     @SystemApi
     @RequiresPermission(Manifest.permission.QUERY_ALL_PACKAGES)
     @NonNull
-    @Deprecated
     public CarVersion getTargetCarVersion(@NonNull String packageName)
             throws NameNotFoundException {
         try {
@@ -493,10 +488,8 @@ public final class CarPackageManager extends CarManagerBase {
      * version} as major and {@code 0} as minor instead.
      *
      * @return targeted Car API version (as defined above)
-     * @deprecated CarVersion is no longer supported by the CarService.
      */
     @NonNull
-    @Deprecated
     public CarVersion getTargetCarVersion() {
         String pkgName = mCar.getContext().getPackageName();
         try {
