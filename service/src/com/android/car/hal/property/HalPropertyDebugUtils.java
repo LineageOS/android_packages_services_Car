@@ -21,22 +21,28 @@ import static com.android.car.internal.util.ConstantDebugUtils.toName;
 import static java.lang.Integer.toHexString;
 
 import android.annotation.Nullable;
+import android.hardware.automotive.vehicle.EnumForVehicleProperty;
 import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyGroup;
+import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.util.Slog;
 
+import com.android.car.hal.HalPropValue;
 import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.util.ConstantDebugUtils;
+
+import java.util.Arrays;
 
 /**
  * Utility class for converting {@link VehicleProperty} related information to human-readable names.
  */
 public final class HalPropertyDebugUtils {
     private static final String TAG = HalPropertyDebugUtils.class.getSimpleName();
+    private static final int MAX_BYTE_SIZE = 20;
 
     /**
      * HalPropertyDebugUtils only contains static fields and methods and must never be
@@ -70,6 +76,93 @@ public final class HalPropertyDebugUtils {
     }
 
     /**
+     * Gets a user-friendly representation string representation of the value of a
+     * {@link HalPropValue} instance.
+     */
+    public static String toValueString(HalPropValue halPropValue) {
+        int propertyId = halPropValue.getPropId();
+        int valueType = propertyId & VehiclePropertyType.MASK;
+        switch (valueType) {
+            case VehiclePropertyType.BOOLEAN -> {
+                return halPropValue.getInt32Value(0) == 0 ? "FALSE" : "TRUE";
+            }
+            case VehiclePropertyType.INT32 -> {
+                return getIntValueName(propertyId, halPropValue.getInt32Value(0));
+            }
+            case VehiclePropertyType.INT32_VEC -> {
+                if (EnumForVehicleProperty.values.containsKey(propertyId)) {
+                    String output = "[";
+                    boolean addComma = false;
+                    for (int i = 0; i < halPropValue.getInt32ValuesSize(); i++) {
+                        if (addComma) {
+                            output += ", ";
+                        }
+                        addComma = true;
+                        output += getIntValueName(propertyId, halPropValue.getInt32Value(i));
+                    }
+                    return output + "]";
+                } else {
+                    return halPropValue.dumpInt32Values();
+                }
+            }
+            case VehiclePropertyType.FLOAT -> {
+                return Float.toString(halPropValue.getFloatValue(0));
+            }
+            case VehiclePropertyType.FLOAT_VEC -> {
+                return halPropValue.dumpFloatValues();
+            }
+            case VehiclePropertyType.INT64 -> {
+                return Long.toString(halPropValue.getInt64Value(0));
+            }
+            case VehiclePropertyType.INT64_VEC -> {
+                return halPropValue.dumpInt64Values();
+            }
+            case VehiclePropertyType.STRING -> {
+                return halPropValue.getStringValue();
+            }
+            case VehiclePropertyType.BYTES -> {
+                String bytesString = "";
+                byte[] byteValues = halPropValue.getByteArray();
+                if (byteValues.length > MAX_BYTE_SIZE) {
+                    byte[] bytes = Arrays.copyOf(byteValues, MAX_BYTE_SIZE);
+                    bytesString = Arrays.toString(bytes);
+                } else {
+                    bytesString = Arrays.toString(byteValues);
+                }
+                return bytesString;
+            }
+        }
+        String bytesString = "";
+        byte[] byteValues = halPropValue.getByteArray();
+        if (byteValues.length > MAX_BYTE_SIZE) {
+            byte[] bytes = Arrays.copyOf(byteValues, MAX_BYTE_SIZE);
+            bytesString = Arrays.toString(bytes);
+        } else {
+            bytesString = Arrays.toString(byteValues);
+        }
+        return "floatValues: " + halPropValue.dumpFloatValues() + ", int32Values: "
+                + halPropValue.dumpInt32Values() + ", int64Values: "
+                + halPropValue.dumpInt64Values() + ", bytes: " + bytesString + ", string: "
+                + halPropValue.getStringValue();
+    }
+
+    private static String getIntValueName(int propertyId, int value) {
+        if (EnumForVehicleProperty.values.containsKey(propertyId)) {
+            for (int i = 0; i < EnumForVehicleProperty.values.get(propertyId).size(); i++) {
+                Class<?> enumClazz = EnumForVehicleProperty.values.get(propertyId).get(i);
+                String valueName = ConstantDebugUtils.toName(enumClazz, value);
+                if (valueName != null) {
+                    return valueName + "(0x" + toHexString(value) + ")";
+                }
+            }
+            Slog.w(TAG,
+                    "Failed to find enum name for property ID: " + toPropertyIdString(propertyId)
+                            + " value: " + value);
+        }
+        return Integer.toString(value);
+    }
+
+    /**
      * Gets a user-friendly representation string representation of {@link VehicleArea}
      * constant for the passed {@code propertyId}.
      */
@@ -97,8 +190,8 @@ public final class HalPropertyDebugUtils {
     }
 
     /**
-     * Gets a user-friendly representation string representation of {@link VehiclePropertyAccess}
-     * constant.
+     * Gets a user-friendly representation string representation of
+     * {@link VehiclePropertyAccess} constant.
      */
     public static String toAccessString(int access) {
         return toDebugString(VehiclePropertyAccess.class, access);
@@ -110,6 +203,14 @@ public final class HalPropertyDebugUtils {
      */
     public static String toChangeModeString(int changeMode) {
         return toDebugString(VehiclePropertyChangeMode.class, changeMode);
+    }
+
+    /**
+     * Gets a user-friendly representation string representation of
+     * {@link VehiclePropertyStatus} constant.
+     */
+    public static String toStatusString(int status) {
+        return toDebugString(VehiclePropertyStatus.class, status);
     }
 
     private static String toDebugString(Class<?> clazz, int constantValue) {
@@ -129,5 +230,4 @@ public final class HalPropertyDebugUtils {
     private static boolean isSystemPropertyId(int propertyId) {
         return toName(VehicleProperty.class, propertyId) != null;
     }
-
 }
