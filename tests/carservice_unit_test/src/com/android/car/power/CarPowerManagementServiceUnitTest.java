@@ -869,7 +869,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
-    public void testApplyInvalidPowerPolicy() {
+    public void testApplyInvalidPowerPolicy_powerPolicyRefactorFlagDisabled() throws Exception {
         grantPowerPolicyPermission();
         // Power policy which doesn't exist.
         String policyId = "policy_id_not_available";
@@ -878,7 +878,18 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
-    public void testApplySystemPowerPolicyFromApps() {
+    public void testApplyInvalidPowerPolicy_powerPolicyRefactorFlagEnabled() throws Exception {
+        grantPowerPolicyPermission();
+        setRefactoredService();
+        // Power policy which doesn't exist.
+        String policyId = "policy_id_not_available";
+
+        assertThrows(IllegalArgumentException.class, () -> mService.applyPowerPolicy(policyId));
+        assertPowerPolicyRequestRemoved();
+    }
+
+    @Test
+    public void testApplySystemPowerPolicyFromApps_powerPolicyRefactorFlagDisabled() {
         grantPowerPolicyPermission();
         String policyId = "system_power_policy_no_user_interaction";
 
@@ -886,42 +897,14 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
-    public void testApplyPowerPolicyFromCommand() throws Exception {
+    public void testApplySystemPowerPolicyFromApps_powerPolicyRefactorFlagEnabled()
+            throws Exception {
+        setRefactoredService();
         grantPowerPolicyPermission();
-        String policyId = "policy_id_wifi_on_audio_off";
-        MockedPowerPolicyListener listenerToWait = setUpPowerPolicy(
-                /* policyId= */ policyId,
-                /* enabledComponents= */ new String[]{"WIFI"},
-                /* disabledComponents= */ new String[]{"AUDIO"},
-                /* filterComponentValues...= */ PowerComponent.AUDIO);
-        String[] args = {"apply-power-policy", policyId};
-        StringWriter stringWriter = new StringWriter();
+        String policyId = "system_power_policy_no_user_interaction";
 
-        try (IndentingPrintWriter writer = new IndentingPrintWriter(stringWriter, "  ")) {
-            boolean isSuccess = mService.applyPowerPolicyFromCommand(args, writer);
-
-            assertThat(isSuccess).isTrue();
-        }
-
-        assertPowerPolicyApplied(policyId, listenerToWait);
-    }
-
-    @Test
-    public void testApplyPowerPolicyInvalidCommand() {
-        grantPowerPolicyPermission();
-        String[] argsNoPolicyId = {"apply-power-policy"};
-        String[] argsNullPolicyId = {"apply-power-policy", null};
-        String[] argsUnregisteredId = {"apply-power-policy", "unregistered_policy_id"};
-        StringWriter stringWriter = new StringWriter();
-
-        try (IndentingPrintWriter writer = new IndentingPrintWriter(stringWriter, "  ")) {
-            assertWithMessage("apply policy from command no id").that(
-                    mService.applyPowerPolicyFromCommand(argsNoPolicyId, writer)).isFalse();
-            assertWithMessage("apply policy from command null id").that(
-                    mService.applyPowerPolicyFromCommand(argsNullPolicyId, writer)).isFalse();
-            assertWithMessage("apply policy from command unregistered id").that(
-                    mService.applyPowerPolicyFromCommand(argsUnregisteredId, writer)).isFalse();
-        }
+        assertThrows(IllegalArgumentException.class, () -> mService.applyPowerPolicy(policyId));
+        assertPowerPolicyRequestRemoved();
     }
 
     @Test
