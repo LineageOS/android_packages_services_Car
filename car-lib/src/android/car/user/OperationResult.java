@@ -15,7 +15,6 @@
  */
 package android.car.user;
 
-import android.car.annotation.AddedInOrBefore;
 
 /**
  * Helper interface for operations that return a result.
@@ -27,6 +26,5 @@ public interface OperationResult {
     /**
      * Checks if this result is successful.
      */
-    @AddedInOrBefore(majorVersion = 33)
     boolean isSuccess();
 }

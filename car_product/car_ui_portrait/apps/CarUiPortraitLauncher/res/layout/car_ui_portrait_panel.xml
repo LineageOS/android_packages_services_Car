@@ -25,7 +25,7 @@
 
         <include
             android:layout_width="match_parent"
-            android:layout_height="@dimen/panel_grip_bar_height"
+            android:layout_height="wrap_content"
             android:layout_below="@id/toolbar"
             layout="@layout/car_ui_portrait_grip_bar"/>
 
@@ -47,5 +47,5 @@
             android:layout_height="match_parent"
             android:layout_below="@id/grip_bar"
             android:visibility="gone"
-            layout="@layout/car_ui_portrait_panel_overlay"/>`
+            layout="@layout/car_ui_portrait_panel_overlay"/>
 </com.android.car.portraitlauncher.panel.TaskViewPanel>

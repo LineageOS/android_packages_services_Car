@@ -15,6 +15,9 @@
  */
 package com.android.car.power;
 
+import static android.car.hardware.power.PowerComponentUtil.powerComponentToString;
+import static android.car.hardware.power.PowerComponentUtil.powerComponentsToStrings;
+
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -26,7 +29,9 @@ import android.car.hardware.power.PowerComponentUtil;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public final class PowerComponentUtilUnitTest {
     private final Field[] mPowerComponentFields = (Field[])
@@ -106,6 +111,58 @@ public final class PowerComponentUtilUnitTest {
             assertWithMessage("%s should be converted to %s", component, expectedName)
                     .that(PowerComponentUtil.powerComponentToString(component))
                     .isEqualTo(expectedName);
+        }
+    }
+    @Test
+    public void testPowerComponentsToStrings() {
+        List<Integer> components = List.of(PowerComponent.AUDIO, PowerComponent.BLUETOOTH,
+                PowerComponent.CELLULAR, PowerComponent.CPU, PowerComponent.DISPLAY,
+                PowerComponent.ETHERNET, PowerComponent.INPUT, PowerComponent.LOCATION,
+                PowerComponent.MEDIA, PowerComponent.MICROPHONE, PowerComponent.NFC,
+                PowerComponent.PROJECTION, PowerComponent.TRUSTED_DEVICE_DETECTION,
+                PowerComponent.VISUAL_INTERACTION, PowerComponent.VOICE_INTERACTION,
+                PowerComponent.WIFI);
+
+        List<String> componentStrings = powerComponentsToStrings(components);
+
+        assertComponentStringsMatchExpected(components, componentStrings);
+    }
+
+    @Test
+    public void testPowerComponentsToStrings_empty() {
+        List<Integer> components = new ArrayList<>();
+
+        List<String> componentStrings = powerComponentsToStrings(components);
+
+        assertWithMessage("Component strings of empty components list")
+                .that(componentStrings).containsAtLeastElementsIn(new ArrayList<>());
+    }
+
+    @Test
+    public void testPowerComponentsToStrings_unknownComponent() {
+        List<Integer> components = List.of(PowerComponent.AUDIO, PowerComponent.BLUETOOTH, 42);
+
+        List<String> componentStrings = powerComponentsToStrings(components);
+
+        assertComponentStringsMatchExpected(components, componentStrings);
+    }
+
+    @Test
+    public void testPowerComponentsToStrings_customComponent() {
+        List<Integer> components = List.of(PowerComponent.AUDIO, PowerComponent.BLUETOOTH,
+                PowerComponent.MINIMUM_CUSTOM_COMPONENT_VALUE + 42);
+
+        List<String> componentStrings = powerComponentsToStrings(components);
+
+        assertComponentStringsMatchExpected(components, componentStrings);
+    }
+
+    private void assertComponentStringsMatchExpected(List<Integer> components,
+            List<String> componentStrings) {
+        for (int i = 0; i < componentStrings.size(); i++) {
+            int component = components.get(i);
+            assertWithMessage("Component string for component int " + component)
+                    .that(componentStrings.get(i)).isEqualTo(powerComponentToString(component));
         }
     }
 }

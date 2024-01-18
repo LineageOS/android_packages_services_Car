@@ -20,8 +20,6 @@ import android.annotation.SystemApi;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.app.job.JobSnapshot;
-import android.car.builtin.annotation.AddedIn;
-import android.car.builtin.annotation.PlatformVersion;
 import android.content.Context;
 
 import java.util.ArrayList;
@@ -40,7 +38,6 @@ public final class JobSchedulerHelper {
     }
 
     /** Gets the running jobs which are executed when a device goes idle. */
-    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static List<JobInfo> getRunningJobsAtIdle(Context context) {
         List<JobInfo> startedJobs = context.getSystemService(JobScheduler.class).getStartedJobs();
         if (startedJobs == null) {
@@ -57,7 +54,6 @@ public final class JobSchedulerHelper {
     }
 
     /** Gets the jobs which are scheduled for execution at idle but not finished. */
-    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static List<JobInfo> getPendingJobs(Context context) {
         List<JobSnapshot> allScheduledJobs =
                 context.getSystemService(JobScheduler.class).getAllJobSnapshots();

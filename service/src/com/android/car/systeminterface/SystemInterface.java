@@ -211,6 +211,12 @@ public class SystemInterface implements ActivityManagerInterface,
     }
 
     @Override
+    public void scheduleActionForBootCompleted(Runnable action, Duration delay,
+            Duration delayRange) {
+        mSystemStateInterface.scheduleActionForBootCompleted(action, delay, delayRange);
+    }
+
+    @Override
     public boolean isWakeupCausedByTimer() {
         return mSystemStateInterface.isWakeupCausedByTimer();
     }

@@ -29,6 +29,7 @@
 #include <aidl/android/automotive/watchdog/internal/UidType.h>
 #include <android-base/file.h>
 #include <android-base/strings.h>
+#include <android/util/ProtoOutputStream.h>
 #include <binder/IPCThreadState.h>
 #include <log/log.h>
 #include <processgroup/sched_policy.h>
@@ -65,6 +66,7 @@ using ::android::base::Error;
 using ::android::base::Result;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
+using ::android::util::ProtoOutputStream;
 using ::ndk::ScopedAIBinder_DeathRecipient;
 using ::ndk::SpAIBinder;
 
@@ -455,6 +457,13 @@ Result<void> IoOveruseMonitor::onPeriodicMonitor(
 Result<void> IoOveruseMonitor::onDump([[maybe_unused]] int fd) const {
     // TODO(b/183436216): Dump the list of killed/disabled packages. Dump the list of packages that
     //  exceed xx% of their threshold.
+    return {};
+}
+
+Result<void> IoOveruseMonitor::onDumpProto(
+        [[maybe_unused]] const CollectionIntervals& collectionIntervals,
+        [[maybe_unused]] ProtoOutputStream& outProto) const {
+    // TODO(b/296123577): Dump the list of killed/disabled packages in proto format.
     return {};
 }
 

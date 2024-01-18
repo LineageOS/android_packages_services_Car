@@ -35,6 +35,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.feature.Flags;
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupEvent;
@@ -45,6 +46,7 @@ import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioPlaybackConfiguration;
+import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseIntArray;
@@ -52,6 +54,7 @@ import android.util.SparseIntArray;
 import com.android.car.audio.hal.HalAudioDeviceInfo;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -134,6 +137,8 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
     @AudioContext
     private static final int TEST_NAVIGATION_CONTEXT =
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_NAVIGATION_ATTRIBUTE);
+    @Rule
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     @Before
     public void setUp() {
@@ -170,6 +175,8 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
 
         mTestAudioZone.init();
 
+        expectWithMessage("Default configuration on init")
+                .that(mTestAudioZone.getCurrentCarAudioZoneConfig()).isEqualTo(mMockZoneConfig0);
         verify(mMockZoneConfig0).synchronizeCurrentGainIndex();
         verify(mMockZoneConfig1).synchronizeCurrentGainIndex();
     }
@@ -207,6 +214,27 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void getDefaultAudioZoneConfigInfo() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        CarAudioZoneConfigInfo defaultInfo = new CarAudioZoneConfigInfo(TEST_ZONE_CONFIG_NAME_0,
+                TEST_ZONE_ID, TEST_ZONE_CONFIG_ID_0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+
+        expectWithMessage("Default configuration")
+                .that(mTestAudioZone.getDefaultAudioZoneConfigInfo()
+                        .hasSameConfigInfo(defaultInfo)).isTrue();
+    }
+
+    @Test
+    public void getDefaultAudioZoneConfigInfo_withNoDefaultConfig() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+
+        expectWithMessage("Non existing default configuration")
+                .that(mTestAudioZone.getDefaultAudioZoneConfigInfo()).isNull();
+    }
+
+    @Test
     public void getAllCarAudioZoneConfigs() {
         mTestAudioZone.addZoneConfig(mMockZoneConfig0);
         mTestAudioZone.addZoneConfig(mMockZoneConfig1);
@@ -232,7 +260,7 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
     public void isCurrentZoneConfig_forCurrentConfig_returnsFalse() {
         mTestAudioZone.addZoneConfig(mMockZoneConfig0);
         mTestAudioZone.addZoneConfig(mMockZoneConfig1);
-        CarAudioZoneConfigInfo nonCurrentZoneConfigInfo = getNonCurrentZoneConfigInfo();
+        CarAudioZoneConfigInfo nonCurrentZoneConfigInfo = getFirstNonCurrentZoneConfigInfo();
 
         expectWithMessage("Non-current zone config info")
                 .that(mTestAudioZone.isCurrentZoneConfig(nonCurrentZoneConfigInfo))
@@ -240,16 +268,41 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    public void setCurrentCarZoneConfig() {
+    public void setCurrentCarZoneConfig_withCoreAudioRoutingDisabled() {
         mTestAudioZone.addZoneConfig(mMockZoneConfig0);
         mTestAudioZone.addZoneConfig(mMockZoneConfig1);
-        CarAudioZoneConfigInfo currentZoneConfigInfoToSwitch = getNonCurrentZoneConfigInfo();
+        CarAudioZoneConfigInfo currentZoneConfigInfoToSwitch = getFirstNonCurrentZoneConfigInfo();
 
         mTestAudioZone.setCurrentCarZoneConfig(currentZoneConfigInfoToSwitch);
 
         expectWithMessage("Current zone config info after switching zone configuration")
                 .that(mTestAudioZone.isCurrentZoneConfig(currentZoneConfigInfoToSwitch))
                 .isTrue();
+        verify(mMockZoneConfig1).setIsSelected(true);
+        verify(mMockZoneConfig1).updateVolumeDevices(/* useCoreAudioRouting= */ false);
+        verify(mMockZoneConfig0).setIsSelected(false);
+    }
+
+    @Test
+    public void setCurrentCarZoneConfig_withCoreAudioRoutingEnabled() {
+        CarAudioContext contextWithCoreAudioRouting =
+                new CarAudioContext(CarAudioContext.getAllContextsInfo(),
+                        /* useCoreAudioRouting= */ true);
+        CarAudioZone testAudioZone = new CarAudioZone(contextWithCoreAudioRouting, TEST_ZONE_NAME,
+                TEST_ZONE_ID);
+        testAudioZone.addZoneConfig(mMockZoneConfig0);
+        testAudioZone.addZoneConfig(mMockZoneConfig1);
+        CarAudioZoneConfigInfo currentZoneConfigInfoToSwitch =
+                getFirstNonCurrentZoneConfigInfo(testAudioZone);
+
+        testAudioZone.setCurrentCarZoneConfig(currentZoneConfigInfoToSwitch);
+
+        expectWithMessage("Current zone config info after switching zone configuration"
+                + "with core audio routing")
+                .that(testAudioZone.isCurrentZoneConfig(currentZoneConfigInfoToSwitch)).isTrue();
+        verify(mMockZoneConfig1).setIsSelected(true);
+        verify(mMockZoneConfig1).updateVolumeDevices(/* useCoreAudioRouting= */ true);
+        verify(mMockZoneConfig0).setIsSelected(false);
     }
 
     @Test
@@ -371,8 +424,8 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
 
     @Test
     public void validateCanUseDynamicMixRouting() {
-        when(mMockZoneConfig0.validateCanUseDynamicMixRouting(
-                /* useCoreAudioRouting= */ false)).thenReturn(true);
+        when(mMockZoneConfig0.validateCanUseDynamicMixRouting(/* useCoreAudioRouting= */ false))
+                .thenReturn(true);
         when(mMockZoneConfig1.validateCanUseDynamicMixRouting(
                 /* useCoreAudioRouting= */ false)).thenReturn(false);
         mTestAudioZone.addZoneConfig(mMockZoneConfig0);
@@ -529,32 +582,32 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
 
     @Test
     public void getCurrentAudioDeviceInfos() {
-        AudioDeviceInfo audioDeviceInfo0 = mock(AudioDeviceInfo.class);
-        AudioDeviceInfo audioDeviceInfo1 = mock(AudioDeviceInfo.class);
-        when(mMockZoneConfig0.getAudioDeviceInfos()).thenReturn(List.of(audioDeviceInfo0));
-        when(mMockZoneConfig1.getAudioDeviceInfos()).thenReturn(List.of(audioDeviceInfo1));
+        AudioDeviceAttributes audioDevice0 = mock(AudioDeviceAttributes.class);
+        AudioDeviceAttributes audioDevice1 = mock(AudioDeviceAttributes.class);
+        when(mMockZoneConfig0.getAudioDevice()).thenReturn(List.of(audioDevice0));
+        when(mMockZoneConfig1.getAudioDevice()).thenReturn(List.of(audioDevice1));
         mTestAudioZone.addZoneConfig(mMockZoneConfig0);
         mTestAudioZone.addZoneConfig(mMockZoneConfig1);
 
         expectWithMessage("Current device infos")
-                .that(mTestAudioZone.getCurrentAudioDeviceInfos())
-                .containsExactly(audioDeviceInfo0);
+                .that(mTestAudioZone.getCurrentAudioDevices())
+                .containsExactly(audioDevice0);
     }
 
     @Test
     public void getCurrentAudioDeviceInfosSupportingDynamicMix() {
-        AudioDeviceInfo audioDeviceInfo0 = mock(AudioDeviceInfo.class);
-        AudioDeviceInfo audioDeviceInfo1 = mock(AudioDeviceInfo.class);
-        when(mMockZoneConfig0.getAudioDeviceInfosSupportingDynamicMix())
-                .thenReturn(List.of(audioDeviceInfo0));
-        when(mMockZoneConfig1.getAudioDeviceInfosSupportingDynamicMix())
-                .thenReturn(List.of(audioDeviceInfo1));
+        AudioDeviceAttributes audioDevice0 = mock(AudioDeviceAttributes.class);
+        AudioDeviceAttributes audioDevice1 = mock(AudioDeviceAttributes.class);
+        when(mMockZoneConfig0.getAudioDeviceSupportingDynamicMix())
+                .thenReturn(List.of(audioDevice0));
+        when(mMockZoneConfig1.getAudioDeviceSupportingDynamicMix())
+                .thenReturn(List.of(audioDevice1));
         mTestAudioZone.addZoneConfig(mMockZoneConfig0);
         mTestAudioZone.addZoneConfig(mMockZoneConfig1);
 
         expectWithMessage("Current device infos supporting dynamic mix")
-                .that(mTestAudioZone.getCurrentAudioDeviceInfosSupportingDynamicMix())
-                .containsExactly(audioDeviceInfo0);
+                .that(mTestAudioZone.getCurrentAudioDeviceSupportingDynamicMix())
+                .containsExactly(audioDevice0);
     }
 
     @Test
@@ -715,11 +768,84 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
                 .that(mTestAudioZone.getCarAudioContext()).isEqualTo(TEST_CAR_AUDIO_CONTEXT);
     }
 
-    private CarAudioZoneConfigInfo getNonCurrentZoneConfigInfo() {
-        CarAudioZoneConfigInfo currentZoneConfigInfo = mTestAudioZone
-                .getCurrentCarAudioZoneConfig().getCarAudioZoneConfigInfo();
-        List<CarAudioZoneConfigInfo> zoneConfigInfoList = mTestAudioZone
-                .getCarAudioZoneConfigInfos();
+    @Test
+    public void audioDevicesAdded_withConfigUpdated() {
+        when(mMockZoneConfig0.audioDevicesAdded(any())).thenReturn(true);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        AudioDeviceInfo testDevice = mock(AudioDeviceInfo.class);
+        List<AudioDeviceInfo> infos = List.of(testDevice);
+
+        boolean updated = mTestAudioZone.audioDevicesAdded(infos);
+
+        expectWithMessage("Added audio devices updated status").that(updated).isTrue();
+        verify(mMockZoneConfig0).audioDevicesAdded(infos);
+    }
+
+    @Test
+    public void audioDevicesAdded_withConfigNotUpdated() {
+        when(mMockZoneConfig0.audioDevicesAdded(any())).thenReturn(false);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        AudioDeviceInfo testDevice = mock(AudioDeviceInfo.class);
+        List<AudioDeviceInfo> infos = List.of(testDevice);
+
+        boolean updated = mTestAudioZone.audioDevicesAdded(infos);
+
+        expectWithMessage("Added audio devices not updated status").that(updated).isFalse();
+        verify(mMockZoneConfig0).audioDevicesAdded(infos);
+    }
+
+    @Test
+    public void audioDevicesAdded_withNullDevices() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+
+        NullPointerException thrown = assertThrows(NullPointerException.class,
+                () -> mTestAudioZone.audioDevicesAdded(/* devices= */ null));
+
+        expectWithMessage("Audio devices added null devices exception").that(thrown)
+                .hasMessageThat().contains("Audio devices");
+    }
+
+    @Test
+    public void audioDevicesRemoved_withConfigUpdated() {
+        when(mMockZoneConfig0.audioDevicesRemoved(any())).thenReturn(true);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        AudioDeviceInfo testDevice = mock(AudioDeviceInfo.class);
+        List<AudioDeviceInfo> infos = List.of(testDevice);
+
+        boolean updated = mTestAudioZone.audioDevicesRemoved(infos);
+
+        expectWithMessage("Removed audio devices updated status").that(updated).isTrue();
+        verify(mMockZoneConfig0).audioDevicesRemoved(infos);
+    }
+
+    @Test
+    public void audioDevicesRemoved_withConfigNotUpdated() {
+        when(mMockZoneConfig0.audioDevicesRemoved(any())).thenReturn(false);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        AudioDeviceInfo testDevice = mock(AudioDeviceInfo.class);
+        List<AudioDeviceInfo> infos = List.of(testDevice);
+
+        boolean updated = mTestAudioZone.audioDevicesRemoved(infos);
+
+        expectWithMessage("Removed audio devices not updated status").that(updated).isFalse();
+        verify(mMockZoneConfig0).audioDevicesRemoved(infos);
+    }
+
+    @Test
+    public void audioDevicesRemoved_withNullDevices() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+
+        NullPointerException thrown = assertThrows(NullPointerException.class,
+                        () -> mTestAudioZone.audioDevicesRemoved(/* devices= */ null));
+
+        expectWithMessage("Audio devices removed null devices exception").that(thrown)
+                .hasMessageThat().contains("Audio devices");
+    }
+
+    private CarAudioZoneConfigInfo getFirstNonCurrentZoneConfigInfo(CarAudioZone audioZone) {
+        CarAudioZoneConfigInfo currentZoneConfigInfo = audioZone.getCurrentCarAudioZoneConfig()
+                .getCarAudioZoneConfigInfo();
+        List<CarAudioZoneConfigInfo> zoneConfigInfoList = audioZone.getCarAudioZoneConfigInfos();
         for (int index = 0; index < zoneConfigInfoList.size(); index++) {
             CarAudioZoneConfigInfo zoneConfigInfo = zoneConfigInfoList.get(index);
             if (!currentZoneConfigInfo.equals(zoneConfigInfo)) {
@@ -727,6 +853,10 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
             }
         }
         return null;
+    }
+
+    private CarAudioZoneConfigInfo getFirstNonCurrentZoneConfigInfo() {
+        return getFirstNonCurrentZoneConfigInfo(mTestAudioZone);
     }
 
     private static final class TestCarAudioZoneConfigBuilder {

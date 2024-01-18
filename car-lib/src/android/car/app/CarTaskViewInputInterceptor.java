@@ -22,7 +22,6 @@ import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
 
 import android.annotation.MainThread;
 import android.annotation.NonNull;
-import android.annotation.RequiresApi;
 import android.car.app.CarTaskViewControllerHostLifecycle.CarTaskViewControllerHostLifecycleObserver;
 import android.car.builtin.input.InputManagerHelper;
 import android.car.builtin.view.ViewHelper;
@@ -31,7 +30,6 @@ import android.content.Context;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.hardware.input.InputManager;
-import android.os.Build;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -53,7 +51,6 @@ import java.util.List;
  *       ControlledRemoteCarTaskViewConfig#mShouldCaptureLongPress} is set.
  * </ul>
  */
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 final class CarTaskViewInputInterceptor {
 
     private static final String TAG = "CarTaskViewInput";

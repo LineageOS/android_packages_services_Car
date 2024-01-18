@@ -16,10 +16,11 @@
 
 package android.car;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
+
 import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.TestApi;
-import android.car.annotation.AddedInOrBefore;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -54,7 +55,6 @@ public final class CarAppFocusManager extends CarManagerBase {
          * @param appType appType where the focus change has happened.
          * @param active {@code true} if there is an active owner for the focus.
          */
-        @AddedInOrBefore(majorVersion = 33)
         void onAppFocusChanged(@AppFocusType int appType, boolean active);
     }
 
@@ -69,7 +69,6 @@ public final class CarAppFocusManager extends CarManagerBase {
          * upon getting this for {@link CarAppFocusManager#APP_FOCUS_TYPE_NAVIGATION}.
          * @param appType
          */
-        @AddedInOrBefore(majorVersion = 33)
         void onAppFocusOwnershipLost(@AppFocusType int appType);
 
         /**
@@ -79,14 +78,12 @@ public final class CarAppFocusManager extends CarManagerBase {
          * upon getting this for {@link CarAppFocusManager#APP_FOCUS_TYPE_NAVIGATION}.
          * @param appType
          */
-        @AddedInOrBefore(majorVersion = 33)
         void onAppFocusOwnershipGranted(@AppFocusType int appType);
     }
 
     /**
      * Represents navigation focus.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int APP_FOCUS_TYPE_NAVIGATION = 1;
     /**
      * Represents voice command focus.
@@ -94,13 +91,11 @@ public final class CarAppFocusManager extends CarManagerBase {
      * @deprecated use {@link android.service.voice.VoiceInteractionService} instead.
      */
     @Deprecated
-    @AddedInOrBefore(majorVersion = 33)
     public static final int APP_FOCUS_TYPE_VOICE_COMMAND = 2;
     /**
      * Update this after adding a new app type.
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int APP_FOCUS_MAX = 2;
 
     /** @hide */
@@ -113,12 +108,10 @@ public final class CarAppFocusManager extends CarManagerBase {
     /**
      * A failed focus change request.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int APP_FOCUS_REQUEST_FAILED = 0;
     /**
      * A successful focus change request.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int APP_FOCUS_REQUEST_SUCCEEDED = 1;
 
     /** @hide */
@@ -149,7 +142,6 @@ public final class CarAppFocusManager extends CarManagerBase {
      * @param listener
      * @param appType Application type to get notification for.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void addFocusListener(OnAppFocusChangedListener listener, @AppFocusType int appType) {
         if (listener == null) {
             throw new IllegalArgumentException("null listener");
@@ -175,7 +167,6 @@ public final class CarAppFocusManager extends CarManagerBase {
      * @param listener
      * @param appType
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void removeFocusListener(OnAppFocusChangedListener listener, @AppFocusType int appType) {
         IAppFocusListenerImpl binder;
         synchronized (this) {
@@ -203,7 +194,6 @@ public final class CarAppFocusManager extends CarManagerBase {
      * Unregister listener and stop listening focus change events.
      * @param listener
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void removeFocusListener(OnAppFocusChangedListener listener) {
         IAppFocusListenerImpl binder;
         synchronized (this) {
@@ -226,12 +216,11 @@ public final class CarAppFocusManager extends CarManagerBase {
      * @hide
      */
     @TestApi
-    @AddedInOrBefore(majorVersion = 33)
     public int[] getActiveAppTypes() {
         try {
             return mService.getActiveAppTypes();
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, new int[0]);
+            return handleRemoteExceptionFromCarService(e, EMPTY_INT_ARRAY);
         }
     }
 
@@ -243,7 +232,6 @@ public final class CarAppFocusManager extends CarManagerBase {
      * @hide
      */
     @Nullable
-    @AddedInOrBefore(majorVersion = 33)
     public List<String> getAppTypeOwner(@AppFocusType int appType) {
         try {
             return mService.getAppTypeOwner(appType);
@@ -257,7 +245,6 @@ public final class CarAppFocusManager extends CarManagerBase {
      * @param callback
      * @param appType
      */
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isOwningFocus(OnAppFocusOwnershipCallback callback, @AppFocusType int appType) {
         IAppFocusOwnershipCallbackImpl binder;
         synchronized (this) {
@@ -284,7 +271,6 @@ public final class CarAppFocusManager extends CarManagerBase {
      * @return {@link #APP_FOCUS_REQUEST_FAILED} or {@link #APP_FOCUS_REQUEST_SUCCEEDED}
      * @throws SecurityException If owner cannot be changed.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public @AppFocusRequestResult int requestAppFocus(
             int appType, OnAppFocusOwnershipCallback ownershipCallback) {
         if (ownershipCallback == null) {
@@ -312,7 +298,6 @@ public final class CarAppFocusManager extends CarManagerBase {
      * @param ownershipCallback
      * @param appType
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback,
             @AppFocusType int appType) {
         if (ownershipCallback == null) {
@@ -344,7 +329,6 @@ public final class CarAppFocusManager extends CarManagerBase {
      * for the focus.
      * @param ownershipCallback
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback) {
         IAppFocusOwnershipCallbackImpl binder;
         synchronized (this) {
@@ -364,7 +348,6 @@ public final class CarAppFocusManager extends CarManagerBase {
 
     /** @hide */
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         // nothing to do
     }

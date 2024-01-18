@@ -66,5 +66,9 @@
 
     <!-- When true, message HUN will be dismissed when reply or play action buttons are pressed. -->
     <bool name="config_dismissMessageHunWhenReplyOrPlayActionButtonPressed">true</bool>
+
+    <!-- Whether heads-up notifications is dismissible in vertical directions. If set to false
+         the notification would be dismissible in horizontal directions. -->
+    <bool name="config_isHeadsUpNotificationDismissibleVertically">true</bool>
 </resources>
 

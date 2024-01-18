@@ -196,6 +196,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Nuskaityti priekinio stiklo valytuvų informaciją."</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"valdyti automobilio priekinio stiklo valytuvus"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Valdyti automobilio priekinio stiklo valytuvus."</string>
+    <string name="car_permission_label_query_display_compatibility" msgid="8846515818036686896">"užklausa apie ekrano suderinamumo paketus"</string>
+    <string name="car_permission_desc_query_display_compatibility" msgid="5344194045180717300">"Užklausa apie ekrano suderinamumo paketus."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"stebėti kitų buvimo namuose zonų būseną automobilyje ir lygiavertes programas (programas, kurių paketo pavadinimas toks pat kaip skambintojo), įdiegtas šiose zonose, bei valdyti šių zonų galią."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Stebėti kitų buvimo namuose zonų būseną automobilyje ir lygiavertes programas (programas, kurių paketo pavadinimas toks pat kaip skambintojo), įdiegtas šiose zonose, bei valdyti šių zonų galią."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"užmegzti ryšį ir susisiekti su lygiavertėmis programomis (programomis, kurių paketo pavadinimas toks pat kaip skambintojo), įdiegtomis kitose buvimo namuose zonose, automobilyje"</string>

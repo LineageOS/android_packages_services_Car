@@ -210,13 +210,15 @@ public final class CarProjectionManagerUnitTest {
         BluetoothDevice device = mock(BluetoothDevice.class);
         when(mService.requestBluetoothProfileInhibit(eq(device), anyInt(), any())).thenReturn(true);
 
-        assertThat(mCarProjectionManager.requestBluetoothProfileInhibit(device, 1)).isTrue();
+        assertThat(mCarProjectionManager.requestBluetoothProfileInhibit(device,
+                /* profile= */ 1)).isTrue();
     }
 
     @Test
     public void testFailsRequestBluetoothProfileInhibitWithNullDevice() throws Exception {
         assertThrows(NullPointerException.class,
-                () -> mCarProjectionManager.requestBluetoothProfileInhibit(null, 1));
+                () -> mCarProjectionManager.requestBluetoothProfileInhibit(/* device= */
+                        null,  /* profile= */1));
     }
 
     @Test
@@ -224,13 +226,31 @@ public final class CarProjectionManagerUnitTest {
         BluetoothDevice device = mock(BluetoothDevice.class);
         when(mService.releaseBluetoothProfileInhibit(eq(device), anyInt(), any())).thenReturn(true);
 
-        assertThat(mCarProjectionManager.releaseBluetoothProfileInhibit(device, 1)).isTrue();
+        assertThat(mCarProjectionManager.releaseBluetoothProfileInhibit(device,
+                /* profile= */ 1)).isTrue();
+    }
+
+    @Test
+    public void testIsBluetoothProfileInhibited() throws Exception {
+        BluetoothDevice device = mock(BluetoothDevice.class);
+        when(mService.isBluetoothProfileInhibited(eq(device), anyInt(), any())).thenReturn(true);
+
+        assertThat(mCarProjectionManager.isBluetoothProfileInhibited(device,
+                /* profile= */ 1)).isTrue();
+    }
+
+    @Test
+    public void testFailsIsBluetoothProfileInhibitedWithNullDevice() throws Exception {
+        assertThrows(NullPointerException.class,
+                () -> mCarProjectionManager.isBluetoothProfileInhibited(
+                        /* device= */ null, /* profile= */1));
     }
 
     @Test
     public void testFailsReleaseBluetoothProfileInhibitWithNullDevice() throws Exception {
         assertThrows(NullPointerException.class,
-                () -> mCarProjectionManager.releaseBluetoothProfileInhibit(null, 1));
+                () -> mCarProjectionManager.releaseBluetoothProfileInhibit(
+                        /* device= */ null, /* profile= */1));
     }
 
     @Test

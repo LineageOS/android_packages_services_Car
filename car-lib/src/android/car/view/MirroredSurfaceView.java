@@ -16,26 +16,19 @@
 
 package android.car.view;
 
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeast;
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
-
 import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.app.Activity;
 import android.car.Car;
-import android.car.PlatformVersion;
-import android.car.annotation.ApiRequirements;
 import android.car.app.CarActivityManager;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.TouchableInsetsProvider;
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.Region;
-import android.os.Build;
 import android.os.IBinder;
 import android.util.AttributeSet;
 import android.util.Dumpable;
@@ -56,7 +49,6 @@ import java.io.PrintWriter;
  *
  * @hide
  */
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @SystemApi
 @SuppressWarnings("[NotCloseable]") // View object won't be used in try-with-resources statement.
 public final class MirroredSurfaceView extends SurfaceView {
@@ -95,7 +87,6 @@ public final class MirroredSurfaceView extends SurfaceView {
                         SurfaceControl.Transaction transaction,
                         TouchableInsetsProvider touchableInsetsProvider) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        assertPlatformVersionAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0);
         mTransaction = transaction;
         mTouchableInsetsProvider = touchableInsetsProvider != null
                 ? touchableInsetsProvider : new TouchableInsetsProvider(this);
@@ -128,11 +119,8 @@ public final class MirroredSurfaceView extends SurfaceView {
      * @return true if the operation is successful.
      */
     @RequiresPermission(Car.PERMISSION_ACCESS_MIRRORRED_SURFACE)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
     public boolean mirrorSurface(@NonNull IBinder token) {
-        assertPlatformVersionAtLeastU();
         if (mCarAM == null) {
             Slogf.e(TAG, "Failed to mirrorSurface because CarService isn't ready yet");
             return false;
@@ -161,22 +149,16 @@ public final class MirroredSurfaceView extends SurfaceView {
      *
      * @param obscuredRegion the obscured region of the view.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
     public void setObscuredTouchRegion(@Nullable Region obscuredRegion) {
-        assertPlatformVersionAtLeastU();
         mTouchableInsetsProvider.setObscuredTouchRegion(obscuredRegion);
     }
 
     /**
      * Releases {@link MirroredSurfaceView} and associated {@link Surface}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
     public void release() {
-        assertPlatformVersionAtLeastU();
         getHolder().removeCallback(mSurfaceCallback);
         removeMirroredSurface();
     }
@@ -257,20 +239,14 @@ public final class MirroredSurfaceView extends SurfaceView {
         }
     };
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     protected void onAttachedToWindow() {
-        assertPlatformVersionAtLeastU();
         super.onAttachedToWindow();
         mTouchableInsetsProvider.addToViewTreeObserver();
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     protected void onDetachedFromWindow() {
-        assertPlatformVersionAtLeastU();
         mTouchableInsetsProvider.removeFromViewTreeObserver();
         super.onDetachedFromWindow();
     }

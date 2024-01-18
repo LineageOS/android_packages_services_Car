@@ -15,7 +15,6 @@
  */
 package com.android.car.audio;
 
-import static android.car.PlatformVersion.VERSION_CODES.TIRAMISU_3;
 import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
@@ -38,12 +37,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
+import android.car.feature.Flags;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
+import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 
@@ -55,6 +56,7 @@ import com.google.common.collect.ImmutableList;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -191,6 +193,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     private CarAudioDeviceInfo mTestCarMirrorDeviceOne;
     @Mock
     private CarAudioDeviceInfo mTestCarMirrorDeviceTwo;
+
+    @Rule
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     public CarAudioZonesHelperTest() {
         super(TAG);
@@ -1161,27 +1166,6 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void loadAudioZones_usingCoreAudioVersionThree_failsOnReleaseLessThanU_fails()
-            throws Exception {
-        mockCarGetPlatformVersion(TIRAMISU_3);
-        try (InputStream versionOneStream = mContext.getResources().openRawResource(
-                R.raw.car_audio_configuration_using_core_routing_and_volume)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionOneStream,
-                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    /* useCarVolumeGroupMute= */ false,
-                    /* useCoreAudioVolume= */ true, /* useCoreAudioRouting= */ true);
-
-            IllegalArgumentException thrown =
-                    assertThrows(IllegalArgumentException.class,
-                            () -> cazh.loadAudioZones());
-
-            assertWithMessage("Invalid release version exception").that(thrown)
-                    .hasMessageThat().contains("is only supported for release version");
-        }
-    }
-
-    @Test
     public void loadAudioZones_usingCoreAudioVersionThree_failsOnFirstInvalidAttributes()
             throws Exception {
         try (InputStream versionOneStream = mContext.getResources().openRawResource(
@@ -1199,9 +1183,8 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
                     assertThrows(IllegalArgumentException.class, () -> cazh.loadAudioZones());
 
             assertWithMessage("First unsupported attributes exception").that(thrown)
-                    .hasMessageThat().contains("audioAttributes: Cannot find strategy id for "
-                            + "context: OEM_CONTEXT and attributes \"" + unsupportedAttributes
-                            + "\"");
+                    .hasMessageThat().contains("Invalid attributes " + unsupportedAttributes
+                            + " for context: OEM_CONTEXT");
         }
     }
 
@@ -1361,6 +1344,75 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
             expectWithMessage("Duplicates mirror devices in configuration exception")
                     .that(thrown).hasMessageThat().contains("can not repeat");
+        }
+    }
+
+    @Test
+    public void loadAudioZones_withPrimaryZoneAndDynamicAudioDevices() throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        try (InputStream versionFourStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_with_dynamic_devices_for_primary_zone)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                    /* useCoreAudioRouting= */ false);
+
+            SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
+
+            expectWithMessage("Primary zone with dynamic device configurations")
+                    .that(zones.size()).isEqualTo(1);
+            CarAudioZone zone = zones.get(0);
+            List<CarAudioZoneConfig> configs = zone.getAllCarAudioZoneConfigs();
+            expectWithMessage("Configurations for primary zone with dynamic devices")
+                    .that(configs).hasSize(3);
+            CarAudioZoneConfig configBTMedia = configs.get(1);
+            CarVolumeGroup mediaVolumeGroup = configBTMedia.getVolumeGroup("media");
+            expectWithMessage("Media BT dynamic device").that(
+                    mediaVolumeGroup.getAudioDeviceForContext(OEM_CONTEXT_INFO_MUSIC.getId())
+                            .getType()).isEqualTo(AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
+            CarAudioZoneConfig configBTAll = configs.get(2);
+            List<AudioDeviceAttributes> allDevices = configBTAll.getAudioDevice();
+            expectWithMessage("BT all audio config devices").that(allDevices).hasSize(1);
+            AudioDeviceAttributes btDevice = allDevices.get(0);
+            expectWithMessage("BT all audio config type").that(btDevice.getType())
+                    .isEqualTo(AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
+        }
+    }
+
+    @Test
+    public void loadAudioZones_withDynamicAudioDevices_forVersionThree_fails() throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        try (InputStream versionFourStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_with_dynamic_devices_for_primary_zone_in_v3)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                    /* useCoreAudioRouting= */ false);
+
+            IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                    cazh::loadAudioZones);
+
+            expectWithMessage("Dynamic devices support in v3 exception").that(thrown)
+                    .hasMessageThat().contains("Audio device type");
+        }
+    }
+
+    @Test
+    public void loadAudioZones_withPrimaryZoneAndDynamicAudioDevicesAndNoDynamicSupport_fails()
+            throws Exception {
+        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        try (InputStream versionFourStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_with_dynamic_devices_for_primary_zone)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                    /* useCoreAudioRouting= */ false);
+
+            IllegalStateException thrown = assertThrows(IllegalStateException.class,
+                    cazh::loadAudioZones);
+
+            expectWithMessage("Dynamic devices support exception").that(thrown).hasMessageThat()
+                    .contains("Output device address must be specified");
         }
     }
 

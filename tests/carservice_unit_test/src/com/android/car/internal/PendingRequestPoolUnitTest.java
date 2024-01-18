@@ -16,6 +16,7 @@
 package com.android.car.internal;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -107,7 +108,6 @@ public final class PendingRequestPoolUnitTest {
 
     @After
     public void tearDown() {
-        assertThat(mLongPendingRequestPool.isEmpty()).isTrue();
         mHandlerThread.quitSafely();
     }
 
@@ -129,6 +129,8 @@ public final class PendingRequestPoolUnitTest {
         mLongPendingRequestPool.removeRequest(testRequestId2);
 
         assertThat(mLongTestTimeoutCallback.countTimeoutRequestIds()).isEqualTo(0);
+        assertWithMessage("Expect request pool to be empty after the test").that(
+                mLongPendingRequestPool.isEmpty()).isTrue();
     }
 
     @Test
@@ -161,5 +163,46 @@ public final class PendingRequestPoolUnitTest {
         // Must remove the timeout request explicitly.
         mLongPendingRequestPool.removeRequest(testRequestId1);
         mLongPendingRequestPool.removeRequest(testRequestId2);
+        assertWithMessage("Expect request pool to be empty after the test").that(
+                mLongPendingRequestPool.isEmpty()).isTrue();
+    }
+
+    @Test
+    public void testRequestsAlreadyTimeoutNoDuplicateCallbacksCalled() throws Exception {
+        long testRequestId1 = 123;
+        long testRequestId2 = 234;
+        long testRequestId3 = 345;
+
+        long now = SystemClock.uptimeMillis();
+        // All the requests already timeout.
+        LongTestRequest request1 = new LongTestRequest(testRequestId1, now);
+        LongTestRequest request2 = new LongTestRequest(testRequestId2, now);
+        LongTestRequest request3 = new LongTestRequest(testRequestId3, now);
+
+        mLongPendingRequestPool.addPendingRequests(List.of(request1));
+
+        // The callback is invoked in a message handler, so it is not guaranteed to be invoked
+        // after the addPendingRequests returns.
+        List<Long> timeoutRequestIds = mLongTestTimeoutCallback.waitForTimeoutRequestIds(
+                /* count= */ 1, /* waitTimeoutMs= */ 1000);
+        assertWithMessage("A request that already timeout must invoke the callback")
+                .that(timeoutRequestIds).hasSize(1);
+        assertThat(timeoutRequestIds).containsExactlyElementsIn(new Long[]{testRequestId1});
+
+        mLongPendingRequestPool.addPendingRequests(List.of(request2, request3));
+
+        timeoutRequestIds = mLongTestTimeoutCallback.waitForTimeoutRequestIds(
+                /* count= */ 3, /* waitTimeoutMs= */ 1000);
+        assertWithMessage("Requests that already timeout must invoke the callback")
+                .that(timeoutRequestIds).hasSize(3);
+        assertThat(timeoutRequestIds).containsExactlyElementsIn(
+                new Long[]{testRequestId1, testRequestId2, testRequestId3});
+
+        // Clean up the requests.
+        mLongPendingRequestPool.removeRequest(testRequestId1);
+        mLongPendingRequestPool.removeRequest(testRequestId2);
+        mLongPendingRequestPool.removeRequest(testRequestId3);
+        assertWithMessage("Expect request pool to be empty after the test").that(
+                mLongPendingRequestPool.isEmpty()).isTrue();
     }
 }

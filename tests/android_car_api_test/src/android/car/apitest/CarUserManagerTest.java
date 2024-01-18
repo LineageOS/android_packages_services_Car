@@ -22,6 +22,7 @@ import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING;
+import static android.car.user.UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -29,10 +30,13 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.IActivityManager;
 import android.car.Car;
+import android.car.SyncResultCallback;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.UserLifecycleEventFilter;
+import android.car.user.UserSwitchRequest;
+import android.car.user.UserSwitchResult;
 import android.content.pm.UserInfo;
 import android.os.Process;
 import android.os.SystemProperties;
@@ -49,6 +53,7 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public final class CarUserManagerTest extends CarMultiUserTestBase {
 
@@ -58,6 +63,8 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
 
     private static final int START_TIMEOUT_MS = 20_000;
     private static final int SWITCH_TIMEOUT_MS = 70_000;
+    private static final long TEST_WAIT_MS = 50;
+    private static final long TEST_TIMEOUT_MS = 10_000;
 
     private static final int sMaxNumberUsersBefore = UserManager.getMaxSupportedUsers();
     private static boolean sChangedMaxNumberUsers;
@@ -344,7 +351,55 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
         }
     }
 
+    @Test
+    public void testSwitchUserUxRestrictionFailure() throws Exception {
+        SyncResultCallback<UserSwitchResult> userSwitchResultCallback = new SyncResultCallback<>();
+        int initialUserId = getCurrentUserId();
+        try {
+            Log.i(TAG, "Changing driving state to driving");
+            executeShellCommand("cmd car_service emulate-driving-state drive");
+            assertWithMessage("Waiting for driving state change").that(
+                    waitForDrivingStateChanged("Current Driving State: 2",
+                            TEST_TIMEOUT_MS)).isTrue();
+
+            int newUserId = createUser().id;
+            mCarUserManager.switchUser(
+                    new UserSwitchRequest.Builder(UserHandle.of(newUserId)).build(), Runnable::run,
+                    userSwitchResultCallback);
+            UserSwitchResult userSwitchResult = userSwitchResultCallback.get(
+                    DEFAULT_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+
+            assertWithMessage("switchUser(%s) ", newUserId).that(
+                    userSwitchResult.getStatus()).isEqualTo(STATUS_UX_RESTRICTION_FAILURE);
+        } finally {
+            Log.i(TAG, "Restoring driving state to parked");
+            executeShellCommand("cmd car_service emulate-driving-state park");
+            switchUser(initialUserId);
+        }
+    }
+
     private static boolean isDeviceEmulator() {
         return Objects.equals(SystemProperties.get("ro.product.system.device"), "generic");
+    }
+
+    private boolean waitForDrivingStateChanged(String expected, long timeout) {
+        long start = System.currentTimeMillis();
+        while (start + timeout > System.currentTimeMillis()) {
+            try {
+                String result = executeShellCommand(
+                        "dumpsys car_service --services CarDrivingStateService");
+                if (result.contains(expected)) {
+                    return true;
+                }
+                Thread.sleep(TEST_WAIT_MS);
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Test interrupted: " + e);
+                return false;
+            } catch (Exception e) {
+                Log.e(TAG, "executeCommand failed: " + e);
+                return false;
+            }
+        }
+        return false;
     }
 }

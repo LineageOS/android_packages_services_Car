@@ -7,6 +7,16 @@ package android.car.cluster.renderer {
 
 }
 
+package android.car.hardware {
+
+  public static class CarPropertyConfig.Builder<T> {
+    method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> addArea(int);
+    method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> addAreaConfig(int, T, T);
+    method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> addAreas(int[]);
+  }
+
+}
+
 package android.car.input {
 
   @Deprecated public abstract class CarInputHandlingService extends android.app.Service {

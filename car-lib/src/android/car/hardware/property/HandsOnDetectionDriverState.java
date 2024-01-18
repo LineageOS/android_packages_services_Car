@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -40,20 +39,14 @@ public class HandsOnDetectionDriverState {
      * The framework can use this field to remain backwards compatible if {@code
      * HandsOnDetectionDriverState} is extended to include additional states.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int OTHER = 0;
     /**
      * The system detects that the driver has their hands on the steering wheel.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int HANDS_ON = 1;
     /**
      * The system detects that the driver has their hands off the steering wheel.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int HANDS_OFF = 2;
 
     private HandsOnDetectionDriverState() {}
@@ -62,8 +55,6 @@ public class HandsOnDetectionDriverState {
      * Returns a user-friendly representation of a {@code HandsOnDetectionDriverState}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(
             @HandsOnDetectionDriverStateInt int handsOnDetectionDriverState) {
         switch (handsOnDetectionDriverState) {

@@ -17,9 +17,15 @@
 package android.car.remoteaccess;
 
 import android.car.remoteaccess.ICarRemoteAccessCallback;
+import android.car.remoteaccess.TaskScheduleInfo;
 
 /** @hide */
 interface ICarRemoteAccessService {
+    /**
+     * General service error code.
+     */
+    const int SERVICE_ERROR_CODE_GENERAL = 1;
+
     /**
      * Adds the remote task client represented as {@link ICarRemoteAccessCallback} to listen to
      * remote access related events.
@@ -56,4 +62,47 @@ interface ICarRemoteAccessService {
      * @param clientId ID of the remote task client.
      */
     void confirmReadyForShutdown(in String clientId);
+
+    /**
+     * Returns whether task scheduling is supported.
+     */
+    boolean isTaskScheduleSupported();
+
+    /**
+     * Schedules a task to be executed later even when the vehicle is off.
+     *
+     * <p>This sends a scheduled task message to a device external to Android so that the device
+     * can wake up Android and deliver the task through {@code ICarRemoteAccessCallback}.
+     */
+    void scheduleTask(in TaskScheduleInfo scheduleInfo);
+
+    /**
+     * Unschedules a scheduled task.
+     */
+    void unscheduleTask(in String scheduleId);
+
+    /**
+     * Unschedules all scheduled tasks for this client.
+     */
+    void unscheduleAllTasks();
+
+    /**
+     * Returns whether the specified task is scheduled.
+     */
+    boolean isTaskScheduled(in String scheduleId);
+
+    /**
+     * Gets all pending scheduled tasks for this client.
+     */
+    List<TaskScheduleInfo> getAllScheduledTasks();
+
+    /**
+     * For testing only. Add a package as a new serverless remote access client.
+     */
+    void addServerlessRemoteTaskClient(in String packageName, in String clientId);
+
+    /**
+     * For testing only. Remove a package as serverless remote access client.
+     */
+    void removeServerlessRemoteTaskClient(in String packageName);
 }

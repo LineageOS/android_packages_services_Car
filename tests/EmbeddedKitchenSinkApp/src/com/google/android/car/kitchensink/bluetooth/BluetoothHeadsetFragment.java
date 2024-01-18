@@ -46,7 +46,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 import com.google.common.base.Objects;
 
@@ -116,7 +115,7 @@ public class BluetoothHeadsetFragment extends Fragment {
 
     private void checkPermissions() {
         if (!BluetoothPermissionChecker.isPermissionGranted(
-                (KitchenSinkActivity) getHost(), Manifest.permission.BLUETOOTH_CONNECT)) {
+                getActivity(), Manifest.permission.BLUETOOTH_CONNECT)) {
             BluetoothPermissionChecker.requestPermission(Manifest.permission.BLUETOOTH_CONNECT,
                     this,
                     this::setDevicePickerButtonClickable,
@@ -281,7 +280,7 @@ public class BluetoothHeadsetFragment extends Fragment {
             getContext(), new ProfileServiceListener(), BluetoothProfile.HEADSET_CLIENT);
 
         if (BluetoothPermissionChecker.isPermissionGranted(
-                (KitchenSinkActivity) getHost(), Manifest.permission.BLUETOOTH_CONNECT)) {
+                getActivity(), Manifest.permission.BLUETOOTH_CONNECT)) {
             setDevicePickerButtonClickable();
         } else {
             setDevicePickerButtonUnclickable();

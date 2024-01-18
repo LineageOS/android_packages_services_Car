@@ -42,6 +42,7 @@ android_test {
         "androidx.test.espresso.intents",
         "androidx.test.ext.junit",
         "truth",
+        "ub-uiautomator",
         "CarLauncher-core",
     ],
 
@@ -58,4 +59,9 @@ android_test {
     dex_preopt: {
         enabled: false,
     },
+
+    test_suites: [
+        "automotive-tests",
+        "device-tests",
+    ],
 }

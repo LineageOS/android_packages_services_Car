@@ -22,7 +22,6 @@ import static org.junit.Assert.fail;
 import android.car.Car;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.cabin.CarCabinManager;
-import android.car.test.ApiCheckerRule.Builder;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
@@ -40,13 +39,6 @@ public final class CarCabinManagerTest extends CarApiTestBase {
     private static final String TAG = CarCabinManagerTest.class.getSimpleName();
 
     private CarCabinManager mCabinManager;
-
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        Log.w(TAG, "Disabling API requirements check");
-        builder.disableAnnotationsCheck();
-    }
 
     @Before
     public void setUp() throws Exception {

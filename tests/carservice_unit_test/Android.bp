@@ -24,7 +24,11 @@ android_test {
     srcs: [
         "src/**/*.java",
         "src/**/*.aidl",
+        ":car-service-dump-proto-srcs",
     ],
+    proto: {
+        type: "lite",
+    },
 
     aidl: {
         include_dirs: [
@@ -67,6 +71,10 @@ android_test {
         "framework-res",
     ],
 
+    defaults: [
+        "car-framework-aconfig-libraries",
+    ],
+
     static_libs: [
         "android.car.testapi",
         "android.car.test.utils",
@@ -79,6 +87,7 @@ android_test {
         "com.android.car.test.lib",
         "compatibility-device-util-axt",
         "frameworks-base-testutils",
+        "flag-junit",
         "mockito-target-extended",
         "SettingsLib",
         "servicestests-utils",

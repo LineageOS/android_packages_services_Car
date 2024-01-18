@@ -51,7 +51,7 @@
     <ViewStub android:id="@+id/fullscreen_user_switcher_stub"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:layout="@layout/car_fullscreen_user_switcher"/>
+              android:layout="@layout/car_fullscreen_user_switcher_wrapper"/>
 
     <ViewStub android:id="@+id/user_switching_dialog_stub"
               android:layout_width="match_parent"

@@ -18,15 +18,11 @@ package android.car.builtin.view;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.annotation.UiThread;
-import android.car.builtin.annotation.AddedIn;
-import android.car.builtin.annotation.PlatformVersion;
 import android.car.builtin.util.Slogf;
 import android.graphics.Rect;
 import android.graphics.Region;
-import android.os.Build;
 import android.view.View;
 import android.view.ViewTreeObserver.InternalInsetsInfo;
 import android.view.ViewTreeObserver.OnComputeInternalInsetsListener;
@@ -60,8 +56,6 @@ public final class TouchableInsetsProvider {
      *
      * @param obscuredRegion the obscured region of the view.
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void setObscuredTouchRegion(@Nullable Region obscuredRegion) {
         mObscuredTouchRegion = obscuredRegion;
     }
@@ -92,15 +86,11 @@ public final class TouchableInsetsProvider {
     };
 
     /** Registers this to the internal insets computation callback. */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void addToViewTreeObserver() {
         mView.getViewTreeObserver().addOnComputeInternalInsetsListener(mListener);
     }
 
     /** Removes this from the internal insets computation callback. */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void removeFromViewTreeObserver() {
         mView.getViewTreeObserver().removeOnComputeInternalInsetsListener(mListener);
     }

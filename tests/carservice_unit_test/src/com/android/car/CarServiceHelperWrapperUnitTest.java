@@ -98,8 +98,6 @@ public final class CarServiceHelperWrapperUnitTest extends AbstractExtendedMocki
         assertThrows(IllegalStateException.class, () -> wrapper.setProcessProfile(0, 0, ""));
         assertThrows(IllegalStateException.class, () -> wrapper.setSafetyMode(true));
         assertThrows(IllegalStateException.class,
-                () -> wrapper.setSourcePreferredComponents(false, null));
-        assertThrows(IllegalStateException.class,
                 () -> wrapper.startUserInBackgroundVisibleOnDisplay(0, 0));
     }
 }

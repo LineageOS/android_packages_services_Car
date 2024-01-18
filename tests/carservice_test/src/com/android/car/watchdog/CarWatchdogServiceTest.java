@@ -25,6 +25,7 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.timeout;
@@ -39,6 +40,7 @@ import android.car.Car;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.watchdog.CarWatchdogManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Binder;
 import android.os.Handler;
@@ -88,6 +90,8 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     private static final int RECURRING_OVERUSE_PERIOD_IN_DAYS = 2;
     private static final int RESOURCE_OVERUSE_NOTIFICATION_BASE_ID = 10;
     private static final int RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET = 10;
+    private static final String CANONICAL_PACKAGE_NAME =
+            CarWatchdogServiceTest.class.getCanonicalName();
 
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
     private final Executor mExecutor =
@@ -112,6 +116,7 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private IBinder mMockServiceBinder;
     @Mock private ICarWatchdog mMockCarWatchdogDaemon;
     @Mock private WatchdogStorage mMockWatchdogStorage;
+    @Mock private PackageManager mMockPackageManager;
 
     @Captor private ArgumentCaptor<List<ProcessIdentifier>> mProcessIdentifiersCaptor;
 
@@ -135,6 +140,7 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
         when(mMockResources.getInteger(
                 com.android.car.R.integer.recurringResourceOveruseTimes))
                 .thenReturn(RECURRING_OVERUSE_TIMES);
+        when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
 
         doReturn(mMockSystemInterface)
                 .when(() -> CarLocalServices.getService(SystemInterface.class));
@@ -148,6 +154,7 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
         mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ false, mUsers);
         mockUmIsUserRunning(mMockUserManager, 100, true);
         mockUmIsUserRunning(mMockUserManager, 101, false);
+        mockPackageManager();
 
         mCarWatchdogService = new CarWatchdogService(mMockContext, mMockBuiltinPackageContext,
                 mMockWatchdogStorage, mTimeSource);
@@ -289,6 +296,11 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
 
     private void expectStoppedUser() {
         doReturn(101).when(() -> UserHandle.getUserId(Binder.getCallingUid()));
+    }
+
+    private void mockPackageManager() {
+        when(mMockPackageManager.getNamesForUids(any())).thenAnswer(
+                args -> new String[]{CANONICAL_PACKAGE_NAME});
     }
 
     private final class TestClient {

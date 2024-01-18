@@ -120,7 +120,7 @@ final class BugStorageUtils {
             throws FileNotFoundException {
         ContentResolver r = context.getContentResolver();
         return r.openOutputStream(BugStorageProvider.buildUriWithSegment(
-                metaBugReport.getId(), BugStorageProvider.URL_SEGMENT_OPEN_BUGREPORT_FILE));
+                metaBugReport.getId(), BugStorageProvider.URL_SEGMENT_OPEN_BUGREPORT_FILE), "wt");
     }
 
     /** Returns an output stream to write the audio message file to. */
@@ -129,7 +129,7 @@ final class BugStorageUtils {
             throws FileNotFoundException {
         ContentResolver r = context.getContentResolver();
         return r.openOutputStream(BugStorageProvider.buildUriWithSegment(
-                metaBugReport.getId(), BugStorageProvider.URL_SEGMENT_OPEN_AUDIO_FILE));
+                metaBugReport.getId(), BugStorageProvider.URL_SEGMENT_OPEN_AUDIO_FILE), "wt");
     }
 
     /**

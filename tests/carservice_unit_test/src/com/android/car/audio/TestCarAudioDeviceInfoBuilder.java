@@ -16,7 +16,11 @@
 
 package com.android.car.audio;
 
+import static android.media.AudioDeviceInfo.TYPE_BUS;
+
 import static org.mockito.Mockito.when;
+
+import android.media.AudioDeviceAttributes;
 
 import org.mockito.Mockito;
 
@@ -32,6 +36,9 @@ public final class TestCarAudioDeviceInfoBuilder {
     private int mDefaultGain = DEFAULT_GAIN;
     private int mMinGain = MIN_GAIN;
     private int mMaxGain = MAX_GAIN;
+    private boolean mIsActive = true;
+
+    private int mType = TYPE_BUS;
 
     TestCarAudioDeviceInfoBuilder(String address) {
         mAddress = address;
@@ -57,13 +64,28 @@ public final class TestCarAudioDeviceInfoBuilder {
         return this;
     }
 
+    TestCarAudioDeviceInfoBuilder setIsActive(boolean isActive) {
+        mIsActive = isActive;
+        return this;
+    }
+
+    TestCarAudioDeviceInfoBuilder setType(int type) {
+        mType = type;
+        return this;
+    }
+
     CarAudioDeviceInfo build() {
+        AudioDeviceAttributes attributeMock = Mockito.mock(AudioDeviceAttributes.class);
+        when(attributeMock.getAddress()).thenReturn(mAddress);
+        when(attributeMock.getType()).thenReturn(mType);
         CarAudioDeviceInfo infoMock = Mockito.mock(CarAudioDeviceInfo.class);
         when(infoMock.getStepValue()).thenReturn(mStepValue);
         when(infoMock.getDefaultGain()).thenReturn(mDefaultGain);
         when(infoMock.getMaxGain()).thenReturn(mMaxGain);
         when(infoMock.getMinGain()).thenReturn(mMinGain);
         when(infoMock.getAddress()).thenReturn(mAddress);
+        when(infoMock.getAudioDevice()).thenReturn(attributeMock);
+        when(infoMock.isActive()).thenReturn(mIsActive);
         return infoMock;
     }
 }

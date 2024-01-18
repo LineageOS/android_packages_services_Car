@@ -20,8 +20,6 @@ import android.annotation.RequiresPermission;
 import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.annotation.AddedInOrBefore;
-import android.car.annotation.ApiRequirements;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -52,7 +50,6 @@ public final class CarTestManager extends CarManagerBase {
      * @hide
      */
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         // test will fail. nothing to do.
     }
@@ -67,7 +64,6 @@ public final class CarTestManager extends CarManagerBase {
      */
     @TestApi
     @RequiresPermission(Car.PERMISSION_CAR_TEST_SERVICE)
-    @AddedInOrBefore(majorVersion = 33)
     public void stopCarService(@NonNull IBinder token) {
         try {
             mService.stopCarService(token);
@@ -85,7 +81,6 @@ public final class CarTestManager extends CarManagerBase {
      */
     @TestApi
     @RequiresPermission(Car.PERMISSION_CAR_TEST_SERVICE)
-    @AddedInOrBefore(majorVersion = 33)
     public void startCarService(@NonNull IBinder token) {
         try {
             mService.startCarService(token);
@@ -107,8 +102,6 @@ public final class CarTestManager extends CarManagerBase {
      */
     @TestApi
     @RequiresPermission(Car.PERMISSION_CAR_TEST_SERVICE)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public String dumpVhal(List<String> options, long waitTimeoutMs) {
         try {
             return mService.dumpVhal(options, waitTimeoutMs);
@@ -125,8 +118,6 @@ public final class CarTestManager extends CarManagerBase {
      */
     @TestApi
     @RequiresPermission(Car.PERMISSION_CAR_TEST_SERVICE)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean hasAidlVhal() throws RemoteException {
         return mService.hasAidlVhal();
     }
@@ -138,8 +129,6 @@ public final class CarTestManager extends CarManagerBase {
      */
     @TestApi
     @RequiresPermission(Car.PERMISSION_CAR_TEST_SERVICE)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public String getOemServiceName() throws RemoteException {
         return mService.getOemServiceName();
     }

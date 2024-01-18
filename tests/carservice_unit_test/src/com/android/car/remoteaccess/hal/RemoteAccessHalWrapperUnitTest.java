@@ -17,12 +17,15 @@
 package com.android.car.remoteaccess.hal;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doThrow;
 
+import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -33,12 +36,18 @@ import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.hardware.automotive.remoteaccess.ApState;
 import android.hardware.automotive.remoteaccess.IRemoteAccess;
 import android.hardware.automotive.remoteaccess.IRemoteTaskCallback;
+import android.hardware.automotive.remoteaccess.ScheduleInfo;
 import android.os.IBinder;
+import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Tests for {@link RemoteAccessHalWrapper}.
@@ -47,6 +56,8 @@ public final class RemoteAccessHalWrapperUnitTest extends AbstractExtendedMockit
 
     private static final String VEHICLE_ID_FOR_TESTING = "vehicleIdForTesting";
     private static final String SERVICE_NAME_FOR_TESTING = "serviceNameForTesting";
+    private static final String TEST_CLIENT_ID = "test client id";
+    private static final String TEST_SCHEDULE_ID = "test schedule id";
 
     @Mock private IBinder mBinder;
     @Mock private IRemoteAccess mRemoteAccessHal;
@@ -64,6 +75,7 @@ public final class RemoteAccessHalWrapperUnitTest extends AbstractExtendedMockit
         when(mBinder.queryLocalInterface(anyString())).thenReturn(mRemoteAccessHal);
         when(mRemoteAccessHal.getVehicleId()).thenReturn(VEHICLE_ID_FOR_TESTING);
         when(mRemoteAccessHal.getWakeupServiceName()).thenReturn(SERVICE_NAME_FOR_TESTING);
+        when(mRemoteAccessHal.getInterfaceVersion()).thenReturn(2);
         mHalWrapper.init();
     }
 
@@ -179,6 +191,181 @@ public final class RemoteAccessHalWrapperUnitTest extends AbstractExtendedMockit
         assertWithMessage("Client ID").that(mCallback.getClientId())
                 .isEqualTo(VEHICLE_ID_FOR_TESTING);
         assertWithMessage("Data").that(mCallback.getData()).isEqualTo(new byte[]{1, 0, 0, 4});
+    }
+
+    @Test
+    public void testIsTaskScheduleSupported() throws Exception {
+        setUpNormalHalService();
+        when(mRemoteAccessHal.isTaskScheduleSupported()).thenReturn(true);
+
+        assertThat(mHalWrapper.isTaskScheduleSupported()).isTrue();
+    }
+
+    @Test
+    public void testIsTaskScheduleSupported_halVersionNotSupported() throws Exception {
+        setUpNormalHalService();
+        when(mRemoteAccessHal.getInterfaceVersion()).thenReturn(1);
+
+        assertThat(mHalWrapper.isTaskScheduleSupported()).isFalse();
+        verify(mRemoteAccessHal, times(0)).isTaskScheduleSupported();
+    }
+
+    @Test
+    public void testIsTaskScheduleSupported_remoteException() throws Exception {
+        setUpNormalHalService();
+        when(mRemoteAccessHal.isTaskScheduleSupported()).thenThrow(new RemoteException());
+
+        assertThat(mHalWrapper.isTaskScheduleSupported()).isFalse();
+        verify(mRemoteAccessHal).isTaskScheduleSupported();
+    }
+
+    @Test
+    public void testIsTaskScheduleSupported_serviceSpecificException() throws Exception {
+        setUpNormalHalService();
+        when(mRemoteAccessHal.isTaskScheduleSupported()).thenThrow(new ServiceSpecificException(0));
+
+        assertThat(mHalWrapper.isTaskScheduleSupported()).isFalse();
+        verify(mRemoteAccessHal).isTaskScheduleSupported();
+    }
+
+    @Test
+    public void testScheduleTask() throws Exception {
+        setUpNormalHalService();
+        ScheduleInfo scheduleInfo = mock(ScheduleInfo.class);
+
+        mHalWrapper.scheduleTask(scheduleInfo);
+
+        verify(mRemoteAccessHal).scheduleTask(scheduleInfo);
+    }
+
+    @Test
+    public void testScheduleTask_remoteException() throws Exception {
+        setUpNormalHalService();
+        doThrow(new RemoteException()).when(mRemoteAccessHal).scheduleTask(any());
+        ScheduleInfo scheduleInfo = mock(ScheduleInfo.class);
+
+        assertThrows(RemoteException.class, () -> mHalWrapper.scheduleTask(scheduleInfo));
+    }
+
+    @Test
+    public void testScheduleTask_serviceSpecificException() throws Exception {
+        setUpNormalHalService();
+        doThrow(new ServiceSpecificException(0)).when(mRemoteAccessHal).scheduleTask(any());
+        ScheduleInfo scheduleInfo = mock(ScheduleInfo.class);
+
+        assertThrows(ServiceSpecificException.class, () -> mHalWrapper.scheduleTask(scheduleInfo));
+    }
+
+    @Test
+    public void testUnscheduleTask() throws Exception {
+        setUpNormalHalService();
+
+        mHalWrapper.unscheduleTask(TEST_CLIENT_ID, TEST_SCHEDULE_ID);
+
+        verify(mRemoteAccessHal).unscheduleTask(TEST_CLIENT_ID, TEST_SCHEDULE_ID);
+    }
+
+    @Test
+    public void testUnscheduleTask_remoteException() throws Exception {
+        setUpNormalHalService();
+        doThrow(new RemoteException()).when(mRemoteAccessHal).unscheduleTask(any(), any());
+
+        assertThrows(RemoteException.class, () -> mHalWrapper.unscheduleTask(
+                TEST_CLIENT_ID, TEST_SCHEDULE_ID));
+    }
+
+    @Test
+    public void testUnscheduleTask_serviceSpecificException() throws Exception {
+        setUpNormalHalService();
+        doThrow(new ServiceSpecificException(0)).when(mRemoteAccessHal).unscheduleTask(
+                any(), any());
+
+        assertThrows(ServiceSpecificException.class, () -> mHalWrapper.unscheduleTask(
+                TEST_CLIENT_ID, TEST_SCHEDULE_ID));
+    }
+
+    @Test
+    public void testUnscheduleAllTasks() throws Exception {
+        setUpNormalHalService();
+
+        mHalWrapper.unscheduleAllTasks(TEST_CLIENT_ID);
+
+        verify(mRemoteAccessHal).unscheduleAllTasks(TEST_CLIENT_ID);
+    }
+
+    @Test
+    public void testUnscheduleAllTasks_remoteException() throws Exception {
+        setUpNormalHalService();
+        doThrow(new RemoteException()).when(mRemoteAccessHal).unscheduleAllTasks(any());
+
+        assertThrows(RemoteException.class, () -> mHalWrapper.unscheduleAllTasks(TEST_CLIENT_ID));
+    }
+
+    @Test
+    public void testUnscheduleAllTasks_serviceSpecificException() throws Exception {
+        setUpNormalHalService();
+        doThrow(new ServiceSpecificException(0)).when(mRemoteAccessHal).unscheduleAllTasks(any());
+
+        assertThrows(ServiceSpecificException.class, () -> mHalWrapper.unscheduleAllTasks(
+                TEST_CLIENT_ID));
+    }
+
+    @Test
+    public void testIsTaskScheduled() throws Exception {
+        setUpNormalHalService();
+
+        when(mRemoteAccessHal.isTaskScheduled(TEST_CLIENT_ID, TEST_SCHEDULE_ID)).thenReturn(true);
+
+        assertThat(mHalWrapper.isTaskScheduled(TEST_CLIENT_ID, TEST_SCHEDULE_ID)).isTrue();
+    }
+
+    @Test
+    public void testIsTaskScheduled_remoteException() throws Exception {
+        setUpNormalHalService();
+        doThrow(new RemoteException()).when(mRemoteAccessHal).isTaskScheduled(any(), any());
+
+        assertThrows(RemoteException.class, () -> mHalWrapper.isTaskScheduled(
+                TEST_CLIENT_ID, TEST_SCHEDULE_ID));
+    }
+
+    @Test
+    public void testIsTaskScheduled_serviceSpecificException() throws Exception {
+        setUpNormalHalService();
+        doThrow(new ServiceSpecificException(0)).when(mRemoteAccessHal).isTaskScheduled(
+                any(), any());
+
+        assertThrows(ServiceSpecificException.class, () -> mHalWrapper.isTaskScheduled(
+                TEST_CLIENT_ID, TEST_SCHEDULE_ID));
+    }
+
+    @Test
+    public void testGetAllScheduledTasks() throws Exception {
+        setUpNormalHalService();
+        ScheduleInfo mockScheduleInfo = mock(ScheduleInfo.class);
+        List<ScheduleInfo> scheduleInfo = new ArrayList<>();
+        scheduleInfo.add(mockScheduleInfo);
+
+        doReturn(scheduleInfo).when(mRemoteAccessHal).getAllScheduledTasks(TEST_CLIENT_ID);
+
+        assertThat(mHalWrapper.getAllScheduledTasks(TEST_CLIENT_ID)).isEqualTo(scheduleInfo);
+    }
+
+    @Test
+    public void testGetAllScheduledTasks_remoteException() throws Exception {
+        setUpNormalHalService();
+        doThrow(new RemoteException()).when(mRemoteAccessHal).getAllScheduledTasks(TEST_CLIENT_ID);
+
+        assertThrows(RemoteException.class, () -> mHalWrapper.getAllScheduledTasks(TEST_CLIENT_ID));
+    }
+
+    @Test
+    public void testGetAllScheduledTasks_serviceSpecificException() throws Exception {
+        setUpNormalHalService();
+        doThrow(new ServiceSpecificException(0)).when(mRemoteAccessHal).getAllScheduledTasks(
+                TEST_CLIENT_ID);
+
+        assertThrows(ServiceSpecificException.class, () -> mHalWrapper.getAllScheduledTasks(
+                TEST_CLIENT_ID));
     }
 
     private IRemoteTaskCallback captureRemoteTaskCallback() throws Exception {

@@ -16,7 +16,6 @@
 
 package android.car.app;
 
-import android.car.annotation.ApiRequirements;
 
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -36,18 +35,12 @@ public final class CarTaskViewControllerHostLifecycle {
     @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
     public interface CarTaskViewControllerHostLifecycleObserver {
         /** Gets called when the container is destroyed. */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
         void onHostDestroyed(CarTaskViewControllerHostLifecycle lifecycle);
 
         /** Gets called when the container has appeared. */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
         void onHostAppeared(CarTaskViewControllerHostLifecycle lifecycle);
 
         /** Gets called when the container has disappeared. */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
         void onHostDisappeared(CarTaskViewControllerHostLifecycle lifecycle);
     }
 
@@ -60,8 +53,6 @@ public final class CarTaskViewControllerHostLifecycle {
      * Notifies the lifecycle observers that the host has been destroyed and they can clean their
      * internal state.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     public void hostDestroyed() {
         for (CarTaskViewControllerHostLifecycleObserver observer : mObserverList) {
             observer.onHostDestroyed(this);
@@ -69,8 +60,6 @@ public final class CarTaskViewControllerHostLifecycle {
     }
 
     /** Notifies the lifecycle observers that the host has appeared. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     public void hostAppeared() {
         mIsVisible = true;
         for (CarTaskViewControllerHostLifecycleObserver observer : mObserverList) {
@@ -79,8 +68,6 @@ public final class CarTaskViewControllerHostLifecycle {
     }
 
     /** Notifies the lifecycle observers that the host has disappeared. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     public void hostDisappeared() {
         mIsVisible = false;
         for (CarTaskViewControllerHostLifecycleObserver observer : mObserverList) {
@@ -89,24 +76,18 @@ public final class CarTaskViewControllerHostLifecycle {
     }
 
     /** @return true if the container is visible, false otherwise. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
     public boolean isVisible() {
         return mIsVisible;
     }
 
     /** Registers the given observer to listen to lifecycle of the container. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
     public void registerObserver(CarTaskViewControllerHostLifecycleObserver observer) {
         mObserverList.add(observer);
     }
 
     /** Unregisters the given observer to stop listening to the lifecycle of the container. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
     public void unregisterObserver(CarTaskViewControllerHostLifecycleObserver observer) {
         mObserverList.remove(observer);

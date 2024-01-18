@@ -19,11 +19,13 @@ package android.car.hardware.power;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.car.annotation.AddedInOrBefore;
 import android.util.SparseBooleanArray;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Utility class used when dealing with PowerComponent.
@@ -34,19 +36,16 @@ public final class PowerComponentUtil {
     /**
      * The component is marked as enabled in the power policy.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int COMPONENT_STATE_ENABLED = 1;
 
     /**
      * The component is marked as disabled in the power policy.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int COMPONENT_STATE_DISABLED = 2;
 
     /**
      * The component is not specified in the power policy.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int COMPONENT_STATE_UNTOUCHED = 3;
 
     @IntDef(prefix = { "COMPONENT_STATE_" }, value = {
@@ -60,13 +59,11 @@ public final class PowerComponentUtil {
     /**
      * Represetns an invalid power component.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int INVALID_POWER_COMPONENT = -1;
 
     /**
      * The first component in {@link PowerComponent}.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int FIRST_POWER_COMPONENT = PowerComponent.AUDIO;
 
     /**
@@ -74,7 +71,6 @@ public final class PowerComponentUtil {
      *
      * <p> This should be updated when a new component is added to {@link PowerComponent}.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int LAST_POWER_COMPONENT = PowerComponent.CPU;
 
     private static final String POWER_COMPONENT_PREFIX = "POWER_COMPONENT_";
@@ -107,7 +103,6 @@ public final class PowerComponentUtil {
     /**
      * Checks whether the given component is valid.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static boolean isValidPowerComponent(int component) {
         return component >= FIRST_POWER_COMPONENT && component <= LAST_POWER_COMPONENT;
     }
@@ -115,7 +110,6 @@ public final class PowerComponentUtil {
     /**
      * Checks whether the given policy has one ore more components specified in the given filter.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static boolean hasComponents(@NonNull CarPowerPolicy policy,
             @NonNull CarPowerPolicyFilter filter) {
         SparseBooleanArray filterSet = new SparseBooleanArray();
@@ -142,7 +136,6 @@ public final class PowerComponentUtil {
     /**
      * Matches the given string to {@link PowerComponent}.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static int toPowerComponent(@Nullable String componentArg, boolean prefix) {
         String component = componentArg;
         if (component == null) {
@@ -196,7 +189,6 @@ public final class PowerComponentUtil {
      * Convert {@link PowerComponent} to string.
      */
     @NonNull
-    @AddedInOrBefore(majorVersion = 33)
     public static String powerComponentToString(int component) {
         switch (component) {
             case PowerComponent.AUDIO:
@@ -237,5 +229,38 @@ public final class PowerComponentUtil {
                 }
                 return "unknown component";
         }
+    }
+
+    /**
+     * Convert list of {@link PowerComponent} to list of strings.
+     */
+    @NonNull
+    public static List<String> powerComponentsToStrings(Iterable<Integer> components) {
+        List<String> powerComponents = new ArrayList<>();
+        Iterator<Integer> componentsIterator = components.iterator();
+        while (componentsIterator.hasNext()) {
+            Integer component = componentsIterator.next();
+            powerComponents.add(powerComponentToString(component));
+        }
+        return powerComponents;
+    }
+
+    /**
+     * Convert list of {@link PowerComponent} to string containing a list of the components,
+     * each separated by a comma and a space. (Example: "AUDIO, WIFI")
+     */
+    @NonNull
+    public static String powerComponentsToString(Iterable<Integer> components) {
+        StringBuilder builder = new StringBuilder();
+        Iterator<Integer> componentsIterator = components.iterator();
+        // Do first element separately to not start the list with a comma
+        if (componentsIterator.hasNext()) {
+            builder.append(powerComponentToString(componentsIterator.next()));
+        }
+        while (componentsIterator.hasNext()) {
+            builder.append(
+                    String.format(", %s", powerComponentToString(componentsIterator.next())));
+        }
+        return builder.toString();
     }
 }

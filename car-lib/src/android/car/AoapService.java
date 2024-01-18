@@ -23,7 +23,6 @@ import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.app.Service;
-import android.car.annotation.AddedInOrBefore;
 import android.content.Intent;
 import android.hardware.usb.UsbDevice;
 import android.os.Bundle;
@@ -59,20 +58,17 @@ public abstract class AoapService extends Service {
     private static final String TAG = AoapService.class.getSimpleName();
 
     /** Indicates success or confirmation. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int RESULT_OK = 0;
 
     /**
      * Indicates that the device is not supported by this service and system shouldn't associate
      * given device with this service.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int RESULT_DEVICE_NOT_SUPPORTED = 1;
 
     /**
      * Indicates that device shouldn't be switch to AOAP mode at this time.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int RESULT_DO_NOT_SWITCH_TO_AOAP = 2;
 
     /** @hide */
@@ -89,7 +85,6 @@ public abstract class AoapService extends Service {
      *
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int MSG_NEW_DEVICE_ATTACHED = 1;
 
     /**
@@ -97,7 +92,6 @@ public abstract class AoapService extends Service {
      * with one of the {@code RESULT_*} constant.
      *
      * @hide */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int MSG_NEW_DEVICE_ATTACHED_RESPONSE = 2;
 
     /**
@@ -107,7 +101,6 @@ public abstract class AoapService extends Service {
      *
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int MSG_CAN_SWITCH_TO_AOAP = 3;
 
     /**
@@ -115,15 +108,12 @@ public abstract class AoapService extends Service {
      * with one of the {@code RESULT_*} constant.
      *
      * @hide */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int MSG_CAN_SWITCH_TO_AOAP_RESPONSE = 4;
 
     /** @hide */
-    @AddedInOrBefore(majorVersion = 33)
     public static final String KEY_DEVICE = "usb-device";
 
     /** @hide */
-    @AddedInOrBefore(majorVersion = 33)
     public static final String KEY_RESULT = "result";
 
 
@@ -139,7 +129,6 @@ public abstract class AoapService extends Service {
      * {@link #RESULT_DEVICE_NOT_SUPPORTED}
      */
     @MainThread
-    @AddedInOrBefore(majorVersion = 33)
     public abstract @Result int isDeviceSupported(@NonNull UsbDevice device);
 
     /**
@@ -159,7 +148,6 @@ public abstract class AoapService extends Service {
      * {@link #RESULT_DEVICE_NOT_SUPPORTED} or {@link #RESULT_DO_NOT_SWITCH_TO_AOAP}
      */
     @MainThread
-    @AddedInOrBefore(majorVersion = 33)
     public @Result int canSwitchToAoap(@NonNull UsbDevice device) {
         return RESULT_OK;
     }
@@ -168,14 +156,12 @@ public abstract class AoapService extends Service {
     private boolean mBound;
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void onCreate() {
         super.onCreate();
         mMessenger = new Messenger(new IncomingHandler(this));
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public IBinder onBind(Intent intent) {
         if (mBound) {
             Log.w(TAG, "Received onBind event when the service was already bound");
@@ -185,7 +171,6 @@ public abstract class AoapService extends Service {
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public boolean onUnbind(Intent intent) {
         mBound = false;
         return super.onUnbind(intent);
@@ -193,7 +178,6 @@ public abstract class AoapService extends Service {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    @AddedInOrBefore(majorVersion = 33)
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
         writer.write("Bound: " + mBound);
     }

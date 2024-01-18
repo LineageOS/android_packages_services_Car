@@ -37,8 +37,10 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
+import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
+import android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate;
 import android.car.Car;
 import android.car.ICarResultReceiver;
 import android.car.builtin.app.VoiceInteractionHelper;
@@ -50,6 +52,7 @@ import android.car.hardware.power.ICarPowerStateListener;
 import android.car.hardware.power.PowerComponent;
 import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.mocks.JavaMockitoHelper;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
@@ -60,12 +63,18 @@ import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
 import android.net.TetheringManager;
 import android.net.wifi.WifiManager;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.SystemClock;
 import android.os.UserManager;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.AtomicFile;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
+import android.util.SparseIntArray;
+import android.util.SparseLongArray;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -96,11 +105,21 @@ import org.mockito.Spy;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.Field;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @SmallTest
 public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTestCase {
@@ -138,6 +157,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private TemporaryFile mFileKernelSilentMode;
     private FakeCarPowerPolicyDaemon mPowerPolicyDaemon;
     private boolean mVoiceInteractionEnabled;
+    private FakeScreenOffHandler mScreenOffHandler;
+
 
     @Mock
     private UserManager mUserManager;
@@ -174,6 +195,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
             .withSystemStateInterface(mSystemStateInterface)
             .withWakeLockInterface(mWakeLockInterface)
             .withIOInterface(mIOInterface).build();
+        HandlerThread handlerThread = CarServiceUtils.getHandlerThread(TAG);
+        mScreenOffHandler = new FakeScreenOffHandler(
+                mContext, mSystemInterface, handlerThread.getLooper());
 
         setCurrentUser(CURRENT_USER_ID, /* isGuest= */ false);
         setService();
@@ -216,11 +240,12 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mFileHwStateMonitoring = new TemporaryFile("HW_STATE_MONITORING");
         mFileKernelSilentMode = new TemporaryFile("KERNEL_SILENT_MODE");
         mFileHwStateMonitoring.write(NONSILENT_STRING);
-        mPowerPolicyDaemon = new FakeCarPowerPolicyDaemon();
         mPowerComponentHandler = new PowerComponentHandler(mContext, mSystemInterface,
                 new AtomicFile(mComponentStateFile.getFile()));
-        mService = new CarPowerManagementService(mContext, mResources, mPowerHal, mSystemInterface,
-                mUserManager, mUserService, mPowerPolicyDaemon, mPowerComponentHandler,
+        mPowerPolicyDaemon = new FakeCarPowerPolicyDaemon();
+        mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
+                mSystemInterface, mUserManager, mUserService, mPowerPolicyDaemon,
+                mPowerComponentHandler, mScreenOffHandler,
                 mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
@@ -689,40 +714,99 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
-    public void testDefinePowerPolicyFromCommand() throws Exception {
+    public void testDefinePowerPolicy_validPolicy() {
+        String policyId = "policy_id_valid";
+
+        int status = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "BLUETOOTH"},
+                new String[]{"WIFI"});
+
+        assertThat(status).isEqualTo(PolicyOperationStatus.OK);
+        assertThat(mPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(policyId);
+    }
+
+    @Test
+    public void testDefinePowerPolicy_doubleRegistered() {
         String policyId = "policy_id_valid";
         int status = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "BLUETOOTH"},
                 new String[]{"WIFI"});
         assertThat(status).isEqualTo(PolicyOperationStatus.OK);
-        assertThat(mPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(policyId);
 
         status = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "BLUETOOTH"},
                 new String[]{"WIFI", "NFC"});
-        assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_DOUBLE_REGISTERED_POWER_POLICY_ID);
 
-        policyId = "policy_id_for_invalid_component";
-        status = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "INVALID_COMPONENT"},
-                new String[]{"WIFI"});
+        assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_DOUBLE_REGISTERED_POWER_POLICY_ID);
+    }
+
+    @Test
+    public void testDefinePowerPolicy_invalidComponent() {
+        String policyId = "policy_id_for_invalid_component";
+
+        int status = mService.definePowerPolicy(
+                policyId, new String[]{"AUDIO", "INVALID_COMPONENT"}, new String[]{"WIFI"});
+
         assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_INVALID_POWER_COMPONENT);
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromCommand_validCommand() {
+        String policyId = "policy_id_valid_command";
+        String[] args = {"define-power-policy", policyId, "--enable", "AUDIO,BLUETOOTH",
+                "--disable", "ETHERNET,WIFI"};
+
+        try (IndentingPrintWriter writer = new IndentingPrintWriter(new StringWriter(), "  ")) {
+            boolean status = mService.definePowerPolicyFromCommand(args, writer);
+
+            assertWithMessage(
+                    "Calling definePowerPolicyFromCommand with args: "
+                            + Arrays.toString(args) + " must succeed").that(status).isTrue();
+            String lastDefinedPolicyMsg = "Power policy daemon must have " + policyId
+                    + " as last defined policy id";
+            assertWithMessage(lastDefinedPolicyMsg).that(
+                    mPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(policyId);
+        }
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromCommand_tooFewArgs() {
+        String[] args = {"define-power-policy"};
+
+        assertDefinePowerPolicyFromCommandFailed(args);
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromCommand_missingEnabledComp() {
+        String[] args = {"define-power-policy", "policy_id_no_enabled", "--enable"};
+
+        assertDefinePowerPolicyFromCommandFailed(args);
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromCommand_missingDisabledComp() {
+        String[] args = {"define-power-policy", "policy_id_no_disabled", "--disable"};
+
+        assertDefinePowerPolicyFromCommandFailed(args);
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromCommand_unknownArg() {
+        String[] args = {"define-power-policy", "policy_id_unknown_arg", "--unknown_arg"};
+
+        assertDefinePowerPolicyFromCommandFailed(args);
     }
 
     @Test
     public void testApplyPowerPolicy() throws Exception {
         grantPowerPolicyPermission();
         String policyId = "policy_id_audio_off";
-        mService.definePowerPolicy(policyId, new String[]{}, new String[]{"AUDIO"});
-        MockedPowerPolicyListener listenerToWait = new MockedPowerPolicyListener();
-        CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
-                .setComponents(PowerComponent.AUDIO).build();
-        mService.addPowerPolicyListener(filterAudio, listenerToWait);
+        MockedPowerPolicyListener listenerToWait = setUpPowerPolicy(
+                /* policyId= */ policyId,
+                /* enabledComponents= */ new String[]{},
+                /* disabledComponents= */ new String[]{"AUDIO"},
+                /* filterComponentValues...= */ PowerComponent.AUDIO);
 
         mService.applyPowerPolicy(policyId);
 
-        waitForPowerPolicy(policyId);
-        assertThat(mPowerComponentHandler.getAccumulatedPolicy().getPolicyId()).isEqualTo(policyId);
-        PollingCheck.check("Current power policy of listener is null", WAIT_TIMEOUT_LONG_MS,
-                () -> listenerToWait.getCurrentPowerPolicy() != null);
-        assertThat(mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(policyId);
+        assertPowerPolicyApplied(policyId, listenerToWait);
     }
 
     @Test
@@ -740,6 +824,45 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         String policyId = "system_power_policy_no_user_interaction";
 
         assertThrows(IllegalArgumentException.class, () -> mService.applyPowerPolicy(policyId));
+    }
+
+    @Test
+    public void testApplyPowerPolicyFromCommand() throws Exception {
+        grantPowerPolicyPermission();
+        String policyId = "policy_id_wifi_on_audio_off";
+        MockedPowerPolicyListener listenerToWait = setUpPowerPolicy(
+                /* policyId= */ policyId,
+                /* enabledComponents= */ new String[]{"WIFI"},
+                /* disabledComponents= */ new String[]{"AUDIO"},
+                /* filterComponentValues...= */ PowerComponent.AUDIO);
+        String[] args = {"apply-power-policy", policyId};
+        StringWriter stringWriter = new StringWriter();
+
+        try (IndentingPrintWriter writer = new IndentingPrintWriter(stringWriter, "  ")) {
+            boolean isSuccess = mService.applyPowerPolicyFromCommand(args, writer);
+
+            assertThat(isSuccess).isTrue();
+        }
+
+        assertPowerPolicyApplied(policyId, listenerToWait);
+    }
+
+    @Test
+    public void testApplyPowerPolicyInvalidCommand() {
+        grantPowerPolicyPermission();
+        String[] argsNoPolicyId = {"apply-power-policy"};
+        String[] argsNullPolicyId = {"apply-power-policy", null};
+        String[] argsUnregisteredId = {"apply-power-policy", "unregistered_policy_id"};
+        StringWriter stringWriter = new StringWriter();
+
+        try (IndentingPrintWriter writer = new IndentingPrintWriter(stringWriter, "  ")) {
+            assertWithMessage("apply policy from command no id").that(
+                    mService.applyPowerPolicyFromCommand(argsNoPolicyId, writer)).isFalse();
+            assertWithMessage("apply policy from command null id").that(
+                    mService.applyPowerPolicyFromCommand(argsNullPolicyId, writer)).isFalse();
+            assertWithMessage("apply policy from command unregistered id").that(
+                    mService.applyPowerPolicyFromCommand(argsUnregisteredId, writer)).isFalse();
+        }
     }
 
     @Test
@@ -793,6 +916,40 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
         assertThat(isSuccess).isFalse();
         writer.close();
+    }
+
+    @Test
+    public void testSetPowerPolicyGroup() throws Exception {
+        grantPowerPolicyPermission();
+        String policyIdNoWifi = "policy_id_no_wifi";
+        mService.definePowerPolicy(
+                /* powerPolicyId= */ policyIdNoWifi, /* enabledComponents= */ new String[]{},
+                /* disabledComponents= */ new String[]{"WIFI"});
+        String policyIdNoBluetooth = "policy_id_no_bluetooth";
+        mService.definePowerPolicy(
+                /* powerPolicyId= */ policyIdNoBluetooth, /* enabledComponents= */ new String[]{},
+                /* disabledComponents= */ new String[]{"BLUETOOTH"});
+        String policyGroupId = "policy_group_id";
+        try (IndentingPrintWriter writer = new IndentingPrintWriter(new StringWriter(), "  ")) {
+            boolean status = mService.definePowerPolicyGroupFromCommand(new String[]{
+                    "define-power-policy-group", policyGroupId, "WaitForVHAL:" + policyIdNoWifi,
+                    "On:" + policyIdNoBluetooth}, writer);
+            assertWithMessage("define power policy group from command status").that(
+                    status).isTrue();
+        }
+
+        mService.setPowerPolicyGroup(policyGroupId);
+
+        assertWithMessage("current power policy group id").that(
+                mService.getCurrentPowerPolicyGroupId()).isEqualTo(policyGroupId);
+    }
+
+    @Test
+    public void testSetPowerPolicyGroup_notRegistered() throws Exception {
+        grantPowerPolicyPermission();
+        assertThrows("set power policy group throws exception",
+                IllegalArgumentException.class,
+                () -> mService.setPowerPolicyGroup("policy_group_id_not_registered"));
     }
 
     @Test
@@ -912,6 +1069,31 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         assertThat(mService.getCurrentPowerPolicy().isComponentEnabled(customComponent3)).isTrue();
     }
 
+    @Test
+    public void testNotifyUserActivity_withoutTimestamp() throws Exception {
+        int displayId = 42;
+
+        mService.notifyUserActivity(displayId);
+
+        assertWithMessage(
+                "Display " + displayId + " user activity update time without timestamp").that(
+                mScreenOffHandler.getDisplayUserActivityTime(displayId)).isAtMost(
+                        SystemClock.uptimeMillis());
+    }
+
+    @Test
+    public void testNotifyUserActivity_withTimestamp() throws Exception {
+        int displayId = 24;
+        long timestamp = 50;
+
+        mService.notifyUserActivity(displayId, timestamp);
+
+        assertWithMessage(
+                "Display " + displayId + " user activity update time with timestamp").that(
+                        mScreenOffHandler.getDisplayUserActivityTime(displayId)).isEqualTo(
+                                timestamp);
+    }
+
     /**
      * This test case increases the code coverage to cover methods
      * {@code describeContents()} and {@code newArray()}. They are public APIs
@@ -964,6 +1146,70 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
+    public void testApplyPowerPolicyAtStateChanged() throws Exception {
+        grantPowerPolicyPermission();
+
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
+        PolicyReader policyReader = mService.getPolicyReader();
+        Resources resources =
+                InstrumentationRegistry.getInstrumentation().getTargetContext().getResources();
+        try (InputStream inputStream = resources.openRawResource(
+                R.raw.valid_power_policy_with_policy_groups)) {
+            policyReader.readPowerPolicyFromXml(inputStream);
+        }
+
+        CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
+                .setComponents(PowerComponent.AUDIO).build();
+        MockedPowerPolicyListener listenerToWait = new MockedPowerPolicyListener();
+        mService.addPowerPolicyListener(filterAudio, listenerToWait);
+
+        String policyGroupId = "policy_group_1";
+        String waitForVhalPolicy = "wait_for_vhal_policy";
+        mService.setPowerPolicyGroup(policyGroupId);
+        mService.applyPowerPolicy(waitForVhalPolicy);
+        waitForPowerPolicy(waitForVhalPolicy);
+        String onPolicy = "on_policy";
+        AtomicBoolean isPolicyApplicationSuccessful = new AtomicBoolean(false);
+        mService.registerListener(new ICarPowerStateListener.Stub() {
+            @Override
+            public void onStateChanged(int state, long expirationTimeMs) {
+                // when ON state is received, request to change power policy
+                if (state == CarPowerManager.STATE_ON) {
+                    try {
+                        // send request from another thread, to avoid blocking main thread while
+                        // we're waiting for policy to apply
+                        new Thread(() -> {
+                            mService.applyPowerPolicy(onPolicy);
+                            // if flag is not set, exception was caught
+                            isPolicyApplicationSuccessful.set(true);
+                        }).start();
+                    } catch (Exception e) {
+                        Log.e(TAG, "Caught an exception " + Log.getStackTraceString(e));
+                    }
+                }
+            }
+        });
+
+        // Transition to ON state
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
+        waitForPowerPolicy(onPolicy);
+
+        CarPowerPolicy policy = mService.getCurrentPowerPolicy();
+        assertWithMessage("Power Policy").that(policy).isNotNull();
+        expectWithMessage("Policy id").that(policy.getPolicyId())
+                .isEqualTo(onPolicy);
+        expectWithMessage("Accumulated policy id")
+                .that(mPowerComponentHandler.getAccumulatedPolicy().getPolicyId())
+                .isEqualTo(onPolicy);
+        expectWithMessage("Current power policy")
+                .that(listenerToWait.getCurrentPowerPolicy()).isNotNull();
+        waitForPowerPolicyNotificationToDaemon(onPolicy);
+        PollingCheck.waitFor(WAIT_TIMEOUT_LONG_MS, isPolicyApplicationSuccessful::get);
+    }
+
+    @Test
     public void testSuspendFailure() throws Exception {
         suspendWithFailure(/* nextPowerState= */ null);
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
@@ -1012,10 +1258,11 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .thenReturn(true);
         when(mWifiManager.isWifiEnabled()).thenReturn(true);
         when(mWifiManager.isWifiApEnabled()).thenReturn(true);
-        mService = new CarPowerManagementService(mContext, mResources, mPowerHal, mSystemInterface,
-                mUserManager, mUserService, mPowerPolicyDaemon, mPowerComponentHandler,
-                mFileHwStateMonitoring.getFile().getPath(),
-                mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
+        mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
+                    mSystemInterface, mUserManager, mUserService, mPowerPolicyDaemon,
+                    mPowerComponentHandler, mScreenOffHandler,
+                    mFileHwStateMonitoring.getFile().getPath(),
+                    mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class, mService);
         mService.init();
@@ -1097,13 +1344,113 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .that(mPowerHal.getRequestedShutdownPowerState())
                 .isEqualTo(PowerHalService.PowerState.SHUTDOWN_TYPE_UNDEFINED);
     }
+
+    @Test
+    public void testIsSuspendAvailable_hibernateAvailable() {
+        mPowerHal.setHibernationEnabled(true);
+
+        assertWithMessage("Suspend availability").that(
+                mService.isSuspendAvailable(/* isHibernation= */ true)).isTrue();
+    }
+
+    @Test
+    public void testIsSuspendAvailable_hibernateNotAvailable() {
+        mPowerHal.setHibernationEnabled(false);
+
+        assertWithMessage("Suspend availability").that(
+                mService.isSuspendAvailable(/* isHibernation= */ true)).isFalse();
+    }
+
+    @Test
+    public void testIsSuspendAvailable_deepSleepAvailable() {
+        mPowerHal.setDeepSleepEnabled(true);
+
+        assertWithMessage("Suspend availability").that(
+                mService.isSuspendAvailable(/* isHibernation= */ false)).isTrue();
+    }
+
+    @Test
+    public void testIsSuspendAvailable_deepSleepNotAvailable() {
+        mPowerHal.setDeepSleepEnabled(false);
+
+        assertWithMessage("Suspend availability").that(
+                mService.isSuspendAvailable(/* isHibernation= */ false)).isFalse();
+    }
+
+    @Test
+    public void testSendDisplayBrightness_noDisplayId() throws Exception {
+        int brightness = 25;
+        int displayId = Display.DEFAULT_DISPLAY;
+
+        mService.sendDisplayBrightness(brightness);
+
+        mPowerHal.waitForBrightnessSent(displayId, brightness, WAIT_TIMEOUT_MS);
+        assertWithMessage("Display " + displayId + " brightness sent with no display ID").that(
+                mPowerHal.getDisplayBrightness(displayId)).isEqualTo(brightness);
+    }
+
+    @Test
+    public void testSendDisplayBrightness_withDisplayId() throws Exception {
+        int brightness = 50;
+        int displayId = 222;
+
+        mService.sendDisplayBrightness(displayId, brightness);
+
+        mPowerHal.waitForBrightnessSent(displayId, brightness, WAIT_TIMEOUT_MS);
+        assertWithMessage("Display " + displayId + " brightness sent with the display ID").that(
+                mPowerHal.getDisplayBrightness(displayId)).isEqualTo(brightness);
+    }
+
+    @Test
+    public void testGarageModeSystemPolicyOverride() throws Exception {
+        grantPowerPolicyPermission();
+
+        openRawResource(R.raw.valid_power_policy);
+
+        CarPowerPolicyFilter filterBluetooth = new CarPowerPolicyFilter.Builder().setComponents(
+                PowerComponent.BLUETOOTH).build();
+        CarPowerPolicyFilter filterNfc = new CarPowerPolicyFilter.Builder().setComponents(
+                PowerComponent.NFC).build();
+        MockedPowerPolicyListener listenerBluetooth = new MockedPowerPolicyListener();
+        MockedPowerPolicyListener listenerNfc = new MockedPowerPolicyListener();
+        mService.addPowerPolicyListener(filterBluetooth, listenerBluetooth);
+        mService.addPowerPolicyListener(filterNfc, listenerNfc);
+
+        mPowerHal.setCurrentPowerState(
+                new PowerState(
+                        VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY));
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_SHUTDOWN_START);
+        assertWithMessage("Garage mode immediate exit status").that(
+                mService.garageModeShouldExitImmediately()).isFalse();
+
+        waitForPowerPolicy(SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
+
+        assertWithMessage("Car power policy daemon policy ID").that(
+                mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(
+                        SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
+        PollingCheck.check("Current power policy of bluetooth listener is wrong",
+                WAIT_TIMEOUT_LONG_MS, () -> listenerBluetooth.getCurrentPowerPolicy() != null
+                        && SYSTEM_POWER_POLICY_NO_USER_INTERACTION.equals(
+                        listenerBluetooth.getCurrentPowerPolicy().getPolicyId()));
+        expectWithMessage("Bluetooth component is missing from current policy enabled components")
+                .that(listenerBluetooth.getCurrentPowerPolicy().getEnabledComponents()).asList()
+                .contains(PowerComponent.BLUETOOTH);
+        PollingCheck.check("Current power policy of NFC listener is wrong",
+                WAIT_TIMEOUT_LONG_MS, () -> listenerNfc.getCurrentPowerPolicy() != null
+                        && SYSTEM_POWER_POLICY_NO_USER_INTERACTION.equals(
+                        listenerNfc.getCurrentPowerPolicy().getPolicyId()));
+        expectWithMessage("NFC component is missing from current policy enabled components").that(
+                listenerBluetooth.getCurrentPowerPolicy().getEnabledComponents()).asList().contains(
+                PowerComponent.NFC);
+    }
+
+
     @Test
     public void testPowerPolicyNotificationCustomComponents() throws Exception {
         grantPowerPolicyPermission();
 
-        Context context = InstrumentationRegistry.getInstrumentation().getContext();
-        mService.readPowerPolicyFromXml(
-                context.getResources().openRawResource(R.raw.valid_power_policy_custom_components));
+        openRawResource(R.raw.valid_power_policy_custom_components);
 
         int custom_component_1000 = 1000;
         CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder().setComponents(
@@ -1118,7 +1465,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 policyIdCustomOtherOff);
         PollingCheck.check("Current power policy of listener is null", WAIT_TIMEOUT_LONG_MS,
                 () -> listener.getCurrentPowerPolicy() != null);
-        assertThat(mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(policyIdCustomOtherOff);
     }
 
     @Test
@@ -1132,9 +1478,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         String policyIdCustom = "policy_id_custom";
         String policyIdOtherOff = "policy_id_other_off";
 
-        Context context = InstrumentationRegistry.getInstrumentation().getContext();
-        mService.readPowerPolicyFromXml(
-                context.getResources().openRawResource(R.raw.valid_power_policy_custom_components));
+        openRawResource(R.raw.valid_power_policy_custom_components);
         int custom_component_1000 = 1000;
         CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder().setComponents(
                 custom_component_1000).build();
@@ -1175,7 +1519,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         assertWithMessage("Custom components is missing from accumulated policy").that(
                 listener.getCurrentPowerPolicy().getEnabledComponents()).asList().contains(
                 custom_component_1000);
-        assertThat(mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(policyIdCustomOtherOff);
+        assertThat(mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(
+                policyIdCustomOtherOff);
         // Change again and ensure no notification
         // This policy doesn't change state of component_1000
         mService.applyPowerPolicy(policyIdCustom);
@@ -1202,6 +1547,119 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         assertWithMessage("Custom component is in enabled components of accumulated policy").that(
                 listener.getCurrentPowerPolicy().getEnabledComponents()).asList().doesNotContain(
                 custom_component_1000);
+    }
+
+    @Test
+    public void testPowerStateAidlDefinition() throws Exception {
+        Field[] powerManagerFields = CarPowerManager.class.getFields();
+        String statePrefix = "STATE_";
+
+        for (int i = 0; i < powerManagerFields.length; i++) {
+            String powerManagerField = powerManagerFields[i].getName();
+            if (powerManagerField.startsWith(statePrefix)) {
+                String powerState = powerManagerField.substring(statePrefix.length());
+                int powerStateInt = powerManagerFields[i].getInt(null);
+                int aidlPowerStateInt = ICarPowerPolicyDelegate.PowerState.class.getField(
+                        powerState).getInt(null);
+                assertWithMessage("Power state int representation of '%s'", powerState).that(
+                        aidlPowerStateInt).isEqualTo(powerStateInt);
+            }
+        }
+    }
+
+    @Test
+    public void testDumpToProto() throws Exception {
+        int pollingIntervalMs = 1000;
+        int prepareTimeMs = 10 * 60 * 1000;
+        mService.setShutdownTimersForTest(pollingIntervalMs, prepareTimeMs);
+        ProtoOutputStream proto = new ProtoOutputStream();
+
+        mService.dumpProto(proto);
+
+        CarPowerDumpProto carPowerDumpProto = CarPowerDumpProto.parseFrom(proto.getBytes());
+        assertThat(carPowerDumpProto.getShutdownPollingIntervalMs()).isEqualTo(pollingIntervalMs);
+        assertThat(carPowerDumpProto.getShutdownPrepareTimeMs()).isEqualTo(prepareTimeMs);
+    }
+
+    @Test
+    public void testCanTurnOnDisplay_isNotPowerSaving() throws Exception {
+        boolean isPowerSaving = false;
+        mScreenOffHandler.setIsAutoPowerSaving(isPowerSaving);
+        int displayId = 123;
+
+        boolean canTurnOnDisplay = mService.canTurnOnDisplay(displayId);
+
+        assertWithMessage("Turn on display status while not power saving").that(
+                canTurnOnDisplay).isTrue();
+    }
+
+    @Test
+    public void testCanTurnOnDisplay_displayOff() throws Exception {
+        boolean isPowerSaving = true;
+        mScreenOffHandler.setIsAutoPowerSaving(isPowerSaving);
+        int displayId = 321;
+        mScreenOffHandler.setDisplayPowerInfo(displayId, ScreenOffHandler.DISPLAY_POWER_MODE_OFF);
+
+        boolean canTurnOnDisplay = mService.canTurnOnDisplay(displayId);
+
+        assertWithMessage("Turn on display status when power mode is 'off'").that(
+                canTurnOnDisplay).isFalse();
+    }
+
+    @Test
+    public void testCanTurnOnDisplay_displayOn() throws Exception {
+        boolean isPowerSaving = true;
+        mScreenOffHandler.setIsAutoPowerSaving(isPowerSaving);
+        int displayId = 333;
+        mScreenOffHandler.setDisplayPowerInfo(displayId, ScreenOffHandler.DISPLAY_POWER_MODE_ON);
+
+        boolean canTurnOnDisplay = mService.canTurnOnDisplay(displayId);
+
+        assertWithMessage("Turn on display status when power mode is 'on'").that(
+                canTurnOnDisplay).isTrue();
+    }
+
+    @Test
+    public void testHandleDisplayChanged_displayOff() throws Exception {
+        int displayId = Display.DEFAULT_DISPLAY;
+        boolean displayOn = false;
+
+        mService.handleDisplayChanged(displayId, displayOn);
+
+        mScreenOffHandler.waitForDisplayHandled(WAIT_TIMEOUT_MS);
+        assertWithMessage("Display " + displayId + " with state 'off' handled status")
+                .that(mScreenOffHandler.isDisplayStateHandled(displayId, displayOn)).isTrue();
+    }
+
+    @Test
+    public void testHandleDisplayChanged_displayOn() throws Exception {
+        int displayId = 101;
+        boolean displayOn = true;
+
+        mService.handleDisplayChanged(displayId, displayOn);
+
+        mScreenOffHandler.waitForDisplayHandled(WAIT_TIMEOUT_MS);
+        assertWithMessage("Display " + displayId + " with state 'on' handled status")
+                .that(mScreenOffHandler.isDisplayStateHandled(displayId, displayOn)).isTrue();
+    }
+
+    @Test
+    public void testOnDisplayBrightnessChange_noDisplayId() throws Exception {
+        int brightness = 10;
+
+        mService.onDisplayBrightnessChange(brightness);
+
+        expectDisplayBrightnessChangeApplied(Display.DEFAULT_DISPLAY, brightness);
+    }
+
+    @Test
+    public void testOnDisplayBrightnessChange_withDisplayId() throws Exception {
+        int brightness = 100;
+        int displayId = 1;
+
+        mService.onDisplayBrightnessChange(displayId, brightness);
+
+        expectDisplayBrightnessChangeApplied(displayId, brightness);
     }
 
     private void suspendDevice() throws Exception {
@@ -1345,10 +1803,54 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 });
     }
 
+    private void openRawResource(int resourceId) throws Exception {
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
+        mService.readPowerPolicyFromXml(
+                context.getResources().openRawResource(resourceId));
+    }
+
+    private MockedPowerPolicyListener setUpPowerPolicy(String policyId, String[] enabledComponents,
+            String[] disabledComponents, int... filterComponentValues) {
+        mService.definePowerPolicy(policyId, enabledComponents, disabledComponents);
+        MockedPowerPolicyListener listenerToWait = new MockedPowerPolicyListener();
+        CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder()
+                .setComponents(filterComponentValues).build();
+        mService.addPowerPolicyListener(filter, listenerToWait);
+        return listenerToWait;
+    }
+
+    private void assertPowerPolicyApplied(String policyId, MockedPowerPolicyListener listenerToWait)
+            throws Exception {
+        waitForPowerPolicy(policyId);
+        assertThat(mPowerComponentHandler.getAccumulatedPolicy().getPolicyId()).isEqualTo(policyId);
+        PollingCheck.check("Current power policy of listener is null", WAIT_TIMEOUT_LONG_MS,
+                () -> listenerToWait.getCurrentPowerPolicy() != null);
+        assertThat(mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(policyId);
+    }
+
+    private void assertDefinePowerPolicyFromCommandFailed(String[] args) {
+        try (IndentingPrintWriter writer = new IndentingPrintWriter(new StringWriter(), "  ")) {
+            boolean status = mService.definePowerPolicyFromCommand(args, writer);
+
+            assertWithMessage(
+                    "Calling definePowerPolicyFromCommand with args: "
+                            + Arrays.toString(args) + " must fail").that(status).isFalse();
+        }
+    }
+
+    private void expectDisplayBrightnessChangeApplied(int displayId, int brightness)
+            throws Exception {
+        mDisplayInterface.waitForDisplayBrightness(displayId, brightness, WAIT_TIMEOUT_MS);
+        expectWithMessage("Display " + displayId + " brightness").that(
+                mDisplayInterface.getDisplayBrightness(displayId)).isEqualTo(brightness);
+    }
+
     private void waitForPowerPolicy(String policyId) throws Exception {
         PollingCheck.check("Policy id is not " + policyId, WAIT_TIMEOUT_LONG_MS,
                 () -> {
                     CarPowerPolicy policy = mService.getCurrentPowerPolicy();
+                    Log.d(TAG, "CarPowerManagementService current power policy is "
+                            + policy.getPolicyId());
                     return policy != null && policyId.equals(policy.getPolicyId());
                 });
     }
@@ -1365,7 +1867,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private static void waitForSemaphore(Semaphore semaphore, long timeoutMs)
             throws InterruptedException {
         if (!semaphore.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS)) {
-            throw new IllegalStateException("timeout");
+            throw new IllegalStateException("semaphore timeout");
         }
     }
 
@@ -1381,6 +1883,18 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         return userInfo;
     }
 
+    private void waitForPolicyId(String policyId, Callable<Boolean> policyCheckCallable)
+            throws Exception {
+        PollingCheck.check("Policy id is not " + policyId, WAIT_TIMEOUT_LONG_MS,
+                policyCheckCallable);
+    }
+
+    private void waitForPowerPolicyNotificationToDaemon(String policyId) throws Exception {
+        waitForPolicyId(policyId,
+                () -> policyId.equals(mPowerPolicyDaemon.getLastNotifiedPolicyId()));
+    }
+
+
     private void grantPowerPolicyPermission() {
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_CONTROL_CAR_POWER_POLICY);
@@ -1394,9 +1908,13 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     private static final class MockDisplayInterface implements DisplayInterface {
+        private static final int WAIT_FOR_DISPLAY_BRIGHTNESS_RETRIES = 5;
         @GuardedBy("sLock")
         private final SparseBooleanArray mDisplayOn = new SparseBooleanArray();
         private final Semaphore mDisplayStateWait = new Semaphore(0);
+        @GuardedBy("sLock")
+        private final SparseIntArray mDisplayBrightnessSet = new SparseIntArray();
+        private final Semaphore mDisplayBrightnessWait = new Semaphore(0);
 
         @Override
         public void init(CarPowerManagementService carPowerManagementService,
@@ -1407,10 +1925,42 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         }
 
         @Override
-        public void setDisplayBrightness(int brightness) {}
+        public void setDisplayBrightness(int brightness) {
+            setDisplayBrightness(Display.DEFAULT_DISPLAY, brightness);
+        }
 
         @Override
-        public void setDisplayBrightness(int displayId, int brightness) {}
+        public void setDisplayBrightness(int displayId, int percentBright) {
+            synchronized (sLock) {
+                if (percentBright == mDisplayBrightnessSet.get(displayId)) {
+                    return;
+                }
+                mDisplayBrightnessSet.put(displayId, percentBright);
+            }
+            mDisplayBrightnessWait.release();
+        }
+
+        private int getDisplayBrightness(int displayId) {
+            synchronized (sLock) {
+                return mDisplayBrightnessSet.get(displayId);
+            }
+        }
+
+        private void waitForDisplayBrightness(int displayId, int expectedBrightness, long timeoutMs)
+                throws Exception {
+            for (int tries = 0; tries < WAIT_FOR_DISPLAY_BRIGHTNESS_RETRIES; tries++) {
+                synchronized (sLock) {
+                    if (mDisplayBrightnessSet.get(displayId) == expectedBrightness) {
+                        return;
+                    }
+                }
+                if (tries < WAIT_FOR_DISPLAY_BRIGHTNESS_RETRIES - 1) {
+                    waitForSemaphore(mDisplayBrightnessWait, timeoutMs);
+                }
+            }
+            throw new IllegalStateException(
+                    "wait for display " + displayId + " brightness timeout");
+        }
 
         @Override
         public void setDisplayState(int displayId, boolean on) {
@@ -1511,6 +2061,119 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         }
     }
 
+    private static final class FakeScreenOffHandler extends ScreenOffHandler {
+        @GuardedBy("sLock")
+        private final SparseArray<FakeDisplayPowerInfo> mDisplayPowerInfos = new SparseArray<>();
+        @GuardedBy("sLock")
+        private final SparseLongArray mDisplayUserActivityTime = new SparseLongArray();
+        @GuardedBy("sLock")
+        private final SparseBooleanArray mHandledDisplayStates = new SparseBooleanArray();
+        private final CountDownLatch mDisplayHandledLatch = new CountDownLatch(1);
+        private boolean mIsAutoPowerSaving;
+        @Retention(RetentionPolicy.SOURCE)
+        @IntDef(prefix = "DISPLAY_POWER_MODE_", value = {
+                DISPLAY_POWER_MODE_NONE,
+                DISPLAY_POWER_MODE_OFF,
+                DISPLAY_POWER_MODE_ON,
+                DISPLAY_POWER_MODE_ALWAYS_ON,
+        })
+        @Target({ElementType.TYPE_USE})
+        private @interface FakeDisplayPowerMode {}
+
+        FakeScreenOffHandler(Context context, SystemInterface systemInterface, Looper looper) {
+            super(context, systemInterface, looper);
+        }
+
+        @Override
+        void init() {}
+
+        private boolean isAutoPowerSaving() {
+            return mIsAutoPowerSaving;
+        }
+
+        private void setIsAutoPowerSaving(boolean isPowerSaving) {
+            mIsAutoPowerSaving = isPowerSaving;
+        }
+
+        private void setDisplayPowerInfo(int displayId, @FakeDisplayPowerMode int powerMode) {
+            FakeDisplayPowerInfo info = new FakeDisplayPowerInfo(powerMode);
+            mDisplayPowerInfos.put(displayId, info);
+        }
+
+        boolean canTurnOnDisplay(int displayId) {
+            if (!mIsAutoPowerSaving) {
+                return true;
+            }
+            synchronized (sLock) {
+                return canTurnOnDisplayLocked(displayId);
+            }
+        }
+
+        @GuardedBy("sLock")
+        private boolean canTurnOnDisplayLocked(int displayId) {
+            FakeDisplayPowerInfo info = mDisplayPowerInfos.get(displayId);
+            if (info == null) {
+                return false;
+            }
+            return info.getMode() != DISPLAY_POWER_MODE_OFF;
+        }
+
+        @Override
+        void handleDisplayStateChange(int displayId, boolean on) {
+            synchronized (sLock) {
+                mHandledDisplayStates.put(displayId, on);
+            }
+            mDisplayHandledLatch.countDown();
+        }
+
+        private boolean isDisplayStateHandled(int displayId, boolean on) {
+            synchronized (sLock) {
+                // confirm that a value has actually been set for displayId in mHandledDisplayStates
+                if (mHandledDisplayStates.indexOfKey(displayId) < 0) {
+                    return false;
+                }
+                return mHandledDisplayStates.get(displayId) == on;
+            }
+        }
+
+        private void waitForDisplayHandled(long timeoutMs) throws Exception {
+            JavaMockitoHelper.await(mDisplayHandledLatch, timeoutMs);
+        }
+
+        @Override
+        void updateUserActivity(int displayId, long eventTime) {
+            synchronized (sLock) {
+                mDisplayUserActivityTime.put(displayId, eventTime);
+            }
+        }
+
+        public long getDisplayUserActivityTime(int displayId) throws IllegalArgumentException {
+            synchronized (sLock) {
+                if (mDisplayUserActivityTime.indexOfKey(displayId) > -1) {
+                    return mDisplayUserActivityTime.get(displayId);
+                }
+                throw new IllegalArgumentException(
+                        "Display " + displayId + " has no user activity timestamp.");
+            }
+        }
+
+        private static final class FakeDisplayPowerInfo {
+            private @FakeDisplayPowerMode int mMode;
+
+            FakeDisplayPowerInfo(@FakeDisplayPowerMode int mode) {
+                mMode = mode;
+            }
+
+            private void setMode(@FakeDisplayPowerMode int mode) {
+                mMode = mode;
+            }
+
+            private @FakeDisplayPowerMode int getMode() {
+                return mMode;
+            }
+        }
+    }
+
     private static final class MockSystemStateInterface implements SystemStateInterface {
         private final Semaphore mShutdownWait = new Semaphore(0);
         private final Semaphore mSleepWait = new Semaphore(0);
@@ -1561,7 +2224,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         }
 
         @Override
-        public void scheduleActionForBootCompleted(Runnable action, Duration delay) {}
+        public void scheduleActionForBootCompleted(Runnable action, Duration delay,
+                Duration delayRange) {}
 
         @Override
         public boolean isWakeupCausedByTimer() {

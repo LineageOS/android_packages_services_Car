@@ -38,6 +38,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
 import android.annotation.UserIdInt;
@@ -45,6 +46,7 @@ import android.car.builtin.media.AudioManagerHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
 import android.hardware.automotive.audiocontrol.Reasons;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioGain;
 import android.media.AudioManager;
@@ -55,7 +57,6 @@ import android.media.audio.common.AudioPort;
 import android.media.audio.common.AudioPortDeviceExt;
 import android.media.audio.common.AudioPortExt;
 import android.os.UserHandle;
-import android.util.ArrayMap;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
@@ -68,6 +69,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -148,9 +150,11 @@ public final class CarAudioVolumeGroupTest extends AbstractExtendedMockitoTestCa
     @Before
     public void setUp() {
         mMediaDeviceInfo = new CarAudioDeviceInfo(mAudioManager,
-                getMockAudioDeviceInfo(MEDIA_DEVICE_ADDRESS));
+                getMockAudioDevice(MEDIA_DEVICE_ADDRESS));
+        mMediaDeviceInfo.setAudioDeviceInfo(getMockAudioDeviceInfo(MEDIA_DEVICE_ADDRESS));
         mNavigationDeviceInfo = new CarAudioDeviceInfo(mAudioManager,
-                getMockAudioDeviceInfo(NAVIGATION_DEVICE_ADDRESS));
+                getMockAudioDevice(NAVIGATION_DEVICE_ADDRESS));
+        mNavigationDeviceInfo.setAudioDeviceInfo(getMockAudioDeviceInfo(NAVIGATION_DEVICE_ADDRESS));
     }
 
     @Test
@@ -561,6 +565,119 @@ public final class CarAudioVolumeGroupTest extends AbstractExtendedMockitoTestCa
                 .that(carVolumeGroup.isBlocked()).isFalse();
     }
 
+    @Test
+    public void audioDevicesAdded_whileInactive() {
+        AudioDeviceInfo mockInfo = Mockito.mock(AudioDeviceInfo.class);
+        CarAudioDeviceInfo mockCarDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        when(mockCarDeviceInfo.getAddress()).thenReturn(TEST_MEDIA_PORT_NAME);
+        when(mockCarDeviceInfo.isActive()).thenReturn(false);
+        when(mockCarDeviceInfo.audioDevicesAdded(any())).thenReturn(true);
+        CarAudioVolumeGroup carVolumeGroup = getCarAudioVolumeGroupWithDevice(mockCarDeviceInfo);
+
+        boolean updated = carVolumeGroup.audioDevicesAdded(List.of(mockInfo));
+
+        expectWithMessage("Added devices status while inactive").that(updated).isTrue();
+        List<AudioDeviceInfo> devices = captureAddedDevices(mockCarDeviceInfo);
+        expectWithMessage("Devices added while inactive").that(devices).containsExactly(mockInfo);
+    }
+
+
+    @Test
+    public void audioDevicesAdded_whileActive() {
+        AudioDeviceInfo mockInfo = Mockito.mock(AudioDeviceInfo.class);
+        CarAudioDeviceInfo mockCarDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        when(mockCarDeviceInfo.getAddress()).thenReturn(TEST_MEDIA_PORT_NAME);
+        when(mockCarDeviceInfo.isActive()).thenReturn(true);
+        CarAudioVolumeGroup carVolumeGroup = getCarAudioVolumeGroupWithDevice(mockCarDeviceInfo);
+
+        boolean updated = carVolumeGroup.audioDevicesAdded(List.of(mockInfo));
+
+        expectWithMessage("Added devices status while active").that(updated).isFalse();
+        verify(mockCarDeviceInfo, never()).audioDevicesAdded(any());
+    }
+
+    @Test
+    public void audioDevicesAdded_withNullDevices() {
+        CarAudioDeviceInfo mockDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        when(mockDeviceInfo.getAddress()).thenReturn(TEST_MEDIA_PORT_NAME);
+        CarAudioVolumeGroup carVolumeGroup = getCarAudioVolumeGroupWithDevice(
+                mockDeviceInfo);
+
+        NullPointerException thrown = assertThrows(NullPointerException.class,
+                () -> carVolumeGroup.audioDevicesAdded(/* devices= */ null));
+
+        expectWithMessage("Audio devices added null devices exception").that(thrown)
+                .hasMessageThat().contains("Audio devices");
+    }
+
+    @Test
+    public void audioDevicesRemoved_whileActive() {
+        AudioDeviceInfo mockInfo = Mockito.mock(AudioDeviceInfo.class);
+        CarAudioDeviceInfo mockCarDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        when(mockCarDeviceInfo.getAddress()).thenReturn(TEST_MEDIA_PORT_NAME);
+        when(mockCarDeviceInfo.audioDevicesRemoved(any())).thenReturn(true);
+        CarAudioVolumeGroup carVolumeGroup = getCarAudioVolumeGroupWithDevice(mockCarDeviceInfo);
+
+        boolean updated = carVolumeGroup.audioDevicesRemoved(List.of(mockInfo));
+
+        expectWithMessage("Removed devices status while active").that(updated).isTrue();
+        List<AudioDeviceInfo> devices = captureRemovedDevices(mockCarDeviceInfo);
+        expectWithMessage("Devices removed").that(devices).containsExactly(mockInfo);
+    }
+
+    @Test
+    public void audioDevicesRemoved_whileInactive() {
+        AudioDeviceInfo mockInfo = Mockito.mock(AudioDeviceInfo.class);
+        CarAudioDeviceInfo mockCarDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        when(mockCarDeviceInfo.getAddress()).thenReturn(TEST_MEDIA_PORT_NAME);
+        when(mockCarDeviceInfo.audioDevicesRemoved(any())).thenReturn(false);
+        CarAudioVolumeGroup carVolumeGroup = getCarAudioVolumeGroupWithDevice(mockCarDeviceInfo);
+
+        boolean updated = carVolumeGroup.audioDevicesRemoved(List.of(mockInfo));
+
+        expectWithMessage("Removed devices status while inactive").that(updated).isFalse();
+        List<AudioDeviceInfo> devices = captureRemovedDevices(mockCarDeviceInfo);
+        expectWithMessage("Devices removed").that(devices).containsExactly(mockInfo);
+    }
+
+    @Test
+    public void audioDevicesRemoved_withNullDevices() {
+        CarAudioDeviceInfo mockDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        when(mockDeviceInfo.getAddress()).thenReturn(TEST_MEDIA_PORT_NAME);
+        CarAudioVolumeGroup carVolumeGroup = getCarAudioVolumeGroupWithDevice(
+                mockDeviceInfo);
+
+        NullPointerException thrown = assertThrows(NullPointerException.class,
+                () -> carVolumeGroup.audioDevicesRemoved(/* devices= */ null));
+
+        expectWithMessage("Audio devices removed null devices exception").that(thrown)
+                .hasMessageThat().contains("Audio devices");
+    }
+
+    private static List<AudioDeviceInfo> captureAddedDevices(
+            CarAudioDeviceInfo mockCarDeviceInfo) {
+        ArgumentCaptor<List<AudioDeviceInfo>> captor = ArgumentCaptor.forClass(List.class);
+        verify(mockCarDeviceInfo).audioDevicesAdded(captor.capture());
+        return captor.getValue();
+    }
+
+    private static List<AudioDeviceInfo> captureRemovedDevices(
+            CarAudioDeviceInfo mockCarDeviceInfo) {
+        ArgumentCaptor<List<AudioDeviceInfo>> captor = ArgumentCaptor.forClass(List.class);
+        verify(mockCarDeviceInfo).audioDevicesRemoved(captor.capture());
+        return captor.getValue();
+    }
+
+    private CarAudioVolumeGroup getCarAudioVolumeGroupWithDevice(
+            CarAudioDeviceInfo mockCarDeviceInfo) {
+        SparseArray<CarAudioDeviceInfo> contextToDeviceInfo = new SparseArray<>();
+        contextToDeviceInfo.put(TEST_MEDIA_CONTEXT_ID, mockCarDeviceInfo);
+        CarAudioVolumeGroup carVolumeGroup = new CarAudioVolumeGroup(TEST_CAR_AUDIO_CONTEXT,
+                mSettingsMock, contextToDeviceInfo, ZONE_ID, ZONE_CONFIG_ID, GROUP_ID, GROUP_NAME,
+                STEP_SIZE, DEFAULT_GAIN, MIN_GAIN, MAX_GAIN, /* useCarVolumeGroupMute= */ false);
+        return carVolumeGroup;
+    }
+
     private int getExtrapolatedGainIndex(int oldMinGain, int newMinGain, int step, int index) {
         return getIndexForGain(newMinGain, step, getGainForIndex(oldMinGain, step, index));
     }
@@ -578,25 +695,22 @@ public final class CarAudioVolumeGroupTest extends AbstractExtendedMockitoTestCa
     }
 
     private CarAudioVolumeGroup testVolumeGroupSetup(CarAudioSettings settings) {
-        SparseArray<String> contextToAddress = new SparseArray<>();
-        ArrayMap<String, CarAudioDeviceInfo> addressToCarAudioDeviceInfo = new ArrayMap<>();
+        SparseArray<CarAudioDeviceInfo> contextToDeviceInfo = new SparseArray<>();
 
         doReturn(true).when(() -> AudioManagerHelper
                 .setAudioDeviceGain(any(), any(), anyInt(), anyBoolean()));
 
-        addressToCarAudioDeviceInfo.put(mMediaDeviceInfo.getAddress(), mMediaDeviceInfo);
-        contextToAddress.put(TEST_MEDIA_CONTEXT_ID, mMediaDeviceInfo.getAddress());
-        contextToAddress.put(TEST_CALL_CONTEXT_ID, mMediaDeviceInfo.getAddress());
-        contextToAddress.put(TEST_CALL_RING_CONTEXT_ID, mMediaDeviceInfo.getAddress());
+        contextToDeviceInfo.put(TEST_MEDIA_CONTEXT_ID, mMediaDeviceInfo);
+        contextToDeviceInfo.put(TEST_CALL_CONTEXT_ID, mMediaDeviceInfo);
+        contextToDeviceInfo.put(TEST_CALL_RING_CONTEXT_ID, mMediaDeviceInfo);
 
-        addressToCarAudioDeviceInfo.put(mNavigationDeviceInfo.getAddress(), mNavigationDeviceInfo);
-        contextToAddress.put(TEST_NAVIGATION_CONTEXT_ID, mNavigationDeviceInfo.getAddress());
-        contextToAddress.put(TEST_ALARM_CONTEXT_ID, mNavigationDeviceInfo.getAddress());
-        contextToAddress.put(TEST_NOTIFICATION_CONTEXT_ID, mNavigationDeviceInfo.getAddress());
+        contextToDeviceInfo.put(TEST_NAVIGATION_CONTEXT_ID, mNavigationDeviceInfo);
+        contextToDeviceInfo.put(TEST_ALARM_CONTEXT_ID, mNavigationDeviceInfo);
+        contextToDeviceInfo.put(TEST_NOTIFICATION_CONTEXT_ID, mNavigationDeviceInfo);
 
-        return new CarAudioVolumeGroup(TEST_CAR_AUDIO_CONTEXT, settings, contextToAddress,
-                addressToCarAudioDeviceInfo, ZONE_ID, ZONE_CONFIG_ID, GROUP_ID, GROUP_NAME,
-                STEP_SIZE, DEFAULT_GAIN, MIN_GAIN, MAX_GAIN, /* useCoreAudioVolume= */ false);
+        return new CarAudioVolumeGroup(TEST_CAR_AUDIO_CONTEXT, settings, contextToDeviceInfo,
+                ZONE_ID, ZONE_CONFIG_ID, GROUP_ID, GROUP_NAME, STEP_SIZE, DEFAULT_GAIN, MIN_GAIN,
+                MAX_GAIN, /* useCarVolumeGroupMute= */ false);
     }
 
     private static final class SettingsBuilder {
@@ -640,16 +754,22 @@ public final class CarAudioVolumeGroupTest extends AbstractExtendedMockitoTestCa
         }
     }
 
-    private AudioDeviceInfo getMockAudioDeviceInfo(String address) {
+    private AudioDeviceAttributes getMockAudioDevice(String address) {
         AudioGain mockGain = new GainBuilder().build();
-        return getMockAudioDeviceInfo(new AudioGain[]{mockGain}, address);
+        return getMockAudioDevice(new AudioGain[]{mockGain}, address);
     }
 
-    private AudioDeviceInfo getMockAudioDeviceInfo(AudioGain[] gains, String address) {
-        return new AudioDeviceInfoBuilder()
+    private AudioDeviceAttributes getMockAudioDevice(AudioGain[] gains, String address) {
+        return new AudioDeviceAttributes(new AudioDeviceInfoBuilder()
                 .setAddressName(address)
                 .setAudioGains(gains)
-                .build();
+                .build());
+    }
+
+    private AudioDeviceInfo getMockAudioDeviceInfo(String address) {
+        AudioGain mockGain = new GainBuilder().build();
+        return new AudioDeviceInfoBuilder()
+                .setAddressName(address).setAudioGains(mockGain).build();
     }
 
     private HalAudioDeviceInfo createHalAudioDeviceInfo(int id, String name, int minVal,

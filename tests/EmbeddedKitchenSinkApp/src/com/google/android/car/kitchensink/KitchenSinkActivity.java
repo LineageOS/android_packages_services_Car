@@ -36,6 +36,7 @@ import android.os.Handler;
 import android.os.SystemProperties;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,6 +64,7 @@ import com.google.android.car.kitchensink.biometrics.BiometricPromptTestFragment
 import com.google.android.car.kitchensink.bluetooth.BluetoothHeadsetFragment;
 import com.google.android.car.kitchensink.bluetooth.BluetoothUuidFragment;
 import com.google.android.car.kitchensink.bluetooth.MapMceTestFragment;
+import com.google.android.car.kitchensink.camera2.Camera2TestFragment;
 import com.google.android.car.kitchensink.carboard.KeyboardTestFragment;
 import com.google.android.car.kitchensink.cluster.InstrumentClusterFragment;
 import com.google.android.car.kitchensink.connectivity.ConnectivityFragment;
@@ -89,6 +91,7 @@ import com.google.android.car.kitchensink.privacy.PrivacyIndicatorFragment;
 import com.google.android.car.kitchensink.projection.ProjectionFragment;
 import com.google.android.car.kitchensink.property.PropertyTestFragment;
 import com.google.android.car.kitchensink.qc.QCViewerFragment;
+import com.google.android.car.kitchensink.radio.RadioTestFragment;
 import com.google.android.car.kitchensink.remoteaccess.RemoteAccessTestFragment;
 import com.google.android.car.kitchensink.rotary.RotaryFragment;
 import com.google.android.car.kitchensink.sensor.SensorsTestFragment;
@@ -109,14 +112,15 @@ import com.google.android.car.kitchensink.weblinks.WebLinksTestFragment;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-public class KitchenSinkActivity extends FragmentActivity {
+public class KitchenSinkActivity extends FragmentActivity implements KitchenSinkHelper {
 
-    private static final String TAG = "KitchenSinkActivity";
+    public static final String TAG = "KitchenSinkActivity";
     private static final String LAST_FRAGMENT_TAG = "lastFragmentTag";
     private static final String DEFAULT_FRAGMENT_TAG = "";
 
@@ -230,74 +234,78 @@ public class KitchenSinkActivity extends FragmentActivity {
         }
     }
 
-    private final List<MenuEntry> mMenuEntries = Arrays.asList(
-            new FragmentMenuEntry("activity resolver", ActivityResolverFragment.class),
-            new FragmentMenuEntry("alert window", AlertDialogTestFragment.class),
-            new FragmentMenuEntry("assistant", CarAssistantFragment.class),
-            new FragmentMenuEntry(AudioTestFragment.FRAGMENT_NAME, AudioTestFragment.class),
-            new FragmentMenuEntry(AudioUserAssignmentFragment.FRAGMENT_NAME,
+    private final List<MenuEntry> mMenuEntries = new ArrayList<>();
+
+    public static final List<Pair<String, Class>> MENU_ENTRIES = Arrays.asList(
+            new Pair<>("activity resolver", ActivityResolverFragment.class),
+            new Pair<>("alert window", AlertDialogTestFragment.class),
+            new Pair<>("assistant", CarAssistantFragment.class),
+            new Pair<>(AudioTestFragment.FRAGMENT_NAME, AudioTestFragment.class),
+            new Pair<>(AudioUserAssignmentFragment.FRAGMENT_NAME,
                     AudioUserAssignmentFragment.class),
-            new FragmentMenuEntry(AudioRecorderTestFragment.FRAGMENT_NAME,
+            new Pair<>(AudioRecorderTestFragment.FRAGMENT_NAME,
                     AudioRecorderTestFragment.class),
-            new FragmentMenuEntry(CarAudioInputTestFragment.FRAGMENT_NAME,
+            new Pair<>(CarAudioInputTestFragment.FRAGMENT_NAME,
                     CarAudioInputTestFragment.class),
-            new FragmentMenuEntry(AudioMirrorTestFragment.FRAGMENT_NAME,
+            new Pair<>(AudioMirrorTestFragment.FRAGMENT_NAME,
                     AudioMirrorTestFragment.class),
-            new FragmentMenuEntry("Hotword", CarMultiConcurrentHotwordTestFragment.class),
-            new FragmentMenuEntry("B&R", BackupAndRestoreFragment.class),
-            new FragmentMenuEntry("BT headset", BluetoothHeadsetFragment.class),
-            new FragmentMenuEntry("BT messaging", MapMceTestFragment.class),
-            new FragmentMenuEntry("BT Uuids", BluetoothUuidFragment.class),
-            new FragmentMenuEntry(BiometricPromptTestFragment.FRAGMENT_NAME,
+            new Pair<>("Hotword", CarMultiConcurrentHotwordTestFragment.class),
+            new Pair<>("B&R", BackupAndRestoreFragment.class),
+            new Pair<>("BT headset", BluetoothHeadsetFragment.class),
+            new Pair<>("BT messaging", MapMceTestFragment.class),
+            new Pair<>("BT Uuids", BluetoothUuidFragment.class),
+            new Pair<>(BiometricPromptTestFragment.FRAGMENT_NAME,
                     BiometricPromptTestFragment.class),
-            new FragmentMenuEntry("carapi", CarApiTestFragment.class),
-            new FragmentMenuEntry("carboard", KeyboardTestFragment.class),
-            new FragmentMenuEntry("connectivity", ConnectivityFragment.class),
-            new FragmentMenuEntry("cubes test", CubesTestFragment.class),
-            new FragmentMenuEntry("device policy", DevicePolicyFragment.class),
-            new FragmentMenuEntry("diagnostic", DiagnosticTestFragment.class),
-            new FragmentMenuEntry("display info", DisplayInfoFragment.class),
-            new FragmentMenuEntry("display input lock", DisplayInputLockTestFragment.class),
-            new FragmentMenuEntry("display mirroring", DisplayMirroringFragment.class),
-            new FragmentMenuEntry("drive mode switch", DriveModeSwitchFragment.class),
-            new FragmentMenuEntry("experimental feature", ExperimentalFeatureTestFragment.class),
-            new FragmentMenuEntry("hvac", HvacTestFragment.class),
-            new FragmentMenuEntry("inst cluster", InstrumentClusterFragment.class),
-            new FragmentMenuEntry("mainline", CarMainlineFragment.class),
-            new FragmentMenuEntry("MD media", MultidisplayMediaFragment.class),
-            new FragmentMenuEntry("notification", NotificationFragment.class),
-            new FragmentMenuEntry("orientation test", OrientationTestFragment.class),
-            new FragmentMenuEntry("package info", PackageInfoFragment.class),
-            new FragmentMenuEntry("performance", CarPerformanceTestFragment.class),
-            new FragmentMenuEntry("power test", PowerTestFragment.class),
-            new FragmentMenuEntry(PrivacyIndicatorFragment.FRAGMENT_NAME,
+            new Pair<>("carapi", CarApiTestFragment.class),
+            new Pair<>("carboard", KeyboardTestFragment.class),
+            new Pair<>("connectivity", ConnectivityFragment.class),
+            new Pair<>("cubes test", CubesTestFragment.class),
+            new Pair<>("device policy", DevicePolicyFragment.class),
+            new Pair<>("diagnostic", DiagnosticTestFragment.class),
+            new Pair<>("display info", DisplayInfoFragment.class),
+            new Pair<>("display input lock", DisplayInputLockTestFragment.class),
+            new Pair<>("display mirroring", DisplayMirroringFragment.class),
+            new Pair<>("drive mode switch", DriveModeSwitchFragment.class),
+            new Pair<>("experimental feature", ExperimentalFeatureTestFragment.class),
+            new Pair<>("hvac", HvacTestFragment.class),
+            new Pair<>("inst cluster", InstrumentClusterFragment.class),
+            new Pair<>("mainline", CarMainlineFragment.class),
+            new Pair<>("MD media", MultidisplayMediaFragment.class),
+            new Pair<>("notification", NotificationFragment.class),
+            new Pair<>("orientation test", OrientationTestFragment.class),
+            new Pair<>("package info", PackageInfoFragment.class),
+            new Pair<>("performance", CarPerformanceTestFragment.class),
+            new Pair<>("power test", PowerTestFragment.class),
+            new Pair<>(PrivacyIndicatorFragment.FRAGMENT_NAME,
                     PrivacyIndicatorFragment.class),
-            new FragmentMenuEntry("profile_user", ProfileUserFragment.class),
-            new FragmentMenuEntry("projection", ProjectionFragment.class),
-            new FragmentMenuEntry("property test", PropertyTestFragment.class),
-            new FragmentMenuEntry("qc viewer", QCViewerFragment.class),
-            new FragmentMenuEntry("remote access", RemoteAccessTestFragment.class),
-            new FragmentMenuEntry("rotary", RotaryFragment.class),
-            new FragmentMenuEntry("sensors", SensorsTestFragment.class),
-            new FragmentMenuEntry("storage lifetime", StorageLifetimeFragment.class),
-            new FragmentMenuEntry("storage volumes", StorageVolumesFragment.class),
-            new FragmentMenuEntry("system bars", SystemBarsFragment.class),
-            new FragmentMenuEntry("system features", SystemFeaturesFragment.class),
-            new FragmentMenuEntry("telemetry", CarTelemetryTestFragment.class),
-            new FragmentMenuEntry("touch test", TouchTestFragment.class),
-            new FragmentMenuEntry("users", UserFragment.class),
-            new FragmentMenuEntry("user restrictions", UserRestrictionsFragment.class),
-            new FragmentMenuEntry("vehicle ctrl", VehicleCtrlFragment.class),
-            new FragmentMenuEntry(VirtualDisplayFragment.FRAGMENT_NAME,
+            new Pair<>("profile_user", ProfileUserFragment.class),
+            new Pair<>("projection", ProjectionFragment.class),
+            new Pair<>("property test", PropertyTestFragment.class),
+            new Pair<>("qc viewer", QCViewerFragment.class),
+            new Pair<>("remote access", RemoteAccessTestFragment.class),
+            new Pair<>("rotary", RotaryFragment.class),
+            new Pair<>("sensors", SensorsTestFragment.class),
+            new Pair<>("storage lifetime", StorageLifetimeFragment.class),
+            new Pair<>("storage volumes", StorageVolumesFragment.class),
+            new Pair<>("system bars", SystemBarsFragment.class),
+            new Pair<>("system features", SystemFeaturesFragment.class),
+            new Pair<>("telemetry", CarTelemetryTestFragment.class),
+            new Pair<>("touch test", TouchTestFragment.class),
+            new Pair<>("users", UserFragment.class),
+            new Pair<>("user restrictions", UserRestrictionsFragment.class),
+            new Pair<>("vehicle ctrl", VehicleCtrlFragment.class),
+            new Pair<>(VirtualDisplayFragment.FRAGMENT_NAME,
                     VirtualDisplayFragment.class),
-            new FragmentMenuEntry("volume test", VolumeTestFragment.class),
-            new FragmentMenuEntry("watchdog", CarWatchdogTestFragment.class),
-            new FragmentMenuEntry("web links", WebLinksTestFragment.class),
-            new FragmentMenuEntry("inject motion", InjectMotionTestFragment.class),
-            new FragmentMenuEntry("inject key", InjectKeyTestFragment.class),
-            new FragmentMenuEntry("window insets full screen",
+            new Pair<>("volume test", VolumeTestFragment.class),
+            new Pair<>("watchdog", CarWatchdogTestFragment.class),
+            new Pair<>("web links", WebLinksTestFragment.class),
+            new Pair<>("inject motion", InjectMotionTestFragment.class),
+            new Pair<>("inject key", InjectKeyTestFragment.class),
+            new Pair<>("window insets full screen",
                     WindowInsetsFullScreenFragment.class),
-            new FragmentMenuEntry("oem car service", OemCarServiceTestFragment.class));
+            new Pair<>("oem car service", OemCarServiceTestFragment.class),
+            new Pair<>("Camera2", Camera2TestFragment.class),
+            new Pair<>(RadioTestFragment.FRAGMENT_NAME, RadioTestFragment.class));
 
     private Car mCarApi;
     private CarHvacManager mHvacManager;
@@ -311,7 +319,15 @@ public class KitchenSinkActivity extends FragmentActivity {
     private CarPerformanceManager mCarPerformanceManager;
     private Object mPropertyManagerReady = new Object();
 
+    @Override
+    public Car getCar() {
+        return mCarApi;
+    }
+
     public KitchenSinkActivity() {
+        for (Pair<String, Class> entry : MENU_ENTRIES) {
+            mMenuEntries.add(new FragmentMenuEntry(entry.first, entry.second));
+        }
         mMenuEntries.sort(Comparator.comparing(MenuEntry::getText));
     }
 
@@ -405,6 +421,9 @@ public class KitchenSinkActivity extends FragmentActivity {
 
         mMenuButton = findViewById(R.id.menu_button);
         mMenuButton.setOnClickListener(view -> toggleMenuVisibility());
+
+        ((Button) findViewById(R.id.new_version_button)).setOnClickListener(
+                view -> goToNewVersion());
         ((Button) findViewById(R.id.finish_button)).setOnClickListener(view -> finish());
         ((Button) findViewById(R.id.home_button)).setOnClickListener(view -> launchHome());
 
@@ -418,7 +437,7 @@ public class KitchenSinkActivity extends FragmentActivity {
         mUserIdView.setText("U#" + userId);
         mDisplayIdView.setText("D#" + displayId);
 
-        Log.i(TAG, "onCreate: userId="  + userId + ", displayId=" + displayId);
+        Log.i(TAG, "onCreate: userId=" + userId + ", displayId=" + displayId);
         onNewIntent(getIntent());
     }
 
@@ -446,6 +465,14 @@ public class KitchenSinkActivity extends FragmentActivity {
         if (mLastFragment != null) {
             mLastFragment.onHiddenChanged(!menuVisible);
         }
+    }
+
+    /**
+     * Goes to the newer version of Kitchen Sink App.
+     */
+    private void goToNewVersion() {
+        Intent intent = new Intent(this, KitchenSink2Activity.class);
+        startActivity(intent);
     }
 
     /**
@@ -637,10 +664,6 @@ public class KitchenSinkActivity extends FragmentActivity {
         updateHeaderInfoVisibility();
         boolean after = mShowHeaderInfo;
         writer.printf("Updated header info visibility from %b to %b\n", before, after);
-    }
-
-    public Car getCar() {
-        return mCarApi;
     }
 
     private final class MenuAdapter extends RecyclerView.Adapter<ItemViewHolder> {

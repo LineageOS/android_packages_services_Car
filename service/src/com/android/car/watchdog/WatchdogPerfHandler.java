@@ -118,6 +118,7 @@ import android.util.JsonWriter;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.util.StatsEvent;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
 import com.android.car.BuiltinPackageDependency;
@@ -178,7 +179,7 @@ public final class WatchdogPerfHandler {
     private static final String UID_IO_USAGE_SUMMARY_REPORTED_DATE =
             "uidIoUsageSummaryReportedDate";
     private static final long OVERUSE_HANDLING_DELAY_MILLS = 10_000;
-    private static final long MAX_WAIT_TIME_MILLS = 3_000;
+    static final long MAX_WAIT_TIME_MILLS = 3_000;
 
     private static final PullAtomMetadata PULL_ATOM_METADATA =
             new PullAtomMetadata.Builder()
@@ -391,6 +392,101 @@ public final class WatchdogPerfHandler {
         }
         mOveruseConfigurationCache.dump(writer);
     }
+
+    /** Dumps its state in proto format */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {
+        synchronized (mLock) {
+            long performanceDumpToken = proto.start(CarWatchdogDumpProto.PERFORMANCE_DUMP);
+            proto.write(PerformanceDump.CURRENT_UX_STATE, toProtoUxState(mCurrentUxState));
+            for (int i = 0; i < mDisabledUserPackagesByUserId.size(); i++) {
+                for (int j = 0; j < mDisabledUserPackagesByUserId.valueAt(i).size(); j++) {
+                    long disabledUserPackagesToken = proto.start(
+                            PerformanceDump.DISABLED_USER_PACKAGES);
+                    proto.write(UserPackageInfo.USER_ID,
+                            mDisabledUserPackagesByUserId.keyAt(i));
+                    proto.write(UserPackageInfo.PACKAGE_NAME,
+                            mDisabledUserPackagesByUserId.valueAt(i).valueAt(j));
+                    proto.end(disabledUserPackagesToken);
+                }
+            }
+            proto.write(PerformanceDump.UID_IO_USAGE_SUMMARY_TOP_COUNT, mUidIoUsageSummaryTopCount);
+            proto.write(PerformanceDump.IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES,
+                    mIoUsageSummaryMinSystemTotalWrittenBytes);
+            proto.write(PerformanceDump.PACKAGE_KILLABLE_STATE_RESET_DAYS,
+                    mPackageKillableStateResetDays);
+            proto.write(PerformanceDump.RECURRING_OVERUSE_PERIOD_DAYS,
+                    mRecurringOverusePeriodInDays);
+            proto.write(PerformanceDump.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID,
+                    mResourceOveruseNotificationBaseId);
+            proto.write(PerformanceDump.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET,
+                    mResourceOveruseNotificationMaxOffset);
+            proto.write(PerformanceDump.IS_CONNECTED_TO_DAEMON, mIsConnectedToDaemon);
+            proto.write(PerformanceDump.IS_HEADS_UP_NOTIFICATION_SENT, mIsHeadsUpNotificationSent);
+            proto.write(PerformanceDump.CURRENT_OVERUSE_NOTIFICATION_ID_OFFSET,
+                    mCurrentOveruseNotificationIdOffset);
+            proto.write(PerformanceDump.IS_GARAGE_MODE_ACTIVE, mCurrentGarageMode);
+            proto.write(PerformanceDump.OVERUSE_HANDLING_DELAY_MILLIS, mOveruseHandlingDelayMills);
+
+            long systemDateTimeToken = proto.start(
+                    PerformanceDump.LAST_SYSTEM_IO_USAGE_SUMMARY_REPORTED_UTC_DATETIME);
+            long systemDateToken = proto.start(DateTime.DATE);
+            proto.write(Date.YEAR, mLastSystemIoUsageSummaryReportedDate.getYear());
+            proto.write(Date.MONTH, mLastSystemIoUsageSummaryReportedDate.getMonthValue());
+            proto.write(Date.DAY, mLastSystemIoUsageSummaryReportedDate.getDayOfMonth());
+            proto.end(systemDateToken);
+            long systemTimeOfDayToken = proto.start(DateTime.TIME_OF_DAY);
+            proto.write(TimeOfDay.HOURS, mLastSystemIoUsageSummaryReportedDate.getHour());
+            proto.write(TimeOfDay.MINUTES, mLastSystemIoUsageSummaryReportedDate.getMinute());
+            proto.write(TimeOfDay.SECONDS, mLastSystemIoUsageSummaryReportedDate.getSecond());
+            proto.end(systemTimeOfDayToken);
+            proto.end(systemDateTimeToken);
+
+            long uidDateTimeToken = proto.start(
+                    PerformanceDump.LAST_UID_IO_USAGE_SUMMARY_REPORTED_UTC_DATETIME);
+            long uidDateToken = proto.start(DateTime.DATE);
+            proto.write(Date.YEAR, mLastUidIoUsageSummaryReportedDate.getYear());
+            proto.write(Date.MONTH, mLastUidIoUsageSummaryReportedDate.getMonthValue());
+            proto.write(Date.DAY, mLastUidIoUsageSummaryReportedDate.getDayOfMonth());
+            proto.end(uidDateToken);
+            long uidTimeOfDayToken = proto.start(DateTime.TIME_OF_DAY);
+            proto.write(TimeOfDay.HOURS, mLastUidIoUsageSummaryReportedDate.getHour());
+            proto.write(TimeOfDay.MINUTES, mLastUidIoUsageSummaryReportedDate.getMinute());
+            proto.write(TimeOfDay.SECONDS, mLastUidIoUsageSummaryReportedDate.getSecond());
+            proto.end(uidTimeOfDayToken);
+            proto.end(uidDateTimeToken);
+
+            dumpUsageByUserPackageLocked(proto);
+
+            dumpResourceOveruseListenerInfosLocked(mOveruseListenerInfosByUid,
+                    PerformanceDump.OVERUSE_LISTENER_INFOS, proto);
+
+            dumpResourceOveruseListenerInfosLocked(mOveruseSystemListenerInfosByUid,
+                    PerformanceDump.SYSTEM_OVERUSE_LISTENER_INFOS, proto);
+
+            for (int i = 0; i < mDefaultNotKillableGenericPackages.size(); i++) {
+                proto.write(PerformanceDump.DEFAULT_NOT_KILLABLE_GENERIC_PACKAGES,
+                        mDefaultNotKillableGenericPackages.valueAt(i));
+            }
+
+            dumpUserPackageInfo(mUserNotifiablePackages,
+                    PerformanceDump.USER_NOTIFIABLE_PACKAGES, proto);
+
+            dumpUserPackageInfo(mActiveUserNotifications,
+                    PerformanceDump.ACTIVE_USER_NOTIFICATIONS, proto);
+
+            dumpUserPackageInfo(mActionableUserPackages,
+                    PerformanceDump.ACTIONABLE_USER_PACKAGES, proto);
+
+            proto.write(PerformanceDump.IS_PENDING_RESOURCE_OVERUSE_CONFIGURATIONS_REQUEST,
+                    mPendingSetResourceOveruseConfigurationsRequest != null);
+
+            mOveruseConfigurationCache.dumpProto(proto);
+
+            proto.end(performanceDumpToken);
+        }
+    }
+
 
     /** Retries any pending requests on re-connecting to the daemon */
     public void onDaemonConnectionChange(boolean isConnected) {
@@ -2318,12 +2414,126 @@ public final class WatchdogPerfHandler {
         }
     }
 
+    @GuardedBy("mLock")
+    private void dumpResourceOveruseListenerInfosLocked(
+            SparseArray<ArrayList<ResourceOveruseListenerInfo>> overuseListenerInfos,
+            long fieldId, ProtoOutputStream proto) {
+        for (int i = 0; i < overuseListenerInfos.size(); i++) {
+            ArrayList<ResourceOveruseListenerInfo> resourceOveruseListenerInfos =
+                    overuseListenerInfos.valueAt(i);
+            for (int j = 0; j < resourceOveruseListenerInfos.size(); j++) {
+                long overuseListenerInfosToken = proto.start(fieldId);
+                ResourceOveruseListenerInfo resourceOveruseListenerInfo =
+                        resourceOveruseListenerInfos.get(j);
+                proto.write(PerformanceDump.ResourceOveruseListenerInfo.FLAG,
+                        resourceOveruseListenerInfo.flag);
+                proto.write(PerformanceDump.ResourceOveruseListenerInfo.PID,
+                        resourceOveruseListenerInfo.pid);
+                long userPackageInfoToken = proto.start(
+                        PerformanceDump.ResourceOveruseListenerInfo.USER_PACKAGE_INFO);
+                int uid = overuseListenerInfos.keyAt(i);
+                proto.write(UserPackageInfo.USER_ID,
+                        UserHandle.getUserHandleForUid(uid).getIdentifier());
+                proto.write(UserPackageInfo.PACKAGE_NAME,
+                        mPackageInfoHandler.getNamesForUids(new int[]{uid}).get(uid, null));
+                proto.end(userPackageInfoToken);
+                proto.end(overuseListenerInfosToken);
+            }
+        }
+    }
+
+    @GuardedBy("mLock")
+    private void dumpUsageByUserPackageLocked(ProtoOutputStream proto) {
+        for (int i = 0; i < mUsageByUserPackage.size(); i++) {
+            long usageByUserPackagesToken = proto.start(PerformanceDump.USAGE_BY_USER_PACKAGES);
+
+            dumpUserPackageInfoFromUniqueId(mUsageByUserPackage.keyAt(i),
+                    PerformanceDump.UsageByUserPackage.USER_PACKAGE_INFO, proto);
+
+            PackageResourceUsage packageResourceUsage = mUsageByUserPackage.valueAt(i);
+            PackageIoUsage packageIoUsage = packageResourceUsage.ioUsage;
+
+            proto.write(PerformanceDump.UsageByUserPackage.KILLABLE_STATE,
+                    toProtoKillableState(packageResourceUsage.mKillableState));
+
+            long packageIoUsageToken = proto.start(
+                    PerformanceDump.UsageByUserPackage.PACKAGE_IO_USAGE);
+
+            long ioOveruseStatsToken = proto.start(
+                    PerformanceDump.PackageIoUsage.IO_OVERUSE_STATS);
+            proto.write(PerformanceDump.IoOveruseStats.KILLABLE_ON_OVERUSE,
+                    packageIoUsage.mIoOveruseStats.killableOnOveruse);
+            dumpPerStateBytes(packageIoUsage.mIoOveruseStats.remainingWriteBytes,
+                    PerformanceDump.IoOveruseStats.REMAINING_WRITE_BYTES, proto);
+            proto.write(PerformanceDump.IoOveruseStats.START_TIME,
+                    packageIoUsage.mIoOveruseStats.startTime);
+            proto.write(PerformanceDump.IoOveruseStats.DURATION,
+                    packageIoUsage.mIoOveruseStats.durationInSeconds);
+
+            dumpPerStateBytes(packageIoUsage.mIoOveruseStats.writtenBytes,
+                    PerformanceDump.IoOveruseStats.WRITTEN_BYTES, proto);
+
+            proto.write(PerformanceDump.IoOveruseStats.TOTAL_OVERUSES,
+                    packageIoUsage.mIoOveruseStats.totalOveruses);
+            proto.end(ioOveruseStatsToken);
+
+            dumpPerStateBytes(packageIoUsage.mForgivenWriteBytes,
+                    PerformanceDump.PackageIoUsage.FORGIVEN_WRITE_BYTES, proto);
+
+            proto.write(PerformanceDump.PackageIoUsage.FORGIVEN_OVERUSES,
+                    packageIoUsage.mForgivenOveruses);
+            proto.write(PerformanceDump.PackageIoUsage.HISTORICAL_NOT_FORGIVEN_OVERUSES,
+                    packageIoUsage.mHistoricalNotForgivenOveruses);
+            proto.write(PerformanceDump.PackageIoUsage.TOTAL_TIMES_KILLED,
+                    packageIoUsage.mTotalTimesKilled);
+
+            proto.end(packageIoUsageToken);
+
+            proto.end(usageByUserPackagesToken);
+        }
+    }
+
+    private static void dumpUserPackageInfo(ArraySet<String> userPackageInfo, long fieldId,
+            ProtoOutputStream proto) {
+        for (int i = 0; i < userPackageInfo.size(); i++) {
+            dumpUserPackageInfoFromUniqueId(userPackageInfo.valueAt(i), fieldId, proto);
+        }
+    }
+
+    private static void dumpUserPackageInfoFromUniqueId(String uniqueId, long fieldId,
+            ProtoOutputStream proto) {
+        long fieldIdToken = proto.start(fieldId);
+        proto.write(UserPackageInfo.USER_ID, getUserIdFromUniqueId(uniqueId));
+        proto.write(UserPackageInfo.PACKAGE_NAME, getPackageNameFromUniqueId(uniqueId));
+        proto.end(fieldIdToken);
+    }
+
+    private static void dumpPerStateBytes(android.automotive.watchdog.PerStateBytes perStateBytes,
+            long fieldId, ProtoOutputStream proto) {
+        long perStateBytesToken = proto.start(fieldId);
+        proto.write(PerformanceDump.PerStateBytes.FOREGROUND_BYTES,
+                perStateBytes.foregroundBytes);
+        proto.write(PerformanceDump.PerStateBytes.BACKGROUND_BYTES,
+                perStateBytes.backgroundBytes);
+        proto.write(PerformanceDump.PerStateBytes.GARAGEMODE_BYTES,
+                perStateBytes.garageModeBytes);
+        proto.end(perStateBytesToken);
+    }
+
     private static File getWatchdogMetadataFile() {
         return new File(CarWatchdogService.getWatchdogDirFile(), METADATA_FILENAME);
     }
 
     private static String getUserPackageUniqueId(@UserIdInt int userId, String genericPackageName) {
         return userId + USER_PACKAGE_SEPARATOR + genericPackageName;
+    }
+
+    private static String getPackageNameFromUniqueId(String uniqueId) {
+        return uniqueId.split(USER_PACKAGE_SEPARATOR)[0];
+    }
+
+    private static String getUserIdFromUniqueId(String uniqueId) {
+        return uniqueId.split(USER_PACKAGE_SEPARATOR)[1];
     }
 
     @VisibleForTesting
@@ -2725,6 +2935,32 @@ public final class WatchdogPerfHandler {
                 return "UX_STATE_NO_INTERACTION";
             default:
                 return "UNKNOWN UX STATE";
+        }
+    }
+
+    private static int toProtoUxState(@UxStateType int uxState) {
+        switch (uxState) {
+            case UX_STATE_NO_DISTRACTION:
+                return PerformanceDump.UX_STATE_NO_DISTRACTION;
+            case UX_STATE_USER_NOTIFICATION:
+                return PerformanceDump.UX_STATE_USER_NOTIFICATION;
+            case UX_STATE_NO_INTERACTION:
+                return PerformanceDump.UX_STATE_NO_INTERACTION;
+            default:
+                return PerformanceDump.UX_STATE_UNSPECIFIED;
+        }
+    }
+
+    private static int toProtoKillableState(@KillableState int killableState) {
+        switch (killableState) {
+            case KILLABLE_STATE_YES:
+                return PerformanceDump.KILLABLE_STATE_YES;
+            case KILLABLE_STATE_NO:
+                return PerformanceDump.KILLABLE_STATE_NO;
+            case KILLABLE_STATE_NEVER:
+                return PerformanceDump.KILLABLE_STATE_NEVER;
+            default:
+                return PerformanceDump.KILLABLE_STATE_UNSPECIFIED;
         }
     }
 

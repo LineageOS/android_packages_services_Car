@@ -20,6 +20,10 @@ runtime_resource_overlay {
     name: "GoogleCarUiBase",
     manifest: "AndroidManifest.xml",
     resource_dirs: ["res"],
+
+    static_libs: [
+        "car-resource-common"
+    ],
 }
 
 override_runtime_resource_overlay {
@@ -138,5 +142,265 @@ override_runtime_resource_overlay {
     name: "googlecarui-com-android-htmlviewer",
     base: "GoogleCarUiBase",
     package_name: "com.android.htmlviewer.googlecarui.rro",
+    target_package_name: "com.android.htmlviewer",
+}
+
+///////////////////////////////////////////// Theme Orange ///////////////////////////////////////
+runtime_resource_overlay {
+    name: "GoogleCarUiThemeOrangeBase",
+    manifest: "AndroidManifest-dynamic.xml",
+    resource_dirs: ["res"],
+
+    static_libs: [
+        "car-resource-theme-orange-common"
+    ],
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.orange.theme.orange-com-android-car-ui-paintbooth",
+    base: "GoogleCarUiThemeOrangeBase",
+    package_name: "com.android.car.ui.paintbooth.googlecarui.theme.orange.rro",
+    target_package_name: "com.android.car.ui.paintbooth",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.orange-com-android-car-rotaryplayground",
+    base: "GoogleCarUiThemeOrangeBase",
+    package_name: "com.android.car.rotaryplayground.googlecarui.theme.orange.rro",
+    target_package_name: "com.android.car.rotaryplayground",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.orange-com-android-car-themeplayground",
+    base: "GoogleCarUiThemeOrangeBase",
+    package_name: "com.android.car.themeplayground.googlecarui.theme.orange.rro",
+    target_package_name: "com.android.car.themeplayground",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.orange-com-android-car-carlauncher",
+    base: "GoogleCarUiThemeOrangeBase",
+    package_name: "com.android.car.carlauncher.googlecarui.theme.orange.rro",
+    target_package_name: "com.android.car.carlauncher",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.orange-com-android-car-home",
+    base: "GoogleCarUiThemeOrangeBase",
+    package_name: "com.android.car.home.googlecarui.theme.orange.rro",
+    target_package_name: "com.android.car.home",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.orange-com-android-car-media",
+    base: "GoogleCarUiThemeOrangeBase",
+    package_name: "com.android.car.media.googlecarui.theme.orange.rro",
+    target_package_name: "com.android.car.media",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.orange-com-android-car-messenger",
+    base: "GoogleCarUiThemeOrangeBase",
+    package_name: "com.android.car.messenger.googlecarui.theme.orange.rro",
+    target_package_name: "com.android.car.messenger",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.orange-com-android-car-radio",
+    base: "GoogleCarUiThemeOrangeBase",
+    package_name: "com.android.car.radio.googlecarui.theme.orange.rro",
+    target_package_name: "com.android.car.radio",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.orange-com-android-car-calendar",
+    base: "GoogleCarUiThemeOrangeBase",
+    package_name: "com.android.car.calendar.googlecarui.theme.orange.rro",
+    target_package_name: "com.android.car.calendar",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.orange-com-android-car-systemupdater",
+    base: "GoogleCarUiThemeOrangeBase",
+    package_name: "com.android.car.systemupdater.googlecarui.theme.orange.rro",
+    target_package_name: "com.android.car.systemupdater",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.orange-com-android-car-dialer",
+    base: "GoogleCarUiThemeOrangeBase",
+    package_name: "com.android.car.dialer.googlecarui.theme.orange.rro",
+    target_package_name: "com.android.car.dialer",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.orange-com-android-car-linkviewer",
+    base: "GoogleCarUiThemeOrangeBase",
+    package_name: "com.android.car.linkviewer.googlecarui.theme.orange.rro",
+    target_package_name: "com.android.car.linkviewer",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.orange-com-android-car-settings",
+    base: "GoogleCarUiThemeOrangeBase",
+    package_name: "com.android.car.settings.googlecarui.theme.orange.rro",
+    target_package_name: "com.android.car.settings",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.orange-com-android-car-developeroptions",
+    base: "GoogleCarUiThemeOrangeBase",
+    package_name: "com.android.car.developeroptions.googlecarui.theme.orange.rro",
+    target_package_name: "com.android.car.developeroptions",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.orange-com-android-managedprovisioning",
+    base: "GoogleCarUiThemeOrangeBase",
+    package_name: "com.android.managedprovisioning.googlecarui.theme.orange.rro",
+    target_package_name: "com.android.managedprovisioning",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.orange-com-android-settings-intelligence",
+    base: "GoogleCarUiThemeOrangeBase",
+    package_name: "com.android.settings.intelligence.googlecarui.theme.orange.rro",
+    target_package_name: "com.android.settings.intelligence",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.orange-com-android-htmlviewer",
+    base: "GoogleCarUiThemeOrangeBase",
+    package_name: "com.android.htmlviewer.googlecarui.theme.orange.rro",
+    target_package_name: "com.android.htmlviewer",
+}
+
+///////////////////////////////////////////// Theme Pink /////////////////////////////////////////
+runtime_resource_overlay {
+    name: "GoogleCarUiThemePinkBase",
+    manifest: "AndroidManifest-dynamic.xml",
+    resource_dirs: ["res"],
+
+    static_libs: [
+        "car-resource-theme-pink-common"
+    ],
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.pink.theme.orange-com-android-car-ui-paintbooth",
+    base: "GoogleCarUiThemePinkBase",
+    package_name: "com.android.car.ui.paintbooth.googlecarui.theme.pink.rro",
+    target_package_name: "com.android.car.ui.paintbooth",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.pink-com-android-car-rotaryplayground",
+    base: "GoogleCarUiThemePinkBase",
+    package_name: "com.android.car.rotaryplayground.googlecarui.theme.pink.rro",
+    target_package_name: "com.android.car.rotaryplayground",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.pink-com-android-car-themeplayground",
+    base: "GoogleCarUiThemePinkBase",
+    package_name: "com.android.car.themeplayground.googlecarui.theme.pink.rro",
+    target_package_name: "com.android.car.themeplayground",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.pink-com-android-car-carlauncher",
+    base: "GoogleCarUiThemePinkBase",
+    package_name: "com.android.car.carlauncher.googlecarui.theme.pink.rro",
+    target_package_name: "com.android.car.carlauncher",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.pink-com-android-car-home",
+    base: "GoogleCarUiThemePinkBase",
+    package_name: "com.android.car.home.googlecarui.theme.pink.rro",
+    target_package_name: "com.android.car.home",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.pink-com-android-car-media",
+    base: "GoogleCarUiThemePinkBase",
+    package_name: "com.android.car.media.googlecarui.theme.pink.rro",
+    target_package_name: "com.android.car.media",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.pink-com-android-car-messenger",
+    base: "GoogleCarUiThemePinkBase",
+    package_name: "com.android.car.messenger.googlecarui.theme.pink.rro",
+    target_package_name: "com.android.car.messenger",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.pink-com-android-car-radio",
+    base: "GoogleCarUiThemePinkBase",
+    package_name: "com.android.car.radio.googlecarui.theme.pink.rro",
+    target_package_name: "com.android.car.radio",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.pink-com-android-car-calendar",
+    base: "GoogleCarUiThemePinkBase",
+    package_name: "com.android.car.calendar.googlecarui.theme.pink.rro",
+    target_package_name: "com.android.car.calendar",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.pink-com-android-car-systemupdater",
+    base: "GoogleCarUiThemePinkBase",
+    package_name: "com.android.car.systemupdater.googlecarui.theme.pink.rro",
+    target_package_name: "com.android.car.systemupdater",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.pink-com-android-car-dialer",
+    base: "GoogleCarUiThemePinkBase",
+    package_name: "com.android.car.dialer.googlecarui.theme.pink.rro",
+    target_package_name: "com.android.car.dialer",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.pink-com-android-car-linkviewer",
+    base: "GoogleCarUiThemePinkBase",
+    package_name: "com.android.car.linkviewer.googlecarui.theme.pink.rro",
+    target_package_name: "com.android.car.linkviewer",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.pink-com-android-car-settings",
+    base: "GoogleCarUiThemePinkBase",
+    package_name: "com.android.car.settings.googlecarui.theme.pink.rro",
+    target_package_name: "com.android.car.settings",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.pink-com-android-car-developeroptions",
+    base: "GoogleCarUiThemePinkBase",
+    package_name: "com.android.car.developeroptions.googlecarui.theme.pink.rro",
+    target_package_name: "com.android.car.developeroptions",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.pink-com-android-managedprovisioning",
+    base: "GoogleCarUiThemePinkBase",
+    package_name: "com.android.managedprovisioning.googlecarui.theme.pink.rro",
+    target_package_name: "com.android.managedprovisioning",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.pink-com-android-settings-intelligence",
+    base: "GoogleCarUiThemePinkBase",
+    package_name: "com.android.settings.intelligence.googlecarui.theme.pink.rro",
+    target_package_name: "com.android.settings.intelligence",
+}
+
+override_runtime_resource_overlay {
+    name: "googlecarui.theme.pink-com-android-htmlviewer",
+    base: "GoogleCarUiThemePinkBase",
+    package_name: "com.android.htmlviewer.googlecarui.theme.pink.rro",
     target_package_name: "com.android.htmlviewer",
 }

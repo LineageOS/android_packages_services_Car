@@ -19,7 +19,6 @@ package android.car.app;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.app.ActivityManager;
-import android.car.annotation.ApiRequirements;
 
 /**
  * A callback interface for {@link ControlledRemoteCarTaskView}.
@@ -34,8 +33,6 @@ public interface ControlledRemoteCarTaskViewCallback
      *
      * @param taskView the new newly created {@link RemoteCarTaskView} instance.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     default void onTaskViewCreated(@NonNull ControlledRemoteCarTaskView taskView) {}
 
@@ -44,8 +41,6 @@ public interface ControlledRemoteCarTaskViewCallback
      * can be considered ready when it has completed all the set up that is required.
      * This callback is only triggered once.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     default void onTaskViewInitialized() {}
 
@@ -53,8 +48,6 @@ public interface ControlledRemoteCarTaskViewCallback
      * Called when the underlying {@link RemoteCarTaskView} is released.
      * This callback is only triggered once.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     default void onTaskViewReleased() {}
 
@@ -63,8 +56,6 @@ public interface ControlledRemoteCarTaskViewCallback
      *
      * @param taskInfo the taskInfo of the task that has appeared.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     default void onTaskAppeared(@NonNull ActivityManager.RunningTaskInfo taskInfo) {}
 
@@ -73,8 +64,6 @@ public interface ControlledRemoteCarTaskViewCallback
      *
      * @param taskInfo the taskInfo of the task that has a change in info.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     default void onTaskInfoChanged(@NonNull ActivityManager.RunningTaskInfo taskInfo) {}
 
@@ -83,8 +72,6 @@ public interface ControlledRemoteCarTaskViewCallback
      *
      * @param taskInfo the taskInfo of the task that has vanished.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     default void onTaskVanished(@NonNull ActivityManager.RunningTaskInfo taskInfo) {}
 }

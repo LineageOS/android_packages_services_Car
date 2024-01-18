@@ -22,8 +22,6 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.app.ActivityManager;
-import android.car.annotation.AddedInOrBefore;
-import android.car.annotation.ApiRequirements;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -62,14 +60,12 @@ public final class UserLifecycleEventFilter implements Parcelable {
     //         the @VisibleForTesting annotation.
     /** @hide */
     @VisibleForTesting
-    @AddedInOrBefore(majorVersion = 33)
     public @Nullable int[] getEventTypes() {
         return mEventTypes;
     }
 
     /** @hide */
     @VisibleForTesting
-    @AddedInOrBefore(majorVersion = 33)
     public @Nullable int[] getUserIds() {
         return mUserIds;
     }
@@ -80,7 +76,6 @@ public final class UserLifecycleEventFilter implements Parcelable {
      * @param event user lifecycle event to check.
      * @return {@code true} if the event passes this filter.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public boolean apply(@NonNull UserLifecycleEvent event) {
         Objects.requireNonNull(event, "event cannot be null");
 
@@ -159,8 +154,6 @@ public final class UserLifecycleEventFilter implements Parcelable {
 
         /** Adds an event type that this filter passes. */
         @SuppressWarnings("[MissingGetterMatchingBuilder]")
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
         public Builder addEventType(@CommonConstants.UserLifecycleEventType int eventType) {
             mEventTypes.add(eventType);
@@ -177,8 +170,6 @@ public final class UserLifecycleEventFilter implements Parcelable {
          * @throws IllegalArgumentException if the specified userHandle is not supported.
          */
         @SuppressWarnings({"[MissingGetterMatchingBuilder]", "[UserHandleName]"})
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
         public Builder addUser(@NonNull UserHandle userHandle) {
             int userId = userHandle.getIdentifier();
@@ -190,8 +181,6 @@ public final class UserLifecycleEventFilter implements Parcelable {
         }
 
         /** Builds and returns a {@link UserLifecycleEventFilter}. */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
         public UserLifecycleEventFilter build() {
             if (mEventTypes.isEmpty() && mUserIds.isEmpty()) {
@@ -263,7 +252,6 @@ public final class UserLifecycleEventFilter implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -278,7 +266,6 @@ public final class UserLifecycleEventFilter implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -299,7 +286,6 @@ public final class UserLifecycleEventFilter implements Parcelable {
     }
 
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<UserLifecycleEventFilter> CREATOR
             = new Parcelable.Creator<UserLifecycleEventFilter>() {
         @Override

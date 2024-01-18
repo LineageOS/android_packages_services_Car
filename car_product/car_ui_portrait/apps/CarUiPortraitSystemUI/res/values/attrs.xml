@@ -21,4 +21,7 @@
              The first item should have the "off" drawable. -->
         <attr name="fanSpeedThumbIcons" format="reference"/>
     </declare-styleable>
+    <declare-styleable name="FanDirectionButton">
+        <attr name="singleHvacDirectionBit" format="integer"/>
+    </declare-styleable>
 </resources>

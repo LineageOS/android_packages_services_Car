@@ -15,13 +15,10 @@
  */
 package com.android.car.portraitlauncher.controlbar.dialer;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.util.Size;
 import android.view.View;
 import android.widget.Chronometer;
 
-import com.android.car.apps.common.BitmapUtils;
 import com.android.car.carlauncher.R;
 import com.android.car.carlauncher.homescreen.HomeCardFragment;
 import com.android.car.carlauncher.homescreen.ui.CardContent;
@@ -32,14 +29,9 @@ public class DialerCardFragment extends HomeCardFragment {
     private Chronometer mChronometer;
     private View mChronometerSeparator;
 
-    private CardContent.CardBackgroundImage mDefaultCardBackgroundImage;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mDefaultCardBackgroundImage = new CardContent.CardBackgroundImage(
-                getContext().getDrawable(R.drawable.default_audio_background),
-                getContext().getDrawable(R.drawable.control_bar_image_background));
     }
 
     @Override
@@ -84,19 +76,15 @@ public class DialerCardFragment extends HomeCardFragment {
 
     private void updateBackgroundImage(CardContent.CardBackgroundImage cardBackgroundImage) {
         if (cardBackgroundImage == null || cardBackgroundImage.getForeground() == null) {
-            cardBackgroundImage = mDefaultCardBackgroundImage;
+            return;
         }
-        int maxDimen = Math.max(getCardBackgroundImage().getWidth(),
-                getCardBackgroundImage().getHeight());
-        Size scaledSize = new Size(maxDimen, maxDimen);
-        Bitmap imageBitmap = BitmapUtils.fromDrawable(cardBackgroundImage.getForeground(),
-                scaledSize);
+
         if (cardBackgroundImage.getBackground() != null) {
             getCardBackgroundImage().setBackground(cardBackgroundImage.getBackground());
             getCardBackgroundImage().setClipToOutline(true);
         }
-        getCardBackgroundImage().setImageBitmap(imageBitmap, /* showAnimation= */ true);
-        getCardBackground().setVisibility(View.VISIBLE);
+
+        getCardBackgroundImage().setForeground(cardBackgroundImage.getForeground());
     }
 
     private void updateAudioDuration(DescriptiveTextWithControlsView content) {

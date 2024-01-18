@@ -16,6 +16,7 @@
 
 package com.android.car.hal;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
@@ -27,6 +28,8 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
  * AidlHalPropConfig is a HalPropConfig with an AIDL backend.
  */
 public final class AidlHalPropConfig extends HalPropConfig {
+    private static final VehicleAreaConfig[] sEmptyAreaConfig = new VehicleAreaConfig[0];
+
     private final VehiclePropConfig mConfig;
 
     public AidlHalPropConfig(VehiclePropConfig config) {
@@ -34,13 +37,13 @@ public final class AidlHalPropConfig extends HalPropConfig {
 
         // Do some validity checks to make sure we do not return null for get functions.
         if (mConfig.areaConfigs == null) {
-            mConfig.areaConfigs = new VehicleAreaConfig[0];
+            mConfig.areaConfigs = sEmptyAreaConfig;
         }
         if (mConfig.configString == null) {
-            mConfig.configString = new String();
+            mConfig.configString = "";
         }
         if (mConfig.configArray == null) {
-            mConfig.configArray = new int[0];
+            mConfig.configArray = EMPTY_INT_ARRAY;
         }
     }
 

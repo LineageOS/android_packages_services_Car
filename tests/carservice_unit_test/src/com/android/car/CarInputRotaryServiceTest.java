@@ -290,9 +290,8 @@ public class CarInputRotaryServiceTest {
      */
     private void init(String rotaryService) {
         mMockContext = new MockContext(mContext, rotaryService);
-
-        UserManager userManager = mock(UserManager.class);
         UserInfo userInfo = mock(UserInfo.class);
+        UserManager userManager = mock(UserManager.class);
         doReturn(userInfo).when(userManager).getUserInfo(anyInt());
         UserHalService userHal = mock(UserHalService.class);
         mCarUserService = new CarUserService(mMockContext, userHal,
@@ -303,7 +302,8 @@ public class CarInputRotaryServiceTest {
                 mCarOccupantZoneService, mCarBluetoothService, mCarPowerManagementService,
                 mSystemInterface, mHandler, mTelecomManager, mDefaultKeyEventMainListener,
                 mDefaultMotionEventMainListener, mLastCallSupplier, mLongPressDelaySupplier,
-                mShouldCallButtonEndOngoingCallSupplier, mCaptureController, userManager);
+                mShouldCallButtonEndOngoingCallSupplier, mCaptureController,
+                CarInputService.sDefaultShowCallback);
         mCarInputService.init();
     }
 

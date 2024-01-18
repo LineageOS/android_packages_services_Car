@@ -25,11 +25,17 @@ android_app {
 
     platform_apis: true,
 
+    system_ext_specific: true,
+
     aaptflags: ["--auto-add-overlay"],
 
     certificate: "platform",
 
     privileged: true,
+
+    optimize: {
+        enabled: false,
+    },
 
     enforce_uses_libs: false,
     dex_preopt: {

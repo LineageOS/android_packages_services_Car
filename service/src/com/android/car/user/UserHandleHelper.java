@@ -15,8 +15,6 @@
  */
 package com.android.car.user;
 
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
-
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -46,14 +44,8 @@ public final class UserHandleHelper {
      */
     @Nullable
     public UserHandle getExistingUserHandle(@UserIdInt int userId) {
-        List<UserHandle> users;
-        if (isPlatformVersionAtLeastU()) {
-            users = UserManagerHelper.getUserHandles(mUserManager, /* excludeDying= */ false);
-        } else {
-            users = UserManagerHelper.getUserHandles(mUserManager,
-                    /* excludePartial= */ false, /* excludeDying= */ false,
-                    /* excludePreCreated= */ true);
-        }
+        List<UserHandle> users = UserManagerHelper.getUserHandles(mUserManager,
+                /* excludeDying= */ false);
 
         for (UserHandle user : users) {
             if (user.getIdentifier() == userId) return user;

@@ -32,6 +32,8 @@ import static android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
 import static android.media.AudioAttributes.USAGE_UNKNOWN;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
+import static android.media.AudioDeviceInfo.TYPE_BLUETOOTH_A2DP;
+import static android.media.AudioDeviceInfo.TYPE_BUS;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
@@ -42,17 +44,24 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import android.annotation.UserIdInt;
+import android.car.feature.Flags;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.test.AbstractExpectableTestCase;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
 import android.hardware.automotive.audiocontrol.Reasons;
 import android.media.AudioAttributes;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioManager;
 import android.os.UserHandle;
+import android.platform.test.annotations.RequiresFlagsEnabled;
+import android.platform.test.flag.junit.CheckFlagsRule;
+import android.platform.test.flag.junit.DeviceFlagsValueProvider;
+import android.util.ArraySet;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -109,17 +118,23 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
     private CarAudioDeviceInfo mMediaDeviceInfo;
     private CarAudioDeviceInfo mNavigationDeviceInfo;
+    private CarAudioDeviceInfo mInactiveMediaDeviceInfo;
 
     @Mock
     CarAudioSettings mSettingsMock;
     @Mock
     AudioManager mAudioManagerMock;
 
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
+
     @Before
     public void setUp() {
         mMediaDeviceInfo = new TestCarAudioDeviceInfoBuilder(MEDIA_DEVICE_ADDRESS).build();
         mNavigationDeviceInfo = new TestCarAudioDeviceInfoBuilder(NAVIGATION_DEVICE_ADDRESS)
                 .build();
+        mInactiveMediaDeviceInfo = new TestCarAudioDeviceInfoBuilder(MEDIA_DEVICE_ADDRESS)
+                .setIsActive(false).setType(TYPE_BLUETOOTH_A2DP).build();
     }
 
     @Test
@@ -301,6 +316,18 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
         expectWithMessage("Device information for non-bounded address %s", OTHER_ADDRESS)
                 .that(actualDevice).isNull();
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
+    public void getAudioDeviceAttribute_returnsExpectedDevice() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        CarVolumeGroupInfo info = carVolumeGroup.getCarVolumeGroupInfo();
+
+        List<AudioDeviceAttributes> devices = info.getAudioDeviceAttributes();
+
+        expectWithMessage("Audio device attributes").that(devices).containsExactly(
+                mMediaDeviceInfo.getAudioDevice(), mNavigationDeviceInfo.getAudioDevice());
     }
 
     @Test
@@ -1685,6 +1712,77 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
                 .containsExactlyElementsIn(expectedUsagesForNavAddress);
     }
 
+    @Test
+    public void isActive() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+
+        expectWithMessage("Active status").that(carVolumeGroup.isActive()).isTrue();
+    }
+
+    @Test
+    public void isActive_withInactiveGroup() {
+        CarVolumeGroup carVolumeGroup = testDynamicVolumeGroupSetup();
+
+        expectWithMessage("Active status, with inactive group")
+                .that(carVolumeGroup.isActive()).isFalse();
+    }
+
+    @Test
+    public void validateDeviceTypes_forGroupWithNoDynamicDevices() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        ArraySet<Integer> existingDevices = new ArraySet<>();
+
+        expectWithMessage("Status for valid volume group with BUS devices")
+                .that(carVolumeGroup.validateDeviceTypes(existingDevices)).isTrue();
+        expectWithMessage("Dynamic devices for group").that(existingDevices).isEmpty();
+    }
+
+    @Test
+    public void validateDeviceTypes_forGroupWithNoDynamicDevices_andExistingBusDevice() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        ArraySet<Integer> existingDevices = new ArraySet<>();
+        existingDevices.add(TYPE_BUS);
+
+        expectWithMessage("Status for valid volume group with BUS devices and existing BUS device")
+                .that(carVolumeGroup.validateDeviceTypes(existingDevices)).isTrue();
+        expectWithMessage("Dynamic devices for group with BUS device").that(existingDevices)
+                .containsExactly(TYPE_BUS);
+    }
+
+    @Test
+    public void validateDeviceTypes_forGroupWithDynamicTypes() {
+        CarVolumeGroup carVolumeGroup = testDynamicVolumeGroupSetup();
+        ArraySet<Integer> existingDevices = new ArraySet<>();
+
+        expectWithMessage("Status for valid volume group with dynamic device")
+                .that(carVolumeGroup.validateDeviceTypes(existingDevices)).isTrue();
+        expectWithMessage("Dynamic devices for group with dynamic device")
+                .that(existingDevices).containsExactly(TYPE_BLUETOOTH_A2DP);
+    }
+
+    @Test
+    public void validateDeviceTypes_forGroupWithDynamicDeviceAndBus() {
+        CarVolumeGroup carVolumeGroup = testInactiveVolumeGroupSetup();
+        ArraySet<Integer> existingDevices = new ArraySet<>();
+
+        expectWithMessage("Status for invalid volume group with dynamic device")
+                .that(carVolumeGroup.validateDeviceTypes(existingDevices)).isFalse();
+        expectWithMessage("Dynamic devices for group with dynamic device and bus device")
+                .that(existingDevices).containsExactly(TYPE_BLUETOOTH_A2DP);
+    }
+
+    @Test
+    public void validateDeviceTypes_forGroupWithAlreadyExistingDynamicType() {
+        CarVolumeGroup carVolumeGroup = testDynamicVolumeGroupSetup();
+        ArraySet<Integer> existingDevices = new ArraySet<>();
+        existingDevices.add(TYPE_BLUETOOTH_A2DP);
+
+        expectWithMessage("Status for invalid volume group with existing dynamic device")
+                .that(carVolumeGroup.validateDeviceTypes(existingDevices)).isFalse();
+        expectWithMessage("Existing dynamic devices for group with dynamic device")
+                .that(existingDevices).containsExactly(TYPE_BLUETOOTH_A2DP);
+    }
+
     private CarVolumeGroup getCarVolumeGroupWithMusicBound() {
         CarVolumeGroupFactory factory = getFactory(/* useCarVolumeGroupMute= */ true);
         factory.setDeviceInfoForContext(TEST_MEDIA_CONTEXT_ID, mMediaDeviceInfo);
@@ -1711,6 +1809,30 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
     private CarVolumeGroup testVolumeGroupSetup() {
         return testVolumeGroupSetup(/* useCarVolumeGroupMute= */ true);
+    }
+
+    private CarVolumeGroup testInactiveVolumeGroupSetup() {
+        CarVolumeGroupFactory factory = getFactory(/* useCarVolumeGroupMute= */ true);
+
+        factory.setDeviceInfoForContext(TEST_MEDIA_CONTEXT_ID, mInactiveMediaDeviceInfo);
+        factory.setDeviceInfoForContext(TEST_CALL_CONTEXT_ID, mInactiveMediaDeviceInfo);
+        factory.setDeviceInfoForContext(TEST_CALL_RING_CONTEXT_ID, mInactiveMediaDeviceInfo);
+
+        factory.setDeviceInfoForContext(TEST_NAVIGATION_CONTEXT_ID, mNavigationDeviceInfo);
+        factory.setDeviceInfoForContext(TEST_ALARM_CONTEXT_ID, mNavigationDeviceInfo);
+        factory.setDeviceInfoForContext(TEST_NOTIFICATION_CONTEXT_ID, mNavigationDeviceInfo);
+
+        return factory.getCarVolumeGroup(/* useCoreAudioVolume= */ false);
+    }
+
+    private CarVolumeGroup testDynamicVolumeGroupSetup() {
+        CarVolumeGroupFactory factory = getFactory(/* useCarVolumeGroupMute= */ true);
+
+        factory.setDeviceInfoForContext(TEST_MEDIA_CONTEXT_ID, mInactiveMediaDeviceInfo);
+        factory.setDeviceInfoForContext(TEST_CALL_CONTEXT_ID, mInactiveMediaDeviceInfo);
+        factory.setDeviceInfoForContext(TEST_CALL_RING_CONTEXT_ID, mInactiveMediaDeviceInfo);
+
+        return factory.getCarVolumeGroup(/* useCoreAudioVolume= */ false);
     }
 
     private CarVolumeGroup testVolumeGroupSetup(boolean useCarVolumeGroupMute) {

@@ -31,7 +31,9 @@
         <permission name="android.car.permission.CAR_CONTROL_AUDIO_SETTINGS"/>
         <permission name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME"/>
         <permission name="android.car.permission.CAR_DIAGNOSTICS"/>
+        <permission name="android.car.permission.CLEAR_CAR_DIAGNOSTICS"/>
         <permission name="android.car.permission.CAR_DRIVING_STATE"/>
+        <permission name="android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL"/>
         <permission name="android.car.permission.CAR_POWER"/>
         <permission name="android.car.permission.CAR_TEST_SERVICE"/>
         <permission name="android.car.permission.CONTROL_CAR_APP_LAUNCH"/>
@@ -51,6 +53,7 @@
         <permission name="android.car.permission.USE_CAR_TELEMETRY_SERVICE" />
         <permission name="android.car.permission.CONTROL_SHUTDOWN_PROCESS"/>
         <permission name="android.car.permission.CAR_DYNAMICS_STATE"/>
+        <permission name="android.car.permission.CONTROL_CAR_DYNAMICS_STATE"/>
         <permission name="android.car.permission.CAR_ENGINE_DETAILED"/>
         <permission name="android.car.permission.CAR_MILEAGE"/>
         <permission name="android.car.permission.CAR_TIRES"/>
@@ -64,10 +67,15 @@
         <permission name="android.car.permission.PRIVILEGED_CAR_INFO"/>
         <permission name="android.car.permission.MANAGE_THREAD_PRIORITY"/>
         <permission name="android.car.permission.CONTROL_CAR_SEATS"/>
+        <permission name="android.car.permission.READ_CAR_SEAT_BELTS"/>
+        <permission name="android.car.permission.READ_IMPACT_SENSORS"/>
+        <permission name="android.car.permission.READ_VALET_MODE"/>
+        <permission name="android.car.permission.CONTROL_VALET_MODE"/>
         <permission name="android.car.permission.CONTROL_CAR_MIRRORS"/>
         <permission name="android.car.permission.CONTROL_GLOVE_BOX"/>
         <permission name="android.car.permission.READ_CAR_INTERIOR_LIGHTS" />
         <permission name="android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS" />
+        <permission name="android.car.permission.READ_CAR_AIRBAGS"/>
         <permission name="android.car.permission.CONTROL_CAR_AIRBAGS"/>
         <permission name="android.car.permission.CAR_POWERTRAIN" />
         <permission name="android.car.permission.CONTROL_CAR_POWERTRAIN"/>
@@ -87,6 +95,9 @@
         <permission name="android.car.permission.READ_WINDSHIELD_WIPERS"/>
         <permission name="android.car.permission.CONTROL_WINDSHIELD_WIPERS"/>
         <permission name="android.car.permission.CAR_EPOCH_TIME"/>
+        <permission name="android.car.permission.VMS_PUBLISHER"/>
+        <permission name="android.car.permission.VMS_SUBSCRIBER"/>
+        <permission name="android.car.permission.READ_ULTRASONICS_SENSOR_DATA"/>
         <permission name="android.car.permission.GET_CAR_VENDOR_CATEGORY_WINDOW"/>
         <permission name="android.car.permission.SET_CAR_VENDOR_CATEGORY_WINDOW"/>
         <permission name="android.car.permission.GET_CAR_VENDOR_CATEGORY_DOOR"/>
@@ -126,5 +137,7 @@
         <permission name="android.car.permission.MANAGE_OCCUPANT_CONNECTION" />
         <permission name="android.car.permission.MANAGE_REMOTE_DEVICE" />
         <permission name="android.car.permission.MANAGE_CAR_SYSTEM_UI" />
+        <permission name="android.car.permission.QUERY_DISPLAY_COMPATIBILITY" />
+        <permission name="android.car.permission.CONTROL_REMOTE_ACCESS" />
     </privapp-permissions>
 </permissions>

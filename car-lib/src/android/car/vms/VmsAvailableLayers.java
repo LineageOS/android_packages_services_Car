@@ -20,7 +20,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.AddedInOrBefore;
 import android.car.builtin.os.ParcelHelper;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -92,7 +91,6 @@ public final class VmsAvailableLayers implements Parcelable {
      * @deprecated Use {@link #getSequenceNumber()} instead
      */
     @Deprecated
-    @AddedInOrBefore(majorVersion = 33)
     public int getSequence() {
         return mSequenceNumber;
     }
@@ -119,7 +117,6 @@ public final class VmsAvailableLayers implements Parcelable {
     /**
      * Sequence number of the availability state
      */
-    @AddedInOrBefore(majorVersion = 33)
     public int getSequenceNumber() {
         return mSequenceNumber;
     }
@@ -127,7 +124,6 @@ public final class VmsAvailableLayers implements Parcelable {
     /**
      * Set of layers available for subscription
      */
-    @AddedInOrBefore(majorVersion = 33)
     public @NonNull Set<VmsAssociatedLayer> getAssociatedLayers() {
         return mAssociatedLayers;
     }
@@ -171,7 +167,6 @@ public final class VmsAvailableLayers implements Parcelable {
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -182,7 +177,6 @@ public final class VmsAvailableLayers implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -202,7 +196,6 @@ public final class VmsAvailableLayers implements Parcelable {
         onConstructed();
     }
 
-    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<VmsAvailableLayers> CREATOR
             = new Parcelable.Creator<VmsAvailableLayers>() {
         @Override

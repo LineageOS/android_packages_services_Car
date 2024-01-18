@@ -25,6 +25,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <future>  // NOLINT(build/c++11)
+
 namespace android {
 namespace automotive {
 namespace watchdog {
@@ -47,6 +49,8 @@ using ::testing::UnorderedElementsAre;
 using ::testing::UnorderedElementsAreArray;
 
 namespace {
+
+constexpr std::chrono::seconds FETCH_PACKAGE_NAMES_TIMEOUT_SECS = 1s;
 
 using PackageToAppCategoryMap =
         std::unordered_map<std::string,
@@ -325,6 +329,33 @@ TEST_F(PackageInfoResolverTest, TestResolvesApplicationUidFromLocalCache) {
     EXPECT_THAT(actualMappings, UnorderedElementsAreArray(expectedMappings))
             << "Expected: " << toString(expectedMappings)
             << "\nActual: " << toString(actualMappings);
+}
+
+TEST_F(PackageInfoResolverTest, TestAsyncFetchPackageNamesForUids) {
+    internal::PackageInfoResolverPeer peer;
+    auto packageInfoResolver = PackageInfoResolver::getInstance();
+    uid_t callingUid = 1003456;
+    std::unordered_map<uid_t, PackageInfo> expectedMappings{
+            {callingUid,
+             constructPackageInfo("vendor.package", callingUid, UidType::NATIVE,
+                                  ComponentType::SYSTEM, ApplicationCategoryType::OTHERS)}};
+    mPackageInfoResolverPeer->injectCacheMapping(expectedMappings);
+
+    auto promise = std::promise<void>();
+    auto future = promise.get_future();
+
+    mPackageInfoResolver->asyncFetchPackageNamesForUids({callingUid},
+                                                        [&](std::unordered_map<uid_t, std::string>
+                                                                    packageNames) {
+                                                            ASSERT_TRUE(
+                                                                    packageNames.find(callingUid) !=
+                                                                    packageNames.end());
+                                                            ASSERT_EQ(packageNames[callingUid],
+                                                                      "vendor.package");
+                                                            promise.set_value();
+                                                        });
+
+    ASSERT_EQ(std::future_status::ready, future.wait_for(FETCH_PACKAGE_NAMES_TIMEOUT_SECS));
 }
 
 }  // namespace watchdog

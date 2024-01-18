@@ -21,11 +21,11 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.hardware.audio.common.PlaybackTrackMetadata;
 import android.hardware.automotive.audiocontrol.MutingInfo;
 
 import com.android.car.audio.CarDuckingInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.car.internal.annotation.AttributeUsage;
 import com.android.car.internal.util.IndentingPrintWriter;
 
 import java.lang.annotation.Retention;
@@ -94,11 +94,11 @@ public interface AudioControlWrapper {
     /**
      * Notifies HAL of change in audio focus for a request it has made.
      *
-     * @param usage that the request is associated with.
+     * @param metadata {@link PlaybackTrackMetadata} that the request is associated with.
      * @param zoneId for the audio zone that the request is associated with.
      * @param focusChange the new status of the request.
      */
-    void onAudioFocusChange(@AttributeUsage int usage, int zoneId, int focusChange);
+    void onAudioFocusChange(PlaybackTrackMetadata metadata, int zoneId, int focusChange);
 
     /**
      * dumps the current state of the AudioControlWrapper

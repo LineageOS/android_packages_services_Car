@@ -149,6 +149,70 @@ public final class CarPropertyValueTest extends CarPropertyTestBase {
     }
 
     @Test
+    public void equals_mixedValue() {
+        assertThat(
+                new CarPropertyValue<Object[]>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS,
+                        new Object[]{"abcd", 1, false})
+                .equals(new CarPropertyValue<Object[]>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS,
+                        new Object[]{"abcd", 1, false}
+                ))).isTrue();
+
+        assertThat(
+                new CarPropertyValue<Object[]>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS,
+                        new Object[]{"abcd", 1, false})
+                .equals(new CarPropertyValue<Object[]>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS,
+                        new Object[]{"a", 1, false}
+                ))).isFalse();
+    }
+
+    @Test
+    public void equals_intArray() {
+        assertThat(
+                new CarPropertyValue<Integer[]>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS,
+                        new Integer[]{1, 2})
+                .equals(new CarPropertyValue<Integer[]>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS,
+                        new Integer[]{1, 2}
+                ))).isTrue();
+
+        assertThat(
+                new CarPropertyValue<Integer[]>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS,
+                        new Integer[]{1, 2})
+                .equals(new CarPropertyValue<Integer[]>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS,
+                        new Integer[]{1, 2, 3}
+                ))).isFalse();
+    }
+
+    @Test
+    public void hashCode_mixedValue() {
+        assertThat(
+                new CarPropertyValue<Object[]>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS,
+                        new Object[]{"abcd", 1, false}).hashCode())
+                .isEqualTo(new CarPropertyValue<Object[]>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS,
+                        new Object[]{"abcd", 1, false}).hashCode());
+
+        assertThat(
+                new CarPropertyValue<Object[]>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS,
+                        new Object[]{"abcd", 1, false}).hashCode())
+                .isNotEqualTo(new CarPropertyValue<Object[]>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS,
+                        new Object[]{"abc", 1, false}).hashCode());
+    }
+
+    @Test
+    public void hashCode_intArray() {
+        assertThat(
+                new CarPropertyValue<Integer[]>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS,
+                        new Integer[]{1, 2}).hashCode())
+                .isEqualTo(new CarPropertyValue<Integer[]>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS,
+                        new Integer[]{1, 2}).hashCode());
+
+        assertThat(
+                new CarPropertyValue<Integer[]>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS,
+                        new Integer[]{1, 2}).hashCode())
+                .isNotEqualTo(new CarPropertyValue<Integer[]>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS,
+                        new Integer[]{1, 2, 3}).hashCode());
+    }
+
+    @Test
     public void getStatus_returnsAvailable() {
         assertThat(CAR_PROPERTY_VALUE.getStatus()).isEqualTo(CarPropertyValue.STATUS_AVAILABLE);
     }

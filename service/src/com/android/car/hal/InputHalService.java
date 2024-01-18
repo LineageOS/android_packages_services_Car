@@ -149,6 +149,7 @@ public class InputHalService extends HalServiceBase {
 
     @VisibleForTesting
     InputHalService(VehicleHal hal, LongSupplier uptimeSupplier) {
+        super();
         mHal = hal;
         mUptimeSupplier = uptimeSupplier;
     }
@@ -175,19 +176,19 @@ public class InputHalService extends HalServiceBase {
             customInputSupported = mCustomInputSupported;
         }
         if (keyInputSupported) {
-            mHal.subscribeProperty(this, HW_KEY_INPUT);
+            mHal.subscribePropertySafe(this, HW_KEY_INPUT);
         }
         if (keyInputV2Supported) {
-            mHal.subscribeProperty(this, HW_KEY_INPUT_V2);
+            mHal.subscribePropertySafe(this, HW_KEY_INPUT_V2);
         }
         if (motionInputSupported) {
-            mHal.subscribeProperty(this, HW_MOTION_INPUT);
+            mHal.subscribePropertySafe(this, HW_MOTION_INPUT);
         }
         if (rotaryInputSupported) {
-            mHal.subscribeProperty(this, HW_ROTARY_INPUT);
+            mHal.subscribePropertySafe(this, HW_ROTARY_INPUT);
         }
         if (customInputSupported) {
-            mHal.subscribeProperty(this, HW_CUSTOM_INPUT);
+            mHal.subscribePropertySafe(this, HW_CUSTOM_INPUT);
         }
     }
 
@@ -243,7 +244,7 @@ public class InputHalService extends HalServiceBase {
     }
 
     @Override
-    public int[] getAllSupportedProperties() {
+    int[] getAllSupportedProperties() {
         return SUPPORTED_PROPERTIES;
     }
 

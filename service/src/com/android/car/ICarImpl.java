@@ -39,6 +39,7 @@ import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
+import android.car.feature.Flags;
 import android.car.user.CarUserManager;
 import android.content.Context;
 import android.content.om.OverlayInfo;
@@ -58,6 +59,9 @@ import android.os.RemoteException;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.util.ArrayMap;
+import android.util.Log;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.admin.CarDevicePolicyService;
 import com.android.car.am.CarActivityService;
@@ -97,10 +101,13 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.File;
 import java.io.FileDescriptor;
+import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 
 public class ICarImpl extends ICar.Stub {
@@ -171,9 +178,10 @@ public class ICarImpl extends ICar.Stub {
     @Nullable
     private CarRemoteAccessService mCarRemoteAccessService;
 
-    private final CarSystemService[] mAllServices;
+    // Storing all the car services in the order of their init.
+    private final CarSystemService[] mAllServicesInInitOrder;
 
-    private static final boolean DBG = true; // TODO(b/154033860): STOPSHIP if true
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private final Object mLock = new Object();
 
@@ -342,7 +350,7 @@ public class ICarImpl extends ICar.Stub {
         mCarInputService = constructWithTrace(t, CarInputService.class,
                 () -> new CarInputService(serviceContext, mHal.getInputHal(), mCarUserService,
                         mCarOccupantZoneService, mCarBluetoothService, mCarPowerManagementService,
-                        mSystemInterface, userManager), allServices);
+                        mSystemInterface), allServices);
         mCarProjectionService = constructWithTrace(t, CarProjectionService.class,
                 () -> new CarProjectionService(serviceContext, null /* handler */, mCarInputService,
                         mCarBluetoothService), allServices);
@@ -400,7 +408,8 @@ public class ICarImpl extends ICar.Stub {
         mCarLocationService = constructWithTrace(t, CarLocationService.class,
                 () -> new CarLocationService(serviceContext), allServices);
         mCarMediaService = constructWithTrace(t, CarMediaService.class,
-                () -> new CarMediaService(serviceContext, mCarOccupantZoneService, mCarUserService),
+                () -> new CarMediaService(serviceContext, mCarOccupantZoneService, mCarUserService,
+                        mCarPowerManagementService),
                 allServices);
         mCarBugreportManagerService = constructWithTrace(t, CarBugreportManagerService.class,
                 () -> new CarBugreportManagerService(serviceContext), allServices);
@@ -503,8 +512,7 @@ public class ICarImpl extends ICar.Stub {
             mCarRemoteDeviceService = null;
         }
 
-        mAllServices = allServices.toArray(new CarSystemService[allServices.size()]);
-
+        mAllServicesInInitOrder = allServices.toArray(new CarSystemService[allServices.size()]);
         mICarSystemServerClientImpl = new ICarSystemServerClientImpl();
 
         t.traceEnd(); // "ICarImpl.constructor"
@@ -521,7 +529,7 @@ public class ICarImpl extends ICar.Stub {
         }
 
         t.traceBegin("CarService.initAllServices");
-        for (CarSystemService service : mAllServices) {
+        for (CarSystemService service : mAllServicesInInitOrder) {
             t.traceBegin(service.getClass().getSimpleName());
             service.init();
             t.traceEnd();
@@ -535,8 +543,8 @@ public class ICarImpl extends ICar.Stub {
 
     void release() {
         // release done in opposite order from init
-        for (int i = mAllServices.length - 1; i >= 0; i--) {
-            mAllServices[i].release();
+        for (int i = mAllServicesInInitOrder.length - 1; i >= 0; i--) {
+            mAllServicesInInitOrder[i].release();
         }
     }
 
@@ -761,14 +769,34 @@ public class ICarImpl extends ICar.Stub {
                 dumpVersions(writer);
                 return;
             case "--services": {
-                if (args.length < 2) {
+                int length = args.length;
+                boolean dumpToProto = false;
+                if (length < 2) {
                     writer.println("Must pass services to dump when using --services");
                     return;
                 }
-                int length = args.length - 1;
+                if (Objects.equals(args[length - 1], "--proto")) {
+                    length -= 2;
+                    dumpToProto = true;
+                    if (length > 1) {
+                        writer.println("Cannot dump multiple services to proto");
+                        return;
+                    }
+                } else {
+                    length -= 1;
+                }
                 String[] services = new String[length];
                 System.arraycopy(args, 1, services, 0, length);
-                dumpIndividualServices(writer, services);
+                if (dumpToProto) {
+                    if (!Flags.carDumpToProto()) {
+                        writer.println("Cannot dump " + services[0]
+                                + " to proto since FLAG_CAR_DUMP_TO_PROTO is disabled");
+                        return;
+                    }
+                    dumpServiceProto(writer, fd, services[0]);
+                } else {
+                    dumpIndividualServices(writer, services);
+                }
                 return;
             }
             case "--metrics":
@@ -946,16 +974,18 @@ public class ICarImpl extends ICar.Stub {
     }
 
     private CarShellCommand newCarShellCommand() {
-        return new CarShellCommand(mContext, mHal, mCarAudioService, mCarPackageManagerService,
-                mCarProjectionService, mCarPowerManagementService, mFixedActivityService,
-                mFeatureController, mCarInputService, mCarNightService, mSystemInterface,
-                mGarageModeService, mCarUserService, mCarOccupantZoneService, mCarEvsService,
-                mCarWatchdogService, mCarTelemetryService);
+        Map<Class, CarSystemService> allServicesByClazz = new ArrayMap<>();
+        for (CarSystemService service : mAllServicesInInitOrder) {
+            allServicesByClazz.put(service.getClass(), service);
+        }
+
+        return new CarShellCommand(mContext, mHal, mFeatureController, mSystemInterface,
+                allServicesByClazz);
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpListOfServices(IndentingPrintWriter writer) {
-        for (CarSystemService service : mAllServices) {
+        for (CarSystemService service : mAllServicesInInitOrder) {
             writer.println(service.getClass().getName());
         }
     }
@@ -963,13 +993,15 @@ public class ICarImpl extends ICar.Stub {
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpAllServices(IndentingPrintWriter writer) {
         writer.println("*Dump all services*");
-        for (CarSystemService service : mAllServices) {
+        for (CarSystemService service : mAllServicesInInitOrder) {
             if (service instanceof CarServiceBase) {
                 dumpService(service, writer);
             }
         }
-        if (mCarTestService != null) {
-            dumpService(mCarTestService, writer);
+        synchronized (mLock) {
+            if (mCarTestService != null) {
+                dumpService(mCarTestService, writer);
+            }
         }
     }
 
@@ -987,9 +1019,32 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpServiceProto(IndentingPrintWriter writer, FileDescriptor fd,
+            String serviceName) {
+        CarSystemService service = getCarServiceBySubstring(serviceName);
+        if (service == null) {
+            writer.println("No such service!");
+        } else {
+            if (service instanceof CarServiceBase) {
+                CarServiceBase carService = (CarServiceBase) service;
+                try (FileOutputStream fileStream = new FileOutputStream(fd)) {
+                    ProtoOutputStream proto = new ProtoOutputStream(fileStream);
+                    carService.dumpProto(proto);
+                    proto.flush();
+                } catch (Exception e) {
+                    writer.println("Failed dumping: " + carService.getClass().getName());
+                    e.printStackTrace(writer);
+                }
+            } else {
+                writer.println("Only services that extend CarServiceBase can dump to proto");
+            }
+        }
+    }
+
     @Nullable
     private CarSystemService getCarServiceBySubstring(String className) {
-        return Arrays.asList(mAllServices).stream()
+        return Arrays.asList(mAllServicesInInitOrder).stream()
                 .filter(s -> s.getClass().getSimpleName().equals(className))
                 .findFirst().orElse(null);
     }
@@ -1041,10 +1096,7 @@ public class ICarImpl extends ICar.Stub {
 
         @Override
         public void initBootUser() throws RemoteException {
-            assertCallingFromSystemProcess();
-            EventLogHelper.writeCarServiceInitBootUser();
-            if (DBG) Slogf.d(TAG, "initBootUser(): ");
-            mCarUserService.initBootUser();
+            // TODO(b/277271542). Remove this code path.
         }
 
         // TODO(235524989): Remove this method as on user removed will now go through

@@ -16,6 +16,7 @@
 
 package com.android.car.audio.hal;
 
+import static com.android.car.audio.CarHalAudioUtils.usageToMetadata;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING;
@@ -32,6 +33,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.hardware.audio.common.PlaybackTrackMetadata;
 import android.hardware.automotive.audiocontrol.V2_0.IAudioControl;
 import android.hardware.automotive.audiocontrol.V2_0.ICloseHandle;
 import android.hardware.automotive.audiocontrol.V2_0.IFocusListener;
@@ -59,6 +61,7 @@ public final class AudioControlWrapperV2Test {
     private static final int USAGE = AudioAttributes.USAGE_MEDIA;
     private static final int ZONE_ID = 2;
     private static final int FOCUS_GAIN = AudioManager.AUDIOFOCUS_GAIN;
+    private static final PlaybackTrackMetadata METADATA = usageToMetadata(USAGE);
 
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();
@@ -156,7 +159,7 @@ public final class AudioControlWrapperV2Test {
 
         captor.getValue().requestAudioFocus(USAGE, ZONE_ID, FOCUS_GAIN);
 
-        verify(mockListener).requestAudioFocus(USAGE, ZONE_ID, FOCUS_GAIN);
+        verify(mockListener).requestAudioFocus(METADATA, ZONE_ID, FOCUS_GAIN);
     }
 
     @Test
@@ -169,12 +172,12 @@ public final class AudioControlWrapperV2Test {
 
         captor.getValue().abandonAudioFocus(USAGE, ZONE_ID);
 
-        verify(mockListener).abandonAudioFocus(USAGE, ZONE_ID);
+        verify(mockListener).abandonAudioFocus(METADATA, ZONE_ID);
     }
 
     @Test
     public void onAudioFocusChange_succeeds() throws Exception {
-        mAudioControlWrapperV2.onAudioFocusChange(USAGE, ZONE_ID, FOCUS_GAIN);
+        mAudioControlWrapperV2.onAudioFocusChange(METADATA, ZONE_ID, FOCUS_GAIN);
 
         verify(mAudioControlV2).onAudioFocusChange(USAGE, ZONE_ID, FOCUS_GAIN);
     }
@@ -185,7 +188,7 @@ public final class AudioControlWrapperV2Test {
                 .onAudioFocusChange(anyInt(), anyInt(), anyInt());
 
         IllegalStateException thrown = assertThrows(IllegalStateException.class,
-                () -> mAudioControlWrapperV2.onAudioFocusChange(USAGE, ZONE_ID, FOCUS_GAIN));
+                () -> mAudioControlWrapperV2.onAudioFocusChange(METADATA, ZONE_ID, FOCUS_GAIN));
 
         assertWithMessage("Exception thrown when onAudioFocusChange failed")
                 .that(thrown).hasMessageThat()

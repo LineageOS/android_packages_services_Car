@@ -17,7 +17,6 @@
 package com.android.car;
 
 import static com.android.car.internal.common.CommonConstants.INVALID_PID;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -144,19 +143,6 @@ public final class CarServiceHelperWrapper {
     public void setPassengerDisplays(int[] displayIds) {
         try {
             waitForCarServiceHelper().setPassengerDisplays(displayIds);
-        } catch (RemoteException e) {
-            Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
-        }
-    }
-
-    /**
-     * See {@code ICarServiceHelper}.
-     */
-    public void setSourcePreferredComponents(
-            boolean enableSourcePreferred, List<ComponentName> sourcePreferredComponents) {
-        try {
-            waitForCarServiceHelper().setSourcePreferredComponents(enableSourcePreferred,
-                    sourcePreferredComponents);
         } catch (RemoteException e) {
             Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
         }
@@ -296,15 +282,24 @@ public final class CarServiceHelperWrapper {
      * See {@code ICarServiceHelper}.
      */
     public int fetchAidlVhalPid() {
-        if (!isPlatformVersionAtLeastU()) {
-            return INVALID_PID;
-        }
         try {
             return waitForCarServiceHelper().fetchAidlVhalPid();
         } catch (RemoteException e) {
             Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
         }
         return INVALID_PID;
+    }
+
+    /**
+     * @return true if a package requires launching in automotive compatibility mode.
+     */
+    public boolean requiresDisplayCompat(String packageName) {
+        try {
+            return waitForCarServiceHelper().requiresDisplayCompat(packageName);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
+        }
+        return false;
     }
 
     private CarServiceHelperWrapper(long carServiceHelperWaitTimeoutMs) {

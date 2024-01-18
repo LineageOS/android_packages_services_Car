@@ -28,6 +28,7 @@
 #include <android-base/result.h>
 #include <android/binder_auto_utils.h>
 #include <android/hidl/manager/1.0/IServiceManager.h>
+#include <android/util/ProtoOutputStream.h>
 #include <cutils/multiuser.h>
 #include <utils/Looper.h>
 #include <utils/Mutex.h>
@@ -56,12 +57,14 @@ class WatchdogProcessServicePeer;
 }  // namespace internal
 
 class WatchdogServiceHelperInterface;
+class PackageInfoResolverInterface;
 
 class WatchdogProcessServiceInterface : virtual public android::RefBase {
 public:
     virtual android::base::Result<void> start() = 0;
     virtual void terminate() = 0;
     virtual void onDump(int fd) = 0;
+    virtual void onDumpProto(android::util::ProtoOutputStream& outProto) = 0;
     virtual void doHealthCheck(int what) = 0;
     virtual void handleBinderDeath(void* cookie) = 0;
     virtual ndk::ScopedAStatus registerClient(
@@ -114,11 +117,12 @@ public:
             const std::chrono::nanoseconds& vhalPidCachingRetryDelayNs,
             const sp<Looper>& handlerLooper,
             const sp<AIBinderDeathRegistrationWrapperInterface>& deathRegistrationWrapper);
-    ~WatchdogProcessService() { terminate(); }
+    ~WatchdogProcessService();
 
     android::base::Result<void> start() override;
     void terminate() override;
     void onDump(int fd) override;
+    void onDumpProto(util::ProtoOutputStream& outProto) override;
     void doHealthCheck(int what) override;
     void handleBinderDeath(void* cookie) override;
     ndk::ScopedAStatus registerClient(
@@ -205,6 +209,7 @@ private:
         const ndk::SpAIBinder kWatchdogServiceBinder;
 
         int sessionId;
+        std::string packageName;
     };
 
     struct HeartBeat {
@@ -290,6 +295,7 @@ private:
             uintptr_t binderPtrId, const Processor& processor);
     std::chrono::nanoseconds getTimeoutDurationNs(
             const aidl::android::automotive::watchdog::TimeoutLength& timeout);
+    static int toProtoClientType(ClientType clientType);
 
 private:
     const std::function<std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient>()>
@@ -313,6 +319,7 @@ private:
     std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient::OnBinderDiedCallbackFunc>
             mVhalBinderDiedCallback;
     android::sp<AIBinderDeathRegistrationWrapperInterface> mDeathRegistrationWrapper;
+    android::sp<PackageInfoResolverInterface> mPackageInfoResolver;
 
     android::Mutex mMutex;
 

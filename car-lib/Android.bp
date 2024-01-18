@@ -62,6 +62,10 @@ filegroup {
 
 java_library {
     name: "android.car",
+
+    defaults: [
+        "car-framework-aconfig-libraries",
+    ],
     srcs: [
         ":android.car-full-src",
     ],
@@ -73,9 +77,10 @@ java_library {
     libs: [
         "android.car.builtin",
         "framework-annotations-lib",
-        "modules-utils-preconditions",
         "framework-wifi",
         "framework-bluetooth",
+        "framework-location",
+        "modules-utils-preconditions",
     ],
     installable: true,
     // TODO(b/288271411): enable it when car mainline module is supported
@@ -130,8 +135,9 @@ genrule {
 droidstubs {
     name: "android.car-stubs-docs",
     defaults: ["android.car-docs-default"],
-    args: "--hide UnavailableSymbol --stub-packages android.car* " +
-        "--hide-package com.android.internal --hide-package com.android.car.internal ",
+    args: "--hide UnavailableSymbol --hide HiddenSuperclass --stub-packages android.car* " +
+        "--hide-package com.android.internal --hide-package com.android.car.internal " +
+        "--error UnflaggedApi",
     installable: false,
     check_api: {
         last_released: {
@@ -162,7 +168,7 @@ droidstubs {
     args: "--hide CallbackInterface --hide UnavailableSymbol --hide HiddenSuperclass " +
         "--stub-packages android.car* " +
         "--show-annotation android.annotation.SystemApi --hide-package com.android.internal " +
-        "--hide-package com.android.car.internal ",
+        "--hide-package com.android.car.internal --error UnflaggedApi",
     installable: false,
     check_api: {
         last_released: {
@@ -377,4 +383,3 @@ filegroup {
         "api/system-removed.txt",
     ],
 }
-

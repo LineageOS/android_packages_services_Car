@@ -28,6 +28,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.robolectric.Shadows.shadowOf;
 
 import android.car.CarProjectionManager.ProjectionAccessPointCallback;
 import android.car.testapi.CarProjectionController;
@@ -37,6 +38,7 @@ import android.content.Intent;
 import android.net.MacAddress;
 import android.net.wifi.SoftApConfiguration;
 import android.net.wifi.WifiConfiguration;
+import android.os.Looper;
 import android.util.ArraySet;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -98,6 +100,7 @@ public class CarProjectionManagerTest {
         mController.setSoftApConfiguration(null);
 
         mProjectionManager.startProjectionAccessPoint(mApCallback);
+        shadowOf(Looper.getMainLooper()).idle();
         mApCallback.mFailed.await(DEFAULT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertThat(mApCallback.mFailureReason).isEqualTo(ERROR_GENERIC);
     }
@@ -108,10 +111,12 @@ public class CarProjectionManagerTest {
                 .setSsid("Hello")
                 .setBssid(MacAddress.fromString("AA:BB:CC:CC:DD:EE"))
                 .setPassphrase("password", SoftApConfiguration.SECURITY_TYPE_WPA2_PSK)
+                .setMacRandomizationSetting(SoftApConfiguration.RANDOMIZATION_NONE)
                 .build();
         mController.setSoftApConfiguration(config);
 
         mProjectionManager.startProjectionAccessPoint(mApCallback);
+        shadowOf(Looper.getMainLooper()).idle();
         mApCallback.mStarted.await(DEFAULT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertThat(mApCallback.mSoftApConfiguration).isEqualTo(config);
     }
@@ -122,11 +127,13 @@ public class CarProjectionManagerTest {
                 .setSsid("Hello")
                 .setBssid(MacAddress.fromString("AA:BB:CC:CC:DD:EE"))
                 .setPassphrase("password", SoftApConfiguration.SECURITY_TYPE_WPA2_PSK)
+                .setMacRandomizationSetting(SoftApConfiguration.RANDOMIZATION_NONE)
                 .build();
         WifiConfiguration wifiConfig = config.toWifiConfiguration();
         mController.setWifiConfiguration(wifiConfig);
 
         mProjectionManager.startProjectionAccessPoint(mApCallback);
+        shadowOf(Looper.getMainLooper()).idle();
         mApCallback.mStarted.await(DEFAULT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
 
         assertThat(mApCallback.mSoftApConfiguration).isNull();

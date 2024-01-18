@@ -18,13 +18,10 @@ package com.android.car.util;
 
 import static com.android.car.util.BrightnessUtils.GAMMA_SPACE_MAX;
 import static com.android.car.util.BrightnessUtils.GAMMA_SPACE_MIN;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-
-import com.android.car.internal.util.VersionUtils;
 
 import org.junit.Test;
 
@@ -36,11 +33,6 @@ public class BrightnessUtilsTest extends AbstractExtendedMockitoTestCase {
     private static final int MIN_BACKLIGHT = 10;   // config_screenBrightnessSettingMinimum
     private static final int MAX_BACKLIGHT = 255;  // config_screenBrightnessSettingMaximum
     private static final int INVALID_BRIGHTNESS = -1;
-
-    @Override
-    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(VersionUtils.class);
-    }
 
     @Test
     public void linearToGamma_minValue_shouldReturnMin() {
@@ -88,14 +80,6 @@ public class BrightnessUtilsTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testBrightnessIntToFloat_platformVersionLower() {
-        doReturn(false).when(() -> VersionUtils.isPlatformVersionAtLeastU());
-
-        assertThat(BrightnessUtils.brightnessIntToFloat(100))
-                .isEqualTo(BrightnessUtils.INVALID_BRIGHTNESS_IN_FLOAT);
-    }
-
-    @Test
     public void brightnessFloatToInt_shouldReturnMin() {
         assertThat(BrightnessUtils.brightnessFloatToInt(MIN_FLOAT)).isEqualTo(MIN_INT);
     }
@@ -113,12 +97,5 @@ public class BrightnessUtilsTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testBrightnessFloatToInt() {
         assertThat(BrightnessUtils.brightnessFloatToInt(0.5f)).isEqualTo(128);
-    }
-
-    @Test
-    public void testBrightnessFloatToInt_platformVersionLower() {
-        doReturn(false).when(() -> VersionUtils.isPlatformVersionAtLeastU());
-
-        assertThat(BrightnessUtils.brightnessFloatToInt(0.5f)).isEqualTo(INVALID_BRIGHTNESS);
     }
 }

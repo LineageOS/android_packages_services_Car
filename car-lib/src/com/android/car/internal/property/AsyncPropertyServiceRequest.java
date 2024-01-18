@@ -16,15 +16,15 @@
 
 package com.android.car.internal.property;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.Nullable;
-import android.car.annotation.ApiRequirements;
-import android.car.annotation.ApiRequirements.CarVersion;
-import android.car.annotation.ApiRequirements.PlatformVersion;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager.GetPropertyRequest;
 import android.car.hardware.property.CarPropertyManager.SetPropertyRequest;
 import android.os.Parcelable;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.DataClass;
 
 /**
@@ -34,6 +34,7 @@ import com.android.car.internal.util.DataClass;
  * @hide
  */
 @DataClass(genConstructor = false)
+@ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
 public final class AsyncPropertyServiceRequest implements Parcelable {
     private final int mRequestId;
     private final int mPropertyId;
@@ -119,50 +120,36 @@ public final class AsyncPropertyServiceRequest implements Parcelable {
     //   Settings > Editor > Code Style > Formatter Control
     //@formatter:off
 
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public int getRequestId() {
         return mRequestId;
     }
 
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public int getPropertyId() {
         return mPropertyId;
     }
 
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public int getAreaId() {
         return mAreaId;
     }
 
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public @Nullable CarPropertyValue getCarPropertyValue() {
         return mCarPropertyValue;
     }
 
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public float getUpdateRateHz() {
         return mUpdateRateHz;
     }
 
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public boolean isWaitForPropertyUpdate() {
         return mWaitForPropertyUpdate;
     }
 
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     public void writeToParcel(@android.annotation.NonNull android.os.Parcel dest, int flags) {
@@ -180,8 +167,6 @@ public final class AsyncPropertyServiceRequest implements Parcelable {
         dest.writeFloat(mUpdateRateHz);
     }
 
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     public int describeContents() { return 0; }
@@ -211,8 +196,6 @@ public final class AsyncPropertyServiceRequest implements Parcelable {
         // onConstructed(); // You can define this method to get a callback
     }
 
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public static final @android.annotation.NonNull Parcelable.Creator<AsyncPropertyServiceRequest> CREATOR
             = new Parcelable.Creator<AsyncPropertyServiceRequest>() {

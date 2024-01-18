@@ -18,11 +18,13 @@ package com.android.car.audio.hal;
 
 import static android.car.builtin.media.AudioManagerHelper.usageToString;
 
+import static com.android.car.audio.CarHalAudioUtils.usageToMetadata;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
+import android.hardware.audio.common.PlaybackTrackMetadata;
 import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.hardware.automotive.audiocontrol.V2_0.IAudioControl;
 import android.hardware.automotive.audiocontrol.V2_0.ICloseHandle;
@@ -33,7 +35,6 @@ import android.util.Log;
 import com.android.car.CarLog;
 import com.android.car.audio.CarDuckingInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.car.internal.annotation.AttributeUsage;
 import com.android.car.internal.util.IndentingPrintWriter;
 
 import java.util.List;
@@ -108,7 +109,8 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
     }
 
     @Override
-    public void onAudioFocusChange(@AttributeUsage int usage, int zoneId, int focusChange) {
+    public void onAudioFocusChange(PlaybackTrackMetadata metaData, int zoneId, int focusChange) {
+        int usage = metaData.usage;
         if (Slogf.isLoggable(TAG, Log.DEBUG)) {
             Slogf.d(TAG, "onAudioFocusChange: usage " + usageToString(usage)
                     + ", zoneId " + zoneId + ", focusChange " + focusChange);
@@ -213,12 +215,12 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
 
         @Override
         public void requestAudioFocus(int usage, int zoneId, int focusGain) throws RemoteException {
-            mListener.requestAudioFocus(usage, zoneId, focusGain);
+            mListener.requestAudioFocus(usageToMetadata(usage), zoneId, focusGain);
         }
 
         @Override
         public void abandonAudioFocus(int usage, int zoneId) throws RemoteException {
-            mListener.abandonAudioFocus(usage, zoneId);
+            mListener.abandonAudioFocus(usageToMetadata(usage), zoneId);
         }
     }
 }

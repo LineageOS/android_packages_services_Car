@@ -152,8 +152,8 @@
     <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"Mengakses informasi powertrain mobil."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"membaca status daya mobil"</string>
     <string name="car_permission_desc_car_power" msgid="9202079903668652864">"Mengakses status daya mobil."</string>
-    <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Daftarkan Perangkat Dipercaya"</string>
-    <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Izinkan Pendaftaran Perangkat Dipercaya"</string>
+    <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Daftarkan Perangkat Tepercaya"</string>
+    <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Izinkan Pendaftaran Perangkat Tepercaya"</string>
     <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"Mode uji untuk mengontrol mobil"</string>
     <string name="car_permission_desc_car_test_service" msgid="7426844534110145843">"Mode uji untuk mengontrol mobil"</string>
     <string name="car_permission_label_control_car_features" msgid="3905791560378888286">"Aktifkan atau nonaktifkan fitur mobil"</string>
@@ -196,6 +196,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Membaca penyeka kaca mobil."</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"mengontrol penyeka kaca mobil"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Mengontrol penyeka kaca mobil."</string>
+    <string name="car_permission_label_query_display_compatibility" msgid="8846515818036686896">"paket kompatibilitas tampilan kueri"</string>
+    <string name="car_permission_desc_query_display_compatibility" msgid="5344194045180717300">"Paket kompatibilitas tampilan kueri."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"memantau status zona penumpang lainnya di mobil dan aplikasi pembanding (aplikasi yang memiliki nama paket yang sama dengan pemanggil) yang terinstal di zona tersebut, serta mengelola penggunaan daya di zona tersebut."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Memantau status zona penumpang lainnya di mobil dan aplikasi pembanding (aplikasi yang memiliki nama paket yang sama dengan pemanggil) yang terinstal di zona tersebut, serta mengelola penggunaan daya di zona tersebut."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"menghubungkan dan berkomunikasi dengan aplikasi pembanding (aplikasi yang memiliki nama paket yang sama dengan pemanggil) yang terinstal di zona penumpang lainnya dalam mobil"</string>

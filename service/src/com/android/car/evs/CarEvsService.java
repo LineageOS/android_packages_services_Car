@@ -479,6 +479,10 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         }
     }
 
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
+
     /**
      * Registers a {@link ICarEvsStatusListener} to listen requests to control the camera
      * previewing activity.

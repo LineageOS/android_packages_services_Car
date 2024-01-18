@@ -59,4 +59,11 @@ public abstract class HalAreaConfig {
      * Get list of supported enum values.
      */
     public abstract long[] getSupportedEnumValues();
+
+    /**
+     * Returns whether variable update rate is supported.
+     */
+    public boolean isVariableUpdateRateSupported() {
+        return false;
+    }
 }

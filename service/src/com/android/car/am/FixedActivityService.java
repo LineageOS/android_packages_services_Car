@@ -47,6 +47,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager;
+import android.hardware.display.DisplayManager.DisplayListener;
 import android.net.Uri;
 import android.os.BaseBundle;
 import android.os.Bundle;
@@ -56,6 +57,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
 import com.android.car.CarLocalServices;
@@ -77,7 +79,7 @@ import java.util.Set;
  * Monitors top activity for a display and guarantee activity in fixed mode is re-launched if it has
  * crashed or gone to background for whatever reason.
  *
- * <p>This component also monitors the upddate of the target package and re-launch it once
+ * <p>This component also monitors the update of the target package and re-launch it once
  * update is complete.</p>
  */
 public final class FixedActivityService implements CarServiceBase {
@@ -131,9 +133,10 @@ public final class FixedActivityService implements CarServiceBase {
         @Override
         public String toString() {
             return "RunningActivityInfo{intent:" + intent + ",activityOptions:" + activityOptions
-                    + ",userId:" + userId + ",isVisible:" + isVisible
+                    + ",userId:" + userId + ",isVisible:" + isVisible + ",isStarted:" + isStarted
                     + ",lastLaunchTimeMs:" + lastLaunchTimeMs
-                    + ",consecutiveRetries:" + consecutiveRetries + ",taskId:" + taskId + "}";
+                    + ",consecutiveRetries:" + consecutiveRetries + ",taskId:" + taskId
+                    + ",previousTaskId:" + previousTaskId + ",inBackground:" + inBackground + "}";
         }
     }
 
@@ -210,6 +213,27 @@ public final class FixedActivityService implements CarServiceBase {
         }
     };
 
+    private final DisplayListener mDisplayListener = new DisplayListener() {
+
+        @Override
+        public void onDisplayChanged(int displayId) {
+            if (DBG) {
+                Slogf.d(TAG_AM, "onDisplayChanged(%d)", displayId);
+            }
+            launchForDisplay(displayId);
+        }
+
+        @Override
+        public void onDisplayAdded(int displayId) {
+            // do nothing.
+        }
+
+        @Override
+        public void onDisplayRemoved(int displayId) {
+            // do nothing.
+        }
+    };
+
     private final Handler mHandler;
 
     private final Runnable mActivityCheckRunnable = () -> {
@@ -263,12 +287,15 @@ public final class FixedActivityService implements CarServiceBase {
 
     @Override
     public void init() {
-        // nothing to do
+        // Register display listener here, not in startMonitoringEvents(), because we need
+        // display listener even when no activity is launched.
+        mDm.registerDisplayListener(mDisplayListener, mHandler);
     }
 
     @Override
     public void release() {
         stopMonitoringEvents();
+        mDm.unregisterDisplayListener(mDisplayListener);
     }
 
     @Override
@@ -280,6 +307,10 @@ public final class FixedActivityService implements CarServiceBase {
                     + " ,mEventMonitoringActive:" + mEventMonitoringActive);
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     @GuardedBy("mLock")
     private void clearRunningActivitiesLocked() {
@@ -356,7 +387,11 @@ public final class FixedActivityService implements CarServiceBase {
      *         launched. It will return false for {@link Display#INVALID_DISPLAY} {@code displayId}.
      */
     private boolean launchIfNecessary(int displayId) {
-        List<? extends TaskInfo> infos = mActivityService.getVisibleTasksInternal();
+        if (DBG) {
+            Slogf.d(TAG_AM, "launchIfNecessary(%d)", displayId);
+        }
+        // Get the visible tasks on the specified display. INVALID_DISPLAY means all displays.
+        List<? extends TaskInfo> infos = mActivityService.getVisibleTasksInternal(displayId);
         if (infos == null) {
             Slogf.e(TAG_AM, "cannot get RootTaskInfo from AM");
             return false;
@@ -366,15 +401,20 @@ public final class FixedActivityService implements CarServiceBase {
             for (int i = mRunningActivities.size() - 1; i >= 0; i--) {
                 int displayIdForActivity = mRunningActivities.keyAt(i);
                 Display display = mDm.getDisplay(displayIdForActivity);
-                if (display == null || display.getState() != Display.STATE_ON) {
-                    Slogf.e(TAG_AM, "Stop fixed activity for %s display%d",
-                            display == null ? "non-available" : "non-active", displayIdForActivity);
+                if (display == null) {
+                    Slogf.e(TAG_AM, "Stop fixed activity for unavailable display%d",
+                            displayIdForActivity);
                     mRunningActivities.removeAt(i);
                     continue;
                 }
 
                 RunningActivityInfo activityInfo = mRunningActivities.valueAt(i);
-                activityInfo.isVisible = false;
+                // Do not reset isVisible flag when the recheck interval has not passed yet,
+                // since the last launch attempt.
+                if (!activityInfo.isStarted
+                        || (now - activityInfo.lastLaunchTimeMs) > RECHECK_INTERVAL_MS) {
+                    activityInfo.isVisible = false;
+                }
                 if (isUserAllowedToLaunchActivity(activityInfo.userId)) {
                     continue;
                 }
@@ -403,7 +443,7 @@ public final class FixedActivityService implements CarServiceBase {
                 return false;
             }
             if (DBG) {
-                Slogf.i(TAG_AM, "Visible Tasks: %d", infos.size());
+                Slogf.d(TAG_AM, "Visible Tasks: %d", infos.size());
             }
             for (int i = 0, size = infos.size(); i < size; ++i) {
                 TaskInfo taskInfo = infos.get(i);
@@ -488,6 +528,9 @@ public final class FixedActivityService implements CarServiceBase {
                 }
             }
             RunningActivityInfo activityInfo = mRunningActivities.get(displayId);
+            if (DBG) {
+                Slogf.d(TAG_AM, "ActivityInfo for display %d: %s", displayId, activityInfo);
+            }
             if (activityInfo == null) {
                 return false;
             }
@@ -566,6 +609,37 @@ public final class FixedActivityService implements CarServiceBase {
         }
     }
 
+    private boolean launchForDisplay(int displayId) {
+        Display display = mDm.getDisplay(displayId);
+        // Skip launching the activity if the display is not ON. It can be launched later when
+        // the display turns on, by the display listener.
+        if (display != null && display.getState() != Display.STATE_ON) {
+            if (DBG) {
+                Slogf.d(TAG_AM, "Display %d is not on. The activity is not launched this time.",
+                        displayId);
+            }
+            return false;
+        }
+        synchronized (mLock) {
+            // Do nothing if there is no activity for the given display.
+            if (!mRunningActivities.contains(displayId)) {
+                return false;
+            }
+        }
+
+        boolean launched = launchIfNecessary(displayId);
+        if (launched) {
+            startMonitoringEvents();
+        } else {
+            synchronized (mLock) {
+                Slogf.w(TAG_AM, "Activity was not launched on display %d, and removed "
+                        + " from the running activity list.", displayId);
+                mRunningActivities.remove(displayId);
+            }
+        }
+        return launched;
+    }
+
     /**
      * Checks {@link InstrumentClusterRenderingService#startFixedActivityModeForDisplayAndUser(
      * Intent, ActivityOptions, int)}
@@ -594,11 +668,7 @@ public final class FixedActivityService implements CarServiceBase {
             return false;
         }
         Bundle optionsBundle = options.toBundle();
-        boolean startMonitoringEvents = false;
         synchronized (mLock) {
-            if (mRunningActivities.size() == 0) {
-                startMonitoringEvents = true;
-            }
             RunningActivityInfo activityInfo = mRunningActivities.get(displayId);
             boolean replaceEntry = true;
             if (activityInfo != null && intentEquals(activityInfo.intent, intent)
@@ -614,17 +684,8 @@ public final class FixedActivityService implements CarServiceBase {
                 mRunningActivities.put(displayId, activityInfo);
             }
         }
-        boolean launched = launchIfNecessary(displayId);
-        if (!launched) {
-            synchronized (mLock) {
-                mRunningActivities.remove(displayId);
-            }
-        }
-        // If first trial fails, let client know and do not retry as it can be wrong setting.
-        if (startMonitoringEvents && launched) {
-            startMonitoringEvents();
-        }
-        return launched;
+
+        return launchForDisplay(displayId);
     }
 
     /** Check {@link InstrumentClusterRenderingService#stopFixedActivityMode(int)} */

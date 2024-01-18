@@ -16,18 +16,20 @@
 
 package com.android.car.internal.property;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
+import static com.android.car.internal.common.CommonConstants.EMPTY_BYTE_ARRAY;
+import static com.android.car.internal.property.VehiclePropertyIdDebugUtils.isDefined;
+import static com.android.car.internal.property.VehiclePropertyIdDebugUtils.toDebugString;
+
 import android.annotation.SuppressLint;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.VehicleHalStatusCode;
 import android.car.hardware.property.VehicleHalStatusCode.VehicleHalStatusCodeInt;
-import android.util.Log;
-import android.util.SparseArray;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Helper class for CarPropertyService/CarPropertyManager.
@@ -35,8 +37,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * @hide
  */
 public final class CarPropertyHelper {
-    private static final String TAG = CarPropertyHelper.class.getSimpleName();
-
     /**
      * Status indicating no error.
      *
@@ -54,37 +54,24 @@ public final class CarPropertyHelper {
     // These are the same values as defined in VHAL interface.
     private static final int VEHICLE_PROPERTY_GROUP_MASK = 0xf0000000;
     private static final int VEHICLE_PROPERTY_GROUP_VENDOR = 0x20000000;
+    private static final int VEHICLE_PROPERTY_GROUP_BACKPORTED = 0x30000000;
 
     private static final int SYSTEM_ERROR_CODE_MASK = 0xffff;
     private static final int VENDOR_ERROR_CODE_SHIFT = 16;
 
-    /*
-     * Used to cache the mapping of property Id integer values into property name strings. This
-     * will be initialized during the first usage.
-     */
-    private static final AtomicReference<SparseArray<String>> sPropertyIdToPropertyNameHolder =
-            new AtomicReference<>();
-
     /**
      * CarPropertyHelper only contains static fields and methods and must never be instantiated.
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
     private CarPropertyHelper() {
-        throw new IllegalArgumentException("Must never be called");
+        throw new UnsupportedOperationException("Must never be called");
     }
 
     /**
      * Returns whether the property ID is supported by the current Car Service version.
      */
     public static boolean isSupported(int propertyId) {
-        return isSystemProperty(propertyId) || isVendorProperty(propertyId);
-    }
-
-    /**
-     * Gets a user-friendly representation of a property.
-     */
-    public static String toString(int propertyId) {
-        String name = cachePropertyIdsToNameMapping().get(propertyId);
-        return name != null ? name : "0x" + Integer.toHexString(propertyId);
+        return isSystemProperty(propertyId) || isVendorOrBackportedProperty(propertyId);
     }
 
     /**
@@ -99,7 +86,7 @@ public final class CarPropertyHelper {
             } else {
                 names += ", ";
             }
-            names += toString(propertyId);
+            names += toDebugString(propertyId);
         }
         return names + "]";
     }
@@ -117,6 +104,13 @@ public final class CarPropertyHelper {
      */
     public static int getVhalVendorErrorCode(int vhalErrorCode) {
         return vhalErrorCode >>> VENDOR_ERROR_CODE_SHIFT;
+    }
+
+    /**
+     * Returns whether the property ID is defined as a system property.
+     */
+    public static boolean isSystemProperty(int propertyId) {
+        return propertyId != VehiclePropertyIds.INVALID && isDefined(propertyId);
     }
 
     /**
@@ -138,57 +132,26 @@ public final class CarPropertyHelper {
         }
     }
 
-    private static SparseArray<String> cachePropertyIdsToNameMapping() {
-        SparseArray<String> propertyIdsToNameMapping = sPropertyIdToPropertyNameHolder.get();
-        if (propertyIdsToNameMapping == null) {
-            propertyIdsToNameMapping = getPropertyIdsToNameMapping();
-            sPropertyIdToPropertyNameHolder.compareAndSet(null, propertyIdsToNameMapping);
-        }
-        return propertyIdsToNameMapping;
-    }
-
     /**
-     * Creates a SparseArray mapping property Ids to their String representations
-     * directly from this class.
+     * Returns whether the property ID is defined as a vendor property or a backported property.
      */
-    private static SparseArray<String> getPropertyIdsToNameMapping() {
-        Field[] classFields = VehiclePropertyIds.class.getDeclaredFields();
-        SparseArray<String> propertyIdsToNameMapping = new SparseArray<>(classFields.length);
-        for (int i = 0; i < classFields.length; i++) {
-            Field candidateField = classFields[i];
-            try {
-                if (isPropertyId(candidateField)) {
-                    propertyIdsToNameMapping
-                            .put(candidateField.getInt(null), candidateField.getName());
-                }
-            } catch (IllegalAccessException e) {
-                Log.wtf(TAG, "Failed trying to find value for " + candidateField.getName(), e);
-            }
-        }
-        return propertyIdsToNameMapping;
-    }
-
-    private static boolean isPropertyId(Field field) {
-        // We only want public static final int values
-        return field.getType() == int.class
-            && field.getModifiers() == (Modifier.STATIC | Modifier.FINAL | Modifier.PUBLIC);
-    }
-
-    /**
-     * Returns whether the property ID is defined as a system property.
-     */
-    private static boolean isSystemProperty(int propertyId) {
-        return propertyId != VehiclePropertyIds.INVALID
-                && cachePropertyIdsToNameMapping().contains(propertyId);
+    public static boolean isVendorOrBackportedProperty(int propertyId) {
+        return isVendorProperty(propertyId) || isBackportedProperty(propertyId);
     }
 
     /**
      * Returns whether the property ID is defined as a vendor property.
      */
-    private static boolean isVendorProperty(int propertyId) {
+    public static boolean isVendorProperty(int propertyId) {
         return (propertyId & VEHICLE_PROPERTY_GROUP_MASK) == VEHICLE_PROPERTY_GROUP_VENDOR;
     }
 
+    /**
+     * Returns whether the property ID is defined as a backported property.
+     */
+    public static boolean isBackportedProperty(int propertyId) {
+        return (propertyId & VEHICLE_PROPERTY_GROUP_MASK) == VEHICLE_PROPERTY_GROUP_BACKPORTED;
+    }
 
     /**
      * Gets the default value for a {@link CarPropertyValue} class type.
@@ -216,13 +179,13 @@ public final class CarPropertyHelper {
             return (T) new Float[0];
         }
         if (clazz.equals(byte[].class)) {
-            return (T) new byte[0];
+            return (T) EMPTY_BYTE_ARRAY;
         }
         if (clazz.equals(Object[].class)) {
             return (T) new Object[0];
         }
         if (clazz.equals(String.class)) {
-            return (T) new String("");
+            return (T) "";
         }
         throw new IllegalArgumentException("Unexpected class: " + clazz);
     }

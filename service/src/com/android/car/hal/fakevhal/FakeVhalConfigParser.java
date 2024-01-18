@@ -23,7 +23,7 @@ import android.hardware.automotive.vehicle.ChangeModeForVehicleProperty;
 import android.hardware.automotive.vehicle.EvStoppingMode;
 import android.hardware.automotive.vehicle.PortLocationType;
 import android.hardware.automotive.vehicle.RawPropValues;
-import android.hardware.automotive.vehicle.VehicleArea;
+import android.hardware.automotive.vehicle.TestVendorProperty;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehicleAreaDoor;
 import android.hardware.automotive.vehicle.VehicleAreaMirror;
@@ -36,7 +36,6 @@ import android.hardware.automotive.vehicle.VehicleLightSwitch;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyGroup;
-import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.util.Pair;
 import android.util.SparseArray;
 
@@ -90,14 +89,6 @@ public final class FakeVhalConfigParser {
     private static final int DOOR_2_RIGHT = VehicleAreaDoor.ROW_2_RIGHT;
     private static final int DOOR_2_LEFT = VehicleAreaDoor.ROW_2_LEFT;
     private static final int DOOR_REAR = VehicleAreaDoor.REAR;
-    private static final int VENDOR_EXTENSION_INT_PROPERTY = 0x103 | VehiclePropertyGroup.VENDOR
-                                | VehiclePropertyType.INT32 | VehicleArea.WINDOW;
-    private static final int VENDOR_EXTENSION_BOOLEAN_PROPERTY = 0x101 | VehiclePropertyGroup.VENDOR
-                                | VehiclePropertyType.BOOLEAN | VehicleArea.DOOR;
-    private static final int VENDOR_EXTENSION_STRING_PROPERTY = 0x104 | VehiclePropertyGroup.VENDOR
-                                | VehiclePropertyType.STRING | VehicleArea.GLOBAL;
-    private static final int VENDOR_EXTENSION_FLOAT_PROPERTY = 0x102 | VehiclePropertyGroup.VENDOR
-                                | VehiclePropertyType.FLOAT | VehicleArea.SEAT;
     private static final int WINDOW_1_LEFT = VehicleAreaWindow.ROW_1_LEFT;
     private static final int WINDOW_1_RIGHT = VehicleAreaWindow.ROW_1_RIGHT;
     private static final int WINDOW_2_LEFT = VehicleAreaWindow.ROW_2_LEFT;
@@ -134,32 +125,7 @@ public final class FakeVhalConfigParser {
     private static final int EV_STOPPING_MODE_HOLD = EvStoppingMode.HOLD;
     private static final int MIRROR_DRIVER_LEFT_RIGHT = VehicleAreaMirror.DRIVER_LEFT
                                 | VehicleAreaMirror.DRIVER_RIGHT;
-    // Following are the test properties whose values are copying from TestPropertyUtils.h file(
-    // hardware/interfaces/automotive/vehicle/aidl/impl/utils/test/include/TestPropertyUtils.h).
-    private static final int ECHO_REVERSE_BYTES = 0x2a12 | VehiclePropertyGroup.VENDOR
-                                | VehicleArea.GLOBAL | VehiclePropertyType.BYTES;
-    private static final int VENDOR_PROPERTY_ID = 0x2a13 | VehiclePropertyGroup.VENDOR
-                                | VehicleArea.GLOBAL | VehiclePropertyType.INT32;
-    private static final int K_MIXED_TYPE_PROPERTY_FOR_TEST = 0x1111 | VehiclePropertyGroup.VENDOR
-                                | VehicleArea.GLOBAL | VehiclePropertyType.MIXED;
-    private static final int VENDOR_CLUSTER_NAVIGATION_STATE = toVendorProperty(
-                                VehicleProperty.CLUSTER_NAVIGATION_STATE);
-    private static final int VENDOR_CLUSTER_REQUEST_DISPLAY = toVendorProperty(
-                                VehicleProperty.CLUSTER_REQUEST_DISPLAY);
-    private static final int VENDOR_CLUSTER_SWITCH_UI = toVendorProperty(
-                                VehicleProperty.CLUSTER_SWITCH_UI);
-    private static final int VENDOR_CLUSTER_DISPLAY_STATE = toVendorProperty(
-                                VehicleProperty.CLUSTER_DISPLAY_STATE);
-    private static final int VENDOR_CLUSTER_REPORT_STATE = toVendorProperty(
-                                VehicleProperty.CLUSTER_REPORT_STATE);
-    private static final int PLACEHOLDER_PROPERTY_INT = 0x2a11 | VehiclePropertyGroup.VENDOR
-                                | VehicleArea.GLOBAL | VehiclePropertyType.INT32;
-    private static final int PLACEHOLDER_PROPERTY_FLOAT = 0x2a11 | VehiclePropertyGroup.VENDOR
-                                | VehicleArea.GLOBAL | VehiclePropertyType.FLOAT;
-    private static final int PLACEHOLDER_PROPERTY_BOOLEAN = 0x2a11 | VehiclePropertyGroup.VENDOR
-                                | VehicleArea.GLOBAL | VehiclePropertyType.BOOLEAN;
-    private static final int PLACEHOLDER_PROPERTY_STRING = 0x2a11 | VehiclePropertyGroup.VENDOR
-                                | VehicleArea.GLOBAL | VehiclePropertyType.STRING;
+
     private static final Map<String, Integer> CONSTANTS_BY_NAME = Map.ofEntries(
             Map.entry("DOOR_1_RIGHT", DOOR_1_RIGHT),
             Map.entry("DOOR_1_LEFT", DOOR_1_LEFT),
@@ -169,10 +135,14 @@ public final class FakeVhalConfigParser {
             Map.entry("HVAC_ALL", HVAC_ALL),
             Map.entry("HVAC_LEFT", HVAC_LEFT),
             Map.entry("HVAC_RIGHT", HVAC_RIGHT),
-            Map.entry("VENDOR_EXTENSION_INT_PROPERTY", VENDOR_EXTENSION_INT_PROPERTY),
-            Map.entry("VENDOR_EXTENSION_BOOLEAN_PROPERTY", VENDOR_EXTENSION_BOOLEAN_PROPERTY),
-            Map.entry("VENDOR_EXTENSION_STRING_PROPERTY", VENDOR_EXTENSION_STRING_PROPERTY),
-            Map.entry("VENDOR_EXTENSION_FLOAT_PROPERTY", VENDOR_EXTENSION_FLOAT_PROPERTY),
+            Map.entry("VENDOR_EXTENSION_INT_PROPERTY",
+                    TestVendorProperty.VENDOR_EXTENSION_INT_PROPERTY),
+            Map.entry("VENDOR_EXTENSION_BOOLEAN_PROPERTY",
+                    TestVendorProperty.VENDOR_EXTENSION_BOOLEAN_PROPERTY),
+            Map.entry("VENDOR_EXTENSION_STRING_PROPERTY",
+                    TestVendorProperty.VENDOR_EXTENSION_STRING_PROPERTY),
+            Map.entry("VENDOR_EXTENSION_FLOAT_PROPERTY",
+                    TestVendorProperty.VENDOR_EXTENSION_FLOAT_PROPERTY),
             Map.entry("WINDOW_1_LEFT", WINDOW_1_LEFT),
             Map.entry("WINDOW_1_RIGHT", WINDOW_1_RIGHT),
             Map.entry("WINDOW_2_LEFT", WINDOW_2_LEFT),
@@ -211,18 +181,25 @@ public final class FakeVhalConfigParser {
             Map.entry("EV_STOPPING_MODE_ROLL", EV_STOPPING_MODE_ROLL),
             Map.entry("EV_STOPPING_MODE_HOLD", EV_STOPPING_MODE_HOLD),
             Map.entry("MIRROR_DRIVER_LEFT_RIGHT", MIRROR_DRIVER_LEFT_RIGHT),
-            Map.entry("ECHO_REVERSE_BYTES", ECHO_REVERSE_BYTES),
-            Map.entry("VENDOR_PROPERTY_ID", VENDOR_PROPERTY_ID),
-            Map.entry("kMixedTypePropertyForTest", K_MIXED_TYPE_PROPERTY_FOR_TEST),
-            Map.entry("VENDOR_CLUSTER_NAVIGATION_STATE", VENDOR_CLUSTER_NAVIGATION_STATE),
-            Map.entry("VENDOR_CLUSTER_REQUEST_DISPLAY", VENDOR_CLUSTER_REQUEST_DISPLAY),
-            Map.entry("VENDOR_CLUSTER_SWITCH_UI", VENDOR_CLUSTER_SWITCH_UI),
-            Map.entry("VENDOR_CLUSTER_DISPLAY_STATE", VENDOR_CLUSTER_DISPLAY_STATE),
-            Map.entry("VENDOR_CLUSTER_REPORT_STATE", VENDOR_CLUSTER_REPORT_STATE),
-            Map.entry("PLACEHOLDER_PROPERTY_INT", PLACEHOLDER_PROPERTY_INT),
-            Map.entry("PLACEHOLDER_PROPERTY_FLOAT", PLACEHOLDER_PROPERTY_FLOAT),
-            Map.entry("PLACEHOLDER_PROPERTY_BOOLEAN", PLACEHOLDER_PROPERTY_BOOLEAN),
-            Map.entry("PLACEHOLDER_PROPERTY_STRING", PLACEHOLDER_PROPERTY_STRING)
+            Map.entry("ECHO_REVERSE_BYTES", TestVendorProperty.ECHO_REVERSE_BYTES),
+            Map.entry("VENDOR_PROPERTY_FOR_ERROR_CODE_TESTING",
+                    TestVendorProperty.VENDOR_PROPERTY_FOR_ERROR_CODE_TESTING),
+            Map.entry("kMixedTypePropertyForTest", TestVendorProperty.MIXED_TYPE_PROPERTY_FOR_TEST),
+            Map.entry("VENDOR_CLUSTER_NAVIGATION_STATE",
+                    TestVendorProperty.VENDOR_CLUSTER_NAVIGATION_STATE),
+            Map.entry("VENDOR_CLUSTER_REQUEST_DISPLAY",
+                    TestVendorProperty.VENDOR_CLUSTER_REQUEST_DISPLAY),
+            Map.entry("VENDOR_CLUSTER_SWITCH_UI", TestVendorProperty.VENDOR_CLUSTER_SWITCH_UI),
+            Map.entry("VENDOR_CLUSTER_DISPLAY_STATE",
+                    TestVendorProperty.VENDOR_CLUSTER_DISPLAY_STATE),
+            Map.entry("VENDOR_CLUSTER_REPORT_STATE",
+                    TestVendorProperty.VENDOR_CLUSTER_REPORT_STATE),
+            Map.entry("PLACEHOLDER_PROPERTY_INT", TestVendorProperty.PLACEHOLDER_PROPERTY_INT),
+            Map.entry("PLACEHOLDER_PROPERTY_FLOAT", TestVendorProperty.PLACEHOLDER_PROPERTY_FLOAT),
+            Map.entry("PLACEHOLDER_PROPERTY_BOOLEAN",
+                    TestVendorProperty.PLACEHOLDER_PROPERTY_BOOLEAN),
+            Map.entry("PLACEHOLDER_PROPERTY_STRING",
+                    TestVendorProperty.PLACEHOLDER_PROPERTY_STRING)
     );
 
     /**
@@ -392,7 +369,8 @@ public final class FakeVhalConfigParser {
                             }
                         }
                     }
-                    vehiclePropConfig.areaConfigs = areaConfigs.toArray(new VehicleAreaConfig[0]);
+                    vehiclePropConfig.areaConfigs = areaConfigs.toArray(
+                            new VehicleAreaConfig[areaConfigs.size()]);
                     break;
                 case JSON_FIELD_NAME_COMMENT:
                     // The "comment" field is used for comment in the config files and is ignored

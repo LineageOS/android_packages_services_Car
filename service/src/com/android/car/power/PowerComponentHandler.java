@@ -27,7 +27,6 @@ import static android.car.hardware.power.PowerComponentUtil.powerComponentToStri
 import static android.car.hardware.power.PowerComponentUtil.toPowerComponent;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.Nullable;
 import android.bluetooth.BluetoothAdapter;
@@ -46,11 +45,14 @@ import android.util.ArrayMap;
 import android.util.AtomicFile;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.IntArray;
+import com.android.car.power.CarPowerDumpProto.PowerComponentHandlerProto;
+import com.android.car.power.CarPowerDumpProto.PowerComponentHandlerProto.PowerComponentToState;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
 
@@ -91,6 +93,8 @@ public final class PowerComponentHandler {
     private final IntArray mRegisteredComponents = new IntArray();
     private final PackageManager mPackageManager;
 
+    // TODO(b/286303350): remove after power policy refactor is complete; only used for getting
+    //                    accumulated policy, and that will be done by CPPD
     @GuardedBy("mLock")
     private String mCurrentPolicyId = "";
 
@@ -108,12 +112,8 @@ public final class PowerComponentHandler {
     }
 
     void init(ArrayMap<String, Integer> customComponents) {
-        if (isPlatformVersionAtLeastU()) {
-            // Before Android U, this permission is not needed.
-            // And, AppOpsManagerHelper.setTurnScreenOnAllowed is added in UDC.
-            AppOpsManagerHelper.setTurnScreenOnAllowed(mContext, Process.myUid(),
-                    mContext.getOpPackageName(), /* isAllowed= */ true);
-        }
+        AppOpsManagerHelper.setTurnScreenOnAllowed(mContext, Process.myUid(),
+                mContext.getOpPackageName(), /* isAllowed= */ true);
         PowerComponentMediatorFactory factory = new PowerComponentMediatorFactory();
         synchronized (mLock) {
             readUserOffComponentsLocked();
@@ -241,6 +241,41 @@ public final class PowerComponentHandler {
         }
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dumpProto(ProtoOutputStream proto) {
+        synchronized (mLock) {
+            long powerComponentHandlerToken = proto.start(
+                    CarPowerDumpProto.POWER_COMPONENT_HANDLER);
+
+            for (int i = 0; i < mRegisteredComponents.size(); ++i) {
+                long powerComponentStateMappingToken = proto.start(
+                        PowerComponentHandlerProto.POWER_COMPONENT_STATE_MAPPINGS);
+                int component = mRegisteredComponents.get(i);
+                proto.write(
+                        PowerComponentToState.POWER_COMPONENT, powerComponentToString(component));
+                proto.write(PowerComponentToState.STATE, mComponentStates.get(
+                        component, /* valueIfKeyNotFound= */ false));
+                proto.end(powerComponentStateMappingToken);
+            }
+
+            for (int i = 0; i < mComponentsOffByPolicy.size(); i++) {
+                proto.write(PowerComponentHandlerProto.COMPONENTS_OFF_BY_POLICY,
+                        powerComponentToString(mComponentsOffByPolicy.keyAt(i)));
+            }
+
+            StringBuilder lastModifiedComponents = new StringBuilder();
+            for (int i = 0; i < mLastModifiedComponents.size(); i++) {
+                if (i > 0) lastModifiedComponents.append(", ");
+                lastModifiedComponents.append(
+                        powerComponentToString(mLastModifiedComponents.keyAt(i)));
+            }
+            proto.write(PowerComponentHandlerProto.LAST_MODIFIED_COMPONENTS,
+                    lastModifiedComponents.toString());
+
+            proto.end(powerComponentHandlerToken);
+        }
+    }
+
     /**
      * Modifies power component's state, considering user setting.
      *
@@ -325,12 +360,14 @@ public final class PowerComponentHandler {
 
         try (BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
-            for (int i = 0; i < mComponentsOffByPolicy.size(); i++) {
-                if (!mComponentsOffByPolicy.valueAt(i)) {
-                    continue;
+            synchronized (mLock) {
+                for (int i = 0; i < mComponentsOffByPolicy.size(); i++) {
+                    if (!mComponentsOffByPolicy.valueAt(i)) {
+                        continue;
+                    }
+                    writer.write(powerComponentToString(mComponentsOffByPolicy.keyAt(i)));
+                    writer.newLine();
                 }
-                writer.write(powerComponentToString(mComponentsOffByPolicy.keyAt(i)));
-                writer.newLine();
             }
             writer.flush();
             mOffComponentsByUserFile.finishWrite(fos);
