@@ -2886,14 +2886,15 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private void setAllUserIdDeviceAffinitiesToNewPolicyLocked(AudioPolicy newAudioPolicy) {
         TimingsTraceLog log = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
         log.traceBegin("device-affinities-all-zones");
-        for (int c = 0; c < mAudioZoneIdToUserIdMapping.size(); c++) {
-            int zoneId = mAudioZoneIdToUserIdMapping.keyAt(c);
-            int userId = mAudioZoneIdToUserIdMapping.valueAt(c);
+        for (int c = 0; c < mAudioZoneIdToOccupantZoneIdMapping.size(); c++) {
+            int audioZoneId = mAudioZoneIdToOccupantZoneIdMapping.keyAt(c);
+            int occupantZoneId = mAudioZoneIdToOccupantZoneIdMapping.get(audioZoneId);
+            int userId = mOccupantZoneService.getUserForOccupant(occupantZoneId);
             if (userId == UserManagerHelper.USER_NULL) {
                 continue;
             }
-            log.traceBegin("device-affinities-" + zoneId);
-            CarAudioZone zone = getCarAudioZoneLocked(zoneId);
+            log.traceBegin("device-affinities-" + audioZoneId);
+            CarAudioZone zone = getCarAudioZoneLocked(audioZoneId);
             resetUserIdDeviceAffinitiesLocked(newAudioPolicy, userId, zone);
             log.traceEnd();
         }
