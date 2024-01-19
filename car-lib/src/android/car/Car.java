@@ -1706,8 +1706,11 @@ public final class Car {
      * <p>Starting on {@link android.os.Build.VERSION_CODES#TIRAMISU Android 13}, the {@code Car}
      * APIs can be upgraded without an OTA, so it's possible that these APIs are higher than the
      * {@link #getPlatformVersion() platform's}.
+     *
+     * @deprecated - use {@code android.os.Build.VERSION#SDK_INT} instead
      */
     @NonNull
+    @Deprecated
     public static android.car.CarVersion getCarVersion() {
         return CAR_VERSION;
     }
@@ -1719,8 +1722,11 @@ public final class Car {
      * <p>Its {@link ApiVersion#getMajorVersion() major version} will be the same as
      * {@link android.os.Build.VERSION#SDK_INT} for released build but will be
      * {@link android.os.Build.VERSION_CODES#CUR_DEVELOPMENT} for platform still under development.
+     *
+     * @deprecated - use {@code android.os.Build.VERSION#SDK_INT} instead
      */
     @NonNull
+    @Deprecated
     public static android.car.PlatformVersion getPlatformVersion() {
         return PLATFORM_VERSION;
     }
