@@ -31,7 +31,6 @@ import static com.android.car.caruiportrait.common.service.CarUiPortraitService.
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_NOTIFICATIONS_VISIBILITY_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_RECENTS_VISIBILITY_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_SUW_IN_PROGRESS;
-import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_SYSUI_STARTED;
 import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.ON_ACTIVITY_RESTART_ATTEMPT;
 import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.ON_CALM_MODE_STARTED;
 import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.ON_COLLAPSE_MSG;
@@ -623,14 +622,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         MediaIntentRouter.getInstance().registerMediaIntentHandler(mMediaIntentHandler);
 
         if (mTaskViewControllerWrapper == null) {
-            boolean useRemoteCarTaskView = getResources().getBoolean(R.bool.use_remoteCarTaskView);
-            mTaskViewControllerWrapper = useRemoteCarTaskView
-                    ? new RemoteCarTaskViewControllerWrapperImpl(/* activity= */ this,
-                    this::onTaskViewControllerReady)
-                    : new LegacyCarTaskViewControllerWrapperImpl(/* activity= */ this);
-            if (!useRemoteCarTaskView) {
-                onTaskViewControllerReady();
-            }
+            mTaskViewControllerWrapper = new RemoteCarTaskViewControllerWrapperImpl(
+                    /* activity= */ this,
+                    this::onTaskViewControllerReady);
         }
     }
 
@@ -1434,13 +1428,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case MSG_SYSUI_STARTED:
-                    // This is to ensure that Homescreen is created each time the sysUI is ready.
-                    // This is needed to re-register TaskOrganizer after SysUI b/274834061
-                    if (!getResources().getBoolean(R.bool.use_remoteCarTaskView)) {
-                        recreate();
-                    }
-                    break;
                 case MSG_IMMERSIVE_MODE_REQUESTED:
                     onImmersiveModeRequested(intToBool(msg.arg1),
                             getComponentNameFromBundle(msg.getData()));
