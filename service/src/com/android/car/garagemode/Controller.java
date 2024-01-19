@@ -18,6 +18,7 @@ package com.android.car.garagemode;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
@@ -71,6 +72,8 @@ public class Controller extends ICarPowerStateListener.Stub {
         mGarageMode.release();
     }
 
+    // This function runs in the CarPowerManagementService handler thread, which is a different
+    // thread than mHandler is using.
     @Override
     public void onStateChanged(int state, long expirationTimeMs) {
         if (DBG) {
@@ -79,13 +82,14 @@ public class Controller extends ICarPowerStateListener.Stub {
         }
         switch (state) {
             case CarPowerManager.STATE_SHUTDOWN_CANCELLED:
-                resetGarageMode();
+                resetGarageMode(null);
                 break;
             case CarPowerManager.STATE_SHUTDOWN_ENTER:
             case CarPowerManager.STATE_SUSPEND_ENTER:
             case CarPowerManager.STATE_HIBERNATION_ENTER:
-                resetGarageMode();
-                mCarPowerService.completeHandlingPowerStateChange(state, Controller.this);
+                resetGarageMode(() -> {
+                    mCarPowerService.completeHandlingPowerStateChange(state, Controller.this);
+                });
                 break;
             case CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE:
             case CarPowerManager.STATE_POST_SHUTDOWN_ENTER:
@@ -94,8 +98,9 @@ public class Controller extends ICarPowerStateListener.Stub {
                 mCarPowerService.completeHandlingPowerStateChange(state, Controller.this);
                 break;
             case CarPowerManager.STATE_SHUTDOWN_PREPARE:
-                initiateGarageMode(() -> mCarPowerService.completeHandlingPowerStateChange(state,
-                        Controller.this));
+                initiateGarageMode(
+                        () -> mCarPowerService.completeHandlingPowerStateChange(state,
+                                Controller.this));
                 break;
             default:
                 break;
@@ -142,18 +147,18 @@ public class Controller extends ICarPowerStateListener.Stub {
      * monitoring jobs which has idleness constraint enabled.
      */
     void initiateGarageMode(Runnable completor) {
-        mGarageMode.enterGarageMode(completor);
+        mHandler.post(() -> mGarageMode.enterGarageMode(completor));
     }
 
     /**
      * Resets GarageMode.
      */
-    void resetGarageMode() {
-        mGarageMode.cancel();
+    void resetGarageMode(@Nullable Runnable completor) {
+        mHandler.post(() -> mGarageMode.cancel(completor));
     }
 
     @VisibleForTesting
     void finishGarageMode() {
-        mGarageMode.finish();
+        mHandler.post(() -> mGarageMode.finish());
     }
 }
