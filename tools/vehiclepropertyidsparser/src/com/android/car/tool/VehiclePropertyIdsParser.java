@@ -448,7 +448,8 @@ public final class VehiclePropertyIdsParser {
             List<Integer> dataFlag = new ArrayList<>();
             for (int j = 0; j < blockTags.size(); j++) {
                 String commentTagName = blockTags.get(j).getTagName();
-                if (commentTagName.equals("deprecated")) {
+                if (commentTagName.equals("deprecated")
+                        || commentTagName.equals("to_be_deprecated")) {
                     deprecated = true;
                 }
                 if (commentTagName.equals("hide")) {
@@ -476,6 +477,7 @@ public final class VehiclePropertyIdsParser {
                     dataFlag = getEnumValues(enumType);
                 }
             }
+
             String docText = doc.toText();
             propertyConfig.description = (docText.split("\n"))[0];
             propertyConfig.deprecated = deprecated;
