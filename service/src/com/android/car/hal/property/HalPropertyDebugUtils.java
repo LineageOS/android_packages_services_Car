@@ -22,6 +22,7 @@ import static java.lang.Integer.toHexString;
 
 import android.annotation.Nullable;
 import android.hardware.automotive.vehicle.EnumForVehicleProperty;
+import android.hardware.automotive.vehicle.UnitsForVehicleProperty;
 import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleAreaDoor;
 import android.hardware.automotive.vehicle.VehicleAreaMirror;
@@ -34,6 +35,7 @@ import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyGroup;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
+import android.hardware.automotive.vehicle.VehicleUnit;
 import android.util.ArrayMap;
 import android.util.Slog;
 
@@ -46,6 +48,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -185,6 +188,8 @@ public final class HalPropertyDebugUtils {
     public static String toValueString(HalPropValue halPropValue) {
         int propertyId = halPropValue.getPropId();
         int valueType = propertyId & VehiclePropertyType.MASK;
+        String propertyUnits = getUnitsIfSupported(propertyId);
+        StringJoiner stringJoiner = new StringJoiner(", ", "[", "]");
         switch (valueType) {
             case VehiclePropertyType.BOOLEAN -> {
                 if (halPropValue.getInt32ValuesSize() != 1) {
@@ -196,41 +201,38 @@ public final class HalPropertyDebugUtils {
                 if (halPropValue.getInt32ValuesSize() != 1) {
                     return NO_VALUE;
                 }
-                return getIntValueName(propertyId, halPropValue.getInt32Value(0));
+                return getIntValueName(propertyId, halPropValue.getInt32Value(0), propertyUnits);
             }
             case VehiclePropertyType.INT32_VEC -> {
-                if (EnumForVehicleProperty.values.containsKey(propertyId)) {
-                    String output = "[";
-                    boolean addComma = false;
-                    for (int i = 0; i < halPropValue.getInt32ValuesSize(); i++) {
-                        if (addComma) {
-                            output += ", ";
-                        }
-                        addComma = true;
-                        output += getIntValueName(propertyId, halPropValue.getInt32Value(i));
-                    }
-                    return output + "]";
-                } else {
-                    return halPropValue.dumpInt32Values();
+                for (int i = 0; i < halPropValue.getInt32ValuesSize(); i++) {
+                    stringJoiner.add(getIntValueName(propertyId, halPropValue.getInt32Value(i),
+                            propertyUnits));
                 }
+                return stringJoiner.toString();
             }
             case VehiclePropertyType.FLOAT -> {
                 if (halPropValue.getFloatValuesSize() != 1) {
                     return NO_VALUE;
                 }
-                return Float.toString(halPropValue.getFloatValue(0));
+                return halPropValue.getFloatValue(0) + propertyUnits;
             }
             case VehiclePropertyType.FLOAT_VEC -> {
-                return halPropValue.dumpFloatValues();
+                for (int i = 0; i < halPropValue.getFloatValuesSize(); i++) {
+                    stringJoiner.add(halPropValue.getFloatValue(i) + propertyUnits);
+                }
+                return stringJoiner.toString();
             }
             case VehiclePropertyType.INT64 -> {
                 if (halPropValue.getInt64ValuesSize() != 1) {
                     return NO_VALUE;
                 }
-                return Long.toString(halPropValue.getInt64Value(0));
+                return halPropValue.getInt64Value(0) + propertyUnits;
             }
             case VehiclePropertyType.INT64_VEC -> {
-                return halPropValue.dumpInt64Values();
+                for (int i = 0; i < halPropValue.getInt64ValuesSize(); i++) {
+                    stringJoiner.add(halPropValue.getInt64Value(i) + propertyUnits);
+                }
+                return stringJoiner.toString();
             }
             case VehiclePropertyType.STRING -> {
                 return halPropValue.getStringValue();
@@ -261,7 +263,7 @@ public final class HalPropertyDebugUtils {
                 + halPropValue.getStringValue();
     }
 
-    private static String getIntValueName(int propertyId, int value) {
+    private static String getIntValueName(int propertyId, int value, String propertyUnits) {
         if (EnumForVehicleProperty.values.containsKey(propertyId)) {
             for (int i = 0; i < EnumForVehicleProperty.values.get(propertyId).size(); i++) {
                 Class<?> enumClazz = EnumForVehicleProperty.values.get(propertyId).get(i);
@@ -274,7 +276,19 @@ public final class HalPropertyDebugUtils {
                     "Failed to find enum name for property ID: " + toPropertyIdString(propertyId)
                             + " value: " + value);
         }
-        return Integer.toString(value);
+        return value + propertyUnits;
+    }
+
+    private static String getUnitsIfSupported(int propertyId) {
+        if (!UnitsForVehicleProperty.values.containsKey(propertyId)) {
+            return "";
+        }
+        Integer units = UnitsForVehicleProperty.values.get(propertyId);
+        String unitsString = ConstantDebugUtils.toName(VehicleUnit.class, units);
+        if (unitsString == null) {
+            return "";
+        }
+        return " " + unitsString;
     }
 
     /**
