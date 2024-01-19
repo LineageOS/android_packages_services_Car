@@ -58,6 +58,7 @@ import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.widget.LockPatternHelper;
 import android.car.content.pm.CarPackageManager;
+import android.car.drivingstate.CarUxRestrictions;
 import android.car.feature.Flags;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
@@ -306,6 +307,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_GENERATE_TEST_VENDOR_CONFIGS = "gen-test-vendor-configs";
     private static final String COMMAND_RESTORE_TEST_VENDOR_CONFIGS = "restore-vendor-configs";
 
+    private static final String COMMAND_GET_CURRENT_UX_RESTRICTIONS = "get-current-ux-restrictions";
+    private static final String COMMAND_SET_CURRENT_UXR_MODE = "set-current-uxr-mode";
+    private static final String COMMAND_GET_CURRENT_UXR_MODE = "get-current-uxr-mode";
+
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
             android.Manifest.permission.MANAGE_USERS
@@ -534,6 +539,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private final CarEvsService mCarEvsService;
     private final CarWatchdogService mCarWatchdogService;
     private final CarTelemetryService mCarTelemetryService;
+    private final CarUxRestrictionsManagerService mCarUxRestrictionsManagerService;
     private final Map<Class, CarSystemService> mAllServicesByClazz;
     private long mKeyDownTime;
     private long mMotionDownTime;
@@ -566,6 +572,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         mCarWatchdogService = (CarWatchdogService) allServicesByClazz.get(CarWatchdogService.class);
         mCarTelemetryService = (CarTelemetryService)
                 allServicesByClazz.get(CarTelemetryService.class);
+        mCarUxRestrictionsManagerService = (CarUxRestrictionsManagerService)
+                allServicesByClazz.get(CarUxRestrictionsManagerService.class);
         mAllServicesByClazz = allServicesByClazz;
     }
 
@@ -942,6 +950,14 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t Gets the display associated to the given user");
         pw.printf("\t%s <DISPLAY>", COMMAND_GET_USER_BY_DISPLAY);
         pw.println("\t Gets the user associated with the given display");
+
+        pw.printf("\t%s <DISPLAY>", COMMAND_GET_CURRENT_UX_RESTRICTIONS);
+        pw.println("\t Gets the current UX restriction on given display. If no display is "
+                + "provided, return current UX restrictions on default display.");
+        pw.printf("\t%s <mode>", COMMAND_SET_CURRENT_UXR_MODE);
+        pw.println("\t Sets current mode for UX restrictions.");
+        pw.printf("\t%s", COMMAND_GET_CURRENT_UXR_MODE);
+        pw.println("\t Gets current mode for UX restrictions.");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -1486,12 +1502,48 @@ final class CarShellCommand extends BasicShellCommandHandler {
             case COMMAND_GET_USER_BY_DISPLAY:
                 getUserByDisplay(args, writer);
                 break;
+            case COMMAND_GET_CURRENT_UX_RESTRICTIONS:
+                getCurrentUxRestrictions(args, writer);
+                break;
+            case COMMAND_SET_CURRENT_UXR_MODE:
+                setCurrentUxrMode(args, writer);
+                break;
+            case COMMAND_GET_CURRENT_UXR_MODE:
+                getCurrentUxrMode(args, writer);
+                break;
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
                 showHelp(writer);
                 return RESULT_ERROR;
         }
         return RESULT_OK;
+    }
+
+    private void getCurrentUxrMode(String[] args, IndentingPrintWriter writer) {
+        writer.printf("Current Uxr restrictions mode: %s\n",
+                mCarUxRestrictionsManagerService.getRestrictionMode());
+    }
+
+    private void setCurrentUxrMode(String[] args, IndentingPrintWriter writer) {
+        if (args.length < 2) {
+            writer.println("Insufficient number of args");
+            return;
+        }
+
+        String mode = args[1];
+        mCarUxRestrictionsManagerService.setRestrictionMode(mode);
+        writer.printf("Current Uxr restrictions mode set to: %s\n", mode);
+    }
+
+    private void getCurrentUxRestrictions(String[] args, IndentingPrintWriter writer) {
+        int displayId = Display.DEFAULT_DISPLAY;
+        if (args.length == 2) {
+            displayId = Integer.parseInt(args[1]);
+        }
+
+        CarUxRestrictions restrictions = mCarUxRestrictionsManagerService
+                .getCurrentUxRestrictions(displayId);
+        writer.printf("Current Restrictions:\n %s", restrictions.getActiveRestrictionsString());
     }
 
     private void setStartBackgroundUsersOnGarageMode(String[] args, IndentingPrintWriter writer) {

@@ -303,6 +303,7 @@ android.car.diagnostic CarDiagnosticEvent.SparkIgnitionMonitors int SECONDARY_AI
 android.car.diagnostic CarDiagnosticManager int[] FRAME_TYPES
 android.car.drivingstate CarDrivingStateManager void injectDrivingState(int drivingState)
 android.car.drivingstate CarDrivingStateManager void onCarDisconnected()
+android.car.drivingstate CarUxRestrictions String getActiveRestrictionsString()
 android.car.drivingstate CarUxRestrictions long getTimeStamp()
 android.car.drivingstate CarUxRestrictionsConfiguration CarUxRestrictionsConfiguration readJson(JsonReader reader, int schemaVersion)
 android.car.drivingstate CarUxRestrictionsConfiguration boolean hasSameParameters(CarUxRestrictionsConfiguration other)
