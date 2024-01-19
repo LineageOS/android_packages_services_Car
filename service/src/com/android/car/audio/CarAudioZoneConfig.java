@@ -417,7 +417,7 @@ final class CarAudioZoneConfig {
         if (Flags.carAudioDynamicDevices()) {
             return new CarAudioZoneConfigInfo.Builder(mName, mZoneId, mZoneConfigId)
                     .setConfigVolumeGroups(getVolumeGroupInfos()).setIsActive(isActive())
-                    .setIsSelected(isSelected()).build();
+                    .setIsSelected(isSelected()).setIsDefault(isDefault()).build();
         }
         // Keep legacy code till the flags becomes permanent
         return new CarAudioZoneConfigInfo(mName, mZoneId, mZoneConfigId);
