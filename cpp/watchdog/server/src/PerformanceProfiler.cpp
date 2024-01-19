@@ -574,7 +574,6 @@ Result<void> PerformanceProfiler::onDump(int fd) const {
     return {};
 }
 
-// TODO(b/278740423): Add a test to verify proto output.
 Result<void> PerformanceProfiler::onDumpProto(
         const CollectionIntervals& collectionIntervals, ProtoOutputStream& outProto) const {
     Mutex::Autolock lock(mMutex);
@@ -595,9 +594,16 @@ Result<void> PerformanceProfiler::onDumpProto(
 
     for (const auto& userSwitchCollection : mUserSwitchCollections) {
         uint64_t userSwitchStatsToken = outProto.start(PerformanceStats::USER_SWITCH_STATS);
+        outProto.write(UserSwitchStatsCollection::TO_USER_ID,
+                       static_cast<int>(userSwitchCollection.to));
+        outProto.write(UserSwitchStatsCollection::FROM_USER_ID,
+                       static_cast<int>(userSwitchCollection.from));
+        uint64_t userSwitchCollectionToken =
+                outProto.start(UserSwitchStatsCollection::USER_SWITCH_COLLECTION);
         outProto.write(StatsCollection::COLLECTION_INTERVAL_MILLIS,
                        collectionIntervals.mUserSwitchIntervalMillis.count());
         dumpStatsRecordsProto(userSwitchCollection, outProto);
+        outProto.end(userSwitchCollectionToken);
         outProto.end(userSwitchStatsToken);
     }
 

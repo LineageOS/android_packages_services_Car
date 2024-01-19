@@ -87,4 +87,9 @@ android_library {
     plugins: ["dagger2-compiler"],
     // TODO(b/319708040): re-enable use_resource_processor
     use_resource_processor: false,
+
+    // TODO(b/301283770): Compiling CarSystemUI should not require -J-Xmx8192M
+    javacflags: [
+        "-J-Xmx8192M",
+    ],
 }

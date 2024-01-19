@@ -441,6 +441,7 @@ android.car.hardware.power CarPowerManager void notifyUserActivity(int displayId
 android.car.hardware.power CarPowerManager void onCarDisconnected()
 android.car.hardware.power CarPowerManager void requestShutdownOnNextSuspend()
 android.car.hardware.power CarPowerManager void scheduleNextWakeupTime(int seconds)
+android.car.hardware.power PowerComponentUtil Iterable<Integer> toPowerComponents(Iterable<String> components, boolean prefix)
 android.car.hardware.power PowerComponentUtil List<String> powerComponentsToStrings(Iterable<Integer> components)
 android.car.hardware.power PowerComponentUtil String powerComponentToString(int component)
 android.car.hardware.power PowerComponentUtil String powerComponentsToString(Iterable<Integer> components)

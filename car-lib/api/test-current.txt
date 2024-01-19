@@ -1102,7 +1102,10 @@ package android.car.hardware {
   }
 
   public static class CarPropertyConfig.Builder<T> {
+    method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> addArea(int);
+    method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> addAreaConfig(int, T, T);
     method @NonNull public android.car.hardware.CarPropertyConfig.Builder<T> addAreaIdConfig(@NonNull android.car.hardware.property.AreaIdConfig<T>);
+    method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> addAreas(int[]);
     method public android.car.hardware.CarPropertyConfig<T> build();
     method public android.car.hardware.CarPropertyConfig.Builder<T> setAccess(int);
     method public android.car.hardware.CarPropertyConfig.Builder<T> setChangeMode(int);
