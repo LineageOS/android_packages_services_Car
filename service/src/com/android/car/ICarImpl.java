@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import static android.car.Car.CAR_DISPLAY_COMPAT_SERVICE;
 import static android.car.builtin.content.pm.PackageManagerHelper.PROPERTY_CAR_SERVICE_PACKAGE_NAME;
 
 import static com.android.car.CarServiceImpl.CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS;
@@ -730,6 +731,13 @@ public class ICarImpl extends ICar.Stub {
             case Car.CAR_WIFI_SERVICE:
                 return mCarWifiService;
             default:
+                // CarDisplayCompatManager does not need a new service but the Car class
+                // doesn't allow a new Manager class without a service.
+                if (Flags.displayCompatibility()) {
+                    if (serviceName.equals(CAR_DISPLAY_COMPAT_SERVICE)) {
+                        return mCarActivityService;
+                    }
+                }
                 IBinder service = null;
                 if (mCarExperimentalFeatureServiceController != null) {
                     service = mCarExperimentalFeatureServiceController.getCarService(serviceName);

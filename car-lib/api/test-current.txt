@@ -22,6 +22,7 @@ package android.car {
     field public static final String CAR_ACTIVITY_SERVICE = "car_activity_service";
     field public static final String CAR_BUGREPORT_SERVICE = "car_bugreport";
     field public static final String CAR_DEVICE_POLICY_SERVICE = "car_device_policy_service";
+    field @FlaggedApi("android.car.feature.display_compatibility") public static final String CAR_DISPLAY_COMPAT_SERVICE = "car_display_compat_service";
     field public static final String CAR_DRIVING_STATE_SERVICE = "drivingstate";
     field public static final String CAR_EVS_SERVICE = "car_evs_service";
     field public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
@@ -503,6 +504,9 @@ package android.car.app {
     field public static final int RESULT_FAILURE = -1; // 0xffffffff
     field public static final int RESULT_INVALID_USER = -2; // 0xfffffffe
     field public static final int RESULT_SUCCESS = 0; // 0x0
+  }
+
+  @FlaggedApi("android.car.feature.display_compatibility") public final class CarDisplayCompatManager {
   }
 
   public interface CarSystemUIProxy {
