@@ -23,7 +23,7 @@
             <zoneConfigs>
                 <zoneConfig  name="primary zone config 1" isDefault="true">
                     <volumeGroups>
-                        <group>
+                        <group name="media">
                             <device address="bus0_media_out">
                                 <context context="music"/>
                             </device>
@@ -31,7 +31,7 @@
                                 <context context="call_ring"/>
                             </device>
                         </group>
-                        <group>
+                        <group name="navigation">
                             <device address="bus1_navigation_out">
                                 <context context="navigation"/>
                                 <context context="emergency"/>
@@ -49,12 +49,12 @@
                                 <context context="music"/>
                             </device>
                         </group>
-                        <group>
+                        <group name="call">
                             <device address="bus3_call_ring_out">
                                 <context context="call_ring"/>
                             </device>
                         </group>
-                        <group>
+                        <group name="navigation">
                             <device address="bus1_navigation_out">
                                 <context context="navigation"/>
                                 <context context="emergency"/>
