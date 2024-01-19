@@ -84,12 +84,12 @@ public:
         std::vector<ProcessValue> topNProcesses = {};
     };
     struct ProcCpuStatsView {
-        int64_t cpuTimeMs = 0;
+        int64_t cpuTimeMillis = 0;
         int64_t cpuCycles = 0;
         struct ProcessCpuValue {
             int32_t pid = -1;
             std::string comm = "";
-            int64_t cpuTimeMs = 0;
+            int64_t cpuTimeMillis = 0;
             int64_t cpuCycles = 0;
         };
         std::vector<ProcessCpuValue> topNProcesses = {};
@@ -165,7 +165,7 @@ struct SystemSummaryStats {
 
 // Performance record collected during a sampling/collection period.
 struct PerfStatsRecord {
-    time_point_ms collectionTimeMs;
+    time_point_millis collectionTimeMillis;
     SystemSummaryStats systemSummaryStats;
     UserPackageSummaryStats userPackageSummaryStats;
     std::string toString() const;
@@ -211,27 +211,29 @@ public:
     void onCarWatchdogServiceRegistered() override;
 
     android::base::Result<void> onBoottimeCollection(
-            time_point_ms time, const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
+            time_point_millis time,
+            const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::wp<ProcStatCollectorInterface>& procStatCollector,
             aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats) override;
 
     android::base::Result<void> onWakeUpCollection(
-            time_point_ms time, const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
+            time_point_millis time,
+            const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::wp<ProcStatCollectorInterface>& procStatCollector) override;
 
     android::base::Result<void> onPeriodicCollection(
-            time_point_ms time, SystemState systemState,
+            time_point_millis time, SystemState systemState,
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::wp<ProcStatCollectorInterface>& procStatCollector,
             aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats) override;
 
     android::base::Result<void> onUserSwitchCollection(
-            time_point_ms time, userid_t from, userid_t to,
+            time_point_millis time, userid_t from, userid_t to,
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::wp<ProcStatCollectorInterface>& procStatCollector) override;
 
     android::base::Result<void> onCustomCollection(
-            time_point_ms time, SystemState systemState,
+            time_point_millis time, SystemState systemState,
             const std::unordered_set<std::string>& filterPackages,
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::wp<ProcStatCollectorInterface>& procStatCollector,
@@ -263,7 +265,7 @@ protected:
 private:
     // Processes the collected data.
     android::base::Result<void> processLocked(
-            time_point_ms time, SystemState systemState,
+            time_point_millis time, SystemState systemState,
             const std::unordered_set<std::string>& filterPackages,
             const android::sp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::sp<ProcStatCollectorInterface>& procStatCollector,
@@ -286,7 +288,7 @@ private:
     // Dump the user switch collection
     android::base::Result<void> onUserSwitchCollectionDump(int fd) const;
 
-    void clearExpiredSystemEventCollections(time_point_ms time);
+    void clearExpiredSystemEventCollections(time_point_millis time);
 
     void dumpStatsRecordsProto(const CollectionInfo& collection,
                                android::util::ProtoOutputStream& outProto) const;

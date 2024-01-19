@@ -170,7 +170,7 @@ void onBinderDied(void* cookie) {
 
 }  // namespace
 
-std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_point_ms& currentTime) {
+std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_point_millis& currentTime) {
     auto timeInSeconds = std::chrono::system_clock::to_time_t(currentTime);
     struct tm currentGmt;
     gmtime_r(&timeInSeconds, &currentGmt);
@@ -188,7 +188,7 @@ IoOveruseMonitor::IoOveruseMonitor(
       mLastSystemWideIoMonitorTime(0),
       mUserPackageDailyIoUsageById({}),
       mIoOveruseWarnPercentage(0),
-      mLastUserPackageIoMonitorTime(time_point_ms::min()),
+      mLastUserPackageIoMonitorTime(time_point_millis::min()),
       mOveruseListenersByUid({}),
       mBinderDeathRecipient(
               ScopedAIBinder_DeathRecipient(AIBinder_DeathRecipient_new(onBinderDied))) {}
@@ -246,7 +246,7 @@ void IoOveruseMonitor::onCarWatchdogServiceRegistered() {
 }
 
 Result<void> IoOveruseMonitor::onPeriodicCollection(
-        time_point_ms time, SystemState systemState,
+        time_point_millis time, SystemState systemState,
         const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
         [[maybe_unused]] const android::wp<ProcStatCollectorInterface>& procStatCollector,
         ResourceStats* resourceStats) {
@@ -395,7 +395,7 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
 }
 
 Result<void> IoOveruseMonitor::onCustomCollection(
-        time_point_ms time, SystemState systemState,
+        time_point_millis time, SystemState systemState,
         [[maybe_unused]] const std::unordered_set<std::string>& filterPackages,
         const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
         const android::wp<ProcStatCollectorInterface>& procStatCollector,

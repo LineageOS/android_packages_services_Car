@@ -50,15 +50,15 @@ struct DiskStats {
     uint64_t numReadsCompleted = 0;
     uint64_t numReadsMerged = 0;
     uint64_t numKibRead = 0;
-    uint64_t readTimeInMs = 0;
+    uint64_t readTimeInMillis = 0;
     uint64_t numWritesCompleted = 0;
     uint64_t numWritesMerged = 0;
     uint64_t numKibWritten = 0;
-    uint64_t writeTimeInMs = 0;
-    uint64_t totalIoTimeInMs = 0;
-    uint64_t weightedTotalIoTimeInMs = 0;
+    uint64_t writeTimeInMillis = 0;
+    uint64_t totalIoTimeInMillis = 0;
+    uint64_t weightedTotalIoTimeInMillis = 0;
     uint64_t numFlushCompleted = 0;
-    uint64_t flushTimeInMs = 0;
+    uint64_t flushTimeInMillis = 0;
 
     DiskStats& operator-=(const DiskStats& rhs);
     DiskStats& operator+=(const DiskStats& rhs);

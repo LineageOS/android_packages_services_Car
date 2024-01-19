@@ -884,7 +884,7 @@ Result<void> WatchdogPerfService::collectLocked(WatchdogPerfService::EventMetada
 
     auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(
             std::chrono::system_clock::now());
-    int64_t timeSinceBootMs = kGetElapsedTimeSinceBootMsFunc();
+    int64_t timeSinceBootMillis = kGetElapsedTimeSinceBootMillisFunc();
 
     if (mUidStatsCollector->enabled()) {
         if (const auto result = mUidStatsCollector->collect(); !result.ok()) {
@@ -939,12 +939,12 @@ Result<void> WatchdogPerfService::collectLocked(WatchdogPerfService::EventMetada
     if (!isEmpty(resourceStats)) {
         if (resourceStats.resourceUsageStats.has_value()) {
             resourceStats.resourceUsageStats->durationInMillis =
-                    timeSinceBootMs - mLastCollectionTimeMs;
+                    timeSinceBootMillis - mLastCollectionTimeMillis;
         }
         cacheUnsentResourceStatsLocked(std::move(resourceStats));
     }
 
-    mLastCollectionTimeMs = timeSinceBootMs;
+    mLastCollectionTimeMillis = timeSinceBootMillis;
 
     if (mUnsentResourceStats.empty() || !mWatchdogServiceHelper->isServiceConnected()) {
         if (DEBUG && !mWatchdogServiceHelper->isServiceConnected()) {
