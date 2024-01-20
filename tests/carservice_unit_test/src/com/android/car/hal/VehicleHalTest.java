@@ -167,7 +167,8 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mClusterHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
-        when(mVehicle.getAllPropConfigs()).thenReturn(toHalPropConfigs(mConfigs));
+        var halPropConfigs = toHalPropConfigs(mConfigs);
+        when(mVehicle.getAllPropConfigs()).thenReturn(halPropConfigs);
 
         when(mFeatureFlags.variableUpdateRate()).thenReturn(true);
         mVehicleHal.setFeatureFlags(mFeatureFlags);
@@ -228,12 +229,40 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
             continuousPropConfig.changeMode = VehiclePropertyChangeMode.CONTINUOUS;
 
             init(powerHalConfig, List.of(staticPropConfig, continuousPropConfig));
-
-            assertThat(VehicleHal.isPropertySubscribable(new AidlHalPropConfig(powerHalConfig)))
-                    .isTrue();
-            assertThat(VehicleHal.isPropertySubscribable(new AidlHalPropConfig(staticPropConfig)))
-                    .isFalse();
         }
+    }
+
+    @Test
+    public void isPropertySubscribable_true() {
+        VehiclePropConfig continuousPropConfig = new VehiclePropConfig();
+        continuousPropConfig.prop = CONTINUOUS_PROPERTY;
+        continuousPropConfig.access = VehiclePropertyAccess.READ_WRITE;
+        continuousPropConfig.changeMode = VehiclePropertyChangeMode.CONTINUOUS;
+
+        assertThat(VehicleHal.isPropertySubscribable(new AidlHalPropConfig(continuousPropConfig)))
+                .isTrue();
+    }
+
+    @Test
+    public void isPropertySubscribable_staticFalse() {
+        VehiclePropConfig staticPropConfig = new VehiclePropConfig();
+        staticPropConfig.prop = SOME_READ_WRITE_STATIC_PROPERTY;
+        staticPropConfig.access = VehiclePropertyAccess.READ_WRITE;
+        staticPropConfig.changeMode = VehiclePropertyChangeMode.STATIC;
+
+        assertThat(VehicleHal.isPropertySubscribable(new AidlHalPropConfig(staticPropConfig)))
+                .isFalse();
+    }
+
+    @Test
+    public void isPropertySubscribable_nonReadableFalse() {
+        VehiclePropConfig continuousPropConfig = new VehiclePropConfig();
+        continuousPropConfig.prop = CONTINUOUS_PROPERTY;
+        continuousPropConfig.access = VehiclePropertyAccess.WRITE;
+        continuousPropConfig.changeMode = VehiclePropertyChangeMode.CONTINUOUS;
+
+        assertThat(VehicleHal.isPropertySubscribable(new AidlHalPropConfig(continuousPropConfig)))
+                .isFalse();
     }
 
     @Test
@@ -353,7 +382,8 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mClusterHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
-        when(mVehicle.getAllPropConfigs()).thenReturn(toHalPropConfigs(mConfigs));
+        var halPropConfigs = toHalPropConfigs(mConfigs);
+        when(mVehicle.getAllPropConfigs()).thenReturn(halPropConfigs);
 
         mVehicleHal.priorityInit();
     }
@@ -1268,17 +1298,8 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         when(mPowerHalService.getAllSupportedProperties()).thenReturn(
                 new int[]{SOME_READ_ON_CHANGE_PROPERTY});
         mConfigs.add(powerHalConfig);
-
-        // Initialize the remaining services with empty properties
-        when(mPropertyHalService.getAllSupportedProperties()).thenReturn(new int[0]);
-        when(mInputHalService.getAllSupportedProperties()).thenReturn(new int[0]);
-        when(mVmsHalService.getAllSupportedProperties()).thenReturn(new int[0]);
-        when(mUserHalService.getAllSupportedProperties()).thenReturn(new int[0]);
-        when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
-        when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
-        when(mClusterHalService.getAllSupportedProperties()).thenReturn(new int[0]);
-
-        when(mVehicle.getAllPropConfigs()).thenReturn(toHalPropConfigs(mConfigs));
+        var halPropConfigs = toHalPropConfigs(mConfigs);
+        when(mVehicle.getAllPropConfigs()).thenReturn(halPropConfigs);
 
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
                 VehicleHal.NO_AREA);
@@ -1909,7 +1930,8 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mClusterHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
-        when(mVehicle.getAllPropConfigs()).thenReturn(toHalPropConfigs(mConfigs));
+        var halPropConfigs = toHalPropConfigs(mConfigs);
+        when(mVehicle.getAllPropConfigs()).thenReturn(halPropConfigs);
 
         List<HalPropValue> dispatchList = new ArrayList<HalPropValue>();
         when(mPowerHalService.getDispatchList()).thenReturn(dispatchList);
