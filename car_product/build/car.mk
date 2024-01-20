@@ -41,7 +41,7 @@ PRODUCT_PACKAGES += \
 
 ifneq ($(PRODUCT_IS_AUTOMOTIVE_SDK),true)
 # This is for testing
-ifneq (,$(filter userdebug eng, $(TARGET_BUILD_VARIANT)))
+ifeq ($(TARGET_BUILD_VARIANT),eng)
 PRODUCT_PACKAGES += \
     DefaultStorageMonitoringCompanionApp \
     EmbeddedKitchenSinkApp \
@@ -61,7 +61,7 @@ PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/test
 endif
 endif # PRODUCT_IS_AUTOMOTIVE_SDK
 
-ifneq (,$(filter userdebug eng, $(TARGET_BUILD_VARIANT)))
+ifneq (,$(filter eng, $(TARGET_BUILD_VARIANT)))
 PRODUCT_PACKAGES += NetworkPreferenceApp
 endif
 
