@@ -62,9 +62,11 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
                     .setAudioAttributes(TEST_AUDIO_ATTRIBUTES).build();
     private static final boolean TEST_ACTIVE_STATUS = true;
     private static final boolean TEST_SELECTED_STATUS = false;
+    private static final boolean TEST_DEFAULT_STATUS = true;
     private static final CarAudioZoneConfigInfo TEST_ZONE_CONFIG_INFO =
             new CarAudioZoneConfigInfo(TEST_CONFIG_NAME, List.of(TEST_VOLUME_INFO),
-                    TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS);
+                    TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
+                    TEST_DEFAULT_STATUS);
 
     @Rule
     public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
@@ -83,7 +85,8 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
     public void constructor_withNullVolumeGroups_fails() {
         NullPointerException thrown = assertThrows(NullPointerException.class, () ->
                 new CarAudioZoneConfigInfo(TEST_CONFIG_NAME, /* groups= */ null , TEST_ZONE_ID,
-                        TEST_CONFIG_ID, /* isActive= */ true, /* isSelected= */ false)
+                        TEST_CONFIG_ID, /* isActive= */ true, /* isSelected= */ false,
+                        /* isDefault= */ false)
         );
 
         expectWithMessage("Null zone configuration info volumes exception")
@@ -122,6 +125,14 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
 
         expectWithMessage("Config selected status")
                 .that(TEST_ZONE_CONFIG_INFO.isSelected()).isEqualTo(TEST_SELECTED_STATUS);
+    }
+
+    @Test
+    public void isDefault() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+
+        expectWithMessage("Config default indicator").that(TEST_ZONE_CONFIG_INFO.isDefault())
+                .isEqualTo(TEST_DEFAULT_STATUS);
     }
 
     @Test
@@ -166,7 +177,7 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioZoneConfigInfo infoWithSameContent = new CarAudioZoneConfigInfo(TEST_CONFIG_NAME,
                 List.of(TEST_VOLUME_INFO), TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS,
-                TEST_SELECTED_STATUS);
+                TEST_SELECTED_STATUS, TEST_DEFAULT_STATUS);
 
         expectWithMessage("Zone config info with same content and dynamic flags enabled")
                 .that(infoWithSameContent).isEqualTo(TEST_ZONE_CONFIG_INFO);
@@ -177,7 +188,7 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioZoneConfigInfo infoWithSameContent = new CarAudioZoneConfigInfo(TEST_CONFIG_NAME,
                 List.of(TEST_VOLUME_INFO), TEST_ZONE_ID, TEST_CONFIG_ID_2, TEST_ACTIVE_STATUS,
-                TEST_SELECTED_STATUS);
+                TEST_SELECTED_STATUS, TEST_DEFAULT_STATUS);
 
         expectWithMessage("Zone config info with same content and dynamic flags enabled")
                 .that(infoWithSameContent).isNotEqualTo(TEST_ZONE_CONFIG_INFO);

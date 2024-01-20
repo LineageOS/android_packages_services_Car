@@ -133,6 +133,7 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.annotation.AttributeUsage;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.internal.util.LocalLog;
 import com.android.car.oem.CarOemProxyService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -191,6 +192,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     );
     private static final AudioAttributes MEDIA_AUDIO_ATTRIBUTE =
             CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA);
+    private static final int EVENT_LOGGER_QUEUE_SIZE = 50;
 
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
             CAR_AUDIO_SERVICE_THREAD_NAME);
@@ -218,6 +220,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private final AudioServerStateCallback mAudioServerStateCallback;
 
     private final CarAudioDeviceCallback mAudioDeviceInfoCallback;
+
+    private final LocalLog mServiceEventLogger = new LocalLog(EVENT_LOGGER_QUEUE_SIZE);
 
     private AudioControlWrapper mAudioControlWrapper;
     private CarDucking mCarDucking;
@@ -640,9 +644,15 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
                 mCarAudioMirrorRequestHandler.dump(writer);
                 mMediaRequestHandler.dump(writer);
-                writer.printf("Number of car audio configs callback registered: %d",
+                writer.printf("Number of car audio configs callback registered: %d\n",
                         mConfigsCallbacks.getRegisteredCallbackCount());
             }
+
+            writer.println("Service Events:");
+            writer.increaseIndent();
+            mServiceEventLogger.dump(writer);
+            writer.decreaseIndent();
+
             writer.decreaseIndent();
         }
     }
@@ -1617,7 +1627,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                  InputStream inputStream = new BufferedInputStream(fileStream)) {
             CarAudioZonesHelper zonesHelper = new CarAudioZonesHelper(mAudioManager,
                     mCarAudioSettings, inputStream, carAudioDeviceInfos, inputDevices,
-                    mUseCarVolumeGroupMuting, mUseCoreAudioVolume, mUseCoreAudioRouting);
+                    mServiceEventLogger, mUseCarVolumeGroupMuting, mUseCoreAudioVolume,
+                    mUseCoreAudioRouting);
             mAudioZoneIdToOccupantZoneIdMapping =
                     zonesHelper.getCarAudioZoneIdToOccupantZoneIdMapping();
             SparseArray<CarAudioZone> zones = zonesHelper.loadAudioZones();
@@ -2875,14 +2886,15 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private void setAllUserIdDeviceAffinitiesToNewPolicyLocked(AudioPolicy newAudioPolicy) {
         TimingsTraceLog log = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
         log.traceBegin("device-affinities-all-zones");
-        for (int c = 0; c < mAudioZoneIdToUserIdMapping.size(); c++) {
-            int zoneId = mAudioZoneIdToUserIdMapping.keyAt(c);
-            int userId = mAudioZoneIdToUserIdMapping.valueAt(c);
+        for (int c = 0; c < mAudioZoneIdToOccupantZoneIdMapping.size(); c++) {
+            int audioZoneId = mAudioZoneIdToOccupantZoneIdMapping.keyAt(c);
+            int occupantZoneId = mAudioZoneIdToOccupantZoneIdMapping.get(audioZoneId);
+            int userId = mOccupantZoneService.getUserForOccupant(occupantZoneId);
             if (userId == UserManagerHelper.USER_NULL) {
                 continue;
             }
-            log.traceBegin("device-affinities-" + zoneId);
-            CarAudioZone zone = getCarAudioZoneLocked(zoneId);
+            log.traceBegin("device-affinities-" + audioZoneId);
+            CarAudioZone zone = getCarAudioZoneLocked(audioZoneId);
             resetUserIdDeviceAffinitiesLocked(newAudioPolicy, userId, zone);
             log.traceEnd();
         }

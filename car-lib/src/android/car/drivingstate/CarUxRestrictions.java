@@ -19,6 +19,7 @@ package android.car.drivingstate;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.IntDef;
+import android.annotation.NonNull;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -383,6 +384,57 @@ public final class CarUxRestrictions implements Parcelable {
     public String toString() {
         return "DO: " + mRequiresDistractionOptimization + " UxR: " + mActiveRestrictions
                 + " time: " + mTimeStamp;
+    }
+
+    /**
+     * Returns active restrictions string.
+     * @hide
+     */
+    @NonNull
+    public String getActiveRestrictionsString() {
+        StringBuilder sb = new StringBuilder();
+
+        if (mActiveRestrictions == UX_RESTRICTIONS_BASELINE) {
+            sb.append("baseline\n");
+            return sb.toString();
+        }
+
+        if ((mActiveRestrictions
+                & UX_RESTRICTIONS_NO_DIALPAD) == UX_RESTRICTIONS_NO_DIALPAD) {
+            sb.append("no_dialpad\n");
+        }
+
+        if ((mActiveRestrictions
+                & UX_RESTRICTIONS_NO_FILTERING) == UX_RESTRICTIONS_NO_FILTERING) {
+            sb.append("no_filtering\n");
+        }
+
+        if ((mActiveRestrictions
+                & UX_RESTRICTIONS_NO_KEYBOARD) == UX_RESTRICTIONS_NO_KEYBOARD) {
+            sb.append("no_keyboard\n");
+        }
+
+        if ((mActiveRestrictions
+                & UX_RESTRICTIONS_NO_SETUP) == UX_RESTRICTIONS_NO_SETUP) {
+            sb.append("no_setup\n");
+        }
+
+        if ((mActiveRestrictions
+                & UX_RESTRICTIONS_NO_TEXT_MESSAGE) == UX_RESTRICTIONS_NO_TEXT_MESSAGE) {
+            sb.append("no_text_message\n");
+        }
+
+        if ((mActiveRestrictions
+                & UX_RESTRICTIONS_NO_VIDEO) == UX_RESTRICTIONS_NO_VIDEO) {
+            sb.append("no_video\n");
+        }
+
+        if ((mActiveRestrictions
+                & UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION)
+                == UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION) {
+            sb.append("no_voice_transcription\n");
+        }
+        return sb.toString();
     }
 
     /**

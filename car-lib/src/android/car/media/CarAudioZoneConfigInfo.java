@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 /**
  * Class to encapsulate car audio zone configuration information.
@@ -47,9 +48,10 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
     private final String mName;
     private final int mZoneId;
     private final int mConfigId;
-    private boolean mIsConfigActive;
-    private boolean mIsConfigSelected;
-    private List<CarVolumeGroupInfo> mConfigVolumeGroups;
+    private final boolean mIsConfigActive;
+    private final boolean mIsConfigSelected;
+    private final boolean mIsDefault;
+    private final List<CarVolumeGroupInfo> mConfigVolumeGroups;
 
     /**
      * Constructor of car audio zone configuration info
@@ -61,23 +63,25 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
      * @hide
      */
     public CarAudioZoneConfigInfo(String name, int zoneId, int configId) {
-        this(name, EMPTY_LIST, zoneId, configId, /* isActive= */ true, /* isSelected= */ false);
+        this(name, EMPTY_LIST, zoneId, configId, /* isActive= */ true, /* isSelected= */ false,
+                /* isDefault= */ false);
     }
 
     /**
      * Constructor of car audio zone configuration info
      *
-     * @param name Name for car audio zone configuration info
-     * @param groups Volume groups for the audio zone configuration
-     * @param zoneId Id of car audio zone
-     * @param configId Id of car audio zone configuration info
-     * @param isActive Active status of the audio configuration
+     * @param name       Name for car audio zone configuration info
+     * @param groups     Volume groups for the audio zone configuration
+     * @param zoneId     Id of car audio zone
+     * @param configId   Id of car audio zone configuration info
+     * @param isActive   Active status of the audio configuration
      * @param isSelected Selected status of the audio configuration
+     * @param isDefault  Determines if the audio configuration is default
      *
      * @hide
      */
     public CarAudioZoneConfigInfo(String name, List<CarVolumeGroupInfo> groups, int zoneId,
-            int configId, boolean isActive, boolean isSelected) {
+            int configId, boolean isActive, boolean isSelected, boolean isDefault) {
         mName = Objects.requireNonNull(name, "Zone configuration name can not be null");
         mConfigVolumeGroups = Objects.requireNonNull(groups,
                 "Zone configuration volume groups can not be null");
@@ -85,6 +89,7 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
         mConfigId = configId;
         mIsConfigActive = isActive;
         mIsConfigSelected = isSelected;
+        mIsDefault = isDefault;
     }
 
     /**
@@ -99,6 +104,7 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
         mConfigId = in.readInt();
         mIsConfigActive = in.readBoolean();
         mIsConfigSelected = in.readBoolean();
+        mIsDefault = in.readBoolean();
         List<CarVolumeGroupInfo> volumeGroups = new ArrayList<>();
         in.readParcelableList(volumeGroups, CarVolumeGroupInfo.class.getClassLoader(),
                 CarVolumeGroupInfo.class);
@@ -159,6 +165,7 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
         if (Flags.carAudioDynamicDevices()) {
             builder.append(", is active = ").append(mIsConfigActive)
                     .append(", is selected = ").append(mIsConfigSelected)
+                    .append(", is default = ").append(mIsDefault)
                     .append(", volume groups = ").append(mConfigVolumeGroups);
         }
 
@@ -173,6 +180,7 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
         dest.writeInt(mConfigId);
         dest.writeBoolean(mIsConfigActive);
         dest.writeBoolean(mIsConfigSelected);
+        dest.writeBoolean(mIsDefault);
         dest.writeParcelableList(mConfigVolumeGroups, flags);
     }
 
@@ -189,7 +197,7 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
         CarAudioZoneConfigInfo that = (CarAudioZoneConfigInfo) o;
         if (Flags.carAudioDynamicDevices()) {
             return hasSameConfigInfoInternal(that) && mIsConfigActive == that.mIsConfigActive
-                    && mIsConfigSelected == that.mIsConfigSelected
+                    && mIsConfigSelected == that.mIsConfigSelected && mIsDefault == that.mIsDefault
                     && hasSameVolumeGroup(that.mConfigVolumeGroups);
         }
 
@@ -226,7 +234,7 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
     public int hashCode() {
         if (Flags.carAudioDynamicDevices()) {
             return Objects.hash(mName, mZoneId, mConfigId, mIsConfigActive, mIsConfigSelected,
-                    mConfigVolumeGroups);
+                    mIsDefault, mConfigVolumeGroups);
         }
         return Objects.hash(mName, mZoneId, mConfigId);
     }
@@ -259,13 +267,32 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
     }
 
     /**
+     * Determines if the configuration is the default configuration.
+     *
+     * <p>The default configuration is used by the audio system to automatically route audio upon
+     * other configurations becoming inactive. The default configuration is also used for routing
+     * upon car audio service initialization. To switch to a non default configuration the
+     * {@link CarAudioManager#switchAudioZoneToConfig(CarAudioZoneConfigInfo, Executor,
+     * SwitchAudioZoneConfigCallback)} API must be called with the desired configuration.
+     *
+     * <p><b>Note</b> Each zone only has one default configuration.
+     *
+     * @return {@code true} if the configuration is the default configuration,
+     * {@code false} otherwise.
+     */
+    @FlaggedApi(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
+    public boolean isDefault() {
+        return mIsDefault;
+    }
+
+    /**
      * Gets all audio volume group infos that belong to the audio configuration
      *
      * <p>This can be query to determine what audio device attributes are available to the volume
      * group.
      *
-     * <p>Note: this information should not be used for managing volume groups at run time, as the
-     * currently selected configuration may be different. Instead,
+     * <p><b>Note</b> This information should not be used for managing volume groups at run time,
+     * as the currently selected configuration may be different. Instead,
      * {@link CarAudioManager#getAudioZoneConfigInfos} should be queried for the currently
      * selected configuration for the audio zone.
      *
@@ -297,6 +324,7 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
         private final int mConfigId;
         private boolean mIsConfigActive;
         private boolean mIsConfigSelected;
+        private boolean mIsDefault;
         private List<CarVolumeGroupInfo> mConfigVolumeGroups = new ArrayList<>();
 
         private long mBuilderFieldsSet;
@@ -311,6 +339,7 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
             this(info.mName, info.mZoneId, info.mConfigId);
             mIsConfigActive = info.mIsConfigActive;
             mIsConfigSelected = info.mIsConfigSelected;
+            mIsDefault = info.mIsDefault;
             mConfigVolumeGroups.addAll(info.mConfigVolumeGroups);
         }
 
@@ -326,7 +355,7 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
         }
 
         /**
-         * Sets the whether the configuration is active
+         * Sets whether the configuration is active
          *
          * @param isActive active state of the configuration, {@code true} for active,
          * {@code false} otherwise.
@@ -337,13 +366,24 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
         }
 
         /**
-         * Sets the whether the configuration is currently selected
+         * Sets whether the configuration is currently selected
          *
          * @param isSelected selected state of the configuration, {@code true} for selected,
          * {@code false} otherwise.
          */
         public Builder setIsSelected(boolean isSelected) {
             mIsConfigSelected = isSelected;
+            return this;
+        }
+
+        /**
+         * Sets whether the configuration is the default configuration
+         *
+         * @param isDefault default status of the configuration, {@code true} for default,
+         * {@code false} otherwise.
+         */
+        public Builder setIsDefault(boolean isDefault) {
+            mIsDefault = isDefault;
             return this;
         }
 
@@ -356,7 +396,7 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
             checkNotUsed();
             mBuilderFieldsSet |= IS_USED_FIELD_SET;
             return new CarAudioZoneConfigInfo(mName, mConfigVolumeGroups, mZoneId, mConfigId,
-                    mIsConfigActive, mIsConfigSelected);
+                    mIsConfigActive, mIsConfigSelected, mIsDefault);
         }
 
         private void checkNotUsed() throws IllegalStateException {

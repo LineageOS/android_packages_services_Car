@@ -30,7 +30,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 
 import com.android.systemui.R;
 import com.android.systemui.car.distantdisplay.activity.MoveTaskReceiver;
@@ -51,11 +50,13 @@ public class TaskViewController {
     public static final String TAG = TaskViewController.class.getSimpleName();
     private static final boolean DEBUG = Build.IS_ENG || Build.IS_USERDEBUG;
     private static final int DEFAULT_DISPLAY_ID = 0;
+    private static final int INVALID_TASK_ID = -1;
 
     private Context mContext;
     private DisplayManager mDisplayManager;
     private int mDistantDisplayId;
-    private Integer mBaseIntentForTopTaskId;
+    private int mBaseIntentForTopTaskId;
+    private int mDistantDisplayRootWallpaperTaskId = INVALID_TASK_ID;
     private Intent mBaseIntentForTopTask;
     private MediaSessionManager mMediaSessionManager;
     private OrderedHashSet<Integer> mDistantDisplayForegroundTask;
@@ -73,6 +74,7 @@ public class TaskViewController {
             } else if (taskInfo.displayId == mDistantDisplayId) {
                 if (taskInfo.baseIntent.getComponent().getPackageName().equals(
                         mContext.getPackageName())) {
+                    mDistantDisplayRootWallpaperTaskId = taskInfo.taskId;
                     return;
                 }
                 mDistantDisplayForegroundTask.add(taskInfo.taskId);
@@ -83,7 +85,8 @@ public class TaskViewController {
         public void onTaskDisplayChanged(int taskId, int newDisplayId) {
             logIfDebuggable(
                     "onTaskDisplayChanged: taskId: " + taskId + " newDisplayId: " + newDisplayId);
-            if (newDisplayId == mDistantDisplayId) {
+            if (newDisplayId == mDistantDisplayId && (mDistantDisplayRootWallpaperTaskId != taskId
+                    && mDistantDisplayRootWallpaperTaskId != INVALID_TASK_ID)) {
                 mDistantDisplayForegroundTask.add(taskId);
             } else if (newDisplayId == DEFAULT_DISPLAY_ID) {
                 mBaseIntentForTopTaskId = taskId;
@@ -121,7 +124,9 @@ public class TaskViewController {
         IntentFilter filter = new IntentFilter(MoveTaskReceiver.MOVE_ACTION);
         MoveTaskReceiver receiver = new MoveTaskReceiver();
         receiver.registerOnChangeDisplayForTask(this::changeDisplayForTask);
-        ContextCompat.registerReceiver(mContext, receiver, filter, ContextCompat.RECEIVER_EXPORTED);
+        mContext.registerReceiverAsUser(receiver, UserHandle.of(ActivityManager.getCurrentUser()),
+                filter, null, null,
+                Context.RECEIVER_EXPORTED);
     }
 
     private void changeDisplayForTask(String movement) {
@@ -133,10 +138,8 @@ public class TaskViewController {
             mDistantDisplayForegroundTask.remove(lastTask);
         } else if (movement.equals(MoveTaskReceiver.MOVE_TO_DISTANT_DISPLAY)) {
             if (taskHasActiveMediaSession(mBaseIntentForTopTask.getComponent().getPackageName())) {
-                moveTaskToDisplay(mBaseIntentForTopTaskId, mDistantDisplayId);
+                startActivityOnDisplay(mBaseIntentForTopTask, mDistantDisplayId);
             }
-        } else {
-            moveTaskToDisplay(mBaseIntentForTopTaskId, Integer.parseInt(movement));
         }
     }
 
@@ -148,14 +151,29 @@ public class TaskViewController {
         }
     }
 
+    private void startActivityOnDisplay(Intent intent, int displayId) {
+        if (intent == null) {
+            return;
+        }
+        ActivityOptions options = ActivityOptions.makeCustomAnimation(mContext, /* enterResId=*/
+                0, /* exitResId= */ 0);
+        options.setLaunchDisplayId(displayId);
+        logIfDebuggable("starting task" + intent + "on display " + displayId);
+        mContext.startActivityAsUser(intent, options.toBundle(), UserHandle.CURRENT);
+    }
+
+
     private boolean taskHasActiveMediaSession(@Nullable String packageName) {
         if (packageName == null) {
             Log.w(TAG, "package name is null");
             return false;
         }
         List<MediaController> controllerList =
-                mMediaSessionManager.getActiveSessions(/* notificationListener= */ null);
+                mMediaSessionManager.getActiveSessionsForUser(/* notificationListener= */ null,
+                        UserHandle.of(ActivityManager.getCurrentUser()));
+        Log.e(TAG, "controllerList: " + controllerList.size());
         for (MediaController ctrl : controllerList) {
+            Log.d(TAG, "packagg nam " + ctrl.getPackageName());
             if (packageName.equals(ctrl.getPackageName())) {
                 return true;
             }
