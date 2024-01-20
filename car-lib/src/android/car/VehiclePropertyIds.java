@@ -2132,8 +2132,6 @@ public final class VehiclePropertyIds {
      *
      * use {@link android.car.hardware.power.CarPowerManager} instead.
      *
-     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
-     *
      * @to_be_deprecated
      */
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
@@ -2146,8 +2144,6 @@ public final class VehiclePropertyIds {
      * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
      * use {@link android.car.hardware.power.CarPowerManager} instead.
-     *
-     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
      *
      * @to_be_deprecated
      */
@@ -2162,8 +2158,6 @@ public final class VehiclePropertyIds {
      *
      * use {@link android.car.hardware.power.CarPowerManager} instead.
      *
-     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
-     *
      * @to_be_deprecated
      */
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
@@ -2177,8 +2171,6 @@ public final class VehiclePropertyIds {
      *
      * use {@link android.car.hardware.power.CarPowerManager} instead.
      *
-     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
-     *
      * @to_be_deprecated
      */
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
@@ -2191,8 +2183,6 @@ public final class VehiclePropertyIds {
      * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
      * use {@link android.car.hardware.power.CarPowerManager} instead.
-     *
-     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
      *
      * @to_be_deprecated
      */
@@ -2277,8 +2267,6 @@ public final class VehiclePropertyIds {
      * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
      * use {@link android.car.input.CarInputManager} instead.
-     *
-     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
      *
      * @to_be_deprecated
      */
@@ -4398,8 +4386,6 @@ public final class VehiclePropertyIds {
      *
      * use {@link android.car.vms.VmsClientManager} instead.
      *
-     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
-     *
      * @to_be_deprecated
      */
     @RequiresPermission(anyOf = {Car.PERMISSION_VMS_PUBLISHER, Car.PERMISSION_VMS_SUBSCRIBER})
@@ -4696,8 +4682,6 @@ public final class VehiclePropertyIds {
      *
      * use {@link android.car.diagnostic.CarDiagnosticManager} instead.
      *
-     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
-     *
      * @to_be_deprecated
      */
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
@@ -4710,8 +4694,6 @@ public final class VehiclePropertyIds {
      * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
      * use {@link android.car.diagnostic.CarDiagnosticManager} instead.
-     *
-     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
      *
      * @to_be_deprecated
      */
@@ -4726,8 +4708,6 @@ public final class VehiclePropertyIds {
      *
      * use {@link android.car.diagnostic.CarDiagnosticManager} instead.
      *
-     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
-     *
      * @to_be_deprecated
      */
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
@@ -4740,8 +4720,6 @@ public final class VehiclePropertyIds {
      * <p>Trying to get/set this property will cause {@link SecurityException}.
      *
      * use {@link android.car.diagnostic.CarDiagnosticManager} instead.
-     *
-     * TODO(b/318879516): Add Deprecated annotation after 24Q2.
      *
      * @to_be_deprecated
      */
