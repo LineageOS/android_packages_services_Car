@@ -54,6 +54,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Configuration for Car UX Restrictions service.
@@ -121,6 +122,14 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
             }
             mRestrictionModes.put(mode, container);
         }
+    }
+
+    /**
+     * Gets all supported Restriction Modes.
+     * @hide
+     */
+    public Set<String> getSupportedRestrictionModes() {
+        return mRestrictionModes.keySet();
     }
 
     /**
