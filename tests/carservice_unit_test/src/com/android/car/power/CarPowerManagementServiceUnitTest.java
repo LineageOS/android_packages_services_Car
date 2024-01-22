@@ -124,6 +124,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -1054,11 +1055,48 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
-    public void testSetPowerPolicyGroup_notRegistered() throws Exception {
+    public void testSetPowerPolicyGroup_powerPolicyRefactorFlagDisabled() throws Exception {
         grantPowerPolicyPermission();
-        assertThrows("set power policy group throws exception",
+        mService.definePowerPolicy(POWER_POLICY_VALID_1, new String[0], new String[0]);
+        mService.definePowerPolicy(POWER_POLICY_VALID_2, new String[0], new String[0]);
+        definePowerPolicyGroup(
+                POWER_POLICY_GROUP_VALID, POWER_POLICY_VALID_1, POWER_POLICY_VALID_2);
+
+        mService.setPowerPolicyGroup(POWER_POLICY_GROUP_VALID);
+
+        assertPowerPolicyGroupSet(POWER_POLICY_GROUP_VALID);
+    }
+
+    @Test
+    public void testSetPowerPolicyGroup_powerPolicyRefactorFlagEnabled() throws Exception {
+        setRefactoredService();
+        grantPowerPolicyPermission();
+        mService.definePowerPolicy(POWER_POLICY_VALID_1, new String[0], new String[0]);
+        mService.definePowerPolicy(POWER_POLICY_VALID_2, new String[0], new String[0]);
+        definePowerPolicyGroup(
+                POWER_POLICY_GROUP_VALID, POWER_POLICY_VALID_1, POWER_POLICY_VALID_2);
+
+        mService.setPowerPolicyGroup(POWER_POLICY_GROUP_VALID);
+
+        assertPowerPolicyGroupSet(POWER_POLICY_GROUP_VALID);
+    }
+
+    @Test
+    public void testSetNotRegisteredPowerPolicyGroup_powerPolicyRefactorFlagDisabled() {
+        grantPowerPolicyPermission();
+        assertThrows("Set unregistered power policy group throws exception",
                 IllegalArgumentException.class,
-                () -> mService.setPowerPolicyGroup("policy_group_id_not_registered"));
+                () -> mService.setPowerPolicyGroup(POWER_POLICY_GROUP_INVALID));
+    }
+
+    @Test
+    public void testSetNotRegisteredPowerPolicyGroup_powerPolicyRefactorFlagEnabled()
+            throws Exception {
+        setRefactoredService();
+        grantPowerPolicyPermission();
+        assertThrows("Set unregistered power policy group throws exception",
+                IllegalArgumentException.class,
+                () -> mService.setPowerPolicyGroup(POWER_POLICY_GROUP_INVALID));
     }
 
     @Test
@@ -1928,6 +1966,18 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         assertThat(mDisplayInterface.isAnyDisplayEnabled()).isTrue();
     }
 
+    private void definePowerPolicyGroup(String policyGroupId, String waitForVhalPolicyId,
+            String onPolicyId) {
+        try (IndentingPrintWriter writer = new IndentingPrintWriter(new StringWriter(), "  ")) {
+            boolean status = mService.definePowerPolicyGroupFromCommand(new String[]{
+                    "define-power-policy-group", policyGroupId,
+                    "WaitForVHAL:" + waitForVhalPolicyId,
+                    "On:" + onPolicyId}, writer);
+            assertWithMessage("define power policy group success").that(
+                    status).isTrue();
+        }
+    }
+
     private void assertStateReceived(int expectedState, int expectedParam) throws Exception {
         int[] state = mPowerHal.waitForSend(WAIT_TIMEOUT_MS);
         assertThat(state[0]).isEqualTo(expectedState);
@@ -2032,6 +2082,11 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
             assertWithMessage("Power policy daemon last notified policy ID").that(
                     mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(policyId);
         }
+    }
+
+    private void assertPowerPolicyGroupSet(String policyGroupId) {
+        assertWithMessage("Current power policy group id").that(
+                mService.getCurrentPowerPolicyGroupId()).isEqualTo(policyGroupId);
     }
 
     private void assertPowerPolicyRequestRemoved() {
@@ -2587,7 +2642,11 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         private final Handler mMainHandler = new Handler(Looper.getMainLooper());
         private final ArrayMap<String,
                 android.frameworks.automotive.powerpolicy.CarPowerPolicy> mPolicies =
-                new ArrayMap<>();
+                        new ArrayMap<>();
+        private Map<String, SparseArray<
+                android.frameworks.automotive.powerpolicy.CarPowerPolicy>> mPowerPolicyGroups =
+                        new ArrayMap<>();
+
         private String mLastDefinedPolicyId;
         private ICarPowerPolicyDelegateCallback mCallback;
 
@@ -2659,6 +2718,13 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
             });
         }
 
+        @Override
+        public void setPowerPolicyGroup(String policyGroupId) {
+            if (mPowerPolicyGroups.get(policyGroupId) == null) {
+                throw new IllegalArgumentException("Policy group " + policyGroupId + " undefined");
+            }
+        }
+
         private int[] convertIntIterableToArray(Iterable<Integer> iterable) {
             List<Integer> list = new ArrayList<>();
             iterable.forEach(list::add);
@@ -2679,6 +2745,26 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                     PowerComponentUtil.toPowerComponents(List.of(disabledComponents),
                             /* prefix= */ false));
             mPolicies.put(policyId, policy);
+        }
+
+        @Override
+        public void notifyPowerPolicyGroupDefinition(
+                String policyGroupId, String[] powerPolicyPerState) {
+            String waitForVhalPolicyId = powerPolicyPerState[0];
+            if (mPolicies.get(waitForVhalPolicyId) == null) {
+                throw new IllegalArgumentException(
+                        "No registered policy with ID " + waitForVhalPolicyId);
+            }
+            String onPolicyId = powerPolicyPerState[1];
+            if (mPolicies.get(onPolicyId) == null) {
+                throw new IllegalArgumentException(
+                        "No registered policy with ID " + onPolicyId);
+            }
+            SparseArray<android.frameworks.automotive.powerpolicy.CarPowerPolicy> policyGroup =
+                    new SparseArray<>();
+            policyGroup.put(PowerState.WAIT_FOR_VHAL, mPolicies.get(waitForVhalPolicyId));
+            policyGroup.put(PowerState.ON, mPolicies.get(onPolicyId));
+            mPowerPolicyGroups.put(policyGroupId, policyGroup);
         }
 
         public String getLastAppliedPowerPolicyId() {
