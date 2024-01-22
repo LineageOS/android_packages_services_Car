@@ -487,7 +487,7 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
     private class ClusterNavigationStateListenerImpl implements
             ClusterHomeManager.ClusterNavigationStateListener {
         @Override
-        public void onNavigationState(byte[] unusedNavigationState) {
+        public void onNavigationStateChanged(byte[] unusedNavigationState) {
             mClusterNavigationStateListenerCalled.countDown();
         }
     }
