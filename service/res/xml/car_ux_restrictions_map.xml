@@ -60,7 +60,9 @@ Note:
              through configurations for each "mode". These modes can be specified by any string
              name, for example, "passenger". "baseline" is the default value. Note: "passenger"
              mode can be generically supported by specifying UxR for passenger displays using
-             'physicalPort' or the combination of 'occupantZoneId' and 'displayType'.
+             'physicalPort' or the combination of 'occupantZoneId' and 'displayType'. Mode attribute
+             supports multiple values separated by "|", thus a single restriction can be used in
+             different modes, and these restrictions apply to all mode values separated by "|".
        - RestrictionParameters (Tag 2. Some of UX restrictions can be parameterized)
              - the restriction parameters can be local or global to all the UX restrictions. A local
              restriction parameters tag is within a <RestrictionMapping> container which is applied
