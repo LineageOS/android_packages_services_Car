@@ -267,7 +267,7 @@ public final class CarAppFocusManagerTest extends CarApiTestBase {
     public void testGetAppTypeOwner() throws Exception {
         CarAppFocusManager manager = createManager(getContext(), mEventThread);
 
-        assertThat(manager.getAppTypeOwner(APP_FOCUS_TYPE_NAVIGATION)).isNull();
+        assertThat(manager.getAppTypeOwner(APP_FOCUS_TYPE_NAVIGATION)).isEmpty();
 
         FocusOwnershipCallback owner = new FocusOwnershipCallback();
         assertThat(manager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, owner))
@@ -279,7 +279,7 @@ public final class CarAppFocusManagerTest extends CarApiTestBase {
 
         manager.abandonAppFocus(owner, APP_FOCUS_TYPE_NAVIGATION);
 
-        assertThat(manager.getAppTypeOwner(APP_FOCUS_TYPE_NAVIGATION)).isNull();
+        assertThat(manager.getAppTypeOwner(APP_FOCUS_TYPE_NAVIGATION)).isEmpty();
     }
 
     private CarAppFocusManager createManager() throws InterruptedException {

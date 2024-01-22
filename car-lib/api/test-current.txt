@@ -133,6 +133,7 @@ package android.car {
 
   public final class CarAppFocusManager {
     method public int[] getActiveAppTypes();
+    method @FlaggedApi("android.car.feature.cluster_health_monitoring") @NonNull @RequiresPermission(allOf={android.Manifest.permission.QUERY_ALL_PACKAGES, android.Manifest.permission.INTERACT_ACROSS_USERS}, conditional=true) public java.util.List<java.lang.String> getAppTypeOwner(int);
   }
 
   public final class CarBugreportManager {

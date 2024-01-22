@@ -129,6 +129,10 @@ package android.car {
     field @Deprecated public static final String VMS_SUBSCRIBER_SERVICE = "vehicle_map_subscriber_service";
   }
 
+  public final class CarAppFocusManager {
+    method @FlaggedApi("android.car.feature.cluster_health_monitoring") @NonNull @RequiresPermission(allOf={android.Manifest.permission.QUERY_ALL_PACKAGES, android.Manifest.permission.INTERACT_ACROSS_USERS}, conditional=true) public java.util.List<java.lang.String> getAppTypeOwner(int);
+  }
+
   public final class CarBugreportManager {
     method @RequiresPermission(android.Manifest.permission.DUMP) public void cancelBugreport();
     method @RequiresPermission(android.Manifest.permission.DUMP) public void requestBugreport(@NonNull android.os.ParcelFileDescriptor, @NonNull android.os.ParcelFileDescriptor, @NonNull android.car.CarBugreportManager.CarBugreportManagerCallback);
