@@ -310,6 +310,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_GET_CURRENT_UX_RESTRICTIONS = "get-current-ux-restrictions";
     private static final String COMMAND_SET_CURRENT_UXR_MODE = "set-current-uxr-mode";
     private static final String COMMAND_GET_CURRENT_UXR_MODE = "get-current-uxr-mode";
+    private static final String COMMAND_GET_SUPPORTED_UXR_MODES = "get-supported-uxr-modes";
+    private static final String COMMAND_GET_UXR_CONFIG = "get-uxr-config";
 
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
@@ -958,6 +960,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t Sets current mode for UX restrictions.");
         pw.printf("\t%s", COMMAND_GET_CURRENT_UXR_MODE);
         pw.println("\t Gets current mode for UX restrictions.");
+        pw.printf("\t%s", COMMAND_GET_SUPPORTED_UXR_MODES);
+        pw.println("\t Gets all supported UX restrictions modes.");
+        pw.printf("\t%s", COMMAND_GET_UXR_CONFIG);
+        pw.println("\t Gets UX restrictions configuration.");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -1511,12 +1517,26 @@ final class CarShellCommand extends BasicShellCommandHandler {
             case COMMAND_GET_CURRENT_UXR_MODE:
                 getCurrentUxrMode(args, writer);
                 break;
+            case COMMAND_GET_SUPPORTED_UXR_MODES:
+                getSupportedUxRModes(writer);
+                break;
+            case COMMAND_GET_UXR_CONFIG:
+                getUxrConfig(writer);
+                break;
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
                 showHelp(writer);
                 return RESULT_ERROR;
         }
         return RESULT_OK;
+    }
+
+    private void getUxrConfig(IndentingPrintWriter writer) {
+        writer.println(mCarUxRestrictionsManagerService.getConfigs());
+    }
+
+    private void getSupportedUxRModes(IndentingPrintWriter writer) {
+        writer.println(mCarUxRestrictionsManagerService.getSupportedRestrictionModes());
     }
 
     private void getCurrentUxrMode(String[] args, IndentingPrintWriter writer) {

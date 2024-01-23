@@ -141,12 +141,16 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private static final String NONSILENT_STRING = "0";
     private static final String NORMAL_BOOT = "reboot,shell";
 
+    private static final String COMMAND_DEFINE_POLICY = "define-power-policy";
+
     private static final int CURRENT_USER_ID = 42;
     public static final String SYSTEM_POWER_POLICY_ALL_ON = "system_power_policy_all_on";
     public static final String SYSTEM_POWER_POLICY_NO_USER_INTERACTION =
             "system_power_policy_no_user_interaction";
     public static final String SYSTEM_POWER_POLICY_INITIAL_ON = "system_power_policy_initial_on";
     private static final String POWER_POLICY_VALID = "policy_id_valid";
+    private static final String POWER_POLICY_INVALID_COMPONENT = "policy_id_for_invalid_component";
+    private static final String POWER_POLICY_VALID_COMMAND = "policy_id_valid_command";
 
     private final FakeFeatureFlagsImpl mFeatureFlags = new FakeFeatureFlagsImpl();
     private final MockDisplayInterface mDisplayInterface = new MockDisplayInterface();
@@ -681,8 +685,10 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Test
     public void testDefineValidPowerPolicy_powerPolicyRefactorFlagDisabled() {
-        definePowerPolicyValid();
+        int status = mService.definePowerPolicy(POWER_POLICY_VALID,
+                new String[]{"AUDIO", "BLUETOOTH"}, new String[]{"WIFI"});
 
+        assertThat(status).isEqualTo(PolicyOperationStatus.OK);
         assertThat(mPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(POWER_POLICY_VALID);
     }
 
@@ -690,7 +696,10 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     public void testDefineValidPowerPolicy_powerPolicyRefactorFlagEnabled() throws Exception {
         setRefactoredService();
 
-        definePowerPolicyValid();
+        int status = mService.definePowerPolicy(POWER_POLICY_VALID,
+                new String[]{"AUDIO", "BLUETOOTH"}, new String[]{"WIFI"});
+
+        assertThat(status).isEqualTo(PolicyOperationStatus.OK);
 
         assertThat(mRefactoredPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(
                 POWER_POLICY_VALID);
@@ -698,9 +707,11 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Test
     public void testDefineDoubleRegisteredPowerPolicy_powerPolicyRefactorFlagDisabled() {
-        definePowerPolicyValid();
+        int status = mService.definePowerPolicy(POWER_POLICY_VALID,
+                new String[]{"AUDIO", "BLUETOOTH"}, new String[]{"WIFI"});
+        assertThat(status).isEqualTo(PolicyOperationStatus.OK);
 
-        int status = mService.definePowerPolicy(POWER_POLICY_VALID, new String[]{}, new String[]{});
+        status = mService.definePowerPolicy(POWER_POLICY_VALID, new String[]{}, new String[]{});
 
         assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_DOUBLE_REGISTERED_POWER_POLICY_ID);
     }
@@ -709,65 +720,131 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     public void testDefineDoubleRegisteredPowerPolicy_powerPolicyRefactorFlagEnabled()
             throws Exception {
         setRefactoredService();
-        definePowerPolicyValid();
+        int status = mService.definePowerPolicy(POWER_POLICY_VALID,
+                new String[]{"AUDIO", "BLUETOOTH"}, new String[]{"WIFI"});
+        assertThat(status).isEqualTo(PolicyOperationStatus.OK);
 
-        int status = mService.definePowerPolicy(POWER_POLICY_VALID, new String[]{}, new String[]{});
+        status = mService.definePowerPolicy(POWER_POLICY_VALID, new String[]{}, new String[]{});
 
         assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_DOUBLE_REGISTERED_POWER_POLICY_ID);
     }
 
     @Test
-    public void testDefinePowerPolicy_invalidComponent() {
-        String policyId = "policy_id_for_invalid_component";
-        int status = mService.definePowerPolicy(
-                policyId, new String[]{"AUDIO", "INVALID_COMPONENT"}, new String[]{"WIFI"});
+    public void testDefinePowerPolicyWithInvalidComponent_powerPolicyRefactorFlagDisabled() {
+        int status = mService.definePowerPolicy(POWER_POLICY_INVALID_COMPONENT,
+                new String[]{"AUDIO", "INVALID_COMPONENT"}, new String[]{"WIFI"});
 
         assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_INVALID_POWER_COMPONENT);
     }
 
     @Test
-    public void testDefinePowerPolicyFromCommand_validCommand() {
-        String policyId = "policy_id_valid_command";
-        String[] args = {"define-power-policy", policyId, "--enable", "AUDIO,BLUETOOTH",
-                "--disable", "ETHERNET,WIFI"};
+    public void testDefinePowerPolicyWithInvalidComponent_powerPolicyRefactorFlagEnabled()
+            throws Exception {
+        setRefactoredService();
 
-        try (IndentingPrintWriter writer = new IndentingPrintWriter(new StringWriter(), "  ")) {
-            boolean status = mService.definePowerPolicyFromCommand(args, writer);
+        int status = mService.definePowerPolicy(POWER_POLICY_INVALID_COMPONENT,
+                new String[]{"AUDIO", "INVALID_COMPONENT"}, new String[]{"WIFI"});
 
-            assertWithMessage(
-                    "Calling definePowerPolicyFromCommand with args: "
-                            + Arrays.toString(args) + " must succeed").that(status).isTrue();
-            String lastDefinedPolicyMsg = "Power policy daemon must have " + policyId
-                    + " as last defined policy id";
-            assertWithMessage(lastDefinedPolicyMsg).that(
-                    mPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(policyId);
-        }
+        assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_INVALID_POWER_COMPONENT);
+    }
+
+
+    @Test
+    public void testDefinePowerPolicyFromValidCommand_powerPolicyRefactorFlagDisabled() {
+        String[] args = {COMMAND_DEFINE_POLICY, POWER_POLICY_VALID_COMMAND,
+                "--enable", "AUDIO,BLUETOOTH", "--disable", "ETHERNET,WIFI"};
+
+        boolean status = definePowerPolicyFromCommand(args);
+
+        assertWithMessage("Calling definePowerPolicyFromCommand with args: "
+                + Arrays.toString(args) + " must succeed").that(status).isTrue();
+        assertWithMessage("Power policy daemon must have "
+                + POWER_POLICY_VALID_COMMAND + " as last defined policy id").that(
+                        mPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(
+                                POWER_POLICY_VALID_COMMAND);
     }
 
     @Test
-    public void testDefinePowerPolicyFromCommand_tooFewArgs() {
-        String[] args = {"define-power-policy"};
+    public void testDefinePowerPolicyFromValidCommand_powerPolicyRefactorFlagEnabled()
+            throws Exception {
+        setRefactoredService();
+        String[] args = {COMMAND_DEFINE_POLICY, POWER_POLICY_VALID_COMMAND,
+                "--enable", "AUDIO,BLUETOOTH", "--disable", "ETHERNET,WIFI"};
+
+        boolean status = definePowerPolicyFromCommand(args);
+
+        assertWithMessage("Calling definePowerPolicyFromCommand with args: "
+                + Arrays.toString(args) + " must succeed").that(status).isTrue();
+        assertWithMessage("Refactored power policy daemon must have "
+                + POWER_POLICY_VALID_COMMAND + " as last defined policy id").that(
+                        mRefactoredPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(
+                                POWER_POLICY_VALID_COMMAND);
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromCommand_tooFewArgs_powerPolicyRefactorFlagDisabled() {
+        String[] args = {COMMAND_DEFINE_POLICY};
 
         assertDefinePowerPolicyFromCommandFailed(args);
     }
 
     @Test
-    public void testDefinePowerPolicyFromCommand_missingEnabledComp() {
-        String[] args = {"define-power-policy", "policy_id_no_enabled", "--enable"};
+    public void testDefinePowerPolicyFromCommand_tooFewArgs_powerPolicyRefactorFlagEnabled()
+            throws Exception {
+        setRefactoredService();
+
+        String[] args = {COMMAND_DEFINE_POLICY};
 
         assertDefinePowerPolicyFromCommandFailed(args);
     }
 
     @Test
-    public void testDefinePowerPolicyFromCommand_missingDisabledComp() {
-        String[] args = {"define-power-policy", "policy_id_no_disabled", "--disable"};
+    public void testDefinePowerPolicyFromCommand_missingEnComp_powerPolicyRefactorFlagDisabled() {
+        String[] args = {COMMAND_DEFINE_POLICY, "policy_id_no_enabled", "--enable"};
 
         assertDefinePowerPolicyFromCommandFailed(args);
     }
 
     @Test
-    public void testDefinePowerPolicyFromCommand_unknownArg() {
-        String[] args = {"define-power-policy", "policy_id_unknown_arg", "--unknown_arg"};
+    public void testDefinePowerPolicyFromCommand_missingEnComp_powerPolicyRefactorFlagEnabled()
+            throws Exception {
+        setRefactoredService();
+
+        String[] args = {COMMAND_DEFINE_POLICY, "policy_id_no_enabled", "--enable"};
+
+        assertDefinePowerPolicyFromCommandFailed(args);
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromCommand_missingDisComp_powerPolicyRefactorFlagDisabled() {
+        String[] args = {COMMAND_DEFINE_POLICY, "policy_id_no_disabled", "--disable"};
+
+        assertDefinePowerPolicyFromCommandFailed(args);
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromCommand_missingDisComp_powerPolicyRefactorFlagEnabled()
+            throws Exception {
+        setRefactoredService();
+
+        String[] args = {COMMAND_DEFINE_POLICY, "policy_id_no_disabled", "--disable"};
+
+        assertDefinePowerPolicyFromCommandFailed(args);
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromCommand_unknownArg_powerPolicyRefactorFlagDisabled() {
+        String[] args = {COMMAND_DEFINE_POLICY, "policy_id_unknown_arg", "--unknown_arg"};
+
+        assertDefinePowerPolicyFromCommandFailed(args);
+    }
+
+    @Test
+    public void testDefinePowerPolicyFromCommand_unknownArg_powerPolicyRefactorFlagEnabled()
+            throws Exception {
+        setRefactoredService();
+
+        String[] args = {COMMAND_DEFINE_POLICY, "policy_id_unknown_arg", "--unknown_arg"};
 
         assertDefinePowerPolicyFromCommandFailed(args);
     }
@@ -1851,10 +1928,10 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 context.getResources().openRawResource(resourceId));
     }
 
-    private void definePowerPolicyValid() {
-        int status = mService.definePowerPolicy(POWER_POLICY_VALID,
-                new String[]{"AUDIO", "BLUETOOTH"}, new String[]{"WIFI"});
-        assertThat(status).isEqualTo(PolicyOperationStatus.OK);
+    private boolean definePowerPolicyFromCommand(String[] args) {
+        try (IndentingPrintWriter writer = new IndentingPrintWriter(new StringWriter(), "  ")) {
+            return mService.definePowerPolicyFromCommand(args, writer);
+        }
     }
 
     private MockedPowerPolicyListener setUpPowerPolicy(String policyId, String[] enabledComponents,
