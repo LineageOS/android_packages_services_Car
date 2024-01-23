@@ -1397,6 +1397,34 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    public void testSwitchUserIgnoringUxRestrictions() throws Exception {
+        mockGetUxRestrictions(/*restricted= */ true);
+        initService();
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        mSwitchUserResponse.requestId = 42;
+        mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
+        mockHalSwitch(mAdminUserId, mGuestUser, mSwitchUserResponse);
+        mockAmSwitchUser(mMockedActivityManager, mGuestUser, true);
+
+        // fail on restricted state
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
+        assertUserSwitchResult(getUserSwitchResult(),
+                UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
+
+        // Should be ok calling switchUserIgnoringUxRestriction...
+        switchUserIgnoringUxRestriction(mGuestUserId, ASYNC_CALL_TIMEOUT_MS,
+                mUserSwitchResultCallbackImpl2);
+        assertUserSwitchResult(getUserSwitchResult2(),
+                UserSwitchResult.STATUS_SUCCESSFUL);
+
+        // Verify only second call succeeded. If more than one call was succeeded, verify() would
+        // fail because it was called more than once()
+        assertHalSwitchAnyUser();
+        verifyAnyUserSwitch();
+        verifyNoLogoutUser();
+    }
+
+    @Test
     public void testSwitchUser_multipleCallsDifferentUser_beforeFirstUserUnlocked()
             throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
@@ -1661,7 +1689,8 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockManageUsersPermission(android.Manifest.permission.MANAGE_USERS, false);
 
         assertThrows(SecurityException.class, () -> mCarUserService
-                .switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl));
+                .switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl,
+                        /* ignoreUxRestriction= */ false));
     }
 
     @Test
