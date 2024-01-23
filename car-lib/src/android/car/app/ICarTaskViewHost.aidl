@@ -18,6 +18,7 @@ package android.car.app;
 import android.app.ActivityManager.RunningTaskInfo;
 import android.app.PendingIntent;
 import android.car.app.ICarTaskViewClient;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.SurfaceControl;

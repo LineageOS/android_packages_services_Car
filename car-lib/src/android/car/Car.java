@@ -81,13 +81,14 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
-import android.os.SystemProperties;
 import android.os.TransactionTooLargeException;
 import android.util.ArrayMap;
 import android.util.Log;
 
+import com.android.car.internal.ICarBase;
 import com.android.car.internal.VisibleForHiddenApiCheck;
 import com.android.car.internal.common.CommonConstants;
+import com.android.car.internal.dep.SystemProperties;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -108,7 +109,7 @@ import java.util.Objects;
  *   This API works only for devices with {@link PackageManager#FEATURE_AUTOMOTIVE}
  *   Calling this API on a device with no such feature will lead to an exception.
  */
-public final class Car {
+public final class Car implements ICarBase {
 
     /**
      * System property to define platform minor version.

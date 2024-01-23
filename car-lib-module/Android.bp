@@ -27,6 +27,7 @@ java_sdk_library {
     ],
     srcs: [
         ":android.car-full-src",
+        ":com.android.car.internal.dep-src",
     ],
     aidl: {
         include_dirs: [

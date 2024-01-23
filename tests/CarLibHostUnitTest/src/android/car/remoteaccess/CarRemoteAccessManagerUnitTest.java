@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.remoteaccess;
+package android.car.remoteaccess;
 
 import static android.car.remoteaccess.ICarRemoteAccessService.SERVICE_ERROR_CODE_GENERAL;
 
@@ -31,46 +31,34 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.car.Car;
-import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.remoteaccess.CarRemoteAccessManager.CompletableRemoteTaskFuture;
 import android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
 import android.car.remoteaccess.CarRemoteAccessManager.RemoteTaskClientCallback;
 import android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo;
-import android.car.remoteaccess.ICarRemoteAccessCallback;
-import android.car.remoteaccess.ICarRemoteAccessService;
-import android.car.remoteaccess.RemoteTaskClientRegistrationInfo;
-import android.car.remoteaccess.TaskScheduleInfo;
-import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.AbstractExpectableTestCase;
 import android.car.test.mocks.JavaMockitoHelper;
-import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 
-import androidx.test.platform.app.InstrumentationRegistry;
+import com.android.car.internal.ICarBase;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
-@RunWith(MockitoJUnitRunner.class)
-public final class CarRemoteAccessManagerUnitTest extends AbstractExtendedMockitoTestCase {
-
-    private final Context mContext =
-            InstrumentationRegistry.getInstrumentation().getTargetContext();
-    private final Executor mExecutor = mContext.getMainExecutor();
-
-    private CarRemoteAccessManager mRemoteAccessManager;
+/**
+ * <p>This class contains unit tests for the {@link CarRemoteAccessManager}.
+ */
+public final class CarRemoteAccessManagerUnitTest extends AbstractExpectableTestCase {
     private static final int DEFAULT_TIMEOUT = 3000;
 
     private static final String TEST_SCHEDULE_ID = "test schedule id";
@@ -80,14 +68,22 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExtendedMockit
     private static final int TEST_TASK_COUNT = 10;
     private static final Duration TEST_PERIODIC = Duration.ofSeconds(1);
 
-    @Mock private Car mCar;
-    @Mock private IBinder mBinder;
-    @Mock private ICarRemoteAccessService mService;
+    @Mock
+    private ICarBase mCar;
+    @Mock
+    private IBinder mBinder;
+    @Mock
+    private ICarRemoteAccessService mService;
     @Captor
     private ArgumentCaptor<CompletableRemoteTaskFuture> mFutureCaptor;
 
+    private CarRemoteAccessManager mRemoteAccessManager;
+    private final Executor mExecutor = Runnable::run;
+
     @Before
     public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+
         when(mBinder.queryLocalInterface(anyString())).thenReturn(mService);
         mRemoteAccessManager = new CarRemoteAccessManager(mCar, mBinder);
     }
