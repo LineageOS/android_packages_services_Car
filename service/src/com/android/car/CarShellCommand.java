@@ -771,9 +771,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t  it will use a  default value).");
         pw.println("\t  The --hal-only option only calls HAL, without using CarUserService.");
 
-        pw.printf("\t%s <USER_ID> [--hal-only] [--timeout TIMEOUT_MS]\n", COMMAND_SWITCH_USER);
+        pw.printf("\t%s <USER_ID> [--hal-only] [--ignore-uxr] [--timeout TIMEOUT_MS]\n",
+                COMMAND_SWITCH_USER);
         pw.println("\t  Switches to user USER_ID using the HAL integration.");
         pw.println("\t  The --hal-only option only calls HAL, without switching the user,");
+        pw.println("\t  The --ignore-uxr option ignores any Ux restriction regarding user switch,");
         pw.println("\t  while the --timeout defines how long to wait for the response.");
 
         pw.printf("\t%s [--timeout TIMEOUT_MS]\n", COMMAND_LOGOUT_USER);
@@ -2178,6 +2180,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         int targetUserId = Integer.parseInt(args[1]);
         int timeout = DEFAULT_HAL_TIMEOUT_MS + DEFAULT_CAR_USER_SERVICE_TIMEOUT_MS;
         boolean halOnly = false;
+        boolean ignoreUxr = false;
 
         for (int i = 2; i < args.length; i++) {
             String arg = args[i];
@@ -2187,6 +2190,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
                     break;
                 case "--hal-only":
                     halOnly = true;
+                    break;
+                case "--ignore-uxr":
+                    ignoreUxr = true;
                     break;
                 default:
                     writer.println("Invalid option at index " + i + ": " + arg);
@@ -2242,9 +2248,16 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
         SyncResultCallback<UserSwitchResult> syncResultCallback = new SyncResultCallback<>();
 
-        carUserManager.switchUser(
-                new UserSwitchRequest.Builder(UserHandle.of(targetUserId)).build(), Runnable::run,
-                syncResultCallback);
+        if (ignoreUxr) {
+            carUserManager.switchUserIgnoringUxRestriction(
+                    new UserSwitchRequest.Builder(UserHandle.of(targetUserId)).build(),
+                    Runnable::run, syncResultCallback);
+
+        } else {
+            carUserManager.switchUser(
+                    new UserSwitchRequest.Builder(UserHandle.of(targetUserId)).build(),
+                    Runnable::run, syncResultCallback);
+        }
 
         try {
             showUserSwitchResult(writer, syncResultCallback.get(timeout, TimeUnit.MILLISECONDS));
