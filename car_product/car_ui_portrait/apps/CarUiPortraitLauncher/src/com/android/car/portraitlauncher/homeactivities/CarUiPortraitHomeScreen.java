@@ -72,6 +72,7 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Display;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
@@ -154,12 +155,13 @@ import java.util.Set;
  */
 public final class CarUiPortraitHomeScreen extends FragmentActivity {
     public static final String TAG = CarUiPortraitHomeScreen.class.getSimpleName();
+
+    private static final boolean DBG = Build.IS_DEBUGGABLE;
     /** Identifiers for panels. */
     private static final int APP_GRID = 1;
     private static final int APPLICATION = 2;
     private static final int BACKGROUND = 3;
     private static final int FULLSCREEN = 4;
-    private static final boolean DBG = Build.IS_DEBUGGABLE;
     private static final long IMMERSIVE_MODE_REQUEST_TIMEOUT = 500;
     private static final String SAVED_BACKGROUND_APP_COMPONENT_NAME =
             "SAVED_BACKGROUND_APP_COMPONENT_NAME";
@@ -187,6 +189,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private TaskInfoCache mTaskInfoCache;
     private TaskViewPanel mAppGridTaskViewPanel;
     private TaskViewPanel mRootTaskViewPanel;
+    private SparseArray<ActivityManager.RunningTaskInfo> mRunningTaskInfoRecords;
     private final IntentHandler mMediaIntentHandler = new IntentHandler() {
         @Override
         public void handleIntent(Intent intent) {
@@ -253,7 +256,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             logIfDebuggable("On task focus changed, task = " + taskId);
             boolean hostFocused = taskId == getTaskId() && focused;
             if (hostFocused && mTaskViewControllerWrapper != null) {
-                mTaskViewControllerWrapper.showEmbeddedTasks(new int[] {BACKGROUND, FULLSCREEN});
+                mTaskViewControllerWrapper.showEmbeddedTasks(new int[]{BACKGROUND, FULLSCREEN});
             }
         }
 
@@ -559,7 +562,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         setContentView(R.layout.car_ui_portrait_launcher);
 
         registerUserEventReceiver();
-
+        mRunningTaskInfoRecords = new SparseArray<>();
         mTaskCategoryManager = new TaskCategoryManager(getApplicationContext());
         if (savedInstanceState != null) {
             String savedBackgroundAppName = savedInstanceState.getString(
@@ -717,6 +720,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         int diff = mConfiguration.updateFrom(newConfig);
+        logIfDebuggable("onConfigurationChanged with diff =" + diff);
         if ((diff & CONFIG_UI_MODE) == 0) {
             return;
         }
@@ -758,7 +762,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         mTaskViewControllerWrapper.updateAllowListedActivities(FULLSCREEN,
                 mTaskCategoryManager.getFullScreenActivitiesList());
 
-        mTaskViewControllerWrapper.showEmbeddedTasks(new int[] {BACKGROUND, FULLSCREEN});
+        mTaskViewControllerWrapper.showEmbeddedTasks(new int[]{BACKGROUND, FULLSCREEN});
 
         // the showEmbeddedTasks will make the task visible which will lead to opening of the panel
         // and that should be skipped for application panel  when the  home intent is sent. Because
@@ -766,7 +770,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         if (mReceivedNewIntent) {
             mReceivedNewIntent = false;
         } else {
-            mTaskViewControllerWrapper.showEmbeddedTasks(new int[] {APPLICATION});
+            mTaskViewControllerWrapper.showEmbeddedTasks(new int[]{APPLICATION});
         }
     }
 
@@ -1289,9 +1293,21 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
                     @Override
                     public void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo) {
-                        if (taskInfo.isVisible()
-                                && mTaskViewControllerWrapper.getTaskId(APPLICATION)
-                                != taskInfo.taskId) {
+                        ActivityManager.RunningTaskInfo previousTaskInfoRecord =
+                                mRunningTaskInfoRecords.get(
+                                        taskInfo.taskId);
+                        mRunningTaskInfoRecords.put(taskInfo.taskId, taskInfo);
+                        logIfDebuggable("ON_TASK_INFO_CHANGED, taskInfo =" + taskInfo);
+                        logIfDebuggable("ON_TASK_INFO_CHANGED, previousTaskInfoRecord ="
+                                + previousTaskInfoRecord);
+
+                        // Open the application panel only if the task info change from invisible
+                        // to visible. This is only for opening CarSettings from QC panel, due to
+                        // the launch flag, this action doesn't trigger onTaskMoveToFront. Normal
+                        // apps should trigger the application panel open action w/
+                        // onTaskMoveToFront, but not here.
+                        if (taskInfo.isVisible() && previousTaskInfoRecord != null
+                                && !previousTaskInfoRecord.isVisible()) {
                             mRootTaskViewPanel.openPanel(createReason(ON_TASK_INFO_CHANGED));
                         }
                     }
