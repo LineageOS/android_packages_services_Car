@@ -50,6 +50,7 @@ import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.internal.util.Lists;
 import com.android.car.power.CarPowerDumpProto.PolicyReaderProto;
 import com.android.car.power.CarPowerDumpProto.PolicyReaderProto.ComponentNameToValue;
 import com.android.car.power.CarPowerDumpProto.PolicyReaderProto.IdToPolicyGroup;
@@ -1020,6 +1021,13 @@ public final class PolicyReader {
 
     ArrayMap<String, Integer> getCustomComponents() {
         return mCustomComponents;
+    }
+
+    @VisibleForTesting
+    Set<Integer> getAllComponents() {
+        Set<Integer> allComponents = new ArraySet<>(Lists.asImmutableList(ALL_COMPONENTS));
+        allComponents.addAll(mCustomComponents.values());
+        return allComponents;
     }
 
     @VisibleForTesting
