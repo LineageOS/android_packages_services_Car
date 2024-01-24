@@ -18,6 +18,7 @@
 #define CPP_VHAL_CLIENT_INCLUDE_IHALPROPVALUE_H_
 
 #include <aidl/android/hardware/automotive/vehicle/VehiclePropValue.h>
+#include <aidl/android/hardware/automotive/vehicle/VehiclePropertyStatus.h>
 #include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
 
 #include <cstdint>
@@ -35,6 +36,9 @@ public:
     virtual int32_t getAreaId() const = 0;
 
     virtual int64_t getTimestamp() const = 0;
+
+    virtual aidl::android::hardware::automotive::vehicle::VehiclePropertyStatus getStatus()
+            const = 0;
 
     virtual void setInt32Values(const std::vector<int32_t>& values) = 0;
 

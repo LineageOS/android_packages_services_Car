@@ -55,6 +55,7 @@ using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfig;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfigs;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropError;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropErrors;
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropertyStatus;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropValue;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropValues;
 
@@ -348,6 +349,7 @@ TEST_F(AidlVhalClientTest, testGetValueNormal) {
     auto gotValue = std::move(result.value());
     ASSERT_EQ(gotValue->getPropId(), TEST_PROP_ID);
     ASSERT_EQ(gotValue->getAreaId(), TEST_AREA_ID);
+    ASSERT_EQ(gotValue->getStatus(), VehiclePropertyStatus::AVAILABLE);
     ASSERT_EQ(gotValue->getInt32Values(), std::vector<int32_t>({1}));
 }
 
@@ -382,7 +384,39 @@ TEST_F(AidlVhalClientTest, testGetValueSync) {
     auto gotValue = std::move(result.value());
     ASSERT_EQ(gotValue->getPropId(), TEST_PROP_ID);
     ASSERT_EQ(gotValue->getAreaId(), TEST_AREA_ID);
+    ASSERT_EQ(gotValue->getStatus(), VehiclePropertyStatus::AVAILABLE);
     ASSERT_EQ(gotValue->getInt32Values(), std::vector<int32_t>({1}));
+}
+
+TEST_F(AidlVhalClientTest, testGetValueUnavailableStatusSync) {
+    VehiclePropValue testProp{
+            .prop = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+    };
+    getVhal()->setWaitTimeInMs(10);
+    getVhal()->setGetValueResults({
+            GetValueResult{
+                    .requestId = 0,
+                    .status = StatusCode::OK,
+                    .prop =
+                            VehiclePropValue{
+                                    .prop = TEST_PROP_ID,
+                                    .areaId = TEST_AREA_ID,
+                                    .status = VehiclePropertyStatus::UNAVAILABLE,
+                            },
+            },
+    });
+
+    AidlHalPropValue propValue(TEST_PROP_ID, TEST_AREA_ID);
+    VhalClientResult<std::unique_ptr<IHalPropValue>> result = getClient()->getValueSync(propValue);
+
+    ASSERT_EQ(getVhal()->getGetValueRequests(),
+              std::vector<GetValueRequest>({GetValueRequest{.requestId = 0, .prop = testProp}}));
+    ASSERT_TRUE(result.ok());
+    auto gotValue = std::move(result.value());
+    ASSERT_EQ(gotValue->getPropId(), TEST_PROP_ID);
+    ASSERT_EQ(gotValue->getAreaId(), TEST_AREA_ID);
+    ASSERT_EQ(gotValue->getStatus(), VehiclePropertyStatus::UNAVAILABLE);
 }
 
 TEST_F(AidlVhalClientTest, testGetValueTimeout) {
