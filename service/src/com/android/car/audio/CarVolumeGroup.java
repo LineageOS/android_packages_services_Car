@@ -868,6 +868,11 @@ import java.util.Set;
             builder.setAudioDeviceAttributes(getAudioDeviceAttributes());
         }
 
+        if (Flags.carAudioMinMaxActivationVolume()) {
+            builder.setMaxActivationVolumeGainIndex(getMaxGainIndex())
+                    .setMinActivationVolumeGainIndex(getMinGainIndex());
+        }
+
         return builder.build();
     }
 
