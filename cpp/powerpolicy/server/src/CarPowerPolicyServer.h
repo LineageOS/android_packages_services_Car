@@ -147,9 +147,10 @@ public:
     ndk::ScopedAStatus notifyPowerPolicyGroupDefinition(
             const std::string& policyGroupId,
             const std::vector<std::string>& powerPolicyPerState) override;
-    ndk::ScopedAStatus notifyPowerStateChange(
-            ::aidl::android::automotive::powerpolicy::internal::ICarPowerPolicyDelegate::PowerState
-                    in_state);
+    ndk::ScopedAStatus applyPowerPolicyPerPowerStateChangeAsync(
+            int32_t requestId,
+            aidl::android::automotive::powerpolicy::internal::ICarPowerPolicyDelegate::PowerState
+                    state);
 
     void terminate() EXCLUDES(mMutex);
     ndk::ScopedAStatus runWithService(
@@ -218,6 +219,10 @@ public:
             const std::vector<std::string>& disabledComponents);
     ndk::ScopedAStatus notifyPowerPolicyGroupDefinition(
             const std::string& policyGroupId, const std::vector<std::string>& powerPolicyPerState);
+    ndk::ScopedAStatus applyPowerPolicyPerPowerStateChangeAsync(
+            int32_t requestId,
+            aidl::android::automotive::powerpolicy::internal::ICarPowerPolicyDelegate::PowerState
+                    state);
 
     // Internal implementation of ICarPowerPolicyDelegate.aidl.
     ndk::ScopedAStatus applyPowerPolicyAsync(int32_t requestId, const std::string& policyId,
@@ -310,6 +315,8 @@ private:
             EXCLUDES(mMutex);
     android::base::Result<void> notifyVhalNewPowerPolicy(const std::string& policyId)
             EXCLUDES(mMutex);
+    ndk::ScopedAStatus enqueuePowerPolicyRequest(int32_t requestId, const std::string& policyId,
+                                                 bool force) EXCLUDES(mMutex);
 
     static void onClientBinderDied(void* cookie);
     static void onCarServiceBinderDied(void* cookie);

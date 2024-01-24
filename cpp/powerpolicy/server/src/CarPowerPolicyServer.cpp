@@ -44,6 +44,7 @@ namespace frameworks {
 namespace automotive {
 namespace powerpolicy {
 
+using ::aidl::android::automotive::powerpolicy::internal::ICarPowerPolicyDelegate;
 using ::aidl::android::automotive::powerpolicy::internal::ICarPowerPolicyDelegateCallback;
 using ::aidl::android::automotive::powerpolicy::internal::PowerPolicyFailureReason;
 using ::aidl::android::automotive::powerpolicy::internal::PowerPolicyInitData;
@@ -302,11 +303,13 @@ ScopedAStatus CarPowerPolicyDelegate::notifyPowerPolicyGroupDefinition(
             "notifyPowerPolicyGroupDefinition");
 }
 
-ScopedAStatus CarPowerPolicyDelegate::notifyPowerStateChange(
-        [[maybe_unused]] ::aidl::android::automotive::powerpolicy::internal::
-                ICarPowerPolicyDelegate::PowerState in_state) {
-    // TODO(b/301028782): Implement here
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+ScopedAStatus CarPowerPolicyDelegate::applyPowerPolicyPerPowerStateChangeAsync(
+        int32_t requestId, ICarPowerPolicyDelegate::PowerState state) {
+    return runWithService(
+            [requestId, state](CarPowerPolicyServer* service) -> ScopedAStatus {
+                return service->applyPowerPolicyPerPowerStateChangeAsync(requestId, state);
+            },
+            "applyPowerPolicyPerPowerStateChangeAsync");
 }
 
 ScopedAStatus CarPowerPolicyDelegate::runWithService(
@@ -572,12 +575,77 @@ ScopedAStatus CarPowerPolicyServer::notifyPowerPolicyGroupDefinition(
     return ScopedAStatus::ok();
 }
 
+ScopedAStatus CarPowerPolicyServer::applyPowerPolicyPerPowerStateChangeAsync(
+        int32_t requestId, ICarPowerPolicyDelegate::PowerState state) {
+    ScopedAStatus status = checkSystemPermission();
+    if (!status.isOk()) {
+        return status;
+    }
+    VehicleApPowerStateReport apPowerState;
+    std::string defaultPowerPolicyId;
+    // TODO(b/318520417): Power policy should be updated according to SilentMode.
+    // TODO(b/321319532): Create a map for default power policy in PolicyManager.
+    switch (state) {
+        case ICarPowerPolicyDelegate::PowerState::WAIT_FOR_VHAL:
+            apPowerState = VehicleApPowerStateReport::WAIT_FOR_VHAL;
+            defaultPowerPolicyId = kSystemPolicyIdInitialOn;
+            break;
+        case ICarPowerPolicyDelegate::PowerState::ON:
+            apPowerState = VehicleApPowerStateReport::ON;
+            defaultPowerPolicyId = kSystemPolicyIdAllOn;
+            break;
+        default:
+            return ScopedAStatus::
+                    fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                        StringPrintf("Power policy cannot be "
+                                                                     "changed for power state(%d)",
+                                                                     state)
+                                                                .c_str());
+    }
+    std::string powerStateName = toString(apPowerState);
+    ALOGI("Power policy change for new power state(%s) is requested", powerStateName.c_str());
+    std::string currentPolicyGroupId;
+    {
+        Mutex::Autolock lock(mMutex);
+        currentPolicyGroupId = mCurrentPolicyGroupId;
+    }
+    const auto& policy =
+            mPolicyManager.getDefaultPowerPolicyForState(currentPolicyGroupId, apPowerState);
+    std::string policyId;
+    if (policy.ok()) {
+        policyId = (*policy)->policyId;
+        ALOGI("Vendor-configured policy(%s) is about to be applied for power state(%s)",
+              policyId.c_str(), powerStateName.c_str());
+    } else {
+        policyId = defaultPowerPolicyId;
+        ALOGI("Default policy(%s) is about to be applied for power state(%s)", policyId.c_str(),
+              powerStateName.c_str());
+    }
+
+    if (auto ret = enqueuePowerPolicyRequest(requestId, policyId, /*force=*/false); !ret.isOk()) {
+        ALOGW("Failed to apply power policy(%s) for power state(%s) with request ID(%d)",
+              policyId.c_str(), powerStateName.c_str(), requestId);
+        return ret;
+    }
+    return ScopedAStatus::ok();
+}
+
 ScopedAStatus CarPowerPolicyServer::applyPowerPolicyAsync(int32_t requestId,
                                                           const std::string& policyId, bool force) {
     ScopedAStatus status = checkSystemPermission();
     if (!status.isOk()) {
         return status;
     }
+    if (auto ret = enqueuePowerPolicyRequest(requestId, policyId, force); !ret.isOk()) {
+        ALOGW("Failed to apply power policy(%s) with request ID(%d)", policyId.c_str(), requestId);
+        return ret;
+    }
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::enqueuePowerPolicyRequest(int32_t requestId,
+                                                              const std::string& policyId,
+                                                              bool force) {
     Mutex::Autolock lock(mMutex);
     if (mPolicyRequestById.count(requestId) > 0) {
         return ScopedAStatus::
