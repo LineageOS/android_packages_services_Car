@@ -90,6 +90,7 @@ import android.media.AudioDeviceInfo;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 import android.media.AudioManager.AudioServerStateCallback;
+import android.media.FadeManagerConfiguration;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.Binder;
 import android.os.Handler;
@@ -305,6 +306,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private AudioPolicy mFocusControlAudioPolicy;
     @GuardedBy("mImplLock")
     private AudioPolicy mRoutingAudioPolicy;
+    @GuardedBy("mImplLock")
+    private AudioPolicy mFadeManagerConfigAudioPolicy;
     private CarZonesAudioFocus mFocusHandler;
     private String mCarAudioConfigurationPath;
     private SparseIntArray mAudioZoneIdToOccupantZoneIdMapping;
@@ -431,6 +434,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 loadAndInitCarAudioZonesLocked();
                 setupAudioControlDuckingAndVolumeControlLocked();
                 setupControlAndRoutingAudioPoliciesLocked();
+                setupFadeManagerConfigAudioPolicyLocked();
                 setupHalAudioFocusListenerLocked();
                 setupHalAudioGainCallbackLocked();
                 setupHalAudioModuleChangeCallbackLocked();
@@ -526,6 +530,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         releaseAudioRoutingPolicyLocked();
         releaseVolumeControlAudioPolicyLocked();
         releaseFocusControlAudioPolicyLocked();
+        releaseFadeManagerConfigAudioPolicyLocked();
     }
 
     @GuardedBy("mImplLock")
@@ -556,6 +561,16 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
         mAudioManager.unregisterAudioPolicyAsync(mRoutingAudioPolicy);
         mRoutingAudioPolicy = null;
+    }
+
+    @GuardedBy("mImplLock")
+    private void releaseFadeManagerConfigAudioPolicyLocked() {
+        if (!mUseFadeManagerConfiguration || mFadeManagerConfigAudioPolicy == null) {
+            return;
+        }
+
+        mAudioManager.unregisterAudioPolicyAsync(mFadeManagerConfigAudioPolicy);
+        mFadeManagerConfigAudioPolicy = null;
     }
 
     @Override
@@ -1813,7 +1828,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 mCarAudioZones,
                 mCarAudioSettings,
                 mCarDucking,
-                new CarVolumeInfoWrapper(this));
+                new CarVolumeInfoWrapper(this),
+                mUseFadeManagerConfiguration);
 
         AudioPolicy.Builder focusControlPolicyBuilder = new AudioPolicy.Builder(mContext);
         focusControlPolicyBuilder.setLooper(Looper.getMainLooper());
@@ -1828,6 +1844,53 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         if (status != AudioManager.SUCCESS) {
             throw new IllegalStateException("Could not register the car audio service's focus"
                     + " control audio policy, error: " + status);
+        }
+    }
+
+    @GuardedBy("mImplLock")
+    private void setupFadeManagerConfigAudioPolicyLocked() {
+        if (!mUseFadeManagerConfiguration) {
+            return;
+        }
+
+        mFadeManagerConfigAudioPolicy = new AudioPolicy.Builder(mContext).build();
+        int status = mAudioManager.registerAudioPolicy(mFadeManagerConfigAudioPolicy);
+        if (status != AudioManager.SUCCESS) {
+            throw new IllegalStateException("Could not register the car audio service's fade"
+                    + " configuration audio policy, error: " + status);
+        }
+
+        FadeManagerConfiguration defaultFadeMgrConfig = new FadeManagerConfiguration.Builder()
+                        .setFadeState(FadeManagerConfiguration.FADE_STATE_ENABLED_DEFAULT)
+                        .build();
+        setAudioPolicyFadeManagerConfigurationLocked(defaultFadeMgrConfig);
+    }
+
+    @GuardedBy("mImplLock")
+    private void setAudioPolicyFadeManagerConfigurationLocked(
+            FadeManagerConfiguration fadeManagerConfiguration) {
+        if (!mUseFadeManagerConfiguration || fadeManagerConfiguration == null
+                || mFadeManagerConfigAudioPolicy == null) {
+            String message = "Can not set fade manager configuration: feature flag enabled? "
+                    + mUseFadeManagerConfiguration
+                    + " audio policy for fade configs registered? "
+                    + (mFadeManagerConfigAudioPolicy != null)
+                    + " fade manager configuration: " + fadeManagerConfiguration;
+            mServiceEventLogger.log(message);
+            Slogf.e(TAG, message);
+            return;
+        }
+
+        TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
+        t.traceBegin("set-fade-manager-configuration-for-focus-loss");
+        int status = mFadeManagerConfigAudioPolicy.setFadeManagerConfigurationForFocusLoss(
+                fadeManagerConfiguration);
+        t.traceEnd();
+        if (status != AudioManager.SUCCESS) {
+            String message = "Failed setting audio policy fade manager configuration: "
+                    + fadeManagerConfiguration + " with error: " + status;
+            mServiceEventLogger.log(message);
+            Slogf.e(TAG, message);
         }
     }
 

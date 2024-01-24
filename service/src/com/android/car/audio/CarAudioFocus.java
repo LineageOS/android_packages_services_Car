@@ -28,7 +28,6 @@ import static android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_DELAYED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_FAILED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
-import static android.media.audiopolicy.Flags.enableFadeManagerConfiguration;
 
 import static com.android.car.audio.CarAudioContext.isCriticalAudioAudioAttribute;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
@@ -84,6 +83,8 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     private final CarAudioContext mCarAudioContext;
 
+    private final boolean mUseFadeManagerConfiguration;
+
     private AudioFocusInfo mDelayedRequest;
 
     // We keep track of all the focus requesters in this map, with their clientId as the key.
@@ -109,7 +110,8 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     CarAudioFocus(AudioManager audioManager, PackageManager packageManager,
             FocusInteraction focusInteraction, CarAudioContext carAudioContext,
-            CarVolumeInfoWrapper volumeInfoWrapper, int zoneId) {
+            CarVolumeInfoWrapper volumeInfoWrapper, int zoneId,
+            boolean useFadeManagerConfiguration) {
         mAudioManager = Objects.requireNonNull(audioManager, "Audio manager can not be null");
         mPackageManager = Objects.requireNonNull(packageManager, "Package manager can not null");
         mFocusEventLogger = new LocalLog(FOCUS_EVENT_LOGGER_QUEUE_SIZE);
@@ -120,6 +122,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         mCarVolumeInfoWrapper = Objects.requireNonNull(volumeInfoWrapper,
                 "Car volume info can not be null");
         mAudioZoneId = zoneId;
+        mUseFadeManagerConfiguration = useFadeManagerConfiguration;
     }
 
 
@@ -184,7 +187,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     @GuardedBy("mLock")
     private void sendFocusLossLocked(AudioFocusInfo loser, int lossType, AudioFocusInfo winner) {
         int result;
-        if (enableFadeManagerConfiguration()) {
+        if (mUseFadeManagerConfiguration) {
             List<AudioFocusInfo> otherActiveAfis = getAudioFocusInfos(mFocusHolders);
             // remove the losing clients audio focus info from the list
             otherActiveAfis.remove(loser);
@@ -815,7 +818,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     private int dispatchFocusGainedLocked(AudioFocusInfo afi) {
         // Send the focus (re)gain notification
         int result;
-        if (enableFadeManagerConfiguration()) {
+        if (mUseFadeManagerConfiguration) {
             result = mAudioManager.dispatchAudioFocusChangeWithFade(afi, AUDIOFOCUS_GAIN,
                     mAudioPolicy, getAudioFocusHolders(), /* transientFadeManagerConfig= */ null);
         } else {

@@ -830,6 +830,24 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void init_withFadeManagerConfigPolicyRegistrationError_fails() throws Exception {
+        mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
+        when(mMockResources.getBoolean(audioUseFadeManagerConfiguration)).thenReturn(true);
+        mAudioPolicyRegistrationStatus.add(SUCCESS);
+        mAudioPolicyRegistrationStatus.add(SUCCESS);
+        mAudioPolicyRegistrationStatus.add(SUCCESS);
+        mAudioPolicyRegistrationStatus.add(ERROR);
+        CarAudioService service = setUpAudioServiceWithoutInit();
+
+        IllegalStateException thrown =
+                assertThrows(IllegalStateException.class, () -> service.init());
+
+        expectWithMessage("Audio fade policy registration exception").that(thrown).hasMessageThat()
+                .containsMatch("car audio service's fade configuration audio policy");
+    }
+
+    @Test
     public void init_initializesAudioServiceCallbacks() throws Exception {
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioService service = setUpAudioServiceWithoutInit();
