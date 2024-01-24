@@ -23,6 +23,7 @@ import static android.os.Process.myUid;
 import static com.android.car.internal.util.FunctionalUtils.getLambdaName;
 
 import android.annotation.CallbackExecutor;
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -38,6 +39,8 @@ import android.car.ResultCallback;
 import android.car.SyncResultCallback;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.EventLogHelper;
+import android.car.drivingstate.CarUxRestrictions;
+import android.car.feature.Flags;
 import android.car.util.concurrent.AndroidAsyncFuture;
 import android.car.util.concurrent.AndroidFuture;
 import android.car.util.concurrent.AsyncFuture;
@@ -484,11 +487,31 @@ public final class CarUserManager extends CarManagerBase {
     }
 
     /**
+     * Switches the foreground user to the given user. Ignores UX Restrictions regarding user
+     * switching or {@link CarUxRestrictions.UX_RESTRICTIONS_NO_SETUP}.
+     *
+     * @param userSwitchRequest contains target user.
+     * @param executor to execute the callback.
+     * @param callback called with the {@code UserSwitchResult}
+     *
+     * @hide
+     */
+    @FlaggedApi(Flags.FLAG_SWITCH_USER_IGNORING_UXR)
+    @SystemApi
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
+    public void switchUserIgnoringUxRestriction(@NonNull UserSwitchRequest userSwitchRequest,
+            @NonNull @CallbackExecutor Executor executor,
+            @NonNull ResultCallback<UserSwitchResult> callback) {
+        switchUser(userSwitchRequest, executor, callback, /* ignoreUxRestriction=*/ true);
+    }
+
+    /**
      * Switches the foreground user to the given user.
      *
      * @param userSwitchRequest contains target user.
      * @param executor to execute the callback.
-     * @param callback called with the {code UserSwitchResult}
+     * @param callback called with the {@code UserSwitchResult}
      *
      * @hide
      */
@@ -498,6 +521,17 @@ public final class CarUserManager extends CarManagerBase {
     public void switchUser(@NonNull UserSwitchRequest userSwitchRequest,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull ResultCallback<UserSwitchResult> callback) {
+        switchUser(userSwitchRequest, executor, callback, /* ignoreUxRestriction=*/ false);
+    }
+
+
+    private void switchUser(@NonNull UserSwitchRequest userSwitchRequest,
+            @NonNull @CallbackExecutor Executor executor,
+            @NonNull ResultCallback<UserSwitchResult> callback, boolean ignoreUxRestriction) {
+        if (DBG) {
+            Log.d(TAG, "switchuser(): userHandle=" + userSwitchRequest.getUserHandle()
+                    + ", ignoreUxRestriction=" + ignoreUxRestriction);
+        }
         int uid = myUid();
         int targetUserId = userSwitchRequest.getUserHandle().getIdentifier();
 
@@ -517,7 +551,8 @@ public final class CarUserManager extends CarManagerBase {
                 }
             };
             EventLogHelper.writeCarUserManagerSwitchUserReq(uid, targetUserId);
-            mService.switchUser(targetUserId, HAL_TIMEOUT_MS, resultCallbackImpl);
+            mService.switchUser(targetUserId, HAL_TIMEOUT_MS, resultCallbackImpl,
+                    ignoreUxRestriction);
         } catch (SecurityException e) {
             Log.w(TAG, "switchUser(" + targetUserId + ") failed: " + e);
             throw e;

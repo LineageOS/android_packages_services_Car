@@ -1,5 +1,13 @@
 package: "android.car.feature"
 
+# CarUserManager
+flag {
+  name: "switch_user_ignoring_uxr"
+  namespace: "car_framework"
+  description: "Allow user switching ignoring the Ux Restrictions."
+  bug: "320545306"
+}
+
 # CarPackageManager
 flag {
   name: "display_compatibility"
