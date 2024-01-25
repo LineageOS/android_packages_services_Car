@@ -2128,7 +2128,7 @@ public final class VehiclePropertyIds {
      *
      * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     * <p>This property is not supported.
      *
      * use {@link android.car.hardware.power.CarPowerManager} instead.
      *
@@ -2141,7 +2141,7 @@ public final class VehiclePropertyIds {
      *
      * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     * <p>This property is not supported.
      *
      * use {@link android.car.hardware.power.CarPowerManager} instead.
      *
@@ -2154,7 +2154,7 @@ public final class VehiclePropertyIds {
      *
      * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     * <p>This property is not supported.
      *
      * use {@link android.car.hardware.power.CarPowerManager} instead.
      *
@@ -2167,7 +2167,7 @@ public final class VehiclePropertyIds {
      *
      * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     * <p>This property is not supported.
      *
      * use {@link android.car.hardware.power.CarPowerManager} instead.
      *
@@ -2180,7 +2180,7 @@ public final class VehiclePropertyIds {
      *
      * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     * <p>This property is not supported.
      *
      * use {@link android.car.hardware.power.CarPowerManager} instead.
      *
@@ -2264,7 +2264,7 @@ public final class VehiclePropertyIds {
      *
      * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     * <p>This property is not supported.
      *
      * use {@link android.car.input.CarInputManager} instead.
      *
@@ -3342,7 +3342,7 @@ public final class VehiclePropertyIds {
      *
      * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     * <p>This property is not supported.
      *
      * @deprecated because it is defined as type {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL},
      * which means all seats use the same value. Use {@link #SEAT_HEADREST_HEIGHT_POS_V2} instead
@@ -4382,7 +4382,7 @@ public final class VehiclePropertyIds {
      *
      * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     * <p>This property is not supported.
      *
      * use {@link android.car.vms.VmsClientManager} instead.
      *
@@ -4678,7 +4678,7 @@ public final class VehiclePropertyIds {
      *
      * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     * <p>This property is not supported.
      *
      * use {@link android.car.diagnostic.CarDiagnosticManager} instead.
      *
@@ -4691,7 +4691,7 @@ public final class VehiclePropertyIds {
      *
      * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     * <p>This property is not supported.
      *
      * use {@link android.car.diagnostic.CarDiagnosticManager} instead.
      *
@@ -4704,7 +4704,7 @@ public final class VehiclePropertyIds {
      *
      * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     * <p>This property is not supported.
      *
      * use {@link android.car.diagnostic.CarDiagnosticManager} instead.
      *
@@ -4717,7 +4717,7 @@ public final class VehiclePropertyIds {
      *
      * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     * <p>This property is not supported.
      *
      * use {@link android.car.diagnostic.CarDiagnosticManager} instead.
      *

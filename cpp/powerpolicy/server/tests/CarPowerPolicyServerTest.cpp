@@ -50,6 +50,7 @@ namespace powerpolicy {
 using android::IBinder;
 
 using ::aidl::android::automotive::powerpolicy::internal::BnCarPowerPolicyDelegateCallback;
+using ::aidl::android::automotive::powerpolicy::internal::ICarPowerPolicyDelegate;
 using ::aidl::android::automotive::powerpolicy::internal::ICarPowerPolicyDelegateCallback;
 using ::aidl::android::automotive::powerpolicy::internal::PowerPolicyFailureReason;
 using ::aidl::android::automotive::powerpolicy::internal::PowerPolicyInitData;
@@ -80,6 +81,7 @@ constexpr const char* kDirPrefix = "/tests/data/";
 constexpr const char* kValidPowerPolicyXmlFile = "valid_power_policy.xml";
 constexpr const char* kTestLooperThreadName = "LooperThread";
 constexpr std::chrono::duration kCallbackWaitTime = 5000ms;
+constexpr std::chrono::duration kGeneralWaitTime = 2000ms;
 
 class MockPowerPolicyChangeCallback : public BnCarPowerPolicyChangeCallback {
 public:
@@ -179,6 +181,15 @@ public:
     ScopedAStatus applyPowerPolicyAsync(int32_t requestId, const std::string& policyId,
                                         bool force) {
         return mServer->applyPowerPolicyAsync(requestId, policyId, force);
+    }
+
+    ScopedAStatus applyPowerPolicyPerPowerStateChangeAsync(
+            int32_t requestId, ICarPowerPolicyDelegate::PowerState state) {
+        return mServer->applyPowerPolicyPerPowerStateChangeAsync(requestId, state);
+    }
+
+    ScopedAStatus setPowerPolicyGroup(const std::string& policyGroupId) {
+        return mServer->setPowerPolicyGroup(policyGroupId);
     }
 
     void init() {
@@ -320,6 +331,60 @@ public:
     // Sets calling UID to imitate System's process.
     void setSystemCallingUid() {
         mScopedChangeCallingUid = sp<ScopedChangeCallingUid>::make(AID_SYSTEM);
+    }
+
+    void testApplyPowerPolicyPerPowerStateChangeAsyncInternal(const std::string& policyGroupId,
+                                                              const std::string& expectedPolicyId) {
+        sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+        std::shared_ptr<MockPowerPolicyDelegateCallback> callback =
+                ndk::SharedRefBase::make<MockPowerPolicyDelegateCallback>();
+        server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
+        server->init();
+        setSystemCallingUid();
+
+        int32_t requestId = 9999;
+        int32_t calledRequestId = -1;
+        std::string policyIdForUpdate;
+        std::string policyIdForNotification;
+        std::mutex mutex;
+        std::condition_variable cv;
+        EXPECT_CALL(*callback, updatePowerComponents)
+                .WillRepeatedly(
+                        Invoke([&policyIdForUpdate](const CarPowerPolicy& policy) -> ScopedAStatus {
+                            policyIdForUpdate = policy.policyId;
+                            return ScopedAStatus::ok();
+                        }));
+        EXPECT_CALL(*callback, onApplyPowerPolicySucceeded)
+                .WillRepeatedly(
+                        Invoke([&calledRequestId, &policyIdForNotification, &cv,
+                                &mutex](int32_t requestId,
+                                        const CarPowerPolicy& accumulatedPolicy) -> ScopedAStatus {
+                            calledRequestId = requestId;
+                            policyIdForNotification = accumulatedPolicy.policyId;
+                            std::unique_lock lock(mutex);
+                            cv.notify_all();
+                            return ScopedAStatus::ok();
+                        }));
+        PowerPolicyInitData initData;
+        server->notifyCarServiceReady(callback, &initData);
+        server->setPowerPolicyGroup(policyGroupId);
+
+        ScopedAStatus status =
+                server->applyPowerPolicyPerPowerStateChangeAsync(requestId,
+                                                                 ICarPowerPolicyDelegate::
+                                                                         PowerState::ON);
+
+        ASSERT_TRUE(status.isOk()) << "applyPowerPolicyPerPowerStateChangeAsync should return OK";
+
+        std::unique_lock lock(mutex);
+        bool waitResult =
+                cv.wait_for(lock, kCallbackWaitTime, [&policyIdForNotification, &expectedPolicyId] {
+                    return policyIdForNotification.compare(expectedPolicyId) == 0;
+                });
+        EXPECT_TRUE(waitResult)
+                << "onApplyPowerPolicySucceeded() should be called with the same power policy ID";
+        EXPECT_EQ(policyIdForUpdate, expectedPolicyId)
+                << "updatePowerComponents should be called with " << expectedPolicyId;
     }
 
 private:
@@ -567,7 +632,7 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyFromCarService_duplicatedRe
             .WillRepeatedly(
                     Invoke([]([[maybe_unused]] const CarPowerPolicy& policy) -> ScopedAStatus {
                         // To make sure that both requests of applying power policy occur together.
-                        std::this_thread::sleep_for(2000ms);
+                        std::this_thread::sleep_for(kGeneralWaitTime);
                         return ScopedAStatus::ok();
                     }));
     EXPECT_CALL(*callback, onApplyPowerPolicySucceeded)
@@ -585,6 +650,76 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyFromCarService_duplicatedRe
                                            /*force=*/false);
     ASSERT_FALSE(status.isOk())
             << "applyPowerPolicyAsync should return an error when request ID is duplicated";
+}
+
+TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyPerPowerStateChangeAsync) {
+    if (!car_power_policy_refactoring()) {
+        GTEST_SKIP() << "car_power_policy_refactoring feature flag is not enabled";
+    }
+
+    testApplyPowerPolicyPerPowerStateChangeAsyncInternal("", "system_power_policy_all_on");
+}
+
+TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyPerPowerStateChangeAsync_nonSystemUid) {
+    if (!car_power_policy_refactoring()) {
+        GTEST_SKIP() << "car_power_policy_refactoring feature flag is not enabled";
+    }
+
+    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    std::shared_ptr<MockPowerPolicyDelegateCallback> callback =
+            ndk::SharedRefBase::make<MockPowerPolicyDelegateCallback>();
+    server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
+    server->init();
+    PowerPolicyInitData initData;
+    server->notifyCarServiceReady(callback, &initData);
+
+    ScopedAStatus status =
+            server->applyPowerPolicyPerPowerStateChangeAsync(/*requestId=*/9999,
+                                                             ICarPowerPolicyDelegate::PowerState::
+                                                                     ON);
+
+    ASSERT_FALSE(status.isOk()) << "applyPowerPolicyPerPowerStateChangeAsync should fail when the "
+                                   "caller doesn't have system UID";
+}
+
+TEST_F(CarPowerPolicyServerTest,
+       TestApplyPowerPolicyPerPowerStateChangeAsync_notSupportedPowerState) {
+    if (!car_power_policy_refactoring()) {
+        GTEST_SKIP() << "car_power_policy_refactoring feature flag is not enabled";
+    }
+
+    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    std::shared_ptr<MockPowerPolicyDelegateCallback> callback =
+            ndk::SharedRefBase::make<MockPowerPolicyDelegateCallback>();
+    server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
+    server->init();
+    setSystemCallingUid();
+    EXPECT_CALL(*callback, updatePowerComponents).Times(0);
+    EXPECT_CALL(*callback, onPowerPolicyChanged).Times(0);
+    PowerPolicyInitData initData;
+    server->notifyCarServiceReady(callback, &initData);
+
+    // We don't have default power policy for SHUTDOWN_PREPARE.
+    ScopedAStatus status =
+            server->applyPowerPolicyPerPowerStateChangeAsync(/*requestId=*/9999,
+                                                             ICarPowerPolicyDelegate::PowerState::
+                                                                     SHUTDOWN_PREPARE);
+
+    EXPECT_FALSE(status.isOk())
+            << "applyPowerPolicyPerPowerStateChangeAsync should return an error";
+    EXPECT_EQ(status.getServiceSpecificError(), EX_ILLEGAL_ARGUMENT) << "Error code should be set";
+
+    // Wait for some time to verify that no callback is made to CPMS.
+    std::this_thread::sleep_for(kGeneralWaitTime);
+}
+
+TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyPerPowerStateChangeAsync_withNewGroup) {
+    if (!car_power_policy_refactoring()) {
+        GTEST_SKIP() << "car_power_policy_refactoring feature flag is not enabled";
+    }
+
+    testApplyPowerPolicyPerPowerStateChangeAsyncInternal("basic_policy_group",
+                                                         "policy_id_other_untouched");
 }
 
 }  // namespace powerpolicy

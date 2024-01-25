@@ -127,10 +127,17 @@ interface ICarPowerPolicyDelegate {
   }
 
   /**
-   * CarService uses this method to inform the power policy daemon of the system's current power
-   * state.
+   * CarService uses this method to request power policy application according to the power state
+   * change.
    *
+   * <p>This method should return immediately after queueing the request. When the car power policy
+   * daemon finishes applying the power policy for the new power state, it invokes
+   * {@code ICarPowerPolicyDelegateCallback.onApplyPowerPolicySucceeded}.
+   *
+   * @param requestId The request ID for power policy application. Must be unique.
    * @param state The power state.
+   * @throws IllegalArgumentException if {@code state} is not supported.
+   * @throws SecurityException if the caller doesn't have sufficient permissions.
    */
-  void notifyPowerStateChange(in PowerState state);
+  void applyPowerPolicyPerPowerStateChangeAsync(int requestId, in PowerState state);
 }

@@ -743,7 +743,7 @@ public class CarPropertyService extends ICarProperty.Stub
         try {
             return getProperty(propertyId, areaId);
         } catch (Exception e) {
-            Slogf.e(TAG, e, "getPropertySafe() failed for property id: %s area id: 0x%s",
+            Slogf.w(TAG, e, "getPropertySafe() failed for property id: %s area id: 0x%s",
                     VehiclePropertyIds.toString(propertyId), toHexString(areaId));
             return null;
         }

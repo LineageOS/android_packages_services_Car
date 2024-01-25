@@ -47,14 +47,15 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
-import android.os.Trace;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.ICarBase;
 import com.android.car.internal.SingleMessageHandler;
+import com.android.car.internal.dep.Trace;
 import com.android.car.internal.os.HandlerExecutor;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
@@ -1011,7 +1012,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @param service the ICarProperty instance
      * @hide
      */
-    public CarPropertyManager(Car car, @NonNull ICarProperty service) {
+    public CarPropertyManager(ICarBase car, @NonNull ICarProperty service) {
         super(car);
         mService = service;
         mAppTargetSdk = getContext().getApplicationInfo().targetSdkVersion;
