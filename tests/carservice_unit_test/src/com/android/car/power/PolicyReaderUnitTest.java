@@ -39,9 +39,12 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.car.feature.FakeFeatureFlagsImpl;
+import android.car.feature.Flags;
 import android.car.hardware.power.CarPowerPolicy;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.VehicleApPowerStateReport;
+import android.platform.test.annotations.RequiresFlagsDisabled;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -143,24 +146,29 @@ public final class PolicyReaderUnitTest {
             InstrumentationRegistry.getInstrumentation().getTargetContext().getResources();
 
     private final PolicyReader mPolicyReader = new PolicyReader();
+    private final FakeFeatureFlagsImpl mFeatureFlags = new FakeFeatureFlagsImpl();
 
     @Before
     public void setUp() throws Exception {
-        mPolicyReader.initPolicies();
+        mFeatureFlags.setFlag(Flags.FLAG_CAR_POWER_POLICY_REFACTORING, false);
+        mPolicyReader.init(mFeatureFlags);
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testSystemPowerPolicyNoUserInteraction() throws Exception {
         assertSystemPowerPolicy(NO_USER_INTERACTION_POLICY_ID,
                 SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testSystemPowerPolicySuspendPrep() throws Exception {
         assertSystemPowerPolicy(SUSPEND_PREP_POLICY_ID, SYSTEM_POWER_POLICY_SUSPEND_PREP);
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testValidXml_powerPolicy() throws Exception {
         readPowerPolicyXml(R.raw.valid_power_policy);
 
@@ -169,6 +177,7 @@ public final class PolicyReaderUnitTest {
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testValidXml_noPowerPolicyGroups() throws Exception {
         readPowerPolicyXml(R.raw.valid_power_policy_no_power_policy_groups);
 
@@ -178,6 +187,7 @@ public final class PolicyReaderUnitTest {
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testValidXml_noSystemPowerPolicy() throws Exception {
         readPowerPolicyXml(R.raw.valid_power_policy_no_system_power_policy);
 
@@ -188,6 +198,7 @@ public final class PolicyReaderUnitTest {
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testValidXml_policiesOnly() throws Exception {
         readPowerPolicyXml(R.raw.valid_power_policy_policies_only);
 
@@ -198,6 +209,7 @@ public final class PolicyReaderUnitTest {
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testValidXml_systemPowerPolicyOnly() throws Exception {
         readPowerPolicyXml(R.raw.valid_power_policy_system_power_policy_only);
 
@@ -207,46 +219,55 @@ public final class PolicyReaderUnitTest {
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testInvalidXml_incorrectGroupState() throws Exception {
         assertInvalidXml(R.raw.invalid_power_policy_group_incorrect_state);
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testInvalidXml_missingGroupPolicy() throws Exception {
         assertInvalidXml(R.raw.invalid_power_policy_group_missing_policy);
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testInvalidXml_incorrectPolicyId() throws Exception {
         assertInvalidXml(R.raw.invalid_power_policy_incorrect_id);
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testInvalidXml_incorrectOtherComponent() throws Exception {
         assertInvalidXml(R.raw.invalid_power_policy_incorrect_othercomponent);
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testInvalidXml_incorrectValue() throws Exception {
         assertInvalidXml(R.raw.invalid_power_policy_incorrect_value);
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testInvalidXml_unknownComponent() throws Exception {
         assertInvalidXml(R.raw.invalid_power_policy_unknown_component);
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testInvalidXml_incorrectSystemPolicyComponent() throws Exception {
         assertInvalidXml(R.raw.invalid_system_power_policy_incorrect_component);
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testInvalidXml_incorrectSystemPolicyId() throws Exception {
         assertInvalidXml(R.raw.invalid_system_power_policy_incorrect_id);
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testValidXmlWithDefaultPolicyGroup() throws Exception {
         try (InputStream inputStream = mResources.openRawResource(
                 R.raw.valid_power_policy_default_policy_group)) {
@@ -257,16 +278,19 @@ public final class PolicyReaderUnitTest {
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testInvalidXml_wrongDefaultPolicyGroupId() throws Exception {
         assertInvalidXml(R.raw.invalid_system_power_policy_incorrect_default_power_policy_group_id);
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testDefaultPolicies() throws Exception {
         assertDefaultPolicies();
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testDefaultPoliciesWithCustomVendorPolicies() throws Exception {
         readPowerPolicyXml(R.raw.valid_power_policy);
 
@@ -274,6 +298,7 @@ public final class PolicyReaderUnitTest {
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testValidXml_CustomComponents() throws Exception {
         readPowerPolicyXml(R.raw.valid_power_policy_custom_components);
 
@@ -285,6 +310,7 @@ public final class PolicyReaderUnitTest {
     }
 
     @Test
+    @RequiresFlagsDisabled(Flags.FLAG_CAR_POWER_POLICY_REFACTORING)
     public void testValidXml_customComponentsAtFileBeginning() throws Exception {
         readPowerPolicyXml(R.raw.valid_power_policy_custom_components_at_beginning);
 
