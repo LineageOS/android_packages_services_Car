@@ -87,6 +87,20 @@
             all the applications migrate to the new callback interface for consistent behavior. -->
     <bool name="audioUseCarVolumeGroupEvent">false</bool>
 
+    <!-- Configuration to enable fade during audio focus changes. If this is set to true, car audio
+         framework will parse the car audio fade config definitions and apply the respective
+         FadeManagerConfiguration when dispatching audio focus loss.
+         Note:
+         - Although car audio framework expects valid fade config definitions when the flag is
+           enabled, the absence of the such definitions does not automatically result in a fatal
+           exception.
+         - All applications of fade configs must have matching fade definitions. It is a fatal error
+           to call out a fade config (by its name) as part of car audio configuration without
+           providing a valid definition.
+         - When the flag is disabled, all fade config definitions and any config application shall
+           be ignored. -->
+    <bool name="audioUseFadeManagerConfiguration">false</bool>
+
     <!-- Whether to block other audio while media audio is muted with display off. When set to true,
          other sounds cannot be played either while display is off. If false, only media is muted
          and other sounds can be still played. -->
