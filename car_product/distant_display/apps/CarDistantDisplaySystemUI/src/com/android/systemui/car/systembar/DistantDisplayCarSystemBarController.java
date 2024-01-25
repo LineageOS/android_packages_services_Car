@@ -20,6 +20,7 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
+import com.android.systemui.car.CarServiceProvider;
 import com.android.systemui.car.statusbar.UserNameViewController;
 import com.android.systemui.car.statusicon.StatusIconPanelViewController;
 import com.android.systemui.car.statusicon.ui.DistantDisplayStatusIconController;
@@ -36,6 +37,7 @@ public class DistantDisplayCarSystemBarController extends CarSystemBarController
     public DistantDisplayCarSystemBarController(Context context,
             UserTracker userTracker,
             CarSystemBarViewFactory carSystemBarViewFactory,
+            CarServiceProvider carServiceProvider,
             ButtonSelectionStateController buttonSelectionStateController,
             Lazy<UserNameViewController> userNameViewControllerLazy,
             Lazy<MicPrivacyChipViewController> micPrivacyChipViewControllerLazy,
@@ -44,10 +46,10 @@ public class DistantDisplayCarSystemBarController extends CarSystemBarController
             SystemBarConfigs systemBarConfigs,
             Provider<StatusIconPanelViewController.Builder> panelControllerBuilderProvider,
             DistantDisplayStatusIconController distantDisplayStatusIconController) {
-        super(context, userTracker, carSystemBarViewFactory, buttonSelectionStateController,
-                userNameViewControllerLazy, micPrivacyChipViewControllerLazy,
-                cameraPrivacyChipViewControllerLazy, buttonRoleHolderController, systemBarConfigs,
-                panelControllerBuilderProvider);
+        super(context, userTracker, carSystemBarViewFactory, carServiceProvider,
+                buttonSelectionStateController, userNameViewControllerLazy,
+                micPrivacyChipViewControllerLazy, cameraPrivacyChipViewControllerLazy,
+                buttonRoleHolderController, systemBarConfigs, panelControllerBuilderProvider);
         mDistantDisplayStatusIconController = distantDisplayStatusIconController;
     }
 
