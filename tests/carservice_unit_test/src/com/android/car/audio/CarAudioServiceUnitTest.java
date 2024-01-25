@@ -75,6 +75,7 @@ import static android.media.AudioManager.VOLUME_CHANGED_ACTION;
 import static android.media.audio.common.AudioDeviceDescription.CONNECTION_BUS;
 import static android.media.audio.common.AudioDeviceType.OUT_DEVICE;
 import static android.media.audio.common.AudioGainMode.JOINT;
+import static android.media.audiopolicy.Flags.FLAG_ENABLE_FADE_MANAGER_CONFIGURATION;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.view.KeyEvent.ACTION_DOWN;
 import static android.view.KeyEvent.ACTION_UP;
@@ -89,6 +90,7 @@ import static com.android.car.R.bool.audioUseCarVolumeGroupMuting;
 import static com.android.car.R.bool.audioUseCoreRouting;
 import static com.android.car.R.bool.audioUseCoreVolume;
 import static com.android.car.R.bool.audioUseDynamicRouting;
+import static com.android.car.R.bool.audioUseFadeManagerConfiguration;
 import static com.android.car.R.bool.audioUseHalDuckingSignals;
 import static com.android.car.R.integer.audioVolumeAdjustmentContextsVersion;
 import static com.android.car.R.integer.audioVolumeKeyEventTimeoutMs;
@@ -757,6 +759,21 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         expectWithMessage("Car Audio Service Construction")
                 .that(thrown).hasMessageThat().contains("Context");
+    }
+
+    @Test
+    public void constructor_withLegacyMode_enableFadeManagerConfiguration_fails()
+            throws Exception {
+        mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
+        when(mMockResources.getBoolean(audioUseDynamicRouting)).thenReturn(false);
+        when(mMockResources.getBoolean(audioUseFadeManagerConfiguration)).thenReturn(true);
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                () -> setUpAudioServiceWithoutInit());
+
+        expectWithMessage("Car audio service construction").that(thrown).hasMessageThat()
+                .containsMatch("Fade manager configuration feature can not");
     }
 
     @Test

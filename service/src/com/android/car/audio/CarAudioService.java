@@ -17,6 +17,7 @@ package com.android.car.audio;
 
 import static android.car.builtin.media.AudioManagerHelper.UNDEFINED_STREAM_TYPE;
 import static android.car.builtin.media.AudioManagerHelper.isMasterMute;
+import static android.car.feature.Flags.carAudioFadeManagerConfiguration;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_AUDIO_MIRRORING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_OEM_AUDIO_SERVICE;
@@ -37,6 +38,7 @@ import static android.media.AudioManager.ADJUST_TOGGLE_MUTE;
 import static android.media.AudioManager.FLAG_FROM_KEY;
 import static android.media.AudioManager.FLAG_PLAY_SOUND;
 import static android.media.AudioManager.FLAG_SHOW_UI;
+import static android.media.audiopolicy.Flags.enableFadeManagerConfiguration;
 import static android.view.KeyEvent.ACTION_DOWN;
 import static android.view.KeyEvent.KEYCODE_VOLUME_DOWN;
 import static android.view.KeyEvent.KEYCODE_VOLUME_MUTE;
@@ -211,6 +213,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private final boolean mUseHalDuckingSignals;
     private final @CarVolume.CarVolumeListVersion int mAudioVolumeAdjustmentContextsVersion;
     private final boolean mPersistMasterMuteState;
+    private final boolean mUseFadeManagerConfiguration;
     private final CarAudioSettings mCarAudioSettings;
     private final int mKeyEventTimeoutMs;
     private final MediaRequestHandler mMediaRequestHandler = new MediaRequestHandler();
@@ -401,8 +404,17 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         mUseCarVolumeGroupMuting = useCarVolumeGroupMuting;
         mPersistMasterMuteState = !mUseCarVolumeGroupMuting && mContext.getResources().getBoolean(
                 R.bool.audioPersistMasterMuteState);
+        mUseFadeManagerConfiguration = enableFadeManagerConfiguration()
+                && carAudioFadeManagerConfiguration()
+                && mContext.getResources().getBoolean(R.bool.audioUseFadeManagerConfiguration);
+        validateFeatureFlagSettings();
         mAudioServerStateCallback = new CarAudioServerStateCallback(this);
         mAudioDeviceInfoCallback = new CarAudioDeviceCallback(this);
+    }
+
+    private void validateFeatureFlagSettings() {
+        Preconditions.checkArgument(!(runInLegacyMode() && mUseFadeManagerConfiguration),
+                "Fade manager configuration feature can not be enabled in legacy mode");
     }
 
     /**
@@ -580,6 +592,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             if (!runInLegacyMode()) {
                 writer.printf("Volume Group Mute Enabled? %b\n", mUseCarVolumeGroupMuting);
                 writer.printf("Volume Group Events Enabled? %b\n", mUseCarVolumeGroupEvents);
+                writer.printf("Use fade manager configuration? %b\n", mUseFadeManagerConfiguration);
                 writer.println();
                 mCarVolume.dump(writer);
                 writer.println();
@@ -688,6 +701,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                     mUseCarVolumeGroupMuting);
             proto.write(CarAudioConfiguration.USE_CAR_VOLUME_GROUP_EVENTS,
                     mUseCarVolumeGroupEvents);
+            proto.write(CarAudioConfiguration.USE_FADE_MANAGER_CONFIGURATION,
+                    mUseFadeManagerConfiguration);
             proto.end(configurationToken);
 
             mCarVolume.dumpProto(proto);
