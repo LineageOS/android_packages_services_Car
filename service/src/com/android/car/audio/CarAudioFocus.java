@@ -34,7 +34,9 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.UserIdInt;
+import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
+import android.car.builtin.util.TimingsTraceLog;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.oem.AudioFocusEntry;
 import android.car.oem.CarAudioFadeConfiguration;
@@ -350,15 +352,19 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             }
         }
 
+        TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
+        t.traceBegin("car-audio-evaluate-focus-request-for-" + afi.getClientId());
         OemCarAudioFocusResult evaluationResults =
                 evaluateFocusRequestLocked(replacedCurrentEntry, afi);
 
         if (evaluationResults.equals(OemCarAudioFocusResult.EMPTY_OEM_CAR_AUDIO_FOCUS_RESULTS)) {
+            t.traceEnd();
             return AUDIOFOCUS_REQUEST_FAILED;
         }
 
         if (evaluationResults.getAudioFocusResult() == AUDIOFOCUS_REQUEST_FAILED
                 || evaluationResults.getAudioFocusEntry() == null) {
+            t.traceEnd();
             return AUDIOFOCUS_REQUEST_FAILED;
         }
 
@@ -377,8 +383,11 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         // Now that we're sure we'll accept this request, update any requests which we would
         // block but are already out of focus but waiting to come back
         List<AudioFocusEntry> blocked = evaluationResults.getNewlyBlockedAudioFocusEntries();
-        Map<AudioAttributes, CarAudioFadeConfiguration> transientCarAudioFadeConfigs =
-                getAllTransientCarAudioFadeConfigurations();
+        Map<AudioAttributes, CarAudioFadeConfiguration> transientCarAudioFadeConfigs = null;
+        if (mUseFadeManagerConfiguration) {
+            transientCarAudioFadeConfigs =
+                    evaluationResults.getAudioAttributesToCarAudioFadeConfigurationMap();
+        }
         for (int index = 0; index < blocked.size(); index++) {
             AudioFocusEntry newlyBlocked = blocked.get(index);
             FocusEntry entry = mFocusLosers.get(newlyBlocked.getAudioFocusInfo().getClientId());
@@ -465,9 +474,11 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
         if (evaluationResults.getAudioFocusResult() == AUDIOFOCUS_REQUEST_DELAYED) {
             swapDelayedAudioFocusRequestLocked(afi);
+            t.traceEnd();
             return AUDIOFOCUS_REQUEST_DELAYED;
         }
 
+        t.traceEnd();
         Slogf.i(TAG, "AUDIOFOCUS_REQUEST_GRANTED");
         return AUDIOFOCUS_REQUEST_GRANTED;
     }
@@ -484,6 +495,8 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     @GuardedBy("mLock")
     private OemCarAudioFocusResult evaluateFocusRequestInternallyLocked(
             AudioFocusInfo audioFocusInfo, FocusEntry replacedCurrentEntry) {
+        TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
+        t.traceBegin("evaluate-focus-request-internally");
         boolean allowDucking =
                 (audioFocusInfo.getGainRequest() == AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
         boolean allowDelayedFocus = canReceiveDelayedFocus(audioFocusInfo);
@@ -493,6 +506,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                 requestedUsage, allowDucking, allowDelayedFocus);
 
         if (holdersEvaluation.equals(FocusEvaluation.FOCUS_EVALUATION_FAILED)) {
+            t.traceEnd();
             return OemCarAudioFocusResult.EMPTY_OEM_CAR_AUDIO_FOCUS_RESULTS;
         }
 
@@ -500,6 +514,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                 requestedUsage, allowDucking, allowDelayedFocus);
 
         if (losersEvaluation.equals(FocusEvaluation.FOCUS_EVALUATION_FAILED)) {
+            t.traceEnd();
             return OemCarAudioFocusResult.EMPTY_OEM_CAR_AUDIO_FOCUS_RESULTS;
         }
 
@@ -515,16 +530,26 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                         getVolumeGroupForAttribute(audioFocusInfo.getAttributes()),
                         AudioManager.AUDIOFOCUS_GAIN).build();
 
-        return new OemCarAudioFocusResult.Builder(
+        OemCarAudioFocusResult.Builder builder = new OemCarAudioFocusResult.Builder(
                 convertAudioFocusEntries(holdersEvaluation.mChangedEntries),
                 convertAudioFocusEntries(losersEvaluation.mChangedEntries),
-                results).setAudioFocusEntry(focusEntry)
-                .build();
+                results).setAudioFocusEntry(focusEntry);
+        Map<AudioAttributes, CarAudioFadeConfiguration> audioAttributesToCarAudioFadeConfig =
+                getAllTransientCarAudioFadeConfigurations();
+        if (audioAttributesToCarAudioFadeConfig != null) {
+            builder.setAudioAttributesToCarAudioFadeConfigurationMap(
+                    audioAttributesToCarAudioFadeConfig);
+        }
+        OemCarAudioFocusResult focusResult = builder.build();
+        t.traceEnd();
+        return focusResult;
     }
 
     @GuardedBy("mLock")
     private OemCarAudioFocusResult evaluateFocusRequestExternallyLocked(AudioFocusInfo requestInfo,
             FocusEntry replacedCurrentEntry) {
+        TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
+        t.traceBegin("evaluate-focus-request-externally");
         OemCarAudioFocusEvaluationRequest request =
                 new OemCarAudioFocusEvaluationRequest.Builder(getMutedVolumeGroups(),
                         getAudioFocusEntries(mFocusHolders, replacedCurrentEntry),
@@ -533,8 +558,11 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                         .setAudioFocusRequest(convertAudioFocusInfo(requestInfo)).build();
 
         logFocusEvent("Calling oem service with request " + request);
-        return CarLocalServices.getService(CarOemProxyService.class)
+        OemCarAudioFocusResult focusResult = CarLocalServices.getService(CarOemProxyService.class)
                 .getCarOemAudioFocusService().evaluateAudioFocusRequest(request);
+        logFocusEvent("oem service returns focus result " + focusResult);
+        t.traceEnd();
+        return focusResult;
     }
 
     private AudioFocusEntry convertAudioFocusInfo(AudioFocusInfo info) {
