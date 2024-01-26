@@ -120,10 +120,10 @@ MATCHER_P(ProcessCpuValueEq, expected, "") {
                                           &UserPackageStats::ProcCpuStatsView::ProcessCpuValue::
                                                   comm,
                                           Eq(expected.comm)),
-                                    Field("cpuTimeMs",
+                                    Field("cpuTimeMillis",
                                           &UserPackageStats::ProcCpuStatsView::ProcessCpuValue::
-                                                  cpuTimeMs,
-                                          Eq(expected.cpuTimeMs)),
+                                                  cpuTimeMillis,
+                                          Eq(expected.cpuTimeMillis)),
                                     Field("cpuCycles",
                                           &UserPackageStats::ProcCpuStatsView::ProcessCpuValue::
                                                   cpuCycles,
@@ -138,9 +138,9 @@ MATCHER_P(ProcCpuStatsViewEq, expected, "") {
     for (const auto& processValue : expected.topNProcesses) {
         processValueMatchers.push_back(ProcessCpuValueEq(processValue));
     }
-    return ExplainMatchResult(AllOf(Field("cpuTimeMs",
-                                          &UserPackageStats::ProcCpuStatsView::cpuTimeMs,
-                                          Eq(expected.cpuTimeMs)),
+    return ExplainMatchResult(AllOf(Field("cpuTimeMillis",
+                                          &UserPackageStats::ProcCpuStatsView::cpuTimeMillis,
+                                          Eq(expected.cpuTimeMillis)),
                                     Field("cpuCycles",
                                           &UserPackageStats::ProcCpuStatsView::cpuCycles,
                                           Eq(expected.cpuCycles)),
@@ -706,7 +706,7 @@ MATCHER_P(UserPackageInfoProtoEq, expected, "") {
 MATCHER_P(CpuStatsProtoEq, expected, "") {
     return ExplainMatchResult(AllOf(Property("cpu_time_millis",
                                              &PackageCpuStats_CpuStats::cpu_time_millis,
-                                             expected.cpuTimeMs),
+                                             expected.cpuTimeMillis),
                                     Property("cpu_cycles", &PackageCpuStats_CpuStats::cpu_cycles,
                                              expected.cpuCycles)),
                               arg, result_listener);
