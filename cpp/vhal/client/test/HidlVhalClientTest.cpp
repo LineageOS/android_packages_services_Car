@@ -33,6 +33,7 @@ namespace automotive {
 namespace vhal {
 namespace hidl_test {
 
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropertyStatus;
 using ::android::sp;
 using ::android::hardware::hidl_vec;
 using ::android::hardware::Return;
@@ -193,7 +194,37 @@ TEST_F(HidlVhalClientTest, testGetValue) {
     auto gotValue = std::move(result.value());
     ASSERT_EQ(gotValue->getPropId(), TEST_PROP_ID);
     ASSERT_EQ(gotValue->getAreaId(), TEST_AREA_ID);
+    ASSERT_EQ(gotValue->getStatus(), VehiclePropertyStatus::AVAILABLE);
     ASSERT_EQ(gotValue->getInt32Values(), std::vector<int32_t>({1}));
+}
+
+TEST_F(HidlVhalClientTest, testGetValueUnavailableStatus) {
+    VhalClientResult<std::unique_ptr<IHalPropValue>> result;
+    VhalClientResult<std::unique_ptr<IHalPropValue>>* resultPtr = &result;
+    bool gotResult = false;
+    bool* gotResultPtr = &gotResult;
+    auto callback = std::make_shared<HidlVhalClient::GetValueCallbackFunc>(
+            [resultPtr, gotResultPtr](VhalClientResult<std::unique_ptr<IHalPropValue>> r) {
+                *resultPtr = std::move(r);
+                *gotResultPtr = true;
+            });
+    getVhal()->setVehiclePropValue(VehiclePropValue{
+            .prop = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+            .status = android::hardware::automotive::vehicle::V2_0::VehiclePropertyStatus::
+                    UNAVAILABLE,
+    });
+
+    getClient()->getValue(HidlHalPropValue(TEST_PROP_ID, TEST_AREA_ID), callback);
+
+    ASSERT_TRUE(gotResult);
+    ASSERT_EQ(getVhal()->getRequestPropValue().prop, TEST_PROP_ID);
+    ASSERT_EQ(getVhal()->getRequestPropValue().areaId, TEST_AREA_ID);
+    ASSERT_TRUE(result.ok());
+    auto gotValue = std::move(result.value());
+    ASSERT_EQ(gotValue->getPropId(), TEST_PROP_ID);
+    ASSERT_EQ(gotValue->getAreaId(), TEST_AREA_ID);
+    ASSERT_EQ(gotValue->getStatus(), VehiclePropertyStatus::UNAVAILABLE);
 }
 
 TEST_F(HidlVhalClientTest, testGetValueError) {

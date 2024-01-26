@@ -21,6 +21,7 @@ namespace frameworks {
 namespace automotive {
 namespace vhal {
 
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropertyStatus;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropValue;
 
 AidlHalPropValue::AidlHalPropValue(int32_t propId) {
@@ -48,6 +49,10 @@ int32_t AidlHalPropValue::getAreaId() const {
 
 int64_t AidlHalPropValue::getTimestamp() const {
     return mPropValue.timestamp;
+}
+
+VehiclePropertyStatus AidlHalPropValue::getStatus() const {
+    return mPropValue.status;
 }
 
 void AidlHalPropValue::setInt32Values(const std::vector<int32_t>& values) {
