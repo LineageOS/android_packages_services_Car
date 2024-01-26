@@ -49,6 +49,7 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     private static final int TEST_MIN_GAIN_INDEX = 0;
     private static final int TEST_MAX_ACTIVATION_GAIN_INDEX = 8_005;
     private static final int TEST_MIN_ACTIVATION_GAIN_INDEX = 1_000;
+    private static final boolean TEST_MUTE_BY_SYSTEM_STATE = true;
     private static final AudioAttributes TEST_MEDIA_AUDIO_ATTRIBUTE =
             new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
     private static final AudioAttributes TEST_NAVIGATION_AUDIO_ATTRIBUTE =
@@ -210,6 +211,24 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
+    public void build_buildsGroupInfo_withMuteBySystem_succeeds() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MUTE_AMBIGUITY);
+
+        CarVolumeGroupInfo info = new CarVolumeGroupInfo
+                .Builder(TEST_GROUP_NAME, TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID)
+                .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                .setVolumeGainIndex(TEST_CURRENT_GAIN)
+                .setAudioDeviceAttributes(List.of(TEST_AUDIO_DEVICE_ATTRIBUTE))
+                .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX)
+                .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX)
+                .setMutedBySystem(TEST_MUTE_BY_SYSTEM_STATE).build();
+
+        expectWithMessage("Car volume group info system mute state")
+                .that(info.isMutedBySystem()).isEqualTo(TEST_MUTE_BY_SYSTEM_STATE);
+    }
+
+    @Test
     public void build_withNullName_fails() {
         NullPointerException thrown = assertThrows(NullPointerException.class, () ->
                 new CarVolumeGroupInfo.Builder(/* name= */ null,
@@ -334,6 +353,7 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     public void writeToParcel_withAllFlagsDisabled() {
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_MUTE_AMBIGUITY);
         Parcel parcel = Parcel.obtain();
 
         TEST_VOLUME_INFO.writeToParcel(parcel, TEST_PARCEL_FLAGS);
@@ -347,13 +367,15 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     public void writeToParcel_withAllFlagsEnabled() {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MUTE_AMBIGUITY);
         CarVolumeGroupInfo volumeGroupInfo = new CarVolumeGroupInfo.Builder(TEST_VOLUME_INFO)
                 .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                 .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
                 .setAudioAttributes(TEST_AUDIO_ATTRIBUTES)
                 .setAudioDeviceAttributes(List.of(TEST_AUDIO_DEVICE_ATTRIBUTE))
                 .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX)
-                .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX).build();
+                .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX)
+                .setMutedBySystem(TEST_MUTE_BY_SYSTEM_STATE).build();
         Parcel parcel = Parcel.obtain();
 
         volumeGroupInfo.writeToParcel(parcel, TEST_PARCEL_FLAGS);
@@ -367,6 +389,7 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     public void createFromParcel_withAllFlagsDisabled() {
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_MUTE_AMBIGUITY);
         Parcel parcel = Parcel.obtain();
         TEST_VOLUME_INFO.writeToParcel(parcel, TEST_PARCEL_FLAGS);
         parcel.setDataPosition(/* pos= */ 0);
@@ -380,13 +403,15 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     public void createFromParcel_withAllFlagsEnabled() {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MUTE_AMBIGUITY);
         CarVolumeGroupInfo volumeGroupInfo = new CarVolumeGroupInfo.Builder(TEST_VOLUME_INFO)
                 .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                 .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
                 .setAudioAttributes(TEST_AUDIO_ATTRIBUTES)
                 .setAudioDeviceAttributes(List.of(TEST_AUDIO_DEVICE_ATTRIBUTE))
                 .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX)
-                .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX).build();
+                .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX)
+                .setMutedBySystem(TEST_MUTE_BY_SYSTEM_STATE).build();
         Parcel parcel = Parcel.obtain();
         volumeGroupInfo.writeToParcel(parcel, TEST_PARCEL_FLAGS);
         parcel.setDataPosition(/* pos= */ 0);
@@ -449,6 +474,7 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     public void hashCode_forSameContent_forAllFlagsDisabled() {
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_MUTE_AMBIGUITY);
         CarVolumeGroupInfo infoWithSameContent = new CarVolumeGroupInfo.Builder(TEST_VOLUME_INFO)
                 .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                 .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
@@ -464,13 +490,15 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     public void hashCode_forSameContent_forAllFlagsEnabled() {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MUTE_AMBIGUITY);
         CarVolumeGroupInfo originalInfo = new CarVolumeGroupInfo.Builder(TEST_VOLUME_INFO)
                 .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                 .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
                 .setAudioAttributes(TEST_AUDIO_ATTRIBUTES)
                 .setAudioDeviceAttributes(List.of(TEST_AUDIO_DEVICE_ATTRIBUTE))
                 .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX)
-                .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX).build();
+                .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX)
+                .setMutedBySystem(TEST_MUTE_BY_SYSTEM_STATE).build();
 
         CarVolumeGroupInfo infoWithSameContent =
                 new CarVolumeGroupInfo.Builder(originalInfo).build();

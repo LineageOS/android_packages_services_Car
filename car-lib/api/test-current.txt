@@ -1873,6 +1873,7 @@ package android.car.media {
     method public boolean isAttenuated();
     method public boolean isBlocked();
     method public boolean isMuted();
+    method @FlaggedApi("android.car.feature.car_audio_mute_ambiguity") public boolean isMutedBySystem();
     method public boolean isSameVolumeGroup(@Nullable android.car.media.CarVolumeGroupInfo);
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.media.CarVolumeGroupInfo> CREATOR;
