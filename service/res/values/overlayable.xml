@@ -127,6 +127,7 @@
           <item type="fraction" name="config_clusterHomeVisibility_minAlpha"/>
           <item type="fraction" name="config_clusterHomeVisibility_minRendered"/>
           <item type="integer" name="config_clusterHomeVisibility_stabilityMs"/>
+          <item type="bool" name="config_enablePersistTetheringCapabilities" />
           <!-- Params from config.xml that can be overlaid -->
 
           <!-- XML files that can be overlaid -->

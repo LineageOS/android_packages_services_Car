@@ -516,8 +516,8 @@ public class ICarImpl extends ICar.Stub {
         }
 
         if (mFeatureController.isFeatureEnabled(Car.CAR_WIFI_SERVICE)) {
-            mCarWifiService = constructWithTrace(t, CarWifiService.class, CarWifiService::new,
-                    allServices);
+            mCarWifiService = constructWithTrace(t, CarWifiService.class,
+                    () -> new CarWifiService(serviceContext), allServices);
         } else {
             mCarWifiService = null;
         }

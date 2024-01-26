@@ -16,17 +16,29 @@
 
 package com.android.car.wifi;
 
+import android.car.Car;
 import android.car.wifi.ICarWifi;
+import android.content.Context;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarServiceBase;
+import com.android.car.CarServiceUtils;
+import com.android.car.R;
 import com.android.car.internal.util.IndentingPrintWriter;
 
 /**
  * CarWifiService manages Wi-Fi functionality.
  */
 public class CarWifiService extends ICarWifi.Stub implements CarServiceBase {
-    public CarWifiService() {}
+    private final boolean mIsPersistTetheringCapabilitiesEnabled;
+
+    private final Context mContext;
+
+    public CarWifiService(Context context) {
+        mContext = context;
+        mIsPersistTetheringCapabilitiesEnabled = context.getResources().getBoolean(
+                R.bool.config_enablePersistTetheringCapabilities);
+    }
 
     @Override
     public void dumpProto(ProtoOutputStream proto) {
@@ -46,6 +58,8 @@ public class CarWifiService extends ICarWifi.Stub implements CarServiceBase {
     @Override
     public void dump(IndentingPrintWriter writer) {
         writer.println("**CarWifiService**");
+        writer.println("Is persist tethering capabilities enabled?: "
+                + mIsPersistTetheringCapabilitiesEnabled);
     }
 
     /**
@@ -53,7 +67,7 @@ public class CarWifiService extends ICarWifi.Stub implements CarServiceBase {
      */
     @Override
     public boolean canControlPersistTetheringSettings() {
-        // TODO (b/301660611) Implement canControlPersistTetheringSettings
-        return false;
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_READ_PERSIST_TETHERING_SETTINGS);
+        return mIsPersistTetheringCapabilitiesEnabled;
     }
 }
