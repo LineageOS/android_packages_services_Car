@@ -55,6 +55,13 @@ flag {
     bug: "310667172"
 }
 
+flag {
+    name: "car_audio_mute_ambiguity"
+    namespace: "car_framework"
+    description: "Controls whether mute ambiguity API works on car audio system"
+    bug: "321063661"
+}
+
 # CarPropertyManager
 flag {
   name: "batched_subscriptions"
