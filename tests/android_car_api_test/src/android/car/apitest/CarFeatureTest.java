@@ -44,6 +44,7 @@ public final class CarFeatureTest extends CarApiTestBase {
             Car.CAR_OCCUPANT_ZONE_SERVICE,
             Car.CAR_USER_SERVICE,
             Car.CAR_UX_RESTRICTION_SERVICE,
+            Car.CAR_WIFI_SERVICE,
             Car.INFO_SERVICE,
             Car.PACKAGE_SERVICE,
             Car.POWER_SERVICE,
