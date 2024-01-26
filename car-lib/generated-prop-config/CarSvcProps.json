@@ -2375,7 +2375,7 @@
     },
     "ULTRASONICS_SENSOR_ORIENTATION": {
       "propertyName": "ULTRASONICS_SENSOR_ORIENTATION",
-      "propertyId": 406916129,
+      "propertyId": 409013281,
       "description": "Static data for the orientation of each ultrasonic sensor installed on the vehicle.",
       "readPermission": {
         "type": "single",
