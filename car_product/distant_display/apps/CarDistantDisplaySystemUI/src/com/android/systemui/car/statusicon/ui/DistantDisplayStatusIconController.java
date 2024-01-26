@@ -16,7 +16,6 @@
 
 package com.android.systemui.car.statusicon.ui;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
@@ -25,15 +24,10 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.android.systemui.R;
-import com.android.systemui.broadcast.BroadcastDispatcher;
-import com.android.systemui.car.CarServiceProvider;
-import com.android.systemui.car.qc.SystemUIQCViewController;
 import com.android.systemui.car.statusicon.StatusIconController;
-import com.android.systemui.car.statusicon.StatusIconPanelController;
+import com.android.systemui.car.statusicon.StatusIconPanelViewController;
 import com.android.systemui.car.systembar.DistantDisplayController;
 import com.android.systemui.dagger.qualifiers.Main;
-import com.android.systemui.settings.UserTracker;
-import com.android.systemui.statusbar.policy.ConfigurationController;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -42,34 +36,22 @@ public class DistantDisplayStatusIconController extends StatusIconController imp
         DistantDisplayController.StatusChangeListener {
     public static final String TAG = DistantDisplayStatusIconController.class.getSimpleName();
     private static final int DEFAULT_DISPLAY_ID = 0;
-    private final BroadcastDispatcher mBroadcastDispatcher;
-    private final CarServiceProvider mCarServiceProvider;
-    private final Context mContext;
-    private final ConfigurationController mConfigurationController;
+    private final Provider<StatusIconPanelViewController.Builder> mPanelControllerBuilderProvider;
     private final DistantDisplayController mDistantDisplayController;
-    private final Provider<SystemUIQCViewController> mQCViewControllerProvider;
-    private final UserTracker mUserTracker;
-    private Drawable mDistantDisplayDrawable;
-    private Drawable mDefaultDisplayDrawable;
+    private final Drawable mDistantDisplayDrawable;
+    private final Drawable mDefaultDisplayDrawable;
     private ImageView mDistantDisplayButton;
     private int mCurrentDisplayId;
 
-    private StatusIconPanelController mDistantDisplayPanelController;
+    private StatusIconPanelViewController mDistantDisplayPanelController;
 
     @Inject
-    DistantDisplayStatusIconController(BroadcastDispatcher broadcastDispatcher,
-            CarServiceProvider carServiceProvider, Context context,
-            ConfigurationController configurationController,
+    DistantDisplayStatusIconController(
+            Provider<StatusIconPanelViewController.Builder> panelControllerBuilderProvider,
             DistantDisplayController distantDisplayController,
-            Provider<SystemUIQCViewController> qcViewControllerProvider, UserTracker userTracker,
             @Main Resources resources) {
-        mBroadcastDispatcher = broadcastDispatcher;
-        mCarServiceProvider = carServiceProvider;
-        mContext = context;
-        mConfigurationController = configurationController;
+        mPanelControllerBuilderProvider = panelControllerBuilderProvider;
         mDistantDisplayController = distantDisplayController;
-        mQCViewControllerProvider = qcViewControllerProvider;
-        mUserTracker = userTracker;
         mDistantDisplayDrawable = resources.getDrawable(
                 R.drawable.ic_sys_ui_send_to_distant_display, /* theme= */ null);
         mDefaultDisplayDrawable = resources.getDrawable(
@@ -89,14 +71,9 @@ public class DistantDisplayStatusIconController extends StatusIconController imp
             return;
         }
 
-        boolean profilePanelDisabledWhileDriving = mContext.getResources().getBoolean(
-                R.bool.config_profile_panel_disabled_while_driving);
-        mDistantDisplayPanelController = new StatusIconPanelController(
-                mContext, mUserTracker,
-                mCarServiceProvider, mBroadcastDispatcher, mConfigurationController,
-                mQCViewControllerProvider, profilePanelDisabledWhileDriving);
-        mDistantDisplayPanelController.attachPanel(mDistantDisplayButton, getPanelContentLayout(),
-                R.dimen.car_profile_quick_controls_panel_width, Gravity.TOP | Gravity.END);
+        mDistantDisplayPanelController = mPanelControllerBuilderProvider.get()
+                .setGravity(Gravity.TOP | Gravity.END).build(mDistantDisplayButton,
+                        getPanelContentLayout(), R.dimen.car_profile_quick_controls_panel_width);
         registerIconView(mDistantDisplayButton);
         mDistantDisplayController.setDistantDisplayControlStatusInfoListener(this);
     }
@@ -113,9 +90,6 @@ public class DistantDisplayStatusIconController extends StatusIconController imp
 
     @Override
     public void onDestroy() {
-        if (mDistantDisplayPanelController != null) {
-            mDistantDisplayPanelController.destroyPanel();
-        }
         if (mDistantDisplayButton != null) {
             unregisterIconView(mDistantDisplayButton);
         }

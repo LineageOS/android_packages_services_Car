@@ -138,12 +138,12 @@ public final class CarAudioManager extends CarManagerBase {
      * {@link #isAudioFeatureEnabled(int)}
      *
      * <p>If enabled, audio mirroring can be managed by using the following APIs:
-     * {@code setAudioZoneMirrorStatusCallback(Executor, AudioZonesMirrorStatusCallback)},
-     * {@code clearAudioZonesMirrorStatusCallback()}, {@code canEnableAudioMirror()},
-     * {@code enableMirrorForAudioZones(List)}, {@code extendAudioMirrorRequest(long, List)},
-     * {@code disableAudioMirrorForZone(int)}, {@code disableAudioMirror(long)},
-     * {@code getMirrorAudioZonesForAudioZone(int)},
-     * {@code getMirrorAudioZonesForMirrorRequest(long)}
+     * {@link #setAudioZoneMirrorStatusCallback(Executor, AudioZonesMirrorStatusCallback)},
+     * {@link #clearAudioZonesMirrorStatusCallback()}, {@link #canEnableAudioMirror()},
+     * {@link #enableMirrorForAudioZones(List)}, {@link #extendAudioMirrorRequest(long, List)},
+     * {@link #disableAudioMirrorForZone(int)}, {@link #disableAudioMirror(long)},
+     * {@link #getMirrorAudioZonesForAudioZone(int)},
+     * {@link #getMirrorAudioZonesForMirrorRequest(long)}
      */
     public static final int AUDIO_FEATURE_AUDIO_MIRRORING = 5;
 
@@ -280,10 +280,10 @@ public final class CarAudioManager extends CarManagerBase {
      * Status indicating the dynamic audio configurations info have been updated.
      *
      * <p><b>Note</b> The list of devices on audio
-     * {@link AudioZoneConfigurationsChangeCallback#onAudioZoneConfigurationsUpdated}, will contain
-     * all the configuration and each configuration can be perused to find availability status.
-     * For an active configuration becoming disabled due to device availability, the
-     * {@link #CONFIG_STATUS_AUTO_SWITCHED} will be triggered instead.
+     * {@link AudioZoneConfigurationsChangeCallback#onAudioZoneConfigurationsChanged(List, int)},
+     * will contain all the configuration and each configuration can be perused to find
+     * availability status. For an active configuration becoming disabled due to device
+     * availability, the {@link #CONFIG_STATUS_AUTO_SWITCHED} will be triggered instead.
      *
      * <p><b>Note</b> This API will only be triggered when a configuration's active status has
      * changed due to a device connection state changing.
@@ -298,8 +298,8 @@ public final class CarAudioManager extends CarManagerBase {
      * Status indicating the dynamic audio config info has auto switched.
      *
      * <p><b>Note</b> The list of devices on audio
-     * {@link AudioZoneConfigurationsChangeCallback#onAudioZoneConfigurationsUpdated}, will
-     * contain the previously selected configuration and the newly selected configuration only.
+     * {@link AudioZoneConfigurationsChangeCallback#onAudioZoneConfigurationsChanged(List, int)},
+     * will contain the previously selected configuration and the newly selected configuration only.
      *
      *  @hide
      */
@@ -882,8 +882,8 @@ public final class CarAudioManager extends CarManagerBase {
      * configuration consisting current output devices for the zone is returned.
      *
      * @param zoneId Zone id for the configuration to query
-     * @return the current car audio zone configuration info, or {@code null} if
-     *         {@link CarAudioService} throws {@link RemoteException}
+     * @return the current car audio zone configuration info, or {@code null} if car audio service
+     *      throws {@link RemoteException}
      * @throws IllegalStateException if dynamic audio routing is not enabled
      * @throws IllegalArgumentException if the audio zone id is invalid
      *
@@ -930,7 +930,7 @@ public final class CarAudioManager extends CarManagerBase {
      * Switches the car audio zone configuration
      *
      * <p>To receive the volume group change after configuration is changed, a
-     * {@code CarVolumeGroupEventCallback} must be registered through
+     * {@link CarVolumeGroupEventCallback} must be registered through
      * {@link #registerCarVolumeGroupEventCallback(Executor, CarVolumeGroupEventCallback)} first.
      *
      * @param zoneConfig Audio zone configuration to switch to
@@ -1035,7 +1035,7 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
-     * Clears the currently set {@code AudioZoneConfigurationsChangeCallback}
+     * Clears the currently set {@link AudioZoneConfigurationsChangeCallback}
      *
      * @throws IllegalStateException if dynamic audio routing is not enabled
      *
@@ -1131,7 +1131,7 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
-     * Sets a {@code PrimaryZoneMediaAudioRequestStatusCallback} to listen for request to play
+     * Sets a {@link PrimaryZoneMediaAudioRequestCallback} to listen for request to play
      * media audio in primary audio zone
      *
      * @param executor Executor on which callback will be invoked
@@ -1174,7 +1174,7 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
-     * Clears the currently set {@code PrimaryZoneMediaAudioRequestCallback}
+     * Clears the currently set {@link PrimaryZoneMediaAudioRequestCallback}
      *
      * @throws IllegalStateException if dynamic audio routing is not enabled
      *
@@ -1203,7 +1203,7 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
-     * Cancels a request set by {@code requestMediaAudioOnPrimaryZone}
+     * Cancels a request set by {@link #requestMediaAudioOnPrimaryZone}
      *
      * @param requestId Request id to cancel
      * @return {@code true} if request is successfully cancelled
@@ -1273,14 +1273,15 @@ public final class CarAudioManager extends CarManagerBase {
 
     /**
      * Allow/rejects audio to play for a request
-     * {@code requestMediaAudioOnPrimaryZone(MediaRequest, Handler)}
+     * {@link #requestMediaAudioOnPrimaryZone(OccupantZoneInfo, Executor,
+     *      MediaAudioRequestStatusCallback)}
      *
      * @param requestId Request id to approve
      * @param allow Boolean indicating to allow or reject, {@code true} to allow audio
      * playback on primary zone, {@code false} otherwise
      * @return {@code false} if media is not successfully allowed/rejected for the request,
      * including the case when the request id is {@link #INVALID_REQUEST_ID}
-     * @throws IllegalStateException if no {@code PrimaryZoneMediaAudioRequestCallback} is
+     * @throws IllegalStateException if no {@link PrimaryZoneMediaAudioRequestCallback} is
      * registered prior to calling this method.
      * @throws IllegalStateException if dynamic audio routing is not enabled, or if audio mirroring
      * is currently enabled for the audio zone owned by the occupant as configured by
@@ -1412,7 +1413,7 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
-     * Clears the currently set {@code AudioZonesMirrorStatusCallback}
+     * Clears the currently set {@link AudioZonesMirrorStatusCallback}
      *
      * @throws IllegalStateException if dynamic audio routing is not enabled
      * @throws IllegalStateException if audio mirroring feature is disabled, which can be verified
@@ -1777,7 +1778,7 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
-     * Registers a {@code CarVolumeGroupEventCallback} to receive volume group event callbacks
+     * Registers a {@link CarVolumeGroupEventCallback} to receive volume group event callbacks
      *
      * @param executor Executor on which callback will be invoked
      * @param callback Callback that will report volume group events
@@ -1820,7 +1821,7 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
-     * Unregisters a {@code CarVolumeGroupEventCallback} registered via
+     * Unregisters a {@link CarVolumeGroupEventCallback} registered via
      * {@link #registerCarVolumeGroupEventCallback}
      *
      * @param callback The callback to be removed
@@ -2049,11 +2050,11 @@ public final class CarAudioManager extends CarManagerBase {
          *
          * <p><b>Notes:</b>
          * <ul>
-         *     <li>If both {@link CarVolumeCallback} and {@code CarVolumeGroupEventCallback}
+         *     <li>If both {@link CarVolumeCallback} and {@link CarVolumeGroupEventCallback}
          *     are registered by the same app, then volume group index changes are <b>only</b>
          *     propagated through CarVolumeGroupEventCallback (until it is unregistered)</li>
          *     <li>Apps are encouraged to migrate to the new callback
-         *     {@link CarVolumeGroupInfoCallback}</li>
+         *     {@link CarVolumeGroupEventCallback}</li>
          * </ul>
          *
          * @param zoneId Id of the audio zone that volume change happens
@@ -2089,11 +2090,11 @@ public final class CarAudioManager extends CarManagerBase {
          *     <li>If {@link CarAudioManager#AUDIO_FEATURE_VOLUME_GROUP_MUTING} is enabled
          *     this will be triggered on mute changes. Otherwise, car audio mute changes will
          *     trigger {@link #onMasterMuteChanged(int, int)}</li>
-         *     <li>If both {@link CarVolumeCallback} and {@code CarVolumeGroupEventCallback}
+         *     <li>If both {@link CarVolumeCallback} and {@link CarVolumeGroupEventCallback}
          *     are registered by the same app, then volume group mute changes are <b>only</b>
          *     propagated through CarVolumeGroupEventCallback (until it is unregistered)</li>
          *     <li>Apps are encouraged to migrate to the new callback
-         *     {@link CarVolumeGroupInfoCallback}</li>
+         *     {@link CarVolumeGroupEventCallback}</li>
          * </ul>
          *
          * @param zoneId Id of the audio zone that volume change happens

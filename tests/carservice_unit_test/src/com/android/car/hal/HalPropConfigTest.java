@@ -18,6 +18,12 @@ package com.android.car.hal;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assume.assumeTrue;
+
+import android.car.VehicleAreaType;
+import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.VehicleOilLevel;
@@ -27,6 +33,8 @@ import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
+import android.platform.test.annotations.RequiresFlagsDisabled;
+import android.platform.test.annotations.RequiresFlagsEnabled;
 
 import org.junit.Test;
 
@@ -45,6 +53,8 @@ public final class HalPropConfigTest {
             1 | VehicleArea.GLOBAL | VehiclePropertyType.FLOAT;
     private static final int GLOBAL_INTEGER_VEC_PROP_ID =
             1 | VehicleArea.GLOBAL | VehiclePropertyType.INT32_VEC;
+    private static final int VENDOR_INTEGER_VEC_PROP_ID =
+            1 | VehicleArea.VENDOR | VehiclePropertyType.INT32_VEC;
     private static final int TEST_AREA_ID = 2;
     private static final int TEST_ACCESS = 2;
     private static final int TEST_CHANGE_MODE = VehiclePropertyChangeMode.ON_CHANGE;
@@ -84,6 +94,19 @@ public final class HalPropConfigTest {
         hidlConfig.minSampleRate = MIN_SAMPLE_RATE;
         hidlConfig.maxSampleRate = MAX_SAMPLE_RATE;
         return hidlConfig;
+    }
+
+    private static VehiclePropConfig getTestVendorAidlPropConfig() {
+        VehiclePropConfig aidlConfig = new VehiclePropConfig();
+        aidlConfig.prop = VENDOR_INTEGER_VEC_PROP_ID;
+        aidlConfig.access = TEST_ACCESS;
+        aidlConfig.changeMode = TEST_CHANGE_MODE;
+        aidlConfig.configArray = TEST_CONFIG_ARRAY;
+        aidlConfig.configString = TEST_CONFIG_STRING;
+        aidlConfig.minSampleRate = MIN_SAMPLE_RATE;
+        aidlConfig.maxSampleRate = MAX_SAMPLE_RATE;
+        aidlConfig.areaConfigs = new VehicleAreaConfig[0];
+        return aidlConfig;
     }
 
     private static VehiclePropConfig getTestAidlPropConfig() {
@@ -439,5 +462,36 @@ public final class HalPropConfigTest {
 
         assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
                 TEST_AREA_ID).isVariableUpdateRateSupported()).isFalse();
+    }
+
+    @Test
+    @RequiresFlagsEnabled("android.car.feature.android_vic_vehicle_properties")
+    public void toCarPropertyConfig_populatesVendorAreaType() {
+        assumeTrue("android_vic_vehicle_properties flag is disabled, so the VENDOR area type isn't "
+                        + "supported. Skipping test.",
+                Flags.androidVicVehicleProperties());
+
+        VehiclePropConfig aidlVehiclePropConfig = getTestVendorAidlPropConfig();
+        HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
+
+        CarPropertyConfig<?> carPropertyConfig = halPropConfig.toCarPropertyConfig(
+                VENDOR_INTEGER_VEC_PROP_ID);
+        assertThat(carPropertyConfig.getPropertyId()).isEqualTo(VENDOR_INTEGER_VEC_PROP_ID);
+        assertThat(carPropertyConfig.getAreaType())
+                .isEqualTo(VehicleAreaType.VEHICLE_AREA_TYPE_VENDOR);
+    }
+
+    @Test
+    @RequiresFlagsDisabled("android.car.feature.android_vic_vehicle_properties")
+    public void toCarPropertyConfig_throwExceptionForUnsupportedVendorAreaType() {
+        assumeFalse("android_vic_vehicle_properties flag is enabled, so the VENDOR area type is "
+                        + "supported. Skipping test.",
+                Flags.androidVicVehicleProperties());
+
+        VehiclePropConfig aidlVehiclePropConfig = getTestVendorAidlPropConfig();
+        HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
+
+        assertThrows(RuntimeException.class, () -> halPropConfig.toCarPropertyConfig(
+                VENDOR_INTEGER_VEC_PROP_ID));
     }
 }
