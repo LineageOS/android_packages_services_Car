@@ -136,7 +136,7 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_MODEL = 286261506;
     /**
-     * Model year of vehicle.
+     * Model year of vehicle in YYYY format based on Gregorian calendar.
      *
      * <p>Property Config:
      * <ul>
