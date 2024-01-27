@@ -23,4 +23,10 @@ android_app {
         "--no-resource-deduping",
         "--no-resource-removal",
     ],
+    dex_preopt: {
+        enabled: false,
+    },
+    static_libs: [
+        "car-resource-common",
+    ],
 }

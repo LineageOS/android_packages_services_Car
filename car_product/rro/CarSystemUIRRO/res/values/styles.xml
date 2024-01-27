@@ -17,9 +17,10 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="LockPattern">
-        <item name="*android:regularColor">@*android:color/car_body1</item>
-        <item name="*android:successColor">@*android:color/car_blue_500</item>
-        <item name="*android:errorColor">?android:attr/colorError</item>
+        <item name="*android:regularColor">@color/car_primary</item>
+        <item name="*android:successColor">@color/car_primary</item>
+        <item name="*android:errorColor">@color/car_error</item>
+        <item name="*android:dotColor">@color/car_secondary_container</item>
     </style>
 
 </resources>

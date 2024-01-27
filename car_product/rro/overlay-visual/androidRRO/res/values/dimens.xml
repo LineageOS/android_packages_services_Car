@@ -121,7 +121,7 @@
     <dimen name="notification_progress_margin_top">16dp</dimen>
 
     <!-- Make the dots in lock pattern thicker in Car -->
-    <dimen name="lock_pattern_dot_size">20dp</dimen>
+    <dimen name="lock_pattern_dot_size">24dp</dimen>
 
     <!-- Focus dimensions -->
     <dimen name="focus_stroke_width">8dp</dimen>

@@ -77,4 +77,12 @@
     <style name="Theme.SystemUI.Dialog" parent="@android:style/Theme.DeviceDefault.Dialog">
         <item name="android:alertDialogStyle">@style/ScrollableAlertDialogStyle</item>
     </style>
+
+    <style name="LockPattern">
+        <item name="*android:regularColor">@color/car_primary</item>
+        <item name="*android:successColor">@color/car_primary</item>
+        <item name="*android:errorColor">@color/car_error</item>
+        <item name="*android:dotColor">@color/car_secondary_80</item>
+    </style>
+
 </resources>
