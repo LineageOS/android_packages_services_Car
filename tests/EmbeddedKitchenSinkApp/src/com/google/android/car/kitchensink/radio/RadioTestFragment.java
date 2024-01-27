@@ -204,8 +204,8 @@ public final class RadioTestFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
         Log.i(TAG, "onDestroyView");
+        super.onDestroyView();
     }
 
     private void connectRadio() {

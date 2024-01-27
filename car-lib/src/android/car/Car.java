@@ -70,6 +70,7 @@ import android.car.user.ExperimentalCarUserManager;
 import android.car.vms.VmsClientManager;
 import android.car.vms.VmsSubscriberManager;
 import android.car.watchdog.CarWatchdogManager;
+import android.car.wifi.CarWifiManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -177,7 +178,7 @@ public final class Car implements ICarBase {
     // Car service registry information.
     // This information never changes after the static initialization completes.
     private static final Map<Class<?>, String> CAR_SERVICE_NAMES =
-            new ArrayMap<Class<?>, String>(36);
+            new ArrayMap<Class<?>, String>(37);
 
     /**
      * Binder service name of car service registered to service manager.
@@ -520,6 +521,13 @@ public final class Car implements ICarBase {
     @OptionalFeature
     @SystemApi
     public static final String CAR_REMOTE_ACCESS_SERVICE = "car_remote_access_service";
+
+    /**
+     * Service name for {@link android.car.wifi.CarWifiManager}
+     *
+     * @hide
+     */
+    public static final String CAR_WIFI_SERVICE = "car_wifi_service";
 
     /**
      * Permission necessary to read driver monitoring systems settings information.
@@ -1369,6 +1377,15 @@ public final class Car implements ICarBase {
             "android.car.permission.CONTROL_HEAD_UP_DISPLAY";
 
     /**
+     * Permission necessary to read persist tethering settings.
+     * @hide
+     */
+    @FlaggedApi(Flags.FLAG_PERSIST_AP_SETTINGS)
+    @SystemApi
+    public static final String PERMISSION_READ_PERSIST_TETHERING_SETTINGS =
+            "android.car.permission.READ_PERSIST_TETHERING_SETTINGS";
+
+    /**
      * Intent for connecting to the template renderer. Services that handle this intent must also
      * hold {@link #PERMISSION_TEMPLATE_RENDERER}. Applications would not bind to this service
      * directly, but instead they would use
@@ -1697,6 +1714,9 @@ public final class Car implements ICarBase {
         CAR_SERVICE_NAMES.put(CarRemoteAccessManager.class, CAR_REMOTE_ACCESS_SERVICE);
         CAR_SERVICE_NAMES.put(CarOccupantConnectionManager.class, CAR_OCCUPANT_CONNECTION_SERVICE);
         CAR_SERVICE_NAMES.put(CarRemoteDeviceManager.class, CAR_REMOTE_DEVICE_SERVICE);
+        if (Flags.persistApSettings()) {
+            CAR_SERVICE_NAMES.put(CarWifiManager.class, CAR_WIFI_SERVICE);
+        }
         // Note: if a new entry is added here, the capacity of CAR_SERVICE_NAMES should be increased
         // as well.
     }

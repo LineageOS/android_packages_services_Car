@@ -31,7 +31,7 @@
     "INFO_MODEL_YEAR": {
       "propertyName": "INFO_MODEL_YEAR",
       "propertyId": 289407235,
-      "description": "Model year of vehicle.",
+      "description": "Model year of vehicle in YYYY format based on Gregorian calendar.",
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
@@ -2375,7 +2375,7 @@
     },
     "ULTRASONICS_SENSOR_ORIENTATION": {
       "propertyName": "ULTRASONICS_SENSOR_ORIENTATION",
-      "propertyId": 406916129,
+      "propertyId": 409013281,
       "description": "Static data for the orientation of each ultrasonic sensor installed on the vehicle.",
       "readPermission": {
         "type": "single",

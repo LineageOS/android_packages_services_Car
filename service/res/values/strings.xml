@@ -727,6 +727,13 @@
     <string name="car_permission_desc_manage_car_system_ui">Communicate with the car system ui
         for creating taskviews or getting notified about system ui changes.</string>
 
+    <!-- Permission text: apps can read car persist tethering settings [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_persist_tethering_settings">Read car\u2019s persist
+        tethering settings</string>
+    <!-- Permission text: apps can read car persist tethering settings [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_persist_tethering_settings">Read car\u2019s persist
+        tethering settings</string>
+
     <!-- Notification messages -->
     <!-- Notification text: Notification shown to the user when vehicle CAN bus fails -->
     <string name="car_can_bus_failure">CAN bus failed</string>

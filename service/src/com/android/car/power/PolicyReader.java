@@ -236,6 +236,8 @@ public final class PolicyReader {
 
     void init(FeatureFlags fakeFeatureFlags) {
         mFeatureFlags = fakeFeatureFlags;
+        Slogf.d(TAG, "PolicyReader is initializing, carPowerPolicyRefactoring = "
+                + mFeatureFlags.carPowerPolicyRefactoring());
         initPolicies();
         if (!mFeatureFlags.carPowerPolicyRefactoring()) {
             readPowerPolicyConfiguration();

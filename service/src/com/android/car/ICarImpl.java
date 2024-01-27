@@ -96,6 +96,7 @@ import com.android.car.user.ExperimentalCarUserService;
 import com.android.car.util.LimitedTimingsTraceLog;
 import com.android.car.vms.VmsBrokerService;
 import com.android.car.watchdog.CarWatchdogService;
+import com.android.car.wifi.CarWifiService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -174,6 +175,8 @@ public class ICarImpl extends ICar.Stub {
     private final CarActivityService mCarActivityService;
     private final CarOccupantConnectionService mCarOccupantConnectionService;
     private final CarRemoteDeviceService mCarRemoteDeviceService;
+    private final CarWifiService mCarWifiService;
+
     // Only modified at setCarRemoteAccessService for testing.
     @Nullable
     private CarRemoteAccessService mCarRemoteAccessService;
@@ -512,6 +515,13 @@ public class ICarImpl extends ICar.Stub {
             mCarRemoteDeviceService = null;
         }
 
+        if (mFeatureController.isFeatureEnabled(Car.CAR_WIFI_SERVICE)) {
+            mCarWifiService = constructWithTrace(t, CarWifiService.class,
+                    () -> new CarWifiService(serviceContext), allServices);
+        } else {
+            mCarWifiService = null;
+        }
+
         mAllServicesInInitOrder = allServices.toArray(new CarSystemService[allServices.size()]);
         mICarSystemServerClientImpl = new ICarSystemServerClientImpl();
 
@@ -717,6 +727,8 @@ public class ICarImpl extends ICar.Stub {
                 return mCarRemoteDeviceService;
             case Car.CAR_REMOTE_ACCESS_SERVICE:
                 return mCarRemoteAccessService;
+            case Car.CAR_WIFI_SERVICE:
+                return mCarWifiService;
             default:
                 IBinder service = null;
                 if (mCarExperimentalFeatureServiceController != null) {

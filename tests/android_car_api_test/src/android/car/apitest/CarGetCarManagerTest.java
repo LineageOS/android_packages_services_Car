@@ -53,6 +53,7 @@ import android.car.user.ExperimentalCarUserManager;
 import android.car.vms.VmsClientManager;
 import android.car.vms.VmsSubscriberManager;
 import android.car.watchdog.CarWatchdogManager;
+import android.car.wifi.CarWifiManager;
 
 import com.android.compatibility.common.util.ApiTest;
 
@@ -112,7 +113,8 @@ public final class CarGetCarManagerTest extends CarLessApiTestBase {
             {ExperimentalCarUserManager.class, Car.EXPERIMENTAL_CAR_USER_SERVICE},
             {CarInstrumentClusterManager.class, Car.CAR_INSTRUMENT_CLUSTER_SERVICE},
             {OccupantAwarenessManager.class, Car.OCCUPANT_AWARENESS_SERVICE},
-            {CarActivityManager.class, Car.CAR_ACTIVITY_SERVICE}
+            {CarActivityManager.class, Car.CAR_ACTIVITY_SERVICE},
+            {CarWifiManager.class, Car.CAR_WIFI_SERVICE}
         });
     }
 

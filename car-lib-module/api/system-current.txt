@@ -105,6 +105,7 @@ package android.car {
     field public static final String PERMISSION_READ_DRIVER_MONITORING_STATES = "android.car.permission.READ_DRIVER_MONITORING_STATES";
     field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public static final String PERMISSION_READ_HEAD_UP_DISPLAY = "android.car.permission.READ_HEAD_UP_DISPLAY";
     field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public static final String PERMISSION_READ_IMPACT_SENSORS = "android.car.permission.READ_IMPACT_SENSORS";
+    field @FlaggedApi("android.car.feature.persist_ap_settings") public static final String PERMISSION_READ_PERSIST_TETHERING_SETTINGS = "android.car.permission.READ_PERSIST_TETHERING_SETTINGS";
     field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public static final String PERMISSION_READ_ULTRASONICS_SENSOR_DATA = "android.car.permission.READ_ULTRASONICS_SENSOR_DATA";
     field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") public static final String PERMISSION_READ_VALET_MODE = "android.car.permission.READ_VALET_MODE";
     field public static final String PERMISSION_READ_WINDSHIELD_WIPERS = "android.car.permission.READ_WINDSHIELD_WIPERS";
@@ -351,7 +352,7 @@ package android.car {
     field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA)) public static final int ULTRASONICS_SENSOR_DETECTION_RANGE = 406916131; // 0x18410c23
     field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA)) public static final int ULTRASONICS_SENSOR_FIELD_OF_VIEW = 406916130; // 0x18410c22
     field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA)) public static final int ULTRASONICS_SENSOR_MEASURED_DISTANCE = 406916133; // 0x18410c25
-    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA)) public static final int ULTRASONICS_SENSOR_ORIENTATION = 406916129; // 0x18410c21
+    field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA)) public static final int ULTRASONICS_SENSOR_ORIENTATION = 409013281; // 0x18610c21
     field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA)) public static final int ULTRASONICS_SENSOR_POSITION = 406916128; // 0x18410c20
     field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA)) public static final int ULTRASONICS_SENSOR_SUPPORTED_RANGES = 406916132; // 0x18410c24
     field @FlaggedApi("android.car.feature.android_vic_vehicle_properties") @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_VALET_MODE, android.car.Car.PERMISSION_CONTROL_VALET_MODE})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_VALET_MODE)) public static final int VALET_MODE_ENABLED = 287312389; // 0x11200a05
@@ -2858,6 +2859,14 @@ package android.car.watchdog {
     method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setPackagesToAppCategoryTypes(@NonNull java.util.Map<java.lang.String,java.lang.String>);
     method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setSafeToKillPackages(@NonNull java.util.List<java.lang.String>);
     method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setVendorPackagePrefixes(@NonNull java.util.List<java.lang.String>);
+  }
+
+}
+
+package android.car.wifi {
+
+  @FlaggedApi("android.car.feature.persist_ap_settings") public final class CarWifiManager {
+    method @FlaggedApi("android.car.feature.persist_ap_settings") @RequiresPermission(android.car.Car.PERMISSION_READ_PERSIST_TETHERING_SETTINGS) public boolean canControlPersistTetheringSettings();
   }
 
 }

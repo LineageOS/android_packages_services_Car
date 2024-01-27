@@ -612,4 +612,7 @@
     <fraction name="config_clusterHomeVisibility_minRendered">99.9%</fraction>
     <integer name="config_clusterHomeVisibility_stabilityMs">100</integer>
 
+    <!-- A configuration flag to adjust the enabling of persistent tethering within
+         CarWifiService. -->
+    <bool name="config_enablePersistTetheringCapabilities">false</bool>
 </resources>

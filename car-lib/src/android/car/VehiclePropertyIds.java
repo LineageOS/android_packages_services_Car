@@ -136,7 +136,7 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_MODEL = 286261506;
     /**
-     * Model year of vehicle.
+     * Model year of vehicle in YYYY format based on Gregorian calendar.
      *
      * <p>Property Config:
      * <ul>
@@ -4489,7 +4489,7 @@ public final class VehiclePropertyIds {
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
      *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_VENDOR}
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
-     *  <li>{@code Integer[]} property type
+     *  <li>{@code Float[]} property type
      * </ul>
      *
      * <p>Required Permission:
@@ -4504,7 +4504,7 @@ public final class VehiclePropertyIds {
     @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
     @SystemApi
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ULTRASONICS_SENSOR_DATA))
-    public static final int ULTRASONICS_SENSOR_ORIENTATION = 406916129;
+    public static final int ULTRASONICS_SENSOR_ORIENTATION = 409013281;
 
     /**
      * Static data for the field of view of each ultrasonic sensor in degrees.
