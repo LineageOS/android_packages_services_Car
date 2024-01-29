@@ -113,7 +113,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
     public static final int VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS = 2;
 
     /**
-     * Return the access type of the car property.
+     * Returns the access type of the car property.
      * <p>The access type could be one of the following:
      * <ul>
      *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_NONE}</li>
@@ -129,7 +129,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
     }
 
     /**
-     * Return the area type of the car property.
+     * Returns the area type of the car property.
      * <p>The area type could be one of the following:
      * <ul>
      *   <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}</li>
@@ -148,7 +148,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
     }
 
     /**
-     * Return the change mode of the car property.
+     * Returns the change mode of the car property.
      *
      * <p>The change mode could be one of the following:
      * <ul>
@@ -164,6 +164,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
     }
 
     /**
+     * Returns the optional additional configuration parameters.
      *
      * @return Additional configuration parameters. For different properties, configArrays have
      * different information.
@@ -174,6 +175,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
     }
 
     /**
+     * Returns the optional additional configuration information.
      *
      * @return Some properties may require additional information passed over this
      * string. Most properties do not need to set this.
@@ -184,6 +186,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
     }
 
     /**
+     * Returns the max sample rate in Hz.
      *
      * @return Max sample rate in Hz. Must be defined for {@link
      * #VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS} return 0 if change mode is not continuous.
@@ -193,8 +196,9 @@ public final class CarPropertyConfig<T> implements Parcelable {
     }
 
     /**
+     * Returns the min sample rate in Hz.
      *
-     * @return Min sample rate in Hz.Must be defined for {@link
+     * @return Min sample rate in Hz. Must be defined for {@link
      * #VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS} return 0 if change mode is not continuous.
      */
     public float getMinSampleRate() {
@@ -202,6 +206,8 @@ public final class CarPropertyConfig<T> implements Parcelable {
     }
 
     /**
+     * Returns the property identifier.
+     *
      * @return Property identifier, must be one of enums in
      *   {@link android.car.VehiclePropertyIds}.
      */
@@ -233,6 +239,8 @@ public final class CarPropertyConfig<T> implements Parcelable {
     }
 
     /**
+     * Returns a list of {@link AreaIdConfig} for this property.
+     *
      * @return list of {@link AreaIdConfig} instances for this property.
      */
     @NonNull
@@ -241,6 +249,8 @@ public final class CarPropertyConfig<T> implements Parcelable {
     }
 
     /**
+     * Returns the {@link AreaIdConfig} for the specified {@code areaId}.
+     *
      * @return {@link AreaIdConfig} instance for passed {@code areaId}
      * @throws IllegalArgumentException if {@code areaId} is not supported for property
      */
@@ -255,6 +265,8 @@ public final class CarPropertyConfig<T> implements Parcelable {
     }
 
     /**
+     * Returns whether this property is area type {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}.
+     *
      * @return true if this property is area type {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}.
      */
     public boolean isGlobalProperty() {
@@ -262,8 +274,9 @@ public final class CarPropertyConfig<T> implements Parcelable {
     }
 
     /**
+     * Returns the number of areaIds for the property.
      *
-     * @return the number of areaIds for properties.
+     * @return the number of areaIds for the property.
      * @hide
      */
     public int getAreaCount() {
@@ -274,12 +287,12 @@ public final class CarPropertyConfig<T> implements Parcelable {
      * Returns a list of area IDs supported for the vehicle property.
      *
      * <p>An area represents a unique element of a {@link VehicleAreaType}. For instance, if the
-     * {@link VehicleAreaType} is {@link VehicleAreaType#VEHICLE_AREA_TYPE_WINDOW}, then an example
-     * area is {@link android.car.VehicleAreaWindow#WINDOW_FRONT_WINDSHIELD}.
+     * {@link VehicleAreaType} is {@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}, then an example
+     * area is {@link android.car.VehicleAreaSeat#SEAT_ROW_1_LEFT}.
      *
      * <p>An area ID is a combination of one or more areas, and is created by bitwise "OR"ing the
      * areas together. Areas from different {@link VehicleAreaType} values will not be mixed in a
-     * single area ID. For example, a {@link android.car.VehicleAreaWindow} area cannot be combined
+     * single area ID. For example, a {@link android.car.VehicleAreaWheel} area cannot be combined
      * with a {@link android.car.VehicleAreaSeat} area in an area ID.
      *
      * <p>For properties that return {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL} for {@link
