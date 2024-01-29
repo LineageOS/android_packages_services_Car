@@ -41,7 +41,7 @@ cc_library_shared {
     min_sdk_version: "31",
     apex_available: [
         "//apex_available:platform",
-        "com.android.car.framework"
+        "com.android.car.framework",
     ],
 
     strip: {
@@ -92,13 +92,13 @@ cc_test_library {
 
     local_include_dirs: [
         "evs",
-        "test-libs"
+        "test-libs",
     ],
 
     min_sdk_version: "31",
     apex_available: [
         "//apex_available:platform",
-        "com.android.car.framework"
+        "com.android.car.framework",
     ],
 
     strip: {

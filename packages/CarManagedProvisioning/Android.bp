@@ -48,6 +48,6 @@ android_app {
         "setupdesign",
         "ManagedProvisioningLib",
         "Slogf",
-        "lottie"
+        "lottie",
     ],
 }

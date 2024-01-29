@@ -43,8 +43,8 @@ android_app {
     certificate: "platform",
 
     static_libs: [
-            "com.google.android.material_material",
-            "androidx.appcompat_appcompat",
+        "com.google.android.material_material",
+        "androidx.appcompat_appcompat",
     ],
 
     libs: ["android.car-system-stubs"],

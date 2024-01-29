@@ -28,7 +28,10 @@ android_app {
         "settings-platform-compat-config",
     ],
     libs: ["android.car-stubs"],
-    static_libs: ["Settings-core", "car-ui-lib"],
+    static_libs: [
+        "Settings-core",
+        "car-ui-lib",
+    ],
     srcs: ["src/**/*.java"],
     resource_dirs: ["res"],
     optimize: {

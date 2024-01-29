@@ -23,7 +23,7 @@ android_app {
     srcs: [
         "src/**/*.java",
         "src/**/*.aidl",
-        ":cartelemetryservice-proto-srcs"
+        ":cartelemetryservice-proto-srcs",
     ],
     aidl: {
         local_include_dirs: ["src"],

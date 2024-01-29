@@ -37,7 +37,7 @@ cc_binary {
         "libutils",
         "libdl",
         "libfacegraph",
-	"libnativewindow",
+        "libnativewindow",
     ],
     cflags: ["-DLOG_TAG=\"ComputepipeRunner\""] + [
         "-D_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",
@@ -89,7 +89,7 @@ cc_binary {
     name: "computepipe_face_tracker",
     srcs: [
         "FaceTracker.cpp",
-	"ClientSvc.cpp",
+        "ClientSvc.cpp",
     ],
     vendor: true,
     static_libs: [

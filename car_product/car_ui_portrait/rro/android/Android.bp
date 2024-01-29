@@ -23,6 +23,6 @@ runtime_resource_overlay {
     manifest: "AndroidManifest.xml",
     system_ext_specific: true,
     static_libs: [
-        "car-portrait-ui-common"
+        "car-portrait-ui-common",
     ],
 }
