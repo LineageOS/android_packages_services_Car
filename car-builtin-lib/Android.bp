@@ -87,7 +87,7 @@ java_sdk_library {
     ],
 
     droiddoc_options: [
-       "--include-annotations --pass-through-annotation android.annotation.RequiresApi"
+        "--include-annotations --pass-through-annotation android.annotation.RequiresApi",
     ],
 
     compile_dex: true,

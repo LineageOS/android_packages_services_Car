@@ -41,7 +41,7 @@ android_library {
         "res",
     ],
     static_libs: [
-        "car-resource-common-color"
+        "car-resource-common-color",
     ],
 }
 
@@ -57,7 +57,7 @@ android_library {
         "res",
     ],
     static_libs: [
-        "car-resource-theme-pink-color"
+        "car-resource-theme-pink-color",
     ],
 }
 
@@ -72,6 +72,6 @@ android_library {
         "res",
     ],
     static_libs: [
-        "car-resource-theme-orange-color"
+        "car-resource-theme-orange-color",
     ],
 }
