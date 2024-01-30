@@ -293,7 +293,7 @@ public final class CarAppFocusManager extends CarManagerBase {
     }
 
     /**
-     * Abandon the given focus, i.e. mark it as inactive. This also involves releasing ownership
+     * Abandons the given focus, marking it as inactive. This also involves releasing ownership
      * for the focus.
      * @param ownershipCallback
      * @param appType
@@ -325,7 +325,7 @@ public final class CarAppFocusManager extends CarManagerBase {
     }
 
     /**
-     * Abandon all focuses, i.e. mark them as inactive. This also involves releasing ownership
+     * Abandons all focuses, marking them as inactive. This also involves releasing ownership
      * for the focus.
      * @param ownershipCallback
      */
