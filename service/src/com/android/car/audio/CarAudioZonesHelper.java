@@ -112,6 +112,10 @@ import java.util.stream.Collectors;
     private static final String TAG_INPUT_DEVICE = "inputDevice";
     private static final String TAG_MIRRORING_DEVICES = "mirroringDevices";
     private static final String TAG_MIRRORING_DEVICE = "mirroringDevice";
+    private static final String ATTR_MAX_ACTIVATION_VOLUME_PERCENTAGE =
+            "maxActivationVolumePercentage";
+    private static final String ATTR_MIN_ACTIVATION_VOLUME_PERCENTAGE =
+            "minActivationVolumePercentage";
     private static final int INVALID_VERSION = -1;
     private static final int SUPPORTED_VERSION_1 = 1;
     private static final int SUPPORTED_VERSION_2 = 2;
@@ -126,6 +130,9 @@ import java.util.stream.Collectors;
         SUPPORTED_VERSIONS.put(SUPPORTED_VERSION_3, SUPPORTED_VERSION_3);
         SUPPORTED_VERSIONS.put(SUPPORTED_VERSION_4, SUPPORTED_VERSION_4);
     }
+
+    private static final int ACTIVATION_VOLUME_PERCENTAGE_MIN = 0;
+    private static final int ACTIVATION_VOLUME_PERCENTAGE_MAX = 100;
 
     private final AudioManager mAudioManager;
     private final CarAudioSettings mCarAudioSettings;
@@ -695,10 +702,18 @@ import java.util.stream.Collectors;
                             .append(zoneConfigBuilder.getZoneConfigId()).append(" group ")
                             .append(groupId).toString();
                 }
+                int maxActivationVolumePercentage = parseVolumeGroupActivationVolume(parser,
+                        /* isMax= */ true);
+                int minActivationVolumePercentage = parseVolumeGroupActivationVolume(parser,
+                        /* isMax= */ false);
+                validateMinMaxActivationVolume(maxActivationVolumePercentage,
+                        minActivationVolumePercentage);
+
                 CarVolumeGroupFactory factory = new CarVolumeGroupFactory(mAudioManager,
                         mCarAudioSettings, mCarAudioContext, zoneConfigBuilder.getZoneId(),
                         zoneConfigBuilder.getZoneConfigId(), groupId, groupName,
-                        mUseCarVolumeGroupMute);
+                        mUseCarVolumeGroupMute, maxActivationVolumePercentage,
+                        minActivationVolumePercentage);
 
                 if (!parseVolumeGroup(parser, factory)) {
                     valid = false;
@@ -713,6 +728,28 @@ import java.util.stream.Collectors;
             }
         }
         return valid;
+    }
+
+    private int parseVolumeGroupActivationVolume(XmlPullParser parser, boolean isMax) {
+        int defaultValue = isMax ? ACTIVATION_VOLUME_PERCENTAGE_MAX
+                : ACTIVATION_VOLUME_PERCENTAGE_MIN;
+        String attr = isMax ? ATTR_MAX_ACTIVATION_VOLUME_PERCENTAGE
+                : ATTR_MIN_ACTIVATION_VOLUME_PERCENTAGE;
+        String activationPercentageString = parser.getAttributeValue(NAMESPACE, attr);
+        if (activationPercentageString == null) {
+            return defaultValue;
+        }
+        if (isVersionLessThanFour()) {
+            throw new IllegalArgumentException(TAG_VOLUME_GROUP + " " + attr
+                    + " attribute not supported for versions less than " + SUPPORTED_VERSION_4
+                    + ", but current version is " + mCurrentVersion);
+        }
+        if (Flags.carAudioMinMaxActivationVolume()) {
+            return parsePositiveIntAttribute(attr, activationPercentageString);
+        }
+        mCarServiceLocalLog.log("Found " + TAG_VOLUME_GROUP + " " + attr
+                + " attribute while min/max activation volume is disabled");
+        return defaultValue;
     }
 
     private boolean parseVolumeGroup(XmlPullParser parser, CarVolumeGroupFactory groupFactory)
@@ -759,6 +796,27 @@ import java.util.stream.Collectors;
 
     private boolean isVersionFourOrGreater() {
         return mCurrentVersion >= SUPPORTED_VERSION_4;
+    }
+
+    private void validateMinMaxActivationVolume(int maxActivationVolume,
+                                                int minActivationVolume) {
+        if (!Flags.carAudioMinMaxActivationVolume()) {
+            return;
+        }
+        Preconditions.checkArgument(maxActivationVolume >= ACTIVATION_VOLUME_PERCENTAGE_MIN
+                        && maxActivationVolume <= ACTIVATION_VOLUME_PERCENTAGE_MAX,
+                "%s %s attribute is %s but can not be outside the range (%s,%s)",
+                TAG_VOLUME_GROUP, ATTR_MAX_ACTIVATION_VOLUME_PERCENTAGE, maxActivationVolume,
+                ACTIVATION_VOLUME_PERCENTAGE_MIN, ACTIVATION_VOLUME_PERCENTAGE_MAX);
+        Preconditions.checkArgument(minActivationVolume >= ACTIVATION_VOLUME_PERCENTAGE_MIN
+                        && minActivationVolume <= ACTIVATION_VOLUME_PERCENTAGE_MAX,
+                "%s %s attribute is %s but can not be outside the range (%s,%s)",
+                TAG_VOLUME_GROUP, ATTR_MIN_ACTIVATION_VOLUME_PERCENTAGE, minActivationVolume,
+                ACTIVATION_VOLUME_PERCENTAGE_MIN, ACTIVATION_VOLUME_PERCENTAGE_MAX);
+        Preconditions.checkArgument(minActivationVolume < maxActivationVolume,
+                "%s %s is %s but can not be larger than or equal to %s attribute %s",
+                TAG_VOLUME_GROUP, ATTR_MIN_ACTIVATION_VOLUME_PERCENTAGE, minActivationVolume,
+                ATTR_MAX_ACTIVATION_VOLUME_PERCENTAGE, maxActivationVolume);
     }
 
     private boolean validateOutputAudioDevice(String address, int type) {
