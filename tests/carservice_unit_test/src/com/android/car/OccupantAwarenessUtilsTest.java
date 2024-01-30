@@ -25,8 +25,8 @@ import android.car.test.AbstractExpectableTestCase;
 import android.hardware.automotive.occupant_awareness.ConfidenceLevel;
 import android.hardware.automotive.occupant_awareness.IOccupantAwareness;
 import android.hardware.automotive.occupant_awareness.OccupantAwarenessStatus;
-import android.test.suitebuilder.annotation.MediumTest;
 
+import androidx.test.filters.MediumTest;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;

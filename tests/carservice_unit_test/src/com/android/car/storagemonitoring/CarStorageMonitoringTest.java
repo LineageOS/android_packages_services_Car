@@ -37,10 +37,11 @@ import android.hardware.health.V2_0.IHealth.getStorageInfoCallback;
 import android.hardware.health.V2_0.Result;
 import android.hardware.health.V2_0.StorageInfo;
 import android.os.Parcel;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.util.SparseArray;
+
+import androidx.test.filters.MediumTest;
 
 import com.android.car.test.utils.TemporaryDirectory;
 import com.android.car.test.utils.TemporaryFile;
