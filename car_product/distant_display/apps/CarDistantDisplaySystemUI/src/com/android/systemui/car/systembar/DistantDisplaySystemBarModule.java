@@ -18,6 +18,7 @@ package com.android.systemui.car.systembar;
 
 import android.content.Context;
 
+import com.android.systemui.car.CarServiceProvider;
 import com.android.systemui.car.dagger.CarSysUIDynamicOverride;
 import com.android.systemui.car.statusbar.UserNameViewController;
 import com.android.systemui.car.statusicon.StatusIconPanelViewController;
@@ -43,6 +44,7 @@ public class DistantDisplaySystemBarModule {
     static CarSystemBarController provideCarSystemBarController(Context context,
             UserTracker userTracker,
             CarSystemBarViewFactory carSystemBarViewFactory,
+            CarServiceProvider carServiceProvider,
             ButtonSelectionStateController buttonSelectionStateController,
             Lazy<UserNameViewController> userNameViewControllerLazy,
             Lazy<MicPrivacyChipViewController> micPrivacyChipViewControllerLazy,
@@ -52,7 +54,8 @@ public class DistantDisplaySystemBarModule {
             Provider<StatusIconPanelViewController.Builder> panelControllerBuilderProvider,
             DistantDisplayStatusIconController distantDisplayStatusIconController) {
         return new DistantDisplayCarSystemBarController(context, userTracker,
-                carSystemBarViewFactory, buttonSelectionStateController, userNameViewControllerLazy,
+                carSystemBarViewFactory, carServiceProvider, buttonSelectionStateController,
+                userNameViewControllerLazy,
                 micPrivacyChipViewControllerLazy, cameraPrivacyChipViewControllerLazy,
                 buttonRoleHolderController, systemBarConfigs, panelControllerBuilderProvider,
                 distantDisplayStatusIconController);
