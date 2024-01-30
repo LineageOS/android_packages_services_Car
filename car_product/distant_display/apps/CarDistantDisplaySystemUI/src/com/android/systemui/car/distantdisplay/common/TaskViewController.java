@@ -15,6 +15,8 @@
  */
 package com.android.systemui.car.distantdisplay.common;
 
+import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_VIDEO;
+
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.ActivityTaskManager;
@@ -22,7 +24,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.display.DisplayManager;
-import android.media.session.MediaController;
 import android.media.session.MediaSessionManager;
 import android.os.Build;
 import android.os.UserHandle;
@@ -31,13 +32,13 @@ import android.view.LayoutInflater;
 
 import androidx.annotation.Nullable;
 
+import com.android.car.ui.utils.CarUxRestrictionsUtil;
 import com.android.systemui.R;
 import com.android.systemui.car.distantdisplay.activity.MoveTaskReceiver;
 import com.android.systemui.car.distantdisplay.activity.RootTaskViewWallpaperActivity;
+import com.android.systemui.car.distantdisplay.util.AppCategoryDetector;
 import com.android.systemui.shared.system.TaskStackChangeListener;
 import com.android.systemui.shared.system.TaskStackChangeListeners;
-
-import java.util.List;
 
 /**
  * TaskView Controller that manages the implementation details for task views on a distant display.
@@ -60,6 +61,14 @@ public class TaskViewController {
     private Intent mBaseIntentForTopTask;
     private MediaSessionManager mMediaSessionManager;
     private OrderedHashSet<Integer> mDistantDisplayForegroundTask;
+    private final CarUxRestrictionsUtil.OnUxRestrictionsChangedListener
+            mOnUxRestrictionsChangedListener = carUxRestrictions -> {
+        int uxr = carUxRestrictions.getActiveRestrictions();
+        if (isVideoRestricted(uxr)) {
+            // pull back the video from DD
+            changeDisplayForTask(MoveTaskReceiver.MOVE_FROM_DISTANT_DISPLAY);
+        }
+    };
 
     private final TaskStackChangeListener mTaskStackChangeLister = new TaskStackChangeListener() {
 
@@ -101,6 +110,9 @@ public class TaskViewController {
         mDistantDisplayForegroundTask = new OrderedHashSet<Integer>();
         mDistantDisplayId = mContext.getResources().getInteger(R.integer.config_distantDisplayId);
         mMediaSessionManager = mContext.getSystemService(MediaSessionManager.class);
+
+        CarUxRestrictionsUtil carUxRestrictionsUtil = CarUxRestrictionsUtil.getInstance(context);
+        carUxRestrictionsUtil.register(mOnUxRestrictionsChangedListener);
     }
 
     /**
@@ -129,6 +141,10 @@ public class TaskViewController {
                 Context.RECEIVER_EXPORTED);
     }
 
+    private boolean isVideoRestricted(int uxr) {
+        return ((uxr & UX_RESTRICTIONS_NO_VIDEO) == UX_RESTRICTIONS_NO_VIDEO);
+    }
+
     private void changeDisplayForTask(String movement) {
         Log.i(TAG, "Handling movement command : " + movement);
         if (movement.equals(MoveTaskReceiver.MOVE_FROM_DISTANT_DISPLAY)
@@ -137,7 +153,7 @@ public class TaskViewController {
             moveTaskToDisplay(lastTask, DEFAULT_DISPLAY_ID);
             mDistantDisplayForegroundTask.remove(lastTask);
         } else if (movement.equals(MoveTaskReceiver.MOVE_TO_DISTANT_DISPLAY)) {
-            if (taskHasActiveMediaSession(mBaseIntentForTopTask.getComponent().getPackageName())) {
+            if (isVideoApp(mBaseIntentForTopTask.getComponent().getPackageName())) {
                 startActivityOnDisplay(mBaseIntentForTopTask, mDistantDisplayId);
             }
         }
@@ -163,25 +179,16 @@ public class TaskViewController {
     }
 
 
-    private boolean taskHasActiveMediaSession(@Nullable String packageName) {
+    private boolean isVideoApp(@Nullable String packageName) {
         if (packageName == null) {
             Log.w(TAG, "package name is null");
             return false;
         }
-        List<MediaController> controllerList =
-                mMediaSessionManager.getActiveSessionsForUser(/* notificationListener= */ null,
-                        UserHandle.of(ActivityManager.getCurrentUser()));
-        Log.e(TAG, "controllerList: " + controllerList.size());
-        for (MediaController ctrl : controllerList) {
-            Log.d(TAG, "packagg nam " + ctrl.getPackageName());
-            if (packageName.equals(ctrl.getPackageName())) {
-                return true;
-            }
-            Log.i(TAG, "[" + packageName + "]" + " active media session: " + ctrl.getPackageName());
-        }
-        logIfDebuggable("package: " + packageName
-                + " does not have an active MediaSession, cannot move the Task");
-        return false;
+
+        Context userContext = mContext.createContextAsUser(
+                UserHandle.of(ActivityManager.getCurrentUser()), /* flags= */ 0);
+        return AppCategoryDetector.isVideoApp(userContext.getPackageManager(),
+                packageName);
     }
 
     /**
