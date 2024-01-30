@@ -50,6 +50,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.VehicleAreaSeat;
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
 import android.car.feature.FeatureFlags;
@@ -66,17 +67,18 @@ import android.os.ServiceSpecificException;
 import android.platform.test.annotations.IgnoreUnderRavenwood;
 import android.platform.test.ravenwood.RavenwoodRule;
 import android.util.ArraySet;
+import android.util.SparseArray;
 
 import com.android.car.internal.ICarBase;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.internal.property.CarSubscription;
+import com.android.car.internal.property.GetPropertyConfigListResult;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
-
-import com.google.common.collect.ImmutableList;
+import com.android.car.internal.util.IntArray;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -88,7 +90,6 @@ import org.mockito.MockitoAnnotations;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -132,6 +133,10 @@ public final class CarPropertyManagerUnitTest {
     private CarPropertyConfig mContinuousCarPropertyConfig;
     private CarPropertyConfig mOnChangeCarPropertyConfig;
     private CarPropertyConfig mStaticCarPropertyConfig;
+    private final SparseArray<CarPropertyConfig> mCarPropertyConfigsById = new SparseArray<>();
+    private final ArraySet<Integer> mUnsupportedPropIds = new ArraySet<>();
+    private final ArraySet<Integer> mMissingPermissionPropIds = new ArraySet<>();
+
     @Mock
     private ICarBase mCar;
     @Mock
@@ -169,6 +174,10 @@ public final class CarPropertyManagerUnitTest {
     private ArgumentCaptor<SetPropertyResult> mSetPropertyResultCaptor;
     private CarPropertyManager mCarPropertyManager;
 
+    private static int combineErrors(int systemError, int vendorError) {
+        return vendorError << VENDOR_ERROR_CODE_SHIFT | systemError;
+    }
+
     private static List<CarPropertyEvent> createErrorCarPropertyEventList() {
         CarPropertyValue<Integer> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0,
                 CarPropertyValue.STATUS_AVAILABLE, 0, -1);
@@ -199,6 +208,20 @@ public final class CarPropertyManagerUnitTest {
         options.updateRateHz = updateRateHz;
         options.enableVariableUpdateRate = enableVur;
         return options;
+    }
+
+    private void addCarPropertyConfig(CarPropertyConfig config) {
+        mCarPropertyConfigsById.put(config.getPropertyId(), config);
+    }
+
+    private void setPropIdWithoutPermission(int propId) {
+        mCarPropertyConfigsById.remove(propId);
+        mMissingPermissionPropIds.add(propId);
+    }
+
+    private void setPropIdWithoutConfig(int propId) {
+        mCarPropertyConfigsById.remove(propId);
+        mUnsupportedPropIds.add(propId);
     }
 
     @Before
@@ -235,13 +258,39 @@ public final class CarPropertyManagerUnitTest {
                 .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(0).build())
                 .build();
 
-        when(mICarProperty.getPropertyConfigList(new int[]{VENDOR_CONTINUOUS_PROPERTY})).thenReturn(
-                new CarPropertyConfigList(
-                        ImmutableList.of(mContinuousCarPropertyConfig)));
-        when(mICarProperty.getPropertyConfigList(new int[]{VENDOR_ON_CHANGE_PROPERTY})).thenReturn(
-                new CarPropertyConfigList(ImmutableList.of(mOnChangeCarPropertyConfig)));
-        when(mICarProperty.getPropertyConfigList(new int[]{VENDOR_STATIC_PROPERTY})).thenReturn(
-                new CarPropertyConfigList(ImmutableList.of(mStaticCarPropertyConfig)));
+        when(mICarProperty.getPropertyConfigList(any())).thenAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            int[] propIds = (int[]) args[0];
+            GetPropertyConfigListResult result = new GetPropertyConfigListResult();
+            IntArray unsupportedPropIds = new IntArray();
+            IntArray missingPermissionPropIds = new IntArray();
+            List<CarPropertyConfig> configs = new ArrayList<>();
+            for (int propId : propIds) {
+                if (mUnsupportedPropIds.contains(propId)) {
+                    unsupportedPropIds.add(propId);
+                    continue;
+                }
+                if (mMissingPermissionPropIds.contains(propId)) {
+                    missingPermissionPropIds.add(propId);
+                    continue;
+                }
+                var config = mCarPropertyConfigsById.get(propId);
+                if (config == null) {
+                    unsupportedPropIds.add(propId);
+                    continue;
+                }
+                configs.add(config);
+            }
+
+            result.carPropertyConfigList = new CarPropertyConfigList(configs);
+            result.unsupportedPropIds = unsupportedPropIds.toArray();
+            result.missingPermissionPropIds = missingPermissionPropIds.toArray();
+            return result;
+        });
+
+        addCarPropertyConfig(mContinuousCarPropertyConfig);
+        addCarPropertyConfig(mOnChangeCarPropertyConfig);
+        addCarPropertyConfig(mStaticCarPropertyConfig);
         when(mICarProperty.getSupportedNoReadPermPropIds(any())).thenReturn(new int[0]);
         mCarPropertyManager = new CarPropertyManager(mCar, mICarProperty);
         // Enable the features.
@@ -2139,15 +2188,13 @@ public final class CarPropertyManagerUnitTest {
                 new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
                         almostFreshValue)
         );
-        List<CarPropertyConfig> configs = List.of(
-                CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
-                                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
-                        .addAreaIdConfig(new AreaIdConfig.Builder<Float>(0).build())
-                        .setChangeMode(CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS)
-                        .setMinSampleRate(0f)
-                        .setMaxSampleRate(10f).build());
-        when(mICarProperty.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET})).thenReturn(
-                new CarPropertyConfigList(configs));
+        CarPropertyConfig config = CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
+                        VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Float>(0).build())
+                .setChangeMode(CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS)
+                .setMinSampleRate(0f)
+                .setMaxSampleRate(10f).build();
+        addCarPropertyConfig(config);
         ICarPropertyEventListener listener = getCarPropertyEventListener();
         ArgumentCaptor<CarPropertyValue> valueCaptor =
                 ArgumentCaptor.forClass(CarPropertyValue.class);
@@ -2235,8 +2282,20 @@ public final class CarPropertyManagerUnitTest {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
 
-        when(mICarProperty.getPropertyConfigList(any())).thenReturn(
-                new CarPropertyConfigList(Collections.emptyList()));
+        setPropIdWithoutConfig(VENDOR_CONTINUOUS_PROPERTY);
+
+        mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback,
+                VENDOR_CONTINUOUS_PROPERTY);
+        verify(mICarProperty, never()).unregisterListener(anyInt(),
+                any(ICarPropertyEventListener.class));
+    }
+
+    @Test
+    public void testUnregisterCallback_doesNothingIfNoPermission() throws Exception {
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
+
+        setPropIdWithoutPermission(VENDOR_CONTINUOUS_PROPERTY);
 
         mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback,
                 VENDOR_CONTINUOUS_PROPERTY);
@@ -2252,8 +2311,23 @@ public final class CarPropertyManagerUnitTest {
                                 .setUpdateRateHz(FIRST_UPDATE_RATE_HZ).build()),
                 /* callbackExecutor= */ null, mCarPropertyEventCallback)).isTrue();
 
-        when(mICarProperty.getPropertyConfigList(any())).thenReturn(
-                new CarPropertyConfigList(Collections.emptyList()));
+        setPropIdWithoutConfig(VENDOR_CONTINUOUS_PROPERTY);
+
+        mCarPropertyManager.unsubscribePropertyEvents(mCarPropertyEventCallback,
+                VENDOR_CONTINUOUS_PROPERTY);
+        verify(mICarProperty, never()).unregisterListener(anyInt(),
+                any(ICarPropertyEventListener.class));
+    }
+
+    @Test
+    public void testUnsubscribePropertyEvents_doesNothingIfNoPermission()
+            throws Exception {
+        assertThat(mCarPropertyManager.subscribePropertyEvents(List.of(
+                        new Subscription.Builder(VENDOR_CONTINUOUS_PROPERTY)
+                                .setUpdateRateHz(FIRST_UPDATE_RATE_HZ).build()),
+                /* callbackExecutor= */ null, mCarPropertyEventCallback)).isTrue();
+
+        setPropIdWithoutPermission(VENDOR_CONTINUOUS_PROPERTY);
 
         mCarPropertyManager.unsubscribePropertyEvents(mCarPropertyEventCallback,
                 VENDOR_CONTINUOUS_PROPERTY);
@@ -2299,6 +2373,36 @@ public final class CarPropertyManagerUnitTest {
                 VENDOR_ON_CHANGE_PROPERTY);
         verify(mICarProperty).unregisterListener(eq(VENDOR_ON_CHANGE_PROPERTY),
                 any(ICarPropertyEventListener.class));
+    }
+
+    @Test
+    public void testUnsubscribePropertyEvents_ignoreUserHalProp()
+            throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+
+        mCarPropertyManager.unsubscribePropertyEvents(mCarPropertyEventCallback, INITIAL_USER_INFO);
+
+        verify(mICarProperty, never()).unregisterListener(anyInt(), any());
+    }
+
+    @Test
+    public void testUnregisterCallback_ignoreUserHalProp_beforeU()
+            throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+
+        mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback, INITIAL_USER_INFO);
+
+        verify(mICarProperty, never()).unregisterListener(anyInt(), any());
+    }
+
+    @Test
+    public void testUnregisterCallback_ignoreUserHalProp_afterU()
+            throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+
+        mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback, INITIAL_USER_INFO);
+
+        verify(mICarProperty, never()).unregisterListener(anyInt(), any());
     }
 
     @Test
@@ -2581,12 +2685,10 @@ public final class CarPropertyManagerUnitTest {
     @Test
     public void testOnErrorEvent_callbackIsCalledWithErrorEvent() throws RemoteException {
         List<CarPropertyEvent> eventList = createErrorCarPropertyEventList();
-        List<CarPropertyConfig> configs = List.of(
-                CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
-                                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
-                        .addAreaIdConfig(new AreaIdConfig.Builder<Float>(0).build()).build());
-        when(mICarProperty.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET})).thenReturn(
-                new CarPropertyConfigList(configs));
+        CarPropertyConfig config = CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
+                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Float>(0).build()).build();
+        addCarPropertyConfig(config);
         ICarPropertyEventListener listener = getCarPropertyEventListener();
 
         listener.onEvent(eventList);
@@ -2599,12 +2701,10 @@ public final class CarPropertyManagerUnitTest {
     @Test
     public void testOnChangeEvent_callbackIsCalledWithEvent() throws RemoteException {
         List<CarPropertyEvent> eventList = createCarPropertyEventList();
-        List<CarPropertyConfig> configs = List.of(
-                CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
-                                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
-                        .addAreaIdConfig(new AreaIdConfig.Builder<Float>(0).build()).build());
-        when(mICarProperty.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET})).thenReturn(
-                new CarPropertyConfigList(configs));
+        CarPropertyConfig config = CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
+                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Float>(0).build()).build();
+        addCarPropertyConfig(config);
         ICarPropertyEventListener listener = getCarPropertyEventListener();
         ArgumentCaptor<CarPropertyValue> value = ArgumentCaptor.forClass(CarPropertyValue.class);
 
@@ -2642,51 +2742,58 @@ public final class CarPropertyManagerUnitTest {
 
     @Test
     public void testGetPropertyList_withPropertyIds() throws Exception {
-        Integer[] requestedPropertyIds = new Integer[] {
-                VENDOR_CONTINUOUS_PROPERTY, HVAC_TEMPERATURE_SET};
-        List<CarPropertyConfig> expectedConfigs = mock(List.class);
-        ArgumentCaptor<int[]> argumentCaptor = ArgumentCaptor.forClass(int[].class);
-        when(mICarProperty.getPropertyConfigList(argumentCaptor.capture()))
-                .thenReturn(new CarPropertyConfigList(expectedConfigs));
+        ArraySet<Integer> requestedPropertyIds = new ArraySet<>(Set.of(
+                VENDOR_CONTINUOUS_PROPERTY, HVAC_TEMPERATURE_SET));
+        CarPropertyConfig config1 = CarPropertyConfig.newBuilder(Integer.class,
+                VENDOR_CONTINUOUS_PROPERTY,
+                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(0).build()).build();
+        CarPropertyConfig config2 = CarPropertyConfig.newBuilder(Float.class,
+                HVAC_TEMPERATURE_SET,
+                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Float>(0).build()).build();
+        addCarPropertyConfig(config1);
+        addCarPropertyConfig(config2);
 
-        assertThat(mCarPropertyManager.getPropertyList(new ArraySet<Integer>(requestedPropertyIds)))
-                .isEqualTo(expectedConfigs);
-        assertThat(argumentCaptor.getValue()).asList()
-                .containsExactlyElementsIn(requestedPropertyIds);
+        assertThat(mCarPropertyManager.getPropertyList(requestedPropertyIds))
+                .containsExactly(config1, config2);
     }
 
     @Test
     public void testGetPropertyList_filterUnsupportedPropertyIds() throws Exception {
-        Integer[] requestedPropertyIds = new Integer[]{
-                0, 1, VENDOR_CONTINUOUS_PROPERTY, HVAC_TEMPERATURE_SET};
-        Integer[] filteredPropertyIds = new Integer[]{
-                VENDOR_CONTINUOUS_PROPERTY, HVAC_TEMPERATURE_SET};
-        List<CarPropertyConfig> expectedConfigs = mock(List.class);
-        ArgumentCaptor<int[]> argumentCaptor = ArgumentCaptor.forClass(int[].class);
-        when(mICarProperty.getPropertyConfigList(argumentCaptor.capture()))
-                .thenReturn(new CarPropertyConfigList(expectedConfigs));
+        ArraySet<Integer> requestedPropertyIds = new ArraySet<>(Set.of(
+                0, 1, VENDOR_CONTINUOUS_PROPERTY, HVAC_TEMPERATURE_SET));
+        CarPropertyConfig config1 = CarPropertyConfig.newBuilder(Integer.class,
+                VENDOR_CONTINUOUS_PROPERTY,
+                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(0).build()).build();
+        CarPropertyConfig config2 = CarPropertyConfig.newBuilder(Float.class,
+                HVAC_TEMPERATURE_SET,
+                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Float>(0).build()).build();
+        addCarPropertyConfig(config1);
+        addCarPropertyConfig(config2);
 
-        assertThat(mCarPropertyManager.getPropertyList(new ArraySet<Integer>(requestedPropertyIds)))
-                .isEqualTo(expectedConfigs);
-        assertThat(argumentCaptor.getValue()).asList()
-                .containsExactlyElementsIn(filteredPropertyIds);
+        assertThat(mCarPropertyManager.getPropertyList(requestedPropertyIds))
+                .containsExactly(config1, config2);
     }
 
     @Test
     public void testGetCarPropertyConfig() throws Exception {
-        List<CarPropertyConfig> expectedConfigs = List.of(mOnChangeCarPropertyConfig);
-        when(mICarProperty.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET}))
-                .thenReturn(new CarPropertyConfigList(expectedConfigs));
-
-        assertThat(mCarPropertyManager.getCarPropertyConfig(HVAC_TEMPERATURE_SET))
+        assertThat(mCarPropertyManager.getCarPropertyConfig(VENDOR_ON_CHANGE_PROPERTY))
                 .isEqualTo(mOnChangeCarPropertyConfig);
     }
 
     @Test
-    public void testGetCarPropertyConfig_noConfigReturned() throws Exception {
-        when(mICarProperty.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET}))
-                .thenReturn(new CarPropertyConfigList(
-                        new ArrayList<CarPropertyConfig>()));
+    public void testGetCarPropertyConfig_noConfigReturned_notSupported() throws Exception {
+        setPropIdWithoutConfig(HVAC_TEMPERATURE_SET);
+
+        assertThat(mCarPropertyManager.getCarPropertyConfig(HVAC_TEMPERATURE_SET)).isNull();
+    }
+
+    @Test
+    public void testGetCarPropertyConfig_noConfigReturned_noPermission() throws Exception {
+        setPropIdWithoutPermission(HVAC_TEMPERATURE_SET);
 
         assertThat(mCarPropertyManager.getCarPropertyConfig(HVAC_TEMPERATURE_SET)).isNull();
     }
@@ -2694,6 +2801,66 @@ public final class CarPropertyManagerUnitTest {
     @Test
     public void testGetCarPropertyConfig_unsupported() throws Exception {
         assertThat(mCarPropertyManager.getCarPropertyConfig(/* propId= */ 0)).isNull();
+    }
+
+    @Test
+    public void testGetAreaId_global() throws Exception {
+        assertThat(mCarPropertyManager.getAreaId(VENDOR_ON_CHANGE_PROPERTY, 0)).isEqualTo(0);
+    }
+
+    @Test
+    public void testGetAreaId_withArea() throws Exception {
+        int areaId = VehicleAreaSeat.SEAT_ROW_1_LEFT | VehicleAreaSeat.SEAT_ROW_1_CENTER;
+        CarPropertyConfig config1 = CarPropertyConfig.newBuilder(Integer.class,
+                HVAC_TEMPERATURE_SET,
+                VehicleAreaType.VEHICLE_AREA_TYPE_SEAT)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(areaId)
+                .build()).build();
+        addCarPropertyConfig(config1);
+
+        assertThat(mCarPropertyManager.getAreaId(
+                HVAC_TEMPERATURE_SET, VehicleAreaSeat.SEAT_ROW_1_LEFT)).isEqualTo(areaId);
+        assertThat(mCarPropertyManager.getAreaId(
+                HVAC_TEMPERATURE_SET, VehicleAreaSeat.SEAT_ROW_1_CENTER)).isEqualTo(areaId);
+    }
+
+    @Test
+    public void testGetAreaId_areaNotSupported() throws Exception {
+        int areaId = VehicleAreaSeat.SEAT_ROW_1_LEFT | VehicleAreaSeat.SEAT_ROW_1_CENTER;
+        CarPropertyConfig config1 = CarPropertyConfig.newBuilder(Integer.class,
+                HVAC_TEMPERATURE_SET,
+                VehicleAreaType.VEHICLE_AREA_TYPE_SEAT)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(areaId)
+                .build()).build();
+        addCarPropertyConfig(config1);
+
+        assertThrows(IllegalArgumentException.class, () -> mCarPropertyManager.getAreaId(
+                HVAC_TEMPERATURE_SET, VehicleAreaSeat.SEAT_ROW_1_RIGHT));
+    }
+
+    @Test
+    public void testGetAreaId_propertyNotSupported() throws Exception {
+        setPropIdWithoutConfig(HVAC_TEMPERATURE_SET);
+
+        assertThrows(IllegalArgumentException.class, () -> mCarPropertyManager.getAreaId(
+                HVAC_TEMPERATURE_SET, 0));
+    }
+
+    @Test
+    public void testGetAreaId_noPermissionToProperty() throws Exception {
+        setPropIdWithoutPermission(HVAC_TEMPERATURE_SET);
+
+        assertThrows(IllegalArgumentException.class, () -> mCarPropertyManager.getAreaId(
+                HVAC_TEMPERATURE_SET, 0));
+    }
+
+    @Test
+    public void testGetAreaId_remoteExceptionFromCarService() throws Exception {
+        when(mICarProperty.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET}))
+                .thenThrow(new RemoteException());
+
+        assertThrows(IllegalArgumentException.class, () -> mCarPropertyManager.getAreaId(
+                HVAC_TEMPERATURE_SET, 0));
     }
 
     @Test
@@ -2836,9 +3003,5 @@ public final class CarPropertyManagerUnitTest {
         assertThrows(IllegalArgumentException.class,
                 () -> mCarPropertyManager.setBooleanProperty(INITIAL_USER_INFO, /* areaId= */ 0,
                         true));
-    }
-
-    private static int combineErrors(int systemError, int vendorError) {
-        return vendorError << VENDOR_ERROR_CODE_SHIFT | systemError;
     }
 }
