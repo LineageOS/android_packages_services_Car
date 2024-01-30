@@ -16,10 +16,12 @@
 
 package android.car.hardware.property;
 
+import static android.car.feature.Flags.FLAG_VARIABLE_UPDATE_RATE;
+
+import android.annotation.FlaggedApi;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -32,9 +34,6 @@ import java.util.List;
  * @param <T> matches the type for the {@link android.car.hardware.CarPropertyConfig}.
  */
 public final class AreaIdConfig<T> implements Parcelable {
-    @ApiRequirements(
-            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     public static final Parcelable.Creator<AreaIdConfig<Object>> CREATOR = getCreator();
 
@@ -42,13 +41,16 @@ public final class AreaIdConfig<T> implements Parcelable {
     @Nullable private final T mMinValue;
     @Nullable private final T mMaxValue;
     private final List<T> mSupportedEnumValues;
+    private final boolean mSupportVariableUpdateRate;
 
     private AreaIdConfig(
-            int areaId, @Nullable T minValue, @Nullable T maxValue, List<T> supportedEnumValues) {
+            int areaId, @Nullable T minValue, @Nullable T maxValue, List<T> supportedEnumValues,
+            boolean supportVariableUpdateRate) {
         mAreaId = areaId;
         mMinValue = minValue;
         mMaxValue = maxValue;
         mSupportedEnumValues = supportedEnumValues;
+        mSupportVariableUpdateRate = supportVariableUpdateRate;
     }
 
     @SuppressWarnings("unchecked")
@@ -57,6 +59,7 @@ public final class AreaIdConfig<T> implements Parcelable {
         mMinValue = (T) in.readValue(getClass().getClassLoader());
         mMaxValue = (T) in.readValue(getClass().getClassLoader());
         mSupportedEnumValues = in.readArrayList(getClass().getClassLoader());
+        mSupportVariableUpdateRate = in.readBoolean();
     }
 
     private static <E> Parcelable.Creator<AreaIdConfig<E>> getCreator() {
@@ -81,9 +84,6 @@ public final class AreaIdConfig<T> implements Parcelable {
     /**
      * @return area ID for this configuration.
      */
-    @ApiRequirements(
-            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int getAreaId() {
         return mAreaId;
     }
@@ -93,9 +93,6 @@ public final class AreaIdConfig<T> implements Parcelable {
      *     minimum value supported.
      */
     @Nullable
-    @ApiRequirements(
-            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public T getMinValue() {
         return mMinValue;
     }
@@ -105,11 +102,24 @@ public final class AreaIdConfig<T> implements Parcelable {
      *     maximum value supported.
      */
     @Nullable
-    @ApiRequirements(
-            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public T getMaxValue() {
         return mMaxValue;
+    }
+
+    /**
+     * Returns whether variable update rate is supported.
+     *
+     * If this returns {@code false}, variable update rate is always disabled for this area ID.
+     *
+     * If this returns {@code true}, variable update rate will be disabled if client calls
+     * {@link Subscription.Builder#setVariableUpdateRateEnabled} with {@code false}, or enabled
+     * otherwise.
+     *
+     * @return whether variable update rate is supported.
+     */
+    @FlaggedApi(FLAG_VARIABLE_UPDATE_RATE)
+    public boolean isVariableUpdateRateSupported() {
+        return mSupportVariableUpdateRate;
     }
 
     /**
@@ -117,30 +127,22 @@ public final class AreaIdConfig<T> implements Parcelable {
      * property does not support an enum.
      */
     @NonNull
-    @ApiRequirements(
-            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public List<T> getSupportedEnumValues() {
         return Collections.unmodifiableList(mSupportedEnumValues);
     }
 
     @Override
-    @ApiRequirements(
-            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int describeContents() {
         return 0;
     }
 
     @Override
-    @ApiRequirements(
-            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeInt(mAreaId);
         dest.writeValue(mMinValue);
         dest.writeValue(mMaxValue);
         dest.writeList(mSupportedEnumValues);
+        dest.writeBoolean(mSupportVariableUpdateRate);
     }
 
     @Override
@@ -161,6 +163,11 @@ public final class AreaIdConfig<T> implements Parcelable {
 
     /**
      * @param <T> matches the type for the {@link android.car.hardware.CarPropertyConfig}.
+     *
+     * This is supposed to be called by CarService only. For history reason, we exposed
+     * this as system API, however, client must not use this builder and should use the getXXX
+     * method in {@code AreaIdConfig}.
+     *
      * @hide
      */
     @SystemApi
@@ -169,6 +176,7 @@ public final class AreaIdConfig<T> implements Parcelable {
         private T mMinValue = null;
         private T mMaxValue = null;
         private List<T> mSupportedEnumValues = Collections.EMPTY_LIST;
+        private boolean mSupportVariableUpdateRate = false;
 
         public Builder(int areaId) {
             mAreaId = areaId;
@@ -176,9 +184,6 @@ public final class AreaIdConfig<T> implements Parcelable {
 
         /** Set the min value for the {@link AreaIdConfig}. */
         @NonNull
-        @ApiRequirements(
-                minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public Builder<T> setMinValue(T minValue) {
             mMinValue = minValue;
             return this;
@@ -186,9 +191,6 @@ public final class AreaIdConfig<T> implements Parcelable {
 
         /** Set the max value for the {@link AreaIdConfig}. */
         @NonNull
-        @ApiRequirements(
-                minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public Builder<T> setMaxValue(T maxValue) {
             mMaxValue = maxValue;
             return this;
@@ -196,21 +198,29 @@ public final class AreaIdConfig<T> implements Parcelable {
 
         /** Set the supported enum values for the {@link AreaIdConfig}. */
         @NonNull
-        @ApiRequirements(
-                minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public Builder<T> setSupportedEnumValues(@NonNull List<T> supportedEnumValues) {
             mSupportedEnumValues = supportedEnumValues;
             return this;
         }
 
+        /**
+         * Sets whether variable update rate is supported.
+         *
+         * This is supposed to be called by CarService only.
+         *
+         * @hide
+         */
+        @NonNull
+        public Builder<T> setSupportVariableUpdateRate(boolean supportVariableUpdateRate) {
+            mSupportVariableUpdateRate = supportVariableUpdateRate;
+            return this;
+        }
+
         /** Builds a new {@link android.car.hardware.property.AreaIdConfig}. */
         @NonNull
-        @ApiRequirements(
-                minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public AreaIdConfig<T> build() {
-            return new AreaIdConfig<>(mAreaId, mMinValue, mMaxValue, mSupportedEnumValues);
+            return new AreaIdConfig<>(mAreaId, mMinValue, mMaxValue, mSupportedEnumValues,
+                    mSupportVariableUpdateRate);
         }
     }
 }

@@ -92,7 +92,7 @@ public class EvsHalService extends HalServiceBase {
             mListener = listener;
         }
 
-        mHal.subscribeProperty(this, EVS_SERVICE_REQUEST);
+        mHal.subscribePropertySafe(this, EVS_SERVICE_REQUEST);
     }
 
     /** Returns whether {@code EVS_SERVICE_REQUEST} is supported */
@@ -106,7 +106,7 @@ public class EvsHalService extends HalServiceBase {
             for (int i = 0; i < mProperties.size(); i++) {
                 HalPropConfig config = mProperties.valueAt(i);
                 if (VehicleHal.isPropertySubscribable(config)) {
-                    mHal.subscribeProperty(this, config.getPropId());
+                    mHal.subscribePropertySafe(this, config.getPropId());
                 }
             }
         }

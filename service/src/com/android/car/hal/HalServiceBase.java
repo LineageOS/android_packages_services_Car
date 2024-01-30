@@ -56,9 +56,12 @@ public abstract class HalServiceBase {
     /**
      * Returns all property IDs this HalService can support. If return value is empty,
      * {@link #isSupportedProperty(int)} is used to query support for each property.
+     *
+     * Implementers should consider keeping this method package private to avoid exposing the
+     * internal array.
      */
     @NonNull
-    public abstract int[] getAllSupportedProperties();
+    abstract int[] getAllSupportedProperties();
 
     /**
      * Checks if given {@code propId} is supported.
@@ -97,8 +100,10 @@ public abstract class HalServiceBase {
     /**
      * Handles errors and pass error codes  when setting properties.
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public void onPropertySetError(ArrayList<VehiclePropError> errors) {
-        for (VehiclePropError error : errors) {
+        for (int i = 0; i < errors.size(); i++) {
+            VehiclePropError error = errors.get(i);
             Slogf.d(MY_TAG, getClass().getSimpleName() + ".onPropertySetError(): property="
                     + error.propId + ", area=" + error.areaId + " , errorCode = "
                     + error.errorCode);

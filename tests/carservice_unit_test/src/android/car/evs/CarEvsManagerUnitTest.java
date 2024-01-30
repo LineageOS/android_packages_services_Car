@@ -435,6 +435,7 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
 
         android.os.Parcel packet = android.os.Parcel.obtain();
         original.writeToParcel(packet, /* flags= */ 0);
+        packet.setDataPosition(0);
         assertThat(CarEvsBufferDescriptor.CREATOR.createFromParcel(packet)).isNotNull();
     }
 }

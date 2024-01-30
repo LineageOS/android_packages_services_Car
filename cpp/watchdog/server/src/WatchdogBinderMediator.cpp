@@ -49,7 +49,8 @@ using ::ndk::ICInterface;
 using ::ndk::ScopedAStatus;
 using ::ndk::SharedRefBase;
 
-using AddServiceFunction = std::function<android::base::Result<void>(ICInterface*, const char*)>;
+using AddServiceFunction =
+        std::function<android::base::Result<void>(const char*, ICInterface*, bool, int)>;
 
 namespace {
 
@@ -65,10 +66,15 @@ ScopedAStatus toScopedAStatus(const int32_t exceptionCode, const std::string& me
     return ScopedAStatus::fromExceptionCodeWithMessage(exceptionCode, message.c_str());
 }
 
-Result<void> addToServiceManager(ICInterface* service, const char* instance) {
-    if (auto exception = AServiceManager_addService(service->asBinder().get(), instance);
-        exception != EX_NONE) {
-        return Error(exception) << "Failed to add '" << instance << "' to ServiceManager";
+Result<void> addToServiceManager(const char* name, ICInterface* service, bool allowIsolated,
+                                 int dumpsysFlags) {
+    auto serviceStatus = defaultServiceManager()->addService(String16(name),
+                                                             AIBinder_toPlatformBinder(
+                                                                     service->asBinder().get()),
+                                                             allowIsolated, dumpsysFlags);
+
+    if (serviceStatus != android::OK) {
+        return Error(FAILED_TRANSACTION) << "Failed to add '" << name << "' to ServiceManager";
     }
     return {};
 }
@@ -121,11 +127,17 @@ Result<void> WatchdogBinderMediator::init() {
         return Error(INVALID_OPERATION)
                 << serviceList << " must be initialized with non-null instance";
     }
-    if (const auto result = mAddServiceHandler(this, kCarWatchdogServerInterface); !result.ok()) {
+    if (const auto result = mAddServiceHandler(kCarWatchdogServerInterface, this,
+                                               /* allowIsolated= */ false,
+                                               IServiceManager::DUMP_FLAG_PRIORITY_HIGH |
+                                                       IServiceManager::DUMP_FLAG_PROTO);
+        !result.ok()) {
         return result;
     }
-    if (const auto result = mAddServiceHandler(mWatchdogInternalHandler.get(),
-                                               kCarWatchdogInternalServerInterface);
+    if (const auto result = mAddServiceHandler(kCarWatchdogInternalServerInterface,
+                                               mWatchdogInternalHandler.get(),
+                                               /* allowIsolated= */ false,
+                                               IServiceManager::DUMP_FLAG_PRIORITY_DEFAULT);
         !result.ok()) {
         return result;
     }

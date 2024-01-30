@@ -16,7 +16,6 @@
 
 package android.car;
 
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
@@ -25,11 +24,11 @@ import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
-import android.car.annotation.ApiRequirements;
 import android.car.builtin.util.Slogf;
 import android.car.occupantconnection.ICarRemoteDevice;
 import android.car.occupantconnection.IStateCallback;
 import android.content.pm.PackageInfo;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -61,8 +60,6 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      * Flag to indicate whether all the displays of the occupant zone are powered on. If any of
      * them is not powered on, the caller can power them on by {@link #setOccupantZonePower}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int FLAG_OCCUPANT_ZONE_POWER_ON = 1 << 0;
 
     /**
@@ -71,8 +68,6 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      * needs to show a dialog to get user approval), the caller shouldn't request a connection to
      * the occupant zone when it's locked.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int FLAG_OCCUPANT_ZONE_SCREEN_UNLOCKED = 1 << 1;
 
     /**
@@ -83,16 +78,12 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      * main display of the occupant zone is unlocked and the client app is running in the foreground
      * before requesting a connection to it.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int FLAG_OCCUPANT_ZONE_CONNECTION_READY = 1 << 2;
 
     /**
      * Flag to indicate whether the client app is installed in the occupant zone. If it's not
      * installed, the caller may show a Dialog to promote the user to install the app.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int FLAG_CLIENT_INSTALLED = 1 << 0;
 
     /**
@@ -101,8 +92,6 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      * the caller may show a Dialog to promote the user to install or update the app. To get
      * detailed package info of the client app, the caller can call {@link #getEndpointPackageInfo}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int FLAG_CLIENT_SAME_LONG_VERSION = 1 << 1;
 
     /**
@@ -111,16 +100,12 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      * may show a Dialog to promote the user to install or update the app. To get detailed
      * package info of the client app, the caller can call {@link #getEndpointPackageInfo}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int FLAG_CLIENT_SAME_SIGNATURE = 1 << 2;
 
     /**
      * Flag to indicate whether the client app in the occupant zone is running. If it's not running,
      * the caller may show a Dialog to promote the user to start the app.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int FLAG_CLIENT_RUNNING = 1 << 3;
 
     /**
@@ -128,8 +113,6 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      * (vs background). If UI is needed, the caller shouldn't request a connection to the client app
      * when the client app is running in the background.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int FLAG_CLIENT_IN_FOREGROUND = 1 << 4;
 
     /**
@@ -143,8 +126,6 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
             FLAG_OCCUPANT_ZONE_CONNECTION_READY,
     })
     @Retention(RetentionPolicy.SOURCE)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public @interface OccupantZoneState {
     }
 
@@ -161,8 +142,6 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
             FLAG_CLIENT_IN_FOREGROUND
     })
     @Retention(RetentionPolicy.SOURCE)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public @interface AppState {
     }
 
@@ -188,8 +167,6 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
          * @param occupantZoneStates the state of the occupant zone. Multiple flags can be set in
          *                           the state.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         void onOccupantZoneStateChanged(@NonNull OccupantZoneInfo occupantZone,
                 @OccupantZoneState int occupantZoneStates);
 
@@ -202,8 +179,6 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
          *
          * @param appStates the state of the peer app. Multiple flags can be set in the state.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         void onAppStateChanged(@NonNull OccupantZoneInfo occupantZone,
                 @AppState int appStates);
     }
@@ -234,8 +209,13 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
                         + ", callbackExecutor: " + callbackExecutor);
                 return;
             }
-            callbackExecutor.execute(() -> callback.onOccupantZoneStateChanged(
-                    occupantZone, occupantZoneStates));
+            long token = Binder.clearCallingIdentity();
+            try {
+                callbackExecutor.execute(() -> callback.onOccupantZoneStateChanged(
+                        occupantZone, occupantZoneStates));
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
         }
 
         @Override
@@ -253,8 +233,13 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
                         + ", callbackExecutor: " + callbackExecutor);
                 return;
             }
-            callbackExecutor.execute(() ->
-                    callback.onAppStateChanged(occupantZone, appStates));
+            long token = Binder.clearCallingIdentity();
+            try {
+                callbackExecutor.execute(() ->
+                        callback.onAppStateChanged(occupantZone, appStates));
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
         }
     };
 
@@ -267,10 +252,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
 
     /** @hide */
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void onCarDisconnected() {
-        assertPlatformVersionAtLeastU();
         synchronized (mLock) {
             mCallback = null;
             mCallbackExecutor = null;
@@ -288,12 +270,9 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      * @param executor the Executor to run the callback
      * @throws IllegalStateException if this client already registered a {@link StateCallback}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
     public void registerStateCallback(@NonNull @CallbackExecutor Executor executor,
             @NonNull StateCallback callback) {
-        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(executor, "executor cannot be null");
         Objects.requireNonNull(callback, "callback cannot be null");
         synchronized (mLock) {
@@ -321,11 +300,8 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      * @throws IllegalStateException if no {@link StateCallback} was registered by
      *                               this {@link CarRemoteDeviceManager} before
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
     public void unregisterStateCallback() {
-        assertPlatformVersionAtLeastU();
         synchronized (mLock) {
             Preconditions.checkState(mCallback != null, "There is no StateCallback "
                     + "registered by this CarRemoteDeviceManager");
@@ -344,12 +320,9 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      * Returns the {@link PackageInfo} of the client in {@code occupantZone}, or
      * {@code null} if there is no such client or an error occurred.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
     @Nullable
     public PackageInfo getEndpointPackageInfo(@NonNull OccupantZoneInfo occupantZone) {
-        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(occupantZone, "occupantZone cannot be null");
         try {
             return mService.getEndpointPackageInfo(occupantZone.zoneId, mPackageName);
@@ -370,11 +343,8 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      * @throws UnsupportedOperationException if {@code occupantZone} represents the driver occupant
      *                                       zone
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(allOf = {Car.PERMISSION_CAR_POWER, Car.PERMISSION_MANAGE_REMOTE_DEVICE})
     public void setOccupantZonePower(@NonNull OccupantZoneInfo occupantZone, boolean powerOn) {
-        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(occupantZone, "occupantZone cannot be null");
         try {
             mService.setOccupantZonePower(occupantZone, powerOn);
@@ -388,11 +358,8 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      * Returns {@code true} if the associated Android system AND all the displays of the given
      * {@code occupantZone} are powered on. Returns {@code false} otherwise.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
     public boolean isOccupantZonePowerOn(@NonNull OccupantZoneInfo occupantZone) {
-        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(occupantZone, "occupantZone cannot be null");
         try {
             return mService.isOccupantZonePowerOn(occupantZone);

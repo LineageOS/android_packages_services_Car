@@ -16,6 +16,8 @@
 
 package com.android.car.vms;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
@@ -75,12 +77,12 @@ public class VmsLayerAvailabilityTest extends AndroidTestCase {
     }
 
     public void testNoOffering() {
-        assertTrue(mLayersAvailability.getAvailableLayers().getAssociatedLayers().isEmpty());
+        assertThat(mLayersAvailability.getAvailableLayers().getAssociatedLayers()).isEmpty();
     }
 
     public void testEmptyOffering() {
         mLayersAvailability.setPublishersOffering(Collections.emptyList());
-        assertTrue(mLayersAvailability.getAvailableLayers().getAssociatedLayers().isEmpty());
+        assertThat(mLayersAvailability.getAvailableLayers().getAssociatedLayers()).isEmpty();
     }
 
     public void testSingleLayerNoDeps() {
@@ -94,8 +96,8 @@ public class VmsLayerAvailabilityTest extends AndroidTestCase {
         mOfferings.add(offering);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
-        assertEquals(expectedAvailableAssociatedLayers,
-                mLayersAvailability.getAvailableLayers().getAssociatedLayers());
+        assertThat(mLayersAvailability.getAvailableLayers().getAssociatedLayers())
+                .isEqualTo(expectedAvailableAssociatedLayers);
     }
 
     public void testChainOfDependenciesSatisfied() {
@@ -113,9 +115,8 @@ public class VmsLayerAvailabilityTest extends AndroidTestCase {
         mOfferings.add(offering);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
-        assertEquals(expectedAvailableAssociatedLayers,
-                new HashSet<>(
-                        mLayersAvailability.getAvailableLayers().getAssociatedLayers()));
+        assertThat(new HashSet<>(mLayersAvailability.getAvailableLayers().getAssociatedLayers()))
+                .isEqualTo(expectedAvailableAssociatedLayers);
     }
 
     public void testChainOfDependenciesSatisfiedTwoOfferings() {
@@ -137,9 +138,8 @@ public class VmsLayerAvailabilityTest extends AndroidTestCase {
         mOfferings.add(offering2);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
-        assertEquals(expectedAvailableAssociatedLayers,
-                new HashSet<>(
-                        mLayersAvailability.getAvailableLayers().getAssociatedLayers()));
+        assertThat(new HashSet<>(mLayersAvailability.getAvailableLayers().getAssociatedLayers()))
+                .isEqualTo(expectedAvailableAssociatedLayers);
     }
 
     public void testChainOfDependenciesNotSatisfied() {
@@ -151,9 +151,8 @@ public class VmsLayerAvailabilityTest extends AndroidTestCase {
         mOfferings.add(offering);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
-        assertEquals(expectedAvailableAssociatedLayers,
-                new HashSet<>(
-                        mLayersAvailability.getAvailableLayers().getAssociatedLayers()));
+        assertThat(new HashSet<>(mLayersAvailability.getAvailableLayers().getAssociatedLayers()))
+                .isEqualTo(expectedAvailableAssociatedLayers);
     }
 
     public void testOneOfMultipleDependencySatisfied() {
@@ -171,9 +170,8 @@ public class VmsLayerAvailabilityTest extends AndroidTestCase {
         mOfferings.add(offering);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
-        assertEquals(expectedAvailableAssociatedLayers,
-                new HashSet<>(
-                        mLayersAvailability.getAvailableLayers().getAssociatedLayers()));
+        assertThat(new HashSet<>(mLayersAvailability.getAvailableLayers().getAssociatedLayers()))
+                .isEqualTo(expectedAvailableAssociatedLayers);
     }
 
     public void testCyclicDependency() {
@@ -188,9 +186,8 @@ public class VmsLayerAvailabilityTest extends AndroidTestCase {
         mOfferings.add(offering);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
-        assertEquals(expectedAvailableAssociatedLayers,
-                new HashSet<>(
-                        mLayersAvailability.getAvailableLayers().getAssociatedLayers()));
+        assertThat(new HashSet<>(mLayersAvailability.getAvailableLayers().getAssociatedLayers()))
+                .isEqualTo(expectedAvailableAssociatedLayers);
     }
 
     public void testAlmostCyclicDependency() {
@@ -212,8 +209,8 @@ public class VmsLayerAvailabilityTest extends AndroidTestCase {
         mOfferings.add(offering2);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
-        assertEquals(expectedAvailableAssociatedLayers,
-                mLayersAvailability.getAvailableLayers().getAssociatedLayers());
+        assertThat(mLayersAvailability.getAvailableLayers().getAssociatedLayers())
+                .isEqualTo(expectedAvailableAssociatedLayers);
     }
 
     public void testCyclicDependencyAndLayerWithoutDependency() {
@@ -233,9 +230,8 @@ public class VmsLayerAvailabilityTest extends AndroidTestCase {
         mOfferings.add(offering2);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
-        assertEquals(expectedAvailableAssociatedLayers,
-                new HashSet<>(
-                        mLayersAvailability.getAvailableLayers().getAssociatedLayers()));
+        assertThat(new HashSet<>(mLayersAvailability.getAvailableLayers().getAssociatedLayers()))
+                .isEqualTo(expectedAvailableAssociatedLayers);
     }
 
     public void testSelfDependency() {
@@ -248,8 +244,7 @@ public class VmsLayerAvailabilityTest extends AndroidTestCase {
         mOfferings.add(offering);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
-        assertEquals(expectedAvailableAssociatedLayers,
-                new HashSet<>(
-                        mLayersAvailability.getAvailableLayers().getAssociatedLayers()));
+        assertThat(new HashSet<>(mLayersAvailability.getAvailableLayers().getAssociatedLayers()))
+                .isEqualTo(expectedAvailableAssociatedLayers);
     }
 }

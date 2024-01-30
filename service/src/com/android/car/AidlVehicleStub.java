@@ -61,6 +61,7 @@ import com.android.car.internal.LongPendingRequestPool.TimeoutCallback;
 import com.android.car.internal.LongRequestIdWithTimeout;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.modules.expresslog.Histogram;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;
@@ -74,6 +75,15 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 final class AidlVehicleStub extends VehicleStub {
+    private static final Histogram sVehicleHalGetSyncLatencyHistogram = new Histogram(
+            "automotive_os.value_sync_hal_get_property_latency",
+            new Histogram.ScaledRangeOptions(/* binCount= */ 20, /* minValue= */ 0,
+                    /* firstBinWidth= */ 2, /* scaleFactor= */ 1.5f));
+
+    private static final Histogram sVehicleHalSetSyncLatencyHistogram = new Histogram(
+            "automotive_os.value_sync_hal_set_property_latency",
+            new Histogram.ScaledRangeOptions(/* binCount= */ 20, /* minValue= */ 0,
+                    /* firstBinWidth= */ 2, /* scaleFactor= */ 1.5f));
 
     private static final String AIDL_VHAL_SERVICE =
             "android.hardware.automotive.vehicle.IVehicle/default";
@@ -287,8 +297,9 @@ final class AidlVehicleStub extends VehicleStub {
     @Nullable
     public HalPropValue get(HalPropValue requestedPropValue)
             throws RemoteException, ServiceSpecificException {
-        return getOrSetSync(requestedPropValue, mPendingSyncGetValueRequestPool,
-                new AsyncGetRequestsHandler(),
+        long currentTime = System.currentTimeMillis();
+        HalPropValue halPropValue = getOrSetSync(requestedPropValue,
+                mPendingSyncGetValueRequestPool, new AsyncGetRequestsHandler(),
                 (result) -> {
                     if (result.status != StatusCode.OK) {
                         throw new ServiceSpecificException(result.status,
@@ -299,6 +310,9 @@ final class AidlVehicleStub extends VehicleStub {
                     }
                     return mPropValueBuilder.build(result.prop);
                 });
+        sVehicleHalGetSyncLatencyHistogram.logSample((float)
+                (System.currentTimeMillis() - currentTime));
+        return halPropValue;
     }
 
     /**
@@ -311,6 +325,7 @@ final class AidlVehicleStub extends VehicleStub {
     @Override
     public void set(HalPropValue requestedPropValue) throws RemoteException,
             ServiceSpecificException {
+        long currentTime = System.currentTimeMillis();
         getOrSetSync(requestedPropValue, mPendingSyncSetValueRequestPool,
                 new AsyncSetRequestsHandler(),
                 (result) -> {
@@ -320,6 +335,8 @@ final class AidlVehicleStub extends VehicleStub {
                     }
                     return null;
                 });
+        sVehicleHalSetSyncLatencyHistogram.logSample((float)
+                (System.currentTimeMillis() - currentTime));
     }
 
     @Override
@@ -427,9 +444,9 @@ final class AidlVehicleStub extends VehicleStub {
         }
 
 
-        void addRequest(AsyncRequestInfo requestInfo) {
+        void addRequests(List<AsyncRequestInfo> requestInfo) {
             synchronized (mAsyncRequestPoolLock) {
-                mPendingRequestPool.addPendingRequests(List.of(requestInfo));
+                mPendingRequestPool.addPendingRequests(requestInfo);
             }
         }
 
@@ -1062,16 +1079,17 @@ final class AidlVehicleStub extends VehicleStub {
                         + "client maybe already died");
             }
 
+            List<AsyncRequestInfo> requestInfoList = new ArrayList<>();
             for (int i = 0; i < vehicleStubRequests.size(); i++) {
                 AsyncGetSetRequest vehicleStubRequest = vehicleStubRequests.get(i);
                 long vhalRequestId = mRequestId.getAndIncrement();
-                AsyncRequestInfo requestInfo = new AsyncRequestInfo(
-                        vhalRequestId, vehicleStubRequest.getServiceRequestId(), clientCallback,
-                        vehicleStubRequest.getTimeoutUptimeMs());
-                mPendingAsyncRequestPool.addRequest(requestInfo);
                 asyncRequestsHandler.addVhalRequest(vhalRequestId,
                         vehicleStubRequest.getHalPropValue());
+                requestInfoList.add(new AsyncRequestInfo(
+                        vhalRequestId, vehicleStubRequest.getServiceRequestId(), clientCallback,
+                        vehicleStubRequest.getTimeoutUptimeMs()));
             }
+            mPendingAsyncRequestPool.addRequests(requestInfoList);
         }
 
     }

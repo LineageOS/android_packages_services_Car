@@ -16,24 +16,10 @@
   -->
 <resources>
 
-    <!-- Hide the app grid recent applications row -->
-    <bool name="car_app_show_recent_apps">false</bool>
-
-    <!-- Hide the app grid toolbar -->
-    <bool name="car_app_show_toolbar">false</bool>
-
     <!-- If the control bar's seekbar should be displayed -->
     <bool name="show_seek_bar">true</bool>
 
     <!-- If the control bar's seekbar uses the color from media source -->
     <bool name="use_media_source_color_for_seek_bar">false</bool>
 
-    <!-- Whether the app grid should use @dimen/app_grid_width and @dimen/app_grid_height.
-    If this is set to true, app grid will fill the available space, If this is set to false, exact
-    defined dimensions will be used instead.-->
-    <bool name="use_defined_app_grid_dimensions">true</bool>
-
-    <!-- Whether the app grid should use vertical pagination (up and down swipe) in app grid
-    instead of horizontal pagination (left and right)-->
-    <bool name="use_vertical_app_grid">true</bool>
 </resources>

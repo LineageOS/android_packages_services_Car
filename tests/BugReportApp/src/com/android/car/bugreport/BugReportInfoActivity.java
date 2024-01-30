@@ -275,7 +275,7 @@ public class BugReportInfoActivity extends Activity {
                         "Unable to create a file " + mBugReport.getBugReportFileName() + " in USB");
             }
             try (InputStream bugReportInput = mResolver.openInputStream(sourceBugReport);
-                 AssetFileDescriptor fd = mResolver.openAssetFileDescriptor(newFileUri, "w");
+                 AssetFileDescriptor fd = mResolver.openAssetFileDescriptor(newFileUri, "wt");
                  OutputStream outputStream = fd.createOutputStream();
                  ZipOutputStream zipOutStream =
                          new ZipOutputStream(new BufferedOutputStream(outputStream))) {
@@ -311,7 +311,7 @@ public class BugReportInfoActivity extends Activity {
                 throw new IOException("Unable to create a file " + filename + " in USB");
             }
             try (InputStream input = mResolver.openInputStream(sourceUri);
-                 AssetFileDescriptor fd = mResolver.openAssetFileDescriptor(newFileUri, "w")) {
+                 AssetFileDescriptor fd = mResolver.openAssetFileDescriptor(newFileUri, "wt")) {
                 OutputStream output = fd.createOutputStream();
                 ByteStreams.copy(input, output);
                 // Force sync the written data from memory to the disk.

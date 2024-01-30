@@ -24,6 +24,6 @@
     <com.android.car.notification.headsup.HeadsUpContainerView
         android:id="@+id/headsup_content"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="@dimen/headsup_container_height" />
 
 </FrameLayout>

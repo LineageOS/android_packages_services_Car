@@ -275,18 +275,18 @@ class GarageMode {
                     (mIdleCheckerIsRunning ? "" : "not "));
         }
 
-        List<JobInfo> numjobs = JobSchedulerHelper.getRunningJobsAtIdle(mContext);
-        if (numjobs.size() > 0) {
-            writer.printf("GarageMode is waiting for %d jobs:\n", numjobs.size());
-            for (int idx = 0; idx < numjobs.size(); idx++) {
-                JobInfo jobinfo = numjobs.get(idx);
+        List<JobInfo> jobs = JobSchedulerHelper.getRunningJobsAtIdle(mContext);
+        if (jobs.size() > 0) {
+            writer.printf("GarageMode is waiting for %d jobs:\n", jobs.size());
+            for (int idx = 0; idx < jobs.size(); idx++) {
+                JobInfo jobinfo = jobs.get(idx);
                 writer.printf("   %d: %s\n", idx + 1, jobinfo);
             }
         } else {
-            numjobs = JobSchedulerHelper.getPendingJobs(mContext);
-            writer.printf("GarageMode is waiting for %d pending idle jobs:\n", numjobs.size());
-            for (int idx = 0; idx < numjobs.size(); idx++) {
-                JobInfo jobinfo = numjobs.get(idx);
+            jobs = JobSchedulerHelper.getPendingJobs(mContext);
+            writer.printf("GarageMode is waiting for %d pending idle jobs:\n", jobs.size());
+            for (int idx = 0; idx < jobs.size(); idx++) {
+                JobInfo jobinfo = jobs.get(idx);
                 writer.printf("   %d: %s\n", idx + 1, jobinfo);
             }
         }

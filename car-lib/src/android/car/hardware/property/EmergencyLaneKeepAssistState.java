@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -40,45 +39,33 @@ public class EmergencyLaneKeepAssistState {
      * The framework can use this field to remain backwards compatible if {@code
      * EmergencyLaneKeepAssistState} is extended to include additional states.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int OTHER = 0;
     /**
      * ELKA is enabled and monitoring safety, but no safety event is detected and steering assist is
      * not activated.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int ENABLED = 1;
     /**
      * ELKA is enabled and a safety event is detected. Vehicle is sending out a warning to the
      * driver indicating that there is a dangerous maneuver on the left side of the vehicle.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int WARNING_LEFT = 2;
     /**
      * ELKA is enabled and a safety event is detected. Vehicle is sending out a warning to the
      * driver indicating that there is a dangerous maneuver on the right side of the vehicle.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int WARNING_RIGHT = 3;
     /**
      * ELKA is enabled and currently has steering assist applied to the vehicle. Steering assist
      * nudges the vehicle towards the left, which generally means the steering wheel turns counter
      * clockwise. This is usually in response to the driver making an unsafe right lane change.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int ACTIVATED_STEER_LEFT = 4;
     /**
      * ELKA is enabled and currently has steering assist applied to the vehicle. Steering assist
      * nudges the vehicle towards the right, which generally means the steering wheel turns
      * clockwise. This is usually in response to the driver making an unsafe left lane change.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int ACTIVATED_STEER_RIGHT = 5;
     /**
      * Many safety feature implementations allow the driver to override said feature. This means
@@ -87,8 +74,6 @@ public class EmergencyLaneKeepAssistState {
      * always take control of the vehicle. This state should be set when the user is currently
      * overriding ELKA.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int USER_OVERRIDE = 6;
 
     private EmergencyLaneKeepAssistState() {}
@@ -97,8 +82,6 @@ public class EmergencyLaneKeepAssistState {
      * Returns a user-friendly representation of an {@code EmergencyLaneKeepAssistState}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(
             @EmergencyLaneKeepAssistStateInt int emergencyLaneKeepAssistState) {
         switch (emergencyLaneKeepAssistState) {

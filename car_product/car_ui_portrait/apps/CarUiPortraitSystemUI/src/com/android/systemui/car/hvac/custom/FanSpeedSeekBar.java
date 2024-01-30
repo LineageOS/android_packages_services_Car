@@ -36,6 +36,7 @@ import androidx.annotation.ArrayRes;
 import com.android.systemui.R;
 import com.android.systemui.car.hvac.HvacController;
 import com.android.systemui.car.hvac.HvacPropertySetter;
+import com.android.systemui.car.hvac.HvacUtils;
 import com.android.systemui.car.hvac.HvacView;
 
 /** Custom seek bar to control fan speed. */
@@ -51,6 +52,7 @@ public class FanSpeedSeekBar extends SeekBar implements HvacView {
 
     private boolean mPowerOn;
     private boolean mAutoOn;
+    private boolean mDisableViewIfPowerOff = false;
 
     private float mOnAlpha;
     private float mOffAlpha;
@@ -158,13 +160,25 @@ public class FanSpeedSeekBar extends SeekBar implements HvacView {
     }
 
     @Override
-    public void setConfigInfo(CarPropertyConfig<?> carPropertyConfig) {
-        // no-op.
+    public void setDisableViewIfPowerOff(boolean disableViewIfPowerOff) {
+        mDisableViewIfPowerOff = disableViewIfPowerOff;
     }
 
     @Override
-    public void onHvacTemperatureUnitChanged(boolean usesFahrenheit) {
-        // no-op.
+    public void setConfigInfo(CarPropertyConfig<?> carPropertyConfig) {
+        // If there are different min/max values between area IDs,
+        // use the highest min value and lowest max value so the
+        // value can be set across all area IDs.
+        Integer highestMinValue = HvacUtils.getHighestMinValueForAllAreaIds(carPropertyConfig);
+        Integer lowestMaxValue = HvacUtils.getLowestMaxValueForAllAreaIds(carPropertyConfig);
+        if (highestMinValue != null) {
+            setMin(highestMinValue);
+        }
+        if (lowestMaxValue != null) {
+            // The number of fan speeds cannot exceed the number of icons that represent
+            // the levels.
+            setMax(Math.min(lowestMaxValue, mIcons.size()));
+        }
     }
 
     @Override
@@ -218,6 +232,6 @@ public class FanSpeedSeekBar extends SeekBar implements HvacView {
     }
 
     private boolean shouldAllowControl() {
-        return mPowerOn && !mAutoOn;
+        return HvacUtils.shouldAllowControl(mDisableViewIfPowerOff, mPowerOn, mAutoOn);
     }
 }

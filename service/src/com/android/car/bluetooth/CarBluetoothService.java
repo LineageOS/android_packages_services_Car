@@ -28,6 +28,7 @@ import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
 import com.android.car.CarPerUserServiceHelper;
@@ -592,6 +593,29 @@ public class CarBluetoothService implements CarServiceBase {
         }
     }
 
+
+    /**
+     * Checks whether a request to disconnect the given profile on the given device has been made
+     * and if the inhibit request is still active.
+     *
+     * @param device  The device on which to verify the inhibit request.
+     * @param profile The profile on which to verify the inhibit request.
+     * @param token   The token provided in the original call to
+     *                {@link #requestBluetoothProfileInhibit}.
+     * @return True if inhibit was requested and is still active, false if an error occurred or
+     *         inactive.
+     */
+    public boolean isProfileInhibited(BluetoothDevice device, int profile, IBinder token) {
+        if (DBG) {
+            Slogf.d(TAG, "Check profile inhibit: profile %s, device %s",
+                    BluetoothUtils.getProfileName(profile), device.getAddress());
+        }
+        synchronized (mPerUserLock) {
+            if (mInhibitManager == null) return false;
+            return mInhibitManager.isProfileInhibited(device, profile, token);
+        }
+    }
+
     /**
      * Triggers Bluetooth to start a BVRA session with the default HFP Client device.
      */
@@ -654,7 +678,11 @@ public class CarBluetoothService implements CarServiceBase {
             }
 
             // Device Manager status
-            mDeviceManager.dump(writer);
+            if (mDeviceManager != null) {
+                mDeviceManager.dump(writer);
+            } else {
+                writer.printf("BluetoothDeviceManager: null\n");
+            }
 
             // Profile Inhibits
             if (mInhibitManager != null) {
@@ -664,4 +692,8 @@ public class CarBluetoothService implements CarServiceBase {
             }
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 }

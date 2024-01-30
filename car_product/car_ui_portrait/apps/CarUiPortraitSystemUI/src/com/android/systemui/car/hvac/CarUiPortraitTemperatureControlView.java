@@ -44,12 +44,17 @@ public class CarUiPortraitTemperatureControlView extends LinearLayout implements
     protected static final int BUTTON_REPEAT_INTERVAL_MS = 500;
 
     private static final int INVALID_ID = -1;
+    /**
+     * @see android.car.VehiclePropertyIds#HVAC_TEMPERATURE_SET
+     */
+    private static final int HVAC_TEMPERATURE_SET_CONFIG_ARRAY_SIZE = 6;
 
     private final int mAreaId;
     private final int mAvailableTextColor;
     private final int mUnavailableTextColor;
 
     private boolean mPowerOn;
+    private boolean mDisableViewIfPowerOff = false;
     private boolean mTemperatureSetAvailable;
     private HvacPropertySetter mHvacPropertySetter;
     private TextView mTempTextView;
@@ -131,14 +136,21 @@ public class CarUiPortraitTemperatureControlView extends LinearLayout implements
     }
 
     @Override
+    public void setDisableViewIfPowerOff(boolean disableViewIfPowerOff) {
+        mDisableViewIfPowerOff = disableViewIfPowerOff;
+    }
+
+    @Override
     public void setConfigInfo(CarPropertyConfig<?> carPropertyConfig) {
         List<Integer> configArray = carPropertyConfig.getConfigArray();
-        // Need to divide by 10 because config array values are temperature values that have been
-        // multiplied by 10.
+        if (configArray.size() != HVAC_TEMPERATURE_SET_CONFIG_ARRAY_SIZE) {
+            return;
+        }
+        // Need to divide by 10 because config array values are
+        // temperature values that have been multiplied by 10.
         mMinTempC = configArray.get(0) / 10f;
         mMaxTempC = configArray.get(1) / 10f;
         mTemperatureIncrementCelsius = configArray.get(2) / 10f;
-
         mMinTempF = configArray.get(3) / 10f;
         mTemperatureIncrementFahrenheit = configArray.get(5) / 10f;
     }
@@ -147,7 +159,8 @@ public class CarUiPortraitTemperatureControlView extends LinearLayout implements
      * Returns {@code true} if temperature should be available for change.
      */
     public boolean isTemperatureAvailableForChange() {
-        return mPowerOn && mTemperatureSetAvailable && mHvacPropertySetter != null;
+        return HvacUtils.shouldAllowControl(mDisableViewIfPowerOff, mPowerOn)
+                && mTemperatureSetAvailable && mHvacPropertySetter != null;
     }
 
     /**
@@ -155,7 +168,7 @@ public class CarUiPortraitTemperatureControlView extends LinearLayout implements
      */
     protected void updateTemperatureViewUiThread() {
         mTempTextView.setText(mTempInDisplay);
-        if (mPowerOn && mTemperatureSetAvailable) {
+        if (isTemperatureAvailableForChange()) {
             mTempTextView.setTextColor(mAvailableTextColor);
             mIncreaseButton.setVisibility(View.VISIBLE);
             mDecreaseButton.setVisibility(View.VISIBLE);
@@ -202,12 +215,16 @@ public class CarUiPortraitTemperatureControlView extends LinearLayout implements
     }
 
     private void incrementTemperature(boolean increment) {
-        if (!mPowerOn) return;
+        if (!isTemperatureAvailableForChange()) {
+            return;
+        }
 
         float newTempC = increment
                 ? mCurrentTempC + mTemperatureIncrementCelsius
                 : mCurrentTempC - mTemperatureIncrementCelsius;
-        setTemperature(newTempC);
+        newTempC = Math.min(newTempC, mMaxTempC);
+        newTempC = Math.max(newTempC, mMinTempC);
+        mHvacPropertySetter.setHvacProperty(HVAC_TEMPERATURE_SET, mAreaId, newTempC);
     }
 
     private void updateTemperatureView() {
@@ -218,15 +235,6 @@ public class CarUiPortraitTemperatureControlView extends LinearLayout implements
                 mDisplayInFahrenheit ? mTemperatureFormatFahrenheit : mTemperatureFormatCelsius,
                 tempToDisplayUnformatted);
         mContext.getMainExecutor().execute(this::updateTemperatureViewUiThread);
-    }
-
-    private void setTemperature(float tempCParam) {
-        float tempC = tempCParam;
-        tempC = Math.min(tempC, mMaxTempC);
-        tempC = Math.max(tempC, mMinTempC);
-        if (isTemperatureAvailableForChange()) {
-            mHvacPropertySetter.setHvacProperty(HVAC_TEMPERATURE_SET, mAreaId, tempC);
-        }
     }
 
     /**

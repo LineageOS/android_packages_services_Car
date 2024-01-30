@@ -16,12 +16,8 @@
 
 package android.car.builtin.power;
 
-import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
-import android.car.builtin.annotation.AddedIn;
-import android.car.builtin.annotation.PlatformVersion;
 import android.content.Context;
-import android.os.Build;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 
@@ -34,43 +30,27 @@ import android.os.PowerManager.WakeLock;
 public final class PowerManagerHelper {
 
     /** See {@code PowerManager.BRIGHTNESS_ON} */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int BRIGHTNESS_ON = PowerManager.BRIGHTNESS_ON;
 
     /** See {@code PowerManager.BRIGHTNESS_OFF} */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int BRIGHTNESS_OFF = PowerManager.BRIGHTNESS_OFF;
 
     /** See {@code PowerManager.BRIGHTNESS_DEFAULT} */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int BRIGHTNESS_DEFAULT = PowerManager.BRIGHTNESS_DEFAULT;
 
     /** See {@code PowerManager.BRIGHTNESS_INVALID} */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int BRIGHTNESS_INVALID = PowerManager.BRIGHTNESS_INVALID;
 
     /** See {@code PowerManager.BRIGHTNESS_MAX} */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final float BRIGHTNESS_MAX = PowerManager.BRIGHTNESS_MAX;
 
     /** See {@code PowerManager.BRIGHTNESS_MIN} */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final float BRIGHTNESS_MIN = PowerManager.BRIGHTNESS_MIN;
 
     /** See {@code PowerManager.BRIGHTNESS_OFF_FLOAT} */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final float BRIGHTNESS_OFF_FLOAT = PowerManager.BRIGHTNESS_OFF_FLOAT;
 
     /** See {@code PowerManager.BRIGHTNESS_INVALID_FLOAT} */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final float BRIGHTNESS_INVALID_FLOAT = PowerManager.BRIGHTNESS_INVALID_FLOAT;
 
     private PowerManagerHelper() {
@@ -84,7 +64,6 @@ public final class PowerManagerHelper {
      * @param context Context to use.
      * @return The maximum value that can be set by the user.
      */
-    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static int getMaximumScreenBrightnessSetting(Context context) {
         return context.getSystemService(PowerManager.class).getMaximumScreenBrightnessSetting();
     }
@@ -96,7 +75,6 @@ public final class PowerManagerHelper {
      * @param context Context to use.
      * @return The minimum value that can be set by the user.
      */
-    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static int getMinimumScreenBrightnessSetting(Context context) {
         return context.getSystemService(PowerManager.class).getMinimumScreenBrightnessSetting();
     }
@@ -110,7 +88,6 @@ public final class PowerManagerHelper {
      * @param upTime The time when the request was issued, in the {@link SystemClock#uptimeMillis}
      *               time base.
      */
-    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static void setDisplayState(Context context, boolean on, long upTime) {
         PowerManager powerManager = context.getSystemService(PowerManager.class);
         if (on) {
@@ -130,8 +107,6 @@ public final class PowerManagerHelper {
      * @param upTime The time when the request was issued, in the {@link SystemClock#uptimeMillis}
      *               time base.
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void goToSleep(Context context, int displayId, long upTime) {
         context.getSystemService(PowerManager.class).goToSleep(displayId, upTime,
                 PowerManager.GO_TO_SLEEP_REASON_DISPLAY_GROUPS_TURNED_OFF, /* flags= */ 0);
@@ -146,7 +121,6 @@ public final class PowerManagerHelper {
      * @param wait If {@code true}, this call waits for the shutdown to complete and does not
      *             return.
      */
-    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static void shutdown(Context context, boolean confirm, String reason, boolean wait) {
         context.getSystemService(PowerManager.class).shutdown(confirm, reason, wait);
     }
@@ -170,8 +144,6 @@ public final class PowerManagerHelper {
      * @see PowerManager#ACQUIRE_CAUSES_WAKEUP
      * @see PowerManager#ON_AFTER_RELEASE
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static WakeLock newWakeLock(Context context, int levelAndFlags, String tag,
             int displayId) {
         PowerManager powerManager = context.getSystemService(PowerManager.class);

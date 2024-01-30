@@ -18,7 +18,6 @@ package android.car.admin;
 
 import android.annotation.IntDef;
 import android.annotation.TestApi;
-import android.car.annotation.AddedInOrBefore;
 import android.car.user.UserStopResult;
 
 import com.android.car.internal.util.DebugUtils;
@@ -38,31 +37,26 @@ public final class StopUserResult {
     /**
      * User was stopped.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_SUCCESS = 1;
 
     /**
      * User was the current user.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_FAILURE_CURRENT_USER = 2;
 
     /**
      * User was the system user.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_FAILURE_SYSTEM_USER = 3;
 
     /**
      * User was not stopped because it does not exist.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_FAILURE_USER_DOES_NOT_EXIST = 4;
 
     /**
      * User was not stopped for some other reason not described above.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_FAILURE_GENERIC = 100;
 
     /** @hide */
@@ -109,7 +103,6 @@ public final class StopUserResult {
      *         {@link StopUserResult#STATUS_FAILURE_USER_DOES_NOT_EXIST}, or
      *         {@link StopUserResult#STATUS_FAILURE_GENERIC}.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public @Status int getStatus() {
         return mStatus;
     }
@@ -117,7 +110,6 @@ public final class StopUserResult {
     /**
      * Gets whether the operation was successful or not.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isSuccess() {
         return mStatus == STATUS_SUCCESS;
     }

@@ -16,7 +16,6 @@
 package com.android.car;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
@@ -33,6 +32,7 @@ import android.os.Message;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -98,14 +98,12 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     @Override
     public void init() {
         boolean assignPassengerActivityToFgGroup = false;
-        if (isPlatformVersionAtLeastU()) {
-            if (mContext.getResources().getBoolean(
-                    R.bool.config_assignPassengerActivityToForegroundCpuGroup)) {
-                CarOccupantZoneService occupantService = CarLocalServices.getService(
-                        CarOccupantZoneService.class);
-                if (occupantService.hasDriverZone() && occupantService.hasPassengerZones()) {
-                    assignPassengerActivityToFgGroup = true;
-                }
+        if (mContext.getResources().getBoolean(
+                R.bool.config_assignPassengerActivityToForegroundCpuGroup)) {
+            CarOccupantZoneService occupantService = CarLocalServices.getService(
+                    CarOccupantZoneService.class);
+            if (occupantService.hasDriverZone() && occupantService.hasPassengerZones()) {
+                assignPassengerActivityToFgGroup = true;
             }
         }
         synchronized (mLock) {
@@ -139,6 +137,10 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                     "mAssignPassengerActivityToFgGroup:" + mAssignPassengerActivityToFgGroup);
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     /**
      * Returns {@code true} if given pid-uid pair is in foreground.

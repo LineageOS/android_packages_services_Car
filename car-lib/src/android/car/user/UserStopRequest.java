@@ -18,7 +18,6 @@ package android.car.user;
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 import android.os.Parcelable;
 import android.os.UserHandle;
 
@@ -58,8 +57,6 @@ public final class UserStopRequest implements Parcelable {
          *
          * <p>The flag is {@code true} by default.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder withDelayedLocking(boolean value) {
             mWithDelayedLocking = value;
             return this;
@@ -70,16 +67,12 @@ public final class UserStopRequest implements Parcelable {
          *
          * <p>The flag is {@code false} by default.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder setForce() {
             mForce = true;
             return this;
         }
 
         /** Builds and returns a {@link UserStopRequest}. */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull UserStopRequest build() {
             return new UserStopRequest(this);
         }
@@ -107,30 +100,22 @@ public final class UserStopRequest implements Parcelable {
 
 
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public @NonNull UserHandle getUserHandle() {
         return mUserHandle;
     }
 
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean isWithDelayedLocking() {
         return mWithDelayedLocking;
     }
 
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean isForce() {
         return mForce;
     }
 
     @Override
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void writeToParcel(@NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -144,8 +129,6 @@ public final class UserStopRequest implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -170,8 +153,6 @@ public final class UserStopRequest implements Parcelable {
     }
 
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final @NonNull Parcelable.Creator<UserStopRequest> CREATOR
             = new Parcelable.Creator<UserStopRequest>() {
         @Override

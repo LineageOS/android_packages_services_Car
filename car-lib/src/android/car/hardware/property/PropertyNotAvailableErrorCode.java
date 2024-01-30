@@ -18,7 +18,6 @@ package android.car.hardware.property;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -34,50 +33,36 @@ public final class PropertyNotAvailableErrorCode {
      * General not available error code. Used to support backward compatibility and when other
      * error codes don't cover the not available reason.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int NOT_AVAILABLE = 0;
 
     /**
      * For features that are not available because the underlying feature is disabled.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int NOT_AVAILABLE_DISABLED = 1;
     /**
      * For features that are not available because the vehicle speed is too low.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int NOT_AVAILABLE_SPEED_LOW = 2;
     /**
      * For features that are not available because the vehicle speed is too high.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int NOT_AVAILABLE_SPEED_HIGH = 3;
     /**
      * For features that are not available because of bad camera or sensor visibility. Examples
      * might be bird poop blocking the camera or a bumper cover blocking an ultrasonic sensor.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int NOT_AVAILABLE_POOR_VISIBILITY = 4;
     /**
      * The feature cannot be accessed due to safety reasons. Eg. System could be
      * in a faulty state, an object or person could be blocking the requested
      * operation such as closing a trunk door, etc..
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int NOT_AVAILABLE_SAFETY = 5;
 
     /**
      * Returns a user-friendly representation of a {@code PropertyNotAvailableErrorCode}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(
             @PropertyNotAvailableErrorCodeInt int propertyNotAvailableErrorCode) {
         switch (propertyNotAvailableErrorCode) {

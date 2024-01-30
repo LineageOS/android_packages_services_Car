@@ -42,7 +42,6 @@ import android.util.Log;
 
 import com.android.car.CarLocalServices;
 import com.android.car.oem.CarOemProxyService;
-import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.List;
 import java.util.Objects;
@@ -65,7 +64,6 @@ final class CarAudioPolicyVolumeCallback extends AudioPolicy.AudioPolicyVolumeCa
         }
     }
 
-    @VisibleForTesting
     CarAudioPolicyVolumeCallback(AudioPolicyVolumeCallbackInternal volumeCallback,
             AudioManager audioManager, CarVolumeInfoWrapper carVolumeInfo,
             boolean useCarVolumeGroupMuting) {

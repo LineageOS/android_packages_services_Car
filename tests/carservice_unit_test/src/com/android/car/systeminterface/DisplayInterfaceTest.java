@@ -36,7 +36,6 @@ import android.os.PowerManager;
 import android.os.UserManager;
 import android.view.Display;
 
-import com.android.car.internal.util.VersionUtils;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
 
@@ -80,7 +79,6 @@ public final class DisplayInterfaceTest extends AbstractExtendedMockitoTestCase 
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(VersionUtils.class);
         session.spyStatic(UserManagerHelper.class);
     }
 
@@ -144,8 +142,6 @@ public final class DisplayInterfaceTest extends AbstractExtendedMockitoTestCase 
     }
 
     private void createDisplayInterface(boolean perDisplayBrightnessSupported) {
-        doReturn(perDisplayBrightnessSupported)
-                .when(() -> VersionUtils.isPlatformVersionAtLeastU());
         doReturn(perDisplayBrightnessSupported)
                 .when(() -> UserManagerHelper.isVisibleBackgroundUsersSupported(any()));
 

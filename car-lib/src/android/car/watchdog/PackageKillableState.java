@@ -21,7 +21,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
-import android.car.annotation.AddedInOrBefore;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -40,21 +39,18 @@ public final class PackageKillableState implements Parcelable {
      * A package is killable.
      */
     @KillableState
-    @AddedInOrBefore(majorVersion = 33)
     public static final int KILLABLE_STATE_YES = 1;
 
     /**
      * A package is not killable.
      */
     @KillableState
-    @AddedInOrBefore(majorVersion = 33)
     public static final int KILLABLE_STATE_NO = 2;
 
     /**
      * A package is never killable i.e., it's setting cannot be updated.
      */
     @KillableState
-    @AddedInOrBefore(majorVersion = 33)
     public static final int KILLABLE_STATE_NEVER = 3;
 
     /**
@@ -100,7 +96,6 @@ public final class PackageKillableState implements Parcelable {
 
     /** @hide */
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public static String killableStateToString(@KillableState int value) {
         switch (value) {
             case KILLABLE_STATE_YES:
@@ -155,7 +150,6 @@ public final class PackageKillableState implements Parcelable {
      * Name of the package.
      */
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public @NonNull String getPackageName() {
         return mPackageName;
     }
@@ -164,7 +158,6 @@ public final class PackageKillableState implements Parcelable {
      * Id of the user.
      */
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public @UserIdInt int getUserId() {
         return mUserId;
     }
@@ -173,7 +166,6 @@ public final class PackageKillableState implements Parcelable {
      * Killable state of the user's package.
      */
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public @KillableState int getKillableState() {
         return mKillableState;
     }
@@ -193,7 +185,6 @@ public final class PackageKillableState implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -206,7 +197,6 @@ public final class PackageKillableState implements Parcelable {
     @Override
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -243,7 +233,6 @@ public final class PackageKillableState implements Parcelable {
     }
 
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<PackageKillableState> CREATOR
             = new Parcelable.Creator<PackageKillableState>() {
         @Override

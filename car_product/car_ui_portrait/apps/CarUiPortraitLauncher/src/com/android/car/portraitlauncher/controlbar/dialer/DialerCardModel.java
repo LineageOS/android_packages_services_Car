@@ -44,8 +44,8 @@ public class DialerCardModel extends InCallModel {
 
     @Override
     public void onCallAdded(Call call) {
-        super.onCallAdded(call);
         mHasActiveCall = call != null;
+        super.onCallAdded(call);
     }
 
     @Override

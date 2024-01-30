@@ -17,4 +17,26 @@
 
 <overlay>
     <item target="style/Theme.SystemUI.Dialog" value="@android:Theme.DeviceDefault.Dialog"/>
+    <item target="id/auth_credential_input" value="@id/auth_credential_input" />
+    <item target="id/cancel_button" value="@id/cancel_button" />
+    <item target="id/emergencyCallButton" value="@id/emergencyCallButton" />
+    <item target="id/error" value="@id/error" />
+    <item target="id/lockPassword" value="@id/lockPassword" />
+    <item target="id/lockPattern" value="@id/lockPattern" />
+    <item target="id/pin_pad" value="@id/pin_pad" />
+    <item target="id/description" value="@id/description" />
+    <item target="id/subtitle" value="@id/subtitle" />
+    <item target="id/title" value="@id/title" />
+    <item target="layout/auth_credential_password_view"
+        value="@layout/auth_credential_password_view" />
+    <item target="layout/auth_credential_pattern_view"
+        value="@layout/auth_credential_pattern_view" />
+    <item target="layout/auth_credential_pin_view"
+        value="@layout/auth_credential_pin_view" />
+    <item target="layout-land/auth_credential_password_view"
+        value="@layout-land/auth_credential_password_view" />
+    <item target="layout-land/auth_credential_pattern_view"
+        value="@layout-land/auth_credential_pattern_view" />
+    <item target="layout-land/auth_credential_pin_view"
+        value="@layout-land/auth_credential_pin_view" />
 </overlay>

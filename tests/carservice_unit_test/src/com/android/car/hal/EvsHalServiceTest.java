@@ -164,7 +164,7 @@ public class EvsHalServiceTest {
         mEvsHalService.setListener(mListener);
 
         for (HalPropConfig config : properties) {
-            verify(mVehicleHal).subscribeProperty(mEvsHalService, config.getPropId());
+            verify(mVehicleHal).subscribePropertySafe(mEvsHalService, config.getPropId());
         }
     }
 }

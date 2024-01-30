@@ -20,10 +20,15 @@ import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
 import android.app.Service;
 import android.car.Car;
+import android.car.VehicleAreaSeat;
+import android.car.VehiclePropertyIds;
+import android.car.hardware.property.CarPropertyManager;
 import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.remoteaccess.RemoteTaskClientRegistrationInfo;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -49,11 +54,16 @@ public final class KitchenSinkRemoteTaskService extends Service {
     static final String TASK_ID_KEY = "TaskId";
     static final String TASK_DATA_KEY = "TaskData";
     static final String TASK_DURATION_KEY = "TaskDuration";
+    private final HandlerThread mHandlerThread = new HandlerThread(getClass().getSimpleName());
+    private Handler mHandler;
+
+    private static final String SET_TEMP = "SetTemp:";
 
     private final RemoteTaskClient mRemoteTaskClient = new RemoteTaskClient();
 
     private Car mCar;
     private CarRemoteAccessManager mRemoteAccessManager;
+    private CarPropertyManager mCarPropertyManager;
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
@@ -62,6 +72,8 @@ public final class KitchenSinkRemoteTaskService extends Service {
     @Override
     public void onCreate() {
         Log.i(TAG, "onCreate");
+        mHandlerThread.start();
+        mHandler = new Handler(mHandlerThread.getLooper());
         synchronized (mLock) {
             mSharedPref = getDefaultSharedPreferences(this);
         }
@@ -73,9 +85,12 @@ public final class KitchenSinkRemoteTaskService extends Service {
                         mRemoteAccessManager = (CarRemoteAccessManager) car.getCarManager(
                                 Car.CAR_REMOTE_ACCESS_SERVICE);
                         mRemoteAccessManager.setRemoteTaskClient(executor, mRemoteTaskClient);
+                        mCarPropertyManager = (CarPropertyManager) car.getCarManager(
+                                Car.PROPERTY_SERVICE);
                     } else {
                         mCar = null;
                         mRemoteAccessManager = null;
+                        mCarPropertyManager = null;
                     }
                 });
     }
@@ -90,6 +105,7 @@ public final class KitchenSinkRemoteTaskService extends Service {
     public void onDestroy() {
         Log.i(TAG, "onDestroy");
         disconnectCar();
+        mHandlerThread.quitSafely();
     }
 
     private void disconnectCar() {
@@ -97,6 +113,22 @@ public final class KitchenSinkRemoteTaskService extends Service {
             mRemoteAccessManager.clearRemoteTaskClient();
             mCar.disconnect();
             mCar = null;
+        }
+    }
+
+    private void handleTaskData(String taskData) {
+        if (taskData.startsWith(SET_TEMP)) {
+            float temp = Float.parseFloat(taskData.substring(SET_TEMP.length()));
+            Log.i(TAG, "Setting row 1 left HVAC temp to: " + temp);
+            try {
+                mCarPropertyManager.setFloatProperty(
+                        VehiclePropertyIds.HVAC_TEMPERATURE_SET, VehicleAreaSeat.SEAT_ROW_1_LEFT,
+                        temp);
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to set hvac temp, error: " + e);
+            }
+        } else {
+            Log.i(TAG, "Unknown task data: " + taskData + ", do nothing");
         }
     }
 
@@ -117,9 +149,12 @@ public final class KitchenSinkRemoteTaskService extends Service {
 
         @Override
         public void onRemoteTaskRequested(String taskId, byte[] data, int remainingTimeSec) {
+            // Although in reality task data might not be a valid string, the test task data we use
+            // are always a valid string.
+            String taskDataStr = new String(data, StandardCharsets.UTF_8);
+
             // Lock to prevent concurrent access of shared pref.
             synchronized (mLock) {
-                String taskDataStr = new String(data, StandardCharsets.UTF_8);
                 Log.i(TAG, "Remote task(" + taskId + ") is requested with " + remainingTimeSec
                         + " sec remaining, task data: " + taskDataStr);
                 String taskListJson = mSharedPref.getString(
@@ -129,10 +164,20 @@ public final class KitchenSinkRemoteTaskService extends Service {
                         taskListJson, taskId, taskDataStr, remainingTimeSec));
                 sharedPrefEditor.apply();
             }
+
+            handleTaskData(taskDataStr);
+
+            // Report task done after 5s.
+            mHandler.postDelayed(() -> {
+                if (mRemoteAccessManager != null) {
+                    mRemoteAccessManager.reportRemoteTaskDone(taskId);
+                }
+            }, /* delayMillis= */ 5000);
         }
 
         @Override
         public void onShutdownStarting(CarRemoteAccessManager.CompletableRemoteTaskFuture future) {
+            mHandlerThread.quitSafely();
             future.complete();
         }
 

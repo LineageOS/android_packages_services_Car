@@ -16,12 +16,8 @@
 
 package android.car.remoteaccess;
 
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
-import android.car.annotation.ApiRequirements;
-import android.car.annotation.ApiRequirements.CarVersion;
-import android.car.annotation.ApiRequirements.PlatformVersion;
 import android.os.Parcelable;
 
 import com.android.car.internal.util.AnnotationValidations;
@@ -107,49 +103,35 @@ public final class RemoteTaskClientRegistrationInfo implements Parcelable {
     /**
      * Globally unique identifier to specify the wake-up service.
      */
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @DataClass.Generated.Member
     public @NonNull String getServiceId() {
-        assertPlatformVersionAtLeastU();
         return mServiceId;
     }
 
     /**
      * Globally unique identifier to specify the vehicle.
      */
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @DataClass.Generated.Member
     public @NonNull String getVehicleId() {
-        assertPlatformVersionAtLeastU();
         return mVehicleId;
     }
 
     /**
      * Locally unique identifier to specify the processor where the task execution will be done.
      */
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @DataClass.Generated.Member
     public @NonNull String getProcessorId() {
-        assertPlatformVersionAtLeastU();
         return mProcessorId;
     }
 
     /**
      * Locally unique identifier to specify the remote task client.
      */
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @DataClass.Generated.Member
     public @NonNull String getClientId() {
-        assertPlatformVersionAtLeastU();
         return mClientId;
     }
 
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     @DataClass.Generated.Member
     public void writeToParcel(@NonNull android.os.Parcel dest, int flags) {
@@ -162,8 +144,6 @@ public final class RemoteTaskClientRegistrationInfo implements Parcelable {
         dest.writeString(mClientId);
     }
 
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     @DataClass.Generated.Member
     public int describeContents() { return 0; }
@@ -196,8 +176,6 @@ public final class RemoteTaskClientRegistrationInfo implements Parcelable {
         // onConstructed(); // You can define this method to get a callback
     }
 
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @DataClass.Generated.Member
     public static final @NonNull Parcelable.Creator<RemoteTaskClientRegistrationInfo> CREATOR
             = new Parcelable.Creator<RemoteTaskClientRegistrationInfo>() {

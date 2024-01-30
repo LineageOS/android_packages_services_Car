@@ -45,6 +45,7 @@ import java.util.Locale;
  */
 public final class CarUxRestrictionsConfigurationXmlParser {
     private static final String TAG = CarLog.tagFor(CarUxRestrictionsConfigurationXmlParser.class);
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     private static final int UX_RESTRICTIONS_UNKNOWN = -1;
     private static final float INVALID_SPEED = -1f;
     private static final String XML_NAMESPACE = null;
@@ -92,9 +93,9 @@ public final class CarUxRestrictionsConfigurationXmlParser {
 
     private final Context mContext;
 
-    private int mMaxRestrictedStringLength = UX_RESTRICTIONS_UNKNOWN;
-    private int mMaxCumulativeContentItems = UX_RESTRICTIONS_UNKNOWN;
-    private int mMaxContentDepth = UX_RESTRICTIONS_UNKNOWN;
+    private int mGlobalMaxRestrictedStringLength = UX_RESTRICTIONS_UNKNOWN;
+    private int mGlobalMaxCumulativeContentItems = UX_RESTRICTIONS_UNKNOWN;
+    private int mGlobalMaxContentDepth = UX_RESTRICTIONS_UNKNOWN;
     private final List<CarUxRestrictionsConfiguration.Builder> mConfigBuilders = new ArrayList<>();
 
     private CarUxRestrictionsConfigurationXmlParser(Context context) {
@@ -134,10 +135,11 @@ public final class CarUxRestrictionsConfigurationXmlParser {
         }
 
         List<CarUxRestrictionsConfiguration> configs = new ArrayList<>();
-        for (CarUxRestrictionsConfiguration.Builder builder : mConfigBuilders) {
-            builder.setMaxStringLength(mMaxRestrictedStringLength)
-                    .setMaxCumulativeContentItems(mMaxCumulativeContentItems)
-                    .setMaxContentDepth(mMaxContentDepth);
+        for (int i = 0, length = mConfigBuilders.size(); i < length; i++) {
+            CarUxRestrictionsConfiguration.Builder builder = mConfigBuilders.get(i);
+            builder.setMaxStringLengthIfNotSet(mGlobalMaxRestrictedStringLength)
+                    .setMaxCumulativeContentItemsIfNotSet(mGlobalMaxCumulativeContentItems)
+                    .setMaxContentDepthIfNotSet(mGlobalMaxContentDepth);
             configs.add(builder.build());
         }
         return configs;
@@ -146,7 +148,7 @@ public final class CarUxRestrictionsConfigurationXmlParser {
     private boolean traverseUntilStartTag(XmlResourceParser parser)
             throws IOException, XmlPullParserException {
         int type;
-        // Traverse till we get to the first tag
+        // Traverse till the first tag is hit
         while ((type = parser.next()) != XmlResourceParser.END_DOCUMENT
                 && type != XmlResourceParser.START_TAG) {
             // Do nothing.
@@ -157,27 +159,28 @@ public final class CarUxRestrictionsConfigurationXmlParser {
     private boolean traverseUntilEndOfDocument(XmlResourceParser parser)
             throws XmlPullParserException, IOException {
         while (parser.getEventType() != XmlResourceParser.END_DOCUMENT) {
-            // Every time we hit a start tag, check for the type of the tag
+            // Every time a start tag is hit, check for the type of the tag
             // and load the corresponding information.
             if (parser.next() == XmlResourceParser.START_TAG) {
                 switch (parser.getName()) {
                     case XML_RESTRICTION_MAPPING:
                         // Each RestrictionMapping tag represents a new set of rules.
-                        mConfigBuilders.add(new CarUxRestrictionsConfiguration.Builder());
+                        CarUxRestrictionsConfiguration.Builder builder =
+                                new CarUxRestrictionsConfiguration.Builder();
+                        mConfigBuilders.add(builder);
 
                         if (!mapDrivingStateToRestrictions(parser)) {
                             Slogf.e(TAG, "Could not map driving state to restriction.");
                             return false;
                         }
+                        parseLocalRestrictionParameters(parser, builder);
                         break;
                     case XML_RESTRICTION_PARAMETERS:
-                        if (!parseRestrictionParameters(parser)) {
+                        if (!parseGlobalRestrictionParameters(parser)) {
                             // Failure to parse is automatically handled by falling back to
                             // defaults. Just log the information here.
-                            if (Slogf.isLoggable(TAG, Log.INFO)) {
-                                Slogf.i(TAG, "Error reading restrictions parameters. "
-                                        + "Falling back to platform defaults.");
-                            }
+                            Slogf.w(TAG, "Error reading restrictions parameters. "
+                                    + "Falling back to platform defaults.");
                         }
                         break;
                     default:
@@ -186,6 +189,102 @@ public final class CarUxRestrictionsConfigurationXmlParser {
             }
         }
         return true;
+    }
+
+    /**
+     * Parses the information in the local {@code RestrictionParameters} within a
+     * {@code RestrictionMapping} container tag to read the parameters for the applicable UX
+     * restrictions.
+     */
+    private void parseLocalRestrictionParameters(XmlResourceParser parser,
+            CarUxRestrictionsConfiguration.Builder builder)
+            throws IOException, XmlPullParserException {
+        if (parser == null) {
+            Slogf.e(TAG, "Parser is null");
+            return;
+        }
+
+        if (XML_RESTRICTION_MAPPING.equals(parser.getName())) {
+            if (DBG) {
+                Slogf.d(TAG,
+                        "No local restriction parameters for this, the global restriction "
+                                + "parameters will be used");
+            }
+            return;
+        }
+        if (!XML_RESTRICTION_PARAMETERS.equals(parser.getName())) {
+            if (DBG) {
+                Slogf.d(TAG,
+                        "Unsupported Restriction Parameters in XML: %s, the global restriction "
+                                + "parameters will be used", parser.getName());
+            }
+            return;
+        }
+        parseRestrictionParameters(parser, builder);
+    }
+
+    private void parseRestrictionParameters(XmlResourceParser parser,
+            @Nullable CarUxRestrictionsConfiguration.Builder builder)
+            throws IOException, XmlPullParserException {
+        while (parser.getEventType() != XmlResourceParser.END_DOCUMENT) {
+            int type = parser.next();
+            // Break if all <RestrictionParameters> are parsed
+            if (type == XmlResourceParser.END_TAG && XML_RESTRICTION_PARAMETERS.equals(
+                    parser.getName())) {
+                return;
+            }
+
+            if (type == XmlResourceParser.START_TAG) {
+                switch (parser.getName()) {
+                    case XML_STRING_RESTRICTIONS:
+                        setStringRestrictionParameters(builder, parser);
+                        break;
+                    case XML_CONTENT_RESTRICTIONS:
+                        setContentRestrictionParameters(builder, parser);
+                        break;
+                    default:
+                        Slogf.i(TAG, "Unsupported Restriction Parameters in XML: %s",
+                                parser.getName());
+                        break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds string restriction parameters to the {@link CarUxRestrictionsConfiguration.Builder}
+     * object.
+     */
+    private void setStringRestrictionParameters(CarUxRestrictionsConfiguration.Builder builder,
+            XmlResourceParser parser) {
+        int maxRestrictedStringLength = parser.getAttributeIntValue(XML_NAMESPACE, XML_MAX_LENGTH,
+                UX_RESTRICTIONS_UNKNOWN);
+        if (builder != null) {
+            builder.setMaxStringLengthIfNotSet(maxRestrictedStringLength);
+        } else {
+            mGlobalMaxRestrictedStringLength = maxRestrictedStringLength;
+        }
+    }
+
+    /**
+     * Adds content restriction parameters to the {@link CarUxRestrictionsConfiguration.Builder}
+     * object.
+     */
+    private void setContentRestrictionParameters(CarUxRestrictionsConfiguration.Builder builder,
+            XmlResourceParser parser) {
+        int maxCumulativeContentItems = parser.getAttributeIntValue(XML_NAMESPACE,
+                XML_MAX_CUMULATIVE_ITEMS, UX_RESTRICTIONS_UNKNOWN);
+        int maxContentDepth = parser.getAttributeIntValue(XML_NAMESPACE, XML_MAX_DEPTH,
+                UX_RESTRICTIONS_UNKNOWN);
+        if (builder != null) {
+            // Set local restriction parameters
+            builder.setMaxContentDepthIfNotSet(maxContentDepth);
+            builder.setMaxCumulativeContentItemsIfNotSet(maxCumulativeContentItems);
+        } else {
+            // Set global restriction parameters
+            mGlobalMaxCumulativeContentItems = maxCumulativeContentItems;
+            mGlobalMaxContentDepth = maxContentDepth;
+        }
     }
 
     /**
@@ -314,7 +413,7 @@ public final class CarUxRestrictionsConfigurationXmlParser {
                 }
                 restrictions.setSpeedRange(speedRange);
 
-                if (Slogf.isLoggable(TAG, Log.DEBUG)) {
+                if (DBG) {
                     Slogf.d(TAG, "Map " + drivingState + " : " + restrictions);
                 }
 
@@ -444,48 +543,21 @@ public final class CarUxRestrictionsConfigurationXmlParser {
     }
 
     /**
-     * Parses the information in the <RestrictionParameters> tag to read the parameters for the
-     * applicable UX restrictions
+     * Parses the information in the global {@code RestrictionParameters} in a
+     * {@code UxRestrictions} tag to read the parameters for the applicable UX restrictions.
      */
-    private boolean parseRestrictionParameters(XmlResourceParser parser)
+    private boolean parseGlobalRestrictionParameters(XmlResourceParser parser)
             throws IOException, XmlPullParserException {
         if (parser == null) {
-            Slogf.e(TAG, "Invalid arguments");
+            Slogf.e(TAG, "Parser is null");
             return false;
         }
         // The parser should be at the <RestrictionParameters> tag at this point.
         if (!XML_RESTRICTION_PARAMETERS.equals(parser.getName())) {
-            Slogf.e(TAG, "Parser not at RestrictionParameters element: " + parser.getName());
+            Slogf.e(TAG, "Parser not at RestrictionParameters element: %s", parser.getName());
             return false;
         }
-        while (parser.getEventType() != XmlResourceParser.END_DOCUMENT) {
-            int type = parser.next();
-            // Break if we have parsed all <RestrictionParameters>
-            if (type == XmlResourceParser.END_TAG && XML_RESTRICTION_PARAMETERS.equals(
-                    parser.getName())) {
-                return true;
-            }
-            if (type == XmlResourceParser.START_TAG) {
-                switch (parser.getName()) {
-                    case XML_STRING_RESTRICTIONS:
-                        mMaxRestrictedStringLength = parser.getAttributeIntValue(XML_NAMESPACE,
-                                XML_MAX_LENGTH, UX_RESTRICTIONS_UNKNOWN);
-                        break;
-                    case XML_CONTENT_RESTRICTIONS:
-                        mMaxCumulativeContentItems = parser.getAttributeIntValue(XML_NAMESPACE,
-                                XML_MAX_CUMULATIVE_ITEMS, UX_RESTRICTIONS_UNKNOWN);
-                        mMaxContentDepth = parser.getAttributeIntValue(XML_NAMESPACE, XML_MAX_DEPTH,
-                                UX_RESTRICTIONS_UNKNOWN);
-                        break;
-                    default:
-                        if (Slogf.isLoggable(TAG, Log.DEBUG)) {
-                            Slogf.d(TAG, "Unsupported Restriction Parameters in XML: "
-                                    + parser.getName());
-                        }
-                        break;
-                }
-            }
-        }
+        parseRestrictionParameters(parser, null);
         return true;
     }
 

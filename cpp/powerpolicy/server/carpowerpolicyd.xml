@@ -16,17 +16,26 @@
 <manifest version="1.0" type="framework">
     <hal format="aidl">
         <name>android.frameworks.automotive.powerpolicy</name>
-        <version>2</version>
+        <version>3</version>
         <interface>
             <name>ICarPowerPolicyServer</name>
             <instance>default</instance>
         </interface>
     </hal>
+    <!-- TODO(b/301025020): Deprecate ICarPowerPolicySystemNotification -->
     <hal format="aidl">
         <name>android.frameworks.automotive.powerpolicy.internal</name>
-        <version>1</version>
+        <version>2</version>
         <interface>
             <name>ICarPowerPolicySystemNotification</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="aidl">
+        <name>android.automotive.powerpolicy.internal</name>
+        <version>1</version>
+        <interface>
+            <name>ICarPowerPolicyDelegate</name>
             <instance>default</instance>
         </interface>
     </hal>

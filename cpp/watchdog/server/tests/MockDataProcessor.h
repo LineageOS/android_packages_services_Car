@@ -63,6 +63,8 @@ public:
                  const std::function<void()>&),
                 (override));
     MOCK_METHOD(android::base::Result<void>, onDump, (int), (const, override));
+    MOCK_METHOD(android::base::Result<void>, onDumpProto,
+                (const CollectionIntervals&, android::util::ProtoOutputStream&), (const, override));
     MOCK_METHOD(android::base::Result<void>, onCustomCollectionDump, (int), (override));
 };
 

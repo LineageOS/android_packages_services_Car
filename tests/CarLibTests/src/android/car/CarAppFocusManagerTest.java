@@ -81,6 +81,11 @@ public class CarAppFocusManagerTest {
         mAppFocusServiceLooper = mCarAppFocusController.getLooper();
     }
 
+    private void flushDispatchHandler() {
+        shadowOf(mAppFocusServiceLooper).runToEndOfTasks();
+        shadowOf(Looper.getMainLooper()).idle();
+    }
+
     @Test
     public void defaultState_noFocusesHeld() {
         assertThat(mCarAppFocusManager.getActiveAppTypes()).isEmpty();
@@ -97,7 +102,7 @@ public class CarAppFocusManagerTest {
     public void requestNavFocus_noCurrentFocus_callbackIsRun() {
         mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
                 mApp1Callback);
-        shadowOf(mAppFocusServiceLooper).runToEndOfTasks();
+        flushDispatchHandler();
 
         verify(mApp1Callback)
                 .onAppFocusOwnershipGranted(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
@@ -153,7 +158,7 @@ public class CarAppFocusManagerTest {
         app2GainsFocus_app1BroughtToForeground();
         mCarAppFocusManager
                 .requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, mApp1Callback);
-        shadowOf(mAppFocusServiceLooper).runToEndOfTasks();
+        flushDispatchHandler();
 
         verify(mApp1Callback)
                 .onAppFocusOwnershipGranted(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
@@ -194,7 +199,7 @@ public class CarAppFocusManagerTest {
                 .addFocusListener(mApp1Listener, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
         mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
                 mApp1Callback);
-        shadowOf(mAppFocusServiceLooper).runToEndOfTasks();
+        flushDispatchHandler();
 
         verify(mApp1Listener)
                 .onAppFocusChanged(eq(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION), anyBoolean());
@@ -208,7 +213,7 @@ public class CarAppFocusManagerTest {
         setCallingApp(APP1_UID, APP1_PID);
         mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
                 mApp1Callback);
-        shadowOf(mAppFocusServiceLooper).runToEndOfTasks();
+        flushDispatchHandler();
 
         verify(mApp2Listener)
                 .onAppFocusChanged(eq(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION), eq(true));
@@ -222,7 +227,7 @@ public class CarAppFocusManagerTest {
         setCallingApp(APP1_UID, APP1_PID);
         mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
                 mApp1Callback);
-        shadowOf(mAppFocusServiceLooper).runToEndOfTasks();
+        flushDispatchHandler();
 
         verify(mApp2Callback)
                 .onAppFocusOwnershipLost(eq(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
@@ -237,7 +242,7 @@ public class CarAppFocusManagerTest {
                 mApp1Callback);
         mCarAppFocusManager
                 .abandonAppFocus(mApp1Callback, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-        shadowOf(mAppFocusServiceLooper).runToEndOfTasks();
+        flushDispatchHandler();
 
         verify(mApp1Listener)
                 .onAppFocusChanged(eq(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION), eq(false));
@@ -253,7 +258,7 @@ public class CarAppFocusManagerTest {
                 mApp1Callback);
         mCarAppFocusManager
                 .abandonAppFocus(mApp1Callback, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-        shadowOf(mAppFocusServiceLooper).runToEndOfTasks();
+        flushDispatchHandler();
 
         verify(mApp2Listener)
                 .onAppFocusChanged(eq(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION), eq(false));
@@ -272,7 +277,7 @@ public class CarAppFocusManagerTest {
                 .addFocusListener(mApp3Listener, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
         mCarAppFocusManager
                 .requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, mApp3Callback);
-        shadowOf(mAppFocusServiceLooper).runToEndOfTasks();
+        flushDispatchHandler();
 
         verify(mApp1Listener)
                 .onAppFocusChanged(eq(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION), eq(true));

@@ -18,7 +18,6 @@ package android.car.hardware.property;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -37,59 +36,41 @@ public class LocationCharacterization {
     /**
      * Prior location samples have been used to refine the raw GNSS data (e.g. a Kalman Filter).
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int PRIOR_LOCATIONS = 0x1;
     /**
      * Gyroscope data has been used to refine the raw GNSS data.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int GYROSCOPE_FUSION = 0x2;
     /**
      * Accelerometer data has been used to refine the raw GNSS data.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int ACCELEROMETER_FUSION = 0x4;
     /**
      * Compass data has been used to refine the raw GNSS data.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int COMPASS_FUSION = 0x8;
     /**
      * Wheel speed has been used to refine the raw GNSS data.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int WHEEL_SPEED_FUSION = 0x10;
     /**
      * Steering angle has been used to refine the raw GNSS data.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STEERING_ANGLE_FUSION = 0x20;
     /**
      * Car speed has been used to refine the raw GNSS data.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int CAR_SPEED_FUSION = 0x40;
     /**
      * Some effort is made to dead-reckon location. In particular, this means that relative changes
      * in location have meaning when no GNSS satellite is available.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int DEAD_RECKONED = 0x80;
     /**
      * Location is based on GNSS satellite signals without sufficient fusion of other sensors for
      * complete dead reckoning. This flag should be set when relative changes to location cannot be
      * relied on when no GNSS satellite is available.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int RAW_GNSS_ONLY = 0x100;
 
     private LocationCharacterization() {}
@@ -98,8 +79,6 @@ public class LocationCharacterization {
      * Returns a user-friendly representation of an {@code LocationCharacterization}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(
             @LocationCharacterization.LocationCharacterizationInt int locationCharacterization) {
         switch (locationCharacterization) {

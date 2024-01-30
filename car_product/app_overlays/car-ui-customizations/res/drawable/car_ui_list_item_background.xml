@@ -16,30 +16,36 @@
   -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_focused="true" android:state_pressed="true">
-        <shape android:shape="rectangle">
-            <solid android:color="#8A94CBFF"/>
-            <stroke android:width="4dp"
-                android:color="#94CBFF"/>
+        <shape>
+            <solid android:color="@color/car_rotary_focus_pressed_fill_color"/>
+            <stroke android:width="@dimen/car_rotary_focus_pressed_stroke_width" android:color="@color/car_rotary_focus_stroke_color"/>
+            <corners android:radius="@dimen/car_selectable_item_radius"/>
         </shape>
     </item>
-    <item android:state_focused="true">
+    <item android:state_focused="true" android:state_activated="true">
         <shape android:shape="rectangle">
-            <solid android:color="#3D94CBFF"/>
-            <stroke android:width="8dp"
-                android:color="#94CBFF"/>
+            <solid android:color="@color/car_rotary_focus_fill_color"/>
+            <solid android:color="?android:attr/colorControlActivated"/>
+            <stroke android:width="@dimen/car_rotary_focus_stroke_width" android:color="@color/car_rotary_focus_stroke_color"/>
         </shape>
     </item>
     <item android:state_activated="true">
-        <shape android:shape="rectangle">
-            <solid android:color="?android:attr/colorControlHighlight"/>
+        <shape>
+            <solid android:color="?android:attr/colorControlActivated"/>
+            <corners android:radius="@dimen/car_selectable_item_radius"/>
+        </shape>
+    </item>
+    <item android:state_focused="true">
+        <shape>
+            <solid android:color="@color/car_rotary_focus_fill_color"/>
+            <stroke android:width="@dimen/car_rotary_focus_stroke_width" android:color="@color/car_rotary_focus_stroke_color"/>
+            <corners android:radius="@dimen/car_selectable_item_radius"/>
         </shape>
     </item>
     <item>
         <ripple android:color="?android:attr/colorControlHighlight">
             <item android:id="@android:id/mask">
-                <shape android:shape="rectangle">
-                    <solid android:color="?android:colorAccent"/>
-                </shape>
+                <color android:color="@android:color/white" />
             </item>
         </ripple>
     </item>

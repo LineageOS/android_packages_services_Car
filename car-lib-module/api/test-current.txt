@@ -2,8 +2,8 @@
 package android.car {
 
   public final class Car {
-    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final String PROPERTY_EMULATED_PLATFORM_VERSION_MAJOR = "com.android.car.internal.debug.platform_major_version";
-    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final String PROPERTY_EMULATED_PLATFORM_VERSION_MINOR = "com.android.car.internal.debug.platform_minor_version";
+    field public static final String PROPERTY_EMULATED_PLATFORM_VERSION_MAJOR = "com.android.car.internal.debug.platform_major_version";
+    field public static final String PROPERTY_EMULATED_PLATFORM_VERSION_MINOR = "com.android.car.internal.debug.platform_minor_version";
   }
 
   public final class CarAppFocusManager {
@@ -71,6 +71,7 @@ package android.car.annotation {
     enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_3;
     enum_constant public static final android.car.annotation.ApiRequirements.CarVersion UPSIDE_DOWN_CAKE_0;
     enum_constant public static final android.car.annotation.ApiRequirements.CarVersion UPSIDE_DOWN_CAKE_1;
+    enum_constant public static final android.car.annotation.ApiRequirements.CarVersion VANILLA_ICE_CREAM_0;
   }
 
   public enum ApiRequirements.PlatformVersion {
@@ -81,6 +82,7 @@ package android.car.annotation {
     enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_3;
     enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion UPSIDE_DOWN_CAKE_0;
     enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion UPSIDE_DOWN_CAKE_1;
+    enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion VANILLA_ICE_CREAM_0;
   }
 
 }
@@ -122,13 +124,22 @@ package android.car.media {
 
 }
 
+package android.car.remoteaccess {
+
+  public final class CarRemoteAccessManager {
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void addServerlessRemoteTaskClient(@NonNull String, @NonNull String);
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void removeServerlessRemoteTaskClient(@NonNull String);
+  }
+
+}
+
 package android.car.test {
 
   public final class CarTestManager {
     ctor public CarTestManager(@NonNull android.car.Car, @NonNull android.os.IBinder);
-    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @RequiresPermission(android.car.Car.PERMISSION_CAR_TEST_SERVICE) public String dumpVhal(java.util.List<java.lang.String>, long);
-    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @RequiresPermission(android.car.Car.PERMISSION_CAR_TEST_SERVICE) public String getOemServiceName() throws android.os.RemoteException;
-    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @RequiresPermission(android.car.Car.PERMISSION_CAR_TEST_SERVICE) public boolean hasAidlVhal() throws android.os.RemoteException;
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_TEST_SERVICE) public String dumpVhal(java.util.List<java.lang.String>, long);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_TEST_SERVICE) public String getOemServiceName() throws android.os.RemoteException;
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_TEST_SERVICE) public boolean hasAidlVhal() throws android.os.RemoteException;
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_TEST_SERVICE) public void startCarService(@NonNull android.os.IBinder);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_TEST_SERVICE) public void stopCarService(@NonNull android.os.IBinder);
   }
@@ -153,6 +164,14 @@ package android.car.util.concurrent {
     method @Nullable public T get() throws java.util.concurrent.ExecutionException, java.lang.InterruptedException;
     method @Nullable public T get(long, @NonNull java.util.concurrent.TimeUnit) throws java.util.concurrent.ExecutionException, java.lang.InterruptedException, java.util.concurrent.TimeoutException;
     method @NonNull public android.car.util.concurrent.AsyncFuture<T> whenCompleteAsync(@NonNull java.util.function.BiConsumer<? super T,? super java.lang.Throwable>, @NonNull java.util.concurrent.Executor);
+  }
+
+}
+
+package android.car.watchdog {
+
+  public final class IoOveruseAlertThreshold implements android.os.Parcelable {
+    ctor public IoOveruseAlertThreshold(long, long);
   }
 
 }

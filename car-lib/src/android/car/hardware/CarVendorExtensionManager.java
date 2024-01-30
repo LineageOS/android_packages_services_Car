@@ -19,7 +19,6 @@ package android.car.hardware;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.annotation.AddedInOrBefore;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback;
 import android.car.hardware.property.ICarProperty;
@@ -34,13 +33,12 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * @deprecated consider using {@link CarPropertyManager} instead.
- *
  * API to access custom vehicle properties defined by OEMs.
  * <p>
  * System permission {@link Car#PERMISSION_VENDOR_EXTENSION} is required to get this manager.
  * </p>
  * @hide
+ * @deprecated consider using {@link CarPropertyManager} instead.
  */
 @Deprecated
 @SystemApi
@@ -96,11 +94,9 @@ public final class CarVendorExtensionManager extends CarManagerBase {
      */
     public interface CarVendorExtensionCallback {
         /** Called when a property is updated */
-        @AddedInOrBefore(majorVersion = 33)
         void onChangeEvent(CarPropertyValue value);
 
         /** Called when an error is detected with a property */
-        @AddedInOrBefore(majorVersion = 33)
         void onErrorEvent(int propertyId, int zone);
     }
 
@@ -108,7 +104,6 @@ public final class CarVendorExtensionManager extends CarManagerBase {
      * Registers listener. The methods of the listener will be called when new events arrived in
      * the main thread.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void registerCallback(CarVendorExtensionCallback callback) {
         synchronized (mLock) {
             if (mCallbacks.isEmpty()) {
@@ -124,7 +119,6 @@ public final class CarVendorExtensionManager extends CarManagerBase {
     }
 
     /** Unregisters listener that was previously registered. */
-    @AddedInOrBefore(majorVersion = 33)
     public void unregisterCallback(CarVendorExtensionCallback callback) {
         synchronized (mLock) {
             mCallbacks.remove(callback);
@@ -140,7 +134,6 @@ public final class CarVendorExtensionManager extends CarManagerBase {
     }
 
     /** Get list of properties represented by CarVendorExtensionManager for this car. */
-    @AddedInOrBefore(majorVersion = 33)
     public List<CarPropertyConfig> getProperties() {
         return mPropertyManager.getPropertyList();
     }
@@ -149,7 +142,6 @@ public final class CarVendorExtensionManager extends CarManagerBase {
      * Check whether a given property is available or disabled based on the cars current state.
      * @return true if the property is AVAILABLE, false otherwise
      */
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isPropertyAvailable(int propertyId, int area) {
         return mPropertyManager.isPropertyAvailable(propertyId, area);
     }
@@ -162,7 +154,6 @@ public final class CarVendorExtensionManager extends CarManagerBase {
      *        {@code Integer.class}.
      * @param propId - property id which is matched with the one defined in vehicle HAL
      */
-    @AddedInOrBefore(majorVersion = 33)
     public <E> E getGlobalProperty(Class<E> propertyClass, int propId) {
         return getProperty(propertyClass, propId, 0 /* area */);
     }
@@ -177,7 +168,6 @@ public final class CarVendorExtensionManager extends CarManagerBase {
      * @param area - vehicle area (e.g. {@code VehicleAreaSeat.ROW_1_LEFT}
      *        or {@code VEHICLE_MIRROR_DRIVER_LEFT}
      */
-    @AddedInOrBefore(majorVersion = 33)
     public <E> E getProperty(Class<E> propertyClass, int propId, int area) {
         return mPropertyManager.getProperty(propertyClass, propId, area).getValue();
     }
@@ -192,7 +182,6 @@ public final class CarVendorExtensionManager extends CarManagerBase {
      * @param value - new value, this object should match a class provided in {@code propertyClass}
      *        argument.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public <E> void setGlobalProperty(Class<E> propertyClass, int propId, E value) {
         mPropertyManager.setProperty(propertyClass, propId, 0 /* area */, value);
     }
@@ -209,14 +198,12 @@ public final class CarVendorExtensionManager extends CarManagerBase {
      * @param value - new value, this object should match a class provided in {@code propertyClass}
      *        argument.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public <E> void setProperty(Class<E> propertyClass, int propId, int area, E value) {
         mPropertyManager.setProperty(propertyClass, propId, area, value);
     }
 
     /** @hide */
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         synchronized (mLock) {
             mCallbacks.clear();

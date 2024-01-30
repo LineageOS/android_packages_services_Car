@@ -1,0 +1,88 @@
+package: "android.car.feature"
+
+# CarPackageManager
+flag {
+  name: "display_compatibility"
+  namespace: "car_framework"
+  description: "This flag controls if apps can query packages that need car display compatibility treatment"
+  bug: "291638685"
+}
+
+# CarProjectionManager
+flag {
+  name: "projection_query_bt_profile_inhibit"
+  namespace: "car_framework"
+  description: "This flag controls if apps can query the inhibit state or bluetooth profiles."
+  bug: "281791498"
+}
+
+# CarRemoteAccessManager
+flag {
+  name: "serverless_remote_access"
+  namespace: "car_framework"
+  description: "Enables serverless remote access"
+  bug: "302339402"
+}
+
+# CarPowerManager
+flag {
+  name: "car_power_policy_refactoring"
+  namespace: "car_framework"
+  description: "Controls whether refactored car power policy daemon handles power policy change request"
+  bug: "286303350"
+}
+
+# CarAudioManager
+flag {
+  name: "car_audio_dynamic_devices"
+  namespace: "car_framework"
+  description: "Controls whether car audio system can be configured with dynamic output devices"
+  bug: "305301155"
+}
+
+# CarPropertyManager
+flag {
+  name: "batched_subscriptions"
+  namespace: "car_framework"
+  description: "Controls whether to enable batched subscriptions for multiple [propId, areaId]s"
+  bug: "298257574"
+}
+
+flag {
+  name: "variable_update_rate"
+  namespace: "car_framework"
+  description: "Controls whether to enable variable update rate for subscription"
+  bug: "300700719"
+}
+
+# CarServiceBase
+flag {
+  name: "car_dump_to_proto"
+  namespace: "car_framework"
+  description: "Controls whether dump to proto is an option for car services"
+  bug: "302596493"
+}
+
+# ClusterHomeManager
+flag {
+  name: "cluster_health_monitoring"
+  namespace: "car_framework"
+  description: "Controls whether to enable the health monitoring for Cluster"
+  bug: "285415531"
+}
+
+# VehiclePropertyIds
+flag {
+  name: "android_vic_vehicle_properties"
+  namespace: "car_framework"
+  description: "Enables use of vehicle properties introduced in Android V"
+  bug: "309529020"
+}
+
+# CarNightService
+flag {
+  name: "car_night_global_setting"
+  namespace: "car_framework"
+  description: "Controls whether to use global settings to control the day/night mode configuration"
+  bug: "260762437"
+}

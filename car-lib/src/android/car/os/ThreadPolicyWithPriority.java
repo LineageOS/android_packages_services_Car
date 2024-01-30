@@ -20,7 +20,6 @@ import android.annotation.IntDef;
 import android.annotation.IntRange;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 import android.os.Parcelable;
 
 import com.android.car.internal.util.AnnotationValidations;
@@ -47,23 +46,17 @@ public final class ThreadPolicyWithPriority implements Parcelable {
      * Min supported thread priority.
      */
     @Priority
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
     public static final int PRIORITY_MIN = 1;
 
     /**
      * Max supported thread priority.
      */
     @Priority
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
     public static final int PRIORITY_MAX = 99;
 
     /** @hide */
     @IntDef({SCHED_DEFAULT, SCHED_FIFO, SCHED_RR})
     @Retention(RetentionPolicy.SOURCE)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
     public @interface SchedPolicy {}
 
     /**
@@ -72,8 +65,6 @@ public final class ThreadPolicyWithPriority implements Parcelable {
      * <p> Same as {@code SCHED_OTHER} defined in {@code /include/uapi/linux/sched.h}.
      */
     @Sched
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
     public static final int SCHED_DEFAULT = 0;
 
     /**
@@ -82,8 +73,6 @@ public final class ThreadPolicyWithPriority implements Parcelable {
      * <p>Same as {@code SCHED_FIFO} defined in {@code /include/uapi/linux/sched.h}.
      */
     @Sched
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
     public static final int SCHED_FIFO = 1;
 
     /**
@@ -92,8 +81,6 @@ public final class ThreadPolicyWithPriority implements Parcelable {
      * <p>Same as {@code SCHED_RR} defined in {@code /include/uapi/linux/sched.h}.
      */
     @Sched
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
     public static final int SCHED_RR = 2;
 
     @SchedPolicy
@@ -149,14 +136,10 @@ public final class ThreadPolicyWithPriority implements Parcelable {
     })
     @Retention(RetentionPolicy.SOURCE)
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
     public @interface Priority {}
 
     /** @hide */
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
     public static String priorityToString(@Priority int value) {
         switch (value) {
             case PRIORITY_MIN:
@@ -175,14 +158,10 @@ public final class ThreadPolicyWithPriority implements Parcelable {
     })
     @Retention(RetentionPolicy.SOURCE)
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
     public @interface Sched {}
 
     /** @hide */
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
     public static String schedToString(@Sched int value) {
         switch (value) {
             case SCHED_DEFAULT:
@@ -196,23 +175,17 @@ public final class ThreadPolicyWithPriority implements Parcelable {
     }
 
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
     public @SchedPolicy int getPolicy() {
         return mPolicy;
     }
 
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
     public @IntRange(from = 0, to = 99) int getPriority() {
         return mPriority;
     }
 
     @Override
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
     public void writeToParcel(@NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -223,8 +196,6 @@ public final class ThreadPolicyWithPriority implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -250,8 +221,6 @@ public final class ThreadPolicyWithPriority implements Parcelable {
     }
 
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
     public static final @NonNull Parcelable.Creator<ThreadPolicyWithPriority> CREATOR
             = new Parcelable.Creator<ThreadPolicyWithPriority>() {
         @Override

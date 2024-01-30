@@ -27,6 +27,7 @@ import static android.net.wifi.WifiManager.WIFI_AP_STATE_DISABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLING;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.Nullable;
@@ -68,6 +69,8 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.text.TextUtils;
+import android.util.SparseIntArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.BinderInterfaceContainer.BinderInterface;
 import com.android.car.bluetooth.CarBluetoothService;
@@ -85,6 +88,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -329,13 +333,13 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         }
         if (scanner == null) {
             Slogf.w(TAG, "Unable to get WifiScanner");
-            return new int[0];
+            return EMPTY_INT_ARRAY;
         }
 
         List<Integer> channels = scanner.getAvailableChannels(band);
         if (channels == null || channels.isEmpty()) {
             Slogf.w(TAG, "WifiScanner reported no available channels");
-            return new int[0];
+            return EMPTY_INT_ARRAY;
         }
 
         int[] array = new int[channels.size()];
@@ -409,6 +413,31 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
             Slogf.e(TAG, "Error in releaseBluetoothProfileInhibit", e);
             throw e;
         }
+    }
+
+    /**
+     * Checks whether a request to disconnect the given profile on the given device has been made
+     * and if the inhibit request is still active.
+     *
+     * @param device  The device on which to verify the inhibit request.
+     * @param profile The profile on which to verify the inhibit request.
+     * @param token   The token provided in the original call to
+     *                {@link #requestBluetoothProfileInhibit}.
+     * @return True if inhibit was requested and is still active, false if an error occurred or
+     *         inactive.
+     */
+    @Override
+    public boolean isBluetoothProfileInhibited(
+            BluetoothDevice device, int profile, IBinder token) {
+        if (DBG) {
+            Slogf.d(TAG, "isBluetoothProfileInhibited device=" + device + " profile=" + profile
+                    + " from uid " + Binder.getCallingUid());
+        }
+        CarServiceUtils.assertProjectionPermission(mContext);
+        Objects.requireNonNull(device, "Device must not be null");
+        Objects.requireNonNull(token, "Token must not be null");
+
+        return mCarBluetoothService.isProfileInhibited(device, profile, token);
     }
 
     @Override
@@ -898,6 +927,10 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
+
+    @Override
     public void onKeyEvent(@CarProjectionManager.KeyEventNum int keyEvent) {
         Slogf.d(TAG, "Dispatching key event: " + keyEvent);
         synchronized (mLock) {
@@ -1028,10 +1061,24 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     private void ensureApConfiguration() {
         // Always prefer 5GHz configuration whenever it is available.
         SoftApConfiguration apConfig = mWifiManager.getSoftApConfiguration();
-        if (apConfig != null && apConfig.getBand() != SoftApConfiguration.BAND_5GHZ
-                && mWifiManager.is5GHzBandSupported()) {
+        if (apConfig == null) {
+            throw new NullPointerException("getSoftApConfiguration returned null");
+        }
+        if (!mWifiManager.is5GHzBandSupported()) return;  // Not an error, but nothing to do.
+        SparseIntArray channels = apConfig.getChannels();
+
+        // 5GHz is already enabled.
+        if (channels.get(SoftApConfiguration.BAND_5GHZ, -1) != -1) return;
+
+        if (mWifiManager.isBridgedApConcurrencySupported()) {
+            // Enable dual band if supported.
             mWifiManager.setSoftApConfiguration(new SoftApConfiguration.Builder(apConfig)
-                    .setBand(SoftApConfiguration.BAND_5GHZ).build());
+                    .setBands(new int[] {SoftApConfiguration.BAND_2GHZ,
+                            SoftApConfiguration.BAND_5GHZ}).build());
+        } else {
+            // Only enable 5GHz if dual band AP isn't supported.
+            mWifiManager.setSoftApConfiguration(new SoftApConfiguration.Builder(apConfig)
+                    .setBands(new int[] {SoftApConfiguration.BAND_5GHZ}).build());
         }
     }
 

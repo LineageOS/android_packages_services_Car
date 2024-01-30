@@ -30,6 +30,7 @@ cc_defaults {
     include_dirs: [
         "system/libbase/include",
     ],
+    generated_headers: ["gen-native-dump-proto-headers", "gen-native-dump-cppstream-proto-headers"],
     shared_libs: [
         "libbase",
         "libbinder",
@@ -37,13 +38,13 @@ cc_defaults {
         "liblog",
         "libutils",
         "packagemanager_aidl-cpp",
+        "libprotoutil",
+        "libcutils",
     ],
     static_libs: [
         "android.automotive.watchdog.internal-V3-ndk",
         "android.automotive.watchdog-V3-ndk",
         "libvhalclient",
-    ],
-    whole_static_libs: [
         "libwatchdog_properties",
     ],
     header_libs: [
@@ -55,6 +56,19 @@ cc_defaults {
 }
 
 cc_library {
+  name: "libwatchdog_looper_wrapper",
+  srcs: [
+      "src/LooperWrapper.cpp",
+  ],
+  defaults: [
+      "carwatchdogd_defaults",
+  ],
+  export_include_dirs: [
+       "src",
+  ],
+}
+
+cc_library {
   name: "libwatchdog_package_info_resolver",
   srcs: [
       "src/PackageInfoResolver.cpp",
@@ -62,8 +76,11 @@ cc_library {
   defaults: [
       "carwatchdogd_defaults",
   ],
+  whole_static_libs: [
+      "libwatchdog_looper_wrapper",
+  ],
   shared_libs: [
-      "libcutils",
+      "libprocessgroup",
   ],
   export_include_dirs: [
        "src",
@@ -73,7 +90,6 @@ cc_library {
 cc_defaults {
     name: "libwatchdog_perf_service_defaults",
     shared_libs: [
-        "libcutils",
         "libprocessgroup",
         "libtinyxml2",
     ],
@@ -100,7 +116,6 @@ cc_library {
         "src/IoOveruseConfigs.cpp",
         "src/IoOveruseMonitor.cpp",
         "src/PerformanceProfiler.cpp",
-        "src/LooperWrapper.cpp",
         "src/OveruseConfigurationXmlHelper.cpp",
         "src/ProcDiskStatsCollector.cpp",
         "src/ProcStatCollector.cpp",
@@ -112,10 +127,21 @@ cc_library {
     static_libs: [
         "libwatchdog_binder_utils",
         "libwatchdog_package_info_resolver",
+        "libwatchdog_looper_wrapper",
     ],
     export_include_dirs: [
         "src",
     ],
+    target: {
+        android: {
+            proto: {
+                type: "lite",
+            },
+            shared_libs: [
+                "libprotobuf-cpp-full",
+            ],
+        },
+    },
 }
 
 filegroup {
@@ -133,6 +159,7 @@ cc_test {
         "libwatchdog_process_service_defaults",
         "libwatchdog_service_manager_defaults",
     ],
+    generated_sources: ["gen-native-dump-proto-srcs"],
     test_suites: [
         "general-tests",
         "automotive-tests",
@@ -179,6 +206,16 @@ cc_test {
         "libwatchdog_service_manager",
     ],
     data: [":watchdog_test_xml_files"],
+    target: {
+        android: {
+            proto: {
+                type: "lite",
+            },
+            shared_libs: [
+                "libprotobuf-cpp-full",
+            ],
+        },
+    },
 }
 
 cc_defaults {

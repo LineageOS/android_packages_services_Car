@@ -46,6 +46,7 @@ import android.os.UserManager;
 import android.util.AtomicFile;
 import android.util.JsonReader;
 import android.util.JsonWriter;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -313,6 +314,10 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         writer.printf("Context: %s\n", mContext);
         writer.printf("MAX_LOCATION_INJECTION_ATTEMPTS: %d\n", MAX_LOCATION_INJECTION_ATTEMPTS);
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     @Override
     public void onStateChanged(int state, CompletablePowerStateChangeFuture future) {

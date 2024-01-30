@@ -18,7 +18,6 @@ package com.android.car.internal.test;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.car.annotation.ApiRequirements;
 import android.car.apitest.CarLessApiTestBase;
 import android.car.apitest.StableAIDLTestLargeParcelable;
 import android.os.Parcel;
@@ -43,8 +42,6 @@ public final class LargeParcelableJavaStableAIDLCompTest extends CarLessApiTestB
     @Test
     @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
             + "hidden API")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testTestLargeParcelableToStableAIDLTestLargeParcelableSmall() throws Exception {
         doTestTestLargeParcelableToStableAIDLTestLargeParcelable(ARRAY_LENGTH_SMALL);
     }
@@ -52,8 +49,6 @@ public final class LargeParcelableJavaStableAIDLCompTest extends CarLessApiTestB
     @Test
     @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
             + "hidden API")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testTestLargeParcelableToStableAIDLTestLargeParcelableBig() throws Exception {
         doTestTestLargeParcelableToStableAIDLTestLargeParcelable(ARRAY_LENGTH_BIG);
     }
@@ -61,8 +56,6 @@ public final class LargeParcelableJavaStableAIDLCompTest extends CarLessApiTestB
     @Test
     @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
             + "hidden API")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testStableAIDLTestLargeParcelableToTestLargeParcelableSmall() throws Exception {
         doTestStableAIDLTestLargeParcelableToTestLargeParcelable(ARRAY_LENGTH_SMALL);
     }
@@ -70,8 +63,6 @@ public final class LargeParcelableJavaStableAIDLCompTest extends CarLessApiTestB
     @Test
     @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
             + "hidden API")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testStableAIDLTestLargeParcelableToTestLargeParcelableBig() throws Exception {
         doTestStableAIDLTestLargeParcelableToTestLargeParcelable(ARRAY_LENGTH_BIG);
     }

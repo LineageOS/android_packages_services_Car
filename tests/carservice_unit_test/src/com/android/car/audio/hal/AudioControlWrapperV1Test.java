@@ -16,6 +16,7 @@
 
 package com.android.car.audio.hal;
 
+import static com.android.car.audio.CarHalAudioUtils.usageToMetadata;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING;
@@ -31,6 +32,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.hardware.audio.common.PlaybackTrackMetadata;
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -56,6 +58,7 @@ public final class AudioControlWrapperV1Test {
     private static final int USAGE = AudioAttributes.USAGE_MEDIA;
     private static final int ZONE_ID = 2;
     private static final int FOCUS_GAIN = AudioManager.AUDIOFOCUS_GAIN;
+    private static final PlaybackTrackMetadata METADATA = usageToMetadata(USAGE);
 
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();
@@ -145,7 +148,7 @@ public final class AudioControlWrapperV1Test {
     @Test
     public void onAudioFocusChange_throws() {
         assertThrows(UnsupportedOperationException.class,
-                () -> mAudioControlWrapperV1.onAudioFocusChange(USAGE, ZONE_ID, FOCUS_GAIN));
+                () -> mAudioControlWrapperV1.onAudioFocusChange(METADATA, ZONE_ID, FOCUS_GAIN));
     }
 
     @Test

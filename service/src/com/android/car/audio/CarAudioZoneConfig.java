@@ -22,25 +22,32 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.Nullable;
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.util.Slogf;
+import android.car.feature.Flags;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupEvent;
 import android.car.media.CarVolumeGroupInfo;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
+import com.android.car.audio.CarAudioDumpProto.CarAudioZoneConfigProto;
+import com.android.car.audio.CarAudioDumpProto.CarAudioZoneProto;
 import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * A class encapsulates the configuration of an audio zone in car.
@@ -61,6 +68,11 @@ final class CarAudioZoneConfig {
     private final List<String> mGroupIdToNames;
     private final Map<String, Integer> mDeviceAddressToGroupId;
 
+    private final Object mLock = new Object();
+
+    @GuardedBy("mLock")
+    private boolean mIsSelected;
+
     private CarAudioZoneConfig(String name, int zoneId, int zoneConfigId, boolean isDefault,
             List<CarVolumeGroup> volumeGroups, Map<String, Integer> deviceAddressToGroupId,
             List<String> groupIdToNames) {
@@ -71,6 +83,7 @@ final class CarAudioZoneConfig {
         mVolumeGroups = volumeGroups;
         mDeviceAddressToGroupId = deviceAddressToGroupId;
         mGroupIdToNames = groupIdToNames;
+        mIsSelected = false;
     }
 
     int getZoneId() {
@@ -89,6 +102,18 @@ final class CarAudioZoneConfig {
         return mIsDefault;
     }
 
+    boolean isSelected() {
+        synchronized (mLock) {
+            return mIsSelected;
+        }
+    }
+
+    void setIsSelected(boolean isSelected) {
+        synchronized (mLock) {
+            mIsSelected = isSelected;
+        }
+    }
+
     @Nullable
     CarVolumeGroup getVolumeGroup(String groupName) {
         int groupId = mGroupIdToNames.indexOf(groupName);
@@ -105,23 +130,23 @@ final class CarAudioZoneConfig {
     }
 
     /**
-     * @return Snapshot of available {@link AudioDeviceInfo}s in List.
+     * @return Snapshot of available {@link AudioDeviceAttributes}s in List.
      */
-    List<AudioDeviceInfo> getAudioDeviceInfos() {
-        final List<AudioDeviceInfo> devices = new ArrayList<>();
+    List<AudioDeviceAttributes> getAudioDevice() {
+        final List<AudioDeviceAttributes> devices = new ArrayList<>();
         for (int index = 0; index < mVolumeGroups.size(); index++) {
             CarVolumeGroup group = mVolumeGroups.get(index);
             List<String> addresses = group.getAddresses();
             for (int addressIndex = 0; addressIndex < addresses.size(); addressIndex++) {
                 devices.add(group.getCarAudioDeviceInfoForAddress(addresses.get(addressIndex))
-                        .getAudioDeviceInfo());
+                        .getAudioDevice());
             }
         }
         return devices;
     }
 
-    List<AudioDeviceInfo> getAudioDeviceInfosSupportingDynamicMix() {
-        List<AudioDeviceInfo> devices = new ArrayList<>();
+    List<AudioDeviceAttributes> getAudioDeviceSupportingDynamicMix() {
+        List<AudioDeviceAttributes> devices = new ArrayList<>();
         for (int index = 0; index <  mVolumeGroups.size(); index++) {
             CarVolumeGroup group = mVolumeGroups.get(index);
             List<String> addresses = group.getAddresses();
@@ -129,7 +154,7 @@ final class CarAudioZoneConfig {
                 String address = addresses.get(addressIndex);
                 CarAudioDeviceInfo info = group.getCarAudioDeviceInfoForAddress(address);
                 if (info.canBeRoutedWithDynamicPolicyMix()) {
-                    devices.add(info.getAudioDeviceInfo());
+                    devices.add(info.getAudioDevice());
                 }
             }
         }
@@ -163,24 +188,19 @@ final class CarAudioZoneConfig {
             CarVolumeGroup group = mVolumeGroups.get(index);
 
             List<String> groupAddresses = group.getAddresses();
-            // Due to AudioPolicy Dynamic Mixing limitation,  rules can be made only on usage and
+            // Due to AudioPolicy Dynamic Mixing limitation, rules can be made only on usage and
             // not on audio attributes.
             // When using product strategies, AudioPolicy may not simply route on usage match.
-            // Ensure that a given usage can reach a single device address to enable dynamic mix.
-            // Otherwise, prevent from establishing rule if supporting Core Routing.
-            // Returns false if Core Routing is not supported
+            // Prevent using dynamic mixes if supporting Core Routing.
             for (int addressIndex = 0; addressIndex < groupAddresses.size(); addressIndex++) {
                 String address = groupAddresses.get(addressIndex);
-                boolean canUseDynamicMixRoutingForAddress = true;
                 CarAudioDeviceInfo info = group.getCarAudioDeviceInfoForAddress(address);
                 List<Integer> usagesForAddress = group.getAllSupportedUsagesForAddress(address);
 
-                if (!addresses.add(address)) {
-                    if (useCoreAudioRouting) {
-                        Slogf.w(CarLog.TAG_AUDIO, "Address %s appears in two groups, prevents"
-                                + " from using dynamic policy mixes for routing" , address);
-                        canUseDynamicMixRoutingForAddress = false;
-                    }
+                if (!addresses.add(address) && !useCoreAudioRouting) {
+                    Slogf.w(CarLog.TAG_AUDIO, "Address %s appears in two groups, prevents"
+                            + " from using dynamic policy mixes for routing" , address);
+                    return false;
                 }
                 for (int usageIndex = 0; usageIndex < usagesForAddress.size(); usageIndex++) {
                     int usage = usagesForAddress.get(usageIndex);
@@ -191,7 +211,6 @@ final class CarAudioZoneConfig {
                                 infoForAttr.getAddress(), address,
                                 AudioManagerHelper.usageToXsdString(usage));
                         if (useCoreAudioRouting) {
-                            canUseDynamicMixRoutingForAddress = false;
                             infoForAttr.resetCanBeRoutedWithDynamicPolicyMix();
                         } else {
                             return false;
@@ -200,7 +219,7 @@ final class CarAudioZoneConfig {
                         usageToDevice.put(usage, info);
                     }
                 }
-                if (!canUseDynamicMixRoutingForAddress) {
+                if (useCoreAudioRouting) {
                     info.resetCanBeRoutedWithDynamicPolicyMix();
                 }
             }
@@ -218,16 +237,22 @@ final class CarAudioZoneConfig {
      * <li>All contexts are assigned</li>
      * <li>One device should not appear in two groups</li>
      * <li>All gain controllers in the same group have same step value</li>
+     * <li>Device types can not repeat for multiple volume groups in a configuration, see
+     * {@link CarVolumeGroup#validateDeviceTypes(Set)} for further information.
+     * When using core audio routing, device types is not considered</li>
+     * <li>Dynamic device types can only appear alone in volume group, see
+     * {@link CarVolumeGroup#validateDeviceTypes(Set)} for further information.
+     * When using core audio routing device types is not considered</li>
      * </ul>
      *
-     * Note that it is fine that there are devices which do not appear in any group. Those devices
-     * may be reserved for other purposes.
-     * Step value validation is done in
-     * {@link CarVolumeGroup.Builder#setDeviceInfoForContext(int, CarAudioDeviceInfo)}
+     * <p>Note that it is fine that there are devices which do not appear in any group.
+     * Those devices may be reserved for other purposes. Step value validation is done in
+     * {@link CarVolumeGroupFactory#setDeviceInfoForContext(int, CarAudioDeviceInfo)}
      */
     boolean validateVolumeGroups(CarAudioContext carAudioContext, boolean useCoreAudioRouting) {
         ArraySet<Integer> contexts = new ArraySet<>();
         ArraySet<String> addresses = new ArraySet<>();
+        ArraySet<Integer> dynamicDeviceTypesInConfig = new ArraySet<>();
         for (int index = 0; index <  mVolumeGroups.size(); index++) {
             CarVolumeGroup group = mVolumeGroups.get(index);
             // One context should not appear in two groups
@@ -250,6 +275,11 @@ final class CarAudioZoneConfig {
                     Slogf.w(CarLog.TAG_AUDIO, "Address appears in two groups: " + address);
                     return false;
                 }
+            }
+            if (!useCoreAudioRouting && !group.validateDeviceTypes(dynamicDeviceTypesInConfig)) {
+                Slogf.w(CarLog.TAG_AUDIO, "Failed to validate device types for config "
+                        + getName());
+                return false;
             }
         }
 
@@ -284,10 +314,27 @@ final class CarAudioZoneConfig {
         writer.printf("CarAudioZoneConfig(%s:%d) of zone %d isDefault? %b\n", mName, mZoneConfigId,
                 mZoneId, mIsDefault);
         writer.increaseIndent();
+        writer.printf("Is active (%b)\n", isActive());
+        writer.printf("Is selected (%b)\n", isSelected());
         for (int index = 0; index < mVolumeGroups.size(); index++) {
             mVolumeGroups.get(index).dump(writer);
         }
         writer.decreaseIndent();
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dumpProto(ProtoOutputStream proto) {
+        long zoneConfigToken = proto.start(CarAudioZoneProto.ZONE_CONFIGS);
+        proto.write(CarAudioZoneConfigProto.NAME, mName);
+        proto.write(CarAudioZoneConfigProto.ID, mZoneConfigId);
+        proto.write(CarAudioZoneConfigProto.ZONE_ID, mZoneId);
+        proto.write(CarAudioZoneConfigProto.DEFAULT, mIsDefault);
+        for (int index = 0; index < mVolumeGroups.size(); index++) {
+            mVolumeGroups.get(index).dumpProto(proto);
+        }
+        proto.write(CarAudioZoneConfigProto.IS_ACTIVE, isActive());
+        proto.write(CarAudioZoneConfigProto.IS_SELECTED, isSelected());
+        proto.end(zoneConfigToken);
     }
 
     /**
@@ -367,7 +414,23 @@ final class CarAudioZoneConfig {
      * Returns the car audio zone config info
      */
     CarAudioZoneConfigInfo getCarAudioZoneConfigInfo() {
+        if (Flags.carAudioDynamicDevices()) {
+            return new CarAudioZoneConfigInfo.Builder(mName, mZoneId, mZoneConfigId)
+                    .setConfigVolumeGroups(getVolumeGroupInfos()).setIsActive(isActive())
+                    .setIsSelected(isSelected()).build();
+        }
+        // Keep legacy code till the flags becomes permanent
         return new CarAudioZoneConfigInfo(mName, mZoneId, mZoneConfigId);
+    }
+
+    boolean isActive() {
+        for (int c = 0; c < mVolumeGroups.size(); c++) {
+            if (mVolumeGroups.get(c).isActive()) {
+                continue;
+            }
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -404,6 +467,42 @@ final class CarAudioZoneConfig {
             }
         }
         return events;
+    }
+
+    boolean audioDevicesAdded(List<AudioDeviceInfo> devices) {
+        Objects.requireNonNull(devices, "Audio devices can not be null");
+        // Consider that this may change in the future when multiple devices are supported
+        // per device type. When that happens we may need a way determine where the devices
+        // should be attached. The same pattern is followed in the method called from here on
+        if (isActive()) {
+            return false;
+        }
+        boolean updated = false;
+        for (int c = 0; c < mVolumeGroups.size(); c++) {
+            if (!mVolumeGroups.get(c).audioDevicesAdded(devices)) {
+                continue;
+            }
+            updated = true;
+        }
+        return updated;
+    }
+
+    boolean audioDevicesRemoved(List<AudioDeviceInfo> devices) {
+        Objects.requireNonNull(devices, "Audio devices can not be null");
+        boolean updated = false;
+        for (int c = 0; c < mVolumeGroups.size(); c++) {
+            if (!mVolumeGroups.get(c).audioDevicesRemoved(devices)) {
+                continue;
+            }
+            updated = true;
+        }
+        return updated;
+    }
+
+    void updateVolumeDevices(boolean useCoreAudioRouting) {
+        for (int c = 0; c < mVolumeGroups.size(); c++) {
+            mVolumeGroups.get(c).updateDevices(useCoreAudioRouting);
+        }
     }
 
     static final class Builder {

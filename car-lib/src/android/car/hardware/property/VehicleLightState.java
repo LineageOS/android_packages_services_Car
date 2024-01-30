@@ -18,7 +18,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -36,23 +35,17 @@ public final class VehicleLightState {
     /**
      * Off light state.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_OFF = 0;
 
     /**
      * On light state.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_ON = 1;
 
     /**
      * Light state is in daytime running mode. Most cars automatically control daytime running mode,
      * but some cars allow the users to activate them manually.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_DAYTIME_RUNNING = 2;
 
     private VehicleLightState() {}
@@ -61,8 +54,6 @@ public final class VehicleLightState {
      * Gets a user-friendly representation of a vehicle light state.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(@VehicleLightStateInt int vehicleLightState) {
         switch (vehicleLightState) {
             case STATE_OFF:

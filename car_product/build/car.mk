@@ -51,6 +51,7 @@ PRODUCT_PACKAGES += \
     CarTelemetryApp \
     RailwayReferenceApp \
     CarHotwordDetectionServiceOne \
+    KitchenSinkServerlessRemoteTaskClientRRO \
 
 # SEPolicy for test apps / services
 PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/test
@@ -291,3 +292,6 @@ endif # USE_CAR_FRAMEWORK_APEX
 # Disable Prime Shader Cache in SurfaceFlinger to make it available faster
 PRODUCT_PROPERTY_OVERRIDES += \
     service.sf.prime_shader_cache=0
+
+# Always disable Compose features in SystemUI to avoid APK size increase.
+SYSTEMUI_USE_COMPOSE := false

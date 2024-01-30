@@ -16,23 +16,26 @@
 
 package com.android.car.audio.hal;
 
-import com.android.car.internal.annotation.AttributeUsage;
+import android.hardware.audio.common.PlaybackTrackMetadata;
 
 /**
  * Framework focus listener interface to abstract away the specific HAL version
  */
 public interface HalFocusListener {
     /**
-     * Requests audio focus for the specified {@code usage}, {@code zoneId}, and {@code focusGain}.
+     * Requests audio focus for the specified {@code metadata}, {@code zoneId},
+     * and {@code focusGain}.
+     *
      * <p>The result will be communicated separately through
      * {@link AudioControlWrapper#onAudioFocusChange}.
      */
-    void requestAudioFocus(@AttributeUsage int usage, int zoneId, int focusGain);
+    void requestAudioFocus(PlaybackTrackMetadata metadata, int zoneId, int focusGain);
 
     /**
-     * Abandons audio focus for the specified {@code usage} and {@code zoneId}.
+     * Abandons audio focus for the specified {@code metadata} and {@code zoneId}.
+     *
      * <p>The result will be communicated separately through
      * {@link AudioControlWrapper#onAudioFocusChange}.
      */
-    void abandonAudioFocus(@AttributeUsage int usage, int zoneId);
+    void abandonAudioFocus(PlaybackTrackMetadata metadata, int zoneId);
 }

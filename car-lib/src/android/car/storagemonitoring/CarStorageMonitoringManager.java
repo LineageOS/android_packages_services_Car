@@ -19,7 +19,6 @@ import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.RequiredFeature;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -60,7 +59,6 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
         /**
          * Invoked when a new periodic snapshot delta of I/O activities is calculated.
          */
-        @AddedInOrBefore(majorVersion = 33)
         void onSnapshot(IoStats snapshot);
     }
 
@@ -80,19 +78,13 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
         }
     }
 
-    @AddedInOrBefore(majorVersion = 33)
     public static final String INTENT_EXCESSIVE_IO = "android.car.storagemonitoring.EXCESSIVE_IO";
 
-    @AddedInOrBefore(majorVersion = 33)
     public static final int PRE_EOL_INFO_UNKNOWN = 0;
-    @AddedInOrBefore(majorVersion = 33)
     public static final int PRE_EOL_INFO_NORMAL = 1;
-    @AddedInOrBefore(majorVersion = 33)
     public static final int PRE_EOL_INFO_WARNING = 2;
-    @AddedInOrBefore(majorVersion = 33)
     public static final int PRE_EOL_INFO_URGENT = 3;
 
-    @AddedInOrBefore(majorVersion = 33)
     public static final long SHUTDOWN_COST_INFO_MISSING = -1;
 
     /**
@@ -115,7 +107,6 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      * @hide
      */
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         mListeners.clear();
         mListenerToService = null;
@@ -131,7 +122,6 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      * or one of PRE_EOL_INFO_{NORMAL|WARNING|URGENT} depending on the device state.
      */
     @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
-    @AddedInOrBefore(majorVersion = 33)
     public int getPreEolIndicatorStatus() {
         try {
             return mService.getPreEolIndicatorStatus();
@@ -153,7 +143,6 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      */
     @Deprecated
     @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
-    @AddedInOrBefore(majorVersion = 33)
     public WearEstimate getWearEstimate() {
         try {
             return mService.getWearEstimate();
@@ -177,7 +166,6 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      */
     @Deprecated
     @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
-    @AddedInOrBefore(majorVersion = 33)
     public List<WearEstimateChange> getWearEstimateHistory() {
         try {
             return mService.getWearEstimateHistory();
@@ -203,7 +191,6 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      */
     @Deprecated
     @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
-    @AddedInOrBefore(majorVersion = 33)
     public List<IoStatsEntry> getBootIoStats() {
         try {
             return mService.getBootIoStats();
@@ -240,7 +227,6 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      */
     @Deprecated
     @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
-    @AddedInOrBefore(majorVersion = 33)
     public long getShutdownDiskWriteAmount() {
         try {
             return mService.getShutdownDiskWriteAmount();
@@ -263,7 +249,6 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      */
     @Deprecated
     @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
-    @AddedInOrBefore(majorVersion = 33)
     public List<IoStatsEntry> getAggregateIoStats() {
         try {
             return mService.getAggregateIoStats();
@@ -289,7 +274,6 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      */
     @Deprecated
     @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
-    @AddedInOrBefore(majorVersion = 33)
     public List<IoStats> getIoStatsDeltas() {
         try {
             return mService.getIoStatsDeltas();
@@ -317,7 +301,6 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      */
     @Deprecated
     @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
-    @AddedInOrBefore(majorVersion = 33)
     public void registerListener(IoStatsListener listener) {
         try {
             if (mListeners.isEmpty()) {
@@ -339,7 +322,6 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      */
     @Deprecated
     @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
-    @AddedInOrBefore(majorVersion = 33)
     public void unregisterListener(IoStatsListener listener) {
         try {
             if (!mListeners.remove(listener)) {

@@ -39,6 +39,7 @@ import android.os.HandlerThread;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -280,6 +281,10 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
             }
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     /**
      * {@link CarPropertyEvent} listener registered with the {@link CarPropertyService} for getting

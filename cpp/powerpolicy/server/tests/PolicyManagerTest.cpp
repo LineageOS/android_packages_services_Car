@@ -30,6 +30,7 @@ namespace powerpolicy {
 using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy;
 using ::aidl::android::frameworks::automotive::powerpolicy::PowerComponent;
 using ::aidl::android::hardware::automotive::vehicle::VehicleApPowerStateReport;
+using ::testing::UnorderedElementsAre;
 using ::tinyxml2::XML_SUCCESS;
 using ::tinyxml2::XMLDocument;
 
@@ -173,6 +174,17 @@ const CarPowerPolicy kExistingPowerPolicyWithCustomComponents_OtherOn =
                                                  {CUSTOM_COMPONENT_ID_1000,
                                                   CUSTOM_COMPONENT_SPECIAL_SENSOR},
                                                  {CUSTOM_COMPONENT_AUX_INPUT});
+const CarPowerPolicy kExistingPowerPolicy_ToBeRegistered =
+        createCarPowerPolicy("expected_to_be_registered",
+                             {PowerComponent::WIFI, PowerComponent::AUDIO, PowerComponent::MEDIA,
+                              PowerComponent::DISPLAY, PowerComponent::BLUETOOTH,
+                              PowerComponent::CELLULAR, PowerComponent::ETHERNET,
+                              PowerComponent::PROJECTION, PowerComponent::NFC,
+                              PowerComponent::INPUT, PowerComponent::VOICE_INTERACTION,
+                              PowerComponent::VISUAL_INTERACTION,
+                              PowerComponent::TRUSTED_DEVICE_DETECTION, PowerComponent::LOCATION,
+                              PowerComponent::MICROPHONE, PowerComponent::CPU},
+                             {});
 const CarPowerPolicy kExistingPowerPolicy_OtherOn =
         createCarPowerPolicy("policy_id_other_on",
                              {PowerComponent::MEDIA, PowerComponent::DISPLAY,
@@ -222,6 +234,27 @@ const CarPowerPolicy kExistingPowerPolicy_OtherNone =
                               PowerComponent::VISUAL_INTERACTION,
                               PowerComponent::TRUSTED_DEVICE_DETECTION});
 const CarPowerPolicy& kExistingTransitionPolicy = kExistingPowerPolicy_OtherOn;
+const CarPowerPolicy kSystemPowerPolicyAllOn =
+        createCarPowerPolicy("system_power_policy_all_on",
+                             {PowerComponent::AUDIO, PowerComponent::MEDIA, PowerComponent::DISPLAY,
+                              PowerComponent::BLUETOOTH, PowerComponent::WIFI,
+                              PowerComponent::CELLULAR, PowerComponent::ETHERNET,
+                              PowerComponent::PROJECTION, PowerComponent::NFC,
+                              PowerComponent::INPUT, PowerComponent::VOICE_INTERACTION,
+                              PowerComponent::VISUAL_INTERACTION,
+                              PowerComponent::TRUSTED_DEVICE_DETECTION, PowerComponent::LOCATION,
+                              PowerComponent::MICROPHONE, PowerComponent::CPU},
+                             {});
+const CarPowerPolicy kSystemPowerPolicyInitialOn =
+        createCarPowerPolicy("system_power_policy_initial_on",
+                             {PowerComponent::AUDIO, PowerComponent::DISPLAY, PowerComponent::CPU},
+                             {PowerComponent::MEDIA, PowerComponent::BLUETOOTH,
+                              PowerComponent::WIFI, PowerComponent::CELLULAR,
+                              PowerComponent::ETHERNET, PowerComponent::PROJECTION,
+                              PowerComponent::NFC, PowerComponent::INPUT,
+                              PowerComponent::VOICE_INTERACTION, PowerComponent::VISUAL_INTERACTION,
+                              PowerComponent::TRUSTED_DEVICE_DETECTION, PowerComponent::LOCATION,
+                              PowerComponent::MICROPHONE});
 const CarPowerPolicy kSystemPowerPolicyNoUserInteraction =
         createCarPowerPolicy("system_power_policy_no_user_interaction",
                              {PowerComponent::WIFI, PowerComponent::CELLULAR,
@@ -232,6 +265,11 @@ const CarPowerPolicy kSystemPowerPolicyNoUserInteraction =
                               PowerComponent::NFC, PowerComponent::INPUT,
                               PowerComponent::VOICE_INTERACTION, PowerComponent::VISUAL_INTERACTION,
                               PowerComponent::LOCATION, PowerComponent::MICROPHONE});
+const CarPowerPolicy kSystemPowerPolicySuspendPrep =
+        createCarPowerPolicy("system_power_policy_suspend_prep", {},
+                             {PowerComponent::AUDIO, PowerComponent::BLUETOOTH,
+                              PowerComponent::WIFI, PowerComponent::LOCATION,
+                              PowerComponent::MICROPHONE, PowerComponent::CPU});
 const CarPowerPolicy kModifiedSystemPowerPolicy =
         createCarPowerPolicy("system_power_policy_no_user_interaction",
                              {PowerComponent::BLUETOOTH, PowerComponent::WIFI,
@@ -319,6 +357,19 @@ bool isEqual(const CarPowerPolicy& a, const CarPowerPolicy& b) {
             compareComponents(a.disabledComponents, b.disabledComponents) &&
             compareCustomComponents(a.enabledCustomComponents, b.enabledCustomComponents) &&
             compareCustomComponents(a.disabledCustomComponents, b.disabledCustomComponents);
+}
+
+bool comparePolicies(const std::vector<CarPowerPolicy>& actualPolicies,
+                     std::unordered_map<std::string, CarPowerPolicy> expectedPolicies) {
+    if (actualPolicies.size() != expectedPolicies.size()) return false;
+    for (const auto& policy : actualPolicies) {
+        if (expectedPolicies.count(policy.policyId) == 0) {
+            return false;
+        }
+        if (!isEqual(policy, expectedPolicies[policy.policyId])) return false;
+        expectedPolicies.erase(policy.policyId);
+    }
+    return expectedPolicies.size() == 0;
 }
 
 void checkPolicies(const PolicyManager& policyManager) {
@@ -648,6 +699,38 @@ TEST_F(PolicyManagerTest, TestSystemPowerPolicyAllOn) {
 
     ASSERT_TRUE(enabledComponentSet.empty());
     ASSERT_TRUE(systemPolicyDefault->disabledComponents.empty());
+}
+
+TEST_F(PolicyManagerTest, TestGetCustomComponents) {
+    PolicyManager policyManager;
+    internal::PolicyManagerPeer policyManagerPeer(&policyManager);
+    policyManagerPeer.expectValidPowerPolicyXML(kValidPowerPolicyCustomComponentsXmlFile);
+
+    const auto customComponents = policyManager.getCustomComponents();
+
+    // Custom components defined in the XML are 1000, 1002, and 1003.
+    ASSERT_THAT(customComponents, UnorderedElementsAre(1000, 1002, 1003));
+}
+
+TEST_F(PolicyManagerTest, TestGetRegisteredPolicies) {
+    PolicyManager policyManager;
+    internal::PolicyManagerPeer policyManagerPeer(&policyManager);
+    policyManagerPeer.expectValidPowerPolicyXML(kValidPowerPolicyPowerPoliciesOnlyXmlFile);
+    std::unordered_map<std::string, CarPowerPolicy>
+            expectedPolicies{{"expected_to_be_registered", kExistingPowerPolicy_ToBeRegistered},
+                             {"policy_id_other_on", kExistingPowerPolicy_OtherOn},
+                             {"policy_id_other_off", kExistingPowerPolicy_OtherOff},
+                             {"policy_id_other_untouched", kExistingPowerPolicy_OtherUntouched},
+                             {"policy_id_other_none", kExistingPowerPolicy_OtherNone},
+                             {"system_power_policy_no_user_interaction",
+                              kSystemPowerPolicyNoUserInteraction},
+                             {"system_power_policy_suspend_prep", kSystemPowerPolicySuspendPrep},
+                             {"system_power_policy_all_on", kSystemPowerPolicyAllOn},
+                             {"system_power_policy_initial_on", kSystemPowerPolicyInitialOn}};
+
+    const auto powerPolicies = policyManager.getRegisteredPolicies();
+
+    ASSERT_TRUE(comparePolicies(powerPolicies, expectedPolicies));
 }
 
 }  // namespace test

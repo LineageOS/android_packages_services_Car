@@ -17,7 +17,6 @@
 package android.car;
 
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 /**
  * Callback for generic results.
@@ -31,7 +30,5 @@ public interface ResultCallback<V> {
     /**
      * Called when result is available.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     void onResult(V result);
 }

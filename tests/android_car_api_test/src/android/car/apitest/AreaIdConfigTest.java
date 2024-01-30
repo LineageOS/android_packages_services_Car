@@ -35,7 +35,7 @@ public class AreaIdConfigTest {
     private static final List<Integer> SUPPORTED_ENUM_VALUES = List.of(2, 3, 4);
     private static final AreaIdConfig<Integer> AREA_ID_CONFIG = new AreaIdConfig.Builder<Integer>(
             AREA_ID).setMaxValue(MAX_VALUE).setMinValue(MIN_VALUE).setSupportedEnumValues(
-            SUPPORTED_ENUM_VALUES).build();
+            SUPPORTED_ENUM_VALUES).setSupportVariableUpdateRate(true).build();
 
     @Test
     public void getAreaId_returnsExpectedValue() {
@@ -80,6 +80,17 @@ public class AreaIdConfigTest {
     }
 
     @Test
+    public void isVariableUpdateRateSupported() {
+        assertThat(AREA_ID_CONFIG.isVariableUpdateRateSupported()).isTrue();
+    }
+
+    @Test
+    public void isVariableUpdateRateSupported_defaultFalse() {
+        assertThat(new AreaIdConfig.Builder<Long>(AREA_ID).build().isVariableUpdateRateSupported())
+                .isFalse();
+    }
+
+    @Test
     public void writeToParcel_writesCorrectly() {
         Parcel parcel = Parcel.obtain();
         AREA_ID_CONFIG.writeToParcel(parcel, /*flags=*/0);
@@ -93,6 +104,7 @@ public class AreaIdConfigTest {
         assertThat(
                 (List<?>) areaIdConfig.getSupportedEnumValues()).containsExactlyElementsIn(
                 SUPPORTED_ENUM_VALUES);
+        assertThat(areaIdConfig.isVariableUpdateRateSupported()).isTrue();
     }
 
     @Test

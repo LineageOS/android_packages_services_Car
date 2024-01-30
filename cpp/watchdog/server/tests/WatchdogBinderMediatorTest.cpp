@@ -58,9 +58,9 @@ using ::testing::UnorderedElementsAreArray;
 
 namespace {
 
-const std::function<android::base::Result<void>(ICInterface*, const char*)>
+const std::function<android::base::Result<void>(const char*, ICInterface*, bool, int)>
         kAddServiceFunctionStub =
-                [](ICInterface*, const char*) -> Result<void> { return Result<void>{}; };
+                [](const char*, ICInterface*, bool, int) -> Result<void> { return Result<void>{}; };
 
 std::string toString(const std::vector<ResourceOveruseStats>& resourceOveruseStats) {
     std::string buffer;

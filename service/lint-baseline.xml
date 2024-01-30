@@ -6,7 +6,15 @@
         message="Call requires API level 34 (current min is 33): `android.os.UserManager#isUserVisible`">
         <location
             file="packages/services/Car/service/src/com/android/car/user/CarUserService.java"
-            line="1282"/>
+            line="1301"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 33): `android.os.UserManager#setBootUser`">
+        <location
+            file="packages/services/Car/service/src/com/android/car/user/InitialUserSetter.java"
+            line="707"/>
     </issue>
 
     <issue

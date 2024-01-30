@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import static android.bluetooth.BluetoothProfile.A2DP_SINK;
 import static android.car.CarProjectionManager.PROJECTION_AP_STARTED;
 import static android.car.projection.ProjectionStatus.PROJECTION_STATE_ACTIVE_FOREGROUND;
 import static android.car.projection.ProjectionStatus.PROJECTION_STATE_INACTIVE;
@@ -33,6 +34,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.bluetooth.BluetoothDevice;
 import android.car.CarProjectionManager;
 import android.car.ICarProjectionKeyEventHandler;
 import android.car.ICarProjectionStatusListener;
@@ -472,6 +474,18 @@ public class CarProjectionServiceTest {
         inOrder.verify(mCarInputService).setProjectionKeyEventHandler(eq(null), any());
     }
 
+    @Test
+    public void isBluetoothProfileInhibited() {
+        mService = new CarProjectionService(mContext, mHandler, mCarInputService,
+                mCarBluetoothService);
+        when(mCarBluetoothService.isProfileInhibited(any(), anyInt(), any()))
+                .thenReturn(true);
+        BluetoothDevice device = mock(BluetoothDevice.class);
+
+        assertThat(mService.isBluetoothProfileInhibited(device, A2DP_SINK,
+                mToken)).isEqualTo(true);
+    }
+
     private ProjectionStatus createProjectionStatus() {
         Bundle statusExtra = new Bundle();
         statusExtra.putString(STATUS_EXTRA_KEY, STATUS_EXTRA_VALUE);
@@ -518,5 +532,137 @@ public class CarProjectionServiceTest {
             bitSet.set(event);
         }
         return bitSet;
+    }
+
+    @Test
+    public void startProjectionTetheredAccessPoint_ensure2GhzAnd5GhzAdded() throws RemoteException {
+        when(mWifiManager.startTetheredHotspot(any())).thenReturn(true);
+        when(mWifiManager.is5GHzBandSupported()).thenReturn(true);
+        when(mWifiManager.isBridgedApConcurrencySupported()).thenReturn(true);
+
+        int[] dualBands = {SoftApConfiguration.BAND_2GHZ, SoftApConfiguration.BAND_5GHZ};
+        SoftApConfiguration softApConfig_2g5g = new SoftApConfiguration.Builder()
+                .setSsid("SSID")
+                .setBssid(MacAddress.fromString("de:ad:be:ef:77:77"))
+                .setPassphrase("Password", SoftApConfiguration.SECURITY_TYPE_WPA2_PSK)
+                .setMacRandomizationSetting(SoftApConfiguration.RANDOMIZATION_NONE)
+                .setBands(dualBands)
+                .build();
+
+        int[] singleBand = {SoftApConfiguration.BAND_2GHZ};
+        SoftApConfiguration softApConfig_2g = new SoftApConfiguration.Builder()
+                .setSsid("SSID")
+                .setBssid(MacAddress.fromString("de:ad:be:ef:77:77"))
+                .setPassphrase("Password", SoftApConfiguration.SECURITY_TYPE_WPA2_PSK)
+                .setMacRandomizationSetting(SoftApConfiguration.RANDOMIZATION_NONE)
+                .setBands(singleBand)
+                .build();
+
+        // We want ensureApConfiguration to add 5GHz, so it can't be present.
+        when(mWifiManager.getSoftApConfiguration()).thenReturn(softApConfig_2g);
+
+        startProjectionTethering();
+
+        // Once called, verify what was called.
+        verify(mWifiManager).setSoftApConfiguration(eq(softApConfig_2g5g));
+
+        Mockito.reset(mWifiManager);  // reset for other interactions
+    }
+
+    @Test
+    public void startProjectionTetheredAccessPoint_ensureNotCalled2Ghz5Ghz()
+            throws RemoteException {
+        when(mWifiManager.startTetheredHotspot(any())).thenReturn(true);
+        when(mWifiManager.is5GHzBandSupported()).thenReturn(true);
+        when(mWifiManager.isBridgedApConcurrencySupported()).thenReturn(true);
+
+        int[] dualBands = {SoftApConfiguration.BAND_2GHZ, SoftApConfiguration.BAND_5GHZ};
+        SoftApConfiguration softApConfig_2g5g = new SoftApConfiguration.Builder()
+                .setSsid("SSID")
+                .setBssid(MacAddress.fromString("de:ad:be:ef:77:77"))
+                .setPassphrase("Password", SoftApConfiguration.SECURITY_TYPE_WPA2_PSK)
+                .setMacRandomizationSetting(SoftApConfiguration.RANDOMIZATION_NONE)
+                .setBands(dualBands)
+                .build();
+
+        // Let's pretend the correct settings already in place.
+        when(mWifiManager.getSoftApConfiguration()).thenReturn(softApConfig_2g5g);
+
+        startProjectionTethering();
+
+        // The settings are already correct, don't call this.
+        verify(mWifiManager, never()).setSoftApConfiguration(any(SoftApConfiguration.class));
+
+        Mockito.reset(mWifiManager);  // reset for other interactions
+    }
+
+    @Test
+    public void startProjectionTetheredAccessPoint_ensureNotCalled5Ghz() throws RemoteException {
+        when(mWifiManager.startTetheredHotspot(any())).thenReturn(true);
+        when(mWifiManager.is5GHzBandSupported()).thenReturn(true);
+        when(mWifiManager.isBridgedApConcurrencySupported()).thenReturn(true);
+
+        int[] singleBand = {SoftApConfiguration.BAND_5GHZ};
+        SoftApConfiguration softApConfig_5g = new SoftApConfiguration.Builder()
+                .setSsid("SSID")
+                .setBssid(MacAddress.fromString("de:ad:be:ef:77:77"))
+                .setPassphrase("Password", SoftApConfiguration.SECURITY_TYPE_WPA2_PSK)
+                .setMacRandomizationSetting(SoftApConfiguration.RANDOMIZATION_NONE)
+                .setBands(singleBand)
+                .build();
+
+        // Let's pretend we don't have 2.4GHz.
+        when(mWifiManager.getSoftApConfiguration()).thenReturn(softApConfig_5g);
+
+        startProjectionTethering();
+
+        // If 2.4GHz isn't already present, it shouldn't get added.
+        verify(mWifiManager, never()).setSoftApConfiguration(eq(softApConfig_5g));
+
+        Mockito.reset(mWifiManager);  // reset for other interactions
+    }
+
+    @Test
+    public void startProjectionTetheredAccessPoint_ensure5GhzOnlyNoConcurrency()
+            throws RemoteException {
+        when(mWifiManager.startTetheredHotspot(any())).thenReturn(true);
+        when(mWifiManager.is5GHzBandSupported()).thenReturn(true);
+        when(mWifiManager.isBridgedApConcurrencySupported()).thenReturn(false);
+
+        int[] dualBands = {SoftApConfiguration.BAND_2GHZ, SoftApConfiguration.BAND_5GHZ};
+        SoftApConfiguration softApConfig_2g5g = new SoftApConfiguration.Builder()
+                .setSsid("SSID")
+                .setBssid(MacAddress.fromString("de:ad:be:ef:77:77"))
+                .setPassphrase("Password", SoftApConfiguration.SECURITY_TYPE_WPA2_PSK)
+                .setMacRandomizationSetting(SoftApConfiguration.RANDOMIZATION_NONE)
+                .setBands(dualBands)
+                .build();
+
+        int[] singleBand = {SoftApConfiguration.BAND_5GHZ};
+        SoftApConfiguration softApConfig_5g = new SoftApConfiguration.Builder()
+                .setSsid("SSID")
+                .setBssid(MacAddress.fromString("de:ad:be:ef:77:77"))
+                .setPassphrase("Password", SoftApConfiguration.SECURITY_TYPE_WPA2_PSK)
+                .setMacRandomizationSetting(SoftApConfiguration.RANDOMIZATION_NONE)
+                .setBands(singleBand)
+                .build();
+
+        // Pretend we have both 2Ghz and 5Ghz.
+        when(mWifiManager.getSoftApConfiguration()).thenReturn(softApConfig_2g5g);
+
+        startProjectionTethering();
+
+        // Since we don't support concurrency, only 5GHz should be enabled.
+        verify(mWifiManager, never()).setSoftApConfiguration(eq(softApConfig_5g));
+
+        Mockito.reset(mWifiManager);  // reset for other interactions
+    }
+
+    private void startProjectionTethering() throws RemoteException {
+        mService.setAccessPointTethering(true);
+        mService.startProjectionAccessPoint(mMessenger, mToken);
+
+        verify(mWifiManager)
+                .startTetheredHotspot(null);
     }
 }

@@ -23,7 +23,6 @@ import android.annotation.UserIdInt;
 import android.car.app.CarActivityManager;
 import android.content.ComponentName;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
 import android.view.Display;
@@ -56,13 +55,6 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
     public void setPassengerDisplays(int[] displayIdsForPassenger) {
         Log.d(TAG, "setPassengerDisplays(displayIdsForPassenger="
                 + Arrays.toString(displayIdsForPassenger) + ")");
-    }
-
-    @Override
-    public void setSourcePreferredComponents(boolean enableSourcePreferred,
-            List<ComponentName> sourcePreferredComponents) throws RemoteException {
-        Log.d(TAG, "setSourcePreferredComponents(enableSourcePreferred=" + enableSourcePreferred
-                + ", sourcePreferredComponents=" + sourcePreferredComponents + ")");
     }
 
     @Override
@@ -142,5 +134,10 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
         Log.d(TAG, "fetchAidlVhalPid()");
 
         return INVALID_PID;
+    }
+
+    @Override
+    public boolean requiresDisplayCompat(String packageName) {
+        return false;
     }
 }

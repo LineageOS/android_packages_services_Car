@@ -21,7 +21,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
-import android.car.annotation.AddedInOrBefore;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.JsonWriter;
@@ -43,14 +42,12 @@ import java.util.Objects;
 @SystemApi
 public final class CarDiagnosticEvent implements Parcelable {
     /** Whether this frame represents a live or a freeze frame */
-    @AddedInOrBefore(majorVersion = 33)
     public final int frameType;
 
     /**
      * When this data was acquired in car or received from car. It is elapsed real-time of data
      * reception from car in nanoseconds since system boot.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public final long timestamp;
 
     /**
@@ -69,7 +66,6 @@ public final class CarDiagnosticEvent implements Parcelable {
      * Diagnostic Troubleshooting Code (DTC) that was detected and caused this frame to be stored
      * (if a freeze frame). Always null for a live frame.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public final String dtc;
 
     public CarDiagnosticEvent(Parcel in) {
@@ -95,13 +91,11 @@ public final class CarDiagnosticEvent implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(frameType);
         dest.writeLong(timestamp);
@@ -134,7 +128,6 @@ public final class CarDiagnosticEvent implements Parcelable {
      *    value: the floating-point value of the sensor;
      *  stringValue: the DTC for a freeze frame, omitted for a live frame
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.beginObject();
 
@@ -177,7 +170,6 @@ public final class CarDiagnosticEvent implements Parcelable {
         jsonWriter.endObject();
     }
 
-    @AddedInOrBefore(majorVersion = 33)
     public static final Parcelable.Creator<CarDiagnosticEvent> CREATOR =
             new Parcelable.Creator<CarDiagnosticEvent>() {
                 public CarDiagnosticEvent createFromParcel(Parcel in) {
@@ -218,13 +210,11 @@ public final class CarDiagnosticEvent implements Parcelable {
         }
 
         /** Returns a new Builder for a live frame */
-        @AddedInOrBefore(majorVersion = 33)
         public static Builder newLiveFrameBuilder() {
             return new Builder(CarDiagnosticManager.FRAME_TYPE_LIVE);
         }
 
         /** Returns a new Builder for a freeze frame */
-        @AddedInOrBefore(majorVersion = 33)
         public static Builder newFreezeFrameBuilder() {
             return new Builder(CarDiagnosticManager.FRAME_TYPE_FREEZE);
         }
@@ -234,7 +224,6 @@ public final class CarDiagnosticEvent implements Parcelable {
          * @deprecated Use {@link Builder#setTimeStamp(long)} instead.
          */
         @Deprecated
-        @AddedInOrBefore(majorVersion = 33)
         public Builder atTimestamp(long timestamp) {
             mTimestamp = timestamp;
             return this;
@@ -245,7 +234,6 @@ public final class CarDiagnosticEvent implements Parcelable {
          * @param timeStamp timeStamp for CarDiagnosticEvent
          * @return Builder
          */
-        @AddedInOrBefore(majorVersion = 33)
         public Builder setTimeStamp(long timeStamp) {
             mTimestamp = timeStamp;
             return this;
@@ -256,7 +244,6 @@ public final class CarDiagnosticEvent implements Parcelable {
          * @deprecated Use {@link Builder#setIntValue(int, int)} instead.
          */
         @Deprecated
-        @AddedInOrBefore(majorVersion = 33)
         public Builder withIntValue(int key, int value) {
             mIntValues.put(key, value);
             return this;
@@ -268,7 +255,6 @@ public final class CarDiagnosticEvent implements Parcelable {
          * @param value int value
          * @return Builder
          */
-        @AddedInOrBefore(majorVersion = 33)
         public Builder setIntValue(int key, int value) {
             mIntValues.put(key, value);
             return this;
@@ -279,7 +265,6 @@ public final class CarDiagnosticEvent implements Parcelable {
          * @deprecated Use {@link Builder#setFloatValue(int, float)} instead.
          */
         @Deprecated
-        @AddedInOrBefore(majorVersion = 33)
         public Builder withFloatValue(int key, float value) {
             mFloatValues.put(key, value);
             return this;
@@ -291,7 +276,6 @@ public final class CarDiagnosticEvent implements Parcelable {
          * @param value float value
          * @return Builder
          */
-        @AddedInOrBefore(majorVersion = 33)
         public Builder setFloatValue(int key, float value) {
             mFloatValues.put(key, value);
             return this;
@@ -302,7 +286,6 @@ public final class CarDiagnosticEvent implements Parcelable {
          * @deprecated Use {@link Builder#setDtc(String)} instead.
          */
         @Deprecated
-        @AddedInOrBefore(majorVersion = 33)
         public Builder withDtc(String dtc) {
             mDtc = dtc;
             return this;
@@ -313,14 +296,12 @@ public final class CarDiagnosticEvent implements Parcelable {
          * @param dtc string value of CarDiagnosticEvent
          * @return Builder
          */
-        @AddedInOrBefore(majorVersion = 33)
         public Builder setDtc(String dtc) {
             mDtc = dtc;
             return this;
         }
 
         /** Builds and returns the CarDiagnosticEvent */
-        @AddedInOrBefore(majorVersion = 33)
         public CarDiagnosticEvent build() {
             return new CarDiagnosticEvent(mType, mTimestamp, mFloatValues, mIntValues, mDtc);
         }
@@ -331,7 +312,6 @@ public final class CarDiagnosticEvent implements Parcelable {
      *
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public CarDiagnosticEvent withVendorSensorsRemoved() {
         SparseIntArray newIntValues = mIntValues.clone();
         SparseArray<Float> newFloatValues = mFloatValues.clone();
@@ -351,19 +331,16 @@ public final class CarDiagnosticEvent implements Parcelable {
     }
 
     /** Returns true if this object is a live frame, false otherwise */
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isLiveFrame() {
         return CarDiagnosticManager.FRAME_TYPE_LIVE == frameType;
     }
 
     /** Returns true if this object is a freeze frame, false otherwise */
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isFreezeFrame() {
         return CarDiagnosticManager.FRAME_TYPE_FREEZE == frameType;
     }
 
     /** @hide */
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isEmptyFrame() {
         boolean empty = (0 == mIntValues.size());
         empty &= (0 == mFloatValues.size());
@@ -372,21 +349,18 @@ public final class CarDiagnosticEvent implements Parcelable {
     }
 
     /** @hide */
-    @AddedInOrBefore(majorVersion = 33)
     public CarDiagnosticEvent checkLiveFrame() {
         if (!isLiveFrame()) throw new IllegalStateException("frame is not a live frame");
         return this;
     }
 
     /** @hide */
-    @AddedInOrBefore(majorVersion = 33)
     public CarDiagnosticEvent checkFreezeFrame() {
         if (!isFreezeFrame()) throw new IllegalStateException("frame is not a freeze frame");
         return this;
     }
 
     /** @hide */
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isEarlierThan(CarDiagnosticEvent otherEvent) {
         Objects.requireNonNull(otherEvent);
         return (timestamp < otherEvent.timestamp);
@@ -492,7 +466,6 @@ public final class CarDiagnosticEvent implements Parcelable {
      * Returns the value of the given integer sensor, if present in this frame.
      * Returns defaultValue otherwise.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public int getSystemIntegerSensor(
             @android.car.diagnostic.IntegerSensorIndex.SensorIndex int sensor, int defaultValue) {
         return mIntValues.get(sensor, defaultValue);
@@ -502,7 +475,6 @@ public final class CarDiagnosticEvent implements Parcelable {
      * Returns the value of the given float sensor, if present in this frame.
      * Returns defaultValue otherwise.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public float getSystemFloatSensor(
             @android.car.diagnostic.FloatSensorIndex.SensorIndex int sensor, float defaultValue) {
         return mFloatValues.get(sensor, defaultValue);
@@ -512,7 +484,6 @@ public final class CarDiagnosticEvent implements Parcelable {
      * Returns the value of the given integer sensor, if present in this frame.
      * Returns defaultValue otherwise.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public int getVendorIntegerSensor(int sensor, int defaultValue) {
         return mIntValues.get(sensor, defaultValue);
     }
@@ -521,7 +492,6 @@ public final class CarDiagnosticEvent implements Parcelable {
      * Returns the value of the given float sensor, if present in this frame.
      * Returns defaultValue otherwise.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public float getVendorFloatSensor(int sensor, float defaultValue) {
         return mFloatValues.get(sensor, defaultValue);
     }
@@ -530,7 +500,6 @@ public final class CarDiagnosticEvent implements Parcelable {
      * Returns the value of the given integer sensor, if present in this frame.
      * Returns null otherwise.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public @Nullable Integer getSystemIntegerSensor(
             @android.car.diagnostic.IntegerSensorIndex.SensorIndex int sensor) {
         int index = mIntValues.indexOfKey(sensor);
@@ -542,7 +511,6 @@ public final class CarDiagnosticEvent implements Parcelable {
      * Returns the value of the given float sensor, if present in this frame.
      * Returns null otherwise.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public @Nullable Float getSystemFloatSensor(
             @android.car.diagnostic.FloatSensorIndex.SensorIndex int sensor) {
         int index = mFloatValues.indexOfKey(sensor);
@@ -554,7 +522,6 @@ public final class CarDiagnosticEvent implements Parcelable {
      * Returns the value of the given integer sensor, if present in this frame.
      * Returns null otherwise.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public @Nullable Integer getVendorIntegerSensor(int sensor) {
         int index = mIntValues.indexOfKey(sensor);
         if (index < 0) return null;
@@ -565,7 +532,6 @@ public final class CarDiagnosticEvent implements Parcelable {
      * Returns the value of the given float sensor, if present in this frame.
      * Returns null otherwise.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public @Nullable Float getVendorFloatSensor(int sensor) {
         int index = mFloatValues.indexOfKey(sensor);
         if (index < 0) return null;
@@ -579,15 +545,10 @@ public final class CarDiagnosticEvent implements Parcelable {
     public static final class FuelSystemStatus {
         private FuelSystemStatus() {}
 
-        @AddedInOrBefore(majorVersion = 33)
         public static final int OPEN_INSUFFICIENT_ENGINE_TEMPERATURE = 1;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int CLOSED_LOOP = 2;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int OPEN_ENGINE_LOAD_OR_DECELERATION = 4;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int OPEN_SYSTEM_FAILURE = 8;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int CLOSED_LOOP_BUT_FEEDBACK_FAULT = 16;
 
         @Retention(RetentionPolicy.SOURCE)
@@ -608,13 +569,9 @@ public final class CarDiagnosticEvent implements Parcelable {
     public static final class SecondaryAirStatus {
         private SecondaryAirStatus() {}
 
-        @AddedInOrBefore(majorVersion = 33)
         public static final int UPSTREAM = 1;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int DOWNSTREAM_OF_CATALYCIC_CONVERTER = 2;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int FROM_OUTSIDE_OR_OFF = 4;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int PUMP_ON_FOR_DIAGNOSTICS = 8;
 
         @Retention(RetentionPolicy.SOURCE)
@@ -634,53 +591,29 @@ public final class CarDiagnosticEvent implements Parcelable {
     public static final class FuelType {
         private FuelType() {}
 
-        @AddedInOrBefore(majorVersion = 33)
         public static final int NOT_AVAILABLE = 0;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int GASOLINE = 1;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int METHANOL = 2;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int ETHANOL = 3;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int DIESEL = 4;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int LPG = 5;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int CNG = 6;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int PROPANE = 7;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int ELECTRIC = 8;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int BIFUEL_RUNNING_GASOLINE = 9;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int BIFUEL_RUNNING_METHANOL = 10;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int BIFUEL_RUNNING_ETHANOL = 11;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int BIFUEL_RUNNING_LPG = 12;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int BIFUEL_RUNNING_CNG = 13;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int BIFUEL_RUNNING_PROPANE = 14;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int BIFUEL_RUNNING_ELECTRIC = 15;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int BIFUEL_RUNNING_ELECTRIC_AND_COMBUSTION = 16;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int HYBRID_GASOLINE = 17;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int HYBRID_ETHANOL = 18;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int HYBRID_DIESEL = 19;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int HYBRID_ELECTRIC = 20;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int HYBRID_RUNNING_ELECTRIC_AND_COMBUSTION = 21;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int HYBRID_REGENERATIVE = 22;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int BIFUEL_RUNNING_DIESEL = 23;
 
         @Retention(RetentionPolicy.SOURCE)
@@ -717,9 +650,7 @@ public final class CarDiagnosticEvent implements Parcelable {
      * Represents the state of an ignition monitor on a vehicle.
      */
     public static final class IgnitionMonitor {
-        @AddedInOrBefore(majorVersion = 33)
         public final boolean available;
-        @AddedInOrBefore(majorVersion = 33)
         public final boolean incomplete;
 
         IgnitionMonitor(boolean available, boolean incomplete) {
@@ -740,7 +671,6 @@ public final class CarDiagnosticEvent implements Parcelable {
             /**
              * Returns the {@link IgnitionMonitor} associated with the value passed as parameter.
              */
-            @AddedInOrBefore(majorVersion = 33)
             public IgnitionMonitor fromValue(int value) {
                 boolean available = (0 != (value & mAvailableBitmask));
                 boolean incomplete = (0 != (value & mIncompleteBitmask));
@@ -754,32 +684,23 @@ public final class CarDiagnosticEvent implements Parcelable {
      * Contains information about ignition monitors common to all vehicle types.
      */
     public static class CommonIgnitionMonitors {
-        @AddedInOrBefore(majorVersion = 33)
         public final IgnitionMonitor components;
-        @AddedInOrBefore(majorVersion = 33)
         public final IgnitionMonitor fuelSystem;
-        @AddedInOrBefore(majorVersion = 33)
         public final IgnitionMonitor misfire;
 
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int COMPONENTS_AVAILABLE = 0x1 << 0;
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int COMPONENTS_INCOMPLETE = 0x1 << 1;
 
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int FUEL_SYSTEM_AVAILABLE = 0x1 << 2;
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int FUEL_SYSTEM_INCOMPLETE = 0x1 << 3;
 
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int MISFIRE_AVAILABLE = 0x1 << 4;
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int MISFIRE_INCOMPLETE = 0x1 << 5;
 
         static final IgnitionMonitor.Decoder COMPONENTS_DECODER =
@@ -802,7 +723,6 @@ public final class CarDiagnosticEvent implements Parcelable {
          * object represents ignition monitors for a spark vehicle.
          * Returns null otherwise.
          */
-        @AddedInOrBefore(majorVersion = 33)
         public @Nullable SparkIgnitionMonitors asSparkIgnitionMonitors() {
             if (this instanceof SparkIgnitionMonitors) return (SparkIgnitionMonitors) this;
             return null;
@@ -813,7 +733,6 @@ public final class CarDiagnosticEvent implements Parcelable {
          * object represents ignition monitors for a compression vehicle.
          * Returns null otherwise.
          */
-        @AddedInOrBefore(majorVersion = 33)
         public @Nullable CompressionIgnitionMonitors asCompressionIgnitionMonitors() {
             if (this instanceof CompressionIgnitionMonitors) {
                 return (CompressionIgnitionMonitors) this;
@@ -826,77 +745,53 @@ public final class CarDiagnosticEvent implements Parcelable {
      * Contains information about ignition monitors specific to spark vehicles.
      */
     public static final class SparkIgnitionMonitors extends CommonIgnitionMonitors {
-        @AddedInOrBefore(majorVersion = 33)
         public final IgnitionMonitor EGR;
-        @AddedInOrBefore(majorVersion = 33)
         public final IgnitionMonitor oxygenSensorHeater;
-        @AddedInOrBefore(majorVersion = 33)
         public final IgnitionMonitor oxygenSensor;
-        @AddedInOrBefore(majorVersion = 33)
         public final IgnitionMonitor ACRefrigerant;
-        @AddedInOrBefore(majorVersion = 33)
         public final IgnitionMonitor secondaryAirSystem;
-        @AddedInOrBefore(majorVersion = 33)
         public final IgnitionMonitor evaporativeSystem;
-        @AddedInOrBefore(majorVersion = 33)
         public final IgnitionMonitor heatedCatalyst;
-        @AddedInOrBefore(majorVersion = 33)
         public final IgnitionMonitor catalyst;
 
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int EGR_AVAILABLE = 0x1 << 6;
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int EGR_INCOMPLETE = 0x1 << 7;
 
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int OXYGEN_SENSOR_HEATER_AVAILABLE = 0x1 << 8;
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int OXYGEN_SENSOR_HEATER_INCOMPLETE = 0x1 << 9;
 
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int OXYGEN_SENSOR_AVAILABLE = 0x1 << 10;
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int OXYGEN_SENSOR_INCOMPLETE = 0x1 << 11;
 
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int AC_REFRIGERANT_AVAILABLE = 0x1 << 12;
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int AC_REFRIGERANT_INCOMPLETE = 0x1 << 13;
 
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int SECONDARY_AIR_SYSTEM_AVAILABLE = 0x1 << 14;
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int SECONDARY_AIR_SYSTEM_INCOMPLETE = 0x1 << 15;
 
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int EVAPORATIVE_SYSTEM_AVAILABLE = 0x1 << 16;
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int EVAPORATIVE_SYSTEM_INCOMPLETE = 0x1 << 17;
 
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int HEATED_CATALYST_AVAILABLE = 0x1 << 18;
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int HEATED_CATALYST_INCOMPLETE = 0x1 << 19;
 
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int CATALYST_AVAILABLE = 0x1 << 20;
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int CATALYST_INCOMPLETE = 0x1 << 21;
 
         static final IgnitionMonitor.Decoder EGR_DECODER =
@@ -945,59 +840,41 @@ public final class CarDiagnosticEvent implements Parcelable {
      * Contains information about ignition monitors specific to compression vehicles.
      */
     public static final class CompressionIgnitionMonitors extends CommonIgnitionMonitors {
-        @AddedInOrBefore(majorVersion = 33)
         public final IgnitionMonitor EGROrVVT;
-        @AddedInOrBefore(majorVersion = 33)
         public final IgnitionMonitor PMFilter;
-        @AddedInOrBefore(majorVersion = 33)
         public final IgnitionMonitor exhaustGasSensor;
-        @AddedInOrBefore(majorVersion = 33)
         public final IgnitionMonitor boostPressure;
-        @AddedInOrBefore(majorVersion = 33)
         public final IgnitionMonitor NOxSCR;
-        @AddedInOrBefore(majorVersion = 33)
         public final IgnitionMonitor NMHCCatalyst;
 
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int EGR_OR_VVT_AVAILABLE = 0x1 << 6;
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int EGR_OR_VVT_INCOMPLETE = 0x1 << 7;
 
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int PM_FILTER_AVAILABLE = 0x1 << 8;
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int PM_FILTER_INCOMPLETE = 0x1 << 9;
 
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int EXHAUST_GAS_SENSOR_AVAILABLE = 0x1 << 10;
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int EXHAUST_GAS_SENSOR_INCOMPLETE = 0x1 << 11;
 
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int BOOST_PRESSURE_AVAILABLE = 0x1 << 12;
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int BOOST_PRESSURE_INCOMPLETE = 0x1 << 13;
 
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int NOx_SCR_AVAILABLE = 0x1 << 14;
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int NOx_SCR_INCOMPLETE = 0x1 << 15;
 
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int NMHC_CATALYST_AVAILABLE = 0x1 << 16;
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int NMHC_CATALYST_INCOMPLETE = 0x1 << 17;
 
         static final IgnitionMonitor.Decoder EGR_OR_VVT_DECODER =
@@ -1035,7 +912,6 @@ public final class CarDiagnosticEvent implements Parcelable {
      * Returns the state of the fuel system, if present in this frame.
      * Returns null otherwise.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public @Nullable @FuelSystemStatus.Status Integer getFuelSystemStatus() {
         return getSystemIntegerSensor(android.car.diagnostic.IntegerSensorIndex.FUEL_SYSTEM_STATUS);
     }
@@ -1044,7 +920,6 @@ public final class CarDiagnosticEvent implements Parcelable {
      * Returns the state of the secondary air system, if present in this frame.
      * Returns null otherwise.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public @Nullable @SecondaryAirStatus.Status Integer getSecondaryAirStatus() {
         return getSystemIntegerSensor(
             android.car.diagnostic.IntegerSensorIndex.COMMANDED_SECONDARY_AIR_STATUS);
@@ -1054,7 +929,6 @@ public final class CarDiagnosticEvent implements Parcelable {
      * Returns data about the ignition monitors, if present in this frame.
      * Returns null otherwise.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public @Nullable CommonIgnitionMonitors getIgnitionMonitors() {
         Integer ignitionMonitorsType =
                 getSystemIntegerSensor(
@@ -1078,7 +952,6 @@ public final class CarDiagnosticEvent implements Parcelable {
      * Returns the fuel type, if present in this frame.
      * Returns null otherwise.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public @Nullable @FuelType.Type Integer getFuelType() {
         return getSystemIntegerSensor(android.car.diagnostic.IntegerSensorIndex.FUEL_TYPE);
     }

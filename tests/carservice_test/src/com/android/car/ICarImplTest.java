@@ -32,6 +32,7 @@ import android.car.ICarResultReceiver;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.content.res.Resources;
+import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
 import android.os.Bundle;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -97,6 +98,7 @@ public final class ICarImplTest extends AbstractExtendedMockitoTestCase {
     @Mock private CarWatchdogService mMockCarWatchdogService;
     @Mock private CarPerformanceService mMockCarPerformanceService;
     @Mock private GarageModeService mMockGarageModeService;
+    @Mock private ICarPowerPolicySystemNotification.Stub mMockCarPowerPolicyDaemon;
     @Mock private CarTelemetryService mMockCarTelemetryService;
     @Mock private CarRemoteAccessService mMockCarRemoteAccessService;
     @Mock private ICarServiceHelper mICarServiceHelper;
@@ -196,9 +198,8 @@ public final class ICarImplTest extends AbstractExtendedMockitoTestCase {
 
         ICarImpl carImpl = new ICarImpl(mContext, null, mMockVehicle, mFakeSystemInterface,
                 "MockedCar", /* carUserService= */ null, mMockCarWatchdogService,
-                mMockCarPerformanceService, mMockGarageModeService,
-                new MockedCarTestBase.FakeCarPowerPolicyDaemon(), mMockCarTelemetryService,
-                mMockCarRemoteAccessService, false);
+                mMockCarPerformanceService, mMockGarageModeService, mMockCarPowerPolicyDaemon,
+                mMockCarTelemetryService, mMockCarRemoteAccessService, false);
         doNothing().when(() -> ICarImpl.assertCallingFromSystemProcess());
         carImpl.setSystemServerConnections(mICarServiceHelper, new CarServiceConnectedCallback());
         carImpl.init();

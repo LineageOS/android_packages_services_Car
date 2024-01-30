@@ -42,6 +42,7 @@
           <item type="bool" name="useDefaultBluetoothPowerPolicy"/>
           <item type="string" name="instrumentClusterRendererService" translatable="false"/>
           <item type="string" name="config_clusterHomeActivity" translatable="false"/>
+          <item type="integer" name="config_clusterHomeServiceMode"/>
           <item type="string" name="rotaryService" translatable="false"/>
           <item type="bool" name="enableActivityBlockingForSafety"/>
           <item type="string" name="activityBlockingActivity" translatable="false"/>
@@ -86,7 +87,6 @@
           <item type="string" name="config_car_bugreport_application" translatable="false"/>
           <item type="array" name="config_occupant_zones" translatable="false"/>
           <item type="array" name="config_occupant_display_mapping" translatable="false"/>
-          <item type="array" name="config_sourcePreferredComponents" translatable="false"/>
           <item type="string" name="config_userNoticeUiService" translatable="false"/>
           <item type="string" name="config_userPickerActivity" translatable="false"/>
           <item type="integer" name="config_mediaSourceChangedAutoplay"/>
@@ -122,11 +122,16 @@
           <item type="integer" name="config_oemCarService_thread_pool_size"/>
           <item type="integer" name="config_allowedSystemUptimeForRemoteAccess"/>
           <item type="bool" name="config_assignPassengerActivityToForegroundCpuGroup"/>
-
+          <item type="integer" name="config_notifyApStateChange_max_retry"/>
+          <item type="integer" name="config_notifyApStateChange_retry_sleep_ms"/>
+          <item type="fraction" name="config_clusterHomeVisibility_minAlpha"/>
+          <item type="fraction" name="config_clusterHomeVisibility_minRendered"/>
+          <item type="integer" name="config_clusterHomeVisibility_stabilityMs"/>
           <!-- Params from config.xml that can be overlaid -->
 
           <!-- XML files that can be overlaid -->
           <item type="xml" name="car_ux_restrictions_map"/>
+          <item type="xml" name="remote_access_serverless_client_map"/>
           <!-- XML files that can be overlaid -->
         </policy>
         <!-- END VENDOR CUSTOMIZATION -->

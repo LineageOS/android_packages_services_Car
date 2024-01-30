@@ -41,10 +41,12 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.proto.ProtoOutputStream;
 import android.view.KeyEvent;
 
 import com.android.car.CarInputService;
@@ -230,13 +232,16 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
 
     @GuardedBy("mLock")
     private IInstrumentCluster waitForRendererLocked() {
-        if (mRendererService == null) {
-            try {
-                mLock.wait(mRendererServiceWaitTimeoutMs);
-            } catch (InterruptedException e) {
-                Slogf.d(TAG, "waitForRenderer, interrupted", e);
-                Thread.currentThread().interrupt();
+        long remainingTime = mRendererServiceWaitTimeoutMs;
+        long endTime = SystemClock.uptimeMillis() + remainingTime;
+        try {
+            while (mRendererService == null && remainingTime > 0) {
+                mLock.wait(remainingTime);
+                remainingTime = endTime - SystemClock.uptimeMillis();
             }
+        } catch (InterruptedException e) {
+            Slogf.d(TAG, "waitForRenderer, interrupted", e);
+            Thread.currentThread().interrupt();
         }
         return mRendererService;
     }
@@ -327,6 +332,10 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
                     + mIInstrumentClusterNavigationFromRenderer);
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     private static void notifyNavContextOwnerChanged(IInstrumentCluster service,
             ContextOwner owner) {

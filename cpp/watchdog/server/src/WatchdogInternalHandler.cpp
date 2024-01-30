@@ -26,6 +26,8 @@
 #include <binder/IPCThreadState.h>
 #include <private/android_filesystem_config.h>
 
+#include <carwatchdog_daemon_dump.proto.h>
+
 namespace android {
 namespace automotive {
 namespace watchdog {
@@ -57,6 +59,7 @@ namespace {
 constexpr const char* kDumpAllFlag = "-a";
 constexpr const char* kHelpFlag = "--help";
 constexpr const char* kHelpShortFlag = "-h";
+constexpr const char* kDumpProtoFlag = "--proto";
 constexpr const char* kHelpText =
         "Car watchdog daemon dumpsys help page:\n"
         "Format: dumpsys android.automotive.watchdog.ICarWatchdog/default [options]\n\n"
@@ -135,6 +138,9 @@ binder_status_t WatchdogInternalHandler::dump(int fd, const char** args, uint32_
     }
     std::vector<const char*> argsVector;
     for (uint32_t i = 0; i < numArgs; ++i) {
+        if (EqualsIgnoreCase(args[i], kDumpProtoFlag)) {
+            return dumpProto(fd);
+        }
         argsVector.push_back(args[i]);
     }
     dumpHelpText(fd,
@@ -153,6 +159,19 @@ status_t WatchdogInternalHandler::dumpServices(int fd) {
         ALOGW("Failed to dump I/O overuse monitor: %s", result.error().message().c_str());
         return result.error().code();
     }
+    return OK;
+}
+
+status_t WatchdogInternalHandler::dumpProto(int fd) {
+    util::ProtoOutputStream proto;
+    if (auto result = mWatchdogPerfService->onDumpProto(proto); !result.ok()) {
+        ALOGW("Failed to dump car watchdog perf service: %s", result.error().message().c_str());
+        return result.error().code();
+    }
+
+    mWatchdogProcessService->onDumpProto(proto);
+
+    proto.flush(fd);
     return OK;
 }
 

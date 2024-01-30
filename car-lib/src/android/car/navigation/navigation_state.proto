@@ -707,6 +707,13 @@ message Road {
   string name = 1;
 }
 
+// Authorization information for the data included in a NavigationStateProto message, used to
+// communicate how data may be used by receiver.
+message DataAuthorization {
+  // Identifier for this authorization.
+  string id = 1;
+}
+
 // Navigation state data to be displayed on the instrument cluster of a car.
 // This is composed of:
 //   - a list of destinations
@@ -742,5 +749,7 @@ message NavigationStateProto {
 
   // Current status of the navigation.
   ServiceStatus service_status = 4;
-}
 
+  // List of authorization IDs associated with the data in this message.
+  repeated DataAuthorization data_authorizations = 5;
+}

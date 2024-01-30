@@ -27,7 +27,7 @@ import android.os.Parcel;
 import java.util.ArrayList;
 import java.util.List;
 
-final class CoreAudioRoutingUtils {
+public final class CoreAudioRoutingUtils {
 
     public static final int MUSIC_MIN_INDEX = 0;
     public static final int MUSIC_MAX_INDEX = 40;
@@ -42,46 +42,53 @@ final class CoreAudioRoutingUtils {
     public static final String MUSIC_DEVICE_ADDRESS = "MUSIC_DEVICE_ADDRESS";
     public static final String NAV_DEVICE_ADDRESS = "NAV_DEVICE_ADDRESS";
     public static final String OEM_DEVICE_ADDRESS = "OEM_DEVICE_ADDRESS";
-    static final List<AudioVolumeGroup> VOLUME_GROUPS;
-    static final List<AudioProductStrategy> PRODUCT_STRATEGIES;
+    public static final List<AudioVolumeGroup> VOLUME_GROUPS;
+    public static final List<AudioProductStrategy> PRODUCT_STRATEGIES;
 
-    static final AudioAttributes MUSIC_ATTRIBUTES = new AudioAttributes.Builder()
+    public static final AudioAttributes MUSIC_ATTRIBUTES = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_MEDIA)
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
             .build();
-    static final int MUSIC_STRATEGY_ID = 777;
-    static final String MUSIC_CONTEXT_NAME = "MUSIC_CONTEXT";
-    static final int MUSIC_GROUP_ID = 666;
-    static final String MUSIC_GROUP_NAME = "MUSIC_GROUP";
-    static final AudioProductStrategy MUSIC_STRATEGY;
-    static final AudioVolumeGroup MUSIC_GROUP;
-    static final CarAudioContextInfo MEDIA_CONTEXT_INFO;
 
-    static final AudioAttributes NAV_ATTRIBUTES = new AudioAttributes.Builder()
+    public static final AudioAttributes MOVIE_ATTRIBUTES = new AudioAttributes.Builder()
+            .setContentType(AudioAttributes.CONTENT_TYPE_MOVIE)
+            .build();
+    public static final int MUSIC_STRATEGY_ID = 777;
+    public static final String MUSIC_CONTEXT_NAME = "MUSIC_CONTEXT";
+    public static final int MUSIC_GROUP_ID = 666;
+    public static final String MUSIC_GROUP_NAME = "MUSIC_GROUP";
+    public static final AudioProductStrategy MUSIC_STRATEGY;
+    public static final AudioVolumeGroup MUSIC_GROUP;
+    public static final CarAudioContextInfo MEDIA_CONTEXT_INFO;
+
+    public static final AudioAttributes NAV_ATTRIBUTES = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
             .build();
-    static final int NAV_STRATEGY_ID = 99;
-    static final String NAV_CONTEXT_NAME = "NAV_CONTEXT";
-    static final int NAV_GROUP_ID = 8;
-    static final String NAV_GROUP_NAME = "NAV_GROUP";
-    static final AudioProductStrategy NAV_STRATEGY;
-    static final AudioVolumeGroup NAV_GROUP;
-    static final CarAudioContextInfo NAV_CONTEXT_INFO;
+    public static final int NAV_STRATEGY_ID = 99;
+    public static final String NAV_CONTEXT_NAME = "NAV_CONTEXT";
+    public static final int NAV_GROUP_ID = 8;
+    public static final String NAV_GROUP_NAME = "NAV_GROUP";
+    public static final AudioProductStrategy NAV_STRATEGY;
+    public static final AudioVolumeGroup NAV_GROUP;
+    public static final CarAudioContextInfo NAV_CONTEXT_INFO;
 
-    static final AudioAttributes OEM_ATTRIBUTES;
-    static final int OEM_STRATEGY_ID = 1979;
-    static final String OEM_CONTEXT_NAME = "OEM_CONTEXT";
-    static final int OEM_GROUP_ID = 55;
-    static final String OEM_GROUP_NAME = "OEM_GROUP";
-    static final String OEM_FORMATTED_TAGS = "oem=extension_1979";
-    static final AudioProductStrategy OEM_STRATEGY;
-    static final AudioVolumeGroup OEM_GROUP;
-    static final CarAudioContextInfo OEM_CONTEXT_INFO;
+    public static final AudioAttributes OEM_ATTRIBUTES;
+    public static final int OEM_STRATEGY_ID = 1979;
+    public static final String OEM_CONTEXT_NAME = "OEM_CONTEXT";
+    public static final int OEM_GROUP_ID = 55;
+    public static final String OEM_GROUP_NAME = "OEM_GROUP";
+    public static final String OEM_FORMATTED_TAGS = "oem=extension_1979";
+    public static final AudioProductStrategy OEM_STRATEGY;
+    public static final AudioVolumeGroup OEM_GROUP;
+    public static final CarAudioContextInfo OEM_CONTEXT_INFO;
 
+    static final String INVALID_CONTEXT_NAME = "INVALID_CONTEXT";
     static final int INVALID_STRATEGY_ID = 999999;
     static final int INVALID_GROUP_ID = 999999;
     static final String INVALID_GROUP_NAME = "INVALID_GROUP";
+
+    static final int INVALID_STRATEGY = -1;
 
     static final AudioAttributes UNSUPPORTED_ATTRIBUTES = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_GAME)
@@ -251,7 +258,7 @@ final class CoreAudioRoutingUtils {
         VOLUME_GROUPS = List.of(MUSIC_GROUP, NAV_GROUP, OEM_GROUP);
 
         AudioAttributes[] oemAttributesArray = { OEM_ATTRIBUTES };
-        AudioAttributes[] musicAttributesArray = { MUSIC_ATTRIBUTES };
+        AudioAttributes[] musicAttributesArray = { MUSIC_ATTRIBUTES, MOVIE_ATTRIBUTES };
         AudioAttributes[] navAttributesArray = { NAV_ATTRIBUTES };
 
         MEDIA_CONTEXT_INFO = new CarAudioContextInfo(musicAttributesArray, MUSIC_CONTEXT_NAME,
@@ -266,15 +273,15 @@ final class CoreAudioRoutingUtils {
         throw new UnsupportedOperationException("CoreAudioRoutingUtils class is non instantiable");
     }
 
-    static List<AudioVolumeGroup> getVolumeGroups() {
+    public static List<AudioVolumeGroup> getVolumeGroups() {
         return VOLUME_GROUPS;
     }
 
-    static List<AudioProductStrategy> getProductStrategies() {
+    public static List<AudioProductStrategy> getProductStrategies() {
         return PRODUCT_STRATEGIES;
     }
 
-    static List<CarAudioContextInfo> getCarAudioContextInfos() {
+    public static List<CarAudioContextInfo> getCarAudioContextInfos() {
         List<CarAudioContextInfo> carAudioContextInfos = new ArrayList<>(3);
 
         carAudioContextInfos.add(MEDIA_CONTEXT_INFO);

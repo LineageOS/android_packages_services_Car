@@ -140,7 +140,7 @@ std::string HalDisplay::toString(const char* indent) {
 
     StringAppendF(&buffer, "%sWidth: %" PRId32 "\n", indent, displayMode.resolution.getWidth());
     StringAppendF(&buffer, "%sHeight: %" PRId32 "\n", indent, displayMode.resolution.getHeight());
-    StringAppendF(&buffer, "%sRefresh rate: %f\n", indent, displayMode.refreshRate);
+    StringAppendF(&buffer, "%sRefresh rate: %f\n", indent, displayMode.peakRefreshRate);
     StringAppendF(&buffer, "%sRotation: %" PRId32 "\n", indent,
                   static_cast<int32_t>(displayState.orientation));
 
