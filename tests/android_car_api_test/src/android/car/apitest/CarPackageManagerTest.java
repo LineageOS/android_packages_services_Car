@@ -25,7 +25,8 @@ import android.car.Car;
 import android.car.CarVersion;
 import android.car.content.pm.CarPackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.test.suitebuilder.annotation.MediumTest;
+
+import androidx.test.filters.MediumTest;
 
 import org.junit.Before;
 import org.junit.Test;

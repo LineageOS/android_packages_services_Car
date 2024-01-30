@@ -28,7 +28,8 @@ import android.car.Car;
 import android.car.content.pm.CarPackageManager;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.test.suitebuilder.annotation.SmallTest;
+
+import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;

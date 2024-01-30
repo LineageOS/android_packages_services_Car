@@ -15,10 +15,11 @@
  */
 package android.car.apitest;
 
-import android.car.VehicleGear;
-import android.test.suitebuilder.annotation.SmallTest;
-
 import static com.google.common.truth.Truth.assertThat;
+
+import android.car.VehicleGear;
+
+import androidx.test.filters.SmallTest;
 
 import com.android.compatibility.common.util.ApiTest;
 
