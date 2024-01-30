@@ -214,8 +214,7 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
         startActivity(
                 PendingIntent.getActivity(mContext, /* requestCode= */ 0,
                         mConfig.mActivityIntent,
-                        PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT,
-                        options.toBundle()),
+                        PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT),
                 fillInIntent, options, launchBounds);
     }
 
