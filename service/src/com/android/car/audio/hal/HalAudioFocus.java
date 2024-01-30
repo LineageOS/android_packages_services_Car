@@ -30,6 +30,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
 import android.hardware.audio.common.PlaybackTrackMetadata;
@@ -47,6 +48,7 @@ import com.android.car.CarLog;
 import com.android.car.audio.CarAudioContext;
 import com.android.car.audio.CarAudioContext.AudioAttributesWrapper;
 import com.android.car.audio.CarAudioDumpProto;
+import com.android.car.audio.CarAudioPlaybackMonitor;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
@@ -67,6 +69,8 @@ public final class HalAudioFocus implements HalFocusListener {
     private final AudioManager mAudioManager;
     private final AudioControlWrapper mAudioControlWrapper;
     private final CarAudioContext mCarAudioContext;
+    @Nullable
+    private final CarAudioPlaybackMonitor mCarAudioPlaybackMonitor;
 
     private final Object mLock = new Object();
 
@@ -77,11 +81,13 @@ public final class HalAudioFocus implements HalFocusListener {
             mHalFocusRequestsByZoneAndAttributes;
 
     public HalAudioFocus(@NonNull AudioManager audioManager,
-            @NonNull AudioControlWrapper audioControlWrapper,
-            @NonNull CarAudioContext carAudioContext, @NonNull int[] audioZoneIds) {
+                         @NonNull AudioControlWrapper audioControlWrapper,
+                         @Nullable CarAudioPlaybackMonitor carAudioPlaybackMonitor,
+                         @NonNull CarAudioContext carAudioContext, @NonNull int[] audioZoneIds) {
         mAudioManager = Objects.requireNonNull(audioManager);
         mAudioControlWrapper = Objects.requireNonNull(audioControlWrapper);
         mCarAudioContext = Objects.requireNonNull(carAudioContext);
+        mCarAudioPlaybackMonitor = carAudioPlaybackMonitor;
         Objects.requireNonNull(audioZoneIds, "Audio zone ID's can not be null");
 
         mHalFocusRequestsByZoneAndAttributes = new SparseArray<>(audioZoneIds.length);
@@ -171,7 +177,7 @@ public final class HalAudioFocus implements HalFocusListener {
     }
 
     /**
-     * Returns the currently active {@link AudioAttribute}'s for an audio zone
+     * Returns the currently active {@link AudioAttributes}' for an audio zone
      */
     public List<AudioAttributes> getActiveAudioAttributesForZone(int audioZoneId) {
         synchronized (mLock) {
@@ -334,9 +340,11 @@ public final class HalAudioFocus implements HalFocusListener {
                     new HalAudioFocusRequest(audioFocusRequest, focusGain);
             mHalFocusRequestsByZoneAndAttributes.get(zoneId)
                     .put(audioAttributesWrapper, halAudioFocusRequest);
+            handleNewlyActiveHalPlayback(audioAttributesWrapper.getAudioAttributes(), zoneId);
         } else if (requestResult == AUDIOFOCUS_REQUEST_FAILED) {
             resultingFocusGain = AUDIOFOCUS_LOSS;
         } else if (requestResult == AUDIOFOCUS_REQUEST_DELAYED) {
+            // Delayed audio focus is not supported from HAL audio focus
             Slogf.w(TAG, "Delayed result for request with audio attributes "
                     + audioAttributesWrapper + ", zoneId " + zoneId
                     + ", and focusGain " + focusGain);
@@ -344,6 +352,13 @@ public final class HalAudioFocus implements HalFocusListener {
         }
         PlaybackTrackMetadata metadata = audioAttributesWrapperToMetadata(audioAttributesWrapper);
         mAudioControlWrapper.onAudioFocusChange(metadata, zoneId, resultingFocusGain);
+    }
+
+    private void handleNewlyActiveHalPlayback(AudioAttributes attributes, int zoneId) {
+        if (mCarAudioPlaybackMonitor == null) {
+            return;
+        }
+        mCarAudioPlaybackMonitor.onActiveAudioPlaybackAttributesAdded(List.of(attributes), zoneId);
     }
 
     private static final class HalAudioFocusRequest {
