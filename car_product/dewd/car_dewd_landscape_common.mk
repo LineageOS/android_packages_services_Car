@@ -13,11 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# TODO(b/432217693) remove StubCarLauncher once dedicated visibility barrier is present
 PRODUCT_PACKAGES += \
     CarFrameworkDewdRRO \
-    CarLauncherEnableDewdRRO \
     CarUpdatableDewdRRO \
-    StubCarLauncher // TODO(b/432217693) remove once dedicated visibility barrier is present
+    StubCarLauncher # TODO(b/432217693) remove once dedicated visibility barrier is present
 
 PRODUCT_PACKAGES_DEBUG += \
     HunBottomRRO
