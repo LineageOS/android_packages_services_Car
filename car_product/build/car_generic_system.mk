@@ -20,8 +20,6 @@ $(call inherit-product, packages/services/Car/car_product/build/car_system.mk)
 # Car rotary
 PRODUCT_PACKAGES += \
     CarRotaryController \
-    RotaryIME \
-    RotaryPlayground \
 
 PRODUCT_PACKAGES_DEBUG += \
     avbctl \
