@@ -105,6 +105,11 @@ float HidlHalAreaConfig::getMaxFloatValue() const {
     return mAreaConfig.maxFloatValue;
 }
 
+// HIDL VHAL does not support VUR.
+bool HidlHalAreaConfig::isVariableUpdateRateSupported() const {
+    return false;
+}
+
 }  // namespace vhal
 }  // namespace automotive
 }  // namespace frameworks

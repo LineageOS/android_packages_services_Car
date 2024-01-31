@@ -64,6 +64,8 @@ public:
 
     const void* toVehiclePropValue() const override;
 
+    std::unique_ptr<IHalPropValue> clone() const override;
+
 private:
     VehiclePropValue mPropValue;
 };
