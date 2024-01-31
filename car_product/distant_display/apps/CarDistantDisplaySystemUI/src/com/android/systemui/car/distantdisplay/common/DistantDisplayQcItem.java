@@ -16,11 +16,12 @@
 
 package com.android.systemui.car.distantdisplay.common;
 
-import android.app.PendingIntent;
 import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.android.car.qc.QCItem;
 
 /**
  * Distant Display Quick Control Item.
@@ -29,14 +30,14 @@ public class DistantDisplayQcItem {
     private final String mTitle;
     private final String mSubtitle;
     private final Drawable mIcon;
-    private final PendingIntent mPendingIntent;
+    private final QCItem.ActionHandler mActionHandler;
 
     public DistantDisplayQcItem(@NonNull String title, @Nullable String subtitle,
-            @Nullable Drawable icon, @Nullable PendingIntent pendingIntent) {
+            @Nullable Drawable icon, @Nullable QCItem.ActionHandler actionHandler) {
         mTitle = title;
         mSubtitle = subtitle;
         mIcon = icon;
-        mPendingIntent = pendingIntent;
+        mActionHandler = actionHandler;
     }
 
     @NonNull
@@ -55,8 +56,8 @@ public class DistantDisplayQcItem {
     }
 
     @Nullable
-    public PendingIntent getIntent() {
-        return mPendingIntent;
+    public QCItem.ActionHandler getActionHandler() {
+        return mActionHandler;
     }
 
     /**
@@ -66,7 +67,7 @@ public class DistantDisplayQcItem {
         private String mTitle;
         private String mSubtitle;
         private Drawable mIcon;
-        private PendingIntent mPendingIntent;
+        private QCItem.ActionHandler mActionHandler;
 
         /**
          * Sets the row title.
@@ -95,8 +96,8 @@ public class DistantDisplayQcItem {
         /**
          * Sets the PendingIntent to be sent when the action item is clicked.
          */
-        public Builder setIntent(@Nullable PendingIntent pendingIntent) {
-            mPendingIntent = pendingIntent;
+        public Builder setActionHandler(@Nullable QCItem.ActionHandler actionHandler) {
+            mActionHandler = actionHandler;
             return this;
         }
 
@@ -104,7 +105,7 @@ public class DistantDisplayQcItem {
          * Builds the final {@link DistantDisplayQcItem}.
          */
         public DistantDisplayQcItem build() {
-            return new DistantDisplayQcItem(mTitle, mSubtitle, mIcon, mPendingIntent);
+            return new DistantDisplayQcItem(mTitle, mSubtitle, mIcon, mActionHandler);
         }
     }
 }
