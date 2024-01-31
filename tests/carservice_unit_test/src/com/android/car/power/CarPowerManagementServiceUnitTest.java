@@ -16,6 +16,7 @@
 
 package com.android.car.power;
 
+import static android.car.hardware.power.PowerComponentUtil.powerComponentToString;
 import static android.net.ConnectivityManager.TETHERING_WIFI;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
@@ -161,6 +162,10 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private static final String POWER_POLICY_GROUP_CMD_ON_PREFIX = "On:";
     private static final String POWER_POLICY_GROUP_VALID = "policy_group_id_valid";
     private static final String POWER_POLICY_GROUP_INVALID = "policy_group_id_invalid";
+    public static final int CUSTOM_COMPONENT_1000 = 1000;
+    public static final int CUSTOM_COMPONENT_1001 = 1001;
+    public static final int CUSTOM_COMPONENT_1002 = 1002;
+    public static final int CUSTOM_COMPONENT_1003 = 1003;
 
     private final FakeFeatureFlagsImpl mFeatureFlags = new FakeFeatureFlagsImpl();
     private final MockDisplayInterface mDisplayInterface = new MockDisplayInterface();
@@ -1100,6 +1105,71 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
+    public void testNotifyPowerPolicyChange_powerPolicyRefactorFlagDisabled() throws Exception {
+        grantPowerPolicyPermission();
+        MockedPowerPolicyListener listenerAudio = new MockedPowerPolicyListener();
+        MockedPowerPolicyListener listenerForDisabledComponents = new MockedPowerPolicyListener();
+        MockedPowerPolicyListener listenerForEnabledComponents = new MockedPowerPolicyListener();
+
+        CarPowerPolicyFilter filterDisabledComponents = getListenerFilterForComponents(
+                CUSTOM_COMPONENT_1001, CUSTOM_COMPONENT_1002);
+        CarPowerPolicyFilter filterEnabledComponents = getListenerFilterForComponents(
+                CUSTOM_COMPONENT_1003);
+        CarPowerPolicyFilter filterAudio = getListenerFilterForComponents(PowerComponent.AUDIO);
+
+        mService.addPowerPolicyListener(filterAudio, listenerAudio);
+
+        mService.definePowerPolicy(POWER_POLICY_VALID_1,
+                new String[]{String.valueOf(CUSTOM_COMPONENT_1003)},
+                new String[]{"AUDIO", String.valueOf(CUSTOM_COMPONENT_1001),
+                        String.valueOf(CUSTOM_COMPONENT_1002)});
+        mService.addPowerPolicyListener(filterDisabledComponents, listenerForDisabledComponents);
+        mService.addPowerPolicyListener(filterEnabledComponents, listenerForEnabledComponents);
+        mService.applyPowerPolicy(POWER_POLICY_VALID_1);
+        waitForPowerPolicy(POWER_POLICY_VALID_1);
+        waitForPolicyIdForListeners(POWER_POLICY_VALID_1, listenerAudio,
+                listenerForDisabledComponents, listenerForEnabledComponents);
+
+        expectPowerComponentDisabled(PowerComponent.AUDIO);
+        expectPowerComponentDisabled(CUSTOM_COMPONENT_1001);
+        expectPowerComponentDisabled(CUSTOM_COMPONENT_1002);
+        expectPowerComponentEnabled(CUSTOM_COMPONENT_1003);
+    }
+
+    @Test
+    public void testNotifyPowerPolicyChange_powerPolicyRefactorFlagEnabled() throws Exception {
+        setRefactoredService();
+        grantPowerPolicyPermission();
+        MockedPowerPolicyListener listenerAudio = new MockedPowerPolicyListener();
+        MockedPowerPolicyListener listenerForDisabledComponents = new MockedPowerPolicyListener();
+        MockedPowerPolicyListener listenerForEnabledComponents = new MockedPowerPolicyListener();
+
+        CarPowerPolicyFilter filterDisabledComponents = getListenerFilterForComponents(
+                CUSTOM_COMPONENT_1001, CUSTOM_COMPONENT_1002);
+        CarPowerPolicyFilter filterEnabledComponents = getListenerFilterForComponents(
+                CUSTOM_COMPONENT_1003);
+        CarPowerPolicyFilter filterAudio = getListenerFilterForComponents(PowerComponent.AUDIO);
+
+        mService.addPowerPolicyListener(filterAudio, listenerAudio);
+
+        mService.definePowerPolicy(POWER_POLICY_VALID_1,
+                new String[]{String.valueOf(CUSTOM_COMPONENT_1003)},
+                new String[]{"AUDIO", String.valueOf(CUSTOM_COMPONENT_1001),
+                        String.valueOf(CUSTOM_COMPONENT_1002)});
+        mService.addPowerPolicyListener(filterDisabledComponents, listenerForDisabledComponents);
+        mService.addPowerPolicyListener(filterEnabledComponents, listenerForEnabledComponents);
+        mService.applyPowerPolicy(POWER_POLICY_VALID_1);
+        waitForPowerPolicy(POWER_POLICY_VALID_1);
+        waitForPolicyIdForListeners(POWER_POLICY_VALID_1, listenerAudio,
+                listenerForDisabledComponents, listenerForEnabledComponents);
+
+        expectPowerComponentDisabled(PowerComponent.AUDIO);
+        expectPowerComponentDisabled(CUSTOM_COMPONENT_1001);
+        expectPowerComponentDisabled(CUSTOM_COMPONENT_1002);
+        expectPowerComponentEnabled(CUSTOM_COMPONENT_1003);
+    }
+
+    @Test
     public void testAddPowerPolicyListener() throws Exception {
         grantPowerPolicyPermission();
         String policyIdEnableAudioWifi = "policy_id_enable_audio_wifi";
@@ -1107,10 +1177,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         MockedPowerPolicyListener listenerWifi = new MockedPowerPolicyListener();
         MockedPowerPolicyListener listenerLocation = new MockedPowerPolicyListener();
 
-        CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
-                .setComponents(PowerComponent.AUDIO).build();
-        CarPowerPolicyFilter filterWifi = new CarPowerPolicyFilter.Builder()
-                .setComponents(PowerComponent.WIFI).build();
+        CarPowerPolicyFilter filterAudio = getListenerFilterForComponents(PowerComponent.AUDIO);
+        CarPowerPolicyFilter filterWifi = getListenerFilterForComponents(PowerComponent.WIFI);
 
         mService.addPowerPolicyListener(filterAudio, listenerAudio);
         mService.addPowerPolicyListener(filterWifi, listenerWifi);
@@ -1121,23 +1189,15 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mService.applyPowerPolicy(policyIdAllOff);
         waitForPowerPolicy(policyIdAllOff);
 
-        assertThat(mService.getCurrentPowerPolicy().isComponentEnabled(
-                PowerComponent.AUDIO)).isFalse();
-        assertThat(
-                mService.getCurrentPowerPolicy().isComponentEnabled(PowerComponent.WIFI)).isFalse();
-        assertThat(mService.getCurrentPowerPolicy().isComponentEnabled(
-                PowerComponent.DISPLAY)).isFalse();
+        expectPowerComponentDisabled(PowerComponent.AUDIO);
+        expectPowerComponentDisabled(PowerComponent.WIFI);
+        expectPowerComponentDisabled(PowerComponent.DISPLAY);
 
         mService.definePowerPolicy(policyIdEnableAudioWifi, new String[]{"AUDIO", "WIFI"},
                 new String[]{});
         mService.applyPowerPolicy(policyIdEnableAudioWifi);
-        waitForPolicyId(listenerAudio, policyIdEnableAudioWifi,
-                "Current power policy of listenerAudio is not " + policyIdEnableAudioWifi);
-        assertThat(
-                mService.getCurrentPowerPolicy().isComponentEnabled(PowerComponent.AUDIO)).isTrue();
-
-        waitForPolicyId(listenerWifi, policyIdEnableAudioWifi,
-                "Current power policy of listenerWifi is not " + policyIdEnableAudioWifi);
+        waitForPolicyIdForListeners(policyIdEnableAudioWifi, listenerAudio, listenerWifi);
+        expectPowerComponentEnabled(PowerComponent.AUDIO);
         assertThat(listenerLocation.getCurrentPowerPolicy()).isNull();
     }
 
@@ -1148,8 +1208,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mService.definePowerPolicy(policyId, new String[]{}, new String[]{"AUDIO", "WIFI"});
         MockedPowerPolicyListener listenerAudio = new MockedPowerPolicyListener();
         MockedPowerPolicyListener referenceListenerAudio = new MockedPowerPolicyListener();
-        CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
-                .setComponents(PowerComponent.AUDIO).build();
+        CarPowerPolicyFilter filterAudio = getListenerFilterForComponents(PowerComponent.AUDIO);
 
         mService.addPowerPolicyListener(filterAudio, listenerAudio);
         mService.addPowerPolicyListener(filterAudio, referenceListenerAudio);
@@ -1159,59 +1218,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         waitForPolicyId(referenceListenerAudio, policyId,
                 "Current power policy of referenceListenerAudio is not " + policyId);
         assertThat(listenerAudio.getCurrentPowerPolicy()).isNull();
-    }
-
-    @Test
-    public void testNotifyPowerPolicyChange() throws Exception {
-        grantPowerPolicyPermission();
-        MockedPowerPolicyListener listenerAudio = new MockedPowerPolicyListener();
-        MockedPowerPolicyListener listenerForDisabledComponents = new MockedPowerPolicyListener();
-        MockedPowerPolicyListener listenerForEnabledComponents = new MockedPowerPolicyListener();
-
-        int customComponent1 = 1000;
-        int customComponent2 = 1001;
-        int customComponent3 = 1002;
-        CarPowerPolicyFilter filterDisabledComponents =
-                new CarPowerPolicyFilter.Builder().setComponents(customComponent1,
-                        customComponent2).build();
-        CarPowerPolicyFilter filterEnabledComponents =
-                new CarPowerPolicyFilter.Builder().setComponents(customComponent3).build();
-        CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder().setComponents(
-                PowerComponent.AUDIO).build();
-
-        mService.addPowerPolicyListener(filterAudio, listenerAudio);
-
-        String testPolicyId = "test_policy_id";
-        mService.definePowerPolicy(testPolicyId, new String[]{String.valueOf(customComponent3)},
-                new String[]{"AUDIO", String.valueOf(customComponent1),
-                        String.valueOf(customComponent2)});
-        mService.addPowerPolicyListener(filterDisabledComponents, listenerForDisabledComponents);
-        mService.addPowerPolicyListener(filterEnabledComponents, listenerForEnabledComponents);
-        mService.applyPowerPolicy(testPolicyId);
-        waitForPowerPolicy(testPolicyId);
-
-        waitForPolicyId(listenerAudio, testPolicyId,
-                "Current power policy of listenerAudio is not " + testPolicyId);
-        waitForPolicyId(listenerForDisabledComponents, testPolicyId,
-                "Current power policy of listenerForDisabledComponents is not " + testPolicyId);
-        waitForPolicyId(listenerForEnabledComponents, testPolicyId,
-                "Current power policy of listenerForEnabledComponents is not " + testPolicyId);
-        assertThat(listenerAudio.getCurrentPowerPolicy()).isNotNull();
-        assertThat(listenerAudio.getCurrentPowerPolicy().getPolicyId()).isEqualTo(testPolicyId);
-        // Check if policy change was notified for enabled components
-        assertThat(listenerForEnabledComponents.getCurrentPowerPolicy()).isNotNull();
-        assertThat(listenerForEnabledComponents.getCurrentPowerPolicy().getPolicyId()).isEqualTo(
-                testPolicyId);
-        // Check if policy change was notified for disabled components
-        assertThat(listenerForDisabledComponents.getCurrentPowerPolicy()).isNotNull();
-        assertThat(listenerForDisabledComponents.getCurrentPowerPolicy().getPolicyId()).isEqualTo(
-                testPolicyId);
-
-        assertThat(mService.getCurrentPowerPolicy().isComponentEnabled(
-                PowerComponent.AUDIO)).isFalse();
-        assertThat(mService.getCurrentPowerPolicy().isComponentEnabled(customComponent1)).isFalse();
-        assertThat(mService.getCurrentPowerPolicy().isComponentEnabled(customComponent2)).isFalse();
-        assertThat(mService.getCurrentPowerPolicy().isComponentEnabled(customComponent3)).isTrue();
     }
 
     @Test
@@ -1254,8 +1260,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         CarPowerPolicy[] policies = CarPowerPolicy.CREATOR.newArray(1);
         assertThat(policies.length).isEqualTo(1);
 
-        CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
-                .setComponents(PowerComponent.AUDIO).build();
+        CarPowerPolicyFilter filterAudio = getListenerFilterForComponents(PowerComponent.AUDIO);
         assertThat(filterAudio.describeContents()).isEqualTo(0);
 
         CarPowerPolicyFilter[] filters = CarPowerPolicyFilter.CREATOR.newArray(1);
@@ -1302,8 +1307,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
             policyReader.readPowerPolicyFromXml(inputStream);
         }
 
-        CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
-                .setComponents(PowerComponent.AUDIO).build();
+        CarPowerPolicyFilter filterAudio = getListenerFilterForComponents(PowerComponent.AUDIO);
         MockedPowerPolicyListener listenerToWait = new MockedPowerPolicyListener();
         mService.addPowerPolicyListener(filterAudio, listenerToWait);
 
@@ -1336,7 +1340,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
         // Transition to ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
-
         mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
         waitForPowerPolicy(onPolicy);
 
@@ -1551,10 +1554,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
         openRawResource(R.raw.valid_power_policy);
 
-        CarPowerPolicyFilter filterBluetooth = new CarPowerPolicyFilter.Builder().setComponents(
-                PowerComponent.BLUETOOTH).build();
-        CarPowerPolicyFilter filterNfc = new CarPowerPolicyFilter.Builder().setComponents(
-                PowerComponent.NFC).build();
+        CarPowerPolicyFilter filterBluetooth =
+                getListenerFilterForComponents(PowerComponent.BLUETOOTH);
+        CarPowerPolicyFilter filterNfc = getListenerFilterForComponents(PowerComponent.NFC);
         MockedPowerPolicyListener listenerBluetooth = new MockedPowerPolicyListener();
         MockedPowerPolicyListener listenerNfc = new MockedPowerPolicyListener();
         mService.addPowerPolicyListener(filterBluetooth, listenerBluetooth);
@@ -1596,9 +1598,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
         openRawResource(R.raw.valid_power_policy_custom_components);
 
-        int custom_component_1000 = 1000;
-        CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder().setComponents(
-                custom_component_1000).build();
+        CarPowerPolicyFilter filter = getListenerFilterForComponents(CUSTOM_COMPONENT_1000);
         MockedPowerPolicyListener listener = new MockedPowerPolicyListener();
         mService.addPowerPolicyListener(filter, listener);
         String policyIdCustomOtherOff = "policy_id_custom_other_off";
@@ -1623,13 +1623,10 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         String policyIdOtherOff = "policy_id_other_off";
 
         openRawResource(R.raw.valid_power_policy_custom_components);
-        int custom_component_1000 = 1000;
-        CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder().setComponents(
-                custom_component_1000).build();
+        CarPowerPolicyFilter filter = getListenerFilterForComponents(CUSTOM_COMPONENT_1000);
         MockedPowerPolicyListener listener = new MockedPowerPolicyListener();
         MockedPowerPolicyListener referenceListenerAudio = new MockedPowerPolicyListener();
-        CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
-                .setComponents(PowerComponent.AUDIO).build();
+        CarPowerPolicyFilter filterAudio = getListenerFilterForComponents(PowerComponent.AUDIO);
         mService.addPowerPolicyListener(filterAudio, referenceListenerAudio);
         mService.addPowerPolicyListener(filter, listener);
 
@@ -1662,7 +1659,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                         listener.getCurrentPowerPolicy().getPolicyId()));
         assertWithMessage("Custom components is missing from accumulated policy").that(
                 listener.getCurrentPowerPolicy().getEnabledComponents()).asList().contains(
-                custom_component_1000);
+                CUSTOM_COMPONENT_1000);
         assertThat(mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(
                 policyIdCustomOtherOff);
         // Change again and ensure no notification
@@ -1675,7 +1672,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                         listener.getCurrentPowerPolicy().getPolicyId()));
         assertWithMessage("Custom components is missing from accumulated policy").that(
                 listener.getCurrentPowerPolicy().getEnabledComponents()).asList().contains(
-                custom_component_1000);
+                CUSTOM_COMPONENT_1000);
 
         // Apply policy_id_other_off, to ensure that custom component is removed from enabled in
         // accumulated policy and moved to disabled
@@ -1687,10 +1684,10 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                         listener.getCurrentPowerPolicy().getPolicyId()));
         assertWithMessage("Custom components is missing from accumulated policy").that(
                 listener.getCurrentPowerPolicy().getDisabledComponents()).asList().contains(
-                custom_component_1000);
+                CUSTOM_COMPONENT_1000);
         assertWithMessage("Custom component is in enabled components of accumulated policy").that(
                 listener.getCurrentPowerPolicy().getEnabledComponents()).asList().doesNotContain(
-                custom_component_1000);
+                CUSTOM_COMPONENT_1000);
     }
 
     @Test
@@ -1966,18 +1963,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         assertThat(mDisplayInterface.isAnyDisplayEnabled()).isTrue();
     }
 
-    private void definePowerPolicyGroup(String policyGroupId, String waitForVhalPolicyId,
-            String onPolicyId) {
-        try (IndentingPrintWriter writer = new IndentingPrintWriter(new StringWriter(), "  ")) {
-            boolean status = mService.definePowerPolicyGroupFromCommand(new String[]{
-                    "define-power-policy-group", policyGroupId,
-                    "WaitForVHAL:" + waitForVhalPolicyId,
-                    "On:" + onPolicyId}, writer);
-            assertWithMessage("define power policy group success").that(
-                    status).isTrue();
-        }
-    }
-
     private void assertStateReceived(int expectedState, int expectedParam) throws Exception {
         int[] state = mPowerHal.waitForSend(WAIT_TIMEOUT_MS);
         assertThat(state[0]).isEqualTo(expectedState);
@@ -2041,6 +2026,16 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 args, new IndentingPrintWriter(new StringWriter(), "  "));
     }
 
+    private void definePowerPolicyGroup(String policyGroupId, String waitForVhalPolicyId,
+            String onPolicyId) {
+        String[] args = {COMMAND_DEFINE_POLICY_GROUP, policyGroupId,
+                POWER_POLICY_GROUP_CMD_VHAL_PREFIX + waitForVhalPolicyId,
+                POWER_POLICY_GROUP_CMD_ON_PREFIX + onPolicyId};
+        boolean policyGroupDefinedSuccessfully = definePowerPolicyGroupFromCommand(args);
+        assertWithMessage("Policy group definition success").that(
+                policyGroupDefinedSuccessfully).isTrue();
+    }
+
     private boolean applyPowerPolicyFromCommand(String policyId) {
         String[] args = {"apply-power-policy", policyId};
         return mService.applyPowerPolicyFromCommand(
@@ -2059,13 +2054,16 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 disabledComponents, /* filterComponentValues...= */ PowerComponent.AUDIO);
     }
 
+    private CarPowerPolicyFilter getListenerFilterForComponents(int... filterComponentValues) {
+        return new CarPowerPolicyFilter.Builder().setComponents(filterComponentValues).build();
+    }
+
     private MockedPowerPolicyListener setUpPowerPolicy(String policyId, String[] enabledComponents,
             String[] disabledComponents, int... filterComponentValues) {
         mService.definePowerPolicy(policyId, enabledComponents, disabledComponents);
         MockedPowerPolicyListener listenerToWait = new MockedPowerPolicyListener();
-        CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder()
-                .setComponents(filterComponentValues).build();
-        mService.addPowerPolicyListener(filter, listenerToWait);
+        mService.addPowerPolicyListener(
+                getListenerFilterForComponents(filterComponentValues), listenerToWait);
         return listenerToWait;
     }
 
@@ -2102,6 +2100,16 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                     "Calling definePowerPolicyFromCommand with args: "
                             + Arrays.toString(args) + " must fail").that(status).isFalse();
         }
+    }
+
+    private void expectPowerComponentEnabled(int component) {
+        expectWithMessage("Component " + powerComponentToString(component) + " enabled").that(
+                mService.getCurrentPowerPolicy().isComponentEnabled(component)).isTrue();
+    }
+
+    private void expectPowerComponentDisabled(int component) {
+        expectWithMessage("Component " + powerComponentToString(component) + " disabled").that(
+                mService.getCurrentPowerPolicy().isComponentEnabled(component)).isFalse();
     }
 
     private void expectDisplayBrightnessChangeApplied(int displayId, int brightness)
@@ -2153,6 +2161,14 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
             throws Exception {
         PollingCheck.check("Policy id is not " + policyId, WAIT_TIMEOUT_LONG_MS,
                 policyCheckCallable);
+    }
+
+    private void waitForPolicyIdForListeners(
+            String policyId, MockedPowerPolicyListener... listeners) throws Exception {
+        for (int i = 0; i < listeners.length; i++) {
+            waitForPolicyId(listeners[i], policyId, "Expected listener policy ID to be "
+                    + policyId);
+        }
     }
 
     private void waitForPowerPolicyNotificationToDaemon(String policyId) throws Exception {
