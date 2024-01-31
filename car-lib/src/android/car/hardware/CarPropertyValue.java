@@ -82,17 +82,19 @@ public final class CarPropertyValue<T> implements Parcelable {
     /**
      * Creates an instance of {@code CarPropertyValue}.
      *
-     * @param propertyId Property ID, must be one of enums in
-     *   {@link android.car.VehiclePropertyIds}.
-     * @param areaId Area ID of Property, must be one of enums in one of the following classes:
-     *   <ul>
-     *     <li><{@code VehicleAreaWindow}</li>
-     *     <li><{@code VehicleAreaDoor}</li>
-     *     <li><{@link android.car.VehicleAreaSeat}</li>
-     *     <li><{@code VehicleAreaMirror}</li>
-     *     <li><{@link android.car.VehicleAreaWheel}</li>
-     *   </ul>
-     *   or 0 for global property.
+     * @param propertyId The property identifier, see constants in
+     *                   {@link android.car.VehiclePropertyIds} for system defined property IDs.
+     * @param areaId     The area identifier. Must be {@code 0} if property is
+     *                   {@link android.car.VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}. Otherwise, it
+     *                   must be one or more OR'd together constants of this property's
+     *                   {@link android.car.VehicleAreaType}:
+     *                     <ul>
+     *                       <li>{@code VehicleAreaWindow}</li>
+     *                       <li>{@code VehicleAreaDoor}</li>
+     *                       <li>{@link android.car.VehicleAreaSeat}</li>
+     *                       <li>{@code VehicleAreaMirror}</li>
+     *                       <li>{@link android.car.VehicleAreaWheel}</li>
+     *                     </ul>
      * @param value Value of Property
      * @hide
      */
@@ -104,19 +106,22 @@ public final class CarPropertyValue<T> implements Parcelable {
      * Creates an instance of {@code CarPropertyValue}. The {@code timestampNanos} is the time in
      * nanoseconds at which the event happened. For a given car property, each new {@code
      * CarPropertyValue} should be monotonically increasing using the same time base as
-     * {@link SystemClock#elapsedRealtimeNanos()}.
+     * {@link android.os.SystemClock#elapsedRealtimeNanos()}.
      *
-     * @param propertyId Property ID, must be one of enums in
-     *   {@link android.car.VehiclePropertyIds}.
-     * @param areaId     Area ID of Property, must be one of enums in one of the following classes:
-     *   <ul>
-     *     <li><{@code VehicleAreaWindow}</li>
-     *     <li><{@code VehicleAreaDoor}</li>
-     *     <li><{@link android.car.VehicleAreaSeat}</li>
-     *     <li><{@code VehicleAreaMirror}</li>
-     *     <li><{@link android.car.VehicleAreaWheel}</li>
-     *   </ul>
-     *   or 0 for global property.
+     *
+     * @param propertyId The property identifier, see constants in
+     *                   {@link android.car.VehiclePropertyIds} for system defined property IDs.
+     * @param areaId     The area identifier. Must be {@code 0} if property is
+     *                   {@link android.car.VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}. Otherwise, it
+     *                   must be one or more OR'd together constants of this property's
+     *                   {@link android.car.VehicleAreaType}:
+     *                     <ul>
+     *                       <li>{@code VehicleAreaWindow}</li>
+     *                       <li>{@code VehicleAreaDoor}</li>
+     *                       <li>{@link android.car.VehicleAreaSeat}</li>
+     *                       <li>{@code VehicleAreaMirror}</li>
+     *                       <li>{@link android.car.VehicleAreaWheel}</li>
+     *                     </ul>
      * @param timestampNanos  Elapsed time in nanoseconds since boot
      * @param value      Value of Property
      * @hide
@@ -208,24 +213,29 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
-     * @return Property id of {@code CarPropertyValue}, must be one of enums in
-     *   {@link android.car.VehiclePropertyIds}.
+     * Returns the property identifier.
+     *
+     * @return The property identifier of {@code CarPropertyValue}. See constants in
+     *         {@link android.car.VehiclePropertyIds} for some system defined possible values.
      */
     public int getPropertyId() {
         return mPropertyId;
     }
 
     /**
-     * @return Area id of {@code CarPropertyValue}, must be one of enums in one of the following
-     * classes:
-     *   <ul>
-     *     <li><{@code VehicleAreaWindow}</li>
-     *     <li><{@code VehicleAreaDoor}</li>
-     *     <li><{@link android.car.VehicleAreaSeat}</li>
-     *     <li><{@code VehicleAreaMirror}</li>
-     *     <li><{@link android.car.VehicleAreaWheel}</li>
-     *   </ul>
-     *   or 0 for global property.
+     * Returns the area identifier.
+     *
+     * @return The area identifier of {@code CarPropertyValue}, If property is
+     *         {@link android.car.VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, it will be {@code 0}.
+     *         Otherwise, it will be on or more OR'd together constants of this property's
+     *         {@link android.car.VehicleAreaType}:
+     *           <ul>
+     *             <li>{@code VehicleAreaWindow}</li>
+     *             <li>{@code VehicleAreaDoor}</li>
+     *             <li>{@link android.car.VehicleAreaSeat}</li>
+     *             <li>{@code VehicleAreaMirror}</li>
+     *             <li>{@link android.car.VehicleAreaWheel}</li>
+     *           </ul>
      */
     public int getAreaId() {
         return mAreaId;

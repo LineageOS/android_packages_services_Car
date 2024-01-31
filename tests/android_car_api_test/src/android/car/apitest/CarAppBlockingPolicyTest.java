@@ -15,13 +15,14 @@
  */
 package android.car.apitest;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.car.content.pm.AppBlockingPackageInfo;
 import android.car.content.pm.CarAppBlockingPolicy;
 import android.os.Parcel;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 
-import static com.google.common.truth.Truth.assertThat;
+import androidx.test.filters.SmallTest;
 
 import com.android.compatibility.common.util.ApiTest;
 

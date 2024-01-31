@@ -198,7 +198,7 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
 
         ActivityOptions options = ActivityOptions
                 .makeCustomAnimation(mContext, /* enterResId= */ 0, /* exitResId= */ 0)
-                .setPendingIntentCreatorBackgroundActivityStartMode(
+                .setPendingIntentBackgroundActivityStartMode(
                         ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED);
         Rect launchBounds = new Rect();
         ViewHelper.getBoundsOnScreen(this, launchBounds);
@@ -214,8 +214,7 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
         startActivity(
                 PendingIntent.getActivity(mContext, /* requestCode= */ 0,
                         mConfig.mActivityIntent,
-                        PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT,
-                        options.toBundle()),
+                        PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT),
                 fillInIntent, options, launchBounds);
     }
 

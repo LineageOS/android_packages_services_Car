@@ -22,9 +22,9 @@ import android.car.occupantawareness.OccupantAwarenessDetection;
 import android.car.occupantawareness.OccupantAwarenessManager;
 import android.car.occupantawareness.SystemStatusEvent;
 import android.content.Context;
-import android.test.suitebuilder.annotation.MediumTest;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.MediumTest;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;

@@ -23,8 +23,9 @@ import android.car.settings.CarSettings;
 import android.content.ContentResolver;
 import android.os.UserHandle;
 import android.provider.Settings;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
+
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 

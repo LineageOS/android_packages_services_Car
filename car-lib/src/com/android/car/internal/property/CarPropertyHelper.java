@@ -30,6 +30,7 @@ import android.car.hardware.property.VehicleHalStatusCode.VehicleHalStatusCodeIn
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.util.Collection;
+import java.util.StringJoiner;
 
 /**
  * Helper class for CarPropertyService/CarPropertyManager.
@@ -78,17 +79,22 @@ public final class CarPropertyHelper {
      * Gets a user-friendly representation of a list of properties.
      */
     public static String propertyIdsToString(Collection<Integer> propertyIds) {
-        String names = "[";
-        boolean first = true;
+        var sj = new StringJoiner(", ", "[", "]");
         for (int propertyId : propertyIds) {
-            if (first) {
-                first = false;
-            } else {
-                names += ", ";
-            }
-            names += toDebugString(propertyId);
+            sj.add(toDebugString(propertyId));
         }
-        return names + "]";
+        return sj.toString();
+    }
+
+    /**
+     * Gets a user-friendly representation of a list of properties.
+     */
+    public static String propertyIdsToString(int[] propertyIds) {
+        var sj = new StringJoiner(", ", "[", "]");
+        for (int propertyId : propertyIds) {
+            sj.add(toDebugString(propertyId));
+        }
+        return sj.toString();
     }
 
     /**

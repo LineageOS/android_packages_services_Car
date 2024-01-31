@@ -23,7 +23,7 @@ cc_binary {
     relative_install_path: "hw",
     srcs: [
         ":libgui_frame_event_aidl",
-        "src/*.cpp"
+        "src/*.cpp",
     ],
     shared_libs: [
         "android.hardware.graphics.bufferqueue@1.0",
@@ -55,7 +55,7 @@ cc_binary {
         "libgui_aidl_headers",
     ],
     local_include_dirs: [
-        "include"
+        "include",
     ],
     include_dirs: [
         "frameworks/native/include/",
@@ -70,14 +70,14 @@ cc_binary {
         "-Wthread-safety",
     ],
     init_rc: [
-        "android.hardware.automotive.evs-default.rc"
+        "android.hardware.automotive.evs-default.rc",
     ],
     required: [
         "evs_aidl_hal_configuration.dtd",
         "evs_aidl_hal_configuration.xml",
     ],
     vintf_fragments: [
-        "manifest_android.hardware.automotive.evs-default.xml"
+        "manifest_android.hardware.automotive.evs-default.xml",
     ],
 }
 

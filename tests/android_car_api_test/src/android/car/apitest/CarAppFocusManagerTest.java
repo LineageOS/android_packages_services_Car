@@ -28,10 +28,10 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 import androidx.test.filters.FlakyTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.RequiresDevice;
 
 import org.junit.After;

@@ -759,12 +759,12 @@ status_t CarPowerPolicyServer::dump(int fd, const char** args, uint32_t numArgs)
 
 Result<void> CarPowerPolicyServer::init(const sp<Looper>& looper) {
     AIBinder* binderCarService = AServiceManager_checkService(kCarServiceInterface);
-
-    Mutex::Autolock lock(mMutex);
-    // Before initializing power policy daemon, we need to update mIsCarServiceInOperation
-    // according to whether CPMS is running.
-    mIsCarServiceInOperation = binderCarService != nullptr;
-
+    {
+        Mutex::Autolock lock(mMutex);
+        // Before initializing power policy daemon, we need to update mIsCarServiceInOperation
+        // according to whether CPMS is running.
+        mIsCarServiceInOperation = binderCarService != nullptr;
+    }
     mHandlerLooper = looper;
     mPolicyManager.init();
     mComponentHandler.init();

@@ -31,7 +31,7 @@ android_library {
         "android.car",
     ],
     platform_apis: true,
-    required : [
+    required: [
         "libcarevsglrenderer_jni",
     ],
 }

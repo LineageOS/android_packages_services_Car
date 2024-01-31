@@ -82,6 +82,8 @@ public final class AreaIdConfig<T> implements Parcelable {
     }
 
     /**
+     * Returns the area ID for this configuration.
+     *
      * @return area ID for this configuration.
      */
     public int getAreaId() {
@@ -89,6 +91,8 @@ public final class AreaIdConfig<T> implements Parcelable {
     }
 
     /**
+     * Returns the minimum value supported for the {@link #getAreaId()}.
+     *
      * @return minimum value supported for the {@link #getAreaId()}. Will return {@code null} if no
      *     minimum value supported.
      */
@@ -98,6 +102,8 @@ public final class AreaIdConfig<T> implements Parcelable {
     }
 
     /**
+     * Returns the maximum value supported for the {@link #getAreaId()}.
+     *
      * @return maximum value supported for the {@link #getAreaId()}. Will return {@code null} if no
      *     maximum value supported.
      */
