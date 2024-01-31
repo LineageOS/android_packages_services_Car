@@ -654,7 +654,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @VisibleForTesting
     void setStateForWakeUp() {
-        mSilentModeHandler.init();
+        mSilentModeHandler.init(mFeatureFlags);
         synchronized (mLock) {
             mShouldResumeUserService = true;
         }
@@ -1978,6 +1978,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mSystemInterface.setDisplayState(displayId, enable);
     }
 
+    // TODO(b/286303350): remove once power policy refactor complete; CPPD will handle power policy
+    //                    change in response to silent mode status changes
     void notifySilentModeChange(boolean silent) {
         Slogf.i(TAG, "Silent mode is set to %b", silent);
         if (silent) {
@@ -2235,8 +2237,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(status));
                 }
             }
-            mSilentModeHandler.init();
         }
+        mSilentModeHandler.init(mFeatureFlags);
     }
 
     @PolicyOperationStatus.ErrorCode
