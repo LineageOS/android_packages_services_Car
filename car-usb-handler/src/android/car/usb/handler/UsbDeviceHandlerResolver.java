@@ -51,7 +51,7 @@ import java.util.List;
 public final class UsbDeviceHandlerResolver {
 
     private static final String TAG = UsbDeviceHandlerResolver.class.getSimpleName();
-    private static final boolean LOCAL_LOGD = true;
+    private static final boolean LOCAL_LOGD = false;
 
     private static final String AOAP_HANDLE_PERMISSION =
             "android.car.permission.CAR_HANDLE_USB_AOAP_DEVICE";
