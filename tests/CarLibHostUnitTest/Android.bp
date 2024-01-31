@@ -40,7 +40,6 @@ android_ravenwood_test {
         "android.car.test.utils",
         "androidx.annotation_annotation",
         "androidx.test.rules",
-        "mockito_ravenwood",
     ],
     srcs: [
         "src/**/*.java",
