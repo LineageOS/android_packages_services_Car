@@ -138,6 +138,39 @@ public class CarUxRestrictionsConfigurationXmlParserTest {
     }
 
     @Test
+    public void testParsingMultipleModes() throws IOException, XmlPullParserException {
+        CarUxRestrictionsConfiguration config = CarUxRestrictionsConfigurationXmlParser.parse(
+                getContext(), R.xml.ux_restrictions_multi_mode).get(0);
+        CarUxRestrictions moving = config.getUxRestrictions(
+                DRIVING_STATE_MOVING, 1f, "mode1");
+        assertFalse(moving.isRequiresDistractionOptimization());
+
+        moving = config.getUxRestrictions(
+                DRIVING_STATE_MOVING, 1f, "mode2");
+        assertFalse(moving.isRequiresDistractionOptimization());
+
+        CarUxRestrictions idling = config.getUxRestrictions(
+                DRIVING_STATE_IDLING, 0f, "mode1");
+        assertFalse(idling.isRequiresDistractionOptimization());
+
+        idling = config.getUxRestrictions(
+                DRIVING_STATE_IDLING, 0f, "mode2");
+        assertFalse(idling.isRequiresDistractionOptimization());
+
+        CarUxRestrictions parked = config.getUxRestrictions(
+                DRIVING_STATE_PARKED, 0f, "mode1");
+        assertFalse(parked.isRequiresDistractionOptimization());
+
+        parked = config.getUxRestrictions(
+                DRIVING_STATE_PARKED, 0f, "mode2");
+        assertFalse(parked.isRequiresDistractionOptimization());
+
+        parked = config.getUxRestrictions(
+                DRIVING_STATE_PARKED, 0f, "mode3");
+        assertFalse(parked.isRequiresDistractionOptimization());
+    }
+
+    @Test
     public void testParsingPassengerMode_ValuesInBaselineAreNotAffected()
             throws IOException, XmlPullParserException {
         CarUxRestrictionsConfiguration config = CarUxRestrictionsConfigurationXmlParser.parse(
