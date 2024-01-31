@@ -160,8 +160,6 @@ PRODUCT_PACKAGES += \
     FusedLocation \
     InputDevices \
     KeyChain \
-    Keyguard \
-    Launcher2 \
     PacProcessor \
     ProxyHandler \
     SharedStorageBackup \
@@ -172,7 +170,6 @@ PRODUCT_PACKAGES += \
     libandroidfw \
     libaudioutils \
     libpowermanager \
-    libvariablespeed \
     PackageInstaller \
     carbugreportd \
     vehicle_binding_util \
@@ -213,7 +210,6 @@ PRODUCT_PACKAGES += \
     CarShell \
     CarDialerApp \
     CarRadioApp \
-    OverviewApp \
     LocalMediaPlayer \
     CarMediaApp \
     CarMessengerApp \
