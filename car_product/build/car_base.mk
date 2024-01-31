@@ -40,9 +40,7 @@ PRODUCT_PACKAGES += \
     FusedLocation \
     InputDevices \
     KeyChain \
-    Keyguard \
     LatinIME \
-    Launcher2 \
     PacProcessor \
     PrintSpooler \
     ProxyHandler \
@@ -55,9 +53,7 @@ PRODUCT_PACKAGES += \
     libandroidfw \
     libaudioutils \
     libmdnssd \
-    libnfc_ndef \
     libpowermanager \
-    libvariablespeed \
     PackageInstaller \
     carbugreportd \
     vehicle_binding_util \
