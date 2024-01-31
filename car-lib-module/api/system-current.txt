@@ -534,8 +534,14 @@ package android.car.cluster {
   }
 
   @FlaggedApi("android.car.feature.cluster_health_monitoring") public final class ClusterHomeManager {
+    method @RequiresPermission("android.car.permission.CAR_MONITOR_CLUSTER_NAVIGATION_STATE") public void registerClusterNavigationStateListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.cluster.ClusterHomeManager.ClusterNavigationStateListener);
     method @FlaggedApi("android.car.feature.cluster_health_monitoring") @RequiresPermission(android.car.Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL) public void sendHeartbeat(long, @Nullable byte[]);
     method @FlaggedApi("android.car.feature.cluster_health_monitoring") @RequiresPermission(android.car.Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL) public void startVisibilityMonitoring(@NonNull android.app.Activity);
+    method @RequiresPermission("android.car.permission.CAR_MONITOR_CLUSTER_NAVIGATION_STATE") public void unregisterClusterNavigationStateListener(@NonNull android.car.cluster.ClusterHomeManager.ClusterNavigationStateListener);
+  }
+
+  public static interface ClusterHomeManager.ClusterNavigationStateListener {
+    method public void onNavigationStateChanged(@NonNull byte[]);
   }
 
 }

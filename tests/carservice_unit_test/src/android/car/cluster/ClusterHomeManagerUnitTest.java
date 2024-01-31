@@ -177,7 +177,7 @@ public final class ClusterHomeManagerUnitTest {
         mClusterHomeManager.registerClusterNavigationStateListener(mCurrentThreadExecutor,
                 mClusterNavigationStateListener);
 
-        verify(mClusterNavigationStateListener).onNavigationState(eq(newNavigationState));
+        verify(mClusterNavigationStateListener).onNavigationStateChanged(eq(newNavigationState));
     }
 
     @Test
