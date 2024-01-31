@@ -123,3 +123,11 @@ flag {
   description: "Controls whether car persist ap settings can be configured"
   bug: "301660611"
 }
+
+# CarWatchdogDaemon
+flag {
+  name: "car_watchdog_memory_profiling"
+  namespace: "car_framework"
+  description: "Controls the memory profiling feature in CarWatchdog daemon"
+  bug: "289113707"
+}
