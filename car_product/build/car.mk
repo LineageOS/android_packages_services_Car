@@ -23,7 +23,6 @@ PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/cart
 endif
 
 PRODUCT_PACKAGES += \
-    Bluetooth \
     CarActivityResolver \
     CarDeveloperOptions \
     CarSettingsIntelligence \
@@ -142,7 +141,6 @@ PRODUCT_PACKAGES += \
     CarDialerApp \
     CarDocumentsUI \
     CarRadioApp \
-    OverviewApp \
     CarLauncher \
     CarSystemUI \
     LocalMediaPlayer \
@@ -153,8 +151,6 @@ PRODUCT_PACKAGES += \
     CarLatinIME \
     CarSettings \
     CarUsbHandler \
-    RotaryIME \
-    RotaryPlayground \
     android.car.builtin \
     car-frameworks-service \
     libcarservicehelperjni \

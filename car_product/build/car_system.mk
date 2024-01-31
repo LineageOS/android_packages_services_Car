@@ -106,7 +106,6 @@ PRODUCT_USE_DYNAMIC_PARTITION_SIZE := true
 PRODUCT_ENFORCE_RRO_TARGETS := *
 
 PRODUCT_PACKAGES += \
-    Bluetooth \
     CarActivityResolver \
     CarManagedProvisioning \
     StatementService \
@@ -159,8 +158,6 @@ PRODUCT_PACKAGES += \
     FusedLocation \
     InputDevices \
     KeyChain \
-    Keyguard \
-    Launcher2 \
     PacProcessor \
     PrintSpooler \
     ProxyHandler \
@@ -173,7 +170,6 @@ PRODUCT_PACKAGES += \
     libandroidfw \
     libaudioutils \
     libpowermanager \
-    libvariablespeed \
     PackageInstaller \
     carbugreportd \
     vehicle_binding_util \
@@ -210,7 +206,6 @@ PRODUCT_PACKAGES += \
     CarShell \
     CarDialerApp \
     CarRadioApp \
-    OverviewApp \
     CarLauncher \
     LocalMediaPlayer \
     CarMediaApp \
