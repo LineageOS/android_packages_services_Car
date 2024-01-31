@@ -76,7 +76,6 @@ PRODUCT_PACKAGES += \
     android.hardware.radio.config@1.0 \
     android.hardware.radio.deprecated@1.0 \
     android.hardware.secure_element@1.0 \
-    android.hardware.wifi \
     libaudio-resampler \
     libaudiohal \
     libdrm \
@@ -116,7 +115,6 @@ PRODUCT_PACKAGES += \
     CarActivityResolver \
     CarManagedProvisioning \
     SystemUpdater \
-    pppd \
     screenrecord
 
 # Set default Bluetooth profiles
@@ -160,8 +158,6 @@ PRODUCT_PACKAGES += \
     FusedLocation \
     InputDevices \
     KeyChain \
-    Keyguard \
-    Launcher2 \
     PacProcessor \
     ProxyHandler \
     SharedStorageBackup \
@@ -172,7 +168,6 @@ PRODUCT_PACKAGES += \
     libandroidfw \
     libaudioutils \
     libpowermanager \
-    libvariablespeed \
     PackageInstaller \
     carbugreportd \
     vehicle_binding_util \
@@ -213,7 +208,6 @@ PRODUCT_PACKAGES += \
     CarShell \
     CarDialerApp \
     CarRadioApp \
-    OverviewApp \
     LocalMediaPlayer \
     CarMediaApp \
     CarMessengerApp \

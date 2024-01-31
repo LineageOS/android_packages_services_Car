@@ -41,9 +41,7 @@ PRODUCT_PACKAGES += \
     FusedLocation \
     InputDevices \
     KeyChain \
-    Keyguard \
     LatinIME \
-    Launcher2 \
     PacProcessor \
     ProxyHandler \
     Settings \
@@ -54,9 +52,7 @@ PRODUCT_PACKAGES += \
     atrace \
     libandroidfw \
     libaudioutils \
-    libnfc_ndef \
     libpowermanager \
-    libvariablespeed \
     PackageInstaller \
     carbugreportd \
     vehicle_binding_util \
