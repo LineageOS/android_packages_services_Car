@@ -22,6 +22,7 @@ import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.AreaIdConfig;
 import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 
@@ -94,6 +95,42 @@ public abstract class HalPropConfig {
      */
     public abstract Object toVehiclePropConfig();
 
+    private int getCommonAccessFromHalAreaConfigs(HalAreaConfig[] halAreaConfigs) {
+        boolean readOnlyPresent = false;
+        boolean writeOnlyPresent = false;
+        boolean readWritePresent = false;
+        for (int i = 0; i < halAreaConfigs.length; i++) {
+            int access = halAreaConfigs[i].getAccess();
+            switch (access) {
+                case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ:
+                    readOnlyPresent = true;
+                    break;
+                case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE:
+                    writeOnlyPresent = true;
+                    break;
+                case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE:
+                    readWritePresent = true;
+                    break;
+                default:
+                    // AreaId config has an invalid VehiclePropertyAccess value
+                    return CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_NONE;
+            }
+        }
+
+        if (writeOnlyPresent) {
+            if (!readOnlyPresent && !readWritePresent) {
+                return CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE;
+            }
+            // Config cannot set write-only access for some areaId configs and read/read-write
+            // access for other areaIds per property.
+            return CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_NONE;
+        }
+        if (readOnlyPresent) {
+            return CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ;
+        }
+        return CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE;
+    }
+
     /**
      * Converts {@link HalPropConfig} to {@link CarPropertyConfig}.
      *
@@ -104,8 +141,14 @@ public abstract class HalPropConfig {
         int propId = getPropId();
         int areaType = getVehicleAreaType(propId & VehicleArea.MASK);
         Class<?> clazz = CarPropertyUtils.getJavaClass(propId & VehiclePropertyType.MASK);
+
+        int access = getAccess();
+        HalAreaConfig[] halAreaConfigs = getAreaConfigs();
+        if (Flags.areaIdConfigAccess() || access == /* VehiclePropertyAccess.NONE */ 0) {
+            access = getCommonAccessFromHalAreaConfigs(halAreaConfigs);
+        }
         CarPropertyConfig.Builder carPropertyConfigBuilder = CarPropertyConfig.newBuilder(clazz,
-                mgrPropertyId, areaType).setAccess(getAccess()).setChangeMode(
+                mgrPropertyId, areaType).setAccess(access).setChangeMode(
                 getChangeMode()).setConfigString(getConfigString());
 
         float maxSampleRate = 0f;
@@ -132,25 +175,26 @@ public abstract class HalPropConfig {
         }
         carPropertyConfigBuilder.setConfigArray(configArray);
 
-        HalAreaConfig[] halAreaConfigs = getAreaConfigs();
         if (halAreaConfigs.length == 0) {
             carPropertyConfigBuilder.addAreaIdConfig(generateAreaIdConfig(clazz, /* areaId= */ 0,
                     /* minInt32Value= */ 0, /* maxInt32Value= */ 0,
                     /* minFloatValue= */ 0, /* maxFloatValue= */ 0,
                     /* minInt64Value= */ 0, /* maxInt64Value= */ 0,
-                    supportedEnumValues, /* supportVariableUpdateRate= */ false));
+                    supportedEnumValues, /* supportVariableUpdateRate= */ false, access));
         } else {
             for (HalAreaConfig halAreaConfig : halAreaConfigs) {
                 if (!shouldConfigArrayDefineSupportedEnumValues) {
                     supportedEnumValues = halAreaConfig.getSupportedEnumValues();
                 }
+                int areaAccess = (halAreaConfig.getAccess() == VehiclePropertyAccess.NONE)
+                        ? access : halAreaConfig.getAccess();
                 carPropertyConfigBuilder.addAreaIdConfig(
                         generateAreaIdConfig(clazz, halAreaConfig.getAreaId(),
                                 halAreaConfig.getMinInt32Value(), halAreaConfig.getMaxInt32Value(),
                                 halAreaConfig.getMinFloatValue(), halAreaConfig.getMaxFloatValue(),
                                 halAreaConfig.getMinInt64Value(), halAreaConfig.getMaxInt64Value(),
                                 supportedEnumValues,
-                                halAreaConfig.isVariableUpdateRateSupported()));
+                                halAreaConfig.isVariableUpdateRateSupported(), areaAccess));
             }
         }
         return carPropertyConfigBuilder.build();
@@ -158,8 +202,11 @@ public abstract class HalPropConfig {
 
     private AreaIdConfig generateAreaIdConfig(Class<?> clazz, int areaId, int minInt32Value,
             int maxInt32Value, float minFloatValue, float maxFloatValue, long minInt64Value,
-            long maxInt64Value, long[] supportedEnumValues, boolean supportVariableUpdateRate) {
-        AreaIdConfig.Builder areaIdConfigBuilder = new AreaIdConfig.Builder(areaId);
+            long maxInt64Value, long[] supportedEnumValues, boolean supportVariableUpdateRate,
+            int access) {
+        AreaIdConfig.Builder areaIdConfigBuilder = Flags.areaIdConfigAccess()
+                ? new AreaIdConfig.Builder(access, areaId)
+                : new AreaIdConfig.Builder(areaId);
         if (classMatched(Integer.class, clazz)) {
             if ((minInt32Value != 0 || maxInt32Value != 0)) {
                 areaIdConfigBuilder.setMinValue(minInt32Value).setMaxValue(maxInt32Value);

@@ -312,6 +312,22 @@ public final class FakeVehicleStub extends VehicleStub {
                 mRealVehicle.newSubscriptionClient(callback));
     }
 
+    private int getAccess(int propId, int areaId) {
+        HalPropConfig halPropConfig = mPropConfigsByPropId.get(propId);
+        HalAreaConfig[] halAreaConfigs = halPropConfig.getAreaConfigs();
+        for (int i = 0; i < halAreaConfigs.length; i++) {
+            if (halAreaConfigs[i].getAreaId() != areaId) {
+                continue;
+            }
+            int areaAccess = halAreaConfigs[i].getAccess();
+            if (areaAccess != VehiclePropertyAccess.NONE) {
+                return areaAccess;
+            }
+            break;
+        }
+        return halPropConfig.getAccess();
+    }
+
     /**
      * Gets a property value.
      *
@@ -334,7 +350,7 @@ public final class FakeVehicleStub extends VehicleStub {
             checkPropAvailable(propId, areaId);
         }
         // Check access permission.
-        int access = mPropConfigsByPropId.get(propId).getAccess();
+        int access = getAccess(propId, areaId);
         if (access != VehiclePropertyAccess.READ && access != VehiclePropertyAccess.READ_WRITE) {
             throw new ServiceSpecificException(StatusCode.ACCESS_DENIED, "This property " + propId
                     + " doesn't have read permission.");
@@ -381,7 +397,7 @@ public final class FakeVehicleStub extends VehicleStub {
             checkPropAvailable(propId, areaId);
         }
         // Check access permission.
-        int access = mPropConfigsByPropId.get(propId).getAccess();
+        int access = getAccess(propId, areaId);
         if (access != VehiclePropertyAccess.WRITE && access != VehiclePropertyAccess.READ_WRITE) {
             throw new ServiceSpecificException(StatusCode.ACCESS_DENIED, "This property " + propId
                     + " doesn't have write permission.");

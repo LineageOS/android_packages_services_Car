@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.telemetry.TelemetryProto;
@@ -190,40 +191,72 @@ public class VehiclePropertyPublisherTest {
 
     // CarPropertyConfigs for mMockCarPropertyService.
     private static final CarPropertyConfig<Integer> PROP_STRING_CONFIG =
-            CarPropertyConfig.newBuilder(Integer.class, PROP_STRING_ID, AREA_ID).setAccess(
-                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
+            CarPropertyConfig.newBuilder(Integer.class, PROP_STRING_ID, AREA_ID)
+                    .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ)
+                    .addAreaIdConfig(new AreaIdConfig.Builder(
+                            CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, /* areaId */ 0).build())
+                    .build();
     private static final CarPropertyConfig<Integer> PROP_BOOLEAN_CONFIG =
-            CarPropertyConfig.newBuilder(Integer.class, PROP_BOOLEAN_ID, AREA_ID).setAccess(
-                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
+            CarPropertyConfig.newBuilder(Integer.class, PROP_BOOLEAN_ID, AREA_ID)
+                    .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ)
+                    .addAreaIdConfig(new AreaIdConfig.Builder(
+                            CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, /* areaId */ 0).build())
+                    .build();
     private static final CarPropertyConfig<Integer> PROP_INT_CONFIG =
-            CarPropertyConfig.newBuilder(Integer.class, PROP_INT_ID, AREA_ID).setAccess(
-                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
+            CarPropertyConfig.newBuilder(Integer.class, PROP_INT_ID, AREA_ID)
+                    .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ)
+                    .addAreaIdConfig(new AreaIdConfig.Builder(
+                            CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, /* areaId */ 0).build())
+                    .build();
     private static final CarPropertyConfig<Integer> PROP_INT_VEC_CONFIG =
-            CarPropertyConfig.newBuilder(Integer.class, PROP_INT_VEC_ID, AREA_ID).setAccess(
-                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
+            CarPropertyConfig.newBuilder(Integer.class, PROP_INT_VEC_ID, AREA_ID)
+                    .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ)
+                    .addAreaIdConfig(new AreaIdConfig.Builder(
+                            CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, /* areaId */ 0).build())
+                    .build();
     private static final CarPropertyConfig<Integer> PROP_LONG_CONFIG =
-            CarPropertyConfig.newBuilder(Integer.class, PROP_LONG_ID, AREA_ID).setAccess(
-                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
+            CarPropertyConfig.newBuilder(Integer.class, PROP_LONG_ID, AREA_ID)
+                    .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ)
+                    .addAreaIdConfig(new AreaIdConfig.Builder(
+                            CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, /* areaId */ 0).build())
+                    .build();
     private static final CarPropertyConfig<Integer> PROP_LONG_VEC_CONFIG =
-            CarPropertyConfig.newBuilder(Integer.class, PROP_LONG_VEC_ID, AREA_ID).setAccess(
-                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
+            CarPropertyConfig.newBuilder(Integer.class, PROP_LONG_VEC_ID, AREA_ID)
+                    .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ)
+                    .addAreaIdConfig(new AreaIdConfig.Builder(
+                            CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, /* areaId */ 0).build())
+                    .build();
     private static final CarPropertyConfig<Integer> PROP_FLOAT_CONFIG =
-            CarPropertyConfig.newBuilder(Integer.class, PROP_FLOAT_ID, AREA_ID).setAccess(
-                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
+            CarPropertyConfig.newBuilder(Integer.class, PROP_FLOAT_ID, AREA_ID)
+                    .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ)
+                    .addAreaIdConfig(new AreaIdConfig.Builder(
+                            CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, /* areaId */ 0).build())
+                    .build();
     private static final CarPropertyConfig<Integer> PROP_FLOAT_VEC_CONFIG =
-            CarPropertyConfig.newBuilder(Integer.class, PROP_FLOAT_VEC_ID, AREA_ID).setAccess(
-                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
+            CarPropertyConfig.newBuilder(Integer.class, PROP_FLOAT_VEC_ID, AREA_ID)
+                    .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ)
+                    .addAreaIdConfig(new AreaIdConfig.Builder(
+                            CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, /* areaId */ 0).build())
+                    .build();
     private static final CarPropertyConfig<Integer> PROP_BYTES_CONFIG =
-            CarPropertyConfig.newBuilder(Integer.class, PROP_BYTES_ID, AREA_ID).setAccess(
-                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
+            CarPropertyConfig.newBuilder(Integer.class, PROP_BYTES_ID, AREA_ID)
+                    .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ)
+                    .addAreaIdConfig(new AreaIdConfig.Builder(
+                            CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, /* areaId */ 0).build())
+                    .build();
     private static final CarPropertyConfig<Integer> PROP_MIXED_CONFIG =
-            CarPropertyConfig.newBuilder(Integer.class, PROP_MIXED_ID, AREA_ID).setAccess(
-                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ)
-                        .setConfigArray(new ArrayList<Integer>(
-                                Arrays.asList(1, 1, 1, 3, 1, 2, 1, 2, 2))).build();
+            CarPropertyConfig.newBuilder(Integer.class, PROP_MIXED_ID, AREA_ID)
+                    .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ)
+                    .addAreaIdConfig(new AreaIdConfig.Builder(
+                            CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, /* areaId */ 0).build())
+                    .setConfigArray(new ArrayList<Integer>(
+                            Arrays.asList(1, 1, 1, 3, 1, 2, 1, 2, 2))).build();
     private static final CarPropertyConfig<Integer> PROP_CONFIG_2_WRITE_ONLY =
-            CarPropertyConfig.newBuilder(Integer.class, PROP_INT_ID_2, AREA_ID).setAccess(
-                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build();
+            CarPropertyConfig.newBuilder(Integer.class, PROP_INT_ID_2, AREA_ID)
+                    .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE)
+                    .addAreaIdConfig(new AreaIdConfig.Builder(
+                            CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE, /* areaId */ 0)
+                            .build()).build();
 
     private final FakeHandlerWrapper mFakeHandlerWrapper =
             new FakeHandlerWrapper(Looper.getMainLooper(), FakeHandlerWrapper.Mode.QUEUEING);

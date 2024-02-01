@@ -69,6 +69,20 @@ public final class AidlVehiclePropConfigBuilder {
     @CheckResult
     public AidlVehiclePropConfigBuilder setAccess(int access) {
         mConfig.access = access;
+        for (VehicleAreaConfig areaConfig : mConfig.areaConfigs) {
+            areaConfig.access = access;
+        }
+        return this;
+    }
+
+    @CheckResult
+    public AidlVehiclePropConfigBuilder setAccessPerAreaId(int access, int areaId) {
+        for (VehicleAreaConfig areaConfig : mConfig.areaConfigs) {
+            if (areaConfig.areaId == areaId) {
+                areaConfig.access = access;
+                break;
+            }
+        }
         return this;
     }
 
@@ -112,6 +126,7 @@ public final class AidlVehiclePropConfigBuilder {
     public  AidlVehiclePropConfigBuilder addAreaConfig(int areaId) {
         VehicleAreaConfig area = new VehicleAreaConfig();
         area.areaId = areaId;
+        area.access = mConfig.access;
         addAreaConfig(area);
         return this;
     }
@@ -120,6 +135,7 @@ public final class AidlVehiclePropConfigBuilder {
     public AidlVehiclePropConfigBuilder addAreaConfig(int areaId, int minValue, int maxValue) {
         VehicleAreaConfig area = new VehicleAreaConfig();
         area.areaId = areaId;
+        area.access = mConfig.access;
         area.minInt32Value = minValue;
         area.maxInt32Value = maxValue;
         addAreaConfig(area);
@@ -130,6 +146,40 @@ public final class AidlVehiclePropConfigBuilder {
     public AidlVehiclePropConfigBuilder addAreaConfig(int areaId, float minValue, float maxValue) {
         VehicleAreaConfig area = new VehicleAreaConfig();
         area.areaId = areaId;
+        area.access = mConfig.access;
+        area.minFloatValue = minValue;
+        area.maxFloatValue = maxValue;
+        addAreaConfig(area);
+        return this;
+    }
+
+    @CheckResult
+    public  AidlVehiclePropConfigBuilder addAreaConfig(int areaId, int access) {
+        VehicleAreaConfig area = new VehicleAreaConfig();
+        area.areaId = areaId;
+        area.access = access;
+        addAreaConfig(area);
+        return this;
+    }
+
+    @CheckResult
+    public AidlVehiclePropConfigBuilder addAreaConfig(int areaId, int access,
+                                                      int minValue, int maxValue) {
+        VehicleAreaConfig area = new VehicleAreaConfig();
+        area.areaId = areaId;
+        area.access = access;
+        area.minInt32Value = minValue;
+        area.maxInt32Value = maxValue;
+        addAreaConfig(area);
+        return this;
+    }
+
+    @CheckResult
+    public AidlVehiclePropConfigBuilder addAreaConfig(int areaId, int access,
+                                                      float minValue, float maxValue) {
+        VehicleAreaConfig area = new VehicleAreaConfig();
+        area.areaId = areaId;
+        area.access = access;
         area.minFloatValue = minValue;
         area.maxFloatValue = maxValue;
         addAreaConfig(area);
@@ -151,6 +201,7 @@ public final class AidlVehiclePropConfigBuilder {
         for (VehicleAreaConfig area : areaConfigs) {
             VehicleAreaConfig newArea = new VehicleAreaConfig();
             newArea.areaId = area.areaId;
+            newArea.access = area.access;
             newArea.minInt32Value = area.minInt32Value;
             newArea.maxInt32Value = area.maxInt32Value;
             newArea.minInt64Value = area.minInt64Value;

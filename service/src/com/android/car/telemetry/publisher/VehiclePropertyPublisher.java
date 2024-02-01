@@ -23,8 +23,10 @@ import static java.lang.Integer.toHexString;
 import android.annotation.NonNull;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
+import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.telemetry.TelemetryProto;
@@ -103,15 +105,27 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
                         == TelemetryProto.Publisher.PublisherCase.VEHICLE_PROPERTY,
                 "Subscribers only with VehicleProperty publisher are supported by this class.");
         int propertyId = publisherParam.getVehicleProperty().getVehiclePropertyId();
-        CarPropertyConfig config = mCarPropertyList.get(propertyId);
+        CarPropertyConfig<?> config = mCarPropertyList.get(propertyId);
         Preconditions.checkArgument(
                 config != null,
                 "Vehicle property " + VehiclePropertyIds.toString(propertyId) + " not found.");
-        Preconditions.checkArgument(
-                config.getAccess() == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ
-                        || config.getAccess()
-                        == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
-                "No access. Cannot read " + VehiclePropertyIds.toString(propertyId) + ".");
+        if (Flags.areaIdConfigAccess()) {
+            for (AreaIdConfig<?> areaIdConfig : config.getAreaIdConfigs()) {
+                int accessLevel = areaIdConfig.getAccess();
+                Preconditions.checkArgument(
+                        accessLevel == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ
+                                || accessLevel
+                                == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
+                        "No access. Cannot read " + VehiclePropertyIds.toString(propertyId)
+                                + " at areaId: " + areaIdConfig.getAreaId());
+            }
+        } else {
+            Preconditions.checkArgument(
+                    config.getAccess() == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ
+                            || config.getAccess()
+                            == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
+                    "No access. Cannot read " + VehiclePropertyIds.toString(propertyId) + ".");
+        }
         PropertyData propertyData = mPropertyDataLookup.get(propertyId);
         if (propertyData == null) {
             propertyData = new PropertyData(config);
