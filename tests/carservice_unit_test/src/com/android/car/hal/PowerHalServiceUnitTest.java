@@ -28,6 +28,7 @@ import static android.hardware.automotive.vehicle.VehicleApPowerStateShutdownPar
 import static android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY;
 import static android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY;
 import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE_REPORT;
+import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_BOOTUP_REASON;
 import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE_REQ;
 import static android.hardware.automotive.vehicle.VehicleProperty.DISPLAY_BRIGHTNESS;
 import static android.hardware.automotive.vehicle.VehicleProperty.PER_DISPLAY_BRIGHTNESS;
@@ -53,6 +54,7 @@ import static org.mockito.Mockito.when;
 
 import android.car.test.util.FakeContext;
 import android.hardware.automotive.vehicle.StatusCode;
+import android.hardware.automotive.vehicle.VehicleApPowerBootupReason;
 import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.display.DisplayManager;
@@ -525,6 +527,73 @@ public final class PowerHalServiceUnitTest {
         when(mHal.get(VEHICLE_IN_USE)).thenThrow(new IllegalArgumentException());
 
         assertThat(mPowerHalService.isVehicleInUse()).isFalse();
+    }
+
+    @Test
+    public void testGetVehicleApBootupReason_UserPowerOn() {
+        when(mHal.get(AP_POWER_BOOTUP_REASON)).thenReturn(
+                mPropValueBuilder.build(AP_POWER_BOOTUP_REASON, /* areaId= */ 0,
+                        new int[] {VehicleApPowerBootupReason.USER_POWER_ON}));
+
+        assertThat(mPowerHalService.getVehicleApBootupReason()).isEqualTo(
+                PowerHalService.BOOTUP_REASON_USER_POWER_ON);
+    }
+
+    @Test
+    public void testGetVehicleApBootupReason_SystemUserDetection() {
+        when(mHal.get(AP_POWER_BOOTUP_REASON)).thenReturn(
+                mPropValueBuilder.build(AP_POWER_BOOTUP_REASON, /* areaId= */ 0,
+                        new int[] {VehicleApPowerBootupReason.SYSTEM_USER_DETECTION}));
+
+        assertThat(mPowerHalService.getVehicleApBootupReason()).isEqualTo(
+                PowerHalService.BOOTUP_REASON_SYSTEM_USER_DETECTION);
+    }
+
+    @Test
+    public void testGetVehicleApBootupReason_SystemRemoteAccess() {
+        when(mHal.get(AP_POWER_BOOTUP_REASON)).thenReturn(
+                mPropValueBuilder.build(AP_POWER_BOOTUP_REASON, /* areaId= */ 0,
+                        new int[] {VehicleApPowerBootupReason.SYSTEM_REMOTE_ACCESS}));
+
+        assertThat(mPowerHalService.getVehicleApBootupReason()).isEqualTo(
+                PowerHalService.BOOTUP_REASON_SYSTEM_REMOTE_ACCESS);
+    }
+
+    @Test
+    public void testGetVehicleApBootupReason_SystemEnterGarageMode() {
+        when(mHal.get(AP_POWER_BOOTUP_REASON)).thenReturn(
+                mPropValueBuilder.build(AP_POWER_BOOTUP_REASON, /* areaId= */ 0,
+                        new int[] {VehicleApPowerBootupReason.SYSTEM_ENTER_GARAGE_MODE}));
+
+        assertThat(mPowerHalService.getVehicleApBootupReason()).isEqualTo(
+                PowerHalService.BOOTUP_REASON_SYSTEM_ENTER_GARAGE_MODE);
+    }
+
+    @Test
+    public void testGetVehicleApBootupReason_unknownReason() {
+        when(mHal.get(AP_POWER_BOOTUP_REASON)).thenReturn(
+                mPropValueBuilder.build(AP_POWER_BOOTUP_REASON, /* areaId= */ 0,
+                        new int[] {123456}));
+
+        assertThat(mPowerHalService.getVehicleApBootupReason()).isEqualTo(
+                PowerHalService.BOOTUP_REASON_UNKNOWN);
+    }
+
+    @Test
+    public void testGetVehicleApBootupReason_exception() {
+        when(mHal.get(AP_POWER_BOOTUP_REASON)).thenThrow(new ServiceSpecificException(0));
+
+        assertThat(mPowerHalService.getVehicleApBootupReason()).isEqualTo(
+                PowerHalService.BOOTUP_REASON_UNKNOWN);
+    }
+
+    @Test
+    public void testGetVehicleApBootupReason_noValue() {
+        when(mHal.get(AP_POWER_BOOTUP_REASON)).thenReturn(
+                mPropValueBuilder.build(AP_POWER_BOOTUP_REASON, /* areaId= */ 0, new int[] {}));
+
+        assertThat(mPowerHalService.getVehicleApBootupReason()).isEqualTo(
+                PowerHalService.BOOTUP_REASON_UNKNOWN);
     }
 
     private PowerHalService.PowerState createShutdownPrepare(int flag) {

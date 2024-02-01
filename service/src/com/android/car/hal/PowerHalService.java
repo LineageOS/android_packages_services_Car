@@ -17,6 +17,7 @@ package com.android.car.hal;
 
 import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE_REPORT;
 import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE_REQ;
+import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_BOOTUP_REASON;
 import static android.hardware.automotive.vehicle.VehicleProperty.DISPLAY_BRIGHTNESS;
 import static android.hardware.automotive.vehicle.VehicleProperty.PER_DISPLAY_BRIGHTNESS;
 import static android.hardware.automotive.vehicle.VehicleProperty.VEHICLE_IN_USE;
@@ -28,6 +29,7 @@ import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.DisplayHelper;
 import android.content.Context;
+import android.hardware.automotive.vehicle.VehicleApPowerBootupReason;
 import android.hardware.automotive.vehicle.VehicleApPowerStateConfigFlag;
 import android.hardware.automotive.vehicle.VehicleApPowerStateReport;
 import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
@@ -71,10 +73,49 @@ public class PowerHalService extends HalServiceBase {
         propertyInfo.put(DISPLAY_BRIGHTNESS, new PropertyInfo(/*needSubscription=*/ true));
         propertyInfo.put(PER_DISPLAY_BRIGHTNESS, new PropertyInfo(/*needSubscription=*/ true));
         propertyInfo.put(VEHICLE_IN_USE, new PropertyInfo(/*needSubscription=*/ false));
+        propertyInfo.put(AP_POWER_BOOTUP_REASON, new PropertyInfo(/*needSubscription=*/ false));
         return propertyInfo;
     }
 
     private static final SparseArray<PropertyInfo> SUPPORTED_PROPERTIES = getSupportedProperties();
+
+    /**
+     * Unknown bootup reason.
+     */
+    public static final int BOOTUP_REASON_UNKNOWN = -1;
+
+    /**
+     * Power on due to user's pressing of power key or rotating of ignition switch.
+     */
+    public static final int BOOTUP_REASON_USER_POWER_ON = 0;
+
+    /**
+     * Automatic power on triggered by door unlock or any other kind of automatic user detection.
+     */
+    public static final int BOOTUP_REASON_SYSTEM_USER_DETECTION = 1;
+
+    /**
+     * Automatic power on to execute a remote task. This is triggered by receiving a wakeup message
+     * from an external system in the vehicle.
+     */
+    public static final int BOOTUP_REASON_SYSTEM_REMOTE_ACCESS = 2;
+
+    /**
+     * Automatic power on to enter garage mode. This is triggered by receiving a wakeup message from
+     * an external system in the vehicle.
+     */
+    public static final int BOOTUP_REASON_SYSTEM_ENTER_GARAGE_MODE = 3;
+
+    /** @hide */
+    @IntDef(prefix = {"BOOTUP_REASON_"}, value = {
+            BOOTUP_REASON_UNKNOWN,
+            BOOTUP_REASON_USER_POWER_ON,
+            BOOTUP_REASON_SYSTEM_USER_DETECTION,
+            BOOTUP_REASON_SYSTEM_REMOTE_ACCESS,
+            BOOTUP_REASON_SYSTEM_ENTER_GARAGE_MODE,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface BootupReason {}
 
     @VisibleForTesting
     public static final int SET_WAIT_FOR_VHAL = VehicleApPowerStateReport.WAIT_FOR_VHAL;
@@ -539,6 +580,41 @@ public class PowerHalService extends HalServiceBase {
             Slogf.w(CarLog.TAG_POWER, "Failed to get VEHICLE_IN_USE value", e);
             return false;
         }
+    }
+
+    /**
+     * Gets the head unit's bootup reason.
+     *
+     * This reason is only set once during bootup and will not change if, say user enters the
+     * vehicle after the vehicle was booted up for remote access.
+     */
+    public @BootupReason int getVehicleApBootupReason() {
+        try {
+            HalPropValue value = mHal.get(AP_POWER_BOOTUP_REASON);
+            if (value.getStatus() != VehiclePropertyStatus.AVAILABLE) {
+                Slogf.w(CarLog.TAG_POWER, "AP_POWER_BOOTUP_REASON is not available");
+                return BOOTUP_REASON_UNKNOWN;
+            }
+            if (value.getInt32ValuesSize() < 1) {
+                Slogf.w(CarLog.TAG_POWER, "Invalid AP_POWER_BOOTUP_REASON, no value");
+                return BOOTUP_REASON_UNKNOWN;
+            }
+            switch (value.getInt32Value(0)) {
+                case VehicleApPowerBootupReason.USER_POWER_ON:
+                    return BOOTUP_REASON_USER_POWER_ON;
+                case VehicleApPowerBootupReason.SYSTEM_USER_DETECTION:
+                    return BOOTUP_REASON_SYSTEM_USER_DETECTION;
+                case VehicleApPowerBootupReason.SYSTEM_REMOTE_ACCESS:
+                    return BOOTUP_REASON_SYSTEM_REMOTE_ACCESS;
+                case VehicleApPowerBootupReason.SYSTEM_ENTER_GARAGE_MODE:
+                    return BOOTUP_REASON_SYSTEM_ENTER_GARAGE_MODE;
+                default:
+                    return BOOTUP_REASON_UNKNOWN;
+            }
+        } catch (ServiceSpecificException | IllegalArgumentException e) {
+            Slogf.w(CarLog.TAG_POWER, "Failed to get AP_POWER_BOOTUP_REASON value", e);
+        }
+        return BOOTUP_REASON_UNKNOWN;
     }
 
     private boolean isConfigFlagSet(int flag) {
