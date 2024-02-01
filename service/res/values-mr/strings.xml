@@ -228,6 +228,8 @@
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"सिस्टीम UI व्यवस्थापित करण्यासाठी आणि टास्क व्ह्यू तयार करण्यासाठी इतर अ‍ॅप्सद्वारे वापरली जाऊ शकते अशी सिस्टीम UI प्रॉक्सी पुरवा."</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"टास्कव्ह्यू तयार करण्यासाठी किंवा सिस्टीम UI बदलांबद्दल सूचना मिळवण्यासाठी कार सिस्टीम UI शी संवाद साधा."</string>
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"टास्कव्ह्यू तयार करण्यासाठी किंवा सिस्टीम UI बदलांबद्दल सूचना मिळवण्यासाठी कार सिस्टीम UI शी संवाद साधा."</string>
+    <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"कारची कायम सुरू राहणारी टेदरिंग सेटिंग्ज रीड करा"</string>
+    <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"कारची कायम सुरू राहणारी टेदरिंग सेटिंग्ज रीड करा"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN बस अयशस्वी"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN बस प्रतिसाद देत नाही. हेडयुनिट बॉक्स अनप्लग करून पुन्हा प्लग करा आणि कार रीस्टार्ट करा"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"माझे डिव्हाइस"</string>

@@ -228,6 +228,8 @@
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"سسٹم UI پراکسی فراہم کرتا ہے جسے دیگر ایپس سسٹم UI کا نظم کرنے اور ٹاسک کے مناظر تخلیق کرنے کے لیے استعمال کر سکتی ہیں۔"</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"ٹاسک کے مناظر تخلیق کرنے یا سسٹم UI تبدیلیوں کے بارے میں مطلع کرنے کے لیے کار سسٹم UI کے ساتھ مواصلت کریں۔"</string>
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"ٹاسک کے مناظر تخلیق کرنے یا سسٹم UI تبدیلیوں کے بارے میں مطلع کرنے کے لیے کار سسٹم UI کے ساتھ مواصلت کریں۔"</string>
+    <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"کار کی برقرار ٹیدرنگ کی ترتیبات کو پڑھیں"</string>
+    <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"کار کی برقرار ٹیدرنگ کی ترتیبات کو پڑھیں"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"کین بس ناکام ہو گئی"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"کین بس جواب نہیں دیتی ہے۔ ہیڈیونٹ باکس کو ان پلگ کر کے دوبارہ پلگ کریں اور کار کو دوبارہ شروع کریں"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"میرا آلہ"</string>
