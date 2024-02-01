@@ -36,7 +36,7 @@ public class GarageModeService implements CarServiceBase {
 
     private static final String HANDLER_THREAD_NAME = "GarageModeService";
 
-    private final Controller mController;
+    private final GarageModeController mController;
     private final HandlerThread mHandlerThread = getHandlerThread(HANDLER_THREAD_NAME);
 
     public GarageModeService(Context context) {
@@ -44,9 +44,9 @@ public class GarageModeService implements CarServiceBase {
     }
 
     @VisibleForTesting
-    protected GarageModeService(Context context, Controller controller) {
+    protected GarageModeService(Context context, GarageModeController controller) {
         mController = (controller != null ? controller
-                : new Controller(context, mHandlerThread.getLooper()));
+                : new GarageModeController(context, mHandlerThread.getLooper()));
     }
 
     /**
