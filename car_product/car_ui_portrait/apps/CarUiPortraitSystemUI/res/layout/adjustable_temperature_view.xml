@@ -35,7 +35,7 @@
 
     <TextView
         android:id="@+id/hvac_temperature_text"
-        android:layout_width="@dimen/hvac_temperature_text_width"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textColor="@color/system_bar_text_color"
