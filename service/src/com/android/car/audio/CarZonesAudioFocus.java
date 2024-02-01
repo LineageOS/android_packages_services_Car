@@ -65,7 +65,8 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             SparseArray<CarAudioZone> carAudioZones,
             CarAudioSettings carAudioSettings,
             CarFocusCallback carFocusCallback,
-            CarVolumeInfoWrapper carVolumeInfoWrapper) {
+            CarVolumeInfoWrapper carVolumeInfoWrapper,
+            boolean useFadeManagerConfiguration) {
         Objects.requireNonNull(audioManager, "Audio manager cannot be null");
         Objects.requireNonNull(packageManager, "Package manager cannot be null");
         Objects.requireNonNull(carAudioZones, "Car audio zones cannot be null");
@@ -86,7 +87,8 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                     packageManager, new FocusInteraction(carAudioSettings,
                     new ContentObserverFactory(AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI),
                     audioZone.getCarAudioContext()),
-                    audioZone.getCarAudioContext(), carVolumeInfoWrapper, audioZoneId);
+                    audioZone.getCarAudioContext(), carVolumeInfoWrapper, audioZoneId,
+                    useFadeManagerConfiguration);
             audioFocusPerZone.put(audioZoneId, zoneFocusListener);
         }
         return new CarZonesAudioFocus(audioFocusPerZone, carFocusCallback);

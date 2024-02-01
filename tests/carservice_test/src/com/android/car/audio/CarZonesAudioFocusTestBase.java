@@ -266,7 +266,8 @@ abstract class CarZonesAudioFocusTestBase {
         CarZonesAudioFocus carZonesAudioFocus =
                 CarZonesAudioFocus.createCarZonesAudioFocus(mMockAudioManager,
                         mMockPackageManager, mCarAudioZones, mCarAudioSettings,
-                        carFocusCallback, mMockCarVolumeInfoWrapper);
+                        carFocusCallback, mMockCarVolumeInfoWrapper,
+                        /* useFadeManagerConfiguration= */ false);
         carZonesAudioFocus.setOwningPolicy(mCarAudioService, mAudioPolicy);
 
         return carZonesAudioFocus;
