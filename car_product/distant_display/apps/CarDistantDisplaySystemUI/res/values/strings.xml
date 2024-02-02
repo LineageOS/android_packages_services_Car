@@ -17,5 +17,5 @@
 
 <resources>
     <string name="qc_send_to_pano_title">Send to pano</string>
-    <string name="qc_bring_back_to_default_display_title">Bring to back</string>
+    <string name="qc_bring_back_to_default_display_title">Bring it back</string>
 </resources>

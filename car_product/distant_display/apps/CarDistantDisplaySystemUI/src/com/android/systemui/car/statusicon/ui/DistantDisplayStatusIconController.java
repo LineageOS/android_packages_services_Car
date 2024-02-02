@@ -74,6 +74,7 @@ public class DistantDisplayStatusIconController extends StatusIconController imp
         mDistantDisplayPanelController = mPanelControllerBuilderProvider.get()
                 .setGravity(Gravity.TOP | Gravity.END).build(mDistantDisplayButton,
                         getPanelContentLayout(), R.dimen.car_profile_quick_controls_panel_width);
+        mDistantDisplayPanelController.init();
         registerIconView(mDistantDisplayButton);
         mDistantDisplayController.setDistantDisplayControlStatusInfoListener(this);
     }
@@ -94,6 +95,7 @@ public class DistantDisplayStatusIconController extends StatusIconController imp
             unregisterIconView(mDistantDisplayButton);
         }
         mDistantDisplayController.removeDistantDisplayControlStatusInfoListener();
+        mDistantDisplayButton = null;
     }
 
     @Override
