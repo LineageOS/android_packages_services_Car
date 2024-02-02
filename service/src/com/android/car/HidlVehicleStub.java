@@ -334,7 +334,8 @@ final class HidlVehicleStub extends VehicleStub {
         String instanceName = SystemProperties.get("ro.vehicle.hal", "default");
 
         try {
-            return IVehicle.getService(instanceName);
+            // Wait for HIDL VHAL to be ready if it is declared.
+            return IVehicle.getService(instanceName, /* retry= */ true);
         } catch (RemoteException e) {
             Slogf.e(TAG, e, "Failed to get IVehicle/" + instanceName + " service");
         } catch (NoSuchElementException e) {
