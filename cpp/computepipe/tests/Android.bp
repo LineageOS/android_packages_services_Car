@@ -13,6 +13,7 @@
 // limitations under the License.
 
 package {
+    default_team: "trendy_team_automotive",
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
@@ -45,14 +46,14 @@ cc_test {
     test_suites: ["device-tests"],
     srcs: [
         "PipeQueryTest.cpp",
-	"FakeRunner.cpp",
+        "FakeRunner.cpp",
     ],
     static_libs: [
         "libgtest",
         "libgmock",
     ],
     header_libs: [
-      "computepipe_router_headers",
+        "computepipe_router_headers",
     ],
     shared_libs: [
         "libbinder",
