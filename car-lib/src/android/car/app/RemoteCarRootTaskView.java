@@ -23,6 +23,7 @@ import android.annotation.RequiresPermission;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.builtin.app.TaskInfoHelper;
+import android.car.builtin.util.Slogf;
 import android.car.builtin.view.ViewHelper;
 import android.content.ComponentName;
 import android.content.Context;
@@ -84,13 +85,21 @@ public final class RemoteCarRootTaskView extends RemoteCarTaskView {
                     mRootTask = taskInfo;
                     setPersistentActivitiesOnRootTask(mAllowListedActivities,
                             TaskInfoHelper.getToken(taskInfo));
-
                     // If onTaskAppeared() is called, it implicitly means that
                     // super.isInitialized() is true, as the root task is created only after
                     // initialization.
                     final long identity = Binder.clearCallingIdentity();
                     try {
-                        mCallbackExecutor.execute(() -> mCallback.onTaskViewInitialized());
+                        mCallbackExecutor.execute(() -> {
+                            // Check for isReleased() because the car task view might have
+                            // already been released but this code path is executed later because
+                            // the executor was busy.
+                            if (isReleased()) {
+                                Slogf.w(TAG, "car task view has already been released");
+                                return;
+                            }
+                            mCallback.onTaskViewInitialized();
+                        });
                     } finally {
                         Binder.restoreCallingIdentity(identity);
                     }

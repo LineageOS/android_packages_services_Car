@@ -245,12 +245,13 @@ final class CarTaskViewControllerSupervisor {
             }
             mCallbackExecutor.execute(() -> {
                 synchronized (mLock) {
-                    Slogf.w(TAG, "car task view controller not found when triggering callback, "
-                            + "not dispatching onConnected");
                     // Check for null because the mCarTaskViewController might have already been
                     // released but this code path is executed later because the executor was
                     // busy.
                     if (mCarTaskViewController == null) {
+                        Slogf.w(TAG,
+                                "car task view controller not found when triggering callback, not"
+                                        + " dispatching onConnected");
                         return;
                     }
                     mCarTaskViewControllerCallback.onConnected(mCarTaskViewController);

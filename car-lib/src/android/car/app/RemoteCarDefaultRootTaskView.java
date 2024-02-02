@@ -19,6 +19,7 @@ package android.car.app;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
+import android.car.builtin.util.Slogf;
 import android.car.builtin.view.ViewHelper;
 import android.content.Context;
 import android.graphics.Rect;
@@ -63,7 +64,16 @@ public final class RemoteCarDefaultRootTaskView extends RemoteCarTaskView {
                     // is true, as the root task is created only after initialization.
                     long identity = Binder.clearCallingIdentity();
                     try {
-                        mCallbackExecutor.execute(() -> mCallback.onTaskViewInitialized());
+                        mCallbackExecutor.execute(() -> {
+                            // Check for isReleased() because the car task view might have
+                            // already been released but this code path is executed later because
+                            // the executor was busy.
+                            if (isReleased()) {
+                                Slogf.w(TAG, "car task view has already been released");
+                                return;
+                            }
+                            mCallback.onTaskViewInitialized();
+                        });
                     } finally {
                         Binder.restoreCallingIdentity(identity);
                     }
@@ -80,7 +90,13 @@ public final class RemoteCarDefaultRootTaskView extends RemoteCarTaskView {
             mRootTaskStackManager.taskAppeared(taskInfo, leash);
             long identity = Binder.clearCallingIdentity();
             try {
-                mCallbackExecutor.execute(() -> mCallback.onTaskAppeared(taskInfo));
+                mCallbackExecutor.execute(() -> {
+                    if (isReleased()) {
+                        Slogf.w(TAG, "car task view has already been released");
+                        return;
+                    }
+                    mCallback.onTaskAppeared(taskInfo);
+                });
             } finally {
                 Binder.restoreCallingIdentity(identity);
             }
@@ -101,7 +117,13 @@ public final class RemoteCarDefaultRootTaskView extends RemoteCarTaskView {
             mRootTaskStackManager.taskInfoChanged(taskInfo);
             long identity = Binder.clearCallingIdentity();
             try {
-                mCallbackExecutor.execute(() -> mCallback.onTaskInfoChanged(taskInfo));
+                mCallbackExecutor.execute(() -> {
+                    if (isReleased()) {
+                        Slogf.w(TAG, "car task view has already been released");
+                        return;
+                    }
+                    mCallback.onTaskInfoChanged(taskInfo);
+                });
             } finally {
                 Binder.restoreCallingIdentity(identity);
             }
@@ -120,7 +142,13 @@ public final class RemoteCarDefaultRootTaskView extends RemoteCarTaskView {
             mRootTaskStackManager.taskVanished(taskInfo);
             long identity = Binder.clearCallingIdentity();
             try {
-                mCallbackExecutor.execute(() -> mCallback.onTaskVanished(taskInfo));
+                mCallbackExecutor.execute(() -> {
+                    if (isReleased()) {
+                        Slogf.w(TAG, "car task view has already been released");
+                        return;
+                    }
+                    mCallback.onTaskVanished(taskInfo);
+                });
             } finally {
                 Binder.restoreCallingIdentity(identity);
             }
