@@ -184,6 +184,26 @@ public class CarAudioZonesValidatorTest extends AbstractExpectableTestCase {
         CarAudioZonesValidator.validate(zones, /* useCoreAudioRouting= */ false);
     }
 
+    @Test
+    public void validate_passesWithoutExceptionForRepeatEmptyAddress() {
+        CarVolumeGroup mockVolumeGroup1 = generateVolumeGroup(List.of("BT", "one", "", ""));
+        CarVolumeGroup mockVolumeGroup2 = generateVolumeGroup(List.of("BT", "", ""));
+        CarAudioZoneConfig primaryZoneConfig1 = new MockConfigBuilder()
+                .withVolumeGroups(new CarVolumeGroup[]{mockVolumeGroup1})
+                .build();
+        CarAudioZoneConfig primaryZoneConfig2 = new MockConfigBuilder()
+                .withVolumeGroups(new CarVolumeGroup[]{mockVolumeGroup2})
+                .build();
+        CarAudioZone primaryZone = new MockBuilder()
+                .withInputDevices(getValidInputDevices())
+                .withZoneConfigs(List.of(primaryZoneConfig1, primaryZoneConfig2))
+                .build();
+        SparseArray<CarAudioZone> zones = new SparseArray<>();
+        zones.put(primaryZone.getId(), primaryZone);
+
+        CarAudioZonesValidator.validate(zones, /* useCoreAudioRouting= */ false);
+    }
+
     private SparseArray<CarAudioZone> generateAudioZonesWithPrimary() {
         CarAudioZone zone = new MockBuilder().withInputDevices(getValidInputDevices()).build();
         SparseArray<CarAudioZone> zones = new SparseArray<>();

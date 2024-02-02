@@ -228,6 +228,8 @@
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"다른 앱에서 시스템 UI를 관리하고 작업 뷰를 만들기 위해 사용하는 시스템 UI 프록시를 제공합니다."</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"작업 뷰 만들기 또는 시스템 UI 변경에 관한 알림 수신을 위해 차량 시스템 UI와 통신합니다."</string>
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"작업 뷰 만들기 또는 시스템 UI 변경에 관한 알림 수신을 위해 차량 시스템 UI와 통신합니다."</string>
+    <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"차량의 테더링 유지 설정 읽기"</string>
+    <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"차량의 테더링 유지 설정 읽기"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN 버스 실패"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN 버스가 응답하지 않습니다. 헤드유닛 박스를 분리한 후 다시 연결한 다음 시동을 다시 걸어 보세요."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"내 기기"</string>

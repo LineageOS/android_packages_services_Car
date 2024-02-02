@@ -21,14 +21,18 @@ import static com.android.car.AppFocusService.PERMISSION_CHECKER_PERMISSION_GRAN
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
+import android.Manifest;
 import android.car.Car;
 import android.car.CarAppFocusManager;
 import android.car.IAppFocusListener;
 import android.car.IAppFocusOwnershipCallback;
 import android.content.Context;
 import android.content.PermissionChecker;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -142,6 +146,15 @@ public class AppFocusServiceTest {
         assertWithMessage("PERMISSION_GRANTED constant")
                 .that(PERMISSION_CHECKER_PERMISSION_GRANTED)
                 .isEqualTo(PermissionChecker.PERMISSION_GRANTED);
+    }
+
+    @Test
+    public void testGetAppTypeOwner_throwsSecurityException_withoutPermission() {
+        when(mContext.checkCallingOrSelfPermission(Manifest.permission.QUERY_ALL_PACKAGES))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+
+        assertThrows(SecurityException.class,
+                () -> mService.getAppTypeOwner(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
     }
 
     private class AppFocusChangedListener implements CarAppFocusManager.OnAppFocusChangedListener {

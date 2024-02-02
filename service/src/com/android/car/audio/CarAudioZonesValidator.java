@@ -140,6 +140,10 @@ final class CarAudioZonesValidator {
                                                      List<String> groupAddresses) {
         for (int c = 0; c < groupAddresses.size(); c++) {
             String address = groupAddresses.get(c);
+            // Ignore dynamic devices as they may not have addresses until the device is connected
+            if (address == null || address.isEmpty()) {
+                continue;
+            }
             if (!addressesPerConfig.add(address)) {
                 throw new RuntimeException("Device with address " + address
                         + " appears in multiple volume groups in the same configuration");

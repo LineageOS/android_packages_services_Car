@@ -62,6 +62,13 @@ flag {
     bug: "321063661"
 }
 
+flag {
+    name: "car_audio_fade_manager_configuration"
+    namespace: "car_framework"
+    description: "Controls whether car audio can be configured with fade manager configurations"
+    bug: "315695829"
+}
+
 # CarPropertyManager
 flag {
   name: "batched_subscriptions"

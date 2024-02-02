@@ -228,6 +228,8 @@
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Udostępnianie proxy interfejsu systemu, który może być używany przez inne aplikacje do zarządzania tym interfejsem i tworzenia widoków zadań."</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Komunikacja z interfejsem systemu w samochodzie w celu tworzenia widoków zadań lub otrzymywania powiadomień o zmianach w tym interfejsie."</string>
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Komunikacja z interfejsem systemu w samochodzie w celu tworzenia widoków zadań lub otrzymywania powiadomień o zmianach w tym interfejsie."</string>
+    <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Odczytywanie trwałych ustawień tetheringu w samochodzie"</string>
+    <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Odczytywanie trwałych ustawień tetheringu w samochodzie"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Błąd magistrali CAN"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Magistrala CAN nie odpowiada. Odłącz i jeszcze raz podłącz moduł główny i ponownie uruchom samochód."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Moje urządzenie"</string>

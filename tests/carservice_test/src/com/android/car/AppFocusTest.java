@@ -18,7 +18,6 @@ package com.android.car;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import android.car.Car;
 import android.car.CarAppFocusManager;
@@ -57,7 +56,7 @@ public class AppFocusTest extends MockedCarTestBase {
         manager.abandonAppFocus(ownershipListener, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
         listener.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, false);
-        assertNull(manager.getAppTypeOwner(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
+        assertThat(manager.getAppTypeOwner(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION)).isEmpty();
         manager.removeFocusListener(listener);
     }
 

@@ -32,6 +32,7 @@ message CarAudioDumpProto {
     optional string car_audio_configuration_path = 8;
     optional bool use_car_volume_group_muting = 9;
     optional bool use_car_volume_group_events = 10;
+    optional bool use_fade_manager_configuration = 11;
   }
 
   message CarAudioState {

@@ -228,6 +228,8 @@
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"பிற ஆப்ஸ் பயன்படுத்தக்கூடிய சிஸ்டம் UI ப்ராக்ஸி வழங்கப்பட்டால் சிஸ்டம் UIயை நிர்வகிக்கலாம் மற்றும் ’டாஸ்க் வியூ’ உருவாக்கலாம்."</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"’டாஸ்க் வியூ’ உருவாக்க அல்லது சிஸ்டம் UIயில் செய்யப்படும் மாற்றங்கள் குறித்த அறிவிப்பைப் பெற, கார் சிஸ்டம் UIயைப் பார்க்கவும்."</string>
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"’டாஸ்க் வியூ’ உருவாக்க அல்லது சிஸ்டம் UIயில் செய்யப்படும் மாற்றங்கள் குறித்த அறிவிப்பைப் பெற, கார் சிஸ்டம் UIயைப் பார்க்கவும்."</string>
+    <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"காரின் பெர்ஸிஸ்ட் டெதெரிங் அமைப்புகள் பற்றித் தெரிந்துகொள்ளுதல்"</string>
+    <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"காரின் பெர்ஸிஸ்ட் டெதெரிங் அமைப்புகள் பற்றித் தெரிந்துகொள்ளும்"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus அமைப்பு தோல்வியடைந்தது"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus அமைப்பு இயங்கவில்லை. ஹெட்யூனிட் பாக்ஸைப் பிளக்கில் இருந்து அகற்றிச் செருகியபின் காரை மீண்டும் தொடங்கவும்"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"எனது சாதனம்"</string>

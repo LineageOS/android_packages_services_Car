@@ -134,16 +134,21 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
 
     @Override
     public List<String> getAppTypeOwner(@CarAppFocusManager.AppFocusType int appType) {
+        if (mContext.checkCallingOrSelfPermission(android.Manifest.permission.QUERY_ALL_PACKAGES)
+                !=  PERMISSION_CHECKER_PERMISSION_GRANTED) {
+            throw new SecurityException("Caller must have the "
+                    + android.Manifest.permission.QUERY_ALL_PACKAGES + " permission");
+        }
         OwnershipClientInfo owner;
         synchronized (mLock) {
             owner = mFocusOwners.get(appType);
         }
         if (owner == null) {
-            return null;
+            return Collections.EMPTY_LIST;
         }
         String[] packageNames = mContext.getPackageManager().getPackagesForUid(owner.getUid());
         if (packageNames == null) {
-            return null;
+            return Collections.EMPTY_LIST;
         }
         return Arrays.asList(packageNames);
     }
