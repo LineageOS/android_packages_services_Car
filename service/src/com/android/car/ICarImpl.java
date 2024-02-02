@@ -524,10 +524,22 @@ public class ICarImpl extends ICar.Stub {
             service.init();
             t.traceEnd();
         }
-        t.traceBegin("CarOemService.initComplete");
-        mCarOemService.onInitComplete();
-        t.traceEnd();
         t.traceEnd(); // "CarService.initAllServices"
+
+        t.traceBegin("CarService.onInitComplete");
+        for (CarSystemService service : mAllServicesInInitOrder) {
+            if (service == mCarPowerManagementService) {
+                // Must make sure mCarPowerManagementService.onInitComplete runs at last since
+                // it might shutdown the device.
+                continue;
+            }
+            t.traceBegin("onInitComplete:" + service.getClass().getSimpleName());
+            service.onInitComplete();
+            t.traceEnd();
+        }
+        mCarPowerManagementService.onInitComplete();
+        t.traceEnd(); // "CarService.onInitComplete"
+
         t.traceEnd(); // "ICarImpl.init"
     }
 
