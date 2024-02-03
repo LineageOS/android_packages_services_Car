@@ -45,6 +45,8 @@ import static android.view.KeyEvent.KEYCODE_VOLUME_MUTE;
 import static android.view.KeyEvent.KEYCODE_VOLUME_UP;
 
 import static com.android.car.audio.CarAudioUtils.convertVolumeChangeToEvent;
+import static com.android.car.audio.CarAudioUtils.excludesDynamicDevices;
+import static com.android.car.audio.CarAudioUtils.getDynamicDevicesInConfig;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK;
@@ -53,6 +55,8 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DE
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
+
+import static java.util.Collections.EMPTY_LIST;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -151,7 +155,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -2168,7 +2171,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     public List<CarVolumeGroupInfo> getVolumeGroupInfosForZone(int zoneId) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         if (runInLegacyMode()) {
-            return Collections.EMPTY_LIST;
+            return EMPTY_LIST;
         }
         synchronized (mImplLock) {
             return getVolumeGroupInfosForZoneLocked(zoneId);
@@ -2180,7 +2183,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         Objects.requireNonNull(groupInfo, "Car volume group info can not be null");
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         if (runInLegacyMode()) {
-            return Collections.EMPTY_LIST;
+            return EMPTY_LIST;
         }
 
         synchronized (mImplLock) {
@@ -2897,6 +2900,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         boolean succeeded = true;
         List<CarVolumeGroupInfo> carVolumeGroupInfoList = null;
         AudioPolicy newAudioPolicy = null;
+        CarAudioZoneConfig prevZoneConfig;
         synchronized (mImplLock) {
             int userId = getUserIdForZoneLocked(zoneId);
             if (userId == UserManagerHelper.USER_NULL) {
@@ -2908,7 +2912,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             List<AudioFocusInfo> pendingFocusInfos =
                     mFocusHandler.transientlyLoseAllFocusHoldersInZone(zoneId);
 
-            CarAudioZoneConfig prevZoneConfig = zone.getCurrentCarAudioZoneConfig();
+            prevZoneConfig = zone.getCurrentCarAudioZoneConfig();
             try {
                 log.traceBegin("switch-config-set-" + zoneConfig.getConfigId());
                 zone.setCurrentCarZoneConfig(zoneConfig);
@@ -2942,9 +2946,46 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             log.traceEnd();
             return false;
         }
+        enableDynamicDevicesInOtherZones(prevZoneConfig.getCarAudioZoneConfigInfo());
+        disableDynamicDevicesInOtherZones(zoneConfig);
+
         log.traceEnd();
         callbackVolumeGroupEvent(getVolumeGroupEventsForSwitchZoneConfig(carVolumeGroupInfoList));
         return true;
+    }
+
+    private void enableDynamicDevicesInOtherZones(CarAudioZoneConfigInfo zoneConfig) {
+        if (!Flags.carAudioDynamicDevices()) {
+            return;
+        }
+        if (excludesDynamicDevices(zoneConfig)) {
+            return;
+        }
+        List<AudioDeviceInfo> dynamicDevicesInConfig =
+                getDynamicDevicesInConfig(zoneConfig, mAudioManager);
+        // If the devices were already removed just move on, device removal will manage the rest
+        if (dynamicDevicesInConfig.isEmpty()) {
+            return;
+        }
+        List<Integer> zonesToSkip = List.of(zoneConfig.getZoneId());
+        handleDevicesAdded(dynamicDevicesInConfig, zonesToSkip);
+    }
+
+    private void disableDynamicDevicesInOtherZones(CarAudioZoneConfigInfo zoneConfig) {
+        if (!Flags.carAudioDynamicDevices()) {
+            return;
+        }
+        if (excludesDynamicDevices(zoneConfig)) {
+            return;
+        }
+        List<AudioDeviceInfo> dynamicDevicesInConfig =
+                getDynamicDevicesInConfig(zoneConfig, mAudioManager);
+        // If the devices were already removed just move on, device removal will manage the rest
+        if (dynamicDevicesInConfig.isEmpty()) {
+            return;
+        }
+        List<Integer> zonesToSkip = List.of(zoneConfig.getZoneId());
+        handleDevicesRemoved(dynamicDevicesInConfig, zonesToSkip);
     }
 
     @GuardedBy("mImplLock")
@@ -3509,10 +3550,17 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             return;
         }
 
+        handleDevicesAdded(devices, EMPTY_LIST);
+    }
+
+    private void handleDevicesAdded(List<AudioDeviceInfo> devices, List<Integer> zonesToSkip) {
         List<CarAudioZoneConfigInfo> updatedInfos = new ArrayList<>();
         synchronized (mImplLock) {
             for (int c = 0; c < mCarAudioZones.size(); c++) {
                 CarAudioZone zone = mCarAudioZones.valueAt(c);
+                if (zonesToSkip.contains(zone.getId())) {
+                    continue;
+                }
                 if (!zone.audioDevicesAdded(devices)) {
                     continue;
                 }
@@ -3533,15 +3581,18 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             return;
         }
 
-        handleDevicesRemoved(devices);
+        handleDevicesRemoved(devices, EMPTY_LIST);
     }
 
-    private void handleDevicesRemoved(List<AudioDeviceInfo> devices) {
+    private void handleDevicesRemoved(List<AudioDeviceInfo> devices, List<Integer> zonesToSkip) {
         List<AudioZoneConfigCallbackInfo> callbackInfos = new ArrayList<>();
         List<CarAudioZoneConfigInfo> updatedInfos = new ArrayList<>();
         synchronized (mImplLock) {
             for (int c = 0; c < mCarAudioZones.size(); c++) {
                 CarAudioZone zone = mCarAudioZones.valueAt(c);
+                if (zonesToSkip.contains(zone.getId())) {
+                    continue;
+                }
                 if (!zone.audioDevicesRemoved(devices)) {
                     continue;
                 }
@@ -3552,6 +3603,10 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                     // Otherwise let auto switching handle the callback for the config info
                     // change
                     updatedInfos.addAll(zone.getCarAudioZoneConfigInfos());
+                    continue;
+                }
+                // If we are skipping configurations then auto switch to prevent recursion
+                if (!zonesToSkip.isEmpty()) {
                     continue;
                 }
                 // Current config is no longer active, switch back to default and trigger

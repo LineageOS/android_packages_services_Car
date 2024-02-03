@@ -16,6 +16,9 @@
 
 package com.android.car.audio;
 
+import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
+import static android.media.AudioAttributes.USAGE_ASSISTANT;
+import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioDeviceInfo.TYPE_AUX_LINE;
 import static android.media.AudioDeviceInfo.TYPE_BLE_BROADCAST;
 import static android.media.AudioDeviceInfo.TYPE_BLE_HEADSET;
@@ -32,21 +35,29 @@ import static android.media.AudioDeviceInfo.TYPE_USB_HEADSET;
 import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADPHONES;
 import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET;
 
+import static com.android.car.audio.CarAudioUtils.excludesDynamicDevices;
+import static com.android.car.audio.CarAudioUtils.getDynamicDevicesInConfig;
 import static com.android.car.audio.CarAudioUtils.hasExpired;
 import static com.android.car.audio.CarAudioUtils.isMicrophoneInputDevice;
 
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
+import android.car.feature.Flags;
+import android.car.media.CarAudioZoneConfigInfo;
+import android.car.media.CarVolumeGroupInfo;
 import android.car.test.AbstractExpectableTestCase;
+import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
+import android.platform.test.flag.junit.SetFlagsRule;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.car.internal.util.DebugUtils;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -59,6 +70,67 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
     public static final String TEST_ADDRESS_1 = "test_address_1";
     public static final String TEST_ADDRESS_2 = "test_address_2";
     public static final String TEST_NOT_AVAILABLE_ADDRESS = "test_not_available_address";
+    private static final AudioAttributes TEST_MEDIA_AUDIO_ATTRIBUTE =
+            new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+    private static final AudioAttributes TEST_NAV_AUDIO_ATTRIBUTE =
+            new AudioAttributes.Builder().setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE).build();
+    private static final AudioAttributes TEST_ASSISTANT_AUDIO_ATTRIBUTE =
+            new AudioAttributes.Builder().setUsage(USAGE_ASSISTANT).build();
+    private static final AudioDeviceAttributes TEST_BT_DEVICE =
+            getMockDevice(/* address= */ "", TYPE_BLUETOOTH_A2DP);
+    private static final AudioDeviceAttributes TEST_BUS_DEVICE_1 =
+            getMockDevice(TEST_ADDRESS_1, TYPE_BUS);
+    private static final AudioDeviceAttributes TEST_BUS_DEVICE_2 =
+            getMockDevice(TEST_ADDRESS_2, TYPE_BUS);
+
+    private static final AudioDeviceInfo TEST_BUS_DEVICE_1_INFO =
+            getMockDeviceInfo(TEST_ADDRESS_1, TYPE_BUS);
+    private static final AudioDeviceInfo TEST_BUS_DEVICE_2_INFO =
+            getMockDeviceInfo(TEST_ADDRESS_2, TYPE_BUS);
+    private static final AudioDeviceInfo TEST_BT_DEVICE_INFO =
+            getMockDeviceInfo(/* address= */ "", TYPE_BLUETOOTH_A2DP);
+
+    private static AudioDeviceInfo getMockDeviceInfo(String address, int type) {
+        AudioDeviceInfo device = Mockito.mock(AudioDeviceInfo.class);
+        when(device.getAddress()).thenReturn(address);
+        when(device.getType()).thenReturn(type);
+        return device;
+    }
+
+    private static final String TEST_MEDIA_GROUP_NAME = "media volume group";
+    private static final String TEST_BT_GROUP_NAME = "bt volume group";
+    private static final String TEST_NAV_GROUP_NAME = "nav volume group";
+    private static final int TEST_ZONE_ID = 1;
+    private static final int TEST_MEDIA_GROUP_ID = 0;
+    private static final int TEST_BT_GROUP_ID = 1;
+    private static final int TEST_NAV_GROUP_ID = 2;
+    private static final int TEST_MAX_GAIN_INDEX = 100;
+    private static final int TEST_MIN_GAIN_INDEX = 0;
+    private static final CarVolumeGroupInfo TEST_MEDIA_VOLUME_INFO =
+            new CarVolumeGroupInfo.Builder(TEST_MEDIA_GROUP_NAME, TEST_ZONE_ID, TEST_BT_GROUP_ID)
+                    .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                    .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                    .setAudioAttributes(List.of(TEST_MEDIA_AUDIO_ATTRIBUTE))
+                    .setAudioDeviceAttributes(List.of(TEST_BUS_DEVICE_1)).build();
+    private static final CarVolumeGroupInfo TEST_NAV_VOLUME_INFO =
+            new CarVolumeGroupInfo.Builder(TEST_NAV_GROUP_NAME, TEST_ZONE_ID, TEST_NAV_GROUP_ID)
+                    .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                    .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                    .setAudioAttributes(List.of(TEST_NAV_AUDIO_ATTRIBUTE))
+                    .setAudioDeviceAttributes(List.of(TEST_BUS_DEVICE_2)).build();
+    private static final CarVolumeGroupInfo TEST_BT_VOLUME_INFO =
+            new CarVolumeGroupInfo.Builder(TEST_BT_GROUP_NAME, TEST_ZONE_ID, TEST_MEDIA_GROUP_ID)
+                    .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                    .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                    .setAudioAttributes(List.of(TEST_ASSISTANT_AUDIO_ATTRIBUTE))
+                    .setAudioDeviceAttributes(List.of(TEST_BT_DEVICE)).build();
+    private static final int TEST_CONFIG_ID = 0;
+    private static final boolean TEST_ACTIVE_STATUS = true;
+    private static final boolean TEST_SELECTED_STATUS = true;
+    private static final boolean TEST_DEFAULT_STATUS = true;
+
+    @Rule
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     @Test
     public void hasExpired_forCurrentTimeBeforeTimeout() {
@@ -138,6 +210,134 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
                     AudioDeviceInfo.class, /* prefix= */ "TYPE_", dynamicDeviceType))
                     .that(CarAudioUtils.isDynamicDeviceType(dynamicDeviceType)).isFalse();
         }
+    }
+
+    @Test
+    public void excludesDynamicDevices_withOutDynamicDevices() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        CarAudioZoneConfigInfo testNoDynamicDevicesConfig =
+                new CarAudioZoneConfigInfo("Non-dynamic-devices-config",
+                        List.of(TEST_MEDIA_VOLUME_INFO, TEST_NAV_VOLUME_INFO),
+                        TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
+                        TEST_DEFAULT_STATUS);
+
+        expectWithMessage("Info without dynamic devices")
+                .that(excludesDynamicDevices(testNoDynamicDevicesConfig)).isTrue();
+    }
+
+    @Test
+    public void excludesDynamicDevices_withDynamicDevices() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        CarAudioZoneConfigInfo testDynamicDevicesConfig =
+                new CarAudioZoneConfigInfo("dynamic-devices-config",
+                        List.of(TEST_MEDIA_VOLUME_INFO, TEST_NAV_VOLUME_INFO, TEST_BT_VOLUME_INFO),
+                        TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
+                        TEST_DEFAULT_STATUS);
+
+        expectWithMessage("Info with dynamic devices")
+                .that(excludesDynamicDevices(testDynamicDevicesConfig)).isFalse();
+    }
+
+    @Test
+    public void excludesDynamicDevices_withOutDynamicDevices_withDynamicFlagsDisabled() {
+        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        CarAudioZoneConfigInfo testNoDynamicDevicesConfig =
+                new CarAudioZoneConfigInfo("Non-dynamic-devices-config",
+                        List.of(TEST_MEDIA_VOLUME_INFO, TEST_NAV_VOLUME_INFO),
+                        TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
+                        TEST_DEFAULT_STATUS);
+
+        expectWithMessage("Info without dynamic devices with dynamic flags disable")
+                .that(excludesDynamicDevices(testNoDynamicDevicesConfig)).isTrue();
+    }
+
+    @Test
+    public void excludesDynamicDevices_withDynamicDevices_withDynamicFlagsDisabled() {
+        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        CarAudioZoneConfigInfo testDynamicDevicesConfig =
+                new CarAudioZoneConfigInfo("dynamic-devices-config",
+                        List.of(TEST_MEDIA_VOLUME_INFO, TEST_NAV_VOLUME_INFO, TEST_BT_VOLUME_INFO),
+                        TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
+                        TEST_DEFAULT_STATUS);
+
+        expectWithMessage("Info with dynamic devices with dynamic flags disable")
+                .that(excludesDynamicDevices(testDynamicDevicesConfig)).isTrue();
+    }
+
+    @Test
+    public void getDynamicDevicesInConfig_withDynamicDevices() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        AudioManager manager = setUpMockAudioManager();
+        CarAudioZoneConfigInfo testDynamicDevicesConfig =
+                new CarAudioZoneConfigInfo("dynamic-devices-config",
+                        List.of(TEST_MEDIA_VOLUME_INFO, TEST_NAV_VOLUME_INFO, TEST_BT_VOLUME_INFO),
+                        TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
+                        TEST_DEFAULT_STATUS);
+
+        expectWithMessage("Non-dynamic devices")
+                .that(getDynamicDevicesInConfig(testDynamicDevicesConfig, manager))
+                .containsExactly(TEST_BT_DEVICE_INFO);
+    }
+
+    @Test
+    public void getDynamicDevicesInConfig_withoutDynamicDevices() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        AudioManager manager = setUpMockAudioManager();
+        CarAudioZoneConfigInfo testDynamicDevicesConfig =
+                new CarAudioZoneConfigInfo("dynamic-devices-config",
+                        List.of(TEST_MEDIA_VOLUME_INFO, TEST_NAV_VOLUME_INFO),
+                        TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
+                        TEST_DEFAULT_STATUS);
+
+        expectWithMessage("Dynamic devices")
+                .that(getDynamicDevicesInConfig(testDynamicDevicesConfig, manager)).isEmpty();
+    }
+
+    @Test
+    public void getDynamicDevicesInConfig_withDynamicDevices_andFlagDisabled() {
+        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        AudioManager manager = setUpMockAudioManager();
+        CarAudioZoneConfigInfo testDynamicDevicesConfig =
+                new CarAudioZoneConfigInfo("dynamic-devices-config",
+                        List.of(TEST_MEDIA_VOLUME_INFO, TEST_NAV_VOLUME_INFO, TEST_BT_VOLUME_INFO),
+                        TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
+                        TEST_DEFAULT_STATUS);
+
+        expectWithMessage("Dynamic devices with flags disabled")
+                .that(getDynamicDevicesInConfig(testDynamicDevicesConfig, manager)).isEmpty();
+    }
+
+    @Test
+    public void getDynamicDevicesInConfig_withoutDynamicDevices_andFlagDisabled() {
+        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        AudioManager manager = setUpMockAudioManager();
+        CarAudioZoneConfigInfo testDynamicDevicesConfig =
+                new CarAudioZoneConfigInfo("dynamic-devices-config",
+                        List.of(TEST_MEDIA_VOLUME_INFO, TEST_NAV_VOLUME_INFO),
+                        TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
+                        TEST_DEFAULT_STATUS);
+
+        expectWithMessage("Non-dynamic devices with flags disabled")
+                .that(getDynamicDevicesInConfig(testDynamicDevicesConfig, manager)).isEmpty();
+    }
+
+    private AudioManager setUpMockAudioManager() {
+        AudioManager manager = Mockito.mock(AudioManager.class);
+        when(manager.getDevices(AudioManager.GET_DEVICES_OUTPUTS))
+                .thenReturn(getMockOutputDevices());
+        return manager;
+    }
+
+    private AudioDeviceInfo[] getMockOutputDevices() {
+        return new AudioDeviceInfo[] { TEST_BUS_DEVICE_1_INFO, TEST_BUS_DEVICE_2_INFO,
+                TEST_BT_DEVICE_INFO};
+    }
+
+    private static AudioDeviceAttributes getMockDevice(String address, int type) {
+        AudioDeviceAttributes attributeMock = Mockito.mock(AudioDeviceAttributes.class);
+        when(attributeMock.getAddress()).thenReturn(address);
+        when(attributeMock.getType()).thenReturn(type);
+        return attributeMock;
     }
 
     private static AudioDeviceInfo getTestAudioDeviceInfo(String address) {
