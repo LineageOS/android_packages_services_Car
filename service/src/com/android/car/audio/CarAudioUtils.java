@@ -16,7 +16,20 @@
 
 package com.android.car.audio;
 
+import static android.media.AudioDeviceInfo.TYPE_AUX_LINE;
+import static android.media.AudioDeviceInfo.TYPE_BLE_BROADCAST;
+import static android.media.AudioDeviceInfo.TYPE_BLE_HEADSET;
+import static android.media.AudioDeviceInfo.TYPE_BLE_SPEAKER;
+import static android.media.AudioDeviceInfo.TYPE_BLUETOOTH_A2DP;
 import static android.media.AudioDeviceInfo.TYPE_BUILTIN_MIC;
+import static android.media.AudioDeviceInfo.TYPE_BUILTIN_SPEAKER;
+import static android.media.AudioDeviceInfo.TYPE_BUS;
+import static android.media.AudioDeviceInfo.TYPE_HDMI;
+import static android.media.AudioDeviceInfo.TYPE_USB_ACCESSORY;
+import static android.media.AudioDeviceInfo.TYPE_USB_DEVICE;
+import static android.media.AudioDeviceInfo.TYPE_USB_HEADSET;
+import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADPHONES;
+import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET;
 import static android.media.AudioManager.GET_DEVICES_OUTPUTS;
 
 import android.annotation.Nullable;
@@ -59,5 +72,26 @@ final class CarAudioUtils {
             return infos[c];
         }
         return null;
+    }
+
+    static boolean isDynamicDeviceType(int type) {
+        switch (type) {
+            case TYPE_WIRED_HEADSET: // fallthrough
+            case TYPE_WIRED_HEADPHONES: // fallthrough
+            case TYPE_BLUETOOTH_A2DP: // fallthrough
+            case TYPE_HDMI: // fallthrough
+            case TYPE_USB_ACCESSORY: // fallthrough
+            case TYPE_USB_DEVICE: // fallthrough
+            case TYPE_USB_HEADSET: // fallthrough
+            case TYPE_AUX_LINE: // fallthrough
+            case TYPE_BLE_HEADSET: // fallthrough
+            case TYPE_BLE_SPEAKER: // fallthrough
+            case TYPE_BLE_BROADCAST:
+                return true;
+            case TYPE_BUILTIN_SPEAKER: // fallthrough
+            case TYPE_BUS:  // fallthrough
+            default:
+                return false;
+        }
     }
 }

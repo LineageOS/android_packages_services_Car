@@ -16,11 +16,7 @@
 
 package com.android.systemui.car.systembar;
 
-import android.app.ActivityManager;
-import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
@@ -29,23 +25,19 @@ import android.media.session.MediaController;
 import android.media.session.MediaSessionManager;
 import android.media.session.MediaSessionManager.OnActiveSessionsChangedListener;
 import android.util.Log;
-import android.util.SparseArray;
-import android.util.SparseIntArray;
 import android.view.Display;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.android.systemui.R;
-import com.android.systemui.car.distantdisplay.activity.MoveTaskReceiver;
 import com.android.systemui.car.distantdisplay.common.DistantDisplayQcItem;
+import com.android.systemui.car.distantdisplay.common.TaskViewController;
 import com.android.systemui.car.distantdisplay.util.AppCategoryDetector;
 import com.android.systemui.car.qc.DistantDisplayControlsUpdateListener;
 import com.android.systemui.dagger.SysUISingleton;
 import com.android.systemui.settings.UserTracker;
-import com.android.systemui.shared.system.TaskStackChangeListener;
-import com.android.systemui.shared.system.TaskStackChangeListeners;
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -58,30 +50,19 @@ import javax.inject.Inject;
 public class DistantDisplayController {
     public static final String TAG = DistantDisplayController.class.getSimpleName();
 
-    public static final Intent DEFAULT_DISPLAY_INTENT = new Intent(
-            MoveTaskReceiver.MOVE_ACTION).putExtra("move",
-            MoveTaskReceiver.MOVE_FROM_DISTANT_DISPLAY);
-
-    public static final Intent DISTANT_DISPLAY_INTENT = new Intent(
-            MoveTaskReceiver.MOVE_ACTION).putExtra("move",
-            MoveTaskReceiver.MOVE_TO_DISTANT_DISPLAY);
-    private static final int INVALID_TASK_ID = -1;
     private final int mDistantDisplayId;
     private final PackageManager mPackageManager;
     private final MediaSessionManager mMediaSessionManager;
     private final Context mContext;
     private final UserTracker mUserTracker;
-
-    /** key: displayId, value: taskId */
-    private SparseIntArray mForegroundTasksOnDisplays = new SparseIntArray();
-
-    /** key: taskId */
-    private SparseArray<ActivityManager.RunningTaskInfo> mTasks = new SparseArray<>();
-
+    private final TaskViewController mTaskViewController;
+    private final Drawable mDistantDisplayDrawable;
+    private final Drawable mDefaultDisplayDrawable;
+    @Nullable
+    private String mTopPackageOnDefaultDisplay;
+    @Nullable
+    private String mTopPackageOnDistantDisplay;
     private StatusChangeListener mStatusChangeListener;
-    private Drawable mDistantDisplayDrawable;
-    private Drawable mDefaultDisplayDrawable;
-
     private DistantDisplayControlsUpdateListener mDistantDisplayControlsUpdateListener;
 
     /**
@@ -100,44 +81,20 @@ public class DistantDisplayController {
         void onVisibilityChanged(boolean visible);
     }
 
+    private final TaskViewController.Callback mTaskViewControllerCallback =
+            new TaskViewController.Callback() {
+                @Override
+                public void topAppOnDisplayChanged(int displayId, String packageName) {
+                    if (displayId == Display.DEFAULT_DISPLAY) {
+                        mTopPackageOnDefaultDisplay = packageName;
+                        updateButtonState();
 
-    private final TaskStackChangeListener mTaskStackChangeListener = new TaskStackChangeListener() {
-
-        @Override
-        public void onTaskMovedToFront(ActivityManager.RunningTaskInfo taskInfo) {
-            logIfDebuggable("onTaskMovedToFront: " + taskInfo
-                    + " token: " + taskInfo.token + " displayId: " + taskInfo.displayId);
-
-            mForegroundTasksOnDisplays.put(taskInfo.displayId, taskInfo.taskId);
-            mTasks.put(taskInfo.taskId, taskInfo);
-
-            updateButtonState();
-        }
-
-        @Override
-        public void onTaskDisplayChanged(int taskId, int newDisplayId) {
-            logIfDebuggable("onTaskDisplayChanged: " + taskId + " displayId: " + newDisplayId);
-
-            // Index of old display id associated to task id.
-            int oldDisplayIdForTaskIndex = mForegroundTasksOnDisplays.indexOfValue(taskId);
-            if (oldDisplayIdForTaskIndex >= 0) {
-                mForegroundTasksOnDisplays.removeAt(oldDisplayIdForTaskIndex);
-            }
-            mForegroundTasksOnDisplays.put(newDisplayId, taskId);
-            updateButtonState();
-        }
-
-        @Override
-        public void onTaskCreated(int taskId, ComponentName componentName) {
-            logIfDebuggable("onTaskCreated: " + taskId + " ComponentName: " + componentName);
-        }
-
-        @Override
-        public void onTaskRemoved(int taskId) {
-            mTasks.remove(taskId);
-            logIfDebuggable("Task id: " + taskId + " removed from task stack");
-        }
-    };
+                    } else if (displayId == mDistantDisplayId) {
+                        mTopPackageOnDistantDisplay = packageName;
+                        updateButtonState();
+                    }
+                }
+            };
 
     private final OnActiveSessionsChangedListener mOnActiveSessionsChangedListener =
             controllers -> {
@@ -160,9 +117,11 @@ public class DistantDisplayController {
     };
 
     @Inject
-    public DistantDisplayController(Context context, UserTracker userTracker) {
+    public DistantDisplayController(Context context, UserTracker userTracker,
+            TaskViewController taskViewController) {
         mContext = context;
         mUserTracker = userTracker;
+        mTaskViewController = taskViewController;
         mPackageManager = context.getPackageManager();
         mDistantDisplayId = mContext.getResources().getInteger(R.integer.config_distantDisplayId);
         mDistantDisplayDrawable = mContext.getResources().getDrawable(
@@ -174,7 +133,7 @@ public class DistantDisplayController {
                 userTracker.getUserHandle(),
                 mContext.getMainExecutor(), mOnActiveSessionsChangedListener);
         mUserTracker.addCallback(mUserChangedCallback, context.getMainExecutor());
-        TaskStackChangeListeners.getInstance().registerTaskStackListener(mTaskStackChangeListener);
+        mTaskViewController.addCallback(mTaskViewControllerCallback);
     }
 
     /**
@@ -221,12 +180,11 @@ public class DistantDisplayController {
         }
         MediaDescription mediaDescription = mediaController.getMetadata().getDescription();
         String mediaTitle = (String) mediaDescription.getTitle();
-        DistantDisplayQcItem distantDisplayControlQcItem = new DistantDisplayQcItem.Builder()
+        return new DistantDisplayQcItem.Builder()
                 .setTitle(mediaTitle)
                 .setSubtitle(mediaAppName)
                 .setIcon(mediaAppIcon)
                 .build();
-        return distantDisplayControlQcItem;
     }
 
     /**
@@ -234,17 +192,19 @@ public class DistantDisplayController {
      * {@link com.android.systemui.car.distantdisplay.common.DistantDisplayQcItem}
      */
     public DistantDisplayQcItem getControls() {
-        if (canMoveAppFromDisplay(mDistantDisplayId)) {
+        if (isVideoApp(mTopPackageOnDistantDisplay)) {
             return new DistantDisplayQcItem.Builder()
                     .setTitle(mContext.getString(R.string.qc_bring_back_to_default_display_title))
                     .setIcon(mDefaultDisplayDrawable)
-                    .setIntent(getBroadcastIntent(DEFAULT_DISPLAY_INTENT))
+                    .setActionHandler((item, context, intent) ->
+                            mTaskViewController.moveTaskFromDistantDisplay())
                     .build();
-        } else if (canMoveAppFromDisplay(Display.DEFAULT_DISPLAY)) {
+        } else if (isVideoApp(mTopPackageOnDefaultDisplay)) {
             return new DistantDisplayQcItem.Builder()
                     .setTitle(mContext.getString(R.string.qc_send_to_pano_title))
                     .setIcon(mDistantDisplayDrawable)
-                    .setIntent(getBroadcastIntent(DISTANT_DISPLAY_INTENT))
+                    .setActionHandler((item, context, intent) ->
+                            mTaskViewController.moveTaskToDistantDisplay())
                     .build();
         } else {
             return null;
@@ -253,68 +213,39 @@ public class DistantDisplayController {
 
     private Optional<MediaController> getMediaControllerFromActiveMediaSession() {
 
-        ActivityManager.RunningTaskInfo mForegroundMediaTask;
-        if (canMoveAppFromDisplay(mDistantDisplayId)) {
-            mForegroundMediaTask = getForegroundTaskOnDisplay(mDistantDisplayId);
-        } else if (canMoveAppFromDisplay(Display.DEFAULT_DISPLAY)) {
-            mForegroundMediaTask = getForegroundTaskOnDisplay(Display.DEFAULT_DISPLAY);
+        String foregroundMediaPackage;
+        if (isVideoApp(mTopPackageOnDistantDisplay)) {
+            foregroundMediaPackage = mTopPackageOnDistantDisplay;
+        } else if (isVideoApp(mTopPackageOnDefaultDisplay)) {
+            foregroundMediaPackage = mTopPackageOnDefaultDisplay;
         } else {
-            mForegroundMediaTask = null;
+            foregroundMediaPackage = null;
         }
 
-        if (mForegroundMediaTask == null) return Optional.empty();
+        if (foregroundMediaPackage == null) return Optional.empty();
 
         return mMediaSessionManager.getActiveSessionsForUser(/* notificationListener= */ null,
                         mUserTracker.getUserHandle())
                 .stream()
                 .filter(
-                        mediaController -> mForegroundMediaTask.baseActivity.getPackageName()
+                        mediaController -> foregroundMediaPackage
                                 .equals(mediaController.getPackageName()))
                 .findFirst();
     }
 
-    private PendingIntent getBroadcastIntent(Intent intent) {
-        return PendingIntent.getBroadcastAsUser(mContext, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE,
-                mUserTracker.getUserHandle());
-    }
-
-    private boolean hasActiveMediaSession(String packageName) {
-        List<MediaController> activeSessionsForUser = mMediaSessionManager.getActiveSessionsForUser(
-                null, mUserTracker.getUserHandle());
-        if (activeSessionsForUser.isEmpty()) return false;
-
-        return activeSessionsForUser.stream().anyMatch(
-                controller -> controller.getPackageName().equals(packageName));
-    }
-
     private boolean isVideoApp(String packageName) {
+        if (packageName == null) return false;
         return AppCategoryDetector.isVideoApp(mUserTracker.getUserContext().getPackageManager(),
                 packageName);
-    }
-
-    private ActivityManager.RunningTaskInfo getForegroundTaskOnDisplay(int displayId) {
-        int taskId = mForegroundTasksOnDisplays.get(displayId, INVALID_TASK_ID);
-        return taskId == INVALID_TASK_ID ? null : mTasks.get(taskId);
-    }
-
-    private boolean canMoveAppFromDisplay(int displayId) {
-        ActivityManager.RunningTaskInfo mForegroundTaskOnDisplay = getForegroundTaskOnDisplay(
-                displayId);
-        if (mForegroundTaskOnDisplay == null) return false;
-        boolean isVideo = isVideoApp(mForegroundTaskOnDisplay.baseActivity.getPackageName());
-        boolean hasMediaSession = hasActiveMediaSession(
-                mForegroundTaskOnDisplay.baseActivity.getPackageName());
-        return isVideo && hasMediaSession;
     }
 
     private void updateButtonState() {
         if (mStatusChangeListener == null) return;
 
-        if (canMoveAppFromDisplay(mDistantDisplayId)) {
+        if (isVideoApp(mTopPackageOnDistantDisplay)) {
             mStatusChangeListener.onDisplayChanged(mDistantDisplayId);
             mStatusChangeListener.onVisibilityChanged(true);
-        } else if (canMoveAppFromDisplay(Display.DEFAULT_DISPLAY)) {
+        } else if (isVideoApp(mTopPackageOnDefaultDisplay)) {
             mStatusChangeListener.onDisplayChanged(Display.DEFAULT_DISPLAY);
             mStatusChangeListener.onVisibilityChanged(true);
         } else {

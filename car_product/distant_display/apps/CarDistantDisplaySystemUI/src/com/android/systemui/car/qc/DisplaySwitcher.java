@@ -65,8 +65,8 @@ public class DisplaySwitcher extends BaseLocalQCProvider implements
             QCRow controlElement = new QCRow.Builder()
                     .setTitle(controls.getTitle())
                     .setIcon(icon)
-                    .setPrimaryAction(controls.getIntent())
                     .build();
+            controlElement.setActionHandler(controls.getActionHandler());
             listBuilder.addRow(controlElement);
         }
         return listBuilder.build();

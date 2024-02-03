@@ -30,12 +30,14 @@ import android.view.SurfaceView;
 
 import androidx.annotation.NonNull;
 
-import com.android.car.carlauncher.CarTaskView;
-
 import java.util.List;
 import java.util.concurrent.Executor;
 
-/** An abstract class for organizing the Taskviews used in {@link CarUiPortraitHomeScreen}. */
+/**
+ * An abstract class for organizing the Taskviews used in {@link CarUiPortraitHomeScreen}.
+ * TODO(b/321807191) Remove this abstract class as only
+ *  {@link RemoteCarTaskViewControllerWrapperImpl} implements it now.
+ */
 abstract class TaskViewControllerWrapper {
     protected static final boolean DBG = Build.IS_DEBUGGABLE;
     private static final String TAG = TaskViewControllerWrapper.class.getSimpleName();
@@ -142,16 +144,15 @@ abstract class TaskViewControllerWrapper {
     }
 
     /**
-     * A callback interface for the host activity that uses {@link CarTaskView} or
-     * {@link RemoteCarTaskView} and their derivatives.
+     * A callback interface for the host activity that uses {@link RemoteCarTaskView}
+     * and their derivatives.
      */
     interface TaskViewCallback {
 
         /**
-         * Called when the underlying {@link CarTaskView} or {@link RemoteCarTaskView} instance is
-         * created.
+         * Called when the underlying {@link RemoteCarTaskView} instance is created.
          *
-         * @param surfaceView the new newly created {@link CarTaskView} or {@link RemoteCarTaskView}
+         * @param surfaceView the new newly created {@link RemoteCarTaskView}
          *                    instance.
          */
         void onTaskViewCreated(@NonNull SurfaceView surfaceView);
@@ -172,14 +173,13 @@ abstract class TaskViewControllerWrapper {
 
         }
         /**
-         * Called when the underlying {@link CarTaskView} or {@link RemoteCarTaskView} is
-         * initialized.
+         * Called when the underlying {@link RemoteCarTaskView} is initialized.
          */
         void onTaskViewInitialized();
 
         /**
-         * Called when the underlying {@link CarTaskView} or {@link RemoteCarTaskView} is
-         * released.
-         */default void onTaskViewReleased() {};
+         * Called when the underlying {@link RemoteCarTaskView} is released.
+         */
+        default void onTaskViewReleased() {};
     }
 }
