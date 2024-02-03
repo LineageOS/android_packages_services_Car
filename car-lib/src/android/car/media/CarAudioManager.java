@@ -65,19 +65,24 @@ import java.util.concurrent.Executor;
 /**
  * APIs for handling audio in a car.
  *
- * In a car environment, we introduced the support to turn audio dynamic routing on /off by
- * setting the "audioUseDynamicRouting" attribute in config.xml
+ * <p>In a car environment, we introduced the support to turn audio dynamic routing on/off by
+ * setting the "audioUseDynamicRouting" attribute in config.xml</p>
  *
- * When audio dynamic routing is enabled:
- * - Audio devices are grouped into zones
- * - There is at least one primary zone, and extra secondary zones such as RSE
- *   (Rear Seat Entertainment)
- * - Within each zone, audio devices are grouped into volume groups for volume control
- * - Audio is assigned to an audio device based on its AudioAttributes usage
+ * <p>When audio dynamic routing is enabled:</p>
+ * <ui>
+ *     <li>Audio devices are grouped into zones</li>
+ *     <li>There is at least one primary zone, and extra secondary zones such as RSE
+ *     (Rear Seat Entertainment)</li>
+ *     <li> Within each zone, audio devices are grouped into volume groups for volume control</li>
+ *     <li> Audio is assigned to an audio device based on its AudioAttributes usage</li>
+ * </ui>
  *
- * When audio dynamic routing is disabled:
- * - There is exactly one audio zone, which is the primary zone
- * - Each volume group represents a controllable STREAM_TYPE, same as AudioManager
+ *
+ * <p>When audio dynamic routing is disabled:</p>
+ * <ui>
+ *     <li>There is exactly one audio zone, which is the primary zone</li>
+ *     <li>Each volume group represents a controllable STREAM_TYPE, same as AudioManager</li>
+ * </ui>
  */
 public final class CarAudioManager extends CarManagerBase {
 
@@ -189,7 +194,7 @@ public final class CarAudioManager extends CarManagerBase {
      * Extra for {@link android.media.AudioAttributes.Builder#addBundle(Bundle)}: when used in an
      * {@link android.media.AudioFocusRequest}, the requester should receive all audio focus for the
      * the zone. If the zone id is not defined: the audio focus request will default to the
-     * currently mapped zone for the requesting uid or {@link CarAudioManager.PRIMARY_AUDIO_ZONE}
+     * currently mapped zone for the requesting uid or {@link CarAudioManager#PRIMARY_AUDIO_ZONE}
      * if no uid mapping currently exist.
      *
      * @hide
@@ -445,7 +450,7 @@ public final class CarAudioManager extends CarManagerBase {
     /**
      * Sets the volume index for a volume group in primary zone.
      *
-     * @see {@link #setGroupVolume(int, int, int, int)}
+     * @see #setGroupVolume(int, int, int, int)
      * @hide
      */
     @SystemApi
@@ -478,7 +483,7 @@ public final class CarAudioManager extends CarManagerBase {
     /**
      * Returns the maximum volume index for a volume group in primary zone.
      *
-     * @see {@link #getGroupMaxVolume(int, int)}
+     * @see #getGroupMaxVolume(int, int)
      * @hide
      */
     @SystemApi
@@ -508,7 +513,7 @@ public final class CarAudioManager extends CarManagerBase {
     /**
      * Returns the minimum volume index for a volume group in primary zone.
      *
-     * @see {@link #getGroupMinVolume(int, int)}
+     * @see #getGroupMinVolume(int, int)
      * @hide
      */
     @SystemApi
@@ -538,7 +543,7 @@ public final class CarAudioManager extends CarManagerBase {
     /**
      * Returns the current volume index for a volume group in primary zone.
      *
-     * @see {@link #getGroupVolume(int, int)}
+     * @see #getGroupVolume(int, int)
      * @hide
      */
     @SystemApi
@@ -699,7 +704,7 @@ public final class CarAudioManager extends CarManagerBase {
     /**
      * Gets the count of available volume groups in primary zone.
      *
-     * @see {@link #getVolumeGroupCount(int)}
+     * @see #getVolumeGroupCount(int)
      * @hide
      */
     @SystemApi
@@ -728,7 +733,7 @@ public final class CarAudioManager extends CarManagerBase {
     /**
      * Gets the volume group id for a given {@link AudioAttributes} usage in primary zone.
      *
-     * @see {@link #getVolumeGroupIdForUsage(int, int)}
+     * @see #getVolumeGroupIdForUsage(int, int)
      * @hide
      */
     @SystemApi
@@ -758,7 +763,7 @@ public final class CarAudioManager extends CarManagerBase {
     /**
      * Gets array of {@link AudioAttributes} usages for a volume group in primary zone.
      *
-     * @see {@link #getUsagesForVolumeGroupId(int, int)}
+     * @see #getUsagesForVolumeGroupId(int, int)
      * @hide
      */
     @SystemApi

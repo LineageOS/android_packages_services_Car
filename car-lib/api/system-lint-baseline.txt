@@ -1671,6 +1671,8 @@ UnflaggedApi: android.car.app.ControlledRemoteCarTaskView#getTaskInfo():
     New API must be flagged with @FlaggedApi: method android.car.app.ControlledRemoteCarTaskView.getTaskInfo()
 UnflaggedApi: android.car.app.ControlledRemoteCarTaskView#isInitialized():
     New API must be flagged with @FlaggedApi: method android.car.app.ControlledRemoteCarTaskView.isInitialized()
+UnflaggedApi: android.car.app.ControlledRemoteCarTaskView#isReleased():
+    New API must be flagged with @FlaggedApi: method android.car.app.ControlledRemoteCarTaskView.isReleased()
 UnflaggedApi: android.car.app.ControlledRemoteCarTaskView#onAttachedToWindow():
     New API must be flagged with @FlaggedApi: method android.car.app.ControlledRemoteCarTaskView.onAttachedToWindow()
 UnflaggedApi: android.car.app.ControlledRemoteCarTaskView#onDetachedFromWindow():

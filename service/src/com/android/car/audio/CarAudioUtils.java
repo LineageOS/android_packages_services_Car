@@ -32,13 +32,18 @@ import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADPHONES;
 import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET;
 import static android.media.AudioManager.GET_DEVICES_OUTPUTS;
 
+import static java.util.Collections.EMPTY_LIST;
+
 import android.annotation.Nullable;
+import android.car.feature.Flags;
+import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupEvent;
 import android.car.media.CarVolumeGroupInfo;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 final class CarAudioUtils {
@@ -93,5 +98,61 @@ final class CarAudioUtils {
             default:
                 return false;
         }
+    }
+
+    static List<AudioDeviceInfo> getDynamicDevicesInConfig(CarAudioZoneConfigInfo zoneConfig,
+            AudioManager manager) {
+        return Flags.carAudioDynamicDevices()
+                ? getDynamicAudioDevices(zoneConfig.getConfigVolumeGroups(), manager) : EMPTY_LIST;
+    }
+
+    static boolean excludesDynamicDevices(CarAudioZoneConfigInfo zoneConfig) {
+        if (!Flags.carAudioDynamicDevices()) {
+            return true;
+        }
+        List<CarVolumeGroupInfo> carVolumeInfos = zoneConfig.getConfigVolumeGroups();
+        for (int c = 0; c < carVolumeInfos.size(); c++) {
+            if (excludesDynamicDevices(carVolumeInfos.get(c).getAudioDeviceAttributes())) {
+                continue;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean excludesDynamicDevices(List<AudioDeviceAttributes> devices) {
+        for (int c = 0; c < devices.size(); c++) {
+            if (!isDynamicDeviceType(devices.get(c).getType())) {
+                continue;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private static List<AudioDeviceInfo> getDynamicAudioDevices(
+            List<CarVolumeGroupInfo> volumeGroups, AudioManager manager) {
+        List<AudioDeviceInfo> dynamicDevices = new ArrayList<>();
+        for (int c = 0; c < volumeGroups.size(); c++) {
+            dynamicDevices.addAll(getDynamicDevices(volumeGroups.get(c), manager));
+        }
+        return dynamicDevices;
+    }
+
+    private static List<AudioDeviceInfo> getDynamicDevices(CarVolumeGroupInfo carVolumeGroupInfo,
+            AudioManager manager) {
+        List<AudioDeviceInfo> dynamicDevices = new ArrayList<>();
+        List<AudioDeviceAttributes> devices = carVolumeGroupInfo.getAudioDeviceAttributes();
+        for (int c = 0; c < devices.size(); c++) {
+            if (!isDynamicDeviceType(devices.get(c).getType())) {
+                continue;
+            }
+            AudioDeviceInfo info = getAudioDeviceInfo(devices.get(c), manager);
+            if (info == null) {
+                continue;
+            }
+            dynamicDevices.add(info);
+        }
+        return dynamicDevices;
     }
 }

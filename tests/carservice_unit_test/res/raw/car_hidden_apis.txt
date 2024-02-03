@@ -208,6 +208,7 @@ android.car.app RemoteCarRootTaskViewConfig.Builder Builder setDisplayId(int dis
 android.car.app RemoteCarRootTaskViewConfig.Builder RemoteCarRootTaskViewConfig build()
 android.car.app RemoteCarTaskView ActivityManager.RunningTaskInfo getTaskInfo()
 android.car.app RemoteCarTaskView boolean isInitialized()
+android.car.app RemoteCarTaskView boolean isReleased()
 android.car.app RemoteCarTaskView void addInsets(int index, int type, Rect frame)
 android.car.app RemoteCarTaskView void onAttachedToWindow()
 android.car.app RemoteCarTaskView void onDetachedFromWindow()
