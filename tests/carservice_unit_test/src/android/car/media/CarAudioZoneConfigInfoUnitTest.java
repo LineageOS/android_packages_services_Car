@@ -45,6 +45,8 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
     private static final String TEST_GROUP_NAME = "3";
     private static final int TEST_MAX_GAIN_INDEX = 9_005;
     private static final int TEST_MIN_GAIN_INDEX = 0;
+    private static final int TEST_MAX_ACTIVATION_GAIN_INDEX = 8_005;
+    private static final int TEST_MIN_ACTIVATION_GAIN_INDEX = 1_000;
 
     private static final AudioAttributes TEST_MEDIA_AUDIO_ATTRIBUTE =
             new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
@@ -59,6 +61,8 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
             new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID)
                     .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                     .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                    .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX)
+                    .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX)
                     .setAudioAttributes(TEST_AUDIO_ATTRIBUTES).build();
     private static final boolean TEST_ACTIVE_STATUS = true;
     private static final boolean TEST_SELECTED_STATUS = false;
