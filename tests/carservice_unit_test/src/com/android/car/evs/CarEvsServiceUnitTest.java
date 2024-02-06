@@ -1401,6 +1401,36 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
                                         SERVICE_TYPE_LEFTVIEW)));
     }
 
+    @Test
+    public void testStartAndStopVideoStreamFromManuallyEnabledServiceType() throws Exception {
+        // Create a buffer to circulate
+        HardwareBuffer buffer =
+                HardwareBuffer.create(/* width= */ 64, /* height= */ 32,
+                                      /* format= */ HardwareBuffer.RGBA_8888,
+                                      /* layers= */ 1,
+                                      /* usage= */ HardwareBuffer.USAGE_CPU_READ_OFTEN);
+        int bufferId = mRandom.nextInt() & DATA_MASK;
+        EvsStreamCallbackImpl spiedCallback = spy(new EvsStreamCallbackImpl());
+
+        int[] types = {SERVICE_TYPE_REARVIEW, SERVICE_TYPE_FRONTVIEW, SERVICE_TYPE_LEFTVIEW,
+                SERVICE_TYPE_RIGHTVIEW};
+        String[] typeStrings = {"REARVIEW", "FRONTVIEW", "LEFTVIEW", "RIGHTVIEW"};
+        String[] cameraIds = {DEFAULT_REARVIEW_CAMERA_ID, DEFAULT_FRONTVIEW_CAMERA_ID,
+                DEFAULT_LEFTVIEW_CAMERA_ID, DEFAULT_RIGHTVIEW_CAMERA_ID};
+
+        for (int i = 0; i < types.length; i++) {
+            mCarEvsService.enableServiceTypeFromCommand(typeStrings[i], cameraIds[i]);
+            assertThat(mCarEvsService.startVideoStream(types[i], /* token= */ null, spiedCallback))
+                    .isEqualTo(ERROR_NONE);
+
+            mHalCallbackCaptor.getValue().onFrameEvent(bufferId, buffer);
+            assertThat(spiedCallback.waitForFrames(/* expected= */ 1)).isTrue();
+            verify(spiedCallback)
+                    .onNewFrame(argThat(received -> received.getId() == bufferId));
+            mCarEvsService.stopVideoStream(spiedCallback);
+        }
+    }
+
     private void mockEvsHalService() throws Exception {
         when(mMockEvsHalService.isEvsServiceRequestSupported())
                 .thenReturn(true);

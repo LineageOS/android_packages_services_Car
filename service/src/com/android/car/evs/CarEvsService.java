@@ -854,6 +854,11 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
         StateMachine s = new StateMachine(mContext, mBuiltinContext, this, null,
                 serviceType, cameraId);
+        if (!s.init()) {
+            Slogf.e(TAG_EVS, "Failed to initialize a requested service type.");
+            return false;
+        }
+        s.connectToHalServiceIfNecessary();
         mServiceInstances.put(serviceType, s);
         return true;
     }
