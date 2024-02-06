@@ -861,10 +861,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         } else {
             applyDefaultPowerPolicyForState(CarPowerManager.STATE_WAIT_FOR_VHAL,
                     PolicyReader.POWER_POLICY_ID_INITIAL_ON);
-        }
-
-        if (!mSilentModeHandler.isSilentMode()) {
-            cancelPreemptivePowerPolicy();
+            if (!mSilentModeHandler.isSilentMode()) {
+                cancelPreemptivePowerPolicy();
+            }
         }
 
         sendPowerManagerEvent(carPowerStateListenerState, INVALID_TIMEOUT);
@@ -935,12 +934,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             updateCarUserNoticeServiceIfNecessary();
         }
 
-        if (!mSilentModeHandler.isSilentMode()) {
-            cancelPreemptivePowerPolicy();
-        }
         if (mFeatureFlags.carPowerPolicyRefactoring()) {
             notifyPowerStateChangeToDaemon(CarPowerManager.STATE_ON);
         } else {
+            if (!mSilentModeHandler.isSilentMode()) {
+                cancelPreemptivePowerPolicy();
+            }
             applyDefaultPowerPolicyForState(VehicleApPowerStateReport.ON,
                     PolicyReader.POWER_POLICY_ID_ALL_ON);
         }

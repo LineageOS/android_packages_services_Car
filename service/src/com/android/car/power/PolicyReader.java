@@ -82,6 +82,7 @@ public final class PolicyReader {
     public static final String POWER_STATE_WAIT_FOR_VHAL = "WaitForVHAL";
     public static final String POWER_STATE_ON = "On";
 
+    // TODO(b/286303350): Remove all system power policy definitions after refactor is complete
     static final String SYSTEM_POWER_POLICY_PREFIX = "system_power_policy_";
     // Preemptive system power policy used for disabling user interaction in Silent Mode or Garage
     // Mode.
