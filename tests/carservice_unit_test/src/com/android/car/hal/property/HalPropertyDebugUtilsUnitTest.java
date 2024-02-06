@@ -186,6 +186,22 @@ public class HalPropertyDebugUtilsUnitTest {
     }
 
     @Test
+    public void testToValueString_handlesNoValuesSet() {
+        assertThat(HalPropertyDebugUtils.toValueString(
+                new HalPropValueBuilder(true).build(VehicleProperty.PARKING_BRAKE_ON,
+                        0))).isEqualTo("NO_VALUE");
+        assertThat(HalPropertyDebugUtils.toValueString(
+                new HalPropValueBuilder(true).build(VehicleProperty.STEERING_WHEEL_DEPTH_POS,
+                        0))).isEqualTo("NO_VALUE");
+        assertThat(HalPropertyDebugUtils.toValueString(
+                new HalPropValueBuilder(true).build(VehicleProperty.PERF_VEHICLE_SPEED,
+                        0))).isEqualTo("NO_VALUE");
+        assertThat(HalPropertyDebugUtils.toValueString(
+                new HalPropValueBuilder(true).build(VehicleProperty.VHAL_HEARTBEAT, 0))).isEqualTo(
+                "NO_VALUE");
+    }
+
+    @Test
     public void testToAreaTypeString() {
         assertThat(toAreaTypeString(VehicleProperty.HVAC_AC_ON)).isEqualTo("SEAT(0x5000000)");
         assertThat(toAreaTypeString(VehicleProperty.TIRE_PRESSURE)).isEqualTo("WHEEL(0x7000000)");

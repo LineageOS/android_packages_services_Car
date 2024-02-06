@@ -56,6 +56,7 @@ public final class HalPropertyDebugUtils {
     private static final int MAX_BYTE_SIZE = 20;
     private static final AtomicReference<Map<Class<?>, List<Integer>>> sClazzToAreaBitsHolder =
             new AtomicReference<>();
+    private static final String NO_VALUE = "NO_VALUE";
 
 
     /**
@@ -186,9 +187,15 @@ public final class HalPropertyDebugUtils {
         int valueType = propertyId & VehiclePropertyType.MASK;
         switch (valueType) {
             case VehiclePropertyType.BOOLEAN -> {
+                if (halPropValue.getInt32ValuesSize() != 1) {
+                    return NO_VALUE;
+                }
                 return halPropValue.getInt32Value(0) == 0 ? "FALSE" : "TRUE";
             }
             case VehiclePropertyType.INT32 -> {
+                if (halPropValue.getInt32ValuesSize() != 1) {
+                    return NO_VALUE;
+                }
                 return getIntValueName(propertyId, halPropValue.getInt32Value(0));
             }
             case VehiclePropertyType.INT32_VEC -> {
@@ -208,12 +215,18 @@ public final class HalPropertyDebugUtils {
                 }
             }
             case VehiclePropertyType.FLOAT -> {
+                if (halPropValue.getFloatValuesSize() != 1) {
+                    return NO_VALUE;
+                }
                 return Float.toString(halPropValue.getFloatValue(0));
             }
             case VehiclePropertyType.FLOAT_VEC -> {
                 return halPropValue.dumpFloatValues();
             }
             case VehiclePropertyType.INT64 -> {
+                if (halPropValue.getInt64ValuesSize() != 1) {
+                    return NO_VALUE;
+                }
                 return Long.toString(halPropValue.getInt64Value(0));
             }
             case VehiclePropertyType.INT64_VEC -> {
