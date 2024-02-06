@@ -848,11 +848,13 @@ import java.util.Set;
     CarVolumeGroupInfo getCarVolumeGroupInfo() {
         int gainIndex;
         boolean isMuted;
+        boolean isHalMuted;
         boolean isBlocked;
         boolean isAttenuated;
         synchronized (mLock) {
             gainIndex = getRestrictedGainForIndexLocked(mCurrentGainIndex);
             isMuted = isMutedLocked();
+            isHalMuted = isHalMutedLocked();
             isBlocked = isBlockedLocked();
             isAttenuated = isAttenuatedLocked() || isLimitedLocked();
         }
@@ -866,6 +868,15 @@ import java.util.Set;
 
         if (Flags.carAudioDynamicDevices()) {
             builder.setAudioDeviceAttributes(getAudioDeviceAttributes());
+        }
+
+        if (Flags.carAudioMinMaxActivationVolume()) {
+            builder.setMaxActivationVolumeGainIndex(getMaxGainIndex())
+                    .setMinActivationVolumeGainIndex(getMinGainIndex());
+        }
+
+        if (Flags.carAudioMuteAmbiguity()) {
+            builder.setMutedBySystem(isHalMuted);
         }
 
         return builder.build();

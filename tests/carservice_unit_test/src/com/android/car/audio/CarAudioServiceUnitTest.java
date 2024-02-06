@@ -649,7 +649,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                         .setAudioAttributes(TEST_PRIMARY_ZONE_AUDIO_ATTRIBUTES_0)
                         .setAudioDeviceAttributes(List.of(
                                 new AudioDeviceAttributes(mNotificationOutpuBus),
-                                new AudioDeviceAttributes(mMediaOutputDevice))).build();
+                                new AudioDeviceAttributes(mMediaOutputDevice)))
+                        .setMinActivationVolumeGainIndex(0)
+                        .setMaxActivationVolumeGainIndex(MAX_GAIN / STEP_SIZE).build();
         mTestPrimaryZoneUmMutedVolueInfo0 =
                 new CarVolumeGroupInfo.Builder("config 0 group " + TEST_PRIMARY_ZONE_GROUP_0,
                         PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0).setMuted(false)
@@ -658,7 +660,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                         .setAudioAttributes(TEST_PRIMARY_ZONE_AUDIO_ATTRIBUTES_0)
                         .setAudioDeviceAttributes(List.of(
                                 new AudioDeviceAttributes(mNotificationOutpuBus),
-                                new AudioDeviceAttributes(mMediaOutputDevice))).build();
+                                new AudioDeviceAttributes(mMediaOutputDevice)))
+                        .setMinActivationVolumeGainIndex(0)
+                        .setMaxActivationVolumeGainIndex(MAX_GAIN / STEP_SIZE).build();
         mTestPrimaryZoneVolumeInfo1 =
                 new CarVolumeGroupInfo.Builder("config 0 group " + TEST_PRIMARY_ZONE_GROUP_1,
                         PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_1).setMuted(true)
@@ -667,7 +671,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                         .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE)
                         .setAudioDeviceAttributes(List.of(
                                 new AudioDeviceAttributes(mVoiceOutpuBus),
-                                new AudioDeviceAttributes(mNavOutputDevice))).build();
+                                new AudioDeviceAttributes(mNavOutputDevice)))
+                        .setMinActivationVolumeGainIndex(0)
+                        .setMaxActivationVolumeGainIndex(MAX_GAIN / STEP_SIZE).build();
         mTestSecondaryConfig0VolumeGroup0Info =
                 new CarVolumeGroupInfo.Builder("config 0 group " + TEST_SECONDARY_ZONE_GROUP_0,
                         TEST_REAR_LEFT_ZONE_ID, TEST_SECONDARY_ZONE_GROUP_0)
@@ -676,7 +682,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                         .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE)
                         .setAudioDeviceAttributes(List.of(
                                 new AudioDeviceAttributes(mSecondaryConfig0Group0Device)))
-                        .build();
+                        .setMinActivationVolumeGainIndex(0)
+                        .setMaxActivationVolumeGainIndex(MAX_GAIN / STEP_SIZE).build();
         mTestSecondaryZoneConfig1VolumeInfo0 =
                 new CarVolumeGroupInfo.Builder("config 1 group " + TEST_SECONDARY_ZONE_GROUP_0,
                         TEST_REAR_LEFT_ZONE_ID, TEST_SECONDARY_ZONE_GROUP_0)
@@ -684,7 +691,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                         .setAudioAttributes(TEST_SECONDARY_ZONE_AUDIO_ATTRIBUTES_0)
                         .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE)
                         .setAudioDeviceAttributes(List.of(new AudioDeviceAttributes(
-                                mSecondaryConfig1Group0Device))).build();
+                                mSecondaryConfig1Group0Device)))
+                        .setMinActivationVolumeGainIndex(0)
+                        .setMaxActivationVolumeGainIndex(MAX_GAIN / STEP_SIZE).build();
         mTestSecondaryZoneConfig1VolumeInfo1 =
                 new CarVolumeGroupInfo.Builder("config 1 group " + TEST_SECONDARY_ZONE_GROUP_1,
                         TEST_REAR_LEFT_ZONE_ID, TEST_SECONDARY_ZONE_GROUP_1)
@@ -692,7 +701,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                         .setAudioAttributes(TEST_SECONDARY_ZONE_AUDIO_ATTRIBUTES_1)
                         .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE)
                         .setAudioDeviceAttributes(List.of(new AudioDeviceAttributes(
-                                mSecondaryConfig1Group1Device))).build();
+                                mSecondaryConfig1Group1Device)))
+                        .setMinActivationVolumeGainIndex(0)
+                        .setMaxActivationVolumeGainIndex(MAX_GAIN / STEP_SIZE).build();
         mTestCarVolumeGroupEvent =
                 new CarVolumeGroupEvent.Builder(List.of(mTestPrimaryZoneUmMutedVolueInfo0),
                         CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED,

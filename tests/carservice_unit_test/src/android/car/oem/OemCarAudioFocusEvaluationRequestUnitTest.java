@@ -48,14 +48,22 @@ public final class OemCarAudioFocusEvaluationRequestUnitTest extends AbstractExp
     private static final int TEST_VOLUME_GROUP_ID = 2;
     private static final int TEST_ZONE_ID = CarAudioManager.PRIMARY_AUDIO_ZONE + 1;
     private static final String TEST_GROUP_NAME = "media";
+    private static final int TEST_MAX_GAIN_INDEX = 9_000;
+    private static final int TEST_MIN_GAIN_INDEX = 0;
+    private static final int TEST_MAX_ACTIVATION_GAIN_INDEX = 8_000;
+    private static final int TEST_MIN_ACTIVATION_GAIN_INDEX = 1_000;
     private static final CarVolumeGroupInfo TEST_MUTED_VOLUME_GROUP =
             new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, CarAudioManager.PRIMARY_AUDIO_ZONE,
-                    TEST_VOLUME_GROUP_ID).setMaxVolumeGainIndex(9_000).setMinVolumeGainIndex(0)
-                    .build();
+                    TEST_VOLUME_GROUP_ID).setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                    .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                    .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX)
+                    .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX).build();
     private static final CarVolumeGroupInfo TEST_MUTED_VOLUME_GROUP_2 =
             new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID,
-                    TEST_VOLUME_GROUP_ID).setMaxVolumeGainIndex(9_000).setMinVolumeGainIndex(0)
-                    .build();
+                    TEST_VOLUME_GROUP_ID).setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                    .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                    .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX)
+                    .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX).build();
 
     @Test
     public void build() {

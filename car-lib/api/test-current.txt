@@ -1872,7 +1872,9 @@ package android.car.media {
     method @NonNull public java.util.List<android.media.AudioAttributes> getAudioAttributes();
     method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") @NonNull public java.util.List<android.media.AudioDeviceAttributes> getAudioDeviceAttributes();
     method public int getId();
+    method @FlaggedApi("android.car.feature.car_audio_min_max_activation_volume") public int getMaxActivationVolumeGainIndex();
     method public int getMaxVolumeGainIndex();
+    method @FlaggedApi("android.car.feature.car_audio_min_max_activation_volume") public int getMinActivationVolumeGainIndex();
     method public int getMinVolumeGainIndex();
     method @NonNull public String getName();
     method public int getVolumeGainIndex();
@@ -1880,6 +1882,7 @@ package android.car.media {
     method public boolean isAttenuated();
     method public boolean isBlocked();
     method public boolean isMuted();
+    method @FlaggedApi("android.car.feature.car_audio_mute_ambiguity") public boolean isMutedBySystem();
     method public boolean isSameVolumeGroup(@Nullable android.car.media.CarVolumeGroupInfo);
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.media.CarVolumeGroupInfo> CREATOR;
@@ -1893,7 +1896,9 @@ package android.car.media {
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAudioAttributes(@NonNull java.util.List<android.media.AudioAttributes>);
     method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAudioDeviceAttributes(@NonNull java.util.List<android.media.AudioDeviceAttributes>);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setBlocked(boolean);
+    method @FlaggedApi("android.car.feature.car_audio_min_max_activation_volume") @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMaxActivationVolumeGainIndex(int);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMaxVolumeGainIndex(int);
+    method @FlaggedApi("android.car.feature.car_audio_min_max_activation_volume") @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMinActivationVolumeGainIndex(int);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMinVolumeGainIndex(int);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMuted(boolean);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setVolumeGainIndex(int);

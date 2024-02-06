@@ -56,6 +56,9 @@ public final class CarVolumeGroupInfo implements Parcelable {
     private final boolean mIsBlocked;
     private final boolean mIsAttenuated;
     private final List<AudioAttributes> mAudioAttributes;
+    private final int mMaxActivationVolumeGainIndex;
+    private final int mMinActivationVolumeGainIndex;
+    private final boolean mIsMutedBySystem;
 
     @NonNull
     private final List<AudioDeviceAttributes> mAudioDeviceAttributes;
@@ -71,7 +74,10 @@ public final class CarVolumeGroupInfo implements Parcelable {
             boolean isBlocked,
             boolean isAttenuated,
             List<AudioAttributes> audioAttributes,
-            List<AudioDeviceAttributes> audioDeviceAttributes) {
+            List<AudioDeviceAttributes> audioDeviceAttributes,
+            int maxActivationVolumeGainIndex,
+            int minActivationVolumeGainIndex,
+            boolean isMutedBySystem) {
         mName = Objects.requireNonNull(name, "Volume info name can not be null");
         mZoneId = zoneId;
         mId = id;
@@ -85,7 +91,9 @@ public final class CarVolumeGroupInfo implements Parcelable {
                 "Audio attributes can not be null");
         mAudioDeviceAttributes = Objects.requireNonNull(audioDeviceAttributes,
                 "Audio device attributes can not be null");
-
+        mMaxActivationVolumeGainIndex = maxActivationVolumeGainIndex;
+        mMinActivationVolumeGainIndex = minActivationVolumeGainIndex;
+        mIsMutedBySystem = isMutedBySystem;
     }
 
     /**
@@ -110,6 +118,9 @@ public final class CarVolumeGroupInfo implements Parcelable {
         List<AudioDeviceAttributes> audioDeviceAttributes = new ArrayList<>();
         in.readParcelableList(audioDeviceAttributes, AudioDeviceAttributes.class.getClassLoader(),
                 AudioDeviceAttributes.class);
+        int maxActivationVolumeGainIndex = in.readInt();
+        int minActivationVolumeGainIndex = in.readInt();
+        boolean isMutedBySystem = in.readBoolean();
         this.mZoneId = zoneId;
         this.mId = id;
         this.mName = name;
@@ -121,6 +132,9 @@ public final class CarVolumeGroupInfo implements Parcelable {
         this.mIsAttenuated = isAttenuated;
         this.mAudioAttributes = audioAttributes;
         this.mAudioDeviceAttributes = audioDeviceAttributes;
+        this.mMaxActivationVolumeGainIndex = maxActivationVolumeGainIndex;
+        this.mMinActivationVolumeGainIndex = minActivationVolumeGainIndex;
+        this.mIsMutedBySystem = isMutedBySystem;
     }
 
     @NonNull
@@ -194,6 +208,16 @@ public final class CarVolumeGroupInfo implements Parcelable {
     }
 
     /**
+     * Determines if the volume is muted by the system.
+     *
+     * @return {@code true} if the volume is muted by the system
+     */
+    @FlaggedApi(Flags.FLAG_CAR_AUDIO_MUTE_AMBIGUITY)
+    public boolean isMutedBySystem() {
+        return mIsMutedBySystem;
+    }
+
+    /**
      * Returns the volume blocked state, {@code true} for blocked
      */
     public boolean isBlocked() {
@@ -224,17 +248,44 @@ public final class CarVolumeGroupInfo implements Parcelable {
         return mAudioDeviceAttributes;
     }
 
+    /**
+     * Gets the volume group min activation volume gain index
+     *
+     * @return the volume group min activation volume gain index
+     */
+    @FlaggedApi(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME)
+    public int getMinActivationVolumeGainIndex() {
+        return mMinActivationVolumeGainIndex;
+    }
+
+    /**
+     * Gets the volume group max activation volume gain index
+     *
+     * @return the volume group max activation volume gain index
+     */
+    @FlaggedApi(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME)
+    public int getMaxActivationVolumeGainIndex() {
+        return mMaxActivationVolumeGainIndex;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder().append("CarVolumeGroupId { name = ")
                 .append(mName).append(", zone id = ").append(mZoneId).append(" id = ").append(mId)
                 .append(", gain = ").append(mVolumeGainIndex)
                 .append(", max gain = ").append(mMaxVolumeGainIndex)
-                .append(", min gain = ").append(mMinVolumeGainIndex)
-                .append(", muted = ").append(mIsMuted)
-                .append(", blocked = ").append(mIsBlocked)
-                .append(", attenuated = ").append(mIsAttenuated)
-                .append(", audio attributes = ").append(mAudioAttributes);
+                .append(", min gain = ").append(mMinVolumeGainIndex);
+        if (Flags.carAudioMinMaxActivationVolume()) {
+            builder.append(", max activation gain = ").append(mMaxActivationVolumeGainIndex)
+                    .append(", min activation gain = ").append(mMinActivationVolumeGainIndex);
+        }
+        builder.append(", muted = ").append(mIsMuted);
+        if (Flags.carAudioMuteAmbiguity()) {
+            builder.append(", muted by system = ").append(mIsMutedBySystem);
+        }
+        builder.append(", blocked = ").append(mIsBlocked)
+                .append(", attenuated = ").append(mIsAttenuated).append(", audio attributes = ")
+                .append(mAudioAttributes);
         if (Flags.carAudioDynamicDevices()) {
             builder.append(", audio device attributes = ").append(mAudioDeviceAttributes);
         }
@@ -254,6 +305,9 @@ public final class CarVolumeGroupInfo implements Parcelable {
         dest.writeBoolean(mIsAttenuated);
         dest.writeParcelableList(mAudioAttributes, flags);
         dest.writeParcelableList(mAudioDeviceAttributes, flags);
+        dest.writeInt(mMaxActivationVolumeGainIndex);
+        dest.writeInt(mMinActivationVolumeGainIndex);
+        dest.writeBoolean(mIsMutedBySystem);
     }
 
     /**
@@ -285,18 +339,26 @@ public final class CarVolumeGroupInfo implements Parcelable {
                 && mIsMuted == that.mIsMuted && mIsBlocked == that.mIsBlocked
                 && mIsAttenuated == that.mIsAttenuated
                 && Objects.equals(mAudioAttributes, that.mAudioAttributes)
-                && checkIsSameAudioAttributeDevices(that.mAudioDeviceAttributes);
+                && checkIsSameAudioAttributeDevices(that.mAudioDeviceAttributes)
+                && checkIsSameActivationVolume(that.mMaxActivationVolumeGainIndex,
+                that.mMinActivationVolumeGainIndex)
+                && checkIsSameMutedBySystem(that.mIsMutedBySystem);
     }
 
     @Override
     public int hashCode() {
-        if (Flags.carAudioDynamicDevices()) {
-            return Objects.hash(mName, mZoneId, mId, mVolumeGainIndex, mMaxVolumeGainIndex,
-                    mMinVolumeGainIndex, mIsMuted, mIsBlocked, mIsAttenuated, mAudioAttributes,
-                    mAudioDeviceAttributes);
-        }
-        return Objects.hash(mName, mZoneId, mId, mVolumeGainIndex, mMaxVolumeGainIndex,
+        int hash = Objects.hash(mName, mZoneId, mId, mVolumeGainIndex, mMaxVolumeGainIndex,
                 mMinVolumeGainIndex, mIsMuted, mIsBlocked, mIsAttenuated, mAudioAttributes);
+        if (Flags.carAudioDynamicDevices()) {
+            hash = Objects.hash(hash, mAudioDeviceAttributes);
+        }
+        if (Flags.carAudioMinMaxActivationVolume()) {
+            hash = Objects.hash(hash, mMaxActivationVolumeGainIndex, mMinActivationVolumeGainIndex);
+        }
+        if (Flags.carAudioMuteAmbiguity()) {
+            hash = Objects.hash(hash, mIsMutedBySystem);
+        }
+        return hash;
     }
 
     private boolean checkIsSameAudioAttributeDevices(List<AudioDeviceAttributes> other) {
@@ -304,6 +366,22 @@ public final class CarVolumeGroupInfo implements Parcelable {
             return Objects.equals(mAudioDeviceAttributes, other);
         }
         return true;
+    }
+
+    private boolean checkIsSameActivationVolume(int maxActivationVolumeGainIndex,
+                                          int minActivationVolumeGainIndex) {
+        if (!Flags.carAudioMinMaxActivationVolume()) {
+            return true;
+        }
+        return mMaxActivationVolumeGainIndex == maxActivationVolumeGainIndex
+                && mMinActivationVolumeGainIndex == minActivationVolumeGainIndex;
+    }
+
+    private boolean checkIsSameMutedBySystem(boolean isMutedBySystem) {
+        if (!Flags.carAudioMuteAmbiguity()) {
+            return true;
+        }
+        return mIsMutedBySystem == isMutedBySystem;
     }
 
     /**
@@ -323,6 +401,9 @@ public final class CarVolumeGroupInfo implements Parcelable {
         private boolean mIsAttenuated;
         private List<AudioAttributes> mAudioAttributes = new ArrayList<>();
         private List<AudioDeviceAttributes> mAudioDeviceAttributes = new ArrayList<>();
+        private int mMinActivationVolumeGainIndex;
+        private int mMaxActivationVolumeGainIndex;
+        private boolean mIsMutedBySystem = false;
 
         private long mBuilderFieldsSet = 0L;
 
@@ -345,6 +426,9 @@ public final class CarVolumeGroupInfo implements Parcelable {
             mIsAttenuated = info.mIsAttenuated;
             mAudioAttributes = info.mAudioAttributes;
             mAudioDeviceAttributes = info.mAudioDeviceAttributes;
+            mMaxActivationVolumeGainIndex = info.mMaxActivationVolumeGainIndex;
+            mMinActivationVolumeGainIndex = info.mMinActivationVolumeGainIndex;
+            mIsMutedBySystem = info.mIsMutedBySystem;
         }
 
         /**
@@ -426,6 +510,37 @@ public final class CarVolumeGroupInfo implements Parcelable {
         }
 
         /**
+         * Sets the volume group min activation volume gain index
+         */
+        @FlaggedApi(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME)
+        public @NonNull Builder setMinActivationVolumeGainIndex(int gainIndex) {
+            checkNotUsed();
+            mMinActivationVolumeGainIndex = gainIndex;
+            return this;
+        }
+
+        /**
+         * Sets the volume group max activation volume gain index
+         */
+        @FlaggedApi(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME)
+        public @NonNull Builder setMaxActivationVolumeGainIndex(int gainIndex) {
+            checkNotUsed();
+            mMaxActivationVolumeGainIndex = gainIndex;
+            return this;
+        }
+
+        /**
+         * Sets the volume group muted by system state, {@code true} for system muted
+         *
+         * @hide
+         */
+        public @NonNull Builder setMutedBySystem(boolean isMutedBySystem) {
+            checkNotUsed();
+            mIsMutedBySystem = isMutedBySystem;
+            return this;
+        }
+
+        /**
          * Builds the instance.
          *
          * @throws IllegalArgumentException if min volume gain index is larger than max volume
@@ -443,7 +558,8 @@ public final class CarVolumeGroupInfo implements Parcelable {
 
             return new CarVolumeGroupInfo(mName, mZoneId, mId, mVolumeGainIndex,
                     mMaxVolumeGainIndex, mMinVolumeGainIndex, mIsMuted, mIsBlocked, mIsAttenuated,
-                    mAudioAttributes, mAudioDeviceAttributes);
+                    mAudioAttributes, mAudioDeviceAttributes, mMaxActivationVolumeGainIndex,
+                    mMinActivationVolumeGainIndex, mIsMutedBySystem);
         }
 
         private void validateGainIndexRange() {
@@ -453,6 +569,21 @@ public final class CarVolumeGroupInfo implements Parcelable {
 
             Preconditions.checkArgumentInRange(mVolumeGainIndex, mMinVolumeGainIndex,
                     mMaxVolumeGainIndex, "Volume gain index");
+
+            if (Flags.carAudioMinMaxActivationVolume()) {
+                Preconditions.checkArgumentInRange(mMinActivationVolumeGainIndex,
+                        mMinVolumeGainIndex, mMaxVolumeGainIndex,
+                        "Min activation volume gain index");
+
+                Preconditions.checkArgumentInRange(mMaxActivationVolumeGainIndex,
+                        mMinVolumeGainIndex, mMaxVolumeGainIndex,
+                        "Max activation volume gain index");
+
+                Preconditions.checkArgument(mMinActivationVolumeGainIndex
+                                < mMaxActivationVolumeGainIndex, "Min activation volume gain index"
+                                + " %d must be smaller than max activation volume gain index %d",
+                        mMinActivationVolumeGainIndex, mMaxActivationVolumeGainIndex);
+            }
         }
 
         private void checkNotUsed() throws IllegalStateException {

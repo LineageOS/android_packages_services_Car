@@ -502,6 +502,7 @@ android.car.media CarAudioZoneConfigInfo.Builder CarAudioZoneConfigInfo build()
 android.car.media CarMediaManager boolean isIndependentPlaybackConfig()
 android.car.media CarMediaManager void onCarDisconnected()
 android.car.media CarMediaManager void setIndependentPlaybackConfig(boolean independent)
+android.car.media CarVolumeGroupInfo.Builder Builder setMutedBySystem(boolean isMutedBySystem)
 android.car.navigation CarNavigationInstrumentCluster Bundle getExtra()
 android.car.navigation CarNavigationStatusManager void onCarDisconnected()
 android.car.occupantawareness DriverMonitoringDetection Parcelable.Creator<DriverMonitoringDetection> CREATOR
