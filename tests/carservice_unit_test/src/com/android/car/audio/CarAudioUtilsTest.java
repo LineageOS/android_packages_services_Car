@@ -106,22 +106,30 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
     private static final int TEST_NAV_GROUP_ID = 2;
     private static final int TEST_MAX_GAIN_INDEX = 100;
     private static final int TEST_MIN_GAIN_INDEX = 0;
+    private static final int TEST_MAX_ACTIVATION_GAIN_INDEX = 80;
+    private static final int TEST_MIN_ACTIVATION_GAIN_INDEX = 20;
     private static final CarVolumeGroupInfo TEST_MEDIA_VOLUME_INFO =
             new CarVolumeGroupInfo.Builder(TEST_MEDIA_GROUP_NAME, TEST_ZONE_ID, TEST_BT_GROUP_ID)
                     .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                     .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                    .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX)
+                    .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX)
                     .setAudioAttributes(List.of(TEST_MEDIA_AUDIO_ATTRIBUTE))
                     .setAudioDeviceAttributes(List.of(TEST_BUS_DEVICE_1)).build();
     private static final CarVolumeGroupInfo TEST_NAV_VOLUME_INFO =
             new CarVolumeGroupInfo.Builder(TEST_NAV_GROUP_NAME, TEST_ZONE_ID, TEST_NAV_GROUP_ID)
                     .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                     .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                    .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX)
+                    .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX)
                     .setAudioAttributes(List.of(TEST_NAV_AUDIO_ATTRIBUTE))
                     .setAudioDeviceAttributes(List.of(TEST_BUS_DEVICE_2)).build();
     private static final CarVolumeGroupInfo TEST_BT_VOLUME_INFO =
             new CarVolumeGroupInfo.Builder(TEST_BT_GROUP_NAME, TEST_ZONE_ID, TEST_MEDIA_GROUP_ID)
                     .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                     .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                    .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX)
+                    .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX)
                     .setAudioAttributes(List.of(TEST_ASSISTANT_AUDIO_ATTRIBUTE))
                     .setAudioDeviceAttributes(List.of(TEST_BT_DEVICE)).build();
     private static final int TEST_CONFIG_ID = 0;
