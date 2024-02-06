@@ -1390,7 +1390,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     private void updatePrimaryMediaSourceWithCurrentlyPlaying(
             List<MediaController> controllers, @UserIdInt int userId) {
         for (MediaController controller : controllers) {
-            if (controller.getPlaybackState() != null && controller.getPlaybackState().isActive()) {
+            PlaybackState state = controller.getPlaybackState();
+            if (state != null && state.isActive()) {
                 String newPackageName = controller.getPackageName();
                 String newClassName = getClassName(controller);
                 if (!matchPrimaryMediaSource(newPackageName, newClassName,
