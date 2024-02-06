@@ -56,7 +56,6 @@
     <dimen name="hvac_panel_button_internal_margin">32dp</dimen>
     <dimen name="hvac_temperature_text_size">56sp</dimen>
     <dimen name="hvac_temperature_text_padding">12dp</dimen>
-    <dimen name="hvac_temperature_text_width">108dp</dimen>
     <dimen name="hvac_temperature_button_size">64dp</dimen>
 
     <item name="hvac_heat_or_cool_off_alpha" format="float" type="dimen">0.3</item>
