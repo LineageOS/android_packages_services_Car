@@ -141,6 +141,7 @@ import android.car.media.ISwitchAudioZoneConfigCallback;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.MockSettings;
+import android.car.test.util.TemporaryFile;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -201,7 +202,6 @@ import com.android.car.oem.CarOemAudioDuckingProxyService;
 import com.android.car.oem.CarOemAudioFocusProxyService;
 import com.android.car.oem.CarOemAudioVolumeProxyService;
 import com.android.car.oem.CarOemProxyService;
-import com.android.car.test.utils.TemporaryFile;
 
 import org.junit.After;
 import org.junit.Before;
