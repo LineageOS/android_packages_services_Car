@@ -138,3 +138,18 @@ flag {
   description: "Controls the memory profiling feature in CarWatchdog daemon"
   bug: "289113707"
 }
+
+# CarEvsService
+flag {
+  name: "car_evs_stream_management"
+  namespace: "car_framework"
+  description: "Allows clients to stop stream individually and identify the origin of delivered framebuffers from CarEvsBufferDescriptor"
+  bug: "293810167"
+}
+
+flag {
+  name: "car_evs_query_service_status"
+  namespace: "car_framework"
+  description: "Retrieves current status of each CarEvsService type individually"
+  bug: "320766863"
+}
