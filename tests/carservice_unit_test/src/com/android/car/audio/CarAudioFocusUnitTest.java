@@ -15,8 +15,8 @@
  */
 package com.android.car.audio;
 
-import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.car.media.CarAudioManager.AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS;
+import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.media.AudioAttributes.USAGE_ANNOUNCEMENT;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_ASSISTANT;
@@ -60,7 +60,6 @@ import android.media.AudioAttributes.AttributeUsage;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -124,9 +123,7 @@ public class CarAudioFocusUnitTest {
 
     @Before
     public void setUp() {
-        mFocusInteraction =
-                new FocusInteraction(mCarAudioSettings, mMockContentObserverFactory,
-                        TEST_CAR_AUDIO_CONTEXT);
+        mFocusInteraction = new FocusInteraction(mCarAudioSettings, mMockContentObserverFactory);
         CarLocalServices.removeServiceForTest(CarOemProxyService.class);
         CarLocalServices.addService(CarOemProxyService.class, mMockCarOemProxyService);
     }
@@ -1690,9 +1687,8 @@ public class CarAudioFocusUnitTest {
     private AudioFocusInfo getInfo(AudioAttributes audioAttributes, String clientId, int gainType,
             boolean acceptsDelayedFocus, int uid) {
         int flags = acceptsDelayedFocus ? AudioManager.AUDIOFOCUS_FLAG_DELAY_OK : AUDIOFOCUS_FLAG;
-        return new AudioFocusInfo(audioAttributes, uid, clientId, PACKAGE_NAME,
-                gainType, AudioManager.AUDIOFOCUS_NONE,
-                flags, Build.VERSION.SDK_INT);
+        return CarAudioTestUtils.getInfo(audioAttributes, clientId, gainType, acceptsDelayedFocus,
+                /* pauseInsteadOfDucking= */ false, uid);
     }
 
     private AudioFocusInfo getInfoThatReceivesDuckingEvents(@AttributeUsage int usage,

@@ -439,18 +439,9 @@ public final class CarAudioContext {
         }
     }
 
-    static @AudioContext int getLegacyContextFromInfo(CarAudioContextInfo carAudioContextInfo) {
-        AudioAttributes[] attributes = carAudioContextInfo.getAudioAttributes();
-        for (int index = 0; index < attributes.length; index++) {
-            AudioAttributesWrapper wrapper =
-                    new AudioAttributesWrapper(attributes[index]);
-            int context = AUDIO_ATTRIBUTE_TO_CONTEXT.getOrDefault(wrapper, INVALID);
-            if (isInvalidContextId(context)) {
-                continue;
-            }
-            return context;
-        }
-        return INVALID;
+    static int getLegacyContextForUsage(int usage) {
+        AudioAttributesWrapper wrapper = getAudioAttributeWrapperFromUsage(usage);
+        return AUDIO_ATTRIBUTE_TO_CONTEXT.getOrDefault(wrapper, INVALID);
     }
 
     static List<AudioAttributes> evaluateAudioAttributesToDuck(
