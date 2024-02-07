@@ -803,6 +803,11 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         synchronized (mLock) {
             componentName = getPrimaryMediaComponentsForUserLocked(userId)[mode];
         }
+        if (componentName == null) {
+            componentName = getDefaultMediaSource(userId);
+            Slogf.e(TAG, "User %d has not been initialized. Returning the default media "
+                            + "source %s.", userId, componentName);
+        }
         if (DEBUG) {
             Slogf.d(TAG, "Getting media source mode %d for user %d: %s ",
                     mode, userId, componentName);
@@ -869,7 +874,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     private ArrayList<ComponentName> getLastMediaSourcesInternal(
             @CarMediaManager.MediaSourceMode int mode, @UserIdInt int userId) {
         String key = getMediaSourceKey(mode, userId);
-        String serialized = mSharedPrefs.getString(key, "");
+        String serialized =
+                mSharedPrefs == null ? null : mSharedPrefs.getString(key, "");
         List<String> componentNames = getComponentNameList(serialized);
         // Set the initial capacity to componentNames.size() + 1, to avoid re-allocation in case
         // the default media source needs to be added by getLastMediaSources().
@@ -1552,7 +1558,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     private List<String> getComponentNameList(String serialized) {
         // Note that for an empty string, String#split returns an array of size 1 with an empty
         // string as its entry. Instead, we just return an empty list.
-        if (serialized.isEmpty()) {
+        if (TextUtils.isEmpty(serialized)) {
             return Collections.emptyList();
         }
         String[] componentNames = serialized.split(COMPONENT_NAME_SEPARATOR);
