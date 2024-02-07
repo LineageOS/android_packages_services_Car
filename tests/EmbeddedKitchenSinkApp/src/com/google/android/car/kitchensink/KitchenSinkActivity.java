@@ -17,6 +17,7 @@
 package com.google.android.car.kitchensink;
 
 import android.annotation.Nullable;
+import android.app.NotificationManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.CarProjectionManager;
@@ -390,6 +391,10 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         Log.i(TAG, "onNewIntent");
+        if (intent.getCategories().contains(NotificationFragment.INTENT_CATEGORY_SELF_DISMISS)) {
+            NotificationManager nm = this.getSystemService(NotificationManager.class);
+            nm.cancel(NotificationFragment.SELF_DISMISS_NOTIFICATION_ID);
+        }
         Bundle extras = intent.getExtras();
         if (extras == null) {
             return;
