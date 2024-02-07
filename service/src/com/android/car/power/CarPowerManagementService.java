@@ -315,6 +315,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @GuardedBy("mLock")
     @Nullable
     private ICarResultReceiver mFactoryResetCallback;
+    @GuardedBy("mLock")
+    private boolean mIsEmergencyShutdown;
 
     private final PowerManagerCallbackList<ICarPowerPolicyListener> mPowerPolicyListeners =
             new PowerManagerCallbackList<>(
@@ -878,8 +880,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             case CarPowerManager.STATE_SHUTDOWN_CANCELLED:
                 synchronized (mLock) {
                     mShutdownOnNextSuspend = false; // This cancels the "NextSuspend"
+                    mIsEmergencyShutdown = false; // TODO add cancel test
                 }
                 mHal.sendShutdownCancel();
+                Slogf.d(TAG, "reset mIsEmergencyShutdown");
                 break;
             case CarPowerManager.STATE_SUSPEND_EXIT:
                 lastShutdownState = CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_RAM;
@@ -1074,8 +1078,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         // Shutdown on finish if the system doesn't support deep sleep/hibernation
         // or doesn't allow it.
         synchronized (mLock) {
-            if (mShutdownOnNextSuspend
-                    || newState.mShutdownType == PowerState.SHUTDOWN_TYPE_POWER_OFF) {
+            if (mShutdownOnNextSuspend || (
+                    newState.mShutdownType == PowerState.SHUTDOWN_TYPE_POWER_OFF
+                            || newState.mShutdownType == PowerState.SHUTDOWN_TYPE_EMERGENCY)) {
                 mActionOnFinish = ACTION_ON_FINISH_SHUTDOWN;
             } else if (newState.mShutdownType == PowerState.SHUTDOWN_TYPE_DEEP_SLEEP) {
                 boolean isDeepSleepOnFinish =
@@ -1091,19 +1096,29 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 Slogf.wtf(TAG, "handleShutdownPrepare - incorrect state " + newState);
             }
             mGarageModeShouldExitImmediately = !newState.mCanPostpone;
+            if (!mIsEmergencyShutdown) {
+                mIsEmergencyShutdown = newState.mShutdownType == PowerState.SHUTDOWN_TYPE_EMERGENCY;
+                Slogf.d(TAG, "set mIsEmergencyShutdown to " + mIsEmergencyShutdown);
+            } else {
+                // Emergency shutdown can be cancelled only via SHUTDOWN_CANCEL request");
+                Slogf.d(TAG, "mIsEmergencyShutdown is already set");
+            }
         }
     }
 
     private void handlePreShutdownPrepare() {
         int intervalMs;
+        long timeoutMs;
         synchronized (mLock) {
             intervalMs = mShutdownPollingIntervalMs;
-            Slogf.i(TAG,
-                    mGarageModeShouldExitImmediately ? "starting shutdown prepare with Garage Mode"
-                            : "starting shutdown prepare without Garage Mode");
+            Slogf.i(TAG, mGarageModeShouldExitImmediately
+                    ? "starting shutdown prepare without Garage Mode"
+                    : "starting shutdown prepare with Garage Mode");
+
+            // in case of emergency shutdown CPMS will not wait for
+            timeoutMs = mIsEmergencyShutdown ? 0 : getPreShutdownPrepareTimeoutConfig();
         }
 
-        long timeoutMs = getPreShutdownPrepareTimeoutConfig();
         int state = CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE;
         sendPowerManagerEvent(state, timeoutMs);
         Runnable taskAtCompletion = () -> {
@@ -1131,12 +1146,17 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void doShutdownPrepare() {
         long timeoutMs;
         long intervalMs;
+        boolean isEmergencyShutdown;
         synchronized (mLock) {
             timeoutMs = mShutdownPrepareTimeMs;
             intervalMs = mShutdownPollingIntervalMs;
             mShutdownStartTime = SystemClock.elapsedRealtime();
+            isEmergencyShutdown = mIsEmergencyShutdown;
         }
-        if (BuildHelper.isUserDebugBuild() || BuildHelper.isEngBuild()) {
+
+        if (isEmergencyShutdown) {
+            timeoutMs = 0;  // do not wait for listeners to complete during emergency shutdown
+        } else if (BuildHelper.isUserDebugBuild() || BuildHelper.isEngBuild()) {
             int shutdownPrepareTimeOverrideInSecs =
                     SystemProperties.getInt(PROP_MAX_GARAGE_MODE_DURATION_OVERRIDE, -1);
             if (shutdownPrepareTimeOverrideInSecs >= 0) {

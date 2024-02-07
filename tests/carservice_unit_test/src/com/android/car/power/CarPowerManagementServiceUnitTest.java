@@ -319,6 +319,145 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
+    public void testEmergencyShutdown() throws Exception {
+        grantAdjustShutdownProcessPermission();
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_SHUTDOWN_START);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_SHUTDOWN_PREPARE);
+
+        final long[] timeout = {-1, -1};
+        int preShutdownPrepareTimeoutIndex = 0;
+        int shutdownPrepareTimeoutIndex = 1;
+
+        ICarPowerStateListener listener = new ICarPowerStateListener.Stub() {
+            @Override
+            public void onStateChanged(int state, long expirationTimeMs) {
+                if (state == CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE) {
+                    timeout[preShutdownPrepareTimeoutIndex] = expirationTimeMs;
+                    assertWithMessage("expirationTimeMs should be less that current time").that(
+                            expirationTimeMs).isLessThan(System.currentTimeMillis());
+                }
+                if (state == CarPowerManager.STATE_SHUTDOWN_PREPARE) {
+                    timeout[shutdownPrepareTimeoutIndex] = expirationTimeMs;
+                    assertWithMessage("expirationTimeMs should be less that current time").that(
+                            expirationTimeMs).isLessThan(System.currentTimeMillis());
+                }
+                if (CarPowerManagementService.isCompletionAllowed(state)) {
+                    mService.finished(state, this);
+                }
+            }
+        };
+        mService.registerInternalListener(listener);
+        // Transition to ON state
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
+
+        mPowerHal.setCurrentPowerState(
+                new PowerState(
+                        VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.EMERGENCY_SHUTDOWN));
+
+        assertStateReceivedForShutdownOrSleepWithoutPostpone(PowerHalService.SET_SHUTDOWN_START, 0);
+
+        assertWithMessage("Garage mode cannot be executed during emergency shutdown").that(
+                mService.garageModeShouldExitImmediately()).isTrue();
+        mDisplayInterface.waitForAllDisplaysOff(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_MS);
+        assertWithMessage("timeout cannot be 0").that(
+                timeout[preShutdownPrepareTimeoutIndex]).isGreaterThan(0);
+        assertWithMessage("timeout cannot be 0").that(
+                timeout[shutdownPrepareTimeoutIndex]).isGreaterThan(0);
+        // Send the finished signal
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
+        mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
+    }
+
+    @Test
+    public void testEmergencyShutdownCancel() throws Exception {
+        grantAdjustShutdownProcessPermission();
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_SHUTDOWN_START);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_SHUTDOWN_PREPARE);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_WAIT_FOR_VHAL);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_SHUTDOWN_CANCELLED);
+
+
+        // Transition to ON state
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
+
+        mPowerHal.setCurrentPowerState(
+                new PowerState(
+                        VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.EMERGENCY_SHUTDOWN));
+
+        assertStateReceivedForShutdownOrSleepWithoutPostpone(PowerHalService.SET_SHUTDOWN_START, 0);
+        mDisplayInterface.waitForAllDisplaysOff(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_MS);
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.CANCEL_SHUTDOWN, 0));
+        mPowerSignalListener.waitFor(PowerHalService.SET_SHUTDOWN_CANCELLED, WAIT_TIMEOUT_LONG_MS);
+        // try to suspend
+        mPowerHal.setCurrentPowerState(
+                new PowerState(
+                        VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.CAN_SLEEP));
+
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY);
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.CANCEL_SHUTDOWN, 0));
+        mPowerSignalListener.waitFor(PowerHalService.SET_SHUTDOWN_CANCELLED, WAIT_TIMEOUT_LONG_MS);
+        // shutdown
+        mPowerHal.setCurrentPowerState(
+                new PowerState(
+                        VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY));
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_SHUTDOWN_START);
+    }
+
+    private void assertStateReceivedForShutdownOrSleepWithoutPostpone(int lastState,
+            int expectedSecondParameter)
+            throws Exception {
+        while (true) {
+            if (mFuture != null && !mFuture.isDone()) {
+                mFuture.complete(null);
+            }
+            int[] state = mPowerHal.waitForSend(WAIT_TIMEOUT_LONG_MS);
+            if (state[0] == PowerHalService.SET_SHUTDOWN_POSTPONE) {
+                throw new IllegalStateException("Shutdown Postpone is not allowed");
+            }
+            if (state[0] == lastState) {
+                assertThat(state[1]).isEqualTo(expectedSecondParameter);
+                return;
+            }
+        }
+    }
+
+
+    private String stateToString(int state) {
+        String result;
+        switch (state) {
+            case CarPowerManager.STATE_INVALID ->  result = "Invalid";
+            case CarPowerManager.STATE_WAIT_FOR_VHAL ->  result = "WaitForVHAL";
+            case CarPowerManager.STATE_SUSPEND_ENTER ->  result = "SuspendEnter";
+            case CarPowerManager.STATE_SUSPEND_EXIT ->  result = "SuspendExit";
+            case CarPowerManager.STATE_SHUTDOWN_ENTER ->  result = "ShutdownEnter";
+            case CarPowerManager.STATE_ON ->  result = "ON";
+            case CarPowerManager.STATE_SHUTDOWN_PREPARE ->  result = "ShutdownPrepare";
+            case CarPowerManager.STATE_SHUTDOWN_CANCELLED ->  result = "ShutdownCancelled";
+            case CarPowerManager.STATE_HIBERNATION_ENTER ->  result = "HibernationEnter";
+            case CarPowerManager.STATE_HIBERNATION_EXIT ->  result = "HibernationExit";
+            case CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE ->  result = "PreShutdownPrepare";
+            case CarPowerManager.STATE_POST_SUSPEND_ENTER ->  result = "PostSuspendEnter";
+            case CarPowerManager.STATE_POST_SHUTDOWN_ENTER ->  result = "PostShutdownEnter";
+            case CarPowerManager.STATE_POST_HIBERNATION_ENTER ->  result = "PostHibernationEnter";
+            default -> result = "Unknown";
+        }
+        return result;
+    }
+
+
+    @Test
     public void testSuspend() throws Exception {
         mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
         // Start in the ON state
