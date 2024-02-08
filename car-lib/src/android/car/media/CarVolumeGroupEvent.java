@@ -73,8 +73,9 @@ public final class CarVolumeGroupEvent implements Parcelable {
     public static final int EVENT_TYPE_VOLUME_MAX_INDEX_CHANGED = 1 << 2;
 
     /**
-     * This event type indicates that the volume group mute state changed.
-     * The new mute state can be queried through
+     * This event type indicates that the volume group mute state changed or
+     * {@link CarAudioManager#setVolumeGroupMute(int, int, boolean, int)} was
+     * invoked. The new mute state can be queried through
      * {@link android.car.media.CarVolumeGroupInfo#isMuted} on the
      * list of {@link android.car.media.CarVolumeGroupInfo} received here.
      */

@@ -4882,7 +4882,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    public void setMuted_whenUnmuted_onDeactivation_doesNotTriggerCallback() throws Exception {
+    public void setMuted_whenUnmuted_onDeactivation_triggerCallback() throws Exception {
         CarAudioService service = setUpAudioService();
         CarVolumeEventCallbackImpl volumeEventCallback = new CarVolumeEventCallbackImpl();
         service.registerCarVolumeEventCallback(volumeEventCallback);
@@ -4890,9 +4890,10 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         service.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
                 /* mute= */ false, TEST_FLAGS);
 
-        verify(mCarVolumeCallbackHandler, never()).onGroupMuteChange(anyInt(), anyInt(), anyInt());
+        verify(mCarVolumeCallbackHandler).onGroupMuteChange(PRIMARY_AUDIO_ZONE,
+                TEST_PRIMARY_ZONE_GROUP_0, TEST_FLAGS);
         expectWithMessage("Volume event callback reception status")
-                .that(volumeEventCallback.waitForCallback()).isFalse();
+                .that(volumeEventCallback.waitForCallback()).isTrue();
     }
 
     @Test
@@ -4925,7 +4926,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    public void setMuted_whenMuted_onActivation_doesNotTriggerCallback() throws Exception {
+    public void setMuted_whenMuted_onActivation_triggerCallback() throws Exception {
         CarAudioService service = setUpAudioService();
         CarVolumeEventCallbackImpl volumeEventCallback = new CarVolumeEventCallbackImpl();
         service.registerCarVolumeEventCallback(volumeEventCallback);
@@ -4938,9 +4939,10 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         service.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
                 /* mute= */ true, TEST_FLAGS);
 
-        verify(mCarVolumeCallbackHandler, never()).onGroupMuteChange(anyInt(), anyInt(), anyInt());
+        verify(mCarVolumeCallbackHandler).onGroupMuteChange(PRIMARY_AUDIO_ZONE,
+                TEST_PRIMARY_ZONE_GROUP_0, TEST_FLAGS);
         expectWithMessage("Volume event callback reception status")
-                .that(volumeEventCallback.waitForCallback()).isFalse();
+                .that(volumeEventCallback.waitForCallback()).isTrue();
     }
 
     private CarAudioService setUpCarAudioServiceWithoutZoneMapping() throws Exception {

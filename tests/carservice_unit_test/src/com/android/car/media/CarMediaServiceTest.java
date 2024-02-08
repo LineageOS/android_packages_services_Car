@@ -349,6 +349,17 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testGetMediaSource_returnsDefaultSourceForUninitializedUser() {
+        mockUserUnlocked(false);
+        initializeMockPackageManager(MEDIA_CLASS);
+        mCarMediaService.init();
+        mockGetCallingUserHandle(TEST_USER_ID);
+
+        assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_BROWSE, TEST_USER_ID))
+                .isEqualTo(MEDIA_COMPONENT);
+    }
+
+    @Test
     public void testSetAndGetMediaSource_systemUserCanCallForOtherUser() {
         initMediaService();
 
@@ -369,20 +380,6 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
                 .isEqualTo(MEDIA_COMPONENT);
         assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK, TEST_USER_ID))
                 .isEqualTo(MEDIA_COMPONENT);
-    }
-
-    @Test
-    public void testDefaultMediaSource_backgroundUserUninitialized() {
-        mockGetCallingUserHandle(TEST_USER_ID);
-        initMediaService(MEDIA_CLASS);
-
-        mockGetCallingUserHandle(ANOTHER_TEST_USER_ID);
-
-        assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_BROWSE, ANOTHER_TEST_USER_ID))
-                .isNull();
-        assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK,
-                        ANOTHER_TEST_USER_ID))
-                .isNull();
     }
 
     @Test
@@ -420,11 +417,12 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
         sendUserLifecycleEvent(new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_INVISIBLE,
                 ANOTHER_TEST_USER_ID));
 
+        // Now returns the default media source.
         assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_BROWSE, ANOTHER_TEST_USER_ID))
-                .isNull();
+                .isEqualTo(MEDIA_COMPONENT);
         assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK,
                         ANOTHER_TEST_USER_ID))
-                .isNull();
+                .isEqualTo(MEDIA_COMPONENT);
     }
 
     @Test
@@ -598,6 +596,19 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testGetLastMediaSources_returnsDefaultWhenSharedPrefNotInitialized() {
+        when(mContext.getSharedPreferences(anyString(), anyInt())).thenReturn(null);
+        initializeMockPackageManager(MEDIA_CLASS);
+        mCarMediaService.init();
+        mockGetCallingUserHandle(TEST_USER_ID);
+
+        assertThat(mCarMediaService.getLastMediaSources(MEDIA_SOURCE_MODE_PLAYBACK, TEST_USER_ID))
+                .containsExactly(MEDIA_COMPONENT);
+        assertThat(mCarMediaService.getLastMediaSources(MEDIA_SOURCE_MODE_BROWSE, TEST_USER_ID))
+                .containsExactly(MEDIA_COMPONENT);
+    }
+
+    @Test
     public void testGetLastMediaSources_throwsSecurityExceptionWhenUserDoesNotMatch() {
         mockGetCallingUserHandle(TEST_USER_ID);
 
@@ -723,9 +734,9 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
         // second one will stay null
         initMediaService(MEDIA_CLASS);
 
-        // New Media source should be null
+        // New Media source should be the default source.
         assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK, TEST_USER_ID))
-                .isNull();
+                .isEqualTo(MEDIA_COMPONENT);
         // service start should happen on init but not on media source change
         verify(mContext).startForegroundService(any());
     }

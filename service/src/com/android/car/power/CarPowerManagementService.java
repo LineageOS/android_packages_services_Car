@@ -861,10 +861,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         } else {
             applyDefaultPowerPolicyForState(CarPowerManager.STATE_WAIT_FOR_VHAL,
                     PolicyReader.POWER_POLICY_ID_INITIAL_ON);
-        }
-
-        if (!mSilentModeHandler.isSilentMode()) {
-            cancelPreemptivePowerPolicy();
+            if (!mSilentModeHandler.isSilentMode()) {
+                cancelPreemptivePowerPolicy();
+            }
         }
 
         sendPowerManagerEvent(carPowerStateListenerState, INVALID_TIMEOUT);
@@ -935,12 +934,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             updateCarUserNoticeServiceIfNecessary();
         }
 
-        if (!mSilentModeHandler.isSilentMode()) {
-            cancelPreemptivePowerPolicy();
-        }
         if (mFeatureFlags.carPowerPolicyRefactoring()) {
             notifyPowerStateChangeToDaemon(CarPowerManager.STATE_ON);
         } else {
+            if (!mSilentModeHandler.isSilentMode()) {
+                cancelPreemptivePowerPolicy();
+            }
             applyDefaultPowerPolicyForState(VehicleApPowerStateReport.ON,
                     PolicyReader.POWER_POLICY_ID_ALL_ON);
         }
@@ -1551,7 +1550,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void doHandleSuspend(boolean simulatedMode) {
-        int status = applyPreemptivePowerPolicy(PolicyReader.POWER_POLICY_ID_SUSPEND_PREP);
+        int status;
+        if (mFeatureFlags.carPowerPolicyRefactoring()) {
+            status = applyPowerPolicy(PolicyReader.POWER_POLICY_ID_SUSPEND_PREP,
+                    /* delayNotification= */ false, /* upToDaemon= */ false, /* force= */ true);
+        } else {
+            status = applyPreemptivePowerPolicy(PolicyReader.POWER_POLICY_ID_SUSPEND_PREP);
+        }
         if (status != PolicyOperationStatus.OK) {
             Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(status));
         }
@@ -2131,10 +2136,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             android.frameworks.automotive.powerpolicy.CarPowerPolicy[] policies) {
         for (int i = 0; i < policies.length; i++) {
             CarPowerPolicy policy = convertPowerPolicyFromDaemon(policies[i]);
-            // All system power policies are pre-registered in PolicyReader
-            if (PolicyReader.isSystemPowerPolicy(policy.getPolicyId())) {
-                continue;
-            }
             List<String> enabledComponents = PowerComponentUtil.powerComponentsToStrings(
                     Lists.asImmutableList(policy.getEnabledComponents()));
             List<String> disabledComponents = PowerComponentUtil.powerComponentsToStrings(
@@ -2179,8 +2180,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     powerPolicyInitData.currentPowerPolicy);
             updateCurrentPowerPolicy(currentPowerPolicy);
             mPowerComponentHandler.applyPowerPolicy(currentPowerPolicy);
-            notifyPowerPolicyChange(
-                    currentPowerPolicy.getPolicyId(), /* upToDaemon= */ false, /* force= */ false);
+            notifyPowerPolicyChange(currentPowerPolicy);
             // To cover the case where power state changed before connecting to CPPD.
             notifyPowerStateChangeToDaemon(daemon, getPowerState());
         } else {
@@ -2551,7 +2551,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private void makeSureNoUserInteraction() {
         mSilentModeHandler.updateKernelSilentMode(true);
-        int status = applyPreemptivePowerPolicy(PolicyReader.POWER_POLICY_ID_NO_USER_INTERACTION);
+        int status;
+        if (mFeatureFlags.carPowerPolicyRefactoring()) {
+            status = applyPowerPolicy(PolicyReader.POWER_POLICY_ID_NO_USER_INTERACTION,
+                    /* delayNotification= */ false, /* upToDaemon= */ false, /* force= */ true);
+        } else {
+            status = applyPreemptivePowerPolicy(
+                    PolicyReader.POWER_POLICY_ID_NO_USER_INTERACTION);
+        }
         if (status != PolicyOperationStatus.OK) {
             Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(status));
         }
@@ -3170,6 +3177,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @PolicyOperationStatus.ErrorCode
     public int definePowerPolicy(String powerPolicyId, String[] enabledComponents,
             String[] disabledComponents) {
+        Preconditions.checkArgument(!powerPolicyId.startsWith(
+                PolicyReader.SYSTEM_POWER_POLICY_PREFIX),
+                "System power policy cannot be defined by apps");
         int status = mPolicyReader.definePowerPolicy(powerPolicyId,
                 enabledComponents, disabledComponents);
         if (status != PolicyOperationStatus.OK) {
