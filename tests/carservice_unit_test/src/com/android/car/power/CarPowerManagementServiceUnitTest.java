@@ -1719,7 +1719,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         when(mWifiManager.isWifiApEnabled()).thenReturn(true);
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
                     mSystemInterface, mUserManager, mUserService, mPowerPolicyDaemon,
-                    mPowerComponentHandler, mScreenOffHandler,
+                    mPowerComponentHandler, mFeatureFlags, mScreenOffHandler,
                     mFileHwStateMonitoring.getFile().getPath(),
                     mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
@@ -2193,7 +2193,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         setCarPowerPolicyRefactoringFeatureFlag(false);
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
                 mSystemInterface, mUserManager, mUserService, mPowerPolicyDaemon,
-                mPowerComponentHandler, mScreenOffHandler,
+                mPowerComponentHandler, mFeatureFlags, mScreenOffHandler,
                 mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
