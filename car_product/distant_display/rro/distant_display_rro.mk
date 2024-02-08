@@ -22,6 +22,8 @@ $(call inherit-product-if-exists, vendor/google/nexus_overlay/fonts/fonts.mk)
 # All RROs to be included in car_ui_portrait builds.
 PRODUCT_PACKAGES += \
     DriverUiRRO \
+    CarServiceRRO \
+    DistantDisplayFrameworkResRRO \
 
 PRODUCT_PRODUCT_PROPERTIES += \
     car.ui.config=distantdisplay

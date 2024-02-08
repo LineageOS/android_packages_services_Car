@@ -17,4 +17,5 @@
 # All apps that should be included in CarUiDistantDisplay builds
 PRODUCT_PACKAGES += \
     CarDistantDisplaySystemUI \
+    DesignComposeDriverUIPrebuilt \
     PaintBooth
