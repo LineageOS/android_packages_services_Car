@@ -173,7 +173,6 @@ public final class PolicyReader {
     private FeatureFlags mFeatureFlags;
 
     private ArrayMap<String, CarPowerPolicy> mRegisteredPowerPolicies;
-    // TODO(b/286303350): remove once power policy refactor complete
     private ArrayMap<String, SparseArray<String>> mPolicyGroups;
     // TODO(b/286303350): remove once power policy refactor complete
     private ArrayMap<String, CarPowerPolicy> mPreemptivePowerPolicies;

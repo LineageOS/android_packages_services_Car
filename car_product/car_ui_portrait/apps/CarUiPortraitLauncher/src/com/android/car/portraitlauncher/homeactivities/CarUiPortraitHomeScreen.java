@@ -539,7 +539,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     }
 
     private boolean shouldOpenFullScreenPanel(ActivityManager.RunningTaskInfo taskInfo) {
-        return taskInfo.baseActivity.equals(mUnhandledImmersiveModeRequestComponent)
+        return taskInfo.baseActivity != null
+                && taskInfo.baseActivity.equals(mUnhandledImmersiveModeRequestComponent)
                 && mUnhandledImmersiveModeRequest
                 && System.currentTimeMillis() - mUnhandledImmersiveModeRequestTimestamp
                 < IMMERSIVE_MODE_REQUEST_TIMEOUT;

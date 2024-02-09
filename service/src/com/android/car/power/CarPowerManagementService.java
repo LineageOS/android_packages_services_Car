@@ -2361,7 +2361,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             try {
                 Slogf.i(TAG, "Request(%d) of applying power policy(%s) to CPPD in async", requestId,
                         policyId);
-                daemon.applyPowerPolicyAsync(requestId, policyId, /* force= */ false);
+                daemon.applyPowerPolicyAsync(requestId, policyId, force);
                 boolean policyRequestServed = request.await();
                 if (!policyRequestServed) {
                     Slogf.w(TAG, "Power policy request (ID: %d) successful application timed out"
