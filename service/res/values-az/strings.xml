@@ -228,10 +228,8 @@
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Sistemin istifadə interfeysini idarə etmək və tapşırıq görünüşləri yaratmaq üçün sistemin istifadə interfeysinin digər tətbiqlər tərəfindən istifadə edilə bilən proksisinin təmin edilməsi."</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Tapşırıq görünüşləri yaratmaq və ya sistemin istifadə interfeysi dəyişiklikləri haqqında bildiriş almaq üçün avtomobil sisteminin istifadə interfeysi ilə əlaqə yaradılması."</string>
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Tapşırıq görünüşləri yaratmaq və ya sistemin istifadə interfeysi dəyişiklikləri haqqında bildiriş almaq üçün avtomobil sisteminin istifadə interfeysi ilə əlaqə yaradılması."</string>
-    <!-- no translation found for car_permission_label_read_persist_tethering_settings (6395145649477916950) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_persist_tethering_settings (7373546466696896323) -->
-    <skip />
+    <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Avtomobilin davamlı modem rejimi ayarlarının oxunması"</string>
+    <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Avtomobilin davamlı modem rejimi ayarlarının oxunması"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN idarəetmə mexanizmi uğursuz oldu"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN mexanizmi cavab vermir. Əsas cihaz panelini ayırın və yenidən qoşun, sonra avtomobili yenidən işə salın"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Cihazım"</string>
