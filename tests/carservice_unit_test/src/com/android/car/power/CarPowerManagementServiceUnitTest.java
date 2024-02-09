@@ -89,6 +89,7 @@ import android.util.SparseLongArray;
 import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -954,6 +955,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
+    @FlakyTest(bugId = 323603043)
     public void testApplyPowerPolicy_powerPolicyRefactorFlagEnabled() throws Exception {
         setRefactoredService();
         grantPowerPolicyPermission();
@@ -1048,6 +1050,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
+    @FlakyTest(bugId = 323603048)
     public void testApplyPowerPolicyInvalidCommand_powerPolicyRefactorFlagEnabled()
             throws Exception {
         setRefactoredService();
