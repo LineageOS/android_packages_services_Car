@@ -91,8 +91,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     private static final boolean DBG = Slogf.isLoggable(CarLog.TAG_HAL, Log.DEBUG);;
     private static final long TRACE_TAG = TraceHelper.TRACE_TAG_CAR_SERVICE;
 
-    public static final int NO_AREA = -1;
-    public static final float NO_SAMPLE_RATE = -1;
+    private static final int GLOBAL_AREA_ID = 0;
 
     /**
      * If call to vehicle HAL returns StatusCode.TRY_AGAIN, we will retry to invoke that method
@@ -871,7 +870,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             return null;
         }
         try {
-            return getValueWithRetry(mPropValueBuilder.build(propertyId, NO_AREA), maxRetries);
+            return getValueWithRetry(mPropValueBuilder.build(propertyId, GLOBAL_AREA_ID),
+                    maxRetries);
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
@@ -900,7 +900,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     public HalPropValue get(int propertyId)
             throws IllegalArgumentException, ServiceSpecificException {
-        return get(propertyId, NO_AREA);
+        return get(propertyId, GLOBAL_AREA_ID);
     }
 
     /**
@@ -928,7 +928,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     public <T> T get(Class clazz, int propertyId)
             throws IllegalArgumentException, ServiceSpecificException {
-        return get(clazz, propertyId, NO_AREA);
+        return get(clazz, propertyId, GLOBAL_AREA_ID);
     }
 
     /**
@@ -1044,7 +1044,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
 
     @CheckResult
     HalPropValueSetter set(int propId) {
-        return set(propId, NO_AREA);
+        return set(propId, GLOBAL_AREA_ID);
     }
 
     @CheckResult

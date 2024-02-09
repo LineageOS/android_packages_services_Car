@@ -161,7 +161,7 @@ public final class PowerHalServiceUnitTest {
 
     @Test
     public void testGetCurrentPowerState() {
-        HalPropValue value = mPropValueBuilder.build(AP_POWER_STATE_REQ, VehicleHal.NO_AREA,
+        HalPropValue value = mPropValueBuilder.build(AP_POWER_STATE_REQ, /* areaId= */ 0,
                 new int[]{ON, 0});
         when(mHal.get(AP_POWER_STATE_REQ)).thenReturn(value);
 
@@ -185,7 +185,7 @@ public final class PowerHalServiceUnitTest {
     public void testHalEventListenerPowerStateChange() {
         mPowerHalService.setListener(mEventListener);
 
-        HalPropValue value = mPropValueBuilder.build(AP_POWER_STATE_REQ, VehicleHal.NO_AREA,
+        HalPropValue value = mPropValueBuilder.build(AP_POWER_STATE_REQ, /* areaId= */ 0,
                 new int[]{SHUTDOWN_PREPARE, CAN_SLEEP});
         mPowerHalService.onHalEvents(List.of(value));
 
@@ -205,7 +205,7 @@ public final class PowerHalServiceUnitTest {
         mPowerHalService.setListener(mEventListener);
 
         int expectedBrightness = 73;
-        HalPropValue value = mPropValueBuilder.build(DISPLAY_BRIGHTNESS, VehicleHal.NO_AREA,
+        HalPropValue value = mPropValueBuilder.build(DISPLAY_BRIGHTNESS, /* areaId= */ 0,
                 expectedBrightness);
         mPowerHalService.onHalEvents(List.of(value));
 
@@ -226,7 +226,7 @@ public final class PowerHalServiceUnitTest {
         // Max brightness is 50, so the expected brightness should be multiplied 2 times to fit in
         // 100 scale.
         int expectedBrightness = brightness * 2;
-        HalPropValue value = mPropValueBuilder.build(DISPLAY_BRIGHTNESS, VehicleHal.NO_AREA,
+        HalPropValue value = mPropValueBuilder.build(DISPLAY_BRIGHTNESS, /* areaId= */ 0,
                 brightness);
         mPowerHalService.onHalEvents(List.of(value));
 
@@ -250,7 +250,7 @@ public final class PowerHalServiceUnitTest {
         when(mDisplayManager.getDisplay(displayId)).thenReturn(display);
 
         int expectedBrightness = 73;
-        HalPropValue value = mPropValueBuilder.build(PER_DISPLAY_BRIGHTNESS, VehicleHal.NO_AREA,
+        HalPropValue value = mPropValueBuilder.build(PER_DISPLAY_BRIGHTNESS, /* areaId= */ 0,
                 new int[]{displayPort, expectedBrightness});
         mPowerHalService.onHalEvents(List.of(value));
 
@@ -278,7 +278,7 @@ public final class PowerHalServiceUnitTest {
         // Max brightness is 50, so the expected brightness should be multiplied 2 times to fit in
         // 100 scale.
         int expectedBrightness = brightness * 2;
-        HalPropValue value = mPropValueBuilder.build(PER_DISPLAY_BRIGHTNESS, VehicleHal.NO_AREA,
+        HalPropValue value = mPropValueBuilder.build(PER_DISPLAY_BRIGHTNESS, /* areaId= */ 0,
                 new int[]{displayPort, brightness});
         mPowerHalService.onHalEvents(List.of(value));
 
@@ -450,7 +450,7 @@ public final class PowerHalServiceUnitTest {
     @Test
     public void testVehicleInUse_true() {
         when(mHal.get(VEHICLE_IN_USE)).thenReturn(
-                mPropValueBuilder.build(VEHICLE_IN_USE, VehicleHal.NO_AREA, new int[]{1}));
+                mPropValueBuilder.build(VEHICLE_IN_USE, /* areaId= */ 0, new int[]{1}));
 
         assertThat(mPowerHalService.isVehicleInUse()).isTrue();
     }
@@ -458,7 +458,7 @@ public final class PowerHalServiceUnitTest {
     @Test
     public void testVehicleInUse_false() {
         when(mHal.get(VEHICLE_IN_USE)).thenReturn(
-                mPropValueBuilder.build(VEHICLE_IN_USE, VehicleHal.NO_AREA, new int[]{0}));
+                mPropValueBuilder.build(VEHICLE_IN_USE, /* areaId= */ 0, new int[]{0}));
 
         assertThat(mPowerHalService.isVehicleInUse()).isFalse();
     }
