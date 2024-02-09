@@ -33,9 +33,13 @@
     <!-- This permission is required to read driver's display id -->
     <uses-permission android:name="android.car.permission.ACCESS_PRIVATE_DISPLAY_ID"/>
 
+    <!-- Defining SampleCustomInputService as a short foreground service since it is used to
+         perform user commands only. -->
     <application>
         <service android:name=".SampleCustomInputService"
-                 android:exported="true" android:enabled="true">
+            android:exported="true"
+            android:enabled="true"
+            android:foregroundServiceType="shortService">
             <intent-filter>
                 <action android:name="com.android.car.custominput.action.START_SILENT"/>
             </intent-filter>
