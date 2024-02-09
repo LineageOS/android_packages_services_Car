@@ -16,7 +16,7 @@
 
 package com.android.car.wifi;
 
-import static android.car.settings.CarSettings.Global.ENABLE_TETHERING_PERSISTING;
+import static android.car.settings.CarSettings.Global.ENABLE_PERSISTENT_TETHERING;
 import static android.net.TetheringManager.TETHERING_WIFI;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_DISABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLED;
@@ -149,13 +149,13 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
                         return;
                     }
 
-                    Slogf.i(TAG, "%s setting has changed", ENABLE_TETHERING_PERSISTING);
+                    Slogf.i(TAG, "%s setting has changed", ENABLE_PERSISTENT_TETHERING);
                     // If the persist tethering setting is turned off, auto shutdown must be
                     // re-enabled.
                     boolean persistTetheringSettingEnabled =
                             mFeatureFlags.persistApSettings() && TextUtils.equals("true",
                                     Settings.Global.getString(mContext.getContentResolver(),
-                                            ENABLE_TETHERING_PERSISTING));
+                                            ENABLE_PERSISTENT_TETHERING));
                     setSoftApAutoShutdownEnabled(!persistTetheringSettingEnabled);
                 }
             };
@@ -171,16 +171,11 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
         mIsPersistTetheringSettingEnabled = mFeatureFlags.persistApSettings() && TextUtils.equals(
                 "true",
                 Settings.Global.getString(context.getContentResolver(),
-                        ENABLE_TETHERING_PERSISTING));
+                        ENABLE_PERSISTENT_TETHERING));
         mWifiManager = context.getSystemService(WifiManager.class);
         mTetheringManager = context.getSystemService(TetheringManager.class);
         mCarPowerManagementService = powerManagementService;
         mCarUserService = userService;
-    }
-
-    @Override
-    public void dumpProto(ProtoOutputStream proto) {
-        // nothing to do
     }
 
     @Override
@@ -198,7 +193,7 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
 
         if (mFeatureFlags.persistApSettings()) {
             mContext.getContentResolver().registerContentObserver(Settings.Global.getUriFor(
-                            ENABLE_TETHERING_PERSISTING), /* notifyForDescendants= */ false,
+                            ENABLE_PERSISTENT_TETHERING), /* notifyForDescendants= */ false,
                     mPersistTetheringObserver);
         }
     }
@@ -216,6 +211,17 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
         if (mFeatureFlags.persistApSettings()) {
             mContext.getContentResolver().unregisterContentObserver(mPersistTetheringObserver);
         }
+    }
+
+    @Override
+    public void dumpProto(ProtoOutputStream proto) {
+        proto.write(CarWifiDumpProto.PERSIST_TETHERING_CAPABILITIES_ENABLED,
+                mIsPersistTetheringCapabilitiesEnabled);
+        proto.write(CarWifiDumpProto.PERSIST_TETHERING_SETTING_ENABLED,
+                mIsPersistTetheringSettingEnabled);
+        proto.write(CarWifiDumpProto.TETHERING_ENABLED, mWifiManager.isWifiApEnabled());
+        proto.write(CarWifiDumpProto.AUTO_SHUTDOWN_ENABLED,
+                mWifiManager.getSoftApConfiguration().isAutoShutdownEnabled());
     }
 
     @Override
