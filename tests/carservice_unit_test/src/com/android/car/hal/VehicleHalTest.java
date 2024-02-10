@@ -1087,7 +1087,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         when(mPowerHalService.getDispatchList()).thenReturn(dispatchList);
 
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA);
+                GLOBAL_AREA_ID);
         ArrayList<HalPropValue> propValues = new ArrayList<>();
         propValues.add(propValue);
 
@@ -1107,7 +1107,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         when(mPowerHalService.getDispatchList()).thenReturn(dispatchList);
 
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA);
+                GLOBAL_AREA_ID);
         ArrayList<HalPropValue> propValues = new ArrayList<>();
         propValues.add(propValue);
 
@@ -1133,7 +1133,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testOnPropertyEvent_unsupportedProperty() {
         HalPropValue propValue = mPropValueBuilder.build(UNSUPPORTED_PROPERTY,
-                VehicleHal.NO_AREA);
+                GLOBAL_AREA_ID);
         ArrayList<HalPropValue> propValues = new ArrayList<>();
         propValues.add(propValue);
 
@@ -1148,7 +1148,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         ArrayList<VehiclePropError> errors = new ArrayList<VehiclePropError>();
         VehiclePropError error1 = new VehiclePropError();
         error1.propId = SOME_READ_ON_CHANGE_PROPERTY;
-        error1.areaId = VehicleHal.NO_AREA;
+        error1.areaId = GLOBAL_AREA_ID;
         error1.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
         errors.add(error1);
         VehiclePropError error2 = new VehiclePropError();
@@ -1158,7 +1158,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         errors.add(error2);
         VehiclePropError error3 = new VehiclePropError();
         error3.propId = SOME_READ_WRITE_STATIC_PROPERTY;
-        error3.areaId = VehicleHal.NO_AREA;
+        error3.areaId = GLOBAL_AREA_ID;
         error3.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
         errors.add(error3);
 
@@ -1179,7 +1179,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         VehiclePropError error = new VehiclePropError();
         error.propId = VehicleProperty.INVALID;
         error.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
-        error.areaId = VehicleHal.NO_AREA;
+        error.areaId = GLOBAL_AREA_ID;
         errors.add(error);
 
         // Act
@@ -1196,7 +1196,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         VehiclePropError error = new VehiclePropError();
         error.propId = UNSUPPORTED_PROPERTY;
         error.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
-        error.areaId = VehicleHal.NO_AREA;
+        error.areaId = GLOBAL_AREA_ID;
         errors.add(error);
 
         // Act
@@ -1213,7 +1213,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         VehiclePropError error = new VehiclePropError();
         error.propId = SOME_READ_ON_CHANGE_PROPERTY;
         error.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
-        error.areaId = VehicleHal.NO_AREA;
+        error.areaId = GLOBAL_AREA_ID;
         errors.add(error);
 
         // Act
@@ -1228,7 +1228,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     public void testGetIfSupportedOrFail() throws Exception {
         // Arrange
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA);
+                GLOBAL_AREA_ID);
         when(mVehicle.get(any(HalPropValue.class))).thenReturn(propValue);
 
         // Act
@@ -1259,7 +1259,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testGetIfSupportedOrFail_serviceSpecificExceptionRetrySucceed() throws Exception {
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA);
+                GLOBAL_AREA_ID);
         when(mVehicle.get(any(HalPropValue.class))).thenThrow(
                 new ServiceSpecificException(StatusCode.TRY_AGAIN)).thenReturn(propValue);
 
@@ -1302,7 +1302,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         when(mVehicle.getAllPropConfigs()).thenReturn(halPropConfigs);
 
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA);
+                GLOBAL_AREA_ID);
         when(mVehicle.get(any(HalPropValue.class))).thenReturn(propValue);
 
         // Act
@@ -1316,7 +1316,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testGetClazz() throws Exception {
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA, 0, 0, new int[]{1, 2}, new float[]{1.1f, 1.2f},
+                GLOBAL_AREA_ID, 0, 0, new int[]{1, 2}, new float[]{1.1f, 1.2f},
                 new long[0], "test", new byte[]{0x00, 0x01});
         when(mVehicle.get(any(HalPropValue.class))).thenReturn(propValue);
 
@@ -1342,7 +1342,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testGetClazz_unexpectedType() throws Exception {
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA, "test");
+                GLOBAL_AREA_ID, "test");
 
         when(mVehicle.get(any(HalPropValue.class))).thenReturn(propValue);
 
@@ -1354,21 +1354,21 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testGetClazz_defaultArea() throws Exception {
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA, 1);
+                GLOBAL_AREA_ID, 1);
         when(mVehicle.get(any(HalPropValue.class))).thenReturn(propValue);
 
         Integer actual = mVehicleHal.get(Integer.class, SOME_READ_ON_CHANGE_PROPERTY);
 
         assertThat(actual).isEqualTo(1);
         HalPropValue requestProp = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA);
+                GLOBAL_AREA_ID);
         verify(mVehicle).get(requestProp);
     }
 
     @Test
     public void testGetWithRetry_retrySucceed() throws Exception {
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA, 1);
+                GLOBAL_AREA_ID, 1);
         when(mVehicle.get(any(HalPropValue.class))).thenThrow(new ServiceSpecificException(
                 StatusCode.TRY_AGAIN)).thenReturn(propValue);
 
@@ -1376,7 +1376,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
 
         assertThat(actual).isEqualTo(1);
         HalPropValue requestProp = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA);
+                GLOBAL_AREA_ID);
         verify(mVehicle, times(2)).get(requestProp);
     }
 
@@ -1482,7 +1482,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         t.init();
 
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA);
+                GLOBAL_AREA_ID);
         t.set(propValue);
 
         verify(mVehicle).set(propValue);
@@ -1499,7 +1499,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
                 .doNothing().when(mVehicle).set(any());
 
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA);
+                GLOBAL_AREA_ID);
         t.setMaxDurationForRetryMs(1000);
         t.setSleepBetweenRetryMs(100);
         t.set(propValue);
@@ -1520,7 +1520,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
                 .when(mVehicle).set(any());
 
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA);
+                GLOBAL_AREA_ID);
         t.setMaxDurationForRetryMs(200);
         t.setSleepBetweenRetryMs(100);
 
@@ -1543,7 +1543,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
                 .when(mVehicle).set(any());
 
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA);
+                GLOBAL_AREA_ID);
         t.setMaxDurationForRetryMs(1000);
         t.setSleepBetweenRetryMs(100);
 
@@ -1566,7 +1566,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
                 .when(mVehicle).set(any());
 
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA);
+                GLOBAL_AREA_ID);
         t.setMaxDurationForRetryMs(1000);
         t.setSleepBetweenRetryMs(100);
 
@@ -1581,7 +1581,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         doThrow(new RemoteException()).doThrow(new RemoteException()).doThrow(new RemoteException())
                 .when(mVehicle).set(any());
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA);
+                GLOBAL_AREA_ID);
         mVehicleHal.setMaxDurationForRetryMs(200);
         mVehicleHal.setSleepBetweenRetryMs(100);
 
@@ -1596,7 +1596,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         // IllegalArgumentException is not a retriable exception.
         doThrow(new IllegalArgumentException()).when(mVehicle).set(any());
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA);
+                GLOBAL_AREA_ID);
 
         assertThrows(IllegalArgumentException.class, () -> {
             mVehicleHal.set(propValue);
@@ -1607,7 +1607,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     public void testSetter_bool() throws Exception {
         mVehicleHal.set(SOME_READ_ON_CHANGE_PROPERTY).to(true);
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA, new int[]{1});
+                GLOBAL_AREA_ID, new int[]{1});
         verify(mVehicle).set(propValue);
     }
 
@@ -1616,7 +1616,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         mVehicleHal.set(SOME_READ_ON_CHANGE_PROPERTY).to(2);
 
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA, new int[]{2});
+                GLOBAL_AREA_ID, new int[]{2});
         verify(mVehicle).set(propValue);
     }
 
@@ -1625,7 +1625,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         mVehicleHal.set(SOME_READ_ON_CHANGE_PROPERTY).to(new int[]{1, 2});
 
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA, new int[]{1, 2});
+                GLOBAL_AREA_ID, new int[]{1, 2});
         verify(mVehicle).set(propValue);
     }
 
@@ -1634,7 +1634,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         mVehicleHal.set(SOME_READ_ON_CHANGE_PROPERTY).to(Arrays.asList(1, 2));
 
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA, new int[]{1, 2});
+                GLOBAL_AREA_ID, new int[]{1, 2});
         verify(mVehicle).set(propValue);
     }
 
@@ -1727,7 +1727,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         assertThat(writer.toString()).contains("string: some_value");
 
         HalPropValue requestProp = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA);
+                GLOBAL_AREA_ID);
         verify(mVehicle).get(requestProp);
     }
 
@@ -1837,7 +1837,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
 
         // Act
         mVehicleHal.dumpPropertyValueByCommand(printWriter, SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA);
+                /* areaId= */ -1);
 
         // Assert
         assertThat(writer.toString()).contains("Can not get property value");
@@ -1948,14 +1948,14 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         long time = SystemClock.elapsedRealtimeNanos();
 
         // Act
-        mVehicleHal.injectVhalEvent(SOME_INT32_PROPERTY, VehicleHal.NO_AREA, "1", 0);
+        mVehicleHal.injectVhalEvent(SOME_INT32_PROPERTY, GLOBAL_AREA_ID, "1", 0);
         CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
         assertThat(values.size()).isEqualTo(1);
         HalPropValue prop = values.get(0);
         assertThat(prop.getPropId()).isEqualTo(SOME_INT32_PROPERTY);
-        assertThat(prop.getAreaId()).isEqualTo(VehicleHal.NO_AREA);
+        assertThat(prop.getAreaId()).isEqualTo(GLOBAL_AREA_ID);
         assertThat(prop.getInt32Value(0)).isEqualTo(1);
         assertThat(prop.getTimestamp()).isGreaterThan(time);
     }
@@ -1968,14 +1968,14 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         long time = SystemClock.elapsedRealtimeNanos();
 
         // Act
-        mVehicleHal.injectVhalEvent(SOME_INT32_VEC_PROPERTY, VehicleHal.NO_AREA, "1,2", 0);
+        mVehicleHal.injectVhalEvent(SOME_INT32_VEC_PROPERTY, GLOBAL_AREA_ID, "1,2", 0);
         CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
         assertThat(values.size()).isEqualTo(1);
         HalPropValue prop = values.get(0);
         assertThat(prop.getPropId()).isEqualTo(SOME_INT32_VEC_PROPERTY);
-        assertThat(prop.getAreaId()).isEqualTo(VehicleHal.NO_AREA);
+        assertThat(prop.getAreaId()).isEqualTo(GLOBAL_AREA_ID);
         assertThat(prop.getInt32Value(0)).isEqualTo(1);
         assertThat(prop.getInt32Value(1)).isEqualTo(2);
         assertThat(prop.getTimestamp()).isGreaterThan(time);
@@ -1989,14 +1989,14 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         long time = SystemClock.elapsedRealtimeNanos();
 
         // Act
-        mVehicleHal.injectVhalEvent(SOME_INT64_PROPERTY, VehicleHal.NO_AREA, "1", 0);
+        mVehicleHal.injectVhalEvent(SOME_INT64_PROPERTY, GLOBAL_AREA_ID, "1", 0);
         CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
         assertThat(values.size()).isEqualTo(1);
         HalPropValue prop = values.get(0);
         assertThat(prop.getPropId()).isEqualTo(SOME_INT64_PROPERTY);
-        assertThat(prop.getAreaId()).isEqualTo(VehicleHal.NO_AREA);
+        assertThat(prop.getAreaId()).isEqualTo(GLOBAL_AREA_ID);
         assertThat(prop.getInt64Value(0)).isEqualTo(1);
         assertThat(prop.getTimestamp()).isGreaterThan(time);
     }
@@ -2009,14 +2009,14 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         long time = SystemClock.elapsedRealtimeNanos();
 
         // Act
-        mVehicleHal.injectVhalEvent(SOME_INT64_VEC_PROPERTY, VehicleHal.NO_AREA, "1,2", 0);
+        mVehicleHal.injectVhalEvent(SOME_INT64_VEC_PROPERTY, GLOBAL_AREA_ID, "1,2", 0);
         CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
         assertThat(values.size()).isEqualTo(1);
         HalPropValue prop = values.get(0);
         assertThat(prop.getPropId()).isEqualTo(SOME_INT64_VEC_PROPERTY);
-        assertThat(prop.getAreaId()).isEqualTo(VehicleHal.NO_AREA);
+        assertThat(prop.getAreaId()).isEqualTo(GLOBAL_AREA_ID);
         assertThat(prop.getInt64Value(0)).isEqualTo(1);
         assertThat(prop.getInt64Value(1)).isEqualTo(2);
         assertThat(prop.getTimestamp()).isGreaterThan(time);
@@ -2030,14 +2030,14 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         long time = SystemClock.elapsedRealtimeNanos();
 
         // Act
-        mVehicleHal.injectVhalEvent(SOME_BOOL_PROPERTY, VehicleHal.NO_AREA, "True", 0);
+        mVehicleHal.injectVhalEvent(SOME_BOOL_PROPERTY, GLOBAL_AREA_ID, "True", 0);
         CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
         assertThat(values.size()).isEqualTo(1);
         HalPropValue prop = values.get(0);
         assertThat(prop.getPropId()).isEqualTo(SOME_BOOL_PROPERTY);
-        assertThat(prop.getAreaId()).isEqualTo(VehicleHal.NO_AREA);
+        assertThat(prop.getAreaId()).isEqualTo(GLOBAL_AREA_ID);
         assertThat(prop.getInt32Value(0)).isEqualTo(1);
         assertThat(prop.getTimestamp()).isGreaterThan(time);
     }
@@ -2050,14 +2050,14 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         long time = SystemClock.elapsedRealtimeNanos();
 
         // Act
-        mVehicleHal.injectVhalEvent(SOME_FLOAT_PROPERTY, VehicleHal.NO_AREA, "1.1", 0);
+        mVehicleHal.injectVhalEvent(SOME_FLOAT_PROPERTY, GLOBAL_AREA_ID, "1.1", 0);
         CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
         assertThat(values.size()).isEqualTo(1);
         HalPropValue prop = values.get(0);
         assertThat(prop.getPropId()).isEqualTo(SOME_FLOAT_PROPERTY);
-        assertThat(prop.getAreaId()).isEqualTo(VehicleHal.NO_AREA);
+        assertThat(prop.getAreaId()).isEqualTo(GLOBAL_AREA_ID);
         assertThat(prop.getFloatValue(0)).isEqualTo(1.1f);
         assertThat(prop.getTimestamp()).isGreaterThan(time);
     }
@@ -2070,14 +2070,14 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         long time = SystemClock.elapsedRealtimeNanos();
 
         // Act
-        mVehicleHal.injectVhalEvent(SOME_FLOAT_VEC_PROPERTY, VehicleHal.NO_AREA, "1.1,1.2", 0);
+        mVehicleHal.injectVhalEvent(SOME_FLOAT_VEC_PROPERTY, GLOBAL_AREA_ID, "1.1,1.2", 0);
         CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
         assertThat(values.size()).isEqualTo(1);
         HalPropValue prop = values.get(0);
         assertThat(prop.getPropId()).isEqualTo(SOME_FLOAT_VEC_PROPERTY);
-        assertThat(prop.getAreaId()).isEqualTo(VehicleHal.NO_AREA);
+        assertThat(prop.getAreaId()).isEqualTo(GLOBAL_AREA_ID);
         assertThat(prop.getFloatValue(0)).isEqualTo(1.1f);
         assertThat(prop.getFloatValue(1)).isEqualTo(1.2f);
         assertThat(prop.getTimestamp()).isGreaterThan(time);
@@ -2091,7 +2091,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         setupInjectEventTest(SOME_READ_ON_CHANGE_PROPERTY, values);
 
         // Act
-        mVehicleHal.injectVhalEvent(SOME_READ_ON_CHANGE_PROPERTY, VehicleHal.NO_AREA, "1", 0);
+        mVehicleHal.injectVhalEvent(SOME_READ_ON_CHANGE_PROPERTY, GLOBAL_AREA_ID, "1", 0);
         CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
@@ -2105,7 +2105,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         setupInjectEventTest(SOME_INT32_PROPERTY, values);
 
         // Act
-        mVehicleHal.injectContinuousVhalEvent(SOME_INT32_PROPERTY, VehicleHal.NO_AREA, "1", 10, 1);
+        mVehicleHal.injectContinuousVhalEvent(SOME_INT32_PROPERTY, GLOBAL_AREA_ID, "1", 10, 1);
         // Wait for injection to complete.
         SystemClock.sleep(1000);
         CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
@@ -2125,7 +2125,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
 
         // Act
         mVehicleHal.injectContinuousVhalEvent(
-                SOME_READ_ON_CHANGE_PROPERTY, VehicleHal.NO_AREA, "1", 10, 1);
+                SOME_READ_ON_CHANGE_PROPERTY, GLOBAL_AREA_ID, "1", 10, 1);
         CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
@@ -2139,7 +2139,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         setupInjectEventTest(SOME_INT32_PROPERTY, values);
 
         // Act
-        mVehicleHal.injectContinuousVhalEvent(SOME_INT32_PROPERTY, VehicleHal.NO_AREA, "1", -1, 1);
+        mVehicleHal.injectContinuousVhalEvent(SOME_INT32_PROPERTY, GLOBAL_AREA_ID, "1", -1, 1);
         CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
