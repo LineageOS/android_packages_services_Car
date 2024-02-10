@@ -35,6 +35,7 @@ import android.car.admin.CarDevicePolicyManager;
 import android.car.annotation.MandatoryFeature;
 import android.car.annotation.OptionalFeature;
 import android.car.app.CarActivityManager;
+import android.car.app.CarDisplayCompatManager;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.cluster.CarInstrumentClusterManager;
@@ -178,7 +179,7 @@ public final class Car implements ICarBase {
     // Car service registry information.
     // This information never changes after the static initialization completes.
     private static final Map<Class<?>, String> CAR_SERVICE_NAMES =
-            new ArrayMap<Class<?>, String>(37);
+            new ArrayMap<Class<?>, String>(38);
 
     /**
      * Binder service name of car service registered to service manager.
@@ -1484,6 +1485,13 @@ public final class Car implements ICarBase {
     public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE =
             "android.car.cluster.ClusterActivityState";
 
+    /**
+     * @hide
+     */
+    @OptionalFeature
+    @FlaggedApi(Flags.FLAG_DISPLAY_COMPATIBILITY)
+    @SystemApi
+    public static final String CAR_DISPLAY_COMPAT_SERVICE = "car_display_compat_service";
 
     /**
      * Callback to notify the Lifecycle of car service.
@@ -1716,6 +1724,9 @@ public final class Car implements ICarBase {
         CAR_SERVICE_NAMES.put(CarRemoteDeviceManager.class, CAR_REMOTE_DEVICE_SERVICE);
         if (Flags.persistApSettings()) {
             CAR_SERVICE_NAMES.put(CarWifiManager.class, CAR_WIFI_SERVICE);
+        }
+        if (Flags.displayCompatibility()) {
+            CAR_SERVICE_NAMES.put(CarDisplayCompatManager.class, CAR_DISPLAY_COMPAT_SERVICE);
         }
         // Note: if a new entry is added here, the capacity of CAR_SERVICE_NAMES should be increased
         // as well.
@@ -2637,6 +2648,12 @@ public final class Car implements ICarBase {
                 break;
             default:
                 // Experimental or non-existing
+                if (Flags.displayCompatibility()) {
+                    if (serviceName.equals(CAR_DISPLAY_COMPAT_SERVICE)) {
+                        manager =  new CarDisplayCompatManager(this, binder);
+                        break;
+                    }
+                }
                 String className = null;
                 try {
                     synchronized (mLock) {

@@ -15,13 +15,21 @@
  */
 package com.android.car.custominput.sample;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.media.CarAudioManager;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.Icon;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -40,19 +48,60 @@ public class SampleCustomInputService extends Service implements
 
     private static final String TAG = SampleCustomInputService.class.getSimpleName();
 
+    // Notification channel and notification id used by this foreground service
+    private static final int NOTIFICATION_ID = 1;
+    private static final String NOTIFICATION_CHANNEL_ID =
+            SampleCustomInputService.class.getSimpleName();
+
     private Car mCar;
     private CarInputManager mCarInputManager;
     private CustomInputEventListener mEventHandler;
+
+    @Override
+    public void onCreate() {
+        createNotificationChannelId(this, NOTIFICATION_CHANNEL_ID);
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Entering onBind with intent={" + intent + "}");
         }
-        if (intent != null) {
-            connectToCarService();
-        }
         return null;
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i(TAG, "Entering onStartCommand with [intent=" + intent + ", flags=" + flags
+                + ", startId=" + startId + "]");
+        Notification status = new Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(createNotificationIcon())
+                .setWhen(System.currentTimeMillis())
+                .setContentTitle(SampleCustomInputService.class.getSimpleName())
+                .setContentText(SampleCustomInputService.class.getSimpleName() + " running")
+                .build();
+        connectToCarService();
+        startForeground(NOTIFICATION_ID, status);
+        return START_STICKY;
+    }
+
+    private static void createNotificationChannelId(Context context, String channelName) {
+        NotificationManager notificationManager =
+                context.getSystemService(NotificationManager.class);
+        String description = SampleCustomInputService.class.getName();
+        int importance = NotificationManager.IMPORTANCE_DEFAULT;
+        NotificationChannel channel = new NotificationChannel(
+                NOTIFICATION_CHANNEL_ID, channelName, importance);
+        channel.setDescription(description);
+        notificationManager.createNotificationChannel(channel);
+    }
+
+    private static Icon createNotificationIcon() {
+        Bitmap smallIcon = Bitmap.createBitmap(/* width= */ 50, /* height= */ 50,
+                Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(smallIcon);
+        canvas.drawColor(Color.BLUE);
+        return Icon.createWithBitmap(smallIcon);
     }
 
     private void connectToCarService() {

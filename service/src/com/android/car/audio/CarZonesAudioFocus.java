@@ -77,17 +77,16 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
         SparseArray<CarAudioFocus> audioFocusPerZone = new SparseArray<>();
 
+        ContentObserverFactory observerFactory = new ContentObserverFactory(
+                AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI);
         //Create focus for all the zones
         for (int i = 0; i < carAudioZones.size(); i++) {
             CarAudioZone audioZone = carAudioZones.valueAt(i);
             int audioZoneId = audioZone.getId();
             Slogf.d(TAG, "Adding new zone %d", audioZoneId);
-
-            CarAudioFocus zoneFocusListener = new CarAudioFocus(audioManager,
-                    packageManager, new FocusInteraction(carAudioSettings,
-                    new ContentObserverFactory(AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI),
-                    audioZone.getCarAudioContext()),
-                    audioZone.getCarAudioContext(), carVolumeInfoWrapper, audioZoneId,
+            FocusInteraction interaction = new FocusInteraction(carAudioSettings, observerFactory);
+            CarAudioFocus zoneFocusListener = new CarAudioFocus(audioManager, packageManager,
+                    interaction, audioZone.getCarAudioContext(), carVolumeInfoWrapper, audioZoneId,
                     useFadeManagerConfiguration);
             audioFocusPerZone.put(audioZoneId, zoneFocusListener);
         }

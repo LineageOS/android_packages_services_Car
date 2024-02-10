@@ -161,6 +161,7 @@ android.car.app CarActivityManager void onTaskAppeared(ActivityManager.RunningTa
 android.car.app CarActivityManager void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo)
 android.car.app CarActivityManager void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo)
 android.car.app CarActivityManager void unregisterTaskMonitor()
+android.car.app CarDisplayCompatManager void onCarDisconnected()
 android.car.app CarSystemUIProxy CarTaskViewHost createCarTaskView(CarTaskViewClient carTaskViewClient)
 android.car.app CarTaskViewController void createRemoteCarDefaultRootTaskView(RemoteCarDefaultRootTaskViewConfig remoteCarDefaultRootTaskViewConfig, Executor callbackExecutor, RemoteCarDefaultRootTaskViewCallback remoteCarDefaultRootTaskViewCallback)
 android.car.app CarTaskViewController void createRemoteCarRootTaskView(RemoteCarRootTaskViewConfig remoteCarRootTaskViewConfig, Executor callbackExecutor, RemoteCarRootTaskViewCallback remoteCarRootTaskViewCallback)
