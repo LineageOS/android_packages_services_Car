@@ -37,15 +37,25 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
     private static final float ON_CHANGE_RATE = 0f;
 
     private CarSubscription getCarSubscription(int propertyId, int[] areaIds) {
-        return getCarSubscription(propertyId, areaIds, ON_CHANGE_RATE);
+        return getCarSubscription(propertyId, areaIds, ON_CHANGE_RATE,
+                /*enableVariableUpdateRate*/ false, /*resolution*/ 0.0f);
     }
 
     private CarSubscription getCarSubscription(int propertyId, int[] areaIds,
             float updateRateHz) {
+        return getCarSubscription(propertyId, areaIds, updateRateHz,
+                /*enableVariableUpdateRate*/ false, /*resolution*/ 0.0f);
+    }
+
+    private CarSubscription getCarSubscription(int propertyId, int[] areaIds,
+                                               float updateRateHz, boolean enableVariableUpdateRate,
+                                               float resolution) {
         CarSubscription option = new CarSubscription();
         option.propertyId = propertyId;
         option.areaIds = areaIds;
         option.updateRateHz = updateRateHz;
+        option.enableVariableUpdateRate = enableVariableUpdateRate;
+        option.resolution = resolution;
         return option;
     }
 
@@ -94,6 +104,41 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
 
         List<CarSubscription> outDiffSubscribeOptions = new ArrayList<>();
         List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
+        mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
+                outPropertyIdsToUnsubscribe);
+
+        expectThat(outPropertyIdsToUnsubscribe).isEmpty();
+        expectThat(outDiffSubscribeOptions).containsExactlyElementsIn(newOptions);
+    }
+
+    @Test
+    public void testStageNewOptions_resolutionChangedToDifferentValue() {
+        mSubscriptionManager.stageNewOptions(mClient1, List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 1.0f,
+                        /*enableVariableUpdateRate*/ false, 1.0f)
+        ));
+
+        mSubscriptionManager.commit();
+
+        mSubscriptionManager.stageNewOptions(mClient2, List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 1.0f,
+                        /*enableVariableUpdateRate*/ false, 10.0f)
+        ));
+
+        List<CarSubscription> outDiffSubscribeOptions = new ArrayList<>();
+        List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
+        mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
+                outPropertyIdsToUnsubscribe);
+
+        expectThat(outPropertyIdsToUnsubscribe).isEmpty();
+        expectThat(outDiffSubscribeOptions).isEmpty();
+
+        List<CarSubscription> newOptions = List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 1.0f,
+                        /*enableVariableUpdateRate*/ false, 0.1f)
+        );
+        mSubscriptionManager.stageNewOptions(mClient2, newOptions);
+
         mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
                 outPropertyIdsToUnsubscribe);
 
@@ -217,6 +262,34 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
     }
 
     @Test
+    public void testDiffBetweenCurrentAndStage_updatedResolution() {
+        List<CarSubscription> client1Options = List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, ON_CHANGE_RATE,
+                        /*enableVariableUpdateRate*/ false, 1.0f),
+                getCarSubscription(PROPERTY2, new int[]{AREA1, AREA2}, ON_CHANGE_RATE,
+                        /*enableVariableUpdateRate*/ false, 1.0f)
+        );
+        mSubscriptionManager.stageNewOptions(mClient1, client1Options);
+        mSubscriptionManager.commit();
+
+        List<CarSubscription> client2Options = List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, ON_CHANGE_RATE,
+                        /*enableVariableUpdateRate*/ false, 0.1f),
+                getCarSubscription(PROPERTY2, new int[]{AREA1, AREA2}, ON_CHANGE_RATE,
+                        /*enableVariableUpdateRate*/ false, 0.1f)
+        );
+        mSubscriptionManager.stageNewOptions(mClient2, client2Options);
+        List<CarSubscription> outDiffSubscribeOptions = new ArrayList<>();
+        List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
+
+        mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
+                outPropertyIdsToUnsubscribe);
+
+        expectThat(outPropertyIdsToUnsubscribe).isEmpty();
+        expectThat(outDiffSubscribeOptions).containsExactlyElementsIn(client2Options);
+    }
+
+    @Test
     public void testDiffBetweenCurrentAndStage_updateRateChangedToLowerRate() {
         mSubscriptionManager.stageNewOptions(mClient1, List.of(
                 getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 1.0f)
@@ -231,6 +304,41 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
 
         List<CarSubscription> outDiffSubscribeOptions = new ArrayList<>();
         List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
+        mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
+                outPropertyIdsToUnsubscribe);
+
+        expectThat(outPropertyIdsToUnsubscribe).isEmpty();
+        expectThat(outDiffSubscribeOptions).containsExactlyElementsIn(newOptions);
+    }
+
+    @Test
+    public void testDiffBetweenCurrentAndStage_resolutionChangedToDifferentValue() {
+        mSubscriptionManager.stageNewOptions(mClient1, List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 1.0f,
+                        /*enableVariableUpdateRate*/ false, 1.0f)
+        ));
+
+        mSubscriptionManager.commit();
+
+        mSubscriptionManager.stageNewOptions(mClient2, List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 1.0f,
+                        /*enableVariableUpdateRate*/ false, 10.0f)
+        ));
+
+        List<CarSubscription> outDiffSubscribeOptions = new ArrayList<>();
+        List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
+        mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
+                outPropertyIdsToUnsubscribe);
+
+        expectThat(outPropertyIdsToUnsubscribe).isEmpty();
+        expectThat(outDiffSubscribeOptions).isEmpty();
+
+        List<CarSubscription> newOptions = List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 1.0f,
+                        /*enableVariableUpdateRate*/ false, 0.1f)
+        );
+        mSubscriptionManager.stageNewOptions(mClient2, newOptions);
+
         mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
                 outPropertyIdsToUnsubscribe);
 
@@ -302,6 +410,33 @@ public final class SubscriptionManagerUnitTest extends AbstractExtendedMockitoTe
         expectThat(outPropertyIdsToUnsubscribe).isEmpty();
         expectThat(outDiffSubscribeOptions).containsExactlyElementsIn(List.of(
                 getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 0.5f)
+        ));
+    }
+
+    @Test
+    public void testDiffBetweenCurrentAndStage_removeClientCauseResolutionChange() {
+        mSubscriptionManager.stageNewOptions(mClient1, List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 1.0f,
+                        /*enableVariableUpdateRate*/ false, 1.0f)
+        ));
+        mSubscriptionManager.commit();
+        mSubscriptionManager.stageNewOptions(mClient2, List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 1.0f,
+                        /*enableVariableUpdateRate*/ false, 10.0f)
+        ));
+        mSubscriptionManager.commit();
+        mSubscriptionManager.stageUnregister(mClient1, new ArraySet<Integer>(Set.of(
+                PROPERTY1)));
+
+        List<CarSubscription> outDiffSubscribeOptions = new ArrayList<>();
+        List<Integer> outPropertyIdsToUnsubscribe = new ArrayList<>();
+        mSubscriptionManager.diffBetweenCurrentAndStage(outDiffSubscribeOptions,
+                outPropertyIdsToUnsubscribe);
+
+        expectThat(outPropertyIdsToUnsubscribe).isEmpty();
+        expectThat(outDiffSubscribeOptions).containsExactlyElementsIn(List.of(
+                getCarSubscription(PROPERTY1, new int[]{AREA1, AREA2}, 1.0f,
+                        /*enableVariableUpdateRate*/ false, 10.0f)
         ));
     }
 

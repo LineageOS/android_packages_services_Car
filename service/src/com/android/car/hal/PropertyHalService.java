@@ -1198,8 +1198,8 @@ public class PropertyHalService extends HalServiceBase {
                 int halPropId = managerToHalPropId(mgrPropId);
                 // Note that we use halPropId instead of mgrPropId in mSubManager.
                 mSubManager.stageNewOptions(CAR_PROP_SVC_REQUEST_ID, List.of(newCarSubscription(
-                        halPropId, areaIds, updateRateHz,
-                        carSubscription.enableVariableUpdateRate)));
+                        halPropId, areaIds, updateRateHz, carSubscription.enableVariableUpdateRate,
+                        carSubscription.resolution)));
             }
             try {
                 updateSubscriptionRateLocked();
@@ -1384,7 +1384,8 @@ public class PropertyHalService extends HalServiceBase {
         for (int i = 0; i < carSubscriptions.size(); i++) {
             CarSubscription carOption = carSubscriptions.get(i);
             halOptions.add(new HalSubscribeOptions(carOption.propertyId, carOption.areaIds,
-                    carOption.updateRateHz, carOption.enableVariableUpdateRate));
+                    carOption.updateRateHz, carOption.enableVariableUpdateRate,
+                    carOption.resolution));
         }
         return halOptions;
     }
@@ -1733,12 +1734,19 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     private static CarSubscription newCarSubscription(int propertyId, int[] areaIds,
-            float updateRateHz, boolean enableVur) {
+                                                      float updateRateHz, boolean enableVur) {
+        return newCarSubscription(propertyId, areaIds, updateRateHz, enableVur,
+                /*resolution*/ 0.0f);
+    }
+
+    private static CarSubscription newCarSubscription(int propertyId, int[] areaIds,
+            float updateRateHz, boolean enableVur, float resolution) {
         CarSubscription option = new CarSubscription();
         option.propertyId = propertyId;
         option.areaIds = areaIds;
         option.updateRateHz = updateRateHz;
         option.enableVariableUpdateRate = enableVur;
+        option.resolution = resolution;
         return option;
     }
 

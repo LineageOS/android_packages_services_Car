@@ -763,6 +763,63 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testSubscribeProperty_withResolution() throws Exception {
+        int[] areaIds = new int[] {AREA_ID_1};
+        HalSubscribeOptions option = new HalSubscribeOptions(CONTINUOUS_PROPERTY,
+                areaIds, ANY_SAMPLING_RATE_1, /*enableVariableUpdateRate=*/ true,
+                /*resolution*/ 1.0f);
+        mVehicleHal.subscribeProperty(mPropertyHalService, List.of(option));
+
+        SubscribeOptions expectedOptions = createSubscribeOptions(CONTINUOUS_PROPERTY,
+                ANY_SAMPLING_RATE_1, areaIds, /*enableVur=*/ true, /*resolution*/ 1.0f);
+
+        verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{expectedOptions}));
+    }
+
+    @Test
+    public void testSubscribeProperty_withResolution_resolutionChange() throws Exception {
+        int[] areaIds = new int[] {AREA_ID_1};
+        HalSubscribeOptions option = new HalSubscribeOptions(CONTINUOUS_PROPERTY,
+                areaIds, ANY_SAMPLING_RATE_1, /*enableVariableUpdateRate=*/ true,
+                /*resolution*/ 1.0f);
+        mVehicleHal.subscribeProperty(mPropertyHalService, List.of(option));
+
+        verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{createSubscribeOptions(
+                CONTINUOUS_PROPERTY, ANY_SAMPLING_RATE_1, areaIds, /*enableVur=*/ true,
+                /*resolution*/ 1.0f)}));
+
+        HalSubscribeOptions option2 = new HalSubscribeOptions(CONTINUOUS_PROPERTY,
+                areaIds, ANY_SAMPLING_RATE_1, /*enableVariableUpdateRate=*/ true,
+                /*resolution*/ 0.1f);
+        clearInvocations(mSubscriptionClient);
+        mVehicleHal.subscribeProperty(mPropertyHalService, List.of(option2));
+
+        verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{createSubscribeOptions(
+                CONTINUOUS_PROPERTY, ANY_SAMPLING_RATE_1, areaIds, /*enableVur=*/ true,
+                /*resolution*/ 0.1f)}));
+
+        clearInvocations(mSubscriptionClient);
+        // No option change.
+        mVehicleHal.subscribeProperty(mPropertyHalService, List.of(option2));
+
+        verify(mSubscriptionClient, never()).subscribe(any());
+    }
+
+    @Test
+    public void testSubscribeProperty_withResolution_zeroForOnChangeProperty() throws Exception {
+        int[] areaIds = new int[] {AREA_ID_1};
+        HalSubscribeOptions option = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
+                areaIds, ANY_SAMPLING_RATE_1, /*enableVariableUpdateRate=*/ true,
+                /*resolution*/ 1.0f);
+        mVehicleHal.subscribeProperty(mPowerHalService, List.of(option));
+
+        SubscribeOptions expectedOptions = createSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
+                ANY_SAMPLING_RATE_1, areaIds, /*enableVur=*/ false, /*resolution*/ 0.0f);
+
+        verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{expectedOptions}));
+    }
+
+    @Test
     public void testSubscribeProperty_subscribeWithAreaId() throws Exception {
         int[] areaIds = new int[] {AREA_ID_1};
         HalSubscribeOptions option = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
@@ -2247,16 +2304,24 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     }
 
     private SubscribeOptions createSubscribeOptions(int propId, float sampleRateHz, int[] areaIds) {
-        return createSubscribeOptions(propId, sampleRateHz, areaIds, /*enableVur=*/ false);
+        return createSubscribeOptions(propId, sampleRateHz, areaIds, /*enableVur=*/ false,
+                /*resolution*/ 0.0f);
     }
 
     private SubscribeOptions createSubscribeOptions(int propId, float sampleRateHz, int[] areaIds,
             boolean enableVur) {
+        return createSubscribeOptions(propId, sampleRateHz, areaIds, enableVur,
+                /*resolution*/ 0.0f);
+    }
+
+    private SubscribeOptions createSubscribeOptions(int propId, float sampleRateHz, int[] areaIds,
+            boolean enableVur, float resolution) {
         SubscribeOptions opts = new SubscribeOptions();
         opts.propId = propId;
         opts.sampleRate = sampleRateHz;
         opts.areaIds = areaIds;
         opts.enableVariableUpdateRate = enableVur;
+        opts.resolution = resolution;
         return opts;
     }
 }

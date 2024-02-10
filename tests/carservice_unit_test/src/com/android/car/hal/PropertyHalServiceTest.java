@@ -2685,6 +2685,21 @@ public class PropertyHalServiceTest {
     }
 
     @Test
+    public void testSubscribeProperty_withResolution() throws Exception {
+        mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
+
+        mPropertyHalService.subscribeProperty(List.of(createCarSubscriptionOption(
+                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f,
+                /* enableVur= */ false, /* resolution */ 1.0f)));
+
+        // Subscription rate has to be updated according to client subscription.
+        verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
+                PERF_VEHICLE_SPEED, new int[]{0}, 40.0f, /* enableVariableUpdateRate= */ false,
+                /* resolution */ 1.0f));
+    }
+
+    @Test
     public void testSubscribeProperty_setAsync_clientDisablesVur() throws Exception {
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
         AsyncPropertyServiceRequest request = copyRequest(SET_SPEED_REQUEST_ID_2);
@@ -2755,18 +2770,27 @@ public class PropertyHalServiceTest {
     public static CarSubscription createCarSubscriptionOption(int propertyId,
             int[] areaId, float updateRateHz) {
         return createCarSubscriptionOption(propertyId, areaId, updateRateHz,
-                /* enableVur= */ false);
+                /* enableVur= */ false, /*resolution*/ 0.0f);
     }
 
     /** Creates a {@code CarSubscription}. */
     @VisibleForTesting
     public static CarSubscription createCarSubscriptionOption(int propertyId,
             int[] areaId, float updateRateHz, boolean enableVur) {
+        return createCarSubscriptionOption(propertyId, areaId, updateRateHz,
+                enableVur, /*resolution*/ 0.0f);
+    }
+
+    /** Creates a {@code CarSubscription}. */
+    @VisibleForTesting
+    public static CarSubscription createCarSubscriptionOption(int propertyId,
+            int[] areaId, float updateRateHz, boolean enableVur, float resolution) {
         CarSubscription options = new CarSubscription();
         options.propertyId = propertyId;
         options.areaIds = areaId;
         options.updateRateHz = updateRateHz;
         options.enableVariableUpdateRate = enableVur;
+        options.resolution = resolution;
         return options;
     }
 
