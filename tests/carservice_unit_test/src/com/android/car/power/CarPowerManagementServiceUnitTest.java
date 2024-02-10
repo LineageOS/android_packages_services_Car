@@ -1537,26 +1537,44 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
-    public void testPowerPolicyOnSilentBoot() throws Exception {
+    public void testPowerPolicyOnSilentBoot_powerPolicyRefactorFlagDisabled() throws Exception {
         grantPowerPolicyPermission();
         mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
         mService.setSilentMode(SilentModeHandler.SILENT_MODE_FORCED_SILENT);
 
-        assertThat(mService.getCurrentPowerPolicy().getPolicyId())
-                .isEqualTo(SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
+        waitForPowerPolicy(SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
 
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, /* param= */ 0));
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_ON);
 
         mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
-
-        assertThat(mService.getCurrentPowerPolicy().getPolicyId())
-                .isEqualTo(SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
+        waitForPowerPolicy(SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
 
         mService.setSilentMode(SilentModeHandler.SILENT_MODE_FORCED_NON_SILENT);
+        waitForPowerPolicy(SYSTEM_POWER_POLICY_ALL_ON);
+    }
 
-        assertThat(mService.getCurrentPowerPolicy().getPolicyId())
-                .isEqualTo(SYSTEM_POWER_POLICY_ALL_ON);
+    @Test
+    public void testPowerPolicyOnSilentBoot_powerPolicyRefactorFlagEnabled() throws Exception {
+        setRefactoredService();
+        mRefactoredPowerPolicyDaemon.silentModeFileObserverStartWatching();
+        grantPowerPolicyPermission();
+
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
+        mService.setSilentMode(SilentModeHandler.SILENT_MODE_FORCED_SILENT);
+
+        waitForPowerPolicy(SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, /* param= */ 0));
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_ON);
+
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
+        waitForPowerPolicy(SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
+
+        mService.setSilentMode(SilentModeHandler.SILENT_MODE_FORCED_NON_SILENT);
+        waitForPowerPolicy(SYSTEM_POWER_POLICY_ALL_ON);
+
+        mRefactoredPowerPolicyDaemon.silentModeFileObserverStopWatching();
     }
 
     @Test
@@ -2107,7 +2125,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
 
         mSystemStateInterface.waitForDeepSleepEntry(WAIT_TIMEOUT_MS);
-
         if (nextPowerState != null) {
             mPowerHal.setCurrentPowerState(new PowerState(nextPowerState, 0));
         }
@@ -2974,7 +2991,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
             }
         };
         private final Handler mMainHandler = new Handler(Looper.getMainLooper());
-        private final ArrayMap<String,
+        private final Map<String,
                 android.frameworks.automotive.powerpolicy.CarPowerPolicy> mPolicies =
                         new ArrayMap<>();
         private final Map<String, SparseArray<
