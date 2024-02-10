@@ -104,7 +104,7 @@ public class GarageModeServiceTest {
     public void testStopAndResetGarageMode() {
         mService.stopAndResetGarageMode();
 
-        verify(mMockController).resetGarageMode();
+        verify(mMockController).resetGarageMode(null);
     }
 
 }

@@ -18,7 +18,6 @@ package com.android.car.garagemode;
 
 import static com.android.car.garagemode.GarageMode.ACTION_GARAGE_MODE_OFF;
 import static com.android.car.garagemode.GarageMode.ACTION_GARAGE_MODE_ON;
-import static com.android.car.garagemode.GarageMode.JOB_SNAPSHOT_INITIAL_UPDATE_MS;
 import static com.android.car.power.CarPowerManagementService.INVALID_TIMEOUT;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -31,7 +30,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,6 +40,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.UserHandle;
 import android.util.Log;
@@ -61,7 +61,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
@@ -77,11 +76,11 @@ import java.util.concurrent.Executor;
 public class ControllerTest {
 
     private static final String TAG = "ControllerTest";
+    private static final int DEFAULT_TIMEOUT_MS = 1000;
+
     @Rule public final MockitoRule rule = MockitoJUnit.rule();
 
     @Mock private Context mContextMock;
-    @Mock private Looper mLooperMock;
-    @Mock private Handler mHandlerMock;
     @Mock private CarUserService mCarUserServiceMock;
     @Mock private SystemInterface mSystemInterfaceMock;
     @Mock private CarPowerManagementService mCarPowerManagementServiceMock;
@@ -91,9 +90,16 @@ public class ControllerTest {
 
     private Controller mController;
     private File mTempTestDir;
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
+    private Looper mLooper;
 
     @Before
     public void setUp() throws IOException {
+        mHandlerThread = new HandlerThread("ControllerTest");
+        mHandlerThread.start();
+        mLooper = mHandlerThread.getLooper();
+        mHandler = new Handler(mLooper);
         mCarUserServiceOriginal = CarLocalServices.getService(CarUserService.class);
         mCarPowerManagementServiceOriginal = CarLocalServices.getService(
                 CarPowerManagementService.class);
@@ -109,7 +115,7 @@ public class ControllerTest {
         when(mSystemInterfaceMock.getSystemCarDir()).thenReturn(mTempTestDir);
         Log.v(TAG, "Using temp dir: %s " + mTempTestDir.getAbsolutePath());
 
-        mController = new Controller(mContextMock, mLooperMock, mHandlerMock,
+        mController = new Controller(mContextMock, mLooper, mHandler,
                 /* garageMode= */ null);
 
         doReturn(new ArrayList<Integer>()).when(mCarUserServiceMock)
@@ -127,38 +133,43 @@ public class ControllerTest {
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class,
                 mCarPowerManagementServiceOriginal);
+
+        mHandlerThread.quitSafely();
     }
 
     @Test
     public void testOnShutdownPrepare_shouldInitiateGarageMode() {
-        startAndAssertGarageModeWithSignal(CarPowerManager.STATE_SHUTDOWN_PREPARE);
-        verify(mSystemInterfaceMock)
+        // Sending notification that state has changed
+        mController.onStateChanged(CarPowerManager.STATE_SHUTDOWN_PREPARE, INVALID_TIMEOUT);
+
+        // Assert that GarageMode has been started
+        verify(mSystemInterfaceMock, timeout(DEFAULT_TIMEOUT_MS))
                 .sendBroadcastAsUser(mIntentCaptor.capture(), eq(UserHandle.ALL));
+        assertThat(mController.isGarageModeActive()).isTrue();
         verifyGarageModeBroadcast(mIntentCaptor.getAllValues(), 1, ACTION_GARAGE_MODE_ON);
     }
 
     @Test
     public void testOnShutdownCancelled_shouldCancelGarageMode() {
-        startAndAssertGarageModeWithSignal(CarPowerManager.STATE_SHUTDOWN_PREPARE);
+        Looper looper = Looper.getMainLooper();
+        mController = new Controller(mContextMock, looper);
+        mController.init();
+        // Sending notification that state has changed
+        mController.onStateChanged(CarPowerManager.STATE_SHUTDOWN_PREPARE, INVALID_TIMEOUT);
 
         // Sending shutdown cancelled signal to controller, GarageMode should wrap up and stop
         mController.onStateChanged(CarPowerManager.STATE_SHUTDOWN_CANCELLED, INVALID_TIMEOUT);
 
-        // Verify that GarageMode is not active anymore
-        assertThat(mController.isGarageModeActive()).isFalse();
-
-        // Verify that monitoring thread has stopped
-        verify(mHandlerMock, Mockito.atLeastOnce()).removeCallbacks(any(Runnable.class));
-
         // Verify that OFF signal broadcasted to JobScheduler
-        verify(mSystemInterfaceMock, times(2))
+        verify(mSystemInterfaceMock, timeout(DEFAULT_TIMEOUT_MS).times(2))
                 .sendBroadcastAsUser(mIntentCaptor.capture(), eq(UserHandle.ALL));
         verifyGarageModeBroadcast(mIntentCaptor.getAllValues(), 1, ACTION_GARAGE_MODE_ON);
         verifyGarageModeBroadcast(mIntentCaptor.getAllValues(), 2, ACTION_GARAGE_MODE_OFF);
 
         // Verify that listener is completed due to the cancellation.
-        verify(mCarPowerManagementServiceMock).completeHandlingPowerStateChange(
-                eq(CarPowerManager.STATE_SHUTDOWN_PREPARE), eq(mController));
+        verify(mCarPowerManagementServiceMock, timeout(DEFAULT_TIMEOUT_MS))
+                .completeHandlingPowerStateChange(
+                        eq(CarPowerManager.STATE_SHUTDOWN_PREPARE), eq(mController));
     }
 
     @Test
@@ -166,7 +177,7 @@ public class ControllerTest {
         Executor mockExecutor = mock(Executor.class);
         when(mContextMock.getMainExecutor()).thenReturn(mockExecutor);
         GarageMode garageMode = mock(GarageMode.class);
-        Controller controller = new Controller(mContextMock, mLooperMock, mHandlerMock, garageMode);
+        Controller controller = new Controller(mContextMock, mLooper, mHandler, garageMode);
 
         controller.init();
         controller.release();
@@ -180,7 +191,7 @@ public class ControllerTest {
         Resources resourcesMock = mock(Resources.class);
         when(mContextMock.getResources()).thenReturn(resourcesMock);
 
-        Controller controller = new Controller(mContextMock, mLooperMock);
+        Controller controller = new Controller(mContextMock, mLooper);
 
         assertThat(controller).isNotNull();
     }
@@ -188,28 +199,27 @@ public class ControllerTest {
     @Test
     public void testOnStateChanged() {
         GarageMode garageMode = mock(GarageMode.class);
-        Controller controller = spy(new Controller(mContextMock, mLooperMock, mHandlerMock,
-                garageMode));
+        Controller controller = new Controller(mContextMock, mLooper, mHandler, garageMode);
         controller.init();
 
         controller.onStateChanged(CarPowerManager.STATE_SHUTDOWN_CANCELLED, INVALID_TIMEOUT);
-        verify(controller).resetGarageMode();
+        verify(garageMode, timeout(DEFAULT_TIMEOUT_MS)).cancel(any());
 
-        clearInvocations(controller);
+        clearInvocations(garageMode);
         controller.onStateChanged(CarPowerManager.STATE_SHUTDOWN_ENTER, INVALID_TIMEOUT);
-        verify(controller).resetGarageMode();
+        verify(garageMode, timeout(DEFAULT_TIMEOUT_MS)).cancel(any());
 
-        clearInvocations(controller);
+        clearInvocations(garageMode);
         controller.onStateChanged(CarPowerManager.STATE_SUSPEND_ENTER, INVALID_TIMEOUT);
-        verify(controller).resetGarageMode();
+        verify(garageMode, timeout(DEFAULT_TIMEOUT_MS)).cancel(any());
 
-        clearInvocations(controller);
+        clearInvocations(garageMode);
         controller.onStateChanged(CarPowerManager.STATE_HIBERNATION_ENTER, INVALID_TIMEOUT);
-        verify(controller).resetGarageMode();
+        verify(garageMode, timeout(DEFAULT_TIMEOUT_MS)).cancel(any());
 
-        clearInvocations(controller);
+        clearInvocations(garageMode);
         controller.onStateChanged(CarPowerManager.STATE_INVALID , INVALID_TIMEOUT);
-        verify(controller, never()).resetGarageMode();
+        verify(garageMode, never()).cancel(any());
     }
 
     private void verifyGarageModeBroadcast(List<Intent> intents, int times, String action) {
@@ -223,16 +233,5 @@ public class ControllerTest {
         int flags = Intent.FLAG_RECEIVER_REGISTERED_ONLY | Intent.FLAG_RECEIVER_NO_ABORT;
         boolean areRequiredFlagsSet = ((flags & i.getFlags()) == flags);
         assertThat(areRequiredFlagsSet).isTrue();
-    }
-
-    private void startAndAssertGarageModeWithSignal(int signal) {
-        // Sending notification that state has changed
-        mController.onStateChanged(signal, INVALID_TIMEOUT);
-
-        // Assert that GarageMode has been started
-        assertThat(mController.isGarageModeActive()).isTrue();
-
-        // Verify that worker that polls running jobs from JobScheduler is scheduled.
-        verify(mHandlerMock).postDelayed(any(), eq(JOB_SNAPSHOT_INITIAL_UPDATE_MS));
     }
 }

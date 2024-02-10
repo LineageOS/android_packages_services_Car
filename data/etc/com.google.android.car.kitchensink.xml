@@ -170,7 +170,5 @@
         <permission name="android.car.permission.CONTROL_REMOTE_ACCESS"/>
         <!-- use for TunerTestFragment -->
         <permission name="android.permission.ACCESS_BROADCAST_RADIO" />
-        <!-- use for allowlisting automotive driver assistance packages from camera privacy -->
-        <permission name="android.permission.CAMERA_PRIVACY_ALLOWLIST" />
     </privapp-permissions>
 </permissions>
