@@ -20,6 +20,7 @@ import static android.car.builtin.media.AudioManagerHelper.isMasterMute;
 import static android.car.feature.Flags.carAudioFadeManagerConfiguration;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_AUDIO_MIRRORING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
+import static android.car.media.CarAudioManager.AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_OEM_AUDIO_SERVICE;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_EVENTS;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
@@ -215,6 +216,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private final boolean mUseCarVolumeGroupEvents;
     private final boolean mUseCarVolumeGroupMuting;
     private final boolean mUseHalDuckingSignals;
+    private final boolean mUseMinMaxActivationVolume;
     private final @CarVolume.CarVolumeListVersion int mAudioVolumeAdjustmentContextsVersion;
     private final boolean mPersistMasterMuteState;
     private final boolean mUseFadeManagerConfiguration;
@@ -413,6 +415,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         mUseFadeManagerConfiguration = enableFadeManagerConfiguration()
                 && carAudioFadeManagerConfiguration()
                 && mContext.getResources().getBoolean(R.bool.audioUseFadeManagerConfiguration);
+        mUseMinMaxActivationVolume = Flags.carAudioMinMaxActivationVolume() && !runInLegacyMode()
+                && mContext.getResources().getBoolean(R.bool.audioUseMinMaxActivationVolume);
         validateFeatureFlagSettings();
         mAudioServerStateCallback = new CarAudioServerStateCallback(this);
         mAudioDeviceInfoCallback = new CarAudioDeviceCallback(this);
@@ -611,6 +615,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 writer.printf("Volume Group Mute Enabled? %b\n", mUseCarVolumeGroupMuting);
                 writer.printf("Volume Group Events Enabled? %b\n", mUseCarVolumeGroupEvents);
                 writer.printf("Use fade manager configuration? %b\n", mUseFadeManagerConfiguration);
+                writer.printf("Use min/max activation volume? %b\n", mUseMinMaxActivationVolume);
                 writer.println();
                 mCarVolume.dump(writer);
                 writer.println();
@@ -721,6 +726,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                     mUseCarVolumeGroupEvents);
             proto.write(CarAudioConfiguration.USE_FADE_MANAGER_CONFIGURATION,
                     mUseFadeManagerConfiguration);
+            proto.write(CarAudioConfiguration.USE_MIN_MAX_ACTIVATION_VOLUME,
+                    mUseMinMaxActivationVolume);
             proto.end(configurationToken);
 
             mCarVolume.dumpProto(proto);
@@ -791,6 +798,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 return mUseCarVolumeGroupEvents;
             case AUDIO_FEATURE_AUDIO_MIRRORING:
                 return mCarAudioMirrorRequestHandler.isMirrorAudioEnabled();
+            case AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME:
+                return mUseMinMaxActivationVolume;
             default:
                 throw new IllegalArgumentException("Unknown Audio Feature type: "
                         + audioFeatureType);

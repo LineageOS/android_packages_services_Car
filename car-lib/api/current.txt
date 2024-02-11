@@ -998,6 +998,7 @@ package android.car.media {
     method public void unregisterCarVolumeCallback(@NonNull android.car.media.CarAudioManager.CarVolumeCallback);
     field public static final int AUDIO_FEATURE_AUDIO_MIRRORING = 5; // 0x5
     field public static final int AUDIO_FEATURE_DYNAMIC_ROUTING = 1; // 0x1
+    field @FlaggedApi("android.car.feature.car_audio_min_max_activation_volume") public static final int AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME = 6; // 0x6
     field public static final int AUDIO_FEATURE_OEM_AUDIO_SERVICE = 3; // 0x3
     field public static final int AUDIO_FEATURE_VOLUME_GROUP_EVENTS = 4; // 0x4
     field public static final int AUDIO_FEATURE_VOLUME_GROUP_MUTING = 2; // 0x2

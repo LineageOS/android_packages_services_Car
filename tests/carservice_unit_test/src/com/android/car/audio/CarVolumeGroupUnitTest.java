@@ -79,6 +79,12 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     private static final int MIN_GAIN_INDEX = 0;
     private static final int MAX_GAIN_INDEX = (TestCarAudioDeviceInfoBuilder.MAX_GAIN
             - TestCarAudioDeviceInfoBuilder.MIN_GAIN) / TestCarAudioDeviceInfoBuilder.STEP_VALUE;
+    private static final int MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE = 10;
+    private static final int MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE = 90;
+    private static final int MIN_ACTIVATION_GAIN_INDEX = MIN_GAIN_INDEX + (int) Math.round(
+            MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE / 100.0 * (MAX_GAIN_INDEX - MIN_GAIN_INDEX));
+    private static final int MAX_ACTIVATION_GAIN_INDEX = MIN_GAIN_INDEX + (int) Math.round(
+            MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE / 100.0 * (MAX_GAIN_INDEX - MIN_GAIN_INDEX));
     private static final int TEST_GAIN_INDEX = 2;
     private static final int TEST_USER_10 = 10;
     private static final int TEST_USER_11 = 11;
@@ -353,6 +359,28 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
         expectWithMessage("Mute by system status with HAL muted")
                 .that(carVolumeGroup.getCarVolumeGroupInfo().isMutedBySystem()).isTrue();
+    }
+
+    @Test
+    public void getMaxActivationGainIndex_returnsExpectedDevice() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+
+        int maxActivationGainIndex = carVolumeGroup.getMaxActivationGainIndex();
+
+        expectWithMessage("Max activation gain index").that(maxActivationGainIndex)
+                .isEqualTo(MAX_ACTIVATION_GAIN_INDEX);
+    }
+
+    @Test
+    public void getMinActivationGainIndex_returnsExpectedDevice() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+
+        int minActivationGainIndex = carVolumeGroup.getMinActivationGainIndex();
+
+        expectWithMessage("Min activation gain index").that(minActivationGainIndex)
+                .isEqualTo(MIN_ACTIVATION_GAIN_INDEX);
     }
 
     @Test
@@ -1701,6 +1729,23 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void getCarVolumeGroupInfo_withMinMaxActivationVolumeEnabled() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(0);
+
+        CarVolumeGroupInfo info = carVolumeGroup.getCarVolumeGroupInfo();
+
+        expectWithMessage("Car volume group info min activation gain")
+                .that(info.getMinActivationVolumeGainIndex())
+                .isEqualTo(carVolumeGroup.getMinActivationGainIndex());
+        expectWithMessage("Car volume group info max activation gain")
+                .that(info.getMaxActivationVolumeGainIndex())
+                .isEqualTo(carVolumeGroup.getMaxActivationGainIndex());
+    }
+
+    @Test
     public void getAudioAttributes() {
         CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
 
@@ -1818,7 +1863,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
             boolean useCarVolumeGroupMute) {
         CarVolumeGroupFactory factory =  new CarVolumeGroupFactory(mAudioManagerMock, settings,
                 TEST_CAR_AUDIO_CONTEXT, ZONE_ID, CONFIG_ID, GROUP_ID, /* name= */ "0",
-                useCarVolumeGroupMute);
+                useCarVolumeGroupMute, MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE,
+                MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE);
         factory.setDeviceInfoForContext(TEST_NAVIGATION_CONTEXT_ID, mNavigationDeviceInfo);
         return factory.getCarVolumeGroup(/* useCoreAudioVolume= */ false);
     }
@@ -1876,7 +1922,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
     CarVolumeGroupFactory getFactory(boolean useCarVolumeGroupMute) {
         return new CarVolumeGroupFactory(mAudioManagerMock, mSettingsMock, TEST_CAR_AUDIO_CONTEXT,
-                ZONE_ID, CONFIG_ID, GROUP_ID, GROUP_NAME, useCarVolumeGroupMute);
+                ZONE_ID, CONFIG_ID, GROUP_ID, GROUP_NAME, useCarVolumeGroupMute,
+                MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE, MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE);
     }
 
     private static final class SettingsBuilder {

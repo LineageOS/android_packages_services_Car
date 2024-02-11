@@ -33,6 +33,7 @@ message CarAudioDumpProto {
     optional bool use_car_volume_group_muting = 9;
     optional bool use_car_volume_group_events = 10;
     optional bool use_fade_manager_configuration = 11;
+    optional bool use_min_max_activation_volume = 12;
   }
 
   message CarAudioState {
@@ -75,6 +76,8 @@ message CarAudioDumpProto {
     optional int32 max_gain_index = 2;
     optional int32 default_gain_index = 3;
     optional int32 current_gain_index = 4;
+    optional int32 min_activation_gain_index = 5;
+    optional int32 max_activation_gain_index = 6;
   }
   message CarAudioDeviceInfoProto {
     optional string address = 1;
