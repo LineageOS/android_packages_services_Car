@@ -152,13 +152,25 @@ public final class CarAudioManager extends CarManagerBase {
      */
     public static final int AUDIO_FEATURE_AUDIO_MIRRORING = 5;
 
+    /**
+     * This is used to determine if min/max activation volume level is supported via
+     * {@link #isAudioFeatureEnabled(int)}
+     *
+     * <p>If enabled, the volume of the volume group with min/max activation volume setting
+     * will be set to min activation volume or max activation volume if volume during activation
+     * is lower than min activation volume or higher than max activation volume respectively.
+     */
+    @FlaggedApi(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME)
+    public static final int AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME = 6;
+
     /** @hide */
     @IntDef(flag = false, prefix = "AUDIO_FEATURE", value = {
             AUDIO_FEATURE_DYNAMIC_ROUTING,
             AUDIO_FEATURE_VOLUME_GROUP_MUTING,
             AUDIO_FEATURE_OEM_AUDIO_SERVICE,
             AUDIO_FEATURE_VOLUME_GROUP_EVENTS,
-            AUDIO_FEATURE_AUDIO_MIRRORING
+            AUDIO_FEATURE_AUDIO_MIRRORING,
+            AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CarAudioFeature {}
@@ -434,9 +446,12 @@ public final class CarAudioManager extends CarManagerBase {
     /**
      * Determines if an audio feature is enabled.
      *
-     * @param audioFeature audio feature to query, can be {@link #AUDIO_FEATURE_DYNAMIC_ROUTING},
-     *                     {@link #AUDIO_FEATURE_VOLUME_GROUP_MUTING} or
-     *                     {@link #AUDIO_FEATURE_VOLUME_GROUP_EVENTS}
+     * @param audioFeature audio feature to query, can be any of:
+     *                     {@link #AUDIO_FEATURE_DYNAMIC_ROUTING},
+     *                     {@link #AUDIO_FEATURE_VOLUME_GROUP_MUTING},
+     *                     {@link #AUDIO_FEATURE_VOLUME_GROUP_EVENTS},
+     *                     {@link #AUDIO_FEATURE_AUDIO_MIRRORING} or
+     *                     {@link #AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME}
      * @return Returns {@code true} if the feature is enabled, {@code false} otherwise.
      */
     public boolean isAudioFeatureEnabled(@CarAudioFeature int audioFeature) {

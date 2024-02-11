@@ -101,6 +101,13 @@
            be ignored. -->
     <bool name="audioUseFadeManagerConfiguration">false</bool>
 
+    <!--  Configuration to enable min/max activation volume. If this is set to true, the volume of
+          the volume group with min/max activation volume setting will be set to min activation
+          volume or max activation volume if volume during activation is lower than min activation
+          volume or higher than max activation volume respectively. If this is set to false, no
+          volume level will be changed during activation.-->
+    <bool name="audioUseMinMaxActivationVolume">false</bool>
+
     <!-- Whether to block other audio while media audio is muted with display off. When set to true,
          other sounds cannot be played either while display is off. If false, only media is muted
          and other sounds can be still played. -->

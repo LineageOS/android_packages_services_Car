@@ -21,6 +21,7 @@ import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME;
 import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_AUDIO_MIRRORING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
+import static android.car.media.CarAudioManager.AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_OEM_AUDIO_SERVICE;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_EVENTS;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
@@ -92,6 +93,7 @@ import static com.android.car.R.bool.audioUseCoreVolume;
 import static com.android.car.R.bool.audioUseDynamicRouting;
 import static com.android.car.R.bool.audioUseFadeManagerConfiguration;
 import static com.android.car.R.bool.audioUseHalDuckingSignals;
+import static com.android.car.R.bool.audioUseMinMaxActivationVolume;
 import static com.android.car.R.integer.audioVolumeAdjustmentContextsVersion;
 import static com.android.car.R.integer.audioVolumeKeyEventTimeoutMs;
 import static com.android.car.audio.CarAudioService.CAR_DEFAULT_AUDIO_ATTRIBUTE;
@@ -472,6 +474,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private boolean mUseHalAudioDucking = true;
     private boolean mUseCarVolumeGroupMuting = true;
     private boolean mUseCarVolumeGroupEvents = true;
+    private boolean mUseMinMaxActivationVolume = true;
 
     private TemporaryFile mTempCarAudioConfigFile;
 
@@ -748,6 +751,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .thenReturn(mUseCarVolumeGroupMuting);
         when(mMockResources.getBoolean(audioUseCarVolumeGroupEvent))
                 .thenReturn(mUseCarVolumeGroupEvents);
+        when(mMockResources.getBoolean(audioUseMinMaxActivationVolume))
+                .thenReturn(mUseMinMaxActivationVolume);
         when(mMockResources.getInteger(audioVolumeAdjustmentContextsVersion))
                 .thenReturn(AUDIO_CONTEXT_PRIORITY_LIST_VERSION_ONE);
         when(mMockResources.getBoolean(audioPersistMasterMuteState)).thenReturn(mPersistMasterMute);
@@ -1932,6 +1937,38 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         expectWithMessage("Audio mirror enabled status")
                 .that(isEnabled).isFalse();
+    }
+
+    @Test
+    public void isAudioFeatureEnabled_forMinMaxActivationVolume() throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarAudioService service = setUpAudioService();
+
+        expectWithMessage("Min/max activation volume feature")
+                .that(service.isAudioFeatureEnabled(AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME))
+                .isEqualTo(mUseMinMaxActivationVolume);
+    }
+
+    @Test
+    public void isAudioFeatureEnabled_forDisabledMinMaxActivationVolume() throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarAudioService nonMinMaxActivationVolumeAudioService =
+                setUpAudioServiceWithDisabledResource(audioUseMinMaxActivationVolume);
+
+        expectWithMessage("Disabled min/max activation volume feature")
+                .that(nonMinMaxActivationVolumeAudioService
+                        .isAudioFeatureEnabled(AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME))
+                .isFalse();
+    }
+
+    @Test
+    public void isAudioFeatureEnabled_forMinMaxActivationVolumeWithDisabledFlag() throws Exception {
+        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarAudioService service = setUpAudioService();
+
+        expectWithMessage("Min/max activation volume feature with disabled feature flag")
+                .that(service.isAudioFeatureEnabled(AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME))
+                .isFalse();
     }
 
     @Test

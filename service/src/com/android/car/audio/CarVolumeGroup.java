@@ -105,6 +105,9 @@ import java.util.Set;
     protected final Object mLock = new Object();
     private final CarAudioContext mCarAudioContext;
 
+    private final int mMinActivationVolumePercentage;
+    private final int mMaxActivationVolumePercentage;
+
     @GuardedBy("mLock")
     protected final SparseArray<String> mContextToAddress;
     @GuardedBy("mLock")
@@ -168,7 +171,8 @@ import java.util.Set;
 
     protected CarVolumeGroup(CarAudioContext carAudioContext, CarAudioSettings settingsManager,
             SparseArray<CarAudioDeviceInfo> contextToDevices, int zoneId, int configId,
-            int volumeGroupId, String name, boolean useCarVolumeGroupMute) {
+            int volumeGroupId, String name, boolean useCarVolumeGroupMute,
+            int maxActivationVolumePercentage, int minActivationVolumePercentage) {
         mSettingsManager = settingsManager;
         mCarAudioContext = carAudioContext;
         mContextToDevices = contextToDevices;
@@ -191,6 +195,8 @@ import java.util.Set;
         }
 
         mHasCriticalAudioContexts = containsCriticalAttributes(volumeAttributes);
+        mMaxActivationVolumePercentage = maxActivationVolumePercentage;
+        mMinActivationVolumePercentage = minActivationVolumePercentage;
     }
 
     void init() {
@@ -438,6 +444,20 @@ import java.util.Set;
 
     abstract int getMinGainIndex();
 
+    int getMaxActivationGainIndex() {
+        int maxGainIndex = getMaxGainIndex();
+        int minGainIndex = getMinGainIndex();
+        return minGainIndex + (int) Math.round(mMaxActivationVolumePercentage / 100.0
+                * (maxGainIndex - minGainIndex));
+    }
+
+    int getMinActivationGainIndex() {
+        int maxGainIndex = getMaxGainIndex();
+        int minGainIndex = getMinGainIndex();
+        return minGainIndex + (int) Math.round(mMinActivationVolumePercentage / 100.0
+                * (maxGainIndex - minGainIndex));
+    }
+
     int getCurrentGainIndex() {
         synchronized (mLock) {
             if (isMutedLocked()) {
@@ -540,6 +560,8 @@ import java.util.Set;
             writer.printf("Gain indexes (min / max / default / current): %d %d %d %d\n",
                     getMinGainIndex(), getMaxGainIndex(), getDefaultGainIndex(),
                     mCurrentGainIndex);
+            writer.printf("Activation gain indexes (min / max): %d %d\n",
+                    getMinActivationGainIndex(), getMaxActivationGainIndex());
             for (int i = 0; i < mContextToAddress.size(); i++) {
                 writer.printf("Context: %s -> Address: %s\n",
                         mCarAudioContext.toString(mContextToAddress.keyAt(i)),
@@ -596,6 +618,10 @@ import java.util.Set;
             proto.write(CarAudioDumpProto.CarVolumeGain.MAX_GAIN_INDEX, getMaxGainIndex());
             proto.write(CarAudioDumpProto.CarVolumeGain.DEFAULT_GAIN_INDEX, getDefaultGainIndex());
             proto.write(CarAudioDumpProto.CarVolumeGain.CURRENT_GAIN_INDEX, mCurrentGainIndex);
+            proto.write(CarAudioDumpProto.CarVolumeGain.MIN_ACTIVATION_GAIN_INDEX,
+                    getMinActivationGainIndex());
+            proto.write(CarAudioDumpProto.CarVolumeGain.MAX_ACTIVATION_GAIN_INDEX,
+                    getMaxActivationGainIndex());
             proto.end(volumeGainToken);
 
             for (int i = 0; i < mContextToAddress.size(); i++) {
@@ -871,8 +897,8 @@ import java.util.Set;
         }
 
         if (Flags.carAudioMinMaxActivationVolume()) {
-            builder.setMaxActivationVolumeGainIndex(getMaxGainIndex())
-                    .setMinActivationVolumeGainIndex(getMinGainIndex());
+            builder.setMaxActivationVolumeGainIndex(getMaxActivationGainIndex())
+                    .setMinActivationVolumeGainIndex(getMinActivationGainIndex());
         }
 
         if (Flags.carAudioMuteAmbiguity()) {

@@ -1419,6 +1419,124 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         }
     }
 
+    @Test
+    public void loadAudioZones_withMinMaxActivationVolumeAndNoActivationVolumeSupport()
+            throws Exception {
+        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        try (InputStream versionFourStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_with_min_max_activation_volume)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+                    /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+
+            SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
+
+            CarAudioZoneConfig zoneConfig = zones.get(0).getCurrentCarAudioZoneConfig();
+            CarVolumeGroup[] volumeGroups = zoneConfig.getVolumeGroups();
+            expectWithMessage(
+                    "Primary zone volume group 0 min activation volume with disabled flag")
+                    .that(volumeGroups[0].getMinActivationGainIndex())
+                    .isEqualTo(volumeGroups[0].getMinGainIndex());
+            expectWithMessage(
+                    "Primary zone volume group 0 max activation volume with disabled flag")
+                    .that(volumeGroups[0].getMaxActivationGainIndex())
+                    .isEqualTo(volumeGroups[0].getMaxGainIndex());
+            expectWithMessage(
+                    "Primary zone volume group 1 min activation volume with disabled flag")
+                    .that(volumeGroups[1].getMinActivationGainIndex())
+                    .isEqualTo(volumeGroups[1].getMinGainIndex());
+            expectWithMessage(
+                    "Primary zone volume group 1 max activation volume with disabled flag")
+                    .that(volumeGroups[1].getMaxActivationGainIndex())
+                    .isEqualTo(volumeGroups[1].getMaxGainIndex());
+        }
+    }
+
+    @Test
+    public void loadAudioZones_withMinMaxActivationVolume() throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        try (InputStream versionFourStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_with_min_max_activation_volume)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+                    /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+
+            SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
+
+            CarAudioZoneConfig zoneConfig = zones.get(0).getCurrentCarAudioZoneConfig();
+            CarVolumeGroup[] volumeGroups = zoneConfig.getVolumeGroups();
+            expectWithMessage("Primary zone volume group 0 min activation volume")
+                    .that(volumeGroups[0].getMinActivationGainIndex())
+                    .isGreaterThan(volumeGroups[0].getMinGainIndex());
+            expectWithMessage("Primary zone volume group 0 max activation volume")
+                    .that(volumeGroups[0].getMaxActivationGainIndex())
+                    .isLessThan(volumeGroups[0].getMaxGainIndex());
+            expectWithMessage("Primary zone volume group 1 min activation volume")
+                    .that(volumeGroups[1].getMinActivationGainIndex())
+                    .isEqualTo(volumeGroups[1].getMinGainIndex());
+            expectWithMessage("Primary zone volume group 1 max activation volume")
+                    .that(volumeGroups[1].getMaxActivationGainIndex())
+                    .isEqualTo(volumeGroups[1].getMaxGainIndex());
+        }
+    }
+
+    @Test
+    public void loadAudioZones_withMinMaxActivationVolume_forVersionThree_fails()
+            throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        try (InputStream versionFourStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_with_min_max_activation_volume_in_v3)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+                    /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+
+            IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                    cazh::loadAudioZones);
+
+            expectWithMessage("Min/max activation volume support in v3 exception")
+                    .that(thrown).hasMessageThat().contains("not supported for versions less than");
+        }
+    }
+
+    @Test
+    public void loadAudioZones_withMinMaxActivationVolumeOutOfRange_fails() throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        try (InputStream versionFourStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_with_min_max_activation_volume_out_of_range)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+                    /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+
+            IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                    cazh::loadAudioZones);
+
+            expectWithMessage("Min/max activation volume out of range exception")
+                    .that(thrown).hasMessageThat().contains("can not be outside the range");
+        }
+    }
+
+    @Test
+    public void loadAudioZones_withMinGreaterThanMaxActivationVolume_fails() throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        try (InputStream versionFourStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_with_min_greater_than_max_activation_volume)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+                    /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+
+            IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                    cazh::loadAudioZones);
+
+            expectWithMessage("Min greater than max activation volume exception")
+                    .that(thrown).hasMessageThat().contains("can not be larger than or equal to");
+        }
+    }
+
     private void setupAudioManagerMock() {
         doReturn(CoreAudioRoutingUtils.getProductStrategies())
                 .when(() -> AudioManager.getAudioProductStrategies());

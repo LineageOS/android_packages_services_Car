@@ -37,6 +37,8 @@ final class CarVolumeGroupFactory {
     private final SparseArray<CarAudioDeviceInfo> mContextToDeviceInfo = new SparseArray<>();
     private final CarAudioContext mCarAudioContext;
     private final AudioManager mAudioManager;
+    private final int mMinActivationVolumePercentage;
+    private final int mMaxActivationVolumePercentage;
 
     private int mStepSize = UNSET_STEP_SIZE;
     private int mDefaultGain = Integer.MIN_VALUE;
@@ -45,7 +47,8 @@ final class CarVolumeGroupFactory {
 
     CarVolumeGroupFactory(AudioManager audioManager, CarAudioSettings carAudioSettings,
             CarAudioContext carAudioContext, int zoneId, int configId, int volumeGroupId,
-            String name, boolean useCarVolumeGroupMute) {
+            String name, boolean useCarVolumeGroupMute, int maxActivationVolumePercentage,
+            int minActivationVolumePercentage) {
         mAudioManager = audioManager;
         mCarAudioSettings = Objects.requireNonNull(carAudioSettings,
                 "Car audio settings can not be null");
@@ -56,6 +59,8 @@ final class CarVolumeGroupFactory {
         mId = volumeGroupId;
         mName = Objects.requireNonNull(name, "Car Volume Group name can not be null");
         mUseCarVolumeGroupMute = useCarVolumeGroupMute;
+        mMaxActivationVolumePercentage = maxActivationVolumePercentage;
+        mMinActivationVolumePercentage = minActivationVolumePercentage;
     }
 
     CarVolumeGroup getCarVolumeGroup(boolean useCoreAudioVolume) {
@@ -64,11 +69,13 @@ final class CarVolumeGroupFactory {
         CarVolumeGroup group;
         if (useCoreAudioVolume) {
             group = new CoreAudioVolumeGroup(mAudioManager, mCarAudioContext, mCarAudioSettings,
-                    mContextToDeviceInfo, mZoneId, mConfigId, mId, mName, mUseCarVolumeGroupMute);
+                    mContextToDeviceInfo, mZoneId, mConfigId, mId, mName, mUseCarVolumeGroupMute,
+                    mMaxActivationVolumePercentage, mMinActivationVolumePercentage);
         } else {
             group = new CarAudioVolumeGroup(mCarAudioContext, mCarAudioSettings,
                     mContextToDeviceInfo, mZoneId, mConfigId, mId, mName, mStepSize, mDefaultGain,
-                    mMinGain, mMaxGain, mUseCarVolumeGroupMute);
+                    mMinGain, mMaxGain, mUseCarVolumeGroupMute, mMaxActivationVolumePercentage,
+                    mMinActivationVolumePercentage);
         }
         group.init();
         return group;

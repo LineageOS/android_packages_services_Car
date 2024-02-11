@@ -134,7 +134,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     @GuardedBy("mLock")
     private final List<HalServiceBase> mAllServices;
     @GuardedBy("mLock")
-    private PairSparseArray<RateInfo> mUpdateRateByPropIdAreaId = new PairSparseArray<>();
+    private PairSparseArray<RateInfo> mRateInfoByPropIdAreaId = new PairSparseArray<>();
     @GuardedBy("mLock")
     private final SparseArray<HalPropConfig> mAllProperties = new SparseArray<>();
 
@@ -148,10 +148,12 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     private static final class RateInfo {
         public float updateRateHz;
         public boolean enableVariableUpdateRate;
+        public float resolution;
 
-        RateInfo(float updateRateHz, boolean enableVariableUpdateRate) {
+        RateInfo(float updateRateHz, boolean enableVariableUpdateRate, float resolution) {
             this.updateRateHz = updateRateHz;
             this.enableVariableUpdateRate = enableVariableUpdateRate;
+            this.resolution = resolution;
         }
     }
 
@@ -160,17 +162,26 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         private final int[] mAreaIds;
         private final float mUpdateRateHz;
         private final boolean mEnableVariableUpdateRate;
+        private final float mResolution;
 
         HalSubscribeOptions(int halPropId, int[] areaIds, float updateRateHz) {
-            this(halPropId, areaIds, updateRateHz, /* enableVariableUpdateRate= */ false);
+            this(halPropId, areaIds, updateRateHz, /* enableVariableUpdateRate= */ false,
+                    /* resolution= */ 0.0f);
         }
 
         HalSubscribeOptions(int halPropId, int[] areaIds, float updateRateHz,
                 boolean enableVariableUpdateRate) {
+            this(halPropId, areaIds, updateRateHz, enableVariableUpdateRate,
+                    /* resolution= */ 0.0f);
+        }
+
+        HalSubscribeOptions(int halPropId, int[] areaIds, float updateRateHz,
+                            boolean enableVariableUpdateRate, float resolution) {
             mHalPropId = halPropId;
             mAreaIds = areaIds;
             mUpdateRateHz = updateRateHz;
             mEnableVariableUpdateRate = enableVariableUpdateRate;
+            mResolution = resolution;
         }
 
         int getHalPropId() {
@@ -188,6 +199,9 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         boolean isVariableUpdateRateEnabled() {
             return mEnableVariableUpdateRate;
         }
+        float getResolution() {
+            return mResolution;
+        }
 
         @Override
         public boolean equals(Object other) {
@@ -203,7 +217,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
 
             return mHalPropId == o.getHalPropId() && mUpdateRateHz == o.getUpdateRateHz()
                     && Arrays.equals(mAreaIds, o.getAreaId())
-                    && mEnableVariableUpdateRate == o.isVariableUpdateRateEnabled();
+                    && mEnableVariableUpdateRate == o.isVariableUpdateRateEnabled()
+                    && mResolution == o.getResolution();
         }
 
         @Override
@@ -213,13 +228,14 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                     + ", AreaId: " + Arrays.toString(mAreaIds)
                     + ", UpdateRateHz: " + mUpdateRateHz
                     + ", enableVariableUpdateRate: " + mEnableVariableUpdateRate
+                    + ", Resolution: " + mResolution
                     + "}";
         }
 
         @Override
         public int hashCode() {
             return Objects.hash(mHalPropId, Arrays.hashCode(mAreaIds), mUpdateRateHz,
-                    mEnableVariableUpdateRate);
+                    mEnableVariableUpdateRate, mResolution);
         }
     }
 
@@ -505,11 +521,11 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             for (int i = mAllServices.size() - 1; i >= 0; i--) {
                 mAllServices.get(i).release();
             }
-            for (int i = 0; i < mUpdateRateByPropIdAreaId.size(); i++) {
-                int propertyId = mUpdateRateByPropIdAreaId.keyPairAt(i)[0];
+            for (int i = 0; i < mRateInfoByPropIdAreaId.size(); i++) {
+                int propertyId = mRateInfoByPropIdAreaId.keyPairAt(i)[0];
                 subscribedProperties.add(propertyId);
             }
-            mUpdateRateByPropIdAreaId.clear();
+            mRateInfoByPropIdAreaId.clear();
             mAllProperties.clear();
         }
         for (int i = 0; i < subscribedProperties.size(); i++) {
@@ -635,7 +651,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     public void subscribeProperty(HalServiceBase service, List<HalSubscribeOptions>
             halSubscribeOptions) throws IllegalArgumentException, ServiceSpecificException {
         synchronized (mLock) {
-            PairSparseArray<RateInfo> previousState = cloneState(mUpdateRateByPropIdAreaId);
+            PairSparseArray<RateInfo> previousState = cloneState(mRateInfoByPropIdAreaId);
             SubscribeOptions[] subscribeOptions = createVhalSubscribeOptionsLocked(
                     service, halSubscribeOptions);
             if (subscribeOptions.length == 0) {
@@ -648,14 +664,14 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             try {
                 mSubscriptionClient.subscribe(subscribeOptions);
             } catch (RemoteException e) {
-                mUpdateRateByPropIdAreaId = previousState;
+                mRateInfoByPropIdAreaId = previousState;
                 Slogf.w(CarLog.TAG_HAL, "Failed to subscribe, connection to VHAL failed", e);
                 // Convert RemoteException to ServiceSpecificException so that it could be passed
                 // back to the client.
                 throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
                         "Failed to subscribe, connection to VHAL failed, error: " + e);
             } catch (ServiceSpecificException e) {
-                mUpdateRateByPropIdAreaId = previousState;
+                mRateInfoByPropIdAreaId = previousState;
                 Slogf.w(CarLog.TAG_HAL, "Failed to subscribe, received error from VHAL", e);
                 throw e;
             }
@@ -680,6 +696,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             int[] areaIds = halSubscribeOption.getAreaId();
             float samplingRateHz = halSubscribeOption.getUpdateRateHz();
             boolean enableVariableUpdateRate = halSubscribeOption.isVariableUpdateRateEnabled();
+            float resolution = halSubscribeOption.getResolution();
 
             HalPropConfig config;
             config = mAllProperties.get(property);
@@ -703,6 +720,15 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 }
             }
 
+            if (resolution != 0.0f
+                    && config.getChangeMode() != VehiclePropertyChangeMode.CONTINUOUS) {
+                // resolution should be ignored if property is not continuous, but we set it to
+                // 0 to be safe.
+                resolution = 0.0f;
+                Slogf.w(CarLog.TAG_HAL, "resolution is always 0 for non-continuous property: "
+                        + toPropertyIdString(property));
+            }
+
             if (!isPropertySubscribable(config)) {
                 continue;
             }
@@ -714,7 +740,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             opts.propId = property;
             opts.sampleRate = samplingRateHz;
             opts.enableVariableUpdateRate = enableVariableUpdateRate;
-            RateInfo rateInfo = new RateInfo(samplingRateHz, enableVariableUpdateRate);
+            opts.resolution = resolution;
+            RateInfo rateInfo = new RateInfo(samplingRateHz, enableVariableUpdateRate, resolution);
             int[] filteredAreaIds = filterAreaIdsWithSameRateInfo(property, areaIds, rateInfo);
             opts.areaIds = filteredAreaIds;
             if (opts.areaIds.length == 0) {
@@ -728,11 +755,12 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             for (int j = 0; j < filteredAreaIds.length; j++) {
                 if (DBG) {
                     Slogf.d(CarLog.TAG_HAL, "Update subscription rate for propertyId:"
-                                    + " %s, areaId: %d, SampleRateHz: %f, enableVur: %b",
+                                    + " %s, areaId: %d, SampleRateHz: %f, enableVur: %b,"
+                                    + " resolution: %f",
                             VehiclePropertyIds.toString(opts.propId), filteredAreaIds[j],
-                            samplingRateHz, enableVariableUpdateRate);
+                            samplingRateHz, enableVariableUpdateRate, resolution);
                 }
-                mUpdateRateByPropIdAreaId.put(property, filteredAreaIds[j], rateInfo);
+                mRateInfoByPropIdAreaId.put(property, filteredAreaIds[j], rateInfo);
             }
             subscribeOptionsList.add(opts);
         }
@@ -743,17 +771,31 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         List<Integer> areaIdList = new ArrayList<>();
         synchronized (mLock) {
             for (int i = 0; i < areaIds.length; i++) {
-                RateInfo savedRateInfo = mUpdateRateByPropIdAreaId.get(property, areaIds[i]);
+                RateInfo savedRateInfo = mRateInfoByPropIdAreaId.get(property, areaIds[i]);
+
+                // Strict equality (==) is used here for comparing resolutions. This approach does
+                // not introduce a margin of error through PRECISION_THRESHOLD, and thus can allow
+                // clients to request the highest possible resolution without being limited by a
+                // predefined threshold. This approach is assumed to be feasible under the
+                // hypothesis that the floating point representation of numbers is consistent
+                // across the system. That is, if two clients specify a resolution of 0.01f,
+                // their internal representations will match, enabling an exact comparison despite
+                // floating point inaccuracies. If this is inaccurate, we must introduce a margin
+                // of error (ideally 1e-7 as floats can reliably represent up to 7 significant
+                // figures, but can be higher if necessary), and update the documentation in {@link
+                // android.car.hardware.property.Subscription.Builder#setResolution(float)}
+                // appropriately.
                 if (savedRateInfo != null
                         && (Math.abs(savedRateInfo.updateRateHz - rateInfo.updateRateHz)
                                 < PRECISION_THRESHOLD)
                         && (savedRateInfo.enableVariableUpdateRate
-                                == rateInfo.enableVariableUpdateRate)) {
+                                == rateInfo.enableVariableUpdateRate)
+                        && savedRateInfo.resolution == rateInfo.resolution) {
                     if (DBG) {
                         Slogf.d(CarLog.TAG_HAL, "Property: %s is already subscribed at rate: %f hz"
-                                + ", enableVur: %b",
+                                + ", enableVur: %b, resolution: %f",
                                 toPropertyIdString(property), rateInfo.updateRateHz,
-                                rateInfo.enableVariableUpdateRate);
+                                rateInfo.enableVariableUpdateRate, rateInfo.resolution);
                     }
                     continue;
                 }
@@ -812,7 +854,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             assertServiceOwnerLocked(service, property);
             int[] areaIds = getAllAreaIdsFromPropertyId(config);
             boolean isSubscribed = false;
-            PairSparseArray<RateInfo> previousState = cloneState(mUpdateRateByPropIdAreaId);
+            PairSparseArray<RateInfo> previousState = cloneState(mRateInfoByPropIdAreaId);
             for (int i = 0; i < areaIds.length; i++) {
                 if (!isPropIdAreaIdReadable(config, areaIds[i])) {
                     Slogf.w(CarLog.TAG_HAL, "Cannot unsubscribe to " + toPropertyIdString(property)
@@ -820,9 +862,9 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                             + " the property's access mode does not contain READ");
                     continue;
                 }
-                int index = mUpdateRateByPropIdAreaId.indexOfKeyPair(property, areaIds[i]);
+                int index = mRateInfoByPropIdAreaId.indexOfKeyPair(property, areaIds[i]);
                 if (index >= 0) {
-                    mUpdateRateByPropIdAreaId.removeAt(index);
+                    mRateInfoByPropIdAreaId.removeAt(index);
                     isSubscribed = true;
                 }
             }
@@ -836,12 +878,12 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             try {
                 mSubscriptionClient.unsubscribe(property);
             } catch (RemoteException e) {
-                mUpdateRateByPropIdAreaId = previousState;
+                mRateInfoByPropIdAreaId = previousState;
                 Slogf.w(CarLog.TAG_HAL, "Failed to unsubscribe, connection to VHAL failed", e);
                 throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
                         "Failed to unsubscribe, connection to VHAL failed, error: " + e);
             } catch (ServiceSpecificException e) {
-                mUpdateRateByPropIdAreaId = previousState;
+                mRateInfoByPropIdAreaId = previousState;
                 Slogf.w(CarLog.TAG_HAL, "Failed to unsubscribe, received error from VHAL", e);
                 throw e;
             }

@@ -61,6 +61,9 @@ class CarAudioZonesHelperLegacy {
 
     private static final int NO_BUS_FOR_CONTEXT = -1;
 
+    private static final int MIN_ACTIVATION_VOLUME_PERCENTAGE = 0;
+    private static final int MAX_ACTIVATION_VOLUME_PERCENTAGE = 100;
+
     private final Context mContext;
     private final @XmlRes int mXmlConfiguration;
     private final SparseIntArray mLegacyAudioContextToBus;
@@ -206,7 +209,9 @@ class CarAudioZonesHelperLegacy {
         CarVolumeGroupFactory groupFactory =
                 new CarVolumeGroupFactory(/* audioManager= */ null, mCarAudioSettings,
                         mCarAudioContext, PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, id,
-                        String.valueOf(id), /* useCarVolumeGroupMute= */ false);
+                        String.valueOf(id), /* useCarVolumeGroupMute= */ false,
+                        /* maxActivationVolumePercentage= */ MAX_ACTIVATION_VOLUME_PERCENTAGE,
+                        /* minActivationVolumePercentage= */ MIN_ACTIVATION_VOLUME_PERCENTAGE);
 
         List<Integer> audioContexts = parseAudioContexts(parser, attrs);
 
