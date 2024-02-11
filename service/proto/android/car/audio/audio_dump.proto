@@ -76,6 +76,8 @@ message CarAudioDumpProto {
     optional int32 max_gain_index = 2;
     optional int32 default_gain_index = 3;
     optional int32 current_gain_index = 4;
+    optional int32 min_activation_gain_index = 5;
+    optional int32 max_activation_gain_index = 6;
   }
   message CarAudioDeviceInfoProto {
     optional string address = 1;
