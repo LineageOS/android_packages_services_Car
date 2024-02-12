@@ -16,12 +16,12 @@
 
 package com.android.car.audio;
 
+import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_ATTENUATION_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_ASSISTANT;
 import static android.media.AudioAttributes.USAGE_MEDIA;
-
 
 import static com.android.car.audio.CarAudioContext.AudioContext;
 
@@ -32,7 +32,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.car.media.CarAudioManager;
+import static java.util.Collections.EMPTY_LIST;
+
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupEvent;
 import android.car.media.CarVolumeGroupInfo;
@@ -103,7 +104,7 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     @Before
     public void setUp() {
         mTestAudioZoneConfigBuilder = new CarAudioZoneConfig.Builder(TEST_ZONE_CONFIG_NAME,
-                CarAudioManager.PRIMARY_AUDIO_ZONE, TEST_ZONE_CONFIG_ID, /* isDefault= */ true);
+                PRIMARY_AUDIO_ZONE, TEST_ZONE_CONFIG_ID, /* isDefault= */ true);
 
         mMockMusicGroup = new VolumeGroupBuilder().setName(TEST_MUSIC_GROUP_NAME)
                 .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS)
@@ -125,7 +126,7 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     @Test
     public void getZoneId_fromBuilder() {
         expectWithMessage("Builder zone id").that(mTestAudioZoneConfigBuilder.getZoneId())
-                .isEqualTo(CarAudioManager.PRIMARY_AUDIO_ZONE);
+                .isEqualTo(PRIMARY_AUDIO_ZONE);
     }
 
     @Test
@@ -139,7 +140,7 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
         CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.build();
 
         expectWithMessage("Zone id")
-                .that(zoneConfig.getZoneId()).isEqualTo(CarAudioManager.PRIMARY_AUDIO_ZONE);
+                .that(zoneConfig.getZoneId()).isEqualTo(PRIMARY_AUDIO_ZONE);
     }
 
     @Test
@@ -209,7 +210,7 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     @Test
     public void isDefault_forNonDefaultConfig_returnsFalse() {
         CarAudioZoneConfig zoneConfig = new CarAudioZoneConfig.Builder(TEST_ZONE_CONFIG_NAME,
-                CarAudioManager.PRIMARY_AUDIO_ZONE, TEST_ZONE_CONFIG_ID, /* isDefault= */ false)
+                PRIMARY_AUDIO_ZONE, TEST_ZONE_CONFIG_ID, /* isDefault= */ false)
                 .build();
 
         expectWithMessage("Non-default zone configuration").that(zoneConfig.isDefault()).isFalse();
@@ -622,7 +623,7 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
                 .addVolumeGroup(mMockNavGroup).build();
         List<Integer> reasons = List.of(Reasons.REMOTE_MUTE, Reasons.NAV_DUCKING);
         AudioGainConfigInfo musicGainInfo = new AudioGainConfigInfo();
-        musicGainInfo.zoneId = CarAudioManager.PRIMARY_AUDIO_ZONE;
+        musicGainInfo.zoneId = PRIMARY_AUDIO_ZONE;
         musicGainInfo.devicePortAddress = MUSIC_ADDRESS;
         musicGainInfo.volumeIndex = 666;
         CarAudioGainConfigInfo carMusicGainInfo = new CarAudioGainConfigInfo(musicGainInfo);
@@ -648,7 +649,7 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
         List<Integer> reasons = List.of(Reasons.REMOTE_MUTE, Reasons.NAV_DUCKING);
 
         AudioGainConfigInfo musicGainInfo = new AudioGainConfigInfo();
-        musicGainInfo.zoneId = CarAudioManager.PRIMARY_AUDIO_ZONE;
+        musicGainInfo.zoneId = PRIMARY_AUDIO_ZONE;
         musicGainInfo.devicePortAddress = MUSIC_ADDRESS;
         musicGainInfo.volumeIndex = 666;
         CarAudioGainConfigInfo carMusicGainInfo = new CarAudioGainConfigInfo(musicGainInfo);
@@ -681,7 +682,8 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     public void getCarAudioZoneConfigInfo() {
         CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.build();
         CarAudioZoneConfigInfo zoneConfigInfoExpected = new CarAudioZoneConfigInfo(
-                TEST_ZONE_CONFIG_NAME, CarAudioManager.PRIMARY_AUDIO_ZONE, TEST_ZONE_CONFIG_ID);
+                TEST_ZONE_CONFIG_NAME, EMPTY_LIST, PRIMARY_AUDIO_ZONE, TEST_ZONE_CONFIG_ID,
+                /* isActive= */ true, /* isSelected= */ false, /* isDefault= */ true);
 
         CarAudioZoneConfigInfo zoneConfigInfo = zoneConfig.getCarAudioZoneConfigInfo();
 
@@ -777,7 +779,7 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     private CarAudioZoneConfig buildZoneConfig(List<CarVolumeGroup> volumeGroups) {
         CarAudioZoneConfig.Builder carAudioZoneConfigBuilder =
                 new CarAudioZoneConfig.Builder("Primary zone config 0",
-                        CarAudioManager.PRIMARY_AUDIO_ZONE, /* zoneConfigId= */ 0,
+                        PRIMARY_AUDIO_ZONE, /* zoneConfigId= */ 0,
                         /* isDefault= */ true);
         for (int index = 0; index < volumeGroups.size(); index++) {
             carAudioZoneConfigBuilder =
