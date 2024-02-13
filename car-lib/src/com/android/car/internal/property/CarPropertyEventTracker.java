@@ -30,6 +30,9 @@ public interface CarPropertyEventTracker {
     /** Gets the update rate in Hz. */
     float getUpdateRateHz();
 
+    /** Gets the current CarPropertyValue. */
+    CarPropertyValue<?> getCurrentCarPropertyValue();
+
     /** Returns true if the client needs to be updated for this event. */
     boolean hasUpdate(CarPropertyValue<?> carPropertyValue);
 }
