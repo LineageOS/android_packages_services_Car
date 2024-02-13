@@ -182,8 +182,14 @@ public class CarSettings {
         public static final String FORCED_DAY_NIGHT_MODE = "android.car.FORCED_DAY_NIGHT_MODE";
 
         /**
-         * Enables tethering persisting when set to {@code "true"}. When enabled, tethering
-         * is started when the car is started given that the hotspot was enabled at shutdown.
+         * Enables tethering persisting when set to {@code "true"}.
+         *
+         * <p>When enabled, tethering is started when the car is started given that the hotspot
+         * was enabled at shutdown and all tethering sessions will remain on even if no devices are
+         * connected to it.
+         *
+         * <p>When disabled, hotspot will turn off automatically if no devices are connected and
+         * will no longer persist through drives.
          *
          * @hide
          */
