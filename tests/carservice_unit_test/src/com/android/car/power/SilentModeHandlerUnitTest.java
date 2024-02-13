@@ -69,9 +69,9 @@ public final class SilentModeHandlerUnitTest {
     @Test
     public void testSilentModeHwStateMonitoring() throws Exception {
         SilentModeHandler handler = new SilentModeHandler(mCarPowerManagementService,
-                mFileHwStateMonitoring.getFile().getPath(),
+                mFeatureFlags, mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(), BOOT_REASON_NORMAL);
-        handler.init(mFeatureFlags);
+        handler.init();
 
         writeStringToFile(mFileHwStateMonitoring.getFile(), VALUE_SILENT_MODE);
 
@@ -85,9 +85,9 @@ public final class SilentModeHandlerUnitTest {
     @Test
     public void testRebootForForcedSilentMode() throws Exception {
         SilentModeHandler handler = new SilentModeHandler(mCarPowerManagementService,
-                mFileHwStateMonitoring.getFile().getPath(),
+                mFeatureFlags, mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(), BOOT_REASON_FORCED_SILENT);
-        handler.init(mFeatureFlags);
+        handler.init();
 
         assertWithMessage("Silent mode").that(handler.isSilentMode()).isTrue();
 
@@ -99,9 +99,9 @@ public final class SilentModeHandlerUnitTest {
     @Test
     public void testRebootForForcedNonSilentMode() throws Exception {
         SilentModeHandler handler = new SilentModeHandler(mCarPowerManagementService,
-                mFileHwStateMonitoring.getFile().getPath(),
+                mFeatureFlags, mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(), BOOT_REASON_FORCED_NON_SILENT);
-        handler.init(mFeatureFlags);
+        handler.init();
 
         assertWithMessage("Silent mode").that(handler.isSilentMode()).isFalse();
 
@@ -113,9 +113,9 @@ public final class SilentModeHandlerUnitTest {
     @Test
     public void testUpdateKernelSilentMode() throws Exception {
         SilentModeHandler handler = new SilentModeHandler(mCarPowerManagementService,
-                mFileHwStateMonitoring.getFile().getPath(),
+                mFeatureFlags, mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(), BOOT_REASON_NORMAL);
-        handler.init(mFeatureFlags);
+        handler.init();
 
         handler.updateKernelSilentMode(/* silent= */ true);
 
@@ -169,9 +169,9 @@ public final class SilentModeHandlerUnitTest {
     @Test
     public void testStopSilentModeHwStateMonitoring() throws Exception {
         SilentModeHandler handler = new SilentModeHandler(mCarPowerManagementService,
-                mFileHwStateMonitoring.getFile().getPath(),
+                mFeatureFlags, mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(), BOOT_REASON_NORMAL);
-        handler.init(mFeatureFlags);
+        handler.init();
         writeStringToFile(mFileHwStateMonitoring.getFile(), VALUE_SILENT_MODE);
 
         assertSilentMode(handler, /* isForcedMode= */ false, /* expectedSilentMode= */ true);
@@ -187,9 +187,9 @@ public final class SilentModeHandlerUnitTest {
     private void testSetSilentMode_toForced(boolean initSilentMode, boolean expectedSilentMode)
             throws Exception {
         SilentModeHandler handler = new SilentModeHandler(mCarPowerManagementService,
-                mFileHwStateMonitoring.getFile().getPath(),
+                mFeatureFlags, mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(), BOOT_REASON_NORMAL);
-        handler.init(mFeatureFlags);
+        handler.init();
         handler.updateKernelSilentMode(initSilentMode);
 
         writeStringToFile(mFileHwStateMonitoring.getFile(),
@@ -207,10 +207,10 @@ public final class SilentModeHandlerUnitTest {
 
     private void testSetSilentMode_toNonForced(boolean initSilentMode) throws Exception {
         SilentModeHandler handler = new SilentModeHandler(mCarPowerManagementService,
-                mFileHwStateMonitoring.getFile().getPath(),
+                mFeatureFlags, mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(),
                 initSilentMode ? BOOT_REASON_FORCED_SILENT : BOOT_REASON_FORCED_NON_SILENT);
-        handler.init(mFeatureFlags);
+        handler.init();
 
         handler.setSilentMode(SilentModeHandler.SILENT_MODE_NON_FORCED);
 
