@@ -24,6 +24,8 @@ import android.content.Context;
 import android.content.res.Resources;
 
 import com.android.car.R;
+import com.android.car.power.CarPowerManagementService;
+import com.android.car.user.CarUserService;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,11 +34,15 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CarWifiServiceTest {
+public class CarWifiServiceUnitTest {
     @Mock
     private Context mContext;
     @Mock
     private Resources mResources;
+    @Mock
+    private CarUserService mCarUserService;
+    @Mock
+    private CarPowerManagementService mCarPowerManagementService;
 
     private CarWifiService mCarWifiService;
 
@@ -44,14 +50,14 @@ public class CarWifiServiceTest {
     public void setUp() {
         when(mContext.getResources()).thenReturn(mResources);
 
-        mCarWifiService = new CarWifiService(mContext);
+        mCarWifiService = new CarWifiService(mContext, mCarPowerManagementService, mCarUserService);
     }
 
     @Test
     public void testCanControlPersistTetheringSettings_returnsTrue() {
         when(mResources.getBoolean(R.bool.config_enablePersistTetheringCapabilities)).thenReturn(
                 true);
-        mCarWifiService = new CarWifiService(mContext);
+        mCarWifiService = new CarWifiService(mContext, mCarPowerManagementService, mCarUserService);
 
         boolean result = mCarWifiService.canControlPersistTetheringSettings();
 

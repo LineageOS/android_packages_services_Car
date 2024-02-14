@@ -36,6 +36,7 @@ import com.google.android.car.kitchensink.R;
 import javax.annotation.concurrent.GuardedBy;
 
 public final class ZoneConfigInfoFragment extends Fragment {
+    private TextView mDefaultTextView;
     private TextView mActiveTextView;
     private TextView mSelectedTextView;
     private final Object mLock = new Object();
@@ -59,6 +60,7 @@ public final class ZoneConfigInfoFragment extends Fragment {
         TextView nameView = view.findViewById(R.id.config_name);
         TextView zoneView = view.findViewById(R.id.zone_id);
         TextView configView = view.findViewById(R.id.config_id);
+        mDefaultTextView = view.findViewById(R.id.config_default_status);
         mActiveTextView = view.findViewById(R.id.config_active_status);
         mSelectedTextView = view.findViewById(R.id.config_selected_status);
         nameView.setText(context.getString(config_name, info.getName()));
@@ -93,6 +95,12 @@ public final class ZoneConfigInfoFragment extends Fragment {
     }
 
     private void updateConfigInfoInternal(CarAudioZoneConfigInfo info, Context context) {
+        if (Flags.carAudioDynamicDevices()) {
+            mDefaultTextView.setText(context.getString(R.string.generic_status_name_and_status,
+                    "Default", info.isDefault()));
+        } else {
+            mDefaultTextView.setVisibility(View.GONE);
+        }
         mSelectedTextView.setText(context.getString(R.string.generic_status_name_and_status,
                 "Selected", info.isSelected()));
         mActiveTextView.setText(context.getString(R.string.generic_status_name_and_status,

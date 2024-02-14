@@ -39,18 +39,19 @@ public final class ContCarPropertyEventTracker implements CarPropertyEventTracke
     private final Logger mLogger;
     private final boolean mEnableVur;
     private final float mUpdateRateHz;
+    private final float mResolution;
     private final long mUpdatePeriodNanos;
     private long mNextUpdateTimeNanos;
-    private Object mCurrentValue;
+    private CarPropertyValue<?> mCurrentCarPropertyValue;
     private @PropertyStatus int mCurrentStatus;
 
     public ContCarPropertyEventTracker(boolean useSystemLogger, float updateRateHz,
-            boolean enableVur) {
+            boolean enableVur, float resolution) {
         mLogger = new Logger(useSystemLogger, TAG);
         if (mLogger.dbg()) {
             mLogger.logD(String.format(
                     "new continuous car property event tracker, updateRateHz: %f, "
-                    + ", enableVur: %b", updateRateHz, enableVur));
+                    + ", enableVur: %b, resolution: %f", updateRateHz, enableVur, resolution));
         }
         // updateRateHz should be sanitized before.
         Preconditions.checkArgument(updateRateHz > 0, "updateRateHz must be a positive number");
@@ -58,11 +59,68 @@ public final class ContCarPropertyEventTracker implements CarPropertyEventTracke
         mUpdatePeriodNanos =
                 (long) ((1.0 / mUpdateRateHz) * NANOSECONDS_PER_SECOND * UPDATE_PERIOD_OFFSET);
         mEnableVur = enableVur;
+        mResolution = resolution;
     }
 
     @Override
     public float getUpdateRateHz() {
         return mUpdateRateHz;
+    }
+
+    @Override
+    public CarPropertyValue<?> getCurrentCarPropertyValue() {
+        return mCurrentCarPropertyValue;
+    }
+
+    private int sanitizeValueByResolutionInt(Object value) {
+        return (int) (Math.round((Integer) value / mResolution) * mResolution);
+    }
+
+    private long sanitizeValueByResolutionLong(Object value) {
+        return (long) (Math.round((Long) value / mResolution) * mResolution);
+    }
+
+    private float sanitizeValueByResolutionFloat(Object value) {
+        return Math.round((Float) value / mResolution) * mResolution;
+    }
+
+    private CarPropertyValue<?> sanitizeCarPropertyValueByResolution(
+            CarPropertyValue<?> carPropertyValue) {
+        if (mResolution == 0.0f) {
+            return carPropertyValue;
+        }
+
+        Object value = carPropertyValue.getValue();
+        if (value instanceof Integer) {
+            value = sanitizeValueByResolutionInt(value);
+        } else if (value instanceof Integer[]) {
+            Integer[] array = (Integer[]) value;
+            for (int i = 0; i < array.length; i++) {
+                array[i] = sanitizeValueByResolutionInt(array[i]);
+            }
+            value = array;
+        } else if (value instanceof Long) {
+            value = sanitizeValueByResolutionLong(value);
+        } else if (value instanceof Long[]) {
+            Long[] array = (Long[]) value;
+            for (int i = 0; i < array.length; i++) {
+                array[i] = sanitizeValueByResolutionLong(array[i]);
+            }
+            value = array;
+        } else if (value instanceof Float) {
+            value = sanitizeValueByResolutionFloat(value);
+        } else if (value instanceof Float[]) {
+            Float[] array = (Float[]) value;
+            for (int i = 0; i < array.length; i++) {
+                array[i] = sanitizeValueByResolutionFloat(array[i]);
+            }
+            value = array;
+        }
+        return new CarPropertyValue<>(carPropertyValue.getPropertyId(),
+                carPropertyValue.getAreaId(),
+                carPropertyValue.getStatus(),
+                carPropertyValue.getTimestamp(),
+                value);
     }
 
     /** Returns true if the client needs to be updated for this event. */
@@ -77,20 +135,21 @@ public final class ContCarPropertyEventTracker implements CarPropertyEventTracke
             return false;
         }
         mNextUpdateTimeNanos = carPropertyValue.getTimestamp() + mUpdatePeriodNanos;
-        if (mEnableVur) {
-            int status = carPropertyValue.getStatus();
-            Object value = carPropertyValue.getValue();
-            if (status == mCurrentStatus && Objects.deepEquals(value, mCurrentValue)) {
-                if (mLogger.dbg()) {
-                    mLogger.logD(String.format("hasUpdate: Dropping carPropertyValue: %s, "
-                            + "because VUR is enabled and value is the same",
-                            carPropertyValue));
-                }
-                return false;
+        CarPropertyValue<?> sanitizedCarPropertyValue =
+                sanitizeCarPropertyValueByResolution(carPropertyValue);
+        int status = sanitizedCarPropertyValue.getStatus();
+        Object value = sanitizedCarPropertyValue.getValue();
+        if (mEnableVur && status == mCurrentStatus && mCurrentCarPropertyValue != null
+                    && Objects.deepEquals(value, mCurrentCarPropertyValue.getValue())) {
+            if (mLogger.dbg()) {
+                mLogger.logD(String.format("hasUpdate: Dropping carPropertyValue: %s, "
+                                + "because VUR is enabled and value is the same",
+                        sanitizedCarPropertyValue));
             }
-            mCurrentStatus = status;
-            mCurrentValue = value;
+            return false;
         }
+        mCurrentStatus = status;
+        mCurrentCarPropertyValue = sanitizedCarPropertyValue;
         return true;
     }
 }

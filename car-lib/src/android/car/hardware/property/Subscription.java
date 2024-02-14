@@ -17,6 +17,7 @@
 package android.car.hardware.property;
 
 import static android.car.feature.Flags.FLAG_BATCHED_SUBSCRIPTIONS;
+import static android.car.feature.Flags.FLAG_SUBSCRIPTION_WITH_RESOLUTION;
 import static android.car.feature.Flags.FLAG_VARIABLE_UPDATE_RATE;
 
 import android.annotation.FlaggedApi;
@@ -26,6 +27,7 @@ import android.annotation.Nullable;
 import android.car.hardware.CarPropertyConfig;
 import android.util.ArraySet;
 
+import com.android.car.internal.property.InputSanitizationUtils;
 import com.android.internal.util.Preconditions;
 
 import java.util.Set;
@@ -41,12 +43,14 @@ public final class Subscription {
     private final float mUpdateRateHz;
     private final int[] mAreaIds;
     private final boolean mVariableUpdateRateEnabled;
+    private final float mResolution;
 
     private Subscription(@NonNull Builder builder) {
         mPropertyId = builder.mBuilderPropertyId;
         mUpdateRateHz = builder.mBuilderUpdateRateHz;
         mAreaIds = new int[builder.mBuilderAreaIds.size()];
         mVariableUpdateRateEnabled = builder.mVariableUpdateRateEnabled;
+        mResolution = builder.mResolution;
         int index = 0;
         for (Integer i : builder.mBuilderAreaIds) {
             mAreaIds[index++] = i;
@@ -120,6 +124,14 @@ public final class Subscription {
     }
 
     /**
+     * @return the resolution to subscribe to
+     */
+    @FlaggedApi(FLAG_SUBSCRIPTION_WITH_RESOLUTION)
+    public float getResolution() {
+        return mResolution;
+    }
+
+    /**
      * Builder for {@link Subscription}
      */
     public static final class Builder {
@@ -129,6 +141,7 @@ public final class Subscription {
         private long mBuilderFieldsSet = 0L;
         // By default variable update rate is enabled.
         private boolean mVariableUpdateRateEnabled = true;
+        private float mResolution = 0.0f;
 
         public Builder(int propertyId) {
             this.mBuilderPropertyId = propertyId;
@@ -247,6 +260,48 @@ public final class Subscription {
         @NonNull
         public Builder setVariableUpdateRateEnabled(boolean enabled) {
             mVariableUpdateRateEnabled = enabled;
+            return this;
+        }
+
+        /**
+         * Sets the resolution for a continuous property.
+         *
+         * <p>The resolution defines the number of significant digits the incoming property updates
+         * will be rounded to. For example, when a client subscribes at a resolution of {@code
+         * 0.01}, the system will round incoming property values to the nearest 0.01. Similarly, if
+         * a client subscribes at resolution {@code 10.0}, the client will get property updates
+         * rounded to the nearest 10. As such, registering with a resolution of {@code 0.0} means
+         * that the client is requesting maximum granularity on incoming property updates. By
+         * default, resolution is set to {@code 0.0} for all [propId, areaId]s in this option,
+         * unless set to a different value via this function.
+         *
+         * <p>Clients can only set the resolution to be an integer power of 10 (i.e, {@code 0.01,
+         * 0.1, 1.0, 10.0}). If a client attempts to subscribe at a resolution that does not belong
+         * to this set, an {@link java.lang.IllegalArgumentException} will be thrown.
+         *
+         * <p>This feature works best when used with the variable update rate (VUR) feature. When
+         * VUR is enabled and the client sets a resolution of, for example, {@code 10.0}, then the
+         * client will receive property updates only when the rounded property value changes in the
+         * magnitude of 10. For example, if the client is subscribing to the vehicle property {@link
+         * android.car.VehiclePropertyIds#PERF_VEHICLE_SPEED} at a resolution of {@code 1.0f}, the
+         * system will not propagate a change in vehicle speed from 24.2 to 24.3 up the stack since
+         * it is not required by the client, but will propagate a change from 24.4 to 24.6.
+         *
+         * <p>Including a resolution when used alongside VUR creates a better system performance,
+         * and is thus <strong>STRONGLY RECOMMENDED</strong> to subscribe to a property at the
+         * finest resolution that is required by the client and no more.
+         *
+         * <p>This option is only meaningful for continuous properties, so its value will be ignored
+         * for non-continuous properties.
+         *
+         * @return The original Builder object. This value cannot be {@code null}.
+         * @throws IllegalArgumentException if resolution is not an integer power of 10.
+         */
+        @FlaggedApi(FLAG_SUBSCRIPTION_WITH_RESOLUTION)
+        @NonNull
+        public Builder setResolution(float resolution) {
+            InputSanitizationUtils.requireIntegerPowerOf10Resolution(resolution);
+            mResolution = resolution;
             return this;
         }
 
