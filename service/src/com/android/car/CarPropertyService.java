@@ -280,7 +280,7 @@ public class CarPropertyService extends ICarProperty.Stub
      * Used internally in car service.
      */
     public void registerListener(int propertyId, float updateRateHz,
-            boolean enableVariableUpdateRate,
+            boolean enableVariableUpdateRate, float resolution,
             ICarPropertyEventListener carPropertyEventListener) {
         CarSubscription option = new CarSubscription();
         int[] areaIds = EMPTY_INT_ARRAY;
@@ -293,12 +293,25 @@ public class CarPropertyService extends ICarProperty.Stub
         option.updateRateHz = updateRateHz;
         option.areaIds = areaIds;
         option.enableVariableUpdateRate = enableVariableUpdateRate;
+        option.resolution = resolution;
         registerListener(List.of(option), carPropertyEventListener);
     }
 
     /**
+     * Subscribes to the property update events for the property ID at a resolution of 0.
+     *
+     * Used internally in car service.
+     */
+    public void registerListener(int propertyId, float updateRateHz,
+            boolean enableVariableUpdateRate,
+            ICarPropertyEventListener carPropertyEventListener) {
+        registerListener(propertyId, updateRateHz, enableVariableUpdateRate, /* resolution */ 0.0f,
+                carPropertyEventListener);
+    }
+
+    /**
      * Subscribes to the property update events for the property ID with VUR enabled for continuous
-     * property.
+     * property and a resolution of 0.
      *
      * Used internally in car service.
      */
@@ -312,7 +325,7 @@ public class CarPropertyService extends ICarProperty.Stub
                 && carPropertyConfig.getChangeMode() == VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS) {
             enableVariableUpdateRate = true;
         }
-        registerListener(propertyId, updateRateHz, enableVariableUpdateRate,
+        registerListener(propertyId, updateRateHz, enableVariableUpdateRate, /* resolution */ 0.0f,
                 carPropertyEventListener);
     }
 
@@ -333,7 +346,8 @@ public class CarPropertyService extends ICarProperty.Stub
                     subscription.propertyId, subscription.areaIds);
             subscription.updateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(
                     carPropertyConfig, subscription.updateRateHz);
-
+            subscription.resolution = InputSanitizationUtils.sanitizeResolution(
+                    mFeatureFlags, carPropertyConfig, subscription.resolution);
             sanitizedSubscriptions.addAll(InputSanitizationUtils.sanitizeEnableVariableUpdateRate(
                     mFeatureFlags, carPropertyConfig, subscription));
         }
@@ -417,7 +431,7 @@ public class CarPropertyService extends ICarProperty.Stub
                 if (option.updateRateHz != 0) {
                     client.addContinuousProperty(
                             option.propertyId, option.areaIds, option.updateRateHz,
-                            option.enableVariableUpdateRate);
+                            option.enableVariableUpdateRate, option.resolution);
                 } else {
                     client.addOnChangeProperty(option.propertyId, option.areaIds);
                 }

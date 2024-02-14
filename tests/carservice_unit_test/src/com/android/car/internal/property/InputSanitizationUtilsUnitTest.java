@@ -18,6 +18,7 @@ package com.android.car.internal.property;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -171,6 +172,32 @@ public final class InputSanitizationUtilsUnitTest {
         assertThat(sanitizedOptions).containsExactly(
                 newCarSubscription(PROPERTY_ID, new int[]{1}, DEFAULT_UPDATE_RATE_HZ, true),
                 newCarSubscription(PROPERTY_ID, new int[]{2, 3}, DEFAULT_UPDATE_RATE_HZ, false));
+    }
+
+    @Test
+    public void testSanitizeResolution() {
+        FeatureFlags featureFlags = mock(FeatureFlags.class);
+        CarPropertyConfig config = mock(CarPropertyConfig.class);
+        when(config.getChangeMode()).thenReturn(
+                CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE);
+        when(featureFlags.subscriptionWithResolution()).thenReturn(false);
+
+        assertThat(InputSanitizationUtils.sanitizeResolution(featureFlags,
+                config, 123.456f)).isEqualTo(0.0f);
+
+        when(featureFlags.subscriptionWithResolution()).thenReturn(true);
+        assertThat(InputSanitizationUtils.sanitizeResolution(featureFlags,
+                config, 123.456f)).isEqualTo(0.0f);
+
+        when(config.getChangeMode()).thenReturn(
+                CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS);
+        assertThat(InputSanitizationUtils.sanitizeResolution(featureFlags,
+                config, 0.0f)).isEqualTo(0.0f);
+        assertThat(InputSanitizationUtils.sanitizeResolution(featureFlags,
+                config, 1.0f)).isEqualTo(1.0f);
+        assertThrows(IllegalArgumentException.class,
+                () -> InputSanitizationUtils.sanitizeResolution(featureFlags,
+                        config, 2.0f));
     }
 
     private static CarSubscription newCarSubscription(int propertyId, int[] areaIds,

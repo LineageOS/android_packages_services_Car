@@ -1969,6 +1969,20 @@ package android.car.oem {
     method @NonNull public android.car.oem.AudioFocusEntry.Builder setAudioVolumeGroupId(int);
   }
 
+  @FlaggedApi("android.car.feature.car_audio_fade_manager_configuration") public final class CarAudioFadeConfiguration implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public android.media.FadeManagerConfiguration getFadeManagerConfiguration();
+    method @NonNull public String getName();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.oem.CarAudioFadeConfiguration> CREATOR;
+  }
+
+  public static final class CarAudioFadeConfiguration.Builder {
+    ctor public CarAudioFadeConfiguration.Builder(@NonNull android.media.FadeManagerConfiguration);
+    method @NonNull public android.car.oem.CarAudioFadeConfiguration build();
+    method @NonNull public android.car.oem.CarAudioFadeConfiguration.Builder setName(@NonNull String);
+  }
+
   public interface OemCarAudioDuckingService extends android.car.oem.OemCarServiceComponent {
     method @NonNull public java.util.List<android.media.AudioAttributes> evaluateAttributesToDuck(@NonNull android.car.oem.OemCarAudioVolumeRequest);
   }
@@ -1999,8 +2013,10 @@ package android.car.oem {
 
   public final class OemCarAudioFocusResult implements android.os.Parcelable {
     method public int describeContents();
+    method @FlaggedApi("android.car.feature.car_audio_fade_manager_configuration") @NonNull public java.util.Map<android.media.AudioAttributes,android.car.oem.CarAudioFadeConfiguration> getAudioAttributesToCarAudioFadeConfigurationMap();
     method @Nullable public android.car.oem.AudioFocusEntry getAudioFocusEntry();
     method public int getAudioFocusResult();
+    method @FlaggedApi("android.car.feature.car_audio_fade_manager_configuration") @Nullable public android.car.oem.CarAudioFadeConfiguration getCarAudioFadeConfigurationForAudioAttributes(@NonNull android.media.AudioAttributes);
     method @NonNull public java.util.List<android.car.oem.AudioFocusEntry> getNewlyBlockedAudioFocusEntries();
     method @NonNull public java.util.List<android.car.oem.AudioFocusEntry> getNewlyLostAudioFocusEntries();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
@@ -2013,6 +2029,7 @@ package android.car.oem {
     method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder addNewlyBlockedAudioFocusEntry(@NonNull android.car.oem.AudioFocusEntry);
     method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder addNewlyLostAudioFocusEntry(@NonNull android.car.oem.AudioFocusEntry);
     method @NonNull public android.car.oem.OemCarAudioFocusResult build();
+    method @FlaggedApi("android.car.feature.car_audio_fade_manager_configuration") @NonNull public android.car.oem.OemCarAudioFocusResult.Builder setAudioAttributesToCarAudioFadeConfigurationMap(@NonNull java.util.Map<android.media.AudioAttributes,android.car.oem.CarAudioFadeConfiguration>);
     method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder setAudioFocusEntry(@NonNull android.car.oem.AudioFocusEntry);
     method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder setAudioFocusResult(int);
     method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder setNewlyBlockedAudioFocusEntries(@NonNull java.util.List<android.car.oem.AudioFocusEntry>);
@@ -2229,6 +2246,7 @@ package android.car.settings {
   public static final class CarSettings.Global {
     field public static final String DISPLAY_INPUT_LOCK = "android.car.DISPLAY_INPUT_LOCK";
     field public static final String DISPLAY_POWER_MODE = "android.car.DISPLAY_POWER_MODE";
+    field @FlaggedApi("android.car.feature.persist_ap_settings") public static final String ENABLE_TETHERING_PERSISTING = "android.car.ENABLE_TETHERING_PERSISTING";
     field @FlaggedApi("android.car.feature.car_night_global_setting") public static final String FORCED_DAY_NIGHT_MODE = "android.car.FORCED_DAY_NIGHT_MODE";
     field public static final String GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE = "android.car.GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE";
   }

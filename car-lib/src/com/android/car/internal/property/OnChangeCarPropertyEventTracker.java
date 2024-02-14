@@ -29,6 +29,7 @@ public final class OnChangeCarPropertyEventTracker implements CarPropertyEventTr
 
     private final Logger mLogger;
     private long mPreviousEventTimeNanos;
+    private CarPropertyValue<?> mCurrentCarPropertyValue;
 
     public OnChangeCarPropertyEventTracker(boolean useSystemLogger) {
         mLogger = new Logger(useSystemLogger, TAG);
@@ -37,6 +38,11 @@ public final class OnChangeCarPropertyEventTracker implements CarPropertyEventTr
     @Override
     public float getUpdateRateHz() {
         return INVALID_UPDATE_RATE_HZ;
+    }
+
+    @Override
+    public CarPropertyValue<?> getCurrentCarPropertyValue() {
+        return mCurrentCarPropertyValue;
     }
 
     /** Returns true if the client needs to be updated for this event. */
@@ -52,6 +58,7 @@ public final class OnChangeCarPropertyEventTracker implements CarPropertyEventTr
             return false;
         }
         mPreviousEventTimeNanos = carPropertyValue.getTimestamp();
+        mCurrentCarPropertyValue = carPropertyValue;
         return true;
     }
 }

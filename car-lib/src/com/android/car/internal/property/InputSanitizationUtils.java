@@ -66,6 +66,35 @@ public final class InputSanitizationUtils {
     }
 
     /**
+     * Sets resolution to 0 if the feature flag for resolution is not enabled. Also calls
+     * {@link #requireIntegerPowerOf10Resolution(float)} to determine if the incoming resolution
+     * value is an integer power of 10.
+     */
+    public static float sanitizeResolution(FeatureFlags featureFlags,
+            CarPropertyConfig<?> carPropertyConfig, float resolution) {
+        if (!featureFlags.subscriptionWithResolution() || carPropertyConfig.getChangeMode()
+                != CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS) {
+            return 0.0f;
+        }
+        requireIntegerPowerOf10Resolution(resolution);
+        return resolution;
+    }
+
+    /**
+     * Verifies that the incoming resolution value takes on only integer power of 10 values. Also
+     * sets resolution to 0 if the feature flag for resolution is not enabled.
+     */
+    public static void requireIntegerPowerOf10Resolution(float resolution) {
+        if (resolution == 0.0f) {
+            return;
+        }
+        double log = Math.log10(resolution);
+        Preconditions.checkArgument(Math.abs(log - (int) log) < 0.0000001f,
+                "resolution must be an integer power of 10. Instead, got resolution: " + resolution
+                        + ", whose log10 value is: " + log);
+    }
+
+    /**
      * Returns whether VUR feature is enabled and property is continuous.
      *
      * Need to be public even though InputSanitizationUtilsUnitTest is in the same package because
@@ -145,12 +174,14 @@ public final class InputSanitizationUtils {
         disabledVurOption.areaIds = convertToIntArray(disabledAreaIds);
         disabledVurOption.updateRateHz = inputOption.updateRateHz;
         disabledVurOption.enableVariableUpdateRate = false;
+        disabledVurOption.resolution = inputOption.resolution;
 
         CarSubscription enabledVurOption = new CarSubscription();
         enabledVurOption.propertyId = inputOption.propertyId;
         enabledVurOption.areaIds = convertToIntArray(enabledAreaIds);
         enabledVurOption.updateRateHz = inputOption.updateRateHz;
         enabledVurOption.enableVariableUpdateRate = true;
+        enabledVurOption.resolution = inputOption.resolution;
 
         sanitizedOptions.add(enabledVurOption);
         sanitizedOptions.add(disabledVurOption);
