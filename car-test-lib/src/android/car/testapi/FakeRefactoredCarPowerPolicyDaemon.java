@@ -40,6 +40,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Fake power policy daemon to be used in car service test and car service unit test when
@@ -72,23 +73,7 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
 
     private static final String POLICY_PER_STATE_GROUP_ID = "default_policy_per_state";
 
-    /**
-     * Custom power component for use in testing, represent by the integer value of 1000
-     */
-    public static final int CUSTOM_COMPONENT_1000 = 1000;
-    /**
-     * Custom power component for use in testing, represent by the integer value of 1001
-     */
-    public static final int CUSTOM_COMPONENT_1001 = 1001;
-    /**
-     * Custom power component for use in testing, represent by the integer value of 1002
-     */
-    public static final int CUSTOM_COMPONENT_1002 = 1002;
-    /**
-     * Custom power component for use in testing, represent by the integer value of 1003
-     */
-    public static final int CUSTOM_COMPONENT_1003 = 1003;
-
+    private final int[] mCustomComponents;
     private final FileObserver mFileObserver;
     private final ComponentHandler mComponentHandler = new ComponentHandler();
     private final HandlerThread mHandlerThread = new HandlerThread(TAG);
@@ -105,8 +90,8 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
     private ICarPowerPolicyDelegateCallback mCallback;
     private TemporaryFile mFileKernelSilentMode;
 
-    public FakeRefactoredCarPowerPolicyDaemon(@Nullable TemporaryFile fileKernelSilentMode)
-            throws Exception {
+    public FakeRefactoredCarPowerPolicyDaemon(@Nullable TemporaryFile fileKernelSilentMode,
+            @Nullable int[] customComponents) throws Exception {
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
         mFileKernelSilentMode = (fileKernelSilentMode == null)
@@ -123,6 +108,7 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
         mPolicies.put(SYSTEM_POWER_POLICY_SUSPEND_PREP, policySuspendPrep);
         mPowerPolicyGroups.put(POLICY_PER_STATE_GROUP_ID, createPolicyGroup(
                 SYSTEM_POWER_POLICY_INITIAL_ON, SYSTEM_POWER_POLICY_ALL_ON));
+        mCustomComponents = Objects.requireNonNullElse(customComponents, new int[]{});
     }
 
     private static CarPowerPolicy createPolicy(
@@ -193,14 +179,13 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
         Log.i(TAG, "Fake refactored CPPD was notified that car service is ready");
         mCallback = callback;
         PowerPolicyInitData initData = new PowerPolicyInitData();
-        initData.currentPowerPolicy = mPolicies.get(SYSTEM_POWER_POLICY_INITIAL_ON);
+        initData.currentPowerPolicy = mPolicies.get(mLastAppliedPowerPolicyId);
         initData.registeredPolicies = new CarPowerPolicy[]{
                 mPolicies.get(SYSTEM_POWER_POLICY_INITIAL_ON),
                 mPolicies.get(SYSTEM_POWER_POLICY_ALL_ON),
                 mPolicies.get(SYSTEM_POWER_POLICY_NO_USER_INTERACTION),
                 mPolicies.get(SYSTEM_POWER_POLICY_SUSPEND_PREP)};
-        initData.registeredCustomComponents = new int[]{CUSTOM_COMPONENT_1000,
-                CUSTOM_COMPONENT_1001, CUSTOM_COMPONENT_1002, CUSTOM_COMPONENT_1003};
+        initData.registeredCustomComponents = mCustomComponents;
         mComponentHandler.applyPolicy(mPolicies.get(mLastAppliedPowerPolicyId));
         return initData;
     }

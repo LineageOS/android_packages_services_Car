@@ -2120,7 +2120,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     @VisibleForTesting
-    void initializePowerPolicy() {
+    public void initializePowerPolicy() {
         if (mFeatureFlags.carPowerPolicyRefactoring()) {
             ICarPowerPolicyDelegate daemon;
             synchronized (mLock) {

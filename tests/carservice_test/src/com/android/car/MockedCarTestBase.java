@@ -357,7 +357,8 @@ public class MockedCarTestBase {
         // Setup car
         IInterface powerPolicyDaemon;
         if (Flags.carPowerPolicyRefactoring()) {
-            mRefactoredPowerPolicyDaemon = new FakeRefactoredCarPowerPolicyDaemon(null);
+            mRefactoredPowerPolicyDaemon = new FakeRefactoredCarPowerPolicyDaemon(
+                    /* fileKernelSilentMode= */ null, /* customComponents= */ null);
             powerPolicyDaemon = mRefactoredPowerPolicyDaemon;
         } else {
             powerPolicyDaemon = mPowerPolicyDaemon;
