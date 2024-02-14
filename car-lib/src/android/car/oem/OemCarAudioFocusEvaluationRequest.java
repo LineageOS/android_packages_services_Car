@@ -18,9 +18,11 @@ package android.car.oem;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
+import android.annotation.FlaggedApi;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
+import android.car.feature.Flags;
 import android.car.media.CarVolumeGroupInfo;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -46,6 +48,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
     private @NonNull final List<AudioFocusEntry> mFocusHolders;
     private @NonNull final List<AudioFocusEntry> mFocusLosers;
     private final int mAudioZoneId;
+    private @Nullable final CarAudioFeaturesInfo mCarAudioFeaturesInfo;
 
     /**
      * @hide
@@ -61,6 +64,12 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
         in.readParcelableList(mFocusHolders, AudioFocusEntry.class.getClassLoader());
         mFocusLosers = new ArrayList<>();
         in.readParcelableList(mFocusLosers, AudioFocusEntry.class.getClassLoader());
+        if (Flags.carAudioDynamicDevices()) {
+            mCarAudioFeaturesInfo = in.readParcelable(CarAudioFeaturesInfo.class.getClassLoader(),
+                    CarAudioFeaturesInfo.class);
+        } else {
+            mCarAudioFeaturesInfo = null;
+        }
         mAudioZoneId = in.readInt();
     }
 
@@ -99,6 +108,9 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
         dest.writeParcelableList(mMutedVolumeGroups, flags);
         dest.writeParcelableList(mFocusHolders, flags);
         dest.writeParcelableList(mFocusLosers, flags);
+        if (Flags.carAudioDynamicDevices()) {
+            dest.writeParcelable(mCarAudioFeaturesInfo, flags);
+        }
         dest.writeInt(mAudioZoneId);
     }
 
@@ -139,6 +151,16 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
         return mFocusLosers;
     }
 
+    /**
+     * Returns the audio features that could be supported by the request,
+     * see {@link CarAudioFeaturesInfo#isAudioFeatureEnabled(int)} for further info.
+     */
+    @FlaggedApi(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
+    @Nullable
+    public CarAudioFeaturesInfo getAudioFeaturesInfo() {
+        return mCarAudioFeaturesInfo;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -150,18 +172,27 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
         }
 
         OemCarAudioFocusEvaluationRequest that = (OemCarAudioFocusEvaluationRequest) o;
-
         return safeEquals(mAudioFocusRequest, that.mAudioFocusRequest)
                 && mFocusHolders.equals(that.mFocusHolders)
                 && mFocusLosers.equals(that.mFocusLosers)
                 && mMutedVolumeGroups.equals(that.mMutedVolumeGroups)
-                && mAudioZoneId == that.mAudioZoneId;
+                && mAudioZoneId == that.mAudioZoneId
+                && featuresMatches(that);
+    }
+
+    private boolean featuresMatches(OemCarAudioFocusEvaluationRequest that) {
+        return !Flags.carAudioDynamicDevices()
+                || Objects.equals(mCarAudioFeaturesInfo, that.mCarAudioFeaturesInfo);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mAudioFocusRequest, mFocusHolders, mFocusLosers, mMutedVolumeGroups,
+        int hash = Objects.hash(mAudioFocusRequest, mFocusHolders, mFocusLosers, mMutedVolumeGroups,
                 mAudioZoneId);
+        if (Flags.carAudioDynamicDevices()) {
+            hash = Objects.hash(hash, mCarAudioFeaturesInfo);
+        }
+        return  hash;
     }
 
     /**
@@ -173,29 +204,35 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
             @NonNull List<CarVolumeGroupInfo> mutedVolumeGroups,
             @NonNull List<AudioFocusEntry> focusHolders,
             @NonNull List<AudioFocusEntry> focusLosers,
+            @Nullable CarAudioFeaturesInfo carAudioFeaturesInfo,
             int audioZoneId) {
-        this.mAudioFocusRequest = audioFocusEntry;
+        mAudioFocusRequest = audioFocusEntry;
         Preconditions.checkArgument(mutedVolumeGroups != null,
                 "Muted volume groups can not be null");
         Preconditions.checkArgument(focusHolders != null,
                 "Focus holders can not be null");
         Preconditions.checkArgument(focusLosers != null,
                 "Focus losers can not be null");
-        this.mMutedVolumeGroups = mutedVolumeGroups;
-        this.mFocusHolders = focusHolders;
-        this.mFocusLosers = focusLosers;
-        this.mAudioZoneId = audioZoneId;
+        mMutedVolumeGroups = mutedVolumeGroups;
+        mFocusHolders = focusHolders;
+        mFocusLosers = focusLosers;
+        mAudioZoneId = audioZoneId;
+        mCarAudioFeaturesInfo = carAudioFeaturesInfo;
     }
 
     @Override
     public String toString() {
-        return new StringBuilder().append("OemCarAudioFocusEvaluationRequest {audioZoneId = ")
-                .append(mAudioZoneId).append(", audioFocusInfo = ").append(mAudioFocusRequest)
-                .append(", mutedVolumeGroups = ").append(mMutedVolumeGroups)
-                .append(", focusHolders = ").append(mFocusHolders)
-                .append(", focusLosers = ").append(mFocusLosers)
-                .append(" }").toString();
+        String string = "OemCarAudioFocusEvaluationRequest {audioZoneId = "
+                + mAudioZoneId + ", audioFocusInfo = " + mAudioFocusRequest
+                + ", mutedVolumeGroups = " + mMutedVolumeGroups
+                + ", focusHolders = " + mFocusHolders
+                + ", focusLosers = " + mFocusLosers;
+        if (Flags.carAudioDynamicDevices()) {
+            string += " carAudioFeatureInfo " + mCarAudioFeaturesInfo;
+        }
+        return string + " }";
     }
+
 
     /**
      * A builder for {@link OemCarAudioFocusEvaluationRequest}
@@ -204,13 +241,10 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
     public static final class Builder {
 
         private static final int FOCUS_REQUEST_FIELDS_SET = 0x1;
-        private static final int MUTED_VOLUME_GROUPS_FIELDS_SET = 0x2;
-        private static final int FOCUS_HOLDERS_FIELDS_SET = 0x4;
-        private static final int FOCUS_LOSERS_FIELDS_SET = 0x8;
-        private static final int ZONE_ID_FIELDS_SET = 0x10;
         private static final int BUILDER_USED_FIELDS_SET = 0x20;
 
         private int mAudioZoneId;
+        private @Nullable CarAudioFeaturesInfo mAudioFeatureInfo;
         private @Nullable AudioFocusEntry mAudioFocusRequest;
         private @NonNull List<CarVolumeGroupInfo> mMutedVolumeGroups;
         private @NonNull List<AudioFocusEntry> mFocusHolders;
@@ -240,8 +274,20 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
          */
         public @NonNull Builder setAudioZoneId(int value) {
             checkNotUsed();
-            mBuilderFieldsSet |= ZONE_ID_FIELDS_SET;
             mAudioZoneId = value;
+            return this;
+        }
+
+        /**
+         * Sets the audio feature which should be supported for the focus request
+         *
+         * @param featuresInfo Feature that should be supported
+         */
+        @FlaggedApi(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
+        public @NonNull Builder setAudioFeaturesInfo(@NonNull CarAudioFeaturesInfo featuresInfo) {
+            checkNotUsed();
+            mAudioFeatureInfo = Objects.requireNonNull(featuresInfo,
+                    "Car audio features can not be null");
             return this;
         }
 
@@ -253,7 +299,6 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
             Preconditions.checkArgument(audioFocusRequest != null,
                     "Audio focus request can not be null");
             checkNotUsed();
-            mBuilderFieldsSet |= FOCUS_REQUEST_FIELDS_SET;
             mAudioFocusRequest = audioFocusRequest;
             return this;
         }
@@ -267,7 +312,6 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
             Preconditions.checkArgument(mutedVolumeGroups != null,
                     "Muted volume groups can not be null");
             checkNotUsed();
-            mBuilderFieldsSet |= MUTED_VOLUME_GROUPS_FIELDS_SET;
             mMutedVolumeGroups = mutedVolumeGroups;
             return this;
         }
@@ -288,7 +332,6 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
             Preconditions.checkArgument(focusHolders != null,
                     "Focus holders can not be null");
             checkNotUsed();
-            mBuilderFieldsSet |= FOCUS_HOLDERS_FIELDS_SET;
             mFocusHolders = focusHolders;
             return this;
         }
@@ -309,7 +352,6 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
             Preconditions.checkArgument(focusLosers != null,
                     "Focus losers can not be null");
             checkNotUsed();
-            mBuilderFieldsSet |= FOCUS_LOSERS_FIELDS_SET;
             mFocusLosers = focusLosers;
             return this;
         }
@@ -329,13 +371,8 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
             checkNotUsed();
             mBuilderFieldsSet |= BUILDER_USED_FIELDS_SET; // Mark builder used
 
-            OemCarAudioFocusEvaluationRequest o = new OemCarAudioFocusEvaluationRequest(
-                    mAudioFocusRequest,
-                    mMutedVolumeGroups,
-                    mFocusHolders,
-                    mFocusLosers,
-                    mAudioZoneId);
-            return o;
+            return new OemCarAudioFocusEvaluationRequest(mAudioFocusRequest, mMutedVolumeGroups,
+                    mFocusHolders, mFocusLosers, mAudioFeatureInfo, mAudioZoneId);
         }
 
         private void checkNotUsed() {
