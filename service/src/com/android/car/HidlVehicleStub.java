@@ -22,7 +22,6 @@ import static com.android.car.internal.property.CarPropertyErrorCodes.convertVha
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.property.CarPropertyManager;
-import android.car.hardware.property.CarPropertyManager.CarPropertyAsyncErrorCode;
 import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
@@ -243,24 +242,27 @@ final class HidlVehicleStub extends VehicleStub {
                 } catch (ServiceSpecificException e) {
                     CarPropertyErrorCodes carPropertyErrorCodes =
                             convertVhalStatusCodeToCarPropertyManagerErrorCodes(e.errorCode);
-                    callGetAsyncErrorCallback(
-                            carPropertyErrorCodes.getCarPropertyManagerErrorCode(),
-                            carPropertyErrorCodes.getVendorErrorCode(),
-                            serviceRequestId,
+                    callGetAsyncErrorCallback(carPropertyErrorCodes, serviceRequestId,
                             getVehicleStubAsyncCallback);
                     continue;
                 } catch (RemoteException e) {
                     Slogf.w(CarLog.TAG_SERVICE,
                             "Received RemoteException from VHAL. VHAL is likely dead.");
-                    callGetAsyncErrorCallback(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
-                            /* vendorErrorCode= */ 0,
+                    callGetAsyncErrorCallback(
+                            new CarPropertyErrorCodes(
+                                    CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
+                                    /* vendorErrorCode= */ 0,
+                                    /* systemErrorCode= */ 0),
                             serviceRequestId, getVehicleStubAsyncCallback);
                     continue;
                 }
 
                 if (halPropValue == null) {
-                    callGetAsyncErrorCallback(CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE,
-                            /* vendorErrorCode= */ 0,
+                    callGetAsyncErrorCallback(
+                            new CarPropertyErrorCodes(
+                                    CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE,
+                                    /* vendorErrorCode= */ 0,
+                                    /* systemErrorCode= */ 0),
                             serviceRequestId, getVehicleStubAsyncCallback);
                     continue;
                 }
@@ -286,35 +288,33 @@ final class HidlVehicleStub extends VehicleStub {
                     CarPropertyErrorCodes carPropertyErrorCodes =
                             convertVhalStatusCodeToCarPropertyManagerErrorCodes(e.errorCode);
                     callSetAsyncErrorCallback(
-                            carPropertyErrorCodes.getCarPropertyManagerErrorCode(),
-                            carPropertyErrorCodes.getVendorErrorCode(),
+                            carPropertyErrorCodes,
                             serviceRequestId,
                             setVehicleStubAsyncCallback);
                 } catch (RemoteException e) {
                     Slogf.w(CarLog.TAG_SERVICE,
                             "Received RemoteException from VHAL. VHAL is likely dead.");
-                    callSetAsyncErrorCallback(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
-                            /* vendorErrorCode= */ 0,
+                    callSetAsyncErrorCallback(
+                        new CarPropertyErrorCodes(
+                                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
+                                /* vendorErrorCode= */ 0,
+                                /* systemErrorCode= */ 0),
                             serviceRequestId, setVehicleStubAsyncCallback);
                 }
             }
         });
     }
 
-    private void callGetAsyncErrorCallback(
-            @CarPropertyAsyncErrorCode int errorCode, int vendorErrorCode, int serviceRequestId,
+    private void callGetAsyncErrorCallback(CarPropertyErrorCodes errorCodes, int serviceRequestId,
             VehicleStubCallbackInterface callback) {
         callback.onGetAsyncResults(
-                List.of(new GetVehicleStubAsyncResult(serviceRequestId, errorCode,
-                        vendorErrorCode)));
+                List.of(new GetVehicleStubAsyncResult(serviceRequestId, errorCodes)));
     }
 
-    private void callSetAsyncErrorCallback(
-            @CarPropertyAsyncErrorCode int errorCode, int vendorErrorCode, int serviceRequestId,
+    private void callSetAsyncErrorCallback(CarPropertyErrorCodes errorCodes, int serviceRequestId,
             VehicleStubCallbackInterface callback) {
         callback.onSetAsyncResults(
-                List.of(new SetVehicleStubAsyncResult(serviceRequestId, errorCode,
-                        vendorErrorCode)));
+                List.of(new SetVehicleStubAsyncResult(serviceRequestId, errorCodes)));
     }
 
     /**

@@ -30,10 +30,80 @@ import org.junit.Test;
 
 public final class CarPropertyErrorCodesUnitTest {
 
+    private static final int NO_ERROR = 0;
     private static final int SYSTEM_ERROR_CODE = 0x0123;
     private static final int VENDOR_ERROR_CODE = 0x1234;
     private static final int VENDOR_ERROR_CODE_SHIFT = 16;
     private static final int COMBINED_ERROR_CODE = 0x12340123;
+
+    @Test
+    public void testCarPropertyErrorCodesStatusOkNoErrors() throws Exception {
+        CarPropertyErrorCodes carPropertyErrorCodes =
+                new CarPropertyErrorCodes(CarPropertyErrorCodes.STATUS_OK, NO_ERROR, NO_ERROR);
+
+        assertThat(carPropertyErrorCodes.getCarPropertyManagerErrorCode())
+                .isEqualTo(CarPropertyErrorCodes.STATUS_OK);
+        assertThat(carPropertyErrorCodes.getVendorErrorCode())
+                .isEqualTo(NO_ERROR);
+        assertThat(carPropertyErrorCodes.getSystemErrorCode())
+                .isEqualTo(NO_ERROR);
+    }
+
+    @Test
+    public void testCarPropertyErrorCodesStatusInternalError() throws Exception {
+        CarPropertyErrorCodes carPropertyErrorCodes = new CarPropertyErrorCodes(
+                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, NO_ERROR, NO_ERROR);
+
+        assertThat(carPropertyErrorCodes.getCarPropertyManagerErrorCode())
+                .isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+        assertThat(carPropertyErrorCodes.getVendorErrorCode())
+                .isEqualTo(NO_ERROR);
+        assertThat(carPropertyErrorCodes.getSystemErrorCode())
+                .isEqualTo(NO_ERROR);
+    }
+
+    @Test
+    public void testCarPropertyErrorCodesStatusNotAvailable() throws Exception {
+        CarPropertyErrorCodes carPropertyErrorCodes = new CarPropertyErrorCodes(
+                CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE, NO_ERROR, NO_ERROR);
+
+        assertThat(carPropertyErrorCodes.getCarPropertyManagerErrorCode())
+                .isEqualTo(CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
+        assertThat(carPropertyErrorCodes.getVendorErrorCode())
+                .isEqualTo(NO_ERROR);
+        assertThat(carPropertyErrorCodes.getSystemErrorCode())
+                .isEqualTo(NO_ERROR);
+    }
+
+    @Test
+    public void testCarPropertyErrorCodesStatusNotAvailableSpeedLow() throws Exception {
+        CarPropertyErrorCodes carPropertyErrorCodes = new CarPropertyErrorCodes(
+                CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE,
+                NO_ERROR,
+                StatusCode.NOT_AVAILABLE_SPEED_LOW);
+
+        assertThat(carPropertyErrorCodes.getCarPropertyManagerErrorCode())
+                .isEqualTo(CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
+        assertThat(carPropertyErrorCodes.getVendorErrorCode())
+                .isEqualTo(NO_ERROR);
+        assertThat(carPropertyErrorCodes.getSystemErrorCode())
+                .isEqualTo(StatusCode.NOT_AVAILABLE_SPEED_LOW);
+    }
+
+    @Test
+    public void testCarPropertyErrorCodesStatusNotAvailableVendorError() throws Exception {
+        CarPropertyErrorCodes carPropertyErrorCodes = new CarPropertyErrorCodes(
+                CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE,
+                VENDOR_ERROR_CODE,
+                NO_ERROR);
+
+        assertThat(carPropertyErrorCodes.getCarPropertyManagerErrorCode())
+                .isEqualTo(CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
+        assertThat(carPropertyErrorCodes.getVendorErrorCode())
+                .isEqualTo(VENDOR_ERROR_CODE);
+        assertThat(carPropertyErrorCodes.getSystemErrorCode())
+                .isEqualTo(NO_ERROR);
+    }
 
     @Test
     public void testConvertHalToCarPropertyManagerErrorStatusOK() throws Exception {

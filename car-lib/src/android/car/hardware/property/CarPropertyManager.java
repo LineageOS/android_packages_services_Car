@@ -873,7 +873,8 @@ public class CarPropertyManager extends CarManagerBase {
                 }
                 Executor callbackExecutor = requestInfo.getCallbackExecutor();
                 CallbackType clientCallback = requestInfo.getCallback();
-                @CarPropertyAsyncErrorCode int errorCode = result.getErrorCode();
+                @CarPropertyAsyncErrorCode int errorCode =
+                        result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode();
                 int propertyId = requestInfo.getRequest().getPropertyId();
                 String propertyName = VehiclePropertyIds.toString(propertyId);
                 int areaId = requestInfo.getRequest().getAreaId();
@@ -912,7 +913,7 @@ public class CarPropertyManager extends CarManagerBase {
                     Binder.clearCallingIdentity();
                     callbackExecutor.execute(() -> propertyResultCallback.onFailure(clientCallback,
                             new PropertyAsyncError(requestId, propertyId, areaId, errorCode,
-                                    result.getVendorErrorCode())));
+                                    result.getCarPropertyErrorCodes().getVendorErrorCode())));
                 }
             }
         }

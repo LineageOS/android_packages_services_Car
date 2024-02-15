@@ -38,6 +38,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
 
+import com.android.car.internal.property.CarPropertyErrorCodes;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
@@ -110,8 +111,12 @@ public final class CarPropertyManagerUnitTest {
         verify(mICarProperty).cancelRequests(new int[]{0});
 
         // Call the manager callback after the request is already cancelled.
-        GetSetValueResult getValueResult = GetSetValueResult.newErrorResult(0,
-                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, /* vendorErrorCode= */ 0);
+        GetSetValueResult getValueResult =
+                GetSetValueResult.newErrorResult(0,
+                        new CarPropertyErrorCodes(
+                                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
+                                /* vendorErrorCode= */ 0,
+                                /* systemErrorCode= */ 0));
         assertThat(callbackWrapper.size()).isEqualTo(1);
         callbackWrapper.get(0).onGetValueResults(
                 new GetSetValueResultList(List.of(getValueResult)));
