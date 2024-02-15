@@ -97,6 +97,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     private static final int SOME_INT64_PROPERTY = VehiclePropertyType.INT64 | 0x10;
     private static final int SOME_INT64_VEC_PROPERTY = VehiclePropertyType.INT64_VEC | 0x11;
     private static final int CONTINUOUS_PROPERTY = VehiclePropertyType.INT32 | 0x12;
+    private static final int SOME_WRITE_ONLY_ON_CHANGE_PROPERTY = 0x13;
     private static final int UNSUPPORTED_PROPERTY = -1;
     private static final int GLOBAL_AREA_ID = 0;
     private static final int AREA_ID_1 = 1;
@@ -144,7 +145,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
 
     private void init(VehiclePropConfig powerHalConfig, List<VehiclePropConfig> propertyHalConfigs)
             throws Exception {
-        // Initialize PowerHAL service with a READ_WRITE and ON_CHANGE property
+        // Initialize PowerHAL service with a READ ON_CHANGE property
         when(mPowerHalService.getAllSupportedProperties()).thenReturn(
                 new int[]{SOME_READ_ON_CHANGE_PROPERTY});
         mConfigs.add(powerHalConfig);
@@ -224,12 +225,17 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
             staticPropConfig.access = VehiclePropertyAccess.READ_WRITE;
             staticPropConfig.changeMode = VehiclePropertyChangeMode.STATIC;
 
+            VehiclePropConfig writeOnlyConfig = new VehiclePropConfig();
+            writeOnlyConfig.prop = SOME_WRITE_ONLY_ON_CHANGE_PROPERTY;
+            writeOnlyConfig.access = VehiclePropertyAccess.WRITE;
+            writeOnlyConfig.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
+
             VehiclePropConfig continuousPropConfig = new VehiclePropConfig();
             continuousPropConfig.prop = CONTINUOUS_PROPERTY;
             continuousPropConfig.access = VehiclePropertyAccess.READ_WRITE;
             continuousPropConfig.changeMode = VehiclePropertyChangeMode.CONTINUOUS;
 
-            init(powerHalConfig, List.of(staticPropConfig, continuousPropConfig));
+            init(powerHalConfig, List.of(staticPropConfig, writeOnlyConfig, continuousPropConfig));
         }
     }
 
@@ -675,11 +681,18 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testSubscribeProperty_registeringStaticProperty() throws Exception {
-        // Act
         mVehicleHal.subscribeProperty(
                 mPowerHalService, SOME_READ_WRITE_STATIC_PROPERTY, ANY_SAMPLING_RATE_1);
 
-        // Assert
+        verify(mSubscriptionClient, never()).subscribe(any());
+    }
+
+    @Test
+    public void testSubscribeProperty_registeringWriteOnlyProperty_notAllowed() throws Exception {
+        // SOME_WRITE_ONLY_ON_CHANGE_PROPERTY is owned by mPropertyHalService.
+        assertThrows(IllegalArgumentException.class, () -> mVehicleHal.subscribeProperty(
+                mPropertyHalService, SOME_WRITE_ONLY_ON_CHANGE_PROPERTY, ANY_SAMPLING_RATE_1));
+
         verify(mSubscriptionClient, never()).subscribe(any());
     }
 
