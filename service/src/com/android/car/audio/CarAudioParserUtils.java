@@ -71,8 +71,8 @@ import java.util.Objects;
         return attrs;
     }
 
-    private static AudioAttributes parseAudioAttribute(XmlPullParser parser, String sectionName)
-            throws XmlPullParserException, IOException {
+    static AudioAttributes parseAudioAttribute(XmlPullParser parser,
+            String sectionName) throws XmlPullParserException, IOException {
         AudioAttributes.Builder attributesBuilder = new AudioAttributes.Builder();
         // Usage, ContentType and tags are optional but at least one value must be
         // provided to build a valid audio attributes
@@ -100,7 +100,7 @@ import java.util.Objects;
         return true;
     }
 
-    private static int parseUsageValue(XmlPullParser parser, String attrValue)
+    static int parseUsageValue(XmlPullParser parser, String attrValue)
             throws XmlPullParserException, IOException  {
         String usageLiteral = parser.getAttributeValue(NAMESPACE, attrValue);
         if (usageLiteral == null) {
@@ -126,7 +126,7 @@ import java.util.Objects;
         return true;
     }
 
-    private static int parseContentTypeValue(XmlPullParser parser)
+    static int parseContentTypeValue(XmlPullParser parser)
             throws XmlPullParserException, IOException {
         String contentTypeLiteral = parser.getAttributeValue(NAMESPACE, ATTR_CONTENT_TYPE);
         if (contentTypeLiteral == null) {
@@ -151,6 +151,15 @@ import java.util.Objects;
         } catch (NumberFormatException | IndexOutOfBoundsException e) {
             throw new IllegalArgumentException(attribute + " must be a positive integer, but was \""
                     + integerString + "\" instead.", e);
+        }
+    }
+
+    static long parsePositiveLongAttribute(String attribute, String longString) {
+        try {
+            return Long.parseUnsignedLong(longString);
+        } catch (NumberFormatException | IndexOutOfBoundsException e) {
+            throw new IllegalArgumentException(attribute + " must be a positive long, but was \""
+                    + longString + "\" instead.", e);
         }
     }
 

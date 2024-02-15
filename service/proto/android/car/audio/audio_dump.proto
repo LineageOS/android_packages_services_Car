@@ -275,4 +275,32 @@ message CarAudioDumpProto {
     repeated MediaRequestIdToApprover request_id_to_approver_mappings = 5;
   }
   optional MediaRequestHandlerProto media_request_handler = 15;
+  repeated CarAudioFadeConfigurationProto available_car_fade_configurations = 16;
+
+  message CarAudioFadeConfigurationProto {
+    message FadeManagerConfigurationProto {
+      message VolumeShaperConfiguration {
+        optional int32 duration = 1;
+      }
+      message UsagesToVolumeShaperConfiguration {
+        optional int32 usage = 1;
+        optional VolumeShaperConfiguration fade_out_vol_shaper_config = 2;
+        optional VolumeShaperConfiguration fade_in_vol_shaper_config = 3;
+      }
+      message AttributeToVolumeShaperConfiguration {
+        optional CarAudioAttributesProto attributes = 1;
+        optional VolumeShaperConfiguration fade_out_vol_shaper_config = 2;
+        optional VolumeShaperConfiguration fade_in_vol_shaper_config = 3;
+      }
+      optional int32 state = 1;
+      repeated int32 fadeable_usages = 2;
+      repeated int32 unfadeable_content_types = 3;
+      repeated int32 unfadeable_uids = 4;
+      repeated CarAudioAttributesProto unfadeable_attributes = 5;
+      repeated UsagesToVolumeShaperConfiguration usages_to_volume_shaper_config = 6;
+      repeated AttributeToVolumeShaperConfiguration attr_to_volume_shaper_config = 7;
+    }
+    optional string name = 1;
+    optional FadeManagerConfigurationProto fade_manager_configuration = 2;
+  }
 }

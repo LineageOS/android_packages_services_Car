@@ -192,6 +192,9 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             "/system/etc/car_audio_configuration.xml"
     };
 
+    private static final String FADE_CONFIGURATION_PATH =
+            "/vendor/etc/car_audio_fade_configuration.xml";
+
     private static final List<Integer> KEYCODES_OF_INTEREST = List.of(
             KEYCODE_VOLUME_DOWN,
             KEYCODE_VOLUME_UP,
@@ -315,6 +318,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private AudioPolicy mFadeManagerConfigAudioPolicy;
     private CarZonesAudioFocus mFocusHandler;
     private String mCarAudioConfigurationPath;
+    private String mCarAudioFadeConfigurationPath;
+    private CarAudioFadeConfigurationHelper mCarAudioFadeConfigurationHelper;
     private SparseIntArray mAudioZoneIdToOccupantZoneIdMapping;
     @GuardedBy("mImplLock")
     private SparseArray<CarAudioZone> mCarAudioZones;
@@ -379,15 +384,18 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             };
 
     public CarAudioService(Context context) {
-        this(context, getAudioConfigurationPath(), new CarVolumeCallbackHandler());
+        this(context, getAudioConfigurationPath(), new CarVolumeCallbackHandler(),
+                getAudioFadeConfigurationPath());
     }
 
     @VisibleForTesting
     CarAudioService(Context context, @Nullable String audioConfigurationPath,
-            CarVolumeCallbackHandler carVolumeCallbackHandler) {
+            CarVolumeCallbackHandler carVolumeCallbackHandler,
+            @Nullable String audioFadeConfigurationPath) {
         mContext = Objects.requireNonNull(context,
                 "Context to create car audio service can not be null");
         mCarAudioConfigurationPath = audioConfigurationPath;
+        mCarAudioFadeConfigurationPath = audioFadeConfigurationPath;
         mTelephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
 
@@ -682,6 +690,11 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 mMediaRequestHandler.dump(writer);
                 writer.printf("Number of car audio configs callback registered: %d\n",
                         mConfigsCallbacks.getRegisteredCallbackCount());
+                writer.printf("Car audio fade configurations available? %b\n",
+                        mCarAudioFadeConfigurationHelper != null);
+                if (mCarAudioFadeConfigurationHelper != null) {
+                    mCarAudioFadeConfigurationHelper.dump(writer);
+                }
             }
 
             writer.println("Service Events:");
@@ -1683,6 +1696,23 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     @GuardedBy("mImplLock")
+    private CarAudioFadeConfigurationHelper loadCarAudioFadeConfigurationLocked() {
+        if (mCarAudioFadeConfigurationPath == null) {
+            String message = "Car audio fade configuration xml file expected, but not found at: "
+                    + FADE_CONFIGURATION_PATH;
+            Slogf.w(TAG, message);
+            mServiceEventLogger.log(message);
+            return null;
+        }
+        try (InputStream fileStream = new FileInputStream(mCarAudioFadeConfigurationPath);
+                 InputStream inputStream = new BufferedInputStream(fileStream)) {
+            return new CarAudioFadeConfigurationHelper(inputStream);
+        } catch (IOException | XmlPullParserException e) {
+            throw new RuntimeException("Failed to parse audio fade configuration", e);
+        }
+    }
+
+    @GuardedBy("mImplLock")
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     private SparseArray<CarAudioZone> loadVolumeGroupConfigurationWithAudioControlLocked(
             List<CarAudioDeviceInfo> carAudioDeviceInfos, AudioDeviceInfo[] inputDevices) {
@@ -1704,6 +1734,10 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     // Required to be called before setting up audio routing, volume management, focus management
     @GuardedBy("mImplLock")
     private void loadAndInitCarAudioZonesLocked() {
+        if (mUseFadeManagerConfiguration) {
+            mCarAudioFadeConfigurationHelper = loadCarAudioFadeConfigurationLocked();
+        }
+
         List<CarAudioDeviceInfo> carAudioDeviceInfos = generateCarAudioDeviceInfos();
         AudioDeviceInfo[] inputDevices = getAllInputDevices();
 
@@ -1989,6 +2023,15 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             if (configuration.exists()) {
                 return path;
             }
+        }
+        return null;
+    }
+
+    @Nullable
+    private static String getAudioFadeConfigurationPath() {
+        File fadeConfiguration = new File(FADE_CONFIGURATION_PATH);
+        if (fadeConfiguration.exists()) {
+            return FADE_CONFIGURATION_PATH;
         }
         return null;
     }
