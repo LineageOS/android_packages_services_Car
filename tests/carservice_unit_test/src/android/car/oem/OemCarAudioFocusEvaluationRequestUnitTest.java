@@ -16,6 +16,9 @@
 
 package android.car.oem;
 
+import static android.car.feature.Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES;
+import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS;
+import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_ASSISTANT;
 import static android.media.AudioAttributes.USAGE_MEDIA;
@@ -27,8 +30,10 @@ import android.car.media.CarAudioManager;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.test.AbstractExpectableTestCase;
 import android.os.Parcel;
+import android.platform.test.flag.junit.SetFlagsRule;
 
 import org.jetbrains.annotations.NotNull;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -64,6 +69,9 @@ public final class OemCarAudioFocusEvaluationRequestUnitTest extends AbstractExp
                     .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
                     .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX)
                     .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX).build();
+
+    @Rule
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     @Test
     public void build() {
@@ -143,7 +151,7 @@ public final class OemCarAudioFocusEvaluationRequestUnitTest extends AbstractExp
         OemCarAudioFocusEvaluationRequest nullFocusRequest =
                 new OemCarAudioFocusEvaluationRequest(null, List.of(TEST_MUTED_VOLUME_GROUP),
                         List.of(TEST_MEDIA_AUDIO_FOCUS_ENTRY), List.of(TEST_NAV_AUDIO_FOCUS_ENTRY),
-                        CarAudioManager.PRIMARY_AUDIO_ZONE);
+                        /* featuresEnabled= */ null, CarAudioManager.PRIMARY_AUDIO_ZONE);
 
         expectWithMessage("Request with null audio focus request")
                 .that(nullFocusRequest).isEqualTo(request);
@@ -311,5 +319,69 @@ public final class OemCarAudioFocusEvaluationRequestUnitTest extends AbstractExp
 
         expectWithMessage("Null audio focus request exception")
                 .that(thrown).hasMessageThat().contains("Audio focus request");
+    }
+
+    @Test
+    public void getAudioFeaturesInfo() {
+        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        CarAudioFeaturesInfo featureInfo = new CarAudioFeaturesInfo.Builder(
+                AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS).addAudioFeature(
+                        AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS).build();
+        OemCarAudioFocusEvaluationRequest request =
+                new OemCarAudioFocusEvaluationRequest.Builder(new ArrayList<>(),
+                        new ArrayList<>(), new ArrayList<>(), CarAudioManager.PRIMARY_AUDIO_ZONE)
+                        .addMutedVolumeGroups(TEST_MUTED_VOLUME_GROUP_2)
+                        .setAudioFeaturesInfo(featureInfo).build();
+
+        CarAudioFeaturesInfo requestFeatureInfo = request.getAudioFeaturesInfo();
+
+        expectWithMessage("Existing audio feature info").that(requestFeatureInfo).isNotNull();
+        expectWithMessage("Audio feature info").that(requestFeatureInfo).isEqualTo(featureInfo);
+        expectWithMessage("Isolated audio focus feature").that(requestFeatureInfo
+                        .isAudioFeatureEnabled(AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS)).isTrue();
+        expectWithMessage("Fade manager configuration audio feature").that(requestFeatureInfo
+                        .isAudioFeatureEnabled(AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS))
+                .isTrue();
+    }
+
+    @Test
+    public void equals_withSameFeatureInfo() {
+        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        CarAudioFeaturesInfo featureInfo = new CarAudioFeaturesInfo.Builder(
+                AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS).build();
+        OemCarAudioFocusEvaluationRequest requestOne =
+                new OemCarAudioFocusEvaluationRequest.Builder(new ArrayList<>(),
+                        new ArrayList<>(), new ArrayList<>(), CarAudioManager.PRIMARY_AUDIO_ZONE)
+                        .addMutedVolumeGroups(TEST_MUTED_VOLUME_GROUP_2)
+                        .setAudioFeaturesInfo(featureInfo).build();
+        OemCarAudioFocusEvaluationRequest requestTwo =
+                new OemCarAudioFocusEvaluationRequest.Builder(new ArrayList<>(),
+                        new ArrayList<>(), new ArrayList<>(), CarAudioManager.PRIMARY_AUDIO_ZONE)
+                        .addMutedVolumeGroups(TEST_MUTED_VOLUME_GROUP_2)
+                        .setAudioFeaturesInfo(featureInfo).build();
+
+        expectWithMessage("Car audio focus eval requests").that(requestOne).isEqualTo(requestTwo);
+    }
+
+    @Test
+    public void equals_withDifferentFeatureInfo() {
+        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        CarAudioFeaturesInfo featureInfoOne = new CarAudioFeaturesInfo.Builder(
+                AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS).build();
+        CarAudioFeaturesInfo featureInfoTwo = new CarAudioFeaturesInfo.Builder(
+                AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS).build();
+        OemCarAudioFocusEvaluationRequest requestOne =
+                new OemCarAudioFocusEvaluationRequest.Builder(new ArrayList<>(),
+                        new ArrayList<>(), new ArrayList<>(), CarAudioManager.PRIMARY_AUDIO_ZONE)
+                        .addMutedVolumeGroups(TEST_MUTED_VOLUME_GROUP_2)
+                        .setAudioFeaturesInfo(featureInfoOne).build();
+        OemCarAudioFocusEvaluationRequest requestTwo =
+                new OemCarAudioFocusEvaluationRequest.Builder(new ArrayList<>(),
+                        new ArrayList<>(), new ArrayList<>(), CarAudioManager.PRIMARY_AUDIO_ZONE)
+                        .addMutedVolumeGroups(TEST_MUTED_VOLUME_GROUP_2)
+                        .setAudioFeaturesInfo(featureInfoTwo).build();
+
+        expectWithMessage("Car audio focus eval requests with different feature info")
+                .that(requestOne).isNotEqualTo(requestTwo);
     }
 }

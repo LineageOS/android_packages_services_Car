@@ -246,6 +246,7 @@
     <!-- To access Camera2 -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.CAMERA_HEADLESS_SYSTEM_USER"/>
+    <uses-permission android:name="android.permission.CAMERA_PRIVACY_ALLOWLIST"/>
 
     <!-- Use for RadioTestFragment -->
     <uses-permission android:name="android.permission.ACCESS_BROADCAST_RADIO"/>
