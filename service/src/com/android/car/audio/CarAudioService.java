@@ -217,6 +217,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private final boolean mUseCarVolumeGroupMuting;
     private final boolean mUseHalDuckingSignals;
     private final boolean mUseMinMaxActivationVolume;
+    private final boolean mUseIsolateFocusForDynamicDevices;
     private final @CarVolume.CarVolumeListVersion int mAudioVolumeAdjustmentContextsVersion;
     private final boolean mPersistMasterMuteState;
     private final boolean mUseFadeManagerConfiguration;
@@ -417,6 +418,9 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 && mContext.getResources().getBoolean(R.bool.audioUseFadeManagerConfiguration);
         mUseMinMaxActivationVolume = Flags.carAudioMinMaxActivationVolume() && !runInLegacyMode()
                 && mContext.getResources().getBoolean(R.bool.audioUseMinMaxActivationVolume);
+        mUseIsolateFocusForDynamicDevices = Flags.carAudioDynamicDevices() && !runInLegacyMode()
+                && mContext.getResources().getBoolean(
+                        R.bool.audioUseIsolatedAudioFocusForDynamicDevices);
         validateFeatureFlagSettings();
         mAudioServerStateCallback = new CarAudioServerStateCallback(this);
         mAudioDeviceInfoCallback = new CarAudioDeviceCallback(this);
@@ -616,6 +620,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 writer.printf("Volume Group Events Enabled? %b\n", mUseCarVolumeGroupEvents);
                 writer.printf("Use fade manager configuration? %b\n", mUseFadeManagerConfiguration);
                 writer.printf("Use min/max activation volume? %b\n", mUseMinMaxActivationVolume);
+                writer.printf("Use isolated focus for dynamic devices? %b\n",
+                        mUseIsolateFocusForDynamicDevices);
                 writer.println();
                 mCarVolume.dump(writer);
                 writer.println();
@@ -728,6 +734,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                     mUseFadeManagerConfiguration);
             proto.write(CarAudioConfiguration.USE_MIN_MAX_ACTIVATION_VOLUME,
                     mUseMinMaxActivationVolume);
+            proto.write(CarAudioConfiguration.USE_ISOLATED_FOCUS_FOR_DYNAMIC_DEVICES,
+                    mUseIsolateFocusForDynamicDevices);
             proto.end(configurationToken);
 
             mCarVolume.dumpProto(proto);
