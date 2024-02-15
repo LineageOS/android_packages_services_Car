@@ -87,6 +87,7 @@ import android.car.media.ICarVolumeEventCallback;
 import android.car.media.IMediaAudioRequestStatusCallback;
 import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
 import android.car.media.ISwitchAudioZoneConfigCallback;
+import android.car.oem.CarAudioFadeConfiguration;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
@@ -1914,11 +1915,27 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             throw new IllegalStateException("Could not register the car audio service's fade"
                     + " configuration audio policy, error: " + status);
         }
+        updateFadeManagerConfigurationForPrimaryZoneLocked();
+    }
 
-        FadeManagerConfiguration defaultFadeMgrConfig = new FadeManagerConfiguration.Builder()
-                        .setFadeState(FadeManagerConfiguration.FADE_STATE_ENABLED_DEFAULT)
-                        .build();
-        setAudioPolicyFadeManagerConfigurationLocked(defaultFadeMgrConfig);
+    @GuardedBy("mImplLock")
+    private void updateFadeManagerConfigurationForPrimaryZoneLocked() {
+        CarAudioFadeConfiguration carAudioFadeConfiguration = mCarAudioZones.get(PRIMARY_AUDIO_ZONE)
+                .getCurrentCarAudioZoneConfig().getDefaultCarAudioFadeConfiguration();
+        if (carAudioFadeConfiguration == null) {
+            return;
+        }
+        // for primary zone, core framework handles the default fade config
+        setAudioPolicyFadeManagerConfigurationLocked(
+                carAudioFadeConfiguration.getFadeManagerConfiguration());
+    }
+
+    @GuardedBy("mImplLock")
+    private void updateFadeManagerConfigurationLocked(boolean isPrimaryZone) {
+        if (!mUseFadeManagerConfiguration || !isPrimaryZone) {
+            return;
+        }
+        updateFadeManagerConfigurationForPrimaryZoneLocked();
     }
 
     @GuardedBy("mImplLock")
@@ -2987,6 +3004,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 setAllUserIdDeviceAffinitiesToNewPolicyLocked(newAudioPolicy);
                 zone.updateVolumeGroupsSettingsForUser(userId);
                 carVolumeGroupInfoList = getVolumeGroupInfosForZoneLocked(zoneId);
+                updateFadeManagerConfigurationLocked(zone.isPrimaryZone());
             } catch (Exception e) {
                 Slogf.e(TAG, "Failed to switch configuration id " + zoneConfig.getConfigId());
                 zone.setCurrentCarZoneConfig(prevZoneConfig.getCarAudioZoneConfigInfo());
