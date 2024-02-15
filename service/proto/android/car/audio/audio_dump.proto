@@ -126,6 +126,13 @@ message CarAudioDumpProto {
     repeated CarVolumeGroupProto volume_groups = 5;
     optional bool is_active = 6;
     optional bool is_selected = 7;
+    optional bool is_fade_manager_config_enabled = 8;
+    optional CarAudioFadeConfigurationProto default_car_audio_fade_configuration = 9;
+    repeated AttrToCarAudioFadeConfiguration attr_to_car_audio_fade_configuration = 10;
+    message AttrToCarAudioFadeConfiguration {
+      optional CarAudioAttributesProto attributes = 1;
+      optional CarAudioFadeConfigurationProto car_audio_fade_configuration = 2;
+    }
   }
 
   message CarAudioZoneProto {

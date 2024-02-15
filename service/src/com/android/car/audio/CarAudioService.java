@@ -1683,7 +1683,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             CarAudioZonesHelper zonesHelper = new CarAudioZonesHelper(mAudioManager,
                     mCarAudioSettings, inputStream, carAudioDeviceInfos, inputDevices,
                     mServiceEventLogger, mUseCarVolumeGroupMuting, mUseCoreAudioVolume,
-                    mUseCoreAudioRouting);
+                    mUseCoreAudioRouting, mUseFadeManagerConfiguration,
+                    mCarAudioFadeConfigurationHelper);
             mAudioZoneIdToOccupantZoneIdMapping =
                     zonesHelper.getCarAudioZoneIdToOccupantZoneIdMapping();
             SparseArray<CarAudioZone> zones = zonesHelper.loadAudioZones();

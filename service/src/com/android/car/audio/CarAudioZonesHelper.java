@@ -39,6 +39,7 @@ import static java.util.Locale.ROOT;
 import android.annotation.NonNull;
 import android.car.builtin.util.Slogf;
 import android.car.feature.Flags;
+import android.car.oem.CarAudioFadeConfiguration;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
@@ -108,6 +109,10 @@ import java.util.stream.Collectors;
             "maxActivationVolumePercentage";
     private static final String ATTR_MIN_ACTIVATION_VOLUME_PERCENTAGE =
             "minActivationVolumePercentage";
+    private static final String TAG_APPLY_FADE_CONFIGS = "applyFadeConfigs";
+    private static final String FADE_CONFIG = "fadeConfig";
+    private static final String FADE_CONFIG_NAME = "name";
+    private static final String FADE_CONFIG_IS_DEFAULT = "isDefault";
     private static final int INVALID_VERSION = -1;
     private static final int SUPPORTED_VERSION_1 = 1;
     private static final int SUPPORTED_VERSION_2 = 2;
@@ -139,6 +144,8 @@ import java.util.stream.Collectors;
     private final boolean mUseCarVolumeGroupMute;
     private final boolean mUseCoreAudioVolume;
     private final boolean mUseCoreAudioRouting;
+    private final boolean mUseFadeManagerConfiguration;
+    private final CarAudioFadeConfigurationHelper mCarAudioFadeConfigurationHelper;
     private final List<CarAudioDeviceInfo> mMirroringDevices = new ArrayList<>();
 
     private final ArrayMap<String, Integer> mContextNameToId = new ArrayMap<>();
@@ -154,7 +161,9 @@ import java.util.stream.Collectors;
     CarAudioZonesHelper(AudioManager audioManager, CarAudioSettings carAudioSettings,
             InputStream inputStream, List<CarAudioDeviceInfo> carAudioDeviceInfos,
             AudioDeviceInfo[] inputDeviceInfo, LocalLog serviceLog, boolean useCarVolumeGroupMute,
-            boolean useCoreAudioVolume, boolean useCoreAudioRouting) {
+            boolean useCoreAudioVolume, boolean useCoreAudioRouting,
+            boolean useFadeManagerConfiguration,
+            CarAudioFadeConfigurationHelper carAudioFadeConfigurationHelper) {
         mAudioManager = Objects.requireNonNull(audioManager,
                 "Audio manager cannot be null");
         mCarAudioSettings = Objects.requireNonNull(carAudioSettings);
@@ -175,6 +184,8 @@ import java.util.stream.Collectors;
         mUseCarVolumeGroupMute = useCarVolumeGroupMute;
         mUseCoreAudioVolume = useCoreAudioVolume;
         mUseCoreAudioRouting = useCoreAudioRouting;
+        mUseFadeManagerConfiguration = useFadeManagerConfiguration;
+        mCarAudioFadeConfigurationHelper = carAudioFadeConfigurationHelper;
     }
 
     SparseIntArray getCarAudioZoneIdToOccupantZoneIdMapping() {
@@ -561,6 +572,7 @@ import java.util.stream.Collectors;
         final CarAudioZoneConfig.Builder zoneConfigBuilder = new CarAudioZoneConfig.Builder(
                 zoneConfigName, zone.getId(), zoneConfigId, isDefault);
         boolean valid = true;
+        zoneConfigBuilder.setFadeManagerConfigurationEnabled(mUseFadeManagerConfiguration);
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             // Expect at least one <volumeGroups> in one audio zone config
@@ -568,6 +580,8 @@ import java.util.stream.Collectors;
                 if (!parseVolumeGroups(parser, zoneConfigBuilder)) {
                     valid = false;
                 }
+            }  else if (Objects.equals(parser.getName(), TAG_APPLY_FADE_CONFIGS)) {
+                parseApplyFadeConfigs(parser, zoneConfigBuilder);
             } else {
                 CarAudioParserUtils.skip(parser);
             }
@@ -698,6 +712,84 @@ import java.util.stream.Collectors;
                     + ", but current version is " + mCurrentVersion);
         }
         return ConstantDebugUtils.toValue(AudioDeviceInfo.class, typeString);
+    }
+
+    private void parseApplyFadeConfigs(XmlPullParser parser,
+            CarAudioZoneConfig.Builder zoneConfigBuilder)
+            throws XmlPullParserException, IOException {
+        Preconditions.checkArgument(!isVersionLessThanFour(),
+                "Fade configurations not available in versions < 4");
+        // ignore fade configurations when feature is not enabled
+        if (!mUseFadeManagerConfiguration) {
+            String message = "Skipped applying fade configs since feature flag is disabled";
+            Slogf.i(TAG, message);
+            mCarServiceLocalLog.log(message);
+            CarAudioParserUtils.skip(parser);
+            return;
+        }
+
+        Objects.requireNonNull(mCarAudioFadeConfigurationHelper,
+                "Car audio fade configuration helper can not be null when parsing fade configs");
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                continue;
+            }
+            if (Objects.equals(parser.getName(), FADE_CONFIG)) {
+                parseFadeConfig(parser, zoneConfigBuilder);
+            } else {
+                CarAudioParserUtils.skip(parser);
+            }
+        }
+    }
+
+    private void parseFadeConfig(XmlPullParser parser,
+            CarAudioZoneConfig.Builder zoneConfigBuilder)
+            throws XmlPullParserException, IOException {
+        String name = parser.getAttributeValue(NAMESPACE, FADE_CONFIG_NAME);
+        boolean isDefault = Boolean.parseBoolean(
+                parser.getAttributeValue(NAMESPACE, FADE_CONFIG_IS_DEFAULT));
+        validateFadeConfig(name);
+        CarAudioFadeConfiguration afc =
+                mCarAudioFadeConfigurationHelper.getCarAudioFadeConfiguration(name);
+        if (isDefault) {
+            zoneConfigBuilder.setDefaultCarAudioFadeConfiguration(afc);
+            CarAudioParserUtils.skip(parser);
+        } else {
+            parseTransientFadeConfigs(parser, zoneConfigBuilder, afc);
+        }
+    }
+
+    private void parseTransientFadeConfigs(XmlPullParser parser,
+            CarAudioZoneConfig.Builder zoneConfigBuilder,
+            CarAudioFadeConfiguration carAudioFadeConfiguration)
+            throws XmlPullParserException, IOException {
+        boolean hasAudioAttributes = false;
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                continue;
+            }
+            if (Objects.equals(parser.getName(), CarAudioParserUtils.TAG_AUDIO_ATTRIBUTES)) {
+                List<AudioAttributes> attributes =
+                        CarAudioParserUtils.parseAudioAttributes(parser,
+                                CarAudioParserUtils.TAG_AUDIO_ATTRIBUTES);
+                for (int index = 0; index < attributes.size(); index++) {
+                    hasAudioAttributes = true;
+                    zoneConfigBuilder.setCarAudioFadeConfigurationForAudioAttributes(
+                            attributes.get(index), carAudioFadeConfiguration);
+                }
+            } else {
+                CarAudioParserUtils.skip(parser);
+            }
+        }
+        Preconditions.checkArgument(hasAudioAttributes,
+                "Transient fade configs must have valid audio attributes");
+    }
+
+    private void validateFadeConfig(String name) {
+        Objects.requireNonNull(name, "Fade config name cannot be null");
+        Preconditions.checkArgument(!name.isEmpty(), "Fade config name cannot be empty");
+        Preconditions.checkArgument(mCarAudioFadeConfigurationHelper.isConfigAvailable(name),
+                "No config available for name:%s", name);
     }
 
     private boolean isVersionLessThanFour() {
