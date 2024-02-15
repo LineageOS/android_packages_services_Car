@@ -30,8 +30,10 @@
 
     <!-- Calm mode sizes -->
     <dimen name="calm_mode_padding_horizontal">18dp</dimen>
-    <dimen name="calm_mode_padding_vertical">0dp</dimen>
+    <dimen name="calm_mode_padding_vertical">16dp</dimen>
     <dimen name="calm_mode_icon_size">48dp</dimen>
     <dimen name="calm_mode_icon_margin">8dp</dimen>
+    <dimen name="calm_mode_clock_translationY">100dp</dimen>
+    <dimen name="calm_mode_clock_media_title_margin">100dp</dimen>
 
 </resources>
