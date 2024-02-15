@@ -61,13 +61,20 @@ public class PowerHalService extends HalServiceBase {
     // Set display brightness from 0-100%
     public static final int MAX_BRIGHTNESS = 100;
 
-    private static final int[] SUPPORTED_PROPERTIES = new int[]{
-            AP_POWER_STATE_REQ,
-            AP_POWER_STATE_REPORT,
-            DISPLAY_BRIGHTNESS,
-            PER_DISPLAY_BRIGHTNESS,
-            VEHICLE_IN_USE,
-    };
+    private record PropertyInfo(boolean needSubscription) {}
+
+    private static SparseArray<PropertyInfo> getSupportedProperties() {
+        SparseArray<PropertyInfo> propertyInfo = new SparseArray<>();
+        propertyInfo.put(AP_POWER_STATE_REQ, new PropertyInfo(/*needSubscription=*/ true));
+        // This is issued from PowerHalService so we do not need to subscribe to it.
+        propertyInfo.put(AP_POWER_STATE_REPORT, new PropertyInfo(/*needSubscription=*/ false));
+        propertyInfo.put(DISPLAY_BRIGHTNESS, new PropertyInfo(/*needSubscription=*/ true));
+        propertyInfo.put(PER_DISPLAY_BRIGHTNESS, new PropertyInfo(/*needSubscription=*/ true));
+        propertyInfo.put(VEHICLE_IN_USE, new PropertyInfo(/*needSubscription=*/ false));
+        return propertyInfo;
+    }
+
+    private static final SparseArray<PropertyInfo> SUPPORTED_PROPERTIES = getSupportedProperties();
 
     @VisibleForTesting
     public static final int SET_WAIT_FOR_VHAL = VehicleApPowerStateReport.WAIT_FOR_VHAL;
@@ -434,7 +441,7 @@ public class PowerHalService extends HalServiceBase {
         }
         try {
             HalPropValue value = mHal.getHalPropValueBuilder()
-                    .build(VehicleProperty.PER_DISPLAY_BRIGHTNESS, /* areaId= */ 0,
+                    .build(PER_DISPLAY_BRIGHTNESS, /* areaId= */ 0,
                             new int[]{displayPort, brightnessToSet});
             mHal.set(value);
             Slogf.i(CarLog.TAG_POWER, "send display brightness = %d, port = %d",
@@ -565,9 +572,9 @@ public class PowerHalService extends HalServiceBase {
     public void init() {
         synchronized (mLock) {
             for (int i = 0; i < mProperties.size(); i++) {
-                HalPropConfig config = mProperties.valueAt(i);
-                if (VehicleHal.isPropertySubscribable(config)) {
-                    mHal.subscribePropertySafe(this, config.getPropId());
+                int propId = mProperties.valueAt(i).getPropId();
+                if (SUPPORTED_PROPERTIES.get(propId).needSubscription) {
+                    mHal.subscribeProperty(this, propId);
                 }
             }
             HalPropConfig brightnessProperty = mProperties.get(PER_DISPLAY_BRIGHTNESS);
@@ -591,13 +598,23 @@ public class PowerHalService extends HalServiceBase {
     @Override
     public void release() {
         synchronized (mLock) {
+            for (int i = 0; i < mProperties.size(); i++) {
+                int propId = mProperties.valueAt(i).getPropId();
+                if (SUPPORTED_PROPERTIES.get(propId).needSubscription) {
+                    mHal.unsubscribePropertySafe(this, propId);
+                }
+            }
             mProperties.clear();
         }
     }
 
     @Override
     public int[] getAllSupportedProperties() {
-        return SUPPORTED_PROPERTIES;
+        int[] propertyIds = new int[SUPPORTED_PROPERTIES.size()];
+        for (int i = 0; i < SUPPORTED_PROPERTIES.size(); i++) {
+            propertyIds[i] = SUPPORTED_PROPERTIES.keyAt(i);
+        }
+        return propertyIds;
     }
 
     @Override

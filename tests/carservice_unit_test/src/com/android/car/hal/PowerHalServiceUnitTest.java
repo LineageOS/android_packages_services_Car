@@ -27,6 +27,7 @@ import static android.hardware.automotive.vehicle.VehicleApPowerStateShutdownPar
 import static android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY;
 import static android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY;
 import static android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY;
+import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE_REPORT;
 import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE_REQ;
 import static android.hardware.automotive.vehicle.VehicleProperty.DISPLAY_BRIGHTNESS;
 import static android.hardware.automotive.vehicle.VehicleProperty.PER_DISPLAY_BRIGHTNESS;
@@ -39,9 +40,12 @@ import static com.android.car.hal.PowerHalService.PowerState.SHUTDOWN_TYPE_POWER
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -70,6 +74,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -124,6 +129,51 @@ public final class PowerHalServiceUnitTest {
 
         mPowerHalService = new PowerHalService(mFakeContext, mHal);
         mPowerHalService.setListener(mEventListener);
+    }
+
+    private void initPowerHal() {
+        int[] propertyIds = new int[]{
+            AP_POWER_STATE_REQ,
+            AP_POWER_STATE_REPORT,
+            DISPLAY_BRIGHTNESS,
+            PER_DISPLAY_BRIGHTNESS,
+            VEHICLE_IN_USE,
+        };
+        List<HalPropConfig> configs = new ArrayList<>();
+        for (int propertyId : propertyIds) {
+            configs.add(new AidlHalPropConfig(
+                    AidlVehiclePropConfigBuilder.newBuilder(propertyId).build()));
+        }
+        mPowerHalService.takeProperties(configs);
+        mPowerHalService.init();
+    }
+
+    @Test
+    public void testInit() throws Exception {
+        initPowerHal();
+
+        verify(mHal).subscribeProperty(any(), eq(AP_POWER_STATE_REQ));
+        verify(mHal).subscribeProperty(any(), eq(DISPLAY_BRIGHTNESS));
+        verify(mHal).subscribeProperty(any(), eq(PER_DISPLAY_BRIGHTNESS));
+    }
+
+    @Test
+    public void testInit_subscribeFailure() throws Exception {
+        doThrow(new IllegalArgumentException("")).when(mHal)
+                .subscribeProperty(any(), eq(AP_POWER_STATE_REQ));
+
+        assertThrows(IllegalArgumentException.class, () -> initPowerHal());
+    }
+
+    @Test
+    public void testReleaseUnsubscribe() throws Exception {
+        initPowerHal();
+
+        mPowerHalService.release();
+
+        verify(mHal).unsubscribePropertySafe(any(), eq(AP_POWER_STATE_REQ));
+        verify(mHal).unsubscribePropertySafe(any(), eq(DISPLAY_BRIGHTNESS));
+        verify(mHal).unsubscribePropertySafe(any(), eq(PER_DISPLAY_BRIGHTNESS));
     }
 
     @Test
