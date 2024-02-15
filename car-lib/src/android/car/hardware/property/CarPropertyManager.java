@@ -17,7 +17,7 @@
 package android.car.hardware.property;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
+import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
 
 import static java.lang.Integer.toHexString;
@@ -59,6 +59,7 @@ import com.android.car.internal.dep.Trace;
 import com.android.car.internal.os.HandlerExecutor;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
+import com.android.car.internal.property.CarPropertyErrorCodes;
 import com.android.car.internal.property.CarPropertyEventCallbackController;
 import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.property.CarSubscription;
@@ -2746,8 +2747,8 @@ public class CarPropertyManager extends CarManagerBase {
             ServiceSpecificException e, int propertyId, int areaId) {
         // We are not passing the error message down, so log it here.
         Log.w(TAG, "received ServiceSpecificException: " + e);
-        int errorCode = CarPropertyHelper.getVhalSystemErrorCode(e.errorCode);
-        int vendorErrorCode = CarPropertyHelper.getVhalVendorErrorCode(e.errorCode);
+        int errorCode = CarPropertyErrorCodes.getVhalSystemErrorCode(e.errorCode);
+        int vendorErrorCode = CarPropertyErrorCodes.getVhalVendorErrorCode(e.errorCode);
 
         switch (errorCode) {
             case VehicleHalStatusCode.STATUS_NOT_AVAILABLE:

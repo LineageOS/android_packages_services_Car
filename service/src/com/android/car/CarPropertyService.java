@@ -64,6 +64,7 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarPropertyConfigList;
+import com.android.car.internal.property.CarPropertyErrorCodes;
 import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.GetPropertyConfigListResult;
@@ -529,12 +530,12 @@ public class CarPropertyService extends ICarProperty.Stub
                                     + " property ID: %s, area ID %s, exception: %s",
                             VehiclePropertyIds.toString(propertyId), Integer.toHexString(areaId),
                             e);
-                    int errorCode = CarPropertyHelper.getVhalSystemErrorCode(e.errorCode);
+                    int errorCode = CarPropertyErrorCodes.getVhalSystemErrorCode(e.errorCode);
                     long timestampNanos = SystemClock.elapsedRealtimeNanos();
                     CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
                     Object defaultValue = CarPropertyHelper.getDefaultValue(
                             carPropertyConfig.getPropertyType());
-                    if (CarPropertyHelper.isNotAvailableVehicleHalStatusCode(errorCode)) {
+                    if (CarPropertyErrorCodes.isNotAvailableVehicleHalStatusCode(errorCode)) {
                         carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
                                 CarPropertyValue.STATUS_UNAVAILABLE, timestampNanos, defaultValue);
                     } else {

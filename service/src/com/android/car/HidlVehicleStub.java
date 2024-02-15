@@ -17,6 +17,7 @@
 package com.android.car;
 
 import static com.android.car.CarServiceUtils.subscribeOptionsToHidl;
+import static com.android.car.internal.property.CarPropertyErrorCodes.convertVhalStatusCodeToCarPropertyManagerErrorCodes;
 
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
@@ -40,6 +41,7 @@ import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.HidlHalPropConfig;
 import com.android.car.hal.VehicleHalCallback;
+import com.android.car.internal.property.CarPropertyErrorCodes;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.FileDescriptor;
@@ -239,9 +241,13 @@ final class HidlVehicleStub extends VehicleStub {
                 try {
                     halPropValue = get(getVehicleStubAsyncRequest.getHalPropValue());
                 } catch (ServiceSpecificException e) {
-                    int[] errors = convertHalToCarPropertyManagerError(e.errorCode);
-                    callGetAsyncErrorCallback(errors[0], errors[1],
-                            serviceRequestId, getVehicleStubAsyncCallback);
+                    CarPropertyErrorCodes carPropertyErrorCodes =
+                            convertVhalStatusCodeToCarPropertyManagerErrorCodes(e.errorCode);
+                    callGetAsyncErrorCallback(
+                            carPropertyErrorCodes.getCarPropertyManagerErrorCode(),
+                            carPropertyErrorCodes.getVendorErrorCode(),
+                            serviceRequestId,
+                            getVehicleStubAsyncCallback);
                     continue;
                 } catch (RemoteException e) {
                     Slogf.w(CarLog.TAG_SERVICE,
@@ -277,9 +283,13 @@ final class HidlVehicleStub extends VehicleStub {
                     setVehicleStubAsyncCallback.onSetAsyncResults(
                             List.of(new SetVehicleStubAsyncResult(serviceRequestId)));
                 } catch (ServiceSpecificException e) {
-                    int[] errors = convertHalToCarPropertyManagerError(e.errorCode);
-                    callSetAsyncErrorCallback(errors[0], errors[1],
-                            serviceRequestId, setVehicleStubAsyncCallback);
+                    CarPropertyErrorCodes carPropertyErrorCodes =
+                            convertVhalStatusCodeToCarPropertyManagerErrorCodes(e.errorCode);
+                    callSetAsyncErrorCallback(
+                            carPropertyErrorCodes.getCarPropertyManagerErrorCode(),
+                            carPropertyErrorCodes.getVendorErrorCode(),
+                            serviceRequestId,
+                            setVehicleStubAsyncCallback);
                 } catch (RemoteException e) {
                     Slogf.w(CarLog.TAG_SERVICE,
                             "Received RemoteException from VHAL. VHAL is likely dead.");

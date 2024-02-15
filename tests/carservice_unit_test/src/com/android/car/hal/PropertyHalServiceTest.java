@@ -26,7 +26,7 @@ import static android.car.hardware.property.VehicleVendorPermission.PERMISSION_G
 import static android.car.hardware.property.VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_ENGINE;
 import static android.hardware.automotive.vehicle.VehicleProperty.SUPPORT_CUSTOMIZE_VENDOR_PERMISSION;
 
-import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
+import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -65,7 +65,6 @@ import android.util.ArraySet;
 
 import androidx.test.runner.AndroidJUnit4;
 
-import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.AsyncGetSetRequest;
 import com.android.car.VehicleStub.GetVehicleStubAsyncResult;
 import com.android.car.VehicleStub.SetVehicleStubAsyncResult;
@@ -74,6 +73,7 @@ import com.android.car.hal.VehicleHal.HalSubscribeOptions;
 import com.android.car.hal.property.PropertyHalServiceConfigs;
 import com.android.car.hal.test.AidlVehiclePropValueBuilder;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
+import com.android.car.internal.property.CarPropertyErrorCodes;
 import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
@@ -325,8 +325,8 @@ public class PropertyHalServiceTest {
 
     private Object deliverTryAgainGetResult(InvocationOnMock invocation,
             Integer expectedServiceRequestId) {
-        return deliverResult(invocation, expectedServiceRequestId, VehicleStub.STATUS_TRY_AGAIN,
-                null, true);
+        return deliverResult(invocation, expectedServiceRequestId,
+                CarPropertyErrorCodes.STATUS_TRY_AGAIN, null, true);
     }
 
     private Object deliverTryAgainSetResult(InvocationOnMock invocation) {
@@ -335,8 +335,8 @@ public class PropertyHalServiceTest {
 
     private Object deliverTryAgainSetResult(InvocationOnMock invocation,
             Integer expectedServiceRequestId) {
-        return deliverResult(invocation, expectedServiceRequestId, VehicleStub.STATUS_TRY_AGAIN,
-                null, false);
+        return deliverResult(invocation, expectedServiceRequestId,
+                CarPropertyErrorCodes.STATUS_TRY_AGAIN, null, false);
     }
 
     private Object deliverErrorGetResult(InvocationOnMock invocation, int errorCode) {

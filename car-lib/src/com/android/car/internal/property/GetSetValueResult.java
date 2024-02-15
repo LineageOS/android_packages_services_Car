@@ -16,7 +16,7 @@
 
 package com.android.car.internal.property;
 
-import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
+import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
 
 import android.annotation.Nullable;
 import android.car.hardware.CarPropertyValue;
