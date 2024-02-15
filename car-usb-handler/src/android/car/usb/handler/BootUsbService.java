@@ -15,16 +15,21 @@
  */
 package android.car.usb.handler;
 
+import static android.content.Intent.ACTION_USER_UNLOCKED;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Binder;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -41,6 +46,27 @@ public class BootUsbService extends Service {
     static final String USB_DEVICE_LIST_KEY = "usb_device_list";
 
     private ArrayList<UsbDevice> mDeviceList;
+
+    private final UserUnlockedBroadcastReceiver mUserUnlockedBroadcastReceiver =
+            new UserUnlockedBroadcastReceiver();
+    private boolean mReceiverRegistered = false;
+
+    private class UserUnlockedBroadcastReceiver extends BroadcastReceiver {
+        private int mStartId;
+
+        public void setStartId(int startId) {
+            mStartId = startId;
+        }
+
+        public void onReceive(Context context, Intent intent) {
+            // We could have been unregistered after receiving the intent but before processing it,
+            // so make sure we are still registered.
+            if (mReceiverRegistered) {
+                unregisterUserUnlockedReceiver();
+                processDevices(mStartId);
+            }
+        }
+    }
 
     @Override
     public Binder onBind(Intent intent) {
@@ -68,16 +94,48 @@ public class BootUsbService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mDeviceList = intent.getParcelableArrayListExtra(USB_DEVICE_LIST_KEY);
-        processDevices();
+        UserManager userManager = getSystemService(UserManager.class);
+        if (!userManager.isUserUnlocked() && getUserId() != UserHandle.USER_SYSTEM) {
+            Log.i(TAG, "Waiting for user unlocked to process connected devices.");
+            registerUserUnlockedReceiver(startId, userManager);
+            return START_REDELIVER_INTENT;
+        }
+        processDevices(startId);
         return START_NOT_STICKY;
     }
 
-    private void processDevices() {
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterUserUnlockedReceiver();
+    }
+
+    private void registerUserUnlockedReceiver(int startId, UserManager userManager) {
+        mReceiverRegistered = true;
+        mUserUnlockedBroadcastReceiver.setStartId(startId);
+        registerReceiver(mUserUnlockedBroadcastReceiver, new IntentFilter(ACTION_USER_UNLOCKED),
+                Context.RECEIVER_NOT_EXPORTED);
+        // in case the car was unlocked while the receiver was being registered
+        if (userManager.isUserUnlocked()) {
+            mUserUnlockedBroadcastReceiver.onReceive(this, new Intent(ACTION_USER_UNLOCKED));
+        }
+    }
+
+    private void unregisterUserUnlockedReceiver() {
+        if (mReceiverRegistered) {
+            Log.d(TAG, "Unregistering USER_UNLOCKED broadcast");
+            unregisterReceiver(mUserUnlockedBroadcastReceiver);
+            mReceiverRegistered = false;
+        }
+    }
+
+    private void processDevices(int startId) {
+        Log.i(TAG, "Processing devices");
         for (UsbDevice device : mDeviceList) {
             Log.d(TAG, "Processing device: " + device.getProductName());
             handle(this, device);
         }
-        stopSelf();
+        stopSelf(startId);
     }
 
     private void handle(Context context, UsbDevice device) {
