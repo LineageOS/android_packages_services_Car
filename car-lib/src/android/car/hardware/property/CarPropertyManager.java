@@ -1170,12 +1170,14 @@ public class CarPropertyManager extends CarManagerBase {
         if (updateRateHz < 0.0f) {
             updateRateHz = 0.0f;
         }
-        // Disable VUR for backward compatibility.
-        Subscription subscription = new Subscription.Builder(propertyId)
-                .setUpdateRateHz(updateRateHz).setVariableUpdateRateEnabled(false).build();
+        CarSubscription subscribeOption = new CarSubscription();
+        subscribeOption.propertyId = propertyId;
+        subscribeOption.updateRateHz = updateRateHz;
+        // Make sure areaIds is not null.
+        subscribeOption.areaIds = new int[0];
         try {
-            return subscribePropertyEvents(List.of(subscription), /* callbackExecutor= */ null,
-                    carPropertyEventCallback);
+            return subscribePropertyEventsInternal(List.of(subscribeOption),
+                    /* callbackExecutor= */ null, carPropertyEventCallback);
         } catch (IllegalArgumentException | SecurityException e) {
             Log.w(TAG, "register: PropertyId=" + propertyId + ", exception=", e);
             return false;
@@ -1433,15 +1435,43 @@ public class CarPropertyManager extends CarManagerBase {
             @Nullable @CallbackExecutor Executor callbackExecutor,
             @NonNull CarPropertyEventCallback carPropertyEventCallback) {
         requireNonNull(subscriptions);
+        List<CarSubscription> subscribeOptions = convertToCarSubscribeOptions(subscriptions);
+        return subscribePropertyEventsInternal(subscribeOptions, callbackExecutor,
+                carPropertyEventCallback);
+    }
+
+    /**
+     * Converts the {@link Subscription} from client to internal {@link CarSubscription}.
+     *
+     * This is only called by APIs with FLAG_BATCHED_SUBSCRIPTIONS.
+     */
+    private List<CarSubscription> convertToCarSubscribeOptions(List<Subscription> subscriptions) {
+        List<CarSubscription> carSubscribeOptions = new ArrayList<>();
+        for (int i = 0; i < subscriptions.size(); i++) {
+            Subscription clientOption = subscriptions.get(i);
+            CarSubscription internalOption = new CarSubscription();
+            internalOption.propertyId = clientOption.getPropertyId();
+            internalOption.areaIds = clientOption.getAreaIds();
+            internalOption.updateRateHz = clientOption.getUpdateRateHz();
+            internalOption.enableVariableUpdateRate = clientOption.isVariableUpdateRateEnabled();
+            internalOption.resolution = clientOption.getResolution();
+            carSubscribeOptions.add(internalOption);
+        }
+        return carSubscribeOptions;
+    }
+
+    private boolean subscribePropertyEventsInternal(List<CarSubscription> subscribeOptions,
+            @Nullable @CallbackExecutor Executor callbackExecutor,
+            CarPropertyEventCallback carPropertyEventCallback) {
         requireNonNull(carPropertyEventCallback);
-        validateAreaDisjointness(subscriptions);
+        validateAreaDisjointness(subscribeOptions);
         if (DBG) {
-            Log.d(TAG, String.format("subscribePropertyEvents, callback: %s subscriptions: %s",
-                             carPropertyEventCallback, subscriptions));
+            Log.d(TAG, String.format("subscribePropertyEvents, callback: %s subscribeOptions: %s",
+                             carPropertyEventCallback, subscribeOptions));
         }
         int[] noReadPermPropertyIds;
         try {
-            noReadPermPropertyIds = getSupportedNoReadPermPropIds(subscriptions);
+            noReadPermPropertyIds = getSupportedNoReadPermPropIds(subscribeOptions);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
             return false;
@@ -1460,9 +1490,9 @@ public class CarPropertyManager extends CarManagerBase {
             callbackExecutor = mExecutor;
         }
 
-        List<CarSubscription> carSubscriptions;
+        List<CarSubscription> sanitizedSubscribeOptions;
         try {
-            carSubscriptions = sanitizeUpdateRateConvertToCarSubscriptions(subscriptions);
+            sanitizedSubscribeOptions = sanitizeSubscribeOptions(subscribeOptions);
         } catch (IllegalStateException e) {
             Log.e(TAG, "failed to sanitize update rate", e);
             return false;
@@ -1477,17 +1507,18 @@ public class CarPropertyManager extends CarManagerBase {
                         + " this callback, please use the same executor.");
             }
 
-            mSubscriptionManager.stageNewOptions(carPropertyEventCallback, carSubscriptions);
+            mSubscriptionManager.stageNewOptions(carPropertyEventCallback,
+                    sanitizedSubscribeOptions);
 
             if (!applySubscriptionChangesLocked()) {
                 Log.e(TAG, "Subscription failed: failed to apply subscription changes");
                 return false;
             }
 
-            // Must use carSubscriptions instead of Subscriptions here since we need to use
-            // sanitized update rate.
-            for (int i = 0; i < carSubscriptions.size(); i++) {
-                CarSubscription option = carSubscriptions.get(i);
+            // Must use sanitizedSubscribeOptions instead of subscribeOptions here since we need to
+            // use sanitized update rate.
+            for (int i = 0; i < sanitizedSubscribeOptions.size(); i++) {
+                CarSubscription option = sanitizedSubscribeOptions.get(i);
                 int propertyId = option.propertyId;
                 float sanitizedUpdateRateHz = option.updateRateHz;
                 int[] areaIds = option.areaIds;
@@ -1499,7 +1530,7 @@ public class CarPropertyManager extends CarManagerBase {
                     mCpeCallbackToCpeCallbackController.put(carPropertyEventCallback,
                             cpeCallbackController);
                 }
-                // After {@code sanitizeUpdateRateConvertToCarSubscriptions}, update rate must be 0
+                // After {@code sanitizeSubscribeOptions}, update rate must be 0
                 // for on-change property and non-0 for continuous property.
                 // There is an edge case where minSampleRate is 0 and client uses 0 as sample rate
                 // for continuous property. In this case, it is really impossible to do VUR so treat
@@ -1527,15 +1558,15 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Checks if any subscription have overlapping [propertyId, areaId] pairs.
      *
-     * @param subscriptions The list of subscriptions to check.
+     * @param subscribeOptions The list of subscribe options to check.
      */
-    private void validateAreaDisjointness(List<Subscription> subscriptions) {
+    private void validateAreaDisjointness(List<CarSubscription> subscribeOptions) {
         PairSparseArray<Object> propertyToAreaId = new PairSparseArray<>();
         Object placeHolder = new Object();
-        for (int i = 0; i < subscriptions.size(); i++) {
-            Subscription option = subscriptions.get(i);
-            int propertyId = option.getPropertyId();
-            int[] areaIds = option.getAreaIds();
+        for (int i = 0; i < subscribeOptions.size(); i++) {
+            CarSubscription option = subscribeOptions.get(i);
+            int propertyId = option.propertyId;
+            int[] areaIds = option.areaIds;
             for (int areaId : areaIds) {
                 if (propertyToAreaId.contains(propertyId, areaId)) {
                     throw new IllegalArgumentException("Subscribe options contain overlapping "
@@ -1726,7 +1757,7 @@ public class CarPropertyManager extends CarManagerBase {
         for (int i = 0; i < propertyIds.length; i++) {
             propertyIdsList.add(propertyIds[i]);
         }
-        unsubscribePropertyEvents(carPropertyEventCallback, propertyIdsList);
+        unsubscribePropertyEventsInternal(carPropertyEventCallback, propertyIdsList);
     }
 
     /**
@@ -1740,11 +1771,11 @@ public class CarPropertyManager extends CarManagerBase {
     public void unsubscribePropertyEvents(
             @NonNull CarPropertyEventCallback carPropertyEventCallback, int propertyId) {
         requireNonNull(carPropertyEventCallback);
-        unsubscribePropertyEvents(carPropertyEventCallback, List.of(propertyId));
+        unsubscribePropertyEventsInternal(carPropertyEventCallback, List.of(propertyId));
     }
 
-    private void unsubscribePropertyEvents(CarPropertyEventCallback carPropertyEventCallback,
-            List<Integer> propertyIds) {
+    private void unsubscribePropertyEventsInternal(
+            CarPropertyEventCallback carPropertyEventCallback, List<Integer> propertyIds) {
         synchronized (mLock) {
             CarPropertyEventCallbackController cpeCallbackController =
                     mCpeCallbackToCpeCallbackController.get(carPropertyEventCallback);
@@ -3148,12 +3179,11 @@ public class CarPropertyManager extends CarManagerBase {
         return requestIds;
     }
 
-    private List<CarSubscription> sanitizeUpdateRateConvertToCarSubscriptions(
-            List<Subscription> subscriptions)
+    private List<CarSubscription> sanitizeSubscribeOptions(List<CarSubscription> subscribeOptions)
             throws IllegalArgumentException, IllegalStateException {
         ArraySet<Integer> propertyIds = new ArraySet<>();
-        for (int i = 0; i < subscriptions.size(); i++) {
-            propertyIds.add(subscriptions.get(i).getPropertyId());
+        for (int i = 0; i < subscribeOptions.size(); i++) {
+            propertyIds.add(subscribeOptions.get(i).propertyId);
         }
         CarPropertyConfigs configs = getPropertyConfigsFromService(propertyIds);
         if (configs == null) {
@@ -3161,9 +3191,9 @@ public class CarPropertyManager extends CarManagerBase {
         }
 
         List<CarSubscription> output = new ArrayList<>();
-        for (int i = 0; i < subscriptions.size(); i++) {
-            Subscription subscription = subscriptions.get(i);
-            int propertyId = subscription.getPropertyId();
+        for (int i = 0; i < subscribeOptions.size(); i++) {
+            CarSubscription subscribeOption = subscribeOptions.get(i);
+            int propertyId = subscribeOption.propertyId;
 
             if (configs.isNotSupported(propertyId)) {
                 String errorMessage = "propertyId is not in carPropertyConfig list: "
@@ -3182,20 +3212,19 @@ public class CarPropertyManager extends CarManagerBase {
             }
 
             CarPropertyConfig<?> carPropertyConfig = configs.getConfig(propertyId);
-            float sanitizedUpdateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(
-                    carPropertyConfig, subscription.getUpdateRateHz());
             CarSubscription carSubscription = new CarSubscription();
             carSubscription.propertyId = propertyId;
-            carSubscription.areaIds = subscription.getAreaIds();
+            carSubscription.areaIds = subscribeOption.areaIds;
             if (carSubscription.areaIds.length == 0) {
                 // Subscribe to all areaIds if not specified.
                 carSubscription.areaIds = carPropertyConfig.getAreaIds();
             }
             carSubscription.enableVariableUpdateRate =
-                    subscription.isVariableUpdateRateEnabled();
-            carSubscription.updateRateHz = sanitizedUpdateRateHz;
+                    subscribeOption.enableVariableUpdateRate;
+            carSubscription.updateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(
+                    carPropertyConfig, subscribeOption.updateRateHz);
             float resolution = mFeatureFlags.subscriptionWithResolution()
-                    ? subscription.getResolution() : 0.0f;
+                    ? subscribeOption.resolution : 0.0f;
             carSubscription.resolution = InputSanitizationUtils.sanitizeResolution(mFeatureFlags,
                     carPropertyConfig, resolution);
             output.addAll(InputSanitizationUtils.sanitizeEnableVariableUpdateRate(
@@ -3255,11 +3284,11 @@ public class CarPropertyManager extends CarManagerBase {
         return filteredPropertyIds;
     }
 
-    private int[] getSupportedNoReadPermPropIds(List<Subscription> subscriptions)
+    private int[] getSupportedNoReadPermPropIds(List<CarSubscription> subscribeOptions)
             throws RemoteException {
         ArraySet<Integer> propertyIds = new ArraySet<>();
-        for (int i = 0; i < subscriptions.size(); i++) {
-            propertyIds.add(subscriptions.get(i).getPropertyId());
+        for (int i = 0; i < subscribeOptions.size(); i++) {
+            propertyIds.add(subscribeOptions.get(i).propertyId);
         }
         int[] propertyIdsArray = new int[propertyIds.size()];
         for (int i = 0; i < propertyIds.size(); i++) {
