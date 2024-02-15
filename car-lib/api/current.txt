@@ -938,7 +938,7 @@ package android.car.hardware.property {
   }
 
   @FlaggedApi("android.car.feature.batched_subscriptions") public final class Subscription {
-    method @Nullable public int[] getAreaIds();
+    method @NonNull public int[] getAreaIds();
     method public int getPropertyId();
     method @FlaggedApi("android.car.feature.subscription_with_resolution") public float getResolution();
     method public float getUpdateRateFast();
