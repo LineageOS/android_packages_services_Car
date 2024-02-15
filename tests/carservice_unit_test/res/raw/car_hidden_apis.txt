@@ -585,6 +585,9 @@ android.car.occupantawareness SystemStatusEvent int detectionType
 android.car.occupantawareness SystemStatusEvent int systemStatus
 android.car.occupantawareness SystemStatusEvent void writeToParcel(Parcel dest, int flags)
 android.car.occupantconnection CarOccupantConnectionManager void onCarDisconnected()
+android.car.oem CarAudioFeaturesInfo int AUDIO_FEATURE_NO_FEATURE
+android.car.oem CarAudioFeaturesInfo.Builder Builder addAudioFeature(int feature)
+android.car.oem CarAudioFeaturesInfo.Builder CarAudioFeaturesInfo build()
 android.car.os CarPerformanceManager void addCpuAvailabilityChangeListener(Executor executor, CpuAvailabilityMonitoringConfig config, CpuAvailabilityChangeListener listener)
 android.car.os CarPerformanceManager void onCarDisconnected()
 android.car.os CarPerformanceManager void removeCpuAvailabilityChangeListener(Executor executor, CpuAvailabilityChangeListener listener)

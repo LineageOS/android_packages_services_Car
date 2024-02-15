@@ -1983,12 +1983,22 @@ package android.car.oem {
     method @NonNull public android.car.oem.CarAudioFadeConfiguration.Builder setName(@NonNull String);
   }
 
+  @FlaggedApi("android.car.feature.car_audio_dynamic_devices") public final class CarAudioFeaturesInfo implements android.os.Parcelable {
+    method public int describeContents();
+    method public boolean isAudioFeatureEnabled(int);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @FlaggedApi("android.car.feature.car_audio_dynamic_devices") public static final int AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS = 1; // 0x1
+    field @FlaggedApi("android.car.feature.car_audio_dynamic_devices") public static final int AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS = 2; // 0x2
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.oem.CarAudioFeaturesInfo> CREATOR;
+  }
+
   public interface OemCarAudioDuckingService extends android.car.oem.OemCarServiceComponent {
     method @NonNull public java.util.List<android.media.AudioAttributes> evaluateAttributesToDuck(@NonNull android.car.oem.OemCarAudioVolumeRequest);
   }
 
   public final class OemCarAudioFocusEvaluationRequest implements android.os.Parcelable {
     method public int describeContents();
+    method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") @Nullable public android.car.oem.CarAudioFeaturesInfo getAudioFeaturesInfo();
     method @Nullable public android.car.oem.AudioFocusEntry getAudioFocusRequest();
     method public int getAudioZoneId();
     method @NonNull public java.util.List<android.car.oem.AudioFocusEntry> getFocusHolders();
@@ -2004,6 +2014,7 @@ package android.car.oem {
     method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder addFocusLosers(@NonNull android.car.oem.AudioFocusEntry);
     method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder addMutedVolumeGroups(@NonNull android.car.media.CarVolumeGroupInfo);
     method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest build();
+    method @FlaggedApi("android.car.feature.car_audio_dynamic_devices") @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder setAudioFeaturesInfo(@NonNull android.car.oem.CarAudioFeaturesInfo);
     method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder setAudioFocusRequest(@NonNull android.car.oem.AudioFocusEntry);
     method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder setAudioZoneId(int);
     method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder setFocusHolders(@NonNull java.util.List<android.car.oem.AudioFocusEntry>);
