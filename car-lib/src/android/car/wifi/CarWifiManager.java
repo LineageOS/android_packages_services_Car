@@ -27,7 +27,10 @@ import android.os.RemoteException;
 
 /**
  * CarWifiManager provides API to allow for applications to perform Wi-Fi specific operations.
+ *
+ * @hide
  */
+@SystemApi
 @FlaggedApi(Flags.FLAG_PERSIST_AP_SETTINGS)
 public final class CarWifiManager extends CarManagerBase {
     private final ICarWifi mService;

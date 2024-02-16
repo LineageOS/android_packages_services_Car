@@ -507,7 +507,24 @@ package android.car.app {
     field public static final int RESULT_SUCCESS = 0; // 0x0
   }
 
+  @FlaggedApi("android.car.feature.display_compatibility") public final class CarDisplayCompatContainer {
+    method @RequiresPermission(android.car.Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY) public void onBackPressed();
+    method @RequiresPermission(android.car.Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY) public void setDensity(int);
+    method @RequiresPermission(android.car.Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY) public void setVisibility(int);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY) public android.graphics.Rect setWindowBounds(@NonNull android.graphics.Rect);
+    method @RequiresPermission(android.car.Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY) public void startActivity(@NonNull android.content.Intent, @Nullable android.os.Bundle);
+  }
+
+  public static final class CarDisplayCompatContainer.Builder {
+    ctor public CarDisplayCompatContainer.Builder(@NonNull android.app.Activity);
+    method @NonNull public android.car.app.CarDisplayCompatContainer.Builder setDensity(int);
+    method @NonNull public android.car.app.CarDisplayCompatContainer.Builder setHeight(int);
+    method @NonNull public android.car.app.CarDisplayCompatContainer.Builder setSurfaceViewCallback(@Nullable java.util.function.Consumer<android.view.SurfaceView>);
+    method @NonNull public android.car.app.CarDisplayCompatContainer.Builder setWidth(int);
+  }
+
   @FlaggedApi("android.car.feature.display_compatibility") public final class CarDisplayCompatManager {
+    method @Nullable @RequiresPermission(android.car.Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY) public android.car.app.CarDisplayCompatContainer initializeDisplayCompatContainer(@NonNull android.car.app.CarDisplayCompatContainer.Builder);
   }
 
   public interface CarSystemUIProxy {
@@ -2336,7 +2353,7 @@ package android.car.settings {
   public static final class CarSettings.Global {
     field public static final String DISPLAY_INPUT_LOCK = "android.car.DISPLAY_INPUT_LOCK";
     field public static final String DISPLAY_POWER_MODE = "android.car.DISPLAY_POWER_MODE";
-    field @FlaggedApi("android.car.feature.persist_ap_settings") public static final String ENABLE_TETHERING_PERSISTING = "android.car.ENABLE_TETHERING_PERSISTING";
+    field @FlaggedApi("android.car.feature.persist_ap_settings") public static final String ENABLE_PERSISTENT_TETHERING = "android.car.ENABLE_PERSISTENT_TETHERING";
     field @FlaggedApi("android.car.feature.car_night_global_setting") public static final String FORCED_DAY_NIGHT_MODE = "android.car.FORCED_DAY_NIGHT_MODE";
     field public static final String GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE = "android.car.GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE";
   }

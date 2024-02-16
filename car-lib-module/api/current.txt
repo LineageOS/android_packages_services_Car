@@ -1105,10 +1105,3 @@ package android.car.watchdog {
 
 }
 
-package android.car.wifi {
-
-  @FlaggedApi("android.car.feature.persist_ap_settings") public final class CarWifiManager {
-  }
-
-}
-
