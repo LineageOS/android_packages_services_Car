@@ -23,8 +23,6 @@ import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
 
 import static com.android.car.bugreport.PackageUtils.getPackageVersion;
 
-import android.annotation.FloatRange;
-import android.annotation.StringRes;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -42,7 +40,6 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -50,6 +47,9 @@ import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.Display;
 import android.widget.Toast;
+
+import androidx.annotation.FloatRange;
+import androidx.annotation.StringRes;
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
@@ -229,7 +229,7 @@ public class BugReportService extends Service {
         mSingleThreadExecutor = Executors.newSingleThreadScheduledExecutor();
         mHandler = new BugReportHandler();
         mHandlerStartedToast = new Handler();
-        mConfig = Config.create();
+        mConfig = Config.create(getApplicationContext());
     }
 
     @Override
@@ -380,7 +380,7 @@ public class BugReportService extends Service {
         // BugReportService doesn't automatically reconnect to it.
         connectToCarServiceSync();
 
-        if (Build.IS_USERDEBUG || Build.IS_ENG) {
+        if (Config.isDebuggable()) {
             mSingleThreadExecutor.schedule(
                     this::grabBtSnoopLog, ACTIVITY_FINISH_DELAY_MILLIS, TimeUnit.MILLISECONDS);
         }
@@ -439,7 +439,7 @@ public class BugReportService extends Service {
         }
         mCallback = new CarBugreportManager.CarBugreportManagerCallback() {
             @Override
-            public void onError(@CarBugreportErrorCode int errorCode) {
+            public void onError(int errorCode) {
                 Log.e(TAG, "CarBugreportManager failed: " + errorCode);
                 disconnectFromCarService();
                 handleBugReportManagerError(errorCode);
@@ -469,8 +469,7 @@ public class BugReportService extends Service {
         mBugreportManager.requestBugreport(outFd, extraOutFd, mCallback);
     }
 
-    private void handleBugReportManagerError(
-            @CarBugreportManager.CarBugreportManagerCallback.CarBugreportErrorCode int errorCode) {
+    private void handleBugReportManagerError(int errorCode) {
         if (mMetaBugReport == null) {
             Log.w(TAG, "No bugreport is running");
             mIsCollectingBugReport.set(false);
@@ -493,8 +492,7 @@ public class BugReportService extends Service {
         mIsCollectingBugReport.set(false);
     }
 
-    private static String getBugReportFailureStatusMessage(
-            @CarBugreportManager.CarBugreportManagerCallback.CarBugreportErrorCode int errorCode) {
+    private static String getBugReportFailureStatusMessage(int errorCode) {
         switch (errorCode) {
             case CAR_BUGREPORT_DUMPSTATE_CONNECTION_FAILED:
             case CAR_BUGREPORT_DUMPSTATE_FAILED:

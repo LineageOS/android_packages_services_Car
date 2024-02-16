@@ -15,9 +15,6 @@
  */
 package com.android.car.bugreport;
 
-import android.annotation.NonNull;
-import android.annotation.Nullable;
-import android.annotation.StringDef;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
@@ -29,6 +26,10 @@ import android.net.Uri;
 import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringDef;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -237,7 +238,7 @@ public class BugStorageProvider extends ContentProvider {
             return false;
         }
         mDatabaseHelper = new DatabaseHelper(getContext());
-        mConfig = Config.create();
+        mConfig = Config.create(getContext());
         return true;
     }
 

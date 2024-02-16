@@ -15,13 +15,14 @@
  */
 package com.android.car.bugreport;
 
-import android.app.ActivityThread;
+import android.content.Context;
 import android.os.Build;
 import android.os.SystemProperties;
 import android.provider.DeviceConfig;
 import android.util.Log;
 
-import com.android.internal.annotations.GuardedBy;
+import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -69,7 +70,6 @@ final class Config {
     /**
      * A system property to override GCS bucket name that is defined in {@code configs.xml}.
      */
-
     private static final String PROP_GCS_BUCKET = "android.car.bugreport.gcs_bucket";
 
     /*
@@ -84,17 +84,17 @@ final class Config {
     @GuardedBy("mLock")
     private String mUploadDestination = null;
 
-    static Config create() {
+    static Config create(@NonNull Context context) {
         Config config = new Config();
-        config.start();
+        config.start(context);
         return config;
     }
 
     private Config() {}
 
-    private void start() {
+    private void start(@NonNull Context context) {
         DeviceConfig.addOnPropertiesChangedListener(NAMESPACE_CAR,
-                ActivityThread.currentApplication().getMainExecutor(), this::onPropertiesChanged);
+                context.getMainExecutor(), this::onPropertiesChanged);
         updateConstants();
     }
 
@@ -104,9 +104,15 @@ final class Config {
         }
     }
 
+    /** Returns true if the device build is debuggable.*/
+    static boolean isDebuggable() {
+        return "userdebug".equals(Build.TYPE) || "eng".equals(Build.TYPE);
+    }
+
     /** Returns true if bugreport app is enabled for this device. */
     static boolean isBugReportEnabled() {
-        return Build.IS_DEBUGGABLE || SystemProperties.getBoolean(PROP_FORCE_ENABLE, false);
+        return isDebuggable()
+                || SystemProperties.getBoolean(PROP_FORCE_ENABLE, false);
     }
 
     /** Returns GCS bucket system property. */
@@ -130,7 +136,7 @@ final class Config {
             return true;
         }
         // NOTE: enable it only for userdebug/eng builds.
-        return UPLOAD_DESTINATION_GCS.equals(getUploadDestination()) && Build.IS_DEBUGGABLE;
+        return UPLOAD_DESTINATION_GCS.equals(getUploadDestination()) && isDebuggable();
     }
 
     private static boolean isTempForceAutoUploadGcsEnabled() {
