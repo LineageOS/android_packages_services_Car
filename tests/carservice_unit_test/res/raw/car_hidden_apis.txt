@@ -66,6 +66,10 @@ android.car CarManagerBase T handleRemoteExceptionFromCarService(RemoteException
 android.car CarManagerBase void handleRemoteExceptionFromCarService(RemoteException e)
 android.car CarManagerBase void onCarDisconnected()
 android.car CarOccupantZoneManager boolean assignProfileUserToOccupantZone(OccupantZoneInfo occupantZone, int userId)
+android.car CarOccupantZoneManager int DISPLAY_TYPE_AUXILIARY_2
+android.car CarOccupantZoneManager int DISPLAY_TYPE_AUXILIARY_3
+android.car CarOccupantZoneManager int DISPLAY_TYPE_AUXILIARY_4
+android.car CarOccupantZoneManager int DISPLAY_TYPE_AUXILIARY_5
 android.car CarOccupantZoneManager int OCCUPANT_TYPE_INVALID
 android.car CarOccupantZoneManager void onCarDisconnected()
 android.car CarOccupantZoneManager.OccupantZoneInfo int INVALID_ZONE_ID
