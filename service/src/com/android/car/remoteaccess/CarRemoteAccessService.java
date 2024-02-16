@@ -51,6 +51,7 @@ import android.content.pm.ServiceInfo;
 import android.content.res.XmlResourceParser;
 import android.hardware.automotive.remoteaccess.IRemoteAccess;
 import android.hardware.automotive.remoteaccess.ScheduleInfo;
+import android.hardware.automotive.remoteaccess.TaskType;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
@@ -828,6 +829,17 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         ScheduleInfo halScheduleInfo = new ScheduleInfo();
         String clientId = getServerlessCallerClientId();
         halScheduleInfo.clientId = clientId;
+        switch (scheduleInfo.taskType) {
+            case CarRemoteAccessManager.TASK_TYPE_CUSTOM:
+                halScheduleInfo.taskType = TaskType.CUSTOM;
+                break;
+            case CarRemoteAccessManager.TASK_TYPE_ENTER_GARAGE_MODE:
+                halScheduleInfo.taskType = TaskType.ENTER_GARAGE_MODE;
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported task type: "
+                        + scheduleInfo.taskType);
+        }
         halScheduleInfo.scheduleId = scheduleInfo.scheduleId;
         halScheduleInfo.taskData = scheduleInfo.taskData;
         halScheduleInfo.count = scheduleInfo.count;
@@ -911,6 +923,19 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 taskScheduleInfo.count = halScheduleInfo.count;
                 taskScheduleInfo.startTimeInEpochSeconds = halScheduleInfo.startTimeInEpochSeconds;
                 taskScheduleInfo.periodicInSeconds = halScheduleInfo.periodicInSeconds;
+                switch (halScheduleInfo.taskType) {
+                    case TaskType.CUSTOM:
+                        taskScheduleInfo.taskType = CarRemoteAccessManager.TASK_TYPE_CUSTOM;
+                        break;
+                    case TaskType.ENTER_GARAGE_MODE:
+                        taskScheduleInfo.taskType =
+                                CarRemoteAccessManager.TASK_TYPE_ENTER_GARAGE_MODE;
+                        break;
+                    default:
+                        Slogf.e(TAG, "Unknown task type returned by remote access HAL for: "
+                                + taskScheduleInfo + ", default to TASK_TYPE_CUSTOM");
+                        taskScheduleInfo.taskType = CarRemoteAccessManager.TASK_TYPE_CUSTOM;
+                }
                 taskScheduleInfoList.add(taskScheduleInfo);
             }
             return taskScheduleInfoList;
