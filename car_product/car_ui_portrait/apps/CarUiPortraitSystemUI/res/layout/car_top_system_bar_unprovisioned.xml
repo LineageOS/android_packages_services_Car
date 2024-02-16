@@ -73,16 +73,15 @@
                      android:layout_width="@dimen/top_system_bar_icon_size"
                      android:layout_height="@dimen/top_system_bar_icon_size"
                      android:layout_marginStart="@dimen/top_system_bar_icon_horizontal_margin"
-                     android:layout_marginEnd="@dimen/top_system_bar_icon_horizontal_margin"            />
+                     android:layout_marginEnd="@dimen/top_system_bar_icon_horizontal_margin" />
 
-            <LinearLayout
-                android:id="@+id/read_only_icons_container"
-                android:gravity="center"
+            <com.android.systemui.car.statusicon.StatusIconView
+                android:id="@+id/read_only_sensor_text"
                 android:layout_width="@dimen/statusbar_sensor_text_width"
                 android:layout_height="match_parent"
-                android:layout_marginStart="@dimen/top_system_bar_icon_horizontal_margin"
-                android:layout_marginEnd="@dimen/top_system_bar_icon_horizontal_margin"
-            />
+                android:layout_marginHorizontal="@dimen/top_system_bar_icon_horizontal_margin"
+                android:layout_gravity="center"
+                systemui:controller="com.android.systemui.car.statusicon.ui.StatusBarSensorInfoController"/>
 
             <com.android.systemui.car.systembar.CarTopSystemBarButton
                 android:id="@+id/user_name"
