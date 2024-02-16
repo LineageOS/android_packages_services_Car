@@ -18,7 +18,6 @@ android.car Car String CAR_INTENT_ACTION_RECEIVER_SERVICE
 android.car Car String CAR_SERVICE_BINDER_SERVICE_NAME
 android.car Car String CAR_SERVICE_INTERFACE_NAME
 android.car Car String CAR_TEMPLATE_HOST_RENDERER_SERVICE
-android.car Car String CAR_WIFI_SERVICE
 android.car Car String CLUSTER_HOME_SERVICE
 android.car Car String EXPERIMENTAL_CAR_KEYGUARD_SERVICE
 android.car Car String EXPERIMENTAL_CAR_USER_SERVICE
