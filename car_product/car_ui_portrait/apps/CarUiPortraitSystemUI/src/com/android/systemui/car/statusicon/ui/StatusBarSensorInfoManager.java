@@ -50,6 +50,7 @@ public class StatusBarSensorInfoManager {
     private final String mTemperatureFormatCelsius;
     private final String mTemperatureFormatFahrenheit;
     private final MutableLiveData<String> mSensorStringLiveData;
+    private final CarServiceProvider mCarServiceProvider;
     private Executor mExecutor;
     private CarPropertyManager mCarPropertyManager;
     private MutableLiveData<Boolean> mSensorAvailabilityData;
@@ -96,11 +97,20 @@ public class StatusBarSensorInfoManager {
         mSensorStringLiveData = sensorStringLiveData;
         mSensorAvailabilityData = sensorAvailabilityData;
         mExecutor = executor;
-        carServiceProvider.addListener(mCarServiceLifecycleListener);
+        mCarServiceProvider = carServiceProvider;
         mTemperatureFormatCelsius = resources.getString(
                 R.string.statusbar_temperature_format_celsius);
         mTemperatureFormatFahrenheit = resources.getString(
                 R.string.statusbar_temperature_format_fahrenheit);
+    }
+
+    void onAttached() {
+        mCarServiceProvider.addListener(mCarServiceLifecycleListener);
+    }
+
+    void onDetached() {
+        mCarServiceProvider.removeListener(mCarServiceLifecycleListener);
+        unregisterHvacPropertyEventListeners();
     }
 
     private void initializeHvacProperties() {
@@ -119,6 +129,12 @@ public class StatusBarSensorInfoManager {
         for (Integer propertyId : SENSOR_PROPERTIES) {
             mCarPropertyManager.registerCallback(mPropertyEventCallback, propertyId,
                     CarPropertyManager.SENSOR_RATE_ONCHANGE);
+        }
+    }
+
+    private void unregisterHvacPropertyEventListeners() {
+        for (Integer propertyId : SENSOR_PROPERTIES) {
+            mCarPropertyManager.unregisterCallback(mPropertyEventCallback, propertyId);
         }
     }
 
