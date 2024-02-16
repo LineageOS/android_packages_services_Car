@@ -199,18 +199,22 @@ public final class FakeVehicleStub extends VehicleStub {
                     halPropValue);
                 if (halPropValue == null) {
                     result = new GetVehicleStubAsyncResult(request.getServiceRequestId(),
-                        CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE, /* vendorErrorCode= */ 0);
+                            new CarPropertyErrorCodes(
+                                    CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE,
+                                    /* vendorErrorCode= */ 0,
+                                    /* systemErrorCode */ 0));
                 }
             } catch (ServiceSpecificException e) {
                 CarPropertyErrorCodes carPropertyErrorCodes =
                         convertVhalStatusCodeToCarPropertyManagerErrorCodes(e.errorCode);
-                result = new GetVehicleStubAsyncResult(
-                        request.getServiceRequestId(),
-                        carPropertyErrorCodes.getCarPropertyManagerErrorCode(),
-                        carPropertyErrorCodes.getVendorErrorCode());
+                result = new GetVehicleStubAsyncResult(request.getServiceRequestId(),
+                        carPropertyErrorCodes);
             } catch (RemoteException e) {
                 result = new GetVehicleStubAsyncResult(request.getServiceRequestId(),
-                    CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, /* vendorErrorCode= */ 0);
+                        new CarPropertyErrorCodes(
+                                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
+                                /* vendorErrorCode= */ 0,
+                                /* systemErrorCode */ 0));
             }
             onGetAsyncResultList.add(result);
         }
@@ -238,14 +242,14 @@ public final class FakeVehicleStub extends VehicleStub {
                 result = new SetVehicleStubAsyncResult(serviceRequestId);
             } catch (RemoteException e) {
                 result = new SetVehicleStubAsyncResult(serviceRequestId,
-                        CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, /* vendorErrorCode= */ 0);
+                        new CarPropertyErrorCodes(
+                                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
+                                /* vendorErrorCode= */ 0,
+                                /* systemErrorCode */ 0));
             } catch (ServiceSpecificException e) {
                 CarPropertyErrorCodes carPropertyErrorCodes =
                         convertVhalStatusCodeToCarPropertyManagerErrorCodes(e.errorCode);
-                result = new SetVehicleStubAsyncResult(
-                        serviceRequestId,
-                        carPropertyErrorCodes.getCarPropertyManagerErrorCode(),
-                        carPropertyErrorCodes.getVendorErrorCode());
+                result = new SetVehicleStubAsyncResult(serviceRequestId, carPropertyErrorCodes);
             }
             onSetAsyncResultsList.add(result);
         }

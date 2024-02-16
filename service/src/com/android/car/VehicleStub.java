@@ -16,8 +16,6 @@
 
 package com.android.car;
 
-import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
-
 import android.annotation.Nullable;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.util.Slogf;
@@ -31,6 +29,7 @@ import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.VehicleHalCallback;
 import com.android.car.hal.fakevhal.FakeVehicleStub;
+import com.android.car.internal.property.CarPropertyErrorCodes;
 import com.android.car.internal.property.CarPropertyErrorCodes.CarPropMgrErrorCode;
 
 import java.io.FileDescriptor;
@@ -104,9 +103,7 @@ public abstract class VehicleStub {
         private final int mServiceRequestId;
         @Nullable
         private final HalPropValue mHalPropValue;
-        @CarPropMgrErrorCode
-        private final int mErrorCode;
-        private final int mVendorErrorCode;
+        private final CarPropertyErrorCodes mCarPropertyErrorCodes;
 
         public int getServiceRequestId() {
             return mServiceRequestId;
@@ -119,11 +116,19 @@ public abstract class VehicleStub {
 
         @CarPropMgrErrorCode
         public int getErrorCode() {
-            return mErrorCode;
+            return mCarPropertyErrorCodes.getCarPropertyManagerErrorCode();
         }
 
         public int getVendorErrorCode() {
-            return mVendorErrorCode;
+            return mCarPropertyErrorCodes.getVendorErrorCode();
+        }
+
+        public int getSystemErrorCode() {
+            return mCarPropertyErrorCodes.getSystemErrorCode();
+        }
+
+        public CarPropertyErrorCodes getCarPropertyErrorCodes() {
+            return mCarPropertyErrorCodes;
         }
 
         /**
@@ -132,19 +137,16 @@ public abstract class VehicleStub {
         public GetVehicleStubAsyncResult(int serviceRequestId, HalPropValue halPropValue) {
             mServiceRequestId = serviceRequestId;
             mHalPropValue = halPropValue;
-            mErrorCode = STATUS_OK;
-            mVendorErrorCode = 0;
+            mCarPropertyErrorCodes = CarPropertyErrorCodes.STATUS_OK_NO_ERROR;
         }
 
         /**
-         * Constructs an instance for GetVehicleStubAsyncResult when error.
+         * Constructs an instance for GetVehicleStubAsyncResult when errors.
          */
-        public GetVehicleStubAsyncResult(int serviceRequestId,
-                @CarPropMgrErrorCode int errorCode, int vendorErrorCode) {
+        public GetVehicleStubAsyncResult(int serviceRequestId, CarPropertyErrorCodes errorCodes) {
             mServiceRequestId = serviceRequestId;
             mHalPropValue = null;
-            mErrorCode = errorCode;
-            mVendorErrorCode = vendorErrorCode;
+            mCarPropertyErrorCodes = errorCodes;
         }
     }
 
@@ -154,8 +156,7 @@ public abstract class VehicleStub {
     public static final class SetVehicleStubAsyncResult {
         private final int mServiceRequestId;
         @CarPropMgrErrorCode
-        private final int mErrorCode;
-        private final int mVendorErrorCode;
+        private final CarPropertyErrorCodes mCarPropertyErrorCodes;
 
         public int getServiceRequestId() {
             return mServiceRequestId;
@@ -163,11 +164,19 @@ public abstract class VehicleStub {
 
         @CarPropMgrErrorCode
         public int getErrorCode() {
-            return mErrorCode;
+            return mCarPropertyErrorCodes.getCarPropertyManagerErrorCode();
         }
 
         public int getVendorErrorCode() {
-            return mVendorErrorCode;
+            return mCarPropertyErrorCodes.getVendorErrorCode();
+        }
+
+        public int getSystemErrorCode() {
+            return mCarPropertyErrorCodes.getSystemErrorCode();
+        }
+
+        public CarPropertyErrorCodes getCarPropertyErrorCodes() {
+            return mCarPropertyErrorCodes;
         }
 
         /**
@@ -175,18 +184,15 @@ public abstract class VehicleStub {
          */
         public SetVehicleStubAsyncResult(int serviceRequestId) {
             mServiceRequestId = serviceRequestId;
-            mErrorCode = STATUS_OK;
-            mVendorErrorCode = 0;
+            mCarPropertyErrorCodes = CarPropertyErrorCodes.STATUS_OK_NO_ERROR;
         }
 
         /**
-         * Constructs an error result.
+         * Constructs an instance for SetVehicleStubAsyncResult when errors.
          */
-        public SetVehicleStubAsyncResult(int serviceRequestId,
-                @CarPropMgrErrorCode int errorCode, int vendorErrorCode) {
+        public SetVehicleStubAsyncResult(int serviceRequestId, CarPropertyErrorCodes errorCodes) {
             mServiceRequestId = serviceRequestId;
-            mErrorCode = errorCode;
-            mVendorErrorCode = vendorErrorCode;
+            mCarPropertyErrorCodes = errorCodes;
         }
     }
 
