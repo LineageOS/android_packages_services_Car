@@ -45,6 +45,7 @@ android_test {
     static_libs: [
         "junit",
         "android.car.test.utils",
+        "android.car.testapi",
         "androidx.test.ext.junit",
         "androidx.test.rules",
         "android.frameworks.automotive.powerpolicy-V2-java",

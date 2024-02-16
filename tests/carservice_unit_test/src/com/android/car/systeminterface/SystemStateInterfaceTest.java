@@ -28,13 +28,13 @@ import static org.mockito.Mockito.when;
 
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.JavaMockitoHelper;
+import android.car.test.util.TemporaryFile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 import android.os.UserManager;
 
-import com.android.car.test.utils.TemporaryFile;
 import com.android.dx.mockito.inline.extended.ExtendedMockito;
 
 import org.junit.Before;
