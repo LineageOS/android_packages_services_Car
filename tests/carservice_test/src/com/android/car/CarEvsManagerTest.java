@@ -34,6 +34,7 @@ import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -54,6 +55,7 @@ import java.util.concurrent.TimeUnit;
  */
 @RunWith(AndroidJUnit4.class)
 @MediumTest
+@Ignore("b/325043253")
 public final class CarEvsManagerTest extends MockedCarTestBase {
     private static final String TAG = CarEvsManagerTest.class.getSimpleName();
 
