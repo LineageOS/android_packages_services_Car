@@ -96,7 +96,7 @@ class GarageMode {
     private static final int USER_STOPPED = 2;
 
     private final Context mContext;
-    private final Controller mController;
+    private final GarageModeController mController;
     private final Object mLock = new Object();
     private final Handler mHandler;
 
@@ -237,7 +237,7 @@ class GarageMode {
     @GuardedBy("mLock")
     private Runnable mBackgroundUserStopCompletor;
 
-    GarageMode(Context context, Controller controller) {
+    GarageMode(Context context, GarageModeController controller) {
         mContext = context;
         mController = controller;
         mGarageModeActive = false;

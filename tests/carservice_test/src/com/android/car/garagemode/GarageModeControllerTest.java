@@ -73,9 +73,9 @@ import java.util.concurrent.Executor;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class ControllerTest {
+public class GarageModeControllerTest {
 
-    private static final String TAG = "ControllerTest";
+    private static final String TAG = "GarageModeControllerTest";
     private static final int DEFAULT_TIMEOUT_MS = 1000;
 
     @Rule public final MockitoRule rule = MockitoJUnit.rule();
@@ -88,7 +88,7 @@ public class ControllerTest {
     private CarPowerManagementService mCarPowerManagementServiceOriginal;
     @Captor private ArgumentCaptor<Intent> mIntentCaptor;
 
-    private Controller mController;
+    private GarageModeController mController;
     private File mTempTestDir;
     private HandlerThread mHandlerThread;
     private Handler mHandler;
@@ -115,7 +115,7 @@ public class ControllerTest {
         when(mSystemInterfaceMock.getSystemCarDir()).thenReturn(mTempTestDir);
         Log.v(TAG, "Using temp dir: %s " + mTempTestDir.getAbsolutePath());
 
-        mController = new Controller(mContextMock, mLooper, mHandler,
+        mController = new GarageModeController(mContextMock, mLooper, mHandler,
                 /* garageMode= */ null);
 
         doReturn(new ArrayList<Integer>()).when(mCarUserServiceMock)
@@ -152,7 +152,7 @@ public class ControllerTest {
     @Test
     public void testOnShutdownCancelled_shouldCancelGarageMode() {
         Looper looper = Looper.getMainLooper();
-        mController = new Controller(mContextMock, looper);
+        mController = new GarageModeController(mContextMock, looper);
         mController.init();
         // Sending notification that state has changed
         mController.onStateChanged(CarPowerManager.STATE_SHUTDOWN_PREPARE, INVALID_TIMEOUT);
@@ -177,7 +177,7 @@ public class ControllerTest {
         Executor mockExecutor = mock(Executor.class);
         when(mContextMock.getMainExecutor()).thenReturn(mockExecutor);
         GarageMode garageMode = mock(GarageMode.class);
-        Controller controller = new Controller(mContextMock, mLooper, mHandler, garageMode);
+        var controller = new GarageModeController(mContextMock, mLooper, mHandler, garageMode);
 
         controller.init();
         controller.release();
@@ -191,7 +191,7 @@ public class ControllerTest {
         Resources resourcesMock = mock(Resources.class);
         when(mContextMock.getResources()).thenReturn(resourcesMock);
 
-        Controller controller = new Controller(mContextMock, mLooper);
+        var controller = new GarageModeController(mContextMock, mLooper);
 
         assertThat(controller).isNotNull();
     }
@@ -199,7 +199,7 @@ public class ControllerTest {
     @Test
     public void testOnStateChanged() {
         GarageMode garageMode = mock(GarageMode.class);
-        Controller controller = new Controller(mContextMock, mLooper, mHandler, garageMode);
+        var controller = new GarageModeController(mContextMock, mLooper, mHandler, garageMode);
         controller.init();
 
         controller.onStateChanged(CarPowerManager.STATE_SHUTDOWN_CANCELLED, INVALID_TIMEOUT);

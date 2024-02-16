@@ -47,7 +47,7 @@ import java.util.List;
 public class GarageModeServiceTest {
     @Rule public final MockitoRule rule = MockitoJUnit.rule();
     @Mock private Context mMockContext;
-    @Mock private Controller mMockController;
+    @Mock private GarageModeController mMockController;
     @Mock private ContentResolver mMockContentResolver;
     @Mock private IndentingPrintWriter mMockPrintWriter;
     @Captor private ArgumentCaptor<String> mCaptorString;
