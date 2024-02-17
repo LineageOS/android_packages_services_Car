@@ -290,7 +290,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             }
             if (serviceInfo == null) {
                 Slogf.w(TAG, "Notifying task is delayed: the remote client service information "
-                        + "for %s is not registered yet", uidName);
+                        + "for %s is not registered yet", clientId);
                 // We don't have to start the service explicitly because it will be started
                 // after searching for remote task client service is done.
                 return;
@@ -541,6 +541,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             printMap(writer, mClientServiceInfoByUid);
             writer.println("mUidAByName:");
             printMap(writer, mUidByName);
+            writer.println("mUidByClientId:");
+            printMap(writer, mUidByClientId);
             writer.println("mServerlessClientIdsByPackageName:");
             printMap(writer, mServerlessClientIdsByPackageName);
             writer.println("mTasksToBeNotifiedByClientId");
