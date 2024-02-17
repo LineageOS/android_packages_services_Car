@@ -27,14 +27,17 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
+import android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate;
 import android.car.Car;
 import android.car.ICarResultReceiver;
+import android.car.feature.Flags;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.content.res.Resources;
 import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
 import android.os.Bundle;
 import android.os.HandlerThread;
+import android.os.IInterface;
 import android.os.Looper;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -99,6 +102,7 @@ public final class ICarImplTest extends AbstractExtendedMockitoTestCase {
     @Mock private CarPerformanceService mMockCarPerformanceService;
     @Mock private GarageModeService mMockGarageModeService;
     @Mock private ICarPowerPolicySystemNotification.Stub mMockCarPowerPolicyDaemon;
+    @Mock private ICarPowerPolicyDelegate.Stub mMockRefactoredCarPowerPolicyDaemon;
     @Mock private CarTelemetryService mMockCarTelemetryService;
     @Mock private CarRemoteAccessService mMockCarRemoteAccessService;
     @Mock private ICarServiceHelper mICarServiceHelper;
@@ -195,11 +199,25 @@ public final class ICarImplTest extends AbstractExtendedMockitoTestCase {
         doThrow(new NullPointerException()).when(mContext).getSharedPreferences(
                 any(File.class), anyInt());
         doThrow(new NullPointerException()).when(mContext).getDataDir();
-
-        ICarImpl carImpl = new ICarImpl(mContext, null, mMockVehicle, mFakeSystemInterface,
-                "MockedCar", /* carUserService= */ null, mMockCarWatchdogService,
-                mMockCarPerformanceService, mMockGarageModeService, mMockCarPowerPolicyDaemon,
-                mMockCarTelemetryService, mMockCarRemoteAccessService, false);
+        IInterface powerPolicyDaemon;
+        if (Flags.carPowerPolicyRefactoring()) {
+            powerPolicyDaemon = mMockRefactoredCarPowerPolicyDaemon;
+        } else {
+            powerPolicyDaemon = mMockCarPowerPolicyDaemon;
+        }
+        ICarImpl carImpl = new ICarImpl.Builder()
+                .setServiceContext(mContext)
+                .setVehicle(mMockVehicle)
+                .setVehicleInterfaceName("MockedCar")
+                .setSystemInterface(mFakeSystemInterface)
+                .setCarWatchdogService(mMockCarWatchdogService)
+                .setCarPerformanceService(mMockCarPerformanceService)
+                .setCarTelemetryService(mMockCarTelemetryService)
+                .setCarRemoteAccessService(mMockCarRemoteAccessService)
+                .setGarageModeService(mMockGarageModeService)
+                .setPowerPolicyDaemon(powerPolicyDaemon)
+                .setDoPriorityInitInConstruction(false)
+                .build();
         doNothing().when(() -> ICarImpl.assertCallingFromSystemProcess());
         carImpl.setSystemServerConnections(mICarServiceHelper, new CarServiceConnectedCallback());
         carImpl.init();

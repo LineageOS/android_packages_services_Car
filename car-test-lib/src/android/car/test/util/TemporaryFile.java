@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.test.utils;
+package android.car.test.util;
 
 import android.annotation.Nullable;
 import android.os.SystemClock;
@@ -55,12 +55,22 @@ public final class TemporaryFile implements AutoCloseable {
         Files.delete(mFile.toPath());
     }
 
+    /**
+     * Write to the temporary file
+     * @param s String content to write to file
+     * @throws IOException If writing to file fails
+     */
     public void write(String s) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(mFile))) {
             writer.write(s);
         }
     }
 
+    /**
+     * Get new file writer for temporary file
+     * @return New file writer
+     * @throws IOException If new file writer couldn't be created
+     */
     public FileWriter newFileWriter() throws IOException {
         return new FileWriter(mFile);
     }
@@ -69,5 +79,11 @@ public final class TemporaryFile implements AutoCloseable {
         return mFile;
     }
 
-    public Path getPath() { return mFile.toPath(); }
+    /**
+     * Get the path of the temporary file
+     * @return File path
+     */
+    public Path getPath() {
+        return mFile.toPath();
+    }
 }

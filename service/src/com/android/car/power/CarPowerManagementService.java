@@ -366,20 +366,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     public CarPowerManagementService(Context context, PowerHalService powerHal,
             SystemInterface systemInterface, CarUserService carUserService,
-            ICarPowerPolicySystemNotification powerPolicyDaemon) {
+            IInterface powerPolicyDaemon) {
         this(context, context.getResources(), powerHal, systemInterface,
                 context.getSystemService(UserManager.class), carUserService, powerPolicyDaemon,
-                new PowerComponentHandler(context, systemInterface),
-                /* screenOffHandler= */ null, /* silentModeHwStatePath= */ null,
-                /* silentModeKernelStatePath= */ null, /* bootReason= */ null);
-    }
-
-    public CarPowerManagementService(Context context, PowerHalService powerHal,
-            SystemInterface systemInterface, CarUserService carUserService,
-            ICarPowerPolicyDelegate powerPolicyDaemon, FeatureFlags featureFlags) {
-        this(context, context.getResources(), powerHal, systemInterface,
-                context.getSystemService(UserManager.class), carUserService, powerPolicyDaemon,
-                new PowerComponentHandler(context, systemInterface), featureFlags,
+                new PowerComponentHandler(context, systemInterface), /* featureFlags= */ null,
                 /* screenOffHandler= */ null, /* silentModeHwStatePath= */ null,
                 /* silentModeKernelStatePath= */ null, /* bootReason= */ null);
     }
@@ -387,59 +377,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @VisibleForTesting
     public CarPowerManagementService(Context context, Resources resources, PowerHalService powerHal,
             SystemInterface systemInterface, UserManager userManager, CarUserService carUserService,
-            ICarPowerPolicySystemNotification powerPolicyDaemon,
-            PowerComponentHandler powerComponentHandler,
-            @Nullable ScreenOffHandler screenOffHandler, @Nullable String silentModeHwStatePath,
-            @Nullable String silentModeKernelStatePath, @Nullable String bootReason) {
-        mContext = context;
-        mHal = powerHal;
-        mSystemInterface = systemInterface;
-        mUserManager = userManager;
-        mShutdownPrepareTimeMs = resources.getInteger(
-                R.integer.maxGarageModeRunningDurationInSecs) * 1000;
-        mSwitchGuestUserBeforeSleep = resources.getBoolean(
-                R.bool.config_switchGuestUserBeforeGoingSleep);
-        if (mShutdownPrepareTimeMs < MIN_MAX_GARAGE_MODE_DURATION_MS) {
-            Slogf.w(TAG,
-                    "maxGarageModeRunningDurationInSecs smaller than minimum required, "
-                            + "resource:%d(ms) while should exceed:%d(ms), Ignore resource.",
-                    mShutdownPrepareTimeMs, MIN_MAX_GARAGE_MODE_DURATION_MS);
-            mShutdownPrepareTimeMs = MIN_MAX_GARAGE_MODE_DURATION_MS;
-        }
-        mUserService = carUserService;
-        mCarPowerPolicyDaemon = powerPolicyDaemon;
-        if (powerPolicyDaemon != null) {
-            // For testing purpose
-            mHasControlOverDaemon = true;
-        }
-        mWifiManager = context.getSystemService(WifiManager.class);
-        mTetheringManager = mContext.getSystemService(TetheringManager.class);
-        mWifiStateFile = new AtomicFile(
-                new File(mSystemInterface.getSystemCarDir(), WIFI_STATE_FILENAME));
-        mTetheringStateFile = new AtomicFile(
-                new File(mSystemInterface.getSystemCarDir(), TETHERING_STATE_FILENAME));
-        mWifiAdjustmentForSuspend = isWifiAdjustmentForSuspendConfig();
-        mPowerComponentHandler = powerComponentHandler;
-        mSilentModeHandler = new SilentModeHandler(this, silentModeHwStatePath,
-                silentModeKernelStatePath, bootReason);
-        mMaxSuspendWaitDurationMs = Math.max(MIN_SUSPEND_WAIT_DURATION_MS,
-                Math.min(getMaxSuspendWaitDurationConfig(), MAX_SUSPEND_WAIT_DURATION_MS));
-        mScreenOffHandler = Objects.requireNonNullElseGet(screenOffHandler, () ->
-                new ScreenOffHandler(mContext, mSystemInterface, mHandler.getLooper()));
-    }
-
-    @VisibleForTesting
-    public CarPowerManagementService(Context context, Resources resources, PowerHalService powerHal,
-            SystemInterface systemInterface, UserManager userManager, CarUserService carUserService,
-            ICarPowerPolicyDelegate powerPolicyDaemon, PowerComponentHandler powerComponentHandler,
-            FeatureFlags featureFlags, @Nullable ScreenOffHandler screenOffHandler,
+            IInterface powerPolicyDaemon, PowerComponentHandler powerComponentHandler,
+            @Nullable FeatureFlags featureFlags, @Nullable ScreenOffHandler screenOffHandler,
             @Nullable String silentModeHwStatePath, @Nullable String silentModeKernelStatePath,
             @Nullable String bootReason) {
-        mFeatureFlags = featureFlags;
-        if (!mFeatureFlags.carPowerPolicyRefactoring()) {
-            throw new UnsupportedOperationException("car_power_policy_refactoring feature flag must"
-                    + " be enabled for power policy daemon to be of type ICarPowerPolicyDelegate");
-        }
         mContext = context;
         mHal = powerHal;
         mSystemInterface = systemInterface;
@@ -456,7 +397,18 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mShutdownPrepareTimeMs = MIN_MAX_GARAGE_MODE_DURATION_MS;
         }
         mUserService = carUserService;
-        mRefactoredCarPowerPolicyDaemon = powerPolicyDaemon;
+        if (featureFlags != null) {
+            mFeatureFlags = featureFlags;
+        }
+        if (mFeatureFlags.carPowerPolicyRefactoring()) {
+            mRefactoredCarPowerPolicyDaemon = (ICarPowerPolicyDelegate) powerPolicyDaemon;
+        } else {
+            mCarPowerPolicyDaemon = (ICarPowerPolicySystemNotification) powerPolicyDaemon;
+            if (powerPolicyDaemon != null) {
+                // For testing purpose
+                mHasControlOverDaemon = true;
+            }
+        }
         mWifiManager = context.getSystemService(WifiManager.class);
         mTetheringManager = mContext.getSystemService(TetheringManager.class);
         mWifiStateFile = new AtomicFile(
@@ -2375,7 +2327,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 daemon = mRefactoredCarPowerPolicyDaemon;
                 mRequestIdToPolicyRequest.put(requestId, request);
             }
-            if (daemon == null || !mReadyForCallback.get()) {
+            if (daemon == null) {
+                Slogf.w(TAG, "Cannot call applyPowerPolicyAsync(requestId=%d, policyId=%s) to CPPD:"
+                        + " CPPD is not available", requestId, policyId);
+                return PolicyOperationStatus.ERROR_APPLY_POWER_POLICY;
+            }
+            if (!mReadyForCallback.get()) {
                 Slogf.w(TAG, "Cannot call applyPowerPolicyAsync(requestId=%d, policyId=%s) to CPPD:"
                         + " not ready for calling to CPPD", requestId, policyId);
                 return PolicyOperationStatus.ERROR_APPLY_POWER_POLICY;

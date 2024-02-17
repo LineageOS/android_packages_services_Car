@@ -67,11 +67,14 @@ public class CarServiceImpl extends ProxiedService {
         Slogf.i(CarLog.TAG_SERVICE, "Connected to " + mVehicleInterfaceName);
         EventLogHelper.writeCarServiceConnected(mVehicleInterfaceName);
 
-        mICarImpl = new ICarImpl(this,
-                getBuiltinPackageContext(),
-                mVehicle,
-                SystemInterface.Builder.defaultSystemInterface(this).build(),
-                mVehicleInterfaceName);
+        mICarImpl = new ICarImpl.Builder()
+                .setServiceContext(this)
+                .setBuiltInContext(getBuiltinPackageContext())
+                .setVehicle(mVehicle)
+                .setSystemInterface(
+                        SystemInterface.Builder.defaultSystemInterface(this).build())
+                .setVehicleInterfaceName(mVehicleInterfaceName)
+                .build();
         mICarImpl.init();
 
         mVehicle.linkToDeath(mVehicleDeathRecipient);

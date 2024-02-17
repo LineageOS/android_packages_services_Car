@@ -50,6 +50,7 @@ import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.PowerComponent;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.JavaMockitoHelper;
+import android.car.test.util.TemporaryFile;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -73,7 +74,6 @@ import com.android.car.power.PowerComponentHandler;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
-import com.android.car.test.utils.TemporaryFile;
 import com.android.car.user.CarUserService;
 import com.android.compatibility.common.util.PollingCheck;
 import com.android.internal.annotations.GuardedBy;
@@ -450,8 +450,9 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
                 new AtomicFile(mComponentStateFile.getFile()));
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal, mSystemInterface,
                 mUserManager, mCarUserService, mPowerPolicyDaemon, mPowerComponentHandler,
-                /* screenOffHandler= */ null, /* silentModeHwStatePath= */ null,
-                /* silentModeKernelStatePath= */ null, /* bootReason= */ null);
+                /* featureFlags= */ null, /* screenOffHandler= */ null,
+                /* silentModeHwStatePath= */ null, /* silentModeKernelStatePath= */ null,
+                /* bootReason= */ null);
         mService.init();
         mService.setShutdownTimersForTest(0, 0);
         assertStateReceived(PowerHalService.SET_WAIT_FOR_VHAL, 0);

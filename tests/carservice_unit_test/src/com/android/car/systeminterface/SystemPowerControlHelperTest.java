@@ -24,8 +24,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.mockito.Mockito.when;
 
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-
-import com.android.car.test.utils.TemporaryFile;
+import android.car.test.util.TemporaryFile;
 
 import libcore.io.IoUtils;
 

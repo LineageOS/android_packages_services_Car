@@ -367,12 +367,14 @@ public final class PolicyReader {
             writer.decreaseIndent();
         }
 
-        writer.println("Preemptive power policy:");
-        writer.increaseIndent();
-        for (int i = 0; i < mPreemptivePowerPolicies.size(); i++) {
-            writer.println(mPreemptivePowerPolicies.valueAt(i).toString());
+        if (!mFeatureFlags.carPowerPolicyRefactoring()) {
+            writer.println("Preemptive power policy:");
+            writer.increaseIndent();
+            for (int i = 0; i < mPreemptivePowerPolicies.size(); i++) {
+                writer.println(mPreemptivePowerPolicies.valueAt(i).toString());
+            }
+            writer.decreaseIndent();
         }
-        writer.decreaseIndent();
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
@@ -430,8 +432,10 @@ public final class PolicyReader {
             proto.end(powerPolicyGroupMappingsToken);
         }
 
-        dumpProtoPowerPolicies(
-                proto, PolicyReaderProto.PREEMPTIVE_POWER_POLICIES, mPreemptivePowerPolicies);
+        if (!mFeatureFlags.carPowerPolicyRefactoring()) {
+            dumpProtoPowerPolicies(
+                    proto, PolicyReaderProto.PREEMPTIVE_POWER_POLICIES, mPreemptivePowerPolicies);
+        }
 
         proto.end(policyReaderToken);
     }

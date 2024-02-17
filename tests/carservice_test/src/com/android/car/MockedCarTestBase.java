@@ -27,8 +27,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
+import android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate;
 import android.car.Car;
+import android.car.feature.Flags;
 import android.car.test.CarTestManager;
+import android.car.testapi.FakeRefactoredCarPowerPolicyDaemon;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.ComponentName;
 import android.content.Context;
@@ -42,6 +45,7 @@ import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.IInterface;
 import android.os.UserHandle;
 import android.util.ArrayMap;
 import android.util.ArraySet;
@@ -139,6 +143,7 @@ public class MockedCarTestBase {
     @GuardedBy("mLock")
     private final List<UserLifecycleListener> mUserLifecycleListeners = new ArrayList<>();
 
+    private ICarPowerPolicyDelegate mRefactoredPowerPolicyDaemon;
     private MockitoSession mSession;
 
     protected HidlMockedVehicleHal createHidlMockedVehicleHal() {
@@ -344,10 +349,27 @@ public class MockedCarTestBase {
         }
 
         // Setup car
-        ICarImpl carImpl = new ICarImpl(mMockedCarTestContext, /*builtinContext=*/null,
-                mockedVehicleStub, mFakeSystemInterface, /*vehicleInterfaceName=*/"MockedCar",
-                mCarUserService, mCarWatchdogService, mCarPerformanceService, mGarageModeService,
-                mPowerPolicyDaemon, mCarTelemetryService, mCarRemoteAccessService, false);
+        IInterface powerPolicyDaemon;
+        if (Flags.carPowerPolicyRefactoring()) {
+            mRefactoredPowerPolicyDaemon = new FakeRefactoredCarPowerPolicyDaemon(null);
+            powerPolicyDaemon = mRefactoredPowerPolicyDaemon;
+        } else {
+            powerPolicyDaemon = mPowerPolicyDaemon;
+        }
+        ICarImpl carImpl = new ICarImpl.Builder()
+                .setServiceContext(mMockedCarTestContext)
+                .setVehicle(mockedVehicleStub)
+                .setVehicleInterfaceName("MockedCar")
+                .setSystemInterface(mFakeSystemInterface)
+                .setCarUserService(mCarUserService)
+                .setCarWatchdogService(mCarWatchdogService)
+                .setCarPerformanceService(mCarPerformanceService)
+                .setCarTelemetryService(mCarTelemetryService)
+                .setCarRemoteAccessService(mCarRemoteAccessService)
+                .setGarageModeService(mGarageModeService)
+                .setPowerPolicyDaemon(powerPolicyDaemon)
+                .setDoPriorityInitInConstruction(false)
+                .build();
 
         doNothing().when(() -> ICarImpl.assertCallingFromSystemProcess());
         carImpl.setSystemServerConnections(mICarServiceHelper,
