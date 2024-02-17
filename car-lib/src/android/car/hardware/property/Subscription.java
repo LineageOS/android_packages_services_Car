@@ -23,7 +23,6 @@ import static android.car.feature.Flags.FLAG_VARIABLE_UPDATE_RATE;
 import android.annotation.FlaggedApi;
 import android.annotation.FloatRange;
 import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.car.hardware.CarPropertyConfig;
 import android.util.ArraySet;
 
@@ -108,9 +107,9 @@ public final class Subscription {
     }
 
     /**
-     * @return The areaIds to subscribe to
+     * @return The areaIds to subscribe to, empty array means subscribing to all areas.
      */
-    @Nullable
+    @NonNull
     public int[] getAreaIds() {
         return mAreaIds.clone();
     }

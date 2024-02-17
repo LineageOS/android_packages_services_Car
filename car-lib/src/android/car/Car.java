@@ -2654,6 +2654,12 @@ public final class Car implements ICarBase {
                         break;
                     }
                 }
+                if (Flags.persistApSettings()) {
+                    if (serviceName.equals(CAR_WIFI_SERVICE)) {
+                        manager = new CarWifiManager(this, binder);
+                        break;
+                    }
+                }
                 String className = null;
                 try {
                     synchronized (mLock) {

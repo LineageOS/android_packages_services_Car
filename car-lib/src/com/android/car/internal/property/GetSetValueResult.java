@@ -16,12 +16,13 @@
 
 package com.android.car.internal.property;
 
-import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
-
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.hardware.CarPropertyValue;
+import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.android.car.internal.util.AnnotationValidations;
 import com.android.car.internal.util.DataClass;
 
 /**
@@ -37,16 +38,15 @@ public final class GetSetValueResult implements Parcelable {
     private final CarPropertyValue mCarPropertyValue;
     // Only useful for setProperty, ignored for getProperty.
     private final long mUpdateTimestampNanos;
-    private final int mErrorCode;
-    private final int mVendorErrorCode;
+    @NonNull
+    private final CarPropertyErrorCodes mCarPropertyErrorCodes;
 
     private GetSetValueResult(int requestId, @Nullable CarPropertyValue carPropertyValue,
-            int errorCode, int vendorErrorCode, long updateTimestampNanos) {
+            @NonNull CarPropertyErrorCodes carPropertyErrorCodes, long updateTimestampNanos) {
         mRequestId = requestId;
         mCarPropertyValue = carPropertyValue;
-        mErrorCode = errorCode;
-        mVendorErrorCode = vendorErrorCode;
         mUpdateTimestampNanos = updateTimestampNanos;
+        mCarPropertyErrorCodes = carPropertyErrorCodes;
     }
 
     /**
@@ -54,17 +54,18 @@ public final class GetSetValueResult implements Parcelable {
      */
     public static GetSetValueResult newGetValueResult(int requestId,
             CarPropertyValue carPropertyValue) {
+        CarPropertyErrorCodes carPropertyErrorCodes = CarPropertyErrorCodes.STATUS_OK_NO_ERROR;
         return new GetSetValueResult(requestId, carPropertyValue,
-                STATUS_OK, /* vendorErrorCode= */ 0, /* updateTimestampNanos= */ 0);
+                carPropertyErrorCodes, /* updateTimestampNanos= */ 0);
     }
 
     /**
      * Creates an async error property result.
      */
-    public static GetSetValueResult newErrorResult(int requestId, int errorCode,
-            int vendorErrorCode) {
+    public static GetSetValueResult newErrorResult(int requestId,
+            @NonNull CarPropertyErrorCodes carPropertyErrorCodes) {
         return new GetSetValueResult(requestId, /* carPropertyValue= */ null,
-                errorCode, vendorErrorCode, /* updateTimestampNanos= */ 0);
+                carPropertyErrorCodes, /* updateTimestampNanos= */ 0);
     }
 
     /**
@@ -72,17 +73,18 @@ public final class GetSetValueResult implements Parcelable {
      */
     public static GetSetValueResult newSetValueResult(int requestId,
             long updateTimestampNanos) {
+        CarPropertyErrorCodes carPropertyErrorCodes = CarPropertyErrorCodes.STATUS_OK_NO_ERROR;
         return new GetSetValueResult(requestId, /* carPropertyValue= */ null,
-                STATUS_OK, /* vendorErrorCode= */ 0, updateTimestampNanos);
+                carPropertyErrorCodes, updateTimestampNanos);
     }
 
     /**
      * Creates an async error set property result.
      */
-    public static GetSetValueResult newErrorSetValueResult(int requestId, int errorCode,
-            int vendorErrorCode) {
+    public static GetSetValueResult newErrorSetValueResult(int requestId,
+            @NonNull CarPropertyErrorCodes carPropertyErrorCodes) {
         return new GetSetValueResult(requestId, /* carPropertyValue= */ null,
-                errorCode, vendorErrorCode, /* updateTimestampNanos= */ 0);
+                carPropertyErrorCodes, /* updateTimestampNanos= */ 0);
     }
 
 
@@ -116,18 +118,13 @@ public final class GetSetValueResult implements Parcelable {
     }
 
     @DataClass.Generated.Member
-    public int getErrorCode() {
-        return mErrorCode;
-    }
-
-    @DataClass.Generated.Member
-    public int getVendorErrorCode() {
-        return mVendorErrorCode;
+    public @NonNull CarPropertyErrorCodes getCarPropertyErrorCodes() {
+        return mCarPropertyErrorCodes;
     }
 
     @Override
     @DataClass.Generated.Member
-    public void writeToParcel(@android.annotation.NonNull android.os.Parcel dest, int flags) {
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
 
@@ -137,8 +134,7 @@ public final class GetSetValueResult implements Parcelable {
         dest.writeInt(mRequestId);
         if (mCarPropertyValue != null) dest.writeTypedObject(mCarPropertyValue, flags);
         dest.writeLong(mUpdateTimestampNanos);
-        dest.writeInt(mErrorCode);
-        dest.writeInt(mVendorErrorCode);
+        dest.writeTypedObject(mCarPropertyErrorCodes, flags);
     }
 
     @Override
@@ -148,7 +144,7 @@ public final class GetSetValueResult implements Parcelable {
     /** @hide */
     @SuppressWarnings({"unchecked", "RedundantCast"})
     @DataClass.Generated.Member
-    /* package-private */ GetSetValueResult(@android.annotation.NonNull android.os.Parcel in) {
+    /* package-private */ GetSetValueResult(@NonNull Parcel in) {
         // You can override field unparcelling by defining methods like:
         // static FieldType unparcelFieldName(Parcel in) { ... }
 
@@ -156,20 +152,20 @@ public final class GetSetValueResult implements Parcelable {
         int requestId = in.readInt();
         CarPropertyValue carPropertyValue = (flg & 0x2) == 0 ? null : (CarPropertyValue) in.readTypedObject(CarPropertyValue.CREATOR);
         long updateTimestampNanos = in.readLong();
-        int errorCode = in.readInt();
-        int vendorErrorCode = in.readInt();
+        CarPropertyErrorCodes carPropertyErrorCodes = (CarPropertyErrorCodes) in.readTypedObject(CarPropertyErrorCodes.CREATOR);
 
         this.mRequestId = requestId;
         this.mCarPropertyValue = carPropertyValue;
         this.mUpdateTimestampNanos = updateTimestampNanos;
-        this.mErrorCode = errorCode;
-        this.mVendorErrorCode = vendorErrorCode;
+        this.mCarPropertyErrorCodes = carPropertyErrorCodes;
+        AnnotationValidations.validate(
+                NonNull.class, null, mCarPropertyErrorCodes);
 
         // onConstructed(); // You can define this method to get a callback
     }
 
     @DataClass.Generated.Member
-    public static final @android.annotation.NonNull Parcelable.Creator<GetSetValueResult> CREATOR
+    public static final @NonNull Parcelable.Creator<GetSetValueResult> CREATOR
             = new Parcelable.Creator<GetSetValueResult>() {
         @Override
         public GetSetValueResult[] newArray(int size) {
@@ -177,16 +173,16 @@ public final class GetSetValueResult implements Parcelable {
         }
 
         @Override
-        public GetSetValueResult createFromParcel(@android.annotation.NonNull android.os.Parcel in) {
+        public GetSetValueResult createFromParcel(@NonNull Parcel in) {
             return new GetSetValueResult(in);
         }
     };
 
     @DataClass.Generated(
-            time = 1679684545243L,
+            time = 1707958964110L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/com/android/car/internal/property/GetSetValueResult.java",
-            inputSignatures = "private final  int mRequestId\nprivate final @android.annotation.Nullable android.car.hardware.CarPropertyValue mCarPropertyValue\nprivate final  long mUpdateTimestampNanos\nprivate final  int mErrorCode\nprivate final  int mVendorErrorCode\npublic static  com.android.car.internal.property.GetSetValueResult newGetValueResult(int,android.car.hardware.CarPropertyValue)\npublic static  com.android.car.internal.property.GetSetValueResult newErrorResult(int,int,int)\npublic static  com.android.car.internal.property.GetSetValueResult newSetValueResult(int,long)\npublic static  com.android.car.internal.property.GetSetValueResult newErrorSetValueResult(int,int,int)\nclass GetSetValueResult extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false)")
+            inputSignatures = "private final  int mRequestId\nprivate final @android.annotation.Nullable android.car.hardware.CarPropertyValue mCarPropertyValue\nprivate final  long mUpdateTimestampNanos\nprivate final @android.annotation.NonNull com.android.car.internal.property.CarPropertyErrorCodes mCarPropertyErrorCodes\npublic static  com.android.car.internal.property.GetSetValueResult newGetValueResult(int,android.car.hardware.CarPropertyValue)\npublic static  com.android.car.internal.property.GetSetValueResult newErrorResult(int,com.android.car.internal.property.CarPropertyErrorCodes)\npublic static  com.android.car.internal.property.GetSetValueResult newSetValueResult(int,long)\npublic static  com.android.car.internal.property.GetSetValueResult newErrorSetValueResult(int,com.android.car.internal.property.CarPropertyErrorCodes)\nclass GetSetValueResult extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false)")
     @Deprecated
     private void __metadata() {}
 

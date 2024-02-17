@@ -72,7 +72,6 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.Display;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.SurfaceView;
@@ -92,12 +91,12 @@ import androidx.lifecycle.ViewModelProvider;
 import com.android.car.carlauncher.CarLauncher;
 import com.android.car.carlauncher.CarLauncherUtils;
 import com.android.car.carlauncher.homescreen.HomeCardModule;
+import com.android.car.carlauncher.homescreen.audio.IntentHandler;
+import com.android.car.carlauncher.homescreen.audio.media.MediaIntentRouter;
 import com.android.car.carlauncher.taskstack.TaskStackChangeListeners;
 import com.android.car.portraitlauncher.R;
 import com.android.car.portraitlauncher.common.CarUiPortraitServiceManager;
-import com.android.car.portraitlauncher.common.IntentHandler;
 import com.android.car.portraitlauncher.common.UserEventReceiver;
-import com.android.car.portraitlauncher.controlbar.media.MediaIntentRouter;
 import com.android.car.portraitlauncher.panel.TaskViewPanel;
 
 import java.lang.reflect.InvocationTargetException;
@@ -199,7 +198,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             }
 
             ActivityOptions options = ActivityOptions.makeBasic();
-            options.setLaunchDisplayId(Display.DEFAULT_DISPLAY);
+            options.setLaunchDisplayId(getDisplay().getDisplayId());
 
             startActivity(intent, options.toBundle());
         }

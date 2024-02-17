@@ -40,6 +40,7 @@ android_ravenwood_test {
         "android.car.test.utils",
         "androidx.annotation_annotation",
         "androidx.test.rules",
+        "vehicle-hal-support-lib",
     ],
     srcs: [
         "src/**/*.java",

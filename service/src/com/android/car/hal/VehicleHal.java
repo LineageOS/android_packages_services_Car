@@ -735,8 +735,15 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 }
             }
 
-            if (!isPropertySubscribable(config)) {
+            if (isStaticProperty(config)) {
+                Slogf.w(CarLog.TAG_HAL, "Ignore subscribing to static property: "
+                        + toPropertyIdString(property));
                 continue;
+            }
+
+            if (!isPropertySubscribable(config)) {
+                throw new IllegalArgumentException("Property: " + toPropertyIdString(property)
+                        + " is not subscribable");
             }
 
             if (areaIds.length == 0) {
