@@ -810,6 +810,22 @@ public final class CarRemoteAccessManager extends CarManagerBase {
         private InVehicleTaskScheduler() {}
 
         /**
+         * Gets supported schedule task type.
+         *
+         * @return a list of supported task types as defined by {@link TaskType}.
+         * @throws InVehicleTaskSchedulerException if unable to get supported schedule task type.
+         *
+         * @hide
+         */
+        @SystemApi
+        @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
+        @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
+        public @NonNull int[] getSupportedTaskTypes() throws InVehicleTaskSchedulerException {
+            // TODO(b/326134123): Implement this.
+            return new int[]{TASK_TYPE_CUSTOM};
+        }
+
+        /**
          * Schedules a task to be executed later even when the vehicle is off.
          *
          * <p>This sends a scheduled task message to a device external to Android so that the device
