@@ -40,21 +40,22 @@ import com.android.internal.annotations.VisibleForTesting;
 /**
  * Main controller for GarageMode. It controls all the flows of GarageMode and defines the logic.
  */
-public class Controller extends ICarPowerStateListener.Stub {
+public class GarageModeController extends ICarPowerStateListener.Stub {
 
     private static final String TAG = CarLog.tagFor(GarageMode.class) + "_"
-            + Controller.class.getSimpleName();
+            + GarageModeController.class.getSimpleName();
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private final GarageMode mGarageMode;
     private final Handler mHandler;
     private CarPowerManagementService mCarPowerService;
 
-    public Controller(Context context, Looper looper) {
+    public GarageModeController(Context context, Looper looper) {
         this(context, looper, /* handler= */ null, /* garageMode= */ null);
     }
 
-    public Controller(Context context, Looper looper, Handler handler, GarageMode garageMode) {
+    public GarageModeController(Context context, Looper looper, Handler handler,
+            GarageMode garageMode) {
         mHandler = (handler == null) ? new Handler(looper) : handler;
         mGarageMode = (garageMode == null) ? new GarageMode(context, this) : garageMode;
     }
@@ -62,13 +63,14 @@ public class Controller extends ICarPowerStateListener.Stub {
     /** init */
     public void init() {
         mCarPowerService = CarLocalServices.getService(CarPowerManagementService.class);
-        mCarPowerService.registerInternalListener(Controller.this);
+        mCarPowerService.registerInternalListener(GarageModeController.this);
         mGarageMode.init();
+        Slogf.e("GarageMode", "init");
     }
 
     /** release */
     public void release() {
-        mCarPowerService.unregisterInternalListener(Controller.this);
+        mCarPowerService.unregisterInternalListener(GarageModeController.this);
         mGarageMode.release();
     }
 
@@ -88,19 +90,20 @@ public class Controller extends ICarPowerStateListener.Stub {
             case CarPowerManager.STATE_SUSPEND_ENTER:
             case CarPowerManager.STATE_HIBERNATION_ENTER:
                 resetGarageMode(() -> {
-                    mCarPowerService.completeHandlingPowerStateChange(state, Controller.this);
+                    mCarPowerService.completeHandlingPowerStateChange(state,
+                            GarageModeController.this);
                 });
                 break;
             case CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE:
             case CarPowerManager.STATE_POST_SHUTDOWN_ENTER:
             case CarPowerManager.STATE_POST_SUSPEND_ENTER:
             case CarPowerManager.STATE_POST_HIBERNATION_ENTER:
-                mCarPowerService.completeHandlingPowerStateChange(state, Controller.this);
+                mCarPowerService.completeHandlingPowerStateChange(state, GarageModeController.this);
                 break;
             case CarPowerManager.STATE_SHUTDOWN_PREPARE:
                 initiateGarageMode(
                         () -> mCarPowerService.completeHandlingPowerStateChange(state,
-                                Controller.this));
+                                GarageModeController.this));
                 break;
             default:
                 break;

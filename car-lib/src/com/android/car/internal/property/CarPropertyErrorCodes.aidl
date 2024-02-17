@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,6 @@
  * limitations under the License.
  */
 
-package com.android.car.portraitlauncher.controlbar.media;
+package com.android.car.internal.property;
 
-import android.os.Bundle;
-import android.view.View;
-
-import com.android.car.carlauncher.homescreen.audio.AudioFragment;
-
-/** A fragment for the media controls. */
-public class MediaCardFragment extends AudioFragment {
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        getRootView().setVisibility(View.VISIBLE);
-    }
-}
+parcelable CarPropertyErrorCodes;

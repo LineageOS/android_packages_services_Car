@@ -160,3 +160,11 @@ flag {
   description: "Retrieves current status of each CarEvsService type individually"
   bug: "320766863"
 }
+
+# CarPropertyErrorCodes
+flag {
+  name: "car_property_detailed_error_codes"
+  namespace: "car_framework"
+  description: "Enables use of detailed error codes for CarPropertyManager async APIs"
+  bug: "274165552"
+}

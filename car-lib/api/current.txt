@@ -842,6 +842,7 @@ package android.car.hardware.property {
 
   public static final class CarPropertyManager.PropertyAsyncError {
     method public int getAreaId();
+    method @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public int getDetailedErrorCode();
     method public int getErrorCode();
     method public int getPropertyId();
     method public int getRequestId();
@@ -868,6 +869,16 @@ package android.car.hardware.property {
     method public int getPropertyId();
     method public int getRequestId();
     method public long getUpdateTimestampNanos();
+  }
+
+  @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public final class DetailedErrorCode {
+    method @FlaggedApi("android.car.feature.car_property_detailed_error_codes") @NonNull public static String toString(int);
+    field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NOT_AVAILABLE_DISABLED = 1; // 0x1
+    field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NOT_AVAILABLE_POOR_VISIBILITY = 4; // 0x4
+    field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NOT_AVAILABLE_SAFETY = 5; // 0x5
+    field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NOT_AVAILABLE_SPEED_HIGH = 3; // 0x3
+    field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NOT_AVAILABLE_SPEED_LOW = 2; // 0x2
+    field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NO_DETAILED_ERROR_CODE = 0; // 0x0
   }
 
   public final class EvChargeState {
@@ -938,7 +949,7 @@ package android.car.hardware.property {
   }
 
   @FlaggedApi("android.car.feature.batched_subscriptions") public final class Subscription {
-    method @Nullable public int[] getAreaIds();
+    method @NonNull public int[] getAreaIds();
     method public int getPropertyId();
     method @FlaggedApi("android.car.feature.subscription_with_resolution") public float getResolution();
     method public float getUpdateRateFast();

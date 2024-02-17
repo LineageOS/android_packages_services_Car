@@ -18,7 +18,7 @@ package com.android.car;
 
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 
-import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
+import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -70,6 +70,7 @@ import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.VehicleHalCallback;
 import com.android.car.internal.LargeParcelable;
+import com.android.car.internal.property.CarPropertyErrorCodes;
 import com.android.compatibility.common.util.PollingCheck;
 
 import org.junit.After;
@@ -510,7 +511,7 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
-                VehicleStub.STATUS_TRY_AGAIN);
+                CarPropertyErrorCodes.STATUS_TRY_AGAIN);
     }
 
     @Test
@@ -1128,7 +1129,7 @@ public final class AidlVehicleStubUnitTest {
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
         assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
-                VehicleStub.STATUS_TRY_AGAIN);
+                CarPropertyErrorCodes.STATUS_TRY_AGAIN);
     }
 
     @Test

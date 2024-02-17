@@ -20,8 +20,14 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.when;
 
+import android.car.settings.CarSettings;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.mocks.MockSettings;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
+import android.net.TetheringManager;
+import android.net.wifi.WifiManager;
 
 import com.android.car.R;
 import com.android.car.power.CarPowerManagementService;
@@ -34,7 +40,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CarWifiServiceUnitTest {
+public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
     @Mock
     private Context mContext;
     @Mock
@@ -42,14 +48,30 @@ public class CarWifiServiceUnitTest {
     @Mock
     private CarUserService mCarUserService;
     @Mock
+    private ContentResolver mContentResolver;
+    @Mock
+    private WifiManager mWifiManager;
+    @Mock
+    private TetheringManager mTetheringManager;
+    @Mock
     private CarPowerManagementService mCarPowerManagementService;
 
+    private MockSettings mMockSettings;
+
     private CarWifiService mCarWifiService;
+
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
+        mMockSettings = new MockSettings(builder);
+    }
 
     @Before
     public void setUp() {
         when(mContext.getResources()).thenReturn(mResources);
-
+        when(mContext.getContentResolver()).thenReturn(mContentResolver);
+        when(mContext.getSystemService(WifiManager.class)).thenReturn(mWifiManager);
+        when(mContext.getSystemService(TetheringManager.class)).thenReturn(mTetheringManager);
+        mMockSettings.putString(CarSettings.Global.ENABLE_PERSISTENT_TETHERING, "false");
         mCarWifiService = new CarWifiService(mContext, mCarPowerManagementService, mCarUserService);
     }
 

@@ -76,7 +76,7 @@ public final class GarageModeTest {
     @Mock
     private Context mContext;
     @Mock
-    private Controller mController;
+    private GarageModeController mController;
     @Mock
     private JobScheduler mJobScheduler;
     @Mock
