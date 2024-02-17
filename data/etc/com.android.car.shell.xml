@@ -35,6 +35,7 @@
         <permission name="android.car.permission.CAR_DRIVING_STATE"/>
         <permission name="android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL"/>
         <permission name="android.car.permission.CAR_POWER"/>
+        <permission name="android.car.permission.CAR_PROJECTION"/>
         <permission name="android.car.permission.CAR_TEST_SERVICE"/>
         <permission name="android.car.permission.CONTROL_CAR_APP_LAUNCH"/>
         <permission name="android.car.permission.CONTROL_CAR_POWER_POLICY"/>
