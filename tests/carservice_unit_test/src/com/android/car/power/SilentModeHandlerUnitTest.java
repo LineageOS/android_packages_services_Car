@@ -23,9 +23,8 @@ import static org.mockito.Mockito.verify;
 
 import android.car.feature.FakeFeatureFlagsImpl;
 import android.car.feature.Flags;
+import android.car.test.util.TemporaryFile;
 import android.os.SystemClock;
-
-import com.android.car.test.utils.TemporaryFile;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
