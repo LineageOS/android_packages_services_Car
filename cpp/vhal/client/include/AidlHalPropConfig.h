@@ -33,7 +33,8 @@ namespace vhal {
 class AidlHalAreaConfig : public IHalAreaConfig {
 public:
     explicit AidlHalAreaConfig(
-            ::aidl::android::hardware::automotive::vehicle::VehicleAreaConfig&& areaConfig);
+            ::aidl::android::hardware::automotive::vehicle::VehicleAreaConfig&& areaConfig,
+            int32_t access);
 
     int32_t getAreaId() const override;
 
@@ -53,6 +54,7 @@ public:
 
 private:
     ::aidl::android::hardware::automotive::vehicle::VehicleAreaConfig mAreaConfig;
+    int32_t mAccess;
 };
 
 class AidlHalPropConfig : public IHalPropConfig {
