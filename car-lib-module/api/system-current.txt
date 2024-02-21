@@ -2234,10 +2234,13 @@ package android.car.remoteaccess {
     field public static final int NEXT_POWER_STATE_ON = 1; // 0x1
     field public static final int NEXT_POWER_STATE_SUSPEND_TO_DISK = 4; // 0x4
     field public static final int NEXT_POWER_STATE_SUSPEND_TO_RAM = 3; // 0x3
+    field @FlaggedApi("android.car.feature.serverless_remote_access") public static final int TASK_TYPE_CUSTOM = 0; // 0x0
+    field @FlaggedApi("android.car.feature.serverless_remote_access") public static final int TASK_TYPE_ENTER_GARAGE_MODE = 1; // 0x1
   }
 
   @FlaggedApi("android.car.feature.serverless_remote_access") public final class CarRemoteAccessManager.InVehicleTaskScheduler {
     method @FlaggedApi("android.car.feature.serverless_remote_access") @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public java.util.List<android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo> getAllPendingScheduledTasks() throws android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public int[] getSupportedTaskTypes() throws android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
     method @FlaggedApi("android.car.feature.serverless_remote_access") @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public boolean isTaskScheduled(@NonNull String) throws android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
     method @FlaggedApi("android.car.feature.serverless_remote_access") @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void scheduleTask(@NonNull android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo) throws android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
     method @FlaggedApi("android.car.feature.serverless_remote_access") @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void unscheduleAllTasks() throws android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
@@ -2253,15 +2256,17 @@ package android.car.remoteaccess {
     method @FlaggedApi("android.car.feature.serverless_remote_access") @NonNull public String getScheduleId();
     method @FlaggedApi("android.car.feature.serverless_remote_access") public long getStartTimeInEpochSeconds();
     method @FlaggedApi("android.car.feature.serverless_remote_access") @NonNull public byte[] getTaskData();
+    method @FlaggedApi("android.car.feature.serverless_remote_access") public int getTaskType();
     field @NonNull public static final java.time.Duration PERIODIC_DAILY;
     field @NonNull public static final java.time.Duration PERIODIC_WEEKLY;
   }
 
   @FlaggedApi("android.car.feature.serverless_remote_access") public static final class CarRemoteAccessManager.ScheduleInfo.Builder {
-    ctor @FlaggedApi("android.car.feature.serverless_remote_access") public CarRemoteAccessManager.ScheduleInfo.Builder(@NonNull String, @NonNull byte[], long);
+    ctor @FlaggedApi("android.car.feature.serverless_remote_access") public CarRemoteAccessManager.ScheduleInfo.Builder(@NonNull String, int, long);
     method @FlaggedApi("android.car.feature.serverless_remote_access") @NonNull public android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo build();
     method @FlaggedApi("android.car.feature.serverless_remote_access") @NonNull public android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo.Builder setCount(int);
     method @FlaggedApi("android.car.feature.serverless_remote_access") @NonNull public android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo.Builder setPeriodic(@NonNull java.time.Duration);
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @NonNull public android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo.Builder setTaskData(@NonNull byte[]);
   }
 
 }
