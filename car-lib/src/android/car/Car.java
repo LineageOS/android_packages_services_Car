@@ -18,6 +18,7 @@ package android.car;
 
 import static android.car.CarLibLog.TAG_CAR;
 import static android.car.feature.Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES;
+import static android.car.feature.Flags.FLAG_CLUSTER_HEALTH_MONITORING;
 
 import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
@@ -700,9 +701,10 @@ public final class Car implements ICarBase {
      *
      * @hide
      */
+    @FlaggedApi(FLAG_CLUSTER_HEALTH_MONITORING)
+    @SystemApi
     public static final String PERMISSION_CAR_MONITOR_CLUSTER_NAVIGATION_STATE =
             "android.car.permission.CAR_MONITOR_CLUSTER_NAVIGATION_STATE";
-
 
     /**
      * Application must have this permission in order to be launched in the instrument cluster
