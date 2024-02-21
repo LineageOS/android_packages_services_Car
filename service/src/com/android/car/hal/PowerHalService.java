@@ -577,8 +577,9 @@ public class PowerHalService extends HalServiceBase {
             return (value.getStatus() == VehiclePropertyStatus.AVAILABLE
                     && value.getInt32ValuesSize() >= 1 && value.getInt32Value(0) != 0);
         } catch (ServiceSpecificException | IllegalArgumentException e) {
-            Slogf.w(CarLog.TAG_POWER, "Failed to get VEHICLE_IN_USE value", e);
-            return false;
+            Slogf.w(CarLog.TAG_POWER,
+                    "Failed to get VEHICLE_IN_USE value, assume vehicle is in use", e);
+            return true;
         }
     }
 

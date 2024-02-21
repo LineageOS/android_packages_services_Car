@@ -519,14 +519,14 @@ public final class PowerHalServiceUnitTest {
     public void testVehicleInUse_serviceSpecificException() {
         when(mHal.get(VEHICLE_IN_USE)).thenThrow(new ServiceSpecificException(0));
 
-        assertThat(mPowerHalService.isVehicleInUse()).isFalse();
+        assertThat(mPowerHalService.isVehicleInUse()).isTrue();
     }
 
     @Test
     public void testVehicleInUse_illegalArgumentException() {
         when(mHal.get(VEHICLE_IN_USE)).thenThrow(new IllegalArgumentException());
 
-        assertThat(mPowerHalService.isVehicleInUse()).isFalse();
+        assertThat(mPowerHalService.isVehicleInUse()).isTrue();
     }
 
     @Test
