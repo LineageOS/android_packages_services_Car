@@ -160,36 +160,6 @@ public final class HalPropConfigTest {
         return aidlAreaConfig;
     }
 
-    private static VehicleAreaConfig getTestAlternateAidlAreaConfig() {
-        VehicleAreaConfig aidlAreaConfig = new VehicleAreaConfig();
-        aidlAreaConfig.access = TEST_ALTERNATE_ACCESS;
-        aidlAreaConfig.areaId = TEST_ALTERNATE_AREA_ID;
-        aidlAreaConfig.minInt32Value = MIN_INT32_VALUE;
-        aidlAreaConfig.maxInt32Value = MAX_INT32_VALUE;
-        aidlAreaConfig.minInt64Value = MIN_INT64_VALUE;
-        aidlAreaConfig.maxInt64Value = MAX_INT64_VALUE;
-        aidlAreaConfig.minFloatValue = MIN_FLOAT_VALUE;
-        aidlAreaConfig.maxFloatValue = MAX_FLOAT_VALUE;
-        aidlAreaConfig.supportedEnumValues = SUPPORTED_ENUM_VALUES;
-        aidlAreaConfig.supportVariableUpdateRate = true;
-        return aidlAreaConfig;
-    }
-
-    private static VehicleAreaConfig getTestWriteOnlyAidlAreaConfig() {
-        VehicleAreaConfig aidlAreaConfig = new VehicleAreaConfig();
-        aidlAreaConfig.access = VehiclePropertyAccess.WRITE;
-        aidlAreaConfig.areaId = TEST_ALTERNATE_AREA_ID;
-        aidlAreaConfig.minInt32Value = MIN_INT32_VALUE;
-        aidlAreaConfig.maxInt32Value = MAX_INT32_VALUE;
-        aidlAreaConfig.minInt64Value = MIN_INT64_VALUE;
-        aidlAreaConfig.maxInt64Value = MAX_INT64_VALUE;
-        aidlAreaConfig.minFloatValue = MIN_FLOAT_VALUE;
-        aidlAreaConfig.maxFloatValue = MAX_FLOAT_VALUE;
-        aidlAreaConfig.supportedEnumValues = SUPPORTED_ENUM_VALUES;
-        aidlAreaConfig.supportVariableUpdateRate = true;
-        return aidlAreaConfig;
-    }
-
     private static VehicleAreaConfig getTestInvalidAidlAreaConfig() {
         VehicleAreaConfig aidlAreaConfig = new VehicleAreaConfig();
         aidlAreaConfig.access = VehiclePropertyAccess.NONE;
@@ -314,75 +284,6 @@ public final class HalPropConfigTest {
         if (Flags.areaIdConfigAccess()) {
             assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
         }
-    }
-
-    @Test
-    @RequiresFlagsEnabled(Flags.FLAG_AREA_ID_CONFIG_ACCESS)
-    public void toCarPropertyConfig_populatesAlternateAccessMode() {
-        VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
-        aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {
-                getTestAlternateAidlAreaConfig()
-        };
-        HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
-
-        CarPropertyConfig<?> carPropertyConfig = halPropConfig.toCarPropertyConfig(
-                GLOBAL_INTEGER_PROP_ID);
-        assertThat(carPropertyConfig.getAccess()).isEqualTo(TEST_ALTERNATE_ACCESS);
-
-        AreaIdConfig<?> areaIdConfig = carPropertyConfig.getAreaIdConfig(TEST_ALTERNATE_AREA_ID);
-        assertThat(areaIdConfig).isNotNull();
-        assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_ALTERNATE_AREA_ID);
-        assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ALTERNATE_ACCESS);
-    }
-
-    @Test
-    @RequiresFlagsEnabled(Flags.FLAG_AREA_ID_CONFIG_ACCESS)
-    public void toCarPropertyConfig_populatesSubsetAccessModeOfMultipleAreaConfigs() {
-        VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
-        aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {
-                getTestAidlAreaConfig(),
-                getTestAlternateAidlAreaConfig()
-        };
-        HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
-
-        CarPropertyConfig<?> carPropertyConfig = halPropConfig.toCarPropertyConfig(
-                GLOBAL_INTEGER_PROP_ID);
-        assertThat(carPropertyConfig.getAccess()).isEqualTo(TEST_ALTERNATE_ACCESS);
-
-        AreaIdConfig<?> areaIdConfig1 = carPropertyConfig.getAreaIdConfig(TEST_AREA_ID);
-        assertThat(areaIdConfig1).isNotNull();
-        assertThat(areaIdConfig1.getAreaId()).isEqualTo(TEST_AREA_ID);
-        assertThat(areaIdConfig1.getAccess()).isEqualTo(TEST_ACCESS);
-
-        AreaIdConfig<?> areaIdConfig2 = carPropertyConfig.getAreaIdConfig(TEST_ALTERNATE_AREA_ID);
-        assertThat(areaIdConfig2).isNotNull();
-        assertThat(areaIdConfig2.getAreaId()).isEqualTo(TEST_ALTERNATE_AREA_ID);
-        assertThat(areaIdConfig2.getAccess()).isEqualTo(TEST_ALTERNATE_ACCESS);
-    }
-
-    @Test
-    @RequiresFlagsEnabled(Flags.FLAG_AREA_ID_CONFIG_ACCESS)
-    public void toCarPropertyConfig_populatesNoneOnInvalidAreaIdConfigAccessCombinations() {
-        VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
-        aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {
-                getTestAidlAreaConfig(),
-                getTestWriteOnlyAidlAreaConfig()
-        };
-        HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
-
-        CarPropertyConfig<?> carPropertyConfig = halPropConfig.toCarPropertyConfig(
-                GLOBAL_INTEGER_PROP_ID);
-        assertThat(carPropertyConfig.getAccess()).isEqualTo(VehiclePropertyAccess.NONE);
-
-        AreaIdConfig<?> areaIdConfig1 = carPropertyConfig.getAreaIdConfig(TEST_AREA_ID);
-        assertThat(areaIdConfig1).isNotNull();
-        assertThat(areaIdConfig1.getAreaId()).isEqualTo(TEST_AREA_ID);
-        assertThat(areaIdConfig1.getAccess()).isEqualTo(TEST_ACCESS);
-
-        AreaIdConfig<?> areaIdConfig2 = carPropertyConfig.getAreaIdConfig(TEST_ALTERNATE_AREA_ID);
-        assertThat(areaIdConfig2).isNotNull();
-        assertThat(areaIdConfig2.getAreaId()).isEqualTo(TEST_ALTERNATE_AREA_ID);
-        assertThat(areaIdConfig2.getAccess()).isEqualTo(VehiclePropertyAccess.WRITE);
     }
 
     @Test
@@ -597,6 +498,31 @@ public final class HalPropConfigTest {
 
         assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
                 TEST_AREA_ID).getAccess()).isEqualTo(halPropConfig.getAccess());
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_AREA_ID_CONFIG_ACCESS)
+    public void toCarPropertyConfig_aidlAreaConfigWithInvalidAccessPopulatedWithPropConfigAccess() {
+        VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
+        aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {
+            getTestAidlAreaConfig(),
+            getTestInvalidAidlAreaConfig()
+        };
+        HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
+
+        CarPropertyConfig<?> carPropertyConfig = halPropConfig.toCarPropertyConfig(
+                GLOBAL_INTEGER_PROP_ID);
+        assertThat(carPropertyConfig.getAccess()).isEqualTo(TEST_ACCESS);
+
+        AreaIdConfig<?> areaIdConfig1 = carPropertyConfig.getAreaIdConfig(TEST_AREA_ID);
+        assertThat(areaIdConfig1).isNotNull();
+        assertThat(areaIdConfig1.getAreaId()).isEqualTo(TEST_AREA_ID);
+        assertThat(areaIdConfig1.getAccess()).isEqualTo(TEST_ACCESS);
+
+        AreaIdConfig<?> areaIdConfig2 = carPropertyConfig.getAreaIdConfig(TEST_ALTERNATE_AREA_ID);
+        assertThat(areaIdConfig2).isNotNull();
+        assertThat(areaIdConfig2.getAreaId()).isEqualTo(TEST_ALTERNATE_AREA_ID);
+        assertThat(areaIdConfig2.getAccess()).isEqualTo(TEST_ACCESS);
     }
 
     @Test

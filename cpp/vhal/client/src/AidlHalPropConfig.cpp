@@ -25,13 +25,17 @@ namespace vhal {
 
 using ::aidl::android::hardware::automotive::vehicle::VehicleAreaConfig;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfig;
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropertyAccess;
 
 using ::android::hardware::automotive::vehicle::toInt;
 
 AidlHalPropConfig::AidlHalPropConfig(VehiclePropConfig&& config) {
     mPropConfig = std::move(config);
     for (VehicleAreaConfig& areaConfig : mPropConfig.areaConfigs) {
-        mAreaConfigs.push_back(std::make_unique<AidlHalAreaConfig>(std::move(areaConfig)));
+        int32_t access = (areaConfig.access == VehiclePropertyAccess::NONE)
+                ? toInt(mPropConfig.access)
+                : toInt(areaConfig.access);
+        mAreaConfigs.push_back(std::make_unique<AidlHalAreaConfig>(std::move(areaConfig), access));
     }
 }
 
@@ -67,8 +71,9 @@ float AidlHalPropConfig::getMaxSampleRate() const {
     return mPropConfig.maxSampleRate;
 }
 
-AidlHalAreaConfig::AidlHalAreaConfig(VehicleAreaConfig&& areaConfig) {
+AidlHalAreaConfig::AidlHalAreaConfig(VehicleAreaConfig&& areaConfig, int32_t access) {
     mAreaConfig = std::move(areaConfig);
+    mAccess = access;
 }
 
 int32_t AidlHalAreaConfig::getAreaId() const {
@@ -76,7 +81,7 @@ int32_t AidlHalAreaConfig::getAreaId() const {
 }
 
 int32_t AidlHalAreaConfig::getAccess() const {
-    return toInt(mAreaConfig.access);
+    return mAccess;
 }
 
 int32_t AidlHalAreaConfig::getMinInt32Value() const {
