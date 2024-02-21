@@ -149,6 +149,16 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
     }
 
     @Test
+    public void testDoubleRegisterClient() throws Exception {
+        TestClient client = new TestClient();
+
+        mWatchdogProcessHandler.registerClient(client, TIMEOUT_CRITICAL);
+
+        assertThrows(IllegalStateException.class,
+                () -> mWatchdogProcessHandler.registerClient(client, TIMEOUT_CRITICAL));
+    }
+
+    @Test
     public void testUnregisterClient() throws Exception {
         TestClient client = new TestClient();
 
