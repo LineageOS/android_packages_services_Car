@@ -168,3 +168,11 @@ flag {
   description: "Enables use of detailed error codes for CarPropertyManager async APIs"
   bug: "274165552"
 }
+
+# CarPropertyValue
+flag {
+  name: "car_property_value_property_status"
+  namespace: "car_framework"
+  description: "Enables use of new property status API"
+  bug: "326109669"
+}
