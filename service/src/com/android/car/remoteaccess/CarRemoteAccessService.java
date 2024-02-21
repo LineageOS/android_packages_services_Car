@@ -615,7 +615,33 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         synchronized (mLock) {
             uidName = getNameForUidLocked(callingUid);
             Slogf.i(TAG, "addCarRemoteTaskClient from uid: %s", uidName);
+
+            String packageName = getPackageNameForCallingUid(callingUid);
+            boolean isServerless = mServerlessClientIdsByPackageName.containsKey(packageName);
+
+            if (isServerless) {
+                Slogf.i(TAG, "addCarRemoteTaskClient called from a serverless remote access "
+                        + "client: " + packageName);
+            }
+
             token = mClientTokenByUidName.get(uidName);
+
+            if (isServerless && token != null
+                    && !(token.getClientId().equals(
+                            mServerlessClientIdsByPackageName.get(packageName)))) {
+                Slogf.w(TAG, "client: " + packageName + " is a serverless remote access client "
+                        + "but has a different client ID, clear the previous client ID record");
+                // In a rare case if the same client was previously not configured as a serverless
+                // client, hence had a different client ID. But now it has become a serverless
+                // remote access client. We must clear the previous record.
+                mUidByClientId.remove(token.getClientId());
+                mClientTokenByUidName.remove(uidName);
+                if (token.getCallback() != null) {
+                    token.getCallback().asBinder().unlinkToDeath(token, /* flags= */ 0);
+                }
+                token = null;
+            }
+
             if (token != null) {
                 // This is an already registered client.
                 ICarRemoteAccessCallback oldCallback = token.getCallback();
@@ -624,17 +650,13 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 }
             } else {
                 // This is a new client.
-                String packageName = getPackageNameForCallingUid(callingUid);
                 String clientId;
-                boolean isServerless;
-                if (mServerlessClientIdsByPackageName.containsKey(packageName)) {
+                if (isServerless) {
                     // This is a serverless remote task client. Use the preconfigured client ID.
                     clientId = mServerlessClientIdsByPackageName.get(packageName);
-                    isServerless = true;
                 } else {
                     // For regular remote task client, create a new random client ID.
                     clientId = generateNewClientId();
-                    isServerless = false;
                 }
                 // Creates a new client token with a null callback. The callback will be registered
                 // in postRegistrationUpdated.
