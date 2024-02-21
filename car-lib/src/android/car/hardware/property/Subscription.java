@@ -133,6 +133,7 @@ public final class Subscription {
     /**
      * Builder for {@link Subscription}
      */
+    @FlaggedApi(FLAG_BATCHED_SUBSCRIPTIONS)
     public static final class Builder {
         private final int mBuilderPropertyId;
         private float mBuilderUpdateRateHz = CarPropertyManager.SENSOR_RATE_ONCHANGE;
