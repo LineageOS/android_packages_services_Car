@@ -2209,8 +2209,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
      * Helper method to set up service for test cases that use the refactored power policy in CPMS
      */
     private void setRefactoredService() throws Exception {
-        mRefactoredPowerPolicyDaemon =
-                new FakeRefactoredCarPowerPolicyDaemon(mFileKernelSilentMode);
+        mRefactoredPowerPolicyDaemon = new FakeRefactoredCarPowerPolicyDaemon(mFileKernelSilentMode,
+                new int[]{CUSTOM_COMPONENT_1000, CUSTOM_COMPONENT_1001, CUSTOM_COMPONENT_1002,
+                        CUSTOM_COMPONENT_1003});
         setCarPowerPolicyRefactoringFeatureFlag(true);
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
                 mSystemInterface, mUserManager, mUserService, mRefactoredPowerPolicyDaemon,

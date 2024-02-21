@@ -324,7 +324,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private final PowerComponentHandler mPowerComponentHandler;
     private final PolicyReader mPolicyReader = new PolicyReader();
-    // TODO(b/286303350): refactor out after power policy refactor has been completed
     private final SilentModeHandler mSilentModeHandler;
     private final ScreenOffHandler mScreenOffHandler;
 
@@ -417,7 +416,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 new File(mSystemInterface.getSystemCarDir(), TETHERING_STATE_FILENAME));
         mWifiAdjustmentForSuspend = isWifiAdjustmentForSuspendConfig();
         mPowerComponentHandler = powerComponentHandler;
-        mSilentModeHandler = new SilentModeHandler(this, silentModeHwStatePath,
+        mSilentModeHandler = new SilentModeHandler(this, mFeatureFlags, silentModeHwStatePath,
                 silentModeKernelStatePath, bootReason);
         mMaxSuspendWaitDurationMs = Math.max(MIN_SUSPEND_WAIT_DURATION_MS,
                 Math.min(getMaxSuspendWaitDurationConfig(), MAX_SUSPEND_WAIT_DURATION_MS));
@@ -608,7 +607,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @VisibleForTesting
     void setStateForWakeUp() {
-        mSilentModeHandler.init(mFeatureFlags);
+        mSilentModeHandler.init();
         synchronized (mLock) {
             mShouldResumeUserService = true;
         }
@@ -2121,7 +2120,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     @VisibleForTesting
-    void initializePowerPolicy() {
+    public void initializePowerPolicy() {
         if (mFeatureFlags.carPowerPolicyRefactoring()) {
             ICarPowerPolicyDelegate daemon;
             synchronized (mLock) {
@@ -2210,7 +2209,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 }
             }
         }
-        mSilentModeHandler.init(mFeatureFlags);
+        mSilentModeHandler.init();
     }
 
     @PolicyOperationStatus.ErrorCode

@@ -123,6 +123,8 @@ public class MockedCarTestBase {
     private final CarUserService mCarUserService = mock(CarUserService.class);
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
     private final GarageModeService mGarageModeService = mock(GarageModeService.class);
+    // TODO(286303350): Replace mPowerPolicyDaemon with mRefactoredPowerPolicyDaemon
+    //                  once refactor complete
     private final ICarPowerPolicySystemNotification.Stub mPowerPolicyDaemon =
             mock(ICarPowerPolicySystemNotification.Stub.class);
     private final ICarServiceHelper mICarServiceHelper = mock(ICarServiceHelper.class);
@@ -166,8 +168,12 @@ public class MockedCarTestBase {
         return mFakeSystemInterface;
     }
 
-    protected ICarPowerPolicySystemNotification.Stub getMockedPowerPolicyDaemon() {
-        return mPowerPolicyDaemon;
+    protected android.os.IInterface getMockedPowerPolicyDaemon() {
+        if (Flags.carPowerPolicyRefactoring()) {
+            return mRefactoredPowerPolicyDaemon;
+        } else {
+            return mPowerPolicyDaemon;
+        }
     }
 
     protected void configureMockedHal() {
@@ -351,7 +357,8 @@ public class MockedCarTestBase {
         // Setup car
         IInterface powerPolicyDaemon;
         if (Flags.carPowerPolicyRefactoring()) {
-            mRefactoredPowerPolicyDaemon = new FakeRefactoredCarPowerPolicyDaemon(null);
+            mRefactoredPowerPolicyDaemon = new FakeRefactoredCarPowerPolicyDaemon(
+                    /* fileKernelSilentMode= */ null, /* customComponents= */ null);
             powerPolicyDaemon = mRefactoredPowerPolicyDaemon;
         } else {
             powerPolicyDaemon = mPowerPolicyDaemon;
