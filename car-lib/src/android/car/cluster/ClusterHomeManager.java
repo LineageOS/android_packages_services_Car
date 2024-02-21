@@ -427,7 +427,6 @@ public final class ClusterHomeManager extends CarManagerBase {
      * @param appMetadata the application specific metadata which will be delivered with
      *                    the heartbeat.
      */
-    @FlaggedApi(FLAG_CLUSTER_HEALTH_MONITORING)
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
     public void sendHeartbeat(long epochTimeNs, @Nullable byte[] appMetadata) {
         try {
@@ -444,7 +443,6 @@ public final class ClusterHomeManager extends CarManagerBase {
      *
      * @param activity               the {@link Activity} to track the visibility of its Window
      */
-    @FlaggedApi(FLAG_CLUSTER_HEALTH_MONITORING)
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
     public void startVisibilityMonitoring(@NonNull Activity activity) {
         // We'd like to check the permission locally too, since the actual execution happens later.
