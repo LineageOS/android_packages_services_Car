@@ -44,6 +44,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
+import android.car.feature.FakeFeatureFlagsImpl;
+import android.car.feature.Flags;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.remoteaccess.CarRemoteAccessManager;
@@ -295,6 +297,10 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
         mRemoteAccessStorage = new RemoteAccessStorage(mContext, mSystemInterface,
                 /* inMemoryStorage= */ true);
         mService = newServiceWithSystemUpTime(ALLOWED_SYSTEM_UP_TIME_FOR_TESTING_MS);
+
+        FakeFeatureFlagsImpl fakeFlagsImpl = new FakeFeatureFlagsImpl();
+        fakeFlagsImpl.setFlag(Flags.FLAG_SERVERLESS_REMOTE_ACCESS, true);
+        mService.setFeatureFlags(fakeFlagsImpl);
     }
 
     @After

@@ -1048,7 +1048,7 @@ package android.car.remoteaccess {
     method public void onRegistrationFailed();
     method public void onRegistrationUpdated(@NonNull android.car.remoteaccess.RemoteTaskClientRegistrationInfo);
     method public void onRemoteTaskRequested(@NonNull String, @Nullable byte[], int);
-    method public default void onServerlessClientRegistered();
+    method @FlaggedApi("android.car.feature.serverless_remote_access") public default void onServerlessClientRegistered();
     method public void onShutdownStarting(@NonNull android.car.remoteaccess.CarRemoteAccessManager.CompletableRemoteTaskFuture);
   }
 
