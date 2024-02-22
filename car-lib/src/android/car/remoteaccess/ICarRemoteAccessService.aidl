@@ -97,6 +97,17 @@ interface ICarRemoteAccessService {
     List<TaskScheduleInfo> getAllPendingScheduledTasks();
 
     /**
+     * Gets the supported task types for scheduling.
+     *
+     * <p>If task scheduling is not supported, this returns an empty array.
+     *
+     * <p>Otherwise, this returns a list of {@code CarRemoteAccessManager.TaskType}.
+     *
+     * <p>{@code CarRemoteAccessManager.TASK_TYPE_CUSTOM} must be supported.
+     */
+    int[] getSupportedTaskTypesForScheduling();
+
+    /**
      * For testing only. Add a package as a new serverless remote access client.
      */
     void addServerlessRemoteTaskClient(in String packageName, in String clientId);

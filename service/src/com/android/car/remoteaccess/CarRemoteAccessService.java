@@ -16,6 +16,8 @@
 
 package com.android.car.remoteaccess;
 
+import static android.car.remoteaccess.CarRemoteAccessManager.TASK_TYPE_CUSTOM;
+import static android.car.remoteaccess.CarRemoteAccessManager.TASK_TYPE_ENTER_GARAGE_MODE;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 import static android.content.Context.BIND_AUTO_CREATE;
 import static android.content.Context.RECEIVER_NOT_EXPORTED;
@@ -23,6 +25,7 @@ import static android.content.Context.RECEIVER_NOT_EXPORTED;
 import static com.android.car.CarServiceUtils.isEventOfType;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
@@ -854,10 +857,10 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         String clientId = getServerlessCallerClientId();
         halScheduleInfo.clientId = clientId;
         switch (scheduleInfo.taskType) {
-            case CarRemoteAccessManager.TASK_TYPE_CUSTOM:
+            case TASK_TYPE_CUSTOM:
                 halScheduleInfo.taskType = TaskType.CUSTOM;
                 break;
-            case CarRemoteAccessManager.TASK_TYPE_ENTER_GARAGE_MODE:
+            case TASK_TYPE_ENTER_GARAGE_MODE:
                 halScheduleInfo.taskType = TaskType.ENTER_GARAGE_MODE;
                 break;
             default:
@@ -949,16 +952,15 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 taskScheduleInfo.periodicInSeconds = halScheduleInfo.periodicInSeconds;
                 switch (halScheduleInfo.taskType) {
                     case TaskType.CUSTOM:
-                        taskScheduleInfo.taskType = CarRemoteAccessManager.TASK_TYPE_CUSTOM;
+                        taskScheduleInfo.taskType = TASK_TYPE_CUSTOM;
                         break;
                     case TaskType.ENTER_GARAGE_MODE:
-                        taskScheduleInfo.taskType =
-                                CarRemoteAccessManager.TASK_TYPE_ENTER_GARAGE_MODE;
+                        taskScheduleInfo.taskType = TASK_TYPE_ENTER_GARAGE_MODE;
                         break;
                     default:
                         Slogf.e(TAG, "Unknown task type returned by remote access HAL for: "
                                 + taskScheduleInfo + ", default to TASK_TYPE_CUSTOM");
-                        taskScheduleInfo.taskType = CarRemoteAccessManager.TASK_TYPE_CUSTOM;
+                        taskScheduleInfo.taskType = TASK_TYPE_CUSTOM;
                 }
                 taskScheduleInfoList.add(taskScheduleInfo);
             }
@@ -968,6 +970,42 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                     "failed to call IRemoteAccess.getAllPendingScheduledTasks with clientId: "
                     + clientId + ", error: " + e);
         }
+    }
+
+    @Override
+    public int[] getSupportedTaskTypesForScheduling() {
+        if (!isTaskScheduleSupported()) {
+            Slogf.i(TAG, "task scheduling is not supported, return empty array for "
+                    + "getSupportedTaskTypesForScheduling");
+            return EMPTY_INT_ARRAY;
+        }
+        int[] supportedHalTaskTypes;
+        try {
+            supportedHalTaskTypes = mRemoteAccessHalWrapper.getSupportedTaskTypesForScheduling();
+        } catch (RemoteException | ServiceSpecificException e) {
+            throw new ServiceSpecificException(SERVICE_ERROR_CODE_GENERAL,
+                    "failed to call IRemoteAccess.getSupportedTaskTypesForScheduling, error: " + e);
+        }
+        ArraySet<Integer> supportedMgrTaskTypes = new ArraySet<>();
+        for (int i = 0; i < supportedHalTaskTypes.length; i++) {
+            switch (supportedHalTaskTypes[i]) {
+                case TaskType.CUSTOM:
+                    supportedMgrTaskTypes.add(TASK_TYPE_CUSTOM);
+                    break;
+                case TaskType.ENTER_GARAGE_MODE:
+                    supportedMgrTaskTypes.add(TASK_TYPE_ENTER_GARAGE_MODE);
+                    break;
+                default:
+                    Slogf.e(TAG, "Unknown supported task type returned from remote access HAL, "
+                            + "ignore: " + supportedHalTaskTypes[i]);
+            }
+        }
+        // Convert to int array.
+        int[] result = new int[supportedMgrTaskTypes.size()];
+        for (int i = 0; i < supportedMgrTaskTypes.size(); i++) {
+            result[i] = supportedMgrTaskTypes.valueAt(i);
+        }
+        return result;
     }
 
     @GuardedBy("mLock")
