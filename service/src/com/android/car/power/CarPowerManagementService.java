@@ -22,6 +22,7 @@ import static android.car.hardware.power.PowerComponentUtil.FIRST_POWER_COMPONEN
 import static android.car.hardware.power.PowerComponentUtil.LAST_POWER_COMPONENT;
 import static android.net.ConnectivityManager.TETHERING_WIFI;
 
+import static com.android.car.hal.PowerHalService.BOOTUP_REASON_SYSTEM_ENTER_GARAGE_MODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -93,6 +94,7 @@ import com.android.car.CarServiceUtils;
 import com.android.car.CarStatsLogHelper;
 import com.android.car.R;
 import com.android.car.hal.PowerHalService;
+import com.android.car.hal.PowerHalService.BootupReason;
 import com.android.car.hal.PowerHalService.PowerState;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.DebugUtils;
@@ -3494,6 +3496,37 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      */
     public boolean isSuspendAvailable(boolean isHibernation) {
         return isHibernation ? isHibernationAvailable() : isDeepSleepAvailable();
+    }
+
+    /**
+     * Enters garage mode if the bootup reason is ENTER_GARAGE_MODE.
+     */
+    @Override
+    public void onInitComplete() {
+        if (mFeatureFlags.serverlessRemoteAccess()) {
+            maybeEnterGarageModeOnBoot();
+        }
+    }
+
+    /**
+     * Shutdown the device to run garage mode if the bootup reason is ENTER_GARAGE_MODE.
+     */
+    private void maybeEnterGarageModeOnBoot() {
+        @BootupReason int bootupReason = mHal.getVehicleApBootupReason();
+        Slogf.i(TAG, "Vehicle AP power bootup reason: " + bootupReason);
+        if (bootupReason != BOOTUP_REASON_SYSTEM_ENTER_GARAGE_MODE) {
+            return;
+        }
+        if (mHal.isVehicleInUse()) {
+            Slogf.i(TAG, "Bootup reason is ENTER_GARAGE_MODE but vehicle is currently in use"
+                    + ", skip entering garage mode");
+            return;
+        }
+        try {
+            requestShutdownAp(getLastShutdownState(), /* runGarageMode= */ true);
+        } catch (Exception e) {
+            Slogf.wtf(TAG, "Failed to call requestShutdownAp", e);
+        }
     }
 
     private boolean isDeepSleepAvailable() {

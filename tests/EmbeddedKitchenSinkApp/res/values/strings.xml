@@ -514,6 +514,7 @@
     <string name="task_data">Task Data</string>
     <string name="remaining_time_sec">Remaining Time(s)</string>
     <string-array name="remote_task_types" translatable="false">
+          <item>Enter garage mode</item>
           <item>Set HVAC Temp</item>
           <item>Specify task data</item>
     </string-array>
