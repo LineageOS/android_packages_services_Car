@@ -792,7 +792,7 @@ package android.car.hardware.property {
     method public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     method public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int);
     method @FlaggedApi("android.car.feature.batched_subscriptions") public void unsubscribePropertyEvents(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
-    method @FlaggedApi("android.car.feature.batched_subscriptions") public void unsubscribePropertyEvents(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int);
+    method @FlaggedApi("android.car.feature.batched_subscriptions") public void unsubscribePropertyEvents(int, @NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     field public static final long ASYNC_GET_DEFAULT_TIMEOUT_MS = 10000L; // 0x2710L
     field public static final int CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED = 4; // 0x4
     field public static final int CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG = 2; // 0x2
