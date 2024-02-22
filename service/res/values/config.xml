@@ -108,6 +108,12 @@
           volume level will be changed during activation.-->
     <bool name="audioUseMinMaxActivationVolume">false</bool>
 
+    <!--  Configuration to enable isolated audio focus request for playback on dynamic devices. If
+          this is set to true, focus requests should only interact if the focus requests are
+          for the same zone and targeting playback will be routed to the same device. Otherwise,
+          the focus requests should interact only if the requests are for the same audio zone.-->
+    <bool name="audioUseIsolatedAudioFocusForDynamicDevices">false</bool>
+
     <!-- Whether to block other audio while media audio is muted with display off. When set to true,
          other sounds cannot be played either while display is off. If false, only media is muted
          and other sounds can be still played. -->

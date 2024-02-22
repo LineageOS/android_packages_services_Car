@@ -16,7 +16,7 @@
 
 package com.google.android.car.kitchensink.remoteaccess;
 
-
+import static android.car.remoteaccess.CarRemoteAccessManager.TASK_TYPE_CUSTOM;
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
 import android.car.Car;
@@ -215,7 +215,8 @@ public final class RemoteAccessTestFragment extends Fragment {
                 // Do nothing
         }
         ScheduleInfo.Builder scheduleInfoBuilder = new ScheduleInfo.Builder(
-                scheduleId, taskData.getBytes(), startTimeInEpochSeconds);
+                scheduleId, TASK_TYPE_CUSTOM, startTimeInEpochSeconds);
+        scheduleInfoBuilder.setTaskData(taskData.getBytes());
         int count = Integer.parseInt(mTaskRepeatView.getText().toString());
         scheduleInfoBuilder.setCount(count);
         if (count > 1) {

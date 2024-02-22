@@ -256,6 +256,15 @@
                 android:layout_margin="10dp"
                 android:text="Notification with custom action icons"
                 android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/self_dismiss_notification"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Notification that gets dismissed on click"
+                android:textSize="30sp"/>
+
         </LinearLayout>
 
         <LinearLayout
