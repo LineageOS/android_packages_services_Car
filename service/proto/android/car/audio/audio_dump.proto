@@ -34,6 +34,7 @@ message CarAudioDumpProto {
     optional bool use_car_volume_group_events = 10;
     optional bool use_fade_manager_configuration = 11;
     optional bool use_min_max_activation_volume = 12;
+    optional bool use_isolated_focus_for_dynamic_devices = 13;
   }
 
   message CarAudioState {

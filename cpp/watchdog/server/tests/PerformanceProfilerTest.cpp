@@ -317,17 +317,12 @@ int countOccurrences(std::string str, std::string subStr) {
     return occurrences;
 }
 
-std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(int multiplier = 1) {
+std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(auto int64Multiplier,
+                                                                          auto uint64Multiplier) {
     /* The number of returned sample stats are less that the top N stats per category/sub-category.
      * The top N stats per category/sub-category is set to % during test setup. Thus, the default
      * testing behavior is # reported stats < top N stats.
      */
-    const auto int64Multiplier = [&](int64_t bytes) -> int64_t {
-        return static_cast<int64_t>(bytes * multiplier);
-    };
-    const auto uint64Multiplier = [&](uint64_t count) -> uint64_t {
-        return static_cast<uint64_t>(count * multiplier);
-    };
     std::vector<UidStats>
             uidStats{{.packageInfo = constructPackageInfo("mount", 1009),
                       .cpuTimeMillis = int64Multiplier(50),
@@ -367,7 +362,7 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(int mu
                                     .processStatsByPid =
                                             {{/*pid=*/1001,
                                               {/*comm=*/"CTS", /*startTime=*/789,
-                                               /*cpuTimeMillis=*/int64Multiplier(25),
+                                               /*cpuTimeMillis=*/int64Multiplier(30),
                                                /*totalCpuCycles=*/5000,
                                                /*totalMajorFaults=*/uint64Multiplier(10'100),
                                                /*totalTasksCount=*/3,
@@ -434,7 +429,7 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(int mu
                              {1002001, "com.google.android.car.kitchensink",
                               UserPackageStats::ProcCpuStatsView{int64Multiplier(60),
                                                                  10'000,
-                                                                 {{1001, "CTS", int64Multiplier(25),
+                                                                 {{1001, "CTS", int64Multiplier(30),
                                                                    5000},
                                                                   {1000, "KitchenSinkApp",
                                                                    int64Multiplier(25), 4000}}}},
@@ -497,16 +492,9 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(int mu
     return std::make_tuple(uidStats, userPackageSummaryStats);
 }
 
-std::tuple<ProcStatInfo, SystemSummaryStats> sampleProcStat(int multiplier = 1) {
-    const auto int64Multiplier = [&](int64_t bytes) -> int64_t {
-        return static_cast<int64_t>(bytes * multiplier);
-    };
-    const auto uint64Multiplier = [&](uint64_t bytes) -> uint64_t {
-        return static_cast<uint64_t>(bytes * multiplier);
-    };
-    const auto uint32Multiplier = [&](uint32_t bytes) -> uint32_t {
-        return static_cast<uint32_t>(bytes * multiplier);
-    };
+std::tuple<ProcStatInfo, SystemSummaryStats> sampleProcStat(auto int64Multiplier,
+                                                            auto uint64Multiplier,
+                                                            auto uint32Multiplier) {
     ProcStatInfo procStatInfo{/*stats=*/{int64Multiplier(2'900), int64Multiplier(7'900),
                                          int64Multiplier(4'900), int64Multiplier(8'900),
                                          /*ioWaitTimeMillis=*/int64Multiplier(5'900),
@@ -525,18 +513,7 @@ std::tuple<ProcStatInfo, SystemSummaryStats> sampleProcStat(int multiplier = 1) 
     return std::make_tuple(procStatInfo, systemSummaryStats);
 }
 
-// TODO(b/286942359): The methods: sampleUidStats, sampleProcStat and
-// getResourceStatsForSampledStats are called together most times.
-// Implement a method that calls the three methods and returns their
-// results in a single value.
-ResourceStats getResourceStatsForSampledStats(int multiplier = 1) {
-    const auto int32Multiplier = [&](int32_t bytes) -> int32_t {
-        return static_cast<int32_t>(bytes * multiplier);
-    };
-    const auto int64Multiplier = [&](int64_t bytes) -> int64_t {
-        return static_cast<int64_t>(bytes * multiplier);
-    };
-
+ResourceStats getResourceStatsForSampledStats(auto int32Multiplier, auto int64Multiplier) {
     // clang-format off
     return {
         .resourceUsageStats = std::make_optional<ResourceUsageStats>({
@@ -610,7 +587,7 @@ ResourceStats getResourceStatsForSampledStats(int multiplier = 1) {
                         {
                             .pid = 1001,
                             .name = "CTS",
-                            .cpuTimeMillis = int64Multiplier(25),
+                            .cpuTimeMillis = int64Multiplier(30),
                             .cpuCycles = 5'000,
                         },
                         {
@@ -693,6 +670,41 @@ ResourceStats getResourceStatsForSampledStats(int multiplier = 1) {
         }),
     };
     // clang-format on
+}
+
+struct StatsInfo {
+    std::vector<UidStats> uidStats;
+    UserPackageSummaryStats userPackageSummaryStats;
+    ProcStatInfo procStatInfo;
+    SystemSummaryStats systemSummaryStats;
+    ResourceStats resourceStats;
+};
+
+StatsInfo getSampleStats(int multiplier = 1) {
+    /* Return results in a single value from three methods: sampleUidStats,
+     * sampleProcStat and getResourceStatsForSampledStats.
+     */
+    const auto int64Multiplier = [&](int64_t bytes) -> int64_t {
+        return static_cast<int64_t>(bytes * multiplier);
+    };
+    const auto uint64Multiplier = [&](uint64_t count) -> uint64_t {
+        return static_cast<uint64_t>(count * multiplier);
+    };
+    const auto int32Multiplier = [&](int32_t bytes) -> int32_t {
+        return static_cast<int32_t>(bytes * multiplier);
+    };
+    const auto uint32Multiplier = [&](uint32_t bytes) -> uint32_t {
+        return static_cast<uint32_t>(bytes * multiplier);
+    };
+
+    auto [uidStats, userPackageSummaryStats] = sampleUidStats(int64Multiplier, uint64Multiplier);
+    auto [procStatInfo, systemSummaryStats] =
+            sampleProcStat(int64Multiplier, uint64Multiplier, uint32Multiplier);
+    ResourceStats resourceStats = getResourceStatsForSampledStats(int32Multiplier, int64Multiplier);
+
+    StatsInfo statsInfo(uidStats, userPackageSummaryStats, procStatInfo, systemSummaryStats,
+                        resourceStats);
+    return statsInfo;
 }
 
 MATCHER_P(UserPackageInfoProtoEq, expected, "") {
@@ -1054,14 +1066,14 @@ protected:
 };
 
 TEST_F(PerformanceProfilerTest, TestOnBoottimeCollection) {
-    const auto [uidStats, userPackageSummaryStats] = sampleUidStats();
-    const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
-    const auto expectedResourceStats = getResourceStatsForSampledStats();
+    const auto statsInfo = getSampleStats();
 
-    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
-    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(statsInfo.uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(statsInfo.procStatInfo));
 
+    ResourceStats expectedResourceStats = statsInfo.resourceStats;
     ResourceStats actualResourceStats = {};
+
     ASSERT_RESULT_OK(mCollector->onBoottimeCollection(kTestNow, mMockUidStatsCollector,
                                                       mMockProcStatCollector,
                                                       &actualResourceStats));
@@ -1071,8 +1083,8 @@ TEST_F(PerformanceProfilerTest, TestOnBoottimeCollection) {
     const CollectionInfo expected{
             .maxCacheSize = std::numeric_limits<std::size_t>::max(),
             .records = {{
-                    .systemSummaryStats = systemSummaryStats,
-                    .userPackageSummaryStats = userPackageSummaryStats,
+                    .systemSummaryStats = statsInfo.systemSummaryStats,
+                    .userPackageSummaryStats = statsInfo.userPackageSummaryStats,
             }},
     };
 
@@ -1090,11 +1102,10 @@ TEST_F(PerformanceProfilerTest, TestOnBoottimeCollection) {
 }
 
 TEST_F(PerformanceProfilerTest, TestOnWakeUpCollection) {
-    const auto [uidStats, userPackageSummaryStats] = sampleUidStats();
-    const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+    const auto statsInfo = getSampleStats();
 
-    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
-    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(statsInfo.uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(statsInfo.procStatInfo));
 
     ASSERT_RESULT_OK(mCollector->onWakeUpCollection(kTestNow, mMockUidStatsCollector,
                                                     mMockProcStatCollector));
@@ -1104,8 +1115,8 @@ TEST_F(PerformanceProfilerTest, TestOnWakeUpCollection) {
     const CollectionInfo expected{
             .maxCacheSize = std::numeric_limits<std::size_t>::max(),
             .records = {{
-                    .systemSummaryStats = systemSummaryStats,
-                    .userPackageSummaryStats = userPackageSummaryStats,
+                    .systemSummaryStats = statsInfo.systemSummaryStats,
+                    .userPackageSummaryStats = statsInfo.userPackageSummaryStats,
             }},
     };
 
@@ -1119,11 +1130,11 @@ TEST_F(PerformanceProfilerTest, TestOnWakeUpCollection) {
 }
 
 TEST_F(PerformanceProfilerTest, TestOnSystemStartup) {
-    const auto [uidStats, userPackageSummaryStats] = sampleUidStats();
-    const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+    const auto statsInfo = getSampleStats();
 
-    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(uidStats));
-    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillRepeatedly(Return(procStatInfo));
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(statsInfo.uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats())
+            .WillRepeatedly(Return(statsInfo.procStatInfo));
 
     ResourceStats resourceStats = {};
     ASSERT_RESULT_OK(mCollector->onBoottimeCollection(kTestNow, mMockUidStatsCollector,
@@ -1150,11 +1161,10 @@ TEST_F(PerformanceProfilerTest, TestOnSystemStartup) {
 }
 
 TEST_F(PerformanceProfilerTest, TestOnUserSwitchCollection) {
-    auto [uidStats, userPackageSummaryStats] = sampleUidStats();
-    auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+    auto statsInfo = getSampleStats();
 
-    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
-    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(statsInfo.uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(statsInfo.procStatInfo));
 
     ASSERT_RESULT_OK(mCollector->onUserSwitchCollection(kTestNow, 100, 101, mMockUidStatsCollector,
                                                         mMockProcStatCollector));
@@ -1166,8 +1176,8 @@ TEST_F(PerformanceProfilerTest, TestOnUserSwitchCollection) {
             {
                     .maxCacheSize = std::numeric_limits<std::size_t>::max(),
                     .records = {{
-                            .systemSummaryStats = systemSummaryStats,
-                            .userPackageSummaryStats = userPackageSummaryStats,
+                            .systemSummaryStats = statsInfo.systemSummaryStats,
+                            .userPackageSummaryStats = statsInfo.userPackageSummaryStats,
                     }},
             },
             .from = 100,
@@ -1220,8 +1230,8 @@ TEST_F(PerformanceProfilerTest, TestOnUserSwitchCollection) {
             .majorFaultsPercentChange = (6'000.0 - 84'345.0) / 84'345.0 * 100.0,
     };
 
-    ProcStatInfo nextProcStatInfo = procStatInfo;
-    SystemSummaryStats nextSystemSummaryStats = systemSummaryStats;
+    ProcStatInfo nextProcStatInfo = statsInfo.procStatInfo;
+    SystemSummaryStats nextSystemSummaryStats = statsInfo.systemSummaryStats;
 
     nextProcStatInfo.contextSwitchesCount = 300;
     nextSystemSummaryStats.totalCpuCycles = 3'500;
@@ -1240,8 +1250,8 @@ TEST_F(PerformanceProfilerTest, TestOnUserSwitchCollection) {
     expected = {
             {
                     .maxCacheSize = std::numeric_limits<std::size_t>::max(),
-                    .records = {{.systemSummaryStats = systemSummaryStats,
-                                 .userPackageSummaryStats = userPackageSummaryStats},
+                    .records = {{.systemSummaryStats = statsInfo.systemSummaryStats,
+                                 .userPackageSummaryStats = statsInfo.userPackageSummaryStats},
                                 {.systemSummaryStats = nextSystemSummaryStats,
                                  .userPackageSummaryStats = nextUserPackageSummaryStats}},
             },
@@ -1261,11 +1271,11 @@ TEST_F(PerformanceProfilerTest, TestOnUserSwitchCollection) {
 }
 
 TEST_F(PerformanceProfilerTest, TestUserSwitchCollectionsMaxCacheSize) {
-    auto [uidStats, userPackageSummaryStats] = sampleUidStats();
-    auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+    auto statsInfo = getSampleStats();
 
-    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(uidStats));
-    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillRepeatedly(Return(procStatInfo));
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(statsInfo.uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats())
+            .WillRepeatedly(Return(statsInfo.procStatInfo));
 
     std::vector<UserSwitchCollectionInfo> expectedEvents;
     for (userid_t userId = 100; userId < 100 + kTestMaxUserSwitchEvents; ++userId) {
@@ -1273,8 +1283,8 @@ TEST_F(PerformanceProfilerTest, TestUserSwitchCollectionsMaxCacheSize) {
                 {
                         .maxCacheSize = std::numeric_limits<std::size_t>::max(),
                         .records = {{
-                                .systemSummaryStats = systemSummaryStats,
-                                .userPackageSummaryStats = userPackageSummaryStats,
+                                .systemSummaryStats = statsInfo.systemSummaryStats,
+                                .userPackageSummaryStats = statsInfo.userPackageSummaryStats,
                         }},
                 },
                 .from = userId,
@@ -1303,8 +1313,8 @@ TEST_F(PerformanceProfilerTest, TestUserSwitchCollectionsMaxCacheSize) {
             {
                     .maxCacheSize = std::numeric_limits<std::size_t>::max(),
                     .records = {{
-                            .systemSummaryStats = systemSummaryStats,
-                            .userPackageSummaryStats = userPackageSummaryStats,
+                            .systemSummaryStats = statsInfo.systemSummaryStats,
+                            .userPackageSummaryStats = statsInfo.userPackageSummaryStats,
                     }},
             },
             .from = userId,
@@ -1325,14 +1335,13 @@ TEST_F(PerformanceProfilerTest, TestUserSwitchCollectionsMaxCacheSize) {
 }
 
 TEST_F(PerformanceProfilerTest, TestOnPeriodicCollection) {
-    const auto [uidStats, userPackageSummaryStats] = sampleUidStats();
-    const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
-    const auto expectedResourceStats = getResourceStatsForSampledStats();
+    const auto statsInfo = getSampleStats();
 
-    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
-    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(statsInfo.uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(statsInfo.procStatInfo));
 
     ResourceStats actualResourceStats = {};
+
     ASSERT_RESULT_OK(mCollector->onPeriodicCollection(kTestNow, SystemState::NORMAL_MODE,
                                                       mMockUidStatsCollector,
                                                       mMockProcStatCollector,
@@ -1344,8 +1353,8 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollection) {
             .maxCacheSize = static_cast<size_t>(sysprop::periodicCollectionBufferSize().value_or(
                     kDefaultPeriodicCollectionBufferSize)),
             .records = {{
-                    .systemSummaryStats = systemSummaryStats,
-                    .userPackageSummaryStats = userPackageSummaryStats,
+                    .systemSummaryStats = statsInfo.systemSummaryStats,
+                    .userPackageSummaryStats = statsInfo.userPackageSummaryStats,
             }},
     };
 
@@ -1354,8 +1363,8 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollection) {
             << expected.toString() << "\nActual:\n"
             << actual.toString();
 
-    ASSERT_EQ(actualResourceStats, expectedResourceStats)
-            << "Expected: " << expectedResourceStats.toString()
+    ASSERT_EQ(actualResourceStats, statsInfo.resourceStats)
+            << "Expected: " << statsInfo.resourceStats.toString()
             << "\nActual: " << actualResourceStats.toString();
 
     ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/3))
@@ -1364,11 +1373,10 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollection) {
 
 TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithSendingUsageStatsDisabled) {
     mCollectorPeer->setSendResourceUsageStatsEnabled(false);
-    const auto [uidStats, userPackageSummaryStats] = sampleUidStats();
-    const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+    const auto statsInfo = getSampleStats();
 
-    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
-    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(statsInfo.uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(statsInfo.procStatInfo));
 
     ResourceStats actualResourceStats = {};
     ASSERT_RESULT_OK(mCollector->onPeriodicCollection(kTestNow, SystemState::NORMAL_MODE,
@@ -1382,8 +1390,8 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithSendingUsageStatsDis
             .maxCacheSize = static_cast<size_t>(sysprop::periodicCollectionBufferSize().value_or(
                     kDefaultPeriodicCollectionBufferSize)),
             .records = {{
-                    .systemSummaryStats = systemSummaryStats,
-                    .userPackageSummaryStats = userPackageSummaryStats,
+                    .systemSummaryStats = statsInfo.systemSummaryStats,
+                    .userPackageSummaryStats = statsInfo.userPackageSummaryStats,
             }},
     };
     const ResourceStats expectedResourceStats = {};
@@ -1402,14 +1410,14 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithSendingUsageStatsDis
 }
 
 TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithoutPackageFilter) {
-    const auto [uidStats, userPackageSummaryStats] = sampleUidStats();
-    const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
-    const auto expectedResourceStats = getResourceStatsForSampledStats();
+    const auto statsInfo = getSampleStats();
 
-    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
-    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(statsInfo.uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(statsInfo.procStatInfo));
 
+    ResourceStats expectedResourceStats = statsInfo.resourceStats;
     ResourceStats actualResourceStats = {};
+
     ASSERT_RESULT_OK(mCollector->onCustomCollection(kTestNow, SystemState::NORMAL_MODE, {},
                                                     mMockUidStatsCollector, mMockProcStatCollector,
                                                     &actualResourceStats));
@@ -1419,8 +1427,8 @@ TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithoutPackageFilter) {
     CollectionInfo expected{
             .maxCacheSize = std::numeric_limits<std::size_t>::max(),
             .records = {{
-                    .systemSummaryStats = systemSummaryStats,
-                    .userPackageSummaryStats = userPackageSummaryStats,
+                    .systemSummaryStats = statsInfo.systemSummaryStats,
+                    .userPackageSummaryStats = statsInfo.userPackageSummaryStats,
             }},
     };
 
@@ -1451,14 +1459,14 @@ TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithPackageFilter) {
     // Filter by package name should ignore this limit with package filter.
     mCollectorPeer->setTopNStatsPerCategory(1);
 
-    const auto [uidStats, _] = sampleUidStats();
-    const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
-    const auto expectedResourceStats = getResourceStatsForSampledStats();
+    const auto statsInfo = getSampleStats();
 
-    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
-    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(statsInfo.uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(statsInfo.procStatInfo));
 
+    ResourceStats expectedResourceStats = statsInfo.resourceStats;
     ResourceStats actualResourceStats = {};
+
     ASSERT_RESULT_OK(mCollector->onCustomCollection(kTestNow, SystemState::NORMAL_MODE,
                                                     {"mount", "com.google.android.car.kitchensink"},
                                                     mMockUidStatsCollector, mMockProcStatCollector,
@@ -1474,7 +1482,7 @@ TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithPackageFilter) {
                              {1002001, "com.google.android.car.kitchensink",
                               UserPackageStats::ProcCpuStatsView{60,
                                                                  10'000,
-                                                                 {{1001, "CTS", 25, 5'000},
+                                                                 {{1001, "CTS", 30, 5'000},
                                                                   {1000, "KitchenSinkApp", 25,
                                                                    4'000}}}}},
             .topNIoReads = {{1009, "mount", UserPackageStats::IoStatsView{{0, 14'000}, {0, 100}}},
@@ -1506,7 +1514,7 @@ TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithPackageFilter) {
     CollectionInfo expected{
             .maxCacheSize = std::numeric_limits<std::size_t>::max(),
             .records = {{
-                    .systemSummaryStats = systemSummaryStats,
+                    .systemSummaryStats = statsInfo.systemSummaryStats,
                     .userPackageSummaryStats = userPackageSummaryStats,
             }},
     };
@@ -1538,20 +1546,18 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithTrimmingStatsAfterTo
     mCollectorPeer->setTopNStatsPerCategory(1);
     mCollectorPeer->setTopNStatsPerSubcategory(1);
 
-    const auto [uidStats, _] = sampleUidStats();
-    const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
-    auto expectedResourceStats = getResourceStatsForSampledStats();
+    auto statsInfo = getSampleStats();
 
     // Top N stats per category/sub-category is set to 1, so remove entries in the
     // expected value to match this.
-    ASSERT_FALSE(expectedResourceStats.resourceUsageStats->uidResourceUsageStats.empty());
+    ASSERT_FALSE(statsInfo.resourceStats.resourceUsageStats->uidResourceUsageStats.empty());
     UidResourceUsageStats& kitchenSinkStats =
-            expectedResourceStats.resourceUsageStats->uidResourceUsageStats.at(1);
+            statsInfo.resourceStats.resourceUsageStats->uidResourceUsageStats.at(1);
     ASSERT_FALSE(kitchenSinkStats.processCpuUsageStats.empty());
     kitchenSinkStats.processCpuUsageStats.pop_back();
 
-    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
-    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(statsInfo.uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(statsInfo.procStatInfo));
 
     ResourceStats actualResourceStats = {};
     ASSERT_RESULT_OK(mCollector->onPeriodicCollection(kTestNow, SystemState::NORMAL_MODE,
@@ -1586,7 +1592,7 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithTrimmingStatsAfterTo
             .maxCacheSize = static_cast<size_t>(sysprop::periodicCollectionBufferSize().value_or(
                     kDefaultPeriodicCollectionBufferSize)),
             .records = {{
-                    .systemSummaryStats = systemSummaryStats,
+                    .systemSummaryStats = statsInfo.systemSummaryStats,
                     .userPackageSummaryStats = userPackageSummaryStats,
             }},
     };
@@ -1596,8 +1602,8 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithTrimmingStatsAfterTo
             << expected.toString() << "\nActual:\n"
             << actual.toString();
 
-    ASSERT_EQ(actualResourceStats, expectedResourceStats)
-            << "Expected: " << expectedResourceStats.toString()
+    ASSERT_EQ(actualResourceStats, statsInfo.resourceStats)
+            << "Expected: " << statsInfo.resourceStats.toString()
             << "\nActual: " << actualResourceStats.toString();
 
     ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/3))
@@ -1605,12 +1611,11 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithTrimmingStatsAfterTo
 }
 
 TEST_F(PerformanceProfilerTest, TestConsecutiveOnPeriodicCollection) {
-    const auto [firstUidStats, firstUserPackageSummaryStats] = sampleUidStats();
-    const auto [firstProcStatInfo, firstSystemSummaryStats] = sampleProcStat();
-    auto expectedResourceStats = getResourceStatsForSampledStats();
+    const auto firstStatsInfo = getSampleStats();
 
-    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(firstUidStats));
-    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(firstProcStatInfo));
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(firstStatsInfo.uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats())
+            .WillOnce(Return(firstStatsInfo.procStatInfo));
 
     ResourceStats actualResourceStats = {};
     ASSERT_RESULT_OK(mCollector->onPeriodicCollection(kTestNow, SystemState::NORMAL_MODE,
@@ -1618,18 +1623,18 @@ TEST_F(PerformanceProfilerTest, TestConsecutiveOnPeriodicCollection) {
                                                       mMockProcStatCollector,
                                                       &actualResourceStats));
 
-    auto [secondUidStats, secondUserPackageSummaryStats] = sampleUidStats(/*multiplier=*/2);
-    const auto [secondProcStatInfo, secondSystemSummaryStats] = sampleProcStat(/*multiplier=*/2);
-    expectedResourceStats = getResourceStatsForSampledStats(/*multiplier=*/2);
+    auto secondStatsInfo = getSampleStats(/*multiplier=*/2);
+    ResourceStats expectedResourceStats = secondStatsInfo.resourceStats;
 
-    secondUserPackageSummaryStats.majorFaultsPercentChange =
-            (static_cast<double>(secondUserPackageSummaryStats.totalMajorFaults -
-                                 firstUserPackageSummaryStats.totalMajorFaults) /
-             static_cast<double>(firstUserPackageSummaryStats.totalMajorFaults)) *
+    secondStatsInfo.userPackageSummaryStats.majorFaultsPercentChange =
+            (static_cast<double>(secondStatsInfo.userPackageSummaryStats.totalMajorFaults -
+                                 firstStatsInfo.userPackageSummaryStats.totalMajorFaults) /
+             static_cast<double>(firstStatsInfo.userPackageSummaryStats.totalMajorFaults)) *
             100.0;
 
-    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(secondUidStats));
-    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(secondProcStatInfo));
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(secondStatsInfo.uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats())
+            .WillOnce(Return(secondStatsInfo.procStatInfo));
 
     ASSERT_RESULT_OK(mCollector->onPeriodicCollection(kTestNow, SystemState::NORMAL_MODE,
                                                       mMockUidStatsCollector,
@@ -1641,10 +1646,10 @@ TEST_F(PerformanceProfilerTest, TestConsecutiveOnPeriodicCollection) {
     const CollectionInfo expected{
             .maxCacheSize = static_cast<size_t>(sysprop::periodicCollectionBufferSize().value_or(
                     kDefaultPeriodicCollectionBufferSize)),
-            .records = {{.systemSummaryStats = firstSystemSummaryStats,
-                         .userPackageSummaryStats = firstUserPackageSummaryStats},
-                        {.systemSummaryStats = secondSystemSummaryStats,
-                         .userPackageSummaryStats = secondUserPackageSummaryStats}},
+            .records = {{.systemSummaryStats = firstStatsInfo.systemSummaryStats,
+                         .userPackageSummaryStats = firstStatsInfo.userPackageSummaryStats},
+                        {.systemSummaryStats = secondStatsInfo.systemSummaryStats,
+                         .userPackageSummaryStats = secondStatsInfo.userPackageSummaryStats}},
     };
 
     EXPECT_THAT(actual, CollectionInfoEq(expected))
@@ -1661,11 +1666,11 @@ TEST_F(PerformanceProfilerTest, TestConsecutiveOnPeriodicCollection) {
 }
 
 TEST_F(PerformanceProfilerTest, TestBoottimeCollectionCacheEviction) {
-    const auto [uidStats, userPackageSummaryStats] = sampleUidStats();
-    const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+    const auto statsInfo = getSampleStats();
 
-    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(uidStats));
-    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillRepeatedly(Return(procStatInfo));
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(statsInfo.uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats())
+            .WillRepeatedly(Return(statsInfo.procStatInfo));
 
     ResourceStats resourceStats = {};
     ASSERT_RESULT_OK(mCollector->onBoottimeCollection(kTestNow, mMockUidStatsCollector,
@@ -1687,11 +1692,11 @@ TEST_F(PerformanceProfilerTest, TestBoottimeCollectionCacheEviction) {
 }
 
 TEST_F(PerformanceProfilerTest, TestWakeUpCollectionCacheEviction) {
-    const auto [uidStats, userPackageSummaryStats] = sampleUidStats();
-    const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+    const auto statsInfo = getSampleStats();
 
-    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(uidStats));
-    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillRepeatedly(Return(procStatInfo));
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(statsInfo.uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats())
+            .WillRepeatedly(Return(statsInfo.procStatInfo));
 
     ASSERT_RESULT_OK(mCollector->onWakeUpCollection(kTestNow, mMockUidStatsCollector,
                                                     mMockProcStatCollector));
@@ -1714,11 +1719,11 @@ TEST_F(PerformanceProfilerTest, TestWakeUpCollectionCacheEviction) {
 }
 
 TEST_F(PerformanceProfilerTest, TestUserSwitchCollectionCacheEviction) {
-    auto [uidStats, userPackageSummaryStats] = sampleUidStats();
-    auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+    auto statsInfo = getSampleStats();
 
-    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(uidStats));
-    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillRepeatedly(Return(procStatInfo));
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(statsInfo.uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats())
+            .WillRepeatedly(Return(statsInfo.procStatInfo));
 
     auto updatedNow = kTestNow;
 
@@ -1750,11 +1755,11 @@ TEST_F(PerformanceProfilerTest, TestUserSwitchCollectionCacheEviction) {
 }
 
 TEST_F(PerformanceProfilerTest, TestOnDumpProto) {
-    auto [uidStats, userPackageSummaryStats] = sampleUidStats();
-    auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+    auto statsInfo = getSampleStats();
 
-    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(uidStats));
-    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillRepeatedly(Return(procStatInfo));
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(statsInfo.uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats())
+            .WillRepeatedly(Return(statsInfo.procStatInfo));
 
     DataProcessorInterface::CollectionIntervals collectionIntervals =
             {.mBoottimeIntervalMillis = std::chrono::milliseconds(1),
@@ -1797,7 +1802,8 @@ TEST_F(PerformanceProfilerTest, TestOnDumpProto) {
     EXPECT_EQ(bootTimeStats.collection_interval_millis(), 1);
     for (auto& record : bootTimeStats.records()) {
         EXPECT_THAT(record,
-                    StatsRecordProtoEq(userPackageSummaryStats, systemSummaryStats, kTestNow));
+                    StatsRecordProtoEq(statsInfo.userPackageSummaryStats,
+                                       statsInfo.systemSummaryStats, kTestNow));
     }
 
     for (const auto& userSwitchStat : performanceStats.user_switch_stats()) {
@@ -1807,7 +1813,8 @@ TEST_F(PerformanceProfilerTest, TestOnDumpProto) {
         EXPECT_EQ(userSwitchCollection.collection_interval_millis(), 100);
         for (const auto& record : userSwitchCollection.records()) {
             EXPECT_THAT(record,
-                        StatsRecordProtoEq(userPackageSummaryStats, systemSummaryStats, kTestNow));
+                        StatsRecordProtoEq(statsInfo.userPackageSummaryStats,
+                                           statsInfo.systemSummaryStats, kTestNow));
         }
     }
 
@@ -1815,21 +1822,24 @@ TEST_F(PerformanceProfilerTest, TestOnDumpProto) {
     EXPECT_EQ(wakeUpStats.collection_interval_millis(), 1000);
     for (auto& record : wakeUpStats.records()) {
         EXPECT_THAT(record,
-                    StatsRecordProtoEq(userPackageSummaryStats, systemSummaryStats, kTestNow));
+                    StatsRecordProtoEq(statsInfo.userPackageSummaryStats,
+                                       statsInfo.systemSummaryStats, kTestNow));
     }
 
     auto lastNMinutesStats = performanceStats.last_n_minutes_stats();
     EXPECT_EQ(lastNMinutesStats.collection_interval_millis(), 10);
     for (auto& record : lastNMinutesStats.records()) {
         EXPECT_THAT(record,
-                    StatsRecordProtoEq(userPackageSummaryStats, systemSummaryStats, kTestNow));
+                    StatsRecordProtoEq(statsInfo.userPackageSummaryStats,
+                                       statsInfo.systemSummaryStats, kTestNow));
     }
 
     auto customCollectionStats = performanceStats.custom_collection_stats();
     EXPECT_EQ(customCollectionStats.collection_interval_millis(), 10000);
     for (auto& record : customCollectionStats.records()) {
         EXPECT_THAT(record,
-                    StatsRecordProtoEq(userPackageSummaryStats, systemSummaryStats, kTestNow));
+                    StatsRecordProtoEq(statsInfo.userPackageSummaryStats,
+                                       statsInfo.systemSummaryStats, kTestNow));
     }
 }
 

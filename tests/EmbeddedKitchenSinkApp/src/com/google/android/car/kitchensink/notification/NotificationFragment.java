@@ -44,6 +44,9 @@ public class NotificationFragment extends Fragment {
     private static final String IMPORTANCE_LOW_ID = "importance_low";
     private static final String IMPORTANCE_MIN_ID = "importance_min";
     private static final String IMPORTANCE_NONE_ID = "importance_none";
+    public static final String INTENT_CATEGORY_SELF_DISMISS =
+            "com.google.android.car.kitchensink.notification.INTENT_CATEGORY_SELF_DISMISS";
+    public static final int SELF_DISMISS_NOTIFICATION_ID = 987;
     private int mCurrentNotificationId;
     private int mCurrentGroupNotificationCount;
     private NotificationManager mManager;
@@ -112,6 +115,7 @@ public class NotificationFragment extends Fragment {
         initGroupWithoutSummaryButton(view);
         initCustomizableMessageButton(view);
         initButtonWithCustomActionIcon(view);
+        initSelfRemovingNotification(view);
 
         return view;
     }
@@ -981,6 +985,27 @@ public class NotificationFragment extends Fragment {
 
         view.findViewById(R.id.actions_with_icons).setOnClickListener(
                 v -> mManager.notify(mCurrentNotificationId++, notification)
+        );
+    }
+
+    private void initSelfRemovingNotification(View view) {
+        Intent intent = new Intent(mContext, KitchenSinkActivity.class);
+        intent.addCategory(INTENT_CATEGORY_SELF_DISMISS);
+        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent,
+                PendingIntent.FLAG_IMMUTABLE);
+
+        Notification notification = new Notification
+                .Builder(mContext, IMPORTANCE_HIGH_ID)
+                .setContentTitle("Self Canceling notification")
+                .setSmallIcon(R.drawable.car_ic_mode)
+                .setContentIntent(pendingIntent)
+                .addAction(new Notification.Action.Builder(
+                        null, "Click to cancel this notification", pendingIntent
+                ).build())
+                .build();
+
+        view.findViewById(R.id.self_dismiss_notification).setOnClickListener(
+                v -> mManager.notify(SELF_DISMISS_NOTIFICATION_ID, notification)
         );
     }
 }

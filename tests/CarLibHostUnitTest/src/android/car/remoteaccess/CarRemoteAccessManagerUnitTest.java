@@ -16,6 +16,8 @@
 
 package android.car.remoteaccess;
 
+import static android.car.remoteaccess.CarRemoteAccessManager.TASK_TYPE_CUSTOM;
+import static android.car.remoteaccess.CarRemoteAccessManager.TASK_TYPE_ENTER_GARAGE_MODE;
 import static android.car.remoteaccess.ICarRemoteAccessService.SERVICE_ERROR_CODE_GENERAL;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -35,6 +37,7 @@ import android.car.remoteaccess.CarRemoteAccessManager.CompletableRemoteTaskFutu
 import android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
 import android.car.remoteaccess.CarRemoteAccessManager.RemoteTaskClientCallback;
 import android.car.remoteaccess.CarRemoteAccessManager.ScheduleInfo;
+import android.car.remoteaccess.CarRemoteAccessManager.TaskType;
 import android.car.test.AbstractExpectableTestCase;
 import android.car.test.mocks.JavaMockitoHelper;
 import android.os.IBinder;
@@ -64,6 +67,7 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExpectableTest
     private static final String TEST_SCHEDULE_ID = "test schedule id";
     private static final byte[] TEST_TASK_DATA = new byte[]{
             (byte) 0xde, (byte) 0xad, (byte) 0xbe, (byte) 0xef};
+    private static final @TaskType int TEST_TASK_TYPE = TASK_TYPE_CUSTOM;
     private static final long TEST_START_TIME = 1234;
     private static final int TEST_TASK_COUNT = 10;
     private static final Duration TEST_PERIODIC = Duration.ofSeconds(1);
@@ -307,13 +311,16 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExpectableTest
 
     @Test
     public void testScheduleInfoBuilder() {
-        ScheduleInfo.Builder builder = new ScheduleInfo.Builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
+        ScheduleInfo.Builder builder = new ScheduleInfo.Builder(TEST_SCHEDULE_ID, TEST_TASK_TYPE,
                 TEST_START_TIME);
+        builder.setTaskData(TEST_TASK_DATA);
         ScheduleInfo scheduleInfo = builder.setCount(TEST_TASK_COUNT).setPeriodic(TEST_PERIODIC)
                 .build();
 
         expectWithMessage("scheduleId from ScheduleInfo").that(scheduleInfo.getScheduleId())
                 .isEqualTo(TEST_SCHEDULE_ID);
+        expectWithMessage("taskType from ScheduleInfo").that(scheduleInfo.getTaskType())
+                .isEqualTo(TEST_TASK_TYPE);
         expectWithMessage("taskData from ScheduleInfo").that(scheduleInfo.getTaskData())
                 .isEqualTo(TEST_TASK_DATA);
         expectWithMessage("startTimeInEpochSeconds from ScheduleInfo")
@@ -325,10 +332,36 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExpectableTest
     }
 
     @Test
+    public void testScheduleInfoBuilder_enterGarageMode() {
+        ScheduleInfo.Builder builder = new ScheduleInfo.Builder(TEST_SCHEDULE_ID,
+                TASK_TYPE_ENTER_GARAGE_MODE, TEST_START_TIME);
+        ScheduleInfo scheduleInfo = builder.setCount(TEST_TASK_COUNT).setPeriodic(TEST_PERIODIC)
+                .build();
+
+        expectWithMessage("scheduleId from ScheduleInfo").that(scheduleInfo.getScheduleId())
+                .isEqualTo(TEST_SCHEDULE_ID);
+        expectWithMessage("taskType from ScheduleInfo").that(scheduleInfo.getTaskType())
+                .isEqualTo(TASK_TYPE_ENTER_GARAGE_MODE);
+        expectWithMessage("startTimeInEpochSeconds from ScheduleInfo")
+                .that(scheduleInfo.getStartTimeInEpochSeconds()).isEqualTo(TEST_START_TIME);
+        expectWithMessage("count from ScheduleInfo").that(scheduleInfo.getCount())
+                .isEqualTo(TEST_TASK_COUNT);
+        expectWithMessage("periodic from ScheduleInfo").that(scheduleInfo.getPeriodic())
+                .isEqualTo(TEST_PERIODIC);
+    }
+
+    @Test
+    public void testScheduleInfoBuilder_invalidTaskType() throws Exception {
+        assertThrows(IllegalArgumentException.class, () -> new ScheduleInfo.Builder(
+                TEST_SCHEDULE_ID, /*taskType=*/-1234, TEST_START_TIME));
+    }
+
+    @Test
     public void testScheduleInfoBuilder_buildTwiceNotAllowed() {
-        ScheduleInfo.Builder builder = new ScheduleInfo.Builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
+        ScheduleInfo.Builder builder = new ScheduleInfo.Builder(TEST_SCHEDULE_ID, TEST_TASK_TYPE,
                 TEST_START_TIME);
-        builder.setCount(TEST_TASK_COUNT).setPeriodic(TEST_PERIODIC).build();
+        builder.setTaskData(TEST_TASK_DATA).setCount(TEST_TASK_COUNT).setPeriodic(TEST_PERIODIC)
+                .build();
 
         assertThrows(IllegalStateException.class, () -> builder.build());
     }
@@ -336,26 +369,30 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExpectableTest
     @Test
     public void testScheduleInfoBuilder_nullScheduleId() {
         assertThrows(IllegalArgumentException.class, () -> new ScheduleInfo.Builder(
-                /* scheduleId= */ null, TEST_TASK_DATA, TEST_START_TIME));
+                /* scheduleId= */ null, TEST_TASK_TYPE, TEST_START_TIME));
     }
 
     @Test
     public void testScheduleInfoBuilder_nullTaskData() {
-        assertThrows(IllegalArgumentException.class, () -> new ScheduleInfo.Builder(
-                TEST_SCHEDULE_ID, /* taskData= */ null, TEST_START_TIME));
+        ScheduleInfo.Builder builder = new ScheduleInfo.Builder(TEST_SCHEDULE_ID, TEST_TASK_TYPE,
+                TEST_START_TIME);
+
+        assertThrows(IllegalArgumentException.class, () -> builder.setTaskData(null));
     }
 
     @Test
     public void testScheduleInfoBuilder_negativeCount() {
-        ScheduleInfo.Builder builder = new ScheduleInfo.Builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
-                TEST_START_TIME);
+        ScheduleInfo.Builder builder = new ScheduleInfo.Builder(TEST_SCHEDULE_ID,
+                TEST_TASK_TYPE, TEST_START_TIME);
+
         assertThrows(IllegalArgumentException.class, () -> builder.setCount(-1));
     }
 
     @Test
     public void testScheduleInfoBuilder_nullPeriodic() {
-        ScheduleInfo.Builder builder = new ScheduleInfo.Builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
+        ScheduleInfo.Builder builder = new ScheduleInfo.Builder(TEST_SCHEDULE_ID,  TEST_TASK_TYPE,
                 TEST_START_TIME);
+
         assertThrows(IllegalArgumentException.class, () -> builder.setPeriodic(null));
     }
 
@@ -393,10 +430,10 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExpectableTest
     @Test
     public void testScheduleTask() throws Exception {
         when(mService.isTaskScheduleSupported()).thenReturn(true);
-        ScheduleInfo.Builder builder = new ScheduleInfo.Builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
+        ScheduleInfo.Builder builder = new ScheduleInfo.Builder(TEST_SCHEDULE_ID, TEST_TASK_TYPE,
                 TEST_START_TIME);
-        ScheduleInfo scheduleInfo = builder.setCount(TEST_TASK_COUNT).setPeriodic(TEST_PERIODIC)
-                .build();
+        ScheduleInfo scheduleInfo = builder.setTaskData(TEST_TASK_DATA).setCount(TEST_TASK_COUNT)
+                .setPeriodic(TEST_PERIODIC).build();
 
         mRemoteAccessManager.getInVehicleTaskScheduler().scheduleTask(scheduleInfo);
 
@@ -416,8 +453,9 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExpectableTest
         when(mService.isTaskScheduleSupported()).thenReturn(true);
         doThrow(new ServiceSpecificException(SERVICE_ERROR_CODE_GENERAL)).when(mService)
                 .scheduleTask(any());
-        ScheduleInfo scheduleInfo = new ScheduleInfo.Builder(TEST_SCHEDULE_ID, TEST_TASK_DATA,
-                TEST_START_TIME).setCount(TEST_TASK_COUNT).setPeriodic(TEST_PERIODIC).build();
+        ScheduleInfo scheduleInfo = new ScheduleInfo.Builder(TEST_SCHEDULE_ID,
+                TEST_TASK_TYPE, TEST_START_TIME).setTaskData(TEST_TASK_DATA)
+                .setCount(TEST_TASK_COUNT).setPeriodic(TEST_PERIODIC).build();
 
         assertThrows(InVehicleTaskSchedulerException.class, () ->
                 mRemoteAccessManager.getInVehicleTaskScheduler().scheduleTask(scheduleInfo));

@@ -5493,7 +5493,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         }
 
         private void waitForCallback() throws Exception {
-            mStatusLatch.await(TEST_CALLBACK_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            mStatusLatch.await(TEST_ZONE_CONFIG_CALLBACK_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         }
 
         public void reset() {

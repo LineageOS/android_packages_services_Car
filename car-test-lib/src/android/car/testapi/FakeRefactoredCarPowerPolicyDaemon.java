@@ -30,6 +30,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.util.ArrayMap;
+import android.util.IntArray;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -39,6 +40,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Fake power policy daemon to be used in car service test and car service unit test when
@@ -71,24 +73,9 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
 
     private static final String POLICY_PER_STATE_GROUP_ID = "default_policy_per_state";
 
-    /**
-     * Custom power component for use in testing, represent by the integer value of 1000
-     */
-    public static final int CUSTOM_COMPONENT_1000 = 1000;
-    /**
-     * Custom power component for use in testing, represent by the integer value of 1001
-     */
-    public static final int CUSTOM_COMPONENT_1001 = 1001;
-    /**
-     * Custom power component for use in testing, represent by the integer value of 1002
-     */
-    public static final int CUSTOM_COMPONENT_1002 = 1002;
-    /**
-     * Custom power component for use in testing, represent by the integer value of 1003
-     */
-    public static final int CUSTOM_COMPONENT_1003 = 1003;
-
+    private final int[] mCustomComponents;
     private final FileObserver mFileObserver;
+    private final ComponentHandler mComponentHandler = new ComponentHandler();
     private final HandlerThread mHandlerThread = new HandlerThread(TAG);
     private final Map<String, CarPowerPolicy> mPolicies = new ArrayMap<>();
     private final Map<String, SparseArray<CarPowerPolicy>> mPowerPolicyGroups = new ArrayMap<>();
@@ -103,8 +90,8 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
     private ICarPowerPolicyDelegateCallback mCallback;
     private TemporaryFile mFileKernelSilentMode;
 
-    public FakeRefactoredCarPowerPolicyDaemon(@Nullable TemporaryFile fileKernelSilentMode)
-            throws Exception {
+    public FakeRefactoredCarPowerPolicyDaemon(@Nullable TemporaryFile fileKernelSilentMode,
+            @Nullable int[] customComponents) throws Exception {
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
         mFileKernelSilentMode = (fileKernelSilentMode == null)
@@ -121,6 +108,7 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
         mPolicies.put(SYSTEM_POWER_POLICY_SUSPEND_PREP, policySuspendPrep);
         mPowerPolicyGroups.put(POLICY_PER_STATE_GROUP_ID, createPolicyGroup(
                 SYSTEM_POWER_POLICY_INITIAL_ON, SYSTEM_POWER_POLICY_ALL_ON));
+        mCustomComponents = Objects.requireNonNullElse(customComponents, new int[]{});
     }
 
     private static CarPowerPolicy createPolicy(
@@ -191,14 +179,14 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
         Log.i(TAG, "Fake refactored CPPD was notified that car service is ready");
         mCallback = callback;
         PowerPolicyInitData initData = new PowerPolicyInitData();
-        initData.currentPowerPolicy = mPolicies.get(SYSTEM_POWER_POLICY_INITIAL_ON);
+        initData.currentPowerPolicy = mPolicies.get(mLastAppliedPowerPolicyId);
         initData.registeredPolicies = new CarPowerPolicy[]{
                 mPolicies.get(SYSTEM_POWER_POLICY_INITIAL_ON),
                 mPolicies.get(SYSTEM_POWER_POLICY_ALL_ON),
                 mPolicies.get(SYSTEM_POWER_POLICY_NO_USER_INTERACTION),
                 mPolicies.get(SYSTEM_POWER_POLICY_SUSPEND_PREP)};
-        initData.registeredCustomComponents = new int[]{CUSTOM_COMPONENT_1000,
-                CUSTOM_COMPONENT_1001, CUSTOM_COMPONENT_1002, CUSTOM_COMPONENT_1003};
+        initData.registeredCustomComponents = mCustomComponents;
+        mComponentHandler.applyPolicy(mPolicies.get(mLastAppliedPowerPolicyId));
         return initData;
     }
 
@@ -211,10 +199,12 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
                     + "notifyCarServiceReady() called?");
         }
         mLastAppliedPowerPolicyId = policyId;
-        CarPowerPolicy accumulatedPolicy = mPolicies.get(policyId);
-        if (accumulatedPolicy == null) {
+        CarPowerPolicy currentPolicy = mPolicies.get(policyId);
+        if (currentPolicy == null) {
             throw new IllegalArgumentException("Power policy " + policyId + " is invalid");
         }
+        mComponentHandler.applyPolicy(currentPolicy);
+        CarPowerPolicy accumulatedPolicy = mComponentHandler.getAccumulatedPolicy(policyId);
         mCallback.updatePowerComponents(accumulatedPolicy);
         mCallback.onApplyPowerPolicySucceeded(requestId, accumulatedPolicy);
     }
@@ -239,6 +229,7 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
                 mCallback.onApplyPowerPolicySucceeded(requestId, policy);
                 mCallback.updatePowerComponents(policy);
                 mLastAppliedPowerPolicyId = policy.policyId;
+                mComponentHandler.applyPolicy(policy);
             } catch (Exception e) {
                 Log.w(TAG, "Cannot call onApplyPowerPolicySucceeded", e);
             }
@@ -246,7 +237,8 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
     }
 
     private void applyPowerPolicyInternal(String policyId, String errMsg) {
-        CarPowerPolicy accumulatedPolicy = mPolicies.get(policyId);
+        mComponentHandler.applyPolicy(mPolicies.get(policyId));
+        CarPowerPolicy accumulatedPolicy = mComponentHandler.getAccumulatedPolicy(policyId);
         try {
             mCallback.onPowerPolicyChanged(accumulatedPolicy);
             mCallback.updatePowerComponents(accumulatedPolicy);
@@ -368,6 +360,42 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
                 if (mPendingPowerPolicyId != null) {
                     applyPowerPolicyInternal(mPendingPowerPolicyId,
                             "Fake CPPD failed to apply pending power policy");
+                }
+            }
+        }
+    }
+
+    private static final class ComponentHandler {
+        private final IntArray mEnabledComponents = new IntArray();
+        private final IntArray mDisabledComponents = new IntArray();
+
+        CarPowerPolicy getAccumulatedPolicy(String policyId) {
+            CarPowerPolicy policy = new CarPowerPolicy();
+            policy.policyId = policyId;
+            policy.enabledComponents = mEnabledComponents.toArray();
+            policy.disabledComponents = mDisabledComponents.toArray();
+            return policy;
+        }
+
+        void applyPolicy(CarPowerPolicy policy) {
+            int[] enabledComponents = policy.enabledComponents;
+            for (int i = 0; i < enabledComponents.length; i++) {
+                int component = enabledComponents[i];
+                if (!mEnabledComponents.contains(component)) {
+                    if (mDisabledComponents.contains(component)) {
+                        mDisabledComponents.remove(mDisabledComponents.indexOf(component));
+                    }
+                    mEnabledComponents.add(component);
+                }
+            }
+            int[] disabledComponents = policy.disabledComponents;
+            for (int i = 0; i < disabledComponents.length; i++) {
+                int component = disabledComponents[i];
+                if (!mDisabledComponents.contains(component)) {
+                    if (mEnabledComponents.contains(component)) {
+                        mEnabledComponents.remove(mEnabledComponents.indexOf(component));
+                    }
+                    mDisabledComponents.add(component);
                 }
             }
         }

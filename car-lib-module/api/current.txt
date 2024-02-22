@@ -960,7 +960,7 @@ package android.car.hardware.property {
     method @FlaggedApi("android.car.feature.variable_update_rate") public boolean isVariableUpdateRateEnabled();
   }
 
-  public static final class Subscription.Builder {
+  @FlaggedApi("android.car.feature.batched_subscriptions") public static final class Subscription.Builder {
     ctor public Subscription.Builder(int);
     method @NonNull public android.car.hardware.property.Subscription.Builder addAreaId(int);
     method @NonNull public android.car.hardware.property.Subscription build();

@@ -98,11 +98,12 @@ final class SilentModeHandler {
     private FeatureFlags mFeatureFlags = new FeatureFlagsImpl();
 
     @VisibleForTesting
-    SilentModeHandler(@NonNull CarPowerManagementService service,
+    SilentModeHandler(@NonNull CarPowerManagementService service, FeatureFlags featureFlags,
             @Nullable String hwStateMonitoringFileName, @Nullable String kernelSilentModeFileName,
             @Nullable String bootReason) {
         Objects.requireNonNull(service, "CarPowerManagementService must not be null");
         mService = service;
+        mFeatureFlags = featureFlags;
         String sysfsDir = searchForSysfsDir();
         mHwStateMonitoringFileName = hwStateMonitoringFileName == null
                 ? sysfsDir + SYSFS_FILENAME_HW_STATE_MONITORING : hwStateMonitoringFileName;
@@ -128,8 +129,7 @@ final class SilentModeHandler {
         }
     }
 
-    void init(FeatureFlags featureFlags) {
-        mFeatureFlags = featureFlags;
+    void init() {
         boolean forcedMode;
         boolean silentMode;
         synchronized (mLock) {
