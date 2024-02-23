@@ -185,6 +185,8 @@
     <string name="long_config_name" translatable="false">LongPlaceHolderConfigName</string>
     <string name="generic_name_and_id" translatable="false">%1$s : %2$d</string>
     <string name="generic_status_name_and_status" translatable="false">%1$s : %2$b</string>
+    <string name="audio_zone_configuration_title_on" translatable="false">Car zone configurations</string>
+    <string name="audio_zone_configuration_title_off" translatable="false">Dynamic routing required</string>
 
     <!-- Audio Input-->
     <string name="play_audio_input" translatable="false">Play</string>
