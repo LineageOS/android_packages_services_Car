@@ -1144,6 +1144,9 @@ public class CarPropertyManager extends CarManagerBase {
      * If the caller has write permission but does not have read permission, this will throw
      * {@code SecurityException}.
      *
+     * <p>Note that the callback will be executed on the event handler provided to the
+     * {@link android.car.Car} or the main thread if none was provided.
+     *
      * @param carPropertyEventCallback the CarPropertyEventCallback to be registered
      * @param propertyId               the property ID to subscribe
      * @param updateRateHz             how fast the property events are delivered in Hz
@@ -1204,6 +1207,9 @@ public class CarPropertyManager extends CarManagerBase {
      * <p>For continuous property, variable update rate is enabled. The update rate is 1Hz or
      * the max supported rate (if lower than 1hz).
      *
+     * <p>Note that the callback will be executed on the event handler provided to the
+     * {@link android.car.Car} or the main thread if none was provided.
+     *
      * @param propertyId The ID for the property to subscribe to.
      * @param carPropertyEventCallback The callback to deliver property update/error events.
      * @return {@code true} if the listener is successfully registered
@@ -1228,6 +1234,9 @@ public class CarPropertyManager extends CarManagerBase {
      * Subscribes to property events for all areaIds for the property.
      *
      * <p>For continuous property, variable update rate is enabled.
+     *
+     * <p>Note that the callback will be executed on the event handler provided to the
+     * {@link android.car.Car} or the main thread if none was provided.
      *
      * @param propertyId The ID for the property to subscribe to.
      * @param updateRateHz Only meaningful for continuous property. The update rate in Hz. A common
@@ -1258,6 +1267,9 @@ public class CarPropertyManager extends CarManagerBase {
      *
      * <p>For continuous property, variable update rate is enabled. The update rate is 1Hz or
      * the max supported rate (if lower than 1hz).
+     *
+     * <p>Note that the callback will be executed on the event handler provided to the
+     * {@link android.car.Car} or the main thread if none was provided.
      *
      * @param propertyId The ID for the property to subscribe to.
      * @param areaId The ID for the area to subscribe to.
@@ -1308,6 +1320,9 @@ public class CarPropertyManager extends CarManagerBase {
      * values of the subscribed [propertyId, areaId]s through property change events if they are
      * currently okay for reading. If they are not available for reading or in error state,
      * property change events with a unavailable or error status will be generated.
+     *
+     * <p>Note that the callback will be executed on the event handler provided to the
+     * {@link android.car.Car} or the main thread if none was provided.
      *
      * @param propertyId The ID for the property to subscribe to.
      * @param areaId The ID for the area to subscribe to.
@@ -1435,7 +1450,9 @@ public class CarPropertyManager extends CarManagerBase {
      * @param subscriptions A list of subscriptions to add, which specifies PropertyId, AreaId, and
      *                      updateRateHz. Caller should typically use one Subscription for one
      *                      property ID.
-     * @param callbackExecutor The executor in which the callback is done on.
+     * @param callbackExecutor The executor in which the callback is done on. If this is null, the
+     *                         callback will be executed on the event handler provided to the
+     *                         {@link android.car.Car} or the main thread if none was provided.
      * @param carPropertyEventCallback The callback to deliver property update/error events.
      * @return {@code true} if the listener is successfully registered
      * @throws SecurityException if the caller does not have read permission to one of the supported
@@ -1719,6 +1736,7 @@ public class CarPropertyManager extends CarManagerBase {
      * multiple registrations for this {@link CarPropertyEventCallback}, all listening will be
      * stopped.
      *
+     * @param carPropertyEventCallback A previously subscribed callback to unsubscribe.
      * @throws SecurityException if the caller does not have read permission to the properties
      *                           registered for this callback.
      */
@@ -1739,9 +1757,11 @@ public class CarPropertyManager extends CarManagerBase {
             }
             propertyIds = cpeCallbackController.getSubscribedProperties();
         }
+        ArrayList<Integer> propertyIdsList = new ArrayList<>(propertyIds.length);
         for (int i = 0; i < propertyIds.length; i++) {
-            unsubscribePropertyEvents(carPropertyEventCallback, propertyIds[i]);
+            propertyIdsList.add(propertyIds[i]);
         }
+        unsubscribePropertyEventsInternal(propertyIdsList, carPropertyEventCallback);
     }
 
     /**
@@ -1749,6 +1769,7 @@ public class CarPropertyManager extends CarManagerBase {
      * multiple registrations for this {@link CarPropertyEventCallback}, all listening will be
      * stopped.
      *
+     * @param carPropertyEventCallback A previously subscribed callback to unsubscribe.
      * @throws SecurityException if the caller does not have read permission to the properties
      *                           registered for this callback.
      */
@@ -1771,7 +1792,7 @@ public class CarPropertyManager extends CarManagerBase {
         for (int i = 0; i < propertyIds.length; i++) {
             propertyIdsList.add(propertyIds[i]);
         }
-        unsubscribePropertyEventsInternal(carPropertyEventCallback, propertyIdsList);
+        unsubscribePropertyEventsInternal(propertyIdsList, carPropertyEventCallback);
     }
 
     /**
@@ -1779,17 +1800,39 @@ public class CarPropertyManager extends CarManagerBase {
      * the same {@link CarPropertyEventCallback} is used for other properties, those subscriptions
      * will not be affected.
      *
+     * @param propertyId The property ID to unsubscribe.
+     * @param carPropertyEventCallback A previously subscribed callback to unsubscribe.
      * @throws SecurityException if the caller does not have read permission to the property.
      */
     @FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS)
-    public void unsubscribePropertyEvents(
-            @NonNull CarPropertyEventCallback carPropertyEventCallback, int propertyId) {
+    public void unsubscribePropertyEvents(int propertyId,
+            @NonNull CarPropertyEventCallback carPropertyEventCallback) {
         requireNonNull(carPropertyEventCallback);
-        unsubscribePropertyEventsInternal(carPropertyEventCallback, List.of(propertyId));
+        unsubscribePropertyEventsInternal(List.of(propertyId), carPropertyEventCallback);
+    }
+
+    /**
+     * Stop getting update for {@code propertyId} to the given {@link CarPropertyEventCallback}. If
+     * the same {@link CarPropertyEventCallback} is used for other properties, those subscriptions
+     * will not be affected.
+     *
+     * @param carPropertyEventCallback A previously subscribed callback to unsubscribe.
+     * @param propertyId The property ID to unsubscribe.
+     * @throws SecurityException if the caller does not have read permission to the property.
+     */
+    @SuppressWarnings("FormatString")
+    public void unregisterCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback,
+            int propertyId) {
+        if (DBG) {
+            Log.d(TAG, String.format("unregisterCallback, callback: %s, property Id: %s",
+                    carPropertyEventCallback, VehiclePropertyIds.toString(propertyId)));
+        }
+        requireNonNull(carPropertyEventCallback);
+        unsubscribePropertyEventsInternal(List.of(propertyId), carPropertyEventCallback);
     }
 
     private void unsubscribePropertyEventsInternal(
-            CarPropertyEventCallback carPropertyEventCallback, List<Integer> propertyIds) {
+            List<Integer> propertyIds, CarPropertyEventCallback carPropertyEventCallback) {
         synchronized (mLock) {
             CarPropertyEventCallbackController cpeCallbackController =
                     mCpeCallbackToCpeCallbackController.get(carPropertyEventCallback);
@@ -1855,23 +1898,6 @@ public class CarPropertyManager extends CarManagerBase {
                 }
             }
         }
-    }
-
-    /**
-     * Stop getting update for {@code propertyId} to the given {@link CarPropertyEventCallback}. If
-     * the same {@link CarPropertyEventCallback} is used for other properties, those subscriptions
-     * will not be affected.
-     *
-     * @throws SecurityException if the caller does not have read permission to the property.
-     */
-    @SuppressWarnings("FormatString")
-    public void unregisterCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback,
-            int propertyId) {
-        if (DBG) {
-            Log.d(TAG, String.format("unregisterCallback, callback: %s, property Id: %s",
-                    carPropertyEventCallback, VehiclePropertyIds.toString(propertyId)));
-        }
-        unsubscribePropertyEvents(carPropertyEventCallback, propertyId);
     }
 
     /**

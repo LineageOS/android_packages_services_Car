@@ -29,6 +29,8 @@ import android.app.ActivityManager;
 import android.car.Car;
 import android.car.builtin.os.HandlerHelper;
 import android.car.builtin.util.Slogf;
+import android.car.feature.FeatureFlags;
+import android.car.feature.FeatureFlagsImpl;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.remoteaccess.CarRemoteAccessManager;
@@ -178,6 +180,16 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private ArrayMap<String, String> mServerlessClientIdsByPackageName = new ArrayMap<>();
 
     private final RemoteAccessStorage mRemoteAccessStorage;
+
+    private FeatureFlags mFeatureFlags = new FeatureFlagsImpl();
+
+    /**
+     * Sets fake feature flag for unit testing.
+     */
+    @VisibleForTesting
+    public void setFeatureFlags(FeatureFlags fakeFeatureFlags) {
+        mFeatureFlags = fakeFeatureFlags;
+    }
 
     private final ICarPowerStateListener mCarPowerStateListener =
             new ICarPowerStateListener.Stub() {
@@ -1095,6 +1107,13 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
 
     private ArrayMap<String, String> parseServerlessClientIdsByPackageName() {
         ArrayMap<String, String> clientIdsByPackageName = new ArrayMap<>();
+
+        if (!mFeatureFlags.serverlessRemoteAccess()) {
+            Slogf.i(TAG, "Serverless remote access flag is disabled, skip parsing "
+                    + "remote_access_serverless_client_map.xml");
+            return clientIdsByPackageName;
+        }
+
         try (XmlResourceParser parser = mContext.getResources().getXml(
                 R.xml.remote_access_serverless_client_map)) {
             // Get to the first start tag.

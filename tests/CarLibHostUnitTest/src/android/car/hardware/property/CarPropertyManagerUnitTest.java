@@ -2229,8 +2229,8 @@ public final class CarPropertyManagerUnitTest {
 
     @Test
     public void testUnsubscribePropertyEvents_doesNothingIfNothingRegistered() throws Exception {
-        mCarPropertyManager.unsubscribePropertyEvents(mCarPropertyEventCallback,
-                VENDOR_STATIC_PROPERTY);
+        mCarPropertyManager.unsubscribePropertyEvents(VENDOR_STATIC_PROPERTY,
+                mCarPropertyEventCallback);
         verify(mICarProperty, never()).unregisterListener(anyInt(),
                 any(ICarPropertyEventListener.class));
     }
@@ -2254,8 +2254,8 @@ public final class CarPropertyManagerUnitTest {
                         .setUpdateRateHz(FIRST_UPDATE_RATE_HZ).build()),
                 /* callbackExecutor= */ null, mCarPropertyEventCallback)).isTrue();
 
-        mCarPropertyManager.unsubscribePropertyEvents(mCarPropertyEventCallback,
-                VENDOR_STATIC_PROPERTY);
+        mCarPropertyManager.unsubscribePropertyEvents(VENDOR_STATIC_PROPERTY,
+                mCarPropertyEventCallback);
         verify(mICarProperty, never()).unregisterListener(anyInt(),
                 any(ICarPropertyEventListener.class));
     }
@@ -2280,8 +2280,8 @@ public final class CarPropertyManagerUnitTest {
                                 .setUpdateRateHz(FIRST_UPDATE_RATE_HZ).build()),
                 /* callbackExecutor= */ null, mCarPropertyEventCallback)).isTrue();
 
-        mCarPropertyManager.unsubscribePropertyEvents(mCarPropertyEventCallback2,
-                VENDOR_CONTINUOUS_PROPERTY);
+        mCarPropertyManager.unsubscribePropertyEvents(VENDOR_CONTINUOUS_PROPERTY,
+                mCarPropertyEventCallback2);
         verify(mICarProperty, never()).unregisterListener(anyInt(),
                 any(ICarPropertyEventListener.class));
     }
@@ -2322,8 +2322,8 @@ public final class CarPropertyManagerUnitTest {
 
         setPropIdWithoutConfig(VENDOR_CONTINUOUS_PROPERTY);
 
-        mCarPropertyManager.unsubscribePropertyEvents(mCarPropertyEventCallback,
-                VENDOR_CONTINUOUS_PROPERTY);
+        mCarPropertyManager.unsubscribePropertyEvents(VENDOR_CONTINUOUS_PROPERTY,
+                mCarPropertyEventCallback);
         verify(mICarProperty, never()).unregisterListener(anyInt(),
                 any(ICarPropertyEventListener.class));
     }
@@ -2338,8 +2338,8 @@ public final class CarPropertyManagerUnitTest {
 
         setPropIdWithoutPermission(VENDOR_CONTINUOUS_PROPERTY);
 
-        mCarPropertyManager.unsubscribePropertyEvents(mCarPropertyEventCallback,
-                VENDOR_CONTINUOUS_PROPERTY);
+        mCarPropertyManager.unsubscribePropertyEvents(VENDOR_CONTINUOUS_PROPERTY,
+                mCarPropertyEventCallback);
         verify(mICarProperty, never()).unregisterListener(anyInt(),
                 any(ICarPropertyEventListener.class));
     }
@@ -2357,7 +2357,7 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
-    public void testUnsubscribePropertyEvents_unsubscribeCallbackForSingleProperty()
+    public void testUnregisterCallback_unsubscribeCallbackForSingleProperty()
             throws Exception {
         assertThat(mCarPropertyManager.subscribePropertyEvents(List.of(
                         new Subscription.Builder(VENDOR_CONTINUOUS_PROPERTY)
@@ -2389,7 +2389,8 @@ public final class CarPropertyManagerUnitTest {
             throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
 
-        mCarPropertyManager.unsubscribePropertyEvents(mCarPropertyEventCallback, INITIAL_USER_INFO);
+        mCarPropertyManager.unsubscribePropertyEvents(INITIAL_USER_INFO,
+                mCarPropertyEventCallback);
 
         verify(mICarProperty, never()).unregisterListener(anyInt(), any());
     }
@@ -2457,8 +2458,8 @@ public final class CarPropertyManagerUnitTest {
                                 .setUpdateRateNormal().build()),
                 /* callbackExecutor= */ null, mCarPropertyEventCallback)).isTrue();
 
-        mCarPropertyManager.unsubscribePropertyEvents(mCarPropertyEventCallback,
-                VENDOR_CONTINUOUS_PROPERTY);
+        mCarPropertyManager.unsubscribePropertyEvents(VENDOR_CONTINUOUS_PROPERTY,
+                mCarPropertyEventCallback);
         verify(mICarProperty).unregisterListener(eq(VENDOR_CONTINUOUS_PROPERTY),
                 any(ICarPropertyEventListener.class));
     }
@@ -2488,8 +2489,8 @@ public final class CarPropertyManagerUnitTest {
                                 .setUpdateRateHz(FIRST_UPDATE_RATE_HZ).build()),
                 /* callbackExecutor= */ null, mCarPropertyEventCallback2)).isTrue();
 
-        mCarPropertyManager.unsubscribePropertyEvents(mCarPropertyEventCallback,
-                VENDOR_CONTINUOUS_PROPERTY);
+        mCarPropertyManager.unsubscribePropertyEvents(VENDOR_CONTINUOUS_PROPERTY,
+                mCarPropertyEventCallback);
         verify(mICarProperty).unregisterListener(eq(VENDOR_CONTINUOUS_PROPERTY),
                 any(ICarPropertyEventListener.class));
         verify(mICarProperty, never()).unregisterListener(eq(VENDOR_ON_CHANGE_PROPERTY),
@@ -2651,8 +2652,8 @@ public final class CarPropertyManagerUnitTest {
                 /* callbackExecutor= */ null, mCarPropertyEventCallback)).isTrue();
 
         assertThrows(SecurityException.class,
-                () -> mCarPropertyManager.unsubscribePropertyEvents(mCarPropertyEventCallback,
-                        VENDOR_ON_CHANGE_PROPERTY));
+                () -> mCarPropertyManager.unsubscribePropertyEvents(VENDOR_ON_CHANGE_PROPERTY,
+                        mCarPropertyEventCallback));
     }
 
     @Test
@@ -2682,10 +2683,10 @@ public final class CarPropertyManagerUnitTest {
                 /* callbackExecutor= */ null, mCarPropertyEventCallback)).isTrue();
 
         assertThrows(SecurityException.class,
-                () -> mCarPropertyManager.unsubscribePropertyEvents(mCarPropertyEventCallback,
-                        VENDOR_ON_CHANGE_PROPERTY));
-        mCarPropertyManager.unsubscribePropertyEvents(mCarPropertyEventCallback,
-                VENDOR_ON_CHANGE_PROPERTY);
+                () -> mCarPropertyManager.unsubscribePropertyEvents(VENDOR_ON_CHANGE_PROPERTY,
+                        mCarPropertyEventCallback));
+        mCarPropertyManager.unsubscribePropertyEvents(VENDOR_ON_CHANGE_PROPERTY,
+                mCarPropertyEventCallback);
 
         verify(mICarProperty, times(2)).unregisterListener(eq(VENDOR_ON_CHANGE_PROPERTY),
                 any(ICarPropertyEventListener.class));
