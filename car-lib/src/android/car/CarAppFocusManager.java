@@ -234,6 +234,8 @@ public final class CarAppFocusManager extends CarManagerBase {
      * Returns the package names of the current owner of a given application type, or an empty list
      * if there is no owner. This method might return more than one package name if the current
      * owner uses the "android:sharedUserId" feature.
+     * @param appType the app type. For example, {@link #APP_FOCUS_TYPE_NAVIGATION}.
+     * @return the package names of the current focus owner of the given {@code appType}.
      *
      * @hide
      */
