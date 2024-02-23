@@ -16,10 +16,13 @@
 
 package android.car.hardware;
 
+import static android.car.feature.Flags.FLAG_CAR_PROPERTY_VALUE_PROPERTY_STATUS;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import static java.lang.Integer.toHexString;
 
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.car.VehiclePropertyIds;
@@ -242,9 +245,21 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
-     * @return Status of {@code CarPropertyValue}
+     * @return The property status of {@code CarPropertyValue}
      */
-    public @PropertyStatus int getStatus() {
+    @FlaggedApi(FLAG_CAR_PROPERTY_VALUE_PROPERTY_STATUS)
+    @PropertyStatus
+    public int getPropertyStatus() {
+        return mStatus;
+    }
+
+    /**
+     * @return Status of {@code CarPropertyValue}
+     * @deprecated Use a new API that communicates the property status.
+     */
+    @Deprecated
+    @PropertyStatus
+    public int getStatus() {
         return mStatus;
     }
 
