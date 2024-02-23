@@ -130,6 +130,7 @@ public final class CarAudioFadeConfiguration implements Parcelable {
      * A builder for {@link CarAudioFadeConfiguration}
      */
     @SuppressWarnings("WeakerAccess")
+    @FlaggedApi(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION)
     public static final class Builder {
         private @NonNull String mName;
         private @NonNull FadeManagerConfiguration mFadeManagerConfiguration;
