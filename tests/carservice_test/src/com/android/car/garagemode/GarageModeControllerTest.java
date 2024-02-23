@@ -126,15 +126,16 @@ public class GarageModeControllerTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
+        mHandlerThread.quitSafely();
+        mHandlerThread.join();
+
         CarLocalServices.removeServiceForTest(CarUserService.class);
         CarLocalServices.addService(CarUserService.class, mCarUserServiceOriginal);
         CarLocalServices.removeServiceForTest(SystemInterface.class);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class,
                 mCarPowerManagementServiceOriginal);
-
-        mHandlerThread.quitSafely();
     }
 
     @Test
