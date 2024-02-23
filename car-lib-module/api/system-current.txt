@@ -566,7 +566,7 @@ package android.car.cluster {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_MONITOR_CLUSTER_NAVIGATION_STATE) public void unregisterClusterNavigationStateListener(@NonNull android.car.cluster.ClusterHomeManager.ClusterNavigationStateListener);
   }
 
-  public static interface ClusterHomeManager.ClusterNavigationStateListener {
+  @FlaggedApi("android.car.feature.cluster_health_monitoring") public static interface ClusterHomeManager.ClusterNavigationStateListener {
     method public void onNavigationStateChanged(@NonNull byte[]);
   }
 

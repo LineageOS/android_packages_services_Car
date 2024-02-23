@@ -109,6 +109,7 @@ public final class ClusterHomeManager extends CarManagerBase {
     /**
      * Callback for ClusterHome to get notifications when cluster navigation state changes.
      */
+    @FlaggedApi(FLAG_CLUSTER_HEALTH_MONITORING)
     public interface ClusterNavigationStateListener {
         /**
          * Called when the app who owns the navigation focus casts the new navigation state.
