@@ -25,6 +25,8 @@ package android.car.remoteaccess;
 parcelable TaskScheduleInfo {
     // The unique ID for this schedule.
     String scheduleId;
+    // The task type, one of CarRemoteAccessManager.TaskType.
+    int taskType;
     // The task data.
     byte[] taskData;
     // How many times the task is scheduled to be executed. 0 means infinite.

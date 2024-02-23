@@ -16,6 +16,8 @@
 
 package com.android.car.remoteaccess;
 
+import static android.car.remoteaccess.CarRemoteAccessManager.TASK_TYPE_CUSTOM;
+import static android.car.remoteaccess.CarRemoteAccessManager.TASK_TYPE_ENTER_GARAGE_MODE;
 import static android.car.remoteaccess.ICarRemoteAccessService.SERVICE_ERROR_CODE_GENERAL;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 
@@ -63,6 +65,7 @@ import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
 import android.hardware.automotive.remoteaccess.ScheduleInfo;
+import android.hardware.automotive.remoteaccess.TaskType;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -182,6 +185,7 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
             + "    <PackageName>android.car.app2</PackageName>"
             + "  </ServerlessClient>"
             + "</ServerlessClientMap>";
+    private static final int TEST_TASK_TYPE = TASK_TYPE_CUSTOM;
     private static final String TEST_SCHEDULE_ID = "TEST_SCHEDULE_ID";
     private static final byte[] TEST_TASK_DATA = new byte[]{(byte) 0xDE, (byte) 0xAD, (byte) 0xBE,
             (byte) 0xEF};
@@ -1339,6 +1343,7 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
 
     private TaskScheduleInfo getTestTaskScheduleInfo() {
         TaskScheduleInfo taskScheduleInfo = new TaskScheduleInfo();
+        taskScheduleInfo.taskType = TEST_TASK_TYPE;
         taskScheduleInfo.scheduleId = TEST_SCHEDULE_ID;
         taskScheduleInfo.taskData = TEST_TASK_DATA;
         taskScheduleInfo.count = TEST_TASK_COUNT;
@@ -1358,6 +1363,8 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
         ScheduleInfo halScheduleInfo = mHalScheduleInfoCaptor.getValue();
         expectWithMessage("ScheduleInfo.clientId").that(halScheduleInfo.clientId).isEqualTo(
                 CLIENT_ID_SERVERLESS);
+        expectWithMessage("ScheduleInfo.taskType").that(halScheduleInfo.taskType).isEqualTo(
+                TaskType.CUSTOM);
         expectWithMessage("ScheduleInfo.scheduleId").that(halScheduleInfo.scheduleId).isEqualTo(
                 TEST_SCHEDULE_ID);
         expectWithMessage("ScheduleInfo.taskData").that(halScheduleInfo.taskData).isEqualTo(
@@ -1368,6 +1375,43 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
                 halScheduleInfo.startTimeInEpochSeconds).isEqualTo(TEST_START_TIME);
         expectWithMessage("ScheduleInfo.periodicInSeconds").that(
                 halScheduleInfo.periodicInSeconds).isEqualTo(TEST_PERIODIC);
+    }
+
+    @Test
+    public void testScheduleTask_enterGarageMode() throws Exception {
+        prepareTaskSchedule();
+
+        TaskScheduleInfo testTaskScheduleInfo = getTestTaskScheduleInfo();
+        testTaskScheduleInfo.taskType = TASK_TYPE_ENTER_GARAGE_MODE;
+        testTaskScheduleInfo.taskData = new byte[0];
+        mService.scheduleTask(testTaskScheduleInfo);
+
+        verify(mRemoteAccessHalWrapper).scheduleTask(mHalScheduleInfoCaptor.capture());
+        ScheduleInfo halScheduleInfo = mHalScheduleInfoCaptor.getValue();
+        expectWithMessage("ScheduleInfo.clientId").that(halScheduleInfo.clientId).isEqualTo(
+                CLIENT_ID_SERVERLESS);
+        expectWithMessage("ScheduleInfo.taskType").that(halScheduleInfo.taskType).isEqualTo(
+                TaskType.ENTER_GARAGE_MODE);
+        expectWithMessage("ScheduleInfo.scheduleId").that(halScheduleInfo.scheduleId).isEqualTo(
+                TEST_SCHEDULE_ID);
+        expectWithMessage("ScheduleInfo.taskData").that(halScheduleInfo.taskData).isEmpty();
+        expectWithMessage("ScheduleInfo.count").that(halScheduleInfo.count).isEqualTo(
+                TEST_TASK_COUNT);
+        expectWithMessage("ScheduleInfo.startTimeInEpochSeconds").that(
+                halScheduleInfo.startTimeInEpochSeconds).isEqualTo(TEST_START_TIME);
+        expectWithMessage("ScheduleInfo.periodicInSeconds").that(
+                halScheduleInfo.periodicInSeconds).isEqualTo(TEST_PERIODIC);
+    }
+
+    @Test
+    public void testScheduleTask_unsupportedTaskType() throws Exception {
+        prepareTaskSchedule();
+
+        TaskScheduleInfo testTaskScheduleInfo = getTestTaskScheduleInfo();
+        testTaskScheduleInfo.taskType = -1234;
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mService.scheduleTask(testTaskScheduleInfo));
     }
 
     @Test
@@ -1532,6 +1576,7 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
         prepareTaskSchedule();
         ScheduleInfo scheduleInfo = new ScheduleInfo();
         scheduleInfo.scheduleId = TEST_SCHEDULE_ID;
+        scheduleInfo.taskType = TaskType.CUSTOM;
         scheduleInfo.taskData = TEST_TASK_DATA;
         scheduleInfo.count = TEST_TASK_COUNT;
         scheduleInfo.startTimeInEpochSeconds = TEST_START_TIME;
@@ -1544,6 +1589,24 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
         assertWithMessage("TaskScheduleInfo list").that(taskScheduleInfoList).hasSize(1);
         assertWithMessage("TaskScheduleInfo").that(taskScheduleInfoList.get(0)).isEqualTo(
                 getTestTaskScheduleInfo());
+    }
+
+    @Test
+    public void testGetAllPendingScheduledTasks_convertUnknownTaskType() throws Exception {
+        prepareTaskSchedule();
+        ScheduleInfo scheduleInfo = new ScheduleInfo();
+        scheduleInfo.scheduleId = TEST_SCHEDULE_ID;
+        // This task type is unknown and should be converted to CUSTOM.
+        scheduleInfo.taskType = -1234;
+        scheduleInfo.taskData = TEST_TASK_DATA;
+        when(mRemoteAccessHalWrapper.getAllPendingScheduledTasks(CLIENT_ID_SERVERLESS))
+                .thenReturn(List.of(scheduleInfo));
+
+        List<TaskScheduleInfo> taskScheduleInfoList = mService.getAllPendingScheduledTasks();
+
+        assertWithMessage("TaskScheduleInfo list").that(taskScheduleInfoList).hasSize(1);
+        assertWithMessage("TaskScheduleInfo.taskType").that(taskScheduleInfoList.get(0).taskType)
+                .isEqualTo(TASK_TYPE_CUSTOM);
     }
 
     @Test

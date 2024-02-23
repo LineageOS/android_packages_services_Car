@@ -342,6 +342,8 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExpectableTest
                 .isEqualTo(TEST_SCHEDULE_ID);
         expectWithMessage("taskType from ScheduleInfo").that(scheduleInfo.getTaskType())
                 .isEqualTo(TASK_TYPE_ENTER_GARAGE_MODE);
+        expectWithMessage("taskData from ScheduleInfo").that(scheduleInfo.getTaskData())
+                .isEmpty();
         expectWithMessage("startTimeInEpochSeconds from ScheduleInfo")
                 .that(scheduleInfo.getStartTimeInEpochSeconds()).isEqualTo(TEST_START_TIME);
         expectWithMessage("count from ScheduleInfo").that(scheduleInfo.getCount())
@@ -420,6 +422,7 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExpectableTest
     private TaskScheduleInfo getTestTaskScheduleInfo() {
         TaskScheduleInfo taskScheduleInfo = new TaskScheduleInfo();
         taskScheduleInfo.scheduleId = TEST_SCHEDULE_ID;
+        taskScheduleInfo.taskType = TEST_TASK_TYPE;
         taskScheduleInfo.taskData = TEST_TASK_DATA;
         taskScheduleInfo.startTimeInEpochSeconds = TEST_START_TIME;
         taskScheduleInfo.count = TEST_TASK_COUNT;

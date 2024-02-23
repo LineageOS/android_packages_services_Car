@@ -593,6 +593,7 @@ public class FakeVhalConfigParserUnitTest {
         File tempFile = createTempFileWithContent(jsonString);
         VehiclePropConfig vehiclePropConfig = new VehiclePropConfig();
         vehiclePropConfig.prop = 286261504;
+        vehiclePropConfig.access = AccessForVehicleProperty.values.get(286261504);
         VehicleAreaConfig vehicleAreaConfig = new VehicleAreaConfig();
         vehicleAreaConfig.access = AccessForVehicleProperty.values.get(286261504);
         vehicleAreaConfig.areaId = 1;
@@ -620,6 +621,7 @@ public class FakeVhalConfigParserUnitTest {
         File tempFile = createTempFileWithContent(jsonString);
         VehiclePropConfig vehiclePropConfig = new VehiclePropConfig();
         vehiclePropConfig.prop = 286261504;
+        vehiclePropConfig.access = AccessForVehicleProperty.values.get(286261504);
         VehicleAreaConfig vehicleAreaConfig = new VehicleAreaConfig();
         vehicleAreaConfig.access = 2;
         vehicleAreaConfig.areaId = 1;
@@ -647,6 +649,7 @@ public class FakeVhalConfigParserUnitTest {
         File tempFile = createTempFileWithContent(jsonString);
         VehiclePropConfig vehiclePropConfig = new VehiclePropConfig();
         vehiclePropConfig.prop = 286261504;
+        vehiclePropConfig.access = 2;
         VehicleAreaConfig vehicleAreaConfig = new VehicleAreaConfig();
         vehicleAreaConfig.access = 2;
         vehicleAreaConfig.areaId = 1;
@@ -674,6 +677,7 @@ public class FakeVhalConfigParserUnitTest {
         File tempFile = createTempFileWithContent(jsonString);
         VehiclePropConfig vehiclePropConfig = new VehiclePropConfig();
         vehiclePropConfig.prop = 286261504;
+        vehiclePropConfig.access = 2;
         VehicleAreaConfig vehicleAreaConfig = new VehicleAreaConfig();
         vehicleAreaConfig.access = 3;
         vehicleAreaConfig.areaId = 1;
@@ -725,7 +729,7 @@ public class FakeVhalConfigParserUnitTest {
                 + "                 },"
                 + "                 \"minInt32Value\": 0,"
                 + "                 \"maxInt32Value\": 10,"
-                + "                 \"access\": \"VehiclePropertyAccess::READ\","
+                + "                 \"access\": \"VehiclePropertyAccess::READ_WRITE\","
                 + "                 \"areaId\": \"Constants::SEAT_1_LEFT\""
                 + "               },{"
                 + "                 \"defaultValue\": {"
@@ -737,22 +741,23 @@ public class FakeVhalConfigParserUnitTest {
                 + "            \"configString\": \"configString\","
                 + "            \"maxSampleRate\": 10.0,"
                 + "            \"minSampleRate\": 1.0,"
-                + "            \"access\": \"VehiclePropertyAccess::READ_WRITE\","
+                + "            \"access\": \"VehiclePropertyAccess::READ\","
                 + "            \"changeMode\": \"VehiclePropertyChangeMode::STATIC\""
                 + "        }]}";
         File tempFile = createTempFileWithContent(jsonString);
         // Create prop config object
         VehiclePropConfig vehiclePropConfig = new VehiclePropConfig();
         vehiclePropConfig.prop = VehicleProperty.WHEEL_TICK;
+        vehiclePropConfig.access = VehiclePropertyAccess.READ;
         // Create area config object
         VehicleAreaConfig vehicleAreaConfig1 = new VehicleAreaConfig();
         vehicleAreaConfig1.areaId = VehicleAreaSeat.ROW_1_LEFT;
         vehicleAreaConfig1.minInt32Value = 0;
         vehicleAreaConfig1.maxInt32Value = 10;
-        vehicleAreaConfig1.access = VehiclePropertyAccess.READ;
+        vehicleAreaConfig1.access = VehiclePropertyAccess.READ_WRITE;
         VehicleAreaConfig vehicleAreaConfig2 = new VehicleAreaConfig();
         vehicleAreaConfig2.areaId = VehicleAreaSeat.ROW_1_RIGHT;
-        vehicleAreaConfig2.access = VehiclePropertyAccess.READ_WRITE;
+        vehicleAreaConfig2.access = VehiclePropertyAccess.READ;
         vehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{vehicleAreaConfig1,
                 vehicleAreaConfig2};
         vehiclePropConfig.configString = "configString";
