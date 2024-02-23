@@ -162,7 +162,7 @@ public class HalPropertyDebugUtilsUnitTest {
                                 FuelType.FUEL_TYPE_LEADED}))).isEqualTo(
                 "[FUEL_TYPE_E85(0x6), FUEL_TYPE_LPG(0x7), FUEL_TYPE_LEADED(0x2)]");
         assertThat(HalPropertyDebugUtils.toValueString(
-                new HalPropValueBuilder(true).build(VehicleProperty.PERF_VEHICLE_SPEED, 0,
+                new HalPropValueBuilder(true).build(VehicleProperty.EV_CHARGE_PERCENT_LIMIT, 0,
                         11.1f))).isEqualTo("11.1");
         assertThat(HalPropertyDebugUtils.toValueString(new HalPropValueBuilder(true).build(
                 VehicleProperty.HVAC_TEMPERATURE_VALUE_SUGGESTION, 0,
@@ -183,6 +183,25 @@ public class HalPropertyDebugUtilsUnitTest {
                 new HalPropValueBuilder(true).build(VehicleProperty.VEHICLE_MAP_SERVICE, 0,
                         new byte[]{}))).isEqualTo(
                 "floatValues: [], int32Values: [], int64Values: [], bytes: [], string: ");
+    }
+
+    @Test
+    public void testToValueString_handlesAddingUnits() {
+        assertThat(HalPropertyDebugUtils.toValueString(
+                new HalPropValueBuilder(true).build(VehicleProperty.INFO_MODEL_YEAR, 0,
+                        2024))).isEqualTo("2024 YEAR");
+
+        assertThat(HalPropertyDebugUtils.toValueString(
+                new HalPropValueBuilder(true).build(VehicleProperty.INFO_EXTERIOR_DIMENSIONS, 0,
+                        new int[]{1, 2}))).isEqualTo("[1 MILLIMETER, 2 MILLIMETER]");
+
+        assertThat(HalPropertyDebugUtils.toValueString(
+                new HalPropValueBuilder(true).build(VehicleProperty.ENGINE_OIL_TEMP, 0,
+                        3f))).isEqualTo("3.0 CELSIUS");
+
+        assertThat(HalPropertyDebugUtils.toValueString(
+                new HalPropValueBuilder(true).build(VehicleProperty.EXTERNAL_CAR_TIME, 0,
+                        999L))).isEqualTo("999 MILLI_SECS");
     }
 
     @Test

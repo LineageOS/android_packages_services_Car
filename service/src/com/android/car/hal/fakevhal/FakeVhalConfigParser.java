@@ -35,7 +35,6 @@ import android.hardware.automotive.vehicle.VehicleLightState;
 import android.hardware.automotive.vehicle.VehicleLightSwitch;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehicleProperty;
-import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyGroup;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -305,7 +304,6 @@ public final class FakeVhalConfigParser {
         boolean isAreasSet = false;
         RawPropValues rawPropValues = null;
         JSONArray areas = null;
-        int access = VehiclePropertyAccess.NONE;
 
         for (int i = 0; i < fieldNames.size(); i++) {
             String fieldName = fieldNames.get(i);
@@ -326,7 +324,7 @@ public final class FakeVhalConfigParser {
                         errors);
                     break;
                 case JSON_FIELD_NAME_ACCESS:
-                    access = parseIntValue(propertyObject, fieldName, errors);
+                    vehiclePropConfig.access = parseIntValue(propertyObject, fieldName, errors);
                     isAccessSet = true;
                     break;
                 case JSON_FIELD_NAME_CHANGE_MODE:
@@ -369,8 +367,8 @@ public final class FakeVhalConfigParser {
 
         if (!isAccessSet) {
             if (AccessForVehicleProperty.values.containsKey(vehiclePropConfig.prop)) {
-                access = AccessForVehicleProperty.values.get(vehiclePropConfig.prop);
-                isAccessSet = true;
+                vehiclePropConfig.access = AccessForVehicleProperty.values
+                        .get(vehiclePropConfig.prop);
             } else {
                 errors.add("Access field is not set for this property: " + propertyObject);
             }
@@ -388,9 +386,9 @@ public final class FakeVhalConfigParser {
         List<VehicleAreaConfig> areaConfigs = new ArrayList<>();
         SparseArray<RawPropValues> defaultValuesByAreaId = new SparseArray<>();
 
-        if (isAccessSet) {
-            if (!isAreasSet || areas == null || areas.length() == 0) {
-                vehiclePropConfig.access = access;
+        if (isAreasSet) {
+            if (areas == null) {
+                errors.add(JSON_FIELD_NAME_AREAS + " doesn't have a mapped array value.");
             } else {
                 for (int j = 0; j < areas.length(); j++) {
                     JSONObject areaObject = areas.optJSONObject(j);
@@ -400,7 +398,7 @@ public final class FakeVhalConfigParser {
                         continue;
                     }
                     Pair<VehicleAreaConfig, RawPropValues> result =
-                            parseAreaConfig(areaObject, access, errors);
+                            parseAreaConfig(areaObject, vehiclePropConfig.access, errors);
                     if (result != null) {
                         areaConfigs.add(result.first);
                         if (result.second != null) {
@@ -408,16 +406,17 @@ public final class FakeVhalConfigParser {
                         }
                     }
                 }
-            }
-        }
-
-        if (isAreasSet) {
-            if (areas == null) {
-                errors.add(JSON_FIELD_NAME_AREAS + " doesn't have a mapped array value.");
-            } else {
                 vehiclePropConfig.areaConfigs = areaConfigs.toArray(
                         new VehicleAreaConfig[areaConfigs.size()]);
             }
+        }
+
+        if (vehiclePropConfig.areaConfigs == null || vehiclePropConfig.areaConfigs.length == 0) {
+            VehicleAreaConfig areaConfig = new VehicleAreaConfig();
+            areaConfig.areaId = 0;
+            areaConfig.access = vehiclePropConfig.access;
+            areaConfig.supportVariableUpdateRate = true;
+            vehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{areaConfig};
         }
 
         if (errors.size() > initialErrorCount) {

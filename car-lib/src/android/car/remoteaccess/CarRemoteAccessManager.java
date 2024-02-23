@@ -768,7 +768,11 @@ public final class CarRemoteAccessManager extends CarManagerBase {
         private ScheduleInfo(Builder builder) {
             mScheduleId = builder.mScheduleId;
             mTaskType = builder.mTaskType;
-            mTaskData = builder.mTaskData;
+            if (builder.mTaskData != null) {
+                mTaskData = builder.mTaskData;
+            } else {
+                mTaskData = new byte[0];
+            }
             mCount = builder.mCount;
             mStartTimeInEpochSeconds = builder.mStartTimeInEpochSeconds;
             mPeriodic = builder.mPeriodic;
@@ -992,13 +996,14 @@ public final class CarRemoteAccessManager extends CarManagerBase {
 
         private static ScheduleInfo fromTaskScheduleInfo(TaskScheduleInfo taskScheduleInfo) {
             return new ScheduleInfo.Builder(taskScheduleInfo.scheduleId,
-                    TASK_TYPE_CUSTOM, taskScheduleInfo.startTimeInEpochSeconds)
+                    taskScheduleInfo.taskType, taskScheduleInfo.startTimeInEpochSeconds)
                     .setTaskData(taskScheduleInfo.taskData).setCount(taskScheduleInfo.count)
                     .setPeriodic(Duration.ofSeconds(taskScheduleInfo.periodicInSeconds)).build();
         }
 
         private static TaskScheduleInfo toTaskScheduleInfo(ScheduleInfo scheduleInfo) {
             TaskScheduleInfo taskScheduleInfo = new TaskScheduleInfo();
+            taskScheduleInfo.taskType = scheduleInfo.getTaskType();
             taskScheduleInfo.scheduleId = scheduleInfo.getScheduleId();
             taskScheduleInfo.taskData = scheduleInfo.getTaskData();
             taskScheduleInfo.count = scheduleInfo.getCount();

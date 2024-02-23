@@ -24,13 +24,10 @@ import static com.android.car.CarServiceUtils.toByteArray;
 import static com.android.car.CarServiceUtils.toFloatArray;
 import static com.android.car.CarServiceUtils.toIntArray;
 import static com.android.car.CarServiceUtils.toLongArray;
-import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.hardware.CarPropertyValue;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
-
-import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -480,12 +477,6 @@ public final class HalPropValueBuilder {
             }
         }
 
-        @Override
-        @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-        public String toString() {
-            return mVehiclePropValue.toString();
-        }
-
         public Object toVehiclePropValue() {
             return mVehiclePropValue;
         }
@@ -879,12 +870,6 @@ public final class HalPropValueBuilder {
             if (mVehiclePropValue.value.stringValue == null) {
                 mVehiclePropValue.value.stringValue = "";
             }
-        }
-
-        @Override
-        @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-        public String toString() {
-            return mVehiclePropValue.toString();
         }
 
         public Object toVehiclePropValue() {

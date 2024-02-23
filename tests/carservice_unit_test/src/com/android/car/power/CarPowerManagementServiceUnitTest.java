@@ -32,9 +32,11 @@ import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
@@ -65,8 +67,10 @@ import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
 import android.frameworks.automotive.powerpolicy.internal.PolicyState;
+import android.hardware.automotive.vehicle.VehicleApPowerBootupReason;
 import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
+import android.hardware.automotive.vehicle.VehicleProperty;
 import android.net.TetheringManager;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
@@ -91,9 +95,13 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
+import com.android.car.VehicleStub;
+import com.android.car.hal.HalPropValue;
+import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.MockedPowerHalService;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
+import com.android.car.hal.VehicleHal;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.IOInterface;
@@ -207,6 +215,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     @Spy
     private final Context mContext = InstrumentationRegistry.getInstrumentation().getContext();
     private final TemporaryFile mComponentStateFile;
+    private final HalPropValueBuilder mHalPropValueBuilder = new HalPropValueBuilder(
+            /* isAidl= */ true);
 
     private MockedPowerHalService mPowerHal;
     private SystemInterface mSystemInterface;
@@ -2159,8 +2169,170 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         expectDisplayBrightnessChangeApplied(displayId, brightness);
     }
 
+    @Test
+    public void testOnInitComplete() throws Exception {
+        setCarPowerPolicyRefactoringFeatureFlag(true);
+        setServerlessRemoteAccessFlag(true);
+
+        VehicleStub mockVehicleStub = mock(VehicleStub.class);
+        when(mockVehicleStub.getHalPropValueBuilder()).thenReturn(mHalPropValueBuilder);
+        when(mockVehicleStub.isAidlVhal()).thenReturn(true);
+
+        var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
+        var service = new CarPowerManagementService(mContext, mResources,
+                new PowerHalService(mContext, vehicleHal),
+                mSystemInterface, mUserManager, mUserService, mRefactoredPowerPolicyDaemon,
+                mPowerComponentHandler, mFeatureFlags, mScreenOffHandler,
+                mFileHwStateMonitoring.getFile().getPath(),
+                mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
+
+        HalPropValue vehicleInUseRequest = mHalPropValueBuilder.build(
+                VehicleProperty.VEHICLE_IN_USE, /* areaId= */ 0);
+        HalPropValue vehicleInUseResponse = mHalPropValueBuilder.build(
+                VehicleProperty.VEHICLE_IN_USE, /* areaId= */ 0, /* value= */ 0);
+        when(mockVehicleStub.get(eq(vehicleInUseRequest))).thenReturn(vehicleInUseResponse);
+
+        HalPropValue bootupReasonRequest = mHalPropValueBuilder.build(
+                VehicleProperty.AP_POWER_BOOTUP_REASON, /* areaId= */ 0);
+        HalPropValue bootupReasonResponse = mHalPropValueBuilder.build(
+                VehicleProperty.AP_POWER_BOOTUP_REASON,
+                /* areaId= */ 0, VehicleApPowerBootupReason.SYSTEM_ENTER_GARAGE_MODE);
+        when(mockVehicleStub.get(eq(bootupReasonRequest))).thenReturn(bootupReasonResponse);
+
+        service.onInitComplete();
+
+        verify(mockVehicleStub).set(mHalPropValueBuilder.build(VehicleProperty.SHUTDOWN_REQUEST, 0,
+                VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY));
+    }
+
+    @Test
+    public void testOnInitComplete_flagDisabled_doNothing() {
+        setCarPowerPolicyRefactoringFeatureFlag(true);
+        setServerlessRemoteAccessFlag(false);
+
+        VehicleStub mockVehicleStub = mock(VehicleStub.class);
+        when(mockVehicleStub.getHalPropValueBuilder()).thenReturn(mHalPropValueBuilder);
+        when(mockVehicleStub.isAidlVhal()).thenReturn(true);
+
+        var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
+        var service = new CarPowerManagementService(mContext, mResources,
+                new PowerHalService(mContext, vehicleHal),
+                mSystemInterface, mUserManager, mUserService, mRefactoredPowerPolicyDaemon,
+                mPowerComponentHandler, mFeatureFlags, mScreenOffHandler,
+                mFileHwStateMonitoring.getFile().getPath(),
+                mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
+
+        service.onInitComplete();
+    }
+
+    @Test
+    public void testOnInitComplete_bootupReasonNotSupported() throws Exception {
+        setCarPowerPolicyRefactoringFeatureFlag(true);
+        setServerlessRemoteAccessFlag(true);
+
+        VehicleStub mockVehicleStub = mock(VehicleStub.class);
+        when(mockVehicleStub.getHalPropValueBuilder()).thenReturn(mHalPropValueBuilder);
+        when(mockVehicleStub.isAidlVhal()).thenReturn(true);
+
+        var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
+        var service = new CarPowerManagementService(mContext, mResources,
+                new PowerHalService(mContext, vehicleHal),
+                mSystemInterface, mUserManager, mUserService, mRefactoredPowerPolicyDaemon,
+                mPowerComponentHandler, mFeatureFlags, mScreenOffHandler,
+                mFileHwStateMonitoring.getFile().getPath(),
+                mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
+
+        HalPropValue bootupReasonRequest = mHalPropValueBuilder.build(
+                VehicleProperty.AP_POWER_BOOTUP_REASON, /* areaId= */ 0);
+        HalPropValue bootupReasonResponse = mHalPropValueBuilder.build(
+                VehicleProperty.AP_POWER_BOOTUP_REASON,
+                /* areaId= */ 0, VehicleApPowerBootupReason.SYSTEM_ENTER_GARAGE_MODE);
+        when(mockVehicleStub.get(eq(bootupReasonRequest))).thenThrow(
+                new IllegalArgumentException());
+
+        service.onInitComplete();
+
+        verify(mockVehicleStub, never()).set(any());
+    }
+
+    @Test
+    public void testOnInitComplete_bootUpReasonNotGarageMode() throws Exception {
+        setCarPowerPolicyRefactoringFeatureFlag(true);
+        setServerlessRemoteAccessFlag(true);
+
+        VehicleStub mockVehicleStub = mock(VehicleStub.class);
+        when(mockVehicleStub.getHalPropValueBuilder()).thenReturn(mHalPropValueBuilder);
+        when(mockVehicleStub.isAidlVhal()).thenReturn(true);
+
+        var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
+        var service = new CarPowerManagementService(mContext, mResources,
+                new PowerHalService(mContext, vehicleHal),
+                mSystemInterface, mUserManager, mUserService, mRefactoredPowerPolicyDaemon,
+                mPowerComponentHandler, mFeatureFlags, mScreenOffHandler,
+                mFileHwStateMonitoring.getFile().getPath(),
+                mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
+
+        HalPropValue vehicleInUseRequest = mHalPropValueBuilder.build(
+                VehicleProperty.VEHICLE_IN_USE, /* areaId= */ 0);
+        HalPropValue vehicleInUseResponse = mHalPropValueBuilder.build(
+                VehicleProperty.VEHICLE_IN_USE, /* areaId= */ 0, /* value= */ 0);
+        when(mockVehicleStub.get(eq(vehicleInUseRequest))).thenReturn(vehicleInUseResponse);
+
+        HalPropValue bootupReasonRequest = mHalPropValueBuilder.build(
+                VehicleProperty.AP_POWER_BOOTUP_REASON, /* areaId= */ 0);
+        // Bootup reason is USER_POWER_ON, not SYSTEM_ENTER_GARAGE_MODE.
+        HalPropValue bootupReasonResponse = mHalPropValueBuilder.build(
+                VehicleProperty.AP_POWER_BOOTUP_REASON,
+                /* areaId= */ 0, VehicleApPowerBootupReason.USER_POWER_ON);
+        when(mockVehicleStub.get(eq(bootupReasonRequest))).thenReturn(bootupReasonResponse);
+
+        service.onInitComplete();
+
+        verify(mockVehicleStub, never()).set(any());
+    }
+
+    @Test
+    public void testOnInitComplete_vehicleInUse() throws Exception {
+        setCarPowerPolicyRefactoringFeatureFlag(true);
+        setServerlessRemoteAccessFlag(true);
+
+        VehicleStub mockVehicleStub = mock(VehicleStub.class);
+        when(mockVehicleStub.getHalPropValueBuilder()).thenReturn(mHalPropValueBuilder);
+        when(mockVehicleStub.isAidlVhal()).thenReturn(true);
+
+        var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
+        var service = new CarPowerManagementService(mContext, mResources,
+                new PowerHalService(mContext, vehicleHal),
+                mSystemInterface, mUserManager, mUserService, mRefactoredPowerPolicyDaemon,
+                mPowerComponentHandler, mFeatureFlags, mScreenOffHandler,
+                mFileHwStateMonitoring.getFile().getPath(),
+                mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
+
+        HalPropValue vehicleInUseRequest = mHalPropValueBuilder.build(
+                VehicleProperty.VEHICLE_IN_USE, /* areaId= */ 0);
+        // VEHICLE_IN_USE is true.
+        HalPropValue vehicleInUseResponse = mHalPropValueBuilder.build(
+                VehicleProperty.VEHICLE_IN_USE, /* areaId= */ 0, /* value= */ 1);
+        when(mockVehicleStub.get(eq(vehicleInUseRequest))).thenReturn(vehicleInUseResponse);
+
+        HalPropValue bootupReasonRequest = mHalPropValueBuilder.build(
+                VehicleProperty.AP_POWER_BOOTUP_REASON, /* areaId= */ 0);
+        HalPropValue bootupReasonResponse = mHalPropValueBuilder.build(
+                VehicleProperty.AP_POWER_BOOTUP_REASON,
+                /* areaId= */ 0, VehicleApPowerBootupReason.SYSTEM_ENTER_GARAGE_MODE);
+        when(mockVehicleStub.get(eq(bootupReasonRequest))).thenReturn(bootupReasonResponse);
+
+        service.onInitComplete();
+
+        verify(mockVehicleStub, never()).set(any());
+    }
+
     private void setCarPowerPolicyRefactoringFeatureFlag(boolean flagValue) {
         mFeatureFlags.setFlag(Flags.FLAG_CAR_POWER_POLICY_REFACTORING, flagValue);
+    }
+
+    private void setServerlessRemoteAccessFlag(boolean flagValue) {
+        mFeatureFlags.setFlag(Flags.FLAG_SERVERLESS_REMOTE_ACCESS, flagValue);
     }
 
     /**

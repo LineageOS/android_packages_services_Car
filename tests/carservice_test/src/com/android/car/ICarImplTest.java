@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate;
 import android.car.Car;
@@ -46,6 +47,7 @@ import android.util.Log;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.garagemode.GarageModeService;
+import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.os.CarPerformanceService;
 import com.android.car.remoteaccess.CarRemoteAccessService;
@@ -184,7 +186,7 @@ public final class ICarImplTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testNoShardedPreferencesAccessedBeforeUserZeroUnlock() {
+    public void testNoShardedPreferencesAccessedBeforeUserZeroUnlock() throws Exception {
         doReturn(true).when(mContext).isCredentialProtectedStorage();
         doReturn(false).when(mUserManager).isUserUnlockingOrUnlocked(anyInt());
         doReturn(false).when(mUserManager).isUserUnlocked();
@@ -205,6 +207,8 @@ public final class ICarImplTest extends AbstractExtendedMockitoTestCase {
         } else {
             powerPolicyDaemon = mMockCarPowerPolicyDaemon;
         }
+        when(mMockVehicle.getHalPropValueBuilder()).thenReturn(
+                new HalPropValueBuilder(/*isAidl=*/true));
         ICarImpl carImpl = new ICarImpl.Builder()
                 .setServiceContext(mContext)
                 .setVehicle(mMockVehicle)
@@ -218,6 +222,7 @@ public final class ICarImplTest extends AbstractExtendedMockitoTestCase {
                 .setPowerPolicyDaemon(powerPolicyDaemon)
                 .setDoPriorityInitInConstruction(false)
                 .build();
+
         doNothing().when(() -> ICarImpl.assertCallingFromSystemProcess());
         carImpl.setSystemServerConnections(mICarServiceHelper, new CarServiceConnectedCallback());
         carImpl.init();
