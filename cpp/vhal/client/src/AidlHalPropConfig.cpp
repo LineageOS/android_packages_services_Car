@@ -108,6 +108,10 @@ float AidlHalAreaConfig::getMaxFloatValue() const {
     return mAreaConfig.maxFloatValue;
 }
 
+bool AidlHalAreaConfig::isVariableUpdateRateSupported() const {
+    return mAreaConfig.supportVariableUpdateRate;
+}
+
 }  // namespace vhal
 }  // namespace automotive
 }  // namespace frameworks

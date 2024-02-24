@@ -596,7 +596,8 @@ package android.car.hardware {
     method public int describeContents();
     method public int getAreaId();
     method public int getPropertyId();
-    method public int getStatus();
+    method @FlaggedApi("android.car.feature.car_property_value_property_status") public int getPropertyStatus();
+    method @Deprecated public int getStatus();
     method public long getTimestamp();
     method @NonNull public T getValue();
     method public void writeToParcel(android.os.Parcel, int);
@@ -792,7 +793,7 @@ package android.car.hardware.property {
     method public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     method public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int);
     method @FlaggedApi("android.car.feature.batched_subscriptions") public void unsubscribePropertyEvents(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
-    method @FlaggedApi("android.car.feature.batched_subscriptions") public void unsubscribePropertyEvents(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int);
+    method @FlaggedApi("android.car.feature.batched_subscriptions") public void unsubscribePropertyEvents(int, @NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     field public static final long ASYNC_GET_DEFAULT_TIMEOUT_MS = 10000L; // 0x2710L
     field public static final int CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED = 4; // 0x4
     field public static final int CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG = 2; // 0x2
@@ -1048,7 +1049,7 @@ package android.car.remoteaccess {
     method public void onRegistrationFailed();
     method public void onRegistrationUpdated(@NonNull android.car.remoteaccess.RemoteTaskClientRegistrationInfo);
     method public void onRemoteTaskRequested(@NonNull String, @Nullable byte[], int);
-    method public default void onServerlessClientRegistered();
+    method @FlaggedApi("android.car.feature.serverless_remote_access") public default void onServerlessClientRegistered();
     method public void onShutdownStarting(@NonNull android.car.remoteaccess.CarRemoteAccessManager.CompletableRemoteTaskFuture);
   }
 

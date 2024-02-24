@@ -28,6 +28,8 @@ import android.annotation.SystemApi;
 import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.feature.FeatureFlags;
+import android.car.feature.FeatureFlagsImpl;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -35,6 +37,7 @@ import android.util.Log;
 
 import com.android.car.internal.ICarBase;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
 import java.lang.annotation.ElementType;
@@ -168,6 +171,17 @@ public final class CarRemoteAccessManager extends CarManagerBase {
 
     private final ICarRemoteAccessService mService;
     private final Object mLock = new Object();
+    private FeatureFlags mFeatureFlags = new FeatureFlagsImpl();
+
+    /**
+     * Sets fake feature flag for unit testing.
+     *
+     * @hide
+     */
+    @VisibleForTesting
+    public void setFeatureFlags(FeatureFlags fakeFeatureFlags) {
+        mFeatureFlags = fakeFeatureFlags;
+    }
 
     private final class CarRemoteAccessCallback extends ICarRemoteAccessCallback.Stub {
         @Override
@@ -201,7 +215,12 @@ public final class CarRemoteAccessManager extends CarManagerBase {
                 callback = mRemoteTaskClientCallback;
                 executor = mExecutor;
             }
-            executor.execute(() -> callback.onServerlessClientRegistered());
+            if (mFeatureFlags.serverlessRemoteAccess()) {
+                executor.execute(() -> callback.onServerlessClientRegistered());
+            } else {
+                Log.e(TAG, "Serverless remote access flag is not enabled, "
+                        + "the callback must not be called");
+            }
         }
 
         @Override
@@ -325,6 +344,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          * <p>The serverless remote task client is configured via including a runtime config file
          * at {@code /vendor/etc/}
          */
+        @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
         default void onServerlessClientRegistered() {
             Log.i(TAG, "onServerlessClientRegistered called");
         }

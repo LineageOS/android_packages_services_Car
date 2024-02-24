@@ -44,6 +44,8 @@ public:
     virtual float getMaxFloatValue() const = 0;
 
     virtual ~IHalAreaConfig() = default;
+
+    virtual bool isVariableUpdateRateSupported() const = 0;
 };
 
 class IHalPropConfig {

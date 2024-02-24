@@ -127,7 +127,7 @@ class PropertyListAdapter extends BaseAdapter implements ListAdapter {
                 int propId = c.getPropertyId();
                 try {
                     if (OFF.equals(item)) {
-                        mMgr.unsubscribePropertyEvents(mListener, propId);
+                        mMgr.unsubscribePropertyEvents(propId, mListener);
                     } else if (VUR.equals(item)) {
                         // Default update rate is 1hz.
                         mListener.addPropertySelectedSampleRate(propId, DEFAULT_RATE_HZ);

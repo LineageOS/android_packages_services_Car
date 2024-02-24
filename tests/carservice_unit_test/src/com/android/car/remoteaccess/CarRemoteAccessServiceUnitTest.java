@@ -44,6 +44,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
+import android.car.feature.FakeFeatureFlagsImpl;
+import android.car.feature.Flags;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.remoteaccess.CarRemoteAccessManager;
@@ -295,6 +297,10 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
         mRemoteAccessStorage = new RemoteAccessStorage(mContext, mSystemInterface,
                 /* inMemoryStorage= */ true);
         mService = newServiceWithSystemUpTime(ALLOWED_SYSTEM_UP_TIME_FOR_TESTING_MS);
+
+        FakeFeatureFlagsImpl fakeFlagsImpl = new FakeFeatureFlagsImpl();
+        fakeFlagsImpl.setFlag(Flags.FLAG_SERVERLESS_REMOTE_ACCESS, true);
+        mService.setFeatureFlags(fakeFlagsImpl);
     }
 
     @After
@@ -550,6 +556,7 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
         String expectedClientId = PERSISTENT_CLIENTS.get(0).clientId;
         when(mDep.getCallingUid()).thenReturn(1234);
         when(mPackageManager.getNameForUid(1234)).thenReturn(packageName);
+        when(mPackageManager.getPackagesForUid(1234)).thenReturn(new String[]{packageName});
         setupDatabase();
         mService.init();
 
@@ -581,6 +588,40 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
                 mRemoteAccessCallback.getClientId()).isNull();
         expectWithMessage("Serverless remote task client ID must not be persisted in db").that(
                 mRemoteAccessStorage.getClientIdEntry(SERVERLESS_PACKAGE)).isNull();
+    }
+
+    @Test
+    public void testAddCarRemoteTaskClient_asignedDynamicClientId_thenBecomeServerlessClient()
+            throws Exception {
+        when(mDep.getCallingUid()).thenReturn(UID_SERVERLESS_PACKAGE);
+        String dynamicClientId = "dynamic client id";
+        // Store a dynamic client ID in the persistent storage for UID_NAME_SERVERLESS_PACKAGE.
+        // This ID was generated when the package was not a serverless client.
+        mRemoteAccessStorage.updateClientId(new ClientIdEntry(
+                dynamicClientId, System.currentTimeMillis(), UID_NAME_SERVERLESS_PACKAGE));
+        XmlResourceParser fakeXmlResourceParser = getFakeXmlResourceParser(
+                SERVERLESS_CLIENT_MAP_XML);
+        when(mResources.getXml(R.xml.remote_access_serverless_client_map)).thenReturn(
+                fakeXmlResourceParser);
+
+        mService.init();
+        runBootComplete();
+
+        mService.addCarRemoteTaskClient(mRemoteAccessCallback);
+
+        PollingCheck.check("onServerlessClientRegistered should be called", WAIT_TIMEOUT_MS,
+                () -> mRemoteAccessCallback.isServerlessClientRegistered());
+        expectWithMessage("onClientRegistrationUpdated must not be called").that(
+                mRemoteAccessCallback.getClientId()).isNull();
+        expectWithMessage("Serverless remote task client ID must not be persisted in db").that(
+                mRemoteAccessStorage.getClientIdEntry(SERVERLESS_PACKAGE)).isNull();
+
+        RemoteAccessHalCallback halCallback = mService.getRemoteAccessHalCallback();
+        // Starts an active task.
+        halCallback.onRemoteTaskRequested(TEST_SERVERLESS_CLIENT_ID, new byte[]{1, 2, 3, 4});
+
+        PollingCheck.check("onRemoteTaskRequested should be called", WAIT_TIMEOUT_MS,
+                () -> mRemoteAccessCallback.getTaskId() != null);
     }
 
     @Test
@@ -688,6 +729,7 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
         String clientId = PERSISTENT_CLIENTS.get(0).clientId;
         when(mDep.getCallingUid()).thenReturn(1234);
         when(mPackageManager.getNameForUid(1234)).thenReturn(packageName);
+        when(mPackageManager.getPackagesForUid(1234)).thenReturn(new String[]{packageName});
         RemoteAccessHalCallback halCallback = mService.getRemoteAccessHalCallback();
         setupDatabase();
         mService.init();
