@@ -55,7 +55,6 @@ public final class CarAudioFeaturesInfo implements Parcelable {
      * targeting playback will be routed to the same device. Otherwise, the focus requests should
      * interact only if the requests are for the same audio zone.
      */
-    @FlaggedApi(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
     public static final int AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS = 0x1 << 0;
 
     /**
@@ -65,14 +64,13 @@ public final class CarAudioFeaturesInfo implements Parcelable {
      * evaluation. If the feature is not available, any provided fade manager configurations will
      * be ignored.
      */
-    @FlaggedApi(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
-    public static final int AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS = 0x1 << 1;
+    public static final int AUDIO_FEATURE_FADE_MANAGER_CONFIGS = 0x1 << 1;
 
     /** @hide */
     @IntDef(flag = true, prefix = "AUDIO_FEATURE", value = {
             AUDIO_FEATURE_NO_FEATURE,
             AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS,
-            AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS,
+            AUDIO_FEATURE_FADE_MANAGER_CONFIGS,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface AudioFeature {}
@@ -87,7 +85,7 @@ public final class CarAudioFeaturesInfo implements Parcelable {
      * Determines if a particular audio feature is enabled and should be supported
      *
      * @param feature Feature to query, can be {@link #AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS}
-     *                or {@link #AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS}
+     *                or {@link #AUDIO_FEATURE_FADE_MANAGER_CONFIGS}
      * @return {@code true} if the feature is enabled, {@code false} otherwise
      */
     public boolean isAudioFeatureEnabled(@AudioFeature int feature) {
@@ -155,9 +153,9 @@ public final class CarAudioFeaturesInfo implements Parcelable {
         if (checkFeature(features, AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS)) {
             builder.append("ISOLATED_DEVICE_FOCUS");
         }
-        if (checkFeature(features, AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS)) {
+        if (checkFeature(features, AUDIO_FEATURE_FADE_MANAGER_CONFIGS)) {
             builder.append(builder.isEmpty() ? "" : "|");
-            builder.append("SUPPORTS_FADE_MANAGER_CONFIGS");
+            builder.append("FADE_MANAGER_CONFIGS");
         }
         return builder.toString();
     }
@@ -168,7 +166,7 @@ public final class CarAudioFeaturesInfo implements Parcelable {
         }
         int tempFeatures = carAudioFeatures;
         tempFeatures = tempFeatures & ~AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS;
-        tempFeatures = tempFeatures & ~AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS;
+        tempFeatures = tempFeatures & ~AUDIO_FEATURE_FADE_MANAGER_CONFIGS;
         if (tempFeatures != 0) {
             throw new IllegalArgumentException("Car audio features " + tempFeatures
                     + " are invalid");
@@ -183,7 +181,7 @@ public final class CarAudioFeaturesInfo implements Parcelable {
         if (checkFeature(feature, AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS)) {
             return feature;
         }
-        if (checkFeature(feature, AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS)) {
+        if (checkFeature(feature, AUDIO_FEATURE_FADE_MANAGER_CONFIGS)) {
             return feature;
         }
         throw new IllegalArgumentException("Car audio feature " + feature + " is invalid");
@@ -215,7 +213,7 @@ public final class CarAudioFeaturesInfo implements Parcelable {
          * Adds an audio feature to the audio features info
          *
          * @param feature Feature to append, can be {@link #AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS}
-         *                or {@link #AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS}
+         *                or {@link #AUDIO_FEATURE_FADE_MANAGER_CONFIGS}
          * @throws IllegalArgumentException if the feature parameter is not a supported feature
          * @throws IllegalStateException if the builder is re-used after calling {@link #build()}
          */
