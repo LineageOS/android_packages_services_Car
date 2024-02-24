@@ -457,9 +457,7 @@ class GarageMode {
     private void cleanupGarageMode(Runnable completor) {
         synchronized (mLock) {
             if (!mGarageModeActive) {
-                if (completor != null) {
-                    completor.run();
-                }
+                completor.run();
                 Slogf.e(TAG, "Trying to cleanup garage mode when it is inactive. Request ignored");
                 return;
             }
