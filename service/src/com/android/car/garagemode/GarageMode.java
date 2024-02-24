@@ -348,6 +348,7 @@ class GarageMode {
             synchronized (mLock) {
                 mGarageModeActive = false;
             }
+            Slogf.i(TAG, "GarageMode exits immediately");
             return;
         }
         synchronized (mLock) {
@@ -456,7 +457,10 @@ class GarageMode {
     private void cleanupGarageMode(Runnable completor) {
         synchronized (mLock) {
             if (!mGarageModeActive) {
-                Slogf.e(TAG, "Try to cleanup garage mode when it is not active, ignore");
+                if (completor != null) {
+                    completor.run();
+                }
+                Slogf.e(TAG, "Trying to cleanup garage mode when it is inactive. Request ignored");
                 return;
             }
             Slogf.i(TAG, "Cleaning up GarageMode");
