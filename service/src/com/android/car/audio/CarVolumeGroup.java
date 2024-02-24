@@ -277,6 +277,12 @@ import java.util.Set;
         return mIsHalMuted;
     }
 
+    boolean isHalMuted() {
+        synchronized (mLock) {
+            return isHalMutedLocked();
+        }
+    }
+
     void setBlocked(int blockedIndex) {
         synchronized (mLock) {
             setBlockedLocked(blockedIndex);

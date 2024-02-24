@@ -335,6 +335,30 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void isHalMuted_withHalUnmuted() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+
+        expectWithMessage("Unmute status by HAL")
+                .that(carVolumeGroup.isHalMuted()).isFalse();
+    }
+
+    @Test
+    public void isHalMuted_withHalMuted() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+        carVolumeGroup.setCurrentGainIndex(DEFAULT_GAIN_INDEX);
+        List<Integer> muteReasons = List.of(Reasons.TCU_MUTE);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = MIN_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(muteReasons, musicCarGain);
+
+        expectWithMessage("Mute status by HAL")
+                .that(carVolumeGroup.isHalMuted()).isTrue();
+    }
+
+    @Test
     public void getMutedBySystem_withHalUnmuted() {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MUTE_AMBIGUITY);
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
