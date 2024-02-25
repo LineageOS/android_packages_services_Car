@@ -2072,7 +2072,7 @@ package android.car.oem {
     field @NonNull public static final android.os.Parcelable.Creator<android.car.oem.CarAudioFadeConfiguration> CREATOR;
   }
 
-  public static final class CarAudioFadeConfiguration.Builder {
+  @FlaggedApi("android.car.feature.car_audio_fade_manager_configuration") public static final class CarAudioFadeConfiguration.Builder {
     ctor public CarAudioFadeConfiguration.Builder(@NonNull android.media.FadeManagerConfiguration);
     method @NonNull public android.car.oem.CarAudioFadeConfiguration build();
     method @NonNull public android.car.oem.CarAudioFadeConfiguration.Builder setName(@NonNull String);
