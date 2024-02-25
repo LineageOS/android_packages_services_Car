@@ -63,6 +63,8 @@ public:
 
     const void* toVehiclePropValue() const override;
 
+    std::unique_ptr<IHalPropValue> clone() const override;
+
 private:
     ::android::hardware::automotive::vehicle::V2_0::VehiclePropValue mPropValue;
 };

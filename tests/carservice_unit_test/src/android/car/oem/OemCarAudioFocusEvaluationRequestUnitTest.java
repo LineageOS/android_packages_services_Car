@@ -18,7 +18,7 @@ package android.car.oem;
 
 import static android.car.feature.Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES;
 import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS;
-import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS;
+import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_FADE_MANAGER_CONFIGS;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_ASSISTANT;
 import static android.media.AudioAttributes.USAGE_MEDIA;
@@ -326,7 +326,7 @@ public final class OemCarAudioFocusEvaluationRequestUnitTest extends AbstractExp
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo featureInfo = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS).addAudioFeature(
-                        AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS).build();
+                AUDIO_FEATURE_FADE_MANAGER_CONFIGS).build();
         OemCarAudioFocusEvaluationRequest request =
                 new OemCarAudioFocusEvaluationRequest.Builder(new ArrayList<>(),
                         new ArrayList<>(), new ArrayList<>(), CarAudioManager.PRIMARY_AUDIO_ZONE)
@@ -340,7 +340,7 @@ public final class OemCarAudioFocusEvaluationRequestUnitTest extends AbstractExp
         expectWithMessage("Isolated audio focus feature").that(requestFeatureInfo
                         .isAudioFeatureEnabled(AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS)).isTrue();
         expectWithMessage("Fade manager configuration audio feature").that(requestFeatureInfo
-                        .isAudioFeatureEnabled(AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS))
+                        .isAudioFeatureEnabled(AUDIO_FEATURE_FADE_MANAGER_CONFIGS))
                 .isTrue();
     }
 
@@ -369,7 +369,7 @@ public final class OemCarAudioFocusEvaluationRequestUnitTest extends AbstractExp
         CarAudioFeaturesInfo featureInfoOne = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS).build();
         CarAudioFeaturesInfo featureInfoTwo = new CarAudioFeaturesInfo.Builder(
-                AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS).build();
+                AUDIO_FEATURE_FADE_MANAGER_CONFIGS).build();
         OemCarAudioFocusEvaluationRequest requestOne =
                 new OemCarAudioFocusEvaluationRequest.Builder(new ArrayList<>(),
                         new ArrayList<>(), new ArrayList<>(), CarAudioManager.PRIMARY_AUDIO_ZONE)

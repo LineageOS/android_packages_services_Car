@@ -27,6 +27,7 @@ import com.android.systemui.R;
 import com.android.systemui.car.CarServiceProvider;
 import com.android.systemui.car.statusicon.StatusIconView;
 import com.android.systemui.car.statusicon.StatusIconViewController;
+import com.android.systemui.car.systembar.element.CarSystemBarElementStateController;
 import com.android.systemui.car.systembar.element.CarSystemBarElementStatusBarDisableController;
 import com.android.systemui.dagger.qualifiers.Main;
 import com.android.systemui.dagger.qualifiers.UiBackground;
@@ -61,11 +62,12 @@ public class StatusBarSensorInfoController extends StatusIconViewController {
     protected StatusBarSensorInfoController(
             @Assisted StatusIconView view,
             CarSystemBarElementStatusBarDisableController disableController,
+            CarSystemBarElementStateController stateController,
             Context context,
             @Main Resources resources,
             @UiBackground Executor executor,
             CarServiceProvider carServiceProvider) {
-        super(view, disableController);
+        super(view, disableController, stateController);
         mContext = context;
         mSensorString = resources.getString(R.string.default_sensor_string);
         mSensorAvailability = false;

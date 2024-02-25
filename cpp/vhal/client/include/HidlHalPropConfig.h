@@ -51,6 +51,8 @@ public:
 
     float getMaxFloatValue() const override;
 
+    bool isVariableUpdateRateSupported() const override;
+
 private:
     ::android::hardware::automotive::vehicle::V2_0::VehicleAreaConfig mAreaConfig;
     int32_t mAccess;

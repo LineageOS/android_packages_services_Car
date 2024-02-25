@@ -33,6 +33,8 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.feature.FakeFeatureFlagsImpl;
+import android.car.feature.Flags;
 import android.car.remoteaccess.CarRemoteAccessManager.CompletableRemoteTaskFuture;
 import android.car.remoteaccess.CarRemoteAccessManager.InVehicleTaskSchedulerException;
 import android.car.remoteaccess.CarRemoteAccessManager.RemoteTaskClientCallback;
@@ -178,6 +180,20 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExpectableTest
         assertWithMessage("Processor ID").that(remoteTaskClient.getProcessorId())
                 .isEqualTo(processorId);
         assertWithMessage("Client ID").that(remoteTaskClient.getClientId()).isEqualTo(clientId);
+    }
+
+    @Test
+    public void testServerlessClientRegistration() throws Exception {
+        RemoteTaskClient remoteTaskClient = new RemoteTaskClient(/* expectedCallbackCount= */ 1);
+        ICarRemoteAccessCallback internalCallback = setClientAndGetCallback(remoteTaskClient);
+        String clientId = "clientId_testing";
+        FakeFeatureFlagsImpl fakeFlagsImpl = new FakeFeatureFlagsImpl();
+        fakeFlagsImpl.setFlag(Flags.FLAG_SERVERLESS_REMOTE_ACCESS, true);
+        mRemoteAccessManager.setFeatureFlags(fakeFlagsImpl);
+
+        internalCallback.onServerlessClientRegistered(clientId);
+
+        assertThat(remoteTaskClient.isServerlessClientRegistered()).isTrue();
     }
 
     @Test
@@ -601,6 +617,7 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExpectableTest
         private String mClientId;
         private String mTaskId;
         private boolean mRegistrationFailed;
+        private boolean mServerlessClientRegistered;
         private byte[] mData;
 
         private RemoteTaskClient(int expectedCallbackCount) {
@@ -613,6 +630,12 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExpectableTest
             mVehicleId = info.getVehicleId();
             mProcessorId = info.getProcessorId();
             mClientId = info.getClientId();
+            mLatch.countDown();
+        }
+
+        @Override
+        public void onServerlessClientRegistered() {
+            mServerlessClientRegistered = true;
             mLatch.countDown();
         }
 
@@ -667,6 +690,11 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExpectableTest
         public boolean isRegistrationFail() throws Exception {
             JavaMockitoHelper.await(mLatch, DEFAULT_TIMEOUT);
             return mRegistrationFailed;
+        }
+
+        public boolean isServerlessClientRegistered() throws Exception {
+            JavaMockitoHelper.await(mLatch, DEFAULT_TIMEOUT);
+            return mServerlessClientRegistered;
         }
     }
 }

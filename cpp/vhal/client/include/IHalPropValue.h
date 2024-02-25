@@ -63,6 +63,14 @@ public:
     virtual const void* toVehiclePropValue() const = 0;
 
     virtual ~IHalPropValue() = default;
+
+    IHalPropValue() = default;
+
+    // Delete copy constructor.
+    IHalPropValue(const IHalPropValue& other) = delete;
+
+    // Clone the object. Need to return a unique_ptr since IHalPropValue is an abstract class.
+    virtual std::unique_ptr<IHalPropValue> clone() const = 0;
 };
 
 }  // namespace vhal

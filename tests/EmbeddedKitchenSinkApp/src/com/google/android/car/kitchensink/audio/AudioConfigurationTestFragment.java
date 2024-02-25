@@ -16,6 +16,7 @@
 
 package com.google.android.car.kitchensink.audio;
 
+import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
 import static android.car.media.CarAudioManager.INVALID_AUDIO_ZONE;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 
@@ -87,12 +88,25 @@ public final class AudioConfigurationTestFragment extends Fragment {
                         return;
                     }
                     mCarAudioManager = (CarAudioManager) car.getCarManager(Car.AUDIO_SERVICE);
+                    if (!mCarAudioManager.isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING)) {
+                        setUpConfigurationViewVisibility(view, View.GONE);
+                        return;
+                    }
+                    setUpConfigurationViewVisibility(view, View.VISIBLE);
                     FragmentManager fragmentManager = getChildFragmentManager();
                     AudioPlayersTabControllers.setUpAudioPlayersTab(view, fragmentManager);
                     handleSetUpConfigurationInfoTabs(view, fragmentManager);
                     handleSetUpZoneConfigurationSelection(view);
                     handleSetUpConfigurationAutoSelection(view);
                 });
+    }
+
+    private static void setUpConfigurationViewVisibility(View view, int visibility) {
+        TextView title = view.findViewById(R.id.audio_zone_configuration_title);
+        int titleResource = visibility == View.GONE ? R.string.audio_zone_configuration_title_off
+                : R.string.audio_zone_configuration_title_on;
+        view.findViewById(R.id.audio_zone_configuration).setVisibility(visibility);
+        title.setText(titleResource);
     }
 
     private void handleSetUpConfigurationInfoTabs(View view, FragmentManager fragmentManager) {

@@ -99,6 +99,11 @@ const void* HidlHalPropValue::toVehiclePropValue() const {
     return &mPropValue;
 }
 
+std::unique_ptr<IHalPropValue> HidlHalPropValue::clone() const {
+    auto propValueCopy = mPropValue;
+    return std::make_unique<HidlHalPropValue>(std::move(propValueCopy));
+}
+
 }  // namespace vhal
 }  // namespace automotive
 }  // namespace frameworks

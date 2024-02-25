@@ -637,7 +637,7 @@ package android.car.cluster {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_MONITOR_CLUSTER_NAVIGATION_STATE) public void unregisterClusterNavigationStateListener(@NonNull android.car.cluster.ClusterHomeManager.ClusterNavigationStateListener);
   }
 
-  public static interface ClusterHomeManager.ClusterNavigationStateListener {
+  @FlaggedApi("android.car.feature.cluster_health_monitoring") public static interface ClusterHomeManager.ClusterNavigationStateListener {
     method public void onNavigationStateChanged(@NonNull byte[]);
   }
 
@@ -2082,8 +2082,8 @@ package android.car.oem {
     method public int describeContents();
     method public boolean isAudioFeatureEnabled(int);
     method public void writeToParcel(@NonNull android.os.Parcel, int);
-    field @FlaggedApi("android.car.feature.car_audio_dynamic_devices") public static final int AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS = 1; // 0x1
-    field @FlaggedApi("android.car.feature.car_audio_dynamic_devices") public static final int AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS = 2; // 0x2
+    field public static final int AUDIO_FEATURE_FADE_MANAGER_CONFIGS = 2; // 0x2
+    field public static final int AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS = 1; // 0x1
     field @NonNull public static final android.os.Parcelable.Creator<android.car.oem.CarAudioFeaturesInfo> CREATOR;
   }
 

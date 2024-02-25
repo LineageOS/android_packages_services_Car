@@ -19,7 +19,7 @@ package android.car.oem;
 import static android.car.feature.Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES;
 import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS;
 import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_NO_FEATURE;
-import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS;
+import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_FADE_MANAGER_CONFIGS;
 
 import static org.junit.Assert.assertThrows;
 
@@ -45,7 +45,7 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
         expectWithMessage("Car audio dynamic devices feature with dynamic device only")
                 .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS)).isTrue();
         expectWithMessage("Car fade manager feature with dynamic device only")
-                .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS))
+                .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_FADE_MANAGER_CONFIGS))
                 .isFalse();
     }
 
@@ -53,12 +53,12 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
     public void build_withFadeManagerFeature() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info = new CarAudioFeaturesInfo.Builder(
-                AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS).build();
+                AUDIO_FEATURE_FADE_MANAGER_CONFIGS).build();
 
         expectWithMessage("Car audio dynamic devices feature with fade manager only")
                 .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS)).isFalse();
         expectWithMessage("Car fade manager feature with fade manager device only")
-                .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS))
+                .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_FADE_MANAGER_CONFIGS))
                 .isTrue();
     }
 
@@ -71,7 +71,7 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
         expectWithMessage("Car audio dynamic devices feature with no features")
                 .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS)).isFalse();
         expectWithMessage("Car fade manager feature with no features")
-                .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS))
+                .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_FADE_MANAGER_CONFIGS))
                 .isFalse();
     }
 
@@ -108,7 +108,7 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
         expectWithMessage("Car audio focus feature with added focus feature only")
                 .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS)).isTrue();
         expectWithMessage("Car audio fade manager feature with added focus feature only")
-                .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS))
+                .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_FADE_MANAGER_CONFIGS))
                 .isFalse();
     }
 
@@ -116,12 +116,12 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
     public void addAudioFeatures_withFadeManagerFeature() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info = new CarAudioFeaturesInfo.Builder(AUDIO_FEATURE_NO_FEATURE)
-                .addAudioFeature(AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS).build();
+                .addAudioFeature(AUDIO_FEATURE_FADE_MANAGER_CONFIGS).build();
 
         expectWithMessage("Car audio focus feature with added fade manager feature")
                 .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS)).isFalse();
         expectWithMessage("Car audio fade manager feature with added fade manager feature")
-                .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS))
+                .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_FADE_MANAGER_CONFIGS))
                 .isTrue();
     }
 
@@ -133,7 +133,7 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
         builder.build();
 
         IllegalStateException thrown = assertThrows(IllegalStateException.class,
-                () -> builder.addAudioFeature(AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS));
+                () -> builder.addAudioFeature(AUDIO_FEATURE_FADE_MANAGER_CONFIGS));
 
         expectWithMessage("Re-using add audio feature in builder exception")
                 .that(thrown).hasMessageThat().contains("should not be reused");
@@ -155,7 +155,7 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
         expectWithMessage("Car focus feature with focus feature and created from parcel")
                 .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS)).isTrue();
         expectWithMessage("Car fade manager feature with focus feature and created from parcel")
-                .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS))
+                .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_FADE_MANAGER_CONFIGS))
                 .isFalse();
     }
 
@@ -163,7 +163,7 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
     public void writeToParcel_readFromParcel_andFadeManagerFeature() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info = new CarAudioFeaturesInfo.Builder(
-                AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS).build();
+                AUDIO_FEATURE_FADE_MANAGER_CONFIGS).build();
         Parcel parcel = Parcel.obtain();
 
         info.writeToParcel(parcel, TEST_PARCEL_FLAGS);
@@ -176,7 +176,7 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
                 .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS)).isFalse();
         expectWithMessage("Car fade manager feature with fade manager feature"
                 + "and created from parcel")
-                .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS))
+                .that(info.isAudioFeatureEnabled(AUDIO_FEATURE_FADE_MANAGER_CONFIGS))
                 .isTrue();
     }
 
@@ -184,9 +184,9 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
     public void equals_withFadeManagerFeature() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info1 = new CarAudioFeaturesInfo.Builder(
-                AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS).build();
+                AUDIO_FEATURE_FADE_MANAGER_CONFIGS).build();
         CarAudioFeaturesInfo info2 = new CarAudioFeaturesInfo.Builder(
-                AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS).build();
+                AUDIO_FEATURE_FADE_MANAGER_CONFIGS).build();
 
         expectWithMessage("Fade manager configuration features").that(info1).isEqualTo(info2);
     }
@@ -208,7 +208,7 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
         CarAudioFeaturesInfo info1 = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS).build();
         CarAudioFeaturesInfo info2 = new CarAudioFeaturesInfo.Builder(
-                AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS).build();
+                AUDIO_FEATURE_FADE_MANAGER_CONFIGS).build();
 
         expectWithMessage("Car audio features").that(info1).isNotEqualTo(info2);
     }
@@ -229,9 +229,9 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
     public void hashCode_withFadeManagerFeature() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info1 = new CarAudioFeaturesInfo.Builder(
-                AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS).build();
+                AUDIO_FEATURE_FADE_MANAGER_CONFIGS).build();
         CarAudioFeaturesInfo info2 = new CarAudioFeaturesInfo.Builder(
-                AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS).build();
+                AUDIO_FEATURE_FADE_MANAGER_CONFIGS).build();
 
         expectWithMessage("Fade manager features hash").that(info1.hashCode())
                 .isEqualTo(info2.hashCode());
@@ -251,7 +251,7 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
     public void toString_withFadeManagerFeature() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info = new CarAudioFeaturesInfo.Builder(
-                AUDIO_FEATURE_SUPPORTS_FADE_MANAGER_CONFIGS).build();
+                AUDIO_FEATURE_FADE_MANAGER_CONFIGS).build();
 
         expectWithMessage("Fade manager feature string").that(info.toString())
                 .contains("FADE_MANAGER_CONFIGS");
