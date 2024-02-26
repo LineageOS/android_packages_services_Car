@@ -16,6 +16,5 @@
   -->
 
 <resources>
-    <color name="icon_color_default">@*android:color/car_body1</color>
-    <color name="biometric_background_color">#000000</color>
+    <color name="biometric_background_color">@color/car_primary_0</color>
 </resources>

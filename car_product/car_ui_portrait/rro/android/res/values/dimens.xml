@@ -90,4 +90,6 @@
     <dimen name="car_seekbar_thumb_size">16dp</dimen>
     <dimen name="car_seekbar_horizontal_padding">8dp</dimen>
 
+    <!-- Make the dots in lock pattern thicker in Car -->
+    <dimen name="lock_pattern_dot_size">32dp</dimen>
 </resources>
