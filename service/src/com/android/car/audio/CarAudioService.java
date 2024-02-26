@@ -91,6 +91,7 @@ import android.car.media.IMediaAudioRequestStatusCallback;
 import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
 import android.car.media.ISwitchAudioZoneConfigCallback;
 import android.car.oem.CarAudioFadeConfiguration;
+import android.car.oem.CarAudioFeaturesInfo;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
@@ -224,7 +225,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private final boolean mUseCarVolumeGroupMuting;
     private final boolean mUseHalDuckingSignals;
     private final boolean mUseMinMaxActivationVolume;
-    private final boolean mUseIsolateFocusForDynamicDevices;
+    private final boolean mUseIsolatedFocusForDynamicDevices;
     private final @CarVolume.CarVolumeListVersion int mAudioVolumeAdjustmentContextsVersion;
     private final boolean mPersistMasterMuteState;
     private final boolean mUseFadeManagerConfiguration;
@@ -431,7 +432,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 && mContext.getResources().getBoolean(R.bool.audioUseFadeManagerConfiguration);
         mUseMinMaxActivationVolume = Flags.carAudioMinMaxActivationVolume() && !runInLegacyMode()
                 && mContext.getResources().getBoolean(R.bool.audioUseMinMaxActivationVolume);
-        mUseIsolateFocusForDynamicDevices = Flags.carAudioDynamicDevices() && !runInLegacyMode()
+        mUseIsolatedFocusForDynamicDevices = Flags.carAudioDynamicDevices() && !runInLegacyMode()
                 && mContext.getResources().getBoolean(
                         R.bool.audioUseIsolatedAudioFocusForDynamicDevices);
         validateFeatureFlagSettings();
@@ -635,7 +636,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 writer.printf("Use fade manager configuration? %b\n", mUseFadeManagerConfiguration);
                 writer.printf("Use min/max activation volume? %b\n", mUseMinMaxActivationVolume);
                 writer.printf("Use isolated focus for dynamic devices? %b\n",
-                        mUseIsolateFocusForDynamicDevices);
+                        mUseIsolatedFocusForDynamicDevices);
                 writer.println();
                 mCarVolume.dump(writer);
                 writer.println();
@@ -754,7 +755,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             proto.write(CarAudioConfiguration.USE_MIN_MAX_ACTIVATION_VOLUME,
                     mUseMinMaxActivationVolume);
             proto.write(CarAudioConfiguration.USE_ISOLATED_FOCUS_FOR_DYNAMIC_DEVICES,
-                    mUseIsolateFocusForDynamicDevices);
+                    mUseIsolatedFocusForDynamicDevices);
             proto.end(configurationToken);
 
             mCarVolume.dumpProto(proto);
@@ -1929,12 +1930,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         // This gives us the ability to decide which audio focus requests to accept and bypasses
         // the framework ducking logic.
         mFocusHandler = CarZonesAudioFocus.createCarZonesAudioFocus(mAudioManager,
-                mContext.getPackageManager(),
-                mCarAudioZones,
-                mCarAudioSettings,
-                mCarDucking,
-                new CarVolumeInfoWrapper(this),
-                mUseFadeManagerConfiguration);
+                mContext.getPackageManager(), mCarAudioZones, mCarAudioSettings, mCarDucking,
+                new CarVolumeInfoWrapper(this), getAudioFeaturesInfo());
 
         AudioPolicy.Builder focusControlPolicyBuilder = new AudioPolicy.Builder(mContext);
         focusControlPolicyBuilder.setLooper(Looper.getMainLooper());
@@ -1950,6 +1947,22 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             throw new IllegalStateException("Could not register the car audio service's focus"
                     + " control audio policy, error: " + status);
         }
+    }
+
+    private CarAudioFeaturesInfo getAudioFeaturesInfo() {
+        if (!Flags.carAudioDynamicDevices()) {
+            return null;
+        }
+        CarAudioFeaturesInfo.Builder builder =
+                new CarAudioFeaturesInfo.Builder(CarAudioFeaturesInfo.AUDIO_FEATURE_NO_FEATURE);
+        if (mUseIsolatedFocusForDynamicDevices) {
+            builder.addAudioFeature(CarAudioFeaturesInfo.AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS);
+        }
+        if (mUseFadeManagerConfiguration) {
+            builder.addAudioFeature(CarAudioFeaturesInfo.AUDIO_FEATURE_FADE_MANAGER_CONFIGS);
+        }
+
+        return builder.build();
     }
 
     @GuardedBy("mImplLock")
