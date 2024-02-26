@@ -2244,7 +2244,7 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_HEAD_UP_DISPLAY} or
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_HEAD_UP_DISPLAY_STATUS} or
      *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_HEAD_UP_DISPLAY} to read
      *  property.
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_HEAD_UP_DISPLAY} to write
@@ -2256,7 +2256,8 @@ public final class VehiclePropertyIds {
     @FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
     @SystemApi
     @RequiresPermission.Read(@RequiresPermission(
-            anyOf = {Car.PERMISSION_READ_HEAD_UP_DISPLAY, Car.PERMISSION_CONTROL_HEAD_UP_DISPLAY}))
+            anyOf = {Car.PERMISSION_READ_HEAD_UP_DISPLAY_STATUS,
+                    Car.PERMISSION_CONTROL_HEAD_UP_DISPLAY}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_HEAD_UP_DISPLAY))
     public static final int HEAD_UP_DISPLAY_ENABLED = 354421254;
     /**

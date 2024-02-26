@@ -71,7 +71,7 @@
         <permission name="android.car.permission.READ_IMPACT_SENSORS"/>
         <permission name="android.car.permission.READ_VALET_MODE"/>
         <permission name="android.car.permission.CONTROL_VALET_MODE"/>
-        <permission name="android.car.permission.READ_HEAD_UP_DISPLAY"/>
+        <permission name="android.car.permission.READ_HEAD_UP_DISPLAY_STATUS"/>
         <permission name="android.car.permission.CONTROL_HEAD_UP_DISPLAY"/>
         <permission name="android.car.permission.CONTROL_CAR_MIRRORS"/>
         <permission name="android.car.permission.CONTROL_GLOVE_BOX"/>

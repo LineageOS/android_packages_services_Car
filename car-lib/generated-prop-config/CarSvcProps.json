@@ -1401,7 +1401,7 @@
         "value": [
           {
             "type": "single",
-            "value": "android.car.permission.READ_HEAD_UP_DISPLAY"
+            "value": "android.car.permission.READ_HEAD_UP_DISPLAY_STATUS"
           },
           {
             "type": "single",
