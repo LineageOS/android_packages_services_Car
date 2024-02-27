@@ -312,6 +312,12 @@ ScopedAStatus CarPowerPolicyDelegate::applyPowerPolicyPerPowerStateChangeAsync(
             "applyPowerPolicyPerPowerStateChangeAsync");
 }
 
+ScopedAStatus CarPowerPolicyDelegate::setSilentMode(const std::string& silentMode) {
+    return runWithService([silentMode](CarPowerPolicyServer* service)
+                                  -> ScopedAStatus { return service->setSilentMode(silentMode); },
+                          "setSilentMode");
+}
+
 ScopedAStatus CarPowerPolicyDelegate::runWithService(
         const std::function<ScopedAStatus(CarPowerPolicyServer*)>& action,
         const std::string& actionTitle) {
@@ -599,7 +605,7 @@ ScopedAStatus CarPowerPolicyServer::applyPowerPolicyPerPowerStateChangeAsync(
                     fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
                                                         StringPrintf("Power policy cannot be "
                                                                      "changed for power state(%d)",
-                                                                     state)
+                                                                     static_cast<int32_t>(state))
                                                                 .c_str());
     }
     std::string powerStateName = toString(apPowerState);
@@ -625,6 +631,18 @@ ScopedAStatus CarPowerPolicyServer::applyPowerPolicyPerPowerStateChangeAsync(
     if (auto ret = enqueuePowerPolicyRequest(requestId, policyId, /*force=*/false); !ret.isOk()) {
         ALOGW("Failed to apply power policy(%s) for power state(%s) with request ID(%d)",
               policyId.c_str(), powerStateName.c_str(), requestId);
+        return ret;
+    }
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::setSilentMode(const std::string& silentMode) {
+    ScopedAStatus status = checkSystemPermission();
+    if (!status.isOk()) {
+        return status;
+    }
+    if (auto ret = mSilentModeHandler.setSilentMode(silentMode); !ret.isOk()) {
+        ALOGW("Failed to set Silent Mode(%s)", silentMode.c_str());
         return ret;
     }
     return ScopedAStatus::ok();
@@ -1021,6 +1039,14 @@ Result<void> CarPowerPolicyServer::setPowerPolicyGroupInternal(const std::string
 }
 
 void CarPowerPolicyServer::notifySilentModeChange(const bool isSilent) {
+    if (car_power_policy_refactoring()) {
+        notifySilentModeChangeInternal(isSilent);
+    } else {
+        notifySilentModeChangeLegacy(isSilent);
+    }
+}
+
+void CarPowerPolicyServer::notifySilentModeChangeLegacy(const bool isSilent) {
     std::string pendingPowerPolicyId;
     if (Mutex::Autolock lock(mMutex); mIsCarServiceInOperation) {
         return;
@@ -1035,6 +1061,26 @@ void CarPowerPolicyServer::notifySilentModeChange(const bool isSilent) {
     } else {
         ret = applyPowerPolicy(pendingPowerPolicyId,
                                /*carServiceExpected=*/false, /*force=*/true);
+    }
+    if (!ret.ok()) {
+        ALOGW("Failed to apply power policy: %s", ret.error().message().c_str());
+    }
+}
+
+void CarPowerPolicyServer::notifySilentModeChangeInternal(const bool isSilent) {
+    std::string pendingPowerPolicyId;
+    {
+        Mutex::Autolock lock(mMutex);
+        pendingPowerPolicyId = mPendingPowerPolicyId;
+    }
+    ALOGI("Silent Mode is set to %s", isSilent ? "silent" : "non-silent");
+    Result<void> ret;
+    if (isSilent) {
+        ret = applyPowerPolicyInternal(kSystemPolicyIdNoUserInteraction, /*force=*/false,
+                                       /*notifyCarService=*/true);
+    } else {
+        ret = applyPowerPolicyInternal(pendingPowerPolicyId, /*force=*/true,
+                                       /*notifyCarService=*/true);
     }
     if (!ret.ok()) {
         ALOGW("Failed to apply power policy: %s", ret.error().message().c_str());
