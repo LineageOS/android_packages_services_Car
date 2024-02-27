@@ -107,26 +107,33 @@ public final class CoreAudioRoutingUtils {
         parcel.writeString(MUSIC_CONTEXT_NAME);
         parcel.writeInt(MUSIC_STRATEGY_ID);
 
-        parcel.writeInt(/* nb attributes groups= */ 1);
-        parcel.writeInt(/* volumeGroupId= */ MUSIC_GROUP_ID);
-        parcel.writeInt(/* stream type= */ 0);
-        parcel.writeInt(/* nb attributes= */ 2);
+        // nb attributes groups
+        parcel.writeInt(1);
+        parcel.writeInt(MUSIC_GROUP_ID);
+        // stream type
+        parcel.writeInt(0);
+        // nb attributes
+        parcel.writeInt(2);
 
-        parcel.writeInt(/* mUsage= */ AudioAttributes.USAGE_MEDIA);
-        parcel.writeInt(/* mContentType= */ AudioAttributes.CONTENT_TYPE_MUSIC);
-        parcel.writeInt(/* mSource= */ MediaRecorder.AudioSource.AUDIO_SOURCE_INVALID);
-        parcel.writeInt(/* mFlags= */ AudioAttributes.FLAG_MUTE_HAPTIC);
+        parcel.writeInt(AudioAttributes.USAGE_MEDIA);
+        parcel.writeInt(AudioAttributes.CONTENT_TYPE_MUSIC);
+        parcel.writeInt(MediaRecorder.AudioSource.AUDIO_SOURCE_INVALID);
+        parcel.writeInt(AudioAttributes.FLAG_MUTE_HAPTIC);
         parcel.writeInt(AudioAttributes.FLATTEN_TAGS);
-        parcel.writeString(/* mFormattedTags= */ "");
-        parcel.writeInt(/* ATTR_PARCEL_IS_NULL_BUNDLE= */ -1977);
+        // mFormattedTags
+        parcel.writeString("");
+        // ATTR_PARCEL_IS_NULL_BUNDLE
+        parcel.writeInt(-1977);
 
-        parcel.writeInt(/* mUsage= */ AudioAttributes.USAGE_UNKNOWN);
-        parcel.writeInt(/* mContentType= */ AudioAttributes.CONTENT_TYPE_UNKNOWN);
-        parcel.writeInt(/* mSource= */ MediaRecorder.AudioSource.AUDIO_SOURCE_INVALID);
-        parcel.writeInt(/* mFlags= */ AudioAttributes.FLAG_MUTE_HAPTIC);
+        parcel.writeInt(AudioAttributes.USAGE_UNKNOWN);
+        parcel.writeInt(AudioAttributes.CONTENT_TYPE_UNKNOWN);
+        parcel.writeInt(MediaRecorder.AudioSource.AUDIO_SOURCE_INVALID);
+        parcel.writeInt(AudioAttributes.FLAG_MUTE_HAPTIC);
         parcel.writeInt(AudioAttributes.FLATTEN_TAGS);
-        parcel.writeString(/* mFormattedTags= */ "");
-        parcel.writeInt(/* ATTR_PARCEL_IS_NULL_BUNDLE= */ -1977);
+        // mFormattedTags
+        parcel.writeString("");
+        // ATTR_PARCEL_IS_NULL_BUNDLE
+        parcel.writeInt(-1977);
 
         parcel.setDataPosition(0);
         MUSIC_STRATEGY = AudioProductStrategy.CREATOR.createFromParcel(parcel);
@@ -137,26 +144,33 @@ public final class CoreAudioRoutingUtils {
         parcel.writeString(NAV_CONTEXT_NAME);
         parcel.writeInt(NAV_STRATEGY_ID);
 
-        parcel.writeInt(/* nb attributes groups= */ 1);
-        parcel.writeInt(/* volumeGroupId= */ NAV_GROUP_ID);
-        parcel.writeInt(/* stream type= */ 0);
-        parcel.writeInt(/* nb attributes= */ 2);
+        // nb attributes groups
+        parcel.writeInt(1);
+        parcel.writeInt(NAV_GROUP_ID);
+        // stream type
+        parcel.writeInt(0);
+        // nb attributes
+        parcel.writeInt(2);
 
-        parcel.writeInt(/* mUsage= */ AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
-        parcel.writeInt(/* mContentType= */ AudioAttributes.CONTENT_TYPE_SPEECH);
-        parcel.writeInt(/* mSource= */ MediaRecorder.AudioSource.AUDIO_SOURCE_INVALID);
-        parcel.writeInt(/* mFlags= */ AudioAttributes.FLAG_MUTE_HAPTIC);
+        parcel.writeInt(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
+        parcel.writeInt(AudioAttributes.CONTENT_TYPE_SPEECH);
+        parcel.writeInt(MediaRecorder.AudioSource.AUDIO_SOURCE_INVALID);
+        parcel.writeInt(AudioAttributes.FLAG_MUTE_HAPTIC);
         parcel.writeInt(AudioAttributes.FLATTEN_TAGS);
-        parcel.writeString(/* mFormattedTags= */ "");
-        parcel.writeInt(/* ATTR_PARCEL_IS_NULL_BUNDLE= */ -1977);
+        // mFormattedTags
+        parcel.writeString("");
+        // ATTR_PARCEL_IS_NULL_BUNDLE
+        parcel.writeInt(-1977);
 
-        parcel.writeInt(/* mUsage= */ AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
-        parcel.writeInt(/* mContentType= */ AudioAttributes.CONTENT_TYPE_UNKNOWN);
-        parcel.writeInt(/* mSource= */ MediaRecorder.AudioSource.AUDIO_SOURCE_INVALID);
-        parcel.writeInt(/* mFlags= */ AudioAttributes.FLAG_MUTE_HAPTIC);
+        parcel.writeInt(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
+        parcel.writeInt(AudioAttributes.CONTENT_TYPE_UNKNOWN);
+        parcel.writeInt(MediaRecorder.AudioSource.AUDIO_SOURCE_INVALID);
+        parcel.writeInt(AudioAttributes.FLAG_MUTE_HAPTIC);
         parcel.writeInt(AudioAttributes.FLATTEN_TAGS);
-        parcel.writeString(/* mFormattedTags= */ "");
-        parcel.writeInt(/* ATTR_PARCEL_IS_NULL_BUNDLE= */ -1977);
+        // mFormattedTags
+        parcel.writeString("");
+        // ATTR_PARCEL_IS_NULL_BUNDLE
+        parcel.writeInt(-1977);
 
         parcel.setDataPosition(0);
         NAV_STRATEGY = AudioProductStrategy.CREATOR.createFromParcel(parcel);
@@ -167,17 +181,21 @@ public final class CoreAudioRoutingUtils {
         parcel.writeString(OEM_CONTEXT_NAME);
         parcel.writeInt(OEM_STRATEGY_ID);
 
-        parcel.writeInt(/* nb attributes groups= */ 1);
-        parcel.writeInt(/* volumeGroupId= */ OEM_GROUP_ID);
-        parcel.writeInt(/* stream type= */ 0);
-        parcel.writeInt(/* nb attributes= */ 1);
-        parcel.writeInt(/* mUsage= */ AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
-        parcel.writeInt(/* mContentType= */ AudioAttributes.CONTENT_TYPE_SPEECH);
-        parcel.writeInt(/* mSource= */ MediaRecorder.AudioSource.AUDIO_SOURCE_INVALID);
-        parcel.writeInt(/* mFlags= */ AudioAttributes.FLAG_MUTE_HAPTIC);
+        // nb attributes groups
+        parcel.writeInt(1);
+        parcel.writeInt(OEM_GROUP_ID);
+        // stream type
+        parcel.writeInt(0);
+        // nb attributes
+        parcel.writeInt(1);
+        parcel.writeInt(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
+        parcel.writeInt(AudioAttributes.CONTENT_TYPE_SPEECH);
+        parcel.writeInt(MediaRecorder.AudioSource.AUDIO_SOURCE_INVALID);
+        parcel.writeInt(AudioAttributes.FLAG_MUTE_HAPTIC);
         parcel.writeInt(AudioAttributes.FLATTEN_TAGS);
-        parcel.writeString(/* mFormattedTags= */ OEM_FORMATTED_TAGS);
-        parcel.writeInt(/* ATTR_PARCEL_IS_NULL_BUNDLE= */ -1977);
+        parcel.writeString(OEM_FORMATTED_TAGS);
+        // ATTR_PARCEL_IS_NULL_BUNDLE
+        parcel.writeInt(-1977);
 
         parcel.setDataPosition(0);
         OEM_STRATEGY = AudioProductStrategy.CREATOR.createFromParcel(parcel);
@@ -192,24 +210,30 @@ public final class CoreAudioRoutingUtils {
         parcel.writeString(MUSIC_GROUP_NAME);
         parcel.writeInt(MUSIC_GROUP_ID);
 
-        parcel.writeInt(/* nb attributes= */ 2);
-        parcel.writeInt(/* mUsage= */ AudioAttributes.USAGE_MEDIA);
-        parcel.writeInt(/* mContentType= */ AudioAttributes.CONTENT_TYPE_MUSIC);
-        parcel.writeInt(/* mSource= */ MediaRecorder.AudioSource.AUDIO_SOURCE_INVALID);
-        parcel.writeInt(/* mFlags= */ AudioAttributes.FLAG_MUTE_HAPTIC);
+        // nb attributes
+        parcel.writeInt(2);
+        parcel.writeInt(AudioAttributes.USAGE_MEDIA);
+        parcel.writeInt(AudioAttributes.CONTENT_TYPE_MUSIC);
+        parcel.writeInt(MediaRecorder.AudioSource.AUDIO_SOURCE_INVALID);
+        parcel.writeInt(AudioAttributes.FLAG_MUTE_HAPTIC);
         parcel.writeInt(AudioAttributes.FLATTEN_TAGS);
-        parcel.writeString(/* mFormattedTags= */ "");
-        parcel.writeInt(/* ATTR_PARCEL_IS_NULL_BUNDLE= */ -1977);
+        // mFormattedTags
+        parcel.writeString("");
+        // ATTR_PARCEL_IS_NULL_BUNDLE
+        parcel.writeInt(-1977);
 
-        parcel.writeInt(/* mUsage= */ AudioAttributes.USAGE_UNKNOWN);
-        parcel.writeInt(/* mContentType= */ AudioAttributes.CONTENT_TYPE_UNKNOWN);
-        parcel.writeInt(/* mSource= */ MediaRecorder.AudioSource.AUDIO_SOURCE_INVALID);
-        parcel.writeInt(/* mFlags= */ AudioAttributes.FLAG_MUTE_HAPTIC);
+        parcel.writeInt(AudioAttributes.USAGE_UNKNOWN);
+        parcel.writeInt(AudioAttributes.CONTENT_TYPE_UNKNOWN);
+        parcel.writeInt(MediaRecorder.AudioSource.AUDIO_SOURCE_INVALID);
+        parcel.writeInt(AudioAttributes.FLAG_MUTE_HAPTIC);
         parcel.writeInt(AudioAttributes.FLATTEN_TAGS);
-        parcel.writeString(/* mFormattedTags= */ "");
-        parcel.writeInt(/* ATTR_PARCEL_IS_NULL_BUNDLE= */ -1977);
+        // mFormattedTags
+        parcel.writeString("");
+        // ATTR_PARCEL_IS_NULL_BUNDLE
+        parcel.writeInt(-1977);
 
-        parcel.writeInt(/* nb stream types= */ 0);
+        // nb stream types
+        parcel.writeInt(0);
 
         parcel.setDataPosition(0);
         MUSIC_GROUP = AudioVolumeGroup.CREATOR.createFromParcel(parcel);
@@ -220,14 +244,17 @@ public final class CoreAudioRoutingUtils {
         parcel.writeString(NAV_GROUP_NAME);
         parcel.writeInt(NAV_GROUP_ID);
 
-        parcel.writeInt(/* nb attributes= */ 1);
-        parcel.writeInt(/* mUsage= */ AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
-        parcel.writeInt(/* mContentType= */ AudioAttributes.CONTENT_TYPE_SPEECH);
-        parcel.writeInt(/* mSource= */ MediaRecorder.AudioSource.AUDIO_SOURCE_INVALID);
-        parcel.writeInt(/* mFlags= */ AudioAttributes.FLAG_MUTE_HAPTIC);
+        // nb attributes
+        parcel.writeInt(1);
+        parcel.writeInt(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
+        parcel.writeInt(AudioAttributes.CONTENT_TYPE_SPEECH);
+        parcel.writeInt(MediaRecorder.AudioSource.AUDIO_SOURCE_INVALID);
+        parcel.writeInt(AudioAttributes.FLAG_MUTE_HAPTIC);
         parcel.writeInt(AudioAttributes.FLATTEN_TAGS);
-        parcel.writeString(/* mFormattedTags= */ "");
-        parcel.writeInt(/* ATTR_PARCEL_IS_NULL_BUNDLE= */ -1977);
+        // mFormattedTags
+        parcel.writeString("");
+        // ATTR_PARCEL_IS_NULL_BUNDLE
+        parcel.writeInt(-1977);
 
         parcel.writeInt(/* nb stream types= */ 0);
 
@@ -240,16 +267,20 @@ public final class CoreAudioRoutingUtils {
         parcel.writeString(OEM_GROUP_NAME);
         parcel.writeInt(OEM_GROUP_ID);
 
-        parcel.writeInt(/* nb attributes= */ 1);
-        parcel.writeInt(/* mUsage= */ AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
-        parcel.writeInt(/* mContentType= */ AudioAttributes.CONTENT_TYPE_SPEECH);
-        parcel.writeInt(/* mSource= */ MediaRecorder.AudioSource.AUDIO_SOURCE_INVALID);
-        parcel.writeInt(/* mFlags= */ AudioAttributes.FLAG_MUTE_HAPTIC);
+        // nb attributes
+        parcel.writeInt(1);
+        parcel.writeInt(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
+        parcel.writeInt(AudioAttributes.CONTENT_TYPE_SPEECH);
+        parcel.writeInt(MediaRecorder.AudioSource.AUDIO_SOURCE_INVALID);
+        parcel.writeInt(AudioAttributes.FLAG_MUTE_HAPTIC);
         parcel.writeInt(AudioAttributes.FLATTEN_TAGS);
-        parcel.writeString(/* mFormattedTags= */ "oem=extension_1979");
-        parcel.writeInt(/* ATTR_PARCEL_IS_NULL_BUNDLE= */ -1977);
+        // mFormattedTags
+        parcel.writeString("oem=extension_1979");
+        // ATTR_PARCEL_IS_NULL_BUNDLE
+        parcel.writeInt(-1977);
 
-        parcel.writeInt(/* nb stream types= */ 0);
+        // nb stream types
+        parcel.writeInt(0);
 
         parcel.setDataPosition(0);
         OEM_GROUP = AudioVolumeGroup.CREATOR.createFromParcel(parcel);

@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.oem.OemCarVolumeChangeInfo;
 import android.media.AudioManager;
-import android.media.audiopolicy.AudioPolicy.Builder;
+import android.media.audiopolicy.AudioPolicy;
 
 import com.android.car.CarLocalServices;
 import com.android.car.audio.CarAudioPolicyVolumeCallback.AudioPolicyVolumeCallbackInternal;
@@ -78,9 +78,9 @@ public class CarAudioPolicyVolumeCallbackTest {
     @Mock
     private CarVolumeInfoWrapper mMockVolumeInfoWrapper;
     @Mock
-    AudioManager mMockAudioManager;
+    private AudioManager mMockAudioManager;
     @Mock
-    Builder mMockBuilder;
+    private AudioPolicy.Builder mMockBuilder;
 
     @Mock
     private AudioPolicyVolumeCallbackInternal mVolumeCallbackInternal;

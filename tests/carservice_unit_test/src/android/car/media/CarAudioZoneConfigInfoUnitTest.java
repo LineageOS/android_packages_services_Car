@@ -152,7 +152,7 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
         Parcel parcel = Parcel.obtain();
 
         TEST_ZONE_CONFIG_INFO.writeToParcel(parcel, TEST_PARCEL_FLAGS);
-        parcel.setDataPosition(/* position= */ 0);
+        parcel.setDataPosition(/* pos= */ 0);
 
         expectWithMessage("Zone configuration info created from parcel")
                 .that(CarAudioZoneConfigInfo.CREATOR.createFromParcel(parcel))

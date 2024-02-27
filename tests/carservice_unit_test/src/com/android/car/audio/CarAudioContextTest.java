@@ -685,7 +685,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void toString_forInvalidContext_returnsUnsupportedContext() {
         expectWithMessage("Context String for invalid context")
-                .that(TEST_CAR_AUDIO_CONTEXT.toString(/* context= */ -1))
+                .that(TEST_CAR_AUDIO_CONTEXT.toString(/* audioContext= */ -1))
                 .contains("Unsupported Context");
     }
 

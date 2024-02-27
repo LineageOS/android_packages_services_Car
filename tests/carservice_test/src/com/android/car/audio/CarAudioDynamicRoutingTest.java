@@ -264,14 +264,6 @@ public final class CarAudioDynamicRoutingTest extends AbstractExpectableTestCase
             return this;
         }
 
-        VolumeGroupBuilder addDeviceAddressAndUsages(int usage, String address) {
-            if (!mUsagesDeviceAddresses.containsKey(address)) {
-                mUsagesDeviceAddresses.put(address, new ArrayList<>());
-            }
-            mUsagesDeviceAddresses.get(address).add(usage);
-            return this;
-        }
-
         VolumeGroupBuilder addCarAudioDeviceInfoMock(CarAudioDeviceInfo infoMock) {
             mCarAudioDeviceInfoMock = infoMock;
             return this;

@@ -99,9 +99,6 @@ public class CarAudioFocusUnitTest {
     private static final String THIRD_CLIENT_ID = "third-client-id";
     private static final String CALL_CLIENT_ID = "AudioFocus_For_Phone_Ring_And_Calls";
 
-    private static final String PACKAGE_NAME = "com.android.car.audio";
-    private static final int AUDIOFOCUS_FLAG = 0;
-
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
             new CarAudioContext(CarAudioContext.getAllContextsInfo(),
                     /* useCoreAudioRouting= */ false);
@@ -1880,7 +1877,6 @@ public class CarAudioFocusUnitTest {
 
     private AudioFocusInfo getInfo(AudioAttributes audioAttributes, String clientId, int gainType,
             boolean acceptsDelayedFocus, int uid) {
-        int flags = acceptsDelayedFocus ? AudioManager.AUDIOFOCUS_FLAG_DELAY_OK : AUDIOFOCUS_FLAG;
         return CarAudioTestUtils.getInfo(audioAttributes, clientId, gainType, acceptsDelayedFocus,
                 /* pauseInsteadOfDucking= */ false, uid);
     }

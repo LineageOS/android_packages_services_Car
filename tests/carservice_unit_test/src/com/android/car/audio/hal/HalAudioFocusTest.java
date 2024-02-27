@@ -187,7 +187,7 @@ public final class HalAudioFocusTest extends AbstractExpectableTestCase {
     @Test
     public void requestAudioFocus_withNullPlaybackMonitor() {
         HalAudioFocus halAudioFocus = new HalAudioFocus(mMockAudioManager, mAudioControlWrapper,
-                /* CarAudioPlaybackMonitor= */ null, TEST_CAR_AUDIO_CONTEXT, AUDIO_ZONE_IDS);
+                /* carAudioPlaybackMonitor= */ null, TEST_CAR_AUDIO_CONTEXT, AUDIO_ZONE_IDS);
         whenAnyFocusRequestGranted();
 
         halAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);

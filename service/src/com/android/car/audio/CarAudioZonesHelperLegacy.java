@@ -43,6 +43,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -271,7 +272,7 @@ class CarAudioZonesHelperLegacy {
     private static int parseDeviceAddress(String address) {
         String[] words = address.split("_");
         int addressParsed = -1;
-        if (words[0].toLowerCase().startsWith("bus")) {
+        if (words[0].toLowerCase(Locale.US).startsWith("bus")) {
             try {
                 addressParsed = Integer.parseInt(words[0].substring(3));
             } catch (NumberFormatException e) {
