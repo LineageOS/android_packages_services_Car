@@ -529,9 +529,6 @@ public final class Car implements ICarBase {
      *
      * @hide
      */
-    @MandatoryFeature
-    @SystemApi
-    @FlaggedApi(Flags.FLAG_PERSIST_AP_SETTINGS)
     public static final String CAR_WIFI_SERVICE = "car_wifi_service";
 
     /**

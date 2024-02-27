@@ -466,10 +466,6 @@ public class ICarImpl extends ICar.Stub {
             mCarRemoteAccessService = null;
         }
 
-        mCarWifiService = constructWithTrace(t, CarWifiService.class,
-                () -> new CarWifiService(mContext, mCarPowerManagementService,
-                        mCarUserService), allServices);
-
         // Always put mCarExperimentalFeatureServiceController in last.
         if (!BuildHelper.isUserBuild()) {
             mCarExperimentalFeatureServiceController = constructWithTrace(
@@ -496,6 +492,14 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mCarOccupantConnectionService = null;
             mCarRemoteDeviceService = null;
+        }
+
+        if (mFeatureController.isFeatureEnabled(Car.CAR_WIFI_SERVICE)) {
+            mCarWifiService = constructWithTrace(t, CarWifiService.class,
+                    () -> new CarWifiService(mContext, mCarPowerManagementService,
+                            mCarUserService), allServices);
+        } else {
+            mCarWifiService = null;
         }
 
         mAllServicesInInitOrder = allServices.toArray(new CarSystemService[allServices.size()]);
@@ -715,17 +719,14 @@ public class ICarImpl extends ICar.Stub {
                 return mCarRemoteDeviceService;
             case Car.CAR_REMOTE_ACCESS_SERVICE:
                 return mCarRemoteAccessService;
+            case Car.CAR_WIFI_SERVICE:
+                return mCarWifiService;
             default:
                 // CarDisplayCompatManager does not need a new service but the Car class
                 // doesn't allow a new Manager class without a service.
                 if (Flags.displayCompatibility()) {
                     if (serviceName.equals(CAR_DISPLAY_COMPAT_SERVICE)) {
                         return mCarActivityService;
-                    }
-                }
-                if (Flags.persistApSettings()) {
-                    if (serviceName.equals(Car.CAR_WIFI_SERVICE)) {
-                        return mCarWifiService;
                     }
                 }
                 IBinder service = null;
