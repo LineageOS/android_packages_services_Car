@@ -45,10 +45,12 @@ import android.car.test.mocks.JavaMockitoHelper;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.platform.test.ravenwood.RavenwoodRule;
 
 import com.android.car.internal.ICarBase;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -73,6 +75,9 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExpectableTest
     private static final long TEST_START_TIME = 1234;
     private static final int TEST_TASK_COUNT = 10;
     private static final Duration TEST_PERIODIC = Duration.ofSeconds(1);
+
+    @Rule
+    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder().setProcessApp().build();
 
     @Mock
     private ICarBase mCar;

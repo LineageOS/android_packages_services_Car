@@ -30,6 +30,7 @@ import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.feature.FeatureFlags;
 import android.car.feature.FeatureFlagsImpl;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -198,6 +199,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
                 callback = mRemoteTaskClientCallback;
                 executor = mExecutor;
             }
+            Binder.clearCallingIdentity();
             executor.execute(() -> callback.onRegistrationUpdated(registrationInfo));
         }
 
@@ -216,6 +218,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
                 executor = mExecutor;
             }
             if (mFeatureFlags.serverlessRemoteAccess()) {
+                Binder.clearCallingIdentity();
                 executor.execute(() -> callback.onServerlessClientRegistered());
             } else {
                 Log.e(TAG, "Serverless remote access flag is not enabled, "
@@ -236,6 +239,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
                 callback = mRemoteTaskClientCallback;
                 executor = mExecutor;
             }
+            Binder.clearCallingIdentity();
             executor.execute(() -> callback.onRegistrationFailed());
         }
 
@@ -258,6 +262,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
                         + "registered");
                 return;
             }
+            Binder.clearCallingIdentity();
             executor.execute(() -> callback.onRemoteTaskRequested(taskId, data,
                     taskMaxDurationInSec));
         }
@@ -277,6 +282,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
                         + "registered");
                 return;
             }
+            Binder.clearCallingIdentity();
             executor.execute(() ->
                     callback.onShutdownStarting(new MyCompletableRemoteTaskFuture(clientId)));
         }
