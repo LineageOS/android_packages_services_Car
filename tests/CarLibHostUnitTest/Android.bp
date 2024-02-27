@@ -49,7 +49,5 @@ android_ravenwood_test {
         "android.test.base",
         "framework-annotations-lib",
     ],
-    // Need to access hidden APIs.
-    platform_apis: true,
     auto_gen_config: true,
 }
