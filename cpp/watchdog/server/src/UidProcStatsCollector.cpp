@@ -55,10 +55,13 @@ constexpr uint64_t kMaxUint64 = std::numeric_limits<uint64_t>::max();
 constexpr const char* kProcPidStatFileFormat = "/proc/%" PRIu32 "/stat";
 constexpr const char* kProcPidStatusFileFormat = "/proc/%" PRIu32 "/status";
 
-enum ReadError {
-    ERR_INVALID_FILE = 0,
-    ERR_FILE_OPEN_READ = 1,
-    NUM_ERRORS = 2,
+enum ReadStatus {
+    // Default value is an error for backwards compatibility with the Result::ErrorCode.
+    READ_ERROR = 0,
+    // PIDs may disappear between scanning and reading directory/files. Use |READ_WARNING| in these
+    // instances to return the missing directory/file for logging purposes.
+    READ_WARNING = 1,
+    NUM_READ_STATUS = 2,
 };
 
 uint64_t addUint64(const uint64_t& l, const uint64_t& r) {
@@ -121,15 +124,15 @@ bool parsePidStatLine(const std::string& line, PidStat* pidStat) {
 Result<PidStat> readPidStatFile(const std::string& path, int32_t millisPerClockTick) {
     std::string buffer;
     if (!ReadFileToString(path, &buffer)) {
-        return Error(ERR_FILE_OPEN_READ) << "ReadFileToString failed for " << path;
+        return Error(READ_WARNING) << "ReadFileToString failed for " << path;
     }
     std::vector<std::string> lines = Split(std::move(buffer), "\n");
     if (lines.size() != 1 && (lines.size() != 2 || !lines[1].empty())) {
-        return Error(ERR_INVALID_FILE) << path << " contains " << lines.size() << " lines != 1";
+        return Error(READ_ERROR) << path << " contains " << lines.size() << " lines != 1";
     }
     PidStat pidStat;
     if (!parsePidStatLine(std::move(lines[0]), &pidStat)) {
-        return Error(ERR_INVALID_FILE) << "Failed to parse the contents of " << path;
+        return Error(READ_ERROR) << "Failed to parse the contents of " << path;
     }
     pidStat.startTimeMillis = pidStat.startTimeMillis * millisPerClockTick;
     pidStat.cpuTimeMillis = pidStat.cpuTimeMillis * millisPerClockTick;
@@ -167,7 +170,7 @@ Result<std::unordered_map<std::string, std::string>> readKeyValueFile(
         const std::vector<std::string>& tags) {
     std::string buffer;
     if (!ReadFileToString(path, &buffer)) {
-        return Error(ERR_FILE_OPEN_READ) << "ReadFileToString failed for " << path;
+        return Error(READ_WARNING) << "ReadFileToString failed for " << path;
     }
     std::vector<std::string> lines = getLinesWithTags(buffer, tags);
     std::unordered_map<std::string, std::string> contents;
@@ -177,14 +180,14 @@ Result<std::unordered_map<std::string, std::string>> readKeyValueFile(
         }
         std::vector<std::string> elements = Split(lines[i], delimiter);
         if (elements.size() < 2) {
-            return Error(ERR_INVALID_FILE)
+            return Error(READ_ERROR)
                     << "Line \"" << lines[i] << "\" doesn't contain the delimiter \"" << delimiter
                     << "\" in file " << path;
         }
         std::string key = elements[0];
         std::string value = Trim(lines[i].substr(key.length() + delimiter.length()));
         if (contents.find(key) != contents.end()) {
-            return Error(ERR_INVALID_FILE)
+            return Error(READ_ERROR)
                     << "Duplicate " << key << " line: \"" << lines[i] << "\" in file " << path;
         }
         contents[key] = value;
@@ -208,16 +211,16 @@ Result<std::tuple<uid_t, pid_t>> readPidStatusFile(const std::string& path) {
     }
     auto contents = result.value();
     if (contents.empty()) {
-        return Error(ERR_INVALID_FILE) << "Empty file " << path;
+        return Error(READ_ERROR) << "Empty file " << path;
     }
     int64_t uid = 0;
     int64_t tgid = 0;
     if (contents.find("Uid") == contents.end() ||
         !ParseInt(Split(contents["Uid"], "\t")[0], &uid)) {
-        return Error(ERR_INVALID_FILE) << "Failed to read 'UID' from file " << path;
+        return Error(READ_ERROR) << "Failed to read 'UID' from file " << path;
     }
     if (contents.find("Tgid") == contents.end() || !ParseInt(contents["Tgid"], &tgid)) {
-        return Error(ERR_INVALID_FILE) << "Failed to read 'Tgid' from file " << path;
+        return Error(READ_ERROR) << "Failed to read 'Tgid' from file " << path;
     }
     return std::make_tuple(uid, tgid);
 }
@@ -249,7 +252,7 @@ Result<uint64_t> readTimeInStateFile(const std::string& path) {
 
     std::string buffer;
     if (!ReadFileToString(path, &buffer)) {
-        return Error(ERR_FILE_OPEN_READ) << "ReadFileToString failed for " << path;
+        return Error(READ_WARNING) << "ReadFileToString failed for " << path;
     }
     std::string delimiter = " ";
     uint64_t oneTenthCpuCycles = 0;
@@ -261,14 +264,14 @@ Result<uint64_t> readTimeInStateFile(const std::string& path) {
         }
         std::vector<std::string> elements = Split(lines[i], delimiter);
         if (elements.size() < 2) {
-            return Error(ERR_INVALID_FILE)
+            return Error(READ_ERROR)
                     << "Line \"" << lines[i] << "\" doesn't contain the delimiter \"" << delimiter
                     << "\" in file " << path;
         }
         uint64_t freqKHz;
         uint64_t clockTicks;
         if (!ParseUint(elements[0], &freqKHz) || !ParseUint(Trim(elements[1]), &clockTicks)) {
-            return Error(ERR_INVALID_FILE)
+            return Error(READ_ERROR)
                     << "Line \"" << lines[i] << "\" has invalid format in file " << path;
         }
         oneTenthCpuCycles = addUint64(oneTenthCpuCycles, mul(freqKHz, clockTicks));
@@ -415,12 +418,9 @@ Result<std::unordered_map<uid_t, UidProcStats>> UidProcStatsCollector::readUidPr
         }
         auto result = readProcessStatsLocked(pid);
         if (!result.ok()) {
-            if (result.error().code() != ERR_FILE_OPEN_READ) {
+            if (result.error().code() != READ_WARNING) {
                 return Error() << result.error();
             }
-            /* |ERR_FILE_OPEN_READ| is a soft-error because PID may disappear between scanning and
-             * reading directory/files.
-             */
             if (DEBUG) {
                 ALOGD("%s", result.error().message().c_str());
             }
@@ -458,7 +458,7 @@ Result<std::tuple<uid_t, ProcessStats>> UidProcStatsCollector::readProcessStatsL
     uid_t uid = -1;
     path = StringPrintf((mPath + kStatusFileFormat).c_str(), pid);
     if (auto result = readPidStatusFile(path); !result.ok()) {
-        if (result.error().code() != ERR_FILE_OPEN_READ) {
+        if (result.error().code() != READ_WARNING) {
             return Error() << "Failed to read pid status for pid " << pid << ": "
                            << result.error().message().c_str();
         }
@@ -477,7 +477,7 @@ Result<std::tuple<uid_t, ProcessStats>> UidProcStatsCollector::readProcessStatsL
     }
 
     if (uid == static_cast<uid_t>(-1) || tgid != pid) {
-        return Error(ERR_FILE_OPEN_READ)
+        return Error(READ_WARNING)
                 << "Skipping PID '" << pid << "' because either Tgid != PID or invalid UID";
     }
 
@@ -510,7 +510,7 @@ Result<std::tuple<uid_t, ProcessStats>> UidProcStatsCollector::readProcessStatsL
             path = StringPrintf((taskDir + kStatFileFormat).c_str(), tid);
             auto tidStat = readPidStatFile(path, mMillisPerClockTick);
             if (!tidStat.ok()) {
-                if (tidStat.error().code() != ERR_FILE_OPEN_READ) {
+                if (tidStat.error().code() != READ_WARNING) {
                     return Error() << "Failed to read per-thread stat file: "
                                    << tidStat.error().message().c_str();
                 }
@@ -531,7 +531,7 @@ Result<std::tuple<uid_t, ProcessStats>> UidProcStatsCollector::readProcessStatsL
         path = StringPrintf((taskDir + kTimeInStateFormat).c_str(), tid);
         auto tidCpuCycles = readTimeInStateFile(path);
         if (!tidCpuCycles.ok() || *tidCpuCycles <= 0) {
-            if (!tidCpuCycles.ok() && tidCpuCycles.error().code() != ERR_FILE_OPEN_READ) {
+            if (!tidCpuCycles.ok() && tidCpuCycles.error().code() != READ_WARNING) {
                 return Error() << "Failed to read per-thread time_in_state file: "
                                << tidCpuCycles.error().message().c_str();
             }
