@@ -5345,6 +5345,72 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                         service.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0));
     }
 
+    @Test
+    public void requestHalAudioFocus_withVolumeAboveActivationVolume_adjustsToActivationVolume()
+            throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        when(mAudioManager.requestAudioFocus(any())).thenReturn(
+                AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+        CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
+        CarVolumeEventCallbackImpl volumeEventCallback = new CarVolumeEventCallbackImpl();
+        service.registerCarVolumeEventCallback(volumeEventCallback);
+        int maxActivationVolume = service.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE,
+                TEST_PRIMARY_ZONE_GROUP_1).getMaxActivationVolumeGainIndex();
+        service.setGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_1,
+                maxActivationVolume + 1, TEST_FLAGS);
+        volumeEventCallback.waitForCallback();
+        volumeEventCallback.reset();
+        reset(mCarVolumeCallbackHandler);
+
+        requestHalAudioFocus(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
+
+        expectWithMessage("Playback group volume for HAL focus and above-activation gain index")
+                .that(service.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_1))
+                .isEqualTo(maxActivationVolume);
+        verify(mCarVolumeCallbackHandler).onVolumeGroupChange(eq(PRIMARY_AUDIO_ZONE),
+                eq(TEST_PRIMARY_ZONE_GROUP_1), anyInt());
+        expectWithMessage("Volume event callback for HAL focus and above-activation gain index")
+                .that(volumeEventCallback.waitForCallback()).isTrue();
+        expectWithMessage("Volume events count after HAL focus and above-activation gain"
+                + " index adjustment").that(volumeEventCallback.getVolumeGroupEvents())
+                .hasSize(1);
+        CarVolumeGroupEvent groupEvent = volumeEventCallback.getVolumeGroupEvents().get(0);
+        expectWithMessage("Volume event type after HAL focus and above-activation gain"
+                + " index adjustment").that(groupEvent.getEventTypes())
+                .isEqualTo(CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED);
+        expectWithMessage("Volume group info after HAL focus and above-activation gain"
+                + " index adjustment").that(groupEvent.getCarVolumeGroupInfos()).containsExactly(
+                        service.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_1));
+    }
+
+    @Test
+    public void requestHalAudioFocus_withVolumeInActivationVolumeRange()
+            throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        when(mAudioManager.requestAudioFocus(any())).thenReturn(
+                AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+        CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
+        CarVolumeEventCallbackImpl volumeEventCallback = new CarVolumeEventCallbackImpl();
+        service.registerCarVolumeEventCallback(volumeEventCallback);
+        int gainIndexInActivationVolumeRange = service.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE,
+                TEST_PRIMARY_ZONE_GROUP_1).getMaxActivationVolumeGainIndex() - 1;
+        service.setGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_1,
+                gainIndexInActivationVolumeRange, TEST_FLAGS);
+        volumeEventCallback.waitForCallback();
+        volumeEventCallback.reset();
+        reset(mCarVolumeCallbackHandler);
+
+        requestHalAudioFocus(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
+
+        expectWithMessage("Playback group volume for HAL focus in activation volume index range")
+                .that(service.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_1))
+                .isEqualTo(gainIndexInActivationVolumeRange);
+        verify(mCarVolumeCallbackHandler, never()).onVolumeGroupChange(eq(PRIMARY_AUDIO_ZONE),
+                eq(TEST_PRIMARY_ZONE_GROUP_1), anyInt());
+        expectWithMessage("No volume event callback for HAL focus in activation volume"
+                + " index range").that(volumeEventCallback.waitForCallback()).isFalse();
+    }
+
     private CarAudioService setUpCarAudioServiceWithoutZoneMapping() throws Exception {
         setUpTempFileForAudioConfiguration(R.raw.car_audio_configuration_without_zone_mapping);
         setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);

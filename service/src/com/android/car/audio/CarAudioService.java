@@ -2051,8 +2051,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             return;
         }
 
-        mHalAudioFocus = new HalAudioFocus(mAudioManager, mAudioControlWrapper, mCarAudioContext,
-                getAudioZoneIds());
+        mHalAudioFocus = new HalAudioFocus(mAudioManager, mAudioControlWrapper,
+                mCarAudioPlaybackMonitor, mCarAudioContext, getAudioZoneIds());
         mHalAudioFocus.registerFocusListener();
     }
 
