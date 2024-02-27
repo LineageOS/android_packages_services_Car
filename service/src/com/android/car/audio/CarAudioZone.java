@@ -367,6 +367,11 @@ public class CarAudioZone {
         return getCurrentCarAudioZoneConfig().isAudioDeviceInfoValidForZone(info);
     }
 
+    @Nullable
+    CarVolumeGroup getVolumeGroupForAudioAttributes(AudioAttributes audioAttributes) {
+        return getCurrentCarAudioZoneConfig().getVolumeGroupForAudioAttributes(audioAttributes);
+    }
+
     List<CarVolumeGroupEvent> onAudioGainChanged(List<Integer> halReasons,
             List<CarAudioGainConfigInfo> gainInfos) {
         List<CarVolumeGroupEvent> events = new ArrayList<>();

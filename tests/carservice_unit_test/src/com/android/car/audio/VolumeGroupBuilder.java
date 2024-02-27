@@ -29,6 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.car.media.CarVolumeGroupInfo;
+import android.media.AudioAttributes;
 import android.util.ArrayMap;
 import android.util.SparseArray;
 
@@ -178,6 +179,15 @@ public final class VolumeGroupBuilder {
         when(carVolumeGroup.audioDevicesAdded(anyList())).thenReturn(!mIsActive);
         when(carVolumeGroup.audioDevicesRemoved(anyList())).thenReturn(!mIsActive);
         when(carVolumeGroup.validateDeviceTypes(any())).thenReturn(true);
+
+        for (int index = 0; index < mUsagesDeviceAddresses.size(); index++) {
+            List<Integer> usagesForAddress = mUsagesDeviceAddresses.valueAt(index);
+            for (int usageId = 0; usageId < usagesForAddress.size(); usageId++) {
+                AudioAttributes audioAttributes = CarAudioContext.getAudioAttributeFromUsage(
+                        usagesForAddress.get(usageId));
+                when(carVolumeGroup.hasAudioAttributes(audioAttributes)).thenReturn(true);
+            }
+        }
 
         return carVolumeGroup;
     }

@@ -26,6 +26,11 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.media.AudioAttributes;
@@ -36,6 +41,8 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -82,7 +89,11 @@ public final class ZoneAudioPlaybackCallbackTest {
                     .getAudioAttributeFromUsage(USAGE_ASSISTANT));
 
     @Mock
+    private CarAudioPlaybackMonitor mCarAudioPlaybackMonitor;
+    @Mock
     private SystemClockWrapper mClock;
+    @Captor
+    private ArgumentCaptor<List<AudioAttributes>> mAudioAttributesCaptor;
 
     private CarAudioZone mPrimaryZone;
 
@@ -95,7 +106,8 @@ public final class ZoneAudioPlaybackCallbackTest {
     @Test
     public void createZoneAudioPlaybackCallback_withNullCarAudioZones_fails() throws Exception {
         NullPointerException thrown = assertThrows(NullPointerException.class, () ->
-                new ZoneAudioPlaybackCallback(null, mClock, KEY_EVENT_TIMEOUT_MS));
+                new ZoneAudioPlaybackCallback(/* carAudioZone= */ null, mCarAudioPlaybackMonitor,
+                        mClock, KEY_EVENT_TIMEOUT_MS));
 
         assertWithMessage("Zone audio playback callback constructor")
                 .that(thrown).hasMessageThat().contains("Audio zone cannot be null");
@@ -105,7 +117,8 @@ public final class ZoneAudioPlaybackCallbackTest {
     public void createZoneAudioPlaybackCallback_withNullSystemClockWrapper_fails()
             throws Exception {
         NullPointerException thrown = assertThrows(NullPointerException.class, () ->
-                new ZoneAudioPlaybackCallback(mPrimaryZone, null, KEY_EVENT_TIMEOUT_MS));
+                new ZoneAudioPlaybackCallback(mPrimaryZone, mCarAudioPlaybackMonitor,
+                        /* clock= */ null, KEY_EVENT_TIMEOUT_MS));
 
         assertWithMessage("Zone audio playback callback constructor")
                 .that(thrown).hasMessageThat().contains("Clock cannot be null");
@@ -115,7 +128,8 @@ public final class ZoneAudioPlaybackCallbackTest {
     public void
             createZoneAudioPlaybackCallback_withNegativeKeyEventTimeout_fails() throws Exception {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
-                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, -KEY_EVENT_TIMEOUT_MS));
+                new ZoneAudioPlaybackCallback(mPrimaryZone, mCarAudioPlaybackMonitor, mClock,
+                        -KEY_EVENT_TIMEOUT_MS));
 
         assertWithMessage("Zone audio playback callback constructor")
                 .that(thrown).hasMessageThat()
@@ -125,8 +139,8 @@ public final class ZoneAudioPlaybackCallbackTest {
     @Test
     public void
             getAllActiveContextsForPrimaryZone_withNoOnPlaybackConfigChanged_returnsEmptyList() {
-        ZoneAudioPlaybackCallback callback =
-                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS);
 
         List<AudioAttributes> activeAttributes =
                 callback.getAllActiveAudioAttributes();
@@ -144,8 +158,8 @@ public final class ZoneAudioPlaybackCallbackTest {
                         .build()
         );
 
-        ZoneAudioPlaybackCallback callback =
-                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
@@ -153,6 +167,25 @@ public final class ZoneAudioPlaybackCallbackTest {
                 callback.getAllActiveAudioAttributes();
 
         assertThat(activeAttributes).containsExactly(TEST_MEDIA_AUDIO_ATTRIBUTE);
+    }
+
+    @Test
+    public void getAllActiveContextsForPrimaryZone_withNullPlaybackMonitor() {
+        List<AudioPlaybackConfiguration> activeConfigurations = ImmutableList.of(
+                new AudioPlaybackConfigurationBuilder()
+                        .setUsage(USAGE_MEDIA)
+                        .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
+                        .build()
+        );
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                /* carAudioPlaybackMonitor= */ null, mClock, KEY_EVENT_TIMEOUT_MS);
+        callback.onPlaybackConfigChanged(activeConfigurations);
+
+        List<AudioAttributes> activeAttributes =
+                callback.getAllActiveAudioAttributes();
+
+        assertWithMessage("Active attributes with null car audio playback monitor")
+                .that(activeAttributes).containsExactly(TEST_MEDIA_AUDIO_ATTRIBUTE);
     }
 
     @Test
@@ -169,8 +202,8 @@ public final class ZoneAudioPlaybackCallbackTest {
                         .build()
         );
 
-        ZoneAudioPlaybackCallback callback =
-                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
@@ -197,8 +230,8 @@ public final class ZoneAudioPlaybackCallbackTest {
                         .build()
         );
 
-        ZoneAudioPlaybackCallback callback =
-                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(configurations);
 
@@ -214,8 +247,8 @@ public final class ZoneAudioPlaybackCallbackTest {
         List<AudioPlaybackConfiguration> activeConfigurations = getAudioPlaybackConfigurations(
                 PRIMARY_MEDIA_ADDRESS, PRIMARY_NAVIGATION_ADDRESS);
 
-        ZoneAudioPlaybackCallback callback =
-                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
@@ -267,8 +300,8 @@ public final class ZoneAudioPlaybackCallbackTest {
                         .build()
         );
 
-        ZoneAudioPlaybackCallback callback =
-                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
@@ -301,8 +334,8 @@ public final class ZoneAudioPlaybackCallbackTest {
         List<AudioPlaybackConfiguration> configurationsChanged = getAudioPlaybackConfigurations(
                 PRIMARY_MEDIA_ADDRESS, PRIMARY_NAVIGATION_ADDRESS);
 
-        ZoneAudioPlaybackCallback callback =
-                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
@@ -335,8 +368,8 @@ public final class ZoneAudioPlaybackCallbackTest {
         List<AudioPlaybackConfiguration> configurationsChanged = getAudioPlaybackConfigurations(
                 PRIMARY_MEDIA_ADDRESS, PRIMARY_NAVIGATION_ADDRESS);
 
-        ZoneAudioPlaybackCallback callback =
-                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
@@ -378,8 +411,8 @@ public final class ZoneAudioPlaybackCallbackTest {
                         .build()
         );
 
-        ZoneAudioPlaybackCallback callback =
-                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
@@ -409,8 +442,8 @@ public final class ZoneAudioPlaybackCallbackTest {
         List<AudioPlaybackConfiguration> configurationsChanged = getAudioPlaybackConfigurations(
                 PRIMARY_MEDIA_ADDRESS, PRIMARY_NAVIGATION_ADDRESS);
 
-        ZoneAudioPlaybackCallback callback =
-                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
@@ -439,8 +472,8 @@ public final class ZoneAudioPlaybackCallbackTest {
                         .build()
         );
 
-        ZoneAudioPlaybackCallback callback =
-                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
@@ -467,8 +500,8 @@ public final class ZoneAudioPlaybackCallbackTest {
         List<AudioPlaybackConfiguration> configurationsChanged = getAudioPlaybackConfigurations(
                 SECONDARY_MEDIA_ADDRESS, SECONDARY_NAVIGATION_ADDRESS);
 
-        ZoneAudioPlaybackCallback callback =
-                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
@@ -478,6 +511,84 @@ public final class ZoneAudioPlaybackCallbackTest {
                 callback.getAllActiveAudioAttributes();
 
         assertThat(activeAttributes).isEmpty();
+    }
+
+    @Test
+    public void onPlaybackConfigChanged_withActiveConfigurations() {
+        List<AudioPlaybackConfiguration> activeConfigurations = ImmutableList.of(
+                new AudioPlaybackConfigurationBuilder()
+                        .setUsage(USAGE_MEDIA)
+                        .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
+                        .build(),
+                new AudioPlaybackConfigurationBuilder()
+                        .setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                        .setDeviceAddress(PRIMARY_NAVIGATION_ADDRESS)
+                        .build()
+        );
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS);
+
+        callback.onPlaybackConfigChanged(activeConfigurations);
+
+        verifyActivationPlaybacks(List.of(TEST_MEDIA_AUDIO_ATTRIBUTE,
+                TEST_NAVIGATION_AUDIO_ATTRIBUTE));
+    }
+
+    @Test
+    public void onPlaybackConfigChanged_withoutActiveConfigurations() {
+        List<AudioPlaybackConfiguration> activeConfigurations = ImmutableList.of(
+                new AudioPlaybackConfigurationBuilder()
+                        .setUsage(USAGE_MEDIA)
+                        .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
+                        .setInactive()
+                        .build(),
+                new AudioPlaybackConfigurationBuilder()
+                        .setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                        .setDeviceAddress(PRIMARY_NAVIGATION_ADDRESS)
+                        .setInactive()
+                        .build()
+        );
+
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS);
+
+        callback.onPlaybackConfigChanged(activeConfigurations);
+
+        verify(mCarAudioPlaybackMonitor, never()).onActiveAudioPlaybackAttributesAdded(any(),
+                anyInt());
+    }
+
+    @Test
+    public void onPlaybackConfigChanged_withUpdatedPlaybacks() {
+        List<AudioPlaybackConfiguration> activeConfigurations = ImmutableList.of(
+                new AudioPlaybackConfigurationBuilder()
+                        .setUsage(USAGE_MEDIA)
+                        .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
+                        .build(),
+                new AudioPlaybackConfigurationBuilder()
+                        .setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                        .setDeviceAddress(PRIMARY_NAVIGATION_ADDRESS)
+                        .build()
+        );
+        List<AudioPlaybackConfiguration> configurationsChanged = ImmutableList.of(
+                new AudioPlaybackConfigurationBuilder()
+                        .setUsage(USAGE_MEDIA)
+                        .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
+                        .build(),
+                new AudioPlaybackConfigurationBuilder()
+                        .setInactive()
+                        .setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                        .setDeviceAddress(PRIMARY_NAVIGATION_ADDRESS)
+                        .build()
+        );
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS);
+
+        callback.onPlaybackConfigChanged(activeConfigurations);
+        callback.onPlaybackConfigChanged(configurationsChanged);
+
+        verifyActivationPlaybacks(List.of(TEST_MEDIA_AUDIO_ATTRIBUTE,
+                TEST_NAVIGATION_AUDIO_ATTRIBUTE));
     }
 
     private CarAudioZone generatePrimaryZone() {
@@ -501,5 +612,13 @@ public final class ZoneAudioPlaybackCallbackTest {
                 .addCarAudioZoneConfig(carAudioZoneConfig)
                 .build();
 
+    }
+
+    private void verifyActivationPlaybacks(List<AudioAttributes> newlyActiveAudioAttributes) {
+        verify(mCarAudioPlaybackMonitor).onActiveAudioPlaybackAttributesAdded(
+                mAudioAttributesCaptor.capture(), eq(PRIMARY_ZONE_ID));
+        assertWithMessage("Audio attributes for newly active playbacks")
+                .that(mAudioAttributesCaptor.getValue())
+                .containsExactlyElementsIn(newlyActiveAudioAttributes);
     }
 }
