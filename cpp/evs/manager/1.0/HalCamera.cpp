@@ -166,15 +166,22 @@ Return<void> HalCamera::doneWithFrame(const BufferDesc& buffer) {
             break;
         }
     }
+
     if (i == mFrames.size()) {
         ALOGE("We got a frame back with an ID we don't recognize!");
-    } else {
-        // Are there still clients using this buffer?
-        mFrames[i].refCount--;
-        if (mFrames[i].refCount <= 0) {
-            // Since all our clients are done with this buffer, return it to the device layer
-            mHwCamera->doneWithFrame(buffer);
-        }
+        return {};
+    }
+
+    if (mFrames[i].refCount < 1) {
+        ALOGW("We got a frame that refcount is already zero.");
+        return {};
+    }
+
+    // Are there still clients using this buffer?
+    mFrames[i].refCount--;
+    if (mFrames[i].refCount == 0) {
+        // Since all our clients are done with this buffer, return it to the device layer
+        mHwCamera->doneWithFrame(buffer);
     }
 
     return Void();

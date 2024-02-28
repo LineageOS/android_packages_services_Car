@@ -278,17 +278,18 @@ ScopedAStatus HalCamera::doneWithFrame(BufferDesc buffer) {
         return ScopedAStatus::ok();
     }
 
-    // Are there still clients using this buffer?
-    if (it->refCount > 0) {
-        it->refCount = it->refCount - 1;
-        if (it->refCount > 0) {
-            LOG(DEBUG) << "Buffer " << buffer.bufferId << " is still being used by " << it->refCount
-                       << " other client(s).";
-            return ScopedAStatus::ok();
-        }
-    } else {
+    if (it->refCount < 1) {
         LOG(WARNING) << "Buffer " << buffer.bufferId
                      << " is returned with a zero reference counter.";
+        return ScopedAStatus::ok();
+    }
+
+    // Are there still clients using this buffer?
+    it->refCount = it->refCount - 1;
+    if (it->refCount > 0) {
+        LOG(DEBUG) << "Buffer " << buffer.bufferId << " is still being used by " << it->refCount
+                   << " other client(s).";
+        return ScopedAStatus::ok();
     }
 
     // Since all our clients are done with this buffer, return it to the device layer
