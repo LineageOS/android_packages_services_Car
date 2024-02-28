@@ -25,7 +25,6 @@ import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE
 
 import static com.android.car.audio.CoreAudioRoutingUtils.MUSIC_ATTRIBUTES;
 import static com.android.car.audio.CoreAudioRoutingUtils.OEM_ATTRIBUTES;
-import static com.android.car.audio.CoreAudioRoutingUtils.OEM_DEVICE_ADDRESS;
 import static com.android.car.audio.CoreAudioRoutingUtils.OEM_FORMATTED_TAGS;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -339,7 +338,7 @@ public class CarHalAudioUtilsTest {
     public void audioAttributesToMetadatas_withNullZone_fails() {
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
             CarHalAudioUtils.audioAttributesToMetadatas(AUDIO_ATTRIBUTES_HOLDING_FOCUS,
-                    /*CarAudioZone=*/ null);
+                    /* zone= */ null);
         });
 
         assertWithMessage("Null audio zone exception")

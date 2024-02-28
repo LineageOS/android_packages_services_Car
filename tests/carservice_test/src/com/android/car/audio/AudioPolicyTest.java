@@ -110,7 +110,8 @@ public class AudioPolicyTest {
                 .build();
     }
 
-    private class AudioPortUpdateListener implements AudioManager.OnAudioPortUpdateListener {
+    private static final class AudioPortUpdateListener implements
+            AudioManager.OnAudioPortUpdateListener {
 
         @Override
         public void onAudioPortListUpdate(AudioPort[] portList) {

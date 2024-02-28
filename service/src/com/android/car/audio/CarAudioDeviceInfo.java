@@ -284,7 +284,9 @@ import java.util.Objects;
                 getAddress(), gain, true)) {
             // Since we can't query for the gain on a device port later,
             // we have to remember what we asked for
-            mCurrentGain = gain;
+            synchronized (mLock) {
+                mCurrentGain = gain;
+            }
         } else {
             Slogf.e(CarLog.TAG_AUDIO, "Failed to setAudioPortGain " + gain
                     + " for output device " + getAddress());

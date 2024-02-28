@@ -122,7 +122,7 @@ public final class AudioFocusStackTest {
         }
 
         return new AudioFocusInfo(builder.build(), clientUid, clientId,
-                /* package= */ "com.android.car.audio", AudioManager.AUDIOFOCUS_GAIN,
+                /* packageName= */ "com.android.car.audio", AudioManager.AUDIOFOCUS_GAIN,
                 AudioManager.AUDIOFOCUS_NONE, /* flags= */ 0, Build.VERSION.SDK_INT);
     }
 }

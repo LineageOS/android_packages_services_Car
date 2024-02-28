@@ -119,7 +119,7 @@ public final class OemCarAudioFocusEvaluationRequestUnitTest extends AbstractExp
                 List.of(TEST_NAV_AUDIO_FOCUS_ENTRY), CarAudioManager.PRIMARY_AUDIO_ZONE)
                 .setAudioFocusRequest(TEST_CALL_FOCUS_FOCUS_ENTRY).build();
         request.writeToParcel(parcel, TEST_PARCEL_FLAGS);
-        parcel.setDataPosition(/* position= */ 0);
+        parcel.setDataPosition(/* pos= */ 0);
         return request;
     }
 
@@ -151,7 +151,7 @@ public final class OemCarAudioFocusEvaluationRequestUnitTest extends AbstractExp
         OemCarAudioFocusEvaluationRequest nullFocusRequest =
                 new OemCarAudioFocusEvaluationRequest(null, List.of(TEST_MUTED_VOLUME_GROUP),
                         List.of(TEST_MEDIA_AUDIO_FOCUS_ENTRY), List.of(TEST_NAV_AUDIO_FOCUS_ENTRY),
-                        /* featuresEnabled= */ null, CarAudioManager.PRIMARY_AUDIO_ZONE);
+                        /* carAudioFeaturesInfo= */ null, CarAudioManager.PRIMARY_AUDIO_ZONE);
 
         expectWithMessage("Request with null audio focus request")
                 .that(nullFocusRequest).isEqualTo(request);

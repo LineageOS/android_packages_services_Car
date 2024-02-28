@@ -199,7 +199,7 @@ public class CarVolumeCallbackHandlerTest extends AbstractExpectableTestCase {
             .isTrue();
     }
 
-    private class TestCarVolumeCallback extends ICarVolumeCallback.Stub {
+    private static final class TestCarVolumeCallback extends ICarVolumeCallback.Stub {
         private boolean mThrowFlag;
         private final CountDownLatch mGroupVolumeChangeLatch = new CountDownLatch(1);
         private final CountDownLatch mGroupMuteChangeLatch = new CountDownLatch(1);
