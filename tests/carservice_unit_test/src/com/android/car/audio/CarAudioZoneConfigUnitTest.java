@@ -75,8 +75,8 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     private static final String TEST_VOICE_GROUP_NAME = "Voice group name";
     private static final int TEST_ZONE_ID = 0;
     private static final int TEST_MUSIC_GROUP_ID = 0;
-    private static final int TEST_NAV_GROUP_ID = 20;
-    private static final int TEST_VOICE_GROUP_ID = 30;
+    private static final int TEST_NAV_GROUP_ID = 1;
+    private static final int TEST_VOICE_GROUP_ID = 2;
 
     private static final AudioAttributes TEST_MEDIA_ATTRIBUTE =
             CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA);
@@ -123,19 +123,25 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
 
         mMockMusicGroup = new VolumeGroupBuilder().setName(TEST_MUSIC_GROUP_NAME)
                 .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS)
-                .setZoneId(TEST_ZONE_ID).setGroupId(TEST_MUSIC_GROUP_ID).build();
+                .setZoneId(TEST_ZONE_ID).setGroupId(TEST_MUSIC_GROUP_ID)
+                .addDeviceAddressAndUsages(USAGE_MEDIA, MUSIC_ADDRESS).build();
 
         mMockInactiveMusicGroup = new VolumeGroupBuilder().setName(TEST_MUSIC_GROUP_NAME)
                 .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS)
-                .setZoneId(TEST_ZONE_ID).setIsActive(false).setGroupId(TEST_MUSIC_GROUP_ID).build();
+                .setZoneId(TEST_ZONE_ID).setIsActive(false).setGroupId(TEST_MUSIC_GROUP_ID)
+                .addDeviceAddressAndUsages(USAGE_MEDIA, MUSIC_ADDRESS).build();
 
         mMockNavGroup = new VolumeGroupBuilder().setName(TEST_NAV_GROUP_NAME)
                 .addDeviceAddressAndContexts(TEST_NAVIGATION_CONTEXT, NAV_ADDRESS)
-                .setZoneId(TEST_ZONE_ID).setGroupId(TEST_NAV_GROUP_ID).build();
+                .setZoneId(TEST_ZONE_ID).setGroupId(TEST_NAV_GROUP_ID)
+                .addDeviceAddressAndUsages(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE, NAV_ADDRESS)
+                .build();
 
         mMockVoiceGroup = new VolumeGroupBuilder().setName(TEST_VOICE_GROUP_NAME)
                 .addDeviceAddressAndContexts(TEST_ASSISTANT_CONTEXT, VOICE_ADDRESS)
-                .setZoneId(TEST_ZONE_ID).setGroupId(TEST_VOICE_GROUP_ID).build();
+                .setZoneId(TEST_ZONE_ID).setGroupId(TEST_VOICE_GROUP_ID)
+                .addDeviceAddressAndUsages(USAGE_ASSISTANT, VOICE_ADDRESS)
+                .build();
     }
 
     @Test
@@ -604,6 +610,26 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
 
         expectWithMessage("Valid audio device info").that(
                 zoneConfig.isAudioDeviceInfoValidForZone(nullAddressDeviceInfo)).isTrue();
+    }
+
+    @Test
+    public void getVolumeGroupForAudioAttributes() {
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.addVolumeGroup(mMockMusicGroup)
+                .addVolumeGroup(mMockNavGroup).build();
+
+        expectWithMessage("Audio attributes in car audio zone config")
+                .that(zoneConfig.getVolumeGroupForAudioAttributes(TEST_NAVIGATION_ATTRIBUTE))
+                .isEqualTo(mMockNavGroup);
+    }
+
+    @Test
+    public void getVolumeGroupForAudioAttributes_withAttributeNotFound() {
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.addVolumeGroup(mMockMusicGroup)
+                .addVolumeGroup(mMockNavGroup).build();
+
+        expectWithMessage("Audio attributes not in car audio zone config")
+                .that(zoneConfig.getVolumeGroupForAudioAttributes(TEST_ASSISTANT_ATTRIBUTE))
+                .isNull();
     }
 
     @Test

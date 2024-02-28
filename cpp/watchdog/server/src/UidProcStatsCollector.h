@@ -165,7 +165,7 @@ private:
     // Latest dump of per-UID stats.
     std::unordered_map<uid_t, UidProcStats> mLatestStats GUARDED_BY(mMutex);
 
-    // Latest delta of per-uid stats.
+    // Latest delta of per-uid stat
     std::unordered_map<uid_t, UidProcStats> mDeltaStats GUARDED_BY(mMutex);
 
     FRIEND_TEST(PerformanceProfilerTest, TestValidProcPidContents);

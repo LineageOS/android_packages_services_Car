@@ -62,8 +62,15 @@ final class CarAudioUtils {
 
     static CarVolumeGroupEvent convertVolumeChangeToEvent(CarVolumeGroupInfo info, int flags,
             int eventTypes) {
-        List<Integer> extraInfos = CarVolumeGroupEvent.convertFlagsToExtraInfo(flags, eventTypes);
-        return new CarVolumeGroupEvent.Builder(List.of(info), eventTypes, extraInfos).build();
+        List<Integer> extraInfos = CarVolumeGroupEvent.convertFlagsToExtraInfo(flags,
+                eventTypes);
+        return convertVolumeChangesToEvents(List.of(info), eventTypes, extraInfos);
+    }
+
+    static CarVolumeGroupEvent convertVolumeChangesToEvents(List<CarVolumeGroupInfo> infoList,
+                                                            int eventTypes,
+                                                            List<Integer> extraInfos) {
+        return new CarVolumeGroupEvent.Builder(infoList, eventTypes, extraInfos).build();
     }
 
     @Nullable

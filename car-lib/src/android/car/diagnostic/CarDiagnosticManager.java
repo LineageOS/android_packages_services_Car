@@ -272,7 +272,7 @@ public final class CarDiagnosticManager extends CarManagerBase {
      * a false return from this method should be used by the client as cause for invalidating
      * its local knowledge of the vehicle diagnostic state.
      */
-    @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
+    @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR)
     public boolean clearFreezeFrames(long... timestamps) {
         try {
             return mService.clearFreezeFrames(timestamps);
