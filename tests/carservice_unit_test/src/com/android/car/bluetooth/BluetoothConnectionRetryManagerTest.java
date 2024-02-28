@@ -56,9 +56,6 @@ import java.util.List;
 @RequiresDevice
 public class BluetoothConnectionRetryManagerTest
         extends AbstractExtendedMockitoBluetoothTestCase {
-    private static final String TAG = BluetoothConnectionRetryManagerTest.class.getSimpleName();
-    private static final boolean VERBOSE = false;
-
     private static final List<String> DEVICE_LIST = Arrays.asList(
             "DE:AD:BE:EF:00:00",
             "DE:AD:BE:EF:00:01",

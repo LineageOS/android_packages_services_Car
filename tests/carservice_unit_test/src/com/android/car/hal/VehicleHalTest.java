@@ -125,16 +125,17 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
             VehicleHal.class.getSimpleName());
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
-    private final HalPropValueBuilder mPropValueBuilder = new HalPropValueBuilder(/*isAidl=*/true);
+    private final HalPropValueBuilder mPropValueBuilder = new HalPropValueBuilder(
+            /* isAidl= */ true);
     private static final int REQUEST_ID_1 = 1;
     private static final int REQUEST_ID_2 = 1;
     private final HalPropValue mHalPropValue = mPropValueBuilder.build(HVAC_TEMPERATURE_SET, 0);
     private final AsyncGetSetRequest mGetVehicleRequest1 =
-            new AsyncGetSetRequest(REQUEST_ID_1, mHalPropValue, /* timeoutInMs= */ 0);
+            new AsyncGetSetRequest(REQUEST_ID_1, mHalPropValue, /* timeoutUptimeMs= */ 0);
     private final AsyncGetSetRequest mGetVehicleRequest2 =
-            new AsyncGetSetRequest(REQUEST_ID_2, mHalPropValue, /* timeoutInMs= */ 0);
+            new AsyncGetSetRequest(REQUEST_ID_2, mHalPropValue, /* timeoutUptimeMs= */ 0);
     private final AsyncGetSetRequest mSetVehicleRequest =
-            new AsyncGetSetRequest(REQUEST_ID_1, mHalPropValue, /* timeoutInMs= */ 0);
+            new AsyncGetSetRequest(REQUEST_ID_1, mHalPropValue, /* timeoutUptimeMs= */ 0);
 
     @Rule public final TestName mTestName = new TestName();
 
@@ -725,11 +726,11 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     public void testSubscribeProperty_enableVur() throws Exception {
         int[] areaIds = new int[] {AREA_ID_1};
         HalSubscribeOptions option = new HalSubscribeOptions(CONTINUOUS_PROPERTY,
-                areaIds, ANY_SAMPLING_RATE_1, /*enableVariableUpdateRate=*/ true);
+                areaIds, ANY_SAMPLING_RATE_1, /* enableVariableUpdateRate= */ true);
         mVehicleHal.subscribeProperty(mPropertyHalService, List.of(option));
 
         SubscribeOptions expectedOptions = createSubscribeOptions(CONTINUOUS_PROPERTY,
-                ANY_SAMPLING_RATE_1, areaIds, /*enableVur=*/ true);
+                ANY_SAMPLING_RATE_1, areaIds, /* enableVur= */ true);
 
         verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{expectedOptions}));
     }
@@ -739,11 +740,11 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         when(mFeatureFlags.variableUpdateRate()).thenReturn(false);
         int[] areaIds = new int[] {AREA_ID_1};
         HalSubscribeOptions option = new HalSubscribeOptions(CONTINUOUS_PROPERTY,
-                areaIds, ANY_SAMPLING_RATE_1, /*enableVariableUpdateRate=*/ true);
+                areaIds, ANY_SAMPLING_RATE_1, /* enableVariableUpdateRate= */ true);
         mVehicleHal.subscribeProperty(mPropertyHalService, List.of(option));
 
         SubscribeOptions expectedOptions = createSubscribeOptions(CONTINUOUS_PROPERTY,
-                ANY_SAMPLING_RATE_1, areaIds, /*enableVur=*/ false);
+                ANY_SAMPLING_RATE_1, areaIds, /* enableVur= */ false);
 
         verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{expectedOptions}));
     }
@@ -752,19 +753,19 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     public void testSubscribeProperty_enableVur_vurChange() throws Exception {
         int[] areaIds = new int[] {AREA_ID_1};
         HalSubscribeOptions option = new HalSubscribeOptions(CONTINUOUS_PROPERTY,
-                areaIds, ANY_SAMPLING_RATE_1, /*enableVariableUpdateRate=*/ true);
+                areaIds, ANY_SAMPLING_RATE_1, /* enableVariableUpdateRate= */ true);
         mVehicleHal.subscribeProperty(mPropertyHalService, List.of(option));
 
         verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{createSubscribeOptions(
-                CONTINUOUS_PROPERTY, ANY_SAMPLING_RATE_1, areaIds, /*enableVur=*/ true)}));
+                CONTINUOUS_PROPERTY, ANY_SAMPLING_RATE_1, areaIds, /* enableVur= */ true)}));
 
         HalSubscribeOptions option2 = new HalSubscribeOptions(CONTINUOUS_PROPERTY,
-                areaIds, ANY_SAMPLING_RATE_1, /*enableVariableUpdateRate=*/ false);
+                areaIds, ANY_SAMPLING_RATE_1, /* enableVariableUpdateRate= */ false);
         clearInvocations(mSubscriptionClient);
         mVehicleHal.subscribeProperty(mPropertyHalService, List.of(option2));
 
         verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{createSubscribeOptions(
-                CONTINUOUS_PROPERTY, ANY_SAMPLING_RATE_1, areaIds, /*enableVur=*/ false)}));
+                CONTINUOUS_PROPERTY, ANY_SAMPLING_RATE_1, areaIds, /* enableVur= */ false)}));
 
         clearInvocations(mSubscriptionClient);
         // No option change.
@@ -777,11 +778,11 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     public void testSubscribeProperty_enableVur_falseForOnChangeProperty() throws Exception {
         int[] areaIds = new int[] {AREA_ID_1};
         HalSubscribeOptions option = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
-                areaIds, ANY_SAMPLING_RATE_1, /*enableVariableUpdateRate=*/ true);
+                areaIds, ANY_SAMPLING_RATE_1, /* enableVariableUpdateRate= */ true);
         mVehicleHal.subscribeProperty(mPowerHalService, List.of(option));
 
         SubscribeOptions expectedOptions = createSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
-                ANY_SAMPLING_RATE_1, areaIds, /*enableVur=*/ false);
+                ANY_SAMPLING_RATE_1, areaIds, /* enableVur= */ false);
 
         verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{expectedOptions}));
     }
@@ -790,12 +791,12 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     public void testSubscribeProperty_withResolution() throws Exception {
         int[] areaIds = new int[] {AREA_ID_1};
         HalSubscribeOptions option = new HalSubscribeOptions(CONTINUOUS_PROPERTY,
-                areaIds, ANY_SAMPLING_RATE_1, /*enableVariableUpdateRate=*/ true,
-                /*resolution*/ 1.0f);
+                areaIds, ANY_SAMPLING_RATE_1, /* enableVariableUpdateRate= */ true,
+                /* resolution= */ 1.0f);
         mVehicleHal.subscribeProperty(mPropertyHalService, List.of(option));
 
         SubscribeOptions expectedOptions = createSubscribeOptions(CONTINUOUS_PROPERTY,
-                ANY_SAMPLING_RATE_1, areaIds, /*enableVur=*/ true, /*resolution*/ 1.0f);
+                ANY_SAMPLING_RATE_1, areaIds, /* enableVur= */ true, /* resolution= */ 1.0f);
 
         verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{expectedOptions}));
     }
@@ -805,12 +806,12 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         when(mFeatureFlags.subscriptionWithResolution()).thenReturn(false);
         int[] areaIds = new int[] {AREA_ID_1};
         HalSubscribeOptions option = new HalSubscribeOptions(CONTINUOUS_PROPERTY,
-                areaIds, ANY_SAMPLING_RATE_1, /*enableVariableUpdateRate=*/ true,
-                /*resolution*/ 1.0f);
+                areaIds, ANY_SAMPLING_RATE_1, /* enableVariableUpdateRate= */ true,
+                /* resolution= */ 1.0f);
         mVehicleHal.subscribeProperty(mPropertyHalService, List.of(option));
 
         SubscribeOptions expectedOptions = createSubscribeOptions(CONTINUOUS_PROPERTY,
-                ANY_SAMPLING_RATE_1, areaIds, /*enableVur=*/ true, /*resolution*/ 0.0f);
+                ANY_SAMPLING_RATE_1, areaIds, /* enableVur= */ true, /* resolution= */ 0.0f);
 
         verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{expectedOptions}));
     }
@@ -819,23 +820,23 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     public void testSubscribeProperty_withResolution_resolutionChange() throws Exception {
         int[] areaIds = new int[] {AREA_ID_1};
         HalSubscribeOptions option = new HalSubscribeOptions(CONTINUOUS_PROPERTY,
-                areaIds, ANY_SAMPLING_RATE_1, /*enableVariableUpdateRate=*/ true,
-                /*resolution*/ 1.0f);
+                areaIds, ANY_SAMPLING_RATE_1, /* enableVariableUpdateRate= */ true,
+                /* resolution= */ 1.0f);
         mVehicleHal.subscribeProperty(mPropertyHalService, List.of(option));
 
         verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{createSubscribeOptions(
-                CONTINUOUS_PROPERTY, ANY_SAMPLING_RATE_1, areaIds, /*enableVur=*/ true,
-                /*resolution*/ 1.0f)}));
+                CONTINUOUS_PROPERTY, ANY_SAMPLING_RATE_1, areaIds, /* enableVur= */ true,
+                /* resolution*/ 1.0f)}));
 
         HalSubscribeOptions option2 = new HalSubscribeOptions(CONTINUOUS_PROPERTY,
-                areaIds, ANY_SAMPLING_RATE_1, /*enableVariableUpdateRate=*/ true,
-                /*resolution*/ 0.1f);
+                areaIds, ANY_SAMPLING_RATE_1, /* enableVariableUpdateRate= */ true,
+                /* resolution= */ 0.1f);
         clearInvocations(mSubscriptionClient);
         mVehicleHal.subscribeProperty(mPropertyHalService, List.of(option2));
 
         verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{createSubscribeOptions(
-                CONTINUOUS_PROPERTY, ANY_SAMPLING_RATE_1, areaIds, /*enableVur=*/ true,
-                /*resolution*/ 0.1f)}));
+                CONTINUOUS_PROPERTY, ANY_SAMPLING_RATE_1, areaIds, /* enableVur= */ true,
+                /* resolution= */ 0.1f)}));
 
         clearInvocations(mSubscriptionClient);
         // No option change.
@@ -848,12 +849,12 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     public void testSubscribeProperty_withResolution_zeroForOnChangeProperty() throws Exception {
         int[] areaIds = new int[] {AREA_ID_1};
         HalSubscribeOptions option = new HalSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
-                areaIds, ANY_SAMPLING_RATE_1, /*enableVariableUpdateRate=*/ true,
-                /*resolution*/ 1.0f);
+                areaIds, ANY_SAMPLING_RATE_1, /* enableVariableUpdateRate= */ true,
+                /* resolution= */ 1.0f);
         mVehicleHal.subscribeProperty(mPowerHalService, List.of(option));
 
         SubscribeOptions expectedOptions = createSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
-                ANY_SAMPLING_RATE_1, areaIds, /*enableVur=*/ false, /*resolution*/ 0.0f);
+                ANY_SAMPLING_RATE_1, areaIds, /* enableVur= */ false, /* resolution= */ 0.0f);
 
         verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{expectedOptions}));
     }
@@ -1329,7 +1330,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
 
         // Act
         HalPropValue actual = mVehicleHal.getIfSupportedOrFail(SOME_READ_ON_CHANGE_PROPERTY,
-                /* numberOfRetries= */ 1);
+                /* maxRetries= */ 1);
 
         // Assert
         assertThat(actual).isEqualTo(propValue);
@@ -1338,7 +1339,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testGetIfSupportedOrFail_unsupportedProperty() {
         HalPropValue actual = mVehicleHal.getIfSupportedOrFail(UNSUPPORTED_PROPERTY,
-                /* numberOfRetries= */ 1);
+                /* maxRetries= */ 1);
 
         assertThat(actual).isNull();
     }
@@ -1349,7 +1350,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
                 new ServiceSpecificException(StatusCode.INTERNAL_ERROR));
 
         assertThrows(IllegalStateException.class, () -> mVehicleHal.getIfSupportedOrFail(
-                SOME_READ_ON_CHANGE_PROPERTY, /* numberOfRetries= */ 1));
+                SOME_READ_ON_CHANGE_PROPERTY, /* maxRetries= */ 1));
     }
 
     @Test
@@ -1361,7 +1362,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
 
         // Retry once.
         HalPropValue actual = mVehicleHal.getIfSupportedOrFail(SOME_READ_ON_CHANGE_PROPERTY,
-                /* numberOfRetries= */ 2);
+                /* maxRetries= */ 2);
 
         assertThat(actual).isEqualTo(propValue);
         verify(mVehicle, times(2)).get(propValue);
@@ -1374,7 +1375,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
                 new ServiceSpecificException(StatusCode.TRY_AGAIN));
 
         assertThrows(IllegalStateException.class, () -> mVehicleHal.getIfSupportedOrFail(
-                SOME_READ_ON_CHANGE_PROPERTY, /* numberOfRetries= */ 2));
+                SOME_READ_ON_CHANGE_PROPERTY, /* maxRetries= */ 2));
     }
 
     @Test
@@ -1394,7 +1395,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
 
         // Act
         HalPropValue actual = mVehicleHal.getIfSupportedOrFailForEarlyStage(
-                SOME_READ_ON_CHANGE_PROPERTY, /* numberOfRetries= */ 1);
+                SOME_READ_ON_CHANGE_PROPERTY, /* maxRetries= */ 1);
 
         // Assert
         assertThat(actual).isEqualTo(propValue);
@@ -1543,7 +1544,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     }
 
     // A test class to class protected method of VehicleHal.
-    private class VehicleHalTestClass extends VehicleHal {
+    private static final class VehicleHalTestClass extends VehicleHal {
         VehicleHalTestClass(Context context,
                 PowerHalService powerHal,
                 PropertyHalService propertyHal,
@@ -1787,11 +1788,12 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
 
-        HalPropValue propValue = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0, "some_value");
+        HalPropValue propValue = mPropValueBuilder.build(/* prop= */0, /* areaId= */0,
+                "some_value");
         when(mVehicle.get(any(HalPropValue.class))).thenReturn(propValue);
 
         // Act
-        mVehicleHal.dumpPropertyValueByCommand(printWriter, /* propId= */ -1, /* areaId= */-1);
+        mVehicleHal.dumpPropertyValueByCommand(printWriter, /* propertyId= */ -1, /* areaId= */ -1);
 
         // Assert
         assertThat(writer.toString()).contains("string: some_value");
@@ -1803,7 +1805,8 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
 
-        HalPropValue propValue = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0, "some_value");
+        HalPropValue propValue = mPropValueBuilder.build(/* prop= */0, /* areaId= */0,
+                "some_value");
         when(mVehicle.get(any(HalPropValue.class))).thenReturn(propValue);
 
         // Act
@@ -1835,12 +1838,13 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
 
-        HalPropValue propValue = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0, "some_value");
+        HalPropValue propValue = mPropValueBuilder.build(/* prop= */ 0, /* areaId= */ 0,
+                "some_value");
         when(mVehicle.get(any(HalPropValue.class))).thenReturn(propValue);
 
         // Act
         mVehicleHal.dumpPropertyValueByCommand(printWriter, SOME_READ_ON_CHANGE_PROPERTY,
-                /* areaId= */-1);
+                /* areaId= */ -1);
 
         // Assert
         assertThat(writer.toString()).contains("string: some_value");
@@ -1865,7 +1869,8 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
 
-        HalPropValue propValue = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0, "some_value");
+        HalPropValue propValue = mPropValueBuilder.build(/* prop= */ 0, /* areaId= */ 0,
+                "some_value");
         when(mVehicle.get(any(HalPropValue.class))).thenReturn(propValue);
 
         // Act
@@ -1890,7 +1895,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
 
         // Act
         mVehicleHal.dumpPropertyValueByCommand(printWriter, SOME_READ_ON_CHANGE_PROPERTY,
-                /* areaId= */-1);
+                /* areaId= */ -1);
 
         // Assert
         assertThat(writer.toString()).contains("Can not get property value");
@@ -1918,7 +1923,7 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
 
         // Act
         mVehicleHal.dumpPropertyValueByCommand(printWriter, SOME_READ_ON_CHANGE_PROPERTY,
-                /* areaId= */-1);
+                /* areaId= */ -1);
 
         // Assert
         assertThat(writer.toString()).contains("Can not get property value");
@@ -1949,13 +1954,14 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
 
-        HalPropValue propValue = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0, "some_value");
+        HalPropValue propValue = mPropValueBuilder.build(/* prop= */ 0, /* areaId= */ 0,
+                "some_value");
         when(mVehicle.get(any(HalPropValue.class))).thenReturn(propValue);
 
         // Act
         // Note here we cannot use UNSUPPORTED_PROPERTY because its value -1 has special meaning
         // in this function call.
-        mVehicleHal.dumpPropertyValueByCommand(printWriter, 0, /* areaId= */-1);
+        mVehicleHal.dumpPropertyValueByCommand(printWriter, 0, /* areaId= */ -1);
 
         // Assert
         assertThat(writer.toString()).contains("not supported by HAL");
@@ -2344,14 +2350,14 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     }
 
     private SubscribeOptions createSubscribeOptions(int propId, float sampleRateHz, int[] areaIds) {
-        return createSubscribeOptions(propId, sampleRateHz, areaIds, /*enableVur=*/ false,
-                /*resolution*/ 0.0f);
+        return createSubscribeOptions(propId, sampleRateHz, areaIds, /* enableVur= */ false,
+                /* resolution= */ 0.0f);
     }
 
     private SubscribeOptions createSubscribeOptions(int propId, float sampleRateHz, int[] areaIds,
             boolean enableVur) {
         return createSubscribeOptions(propId, sampleRateHz, areaIds, enableVur,
-                /*resolution*/ 0.0f);
+                /* resolution= */ 0.0f);
     }
 
     private SubscribeOptions createSubscribeOptions(int propId, float sampleRateHz, int[] areaIds,

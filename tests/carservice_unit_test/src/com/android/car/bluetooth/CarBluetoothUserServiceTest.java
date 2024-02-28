@@ -102,7 +102,6 @@ public class CarBluetoothUserServiceTest extends AbstractExtendedMockitoBluetoot
     @Mock private PhoneAccountHandle mMockPhoneAccountHandle;
     @Captor private ArgumentCaptor<BluetoothDevice> mBvraDeviceCaptor;
     @Mock private Resources mMockResources;
-    @Mock private UserManager mMockUserManager;
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
@@ -219,7 +218,7 @@ public class CarBluetoothUserServiceTest extends AbstractExtendedMockitoBluetoot
     public void testBvra_defaultDeviceSupports_bvraOnDefaultDevice() {
         setBluetoothProfileProxy(BluetoothProfile.HEADSET_CLIENT, mMockBluetoothHeadsetClient);
 
-        assertThat(DEFAULT_DEVICE).isNotEqualTo(DEVICE_LIST_WITH_DEFAULT.get(0));
+        assertThat(DEVICE_LIST_WITH_DEFAULT.get(0)).isNotEqualTo(DEFAULT_DEVICE);
         List<BluetoothDevice> devicesToReturn = DEVICE_LIST_WITH_DEFAULT.stream()
                 .map(CarBluetoothUserServiceTest::createMockDevice).collect(Collectors.toList());
         mockHeadsetClientGetConnectedBvraDevices(devicesToReturn);

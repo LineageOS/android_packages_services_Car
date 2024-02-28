@@ -67,7 +67,6 @@ import java.util.Arrays;
  */
 public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockitoBluetoothTestCase {
     private static final String TAG = BluetoothDeviceConnectionPolicyTest.class.getSimpleName();
-    private static final boolean VERBOSE = false;
 
     private static final long WAIT_TIMEOUT_MS = 5000;
 
@@ -109,9 +108,7 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
         mMockContext.addMockedSystemService(BluetoothManager.class, mMockBluetoothManager);
         when(mMockBluetoothManager.getAdapter()).thenReturn(mMockBluetoothAdapter);
 
-        /**
-         * Mocks {@code mBluetoothAdapter.enable()}
-         */
+        // Mocks mBluetoothAdapter.enable()
         doAnswer(new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
@@ -119,9 +116,7 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
                 return null;
             }
         }).when(mMockBluetoothAdapter).enable();
-        /**
-         * Mocks {@code mBluetoothAdapter.disable(boolean)}
-         */
+        // Mocks mBluetoothAdapter.disable(boolean)
         doAnswer(new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
@@ -135,10 +130,8 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
                 return null;
             }
         }).when(mMockBluetoothAdapter).disable(anyBoolean());
-        /**
-         * Adapter needs to be in *some* state at the beginning of each test. Default ON.
-         * This will also set Bluetooth persisted state in Settings to ON.
-         */
+        // Adapter needs to be in *some* state at the beginning of each test. Default ON.
+        // This will also set Bluetooth persisted state in Settings to ON.
         turnAdapterOn();
 
         mockGetCarLocalService(CarPropertyService.class, mMockCarPropertyService);
@@ -148,7 +141,7 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
         when(mMockCarPropertyService
                 .getPropertySafe(eq(VehiclePropertyIds.INFO_DRIVER_SEAT), anyInt()))
                 .thenReturn(new CarPropertyValue<Integer>(VehiclePropertyIds.INFO_DRIVER_SEAT,
-                0 /*areaId*/, new Integer(DRIVER_SEAT)));
+                0 /*areaId*/, DRIVER_SEAT));
 
         mPolicy = BluetoothDeviceConnectionPolicy.create(mMockContext, USER_ID,
                 mMockBluetoothService);
@@ -233,8 +226,7 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
 
     private void sendSeatOnOccupied(int seat) {
         CarPropertyValue<Integer> value = new CarPropertyValue<Integer>(
-                VehiclePropertyIds.SEAT_OCCUPANCY, seat,
-                new Integer(VehicleSeatOccupancyState.OCCUPIED));
+                VehiclePropertyIds.SEAT_OCCUPANCY, seat, VehicleSeatOccupancyState.OCCUPIED);
         CarPropertyEvent event = new CarPropertyEvent(
                 CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
         try {

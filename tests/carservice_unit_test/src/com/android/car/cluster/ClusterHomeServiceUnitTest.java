@@ -362,7 +362,7 @@ public class ClusterHomeServiceUnitTest {
     public void stopFixedActivityModeInvokesFixedActivityService() {
         mClusterHomeService.stopFixedActivityMode();
 
-        verify(mFixedActivityService).stopFixedActivityMode(eq(CLUSTER_DISPLAY_ID));
+        verify(mFixedActivityService).stopFixedActivityMode(CLUSTER_DISPLAY_ID);
     }
 
     @Test
@@ -372,7 +372,7 @@ public class ClusterHomeServiceUnitTest {
 
         mClusterHomeService.sendHeartbeat(epochTimeNs, appMetadata);
 
-        verify(mClusterHalService).sendHeartbeat(
-                eq(epochTimeNs), eq(/* visibility= */ 0L), eq(EMPTY_BYTE_ARRAY));
+        verify(mClusterHalService).sendHeartbeat(epochTimeNs, /* visibility= */ 0L,
+                EMPTY_BYTE_ARRAY);
     }
 }

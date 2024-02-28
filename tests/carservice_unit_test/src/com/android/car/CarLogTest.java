@@ -56,11 +56,11 @@ public final class CarLogTest {
                 .isEqualTo((mPrefixExpected ? PREFIX : "") + mClass.getSimpleName());
     }
 
-    class CarKeywordInTheStart {}
-    class KeywordInTheEndCar {}
-    class KeywordInTheMiddleCarService {}
-    class NoKeyword {}
-    class NotExactKeywordCarrier {}
-    class NotExactKeywordcar {}
-    class NotExactKeywordcarService {}
+    private static final class CarKeywordInTheStart {}
+    private static final class KeywordInTheEndCar {}
+    private static final class KeywordInTheMiddleCarService {}
+    private static final class NoKeyword {}
+    private static final class NotExactKeywordCarrier {}
+    private static final class NotExactKeywordcar {}
+    private static final class NotExactKeywordcarService {}
 }

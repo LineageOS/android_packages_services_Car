@@ -93,8 +93,6 @@ public final class CarPropertyServiceUnitTest {
     @Mock
     private IAsyncPropertyResultCallback mAsyncPropertyResultCallback;
     @Mock
-    private CarPropertyConfig<?> mCarPropertyConfig;
-    @Mock
     private FeatureFlags mFeatureFlags;
     @Captor
     private ArgumentCaptor<List<CarPropertyEvent>> mPropertyEventCaptor;
@@ -613,7 +611,7 @@ public final class CarPropertyServiceUnitTest {
         when(mHalService.getProperty(SPEED_ID, 0)).thenReturn(mValue);
 
         // Register the first listener.
-        mService.registerListener(SPEED_ID, /* rate= */ 10, mMockHandler1);
+        mService.registerListener(SPEED_ID, /* updateRateHz= */ 10, mMockHandler1);
 
         // Wait until we get the on property change event for the initial value.
         verify(mMockHandler1, timeout(5000)).onEvent(any());
@@ -626,7 +624,7 @@ public final class CarPropertyServiceUnitTest {
         clearInvocations(mHalService);
 
         // Register the second listener.
-        mService.registerListener(SPEED_ID, /* rate= */ 20, mMockHandler2);
+        mService.registerListener(SPEED_ID, /* updateRateHz= */ 20, mMockHandler2);
 
         // Wait until we get the on property change event for the initial value.
         verify(mMockHandler2, timeout(5000)).onEvent(any());
@@ -707,7 +705,8 @@ public final class CarPropertyServiceUnitTest {
         when(mHalService.getProperty(HVAC_TEMP, 0)).thenReturn(mValue);
 
         // Register the first listener.
-        mService.registerListener(HVAC_TEMP, /* rate= */ SENSOR_RATE_ONCHANGE, mMockHandler1);
+        mService.registerListener(HVAC_TEMP, /* updateRateHz= */ SENSOR_RATE_ONCHANGE,
+                mMockHandler1);
 
         // Wait until we get the on property change event for the initial value.
         verify(mMockHandler1, timeout(5000)).onEvent(any());
@@ -720,7 +719,8 @@ public final class CarPropertyServiceUnitTest {
         clearInvocations(mHalService);
 
         // Register the second listener.
-        mService.registerListener(HVAC_TEMP, /* rate= */ SENSOR_RATE_ONCHANGE, mMockHandler2);
+        mService.registerListener(HVAC_TEMP, /* updateRateHz= */ SENSOR_RATE_ONCHANGE,
+                mMockHandler2);
 
         // Wait until we get the on property change event for the initial value.
         verify(mMockHandler2, timeout(5000)).onEvent(any());
@@ -1229,7 +1229,7 @@ public final class CarPropertyServiceUnitTest {
         when(mHalService.getProperty(HVAC_TEMP, 0)).thenReturn(value);
         EventListener listener = new EventListener(mService);
 
-        mService.registerListener(HVAC_TEMP, /* rate= */ SENSOR_RATE_ONCHANGE, listener);
+        mService.registerListener(HVAC_TEMP, /* updateRateHz= */ SENSOR_RATE_ONCHANGE, listener);
         List<CarPropertyEvent> events = List.of(new CarPropertyEvent(0, value));
         mService.onPropertyChange(events);
 
@@ -1422,7 +1422,8 @@ public final class CarPropertyServiceUnitTest {
     public void registerListener_throwsExceptionBecauseOfNullListener() {
         assertThrows(NullPointerException.class,
                 () -> mService.registerListener(ON_CHANGE_READ_WRITE_PROPERTY_ID,
-                        CarPropertyManager.SENSOR_RATE_NORMAL, /* listener= */ null));
+                        CarPropertyManager.SENSOR_RATE_NORMAL,
+                        /* carPropertyEventListener= */ null));
     }
 
     @Test
@@ -1575,8 +1576,8 @@ public final class CarPropertyServiceUnitTest {
     @Test
     public void unregisterListener_throwsExceptionBecauseOfNullListener() {
         assertThrows(NullPointerException.class,
-                () -> mService.unregisterListener(ON_CHANGE_READ_WRITE_PROPERTY_ID, /* listener= */
-                        null));
+                () -> mService.unregisterListener(ON_CHANGE_READ_WRITE_PROPERTY_ID,
+                        /* iCarPropertyEventListener= */ null));
     }
 
     @Test

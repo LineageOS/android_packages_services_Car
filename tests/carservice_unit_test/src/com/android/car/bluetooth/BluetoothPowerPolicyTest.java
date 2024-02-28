@@ -81,9 +81,7 @@ public class BluetoothPowerPolicyTest extends AbstractExtendedMockitoBluetoothTe
         mMockContext.addMockedSystemService(BluetoothManager.class, mMockBluetoothManager);
         when(mMockBluetoothManager.getAdapter()).thenReturn(mMockBluetoothAdapter);
 
-        /**
-         * Mocks {@code mBluetoothAdapter.enable()}
-         */
+        // Mocks mBluetoothAdapter.enable()
         doAnswer(new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
@@ -91,9 +89,7 @@ public class BluetoothPowerPolicyTest extends AbstractExtendedMockitoBluetoothTe
                 return null;
             }
         }).when(mMockBluetoothAdapter).enable();
-        /**
-         * Mocks {@code mBluetoothAdapter.disable(boolean)}
-         */
+        // Mocks mBluetoothAdapter.disable(boolean)
         doAnswer(new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
@@ -107,10 +103,8 @@ public class BluetoothPowerPolicyTest extends AbstractExtendedMockitoBluetoothTe
                 return null;
             }
         }).when(mMockBluetoothAdapter).disable(anyBoolean());
-        /**
-         * Adapter needs to be in *some* state at the beginning of each test. Default ON.
-         * This will also set Bluetooth persisted state in Settings to ON.
-         */
+        // Adapter needs to be in *some* state at the beginning of each test. Default ON.
+        // This will also set Bluetooth persisted state in Settings to ON.
         turnAdapterOn();
 
         mPolicy = BluetoothPowerPolicy.create(mMockContext, USER_ID);

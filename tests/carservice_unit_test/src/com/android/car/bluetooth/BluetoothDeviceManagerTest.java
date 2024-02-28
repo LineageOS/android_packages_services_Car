@@ -135,9 +135,7 @@ public class BluetoothDeviceManagerTest extends AbstractExtendedMockitoBluetooth
         when(mMockBluetoothManager.getAdapter()).thenReturn(mMockBluetoothAdapter);
         when(mMockBluetoothAdapter.getUuidsList()).thenReturn(Arrays.asList(mLocalUuids));
 
-        /**
-         * Mocks {@link BluetoothAdapter#getRemoteDevice(boolean)}
-         */
+        // Mocks BluetoothAdapter#getRemoteDevice(boolean)
         doAnswer(new Answer<BluetoothDevice>() {
             @Override
             public BluetoothDevice answer(InvocationOnMock invocation) throws Throwable {

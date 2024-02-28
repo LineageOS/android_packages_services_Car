@@ -293,7 +293,7 @@ public class FakeVehicleStubUnitTest {
         customFileList.addAll(createFilenameList(invalidJsonString));
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.INFO_FUEL_TYPE, /* areaId= */ 0);
+                .build(/* prop= */ VehicleProperty.INFO_FUEL_TYPE, /* areaId= */ 0);
 
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
@@ -311,7 +311,7 @@ public class FakeVehicleStubUnitTest {
         when(mParser.parseJsonConfig(any(File.class))).thenReturn(new SparseArray<>());
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.INFO_FUEL_TYPE, /* areaId= */ 0);
+                .build(/* prop= */ VehicleProperty.INFO_FUEL_TYPE, /* areaId= */ 0);
         // Create a FakeVehicleStub instance.
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub, mParser,
                 new ArrayList<>());
@@ -334,7 +334,7 @@ public class FakeVehicleStubUnitTest {
         List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.ANDROID_EPOCH_TIME, /* areaId= */ 0);
+                .build(/* prop= */ VehicleProperty.ANDROID_EPOCH_TIME, /* areaId= */ 0);
         // Create a FakeVehicleStub instance.
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
@@ -354,7 +354,7 @@ public class FakeVehicleStubUnitTest {
         List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.INFO_FUEL_CAPACITY, /* areaId= */ 123);
+                .build(/* prop= */ VehicleProperty.INFO_FUEL_CAPACITY, /* areaId= */ 123);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -378,7 +378,7 @@ public class FakeVehicleStubUnitTest {
         List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 1);
+                .build(/* prop= */ VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 1);
 
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
@@ -399,7 +399,7 @@ public class FakeVehicleStubUnitTest {
         List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.INFO_FUEL_TYPE, /* areaId= */ 123);
+                .build(/* prop= */ VehicleProperty.INFO_FUEL_TYPE, /* areaId= */ 123);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -420,7 +420,7 @@ public class FakeVehicleStubUnitTest {
         List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.WINDOW_POS, /* areaId= */ WINDOW_1_LEFT);
+                .build(/* prop= */ VehicleProperty.WINDOW_POS, /* areaId= */ WINDOW_1_LEFT);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -444,7 +444,7 @@ public class FakeVehicleStubUnitTest {
         List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.WINDOW_POS, /* areaId= */ WINDOW_1_LEFT);
+                .build(/* prop= */ VehicleProperty.WINDOW_POS, /* areaId= */ WINDOW_1_LEFT);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -487,7 +487,7 @@ public class FakeVehicleStubUnitTest {
         List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.SEAT_BELT_BUCKLED, /* areaId= */ 0);
+                .build(/* prop= */ VehicleProperty.SEAT_BELT_BUCKLED, /* areaId= */ 0);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -511,7 +511,7 @@ public class FakeVehicleStubUnitTest {
         List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_ALL);
+                .build(/* prop= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_ALL);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -528,7 +528,7 @@ public class FakeVehicleStubUnitTest {
         List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ SEAT_1_LEFT);
+                .build(/* prop= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ SEAT_1_LEFT);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -553,7 +553,7 @@ public class FakeVehicleStubUnitTest {
         List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_LEFT);
+                .build(/* prop= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_LEFT);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -581,7 +581,7 @@ public class FakeVehicleStubUnitTest {
         List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_LEFT);
+                .build(/* prop= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_LEFT);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -611,7 +611,7 @@ public class FakeVehicleStubUnitTest {
         List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_ALL);
+                .build(/* prop= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_ALL);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -626,7 +626,7 @@ public class FakeVehicleStubUnitTest {
                 + "\"defaultValue\": {\"int32Values\": [\"FuelType::FUEL_TYPE_UNLEADED\"]}}]}";
         List<File> customFileList = createFilenameList(jsonString);
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.INFO_FUEL_TYPE, /* areaId= */ 123);
+                .build(/* prop= */ VehicleProperty.INFO_FUEL_TYPE, /* areaId= */ 123);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         AsyncGetSetRequest getRequest = new AsyncGetSetRequest(/* serviceRequestId= */ 0,
@@ -651,7 +651,7 @@ public class FakeVehicleStubUnitTest {
                 + "\"access\": \"VehiclePropertyAccess::WRITE\"}]}";
         List<File> customFileList = createFilenameList(jsonString);
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.ANDROID_EPOCH_TIME, /* areaId= */ 0);
+                .build(/* prop= */ VehicleProperty.ANDROID_EPOCH_TIME, /* areaId= */ 0);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         AsyncGetSetRequest getRequest = new AsyncGetSetRequest(/* serviceRequestId= */ 0,
@@ -673,7 +673,7 @@ public class FakeVehicleStubUnitTest {
         String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_HVAC_POWER_OFF + "]}";
         List<File> customFileList = createFilenameList(jsonString);
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ SEAT_1_LEFT);
+                .build(/* prop= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ SEAT_1_LEFT);
         AsyncGetSetRequest getRequest = new AsyncGetSetRequest(/* serviceRequestId= */ 0,
                 requestPropValue, DEFAULT_TIMEOUT);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
@@ -718,9 +718,9 @@ public class FakeVehicleStubUnitTest {
                 + "\"access\": \"VehiclePropertyAccess::WRITE\"}]}";
         List<File> customFileList = createFilenameList(jsonString);
         HalPropValue requestPropValue1 = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.ANDROID_EPOCH_TIME, /* areaId= */ 0);
+                .build(/* prop= */ VehicleProperty.ANDROID_EPOCH_TIME, /* areaId= */ 0);
         HalPropValue requestPropValue2 = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.INFO_FUEL_TYPE, /* areaId= */ 123);
+                .build(/* prop= */ VehicleProperty.INFO_FUEL_TYPE, /* areaId= */ 123);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         AsyncGetSetRequest getRequest1 = new AsyncGetSetRequest(/* serviceRequestId= */ 0,
@@ -754,8 +754,8 @@ public class FakeVehicleStubUnitTest {
                 + "\"areas\": [{\"areaId\": \"Constants::SEAT_1_LEFT\"}]}]}";
         List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
-        HalPropValue requestPropValue = new HalPropValueBuilder(/* isAdil= */ true)
-                .build(/* propId= */ 123456, /* areaId= */ 0);
+        HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
+                .build(/* prop= */ 123456, /* areaId= */ 0);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -968,7 +968,7 @@ public class FakeVehicleStubUnitTest {
         List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ SEAT_1_LEFT);
+                .build(/* prop= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ SEAT_1_LEFT);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 

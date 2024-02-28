@@ -471,7 +471,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
         return monitor.waitForActivityWithTimeout(ACTIVITY_TIMEOUT_MS);
     }
 
-    private class FilteredLaunchListener
+    private static final class FilteredLaunchListener
             implements CarActivityService.ActivityLaunchListener {
 
         private final ComponentName mDesiredComponent;

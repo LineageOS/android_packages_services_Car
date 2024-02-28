@@ -46,7 +46,6 @@ import android.car.VehiclePropertyIds;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
-import android.car.drivingstate.CarUxRestrictionsConfiguration.Builder;
 import android.car.drivingstate.ICarDrivingStateChangeListener;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
@@ -233,7 +232,7 @@ public class CarUxRestrictionsManagerServiceTest {
 
         CarUxRestrictionsConfiguration actual = mService.loadConfig().get(0);
 
-        CarUxRestrictionsConfiguration expectedConfig = new Builder()
+        CarUxRestrictionsConfiguration expectedConfig = new CarUxRestrictionsConfiguration.Builder()
                 .setPhysicalPort(1)
                 .setMaxContentDepth(2)
                 .setMaxCumulativeContentItems(20)
@@ -588,7 +587,8 @@ public class CarUxRestrictionsManagerServiceTest {
     }
 
     private CarUxRestrictionsConfiguration createEmptyConfig(Integer port) {
-        Builder builder = new Builder();
+        CarUxRestrictionsConfiguration.Builder builder =
+                new CarUxRestrictionsConfiguration.Builder();
         if (port != null) {
             builder.setPhysicalPort(port);
         }

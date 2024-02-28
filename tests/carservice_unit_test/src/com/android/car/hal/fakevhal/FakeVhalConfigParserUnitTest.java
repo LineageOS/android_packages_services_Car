@@ -50,7 +50,6 @@ import java.io.InputStream;
 @RunWith(AndroidJUnit4.class)
 public class FakeVhalConfigParserUnitTest {
     private static final int DOOR_1_LEFT = VehicleAreaDoor.ROW_1_LEFT;
-    private static final int SEAT_1_LEFT = VehicleAreaSeat.ROW_1_LEFT;
     private static final int WHEEL_FRONT_LEFT = VehicleAreaWheel.LEFT_FRONT;
 
     private FakeVhalConfigParser mFakeVhalConfigParser;

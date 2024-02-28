@@ -35,7 +35,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
-import android.hardware.display.DisplayManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.UserHandle;
@@ -81,7 +80,6 @@ public class CarInputRotaryServiceTest {
 
     @Mock private InputHalService mInputHalService;
     @Mock private TelecomManager mTelecomManager;
-    @Mock private DisplayManager mDisplayManager;
     @Mock private CarInputService.KeyEventListener mDefaultKeyEventMainListener;
     @Mock private CarInputService.MotionEventListener mDefaultMotionEventMainListener;
     @Mock private Supplier<String> mLastCallSupplier;

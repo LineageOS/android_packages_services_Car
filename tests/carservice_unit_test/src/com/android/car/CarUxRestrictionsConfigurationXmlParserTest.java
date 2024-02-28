@@ -199,7 +199,7 @@ public class CarUxRestrictionsConfigurationXmlParserTest {
                 CarUxRestrictionsConfigurationXmlParser.parse(
                         getContext(), R.xml.ux_restrictions_multiple_display_ports);
 
-        assertEquals(configs.size(), 2);
+        assertThat(configs.size()).isEqualTo(2);
 
         // 1 and 2 are specified in test xml.
         Set<Integer> expected = new ArraySet<>();
