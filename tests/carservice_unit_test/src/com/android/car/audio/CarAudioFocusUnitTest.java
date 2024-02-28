@@ -15,9 +15,12 @@
  */
 package com.android.car.audio;
 
+import static android.car.feature.Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES;
 import static android.car.feature.Flags.FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION;
 import static android.car.media.CarAudioManager.AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_FADE_MANAGER_CONFIGS;
+import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS;
 import static android.media.AudioAttributes.USAGE_ANNOUNCEMENT;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_ASSISTANT;
@@ -41,7 +44,6 @@ import static android.media.FadeManagerConfiguration.FADE_STATE_DISABLED;
 import static android.media.audiopolicy.Flags.FLAG_ENABLE_FADE_MANAGER_CONFIGURATION;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -54,10 +56,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.feature.Flags;
 import android.car.oem.AudioFocusEntry;
 import android.car.oem.CarAudioFadeConfiguration;
+import android.car.oem.CarAudioFeaturesInfo;
 import android.car.oem.OemCarAudioFocusEvaluationRequest;
 import android.car.oem.OemCarAudioFocusResult;
+import android.car.test.AbstractExpectableTestCase;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeUsage;
@@ -89,7 +94,7 @@ import java.util.List;
 import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
-public class CarAudioFocusUnitTest {
+public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
 
     private static final int USER_10_ID = 10;
     private static final int USER_10_CLIENT_UID = 1010061;
@@ -158,12 +163,13 @@ public class CarAudioFocusUnitTest {
     @Test
     public void constructor_withNullCarAudioZone_fails() {
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
-            new CarAudioFocus(mMockAudioManager, mMockPackageManager,
-                    mFocusInteraction, /* carAudioZone= */ null, mMockCarVolumeInfoWrapper,
-                    /* useFadeManagerConfiguration= */ false);
+            new CarAudioFocus(mMockAudioManager, mMockPackageManager, mFocusInteraction,
+                    /* carAudioZone= */ null, mMockCarVolumeInfoWrapper, getCarAudioFeaturesInfo(
+                            /* supportsFadeManager= */ false, /* supportsIsolatedFocus= */ false));
         });
 
-        assertWithMessage("Constructor with null car audio zone exception")
+
+        expectWithMessage("Constructor with null car audio context exception")
                 .that(thrown).hasMessageThat().contains("Car audio zone");
     }
 
@@ -172,10 +178,11 @@ public class CarAudioFocusUnitTest {
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
             new CarAudioFocus(/* audioManager= */ null, mMockPackageManager,
                     mFocusInteraction, mMockCarAudioZone, mMockCarVolumeInfoWrapper,
-                    /* useFadeManagerConfiguration= */ false);
+                    getCarAudioFeaturesInfo(/* supportsFadeManager= */ false,
+                    /* supportsIsolatedFocus= */ false));
         });
 
-        assertWithMessage("Constructor with null audio manager exception")
+        expectWithMessage("Constructor with null audio manager exception")
                 .that(thrown).hasMessageThat().contains("Audio manager");
     }
 
@@ -184,10 +191,11 @@ public class CarAudioFocusUnitTest {
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
             new CarAudioFocus(mMockAudioManager, /* packageManager= */ null,
                     mFocusInteraction, mMockCarAudioZone, mMockCarVolumeInfoWrapper,
-                    /* useFadeManagerConfiguration= */ false);
+                    getCarAudioFeaturesInfo(/* supportsFadeManager= */ false,
+                    /* supportsIsolatedFocus= */ false));
         });
 
-        assertWithMessage("Constructor with null package manager exception")
+        expectWithMessage("Constructor with null package manager exception")
                 .that(thrown).hasMessageThat().contains("Package manager");
     }
 
@@ -196,10 +204,11 @@ public class CarAudioFocusUnitTest {
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
             new CarAudioFocus(mMockAudioManager, mMockPackageManager, /* focusInteraction= */ null,
                     mMockCarAudioZone, mMockCarVolumeInfoWrapper,
-                    /* useFadeManagerConfiguration= */ false);
+                    getCarAudioFeaturesInfo(/* supportsFadeManager= */ false,
+                            /* supportsIsolatedFocus= */ false));
         });
 
-        assertWithMessage("Constructor with null focus interaction exception")
+        expectWithMessage("Constructor with null focus interaction exception")
                 .that(thrown).hasMessageThat().contains("Focus interactions");
     }
 
@@ -207,12 +216,12 @@ public class CarAudioFocusUnitTest {
     public void constructor_withNullVolumeInfoWrapper_fails() {
         when(mMockCarAudioZone.getCarAudioContext()).thenReturn(TEST_CAR_AUDIO_CONTEXT);
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
-            new CarAudioFocus(mMockAudioManager, mMockPackageManager,
-                    mFocusInteraction, mMockCarAudioZone, /* volumeInfoWrapper= */ null,
-                    /* useFadeManagerConfiguration= */ false);
+            new CarAudioFocus(mMockAudioManager, mMockPackageManager, mFocusInteraction,
+                    mMockCarAudioZone, /* volumeInfoWrapper= */ null, getCarAudioFeaturesInfo(
+                            /* supportsFadeManager= */ false, /* supportsIsolatedFocus= */ false));
         });
 
-        assertWithMessage("Constructor with null focus volume info wrapper exception")
+        expectWithMessage("Constructor with null focus volume info wrapper exception")
                 .that(thrown).hasMessageThat().contains("Car volume info");
     }
 
@@ -236,8 +245,9 @@ public class CarAudioFocusUnitTest {
 
         carAudioFocus.onAudioFocusRequest(sameClientAndUsageFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
 
-        verify(mMockAudioManager, times(2)).setFocusRequestResult(sameClientAndUsageFocusInfo,
-                AUDIOFOCUS_REQUEST_GRANTED, mAudioPolicy);
+        verify(mMockAudioManager, times(2))
+                .setFocusRequestResult(sameClientAndUsageFocusInfo, AUDIOFOCUS_REQUEST_GRANTED,
+                        mAudioPolicy);
     }
 
     @Test
@@ -273,7 +283,7 @@ public class CarAudioFocusUnitTest {
         carAudioFocus.onAudioFocusAbandon(callFocusInfo);
 
         List<Integer> focusChanges = getFocusChanges(mediaFocusInfo);
-        assertWithMessage("Media focus changes with call and ringer")
+        expectWithMessage("Media focus changes with call and ringer")
                 .that(focusChanges).containsExactly(AUDIOFOCUS_LOSS_TRANSIENT, AUDIOFOCUS_GAIN);
     }
 
@@ -289,7 +299,7 @@ public class CarAudioFocusUnitTest {
         carAudioFocus.onAudioFocusAbandon(callFocusInfo);
 
         List<Integer> focusChanges = getFocusChanges(mediaFocusInfo);
-        assertWithMessage("Media focus changes with call only")
+        expectWithMessage("Media focus changes with call only")
                 .that(focusChanges).containsExactly(AUDIOFOCUS_LOSS_TRANSIENT, AUDIOFOCUS_GAIN);
     }
 
@@ -334,9 +344,11 @@ public class CarAudioFocusUnitTest {
     public void onAudioFocusRequest_concurrentRequestWithoutDucking_holderLosesFocusWithFade() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
-        CarAudioFocus carAudioFocus = getCarAudioFocus(/* enableFadeMgrConfig= */ true,
-                PRIMARY_AUDIO_ZONE, /* defaultCarAudioFadeConfig= */ null,
-                /* transientCarAudioFadeConfigs= */ null);
+        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        CarAudioFocus carAudioFocus = getCarAudioFocus(PRIMARY_AUDIO_ZONE,
+                /* defaultCarAudioFadeConfig= */ null, /* transientCarAudioFadeConfigs= */ null,
+                getCarAudioFeaturesInfo(/* supportsFadeManager= */ true,
+                        /* supportsIsolatedFocus= */ false));
         AudioFocusInfo initialFocusInfo = requestFocusForMediaWithFirstClient(carAudioFocus);
         AudioFocusInfo concurrentFocusInfo = getConcurrentInfo(AUDIOFOCUS_GAIN);
 
@@ -350,10 +362,12 @@ public class CarAudioFocusUnitTest {
     public void onAudioFocusRequest_forPrimaryZone_holderLosesFocus_withNullFadeConfig() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
+        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFadeConfiguration cafcEnabled =
                 new CarAudioFadeConfiguration.Builder(TEST_FADE_MANAGER_CONFIG_ENABLED).build();
-        CarAudioFocus carAudioFocus = getCarAudioFocus(/* enableFadeMgrConfig= */ true,
-                PRIMARY_AUDIO_ZONE, cafcEnabled, /* transientCarAudioFadeConfigs= */ null);
+        CarAudioFocus carAudioFocus = getCarAudioFocus(PRIMARY_AUDIO_ZONE, cafcEnabled,
+                /* transientCarAudioFadeConfigs= */ null, getCarAudioFeaturesInfo(
+                        /* supportsFadeManager= */ true, /* supportsIsolatedFocus= */ false));
         AudioFocusInfo initialFocusInfo = requestFocusForMediaWithFirstClient(carAudioFocus);
         AudioFocusInfo concurrentFocusInfo = getConcurrentInfo(AUDIOFOCUS_GAIN);
 
@@ -367,10 +381,12 @@ public class CarAudioFocusUnitTest {
     public void onAudioFocusRequest_forSecondaryZone_holderLosesFocus_withDefaultFadeConfig() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
+        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFadeConfiguration cafcEnabled =
                 new CarAudioFadeConfiguration.Builder(TEST_FADE_MANAGER_CONFIG_ENABLED).build();
-        CarAudioFocus carAudioFocus = getCarAudioFocus(/* enableFadeMgrConfig= */ true,
-                TEST_SECONDARY_ZONE, cafcEnabled, /* transientCarAudioFadeConfigs= */ null);
+        CarAudioFocus carAudioFocus = getCarAudioFocus(TEST_SECONDARY_ZONE, cafcEnabled,
+                /* transientCarAudioFadeConfigs= */ null, getCarAudioFeaturesInfo(
+                        /* supportsFadeManager= */ true, /* supportsIsolatedFocus= */ false));
         AudioFocusInfo initialFocusInfo = requestFocusForMediaWithFirstClient(carAudioFocus);
         AudioFocusInfo concurrentFocusInfo = getConcurrentInfo(AUDIOFOCUS_GAIN);
 
@@ -385,6 +401,7 @@ public class CarAudioFocusUnitTest {
     public void onAudioFocusRequest_forPrimaryZone_holderLosesFocus_withTransientFadeConfig() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
+        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         AudioAttributes mediaAttributes = new AudioAttributes.Builder()
                 .setUsage(USAGE_MEDIA).build();
         AudioAttributes assistantAttributes = new AudioAttributes.Builder()
@@ -397,8 +414,9 @@ public class CarAudioFocusUnitTest {
                 new ArrayMap<>();
         attrToCarAudioFadeConfiguration.put(mediaAttributes, cafcDisabled);
         attrToCarAudioFadeConfiguration.put(assistantAttributes, cafcEnabled);
-        CarAudioFocus carAudioFocus = getCarAudioFocus(/* enableFadeMgrConfig= */ true,
-                PRIMARY_AUDIO_ZONE, cafcDisabled, attrToCarAudioFadeConfiguration);
+        CarAudioFocus carAudioFocus = getCarAudioFocus(PRIMARY_AUDIO_ZONE, cafcDisabled,
+                attrToCarAudioFadeConfiguration, getCarAudioFeaturesInfo(
+                        /* supportsFadeManager= */ true, /* supportsIsolatedFocus= */ false));
         AudioFocusInfo initialFocusInfo = requestFocusForMediaWithFirstClient(carAudioFocus);
         AudioFocusInfo concurrentFocusInfo = getConcurrentInfo(AUDIOFOCUS_GAIN);
 
@@ -449,9 +467,11 @@ public class CarAudioFocusUnitTest {
     public void onAudioFocusRequest_exclusiveRequest_holderLosesFocusWithFade() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
-        CarAudioFocus carAudioFocus = getCarAudioFocus(/* enableFadeMgrConfig= */ true,
-                PRIMARY_AUDIO_ZONE, /* defaultCarAudioFadeConfig= */ null,
-                /* transientCarAudioFadeConfigs= */ null);
+        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        CarAudioFocus carAudioFocus = getCarAudioFocus(PRIMARY_AUDIO_ZONE,
+                /* defaultCarAudioFadeConfig= */ null, /* transientCarAudioFadeConfigs= */ null,
+                getCarAudioFeaturesInfo(/* supportsFadeManager= */ true,
+                        /* supportsIsolatedFocus= */ false));
         AudioFocusInfo initialFocusInfo = requestFocusForMediaWithFirstClient(carAudioFocus);
         AudioFocusInfo exclusiveRequestInfo = getExclusiveInfo(AUDIOFOCUS_GAIN);
 
@@ -528,9 +548,11 @@ public class CarAudioFocusUnitTest {
     public void onAudioFocus_withFadeMgrConfig_exclusiveWithSystemUsage_holderLosesFocus() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
-        CarAudioFocus carAudioFocus = getCarAudioFocus(/* enableFadeMgrConfig= */ true,
-                PRIMARY_AUDIO_ZONE, /* defaultCarAudioFadeConfig= */ null,
-                /* transientCarAudioFadeConfigs= */ null);
+        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        CarAudioFocus carAudioFocus = getCarAudioFocus(PRIMARY_AUDIO_ZONE,
+                /* defaultCarAudioFadeConfig= */ null, /* transientCarAudioFadeConfigs= */ null,
+                getCarAudioFeaturesInfo(/* supportsFadeManager= */ true,
+                        /* supportsIsolatedFocus= */ false));
         AudioFocusInfo initialFocusInfo = requestFocusForMediaWithFirstClient(carAudioFocus);
         AudioFocusInfo exclusiveSystemUsageInfo = getExclusiveWithSystemUsageInfo();
 
@@ -642,9 +664,11 @@ public class CarAudioFocusUnitTest {
     public void requestAudioFocusWithDelayed_whileInCallAndNav_thenCallStop_navLosesWithFade() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
-        CarAudioFocus carAudioFocus = getCarAudioFocus(/* enableFadeMgrConfig= */ true,
-                PRIMARY_AUDIO_ZONE, /* defaultCarAudioFadeConfig= */ null,
-                /* transientCarAudioFadeConfigs= */ null);
+        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        CarAudioFocus carAudioFocus = getCarAudioFocus(PRIMARY_AUDIO_ZONE,
+                /* defaultCarAudioFadeConfig= */ null, /* transientCarAudioFadeConfigs= */ null,
+                getCarAudioFeaturesInfo(/* supportsFadeManager= */ true,
+                        /* supportsIsolatedFocus= */ false));
         AudioFocusInfo callFocusInfo = setupFocusInfoAndRequestFocusForCall(carAudioFocus);
         AudioFocusInfo delayedFocusInfo = getDelayedExclusiveInfo(AUDIOFOCUS_GAIN);
         carAudioFocus.onAudioFocusRequest(delayedFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
@@ -983,9 +1007,11 @@ public class CarAudioFocusUnitTest {
             onAudioFocus_multipleRequestOnlyOneWithDelayedFocus_nonTransientReceivesLossWithFade() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
-        CarAudioFocus carAudioFocus = getCarAudioFocus(/* enableFadeMgrConfig= */ true,
-                PRIMARY_AUDIO_ZONE, /* defaultCarAudioFadeConfig= */ null,
-                /* transientCarAudioFadeConfigs= */ null);
+        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        CarAudioFocus carAudioFocus = getCarAudioFocus(PRIMARY_AUDIO_ZONE,
+                /* defaultCarAudioFadeConfig= */ null, /* transientCarAudioFadeConfigs= */ null,
+                getCarAudioFeaturesInfo(/* supportsFadeManager= */ true,
+                        /* supportsIsolatedFocus= */ false));
         AudioFocusInfo mediaRequestWithOutDelayedFocus = getInfo(USAGE_MEDIA, SECOND_CLIENT_ID,
                 AUDIOFOCUS_GAIN, false);
         carAudioFocus.onAudioFocusRequest(mediaRequestWithOutDelayedFocus,
@@ -1036,9 +1062,11 @@ public class CarAudioFocusUnitTest {
             onAudioFocus_multipleRequestOnlyOneWithDelayedFocus_duckedRequestReceiveLosswithFade() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
-        CarAudioFocus carAudioFocus = getCarAudioFocus(/* enableFadeMgrConfig= */ true,
-                PRIMARY_AUDIO_ZONE, /* defaultCarAudioFadeConfig= */ null,
-                /* transientCarAudioFadeConfigs= */ null);
+        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        CarAudioFocus carAudioFocus = getCarAudioFocus(PRIMARY_AUDIO_ZONE,
+                /* defaultCarAudioFadeConfig= */ null, /* transientCarAudioFadeConfigs= */ null,
+                getCarAudioFeaturesInfo(/* supportsFadeManager= */ true,
+                        /* supportsIsolatedFocus= */ false));
         AudioFocusInfo navRequestWithOutDelayedFocus =
                 getInfo(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE, SECOND_CLIENT_ID,
                         AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, false);
@@ -1526,7 +1554,7 @@ public class CarAudioFocusUnitTest {
                 carAudioFocus.getActiveAudioFocusForUserAndAudioAttributes(mediaAudioAttribute,
                         USER_10_ID);
 
-        assertWithMessage("User %s focus info with audio attributes %s active focus list",
+        expectWithMessage("User %s focus info with audio attributes %s active focus list",
                 USER_10_ID, mediaAudioAttribute).that(activeFocus).containsExactly(audioFocusInfo);
     }
 
@@ -1538,14 +1566,13 @@ public class CarAudioFocusUnitTest {
         AudioFocusInfo audioFocusInfo = getInfo(USAGE_MEDIA, SECOND_CLIENT_ID, AUDIOFOCUS_GAIN,
                 /* acceptsDelayedFocus= */ false);
         carAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
-
         setupFocusInfoAndRequestFocusForCall(carAudioFocus);
 
         List<AudioFocusInfo> activeFocus =
                 carAudioFocus.getActiveAudioFocusForUserAndAudioAttributes(mediaAudioAttribute,
                         USER_10_ID);
 
-        assertWithMessage(
+        expectWithMessage(
                 "Inactive focus for user %s focus info with audio attributes %s active focus list",
                 USER_10_ID, mediaAudioAttribute).that(activeFocus).isEmpty();
     }
@@ -1563,7 +1590,7 @@ public class CarAudioFocusUnitTest {
                 carAudioFocus.getActiveAudioFocusForUserAndAudioAttributes(mediaAudioAttribute,
                         USER_11_ID);
 
-        assertWithMessage("User %s focus info with audio attributes %s active focus list",
+        expectWithMessage("User %s focus info with audio attributes %s active focus list",
                 USER_11_ID, mediaAudioAttribute).that(activeFocus).isEmpty();
     }
 
@@ -1580,7 +1607,7 @@ public class CarAudioFocusUnitTest {
                 carAudioFocus.getInactiveAudioFocusForUserAndAudioAttributes(mediaAudioAttribute,
                         USER_10_ID);
 
-        assertWithMessage("User %s focus info with audio attributes %s active focus list",
+        expectWithMessage("User %s focus info with audio attributes %s active focus list",
                 USER_10_ID, mediaAudioAttribute).that(activeFocus).isEmpty();
     }
 
@@ -1599,7 +1626,7 @@ public class CarAudioFocusUnitTest {
                 carAudioFocus.getInactiveAudioFocusForUserAndAudioAttributes(mediaAudioAttribute,
                         USER_10_ID);
 
-        assertWithMessage(
+        expectWithMessage(
                 "Inactive focus for user %s focus info with audio attributes %s active focus list",
                 USER_10_ID, mediaAudioAttribute)
                 .that(activeFocus).containsExactly(mediaAudioFocusInfo);
@@ -1618,12 +1645,13 @@ public class CarAudioFocusUnitTest {
                 carAudioFocus.getInactiveAudioFocusForUserAndAudioAttributes(mediaAudioAttribute,
                         USER_11_ID);
 
-        assertWithMessage("User %s focus info with audio attributes %s active focus list",
+        expectWithMessage("User %s focus info with audio attributes %s active focus list",
                 USER_11_ID, mediaAudioAttribute).that(activeFocus).isEmpty();
     }
 
     @Test
     public void onAudioFocusRequest_withOemServiceEnabled_capturesFocusRequest() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         when(mMockCarOemProxyService.isOemServiceEnabled()).thenReturn(true);
         when(mMockCarOemProxyService.isOemServiceReady()).thenReturn(true);
         when(mMockCarOemProxyService.getCarOemAudioFocusService())
@@ -1645,11 +1673,98 @@ public class CarAudioFocusUnitTest {
 
         carAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
 
-        AudioFocusEntry entry = captureOemServiceAudioFocusEntry();
-        assertWithMessage("Media focus entry info").that(entry
+        OemCarAudioFocusEvaluationRequest request = captureOemAudioFocusRequest();
+        AudioFocusEntry entry = request.getAudioFocusRequest();
+        expectWithMessage("Media focus entry info").that(entry
                 .getAudioFocusInfo()).isEqualTo(audioFocusInfo);
-        assertWithMessage("Media focus entry volume group").that(entry
+        expectWithMessage("Media focus entry volume group").that(entry
                 .getAudioVolumeGroupId()).isEqualTo(TEST_VOLUME_GROUP);
+        expectWithMessage("Car audio feature with no features enabled")
+                .that(request.getAudioFeaturesInfo()).isNull();
+    }
+
+    @Test
+    public void onAudioFocusRequest_withOemServiceEnabledAndEnabledFadeManager() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        when(mMockCarOemProxyService.isOemServiceEnabled()).thenReturn(true);
+        when(mMockCarOemProxyService.isOemServiceReady()).thenReturn(true);
+        when(mMockCarOemProxyService.getCarOemAudioFocusService())
+                .thenReturn(mMockAudioFocusProxyService);
+        AudioFocusInfo audioFocusInfo = getInfo(USAGE_MEDIA, SECOND_CLIENT_ID, AUDIOFOCUS_GAIN,
+                /* acceptsDelayedFocus= */ false);
+        AudioAttributes mediaAudioAttribute =
+                new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+        AudioFocusEntry mediaEntry = new AudioFocusEntry.Builder(audioFocusInfo,
+                TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(mediaAudioAttribute),
+                TEST_VOLUME_GROUP, AUDIOFOCUS_GAIN).build();
+        OemCarAudioFocusResult mediaResults = getAudioFocusResults(mediaEntry,
+                AUDIOFOCUS_REQUEST_GRANTED, List.of(), /* blockedEntries= */ List.of(),
+                /* attrToCarAudioFadeConfigMap= */ null);
+        when(mMockAudioFocusProxyService.evaluateAudioFocusRequest(any())).thenReturn(mediaResults);
+        when(mMockCarVolumeInfoWrapper.getVolumeGroupIdForAudioAttribute(PRIMARY_AUDIO_ZONE,
+                mediaAudioAttribute)).thenReturn(TEST_VOLUME_GROUP);
+        CarAudioFocus carAudioFocus = getCarAudioFocus(PRIMARY_AUDIO_ZONE,
+                /* defaultCarAudioFadeConfig= */ null, /* transientCarAudioFadeConfigs= */ null,
+                getCarAudioFeaturesInfo(/* supportsFadeManager= */ true,
+                        /* supportsIsolatedFocus= */ false));
+
+        carAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        OemCarAudioFocusEvaluationRequest request = captureOemAudioFocusRequest();
+        AudioFocusEntry entry = request.getAudioFocusRequest();
+        expectWithMessage("Media focus entry info with fade manager enabled").that(entry
+                .getAudioFocusInfo()).isEqualTo(audioFocusInfo);
+        expectWithMessage("Media focus entry volume group fade manager enabled").that(entry
+                .getAudioVolumeGroupId()).isEqualTo(TEST_VOLUME_GROUP);
+        CarAudioFeaturesInfo featuresInfo = request.getAudioFeaturesInfo();
+        expectWithMessage("Fade manager audio feature with fade manager enabled")
+                .that(featuresInfo.isAudioFeatureEnabled(AUDIO_FEATURE_FADE_MANAGER_CONFIGS))
+                .isTrue();
+        expectWithMessage("Isolated focus feature with fade manager enabled")
+                .that(featuresInfo.isAudioFeatureEnabled(AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS))
+                .isFalse();
+    }
+
+    @Test
+    public void onAudioFocusRequest_withOemServiceEnabledAndEnableIsolatedFocus() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        when(mMockCarOemProxyService.isOemServiceEnabled()).thenReturn(true);
+        when(mMockCarOemProxyService.isOemServiceReady()).thenReturn(true);
+        when(mMockCarOemProxyService.getCarOemAudioFocusService())
+                .thenReturn(mMockAudioFocusProxyService);
+        AudioFocusInfo audioFocusInfo = getInfo(USAGE_MEDIA, SECOND_CLIENT_ID, AUDIOFOCUS_GAIN,
+                /* acceptsDelayedFocus= */ false);
+        AudioAttributes mediaAudioAttribute =
+                new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+        AudioFocusEntry mediaEntry = new AudioFocusEntry.Builder(audioFocusInfo,
+                TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(mediaAudioAttribute),
+                TEST_VOLUME_GROUP, AUDIOFOCUS_GAIN).build();
+        OemCarAudioFocusResult mediaResults = getAudioFocusResults(mediaEntry,
+                AUDIOFOCUS_REQUEST_GRANTED, List.of(), /* blockedEntries= */ List.of(),
+                /* attrToCarAudioFadeConfigMap= */ null);
+        when(mMockAudioFocusProxyService.evaluateAudioFocusRequest(any())).thenReturn(mediaResults);
+        when(mMockCarVolumeInfoWrapper.getVolumeGroupIdForAudioAttribute(PRIMARY_AUDIO_ZONE,
+                mediaAudioAttribute)).thenReturn(TEST_VOLUME_GROUP);
+        CarAudioFocus carAudioFocus = getCarAudioFocus(PRIMARY_AUDIO_ZONE,
+                /* defaultCarAudioFadeConfig= */ null, /* transientCarAudioFadeConfigs= */ null,
+                getCarAudioFeaturesInfo(/* supportsFadeManager= */ false,
+                        /* supportsIsolatedFocus= */ true));
+
+        carAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        OemCarAudioFocusEvaluationRequest request = captureOemAudioFocusRequest();
+        AudioFocusEntry entry = request.getAudioFocusRequest();
+        expectWithMessage("Media focus entry info with isolated focus enabled").that(entry
+                .getAudioFocusInfo()).isEqualTo(audioFocusInfo);
+        expectWithMessage("Media focus entry volume group isolated focus enabled").that(entry
+                .getAudioVolumeGroupId()).isEqualTo(TEST_VOLUME_GROUP);
+        CarAudioFeaturesInfo featuresInfo = request.getAudioFeaturesInfo();
+        expectWithMessage("Fade manager audio feature with isolated focus enabled")
+                .that(featuresInfo.isAudioFeatureEnabled(AUDIO_FEATURE_FADE_MANAGER_CONFIGS))
+                .isFalse();
+        expectWithMessage("Isolated focus feature with isolated focus enabled")
+                .that(featuresInfo.isAudioFeatureEnabled(AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS))
+                .isTrue();
     }
 
     @Test
@@ -1670,7 +1785,7 @@ public class CarAudioFocusUnitTest {
                 TEST_VOLUME_GROUP, AUDIOFOCUS_GAIN).build();
         OemCarAudioFocusResult mediaResults = getAudioFocusResults(mediaEntry,
                 AUDIOFOCUS_REQUEST_GRANTED, List.of(),
-                /* blockedEntries= */ List.of(), null);
+                /* blockedEntries= */ List.of(), /* attrToCarAudioFadeConfigMap= */ null);
         AudioFocusEntry emergencyEntry = new AudioFocusEntry.Builder(exclusiveSystemUsageInfo,
                 TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(emergencyAudioAttributes),
                 TEST_VOLUME_GROUP, AUDIOFOCUS_GAIN).build();
@@ -1685,9 +1800,10 @@ public class CarAudioFocusUnitTest {
         when(mMockAudioFocusProxyService.evaluateAudioFocusRequest(any()))
                 .thenReturn(mediaResults)
                 .thenReturn(systemUsageResults);
-        CarAudioFocus carAudioFocus = getCarAudioFocus(/* enableFadeMgrConfig= */ true,
-                PRIMARY_AUDIO_ZONE, /* defaultCarAudioFadeConfig= */ null,
-                /* transientCarAudioFadeConfigs= */ null);
+        CarAudioFocus carAudioFocus = getCarAudioFocus(PRIMARY_AUDIO_ZONE,
+                /* defaultCarAudioFadeConfig= */ null, /* transientCarAudioFadeConfigs= */ null,
+                getCarAudioFeaturesInfo(/* supportsFadeManager= */ true,
+                        /* supportsIsolatedFocus= */ false));
         carAudioFocus.onAudioFocusRequest(initialFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
 
         carAudioFocus.onAudioFocusRequest(exclusiveSystemUsageInfo, AUDIOFOCUS_REQUEST_GRANTED);
@@ -1701,6 +1817,7 @@ public class CarAudioFocusUnitTest {
     public void onAudioFocusRequest_multipleConcurrent_dispatchFocusLossWithFade() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
+        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         AudioAttributes notificationAttributes = new AudioAttributes.Builder()
                 .setUsage(USAGE_NOTIFICATION).build();
         AudioAttributes vehicleStatusAttributes = new AudioAttributes.Builder()
@@ -1713,9 +1830,10 @@ public class CarAudioFocusUnitTest {
                 new ArrayMap<>();
         attrToCarAudioFadeConfiguration.put(notificationAttributes, cafcEnabled);
         attrToCarAudioFadeConfiguration.put(vehicleStatusAttributes, cafcDisabled);
-        CarAudioFocus carAudioFocus = getCarAudioFocus(/* enableFadeMgrConfig= */ true,
-                PRIMARY_AUDIO_ZONE, /* defaultCarAudioFadeConfig= */ null,
-                attrToCarAudioFadeConfiguration);
+        CarAudioFocus carAudioFocus = getCarAudioFocus(PRIMARY_AUDIO_ZONE,
+                /* defaultCarAudioFadeConfig= */ null, attrToCarAudioFadeConfiguration,
+                getCarAudioFeaturesInfo(/* supportsFadeManager= */ true,
+                        /* supportsIsolatedFocus= */ false));
         AudioFocusInfo firstConcurrentRequest = getInfo(USAGE_NOTIFICATION, FIRST_CLIENT_ID,
                 AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, /* acceptsDelayedFocus= */ true);
         carAudioFocus.onAudioFocusRequest(firstConcurrentRequest, AUDIOFOCUS_REQUEST_GRANTED);
@@ -1733,6 +1851,13 @@ public class CarAudioFocusUnitTest {
         verify(mMockAudioManager).dispatchAudioFocusChangeWithFade(firstConcurrentRequest,
                 AUDIOFOCUS_LOSS, mAudioPolicy, List.of(exclusiveRequest),
                 TEST_FADE_MANAGER_CONFIG_ENABLED);
+    }
+
+    private OemCarAudioFocusEvaluationRequest captureOemAudioFocusRequest() {
+        ArgumentCaptor<OemCarAudioFocusEvaluationRequest> captor = ArgumentCaptor
+                .forClass(OemCarAudioFocusEvaluationRequest.class);
+        verify(mMockAudioFocusProxyService).evaluateAudioFocusRequest(captor.capture());
+        return captor.getValue();
     }
 
     private AudioFocusEntry captureOemServiceAudioFocusEntry() {
@@ -1753,6 +1878,7 @@ public class CarAudioFocusUnitTest {
 
         if (attrToCarAudioFadeConfigMap != null) {
             mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
+            mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
             builder.setAudioAttributesToCarAudioFadeConfigurationMap(attrToCarAudioFadeConfigMap);
         }
 
@@ -1894,36 +2020,36 @@ public class CarAudioFocusUnitTest {
         return getInfo(audioAttributes, clientId, gainType, acceptsDelayedFocus);
     }
 
-    private CarAudioFocus getCarAudioFocus(boolean enableFadeMgrConfig, int zoneId,
+    private CarAudioFocus getCarAudioFocus(int zoneId,
             CarAudioFadeConfiguration defaultCarAudioFadeConfig,
-            ArrayMap<AudioAttributes, CarAudioFadeConfiguration> transientCarAudioFadeConfigs) {
-        if (enableFadeMgrConfig) {
+            ArrayMap<AudioAttributes, CarAudioFadeConfiguration> transientCarAudioFadeConfigs,
+            CarAudioFeaturesInfo features) {
+        if (features != null
+                && features.isAudioFeatureEnabled(AUDIO_FEATURE_FADE_MANAGER_CONFIGS)) {
             when(mMockCarAudioZone.getCurrentCarAudioZoneConfig())
-                    .thenReturn(buildCarAudioZoneConfig(zoneId, enableFadeMgrConfig,
-                            defaultCarAudioFadeConfig, transientCarAudioFadeConfigs));
+                    .thenReturn(buildCarAudioZoneConfig(zoneId, defaultCarAudioFadeConfig,
+                            transientCarAudioFadeConfigs));
         }
         when(mMockCarAudioZone.getCarAudioContext()).thenReturn(TEST_CAR_AUDIO_CONTEXT);
         when(mMockCarAudioZone.getId()).thenReturn(zoneId);
         when(mMockCarAudioZone.isPrimaryZone()).thenReturn(zoneId == PRIMARY_AUDIO_ZONE);
         CarAudioFocus carAudioFocus = new CarAudioFocus(mMockAudioManager, mMockPackageManager,
-                mFocusInteraction, mMockCarAudioZone, mMockCarVolumeInfoWrapper,
-                enableFadeMgrConfig);
+                mFocusInteraction, mMockCarAudioZone, mMockCarVolumeInfoWrapper, features);
         carAudioFocus.setOwningPolicy(mAudioPolicy);
         return carAudioFocus;
     }
 
     private CarAudioFocus getCarAudioFocus() {
-        return getCarAudioFocus(/* enableFadeMgrConfig= */ false, PRIMARY_AUDIO_ZONE,
-                /* defaultCarAudioFadeConfig= */ null, /* transientCarAudioFadeConfigs= */ null);
+        return getCarAudioFocus(PRIMARY_AUDIO_ZONE, /* defaultCarAudioFadeConfig= */ null,
+                /* transientCarAudioFadeConfigs= */ null, /* features= */ null);
     }
 
-    private CarAudioZoneConfig buildCarAudioZoneConfig(int zoneId, boolean enableFadeMgrConfig,
-            CarAudioFadeConfiguration defaultCarAudioFadeConfiguration,
-            ArrayMap<AudioAttributes,
+    private CarAudioZoneConfig buildCarAudioZoneConfig(int zoneId,
+            CarAudioFadeConfiguration defaultCarAudioFadeConfiguration, ArrayMap<AudioAttributes,
                     CarAudioFadeConfiguration> transientCarAudioFadeConfigurations) {
         CarAudioZoneConfig.Builder builder = new CarAudioZoneConfig.Builder(TEST_ZONE_CONFIG_NAME,
                 zoneId, TEST_ZONE_CONFIG_ID, /* isDefault= */ true)
-                .setFadeManagerConfigurationEnabled(enableFadeMgrConfig);
+                .setFadeManagerConfigurationEnabled(true);
         if (defaultCarAudioFadeConfiguration != null) {
             builder.setDefaultCarAudioFadeConfiguration(defaultCarAudioFadeConfiguration);
         }
@@ -1934,6 +2060,20 @@ public class CarAudioFocusUnitTest {
                         transientCarAudioFadeConfigurations.valueAt(index));
             }
         }
+        return builder.build();
+    }
+
+    private CarAudioFeaturesInfo getCarAudioFeaturesInfo(boolean supportsFadeManager,
+            boolean supportsIsolatedFocus) {
+        CarAudioFeaturesInfo.Builder builder =
+                new CarAudioFeaturesInfo.Builder(CarAudioFeaturesInfo.AUDIO_FEATURE_NO_FEATURE);
+        if (supportsFadeManager) {
+            builder.addAudioFeature(AUDIO_FEATURE_FADE_MANAGER_CONFIGS);
+        }
+        if (supportsIsolatedFocus) {
+            builder.addAudioFeature(AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS);
+        }
+
         return builder.build();
     }
 }
