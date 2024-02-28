@@ -420,6 +420,16 @@ final class CarAudioZoneConfig {
                 && containsDeviceAddress(info.getAddress());
     }
 
+    @Nullable
+    CarVolumeGroup getVolumeGroupForAudioAttributes(AudioAttributes audioAttributes) {
+        for (int i = 0; i < mVolumeGroups.size(); i++) {
+            if (mVolumeGroups.get(i).hasAudioAttributes(audioAttributes)) {
+                return mVolumeGroups.get(i);
+            }
+        }
+        return null;
+    }
+
     private boolean containsDeviceAddress(String deviceAddress) {
         return mDeviceAddressToGroupId.containsKey(deviceAddress);
     }

@@ -93,4 +93,6 @@
     <!-- Quick Controls -->
     <color name="qc_start_icon_color">@color/car_on_surface</color>
 
+    <!-- Biometrics -->
+    <color name="biometric_background_color">@color/car_surface</color>
 </resources>

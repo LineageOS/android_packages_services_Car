@@ -38,4 +38,16 @@
     </string>
     <!-- Format for temperature in the temperature control view (No decimal) in celsius -->
     <string name="statusbar_temperature_format_celsius" translatable="false">%.0f\u00B0 C</string>
+
+    <!--  Title for screen asking user to enter their existing lock PIN [CHAR LIMIT=30] -->
+    <string name="confirm_pin_title">Enter your PIN</string>
+
+    <!--  Title for screen asking user to enter their existing lock attern [CHAR LIMIT=30] -->
+    <string name="confirm_pattern_title">Enter your pattern</string>
+
+    <!--  Title for screen asking user to enter their existing password [CHAR LIMIT=30] -->
+    <string name="confirm_password_title">Enter your password</string>
+
+    <!-- Button label for generic cancel action [CHAR LIMIT=20] -->
+    <string name="cancel">Cancel</string>
 </resources>

@@ -113,9 +113,11 @@ public final class GarageModeTest {
     }
 
     @After
-    public void teardown() {
-        CarLocalServices.removeServiceForTest(CarUserService.class);
+    public void teardown() throws Exception {
         mBgHandlerThread.quitSafely();
+        mBgHandlerThread.join();
+
+        CarLocalServices.removeServiceForTest(CarUserService.class);
     }
 
     @Test
