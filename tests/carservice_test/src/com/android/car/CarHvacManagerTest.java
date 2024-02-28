@@ -265,7 +265,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
         assertThrows(AssertionError.class, () -> getAidlMockedVehicleHal().injectEvent(v));
     }
 
-    private class HvacPropertyHandler implements VehicleHalPropertyHandler {
+    private static final class HvacPropertyHandler implements VehicleHalPropertyHandler {
         HashMap<Integer, VehiclePropValue> mMap = new HashMap<>();
 
         @Override

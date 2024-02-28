@@ -69,7 +69,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -88,8 +87,6 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     private static final int INVALID_SESSION_ID = -1;
     private static final int RECURRING_OVERUSE_TIMES = 2;
     private static final int RECURRING_OVERUSE_PERIOD_IN_DAYS = 2;
-    private static final int RESOURCE_OVERUSE_NOTIFICATION_BASE_ID = 10;
-    private static final int RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET = 10;
     private static final String CANONICAL_PACKAGE_NAME =
             CarWatchdogServiceTest.class.getCanonicalName();
 
@@ -322,7 +319,8 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
         }
     }
 
-    private abstract class BaseAndroidClient extends CarWatchdogManager.CarWatchdogClientCallback {
+    private abstract static class BaseAndroidClient
+            extends CarWatchdogManager.CarWatchdogClientCallback {
         protected final CountDownLatch mLatchHealthCheckDone = new CountDownLatch(1);
         protected final CountDownLatch mLatchProcessTermination = new CountDownLatch(1);
         protected CarWatchdogManager mManager;
@@ -376,7 +374,7 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
         }
     }
 
-    private final class NoSelfCheckGoodClient extends BaseAndroidClient {
+    private static final class NoSelfCheckGoodClient extends BaseAndroidClient {
         @Override
         public boolean onCheckHealthStatus(int sessionId, int timeout) {
             super.onCheckHealthStatus(sessionId, timeout);
@@ -385,7 +383,7 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
         }
     }
 
-    private final class BadTestClient extends BaseAndroidClient {
+    private static final class BadTestClient extends BaseAndroidClient {
         @Override
         public boolean onCheckHealthStatus(int sessionId, int timeout) {
             super.onCheckHealthStatus(sessionId, timeout);
@@ -410,10 +408,6 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
         @Override
         public String toString() {
             return "Mocked date to " + now();
-        }
-
-        void updateNow(int numDaysAgo) {
-            mNow = TEST_DATE_TIME.minus(numDaysAgo, ChronoUnit.DAYS);
         }
     }
 }

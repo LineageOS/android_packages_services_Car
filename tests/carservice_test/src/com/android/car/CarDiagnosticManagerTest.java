@@ -24,6 +24,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import static java.lang.Integer.toHexString;
+
 import android.car.Car;
 import android.car.diagnostic.CarDiagnosticEvent;
 import android.car.diagnostic.CarDiagnosticEvent.CommonIgnitionMonitors;
@@ -59,8 +61,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
-
-import static java.lang.Integer.toHexString;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -963,7 +963,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         assertTrue(mCarDiagnosticManager.isSelectiveClearFreezeFramesSupported());
     }
 
-    class Listener implements CarDiagnosticManager.OnDiagnosticEventListener {
+    private static final class Listener implements CarDiagnosticManager.OnDiagnosticEventListener {
         private final Object mLock = new Object();
 
         @GuardedBy("mLock")
