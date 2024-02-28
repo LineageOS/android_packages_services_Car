@@ -457,6 +457,7 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
 Return<void> Enumerator::getCameraList_1_1(getCameraList_1_1_cb list_cb) {
     LOG(DEBUG) << __FUNCTION__;
     if (!mPermissionChecker->processHasPermissionsForEvs()) {
+        list_cb({});
         return Void();
     }
 
