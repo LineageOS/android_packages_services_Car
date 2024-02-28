@@ -206,13 +206,25 @@ void HalCamera::requestNewFrame(std::shared_ptr<VirtualCamera> client, int64_t l
 ScopedAStatus HalCamera::clientStreamStarting() {
     {
         std::lock_guard lock(mFrameMutex);
-        if (mStreamState != STOPPED) {
+        if (mStreamState == RUNNING) {
+            // This camera device is already active.
             return ScopedAStatus::ok();
         }
 
-        mStreamState = RUNNING;
+        if (mStreamState == STOPPED) {
+            // Try to start a video stream.
+            ScopedAStatus status = mHwCamera->startVideoStream(ref<HalCamera>());
+            if (status.isOk()) {
+                mStreamState = RUNNING;
+            }
+            return status;
+        }
+
+        // We cannot start a video stream.
+        return Utils::buildScopedAStatusFromEvsResult(
+                mStreamState == STOPPING ? EvsResult::RESOURCE_BUSY
+                                         : EvsResult::UNDERLYING_SERVICE_ERROR);
     }
-    return mHwCamera->startVideoStream(ref<HalCamera>());
 }
 
 void HalCamera::clientStreamEnding(const VirtualCamera* client) {

@@ -121,14 +121,24 @@ bool HalCamera::changeFramesInFlight(int delta) {
 }
 
 Return<EvsResult> HalCamera::clientStreamStarting() {
-    Return<EvsResult> result = EvsResult::OK;
-
-    if (mStreamState == STOPPED) {
-        mStreamState = RUNNING;
-        result = mHwCamera->startVideoStream(this);
+    if (mStreamState == RUNNING) {
+        // This camera is already active.
+        return EvsResult::OK;
     }
 
-    return result;
+    if (mStreamState == STOPPED) {
+        Return<EvsResult> status = mHwCamera->startVideoStream(this);
+        if (status.isOk() && status == EvsResult::OK) {
+            mStreamState = RUNNING;
+        }
+        return status;
+    }
+
+    // We cannot start a video stream.
+    if (mStreamState == STOPPING) {
+        ALOGE("A device is busy; stopping a current video stream.");
+    }
+    return EvsResult::UNDERLYING_SERVICE_ERROR;
 }
 
 void HalCamera::clientStreamEnding() {

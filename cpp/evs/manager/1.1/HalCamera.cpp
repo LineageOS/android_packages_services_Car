@@ -236,14 +236,26 @@ void HalCamera::requestNewFrame(sp<VirtualCamera> client, const int64_t lastTime
 Return<EvsResult> HalCamera::clientStreamStarting() {
     {
         std::lock_guard lock(mFrameMutex);
-        if (mStreamState != STOPPED) {
+        if (mStreamState == RUNNING) {
+            // This camera is already active.
             return EvsResult::OK;
         }
 
-        mStreamState = RUNNING;
+        if (mStreamState == STOPPED) {
+            Return<EvsResult> status = mHwCamera->startVideoStream(this);
+            if (status.isOk() && status == EvsResult::OK) {
+                mStreamState = RUNNING;
+            }
+            return status;
+        }
+
+        // We cannot start a video stream.
+        if (mStreamState == STOPPING) {
+            LOG(ERROR) << "A device is busy; stopping a current video stream.";
+        }
+        return EvsResult::UNDERLYING_SERVICE_ERROR;
     }
 
-    return mHwCamera->startVideoStream(this);
 }
 
 void HalCamera::cancelCaptureRequestFromClientLocked(std::deque<struct FrameRequest>* requests,
