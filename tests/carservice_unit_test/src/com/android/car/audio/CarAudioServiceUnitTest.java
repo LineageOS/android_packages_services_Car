@@ -5322,6 +5322,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .setUsage(USAGE_MEDIA).setDeviceAddress(MEDIA_TEST_DEVICE).build()));
         volumeEventCallback.waitForCallback();
         volumeEventCallback.reset();
+        reset(mCarVolumeCallbackHandler);
 
         service.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
                 /* mute= */ false, TEST_FLAGS);
