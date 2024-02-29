@@ -128,8 +128,10 @@
     <string name="car_permission_desc_read_valet_mode" msgid="8645550481045813299">"ကားအတွင်း သန့်ပေးသောမုဒ်ကို ဖတ်နိုင်သည်။"</string>
     <string name="car_permission_label_control_valet_mode" msgid="180432980177027905">"ကားအတွင်း သန့်ပေးသောမုဒ်ကို ထိန်းချုပ်နိုင်သည်"</string>
     <string name="car_permission_desc_control_valet_mode" msgid="8442573192492763994">"ဧည့်သည်မုဒ်ကို ထိန်းချုပ်နိုင်သည်။"</string>
-    <string name="car_permission_label_read_head_up_display" msgid="9201863445296851274">"ကြိုတင်သတိပေးချက် ပြသမှုကို ဖတ်နိုင်သည်"</string>
-    <string name="car_permission_desc_read_head_up_display" msgid="8907865450351134443">"ကြိုတင်သတိပေးချက် ပြသမှုကို ဖတ်နိုင်သည်။"</string>
+    <!-- no translation found for car_permission_label_read_head_up_display_status (8117112886452578905) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_head_up_display_status (3255763055570462667) -->
+    <skip />
     <string name="car_permission_label_control_head_up_display" msgid="2990483192001919370">"ကြိုတင်သတိပေးချက် ပြသမှုကို ထိန်းချုပ်နိုင်သည်"</string>
     <string name="car_permission_desc_control_head_up_display" msgid="483313982751387504">"ကြိုတင်သတိပေးချက် ပြသမှုကို ထိန်းချုပ်နိုင်သည်။"</string>
     <string name="car_permission_label_read_car_airbags" msgid="5495423499616379238">"ကား၏ လေအိတ်များကို ဖတ်နိုင်သည်"</string>

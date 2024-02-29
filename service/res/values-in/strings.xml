@@ -128,8 +128,8 @@
     <string name="car_permission_desc_read_valet_mode" msgid="8645550481045813299">"Membaca mode valet."</string>
     <string name="car_permission_label_control_valet_mode" msgid="180432980177027905">"mengontrol mode valet"</string>
     <string name="car_permission_desc_control_valet_mode" msgid="8442573192492763994">"Mengontrol mode valet."</string>
-    <string name="car_permission_label_read_head_up_display" msgid="9201863445296851274">"membaca heads-up display"</string>
-    <string name="car_permission_desc_read_head_up_display" msgid="8907865450351134443">"Membaca heads-up display."</string>
+    <string name="car_permission_label_read_head_up_display_status" msgid="8117112886452578905">"membaca status heads-up display"</string>
+    <string name="car_permission_desc_read_head_up_display_status" msgid="3255763055570462667">"Membaca status heads-up display."</string>
     <string name="car_permission_label_control_head_up_display" msgid="2990483192001919370">"mengontrol heads-up display"</string>
     <string name="car_permission_desc_control_head_up_display" msgid="483313982751387504">"Mengontrol heads-up display."</string>
     <string name="car_permission_label_read_car_airbags" msgid="5495423499616379238">"membaca kantong udara mobil"</string>
