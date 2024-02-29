@@ -53,7 +53,7 @@ public final class BinderInterfaceContainerTest {
         assertThat(container.getInterfaces()).hasSize(2);
     }
 
-    private final class TestBinderInterface extends android.os.Binder implements IInterface {
+    private static final class TestBinderInterface extends android.os.Binder implements IInterface {
         @Override
         public IBinder asBinder() {
             return this;

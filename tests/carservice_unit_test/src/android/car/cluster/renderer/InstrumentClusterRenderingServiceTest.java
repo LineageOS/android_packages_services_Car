@@ -64,7 +64,7 @@ import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ServiceTestRule;
 
 import com.google.common.collect.ImmutableList;
@@ -115,7 +115,8 @@ public final class InstrumentClusterRenderingServiceTest extends AbstractExtende
     }
 
     private void bindService(Intent intent) throws Exception {
-        intent.setComponent(ComponentName.createRelative(InstrumentationRegistry.getContext(),
+        intent.setComponent(ComponentName.createRelative(InstrumentationRegistry
+                        .getInstrumentation().getContext(),
                 TestableInstrumentClusterRenderingService.class.getName()));
 
         IBinder binder = mServiceRule.bindService(intent);

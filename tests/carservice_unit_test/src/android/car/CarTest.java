@@ -29,7 +29,6 @@ import static org.mockito.Mockito.when;
 
 import android.annotation.Nullable;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.car.test.util.ExceptionalFunction;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.IBinder;
@@ -50,7 +49,6 @@ import org.mockito.invocation.InvocationOnMock;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
 
 /**
  * Unit test for Car API.
@@ -68,9 +66,6 @@ public final class CarTest extends AbstractExtendedMockitoTestCase {
 
     // It is tricky to mock this. So create placeholder version instead.
     private static final class FakeService extends ICar.Stub {
-
-        public ExceptionalFunction<String, CarVersion, RemoteException>
-                getTargetCarApiVersionMocker;
 
         @Override
         public void setSystemServerConnections(ICarServiceHelper helper,
@@ -126,7 +121,7 @@ public final class CarTest extends AbstractExtendedMockitoTestCase {
     private final FakeService mService = new FakeService();
 
 
-    private final class LifecycleListener implements Car.CarServiceLifecycleListener {
+    private static final class LifecycleListener implements Car.CarServiceLifecycleListener {
         // Use thread safe one to prevent adding another lock for testing
         private CopyOnWriteArrayList<Pair<Car, Boolean>> mEvents = new CopyOnWriteArrayList<>();
 
@@ -311,17 +306,5 @@ public final class CarTest extends AbstractExtendedMockitoTestCase {
     private void waitForMainToBeComplete() {
         // dispatch placeholder runnable and confirm that it is done.
         runOnMainSyncSafe(() -> { });
-    }
-
-    private void onNewCar(Consumer<Car> action) throws Exception {
-        expectService(mService);
-
-        Car car = Car.createCar(mContext);
-        try {
-            assertThat(car).isNotNull();
-            action.accept(car);
-        } finally {
-            car.disconnect();
-        }
     }
 }

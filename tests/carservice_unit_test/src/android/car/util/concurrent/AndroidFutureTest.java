@@ -96,6 +96,7 @@ public final class AndroidFutureTest {
         assertThat(mCompletedFuture.get()).isEqualTo(STRING_VALUE);
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     @Test
     public void testWhenComplete_alreadyCompleted() throws Exception {
         mCompletedFuture.whenComplete((obj, err) -> {
@@ -106,6 +107,7 @@ public final class AndroidFutureTest {
         mLatch.await();
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     @Test
     public void testWhenComplete_uncompleted() throws Exception {
         mUncompletedFuture.whenComplete((obj, err) -> {
@@ -119,6 +121,7 @@ public final class AndroidFutureTest {
         assertThat(mLatch.getCount()).isEqualTo(0);
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     @Test
     public void testWhenComplete_completeExceptionally() throws Exception {
         Exception origException = new UnsupportedOperationException(EXCEPTION_MESSAGE);
@@ -144,6 +147,7 @@ public final class AndroidFutureTest {
                 () -> mUncompletedFuture.whenCompleteAsync((o, e) -> {}, /* executor= */null));
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     @Test
     public void testOrTimeout_completed() throws Exception {
         mCompletedFuture.orTimeout(TIMEOUT_MS, MILLISECONDS);
@@ -151,6 +155,7 @@ public final class AndroidFutureTest {
         assertThat(mCompletedFuture.get()).isEqualTo(STRING_VALUE);
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     @Test
     public void testOrTimeout_uncompleted_timesOut() throws Exception {
         mUncompletedFuture.orTimeout(TIMEOUT_MS, MILLISECONDS);
@@ -171,7 +176,7 @@ public final class AndroidFutureTest {
     @Test
     public void testSetTimeoutHandler_nullHandler() throws Exception {
         assertThrows(NullPointerException.class,
-                () -> mUncompletedFuture.setTimeoutHandler(/* handler= */null));
+                () -> mUncompletedFuture.setTimeoutHandler(/* h= */null));
     }
 
     @Test

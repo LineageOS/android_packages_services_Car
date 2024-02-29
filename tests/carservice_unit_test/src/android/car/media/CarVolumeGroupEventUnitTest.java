@@ -223,7 +223,7 @@ public final class CarVolumeGroupEventUnitTest extends AbstractExpectableTestCas
         Parcel parcel = Parcel.obtain();
 
         TEST_CAR_VOLUME_GROUP_EVENT.writeToParcel(parcel, TEST_PARCEL_FLAGS);
-        parcel.setDataPosition(/* position= */ 0);
+        parcel.setDataPosition(/* pos= */ 0);
 
         expectWithMessage("Car volume event write to and create from parcel")
                 .that(TEST_CAR_VOLUME_GROUP_EVENT)

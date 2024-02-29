@@ -46,7 +46,6 @@ import android.automotive.watchdog.internal.ResourceStats;
 import android.automotive.watchdog.internal.StateType;
 import android.automotive.watchdog.internal.ThreadPolicyWithPriority;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
-import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
@@ -75,7 +74,7 @@ public class CarWatchdogDaemonHelperTest {
     private static final int MAX_WAIT_TIME_MS = 3000;
 
     @Mock CarWatchdogDaemonHelper.OnConnectionChangeListener mListener;
-    @Mock private IBinder mBinder = new Binder();
+    @Mock private IBinder mBinder;
 
     @Captor
     private ArgumentCaptor<IBinder.DeathRecipient> mDeathRecipientCaptor;
@@ -372,7 +371,7 @@ public class CarWatchdogDaemonHelperTest {
     }
 
     // FakeCarWatchdog mimics ICarWatchdog daemon in local process.
-    private final class FakeCarWatchdog extends ICarWatchdog.Default {
+    private static final class FakeCarWatchdog extends ICarWatchdog.Default {
         private static final int UDC_INTERFACE_VERSION = 3;
 
         private final ArrayList<ICarWatchdogServiceForSystem> mServices = new ArrayList<>();
@@ -406,7 +405,8 @@ public class CarWatchdogDaemonHelperTest {
         }
     }
 
-    private final class ICarWatchdogServiceForSystemImpl extends ICarWatchdogServiceForSystem.Stub {
+    private static final class ICarWatchdogServiceForSystemImpl
+            extends ICarWatchdogServiceForSystem.Stub {
         @Override
         public void checkIfAlive(int sessionId, int timeout) {}
 
