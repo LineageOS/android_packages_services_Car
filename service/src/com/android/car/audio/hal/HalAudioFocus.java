@@ -37,6 +37,7 @@ import android.hardware.audio.common.PlaybackTrackMetadata;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
+import android.os.Binder;
 import android.os.Bundle;
 import android.util.ArrayMap;
 import android.util.ArraySet;
@@ -358,7 +359,13 @@ public final class HalAudioFocus implements HalFocusListener {
         if (mCarAudioPlaybackMonitor == null) {
             return;
         }
-        mCarAudioPlaybackMonitor.onActiveAudioPlaybackAttributesAdded(List.of(attributes), zoneId);
+        long identity = Binder.clearCallingIdentity();
+        try {
+            mCarAudioPlaybackMonitor.onActiveAudioPlaybackAttributesAdded(List.of(attributes),
+                    zoneId);
+        } finally {
+            Binder.restoreCallingIdentity(identity);
+        }
     }
 
     private static final class HalAudioFocusRequest {
