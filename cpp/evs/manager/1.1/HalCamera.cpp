@@ -236,14 +236,26 @@ void HalCamera::requestNewFrame(sp<VirtualCamera> client, const int64_t lastTime
 Return<EvsResult> HalCamera::clientStreamStarting() {
     {
         std::lock_guard lock(mFrameMutex);
-        if (mStreamState != STOPPED) {
+        if (mStreamState == RUNNING) {
+            // This camera is already active.
             return EvsResult::OK;
         }
 
-        mStreamState = RUNNING;
+        if (mStreamState == STOPPED) {
+            Return<EvsResult> status = mHwCamera->startVideoStream(this);
+            if (status.isOk() && status == EvsResult::OK) {
+                mStreamState = RUNNING;
+            }
+            return status;
+        }
+
+        // We cannot start a video stream.
+        if (mStreamState == STOPPING) {
+            LOG(ERROR) << "A device is busy; stopping a current video stream.";
+        }
+        return EvsResult::UNDERLYING_SERVICE_ERROR;
     }
 
-    return mHwCamera->startVideoStream(this);
 }
 
 void HalCamera::cancelCaptureRequestFromClientLocked(std::deque<struct FrameRequest>* requests,
@@ -297,18 +309,22 @@ Return<void> HalCamera::doneWithFrame(const BufferDesc_1_0& buffer) {
             break;
         }
     }
+
     if (i == mFrames.size()) {
         LOG(ERROR) << "We got a frame back with an ID we don't recognize!";
-    } else {
-        // Are there still clients using this buffer?
-        mFrames[i].refCount--;
-        if (mFrames[i].refCount <= 0) {
-            // Since all our clients are done with this buffer, return it to the device layer
-            mHwCamera->doneWithFrame(buffer);
+        return {};
+    }
 
-            // Counts a returned buffer
-            mUsageStats->framesReturned();
-        }
+    if (mFrames[i].refCount < 1) {
+        LOG(WARNING) << "We got a frame that refcount is already zero.";
+        return {};
+    }
+
+    // Are there still clients using this buffer?
+    mFrames[i].refCount--;
+    if (mFrames[i].refCount == 0) {
+        // Since all our clients are done with this buffer, return it to the device layer
+        mHwCamera->doneWithFrame(buffer);
     }
 
     return Void();
@@ -322,21 +338,28 @@ Return<void> HalCamera::doneWithFrame(const BufferDesc_1_1& buffer) {
             break;
         }
     }
+
     if (i == mFrames.size()) {
         LOG(ERROR) << "We got a frame back with an ID we don't recognize!";
-    } else {
-        // Are there still clients using this buffer?
-        mFrames[i].refCount--;
-        if (mFrames[i].refCount <= 0) {
-            // Since all our clients are done with this buffer, return it to the device layer
-            hardware::hidl_vec<BufferDesc_1_1> returnedBuffers;
-            returnedBuffers.resize(1);
-            returnedBuffers[0] = buffer;
-            mHwCamera->doneWithFrame_1_1(returnedBuffers);
+        return {};
+    }
 
-            // Counts a returned buffer
-            mUsageStats->framesReturned(returnedBuffers);
-        }
+    if (mFrames[i].refCount < 1) {
+        LOG(WARNING) << "We got a frame that refcount is already zero.";
+        return {};
+    }
+
+    // Are there still clients using this buffer?
+    mFrames[i].refCount--;
+    if (mFrames[i].refCount == 0) {
+        // Since all our clients are done with this buffer, return it to the device layer
+        hardware::hidl_vec<BufferDesc_1_1> returnedBuffers;
+        returnedBuffers.resize(1);
+        returnedBuffers[0] = buffer;
+        mHwCamera->doneWithFrame_1_1(returnedBuffers);
+
+        // Counts a returned buffer
+        mUsageStats->framesReturned(returnedBuffers);
     }
 
     return Void();
