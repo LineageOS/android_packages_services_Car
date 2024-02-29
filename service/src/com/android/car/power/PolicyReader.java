@@ -366,15 +366,17 @@ public final class PolicyReader {
             }
             writer.decreaseIndent();
         }
+        writer.println("Preemptive power policy:");
+        writer.increaseIndent();
 
-        if (!mFeatureFlags.carPowerPolicyRefactoring()) {
-            writer.println("Preemptive power policy:");
-            writer.increaseIndent();
+        if (mFeatureFlags.carPowerPolicyRefactoring()) {
+            writer.println("Preemptive power policies not supported w/refactored power policy");
+        } else {
             for (int i = 0; i < mPreemptivePowerPolicies.size(); i++) {
                 writer.println(mPreemptivePowerPolicies.valueAt(i).toString());
             }
-            writer.decreaseIndent();
         }
+        writer.decreaseIndent();
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
