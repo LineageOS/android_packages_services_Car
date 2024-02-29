@@ -17,7 +17,6 @@
 package com.android.car.watchdog;
 
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_BASELINE;
-import static android.car.settings.CarSettings.Secure.KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAllUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserRunning;
@@ -67,7 +66,6 @@ import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
@@ -105,7 +103,6 @@ import android.car.watchdog.IResourceOveruseListener;
 import android.car.watchdog.ResourceOveruseConfiguration;
 import android.car.watchdoglib.CarWatchdogDaemonHelper;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -121,7 +118,6 @@ import android.os.ServiceManager;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.provider.Settings;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseArray;
@@ -325,7 +321,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         mockWatchdogStorage();
         mockPackageManager();
         mockBuildStatsEventCalls();
-        mockSettingsStringCalls();
 
         mTimeSource.updateNow(/* numDaysAgo= */ 0);
         mCarWatchdogService = new CarWatchdogService(mMockContext, mMockBuiltinPackageContext,
@@ -1269,36 +1264,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                             .build());
                     // Returned event is not used in tests, so return an empty event.
                     return StatsEvent.newBuilder().build();
-                });
-    }
-
-    private void mockSettingsStringCalls() {
-        doAnswer(args -> {
-            ContentResolver contentResolver = mock(ContentResolver.class);
-            when(contentResolver.getUserId()).thenReturn(args.getArgument(1));
-            return contentResolver;
-        }).when(() -> CarServiceUtils.getContentResolverForUser(any(), anyInt()));
-
-        when(Settings.Secure.getString(any(ContentResolver.class),
-                eq(KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE))).thenAnswer(
-                        args -> {
-                            ContentResolver contentResolver = args.getArgument(0);
-                            int userId = contentResolver.getUserId();
-                            return mDisabledPackagesSettingsStringByUserid.get(userId);
-                        });
-
-        // Use any() instead of anyString() to consider when string arg is null.
-        when(Settings.Secure.putString(any(ContentResolver.class),
-                eq(KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE), any())).thenAnswer(args -> {
-                    ContentResolver contentResolver = args.getArgument(0);
-                    int userId = contentResolver.getUserId();
-                    String packageSettings = args.getArgument(2);
-                    if (packageSettings == null) {
-                        mDisabledPackagesSettingsStringByUserid.remove(userId);
-                    } else {
-                        mDisabledPackagesSettingsStringByUserid.put(userId, args.getArgument(2));
-                    }
-                    return null;
                 });
     }
 
