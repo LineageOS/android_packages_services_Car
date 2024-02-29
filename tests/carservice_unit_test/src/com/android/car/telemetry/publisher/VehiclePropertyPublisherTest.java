@@ -288,8 +288,6 @@ public class VehiclePropertyPublisherTest {
     @Captor
     private ArgumentCaptor<ICarPropertyEventListener> mCarPropertyCallbackCaptor;
     @Captor
-    private ArgumentCaptor<PersistableBundle> mBundleCaptor;
-    @Captor
     private ArgumentCaptor<List<PersistableBundle>> mBundleListCaptor;
 
     private VehiclePropertyPublisher mVehiclePropertyPublisher;
@@ -529,13 +527,13 @@ public class VehiclePropertyPublisherTest {
         mVehiclePropertyPublisher.addDataSubscriber(mMockStringDataSubscriber);
         ICarPropertyEventListener eventListener = mCarPropertyCallbackCaptor.getValue();
         CarPropertyEvent propEvent1 = new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
-                new CarPropertyValue<>(PROP_STRING_ID, AREA_ID, STATUS, /* timestamp= */ 0L,
+                new CarPropertyValue<>(PROP_STRING_ID, AREA_ID, STATUS, /* timestampNanos= */ 0L,
                         "first"));
         CarPropertyEvent propEvent2 = new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
-                new CarPropertyValue<>(PROP_STRING_ID, AREA_ID, STATUS, /* timestamp= */ 5L,
+                new CarPropertyValue<>(PROP_STRING_ID, AREA_ID, STATUS, /* timestampNanos= */ 5L,
                         "second"));
         CarPropertyEvent propEvent3 = new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
-                new CarPropertyValue<>(PROP_STRING_ID, AREA_ID, STATUS, /* timestamp= */ 7L,
+                new CarPropertyValue<>(PROP_STRING_ID, AREA_ID, STATUS, /* timestampNanos= */ 7L,
                         "third"));
 
         eventListener.onEvent(Collections.singletonList(propEvent1));

@@ -295,7 +295,7 @@ public class IoStatsTrackerTest extends TestCase {
         }
     }
 
-    private final class MockSystemStateInterface implements SystemStateInterface {
+    private static final class MockSystemStateInterface implements SystemStateInterface {
 
         private final Object mLock = new Object();
 
@@ -358,13 +358,6 @@ public class IoStatsTrackerTest extends TestCase {
         void addIoRecord(UidIoRecord record) {
             synchronized (mLock) {
                 mIoRecords.put(record.uid, record);
-            }
-        }
-
-        void clear() {
-            synchronized (mLock) {
-                mProcesses.clear();
-                mIoRecords.clear();
             }
         }
     }

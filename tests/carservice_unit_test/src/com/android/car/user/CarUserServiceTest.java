@@ -1007,7 +1007,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         List<UserHandle> existingUsers = Arrays.asList(mAdminUser, mRegularUser);
         mockExistingUsersAndCurrentUser(existingUsers, currentUser);
         UserHandle removeUser = mAdminUser;
-        int removedUserId = removeUser.getIdentifier();
         mockRemoveUserNoCallback(removeUser, UserManager.REMOVE_RESULT_DEFERRED);
 
         removeUser(mAdminUserId, NO_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
@@ -1984,7 +1983,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     public void testCreateUser_internalHalFailure() throws Exception {
         UserHandle newUser = UserHandle.of(42);
         mockUmCreateUser(mMockedUserManager, "dude", "TypeONegative", 108, newUser);
-        mockHalCreateUser(HalCallback.STATUS_INVALID, /* not_used_status= */ -1);
+        mockHalCreateUser(HalCallback.STATUS_INVALID, /* responseStatus= */ -1);
         mockRemoveUser(newUser);
 
         createUser("dude", "TypeONegative", 108, ASYNC_CALL_TIMEOUT_MS, mUserCreationResultCallback,
@@ -3014,7 +3013,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         }
     }
 
-    protected void userOpFlagTest(int carConstant, int amConstant) {
+    private void userOpFlagTest(int carConstant, int amConstant) {
         assertWithMessage("Constant %s",
                 DebugUtils.constantToString(CarUserService.class, "USER_OP_", carConstant))
                 .that(carConstant).isEqualTo(amConstant);

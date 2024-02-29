@@ -213,7 +213,7 @@ public class CarRemoteDeviceServiceTest {
 
         OccupantZoneInfo peerZone = new OccupantZoneInfo(/* zoneId= */ 0,
                 OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
-        PerUserInfo peerUserInfo = mockPerUserInfo(USER_ID, peerZone);
+        mockPerUserInfo(USER_ID, peerZone);
         // The BroadcastReceiver in the peerUserInfo is a mock and will do nothing when calling
         // peerUserInfo.receiver.onReceive(), so remove it from the map. When mService.init() is
         // called, because the map doesn't have the PerUserInfo, it will create a real
@@ -227,7 +227,7 @@ public class CarRemoteDeviceServiceTest {
         mService.init();
         mService.registerStateCallback(PACKAGE_NAME, mCallback);
         // Get the PerUserInfo containing the real BroadcastReceiver.
-        peerUserInfo = mPerUserInfoMap.get(USER_ID);
+        PerUserInfo peerUserInfo = mPerUserInfoMap.get(USER_ID);
 
         // Pretend that the peer app is installed in the beginning.
         ClientId peerClient = new ClientId(peerZone, USER_ID, PACKAGE_NAME);
@@ -266,7 +266,7 @@ public class CarRemoteDeviceServiceTest {
 
         OccupantZoneInfo peerZone = new OccupantZoneInfo(/* zoneId= */ 0,
                 OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
-        PerUserInfo peerUserInfo = mockPerUserInfo(USER_ID, peerZone);
+        mockPerUserInfo(USER_ID, peerZone);
         // The BroadcastReceiver in the peerUserInfo is a mock and will do nothing when calling
         // peerUserInfo.receiver.onReceive(), so remove it from the map. When mService.init() is
         // called, because the map doesn't have the PerUserInfo, it will create a real
@@ -280,7 +280,7 @@ public class CarRemoteDeviceServiceTest {
         mService.init();
         mService.registerStateCallback(PACKAGE_NAME, mCallback);
         // Get the PerUserInfo containing the real BroadcastReceiver.
-        peerUserInfo = mPerUserInfoMap.get(USER_ID);
+        PerUserInfo peerUserInfo = mPerUserInfoMap.get(USER_ID);
 
         // Pretend that the peer app is installed in the beginning.
         ClientId peerClient = new ClientId(peerZone, USER_ID, PACKAGE_NAME);

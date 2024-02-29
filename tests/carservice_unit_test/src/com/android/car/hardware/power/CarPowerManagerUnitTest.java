@@ -693,16 +693,9 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
         private final Semaphore mSleepWait = new Semaphore(0);
         private final Semaphore mSleepExitWait = new Semaphore(0);
 
-        @GuardedBy("sLock")
-        private boolean mWakeupCausedByTimer = false;
-
         @Override
         public void shutdown() {
             mShutdownWait.release();
-        }
-
-        public void waitForShutdown(long timeoutMs) throws Exception {
-            JavaMockitoHelper.await(mShutdownWait, timeoutMs);
         }
 
         @Override
@@ -724,25 +717,14 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
             return true;
         }
 
-        public void waitForSleepEntryAndWakeup(long timeoutMs) throws Exception {
-            JavaMockitoHelper.await(mSleepWait, timeoutMs);
-            mSleepExitWait.release();
-        }
-
         @Override
         public void scheduleActionForBootCompleted(Runnable action, Duration delay,
                 Duration delayRange) {}
 
         @Override
         public boolean isWakeupCausedByTimer() {
-            Log.i(TAG, "isWakeupCausedByTimer:" + mWakeupCausedByTimer);
-            return mWakeupCausedByTimer;
-        }
-
-        public void setWakeupCausedByTimer(boolean set) {
-            synchronized (sLock) {
-                mWakeupCausedByTimer = set;
-            }
+            Log.i(TAG, "isWakeupCausedByTimer: false");
+            return false;
         }
 
         @Override
@@ -751,7 +733,7 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
         }
     }
 
-    private final class MockedPowerPolicyListener implements
+    private static final class MockedPowerPolicyListener implements
             CarPowerManager.CarPowerPolicyListener {
         private static final int MAX_LISTENER_WAIT_TIME_SEC = 1;
 

@@ -177,16 +177,16 @@ public final class SystemStateInterfaceTest extends AbstractExtendedMockitoTestC
     public void testGetRandomizedDelay() throws Exception {
         assertThat(getRandomizedDelay(Duration.ZERO, Duration.ZERO)).isEqualTo(Duration.ZERO);
 
-        Duration randomizedDelay = getRandomizedDelay(Duration.ZERO, Duration.ofMillis(1000));
+        Duration randomizedDelay = getRandomizedDelay(Duration.ZERO, Duration.ofSeconds(1));
         assertWithMessage("Minimum delay duration").that(randomizedDelay).isAtLeast(Duration.ZERO);
         assertWithMessage("Maximum delay duration").that(randomizedDelay)
-                .isLessThan(Duration.ofMillis(1000));
+                .isLessThan(Duration.ofSeconds(1));
 
-        randomizedDelay = getRandomizedDelay(/* delay= */ Duration.ofMillis(2000),
-                /* delayRange= */ Duration.ofMillis(1000));
+        randomizedDelay = getRandomizedDelay(/* delay= */ Duration.ofSeconds(2),
+                /* delayRange= */ Duration.ofSeconds(1));
         assertWithMessage("Minimum delay duration").that(randomizedDelay)
-                .isAtLeast(Duration.ofMillis(1000));
+                .isAtLeast(Duration.ofSeconds(1));
         assertWithMessage("Maximum delay duration").that(randomizedDelay)
-                .isLessThan(Duration.ofMillis(3000));
+                .isLessThan(Duration.ofSeconds(3));
     }
 }

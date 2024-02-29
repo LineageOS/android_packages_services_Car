@@ -93,14 +93,14 @@ public final class CarOemProxyServiceHelperTest extends AbstractExtendedMockitoT
             mCarOemProxyServiceHelper.doBinderTimedCallWithTimeout(CALLER_TAG, () -> {
                 Thread.sleep(1000); // test will not wait for this timeout
                 return 42;
-            }, /* timeout= */ 10);
+            }, /* timeoutMs= */ 10);
         });
     }
 
     @Test
     public void testDoBinderTimedCall_returnCalculatedValue() throws Exception {
         assertThat(mCarOemProxyServiceHelper.doBinderTimedCallWithTimeout(CALLER_TAG, () -> 42,
-                /* timeout= */ 1000)).isEqualTo(42);
+                /* timeoutMs= */ 1000)).isEqualTo(42);
     }
 
     @Test

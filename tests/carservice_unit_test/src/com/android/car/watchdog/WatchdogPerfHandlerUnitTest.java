@@ -161,6 +161,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -492,7 +493,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                         new WatchdogStorage.UserPackageSettingsEntry(/* userId= */ 101,
                                 "third_party_package",
                                 /* killableState= */ PackageKillableState.KILLABLE_STATE_NO,
-                                /* lastModifiedKillableStateEpoch= */ 123456789));
+                                /* killableStateLastModifiedEpochSeconds= */ 123456789));
 
         mWatchdogPerfHandler.writeToDatabase();
 
@@ -3248,11 +3249,11 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                         new WatchdogStorage.UserPackageSettingsEntry(/* userId= */ 100,
                                 "system_package",
                                 /* killableState= */ PackageKillableState.KILLABLE_STATE_YES,
-                                /* lastModifiedKillableStateEpoch= */ 123456789),
+                                /* killableStateLastModifiedEpochSeconds= */ 123456789),
                         new WatchdogStorage.UserPackageSettingsEntry(/* userId= */ 100,
                                 "third_party_package",
                                 /* killableState= */ PackageKillableState.KILLABLE_STATE_YES,
-                                /* lastModifiedKillableStateEpoch= */ 123456789));
+                                /* killableStateLastModifiedEpochSeconds= */ 123456789));
 
         List<WatchdogStorage.IoUsageStatsEntry> expectedSavedIoUsageEntries = Arrays.asList(
                 new WatchdogStorage.IoUsageStatsEntry(/* userId= */ 100, "system_package",
@@ -4715,9 +4716,9 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                 mTimeSource.getCurrentDate());
         for (int i = 1; i < 8; ++i) {
             summaries.add(CarWatchdogServiceUnitTest.constructCarWatchdogDailyIoUsageSummary(
-                    /* fgWrBytes= */ 100 * i * weekMultiplier * sysOrUidMultiplier,
-                    /* bgWrBytes= */ 200 * i * weekMultiplier * sysOrUidMultiplier,
-                    /* gmWrBytes= */ 300 * i * weekMultiplier * sysOrUidMultiplier,
+                    /* fgWrBytes= */ weekMultiplier * sysOrUidMultiplier * 100 * i,
+                    /* bgWrBytes= */ weekMultiplier * sysOrUidMultiplier * 200 * i,
+                    /* gmWrBytes= */ weekMultiplier * sysOrUidMultiplier * 300 * i,
                     /* overuseCount= */ 2 * i));
         }
         return summaries;
@@ -4747,7 +4748,8 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     private static android.automotive.watchdog.internal.ResourceOveruseConfiguration
             sampleInternalResourceOveruseConfiguration(@ComponentType int componentType,
             android.automotive.watchdog.internal.IoOveruseConfiguration ioOveruseConfig) {
-        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType).toLowerCase();
+        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType)
+                .toLowerCase(Locale.US);
         android.automotive.watchdog.internal.ResourceOveruseConfiguration config =
                 new android.automotive.watchdog.internal.ResourceOveruseConfiguration();
         config.componentType = componentType;
@@ -4794,7 +4796,8 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
     private static android.automotive.watchdog.internal.IoOveruseConfiguration
             sampleInternalIoOveruseConfiguration(@ComponentType int componentType) {
-        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType).toLowerCase();
+        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType)
+                .toLowerCase(Locale.US);
         android.automotive.watchdog.internal.IoOveruseConfiguration config =
                 new android.automotive.watchdog.internal.IoOveruseConfiguration();
         config.componentLevelThresholds = constructPerStateIoOveruseThreshold(
@@ -4861,7 +4864,8 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
     private static IoOveruseConfiguration.Builder sampleIoOveruseConfigurationBuilder(
             @ComponentType int componentType) {
-        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType).toLowerCase();
+        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType)
+                .toLowerCase(Locale.US);
         PerStateBytes componentLevelThresholds = new PerStateBytes(
                 /* foregroundModeBytes= */ componentType * 10L,
                 /* backgroundModeBytes= */ componentType * 20L,
@@ -4894,7 +4898,8 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
     private static ResourceOveruseConfiguration.Builder sampleResourceOveruseConfigurationBuilder(
             @ComponentType int componentType, IoOveruseConfiguration ioOveruseConfig) {
-        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType).toLowerCase();
+        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType)
+                .toLowerCase(Locale.US);
         List<String> safeToKill = Arrays.asList(prefix + "_package.non_critical.A",
                 prefix + "_pkg.non_critical.B",
                 "shared:" + prefix + "_shared_package.non_critical.B",
