@@ -148,26 +148,26 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
                 NullPointerException.class,
                 () ->
                         new CarAudioGainMonitor(
-                                /* AudioControlWrapper= */ null, mMockVolumeInfoWrapper,
-                                /* SparseArray<CarAudioZone>= */ null));
+                                /* audioControlWrapper= */ null, mMockVolumeInfoWrapper,
+                                /* carAudioZones= */ null));
 
         assertThrows(
                 NullPointerException.class,
                 () ->
                         new CarAudioGainMonitor(
                                 mAudioControlWrapperAidl, mMockVolumeInfoWrapper,
-                                /* SparseArray<CarAudioZone>= */ null));
+                                /* carAudioZones= */ null));
 
         assertThrows(
                 NullPointerException.class,
-                () -> new CarAudioGainMonitor(/* AudioControlWrapper= */ null,
+                () -> new CarAudioGainMonitor(/* audioControlWrapper= */ null,
                         mMockVolumeInfoWrapper, mCarAudioZones));
     }
 
     @Test
     public void constructor_nullCarVolumeInfoWrapper_fails() {
         Throwable thrown = assertThrows(NullPointerException.class, () -> new CarAudioGainMonitor(
-                mAudioControlWrapperAidl, /* CarVolumeInfoWrapper= */ null, mCarAudioZones));
+                mAudioControlWrapperAidl, /* carVolumeInfoWrapper= */ null, mCarAudioZones));
 
         expectWithMessage("Constructor exception")
                 .that(thrown).hasMessageThat().contains("Car volume info wrapper can not be null");

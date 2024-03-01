@@ -33,7 +33,7 @@ import java.util.Set;
 
 /**
  * Represents the subscription data to {@link CarPropertyManager#subscribePropertyEvents}. To
- * create an Subscription use {@link Subscription.Builder}.
+ * create a Subscription use Subscription.Builder.
  */
 @FlaggedApi(FLAG_BATCHED_SUBSCRIPTIONS)
 public final class Subscription {
@@ -93,6 +93,8 @@ public final class Subscription {
     }
 
     /**
+     * Gets the propertyId set in the Subscription.Builder object.
+     *
      * @return The propertyId to subscribe to
      */
     public int getPropertyId() {
@@ -100,6 +102,8 @@ public final class Subscription {
     }
 
     /**
+     * Gets the updateRateHz set in the Subscription.Builder object.
+     *
      * @return The update rate to subscribe to
      */
     public float getUpdateRateHz() {
@@ -107,7 +111,11 @@ public final class Subscription {
     }
 
     /**
-     * @return The areaIds to subscribe to, empty array means subscribing to all areas.
+     * Gets all the areaIds added in the Subscription.Builder object. This will return an empty
+     * array if no particular areaIds were added specifically, which means that the client wants to
+     * subscribe to all possible area IDs.
+     *
+     * @return The areaIds to subscribe to, empty array means subscribing to all area IDs.
      */
     @NonNull
     public int[] getAreaIds() {
@@ -115,6 +123,8 @@ public final class Subscription {
     }
 
     /**
+     * Gets the variable update rate enabled boolean set in the Subscription.Builder object.
+     *
      * @return whether variable update rate is enabled.
      */
     @FlaggedApi(FLAG_VARIABLE_UPDATE_RATE)
@@ -123,6 +133,8 @@ public final class Subscription {
     }
 
     /**
+     * Gets the resolution set in the Subscription.Builder object.
+     *
      * @return the resolution to subscribe to
      */
     @FlaggedApi(FLAG_SUBSCRIPTION_WITH_RESOLUTION)
@@ -131,7 +143,7 @@ public final class Subscription {
     }
 
     /**
-     * Builder for {@link Subscription}
+     * Builder for Subscription
      */
     @FlaggedApi(FLAG_BATCHED_SUBSCRIPTIONS)
     public static final class Builder {
@@ -213,8 +225,8 @@ public final class Subscription {
         }
 
         /**
-         * Adds an areaId for the {@link Subscription} being built. If the areaId is already
-         * present, then the operation is ignored.
+         * Adds an areaId for the Subscription being built. If the areaId is already present, then
+         * the operation is ignored.
          *
          * @param areaId The areaId to add for the given builder
          * @return The original Builder object. This value cannot be {@code null}.

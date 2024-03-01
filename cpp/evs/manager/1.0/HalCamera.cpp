@@ -121,14 +121,24 @@ bool HalCamera::changeFramesInFlight(int delta) {
 }
 
 Return<EvsResult> HalCamera::clientStreamStarting() {
-    Return<EvsResult> result = EvsResult::OK;
-
-    if (mStreamState == STOPPED) {
-        mStreamState = RUNNING;
-        result = mHwCamera->startVideoStream(this);
+    if (mStreamState == RUNNING) {
+        // This camera is already active.
+        return EvsResult::OK;
     }
 
-    return result;
+    if (mStreamState == STOPPED) {
+        Return<EvsResult> status = mHwCamera->startVideoStream(this);
+        if (status.isOk() && status == EvsResult::OK) {
+            mStreamState = RUNNING;
+        }
+        return status;
+    }
+
+    // We cannot start a video stream.
+    if (mStreamState == STOPPING) {
+        ALOGE("A device is busy; stopping a current video stream.");
+    }
+    return EvsResult::UNDERLYING_SERVICE_ERROR;
 }
 
 void HalCamera::clientStreamEnding() {
@@ -156,15 +166,22 @@ Return<void> HalCamera::doneWithFrame(const BufferDesc& buffer) {
             break;
         }
     }
+
     if (i == mFrames.size()) {
         ALOGE("We got a frame back with an ID we don't recognize!");
-    } else {
-        // Are there still clients using this buffer?
-        mFrames[i].refCount--;
-        if (mFrames[i].refCount <= 0) {
-            // Since all our clients are done with this buffer, return it to the device layer
-            mHwCamera->doneWithFrame(buffer);
-        }
+        return {};
+    }
+
+    if (mFrames[i].refCount < 1) {
+        ALOGW("We got a frame that refcount is already zero.");
+        return {};
+    }
+
+    // Are there still clients using this buffer?
+    mFrames[i].refCount--;
+    if (mFrames[i].refCount == 0) {
+        // Since all our clients are done with this buffer, return it to the device layer
+        mHwCamera->doneWithFrame(buffer);
     }
 
     return Void();

@@ -205,6 +205,8 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     private StatsManager mMockStatsManager;
     @Mock
     private NotificationHelper mMockNotificationHelper;
+    @Mock
+    private ContentResolver mMockContentResolver;
 
     @Captor
     private ArgumentCaptor<ICarUxRestrictionsChangeListener>
@@ -4547,9 +4549,8 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
     private void mockSettingsStringCalls() {
         doAnswer(args -> {
-            ContentResolver contentResolver = mock(ContentResolver.class);
-            when(contentResolver.getUserId()).thenReturn(args.getArgument(1));
-            return contentResolver;
+            when(mMockContentResolver.getUserId()).thenReturn(args.getArgument(1));
+            return mMockContentResolver;
         }).when(() -> CarServiceUtils.getContentResolverForUser(any(), anyInt()));
 
         when(Settings.Secure.getString(any(ContentResolver.class),

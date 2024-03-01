@@ -148,7 +148,7 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
 
         info.writeToParcel(parcel, TEST_PARCEL_FLAGS);
 
-        parcel.setDataPosition(/* position= */ 0);
+        parcel.setDataPosition(/* pos= */ 0);
         CarAudioFeaturesInfo createdInfo = CarAudioFeaturesInfo.CREATOR.createFromParcel(parcel);
         expectWithMessage("Car audio device feature with focus feature and crated from parcel")
                 .that(createdInfo).isEqualTo(info);
@@ -168,7 +168,7 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
 
         info.writeToParcel(parcel, TEST_PARCEL_FLAGS);
 
-        parcel.setDataPosition(/* position= */ 0);
+        parcel.setDataPosition(/* pos= */ 0);
         CarAudioFeaturesInfo createdInfo = CarAudioFeaturesInfo.CREATOR.createFromParcel(parcel);
         expectWithMessage("Car audio device feature with fade manager feature created from parcel")
                 .that(createdInfo).isEqualTo(info);
