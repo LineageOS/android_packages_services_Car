@@ -166,7 +166,7 @@ public final class OemCarAudioVolumeRequestUnitTest extends AbstractExpectableTe
         Parcel parcel = Parcel.obtain();
 
         TEST_VOLUME_REQUEST.writeToParcel(parcel, TEST_PARCEL_FLAGS);
-        parcel.setDataPosition(/* position= */ 0);
+        parcel.setDataPosition(/* pos= */ 0);
 
         expectWithMessage("Car volume request from parcel")
                 .that(OemCarAudioVolumeRequest.CREATOR.createFromParcel(parcel))

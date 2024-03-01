@@ -407,29 +407,18 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
             ATTRIBUTES_ASSISTANCE_SONIFICATION, ATTRIBUTES_EMERGENCY, ATTRIBUTES_SAFETY,
             ATTRIBUTES_VEHICLE_STATUS);
 
-    private static final AudioDeviceInfo MICROPHONE_TEST_DEVICE =
-            new AudioDeviceInfoBuilder().setAddressName(PRIMARY_ZONE_MICROPHONE_ADDRESS)
-            .setType(TYPE_BUILTIN_MIC)
-            .setIsSource(true)
-            .build();
-    private static final AudioDeviceInfo FM_TUNER_TEST_DEVICE =
-            new AudioDeviceInfoBuilder().setAddressName(PRIMARY_ZONE_FM_TUNER_ADDRESS)
-            .setType(TYPE_FM_TUNER)
-            .setIsSource(true)
-            .build();
-
     private static final AudioFocusInfo TEST_AUDIO_FOCUS_INFO =
             new AudioFocusInfo(CarAudioContext
                     .getAudioAttributeFromUsage(USAGE_VOICE_COMMUNICATION), MEDIA_APP_UID,
             MEDIA_CLIENT_ID, "com.android.car.audio",
-            AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, AUDIOFOCUS_NONE, /* loss= */ 0,
+            AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, AUDIOFOCUS_NONE, /* flags= */ 0,
             Build.VERSION.SDK_INT);
 
     private static final AudioFocusInfo TEST_REAR_RIGHT_AUDIO_FOCUS_INFO =
             new AudioFocusInfo(CarAudioContext
             .getAudioAttributeFromUsage(USAGE_MEDIA), TEST_REAR_RIGHT_UID,
             MEDIA_CLIENT_ID, "com.android.car.audio",
-            AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, AUDIOFOCUS_NONE, /* loss= */ 0,
+            AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, AUDIOFOCUS_NONE, /* flags= */ 0,
             Build.VERSION.SDK_INT);
 
     @Mock
@@ -2138,7 +2127,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         NullPointerException thrown = assertThrows(NullPointerException.class, () ->
                 service.getVolumeGroupIdForAudioAttribute(PRIMARY_AUDIO_ZONE,
-                /* attribute= */ null));
+                /* attributes= */ null));
 
         expectWithMessage("Null audio attribute exception").that(thrown).hasMessageThat()
                 .contains("Audio attributes");
@@ -2261,9 +2250,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     public void getMutedVolumeGroups_withMutedGroups() throws Exception {
         CarAudioService service = setUpAudioService();
         service.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
-                /* muted= */ true, TEST_FLAGS);
+                /* mute= */ true, TEST_FLAGS);
         service.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_1,
-                /* muted= */ true, TEST_FLAGS);
+                /* mute= */ true, TEST_FLAGS);
 
         expectWithMessage("Muted volume groups")
                 .that(service.getMutedVolumeGroups(PRIMARY_AUDIO_ZONE))
@@ -2290,9 +2279,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     public void getMutedVolumeGroups_withMutedGroupsForDifferentZone() throws Exception {
         CarAudioService service = setUpAudioService();
         service.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
-                /* muted= */ true, TEST_FLAGS);
+                /* mute= */ true, TEST_FLAGS);
         service.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_1,
-                /* muted= */ true, TEST_FLAGS);
+                /* mute= */ true, TEST_FLAGS);
 
         expectWithMessage("Muted volume groups for secondary zone")
                 .that(service.getMutedVolumeGroups(TEST_REAR_LEFT_ZONE_ID)).isEmpty();
@@ -5707,10 +5696,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     private CarAudioService setUpCarAudioServiceUsingCoreAudioRoutingAndVolume() throws Exception {
-        when(mMockResources.getBoolean(audioUseCoreVolume))
-                .thenReturn(/* audioUseCoreVolume= */ true);
-        when(mMockResources.getBoolean(audioUseCoreRouting))
-                .thenReturn(/* audioUseCoreRouting= */ true);
+        when(mMockResources.getBoolean(audioUseCoreVolume)).thenReturn(true);
+        when(mMockResources.getBoolean(audioUseCoreRouting)).thenReturn(true);
         setUpTempFileForAudioConfiguration(
                 R.raw.car_audio_configuration_using_core_audio_routing_and_volume);
         setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
@@ -6079,16 +6066,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
             return mZoneIds.get(mZoneIds.size() - 1);
         }
 
-        private int[] getZoneIds(int index) {
-            return mZoneIds.get(index);
-        }
-
         public int getLastStatus() {
             return mStatus.get(mStatus.size() - 1);
-        }
-
-        public int getStatus(int index) {
-            return mStatus.get(index);
         }
     }
 

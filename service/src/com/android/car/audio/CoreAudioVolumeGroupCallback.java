@@ -45,7 +45,6 @@ final class CoreAudioVolumeGroupCallback extends AudioManager.VolumeGroupCallbac
         if (Slogf.isLoggable(TAG_AUDIO, DEBUG)) {
             Slogf.d(TAG, "Registered car audio volume group callback");
         }
-        return;
     }
 
     public void release() {
