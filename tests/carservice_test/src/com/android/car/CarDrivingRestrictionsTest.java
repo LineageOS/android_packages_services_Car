@@ -272,7 +272,7 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
     /**
      * Callback function we register for driving state update notifications.
      */
-    private class DrivingStateListener implements
+    private static final class DrivingStateListener implements
             CarDrivingStateManager.CarDrivingStateEventListener,
             CarUxRestrictionsManager.OnUxRestrictionsChangedListener {
         private final Object mDrivingStateLock = new Object();
@@ -283,8 +283,12 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
         private CarUxRestrictions mLastRestrictions = null;
 
         void reset() {
-            mLastEvent = null;
-            mLastRestrictions = null;
+            synchronized (mDrivingStateLock) {
+                mLastEvent = null;
+            }
+            synchronized (mUxRLock) {
+                mLastRestrictions = null;
+            }
         }
 
         // Returns True to indicate receipt of a driving state event.  False indicates a timeout.
@@ -319,8 +323,8 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
                             && (start + DEFAULT_WAIT_TIMEOUT_MS > SystemClock.elapsedRealtime())) {
                     mUxRLock.wait(100L);
                 }
+                return mLastRestrictions;
             }
-            return mLastRestrictions;
         }
 
         @Override

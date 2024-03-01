@@ -175,7 +175,7 @@ public class CarCabinManagerTest extends MockedCarTestBase {
     }
 
 
-    private class CabinPropertyHandler implements VehicleHalPropertyHandler {
+    private static final class CabinPropertyHandler implements VehicleHalPropertyHandler {
         HashMap<Integer, VehiclePropValue> mMap = new HashMap<>();
 
         @Override

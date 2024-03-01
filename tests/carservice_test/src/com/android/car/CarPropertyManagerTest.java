@@ -143,9 +143,6 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
             0x1103 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.INT32_VEC
                     | VehicleArea.GLOBAL;
     private static final Integer[] FAKE_INT_ARRAY_VALUE = {1, 2};
-    private static final boolean FAKE_BOOLEAN_PROPERTY_VALUE = true;
-    private static final float FAKE_FLOAT_PROPERTY_VALUE = 3f;
-    private static final int FAKE_INT_PROPERTY_VALUE = 3;
 
     // A property that always returns null to simulate an unavailable property.
     private static final int NULL_VALUE_PROP =
@@ -232,14 +229,6 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
             | VehicleHalStatusCode.STATUS_NOT_AVAILABLE;
     private static final int INTERNAL_ERROR_WITH_VENDOR_CODE = VENDOR_CODE_FOR_INTERNAL_ERROR << 16
             | VehicleHalStatusCode.STATUS_INTERNAL_ERROR;
-
-    private static final List<Integer> USER_HAL_PROPERTIES = Arrays.asList(
-            VehiclePropertyIds.INITIAL_USER_INFO,
-            VehiclePropertyIds.SWITCH_USER,
-            VehiclePropertyIds.CREATE_USER,
-            VehiclePropertyIds.REMOVE_USER,
-            VehiclePropertyIds.USER_IDENTIFICATION_ASSOCIATION
-    );
 
     private CarPropertyManager mManager;
 
@@ -735,7 +724,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
         // We should not receive any initial value event.
         assertThrows(IllegalStateException.class, () -> callback.assertRegisterCompleted(
-                /* timeoutInMs=*/ 1000));
+                /* timeoutMs= */ 1000));
     }
 
     @Test
@@ -748,7 +737,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
         // We should not receive any initial value event.
         assertThrows(IllegalStateException.class, () -> callback.assertRegisterCompleted(
-                /* timeoutInMs=*/ 1000));
+                /* timeoutMs= */ 1000));
     }
 
     @Test
@@ -1615,10 +1604,6 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         public synchronized void onPropertyUnsubscribe(int property) {
             Log.d(TAG, "onPropertyUnSubscribe property " + property);
         }
-    }
-
-    private static String propToString(int propertyId) {
-        return VehiclePropertyIds.toString(propertyId) + " (" + propertyId + ")";
     }
 
     private static int mapPropertyToVhalStatusCode(int propId) {

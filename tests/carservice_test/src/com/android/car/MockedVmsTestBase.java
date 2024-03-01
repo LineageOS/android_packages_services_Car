@@ -148,7 +148,8 @@ public class MockedVmsTestBase extends MockedCarTestBase {
         }
     }
 
-    class MockSubscriberClient implements VmsSubscriberManager.VmsSubscriberClientCallback {
+    static final class MockSubscriberClient
+            implements VmsSubscriberManager.VmsSubscriberClientCallback {
         private BlockingQueue<Pair<VmsLayer, byte[]>> mMessages = new LinkedBlockingQueue<>();
         private BlockingQueue<VmsAvailableLayers> mAvailableLayers = new LinkedBlockingQueue<>();
 

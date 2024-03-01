@@ -70,7 +70,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
 
     private CarInputManager mCarInputManager;
 
-    private final class CaptureCallback implements CarInputManager.CarInputCaptureCallback {
+    private static final class CaptureCallback implements CarInputManager.CarInputCaptureCallback {
 
         private static final long EVENT_WAIT_TIME = 5_000;
 

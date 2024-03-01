@@ -56,7 +56,6 @@ import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.IOInterface;
 import com.android.car.systeminterface.StorageMonitoringInterface;
 import com.android.car.systeminterface.SystemInterface;
-import com.android.car.systeminterface.SystemInterface.Builder;
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.systeminterface.TimeInterface;
 import com.android.car.systeminterface.WakeLockInterface;
@@ -157,7 +156,7 @@ public final class ICarImplTest extends AbstractExtendedMockitoTestCase {
                 eq(com.android.car.R.array.config_earlyStartupServices));
         doReturn(resources).when(mContext).getResources();
 
-        mFakeSystemInterface = Builder.newSystemInterface()
+        mFakeSystemInterface = SystemInterface.Builder.newSystemInterface()
                 .withSystemStateInterface(mMockSystemStateInterface)
                 .withActivityManagerInterface(mMockActivityManagerInterface)
                 .withDisplayInterface(mMockDisplayInterface)
