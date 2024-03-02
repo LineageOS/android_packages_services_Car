@@ -128,8 +128,10 @@
     <string name="car_permission_desc_read_valet_mode" msgid="8645550481045813299">"Lire les informations relatives au mode Voiturier."</string>
     <string name="car_permission_label_control_valet_mode" msgid="180432980177027905">"contrôler le mode Voiturier"</string>
     <string name="car_permission_desc_control_valet_mode" msgid="8442573192492763994">"Contrôler le mode Voiturier."</string>
-    <string name="car_permission_label_read_head_up_display" msgid="9201863445296851274">"lire l\'affichage tête haute"</string>
-    <string name="car_permission_desc_read_head_up_display" msgid="8907865450351134443">"Lire l\'affichage tête haute."</string>
+    <!-- no translation found for car_permission_label_read_head_up_display_status (8117112886452578905) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_head_up_display_status (3255763055570462667) -->
+    <skip />
     <string name="car_permission_label_control_head_up_display" msgid="2990483192001919370">"contrôler l\'affichage tête haute"</string>
     <string name="car_permission_desc_control_head_up_display" msgid="483313982751387504">"Contrôler l\'affichage tête haute."</string>
     <string name="car_permission_label_read_car_airbags" msgid="5495423499616379238">"lire les informations relatives aux coussins gonflables de la voiture"</string>

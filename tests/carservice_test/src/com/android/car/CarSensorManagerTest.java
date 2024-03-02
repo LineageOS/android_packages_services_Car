@@ -90,7 +90,6 @@ public class CarSensorManagerTest extends MockedCarTestBase {
 
     /**
      * Test single sensor availability entry point
-     * @throws Exception
      */
     @Test
     public void testSensorAvailability() throws Exception {
@@ -112,7 +111,6 @@ public class CarSensorManagerTest extends MockedCarTestBase {
 
     /**
      * Test sensor enumeration entry point
-     * @throws Exception
      */
     @Test
     public void testSensorEnumeration() throws Exception {
@@ -143,7 +141,6 @@ public class CarSensorManagerTest extends MockedCarTestBase {
 
     /**
      * Test sensor notification registration, delivery, and unregistration
-     * @throws Exception
      */
     @Test
     public void testEvents() throws Exception {
@@ -331,7 +328,6 @@ public class CarSensorManagerTest extends MockedCarTestBase {
 
     /**
      * Test sensor multiple liseners notification registration, delivery and unregistration.
-     * @throws Exception
      */
     @Test
     public void testEventsWithMultipleListeners() throws Exception {
@@ -489,7 +485,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
      * This tracks the number of times it has been called via the mAvailable semaphore,
      * and keeps a reference to the most recent event delivered.
      */
-    class SensorListener implements CarSensorManager.OnSensorChangedListener {
+    private static final class SensorListener implements CarSensorManager.OnSensorChangedListener {
         private final Object mSync = new Object();
 
         private CarSensorEvent mLastEvent = null;
