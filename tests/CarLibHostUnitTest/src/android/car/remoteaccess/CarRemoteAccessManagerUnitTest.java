@@ -96,6 +96,10 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExpectableTest
         MockitoAnnotations.initMocks(this);
 
         when(mBinder.queryLocalInterface(anyString())).thenReturn(mService);
+        when(mCar.handleRemoteExceptionFromCarService(any(RemoteException.class), any()))
+                .thenAnswer((inv) -> {
+                    return inv.getArgument(1);
+                });
         mRemoteAccessManager = new CarRemoteAccessManager(mCar, mBinder);
     }
 
@@ -588,6 +592,35 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExpectableTest
 
         assertThrows(InVehicleTaskSchedulerException.class, () ->
                 mRemoteAccessManager.getInVehicleTaskScheduler().isTaskScheduled(TEST_SCHEDULE_ID));
+    }
+
+    @Test
+    public void testGetSupportedTaskTypes() throws Exception {
+        when(mService.isTaskScheduleSupported()).thenReturn(true);
+        int[] taskTypes = new int[]{TASK_TYPE_CUSTOM, TASK_TYPE_ENTER_GARAGE_MODE};
+        when(mService.getSupportedTaskTypesForScheduling()).thenReturn(taskTypes);
+
+        assertThat(mRemoteAccessManager.getInVehicleTaskScheduler().getSupportedTaskTypes())
+                .isEqualTo(taskTypes);
+    }
+
+    @Test
+    public void testGetSupportedTaskTypes_RemoteException() throws Exception {
+        when(mService.isTaskScheduleSupported()).thenReturn(true);
+        when(mService.getSupportedTaskTypesForScheduling()).thenThrow(new RemoteException());
+
+        assertThat(mRemoteAccessManager.getInVehicleTaskScheduler().getSupportedTaskTypes())
+                .isEmpty();
+    }
+
+    @Test
+    public void testGetSupportedTaskTypes_ServiceSpecificException() throws Exception {
+        when(mService.isTaskScheduleSupported()).thenReturn(true);
+        when(mService.getSupportedTaskTypesForScheduling()).thenThrow(
+                new ServiceSpecificException(0));
+
+        assertThrows(InVehicleTaskSchedulerException.class, () ->
+                mRemoteAccessManager.getInVehicleTaskScheduler().getSupportedTaskTypes());
     }
 
     private ICarRemoteAccessCallback setClientAndGetCallback(RemoteTaskClientCallback client)

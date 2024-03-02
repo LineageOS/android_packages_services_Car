@@ -18,6 +18,8 @@ package android.car.remoteaccess;
 
 import static android.car.feature.Flags.FLAG_SERVERLESS_REMOTE_ACCESS;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
+
 import android.annotation.CallbackExecutor;
 import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
@@ -851,8 +853,13 @@ public final class CarRemoteAccessManager extends CarManagerBase {
         @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
         @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
         public @NonNull int[] getSupportedTaskTypes() throws InVehicleTaskSchedulerException {
-            // TODO(b/326134123): Implement this.
-            return new int[]{TASK_TYPE_CUSTOM};
+            try {
+                return mService.getSupportedTaskTypesForScheduling();
+            } catch (RemoteException e) {
+                return handleRemoteExceptionFromCarService(e, EMPTY_INT_ARRAY);
+            } catch (ServiceSpecificException e) {
+                throw new InVehicleTaskSchedulerException(e);
+            }
         }
 
         /**

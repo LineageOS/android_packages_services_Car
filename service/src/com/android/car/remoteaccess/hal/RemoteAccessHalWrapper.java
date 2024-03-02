@@ -274,6 +274,25 @@ public final class RemoteAccessHalWrapper implements IBinder.DeathRecipient {
         }
     }
 
+    /**
+     * Check {@link IRemoteAccess#getSupportedTaskTypesForScheduling}.
+     *
+     * <p>Client should check {@link isTaskScheduleSupported} is {@code true} before calling this.
+     *
+     * <p>Client should handle the thrown exception.
+     */
+    public int[] getSupportedTaskTypesForScheduling()
+            throws RemoteException, ServiceSpecificException {
+        try {
+            IRemoteAccess remoteAccessHal = getRemoteAccessHal();
+            return remoteAccessHal.getSupportedTaskTypesForScheduling();
+        } catch (RemoteException | ServiceSpecificException e) {
+            Slogf.w(TAG, e, "Failed to call getSupportedTaskTypesForScheduling");
+            throw e;
+        }
+    }
+
+
     private void connectToHal() {
         if (!mConnecting.compareAndSet(/* expect= */ false, /* update= */ true)) {
             Slogf.w(TAG, "Connecting to remote access HAL is in progress");

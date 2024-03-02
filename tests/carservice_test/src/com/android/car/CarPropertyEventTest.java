@@ -130,7 +130,7 @@ public final class CarPropertyEventTest {
     @Test
     public void equals_returnsFalseForDifferentErrorCodes() {
         int differentErrorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN;
-        assertThat(CAR_PROPERTY_VALUE.equals(new CarPropertyEvent(EVENT_TYPE, CAR_PROPERTY_VALUE,
+        assertThat(CAR_PROPERTY_EVENT.equals(new CarPropertyEvent(EVENT_TYPE, CAR_PROPERTY_VALUE,
                 differentErrorCode))).isFalse();
     }
 

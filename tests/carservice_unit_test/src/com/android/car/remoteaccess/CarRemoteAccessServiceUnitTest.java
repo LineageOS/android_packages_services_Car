@@ -1681,6 +1681,34 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
     }
 
     @Test
+    public void testGetSupportedTaskTypesForScheduling() throws Exception {
+        prepareTaskSchedule();
+        when(mRemoteAccessHalWrapper.getSupportedTaskTypesForScheduling()).thenReturn(
+                new int[]{TaskType.CUSTOM, TaskType.ENTER_GARAGE_MODE});
+
+        assertThat(mService.getSupportedTaskTypesForScheduling()).isEqualTo(
+                new int[]{TASK_TYPE_CUSTOM, TASK_TYPE_ENTER_GARAGE_MODE});
+    }
+
+    @Test
+    public void testGetSupportedTaskTypesForScheduling_unsupportedTypeIgnored() throws Exception {
+        prepareTaskSchedule();
+        when(mRemoteAccessHalWrapper.getSupportedTaskTypesForScheduling()).thenReturn(
+                new int[]{TaskType.CUSTOM, -1234});
+
+        assertThat(mService.getSupportedTaskTypesForScheduling()).isEqualTo(
+                new int[]{TASK_TYPE_CUSTOM});
+    }
+
+    @Test
+    public void testGetSupportedTaskTypesForScheduling_taskScheduleNotSupported() throws Exception {
+        mService.init();
+
+        assertThat(mService.getSupportedTaskTypesForScheduling()).isEmpty();
+        verify(mRemoteAccessHalWrapper, never()).getSupportedTaskTypesForScheduling();
+    }
+
+    @Test
     public void testOnPackageRemoved_unscheduleAllTasks() throws Exception {
         prepareTaskSchedule();
 

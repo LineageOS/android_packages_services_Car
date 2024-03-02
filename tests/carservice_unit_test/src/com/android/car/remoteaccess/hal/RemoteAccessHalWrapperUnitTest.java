@@ -37,6 +37,7 @@ import android.hardware.automotive.remoteaccess.ApState;
 import android.hardware.automotive.remoteaccess.IRemoteAccess;
 import android.hardware.automotive.remoteaccess.IRemoteTaskCallback;
 import android.hardware.automotive.remoteaccess.ScheduleInfo;
+import android.hardware.automotive.remoteaccess.TaskType;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -368,6 +369,33 @@ public final class RemoteAccessHalWrapperUnitTest extends AbstractExtendedMockit
 
         assertThrows(ServiceSpecificException.class, () -> mHalWrapper.getAllPendingScheduledTasks(
                 TEST_CLIENT_ID));
+    }
+
+    @Test
+    public void testGetSupportedTaskTypesForScheduling() throws Exception {
+        setUpNormalHalService();
+        int[] taskTypes = new int[]{TaskType.ENTER_GARAGE_MODE};
+        doReturn(taskTypes).when(mRemoteAccessHal).getSupportedTaskTypesForScheduling();
+
+        assertThat(mHalWrapper.getSupportedTaskTypesForScheduling()).isEqualTo(taskTypes);
+    }
+
+    @Test
+    public void testGetSupportedTaskTypesForScheduling_remoteException() throws Exception {
+        setUpNormalHalService();
+        doThrow(new RemoteException()).when(mRemoteAccessHal).getSupportedTaskTypesForScheduling();
+
+        assertThrows(RemoteException.class, () -> mHalWrapper.getSupportedTaskTypesForScheduling());
+    }
+
+    @Test
+    public void testGetSupportedTaskTypesForScheduling_serviceSpecificException() throws Exception {
+        setUpNormalHalService();
+        doThrow(new ServiceSpecificException(0)).when(mRemoteAccessHal)
+                .getSupportedTaskTypesForScheduling();
+
+        assertThrows(ServiceSpecificException.class,
+                () -> mHalWrapper.getSupportedTaskTypesForScheduling());
     }
 
     private IRemoteTaskCallback captureRemoteTaskCallback() throws Exception {
