@@ -140,6 +140,8 @@ private:
     std::set<std::shared_ptr<aidlevs::IEvsEnumeratorStatusCallback>> mDeviceStatusCallbacks;
 
     bool mDisablePermissionCheck = false;
+
+    std::list<std::weak_ptr<VirtualCamera>> mActiveCameraClients;
 };
 
 }  // namespace aidl::android::automotive::evs::implementation
