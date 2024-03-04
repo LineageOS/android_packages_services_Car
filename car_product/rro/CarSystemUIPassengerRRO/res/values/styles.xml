@@ -23,12 +23,22 @@
         <item name="android:background">?android:attr/selectableItemBackground</item>
     </style>
 
-    <style name="QuickControlEntryPointButton">
+    <style name="TopBarButton">
         <item name="android:layout_marginTop">@dimen/car_quick_controls_entry_points_button_margin_top</item>
         <item name="android:layout_marginBottom">@dimen/car_quick_controls_entry_points_button_margin_bottom</item>
         <item name="android:layout_marginStart">@dimen/car_quick_controls_entry_points_button_margin_start</item>
         <item name="android:layout_marginEnd">@dimen/car_quick_controls_entry_points_button_margin_end</item>
         <item name="android:background">@drawable/status_icon_background</item>
+    </style>
+
+    <style name="QCFooterButtonViewStyle">
+        <item name="android:minHeight">@dimen/car_quick_controls_footer_button_min_height</item>
+        <item name="android:background">@drawable/car_quick_controls_pill_button_background</item>
+        <item name="android:layout_marginStart">@dimen/car_padding_2</item>
+        <item name="android:layout_marginEnd">@dimen/car_padding_2</item>
+        <item name="android:padding">
+            @dimen/car_quick_controls_panel_footer_button_view_padding
+        </item>
     </style>
 
     <style name="TextAppearance.SystemBar.ClockWithSelection"
@@ -45,5 +55,12 @@
         <item name="android:gravity">center</item>
         <item name="unselectedAlpha">0.46</item>
         <item name="android:background">?android:attr/selectableItemBackground</item>
+    </style>
+
+    <style name="TextAppearance.SystemBar.Username"
+        parent="@android:style/TextAppearance.DeviceDefault">
+        <item name="android:textSize">@dimen/car_body3_size</item>
+        <item name="android:textColor">@color/system_bar_text_color_with_selection</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 </resources>

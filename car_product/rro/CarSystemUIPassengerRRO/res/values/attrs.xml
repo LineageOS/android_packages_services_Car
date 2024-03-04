@@ -44,11 +44,6 @@
         <attr name="android:textAppearance"/>
     </declare-styleable>
 
-    <declare-styleable name="QuickControlsEntryPointContainer">
-        <attr name="showAsDropDown" format="boolean"/>
-        <attr name="panelGravity" format="integer"/>
-    </declare-styleable>
-
     <declare-styleable name="Clock">
         <attr name="amPmStyle" format="enum">
             <enum name="normal" value="0" />
@@ -56,5 +51,84 @@
             <enum name="gone" value="2" />
         </attr>
         <attr name="showDark" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="DateView">
+        <attr name="datePattern" format="string" />
+    </declare-styleable>
+
+    <!-- Custom attribute for the CarSystemBarElement interface - implementing classes must opt in
+         to consuming these attributes within their constructor and applying appropriately. -->
+    <declare-styleable name="CarSystemBarElement">
+        <!-- Class name of the CarSystemBarElementController that should be attached to this view -->
+        <attr name="controller" format="string"/>
+        <!-- Attribute for specifying the system bar disable flag of a supporting element view.
+             This corresponds to the StatusBarManager.DisableFlags. -->
+        <attr name="systemBarDisableFlags" format="integer">
+            <flag name="none" value="0"/>
+            <flag name="expand" value="1"/>
+            <flag name="notificationIcons" value="2"/>
+            <flag name="notificationAlerts" value="4"/>
+            <flag name="systemInfo" value="8"/>
+            <flag name="home" value="16"/>
+            <flag name="recent" value="32"/>
+            <flag name="back" value="64"/>
+            <flag name="clock" value="128"/>
+            <flag name="search" value="256"/>
+            <flag name="ongoingCallChip" value="512"/>
+        </attr>
+        <!-- Attribute for specifying the system bar disable flag of a supporting element view.
+             This corresponds to the StatusBarManager.Disable2Flags. -->
+        <attr name="systemBarDisable2Flags" format="integer">
+            <flag name="none" value="0"/>
+            <flag name="quickSettings" value="1"/>
+            <flag name="systemIcons" value="2"/>
+            <flag name="notificationShade" value="4"/>
+            <flag name="globalActions" value="8"/>
+            <flag name="rotateSuggestions" value="16"/>
+        </attr>
+        <!-- Attribute for specifying if this element should be disabled when in the
+             LOCK_TASK_MODE_LOCKED state -->
+        <attr name="disableForLockTaskModeLocked" format="boolean"/>
+    </declare-styleable>
+
+    <declare-styleable name="CarSystemBarPanelButtonView">
+        <!-- REQUIRED: Layout resource for the panel -->
+        <attr name="panelLayoutRes" format="reference"/>
+        <!--  Width of the panel. If not specified, will use default width value -->
+        <attr name="panelWidthRes" format="reference"/>
+        <!-- X Offset value for the panel location relative to the anchor view -->
+        <attr name="xOffset" format="integer"/>
+        <!-- Y Offset value for the panel location relative to the anchor view -->
+        <attr name="yOffset" format="integer"/>
+        <!-- Gravity of the panel relative to the anchor view - uses same flag format as android:gravity -->
+        <attr name="gravity" format="integer">
+            <flag name="top" value="0x30" />
+            <flag name="bottom" value="0x50" />
+            <flag name="left" value="0x03" />
+            <flag name="right" value="0x05" />
+            <flag name="center_vertical" value="0x10" />
+            <flag name="fill_vertical" value="0x70" />
+            <flag name="center_horizontal" value="0x01" />
+            <flag name="fill_horizontal" value="0x07" />
+            <flag name="center" value="0x11" />
+            <flag name="fill" value="0x77" />
+            <flag name="clip_vertical" value="0x80" />
+            <flag name="clip_horizontal" value="0x08" />
+            <flag name="start" value="0x00800003" />
+            <flag name="end" value="0x00800005" />
+        </attr>
+        <!-- Whether the panel should be disabled while driving - defaults to false -->
+        <attr name="disabledWhileDriving" format="boolean"/>
+        <!-- Whether the panel should be disabled while unprovisioned - defaults to false -->
+        <attr name="disabledWhileUnprovisioned" format="boolean"/>
+        <!-- Whether the panel should be shown as a dropdown relative to the anchor view or not
+             (making it relative to the screen with offsets and gravity) - defaults to true -->
+        <attr name="showAsDropDown" format="boolean"/>
+    </declare-styleable>
+
+    <declare-styleable name="SystemUIQCView">
+        <attr name="remoteQCProvider" format="string"/>
+        <attr name="localQCProvider" format="string"/>
     </declare-styleable>
 </resources>
