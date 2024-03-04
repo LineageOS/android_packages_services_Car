@@ -1,5 +1,5 @@
 {
-  "postsubmit": [
+  "auto-presubmit": [
     {
       "name": "BugReportAppTest"
     }
