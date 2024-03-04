@@ -63,11 +63,13 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.evs.CarEvsUtils;
 import com.android.car.internal.evs.EvsHalWrapper;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.util.TransitionLog;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.Objects;
 
 /** CarEvsService state machine implementation to handle all state transitions. */
@@ -87,6 +89,8 @@ final class StateMachine {
     // Object to recognize Runnable objects.
     private static final String CALLBACK_RUNNABLE_TOKEN = StateMachine.class.getSimpleName();
     private static final String DEFAULT_CAMERA_ALIAS = "default";
+    // Maximum length of state transition logs.
+    private static final int MAX_TRANSITION_LOG_LENGTH = 20;
 
     private final SparseIntArray mBufferRecords = new SparseIntArray();
     private final CarEvsService mService;
@@ -122,6 +126,10 @@ final class StateMachine {
             }
         }
     }
+
+    // For the dumpsys logging.
+    @GuardedBy("mLock")
+    private final ArrayList<TransitionLog> mTransitionLogs = new ArrayList<>();
 
     @GuardedBy("mLock")
     private String mCameraId;
@@ -552,9 +560,19 @@ final class StateMachine {
                             CarEvsUtils.convertToString(mServiceType));
             writer.printf("SessionToken = %s.\n",
                     mSessionToken == null ? "Not exist" : mSessionToken);
+            writer.printf("Camera Id = %s.\n", mCameraId);
+
+            writer.println("Current state: " + mState);
             writer.increaseIndent();
-            mHalCallback.dump(writer);
+            writer.println("State transition log:");
+            writer.increaseIndent();
+            for (int i = 0; i < mTransitionLogs.size(); i++) {
+                writer.println(mTransitionLogs.get(i));
+            }
             writer.decreaseIndent();
+            writer.decreaseIndent();
+
+            mHalCallback.dump(writer);
             writer.printf("\n");
         }
     }
@@ -640,6 +658,12 @@ final class StateMachine {
             if (previousState != newState) {
                 Slogf.i(mLogTag, "Transition completed: %s", stateToString(destination));
                 mService.broadcastStateTransition(CarEvsManager.SERVICE_TYPE_REARVIEW, newState);
+
+                // Log a successful state transition.
+                synchronized (mLock) {
+                    addTransitionLogLocked(mLogTag, previousState, newState,
+                            System.currentTimeMillis());
+                }
             } else {
                 Slogf.i(mLogTag, "Stay at %s", stateToString(newState));
             }
@@ -1154,6 +1178,17 @@ final class StateMachine {
             default:
                 return "UNKNOWN: " + state;
         }
+    }
+
+    @GuardedBy("mLock")
+    private void addTransitionLogLocked(String name, int from, int to, long timestamp) {
+        if (mTransitionLogs.size() >= MAX_TRANSITION_LOG_LENGTH) {
+            // Remove the least recently added entry.
+            mTransitionLogs.remove(0);
+        }
+
+        mTransitionLogs.add(
+                new TransitionLog(name, stateToString(from), stateToString(to), timestamp));
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
