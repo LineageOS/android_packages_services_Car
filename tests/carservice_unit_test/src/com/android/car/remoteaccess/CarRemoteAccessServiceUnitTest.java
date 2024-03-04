@@ -304,9 +304,9 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         mService.release();
-        CarServiceUtils.finishAllHandlerTasks();
+        CarServiceUtils.quitHandlerThreads();
 
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class, mOldCarPowerManagementService);

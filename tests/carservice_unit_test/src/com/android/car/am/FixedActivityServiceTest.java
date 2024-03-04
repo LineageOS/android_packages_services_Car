@@ -125,11 +125,11 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         if (mFixedActivityService != null) {
             mFixedActivityService.release();
         }
-        CarServiceUtils.finishAllHandlerTasks();
+        CarServiceUtils.quitHandlerThreads();
     }
 
     @Test

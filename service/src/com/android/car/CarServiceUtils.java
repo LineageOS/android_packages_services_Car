@@ -527,29 +527,23 @@ public final class CarServiceUtils {
     }
 
     /**
-     * Finishes all queued {@code Handler} tasks for {@code HandlerThread} created via
+     * Quits all the {@code HandlerThread} created via
      * {@link#getHandlerThread(String)}. This is useful only for testing.
      */
     @VisibleForTesting
-    public static void finishAllHandlerTasks() {
+    public static void quitHandlerThreads() throws InterruptedException {
         ArrayList<HandlerThread> threads;
         synchronized (sHandlerThreads) {
             threads = new ArrayList<>(sHandlerThreads.values());
         }
-        ArrayList<SyncRunnable> syncs = new ArrayList<>(threads.size());
         for (int i = 0; i < threads.size(); i++) {
-            if (!threads.get(i).isAlive()) {
+            var thread = threads.get(i);
+            if (!thread.isAlive()) {
                 continue;
             }
-            Handler handler = new Handler(threads.get(i).getLooper());
-            SyncRunnable sr = new SyncRunnable(() -> { });
-            if (handler.post(sr)) {
-                // Track the threads only where SyncRunnable is posted successfully.
-                syncs.add(sr);
+            if (thread.quitSafely()) {
+                thread.join();
             }
-        }
-        for (int i = 0; i < syncs.size(); i++) {
-            syncs.get(i).waitForComplete();
         }
     }
 
