@@ -150,7 +150,8 @@ public:
     ndk::ScopedAStatus applyPowerPolicyPerPowerStateChangeAsync(
             int32_t requestId,
             aidl::android::automotive::powerpolicy::internal::ICarPowerPolicyDelegate::PowerState
-                    state);
+                    state) override;
+    ndk::ScopedAStatus setSilentMode(const std::string& silentMode) override;
 
     void terminate() EXCLUDES(mMutex);
     ndk::ScopedAStatus runWithService(
@@ -223,6 +224,7 @@ public:
             int32_t requestId,
             aidl::android::automotive::powerpolicy::internal::ICarPowerPolicyDelegate::PowerState
                     state);
+    ndk::ScopedAStatus setSilentMode(const std::string& silentMode);
 
     // Internal implementation of ICarPowerPolicyDelegate.aidl.
     ndk::ScopedAStatus applyPowerPolicyAsync(int32_t requestId, const std::string& policyId,
@@ -233,7 +235,7 @@ public:
             aidl::android::automotive::powerpolicy::internal::PowerPolicyInitData* aidlReturn);
 
     // Implements ISilentModeChangeHandler.
-    void notifySilentModeChange(const bool isSilent) EXCLUDES(mMutex);
+    void notifySilentModeChange(const bool isSilent);
 
     /**
      * Applies the given power policy.
@@ -317,6 +319,8 @@ private:
             EXCLUDES(mMutex);
     ndk::ScopedAStatus enqueuePowerPolicyRequest(int32_t requestId, const std::string& policyId,
                                                  bool force) EXCLUDES(mMutex);
+    void notifySilentModeChangeInternal(const bool isSilent) EXCLUDES(mMutex);
+    void notifySilentModeChangeLegacy(const bool isSilent) EXCLUDES(mMutex);
 
     static void onClientBinderDied(void* cookie);
     static void onCarServiceBinderDied(void* cookie);

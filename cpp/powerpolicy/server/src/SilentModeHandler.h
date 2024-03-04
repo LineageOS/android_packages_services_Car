@@ -19,6 +19,7 @@
 
 #include <android-base/result.h>
 #include <android-base/unique_fd.h>
+#include <android/binder_auto_utils.h>
 #include <utils/Mutex.h>
 #include <utils/String16.h>
 #include <utils/StrongPointer.h>
@@ -66,6 +67,8 @@ public:
     bool isSilentMode();
     // Stops monitoring the change on pm_silentmode_hw_state.
     void stopMonitoringSilentModeHwState();
+    // Set the Silent Mode
+    ndk::ScopedAStatus setSilentMode(const std::string& silentMode);
     // Dumps the internal state.
     android::base::Result<void> dump(int fd, const Vector<String16>& args);
 
@@ -75,10 +78,12 @@ private:
     void handleSilentModeHwStateChange();
     void handleSilentModeChange(bool silent);
     android::base::Result<void> enableBootAnimation(bool enabled);
+    void switchToForcedMode(bool silent);
+    void switchToNonForcedMode();
 
     android::Mutex mMutex;
     bool mSilentModeByHwState GUARDED_BY(mMutex);
-    bool mForcedMode = false;
+    bool mForcedMode GUARDED_BY(mMutex) = false;
     std::string mBootReason;
     std::string mSilentModeHwStateFilename;
     std::string mKernelSilentModeFilename;

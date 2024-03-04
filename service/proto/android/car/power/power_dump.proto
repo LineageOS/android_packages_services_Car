@@ -101,6 +101,7 @@ message CarPowerDumpProto {
     optional bool is_monitoring_hw_state_signal = 3;
     optional bool silent_mode_by_hw_state = 4;
     optional bool forced_silent_mode = 5;
+    optional bool is_silent_mode_supported = 6;
   }
 
   message ScreenOffHandlerProto {

@@ -140,4 +140,14 @@ interface ICarPowerPolicyDelegate {
    * @throws SecurityException if the caller doesn't have sufficient permissions.
    */
   void applyPowerPolicyPerPowerStateChangeAsync(int requestId, in PowerState state);
+
+  /**
+   * CarService uses this method to tell how Silent Mode works.
+   *
+   * @param silentMode Mode telling how Silent Mode works. It should be one of "forced-silent",
+   *                   "forced-non-silent", "non-forced-silent-mode".
+   * @throws IllegalArgumentException if the given silentMode is not valid.
+   * @throws SecurityException if the caller doesn't have sufficient permissions.
+   */
+  void setSilentMode(in @utf8InCpp String silentMode);
 }
