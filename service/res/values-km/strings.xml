@@ -128,10 +128,8 @@
     <string name="car_permission_desc_read_valet_mode" msgid="8645550481045813299">"អានមុខងារជួយចត។"</string>
     <string name="car_permission_label_control_valet_mode" msgid="180432980177027905">"គ្រប់គ្រងមុខងារជួយចត"</string>
     <string name="car_permission_desc_control_valet_mode" msgid="8442573192492763994">"គ្រប់គ្រងមុខងារជួយចត។"</string>
-    <!-- no translation found for car_permission_label_read_head_up_display_status (8117112886452578905) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_head_up_display_status (3255763055570462667) -->
-    <skip />
+    <string name="car_permission_label_read_head_up_display_status" msgid="8117112886452578905">"អានស្ថានភាពផ្ទាំងបញ្ចាំងថ្លា"</string>
+    <string name="car_permission_desc_read_head_up_display_status" msgid="3255763055570462667">"អានស្ថានភាពផ្ទាំងបញ្ចាំងថ្លា។"</string>
     <string name="car_permission_label_control_head_up_display" msgid="2990483192001919370">"គ្រប់គ្រងផ្ទាំងបញ្ចាំងថ្លា"</string>
     <string name="car_permission_desc_control_head_up_display" msgid="483313982751387504">"គ្រប់គ្រងផ្ទាំងបញ្ចាំងថ្លា។"</string>
     <string name="car_permission_label_read_car_airbags" msgid="5495423499616379238">"អានពោងសុវត្ថិភាពរបស់រថយន្ត"</string>
