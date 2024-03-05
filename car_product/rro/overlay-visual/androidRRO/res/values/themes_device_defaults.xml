@@ -52,6 +52,7 @@
 
         <item name="*android:disabledAlpha">@dimen/car_disabled_alpha</item>
         <item name="android:windowLayoutInDisplayCutoutMode">always</item>
+        <item name="android:isLightTheme">false</item>
     </style>
 
     <style name="Theme.DeviceDefault.Dialog" parent="android:Theme.Material.Dialog">
@@ -137,6 +138,7 @@
         <item name="*android:disabledAlpha">@dimen/car_disabled_alpha</item>
         <!--  To simulate transparency over light (white) background, we don't need a selector. -->
         <item name="android:windowLayoutInDisplayCutoutMode">always</item>
+        <item name="android:isLightTheme">false</item>
     </style>
     <style name="Theme.DeviceDefault.Light.Dialog" parent="android:Theme.DeviceDefault.Dialog"/>
     <style name="Theme.DeviceDefault.Light.Dialog.Alert" parent="android:Theme.DeviceDefault.Dialog.Alert"/>
@@ -146,11 +148,13 @@
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowLayoutInDisplayCutoutMode">always</item>
+        <item name="android:isLightTheme">false</item>
     </style>
     <style name="Theme.DeviceDefault.NoActionBar" parent="android:Theme.DeviceDefault">
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowLayoutInDisplayCutoutMode">always</item>
+        <item name="android:isLightTheme">false</item>
     </style>
 
     <style name="Theme.DeviceDefault.InputMethod" parent="android:Theme.Material.InputMethod">
@@ -170,6 +174,7 @@
     theme. This makes it app facing, regardless if the app is directly using it or a theme that inherits from it.  -->
     <style name="Theme.DeviceDefault.Light.DarkActionBar"  parent="android:Theme.DeviceDefault">
         <item name="android:windowLayoutInDisplayCutoutMode">default</item>
+        <item name="android:isLightTheme">false</item>
     </style>
 
     <!-- DeviceDefault theme for the default system theme.  -->
