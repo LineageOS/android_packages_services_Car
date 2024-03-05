@@ -130,9 +130,11 @@ public final class CarFeatureController implements CarServiceBase {
             Car.CAR_INSTRUMENT_CLUSTER_SERVICE
     );
 
-    private static final ArraySet<String> FLAGGED_OPTIONAL_FEATURES = new ArraySet<>();
+    private static final ArraySet<String> FLAGGED_OPTIONAL_FEATURES = new ArraySet<>(1);
 
     static {
+        // TODO(b/327682912): Move to packages/services/Car/service/res/values/config.xml,
+        //  when removing the feature flag
         if (Flags.displayCompatibility()) {
             FLAGGED_OPTIONAL_FEATURES.add(Car.CAR_DISPLAY_COMPAT_SERVICE);
         }
