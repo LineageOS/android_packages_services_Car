@@ -545,6 +545,16 @@ public final class CarServiceUtils {
                 thread.join();
             }
         }
+        synchronized (sHandlerThreads) {
+            for (int i = 0; i < sHandlerThreads.size(); i++) {
+                if (sHandlerThreads.valueAt(i).isAlive()) {
+                    throw new IllegalStateException(
+                            "Thread: " + sHandlerThreads.keyAt(i) + " is still alive after "
+                            + "finishing all the tasks in the handler threads, maybe one of the "
+                            + " pending task is creating a new handler thread?");
+                }
+            }
+        }
     }
 
     /**
