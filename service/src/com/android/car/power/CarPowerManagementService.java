@@ -1890,6 +1890,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      */
     @Override
     public void setPowerPolicyGroup(String policyGroupId) throws RemoteException {
+        Slogf.i(TAG, "setPowerPolicyGroup(%s)", policyGroupId);
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_POWER_POLICY);
         Preconditions.checkArgument(policyGroupId != null, "policyGroupId cannot be null");
         if (mFeatureFlags.carPowerPolicyRefactoring()) {
