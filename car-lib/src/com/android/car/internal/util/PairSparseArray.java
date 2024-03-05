@@ -33,7 +33,7 @@ import com.android.internal.util.Preconditions;
  *
  * @hide
  */
-public class PairSparseArray<E> {
+public class PairSparseArray<E> implements Cloneable {
     /** Bitmask for casting an {@code int} into a {@code long} without sign extension. */
     private static final long LEAST_SIGNIFICANT_BITMASK = 0xffffffffL;
     private static final int INITIAL_CAPACITY = 10;
@@ -46,7 +46,7 @@ public class PairSparseArray<E> {
      * First key to second keys mapping to allow easier operation applied to all the entries with
      * the first key.
      */
-    private final SparseArray<ArraySet<Integer>> mSecondKeysByFirstKey = new SparseArray<>();
+    private final SparseArray<ArraySet<Integer>> mSecondKeysByFirstKey;
 
     /** Creates a new PairSparseArray with initial capacity of {@link #INITIAL_CAPACITY}. */
     public PairSparseArray() {
@@ -56,6 +56,18 @@ public class PairSparseArray<E> {
     /** Creates a new PairSparseArray. */
     public PairSparseArray(int initialCapacity) {
         mValues = new LongSparseArray<>(initialCapacity);
+        mSecondKeysByFirstKey = new SparseArray<>();
+    }
+
+    private PairSparseArray(PairSparseArray<E> other) {
+        mValues = other.mValues.clone();
+        mSecondKeysByFirstKey = other.mSecondKeysByFirstKey.clone();
+    }
+
+    /** Creates a clone. */
+    @Override
+    public PairSparseArray<E> clone() {
+        return new PairSparseArray<E>(this);
     }
 
     /**
