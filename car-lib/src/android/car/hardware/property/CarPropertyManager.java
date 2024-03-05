@@ -1546,6 +1546,14 @@ public class CarPropertyManager extends CarManagerBase {
                 return false;
             }
 
+            if (cpeCallbackController == null) {
+                cpeCallbackController =
+                        new CarPropertyEventCallbackController(carPropertyEventCallback,
+                                callbackExecutor);
+                mCpeCallbackToCpeCallbackController.put(carPropertyEventCallback,
+                        cpeCallbackController);
+            }
+
             // Must use sanitizedSubscribeOptions instead of subscribeOptions here since we need to
             // use sanitized update rate.
             for (int i = 0; i < sanitizedSubscribeOptions.size(); i++) {
@@ -1553,14 +1561,6 @@ public class CarPropertyManager extends CarManagerBase {
                 int propertyId = option.propertyId;
                 float sanitizedUpdateRateHz = option.updateRateHz;
                 int[] areaIds = option.areaIds;
-
-                if (cpeCallbackController == null) {
-                    cpeCallbackController =
-                            new CarPropertyEventCallbackController(carPropertyEventCallback,
-                                    callbackExecutor);
-                    mCpeCallbackToCpeCallbackController.put(carPropertyEventCallback,
-                            cpeCallbackController);
-                }
                 // After {@code sanitizeSubscribeOptions}, update rate must be 0
                 // for on-change property and non-0 for continuous property.
                 // There is an edge case where minSampleRate is 0 and client uses 0 as sample rate
