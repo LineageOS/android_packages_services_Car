@@ -1026,12 +1026,13 @@ Result<void> CarPowerPolicyServer::applyPowerPolicyInternal(const std::string& p
 
 Result<void> CarPowerPolicyServer::setPowerPolicyGroupInternal(const std::string& groupId) {
     if (!mPolicyManager.isPowerPolicyGroupAvailable(groupId)) {
-        return Error() << StringPrintf("Power policy group(%s) is not available", groupId.c_str());
+        return Error(EX_ILLEGAL_ARGUMENT)
+                << StringPrintf("Power policy group(%s) is not available", groupId.c_str());
     }
     Mutex::Autolock lock(mMutex);
-    if (mIsCarServiceInOperation) {
-        return Error() << "After CarService starts serving, power policy group cannot be set in "
-                          "car power policy daemon";
+    if (!car_power_policy_refactoring() && mIsCarServiceInOperation) {
+        return Error(EX_ILLEGAL_STATE) << "After CarService starts serving, power policy group "
+                                          "cannot be set in car power policy daemon";
     }
     mCurrentPolicyGroupId = groupId;
     ALOGI("The current power policy group is |%s|", groupId.c_str());
