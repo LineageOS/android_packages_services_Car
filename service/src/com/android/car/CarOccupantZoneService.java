@@ -23,11 +23,10 @@ import static android.view.Display.STATE_ON;
 
 import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.SuppressLint;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.Car;
@@ -46,7 +45,6 @@ import android.car.input.CarInputManager;
 import android.car.media.CarAudioManager;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserLifecycleEventFilter;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -63,11 +61,18 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.IntArray;
+import com.android.car.occupantzone.CarOccupantZoneDumpProto;
+import com.android.car.occupantzone.CarOccupantZoneDumpProto.DisplayConfigProto;
+import com.android.car.occupantzone.CarOccupantZoneDumpProto.DisplayPortConfigsProto;
+import com.android.car.occupantzone.CarOccupantZoneDumpProto.DisplayPortConfigsProto.DisplayConfigPortProto;
+import com.android.car.occupantzone.CarOccupantZoneDumpProto.DisplayUniqueIdConfigsProto;
+import com.android.car.occupantzone.CarOccupantZoneDumpProto.DisplayUniqueIdConfigsProto.DisplayConfigUniqueIdProto;
 import com.android.car.user.CarUserService;
 import com.android.car.user.ExperimentalCarUserService;
 import com.android.car.user.ExperimentalCarUserService.ZoneUserBindingHelper;
@@ -88,22 +93,19 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         implements CarServiceBase {
 
     private static final String TAG = CarLog.tagFor(CarOccupantZoneService.class);
-    private static final String ALL_COMPONENTS = "*";
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private static final String HANDLER_THREAD_NAME = "CarOccupantZoneService";
 
-    private static final int[] EMPTY_INPUT_SUPPORT_TYPES = new int[0];
+    private static final int[] EMPTY_INPUT_SUPPORT_TYPES = EMPTY_INT_ARRAY;
 
     private final Object mLock = new Object();
     private final Context mContext;
     private final DisplayManager mDisplayManager;
     private final UserManager mUserManager;
+    private CarUserService mCarUserService;
 
     private final boolean mEnableProfileUserAssignmentForMultiDisplay;
-
-    private boolean mEnableSourcePreferred;
-    private ArrayList<ComponentName> mSourcePreferredComponents;
 
     /**
      * Stores android user id of profile users for the current user.
@@ -301,11 +303,11 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             handleAudioZoneChangesLocked();
             handleUserChangesLocked();
         }
-        CarUserService userService = CarLocalServices.getService(CarUserService.class);
+        mCarUserService = CarLocalServices.getService(CarUserService.class);
         UserLifecycleEventFilter userEventFilter = new UserLifecycleEventFilter.Builder()
                 .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING).addEventType(
                         USER_LIFECYCLE_EVENT_TYPE_STOPPING).build();
-        userService.addUserLifecycleListener(userEventFilter, mUserLifecycleListener);
+        mCarUserService.addUserLifecycleListener(userEventFilter, mUserLifecycleListener);
         ExperimentalCarUserService experimentalUserService =
                 CarLocalServices.getService(ExperimentalCarUserService.class);
         if (experimentalUserService != null) {
@@ -382,14 +384,13 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
 
         CarServiceHelperWrapper.getInstance().runOnConnection(() -> doSyncWithCarServiceHelper(
-                /* updateDisplay= */ true, /* updateUser= */ true, /* updateConfig= */ true));
+                /* updateDisplay= */ true, /* updateUser= */ true));
     }
 
     @Override
     public void release() {
         mDisplayManager.unregisterDisplayListener(mDisplayListener);
-        CarUserService userService = CarLocalServices.getService(CarUserService.class);
-        userService.removeUserLifecycleListener(mUserLifecycleListener);
+        mCarUserService.removeUserLifecycleListener(mUserLifecycleListener);
         ExperimentalCarUserService experimentalUserService =
                 CarLocalServices.getService(ExperimentalCarUserService.class);
         if (experimentalUserService != null) {
@@ -481,17 +482,51 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             }
             writer.println("mEnableProfileUserAssignmentForMultiDisplay:"
                     + mEnableProfileUserAssignmentForMultiDisplay);
-            writer.println("mEnableSourcePreferred:"
-                    + mEnableSourcePreferred);
-            writer.append("mSourcePreferredComponents: [");
-            if (mSourcePreferredComponents != null) {
-                for (int i = 0; i < mSourcePreferredComponents.size(); ++i) {
-                    if (i > 0) writer.append(' ');
-                    writer.append(mSourcePreferredComponents.get(i).toString());
-                }
-            }
-            writer.println(']');
             writer.println("hasDriverZone: " + hasDriverZone());
+        }
+    }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {
+        synchronized (mLock) {
+            for (int i = 0; i < mDisplayPortConfigs.size(); i++) {
+                long displayPortConfigsToken = proto.start(
+                        CarOccupantZoneDumpProto.DISPLAY_PORT_CONFIGS);
+                long displayConfigPortToken = proto.start(
+                        DisplayPortConfigsProto.DISPLAY_CONFIG_PORT);
+                int port = mDisplayPortConfigs.keyAt(i);
+                proto.write(DisplayConfigPortProto.PORT, port);
+                long displayConfigToken = proto.start(DisplayConfigPortProto.DISPLAY_CONFIG);
+                DisplayConfig displayConfig = mDisplayPortConfigs.valueAt(i);
+                proto.write(DisplayConfigProto.DISPLAY_TYPE, displayConfig.displayType);
+                proto.write(DisplayConfigProto.OCCUPANT_ZONE_ID, displayConfig.occupantZoneId);
+                for (int j = 0; j < displayConfig.inputTypes.length; j++) {
+                    proto.write(DisplayConfigProto.INPUT_TYPES, displayConfig.inputTypes[j]);
+                }
+                proto.end(displayConfigToken);
+                proto.end(displayConfigPortToken);
+                proto.end(displayPortConfigsToken);
+            }
+
+            for (int i = 0; i < mDisplayUniqueIdConfigs.size(); i++) {
+                long displayUniqueIdConfigsToken = proto.start(
+                        CarOccupantZoneDumpProto.DISPLAY_UNIQUE_ID_CONFIGS);
+                long displayConfigUniqueIdToken = proto.start(
+                        DisplayUniqueIdConfigsProto.DISPLAY_CONFIG_UNIQUE_ID);
+                String uniqueId = mDisplayUniqueIdConfigs.keyAt(i);
+                proto.write(DisplayConfigUniqueIdProto.UNIQUE_ID, uniqueId);
+                long displayConfigToken = proto.start(DisplayConfigPortProto.DISPLAY_CONFIG);
+                DisplayConfig displayConfig = mDisplayUniqueIdConfigs.valueAt(i);
+                proto.write(DisplayConfigProto.DISPLAY_TYPE, displayConfig.displayType);
+                proto.write(DisplayConfigProto.OCCUPANT_ZONE_ID, displayConfig.occupantZoneId);
+                for (int j = 0; j < displayConfig.inputTypes.length; j++) {
+                    proto.write(DisplayConfigProto.INPUT_TYPES, displayConfig.inputTypes[j]);
+                }
+                proto.end(displayConfigToken);
+                proto.end(displayConfigUniqueIdToken);
+                proto.end(displayUniqueIdConfigsToken);
+            }
         }
     }
 
@@ -513,7 +548,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         synchronized (mLock) {
             OccupantConfig config = mActiveOccupantConfigs.get(occupantZoneId);
             if (config == null) {
-                return new int[0];
+                return EMPTY_INT_ARRAY;
             }
             int[] displayIds = new int[config.displayInfos.size()];
             for (int i = 0; i < config.displayInfos.size(); i++) {
@@ -884,7 +919,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             userId = user.getIdentifier();
         }
 
-        if (!isUserVisible(user)) {
+        if (!mCarUserService.isUserVisible(userId)) {
             Slogf.w(TAG, "Non-visible user %d cannot be allocated to zone %d", userId,
                     occupantZoneId);
             return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_FAIL_NON_VISIBLE_USER;
@@ -1092,8 +1127,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
-    private void doSyncWithCarServiceHelper(boolean updateDisplay, boolean updateUser,
-            boolean updateConfig) {
+    private void doSyncWithCarServiceHelper(boolean updateDisplay, boolean updateUser) {
         int[] passengerDisplays = null;
         ArrayMap<Integer, IntArray> allowlists = null;
         synchronized (mLock) {
@@ -1109,11 +1143,6 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
         if (updateUser) {
             updateUserAssignmentForDisplays(allowlists);
-        }
-        if (updateConfig) {
-            Resources res = mContext.getResources();
-            String[] components = res.getStringArray(R.array.config_sourcePreferredComponents);
-            updateSourcePreferredComponents(components);
         }
     }
 
@@ -1138,35 +1167,6 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             return;
         }
         CarServiceHelperWrapper.getInstance().setPassengerDisplays(passengerDisplayIds);
-    }
-
-    private void updateSourcePreferredComponents(String[] components) {
-        boolean enableSourcePreferred;
-        ArrayList<ComponentName> componentNames = null;
-        if (components == null || components.length == 0) {
-            enableSourcePreferred = false;
-            if (DBG) Slogf.d(TAG, "CarLaunchParamsModifier: disable source-preferred");
-        } else if (components.length == 1 && Objects.equals(components[0], ALL_COMPONENTS)) {
-            enableSourcePreferred = true;
-            if (DBG) {
-                Slogf.d(TAG, "CarLaunchParamsModifier: enable source-preferred for all Components");
-            }
-        } else {
-            componentNames = new ArrayList<>((components.length));
-            for (String item : components) {
-                ComponentName name = ComponentName.unflattenFromString(item);
-                if (name == null) {
-                    Slogf.e(TAG, "CarLaunchParamsModifier: Wrong ComponentName=" + item);
-                    return;
-                }
-                componentNames.add(name);
-            }
-            enableSourcePreferred = true;
-        }
-        CarServiceHelperWrapper.getInstance().setSourcePreferredComponents(enableSourcePreferred,
-                componentNames);
-        mEnableSourcePreferred = enableSourcePreferred;
-        mSourcePreferredComponents = componentNames;
     }
 
     @GuardedBy("mLock")
@@ -1573,42 +1573,6 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
-    /**
-     * Checks if the given user is visible. This works in pre-U as well.
-     */
-    @VisibleForTesting
-    @SuppressLint("NewApi")
-    public boolean isUserVisible(@NonNull UserHandle user) {
-        if (isPlatformVersionAtLeastU()) {
-            // createContextAsUser throw exception if user does not exist. So it is not a reliable
-            // way to query it from car service. We need to catch the exception.
-            // TODO(b/243864134) Plumb to CarServiceHelper to use UserManagerInternal instead.
-            try {
-                Context userContext = mContext.createContextAsUser(user, /* flags= */ 0);
-                UserManager userManager = userContext.getSystemService(UserManager.class);
-                return userManager.isUserVisible();
-            } catch (Exception e) {
-                Slogf.w(TAG, "Cannot create User Context for user:" + user.getIdentifier(), e);
-                return false;
-            }
-        }
-
-        // This is legacy path for T where there is no visible user but we can still support profile
-        // user as visible as long as it belongs to the current user.
-        int currentUser = getCurrentUser();
-        int userId = user.getIdentifier();
-        if (userId == currentUser) {
-            return true;
-        }
-        synchronized (mLock) {
-            if (mProfileUsers.contains(userId)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     /** Returns {@code true} if user allocation has changed */
     @GuardedBy("mLock")
     private boolean handleUserChangesLocked() {
@@ -1639,7 +1603,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 continue;
             }
             // Now it will be non-driver valid user id.
-            if (!isUserVisible(UserHandle.of(config.userId))) {
+            if (!mCarUserService.isUserVisible(config.userId)) {
                 if (DBG) Slogf.d(TAG, "Unassigned no longer visible user:%d", config.userId);
                 config.userId = CarOccupantZoneManager.INVALID_USER_ID;
                 changed = true;
@@ -1673,7 +1637,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         } else if ((changeFlags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER) != 0) {
             updateUser = true;
         }
-        doSyncWithCarServiceHelper(updateDisplay, updateUser, /* updateConfig= */ false);
+        doSyncWithCarServiceHelper(updateDisplay, updateUser);
 
         // Schedule remote callback invocation with the handler attached to the same Looper to
         // ensure that only one broadcast can be active at one time.

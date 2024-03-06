@@ -19,7 +19,6 @@ package android.car.user;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 import android.os.Parcelable;
 
 import com.android.car.internal.util.DataClass;
@@ -60,8 +59,6 @@ public final class UserCreationRequest implements Parcelable {
         /**
          * Sets user name.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder setName(@NonNull String name) {
             mName = Objects.requireNonNull(name, "Name should not be null.");
             return this;
@@ -70,8 +67,6 @@ public final class UserCreationRequest implements Parcelable {
         /**
          * Sets user as an admin user.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder setAdmin() {
             mAdmin = true;
             return this;
@@ -80,8 +75,6 @@ public final class UserCreationRequest implements Parcelable {
         /**
          * Sets user as a guest user.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder setGuest() {
             mGuest = true;
             return this;
@@ -90,16 +83,12 @@ public final class UserCreationRequest implements Parcelable {
         /**
          * Sets user as a Ephemeral user.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder setEphemeral() {
             mEphemeral = true;
             return this;
         }
 
         /** Builds and returns a {@link UserCreationRequest}. */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull UserCreationRequest build() {
             if (mGuest && mAdmin) {
                 // Guest can't be admin user.
@@ -137,37 +126,27 @@ public final class UserCreationRequest implements Parcelable {
 
 
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public @Nullable String getName() {
         return mName;
     }
 
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean isAdmin() {
         return mAdmin;
     }
 
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean isGuest() {
         return mGuest;
     }
 
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean isEphemeral() {
         return mEphemeral;
     }
 
     @Override
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void writeToParcel(@NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -183,8 +162,6 @@ public final class UserCreationRequest implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -209,8 +186,6 @@ public final class UserCreationRequest implements Parcelable {
     }
 
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final @NonNull Parcelable.Creator<UserCreationRequest> CREATOR
             = new Parcelable.Creator<UserCreationRequest>() {
         @Override

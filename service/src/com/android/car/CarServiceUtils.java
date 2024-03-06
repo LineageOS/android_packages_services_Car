@@ -21,7 +21,6 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Process.INVALID_UID;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -90,8 +89,6 @@ public final class CarServiceUtils {
     private static final String TAG = CarLog.tagFor(CarServiceUtils.class);
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
-    /** Empty int array */
-    public  static final int[] EMPTY_INT_ARRAY = new int[0];
     private static final String COMMON_HANDLER_THREAD_NAME =
             "CarServiceUtils_COMMON_HANDLER_THREAD";
     private static final byte[] CHAR_POOL_FOR_RANDOM_STRING =
@@ -689,8 +686,7 @@ public final class CarServiceUtils {
      * displays.
      */
     public static boolean isMultipleUsersOnMultipleDisplaysSupported(UserManager userManager) {
-        return isPlatformVersionAtLeastU()
-                && UserManagerHelper.isVisibleBackgroundUsersSupported(userManager);
+        return UserManagerHelper.isVisibleBackgroundUsersSupported(userManager);
     }
 
     /**
@@ -699,8 +695,7 @@ public final class CarServiceUtils {
      */
     public static boolean isVisibleBackgroundUsersOnDefaultDisplaySupported(
             UserManager userManager) {
-        return isPlatformVersionAtLeastU()
-                && UserManagerHelper.isVisibleBackgroundUsersOnDefaultDisplaySupported(userManager);
+        return UserManagerHelper.isVisibleBackgroundUsersOnDefaultDisplaySupported(userManager);
     }
 
     /**
@@ -738,9 +733,6 @@ public final class CarServiceUtils {
      * SystemUI service component not being defined.
      */
     public static boolean startSystemUiForUser(Context context, @UserIdInt int userId) {
-        if (!isPlatformVersionAtLeastU()) {
-            return false;
-        }
         if (DBG) Slogf.d(TAG, "Start SystemUI for user: %d", userId);
         Preconditions.checkArgument(userId != UserHandle.SYSTEM.getIdentifier(),
                 "Cannot start SystemUI for the system user");
@@ -775,9 +767,6 @@ public final class CarServiceUtils {
      * for the system user.
      */
     public static void stopSystemUiForUser(Context context, @UserIdInt int userId) {
-        if (!isPlatformVersionAtLeastU()) {
-            return;
-        }
         Preconditions.checkArgument(userId != UserHandle.SYSTEM.getIdentifier(),
                 "Cannot stop SystemUI for the system user");
         // TODO (b/261192740): add EventLog for SystemUI stopping

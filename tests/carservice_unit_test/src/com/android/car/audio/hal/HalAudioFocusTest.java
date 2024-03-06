@@ -26,21 +26,27 @@ import static android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_FAILED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
+import static com.android.car.audio.CarAudioContext.getAudioAttributeFromUsage;
+import static com.android.car.audio.CarHalAudioUtils.audioAttributeToMetadata;
+import static com.android.car.audio.CarHalAudioUtils.usageToMetadata;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.car.media.CarAudioManager;
+import android.hardware.audio.common.PlaybackTrackMetadata;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
@@ -50,6 +56,7 @@ import android.os.Bundle;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.car.audio.CarAudioContext;
+import com.android.car.audio.CoreAudioRoutingUtils;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -68,6 +75,19 @@ public final class HalAudioFocusTest {
     private static final int ZONE_ID = 0;
     private static final int SECOND_ZONE_ID = 1;
     private static final int INVALID_ZONE_ID = 5;
+    private static final AudioAttributes ATTR_MEDIA = getAudioAttributeFromUsage(USAGE_MEDIA);
+    private static final AudioAttributes ATTR_ASSISTANCE_NAVIGATION_GUIDANCE =
+            getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
+    private static final AudioAttributes ATTR_NOTIFICATION =
+            getAudioAttributeFromUsage(USAGE_NOTIFICATION);
+    private static final PlaybackTrackMetadata METADATA_MEDIA = usageToMetadata(USAGE_MEDIA);
+    private static final PlaybackTrackMetadata METADATA_MOVIE = audioAttributeToMetadata(
+            CoreAudioRoutingUtils.MOVIE_ATTRIBUTES);
+    private static final PlaybackTrackMetadata METADATA_ALARM = usageToMetadata(USAGE_ALARM);
+    private static final PlaybackTrackMetadata METADATA_NOTIFICATION =
+            usageToMetadata(USAGE_NOTIFICATION);
+    private static final PlaybackTrackMetadata METADATA_ASSISTANCE_NAVIGATION_GUIDANCE =
+            usageToMetadata(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
 
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();
@@ -76,12 +96,16 @@ public final class HalAudioFocusTest {
     private AudioManager mMockAudioManager;
     @Mock
     private AudioControlWrapper mAudioControlWrapper;
+    private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
+            new CarAudioContext(CarAudioContext.getAllContextsInfo(),
+                    /* useCoreAudioRouting= */ false);
 
     private HalAudioFocus mHalAudioFocus;
 
     @Before
     public void setUp() {
-        mHalAudioFocus = new HalAudioFocus(mMockAudioManager, mAudioControlWrapper, AUDIO_ZONE_IDS);
+        mHalAudioFocus = new HalAudioFocus(mMockAudioManager, mAudioControlWrapper,
+                TEST_CAR_AUDIO_CONTEXT, AUDIO_ZONE_IDS);
     }
 
     @Test
@@ -104,9 +128,9 @@ public final class HalAudioFocusTest {
     public void requestAudioFocus_notifiesHalOfFocusChange() {
         whenAnyFocusRequestGranted();
 
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
 
-        verify(mAudioControlWrapper).onAudioFocusChange(USAGE_MEDIA, ZONE_ID,
+        verify(mAudioControlWrapper).onAudioFocusChange(METADATA_MEDIA, ZONE_ID,
                 AUDIOFOCUS_REQUEST_GRANTED);
     }
 
@@ -114,7 +138,7 @@ public final class HalAudioFocusTest {
     public void requestAudioFocus_specifiesUsage() {
         whenAnyFocusRequestGranted();
 
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
 
         AudioFocusRequest actualRequest = getLastRequest();
         assertThat(actualRequest.getAudioAttributes().getUsage()).isEqualTo(USAGE_MEDIA);
@@ -124,7 +148,7 @@ public final class HalAudioFocusTest {
     public void requestAudioFocus_specifiesFocusGain() {
         whenAnyFocusRequestGranted();
 
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
 
         AudioFocusRequest actualRequest = getLastRequest();
         assertThat(actualRequest.getFocusGain()).isEqualTo(AUDIOFOCUS_GAIN);
@@ -134,7 +158,7 @@ public final class HalAudioFocusTest {
     public void requestAudioFocus_specifiesZoneId() {
         whenAnyFocusRequestGranted();
 
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
 
         AudioFocusRequest actualRequest = getLastRequest();
         Bundle bundle = actualRequest.getAudioAttributes().getBundle();
@@ -146,7 +170,7 @@ public final class HalAudioFocusTest {
     public void requestAudioFocus_providesFocusChangeListener() {
         whenAnyFocusRequestGranted();
 
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
 
         AudioFocusRequest actualRequest = getLastRequest();
         assertThat(actualRequest.getOnAudioFocusChangeListener()).isNotNull();
@@ -157,7 +181,7 @@ public final class HalAudioFocusTest {
         whenAnyFocusRequestGranted();
 
         assertThrows(IllegalArgumentException.class,
-                () -> mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, INVALID_ZONE_ID,
+                () -> mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, INVALID_ZONE_ID,
                         AUDIOFOCUS_GAIN));
     }
 
@@ -165,9 +189,9 @@ public final class HalAudioFocusTest {
     public void requestAudioFocus_withSameZoneAndUsage_keepsExistingRequest() {
         whenAnyFocusRequestGranted();
 
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
         AudioFocusRequest firstRequest = getLastRequest();
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
 
         verify(mMockAudioManager, never()).abandonAudioFocusRequest(firstRequest);
     }
@@ -176,17 +200,43 @@ public final class HalAudioFocusTest {
     public void requestAudioFocus_withSameZoneAndUsage_notifiesHalOfExistingRequestStatus() {
         whenAnyFocusRequestGranted();
 
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
         AudioFocusRequest firstRequest = getLastRequest();
         OnAudioFocusChangeListener listener = firstRequest.getOnAudioFocusChangeListener();
         listener.onAudioFocusChange(AUDIOFOCUS_LOSS_TRANSIENT);
 
-        verify(mAudioControlWrapper).onAudioFocusChange(USAGE_MEDIA, ZONE_ID,
+        verify(mAudioControlWrapper).onAudioFocusChange(METADATA_MEDIA, ZONE_ID,
                 AUDIOFOCUS_LOSS_TRANSIENT);
 
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
 
-        verify(mAudioControlWrapper, times(2)).onAudioFocusChange(USAGE_MEDIA, ZONE_ID,
+        verify(mAudioControlWrapper, times(2)).onAudioFocusChange(METADATA_MEDIA, ZONE_ID,
+                AUDIOFOCUS_LOSS_TRANSIENT);
+    }
+
+    @Test
+    public void requestAudioFocus_withSameContext_notifiesHalOfExistingRequestStatus() {
+        CarAudioContext carAudioContextUsingCoreRouting = spy(new CarAudioContext(
+                CoreAudioRoutingUtils.getCarAudioContextInfos(), /* useCoreAudioRouting= */ true));
+        doReturn(CoreAudioRoutingUtils.MUSIC_STRATEGY_ID).when(carAudioContextUsingCoreRouting)
+                .getContextForAudioAttribute(ATTR_MEDIA);
+        doReturn(CoreAudioRoutingUtils.MUSIC_STRATEGY_ID).when(carAudioContextUsingCoreRouting)
+                .getContextForAudioAttribute(CoreAudioRoutingUtils.MOVIE_ATTRIBUTES);
+        HalAudioFocus halAudioFocus = new HalAudioFocus(mMockAudioManager, mAudioControlWrapper,
+                carAudioContextUsingCoreRouting, AUDIO_ZONE_IDS);
+        whenAnyFocusRequestGranted();
+        halAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        AudioFocusRequest firstRequest = getLastRequest();
+        OnAudioFocusChangeListener listener = firstRequest.getOnAudioFocusChangeListener();
+        listener.onAudioFocusChange(AUDIOFOCUS_LOSS_TRANSIENT);
+        verify(mAudioControlWrapper).onAudioFocusChange(METADATA_MEDIA, ZONE_ID,
+                AUDIOFOCUS_LOSS_TRANSIENT);
+
+        halAudioFocus.requestAudioFocus(METADATA_MOVIE, ZONE_ID, AUDIOFOCUS_GAIN);
+
+        verify(mAudioControlWrapper).onAudioFocusChange(METADATA_MEDIA, ZONE_ID,
+                AUDIOFOCUS_LOSS_TRANSIENT);
+        verify(mAudioControlWrapper).onAudioFocusChange(METADATA_MOVIE, ZONE_ID,
                 AUDIOFOCUS_LOSS_TRANSIENT);
     }
 
@@ -194,9 +244,9 @@ public final class HalAudioFocusTest {
     public void requestAudioFocus_withDifferentZoneAndSameUsage_keepsExistingRequest() {
         whenAnyFocusRequestGranted();
 
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
         AudioFocusRequest firstRequest = getLastRequest();
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, SECOND_ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, SECOND_ZONE_ID, AUDIOFOCUS_GAIN);
 
         verify(mMockAudioManager, never()).abandonAudioFocusRequest(firstRequest);
     }
@@ -205,9 +255,9 @@ public final class HalAudioFocusTest {
     public void requestAudioFocus_withSameZoneAndDifferentUsage_keepsExistingRequest() {
         whenAnyFocusRequestGranted();
 
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
         AudioFocusRequest firstRequest = getLastRequest();
-        mHalAudioFocus.requestAudioFocus(USAGE_ALARM, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
 
         verify(mMockAudioManager, never()).abandonAudioFocusRequest(firstRequest);
     }
@@ -217,9 +267,9 @@ public final class HalAudioFocusTest {
         when(mMockAudioManager.requestAudioFocus(any())).thenReturn(AUDIOFOCUS_REQUEST_FAILED,
                 AUDIOFOCUS_REQUEST_GRANTED);
 
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
         AudioFocusRequest firstRequest = getLastRequest();
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
 
         verify(mMockAudioManager, never()).abandonAudioFocusRequest(firstRequest);
     }
@@ -228,15 +278,15 @@ public final class HalAudioFocusTest {
     public void onAudioFocusChange_notifiesHalOfChange() {
         whenAnyFocusRequestGranted();
 
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
-        verify(mAudioControlWrapper, never()).onAudioFocusChange(USAGE_MEDIA, ZONE_ID,
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        verify(mAudioControlWrapper, never()).onAudioFocusChange(METADATA_MEDIA, ZONE_ID,
                 AUDIOFOCUS_LOSS_TRANSIENT);
 
         AudioFocusRequest actualRequest = getLastRequest();
         OnAudioFocusChangeListener listener = actualRequest.getOnAudioFocusChangeListener();
         listener.onAudioFocusChange(AUDIOFOCUS_LOSS_TRANSIENT);
 
-        verify(mAudioControlWrapper).onAudioFocusChange(USAGE_MEDIA, ZONE_ID,
+        verify(mAudioControlWrapper).onAudioFocusChange(METADATA_MEDIA, ZONE_ID,
                 AUDIOFOCUS_LOSS_TRANSIENT);
     }
 
@@ -244,7 +294,7 @@ public final class HalAudioFocusTest {
     public void abandonAudioFocus_withNoCurrentRequest_doesNothing() {
         whenAnyFocusRequestGranted();
 
-        mHalAudioFocus.abandonAudioFocus(USAGE_MEDIA, ZONE_ID);
+        mHalAudioFocus.abandonAudioFocus(METADATA_MEDIA, ZONE_ID);
 
         verify(mMockAudioManager, never()).abandonAudioFocusRequest(any());
     }
@@ -254,16 +304,16 @@ public final class HalAudioFocusTest {
         whenAnyFocusRequestGranted();
 
         assertThrows(IllegalArgumentException.class,
-                () -> mHalAudioFocus.abandonAudioFocus(USAGE_MEDIA, INVALID_ZONE_ID));
+                () -> mHalAudioFocus.abandonAudioFocus(METADATA_MEDIA, INVALID_ZONE_ID));
     }
 
     @Test
     public void abandonAudioFocus_withCurrentRequest_abandonsExistingFocus() {
         whenAnyFocusRequestGranted();
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
         AudioFocusRequest actualRequest = getLastRequest();
 
-        mHalAudioFocus.abandonAudioFocus(USAGE_MEDIA, ZONE_ID);
+        mHalAudioFocus.abandonAudioFocus(METADATA_MEDIA, ZONE_ID);
 
         verify(mMockAudioManager).abandonAudioFocusRequest(actualRequest);
     }
@@ -271,25 +321,25 @@ public final class HalAudioFocusTest {
     @Test
     public void abandonAudioFocus_withCurrentRequest_notifiesHalOfFocusChange() {
         whenAnyFocusRequestGranted();
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
         AudioFocusRequest actualRequest = getLastRequest();
         when(mMockAudioManager.abandonAudioFocusRequest(actualRequest)).thenReturn(
                 AUDIOFOCUS_REQUEST_GRANTED);
 
-        mHalAudioFocus.abandonAudioFocus(USAGE_MEDIA, ZONE_ID);
+        mHalAudioFocus.abandonAudioFocus(METADATA_MEDIA, ZONE_ID);
 
-        verify(mAudioControlWrapper).onAudioFocusChange(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_LOSS);
+        verify(mAudioControlWrapper).onAudioFocusChange(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_LOSS);
     }
 
     @Test
     public void abandonAudioFocus_withFocusAlreadyLost_doesNothing() {
         whenAnyFocusRequestGranted();
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
         AudioFocusRequest actualRequest = getLastRequest();
         OnAudioFocusChangeListener listener = actualRequest.getOnAudioFocusChangeListener();
         listener.onAudioFocusChange(AUDIOFOCUS_LOSS);
 
-        mHalAudioFocus.abandonAudioFocus(USAGE_MEDIA, ZONE_ID);
+        mHalAudioFocus.abandonAudioFocus(METADATA_MEDIA, ZONE_ID);
 
         verify(mMockAudioManager, never()).abandonAudioFocusRequest(actualRequest);
     }
@@ -298,12 +348,12 @@ public final class HalAudioFocusTest {
     public void abandonAudioFocus_withFocusTransientlyLost_abandonsExistingFocus()
             throws Exception {
         whenAnyFocusRequestGranted();
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
         AudioFocusRequest actualRequest = getLastRequest();
         OnAudioFocusChangeListener listener = actualRequest.getOnAudioFocusChangeListener();
         listener.onAudioFocusChange(AUDIOFOCUS_LOSS_TRANSIENT);
 
-        mHalAudioFocus.abandonAudioFocus(USAGE_MEDIA, ZONE_ID);
+        mHalAudioFocus.abandonAudioFocus(METADATA_MEDIA, ZONE_ID);
 
         verify(mMockAudioManager).abandonAudioFocusRequest(actualRequest);
     }
@@ -311,9 +361,9 @@ public final class HalAudioFocusTest {
     @Test
     public void abandonAudioFocus_withExistingRequestOfDifferentUsage_doesNothing() {
         whenAnyFocusRequestGranted();
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
 
-        mHalAudioFocus.abandonAudioFocus(USAGE_ALARM, ZONE_ID);
+        mHalAudioFocus.abandonAudioFocus(METADATA_ALARM, ZONE_ID);
 
         verify(mMockAudioManager, never()).abandonAudioFocusRequest(any());
     }
@@ -321,9 +371,9 @@ public final class HalAudioFocusTest {
     @Test
     public void abandonAudioFocus_withExistingRequestOfDifferentZoneId_doesNothing() {
         whenAnyFocusRequestGranted();
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
 
-        mHalAudioFocus.abandonAudioFocus(USAGE_MEDIA, SECOND_ZONE_ID);
+        mHalAudioFocus.abandonAudioFocus(METADATA_MEDIA, SECOND_ZONE_ID);
 
         verify(mMockAudioManager, never()).abandonAudioFocusRequest(any());
     }
@@ -331,24 +381,24 @@ public final class HalAudioFocusTest {
     @Test
     public void abandonAudioFocus_withFailedRequest_doesNotNotifyHal() {
         whenAnyFocusRequestGranted();
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
         AudioFocusRequest request = getLastRequest();
 
         when(mMockAudioManager.abandonAudioFocusRequest(request))
                 .thenReturn(AUDIOFOCUS_REQUEST_FAILED);
 
-        mHalAudioFocus.abandonAudioFocus(USAGE_MEDIA, ZONE_ID);
+        mHalAudioFocus.abandonAudioFocus(METADATA_MEDIA, ZONE_ID);
 
         verify(mAudioControlWrapper, never())
-                .onAudioFocusChange(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_LOSS);
+                .onAudioFocusChange(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_LOSS);
     }
 
     @Test
     public void reset_abandonsExistingRequests() {
         whenAnyFocusRequestGranted();
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
         AudioFocusRequest mediaRequest = getLastRequest();
-        mHalAudioFocus.requestAudioFocus(USAGE_ALARM, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
         AudioFocusRequest alarmRequest = getLastRequest();
 
         verify(mMockAudioManager, never()).abandonAudioFocusRequest(any());
@@ -363,18 +413,18 @@ public final class HalAudioFocusTest {
     @Test
     public void reset_notifiesHal() {
         whenAnyFocusRequestGranted();
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
-        mHalAudioFocus.requestAudioFocus(USAGE_ALARM, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_ALARM, ZONE_ID, AUDIOFOCUS_GAIN);
 
-        verify(mAudioControlWrapper, never()).onAudioFocusChange(anyInt(), eq(ZONE_ID),
+        verify(mAudioControlWrapper, never()).onAudioFocusChange(any(), eq(ZONE_ID),
                 eq(AUDIOFOCUS_LOSS));
         when(mMockAudioManager.abandonAudioFocusRequest(any())).thenReturn(
                 AUDIOFOCUS_REQUEST_GRANTED);
 
         mHalAudioFocus.reset();
 
-        verify(mAudioControlWrapper).onAudioFocusChange(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_LOSS);
-        verify(mAudioControlWrapper).onAudioFocusChange(USAGE_ALARM, ZONE_ID, AUDIOFOCUS_LOSS);
+        verify(mAudioControlWrapper).onAudioFocusChange(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_LOSS);
+        verify(mAudioControlWrapper).onAudioFocusChange(METADATA_ALARM, ZONE_ID, AUDIOFOCUS_LOSS);
     }
 
     @Test
@@ -390,34 +440,30 @@ public final class HalAudioFocusTest {
     public void getActiveAudioAttributesForZone_withSingleUsage_getsUsage()
             throws Exception {
         whenAnyFocusRequestGranted();
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
 
         List<AudioAttributes> audioAttributes =
                 mHalAudioFocus.getActiveAudioAttributesForZone(ZONE_ID);
 
         assertWithMessage("Active audio attributes with active media")
-                .that(audioAttributes).containsExactly(CarAudioContext
-                        .getAudioAttributeFromUsage(USAGE_MEDIA));
+                .that(audioAttributes).containsExactly(ATTR_MEDIA);
     }
 
     @Test
     public void getActiveAudioAttributesForZone_withMultipleUsages_getsUsages()
             throws Exception {
         whenAnyFocusRequestGranted();
-        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
-        mHalAudioFocus.requestAudioFocus(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE, ZONE_ID,
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_ASSISTANCE_NAVIGATION_GUIDANCE, ZONE_ID,
                 AUDIOFOCUS_GAIN);
-        mHalAudioFocus.requestAudioFocus(USAGE_NOTIFICATION, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(METADATA_NOTIFICATION, ZONE_ID, AUDIOFOCUS_GAIN);
 
         List<AudioAttributes> audioAttributes =
                 mHalAudioFocus.getActiveAudioAttributesForZone(ZONE_ID);
 
         assertWithMessage("Active audio attributes with active media")
-                .that(audioAttributes).containsExactly(
-                        CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
-                        CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION),
-                        CarAudioContext.getAudioAttributeFromUsage(
-                                USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
+                .that(audioAttributes).containsExactly(ATTR_MEDIA, ATTR_NOTIFICATION,
+                        ATTR_ASSISTANCE_NAVIGATION_GUIDANCE);
     }
 
     private void whenAnyFocusRequestGranted() {

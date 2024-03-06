@@ -23,6 +23,7 @@ import android.car.oem.OemCarAudioVolumeRequest;
 import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLocalServices;
 import com.android.car.audio.CarZonesAudioFocus.CarFocusCallback;
@@ -103,6 +104,17 @@ final class CarDucking implements CarFocusCallback {
             }
         }
         writer.decreaseIndent();
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {
+        long carDuckingProto = proto.start(CarAudioDumpProto.CAR_DUCKING);
+        synchronized (mLock) {
+            for (int i = 0; i < mCurrentDuckingInfo.size(); i++) {
+                mCurrentDuckingInfo.valueAt(i).dumpProto(proto);
+            }
+        }
+        proto.end(carDuckingProto);
     }
 
     @GuardedBy("mLock")

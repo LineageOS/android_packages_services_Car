@@ -30,6 +30,7 @@ import android.content.Context;
 import android.os.Binder;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.AppFocusService;
 import com.android.car.AppFocusService.FocusOwnershipCallback;
@@ -140,6 +141,10 @@ public class ClusterNavigationService extends IInstrumentClusterNavigation.Stub
             writer.println("context owner: " + mNavContextOwner);
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     @Override
     public void onFocusAcquired(int appType, int uid, int pid) {

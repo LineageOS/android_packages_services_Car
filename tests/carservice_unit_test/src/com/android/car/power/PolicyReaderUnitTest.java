@@ -285,6 +285,17 @@ public final class PolicyReaderUnitTest {
     }
 
     @Test
+    public void testValidXml_customComponentsAtFileBeginning() throws Exception {
+        readPowerPolicyXml(R.raw.valid_power_policy_custom_components_at_beginning);
+
+        assertValidPolicyPart_withCustomComponents();
+        checkPolicy(POLICY_ID_CUSTOM_OTHER_OFF, POLICY_CUSTOM_OTHER_OFF);
+
+        assertSystemPowerPolicy(NO_USER_INTERACTION_POLICY_ID,
+                SYSTEM_POWER_POLICY_CUSTOM_COMPONENTS);
+    }
+
+    @Test
     public void testDefinePowerPolicy() throws Exception {
         readPowerPolicyXml(R.raw.valid_power_policy_custom_components);
         // test definition with system_ prefix

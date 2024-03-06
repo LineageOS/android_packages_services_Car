@@ -23,7 +23,6 @@ import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE;
 
 import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
@@ -47,6 +46,7 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
 import com.android.car.CarOccupantZoneService;
@@ -159,9 +159,6 @@ public final class ExperimentalCarKeyguardService extends IExperimentalCarKeygua
 
     @Override
     public void init() {
-        if (!isPlatformVersionAtLeastU()) {
-            return;
-        }
         if (DBG) {
             Slogf.d(TAG, "init()");
         }
@@ -247,9 +244,6 @@ public final class ExperimentalCarKeyguardService extends IExperimentalCarKeygua
      * Function to initialize keyguard for the currently visible users when the service starts.
      */
     private void initializeVisibleUsers() {
-        if (!isPlatformVersionAtLeastU()) {
-            return;
-        }
         for (Iterator<UserHandle> iterator = mUserManager.getVisibleUsers().iterator();
                 iterator.hasNext();) {
             UserHandle userHandle = iterator.next();
@@ -410,6 +404,10 @@ public final class ExperimentalCarKeyguardService extends IExperimentalCarKeygua
             }
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     @VisibleForTesting
     static class KeyguardState {

@@ -96,9 +96,9 @@ public class DiagnosticJson {
                 jsonReader.beginObject();
                 while (jsonReader.hasNext()) {
                     String name = jsonReader.nextName();
-                    if (name.equals("id")) {
+                    if (Objects.equals(name, "id")) {
                         id = jsonReader.nextInt();
-                    } else if (name.equals("value")) {
+                    } else if (Objects.equals(name, "value")) {
                         value = jsonReader.nextInt();
                     }
                 }
@@ -114,9 +114,9 @@ public class DiagnosticJson {
                 jsonReader.beginObject();
                 while (jsonReader.hasNext()) {
                     String name = jsonReader.nextName();
-                    if (name.equals("id")) {
+                    if (Objects.equals(name, "id")) {
                         id = jsonReader.nextInt();
-                    } else if (name.equals("value")) {
+                    } else if (Objects.equals(name, "value")) {
                         value = (float) jsonReader.nextDouble();
                     }
                 }

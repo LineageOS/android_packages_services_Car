@@ -22,13 +22,6 @@
            parent="TextAppearance.Car.Body.Small">
         <item name="android:textColor">@color/car_on_surface_variant</item>
     </style>
-    <style name="AppDisplayNameStyle" parent="TextAppearance.Car.Body.Small">
-        <item name="android:textColor">@color/car_on_surface</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:ellipsize">none</item>
-        <item name="android:requiresFadingEdge">horizontal</item>
-        <item name="android:fadingEdgeLength">40dp</item>
-    </style>
 
     <style name="RecentTasksList">
         <item name="android:layout_width">match_parent</item>

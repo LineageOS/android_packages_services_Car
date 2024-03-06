@@ -30,6 +30,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.AtomicFile;
 import android.util.Pair;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -217,6 +218,71 @@ public final class CarFeatureController implements CarServiceBase {
             writer.println(" mAvailableExperimentalFeatures:" + mAvailableExperimentalFeatures);
             writer.println(" mPendingEnabledFeatures:" + mPendingEnabledFeatures);
             writer.println(" mPendingDisabledFeatures:" + mPendingDisabledFeatures);
+            dumpConfigFile(writer);
+        }
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpConfigFile(IndentingPrintWriter writer) {
+        writer.println(" mFeatureConfigFile:");
+        FileInputStream fis;
+        try {
+            synchronized (mLock) {
+                fis = mFeatureConfigFile.openRead();
+            }
+        } catch (FileNotFoundException e) {
+            Slogf.i(TAG, "Feature config file not found");
+            return;
+        }
+        writer.increaseIndent();
+        try (BufferedReader reader =
+                     new BufferedReader(new InputStreamReader(fis, StandardCharsets.UTF_8))) {
+            while (true) {
+                String line = reader.readLine();
+                if (line == null) {
+                    break;
+                }
+                writer.println(line);
+            }
+        } catch (IOException e) {
+            Slogf.w(TAG, "Cannot read config file", e);
+        } finally {
+            try {
+                fis.close();
+            } catch (IOException e) {
+                Slogf.e(TAG, "Couldn't close FileInputStream");
+            }
+        }
+        writer.decreaseIndent();
+    }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {
+        for (String enabledFeature : mEnabledFeatures) {
+            proto.write(CarFeatureControlDumpProto.ENABLED_FEATURES, enabledFeature);
+        }
+        for (String defaultEnabledFeature : mDefaultEnabledFeaturesFromConfig) {
+            proto.write(CarFeatureControlDumpProto.DEFAULT_ENABLED_FEATURES_FROM_CONFIG,
+                    defaultEnabledFeature);
+        }
+        for (String disabledFeature : mDisabledFeaturesFromVhal) {
+            proto.write(CarFeatureControlDumpProto.DISABLED_FEATURES_FROM_VHAL,
+                    disabledFeature);
+        }
+        synchronized (mLock) {
+            for (String experimentalFeature : mAvailableExperimentalFeatures) {
+                proto.write(CarFeatureControlDumpProto.AVAILABLE_EXPERIMENTAL_FEATURES,
+                        experimentalFeature);
+            }
+            for (String pendingEnabledFeature : mPendingEnabledFeatures) {
+                proto.write(CarFeatureControlDumpProto.PENDING_ENABLED_FEATURES,
+                        pendingEnabledFeature);
+            }
+            for (String pendingDisabledFeature : mPendingDisabledFeatures) {
+                proto.write(CarFeatureControlDumpProto.PENDING_DISABLED_FEATURES,
+                        pendingDisabledFeature);
+            }
         }
     }
 

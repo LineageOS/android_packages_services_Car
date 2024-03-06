@@ -196,6 +196,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Tingnan ang mga windshield wiper ng kotse."</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"kontrolin ang mga windshield wiper ng kotse"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Kontrolin ang mga windshield wiper ng kotse."</string>
+    <string name="car_permission_label_query_display_compatibility" msgid="8846515818036686896">"mga compatibility package ng query display"</string>
+    <string name="car_permission_desc_query_display_compatibility" msgid="5344194045180717300">"Mga compatibility package ng query display."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"subaybayan ang mga status ng iba pang occupant zone sa kotse at mga peer app (mga app na may kaparehong pangalan ng package ng caller) na naka-install sa mga zone na iyon, at pamahalaan ang power ng mga zone na iyon."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Subaybayan ang mga status ng iba pang occupant zone sa kotse at mga peer app (mga app na may kaparehong pangalan ng package ng caller) na naka-install sa mga zone na iyon, at pamahalaan ang power ng mga zone na iyon."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"bumuo ng koneksyon at makipag-ugnayan sa mga peer app (mga app na may kaparehong pangalan ng package ng caller) na naka-install sa iba pang occupant zone sa kotse"</string>

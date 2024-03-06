@@ -16,10 +16,13 @@
 
 package com.google.android.car.kitchensink.property;
 
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
 import static java.lang.Integer.toHexString;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.Car;
 import android.car.VehiclePropertyIds;
 import android.car.VehiclePropertyType;
 import android.car.hardware.CarPropertyValue;
@@ -27,6 +30,7 @@ import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.GetPropertyCallback;
 import android.car.hardware.property.CarPropertyManager.GetPropertyRequest;
 import android.car.hardware.property.CarPropertyManager.GetPropertyResult;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -46,17 +50,26 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
-import com.google.android.car.kitchensink.KitchenSinkActivity;
+import com.google.android.car.kitchensink.KitchenSinkHelper;
 import com.google.android.car.kitchensink.R;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class PropertyTestFragment extends Fragment implements OnItemSelectedListener {
     private static final String TAG = "PropertyTestFragment";
+    private static final int KS_PERMISSIONS_REQUEST = 1;
 
-    private KitchenSinkActivity mActivity;
+    // The dangerous permissions that need to be granted at run-time.
+    private static final String[] REQUIRED_DANGEROUS_PERMISSIONS = new String[]{
+        Car.PERMISSION_ENERGY,
+        Car.PERMISSION_SPEED
+    };
+
+    private Context mContext;
+    private KitchenSinkHelper mKitchenSinkHelper;
     private CarPropertyManager mMgr;
     private List<PropertyInfo> mPropInfo = null;
     private Spinner mAreaId;
@@ -71,13 +84,14 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         public void onSuccess(@NonNull GetPropertyResult<?> getPropertyResult) {
             int propId = getPropertyResult.getPropertyId();
             long timestamp = getPropertyResult.getTimestampNanos();
-            setTextOnSuccess(propId, timestamp, getPropertyResult.getValue());
+            setTextOnSuccess(propId, timestamp, getPropertyResult.getValue(),
+                    CarPropertyValue.STATUS_AVAILABLE);
         }
 
         @Override
         public void onFailure(@NonNull CarPropertyManager.PropertyAsyncError propertyAsyncError) {
             Log.e(TAG, "Failed to get async VHAL property");
-            Toast.makeText(mActivity, "Failed to get async VHAL property with error code: "
+            Toast.makeText(mContext, "Failed to get async VHAL property with error code: "
                     + propertyAsyncError.getErrorCode() + " and vendor error code: "
                     + propertyAsyncError.getVendorErrorCode(), Toast.LENGTH_SHORT).show();
         }
@@ -85,19 +99,47 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
 
     private CarPropertyManager.SetPropertyCallback mSetPropertyCallback =
             new CarPropertyManager.SetPropertyCallback() {
-        @Override
-        public void onSuccess(@NonNull CarPropertyManager.SetPropertyResult setPropertyResult) {
-            Toast.makeText(mActivity, "Success", Toast.LENGTH_SHORT).show();
-        }
+                @Override
+                public void onSuccess(
+                        @NonNull CarPropertyManager.SetPropertyResult setPropertyResult) {
+                    Toast.makeText(mContext, "Success", Toast.LENGTH_SHORT).show();
+                }
 
-        @Override
-        public void onFailure(@NonNull CarPropertyManager.PropertyAsyncError propertyAsyncError) {
-            Log.e(TAG, "Failed to get async VHAL property");
-            Toast.makeText(mActivity, "Failed to set async VHAL property with error code: "
-                    + propertyAsyncError.getErrorCode() + " and vendor error code: "
-                    + propertyAsyncError.getVendorErrorCode(), Toast.LENGTH_SHORT).show();
-        }
+                @Override
+                public void onFailure(
+                        @NonNull CarPropertyManager.PropertyAsyncError propertyAsyncError) {
+                    Log.e(TAG, "Failed to get async VHAL property");
+                    Toast.makeText(mContext, "Failed to set async VHAL property with error code: "
+                            + propertyAsyncError.getErrorCode() + " and vendor error code: "
+                            + propertyAsyncError.getVendorErrorCode(), Toast.LENGTH_SHORT).show();
+                }
     };
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            int[] grantResults) {
+        for (int i = 0; i < grantResults.length; i++) {
+            if (grantResults[i] != PERMISSION_GRANTED) {
+                Log.w(TAG, "Permission: " + permissions[i] + " is not granted, "
+                        + "some properties might not be listed");
+            }
+        }
+        Runnable r = () -> {
+            mMgr = mKitchenSinkHelper.getPropertyManager();
+            populateConfigList();
+            mListView.setAdapter(new PropertyListAdapter(mPropInfo, mMgr, mEventLog, mScrollView,
+                    mContext));
+
+            // Configure dropdown menu for propertyId spinner
+            ArrayAdapter<PropertyInfo> adapter =
+                    new ArrayAdapter<PropertyInfo>(mContext, android.R.layout.simple_spinner_item,
+                            mPropInfo);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mPropertyId.setAdapter(adapter);
+            mPropertyId.setOnItemSelectedListener(this);
+        };
+        mKitchenSinkHelper.requestRefreshManager(r, new Handler(getContext().getMainLooper()));
+    }
 
     @Nullable
     @Override
@@ -113,23 +155,12 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         mPropertyId = view.findViewById(R.id.sPropertyId);
         mScrollView = view.findViewById(R.id.svEventLog);
         mSetValue = view.findViewById(R.id.etSetPropertyValue);
-        mActivity = (KitchenSinkActivity) getActivity();
-
-        final Runnable r = () -> {
-            mMgr = mActivity.getPropertyManager();
-            populateConfigList();
-            mListView.setAdapter(new PropertyListAdapter(mPropInfo, mMgr, mEventLog, mScrollView,
-                    mActivity));
-
-            // Configure dropdown menu for propertyId spinner
-            ArrayAdapter<PropertyInfo> adapter =
-                    new ArrayAdapter<PropertyInfo>(mActivity, android.R.layout.simple_spinner_item,
-                            mPropInfo);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            mPropertyId.setAdapter(adapter);
-            mPropertyId.setOnItemSelectedListener(this);
-        };
-        mActivity.requestRefreshManager(r, new Handler(getContext().getMainLooper()));
+        mContext = getActivity();
+        if (!(mContext instanceof KitchenSinkHelper)) {
+            throw new IllegalStateException(
+                    "context does not implement " + KitchenSinkHelper.class.getSimpleName());
+        }
+        mKitchenSinkHelper = (KitchenSinkHelper) mContext;
 
         // Configure listeners for buttons
         Button b = view.findViewById(R.id.bGetProperty);
@@ -139,10 +170,10 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                 int propId = info.mConfig.getPropertyId();
                 int areaId = Integer.decode(mAreaId.getSelectedItem().toString());
                 CarPropertyValue value = mMgr.getProperty(propId, areaId);
-                setTextOnSuccess(propId, value.getTimestamp(), value.getValue());
+                setTextOnSuccess(propId, value.getTimestamp(), value.getValue(), value.getStatus());
             } catch (Exception e) {
                 Log.e(TAG, "Failed to get VHAL property", e);
-                Toast.makeText(mActivity, "Failed to get VHAL property: " + e.getMessage(),
+                Toast.makeText(mContext, "Failed to get VHAL property: " + e.getMessage(),
                         Toast.LENGTH_SHORT).show();
             }
         });
@@ -160,7 +191,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                         mGetPropertyCallback);
             } catch (Exception e) {
                 Log.e(TAG, "Failed to get async VHAL property", e);
-                Toast.makeText(mActivity, "Failed to get async VHAL property: "
+                Toast.makeText(mContext, "Failed to get async VHAL property: "
                                 + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -187,14 +218,14 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                         mMgr.setIntProperty(propId, areaId, intVal);
                         break;
                     default:
-                        Toast.makeText(mActivity, "PropertyType=0x" + toHexString(propId
+                        Toast.makeText(mContext, "PropertyType=0x" + toHexString(propId
                                         & VehiclePropertyType.MASK) + " is not handled!",
                                 Toast.LENGTH_LONG).show();
                         break;
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Failed to set VHAL property", e);
-                Toast.makeText(mActivity, "Failed to set VHAL property: " + e.getMessage(),
+                Toast.makeText(mContext, "Failed to set VHAL property: " + e.getMessage(),
                         Toast.LENGTH_LONG).show();
             }
         });
@@ -221,14 +252,14 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                         callSetPropertiesAsync(propId, areaId, intVal);
                         break;
                     default:
-                        Toast.makeText(mActivity, "PropertyType=0x" + toHexString(propId
+                        Toast.makeText(mContext, "PropertyType=0x" + toHexString(propId
                                         & VehiclePropertyType.MASK) + " is not handled!",
                                 Toast.LENGTH_LONG).show();
                         break;
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Failed to set VHAL property", e);
-                Toast.makeText(mActivity, "Failed to set async VHAL property: "
+                Toast.makeText(mContext, "Failed to set async VHAL property: "
                         + e.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
@@ -237,6 +268,8 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         b.setOnClickListener(v -> {
             mEventLog.setText("");
         });
+
+        requestPermissions(REQUIRED_DANGEROUS_PERMISSIONS, KS_PERMISSIONS_REQUEST);
 
         return view;
     }
@@ -267,7 +300,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         }
 
         // Configure dropdown menu for propertyId spinner
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(mActivity,
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(mContext,
                 android.R.layout.simple_spinner_item, areaString);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mAreaId.setAdapter(adapter);
@@ -277,7 +310,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         // Another interface callback
     }
 
-    private void setTextOnSuccess(int propId, long timestamp, Object value) {
+    private void setTextOnSuccess(int propId, long timestamp, Object value, int status) {
         if (propId == VehiclePropertyIds.WHEEL_TICK) {
             Object[] ticks = (Object[]) value;
             mGetValue.setText("Timestamp=" + timestamp
@@ -285,8 +318,12 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                     + "\n[1]=" + (Long) ticks[1] + " [2]=" + (Long) ticks[2]
                     + "\n[3]=" + (Long) ticks[3] + " [4]=" + (Long) ticks[4]);
         } else {
+            String valueString = value.getClass().isArray()
+                    ? Arrays.toString((Object[]) value)
+                    : value.toString();
             mGetValue.setText("Timestamp=" + timestamp
-                    + "\nvalue=" + value
+                    + "\nstatus=" + status
+                    + "\nvalue=" + valueString
                     + "\nread=" + mMgr.getReadPermission(propId)
                     + "\nwrite=" + mMgr.getWritePermission(propId));
         }

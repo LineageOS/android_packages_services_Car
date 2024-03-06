@@ -26,8 +26,8 @@
     <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"Consente di controllare le impostazioni di ricarica del tuo veicolo elettrico."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"regolazione dell\'autonomia rimanente dell\'auto"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Consente di regolare il valore dell\'autonomia rimanente dell\'auto."</string>
-    <string name="car_permission_label_hvac" msgid="1499454192558727843">"Accesso al sistema HVAC dell\'automobile"</string>
-    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Consente di accedere al sistema HVAC dell\'automobile."</string>
+    <string name="car_permission_label_hvac" msgid="1499454192558727843">"Accesso all\'impianto di climatizzazione dell\'automobile"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Consente di accedere all\'impianto di climatizzazione dell\'automobile."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"Accesso alle informazioni sul consumo di carburante dell\'automobile"</string>
     <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Consente di accedere alle informazioni sul consumo di carburante dell\'automobile."</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"Lettura della velocità dell\'automobile"</string>
@@ -196,6 +196,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Consente di leggere lo stato dei tergicristalli dell\'auto."</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"Controllo dei tergicristalli dell\'auto"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Consente di controllare i tergicristalli dell\'auto."</string>
+    <string name="car_permission_label_query_display_compatibility" msgid="8846515818036686896">"invia una query relativa a pacchetti che richiedono un intervento per la compatibilità del display"</string>
+    <string name="car_permission_desc_query_display_compatibility" msgid="5344194045180717300">"Invia una query relativa a pacchetti che richiedono un intervento per la compatibilità del display."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"Monitoraggio degli stati delle altre zone degli occupanti dell\'auto e delle app peer (app che hanno lo stesso nome di pacchetto del chiamante) installate in quelle zone, nonché gestione dell\'alimentazione di quelle zone"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Consente di monitorare gli stati delle altre zone degli occupanti dell\'auto e delle app peer (app che hanno lo stesso nome di pacchetto del chiamante) installate in quelle zone, nonché di gestire l\'alimentazione di quelle zone."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"Creazione di una connessione e comunicazione con app peer (app che hanno lo stesso nome di pacchetto del chiamante) installate in altre zone degli occupanti dell\'auto"</string>

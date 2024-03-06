@@ -39,6 +39,8 @@ namespace watchdog {
 namespace {
 
 using ::aidl::android::automotive::watchdog::internal::ResourceStats;
+using ::aidl::android::automotive::watchdog::internal::ResourceUsageStats;
+using ::aidl::android::automotive::watchdog::internal::UidResourceUsageStats;
 using ::android::RefBase;
 using ::android::sp;
 using ::android::base::ReadFdToString;
@@ -61,6 +63,10 @@ constexpr int kTestTopNStatsPerSubcategory = 5;
 constexpr int kTestMaxUserSwitchEvents = 3;
 constexpr std::chrono::seconds kTestSystemEventDataCacheDurationSec = 60s;
 constexpr time_t kTestNow = static_cast<time_t>(1'683'270'000);
+
+int64_t getTestElapsedRealtimeSinceBootMs() {
+    return 20'000;
+}
 
 MATCHER_P(IoStatsViewEq, expected, "") {
     return ExplainMatchResult(AllOf(Field("bytes", &UserPackageStats::IoStatsView::bytes,
@@ -98,7 +104,10 @@ MATCHER_P(ProcSingleStatsViewEq, expected, "") {
 }
 
 MATCHER_P(ProcessCpuValueEq, expected, "") {
-    return ExplainMatchResult(AllOf(Field("comm",
+    return ExplainMatchResult(AllOf(Field("pid",
+                                          &UserPackageStats::ProcCpuStatsView::ProcessCpuValue::pid,
+                                          Eq(expected.pid)),
+                                    Field("comm",
                                           &UserPackageStats::ProcCpuStatsView::ProcessCpuValue::
                                                   comm,
                                           Eq(expected.comm)),
@@ -407,23 +416,23 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(int mu
                                               /*cpuCyclesByTid=*/{}}}}}}};
 
     UserPackageSummaryStats userPackageSummaryStats{
-            .topNCpuTimes = {{1012345, "1012345",
-                              UserPackageStats::ProcCpuStatsView{uint64Multiplier(100),
-                                                                 50'000,
-                                                                 {{"MapsApp", uint64Multiplier(100),
-                                                                   50'000}}}},
-                             {1002001, "com.google.android.car.kitchensink",
-                              UserPackageStats::ProcCpuStatsView{uint64Multiplier(60),
-                                                                 10'000,
-                                                                 {{"CTS", uint64Multiplier(25),
-                                                                   5000},
-                                                                  {"KitchenSinkApp",
-                                                                   uint64Multiplier(25), 4000}}}},
-                             {1009, "mount",
-                              UserPackageStats::ProcCpuStatsView{uint64Multiplier(50),
-                                                                 4000,
-                                                                 {{"disk I/O", uint64Multiplier(50),
-                                                                   4000}}}}},
+            .topNCpuTimes =
+                    {{1012345, "1012345",
+                      UserPackageStats::ProcCpuStatsView{uint64Multiplier(100),
+                                                         50'000,
+                                                         {{2345, "MapsApp", uint64Multiplier(100),
+                                                           50'000}}}},
+                     {1002001, "com.google.android.car.kitchensink",
+                      UserPackageStats::ProcCpuStatsView{uint64Multiplier(60),
+                                                         10'000,
+                                                         {{1001, "CTS", uint64Multiplier(25), 5000},
+                                                          {1000, "KitchenSinkApp",
+                                                           uint64Multiplier(25), 4000}}}},
+                     {1009, "mount",
+                      UserPackageStats::ProcCpuStatsView{uint64Multiplier(50),
+                                                         4000,
+                                                         {{100, "disk I/O", uint64Multiplier(50),
+                                                           4000}}}}},
             .topNIoReads = {{1009, "mount",
                              UserPackageStats::IoStatsView{{0, int64Multiplier(14'000)},
                                                            {0, int64Multiplier(100)}}},
@@ -506,10 +515,182 @@ std::tuple<ProcStatInfo, SystemSummaryStats> sampleProcStat(int multiplier = 1) 
     return std::make_tuple(procStatInfo, systemSummaryStats);
 }
 
+// TODO(b/286942359): The methods: sampleUidStats, sampleProcStat and
+// getResourceStatsForSampledStats are called together most times.
+// Implement a method that calls the three methods and returns their
+// results in a single value.
+ResourceStats getResourceStatsForSampledStats(int multiplier = 1) {
+    const auto int32Multiplier = [&](int32_t bytes) -> int32_t {
+        return static_cast<int32_t>(bytes * multiplier);
+    };
+    const auto int64Multiplier = [&](int64_t bytes) -> int64_t {
+        return static_cast<int64_t>(bytes * multiplier);
+    };
+
+    // clang-format off
+    return {
+        .resourceUsageStats = std::make_optional<ResourceUsageStats>({
+            .startTimeEpochMillis = 1'683'270'000'000,
+            // Set durationInMillis to zero since this field is set by WatchdogPerfService.
+            .durationInMillis = 0,
+            .systemSummaryUsageStats = {
+                .cpuNonIdleCycles = 64'000,
+                .cpuNonIdleTimeMillis = int32Multiplier(39'476),
+                .cpuIdleTimeMillis = int32Multiplier(8'900),
+                .contextSwitchesCount = int32Multiplier(500),
+                .ioBlockedProcessCount = int32Multiplier(57),
+                .totalProcessCount = int32Multiplier(157),
+                .totalMajorPageFaults = int32Multiplier(84'345),
+                .totalIoReads = {
+                    .foregroundBytes = int32Multiplier(1'000),
+                    .backgroundBytes = int32Multiplier(21'600),
+                    .garageModeBytes = 0,
+                },
+                .totalIoWrites = {
+                    .foregroundBytes = int32Multiplier(300),
+                    .backgroundBytes = int32Multiplier(28'300),
+                    .garageModeBytes = 0,
+                },
+            },
+            .uidResourceUsageStats = {
+                {
+                    .packageIdentifier = {
+                        .name = "mount",
+                        .uid = 1009,
+                    },
+                    .uidUptimeMillis = 19'766,
+                    .cpuUsageStats = {
+                        .cpuTimeMillis = int64Multiplier(50),
+                        .cpuCycles = 4'000,
+                        .cpuTimePercentage = (50. / 48'376.) * 100.0,
+                    },
+                    .processCpuUsageStats = {
+                        {
+                            .pid = 100,
+                            .name = "disk I/O",
+                            .cpuTimeMillis = int64Multiplier(50),
+                            .cpuCycles = 4'000,
+                        },
+                    },
+                    .ioUsageStats = {
+                        .writtenBytes = {
+                            .foregroundBytes = 0,
+                            .backgroundBytes = int32Multiplier(16'000),
+                            .garageModeBytes = 0,
+                        },
+                        .readBytes = {
+                            .foregroundBytes = 0,
+                            .backgroundBytes = int32Multiplier(14'000),
+                            .garageModeBytes = 0,
+                        },
+                    },
+                },
+                {
+                    .packageIdentifier = {
+                        .name = "com.google.android.car.kitchensink",
+                        .uid = 1002001,
+                    },
+                    .uidUptimeMillis = 19'533,
+                    .cpuUsageStats = {
+                        .cpuTimeMillis = int64Multiplier(60),
+                        .cpuCycles = 10'000,
+                        .cpuTimePercentage = (60. / 48'376.) * 100.0,
+                    },
+                    .processCpuUsageStats = {
+                        {
+                            .pid = 1001,
+                            .name = "CTS",
+                            .cpuTimeMillis = int64Multiplier(25),
+                            .cpuCycles = 5'000,
+                        },
+                        {
+                            .pid = 1000,
+                            .name = "KitchenSinkApp",
+                            .cpuTimeMillis = int64Multiplier(25),
+                            .cpuCycles = 4'000,
+                        },
+                    },
+                    .ioUsageStats = {
+                        .writtenBytes = {
+                            .foregroundBytes = 0,
+                            .backgroundBytes = int32Multiplier(6'700),
+                            .garageModeBytes = 0,
+                        },
+                        .readBytes = {
+                            .foregroundBytes = 0,
+                            .backgroundBytes = int32Multiplier(3'400),
+                            .garageModeBytes = 0,
+                        },
+                    },
+                },
+                {
+                    .packageIdentifier = {
+                        .name = "1012345",
+                        .uid = 1012345,
+                    },
+                    .uidUptimeMillis = 13'211,
+                    .cpuUsageStats = {
+                        .cpuTimeMillis = int64Multiplier(100),
+                        .cpuCycles = 50'000,
+                        .cpuTimePercentage = (100. / 48'376.) * 100.0,
+                    },
+                    .processCpuUsageStats = {
+                        {
+                            .pid = 2345,
+                            .name = "MapsApp",
+                            .cpuTimeMillis = int64Multiplier(100),
+                            .cpuCycles = 50'000,
+                        },
+                    },
+                    .ioUsageStats = {
+                        .writtenBytes = {
+                            .foregroundBytes = int32Multiplier(300),
+                            .backgroundBytes = int32Multiplier(5'600),
+                            .garageModeBytes = 0,
+                        },
+                        .readBytes = {
+                            .foregroundBytes = int32Multiplier(1'000),
+                            .backgroundBytes = int32Multiplier(4'200),
+                            .garageModeBytes = 0,
+                        },
+                    },
+                },
+                {
+                    .packageIdentifier = {
+                        .name = "com.google.radio",
+                        .uid = 1015678,
+                    },
+                    .uidUptimeMillis = 211,
+                    .cpuUsageStats = {
+                        .cpuTimeMillis = 0,
+                        .cpuCycles = 0,
+                        .cpuTimePercentage = 0,
+                    },
+                    .ioUsageStats = {
+                        .writtenBytes = {
+                            .foregroundBytes = 0,
+                            .backgroundBytes = 0,
+                            .garageModeBytes = 0,
+                        },
+                        .readBytes = {
+                            .foregroundBytes = 0,
+                            .backgroundBytes = 0,
+                            .garageModeBytes = 0,
+                        },
+                    },
+                },
+            },
+        }),
+    };
+    // clang-format on
+}
+
 }  // namespace
 
 namespace internal {
 
+// TODO(b/289396065): Refactor class such that variable fields are initialized directly in the
+// constructor and remove the setter methods.
 class PerformanceProfilerPeer final : public RefBase {
 public:
     explicit PerformanceProfilerPeer(sp<PerformanceProfiler> collector) : mCollector(collector) {}
@@ -534,6 +715,10 @@ public:
 
     void setSendResourceUsageStatsEnabled(bool enable) {
         mCollector->mDoSendResourceUsageStats = enable;
+    }
+
+    void setGetElapsedTimeSinceBootMillisFunc(const std::function<int64_t()>& func) {
+        mCollector->kGetElapsedTimeSinceBootMillisFunc = func;
     }
 
     const CollectionInfo& getBoottimeCollectionInfo() {
@@ -580,6 +765,7 @@ protected:
         mCollectorPeer->setMaxUserSwitchEvents(kTestMaxUserSwitchEvents);
         mCollectorPeer->setSystemEventDataCacheDuration(kTestSystemEventDataCacheDurationSec);
         mCollectorPeer->setSendResourceUsageStatsEnabled(true);
+        mCollectorPeer->setGetElapsedTimeSinceBootMillisFunc(getTestElapsedRealtimeSinceBootMs);
     }
 
     void TearDown() override {
@@ -625,6 +811,7 @@ protected:
 TEST_F(PerformanceProfilerTest, TestOnBoottimeCollection) {
     const auto [uidStats, userPackageSummaryStats] = sampleUidStats();
     const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+    const auto expectedResourceStats = getResourceStatsForSampledStats();
 
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
@@ -648,6 +835,10 @@ TEST_F(PerformanceProfilerTest, TestOnBoottimeCollection) {
             << "Boottime collection info doesn't match.\nExpected:\n"
             << expected.toString() << "\nActual:\n"
             << actual.toString();
+
+    ASSERT_EQ(actualResourceStats, expectedResourceStats)
+            << "Expected: " << expectedResourceStats.toString()
+            << "\nActual: " << actualResourceStats.toString();
 
     ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/3))
             << "Periodic, wake-up and user-switch collections shouldn't be reported";
@@ -891,6 +1082,7 @@ TEST_F(PerformanceProfilerTest, TestUserSwitchCollectionsMaxCacheSize) {
 TEST_F(PerformanceProfilerTest, TestOnPeriodicCollection) {
     const auto [uidStats, userPackageSummaryStats] = sampleUidStats();
     const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+    const auto expectedResourceStats = getResourceStatsForSampledStats();
 
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
@@ -917,6 +1109,49 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollection) {
             << expected.toString() << "\nActual:\n"
             << actual.toString();
 
+    ASSERT_EQ(actualResourceStats, expectedResourceStats)
+            << "Expected: " << expectedResourceStats.toString()
+            << "\nActual: " << actualResourceStats.toString();
+
+    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/3))
+            << "Boot-time, wake-up and user-switch collections shouldn't be reported";
+}
+
+TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithSendingUsageStatsDisabled) {
+    mCollectorPeer->setSendResourceUsageStatsEnabled(false);
+    const auto [uidStats, userPackageSummaryStats] = sampleUidStats();
+    const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
+
+    ResourceStats actualResourceStats = {};
+    ASSERT_RESULT_OK(mCollector->onPeriodicCollection(kTestNow, SystemState::NORMAL_MODE,
+                                                      mMockUidStatsCollector,
+                                                      mMockProcStatCollector,
+                                                      &actualResourceStats));
+
+    const auto actual = mCollectorPeer->getPeriodicCollectionInfo();
+
+    const CollectionInfo expected{
+            .maxCacheSize = static_cast<size_t>(sysprop::periodicCollectionBufferSize().value_or(
+                    kDefaultPeriodicCollectionBufferSize)),
+            .records = {{
+                    .systemSummaryStats = systemSummaryStats,
+                    .userPackageSummaryStats = userPackageSummaryStats,
+            }},
+    };
+    const ResourceStats expectedResourceStats = {};
+
+    EXPECT_THAT(actual, CollectionInfoEq(expected))
+            << "Periodic collection info doesn't match.\nExpected:\n"
+            << expected.toString() << "\nActual:\n"
+            << actual.toString();
+
+    ASSERT_EQ(actualResourceStats, expectedResourceStats)
+            << "Expected: " << expectedResourceStats.toString()
+            << "\nActual: " << actualResourceStats.toString();
+
     ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/3))
             << "Boot-time, wake-up and user-switch collections shouldn't be reported";
 }
@@ -924,6 +1159,7 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollection) {
 TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithoutPackageFilter) {
     const auto [uidStats, userPackageSummaryStats] = sampleUidStats();
     const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+    const auto expectedResourceStats = getResourceStatsForSampledStats();
 
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
@@ -948,6 +1184,10 @@ TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithoutPackageFilter) {
             << expected.toString() << "\nActual:\n"
             << actual.toString();
 
+    ASSERT_EQ(actualResourceStats, expectedResourceStats)
+            << "Expected: " << expectedResourceStats.toString()
+            << "\nActual: " << actualResourceStats.toString();
+
     ASSERT_NO_FATAL_FAILURE(checkCustomDumpContents()) << "Custom collection should be reported";
 
     TemporaryFile customDump;
@@ -968,28 +1208,30 @@ TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithPackageFilter) {
 
     const auto [uidStats, _] = sampleUidStats();
     const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+    const auto expectedResourceStats = getResourceStatsForSampledStats();
 
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
 
-    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    ResourceStats resourceStats = {};
-    ASSERT_RESULT_OK(mCollector->onCustomCollection(now, SystemState::NORMAL_MODE,
+    ResourceStats actualResourceStats = {};
+    ASSERT_RESULT_OK(mCollector->onCustomCollection(kTestNow, SystemState::NORMAL_MODE,
                                                     {"mount", "com.google.android.car.kitchensink"},
                                                     mMockUidStatsCollector, mMockProcStatCollector,
-                                                    &resourceStats));
+                                                    &actualResourceStats));
 
     const auto actual = mCollectorPeer->getCustomCollectionInfo();
 
     UserPackageSummaryStats userPackageSummaryStats{
-            .topNCpuTimes =
-                    {{1009, "mount",
-                      UserPackageStats::ProcCpuStatsView{50, 4'000, {{"disk I/O", 50, 4'000}}}},
-                     {1002001, "com.google.android.car.kitchensink",
-                      UserPackageStats::ProcCpuStatsView{60,
-                                                         10'000,
-                                                         {{"CTS", 25, 5'000},
-                                                          {"KitchenSinkApp", 25, 4'000}}}}},
+            .topNCpuTimes = {{1009, "mount",
+                              UserPackageStats::ProcCpuStatsView{50,
+                                                                 4'000,
+                                                                 {{100, "disk I/O", 50, 4'000}}}},
+                             {1002001, "com.google.android.car.kitchensink",
+                              UserPackageStats::ProcCpuStatsView{60,
+                                                                 10'000,
+                                                                 {{1001, "CTS", 25, 5'000},
+                                                                  {1000, "KitchenSinkApp", 25,
+                                                                   4'000}}}}},
             .topNIoReads = {{1009, "mount", UserPackageStats::IoStatsView{{0, 14'000}, {0, 100}}},
                             {1002001, "com.google.android.car.kitchensink",
                              UserPackageStats::IoStatsView{{0, 3'400}, {0, 200}}}},
@@ -1029,6 +1271,10 @@ TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithPackageFilter) {
             << expected.toString() << "\nActual:\n"
             << actual.toString();
 
+    ASSERT_EQ(actualResourceStats, expectedResourceStats)
+            << "Expected: " << expectedResourceStats.toString()
+            << "\nActual: " << actualResourceStats.toString();
+
     ASSERT_NO_FATAL_FAILURE(checkCustomDumpContents()) << "Custom collection should be reported";
 
     TemporaryFile customDump;
@@ -1049,22 +1295,33 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithTrimmingStatsAfterTo
 
     const auto [uidStats, _] = sampleUidStats();
     const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+    auto expectedResourceStats = getResourceStatsForSampledStats();
+
+    // Top N stats per category/sub-category is set to 1, so remove entries in the
+    // expected value to match this.
+    ASSERT_FALSE(expectedResourceStats.resourceUsageStats->uidResourceUsageStats.empty());
+    UidResourceUsageStats& kitchenSinkStats =
+            expectedResourceStats.resourceUsageStats->uidResourceUsageStats.at(1);
+    ASSERT_FALSE(kitchenSinkStats.processCpuUsageStats.empty());
+    kitchenSinkStats.processCpuUsageStats.pop_back();
 
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
 
-    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    ResourceStats resourceStats = {};
-    ASSERT_RESULT_OK(mCollector->onPeriodicCollection(now, SystemState::NORMAL_MODE,
+    ResourceStats actualResourceStats = {};
+    ASSERT_RESULT_OK(mCollector->onPeriodicCollection(kTestNow, SystemState::NORMAL_MODE,
                                                       mMockUidStatsCollector,
-                                                      mMockProcStatCollector, &resourceStats));
+                                                      mMockProcStatCollector,
+                                                      &actualResourceStats));
 
     const auto actual = mCollectorPeer->getPeriodicCollectionInfo();
 
     UserPackageSummaryStats userPackageSummaryStats{
-            .topNCpuTimes =
-                    {{1012345, "1012345",
-                      UserPackageStats::ProcCpuStatsView{100, 50'000, {{"MapsApp", 100, 50'000}}}}},
+            .topNCpuTimes = {{1012345, "1012345",
+                              UserPackageStats::ProcCpuStatsView{100,
+                                                                 50'000,
+                                                                 {{2345, "MapsApp", 100,
+                                                                   50'000}}}}},
             .topNIoReads = {{1009, "mount", UserPackageStats::IoStatsView{{0, 14'000}, {0, 100}}}},
             .topNIoWrites = {{1009, "mount", UserPackageStats::IoStatsView{{0, 16'000}, {0, 100}}}},
             .topNIoBlocked = {{1002001, "com.google.android.car.kitchensink",
@@ -1094,6 +1351,10 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithTrimmingStatsAfterTo
             << expected.toString() << "\nActual:\n"
             << actual.toString();
 
+    ASSERT_EQ(actualResourceStats, expectedResourceStats)
+            << "Expected: " << expectedResourceStats.toString()
+            << "\nActual: " << actualResourceStats.toString();
+
     ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/3))
             << "Boot-time, wake-up and user-switch collections shouldn't be reported";
 }
@@ -1101,6 +1362,7 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithTrimmingStatsAfterTo
 TEST_F(PerformanceProfilerTest, TestConsecutiveOnPeriodicCollection) {
     const auto [firstUidStats, firstUserPackageSummaryStats] = sampleUidStats();
     const auto [firstProcStatInfo, firstSystemSummaryStats] = sampleProcStat();
+    auto expectedResourceStats = getResourceStatsForSampledStats();
 
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(firstUidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(firstProcStatInfo));
@@ -1113,6 +1375,7 @@ TEST_F(PerformanceProfilerTest, TestConsecutiveOnPeriodicCollection) {
 
     auto [secondUidStats, secondUserPackageSummaryStats] = sampleUidStats(/*multiplier=*/2);
     const auto [secondProcStatInfo, secondSystemSummaryStats] = sampleProcStat(/*multiplier=*/2);
+    expectedResourceStats = getResourceStatsForSampledStats(/*multiplier=*/2);
 
     secondUserPackageSummaryStats.majorFaultsPercentChange =
             (static_cast<double>(secondUserPackageSummaryStats.totalMajorFaults -
@@ -1143,6 +1406,10 @@ TEST_F(PerformanceProfilerTest, TestConsecutiveOnPeriodicCollection) {
             << "Periodic collection info doesn't match.\nExpected:\n"
             << expected.toString() << "\nActual:\n"
             << actual.toString();
+
+    ASSERT_EQ(actualResourceStats, expectedResourceStats)
+            << "Expected: " << expectedResourceStats.toString()
+            << "\nActual: " << actualResourceStats.toString();
 
     ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/3))
             << "Boot-time, wake-up and user-switch collection shouldn't be reported";

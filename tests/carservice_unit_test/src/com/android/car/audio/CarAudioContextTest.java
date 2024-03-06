@@ -925,4 +925,32 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
                     .isEqualTo(false);
         }
     }
+
+    @Test
+    public void getAudioAttributeWrapperFromAttributes_withMusic_hashCode_succeeds() {
+        CarAudioContext carAudioContextUsingCoreRouting = new CarAudioContext(
+                CoreAudioRoutingUtils.getCarAudioContextInfos(), /* useCoreAudioRouting= */ true);
+
+        CarAudioContext.AudioAttributesWrapper createdWrapper =
+                carAudioContextUsingCoreRouting.getAudioAttributeWrapperFromAttributes(
+                        CoreAudioRoutingUtils.MUSIC_ATTRIBUTES);
+
+        assertWithMessage("Music strategy audio attributes wrapper hash code")
+                .that(createdWrapper.hashCode()).isEqualTo(Integer.hashCode(
+                        CoreAudioRoutingUtils.MUSIC_STRATEGY_ID));
+    }
+
+    @Test
+    public void getAudioAttributeWrapperFromAttributes_withOemExtension_hashCode_succeeds() {
+        CarAudioContext carAudioContextUsingCoreRouting = new CarAudioContext(
+                CoreAudioRoutingUtils.getCarAudioContextInfos(), /* useCoreAudioRouting= */ true);
+
+        CarAudioContext.AudioAttributesWrapper createdWrapper =
+                carAudioContextUsingCoreRouting.getAudioAttributeWrapperFromAttributes(
+                        CoreAudioRoutingUtils.OEM_ATTRIBUTES);
+
+        assertWithMessage("OEM strategy audio attributes wrapper hash code")
+                .that(createdWrapper.hashCode()).isEqualTo(Integer.hashCode(
+                        CoreAudioRoutingUtils.OEM_STRATEGY_ID));
+    }
 }

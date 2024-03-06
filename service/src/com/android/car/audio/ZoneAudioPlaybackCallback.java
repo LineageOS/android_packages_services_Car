@@ -24,7 +24,9 @@ import android.annotation.NonNull;
 import android.media.AudioAttributes;
 import android.media.AudioPlaybackConfiguration;
 import android.util.ArrayMap;
+import android.util.proto.ProtoOutputStream;
 
+import com.android.car.audio.CarAudioDumpProto.CarAudioPlaybackCallbackProto;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
@@ -181,6 +183,43 @@ final class ZoneAudioPlaybackCallback {
                         mAudioAttributesStartTime.keyAt(i), mAudioAttributesStartTime.valueAt(i));
             }
             writer.decreaseIndent();
+        }
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dumpProto(ProtoOutputStream proto) {
+        long token = proto.start(CarAudioPlaybackCallbackProto.ZONE_AUDIO_PLAYBACK_CALLBACKS);
+        proto.write(CarAudioPlaybackCallbackProto.ZoneAudioPlaybackCallbackProto.ZONE_ID,
+                mCarAudioZone.getId());
+        dumpProtoLastActiveConfigsAndAudioAttributesStartTime(proto);
+        proto.end(token);
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProtoLastActiveConfigsAndAudioAttributesStartTime(ProtoOutputStream proto) {
+        synchronized (mLock) {
+            for (int i = 0; i < mLastActiveConfigs.size(); i++) {
+                long lastActiveConfigToken = proto.start(CarAudioPlaybackCallbackProto
+                        .ZoneAudioPlaybackCallbackProto.LAST_ACTIVE_CONFIGS);
+                proto.write(CarAudioPlaybackCallbackProto.ZoneAudioPlaybackCallbackProto
+                        .AudioDeviceAddressToConfig.ADDRESS, mLastActiveConfigs.keyAt(i));
+                proto.write(CarAudioPlaybackCallbackProto.ZoneAudioPlaybackCallbackProto
+                        .AudioDeviceAddressToConfig.CONFIG, mLastActiveConfigs.valueAt(i)
+                        .toString());
+                proto.end(lastActiveConfigToken);
+            }
+
+            for (int i = 0; i < mAudioAttributesStartTime.size(); i++) {
+                long audioAttributeToStartTimeToken = proto.start(CarAudioPlaybackCallbackProto
+                        .ZoneAudioPlaybackCallbackProto.AUDIO_ATTRIBUTES_TO_START_TIMES);
+                CarAudioContextInfo.dumpCarAudioAttributesProto(mAudioAttributesStartTime.keyAt(i),
+                        CarAudioPlaybackCallbackProto.ZoneAudioPlaybackCallbackProto
+                                .AudioAttributesToStartTime.AUDIO_ATTRIBUTES, proto);
+                proto.write(CarAudioPlaybackCallbackProto.ZoneAudioPlaybackCallbackProto
+                        .AudioAttributesToStartTime.START_TIME,
+                        mAudioAttributesStartTime.valueAt(i));
+                proto.end(audioAttributeToStartTimeToken);
+            }
         }
     }
 }

@@ -16,9 +16,7 @@
 
 package com.android.car.vms;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static com.google.common.truth.Truth.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,31 +36,31 @@ public class VmsProviderInfoStoreTest {
     @Test
     public void testSingleInfo() {
         int id = mProviderInfoStore.getProviderId(MOCK_INFO_1);
-        assertEquals(1, id);
-        assertArrayEquals(MOCK_INFO_1, mProviderInfoStore.getProviderInfo(id));
+        assertThat(id).isEqualTo(1);
+        assertThat(mProviderInfoStore.getProviderInfo(id)).isEqualTo(MOCK_INFO_1);
     }
 
     @Test
     public void testSingleInfo_NoSuchId() {
-        assertNull(mProviderInfoStore.getProviderInfo(12345));
+        assertThat(mProviderInfoStore.getProviderInfo(12345)).isNull();
     }
 
     @Test
     public void testTwoInfos() {
         int id1 = mProviderInfoStore.getProviderId(MOCK_INFO_1);
         int id2 = mProviderInfoStore.getProviderId(MOCK_INFO_2);
-        assertEquals(1, id1);
-        assertEquals(2, id2);
-        assertArrayEquals(MOCK_INFO_1, mProviderInfoStore.getProviderInfo(id1));
-        assertArrayEquals(MOCK_INFO_2, mProviderInfoStore.getProviderInfo(id2));
+        assertThat(id1).isEqualTo(1);
+        assertThat(id2).isEqualTo(2);
+        assertThat(mProviderInfoStore.getProviderInfo(id1)).isEqualTo(MOCK_INFO_1);
+        assertThat(mProviderInfoStore.getProviderInfo(id2)).isEqualTo(MOCK_INFO_2);
     }
 
     @Test
     public void testSingleInfoInsertedTwice() {
         int id = mProviderInfoStore.getProviderId(MOCK_INFO_1);
-        assertEquals(1, id);
+        assertThat(id).isEqualTo(1);
 
         int sameId = mProviderInfoStore.getProviderId(SAME_MOCK_INFO_1);
-        assertEquals(sameId, id);
+        assertThat(id).isEqualTo(sameId);
     }
 }

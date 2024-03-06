@@ -30,7 +30,6 @@ import android.app.ActivityOptions;
 import android.app.Service;
 import android.car.Car;
 import android.car.CarLibLog;
-import android.car.annotation.AddedInOrBefore;
 import android.car.builtin.util.Slogf;
 import android.car.cluster.ClusterActivityState;
 import android.car.navigation.CarNavigationInstrumentCluster;
@@ -97,7 +96,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
      *
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final String EXTRA_BUNDLE_KEY_FOR_INSTRUMENT_CLUSTER_HELPER =
             "android.car.cluster.renderer.IInstrumentClusterHelper";
 
@@ -179,7 +177,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
 
     @Override
     @CallSuper
-    @AddedInOrBefore(majorVersion = 33)
     public IBinder onBind(Intent intent) {
         if (DBG) {
             Slogf.d(TAG, "onBind, intent: %s", intent);
@@ -210,14 +207,12 @@ public abstract class InstrumentClusterRenderingService extends Service {
      */
     @MainThread
     @Nullable
-    @AddedInOrBefore(majorVersion = 33)
     public abstract NavigationRenderer getNavigationRenderer();
 
     /**
      * Called when key event that was addressed to instrument cluster display has been received.
      */
     @MainThread
-    @AddedInOrBefore(majorVersion = 33)
     public void onKeyEvent(@NonNull KeyEvent keyEvent) {
     }
 
@@ -226,7 +221,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * its {@link Car#CATEGORY_NAVIGATION} activity is launched.
      */
     @MainThread
-    @AddedInOrBefore(majorVersion = 33)
     public void onNavigationComponentLaunched() {
     }
 
@@ -236,7 +230,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * system default.
      */
     @MainThread
-    @AddedInOrBefore(majorVersion = 33)
     public void onNavigationComponentReleased() {
     }
 
@@ -272,7 +265,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
      *         successfully launched, car service will guarantee that it is running across crash or
      *         other events.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public boolean startFixedActivityModeForDisplayAndUser(@NonNull Intent intentParam,
             @NonNull ActivityOptions options, @UserIdInt int userId) {
         Intent intent = intentParam;
@@ -301,7 +293,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * Stop fixed mode for top Activity in the display. Crashing or launching other Activity
      * will not re-launch the top Activity any more.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void stopFixedActivityMode(int displayId) {
         IInstrumentClusterHelper helper = getClusterHelper();
         if (helper == null) {
@@ -398,7 +389,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * @hide
      */
     @Nullable
-    @AddedInOrBefore(majorVersion = 33)
     public ComponentName getComponentFromPackage(@NonNull String packageName) {
         PackageManager packageManager = getPackageManager();
 
@@ -432,7 +422,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
      *
      * @return false if the activity couldn't be started.
      */
-    @AddedInOrBefore(majorVersion = 33)
     protected boolean startNavigationActivity(@NonNull ComponentName component) {
         // Create an explicit intent.
         Intent intent = new Intent();
@@ -462,7 +451,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
      */
     @Deprecated
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public void setClusterActivityLaunchOptions(String category, ActivityOptions activityOptions) {
         setClusterActivityLaunchOptions(activityOptions);
     }
@@ -474,7 +462,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * @param activityOptions contains information of how to start cluster activity (on what display
      *                        or activity stack).
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void setClusterActivityLaunchOptions(@NonNull ActivityOptions activityOptions) {
         mActivityOptions = activityOptions;
         updateNavigationActivity();
@@ -486,7 +473,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
      */
     @Deprecated
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public void setClusterActivityState(String category, Bundle state) {
         setClusterActivityState(ClusterActivityState.fromBundle(state));
     }
@@ -497,7 +483,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * @param state pass information about activity state, see
      *              {@link android.car.cluster.ClusterActivityState}
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void setClusterActivityState(@NonNull ClusterActivityState state) {
         mActivityState = state;
         updateNavigationActivity();
@@ -506,7 +491,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
     @CallSuper
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    @AddedInOrBefore(majorVersion = 33)
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
         synchronized (mLock) {
             writer.println("**" + getClass().getSimpleName() + "**");
@@ -621,7 +605,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
     @Deprecated
     @Nullable
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public Bitmap getBitmap(Uri uri) {
         try {
             if (uri.getQueryParameter(BITMAP_QUERY_WIDTH).isEmpty() || uri.getQueryParameter(
@@ -673,7 +656,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * See {@link #getBitmap(Uri, int, int, float)}
      */
     @Nullable
-    @AddedInOrBefore(majorVersion = 33)
     public Bitmap getBitmap(@NonNull Uri uri, int width, int height) {
         return getBitmap(uri, width, height, 1f);
     }
@@ -696,7 +678,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * @throws IllegalArgumentException if width, height <= 0, or 0 > offLanesAlpha > 1
      */
     @Nullable
-    @AddedInOrBefore(majorVersion = 33)
     public Bitmap getBitmap(@NonNull Uri bitmapUri, int width, int height, float offLanesAlpha) {
         Uri uri = bitmapUri;
 

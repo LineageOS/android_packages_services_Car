@@ -20,6 +20,7 @@ import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION;
 import static android.os.IBinder.DeathRecipient;
 
+import static com.android.car.audio.CarHalAudioUtils.usageToMetadata;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS_WITH_METADATA;
@@ -97,6 +98,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     private static final String SECONDARY_NAVIGATION_ADDRESS = "secondary navigation";
     private static final String SECONDARY_CALL_ADDRESS = "secondary call";
     private static final String SECONDARY_NOTIFICATION_ADDRESS = "secondary notification";
+    private static final PlaybackTrackMetadata METADATA = usageToMetadata(USAGE);
 
     private static final int AIDL_AUDIO_CONTROL_VERSION_1 = 1;
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
@@ -223,7 +225,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
         captor.getValue().requestAudioFocus(USAGE_NAME, ZONE_ID, FOCUS_GAIN);
 
-        verify(mockListener).requestAudioFocus(USAGE, ZONE_ID, FOCUS_GAIN);
+        verify(mockListener).requestAudioFocus(METADATA, ZONE_ID, FOCUS_GAIN);
     }
 
     @Test
@@ -233,11 +235,10 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 ArgumentCaptor.forClass(IFocusListener.Stub.class);
         mAudioControlWrapperAidl.registerFocusListener(mockListener);
         verify(mAudioControl).registerFocusListener(captor.capture());
-        PlaybackTrackMetadata playbackTrackmetaData = new PlaybackTrackMetadata();
 
-        captor.getValue().requestAudioFocusWithMetaData(playbackTrackmetaData, ZONE_ID, FOCUS_GAIN);
+        captor.getValue().requestAudioFocusWithMetaData(METADATA, ZONE_ID, FOCUS_GAIN);
 
-        verify(mockListener).requestAudioFocus(playbackTrackmetaData.usage, ZONE_ID, FOCUS_GAIN);
+        verify(mockListener).requestAudioFocus(METADATA, ZONE_ID, FOCUS_GAIN);
     }
 
     @Test
@@ -250,7 +251,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
         captor.getValue().abandonAudioFocus(USAGE_NAME, ZONE_ID);
 
-        verify(mockListener).abandonAudioFocus(USAGE, ZONE_ID);
+        verify(mockListener).abandonAudioFocus(METADATA, ZONE_ID);
     }
 
     @Test
@@ -260,31 +261,43 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 ArgumentCaptor.forClass(IFocusListener.Stub.class);
         mAudioControlWrapperAidl.registerFocusListener(mockListener);
         verify(mAudioControl).registerFocusListener(captor.capture());
-        PlaybackTrackMetadata playbackTrackmetaData = new PlaybackTrackMetadata();
 
-        captor.getValue().abandonAudioFocusWithMetaData(playbackTrackmetaData, ZONE_ID);
+        captor.getValue().abandonAudioFocusWithMetaData(METADATA, ZONE_ID);
 
-        verify(mockListener).abandonAudioFocus(playbackTrackmetaData.usage, ZONE_ID);
+        verify(mockListener).abandonAudioFocus(METADATA, ZONE_ID);
     }
 
     @Test
     public void onAudioFocusChange_succeeds() throws Exception {
-        mAudioControlWrapperAidl.onAudioFocusChange(USAGE, ZONE_ID, FOCUS_GAIN);
+        mAudioControlWrapperAidl.onAudioFocusChange(METADATA, ZONE_ID, FOCUS_GAIN);
 
-        verify(mAudioControl).onAudioFocusChange(USAGE_NAME, ZONE_ID, FOCUS_GAIN);
+        verify(mAudioControl).onAudioFocusChangeWithMetaData(METADATA, ZONE_ID, FOCUS_GAIN);
     }
 
     @Test
     public void onAudioFocusChange_throws() throws Exception {
         doThrow(new RemoteException()).when(mAudioControl)
                 .onAudioFocusChange(anyString(), anyInt(), anyInt());
+        doThrow(new RemoteException()).when(mAudioControl)
+                .onAudioFocusChangeWithMetaData(any(), anyInt(), anyInt());
 
         IllegalStateException thrown = assertThrows(IllegalStateException.class,
-                () -> mAudioControlWrapperAidl.onAudioFocusChange(USAGE, ZONE_ID, FOCUS_GAIN));
+                () -> mAudioControlWrapperAidl.onAudioFocusChange(METADATA, ZONE_ID, FOCUS_GAIN));
 
         assertWithMessage("Exception thrown when onAudioFocusChange failed")
                 .that(thrown).hasMessageThat()
                 .contains("Failed to query IAudioControl#onAudioFocusChange");
+    }
+
+    @Test
+    public void onAudioFocusChange_whenMetaDataApiUnimplemented_fallbacksOnUsageApi()
+            throws Exception {
+        doThrow(new RemoteException()).when(mAudioControl).onAudioFocusChangeWithMetaData(any(),
+                anyInt(), anyInt());
+
+        mAudioControlWrapperAidl.onAudioFocusChange(METADATA, ZONE_ID, FOCUS_GAIN);
+
+        verify(mAudioControl).onAudioFocusChange(USAGE_NAME, ZONE_ID, FOCUS_GAIN);
     }
 
     @Test
@@ -633,7 +646,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     }
 
     @Test
-    public void supportsFeature_forAudioFocusWithMetadataThrowsExcpetion_returnFalse()
+    public void supportsFeature_forAudioFocusWithMetadataThrowsException_returnFalse()
             throws Exception {
         doThrow(new RemoteException()).when(mAudioControl).getInterfaceVersion();
 

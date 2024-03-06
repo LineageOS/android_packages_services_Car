@@ -29,6 +29,7 @@
     <item target="bool/config_dismissMessageHunWhenReplyOrPlayActionButtonPressed" value="@bool/config_dismissMessageHunWhenReplyOrPlayActionButtonPressed" />
     <item target="bool/config_enableMessageNotificationDirectReply" value="@bool/config_enableMessageNotificationDirectReply"/>
     <item target="bool/config_enableMessageNotificationPlay" value="@bool/config_enableMessageNotificationPlay"/>
+    <item target="bool/config_isHeadsUpNotificationDismissibleVertically" value="@bool/config_isHeadsUpNotificationDismissibleVertically"/>
     <item target="bool/config_showExpansionHeader" value="@bool/config_showExpansionHeader"/>
     <item target="bool/config_showFooterForNotifications" value="@bool/config_showFooterForNotifications"/>
     <item target="bool/config_showHeaderForNotifications" value="@bool/config_showHeaderForNotifications"/>
@@ -38,7 +39,6 @@
     <item target="bool/config_useCustomColorForInformationNotification" value="@bool/config_useCustomColorForInformationNotification"/>
     <item target="bool/config_useCustomColorForWarningNotification" value="@bool/config_useCustomColorForWarningNotification"/>
     <item target="bool/config_useLauncherIcon" value="@bool/config_useLauncherIcon"/>
-
 
     <item target="color/icon_tint" value="@color/icon_tint"/>
     <item target="color/call_accept_button" value="@color/call_accept_button"/>
@@ -92,6 +92,8 @@
     <item target="dimen/config_disabledCountTextButtonAlpha" value="@dimen/config_disabledCountTextButtonAlpha" />
     <item target="dimen/config_olderNotificationsAlpha" value="@dimen/config_olderNotificationsAlpha" />
     <item target="dimen/expanded_package_name_margin" value="@dimen/expanded_package_name_margin" />
+    <item target="dimen/headsup_container_height" value="@dimen/headsup_container_height"/>
+    <item target="dimen/max_translation_headsup" value="@dimen/max_translation_headsup"/>
     <item target="dimen/mute_icon_height" value="@dimen/mute_icon_height"/>
     <item target="dimen/mute_icon_width" value="@dimen/mute_icon_width"/>
     <item target="dimen/notification_card_footer_height" value="@dimen/notification_card_footer_height"/>
@@ -181,6 +183,7 @@
     <item target="style/ClearAllButton" value="@style/ClearAllButton"/>
     <item target="style/ExpandedGroupNotificationHeaderText" value="@style/ExpandedGroupNotificationHeaderText"/>
     <item target="style/GroupNotificationFooterText" value="@style/GroupNotificationFooterText"/>
+    <item target="style/HeadsUpNotificationCard" value="@style/HeadsUpNotificationCard"/>
     <item target="style/NotificationActionButtonBase" value="@style/NotificationActionButtonBase"/>
     <item target="style/NotificationActionViewLayout" value="@style/NotificationActionViewLayout"/>
     <item target="style/NotificationBodyContentText" value="@style/NotificationBodyContentText" />
@@ -192,6 +195,7 @@
     <item target="style/NotificationActionButton1" value="@style/NotificationActionButton1"/>
     <item target="style/NotificationActionButton2" value="@style/NotificationActionButton2"/>
     <item target="style/NotificationActionButton3" value="@style/NotificationActionButton3"/>
+    <item target="style/NotificationCard" value="@style/NotificationCard"/>
 
     <item target="dimen/card_min_bottom_padding" value="@dimen/card_min_bottom_padding"/>
     <item target="dimen/card_min_top_padding" value="@dimen/card_min_top_padding"/>

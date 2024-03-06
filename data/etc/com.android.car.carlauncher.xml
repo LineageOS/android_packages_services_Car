@@ -28,6 +28,11 @@
         <permission name="android.car.permission.CONTROL_CAR_APP_LAUNCH"/>
         <permission name="android.permission.FORCE_STOP_PACKAGES"/>
         <permission name="android.car.permission.MANAGE_CAR_SYSTEM_UI"/>
-
+        <permission name="android.car.permission.CAR_EXTERIOR_ENVIRONMENT"/>
+        <permission name="android.car.permission.CONTROL_CAR_CLIMATE"/>
+        <permission name="android.car.permission.CAR_MONITOR_CLUSTER_NAVIGATION_STATE"/>
+        <permission name="android.car.permission.BROADCAST_CLOSE_SYSTEM_DIALOGS"/>
+        <!-- used for broadcasting dock events -->
+        <permission name="com.android.car.docklib.permission.BROADCAST_SENDER"/>
     </privapp-permissions>
 </permissions>

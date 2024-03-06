@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -37,31 +36,23 @@ public class CruiseControlCommand {
      * speed without the driver having to keep their foot on the accelerator. The target speed for
      * CC is generally set to the vehicle's speed at the time of activation.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int ACTIVATE = 1;
     /**
      * Suspend cruise control, but still keep it enabled. Once CC is activated again, the
      * target speed should resume to the previous setting.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int SUSPEND = 2;
     /**
      * Increase the target speed when CC is activated. The increment value should be decided by the
      * OEM. The updated value can be read from {@link
      * android.car.VehiclePropertyIds#CRUISE_CONTROL_TARGET_SPEED}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int INCREASE_TARGET_SPEED = 3;
     /**
      * Decrease the target speed when CC is activated. The decrement value should be decided by the
      * OEM. The updated value can be read from {@link
      * android.car.VehiclePropertyIds#CRUISE_CONTROL_TARGET_SPEED}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int DECREASE_TARGET_SPEED = 4;
     /**
      * Increase the target time gap or distance from the vehicle ahead when adaptive/predictive CC
@@ -69,8 +60,6 @@ public class CruiseControlCommand {
      * from {@link android.car.VehiclePropertyIds#ADAPTIVE_CRUISE_CONTROL_TARGET_TIME_GAP}. Writing
      * this command to a standard CC vehicle should throw a {@link PropertyNotAvailableException}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int INCREASE_TARGET_TIME_GAP = 5;
     /**
      * Decrease the target time gap or distance from the vehicle ahead when adaptive/predictive CC
@@ -78,8 +67,6 @@ public class CruiseControlCommand {
      * from {@link android.car.VehiclePropertyIds#ADAPTIVE_CRUISE_CONTROL_TARGET_TIME_GAP}. Writing
      * this command to a standard CC vehicle should throw a {@link PropertyNotAvailableException}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int DECREASE_TARGET_TIME_GAP = 6;
 
 
@@ -89,8 +76,6 @@ public class CruiseControlCommand {
      * Returns a user-friendly representation of a {@code CruiseControlCommand}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(
             @CruiseControlCommand.CruiseControlCommandInt int cruiseControlCommand) {
         switch (cruiseControlCommand) {

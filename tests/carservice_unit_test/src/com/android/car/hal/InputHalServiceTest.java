@@ -853,7 +853,7 @@ public class InputHalServiceTest {
         assertThat(mInputHalService.isKeyInputSupported()).isTrue();
 
         mInputHalService.setInputListener(mInputListener);
-        verify(mVehicleHal).subscribeProperty(mInputHalService, VehicleProperty.HW_KEY_INPUT);
+        verify(mVehicleHal).subscribePropertySafe(mInputHalService, VehicleProperty.HW_KEY_INPUT);
     }
 
     private KeyEvent dispatchSingleEvent(Key action, int code, int actualDisplay,

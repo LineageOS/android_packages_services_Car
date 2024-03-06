@@ -18,7 +18,6 @@ package android.car;
 
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -50,8 +49,6 @@ public final class SyncResultCallback<V> implements ResultCallback<V> {
      * @throws InterruptedException if the current thread was interrupted
      * while waiting
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Nullable
     public V get() throws InterruptedException {
         mLatch.await();
@@ -69,8 +66,6 @@ public final class SyncResultCallback<V> implements ResultCallback<V> {
      * while waiting
      * @throws TimeoutException if the wait timed out
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Nullable
     public V get(long timeout, @Nullable TimeUnit unit)
             throws InterruptedException, TimeoutException {
@@ -88,8 +83,6 @@ public final class SyncResultCallback<V> implements ResultCallback<V> {
      * This method should be called internally only.
      */
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void onResult(V result) {
         mResult.set(result);
         mLatch.countDown();

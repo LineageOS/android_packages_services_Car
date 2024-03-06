@@ -19,17 +19,15 @@ package android.car.app;
 import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.app.ActivityManager;
 import android.car.Car;
-import android.car.annotation.ApiRequirements;
 import android.car.builtin.app.TaskInfoHelper;
 import android.car.builtin.view.ViewHelper;
 import android.content.ComponentName;
 import android.content.Context;
 import android.graphics.Rect;
-import android.os.Build;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -56,7 +54,6 @@ import java.util.concurrent.Executor;
  *
  * @hide
  */
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 public final class RemoteCarRootTaskView extends RemoteCarTaskView {
     private static final String TAG = RemoteCarRootTaskView.class.getSimpleName();
 
@@ -90,7 +87,12 @@ public final class RemoteCarRootTaskView extends RemoteCarTaskView {
 
                 // If onTaskAppeared() is called, it implicitly means that super.isInitialized()
                 // is true, as the root task is created only after initialization.
-                mCallbackExecutor.execute(() -> mCallback.onTaskViewInitialized());
+                final long identity = Binder.clearCallingIdentity();
+                try {
+                    mCallbackExecutor.execute(() -> mCallback.onTaskViewInitialized());
+                } finally {
+                    Binder.restoreCallingIdentity(identity);
+                }
 
                 if (taskInfo.taskDescription != null) {
                     ViewHelper.seResizeBackgroundColor(
@@ -158,8 +160,6 @@ public final class RemoteCarRootTaskView extends RemoteCarTaskView {
      *
      * @return task info object of the top task.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     @Nullable
     public ActivityManager.RunningTaskInfo getTopTaskInfo() {
         return mRootTaskStackManager.getTopTask();
@@ -204,8 +204,6 @@ public final class RemoteCarRootTaskView extends RemoteCarTaskView {
      * @param list list of {@link ComponentName} of activities to be designated to this
      *                   {@link RemoteCarRootTaskView}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)
     @MainThread
     public void updateAllowListedActivities(List<ComponentName> list) {

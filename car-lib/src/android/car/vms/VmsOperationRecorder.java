@@ -17,7 +17,6 @@
 package android.car.vms;
 
 import android.annotation.SystemApi;
-import android.car.annotation.AddedInOrBefore;
 import android.util.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -56,7 +55,6 @@ public final class VmsOperationRecorder {
     }
 
     /** Return the singleton instance. */
-    @AddedInOrBefore(majorVersion = 33)
     public static VmsOperationRecorder get() {
         return INSTANCE;
     }
@@ -66,7 +64,6 @@ public final class VmsOperationRecorder {
     /**
      * Records {@code subscribe} operation with the {@link VmsLayer} layer passed as parameter.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void subscribe(VmsLayer layer) {
         recordOp("subscribe", layer);
     }
@@ -74,7 +71,6 @@ public final class VmsOperationRecorder {
     /**
      * Records {@code unsubscribe} operation with the {@link VmsLayer} layer passed as parameter.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void unsubscribe(VmsLayer layer) {
         recordOp("unsubscribe", layer);
     }
@@ -83,7 +79,6 @@ public final class VmsOperationRecorder {
      * Records {@code subscribe} operation with the {@link VmsLayer} layer and publisher id passed
      * both as parameter.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void subscribe(VmsLayer layer, int publisherId) {
         recordOp("subscribe", "publisherId", publisherId, layer);
     }
@@ -92,7 +87,6 @@ public final class VmsOperationRecorder {
      * Record {@code unsubscribe} operation with the {@link VmsLayer} layer and publisher id passed
      * both as parameter.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void unsubscribe(VmsLayer layer, int publisherId) {
         recordOp("unsubscribe", "publisherId", publisherId, layer);
     }
@@ -100,7 +94,6 @@ public final class VmsOperationRecorder {
     /**
      * Records {@code startMonitoring} operation.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void startMonitoring() {
         recordOp("startMonitoring");
     }
@@ -108,7 +101,6 @@ public final class VmsOperationRecorder {
     /**
      * Records {@code stopMonitoring} operation.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void stopMonitoring() {
         recordOp("stopMonitoring");
     }
@@ -117,7 +109,6 @@ public final class VmsOperationRecorder {
      * Records {@code setLayerOffering} operation with the {@link VmsLayerOffering} offering
      * passed as parameter.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void setLayersOffering(VmsLayersOffering layersOffering) {
         recordOp("setLayersOffering", layersOffering);
     }
@@ -125,7 +116,6 @@ public final class VmsOperationRecorder {
     /**
      * Records {@code getPublisherId} operation with the publisher id passed as parameter.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void getPublisherId(int publisherId) {
         recordOp("getPublisherId", "publisherId", publisherId);
     }
@@ -136,7 +126,6 @@ public final class VmsOperationRecorder {
      * Records {@code addSubscription} operation with the {@link VmsLayer} and the sequenceNumber
      * passed as parameter.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void addSubscription(int sequenceNumber, VmsLayer layer) {
         recordOp("addSubscription", "sequenceNumber", sequenceNumber, layer);
     }
@@ -145,7 +134,6 @@ public final class VmsOperationRecorder {
      * Records {@code addPromiscuousSubscription} operation with the {@link VmsLayer} and the
      * sequenceNumber passed as parameter.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void removeSubscription(int sequenceNumber, VmsLayer layer) {
         recordOp("removeSubscription", "sequenceNumber", sequenceNumber, layer);
     }
@@ -154,7 +142,6 @@ public final class VmsOperationRecorder {
      * Records {@code addPromiscuousSubscription} operation with the sequenceNumber passed as
      * parameter.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void addPromiscuousSubscription(int sequenceNumber) {
         recordOp("addPromiscuousSubscription", "sequenceNumber", sequenceNumber);
     }
@@ -163,7 +150,6 @@ public final class VmsOperationRecorder {
      * Records {@code removePromiscuousSubscription} operation with the sequenceNumber passed as
      * parameter.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void removePromiscuousSubscription(int sequenceNumber) {
         recordOp("removePromiscuousSubscription", "sequenceNumber", sequenceNumber);
     }
@@ -172,7 +158,6 @@ public final class VmsOperationRecorder {
      * Records {@code addHalSubscription} operation with the {@link VmsLayer} layer and
      * sequenceNumber both passed as parameter.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void addHalSubscription(int sequenceNumber, VmsLayer layer) {
         recordOp("addHalSubscription", "sequenceNumber", sequenceNumber, layer);
     }
@@ -181,7 +166,6 @@ public final class VmsOperationRecorder {
      * Records {@code removeHalSubscription} operation with the {@link VmsLayer} layer and
      * sequenceNumber both passed as parameter.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void removeHalSubscription(int sequenceNumber, VmsLayer layer) {
         recordOp("removeHalSubscription", "sequenceNumber", sequenceNumber, layer);
     }
@@ -190,7 +174,6 @@ public final class VmsOperationRecorder {
      * Records {@code setPublisherLayersOffering} operation with the {@link VmsLayersOffering}
      * layersOffering passed as parameter.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void setPublisherLayersOffering(VmsLayersOffering layersOffering) {
         recordOp("setPublisherLayersOffering", layersOffering);
     }
@@ -199,7 +182,6 @@ public final class VmsOperationRecorder {
      * Records {@code setHalPublisherLayersOffering} operation with the {@link VmsLayersOffering}
      * layersOffering passed as parameter.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void setHalPublisherLayersOffering(VmsLayersOffering layersOffering) {
         recordOp("setHalPublisherLayersOffering", layersOffering);
     }
@@ -313,13 +295,11 @@ public final class VmsOperationRecorder {
         private static final String TAG = "VMS.RECORD.EVENT";
         private static final int LEVEL = Log.DEBUG;
 
-        @AddedInOrBefore(majorVersion = 33)
         public boolean isEnabled() {
             return Log.isLoggable(TAG, LEVEL);
         }
 
         /** Logs the message passed as parameter. */
-        @AddedInOrBefore(majorVersion = 33)
         public void write(String msg) {
             Log.println(LEVEL, TAG, msg);
         }

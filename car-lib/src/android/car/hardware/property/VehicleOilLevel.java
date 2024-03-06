@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -35,36 +34,26 @@ public final class VehicleOilLevel {
     /**
      * The oil level of the engine is critically low, so the vehicle may be unsafe to drive.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int LEVEL_CRITICALLY_LOW = 0;
 
     /**
      * The oil level of the engine is low and needs to be replaced.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int LEVEL_LOW = 1;
 
     /**
      * The oil level of the engine is normal for the vehicle.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int LEVEL_NORMAL = 2;
 
     /**
      * The oil level of the engine is high, so the vehicle may be unsafe to drive.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int LEVEL_HIGH = 3;
 
     /**
      * This value represents an error when retrieving the oil level of the engine.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int LEVEL_ERROR = 4;
 
     private VehicleOilLevel() {}
@@ -73,8 +62,6 @@ public final class VehicleOilLevel {
      * Returns a user-friendly representation of a {@code VehicleOilLevel}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(
             @VehicleOilLevelInt int vehicleOilLevel) {
         switch (vehicleOilLevel) {

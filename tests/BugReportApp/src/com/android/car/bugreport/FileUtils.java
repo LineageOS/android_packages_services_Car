@@ -16,10 +16,13 @@
 package com.android.car.bugreport;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.google.common.base.Preconditions;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 /**
  * File utilities.
@@ -35,6 +38,7 @@ import java.io.File;
  * collected.
  */
 public class FileUtils {
+    private static final String TAG = FileUtils.class.getSimpleName();
     private static final String PREFIX = "bugreport-";
     /** A directory under the system user; contains bugreport zip files and audio files. */
     private static final String PENDING_DIR = "bug_reports_pending";
@@ -137,5 +141,18 @@ public class FileUtils {
             }
         }
         directory.delete();
+    }
+
+    /**
+     * Deletes a file quietly by ignoring exceptions.
+     *
+     * @param file The file to delete.
+     */
+    public static void deleteFileQuietly(File file) {
+        try {
+            Files.delete(file.toPath());
+        } catch (IOException | SecurityException e) {
+            Log.w(TAG, "Failed to delete " + file + ". Ignoring the error.", e);
+        }
     }
 }

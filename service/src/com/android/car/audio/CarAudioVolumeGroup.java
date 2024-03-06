@@ -21,7 +21,6 @@ import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_MIN_INDEX_
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
-import android.util.ArrayMap;
 import android.util.SparseArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -50,12 +49,11 @@ final class CarAudioVolumeGroup extends CarVolumeGroup {
 
     CarAudioVolumeGroup(CarAudioContext carAudioContext,
             CarAudioSettings settingsManager,
-            SparseArray<String> contextToAddress, ArrayMap<String,
-            CarAudioDeviceInfo> addressToCarAudioDeviceInfo, int zoneId, int configId,
+            SparseArray<CarAudioDeviceInfo> contextToDeviceInfo, int zoneId, int configId,
             int volumeGroupId, String name, int stepSize, int defaultGain, int minGain, int maxGain,
             boolean useCarVolumeGroupMute) {
-        super(carAudioContext, settingsManager, contextToAddress, addressToCarAudioDeviceInfo,
-                zoneId, configId, volumeGroupId, name, useCarVolumeGroupMute);
+        super(carAudioContext, settingsManager, contextToDeviceInfo, zoneId, configId,
+                volumeGroupId, name, useCarVolumeGroupMute);
         Preconditions.checkArgument(stepSize != 0, "Step Size must not be zero");
         mStepSize = stepSize;
         mDefaultGain = defaultGain;

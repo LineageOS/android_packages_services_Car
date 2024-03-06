@@ -28,6 +28,7 @@ import static android.car.CarRemoteDeviceManager.FLAG_OCCUPANT_ZONE_POWER_ON;
 import static android.car.CarRemoteDeviceManager.FLAG_OCCUPANT_ZONE_SCREEN_UNLOCKED;
 import static android.car.builtin.display.DisplayManagerHelper.EVENT_FLAG_DISPLAY_CHANGED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 import static android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES;
 
@@ -35,11 +36,9 @@ import static com.android.car.CarServiceUtils.assertPermission;
 import static com.android.car.CarServiceUtils.checkCalledByPackage;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.IntDef;
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.car.Car;
@@ -61,7 +60,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager.DisplayListener;
 import android.os.Binder;
-import android.os.Build;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -69,6 +67,7 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarOccupantZoneService;
@@ -295,10 +294,6 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
 
     @Override
     public void init() {
-        if (!isPlatformVersionAtLeastU()) {
-            Slogf.w(TAG, "CarRemoteDeviceService should run on Android U+");
-            return;
-        }
         initAllOccupantZones();
         registerUserLifecycleListener();
         initAssignedUsers();
@@ -344,6 +339,10 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
             }
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     @Override
     public void registerStateCallback(String packageName, IStateCallback callback) {
@@ -433,8 +432,12 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
     private void registerUserLifecycleListener() {
         CarUserService userService = CarLocalServices.getService(CarUserService.class);
         UserLifecycleEventFilter userEventFilter = new UserLifecycleEventFilter.Builder()
-                // UNLOCKED event indicates the connection becomes ready, while INVISIBLE event
-                // indicates the connection changes to not ready.
+                // It listens to user STARTING event because it needs to initialize PerUserInfo for
+                // the new user as early as possible (b/300676850).
+                // It listens to user UNLOCKED and INVISIBLE events because it needs to update the
+                // OccupantZoneState. UNLOCKED event indicates the connection becomes ready,
+                // while INVISIBLE event indicates the connection changes to not ready.
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_STARTING)
                 .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
                 .addEventType(USER_LIFECYCLE_EVENT_TYPE_INVISIBLE)
                 .build();
@@ -442,7 +445,7 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
     }
 
     /**
-     * Handles the user change in all the occpant zones, including the driver occupant zone and
+     * Handles the user change in all the occupant zones, including the driver occupant zone and
      * passenger occupant zones.
      */
     private void handleUserChange() {
@@ -484,7 +487,6 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private void registerDisplayListener() {
         DisplayManagerHelper.registerDisplayListener(mContext, new DisplayListener() {
             @Override
@@ -765,10 +767,6 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
      */
     // TODO(b/257118327): support multi-SoC.
     boolean isConnectionReady(OccupantZoneInfo occupantZone) {
-        if (!isPlatformVersionAtLeastU()) {
-            Slogf.w(TAG, "CarRemoteDeviceService should run on Android U+");
-            return false;
-        }
         int userId = mOccupantZoneService.getUserForOccupant(occupantZone.zoneId);
         if (!isNonSystemUser(userId)) {
             return false;

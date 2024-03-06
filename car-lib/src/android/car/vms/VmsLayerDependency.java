@@ -20,7 +20,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.AddedInOrBefore;
 import android.car.builtin.os.ParcelHelper;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -100,7 +99,6 @@ public final class VmsLayerDependency implements Parcelable {
     /**
      * Layer that has dependencies
      */
-    @AddedInOrBefore(majorVersion = 33)
     public @NonNull VmsLayer getLayer() {
         return mLayer;
     }
@@ -108,7 +106,6 @@ public final class VmsLayerDependency implements Parcelable {
     /**
      * Layers that the given layer depends on
      */
-    @AddedInOrBefore(majorVersion = 33)
     public @NonNull Set<VmsLayer> getDependencies() {
         return mDependencies;
     }
@@ -152,7 +149,6 @@ public final class VmsLayerDependency implements Parcelable {
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -163,7 +159,6 @@ public final class VmsLayerDependency implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -185,7 +180,6 @@ public final class VmsLayerDependency implements Parcelable {
         onConstructed();
     }
 
-    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<VmsLayerDependency> CREATOR
             = new Parcelable.Creator<VmsLayerDependency>() {
         @Override

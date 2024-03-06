@@ -15,6 +15,9 @@
  */
 package com.android.car.hal;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_BYTE_ARRAY;
+import static com.android.car.internal.common.CommonConstants.EMPTY_FLOAT_ARRAY;
+import static com.android.car.internal.common.CommonConstants.EMPTY_LONG_ARRAY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.VehicleAreaType;
@@ -44,6 +47,7 @@ import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.ArraySet;
+import android.util.Log;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
@@ -75,15 +79,15 @@ import java.util.function.Supplier;
  * @see android.hardware.automotive.vehicle.IVehicle
  */
 public class VmsHalService extends HalServiceBase {
-    private static final boolean DBG = false;
     private static final String TAG = CarLog.tagFor(VmsHalService.class);
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     private static final int HAL_PROPERTY_ID = VehicleProperty.VEHICLE_MAP_SERVICE;
     private static final int[] SUPPORTED_PROPERTIES = new int[]{
             HAL_PROPERTY_ID
     };
     private static final int NUM_INTEGERS_IN_VMS_LAYER = 3;
     private static final int UNKNOWN_CLIENT_ID = -1;
-    private static final byte[] DEFAULT_PUBLISHER_INFO = new byte[0];
+    private static final byte[] DEFAULT_PUBLISHER_INFO = EMPTY_BYTE_ARRAY;
 
     private final VehicleHal mVehicleHal;
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
@@ -201,7 +205,7 @@ public class VmsHalService extends HalServiceBase {
         }
 
         Slogf.i(TAG, "Initializing VmsHalService VHAL property");
-        mVehicleHal.subscribeProperty(this, HAL_PROPERTY_ID);
+        mVehicleHal.subscribePropertySafe(this, HAL_PROPERTY_ID);
 
         mHandler.post(() ->
                 setPropertyValue(createStartSessionMessage(
@@ -219,7 +223,7 @@ public class VmsHalService extends HalServiceBase {
         if (DBG) {
             Slogf.d(TAG, "Releasing VmsHalService VHAL property");
         }
-        mVehicleHal.unsubscribeProperty(this, HAL_PROPERTY_ID);
+        mVehicleHal.unsubscribePropertySafe(this, HAL_PROPERTY_ID);
     }
 
     @Override
@@ -820,9 +824,9 @@ public class VmsHalService extends HalServiceBase {
             intValues[i + 1] = values.get(i);
         }
         return builder.build(HAL_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
-                /*timestamp=*/0, VehiclePropertyStatus.AVAILABLE,
-                /*int32Values=*/intValues, /*floatValues=*/new float[0],
-                /*int64Values=*/new long[0], /*stringValue=*/new String(), /*byteValues=*/payload);
+                /*timestamp=*/ 0, VehiclePropertyStatus.AVAILABLE,
+                /*int32Values=*/ intValues, /*floatValues=*/ EMPTY_FLOAT_ARRAY,
+                /*int64Values=*/ EMPTY_LONG_ARRAY, /*stringValue=*/ "", /*byteValues=*/payload);
     }
 
     /**

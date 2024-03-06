@@ -16,6 +16,8 @@
 
 package com.android.car.audio;
 
+import static android.car.builtin.media.AudioManagerHelper.addTagToAudioAttributes;
+import static android.car.builtin.media.AudioManagerHelper.getTags;
 import static android.car.builtin.media.AudioManagerHelper.usageToXsdString;
 
 import android.hardware.audio.common.PlaybackTrackMetadata;
@@ -26,11 +28,13 @@ import android.media.audio.common.AudioDevice;
 import android.media.audio.common.AudioDeviceAddress;
 import android.media.audio.common.AudioDeviceDescription;
 
+import com.android.car.audio.CarAudioContext.AudioAttributesWrapper;
 import com.android.car.internal.annotation.AttributeUsage;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /** Car HAL audio Utils */
 public final class CarHalAudioUtils {
@@ -67,18 +71,51 @@ public final class CarHalAudioUtils {
         Objects.requireNonNull(zone, "Car audio zone can not be null");
         int carAudioContextId = zone.getCarAudioContext()
                 .getContextForAudioAttribute(audioAttributes);
+        String address = zone.getAddressForContext(carAudioContextId);
+        return audioAttributeToMetadata(audioAttributes, address);
+    }
+
+    public static PlaybackTrackMetadata audioAttributeToMetadata(AudioAttributes audioAttributes) {
+        return audioAttributeToMetadata(audioAttributes, /* deviceAddress= */ "");
+    }
+
+    private static PlaybackTrackMetadata audioAttributeToMetadata(
+            AudioAttributes audioAttributes, String deviceAddress) {
+        Objects.requireNonNull(audioAttributes, "Audio Attributes can not be null");
+        Objects.requireNonNull(deviceAddress, "Device Address can not be null");
+
         PlaybackTrackMetadata playbackTrackMetadata = new PlaybackTrackMetadata();
         playbackTrackMetadata.usage = audioAttributes.getSystemUsage();
-        playbackTrackMetadata.tags = new String[0];
+        playbackTrackMetadata.contentType = audioAttributes.getContentType();
+        Set<String> tags = getTags(audioAttributes);
+        String[] tagsArray = new String[tags.size()];
+        playbackTrackMetadata.tags = tags.toArray(tagsArray);
         playbackTrackMetadata.channelMask = AudioChannelLayout.none(0);
         AudioDeviceDescription audioDeviceDescription = new AudioDeviceDescription();
-        audioDeviceDescription.connection = new String();
+        audioDeviceDescription.connection = "";
         AudioDevice audioDevice = new AudioDevice();
         audioDevice.type = audioDeviceDescription;
-        audioDevice.address =
-                AudioDeviceAddress.id(zone.getAddressForContext(carAudioContextId));
+        audioDevice.address = AudioDeviceAddress.id(deviceAddress);
         playbackTrackMetadata.sourceDevice = audioDevice;
         return playbackTrackMetadata;
+    }
+
+    public static PlaybackTrackMetadata usageToMetadata(
+            @AttributeUsage int usage, CarAudioZone zone) {
+        Objects.requireNonNull(zone, "Car audio zone can not be null");
+        AudioAttributes attributes = CarAudioContext.getAudioAttributeFromUsage(usage);
+        return audioAttributeToMetadata(attributes, zone);
+    }
+
+    public static PlaybackTrackMetadata usageToMetadata(@AttributeUsage int usage) {
+        AudioAttributes attributes = CarAudioContext.getAudioAttributeFromUsage(usage);
+        return audioAttributeToMetadata(attributes);
+    }
+
+    public static PlaybackTrackMetadata audioAttributesWrapperToMetadata(
+            AudioAttributesWrapper audioAttributesWrapper) {
+        Objects.requireNonNull(audioAttributesWrapper, "Audio Attributes Wrapper can not be null");
+        return audioAttributeToMetadata(audioAttributesWrapper.getAudioAttributes());
     }
 
     /**
@@ -98,13 +135,33 @@ public final class CarHalAudioUtils {
         return playbackTrackMetadataList;
     }
 
+    public static List<PlaybackTrackMetadata> audioAttributesToMetadatas(
+            List<AudioAttributes> audioAttributes) {
+        List<PlaybackTrackMetadata> metadataList = new ArrayList<>(audioAttributes.size());
+        for (int index = 0; index < audioAttributes.size(); index++) {
+            metadataList.add(audioAttributeToMetadata(audioAttributes.get(index)));
+        }
+        return metadataList;
+    }
+
     /**
      * Converts a playback track metadata into the corresponding audio attribute
      *
      */
-    public static AudioAttributes metadataToAudioAttribute(
-            PlaybackTrackMetadata playbackTrackMetadataList) {
-        return CarAudioContext.getAudioAttributeFromUsage(playbackTrackMetadataList.usage);
+    public static AudioAttributes metadataToAudioAttribute(PlaybackTrackMetadata metadata) {
+        AudioAttributes.Builder builder = new AudioAttributes.Builder();
+        if (AudioAttributes.isSystemUsage(metadata.usage)) {
+            builder.setSystemUsage(metadata.usage);
+        } else {
+            builder.setUsage(metadata.usage);
+        }
+        builder.setContentType(metadata.contentType);
+        if (metadata.tags != null) {
+            for (int i = 0; i < metadata.tags.length; i++) {
+                addTagToAudioAttributes(builder, metadata.tags[i]);
+            }
+        }
+        return builder.build();
     }
 
     /**

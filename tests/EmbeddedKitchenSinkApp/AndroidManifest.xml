@@ -56,6 +56,7 @@
     <uses-permission android:name="android.car.permission.READ_CAR_STEERING"/>
     <uses-permission android:name="android.car.permission.STORAGE_MONITORING"/>
     <uses-permission android:name="android.car.permission.CAR_DYNAMICS_STATE"/>
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_DYNAMICS_STATE"/>
     <uses-permission android:name="android.car.permission.CONTROL_APP_BLOCKING"/>
     <!-- use for CarServiceTest -->
     <uses-permission android:name="android.car.permission.USE_CAR_TELEMETRY_SERVICE"/>
@@ -72,9 +73,15 @@
     <uses-permission android:name="android.car.permission.CONTROL_CAR_MIRRORS" />
     <uses-permission android:name="android.car.permission.CONTROL_GLOVE_BOX" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_SEATS" />
+    <uses-permission android:name="android.car.permission.READ_CAR_SEAT_BELTS" />
+    <uses-permission android:name="android.car.permission.READ_IMPACT_SENSORS" />
+    <uses-permission android:name="android.car.permission.READ_VALET_MODE" />
+    <uses-permission android:name="android.car.permission.CONTROL_VALET_MODE" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_WINDOWS" />
+    <uses-permission android:name="android.car.permission.READ_CAR_AIRBAGS"/>
     <uses-permission android:name="android.car.permission.CONTROL_CAR_AIRBAGS"/>
     <uses-permission android:name="android.car.permission.READ_CAR_DISPLAY_UNITS" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_DISPLAY_UNITS" />
     <uses-permission android:name="android.car.permission.CAR_IDENTIFICATION" />
     <uses-permission android:name="android.car.permission.PERMISSION_ADJUST_RANGE_REMAINING" />
     <uses-permission android:name="android.car.permission.PERMISSION_CAR_ENGINE_DETAILED" />
@@ -86,6 +93,7 @@
     <uses-permission android:name="android.car.permission.READ_WINDSHIELD_WIPERS" />
     <uses-permission android:name="android.car.permission.CONTROL_WINDSHIELD_WIPERS" />
     <uses-permission android:name="android.car.permission.CAR_EPOCH_TIME" />
+    <uses-permission android:name="android.car.permission.READ_ULTRASONICS_SENSOR_DATA" />
     <!-- use for CarServiceTest -->
     <uses-permission android:name="android.car.permission.VMS_PUBLISHER"/>
     <!-- use for CarServiceTest -->
@@ -233,10 +241,18 @@
     <!-- To view dumpsys output -->
     <uses-permission android:name="android.permission.DUMP"/>
 
+    <!-- To access Camera2 -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.CAMERA_HEADLESS_SYSTEM_USER"/>
+
+    <!-- Use for RadioTestFragment -->
+    <uses-permission android:name="android.permission.ACCESS_BROADCAST_RADIO"/>
+
     <!-- Allow backup is set to false for KitchenSinkApp to avoid infinite loop during backup -->
-    <application android:label="@string/app_title"
-                 android:allowBackup="false"
-         android:icon="@drawable/ic_launcher">
+    <application
+        android:label="@string/app_title"
+        android:allowBackup="false"
+        android:icon="@drawable/ic_launcher">
         <uses-library android:name="android.test.runner"/>
         <!-- This is for embedded mode.
             showForAllUsers is required to be able to launch Kitchensink as system user for
@@ -244,6 +260,17 @@
             user and we need to launch the activity as system user as well to access the data stored
             by the service.
         -->
+
+        <activity android:name=".KitchenSink2Activity"
+            android:launchMode="singleTop"
+            android:exported="true"
+            android:theme="@style/Theme.CarUi.NoToolbar"
+            android:label="@string/app_title">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".KitchenSinkActivity"
              android:theme="@style/KitchenSinkActivityTheme"
              android:label="@string/app_title"
@@ -291,6 +318,15 @@
              android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".camera2.CameraSystemActivity"
+             android:label="@string/camera2_user0"
+             android:showForAllUsers="true"
+             android:exported="true">
+            <intent-filter>
+              <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>
 

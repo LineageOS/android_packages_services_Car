@@ -272,6 +272,12 @@
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
+    <!-- RRO package to make systembars persistent. -->
+    <install-in-user-type package="com.android.systemui.rro.persistent">
+        <install-in user-type="SYSTEM" />
+        <install-in user-type="FULL" />
+    </install-in-user-type>
+
  <!--
    Apps that initially were marked as FULL only but are actually
    required on SYSTEM user as well.

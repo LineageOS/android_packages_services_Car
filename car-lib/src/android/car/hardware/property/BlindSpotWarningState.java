@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -40,24 +39,18 @@ public final class BlindSpotWarningState {
      * The framework can use this field to remain backwards compatible if {@code
      * BlindSpotWarningState} is extended to include additional states.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int OTHER = 0;
 
     /**
      * BSW is enabled and monitoring safety, but no vehicle or object detected in the vehicle's
      * blind spot.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int NO_WARNING = 1;
 
     /**
      * BSW is enabled, detects a vehicle or object in the vehicle's blind spot, and is actively
      * warning the user.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int WARNING = 2;
 
     private BlindSpotWarningState() {}
@@ -66,8 +59,6 @@ public final class BlindSpotWarningState {
      * Returns a user-friendly representation of a {@code BlindSpotWarningState}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(
             @BlindSpotWarningStateInt int blindSpotWarningState) {
         switch (blindSpotWarningState) {

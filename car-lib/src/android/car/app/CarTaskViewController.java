@@ -19,21 +19,17 @@ package android.car.app;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.Manifest;
 import android.annotation.MainThread;
 import android.annotation.NonNull;
-import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.annotation.UiContext;
 import android.app.Activity;
 import android.car.Car;
-import android.car.annotation.ApiRequirements;
 import android.car.builtin.util.Slogf;
 import android.content.Context;
-import android.os.Build;
 import android.os.RemoteException;
 import android.os.UserManager;
 import android.util.Log;
@@ -48,7 +44,6 @@ import java.util.concurrent.Executor;
  * @hide
  */
 @SystemApi
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 public final class CarTaskViewController {
     private static final String TAG = CarTaskViewController.class.getSimpleName();
     static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
@@ -87,8 +82,6 @@ public final class CarTaskViewController {
      *                                            {@link ControlledRemoteCarTaskView} related
      *                                            events.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(allOf = {Manifest.permission.INJECT_EVENTS,
             Manifest.permission.INTERNAL_SYSTEM_WINDOW}, conditional = true)
     @MainThread
@@ -96,7 +89,6 @@ public final class CarTaskViewController {
             @NonNull ControlledRemoteCarTaskViewConfig controlledRemoteCarTaskViewConfig,
             @NonNull Executor callbackExecutor,
             @NonNull ControlledRemoteCarTaskViewCallback controlledRemoteCarTaskViewCallback) {
-        assertPlatformVersionAtLeastU();
         if (mReleased) {
             throw new IllegalStateException("CarTaskViewController is already released");
         }
@@ -134,15 +126,12 @@ public final class CarTaskViewController {
      *                                      {@link RemoteCarRootTaskView} related events.
      * @hide
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)
     @MainThread
     public void createRemoteCarRootTaskView(
             @NonNull RemoteCarRootTaskViewConfig remoteCarRootTaskViewConfig,
             @NonNull Executor callbackExecutor,
             @NonNull RemoteCarRootTaskViewCallback remoteCarRootTaskViewCallback) {
-        assertPlatformVersionAtLeastU();
         assertPermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH);
         if (mReleased) {
             throw new IllegalStateException("CarTaskViewController is already released");
@@ -176,14 +165,11 @@ public final class CarTaskViewController {
      *                                             events.
      * @hide
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     @MainThread
     public void createRemoteCarDefaultRootTaskView(
             @NonNull RemoteCarDefaultRootTaskViewConfig remoteCarDefaultRootTaskViewConfig,
             @NonNull Executor callbackExecutor,
             @NonNull RemoteCarDefaultRootTaskViewCallback remoteCarDefaultRootTaskViewCallback) {
-        assertPlatformVersionAtLeastU();
         if (mReleased) {
             throw new IllegalStateException("CarTaskViewController is already released");
         }
@@ -234,11 +220,8 @@ public final class CarTaskViewController {
      * {@link CarActivityManager#getCarTaskViewController(Activity, Executor,
      * CarTaskViewControllerCallback)}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
     public void release() {
-        assertPlatformVersionAtLeastU();
         if (mReleased) {
             Slogf.w(TAG, "CarTaskViewController is already released");
             return;
@@ -263,19 +246,16 @@ public final class CarTaskViewController {
     /**
      * Brings all the embedded tasks to the front.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
     public void showEmbeddedTasks() {
-        assertPlatformVersionAtLeastU();
         if (mReleased) {
             throw new IllegalStateException("CarTaskViewController is already released");
         }
         for (int i = 0, length = mRemoteCarTaskViews.size(); i < length; i++) {
-            RemoteCarTaskView carTaskView = mRemoteCarTaskViews.get(i);
+            RemoteCarTaskView remoteCarTaskView = mRemoteCarTaskViews.get(i);
             // TODO(b/267314188): Add a new method in ICarSystemUI to call
             // showEmbeddedTask in a single WCT for multiple tasks.
-            carTaskView.showEmbeddedTask();
+            remoteCarTaskView.showEmbeddedTask();
         }
     }
 

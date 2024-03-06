@@ -48,11 +48,14 @@
     <item target="attr/layout_constraintTop_toBottomOf" value="@attr/layout_constraintTop_toBottomOf"/>
     <item target="attr/layout_constraintTop_toTopOf" value="@attr/layout_constraintTop_toTopOf"/>
 
-    <item target="bool/show_mini_playback_controls" value="@bool/show_mini_playback_controls"/>
-    <item target="bool/show_persistent_tabs" value="@bool/show_persistent_tabs"/>
-    <item target="bool/switch_to_playback_view_when_playable_item_is_clicked"
-          value="@bool/switch_to_playback_view_when_playable_item_is_clicked"/>
+    <item target="bool/show_mini_playback_controls" value="@bool/show_mini_playback_controls" />
+    <item target="bool/show_persistent_tabs" value="@bool/show_persistent_tabs" />
+    <item target="bool/switch_to_playback_view_when_playable_item_is_clicked" value="@bool/switch_to_playback_view_when_playable_item_is_clicked" />
+    <item target="bool/show_menu_item_selector" value="@bool/show_menu_item_selector" />
 
+    <item target="id/browse_item_actions_container" value="@id/browse_item_actions_container"/>
+    <item target="id/browse_item_progress_bar" value="@id/browse_item_progress_bar"/>
+    <item target="id/browse_item_progress_new" value="@id/browse_item_progress_new"/>
     <item target="id/browse_mini_control_bar_layout" value="@id/browse_mini_control_bar_layout"/>
     <item target="id/browse_mini_control_bar_content_tile" value="@id/browse_mini_control_bar_content_tile"/>
     <item target="id/browse_mini_control_bar_app_icon" value="@id/browse_mini_control_bar_app_icon"/>

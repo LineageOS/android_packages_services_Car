@@ -25,6 +25,7 @@ android_test {
     srcs: [
         "src/**/*.java",
         "src/**/*.aidl",
+        ":VhalTestVendorProperties",
     ],
 
     platform_apis: true,

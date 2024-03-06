@@ -16,7 +16,6 @@
 package android.car.oem;
 
 import android.annotation.NonNull;
-import android.car.annotation.ApiRequirements;
 import android.media.AudioFocusInfo;
 
 import java.io.PrintWriter;
@@ -40,8 +39,6 @@ final class OemCarAudioFocusServiceImpl extends IOemCarAudioFocusService.Stub
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void notifyAudioFocusChange(@NonNull List<AudioFocusInfo> currentFocusHolders,
             @NonNull List<AudioFocusInfo> currentFocusLosers, int zoneId) {
         mOemCarAudioFocusService.notifyAudioFocusChange(currentFocusHolders, currentFocusLosers,
@@ -49,8 +46,6 @@ final class OemCarAudioFocusServiceImpl extends IOemCarAudioFocusService.Stub
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     public OemCarAudioFocusResult evaluateAudioFocusRequest(
             @NonNull OemCarAudioFocusEvaluationRequest request) {

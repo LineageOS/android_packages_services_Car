@@ -19,6 +19,7 @@ package com.google.android.car.kitchensink.experimental;
 import android.car.Car;
 import android.car.experimental.CarTestDemoExperimentalFeatureManager;
 import android.car.experimental.ExperimentalCar;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,8 +30,10 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
-import com.google.android.car.kitchensink.KitchenSinkActivity;
+import com.google.android.car.kitchensink.KitchenSinkHelper;
 import com.google.android.car.kitchensink.R;
+
+import org.jetbrains.annotations.NotNull;
 
 public class ExperimentalFeatureTestFragment extends Fragment {
 
@@ -46,13 +49,25 @@ public class ExperimentalFeatureTestFragment extends Fragment {
     private Button mPingButton;
 
     private CarTestDemoExperimentalFeatureManager mDemoManager;
+    private KitchenSinkHelper mKitchenSinkHelper;
+
+    @Override
+    public void onAttach(@androidx.annotation.NonNull @NotNull Context context) {
+        super.onAttach(context);
+        if (!(context instanceof KitchenSinkHelper)) {
+            throw new IllegalStateException(
+                    "Attached activity does not implement "
+                            + KitchenSinkHelper.class.getSimpleName());
+        }
+        mKitchenSinkHelper = (KitchenSinkHelper) context;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
         View view = inflater.inflate(R.layout.experimental_feature_test, container, false);
         mPingMsgTextView = view.findViewById(R.id.experimental_ping_msg);
         mPingButton = view.findViewById(R.id.button_experimental_ping);
-        Car car = ((KitchenSinkActivity) getHost()).getCar();
+        Car car = mKitchenSinkHelper.getCar();
         if (car.isFeatureEnabled(ExperimentalCar.TEST_EXPERIMENTAL_FEATURE_SERVICE)) {
             mDemoManager = (CarTestDemoExperimentalFeatureManager) car.getCarManager(
                     ExperimentalCar.TEST_EXPERIMENTAL_FEATURE_SERVICE);

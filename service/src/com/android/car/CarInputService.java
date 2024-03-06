@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.android.car;
 
 import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
@@ -24,7 +25,9 @@ import static com.android.car.CarServiceUtils.getCommonHandlerThread;
 import static com.android.car.CarServiceUtils.getContentResolverForUser;
 import static com.android.car.CarServiceUtils.isEventOfType;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
+import static com.android.internal.util.Preconditions.checkArgument;
+
+import static java.util.Objects.requireNonNull;
 
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -56,7 +59,6 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.UserHandle;
-import android.os.UserManager;
 import android.provider.CallLog.Calls;
 import android.provider.Settings;
 import android.telecom.TelecomManager;
@@ -64,6 +66,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 import android.view.InputDevice;
 import android.view.InputEvent;
@@ -112,24 +115,25 @@ public class CarInputService extends ICarInput.Stub
     public interface KeyEventListener {
         /** Called when a key event occurs. */
         // TODO(b/247170915): This method is no needed anymore, please remove and use
-        //  onKeyEvent(KeyEvent event, intDisplayType, int seat)
+        // onKeyEvent(KeyEvent event, intDisplayType, int seat)
         default void onKeyEvent(KeyEvent event) {
         }
 
         /**
          * Called when a key event occurs with seat.
          *
-         * @param event the key event that occurred
-         * @param displayType target display the event is associated with
-         *                    should be one of {@link CarOccupantZoneManager#DISPLAY_TYPE_MAIN},
+         * @param event       the key event that occurred
+         * @param displayType target display the event is associated with should be one of
+         *                    {@link CarOccupantZoneManager#DISPLAY_TYPE_MAIN},
          *                    {@link CarOccupantZoneManager#DISPLAY_TYPE_INSTRUMENT_CLUSTER},
          *                    {@link CarOccupantZoneManager#DISPLAY_TYPE_HUD},
          *                    {@link CarOccupantZoneManager#DISPLAY_TYPE_INPUT},
          *                    {@link CarOccupantZoneManager#DISPLAY_TYPE_AUXILIARY},
-         * @param seat the area id this event is occurring from
+         * @param seat        the area id this event is occurring from
          */
         default void onKeyEvent(KeyEvent event, @DisplayTypeEnum int displayType,
                 @VehicleAreaSeat.Enum int seat) {
+            // No op
         }
     }
 
@@ -193,7 +197,8 @@ public class CarInputService extends ICarInput.Stub
         }
     }
 
-    private final VoiceInteractionSessionShowCallbackHelper mShowCallback =
+    private final VoiceInteractionSessionShowCallbackHelper mShowCallback;
+    static final VoiceInteractionSessionShowCallbackHelper sDefaultShowCallback =
             new VoiceInteractionSessionShowCallbackHelper() {
                 @Override
                 public void onFailed() {
@@ -214,7 +219,6 @@ public class CarInputService extends ICarInput.Stub
     private final CarPowerManagementService mCarPowerService;
     private final TelecomManager mTelecomManager;
     private final SystemInterface mSystemInterface;
-    private final UserManager mUserManager;
 
     // The default handler for main-display key events. By default, injects the events into
     // the input queue via InputManager, but can be overridden for testing.
@@ -295,14 +299,14 @@ public class CarInputService extends ICarInput.Stub
 
     private static int getViewLongPressDelay(Context context) {
         return Settings.Secure.getInt(getContentResolverForUser(context,
-                        UserHandle.CURRENT.getIdentifier()), LONG_PRESS_TIMEOUT,
+                UserHandle.CURRENT.getIdentifier()), LONG_PRESS_TIMEOUT,
                 ViewConfiguration.getLongPressTimeout());
     }
 
     public CarInputService(Context context, InputHalService inputHalService,
             CarUserService userService, CarOccupantZoneService occupantZoneService,
             CarBluetoothService bluetoothService, CarPowerManagementService carPowerService,
-            SystemInterface systemInterface, UserManager userManager) {
+            SystemInterface systemInterface) {
         this(context, inputHalService, userService, occupantZoneService, bluetoothService,
                 carPowerService, systemInterface,
                 new Handler(getCommonHandlerThread().getLooper()),
@@ -321,7 +325,7 @@ public class CarInputService extends ICarInput.Stub
                 /* longPressDelaySupplier= */ () -> getViewLongPressDelay(context),
                 /* shouldCallButtonEndOngoingCallSupplier= */ () -> context.getResources()
                         .getBoolean(R.bool.config_callButtonEndsOngoingCall),
-                new InputCaptureClientController(context), userManager);
+                new InputCaptureClientController(context), sDefaultShowCallback);
     }
 
     @VisibleForTesting
@@ -333,7 +337,8 @@ public class CarInputService extends ICarInput.Stub
             Supplier<String> lastCalledNumberSupplier, IntSupplier longPressDelaySupplier,
             BooleanSupplier shouldCallButtonEndOngoingCallSupplier,
             InputCaptureClientController captureController,
-            UserManager userManager) {
+            VoiceInteractionSessionShowCallbackHelper showCallback) {
+        super();
         mContext = context;
         mCaptureController = captureController;
         mInputHalService = inputHalService;
@@ -347,13 +352,12 @@ public class CarInputService extends ICarInput.Stub
         mDefaultMotionHandler = defaultMotionHandler;
         mLastCalledNumberSupplier = lastCalledNumberSupplier;
         mLongPressDelaySupplier = longPressDelaySupplier;
-        mUserManager = userManager;
+        mShowCallback = showCallback;
 
-        mVoiceKeyTimer =
-                new KeyPressTimer(
-                        handler, longPressDelaySupplier, this::handleVoiceAssistLongPress);
-        mCallKeyTimer =
-                new KeyPressTimer(handler, longPressDelaySupplier, this::handleCallLongPress);
+        mVoiceKeyTimer = new KeyPressTimer(
+                handler, longPressDelaySupplier, this::handleVoiceAssistLongPress);
+        mCallKeyTimer = new KeyPressTimer(handler, longPressDelaySupplier,
+                this::handleCallLongPress);
 
         mRotaryServiceComponentName = mContext.getString(R.string.rotaryService);
         mShouldCallButtonEndOngoingCallSupplier = shouldCallButtonEndOngoingCallSupplier;
@@ -377,16 +381,19 @@ public class CarInputService extends ICarInput.Stub
         }
     }
 
-
     /**
      * This method registers a keyEventListener to listen on key events that it is interested in.
      *
-     * @param listener The listener to be registered.
-     * @param keyCodesOfInterest The events of interest that the listener is interested in.
-     * @throws IllegalArgumentException When an event is already registered to another listener
+     * @param listener           the listener to be registered
+     * @param keyCodesOfInterest the events of interest that the listener is interested in
+     * @throws IllegalArgumentException when an event is already registered to another listener
      */
     public void registerKeyEventListener(KeyEventListener listener,
             List<Integer> keyCodesOfInterest) {
+        requireNonNull(listener, "Key event listener can not be null");
+        requireNonNull(keyCodesOfInterest, "Key events of interest can not be null");
+        checkArgument(!keyCodesOfInterest.isEmpty(),
+                "Key events of interest can not be empty");
         synchronized (mLock) {
             // Check for invalid key codes
             for (int i = 0; i < keyCodesOfInterest.size(); i++) {
@@ -401,6 +408,33 @@ public class CarInputService extends ICarInput.Stub
                 mListeners.put(keyCodesOfInterest.get(i), listener);
             }
         }
+    }
+
+    /**
+     * Unregisters the key event listener for all the keys it currently listen to
+     *
+     * @param listener the listener to be unregistered
+     */
+    public boolean unregisterKeyEventListener(KeyEventListener listener) {
+        requireNonNull(listener, "Key event listener can not be null");
+        synchronized (mLock) {
+            var keysToRemove = new ArrayList<Integer>();
+            for (int c = 0; c < mListeners.size(); c++) {
+                if (!mListeners.valueAt(c).equals(listener)) {
+                    continue;
+                }
+                keysToRemove.add(mListeners.keyAt(c));
+            }
+            if (keysToRemove.isEmpty()) {
+                Slogf.w(TAG, "Failed to unregister listener ({%s} was not registered)",
+                        listener);
+                return false;
+            }
+            for (int c = 0; c < keysToRemove.size(); c++) {
+                mListeners.delete(keysToRemove.get(c));
+            }
+        }
+        return true;
     }
 
     /**
@@ -445,8 +479,9 @@ public class CarInputService extends ICarInput.Stub
 
     /**
      * Called for key event
-     * @throws IllegalArgumentException if the passed seat is an unknown seat and the driver seat
-     *                                  is not an unknown seat
+     *
+     * @throws IllegalArgumentException if the passed seat is an unknown seat and the driver seat is
+     *                                  not an unknown seat
      */
     @Override
     public void onKeyEvent(KeyEvent event, @DisplayTypeEnum int targetDisplayType,
@@ -476,7 +511,9 @@ public class CarInputService extends ICarInput.Stub
         // Special case key code that have special "long press" handling for automotive
         switch (event.getKeyCode()) {
             case KeyEvent.KEYCODE_VOICE_ASSIST:
-                handleVoiceAssistKey(event);
+                // TODO: b/288107028 - Pass target display type to handleVoiceAssistKey()
+                // when passenger displays support voice assist keys
+                handleVoiceAssistKey(event, targetDisplayType);
                 return;
             case KeyEvent.KEYCODE_CALL:
                 handleCallKey(event);
@@ -549,14 +586,7 @@ public class CarInputService extends ICarInput.Stub
             @VehicleAreaSeat.Enum int seat) {
         int newDisplayId = getDisplayIdForSeat(targetDisplayType, seat);
 
-        if (isPlatformVersionAtLeastU()) {
-            InputEventHelper.setDisplayId(event, newDisplayId);
-        } else if (event instanceof KeyEvent) {
-            KeyEventHelper.setDisplayId((KeyEvent) event, newDisplayId);
-        } else {
-            Slogf.e(TAG, "Assigning display id to motion event is only supported from %s.",
-                    UPSIDE_DOWN_CAKE_0);
-        }
+        InputEventHelper.setDisplayId(event, newDisplayId);
     }
 
     private int getDisplayIdForSeat(@DisplayTypeEnum int targetDisplayType,
@@ -739,7 +769,7 @@ public class CarInputService extends ICarInput.Stub
         }
     }
 
-    private void handleVoiceAssistKey(KeyEvent event) {
+    private void handleVoiceAssistKey(KeyEvent event, @DisplayTypeEnum int targetDisplayType) {
         int action = event.getAction();
         if (action == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
             mVoiceKeyTimer.keyDown();
@@ -755,6 +785,12 @@ public class CarInputService extends ICarInput.Stub
 
             if (dispatchProjectionKeyEvent(
                     CarProjectionManager.KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP)) {
+                return;
+            }
+
+            // TODO: b/288107028 - Pass the actual target display type to onKeyEvent
+            // when passenger displays support voice assist keys
+            if (mCaptureController.onKeyEvent(targetDisplayType, event)) {
                 return;
             }
 
@@ -959,7 +995,7 @@ public class CarInputService extends ICarInput.Stub
      * InstrumentClusterKeyListener.
      */
     private boolean handleInstrumentClusterKey(KeyEvent event) {
-        KeyEventListener listener = null;
+        KeyEventListener listener;
         synchronized (mLock) {
             listener = mInstrumentClusterKeyListener;
         }
@@ -971,8 +1007,8 @@ public class CarInputService extends ICarInput.Stub
     }
 
     private List<String> getAccessibilityServicesToBeEnabled() {
-        String carSafetyAccessibilityServiceComponentName =
-                BuiltinPackageDependency.getComponentName(CAR_ACCESSIBILITY_SERVICE_CLASS);
+        String carSafetyAccessibilityServiceComponentName = BuiltinPackageDependency
+                .getComponentName(CAR_ACCESSIBILITY_SERVICE_CLASS);
         ArrayList<String> accessibilityServicesToBeEnabled = new ArrayList<>();
         accessibilityServicesToBeEnabled.add(carSafetyAccessibilityServiceComponentName);
         if (!TextUtils.isEmpty(mRotaryServiceComponentName)) {
@@ -997,6 +1033,12 @@ public class CarInputService extends ICarInput.Stub
         writer.println("Call button ends ongoing call: "
                 + mShouldCallButtonEndOngoingCallSupplier.getAsBoolean());
         mCaptureController.dump(writer);
+    }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {
+        // No op
     }
 
     private void updateCarAccessibilityServicesSettings(@UserIdInt int userId) {

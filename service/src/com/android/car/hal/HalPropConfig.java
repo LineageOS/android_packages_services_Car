@@ -17,12 +17,15 @@
 package com.android.car.hal;
 
 import android.car.VehicleAreaType;
+import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.AreaIdConfig;
 import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
+
+import com.android.car.hal.property.PropertyHalServiceConfigs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +45,10 @@ public abstract class HalPropConfig {
                     VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS,
                     VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS,
                     VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
+
+    private final PropertyHalServiceConfigs mPropertyHalServiceConfigs =
+            PropertyHalServiceConfigs.getInstance();
+
     /**
      * Get the property ID.
      */
@@ -127,11 +134,11 @@ public abstract class HalPropConfig {
 
         HalAreaConfig[] halAreaConfigs = getAreaConfigs();
         if (halAreaConfigs.length == 0) {
-            carPropertyConfigBuilder.addAreaIdConfig(generateAreaIdConfig(clazz, /*areaId=*/0,
-                    /*minInt32Value=*/0, /*maxInt32Value=*/0,
-                    /*minFloatValue=*/0, /*maxFloatValue=*/0,
-                    /*minInt64Value=*/0, /*maxInt64Value=*/0,
-                    supportedEnumValues));
+            carPropertyConfigBuilder.addAreaIdConfig(generateAreaIdConfig(clazz, /* areaId= */ 0,
+                    /* minInt32Value= */ 0, /* maxInt32Value= */ 0,
+                    /* minFloatValue= */ 0, /* maxFloatValue= */ 0,
+                    /* minInt64Value= */ 0, /* maxInt64Value= */ 0,
+                    supportedEnumValues, /* supportVariableUpdateRate= */ false));
         } else {
             for (HalAreaConfig halAreaConfig : halAreaConfigs) {
                 if (!shouldConfigArrayDefineSupportedEnumValues) {
@@ -142,7 +149,8 @@ public abstract class HalPropConfig {
                                 halAreaConfig.getMinInt32Value(), halAreaConfig.getMaxInt32Value(),
                                 halAreaConfig.getMinFloatValue(), halAreaConfig.getMaxFloatValue(),
                                 halAreaConfig.getMinInt64Value(), halAreaConfig.getMaxInt64Value(),
-                                supportedEnumValues));
+                                supportedEnumValues,
+                                halAreaConfig.isVariableUpdateRateSupported()));
             }
         }
         return carPropertyConfigBuilder.build();
@@ -150,13 +158,16 @@ public abstract class HalPropConfig {
 
     private AreaIdConfig generateAreaIdConfig(Class<?> clazz, int areaId, int minInt32Value,
             int maxInt32Value, float minFloatValue, float maxFloatValue, long minInt64Value,
-            long maxInt64Value, long[] supportedEnumValues) {
+            long maxInt64Value, long[] supportedEnumValues, boolean supportVariableUpdateRate) {
         AreaIdConfig.Builder areaIdConfigBuilder = new AreaIdConfig.Builder(areaId);
         if (classMatched(Integer.class, clazz)) {
             if ((minInt32Value != 0 || maxInt32Value != 0)) {
                 areaIdConfigBuilder.setMinValue(minInt32Value).setMaxValue(maxInt32Value);
             }
-            if (getChangeMode() == VehiclePropertyChangeMode.ON_CHANGE) {
+            // The supported enum values for {@code HVAC_FAN_DIRECTION} are specified by
+            // {@code HVAC_FAN_DIRECTION_AVAILABLE} and the supportedEnumValues are never populated.
+            if (getChangeMode() == VehiclePropertyChangeMode.ON_CHANGE &&
+                    getPropId() != VehicleProperty.HVAC_FAN_DIRECTION) {
                 if (supportedEnumValues != null && supportedEnumValues.length > 0) {
                     List<Integer> managerSupportedEnumValues = new ArrayList<>(
                             supportedEnumValues.length);
@@ -164,10 +175,11 @@ public abstract class HalPropConfig {
                         managerSupportedEnumValues.add((int) supportedEnumValues[i]);
                     }
                     areaIdConfigBuilder.setSupportedEnumValues(managerSupportedEnumValues);
-                } else if (PropertyHalServiceIds.getAllPossibleSupportedEnumValues(getPropId())
+                } else if (mPropertyHalServiceConfigs.getAllPossibleSupportedEnumValues(getPropId())
                         != null) {
                     areaIdConfigBuilder.setSupportedEnumValues(new ArrayList(
-                            PropertyHalServiceIds.getAllPossibleSupportedEnumValues(getPropId())));
+                            mPropertyHalServiceConfigs.getAllPossibleSupportedEnumValues(
+                                    getPropId())));
                 }
             }
         } else if (classMatched(Float.class, clazz) && (minFloatValue != 0 || maxFloatValue != 0)) {
@@ -175,6 +187,7 @@ public abstract class HalPropConfig {
         } else if (classMatched(Long.class, clazz) && (minInt64Value != 0 || maxInt64Value != 0)) {
             areaIdConfigBuilder.setMinValue(minInt64Value).setMaxValue(maxInt64Value);
         }
+        areaIdConfigBuilder.setSupportVariableUpdateRate(supportVariableUpdateRate);
         return areaIdConfigBuilder.build();
     }
 
@@ -193,6 +206,11 @@ public abstract class HalPropConfig {
             case VehicleArea.WHEEL:
                 return VehicleAreaType.VEHICLE_AREA_TYPE_WHEEL;
             default:
+                if (Flags.androidVicVehicleProperties()) {
+                    if (halArea == VehicleArea.VENDOR) {
+                        return VehicleAreaType.VEHICLE_AREA_TYPE_VENDOR;
+                    }
+                }
                 throw new RuntimeException("Unsupported area type " + halArea);
         }
     }

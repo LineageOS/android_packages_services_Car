@@ -76,6 +76,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 public final class VendorServiceControllerTest extends AbstractExtendedMockitoTestCase {
@@ -196,6 +197,35 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         mController.init();
 
         mContext.expectRecentBoundServices(SERVICE_BIND_ALL_USERS_ASAP);
+        mContext.expectNoMoreServiceLaunches();
+    }
+
+    @Test
+    public void testBindService_callsUnbindServiceWhenFalseReturned() throws Exception {
+        // bindService() returns false.
+        mContext.mBindingFailer = (conn, comp) -> false;
+
+        mContext.expectServicesToUnbindOrStop(SERVICE_BIND_ALL_USERS_ASAP);
+        mockGetCurrentUser(UserHandle.USER_SYSTEM);
+        mController.init();
+
+        mContext.expectRecentUnboundOrStoppedServices(SERVICE_BIND_ALL_USERS_ASAP);
+        mContext.expectNoMoreServiceLaunches();
+    }
+
+    @Test
+    public void testOnNullBinding_callsUnbindService() throws Exception {
+        // onBindingDied() is called, and bindService() returns true.
+        mContext.mBindingFailer = (conn, comp) -> {
+            conn.onNullBinding(comp);
+            return true;
+        };
+
+        mContext.expectServicesToUnbindOrStop(SERVICE_BIND_ALL_USERS_ASAP);
+        mockGetCurrentUser(UserHandle.USER_SYSTEM);
+        mController.init();
+
+        mContext.expectRecentUnboundOrStoppedServices(SERVICE_BIND_ALL_USERS_ASAP);
         mContext.expectNoMoreServiceLaunches();
     }
 
@@ -470,6 +500,9 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
                 new HashMap<>();
         private BroadcastReceiver mPackageChangeReceiver;
 
+        // If not null, bindService() executes this, and fail the binding.
+        BiFunction<ServiceConnection, ComponentName, Boolean> mBindingFailer = null;
+
         ServiceLauncherContext(Context base) {
             super(base);
         }
@@ -513,6 +546,10 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
                 mRecentBoundServices.add(serviceComponent);
                 mBoundServiceToConnectionMap.put(serviceComponent.flattenToShortString(), conn);
                 mBoundConnectionToServiceMap.put(conn, serviceComponent);
+            }
+            if (mBindingFailer != null) {
+                // Fail the binding.
+                return mBindingFailer.apply(conn, serviceComponent);
             }
             Log.v(TAG, "Added service (" + serviceComponent + ") to bound intents");
             conn.onServiceConnected(serviceComponent, null);

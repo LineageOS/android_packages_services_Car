@@ -75,6 +75,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.ArraySet;
 import android.util.Log;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
@@ -281,15 +282,28 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     @VisibleForTesting
     public CarWatchdogService(Context context, Context carServiceBuiltinPackageContext,
             WatchdogStorage watchdogStorage, TimeSource timeSource) {
+        this(context, carServiceBuiltinPackageContext, watchdogStorage,
+                timeSource, /*watchdogProcessHandler=*/ null, /*watchdogPerfHandler=*/ null);
+    }
+
+    @VisibleForTesting
+    CarWatchdogService(Context context, Context carServiceBuiltinPackageContext,
+            WatchdogStorage watchdogStorage, TimeSource timeSource,
+            WatchdogProcessHandler watchdogProcessHandler,
+            WatchdogPerfHandler watchdogPerfHandler) {
         mContext = context;
         mWatchdogStorage = watchdogStorage;
         mPackageInfoHandler = new PackageInfoHandler(mContext.getPackageManager());
         mCarWatchdogDaemonHelper = new CarWatchdogDaemonHelper(TAG_WATCHDOG);
         mWatchdogServiceForSystem = new ICarWatchdogServiceForSystemImpl(this);
-        mWatchdogProcessHandler = new WatchdogProcessHandler(mWatchdogServiceForSystem,
-                mCarWatchdogDaemonHelper);
-        mWatchdogPerfHandler = new WatchdogPerfHandler(mContext, carServiceBuiltinPackageContext,
-                mCarWatchdogDaemonHelper, mPackageInfoHandler, mWatchdogStorage, timeSource);
+        mWatchdogProcessHandler = watchdogProcessHandler != null ? watchdogProcessHandler
+                : new WatchdogProcessHandler(mWatchdogServiceForSystem, mCarWatchdogDaemonHelper,
+                        mPackageInfoHandler);
+        mWatchdogPerfHandler =
+                watchdogPerfHandler != null ? watchdogPerfHandler : new WatchdogPerfHandler(
+                        mContext, carServiceBuiltinPackageContext,
+                        mCarWatchdogDaemonHelper, mPackageInfoHandler, mWatchdogStorage,
+                        timeSource);
         mConnectionListener = (isConnected) -> {
             mWatchdogPerfHandler.onDaemonConnectionChange(isConnected);
             synchronized (mLock) {
@@ -349,6 +363,16 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mWatchdogProcessHandler.dump(writer);
         mWatchdogPerfHandler.dump(writer);
         writer.decreaseIndent();
+    }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {
+        synchronized (mLock) {
+            proto.write(CarWatchdogDumpProto.CURRENT_GARAGE_MODE, mCurrentGarageMode);
+        }
+        mWatchdogProcessHandler.dumpProto(proto);
+        mWatchdogPerfHandler.dumpProto(proto);
     }
 
     /**

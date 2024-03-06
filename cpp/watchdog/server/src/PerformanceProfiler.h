@@ -24,11 +24,13 @@
 
 #include <android-base/chrono_utils.h>
 #include <android-base/result.h>
+#include <android/util/ProtoOutputStream.h>
 #include <cutils/multiuser.h>
 #include <gtest/gtest_prod.h>
 #include <utils/Errors.h>
 #include <utils/Mutex.h>
 #include <utils/RefBase.h>
+#include <utils/SystemClock.h>
 
 #include <ctime>
 #include <string>
@@ -82,9 +84,11 @@ public:
         std::vector<ProcessValue> topNProcesses = {};
     };
     struct ProcCpuStatsView {
+        // TODO(b/286434452): Rename to cpuTimeMs
         uint64_t cpuTime = 0;
         uint64_t cpuCycles = 0;
         struct ProcessCpuValue {
+            int32_t pid = -1;
             std::string comm = "";
             uint64_t cpuTime = 0;
             uint64_t cpuCycles = 0;
@@ -162,6 +166,7 @@ struct SystemSummaryStats {
 
 // Performance record collected during a sampling/collection period.
 struct PerfStatsRecord {
+    // TODO(b/286434452): Rename time field to collectionTimeMs
     time_t time;  // Collection time.
     SystemSummaryStats systemSummaryStats;
     UserPackageSummaryStats userPackageSummaryStats;
@@ -185,6 +190,7 @@ struct UserSwitchCollectionInfo : CollectionInfo {
 class PerformanceProfiler final : public DataProcessorInterface {
 public:
     PerformanceProfiler() :
+          kGetElapsedTimeSinceBootMillisFunc(elapsedRealtime),
           mTopNStatsPerCategory(0),
           mTopNStatsPerSubcategory(0),
           mMaxUserSwitchEvents(0),
@@ -244,6 +250,10 @@ public:
 
     android::base::Result<void> onDump(int fd) const override;
 
+    android::base::Result<void> onDumpProto(
+            const CollectionIntervals& collectionIntervals,
+            android::util::ProtoOutputStream& outProto) const override;
+
     android::base::Result<void> onCustomCollectionDump(int fd) override;
 
 protected:
@@ -263,9 +273,13 @@ private:
             aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats);
 
     // Processes per-UID performance data.
-    void processUidStatsLocked(const std::unordered_set<std::string>& filterPackages,
-                               const android::sp<UidStatsCollectorInterface>& uidStatsCollector,
-                               UserPackageSummaryStats* userPackageSummaryStats);
+    void processUidStatsLocked(
+            bool isGarageModeActive, int64_t totalCpuTimeMillis,
+            const std::unordered_set<std::string>& filterPackages,
+            const android::sp<UidStatsCollectorInterface>& uidStatsCollector,
+            std::vector<aidl::android::automotive::watchdog::internal::UidResourceUsageStats>*
+                    uidResourceUsageStats,
+            UserPackageSummaryStats* userPackageSummaryStats);
 
     // Processes system performance data from the `/proc/stats` file.
     void processProcStatLocked(const android::sp<ProcStatCollectorInterface>& procStatCollector,
@@ -275,6 +289,25 @@ private:
     android::base::Result<void> onUserSwitchCollectionDump(int fd) const;
 
     void clearExpiredSystemEventCollections(time_t now);
+
+    void dumpStatsRecordsProto(const CollectionInfo& collection,
+                               android::util::ProtoOutputStream& outProto) const;
+
+    void dumpPackageCpuStatsProto(const std::vector<UserPackageStats>& userPackageStats,
+                                  android::util::ProtoOutputStream& outProto) const;
+
+    void dumpPackageStorageIoStatsProto(const std::vector<UserPackageStats>& userPackageStats,
+                                        const uint64_t storageStatsFieldId,
+                                        android::util::ProtoOutputStream& outProto) const;
+
+    void dumpPackageTaskStateStatsProto(const std::vector<UserPackageStats>& userPackageStats,
+                                        const std::unordered_map<uid_t, uint64_t>& taskCountByUid,
+                                        android::util::ProtoOutputStream& outProto) const;
+
+    void dumpPackageMajorPageFaultsProto(const std::vector<UserPackageStats>& userPackageStats,
+                                         android::util::ProtoOutputStream& outProto) const;
+
+    std::function<int64_t()> kGetElapsedTimeSinceBootMillisFunc;
 
     // Top N per-UID stats per category.
     int mTopNStatsPerCategory;

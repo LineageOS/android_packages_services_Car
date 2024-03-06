@@ -18,7 +18,6 @@ package android.car.admin;
 
 import android.annotation.IntDef;
 import android.annotation.TestApi;
-import android.car.annotation.AddedInOrBefore;
 import android.car.user.UserStartResult;
 
 import com.android.car.internal.util.DebugUtils;
@@ -38,25 +37,21 @@ public final class StartUserInBackgroundResult {
     /**
      * User was started.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_SUCCESS = 1;
 
     /**
      * User was the current user.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_SUCCESS_CURRENT_USER = 2;
 
     /**
      * User was not started because it does not exist.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_FAILURE_USER_DOES_NOT_EXIST = 3;
 
     /**
      * User was not started for some other reason not described above.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_FAILURE_GENERIC = 100;
 
     /** @hide */
@@ -98,7 +93,6 @@ public final class StartUserInBackgroundResult {
      *         {@link StartUserInBackgroundResult#STATUS_FAILURE_USER_DOES_NOT_EXIST}, or
      *         {@link StartUserInBackgroundResult#STATUS_FAILURE_GENERIC}.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public @Status int getStatus() {
         return mStatus;
     }
@@ -106,7 +100,6 @@ public final class StartUserInBackgroundResult {
     /**
      * Gets whether the operation was successful or not.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isSuccess() {
         return mStatus == STATUS_SUCCESS || mStatus == STATUS_SUCCESS_CURRENT_USER;
     }

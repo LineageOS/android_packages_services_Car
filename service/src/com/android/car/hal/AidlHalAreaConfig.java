@@ -91,4 +91,12 @@ public final class AidlHalAreaConfig extends HalAreaConfig {
     public long[] getSupportedEnumValues() {
         return mConfig.supportedEnumValues == null ? new long[0] : mConfig.supportedEnumValues;
     }
+
+    /**
+     * Returns whether variable update rate is supported.
+     */
+    @Override
+    public boolean isVariableUpdateRateSupported() {
+        return mConfig.supportVariableUpdateRate;
+    }
 }

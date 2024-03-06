@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.annotation.UserIdInt;
 import android.car.settings.CarSettings;
-import android.car.test.ApiCheckerRule.Builder;
 import android.content.ContentResolver;
 import android.os.UserHandle;
 import android.provider.Settings;
@@ -47,13 +46,6 @@ public final class CarSettingsTest extends CarApiTestBase {
 
     public CarSettingsTest() throws Exception {
         mContentResolver = getContext().getContentResolver();
-    }
-
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        Log.w(TAG, "Disabling API requirements check");
-        builder.disableAnnotationsCheck();
     }
 
     @Test

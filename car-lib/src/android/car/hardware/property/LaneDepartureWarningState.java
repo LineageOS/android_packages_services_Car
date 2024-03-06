@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -40,31 +39,23 @@ public final class LaneDepartureWarningState {
      * The framework can use this field to remain backwards compatible if {@code
      * LaneDepartureWarningState} is extended to include additional states.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int OTHER = 0;
 
     /**
      * LDW is enabled and monitoring, but the vehicle is centered in the lane.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int NO_WARNING = 1;
 
     /**
      * LDW is enabled, detects the vehicle is approaching or crossing lane lines on the left side
      * of the vehicle, and is currently warning the user.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int WARNING_LEFT = 2;
 
     /**
      * LDW is enabled, detects the vehicle is approaching or crossing lane lines on the right side
      * of the vehicle, and is currently warning the user.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int WARNING_RIGHT = 3;
 
     private LaneDepartureWarningState() {}
@@ -73,8 +64,6 @@ public final class LaneDepartureWarningState {
      * Returns a user-friendly representation of a {@code LaneDepartureWarningState}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(
             @LaneDepartureWarningStateInt int laneDepartureWarningState) {
         switch (laneDepartureWarningState) {

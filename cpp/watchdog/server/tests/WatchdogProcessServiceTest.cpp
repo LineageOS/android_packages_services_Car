@@ -17,16 +17,23 @@
 #include "MockAIBinderDeathRegistrationWrapper.h"
 #include "MockCarWatchdogServiceForSystem.h"
 #include "MockHidlServiceManager.h"
+#include "MockPackageInfoResolver.h"
 #include "MockVhalClient.h"
 #include "MockWatchdogServiceHelper.h"
+#include "PackageInfoResolver.h"
 #include "WatchdogProcessService.h"
 #include "WatchdogServiceHelper.h"
 
 #include <android/binder_interface_utils.h>
 #include <android/hidl/manager/1.0/IServiceManager.h>
+#include <android/util/ProtoOutputStream.h>
 #include <gmock/gmock.h>
 
 #include <thread>  // NOLINT(build/c++11)
+
+#include <carwatchdog_daemon_dump.pb.h>
+#include <health_check_client_info.pb.h>
+#include <performance_stats.pb.h>
 
 namespace android {
 namespace automotive {
@@ -51,6 +58,7 @@ using ::android::frameworks::automotive::vhal::VhalClientError;
 using ::android::frameworks::automotive::vhal::VhalClientResult;
 using ::android::hidl::base::V1_0::DebugInfo;
 using ::android::hidl::manager::V1_0::IServiceManager;
+using ::android::util::ProtoReader;
 using ::ndk::ScopedAStatus;
 using ::ndk::SharedRefBase;
 using ::ndk::SpAIBinder;
@@ -109,6 +117,49 @@ public:
         EXPECT_FALSE(mWatchdogProcessService->mVhalProcessIdentifier.has_value());
     }
 
+    void setWatchdogProcessServiceState(
+            bool isEnabled,
+            std::shared_ptr<aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor>
+                    monitor,
+            std::chrono::nanoseconds overriddenClientHealthCheckWindowNs,
+            std::unordered_set<userid_t> stoppedUserIds,
+            std::chrono::milliseconds vhalHealthCheckWindowMs,
+            const ProcessIdentifier& processIdentifier) {
+        Mutex::Autolock lock(mWatchdogProcessService->mMutex);
+        mWatchdogProcessService->mIsEnabled = isEnabled;
+        mWatchdogProcessService->mMonitor = monitor;
+        mWatchdogProcessService->mOverriddenClientHealthCheckWindowNs =
+                overriddenClientHealthCheckWindowNs;
+        mWatchdogProcessService->mStoppedUserIds = stoppedUserIds;
+        mWatchdogProcessService->mVhalHealthCheckWindowMs = vhalHealthCheckWindowMs;
+        mWatchdogProcessService->mVhalProcessIdentifier = processIdentifier;
+
+        WatchdogProcessService::ClientInfoMap clientInfoMap;
+        WatchdogProcessService::ClientInfo clientInfo(nullptr, 1, 1, 1000,
+                                                      WatchdogProcessService(nullptr));
+        clientInfo.packageName = "shell";
+        clientInfoMap.insert({100, clientInfo});
+        mWatchdogProcessService->mClientsByTimeout.clear();
+        mWatchdogProcessService->mClientsByTimeout.insert(
+                {TimeoutLength::TIMEOUT_CRITICAL, clientInfoMap});
+    }
+
+    void clearClientsByTimeout() { mWatchdogProcessService->mClientsByTimeout.clear(); }
+
+    bool hasClientInfoWithPackageName(TimeoutLength timeoutLength, std::string packageName) {
+        auto clientInfoMap = mWatchdogProcessService->mClientsByTimeout[timeoutLength];
+        for (const auto& [_, clientInfo] : clientInfoMap) {
+            if (clientInfo.packageName == packageName) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void setPackageInfoResolver(const sp<PackageInfoResolverInterface>& packageInfoResolver) {
+        mWatchdogProcessService->mPackageInfoResolver = packageInfoResolver;
+    }
+
 private:
     sp<WatchdogProcessService> mWatchdogProcessService;
 };
@@ -134,6 +185,7 @@ protected:
         mSupportedVehicleProperties = {VehicleProperty::VHAL_HEARTBEAT};
         mNotSupportedVehicleProperties = {VehicleProperty::WATCHDOG_ALIVE,
                                           VehicleProperty::WATCHDOG_TERMINATED_PROCESS};
+        mMockPackageInfoResolver = sp<MockPackageInfoResolver>::make();
         startService();
     }
 
@@ -144,6 +196,7 @@ protected:
         mMockVhalClient.reset();
         mMockVehicle.reset();
         mMessageHandler.clear();
+        mMockPackageInfoResolver.clear();
     }
 
     void startService() {
@@ -156,6 +209,7 @@ protected:
                                                  mMockDeathRegistrationWrapper);
         mWatchdogProcessServicePeer =
                 std::make_unique<internal::WatchdogProcessServicePeer>(mWatchdogProcessService);
+        mWatchdogProcessServicePeer->setPackageInfoResolver(mMockPackageInfoResolver);
 
         expectGetPropConfigs(mSupportedVehicleProperties, mNotSupportedVehicleProperties);
 
@@ -222,21 +276,43 @@ protected:
     }
 
     void syncLooper(std::chrono::nanoseconds delay = 0ns) {
+        // Acquire the lock before sending message to avoid any race condition.
+        std::unique_lock lock(mMutex);
         mHandlerLooper->sendMessageDelayed(delay.count(), mMessageHandler,
                                            Message(TestMessage::NOTIFY_ALL));
-        waitForLooperNotification(delay);
+        waitForLooperNotificationLocked(lock, delay);
     }
 
     void waitForLooperNotification(std::chrono::nanoseconds delay = 0ns) {
         std::unique_lock lock(mMutex);
-        mLooperCondition.wait_for(lock,
+        waitForLooperNotificationLocked(lock, delay);
+    }
+
+    void waitForLooperNotificationLocked(std::unique_lock<std::mutex>& lock,
+                                         std::chrono::nanoseconds delay = 0ns) {
+        // If a race condition is detected in the handler looper, the current locking mechanism
+        // should be re-evaluated as discussed in b/299676049.
+        std::cv_status status =
+                mLooperCondition
+                        .wait_for(lock,
                                   kMaxWaitForLooperExecutionMillis +
                                           std::chrono::duration_cast<std::chrono::milliseconds>(
                                                   delay));
+        ASSERT_EQ(status, std::cv_status::no_timeout) << "Looper notification not received";
     }
 
     void waitUntilVhalPidCachingAttemptsExhausted() {
         syncLooper((kMaxVhalPidCachingAttempts + 1) * kTestVhalPidCachingRetryDelayNs);
+    }
+
+    std::string toString(util::ProtoOutputStream* proto) {
+        std::string content;
+        content.reserve(proto->size());
+        sp<ProtoReader> reader = proto->data();
+        while (reader->hasNext()) {
+            content.push_back(reader->next());
+        }
+        return content;
     }
 
     sp<WatchdogProcessService> mWatchdogProcessService;
@@ -247,6 +323,7 @@ protected:
     sp<MockAIBinderDeathRegistrationWrapper> mMockDeathRegistrationWrapper;
     std::vector<VehicleProperty> mSupportedVehicleProperties;
     std::vector<VehicleProperty> mNotSupportedVehicleProperties;
+    sp<MockPackageInfoResolver> mMockPackageInfoResolver;
 
 private:
     class MessageHandlerImpl : public android::MessageHandler {
@@ -676,6 +753,95 @@ TEST_F(WatchdogProcessServiceTest, TestNoCacheHidlVhalPidWithUnsupportedVhalHear
     startService();
 
     ASSERT_NO_FATAL_FAILURE(mWatchdogProcessServicePeer->expectNoVhalProcessIdentifier());
+}
+
+TEST_F(WatchdogProcessServiceTest, TestOnDumpProto) {
+    ProcessIdentifier processIdentifier;
+    processIdentifier.pid = 1;
+    processIdentifier.startTimeMillis = 1000;
+
+    mWatchdogProcessServicePeer->setWatchdogProcessServiceState(true, nullptr,
+                                                                std::chrono::milliseconds(20000),
+                                                                {101, 102},
+                                                                std::chrono::milliseconds(10000),
+                                                                processIdentifier);
+
+    util::ProtoOutputStream proto;
+    mWatchdogProcessService->onDumpProto(proto);
+
+    CarWatchdogDaemonDump carWatchdogDaemonDump;
+    ASSERT_TRUE(carWatchdogDaemonDump.ParseFromString(toString(&proto)));
+    HealthCheckServiceDump healthCheckServiceDump =
+            carWatchdogDaemonDump.health_check_service_dump();
+    EXPECT_EQ(healthCheckServiceDump.is_enabled(), true);
+    EXPECT_EQ(healthCheckServiceDump.is_monitor_registered(), false);
+    EXPECT_EQ(healthCheckServiceDump.is_system_shut_down_in_progress(), false);
+    EXPECT_EQ(healthCheckServiceDump.stopped_users_size(), 2);
+    EXPECT_EQ(healthCheckServiceDump.critical_health_check_window_millis(), 20000);
+    EXPECT_EQ(healthCheckServiceDump.moderate_health_check_window_millis(), 20000);
+    EXPECT_EQ(healthCheckServiceDump.normal_health_check_window_millis(), 20000);
+
+    VhalHealthCheckInfo vhalHealthCheckInfo = healthCheckServiceDump.vhal_health_check_info();
+
+    EXPECT_EQ(vhalHealthCheckInfo.is_enabled(), true);
+    EXPECT_EQ(vhalHealthCheckInfo.health_check_window_millis(), 10000);
+    EXPECT_EQ(vhalHealthCheckInfo.pid_caching_progress_state(),
+              VhalHealthCheckInfo_CachingProgressState_SUCCESS);
+    EXPECT_EQ(vhalHealthCheckInfo.pid(), 1);
+    EXPECT_EQ(vhalHealthCheckInfo.start_time_millis(), 1000);
+
+    EXPECT_EQ(healthCheckServiceDump.registered_client_infos_size(), 1);
+    HealthCheckClientInfo healthCheckClientInfo = healthCheckServiceDump.registered_client_infos(0);
+    EXPECT_EQ(healthCheckClientInfo.pid(), 1);
+
+    UserPackageInfo userPackageInfo = healthCheckClientInfo.user_package_info();
+    EXPECT_EQ(userPackageInfo.user_id(), 1);
+    EXPECT_EQ(userPackageInfo.package_name(), "shell");
+
+    EXPECT_EQ(healthCheckClientInfo.client_type(), HealthCheckClientInfo_ClientType_REGULAR);
+    EXPECT_EQ(healthCheckClientInfo.start_time_millis(), 1000);
+    EXPECT_EQ(healthCheckClientInfo.health_check_timeout(),
+              HealthCheckClientInfo_HealthCheckTimeout_CRITICAL);
+
+    // Clean up test clients before exiting.
+    mWatchdogProcessServicePeer->clearClientsByTimeout();
+}
+
+TEST_F(WatchdogProcessServiceTest, TestRegisterClientWithPackageName) {
+    std::shared_ptr<ICarWatchdogClient> client = SharedRefBase::make<ICarWatchdogClientDefault>();
+    ON_CALL(*mMockPackageInfoResolver, asyncFetchPackageNamesForUids(_, _))
+            .WillByDefault([&](const std::vector<uid_t>& uids,
+                               const std::function<void(std::unordered_map<uid_t, std::string>)>&
+                                       callback) {
+                callback({{uids[0], "shell"}});
+            });
+
+    ASSERT_FALSE(mWatchdogProcessServicePeer
+                         ->hasClientInfoWithPackageName(TimeoutLength::TIMEOUT_CRITICAL, "shell"));
+
+    auto status = mWatchdogProcessService->registerClient(client, TimeoutLength::TIMEOUT_CRITICAL);
+
+    ASSERT_TRUE(mWatchdogProcessServicePeer
+                        ->hasClientInfoWithPackageName(TimeoutLength::TIMEOUT_CRITICAL, "shell"));
+}
+
+TEST_F(WatchdogProcessServiceTest, TestRegisterClientWithPackageNameAndNonExistentUid) {
+    std::shared_ptr<ICarWatchdogClient> client = SharedRefBase::make<ICarWatchdogClientDefault>();
+    ON_CALL(*mMockPackageInfoResolver, asyncFetchPackageNamesForUids(_, _))
+            .WillByDefault([&](const std::vector<uid_t>& uids,
+                               const std::function<void(std::unordered_map<uid_t, std::string>)>&
+                                       callback) {
+                callback({});
+                ALOGI("No corresponding packageName for uid: %i", uids[0]);
+            });
+
+    ASSERT_FALSE(mWatchdogProcessServicePeer
+                         ->hasClientInfoWithPackageName(TimeoutLength::TIMEOUT_CRITICAL, "shell"));
+
+    auto status = mWatchdogProcessService->registerClient(client, TimeoutLength::TIMEOUT_CRITICAL);
+
+    ASSERT_FALSE(mWatchdogProcessServicePeer
+                         ->hasClientInfoWithPackageName(TimeoutLength::TIMEOUT_CRITICAL, "shell"));
 }
 
 }  // namespace watchdog

@@ -49,6 +49,7 @@ import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.util.ArrayMap;
 import android.util.Log;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
@@ -332,6 +333,10 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             writer.println();
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     /**
      * Send a telemetry metrics config to the service.

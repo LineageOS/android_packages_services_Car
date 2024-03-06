@@ -22,7 +22,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
-import android.car.annotation.AddedInOrBefore;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -39,25 +38,21 @@ import java.lang.annotation.Retention;
  */
 public final class SystemStatusEvent implements Parcelable {
     /** The system is ready to provide data. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int SYSTEM_STATUS_READY = 0;
 
     /**
      * Detection is not supported in this vehicle due to a permanent lack of capabilities. Clients
      * need not retry.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int SYSTEM_STATUS_NOT_SUPPORTED = 1;
 
     /** The system is not yet ready to serve requests. Clients should check back again later. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int SYSTEM_STATUS_NOT_READY = 2;
 
     /**
      * A permanent hardware failure has occurred. Clients need not retry until the underlying
      * hardware has been fixed.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int SYSTEM_STATUS_SYSTEM_FAILURE = 3;
 
     /**
@@ -75,19 +70,15 @@ public final class SystemStatusEvent implements Parcelable {
     public @interface SystemStatus {}
 
     /** No detection types are supported. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int DETECTION_TYPE_NONE = 0;
 
     /** Presence detection for occupants in the vehicle. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int DETECTION_TYPE_PRESENCE = 1 << 0;
 
     /** Gaze data for occupant in the vehicle. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int DETECTION_TYPE_GAZE = 1 << 1;
 
     /** Driver monitoring state for the driver in the vehicle. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int DETECTION_TYPE_DRIVER_MONITORING = 1 << 2;
 
     /**
@@ -105,9 +96,7 @@ public final class SystemStatusEvent implements Parcelable {
             })
     public @interface DetectionTypeFlags {}
 
-    @AddedInOrBefore(majorVersion = 33)
     public final @SystemStatus int systemStatus;
-    @AddedInOrBefore(majorVersion = 33)
     public final @DetectionTypeFlags int detectionType;
 
     public SystemStatusEvent(@SystemStatus int status, @DetectionTypeFlags int type) {
@@ -122,13 +111,11 @@ public final class SystemStatusEvent implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeInt(systemStatus);
         dest.writeInt(detectionType);
@@ -144,7 +131,6 @@ public final class SystemStatusEvent implements Parcelable {
                 + "}";
     }
 
-    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<SystemStatusEvent> CREATOR =
             new Parcelable.Creator<SystemStatusEvent>() {
                 public SystemStatusEvent createFromParcel(Parcel in) {

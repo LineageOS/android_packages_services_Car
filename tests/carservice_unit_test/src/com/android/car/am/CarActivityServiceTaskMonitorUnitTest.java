@@ -63,7 +63,6 @@ import com.google.common.truth.Expect;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -129,8 +128,8 @@ public class CarActivityServiceTaskMonitorUnitTest {
         for (Activity activity : sTestActivities) {
             activity.finish();
         }
-        mService.registerActivityLaunchListener(null);
         mService.unregisterTaskMonitor(mToken);
+        // Any remaining ActivityLaunchListeners will be flushed in release().
         mService.release();
         mService = null;
     }
@@ -180,6 +179,33 @@ public class CarActivityServiceTaskMonitorUnitTest {
         startActivityAndAssertLaunched(mActivityA);
 
         startActivityAndAssertLaunched(mActivityB);
+    }
+
+    @Test
+    public void testMultipleActivityLaunchListeners() throws Exception {
+        FilteredLaunchListener listener1 = new FilteredLaunchListener(mActivityA);
+        mService.registerActivityLaunchListener(listener1);
+        FilteredLaunchListener listener2 = new FilteredLaunchListener(mActivityA);
+        mService.registerActivityLaunchListener(listener2);
+
+        startActivity(mActivityA, Display.DEFAULT_DISPLAY);
+
+        listener2.assertTopTaskActivityLaunched();
+        assertThat(listener1.mActivityLaunched.getCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void testUnregisterActivityLaunchListener() throws Exception {
+        FilteredLaunchListener listener1 = new FilteredLaunchListener(mActivityA);
+        mService.registerActivityLaunchListener(listener1);
+        FilteredLaunchListener listener2 = new FilteredLaunchListener(mActivityA);
+        mService.registerActivityLaunchListener(listener2);
+        mService.unregisterActivityLaunchListener(listener1);
+
+        startActivity(mActivityA, Display.DEFAULT_DISPLAY);
+
+        listener2.assertTopTaskActivityLaunched();
+        assertThat(listener1.mActivityLaunched.getCount()).isEqualTo(1);
     }
 
     @Test
@@ -235,7 +261,6 @@ public class CarActivityServiceTaskMonitorUnitTest {
     }
 
     @Test
-    @Ignore("b/250982055")
     public void testGetTopTasksOnMultiDisplay() throws Exception {
         // TaskOrganizer gets the callbacks only on the tasks launched in the actual Surface.
         try (VirtualDisplaySession session = new VirtualDisplaySession()) {
@@ -245,11 +270,11 @@ public class CarActivityServiceTaskMonitorUnitTest {
             startActivityAndAssertLaunched(mActivityA);
             assertTrue(topTasksHasComponent(mActivityA));
 
-            startActivityAndAssertLaunched(mActivityB);
+            startActivityAndAssertLaunched(mActivityB, virtualDisplayId);
             assertTrue(topTasksHasComponent(mActivityB));
             assertTrue(topTasksHasComponent(mActivityA));
 
-            startActivityAndAssertLaunched(mActivityC);
+            startActivityAndAssertLaunched(mActivityC, virtualDisplayId);
             assertTrue(topTasksHasComponent(mActivityC));
             assertFalse(topTasksHasComponent(mActivityB));
             assertTrue(topTasksHasComponent(mActivityA));
@@ -369,9 +394,14 @@ public class CarActivityServiceTaskMonitorUnitTest {
 
     private FilteredLaunchListener startActivityAndAssertLaunched(ComponentName activity)
             throws InterruptedException {
+        return startActivityAndAssertLaunched(activity, Display.DEFAULT_DISPLAY);
+    }
+
+    private FilteredLaunchListener startActivityAndAssertLaunched(
+            ComponentName activity, int displayId) throws InterruptedException {
         FilteredLaunchListener listener = new FilteredLaunchListener(activity);
         mService.registerActivityLaunchListener(listener);
-        startActivity(activity);
+        startActivity(activity, displayId);
         listener.assertTopTaskActivityLaunched();
         return listener;
     }

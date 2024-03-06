@@ -43,6 +43,7 @@ import android.content.pm.PackageManager;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.SparseIntArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarLog;
@@ -94,7 +95,7 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
     })
     public @interface NewUserDisclaimerStatus {}
 
-    @GuardedBy("sLock")
+    @GuardedBy("mLock")
     private final SparseIntArray mUserDisclaimerStatusPerUser = new SparseIntArray();
 
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
@@ -212,6 +213,10 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
 
         writer.printf("HAL_TIMEOUT_MS: %d\n", HAL_TIMEOUT_MS);
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     /**
      * Updates the internal state with the disclaimer status as shown.

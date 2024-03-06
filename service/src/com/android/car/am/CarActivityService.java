@@ -23,11 +23,9 @@ import static android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_DISPLAY_ID;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.TaskInfo;
@@ -49,7 +47,6 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.display.DisplayManager;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -60,6 +57,7 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 import android.view.SurfaceControl;
 
@@ -131,7 +129,7 @@ public final class CarActivityService extends ICarActivityService.Stub
         void onActivityLaunch(TaskInfo topTask);
     }
     @GuardedBy("mLock")
-    private ActivityLaunchListener mActivityLaunchListener;
+    private final ArrayList<ActivityLaunchListener> mActivityLaunchListeners = new ArrayList<>();
 
     private final HandlerThread mMonitorHandlerThread = CarServiceUtils.getHandlerThread(
             SystemActivityMonitoringService.class.getSimpleName());
@@ -152,7 +150,11 @@ public final class CarActivityService extends ICarActivityService.Stub
     public void init() {}
 
     @Override
-    public void release() {}
+    public void release() {
+        synchronized (mLock) {
+            mActivityLaunchListeners.clear();
+        }
+    }
 
     @Override
     public int setPersistentActivity(ComponentName activity, int displayId, int featureId) throws
@@ -180,9 +182,15 @@ public final class CarActivityService extends ICarActivityService.Stub
         return UserManagerHelper.getUserId(Binder.getCallingUid());
     }
 
-    public void registerActivityLaunchListener(ActivityLaunchListener listener) {
+    public void registerActivityLaunchListener(@NonNull ActivityLaunchListener listener) {
         synchronized (mLock) {
-            mActivityLaunchListener = listener;
+            mActivityLaunchListeners.add(listener);
+        }
+    }
+
+    public void unregisterActivityLaunchListener(@NonNull ActivityLaunchListener listener) {
+        synchronized (mLock) {
+            mActivityLaunchListeners.remove(listener);
         }
     }
 
@@ -258,12 +266,10 @@ public final class CarActivityService extends ICarActivityService.Stub
     }
 
     private void notifyActivityLaunch(TaskInfo taskInfo) {
-        ActivityLaunchListener listener;
         synchronized (mLock) {
-            listener = mActivityLaunchListener;
-        }
-        if (listener != null) {
-            listener.onActivityLaunch(taskInfo);
+            for (int i = 0, size = mActivityLaunchListeners.size(); i < size; ++i) {
+                mActivityLaunchListeners.get(i).onActivityLaunch(taskInfo);
+            }
         }
     }
 
@@ -360,9 +366,6 @@ public final class CarActivityService extends ICarActivityService.Stub
     public void startUserPickerOnDisplay(int displayId) {
         CarServiceUtils.assertAnyPermission(mContext, INTERACT_ACROSS_USERS);
         Preconditions.checkArgument(displayId != Display.INVALID_DISPLAY, "Invalid display");
-        if (!isPlatformVersionAtLeastU()) {
-            return;
-        }
         String userPickerName = mContext.getResources().getString(
                 R.string.config_userPickerActivity);
         if (userPickerName.isEmpty()) {
@@ -401,7 +404,6 @@ public final class CarActivityService extends ICarActivityService.Stub
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private final class TaskMirroringToken extends MirroringToken {
         private final int mTaskId;
         private TaskMirroringToken(int taskId) {
@@ -428,7 +430,6 @@ public final class CarActivityService extends ICarActivityService.Stub
         }
     };
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private final class DisplayMirroringToken extends MirroringToken {
         private final int mDisplayId;
         private DisplayMirroringToken(int displayId) {
@@ -454,9 +455,6 @@ public final class CarActivityService extends ICarActivityService.Stub
     @Override
     public IBinder createTaskMirroringToken(int taskId) {
         ensureManageActivityTasksPermission();
-        if (!isPlatformVersionAtLeastU()) {
-            return null;
-        }
         synchronized (mLock) {
             if (!mTaskToSurfaceMap.contains(taskId)) {
                 throw new IllegalArgumentException("Non-existent Task#" + taskId);
@@ -468,18 +466,12 @@ public final class CarActivityService extends ICarActivityService.Stub
     @Override
     public IBinder createDisplayMirroringToken(int displayId) {
         ensurePermission(Car.PERMISSION_MIRROR_DISPLAY);
-        if (!isPlatformVersionAtLeastU()) {
-            return null;
-        }
         return new DisplayMirroringToken(displayId);
     }
 
     @Override
     @Nullable
     public SurfaceControl getMirroredSurface(IBinder token, Rect outBounds) {
-        if (!isPlatformVersionAtLeastU()) {
-            return null;
-        }
         ensurePermission(Car.PERMISSION_ACCESS_MIRRORRED_SURFACE);
         MirroringToken mirroringToken;
         try {
@@ -499,9 +491,6 @@ public final class CarActivityService extends ICarActivityService.Stub
             Slogf.d(TAG, "registerCarSystemUIProxy %s", carSystemUIProxy.toString());
         }
         ensurePermission(PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY);
-        if (!isPlatformVersionAtLeastU()) {
-            return;
-        }
         synchronized (mLock) {
             if (mCarSystemUIProxy != null) {
                 throw new UnsupportedOperationException("Car system UI proxy is already "
@@ -550,9 +539,6 @@ public final class CarActivityService extends ICarActivityService.Stub
 
     @Override
     public boolean isCarSystemUIProxyRegistered() {
-        if (!isPlatformVersionAtLeastU()) {
-            return false;
-        }
         synchronized (mLock) {
             return mCarSystemUIProxy != null;
         }
@@ -682,7 +668,7 @@ public final class CarActivityService extends ICarActivityService.Stub
     private void findTaskAndGrantFocus(ComponentName activity) {
         TaskInfo taskInfo = getTaskInfoForTopActivity(activity);
         if (taskInfo != null) {
-            ActivityManagerHelper.setFocusedRootTask(taskInfo.taskId);
+            ActivityManagerHelper.setFocusedTask(taskInfo.taskId);
             return;
         }
         Slogf.i(CarLog.TAG_AM, "cannot give focus, cannot find Activity:" + activity);
@@ -691,10 +677,6 @@ public final class CarActivityService extends ICarActivityService.Stub
     @Override
     public void moveRootTaskToDisplay(int taskId, int displayId) {
         ensurePermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH);
-        if (!isPlatformVersionAtLeastU()) {
-            return;
-        }
-
         // Calls moveRootTaskToDisplay() with the system uid.
         long identity = Binder.clearCallingIdentity();
         try {
@@ -716,6 +698,11 @@ public final class CarActivityService extends ICarActivityService.Stub
                 writer.println("  " + TaskInfoHelper.toString(taskInfo));
             }
             writer.println(" Surfaces: " + mTaskToSurfaceMap.toString());
+            writer.println(" ActivityLaunchListeners: " + mActivityLaunchListeners.toString());
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 }

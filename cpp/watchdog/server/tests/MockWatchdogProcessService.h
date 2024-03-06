@@ -27,6 +27,7 @@
 #include <aidl/android/automotive/watchdog/internal/ProcessIdentifier.h>
 #include <aidl/android/automotive/watchdog/internal/UserState.h>
 #include <android-base/result.h>
+#include <android/util/ProtoOutputStream.h>
 #include <binder/Status.h>
 #include <gmock/gmock.h>
 #include <utils/String16.h>
@@ -44,6 +45,7 @@ public:
     MOCK_METHOD(android::base::Result<void>, start, (), (override));
     MOCK_METHOD(void, terminate, (), (override));
     MOCK_METHOD(void, onDump, (int), (override));
+    MOCK_METHOD(void, onDumpProto, (android::util::ProtoOutputStream&), (override));
     MOCK_METHOD(void, doHealthCheck, (int), (override));
     MOCK_METHOD(void, handleBinderDeath, (void*), (override));
     MOCK_METHOD(ndk::ScopedAStatus, registerClient,

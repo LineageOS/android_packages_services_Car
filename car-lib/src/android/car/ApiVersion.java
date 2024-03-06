@@ -17,9 +17,6 @@ package android.car;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.car.annotation.ApiRequirements;
-import android.car.annotation.ApiRequirements.CarVersion;
-import android.car.annotation.ApiRequirements.PlatformVersion;
 import android.os.Parcel;
 import android.text.TextUtils;
 
@@ -39,8 +36,6 @@ import java.util.Objects;
  *
  * @param <T> implementation type
  */
-@ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-        minPlatformVersion = PlatformVersion.TIRAMISU_0)
 public abstract class ApiVersion<T extends ApiVersion<?>> {
 
     /**
@@ -66,17 +61,14 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
     /**
      * Checks if this API version meets the required version.
      *
-     * @param requiredApiVersionMajor Required major version number.
-     * @param requiredApiVersionMinor Required minor version number.
+     * @param requiredVersion required major and minor version number
      * @return {@code true} if the {@link #getMajorVersion() major version} is newer than the
      *         {@code requiredVersion}'s major or if the {@link #getMajorVersion() major version} is
      *         the same as {@code requiredVersion}'s major with the {@link #getMinorVersion() minor
-     *         version} the same or newer than {@code requiredVersion}'s minor.
+     *         version} the same or newer than {@code requiredVersion}'s minor
      * @throws IllegalArgumentException if {@code requiredVersion} is not an instance of the same
-     *         class as this object.
+     *         class as this object
      */
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     public final boolean isAtLeast(@NonNull T requiredVersion) {
         Objects.requireNonNull(requiredVersion);
 
@@ -96,8 +88,6 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
     /**
      * Gets the major version of the API represented by this object.
      */
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     public final int getMajorVersion() {
         return mMajorVersion;
     }
@@ -112,8 +102,6 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
      * <p>Client should check this version to use APIs which were added in a minor-only version
      * update.
      */
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     public final int getMinorVersion() {
         return mMinorVersion;
     }
@@ -162,8 +150,6 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
     /**
      * @hide
      */
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     protected void writeToParcel(Parcel dest) {
         dest.writeString(mVersionName);
         dest.writeInt(getMajorVersion());
@@ -173,8 +159,6 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
     /**
      * @hide
      */
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     protected static <T extends ApiVersion<?>> T readFromParcel(Parcel source,
             ApiVersionFactory<T> factory) {
         String name = source.readString();
@@ -187,8 +171,6 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
      * @hide
      */
     interface ApiVersionFactory<T extends ApiVersion<?>> {
-        @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-                minPlatformVersion = PlatformVersion.TIRAMISU_0)
         T newInstance(String name, int major, int minor);
     }
 }

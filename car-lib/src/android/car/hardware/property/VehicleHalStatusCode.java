@@ -18,8 +18,6 @@ package android.car.hardware.property;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
-import android.car.annotation.AddedInOrBefore;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -34,26 +32,20 @@ import java.lang.annotation.RetentionPolicy;
 public final class VehicleHalStatusCode {
 
     /** No error detected in HAL.*/
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_OK = 0;
     /** Try again. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_TRY_AGAIN = 1;
     /** Invalid argument provide. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_INVALID_ARG = 2;
     /**
      * This code must be returned when device that associated with the vehicle
      * property is not available. For example, when client tries to set HVAC
      * temperature when the whole HVAC unit is turned OFF.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_NOT_AVAILABLE = 3;
     /** Access denied */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_ACCESS_DENIED = 4;
     /** Something unexpected has happened in Vehicle HAL */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_INTERNAL_ERROR = 5;
 
     /**
@@ -62,8 +54,6 @@ public final class VehicleHalStatusCode {
      * For platform versions before {@link android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE}, this
      * error will be mapped to {@link #STATUS_NOT_AVAILABLE}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATUS_NOT_AVAILABLE_DISABLED = 6;
     /**
      * For features that are not available because the vehicle speed is too low.
@@ -71,8 +61,6 @@ public final class VehicleHalStatusCode {
      * For platform versions before {@link android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE}, this
      * error will be mapped to {@link #STATUS_NOT_AVAILABLE}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATUS_NOT_AVAILABLE_SPEED_LOW = 7;
     /**
      * For features that are not available because the vehicle speed is too high.
@@ -80,8 +68,6 @@ public final class VehicleHalStatusCode {
      * For platform versions before {@link android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE}, this
      * error will be mapped to {@link #STATUS_NOT_AVAILABLE}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATUS_NOT_AVAILABLE_SPEED_HIGH = 8;
     /**
      * For features that are not available because of bad camera or sensor visibility. Examples
@@ -90,8 +76,6 @@ public final class VehicleHalStatusCode {
      * For platform versions before {@link android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE}, this
      * error will be mapped to {@link #STATUS_NOT_AVAILABLE}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATUS_NOT_AVAILABLE_POOR_VISIBILITY = 9;
     /**
      * The feature cannot be accessed due to safety reasons. Eg. System could be
@@ -101,16 +85,12 @@ public final class VehicleHalStatusCode {
      * For platform versions before {@link android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE}, this
      * error will be mapped to {@link #STATUS_NOT_AVAILABLE}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATUS_NOT_AVAILABLE_SAFETY = 10;
 
     /**
      * Returns a user-friendly representation of a {@code VehicleHalStatusCode}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(
             @VehicleHalStatusCodeInt int vehicleHalStatusCode) {
         switch (vehicleHalStatusCode) {

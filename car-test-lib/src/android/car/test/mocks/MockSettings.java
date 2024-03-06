@@ -23,7 +23,6 @@ import static org.mockito.Mockito.when;
 import android.annotation.Nullable;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase.CustomMockitoSessionBuilder;
 import android.provider.Settings;
-import android.util.ArrayMap;
 import android.util.Log;
 
 import com.android.internal.util.Preconditions;
@@ -31,6 +30,7 @@ import com.android.internal.util.Preconditions;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import android.util.ArrayMap;
 
 // TODO (b/156033195): Clean settings API. For example, don't mock xyzForUser() methods (as
 // they should not be used due to mainline) and explicitly use a MockSettings per user or

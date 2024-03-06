@@ -20,19 +20,24 @@ import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED;
 
 import static com.android.car.CarLog.TAG_AUDIO;
+import static com.android.car.audio.CoreAudioHelper.getProductStrategyForAudioAttributes;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.media.AudioAttributes;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioManager;
-import android.util.ArrayMap;
+import android.media.audiopolicy.AudioProductStrategy;
+import android.util.ArraySet;
 import android.util.SparseArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
-import com.android.car.internal.util.VersionUtils;
 import com.android.internal.annotations.GuardedBy;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A class encapsulates a volume group in car.
@@ -58,12 +63,11 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
     private int mAmLastAudibleGainIndex;
 
     CoreAudioVolumeGroup(AudioManager audioManager, CarAudioContext carAudioContext,
-            CarAudioSettings settingsManager,
-            SparseArray<String> contextToAddress, ArrayMap<String,
-            CarAudioDeviceInfo> addressToCarAudioDeviceInfo, int zoneId, int configId,
-            int volumeGroupId, String name, boolean useCarVolumeGroupMute) {
-        super(carAudioContext, settingsManager, contextToAddress, addressToCarAudioDeviceInfo,
-                        zoneId, configId, volumeGroupId, name, useCarVolumeGroupMute);
+            CarAudioSettings settingsManager, SparseArray<CarAudioDeviceInfo> contextToDevices,
+            int zoneId, int configId, int volumeGroupId, String name,
+            boolean useCarVolumeGroupMute) {
+        super(carAudioContext, settingsManager, contextToDevices, zoneId, configId, volumeGroupId,
+                name, useCarVolumeGroupMute);
         mAudioManager = audioManager;
         mAudioAttributes = CoreAudioHelper.selectAttributesForVolumeGroupName(name);
         mAmId = CoreAudioHelper.getVolumeGroupIdForAudioAttributes(mAudioAttributes);
@@ -96,13 +100,11 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
     }
 
     boolean isAmGroupMuted() {
-        return VersionUtils.isPlatformVersionAtLeastU()
-                ? AudioManagerHelper.isVolumeGroupMuted(mAudioManager, mAmId) : false;
+        return AudioManagerHelper.isVolumeGroupMuted(mAudioManager, mAmId);
     }
 
     int getAmLastAudibleIndex() {
-        return VersionUtils.isPlatformVersionAtLeastU()
-                ? AudioManagerHelper.getLastAudibleVolumeGroupVolume(mAudioManager, mAmId) : 0;
+        return AudioManagerHelper.getLastAudibleVolumeGroupVolume(mAudioManager, mAmId);
     }
 
     @Override
@@ -121,11 +123,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
     private void setCurrentGainIndexLocked(int gainIndex, boolean canChangeMuteState) {
         int flags = 0;
         if (canChangeMuteState || !isUserMutedLocked()) {
-            if (VersionUtils.isPlatformVersionAtLeastU()) {
-                mAudioManager.setVolumeGroupVolumeIndex(mAmId, gainIndex, flags);
-            } else {
-                mAudioManager.setVolumeIndexForAttributes(mAudioAttributes, gainIndex, flags);
-            }
+            mAudioManager.setVolumeGroupVolumeIndex(mAmId, gainIndex, flags);
         }
     }
 
@@ -148,7 +146,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
     @GuardedBy("mLock")
     @SuppressWarnings("GuardedBy")
     protected void applyMuteLocked(boolean mute) {
-        if (!isMutable() || !VersionUtils.isPlatformVersionAtLeastU()) {
+        if (!isMutable()) {
             return;
         }
         if (isAmGroupMuted() != mute) {
@@ -290,6 +288,41 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
         }
         return returnedFlags;
     }
+
+    @Override
+    void updateDevices(boolean useCoreAudioRouting) {
+        // If not using core audio routing, than device need to be updated to match the information
+        // for audio attributes to core volume groups.
+        if (useCoreAudioRouting) {
+            return;
+        }
+
+        int[] contexts = getContexts();
+        for (int c = 0; c < contexts.length; c++) {
+            int context = contexts[c];
+            AudioAttributes[] audioAttributes = getAudioAttributesForContext(context);
+            AudioDeviceAttributes device = getAudioDeviceForContext(context);
+            setPreferredDeviceForAudioAttribute(Arrays.asList(audioAttributes), device);
+        }
+
+    }
+
+    private void setPreferredDeviceForAudioAttribute(List<AudioAttributes> audioAttributes,
+            AudioDeviceAttributes audioDeviceAttributes) {
+        ArraySet<Integer> strategiesSet = new ArraySet<>();
+        for (int c = 0; c < audioAttributes.size(); c++) {
+            AudioProductStrategy strategy =
+                    getProductStrategyForAudioAttributes(audioAttributes.get(c));
+            if (strategy == null) {
+                continue;
+            }
+            if (!strategiesSet.add(strategy.getId())) {
+                continue;
+            }
+            mAudioManager.setPreferredDeviceForStrategy(strategy, audioDeviceAttributes);
+        }
+    }
+
 
     @Override
     protected int getDefaultGainIndex() {

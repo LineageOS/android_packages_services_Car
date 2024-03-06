@@ -20,10 +20,9 @@
           xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:state_enabled="false"
           android:alpha="?android:attr/disabledAlpha"
-          android:color="?android:attr/colorForeground"/>
+          android:color="@color/car_secondary"/>
     <item app:state_ux_restricted="true"
           android:alpha="?android:attr/disabledAlpha"
-          android:color="?android:attr/colorForeground"/>
-    <item android:alpha="?android:attr/secondaryContentAlpha"
-          android:color="?android:attr/colorForeground"/>
+          android:color="@color/car_secondary"/>
+    <item android:color="@color/car_secondary"/>
 </selector>

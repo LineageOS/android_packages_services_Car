@@ -196,6 +196,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"خواندن برف‌پاک‌کن‌های خودرو."</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"کنترل برف‌پاک‌کن‌های خودرو"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"کنترل برف‌پاک‌کن‌های خودرو."</string>
+    <string name="car_permission_label_query_display_compatibility" msgid="8846515818036686896">"بسته‌های سازگاری با نمایش پُرسمان"</string>
+    <string name="car_permission_desc_query_display_compatibility" msgid="5344194045180717300">"بسته‌های سازگاری با نمایش پُرسمان."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"نظارت بر وضعیت دیگر مناطق سرنشین در خودرو و برنامه‌های همتای نصب‌شده در این مناطق، و مدیریت انرژی این مناطق (برنامه‌های همتا یعنی برنامه‌هایی که نام بسته مشابه با تماس‌گیرنده دارند)."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"نظارت بر وضعیت دیگر مناطق سرنشین در خودرو و برنامه‌های همتای نصب‌شده در این مناطق، و مدیریت انرژی این مناطق (برنامه‌های همتا یعنی برنامه‌هایی که نام بسته مشابه با تماس‌گیرنده دارند)."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"برقراری اتصال و ارتباط با برنامه‌های همتای نصب‌شده در سایر مناطق سرنشین در خودرو (برنامه‌های همتا یعنی برنامه‌هایی که نام بسته مشابه با تماس‌گیرنده دارند)."</string>
@@ -204,10 +206,10 @@
     <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"بازتاب دادن صفحه «برنامه‌های» دیگر."</string>
     <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"بازتاب دادن نمایشگر کاربران دیگر"</string>
     <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"بازتاب دادن نمایشگر کاربران دیگر."</string>
-    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"پراکسی میانای کاربری سیستمی ارائه دهید که برنامه‌های دیگر بتوانند بااستفاده از آن میانای کاربری سیستم را مدیریت کنند و نمای وظیفه ایجاد کنند."</string>
-    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"پراکسی میانای کاربری سیستمی ارائه دهید که برنامه‌های دیگر بتوانند بااستفاده از آن میانای کاربری سیستم را مدیریت کنند و نمای وظیفه ایجاد کنند."</string>
-    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"برای ایجاد نمای وظیفه یا مطلع شدن از تغییرات میانای کاربری سیستم، با میانای کاربری سیستم خودرو ارتباط برقرار کنید."</string>
-    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"برای ایجاد نمای وظیفه یا مطلع شدن از تغییرات میانای کاربری سیستم، با میانای کاربری سیستم خودرو ارتباط برقرار کنید."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"پراکسی واسط کاربر سیستمی ارائه دهید که برنامه‌های دیگر بتوانند بااستفاده از آن واسط کاربر سیستم را مدیریت کنند و نمای وظیفه ایجاد کنند."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"پراکسی واسط کاربر سیستمی ارائه دهید که برنامه‌های دیگر بتوانند بااستفاده از آن واسط کاربر سیستم را مدیریت کنند و نمای وظیفه ایجاد کنند."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"برای ایجاد نمای وظیفه یا مطلع شدن از تغییرات واسط کاربر سیستم، با واسط کاربر سیستم خودرو ارتباط برقرار کنید."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"برای ایجاد نمای وظیفه یا مطلع شدن از تغییرات واسط کاربر سیستم، با واسط کاربر سیستم خودرو ارتباط برقرار کنید."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"گذرگاه CAN ناموفق بود"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"گذرگاه CAN پاسخ نمی‌دهد. محفظه ضبط‌وپخش را جدا و سپس وصل کنید و خودرو را دوباره روشن کنید"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"دستگاه من"</string>

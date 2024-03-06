@@ -16,19 +16,29 @@
 
 package android.car.cluster;
 
+import static android.car.feature.Flags.FLAG_CLUSTER_HEALTH_MONITORING;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
+import android.annotation.SystemApi;
+import android.app.Activity;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.annotation.AddedInOrBefore;
+import android.car.builtin.util.Slogf;
+import android.car.builtin.view.SurfaceControlHelper;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.view.SurfaceControl;
+import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnPreDrawListener;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.VisibleForTesting;
@@ -40,16 +50,23 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
-/** @hide */
-public class ClusterHomeManager extends CarManagerBase {
+/**
+ * Provides the api to manage {@code ClusterHome}.
+ *
+ * @hide
+ */
+@FlaggedApi(FLAG_CLUSTER_HEALTH_MONITORING)
+@SystemApi
+public final class ClusterHomeManager extends CarManagerBase {
     private static final String TAG = ClusterHomeManager.class.getSimpleName();
     /**
      * When the client reports ClusterHome state and if there is no UI in the sub area, it can
      * reports UI_TYPE_CLUSTER_NONE instead.
+     *
+     * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int UI_TYPE_CLUSTER_NONE = -1;
-    @AddedInOrBefore(majorVersion = 33)
+    /** @hide */
     public static final int UI_TYPE_CLUSTER_HOME = 0;
 
     /** @hide */
@@ -63,19 +80,21 @@ public class ClusterHomeManager extends CarManagerBase {
     public @interface Config {}
 
     /** Bit fields indicates which fields of {@link ClusterState} are changed */
-    @AddedInOrBefore(majorVersion = 33)
+    /** @hide */
     public static final int CONFIG_DISPLAY_ON_OFF = 0x01;
-    @AddedInOrBefore(majorVersion = 33)
+    /** @hide */
     public static final int CONFIG_DISPLAY_BOUNDS = 0x02;
-    @AddedInOrBefore(majorVersion = 33)
+    /** @hide */
     public static final int CONFIG_DISPLAY_INSETS = 0x04;
-    @AddedInOrBefore(majorVersion = 33)
+    /** @hide */
     public static final int CONFIG_UI_TYPE = 0x08;
-    @AddedInOrBefore(majorVersion = 33)
+    /** @hide */
     public static final int CONFIG_DISPLAY_ID = 0x10;
 
     /**
      * Callback for ClusterHome to get notifications when cluster state changes.
+     *
+     * @hide
      */
     public interface ClusterStateListener {
         /**
@@ -84,16 +103,16 @@ public class ClusterHomeManager extends CarManagerBase {
          * @param state newly updated {@link ClusterState}
          * @param changes the flag indicates which fields are updated
          */
-        @AddedInOrBefore(majorVersion = 33)
         void onClusterStateChanged(ClusterState state, @Config int changes);
     }
 
     /**
      * Callback for ClusterHome to get notifications when cluster navigation state changes.
+     *
+     * @hide
      */
     public interface ClusterNavigationStateListener {
         /** Called when the App who owns the navigation focus casts the new navigation state. */
-        @AddedInOrBefore(majorVersion = 33)
         void onNavigationState(byte[] navigationState);
     }
 
@@ -161,6 +180,8 @@ public class ClusterHomeManager extends CarManagerBase {
     private final CopyOnWriteArrayList<ClusterNavigationStateListenerRecord>
             mNavigationStateListeners = new CopyOnWriteArrayList<>();
 
+    private boolean mVisibilityMonitoringStarted = false;
+
     /** @hide */
     @VisibleForTesting
     public ClusterHomeManager(Car car, IBinder service) {
@@ -173,9 +194,10 @@ public class ClusterHomeManager extends CarManagerBase {
 
     /**
      * Registers the callback for ClusterHome.
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
-    @AddedInOrBefore(majorVersion = 33)
     public void registerClusterStateListener(
             @NonNull Executor executor, @NonNull ClusterStateListener callback) {
         Objects.requireNonNull(executor, "executor cannot be null");
@@ -196,9 +218,10 @@ public class ClusterHomeManager extends CarManagerBase {
 
     /**
      * Registers the callback for ClusterHome.
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_MONITOR_CLUSTER_NAVIGATION_STATE)
-    @AddedInOrBefore(majorVersion = 33)
     public void registerClusterNavigationStateListener(
             @NonNull Executor executor, @NonNull ClusterNavigationStateListener callback) {
         Objects.requireNonNull(executor, "executor cannot be null");
@@ -220,9 +243,10 @@ public class ClusterHomeManager extends CarManagerBase {
 
     /**
      * Unregisters the callback.
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
-    @AddedInOrBefore(majorVersion = 33)
     public void unregisterClusterStateListener(@NonNull ClusterStateListener callback) {
         Objects.requireNonNull(callback, "callback cannot be null");
         if (!mStateListeners
@@ -240,9 +264,10 @@ public class ClusterHomeManager extends CarManagerBase {
 
     /**
      * Unregisters the callback.
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_MONITOR_CLUSTER_NAVIGATION_STATE)
-    @AddedInOrBefore(majorVersion = 33)
     public void unregisterClusterNavigationStateListener(
             @NonNull ClusterNavigationStateListener callback) {
         Objects.requireNonNull(callback, "callback cannot be null");
@@ -305,9 +330,10 @@ public class ClusterHomeManager extends CarManagerBase {
      * @param uiAvailability the byte array to represent the availability of ClusterUI.
      *    0 indicates non-available and 1 indicates available.
      *    Index 0 is reserved for ClusterHome, The other indexes are followed by OEM's definition.
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
-    @AddedInOrBefore(majorVersion = 33)
     public void reportState(int uiTypeMain, int uiTypeSub, @NonNull byte[] uiAvailability) {
         try {
             mService.reportState(uiTypeMain, uiTypeSub, uiAvailability);
@@ -319,9 +345,10 @@ public class ClusterHomeManager extends CarManagerBase {
     /**
      * Requests to turn the cluster display on to show some ClusterUI.
      * @param uiType uiType that ClusterHome tries to show in main area
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
-    @AddedInOrBefore(majorVersion = 33)
     public void requestDisplay(int uiType) {
         try {
             mService.requestDisplay(uiType);
@@ -332,10 +359,11 @@ public class ClusterHomeManager extends CarManagerBase {
 
     /**
      * Returns the current {@code ClusterState}.
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
     @Nullable
-    @AddedInOrBefore(majorVersion = 33)
     public ClusterState getClusterState() {
         ClusterState state = null;
         try {
@@ -357,9 +385,10 @@ public class ClusterHomeManager extends CarManagerBase {
      * @param options additional options for how the Activity should be started
      * @param userId the user the new activity should run as
      * @return true if it launches the given Intent as FixedActivity successfully
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
-    @AddedInOrBefore(majorVersion = 33)
     public boolean startFixedActivityModeAsUser(
             Intent intent, @Nullable Bundle options, int userId) {
         try {
@@ -375,9 +404,10 @@ public class ClusterHomeManager extends CarManagerBase {
      * finishing should not trigger re-launching any more. Note that Activity for non-current user
      * will be auto-stopped and there is no need to call this for user switching. Note that this
      * does not stop the activity but it will not be re-launched any more.
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
-    @AddedInOrBefore(majorVersion = 33)
     public void stopFixedActivityMode() {
         try {
             mService.stopFixedActivityMode();
@@ -386,8 +416,102 @@ public class ClusterHomeManager extends CarManagerBase {
         }
     }
 
+    /**
+     * Sends a heartbeat to ClusterOS.
+     * @param epochTimeNs the current time
+     * @param appMetadata the application specific metadata which will be delivered with
+     *                    the heartbeat.
+     */
+    @FlaggedApi(FLAG_CLUSTER_HEALTH_MONITORING)
+    @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
+    public void sendHeartbeat(long epochTimeNs, @Nullable byte[] appMetadata) {
+        try {
+            mService.sendHeartbeat(epochTimeNs, appMetadata);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Starts the visibility monitoring of given {@link Activity}.
+     *
+     * Note: This is supposed to be called in {@link Activity#onStart()} generally.
+     *
+     * @param activity               the {@link Activity} to track the visibility of its Window
+     */
+    @FlaggedApi(FLAG_CLUSTER_HEALTH_MONITORING)
+    @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
+    public void startVisibilityMonitoring(@NonNull Activity activity) {
+        // We'd like to check the permission locally too, since the actual execution happens later.
+        if (getContext().checkCallingOrSelfPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
+                != PERMISSION_GRANTED) {
+            throw new SecurityException(
+                    "requires permission " + Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL);
+        }
+        if (mVisibilityMonitoringStarted) {
+            Slogf.w(TAG, "startVisibilityMonitoring is already started");
+            return;
+        }
+        if (SurfaceControlHelper.getSurfaceControl(activity) != null) {
+            throw new IllegalStateException(
+                    "startVisibilityMonitoring is expected to be called before onAttachedToWindow");
+        }
+        mVisibilityMonitoringStarted = true;
+        ViewTreeObserver observer = getViewTreeObserver(activity);
+        // Can't use onWindowAttached, because SurfaceControl is available at the time, but invalid.
+        // TODO: b/286406553 - Move the callback below to onWindowAttached.
+        observer.addOnPreDrawListener(
+                new OnPreDrawListener() {
+                    @Override
+                    public boolean onPreDraw() {
+                        // The existing 'observer' would be invalid, so gets it again.
+                        ViewTreeObserver observer = getViewTreeObserver(activity);
+                        observer.removeOnPreDrawListener(this);
+                        startVisibilityMonitoringInternal(activity);
+                        return true;
+                    }
+                });
+        observer.addOnWindowAttachListener(
+                new ViewTreeObserver.OnWindowAttachListener() {
+                    @Override
+                    public void onWindowAttached() {
+                        // Using onPreDraw instead, check b/286406553.
+                    }
+
+                    @Override
+                    public void onWindowDetached() {
+                        ViewTreeObserver observer = getViewTreeObserver(activity);
+                        observer.removeOnWindowAttachListener(this);
+                        stopVisibilityMonitoringInternal();
+                    }
+                }
+        );
+    }
+
+    private static ViewTreeObserver getViewTreeObserver(@NonNull Activity activity) {
+        return activity.getWindow().getDecorView().getViewTreeObserver();
+    }
+
+    private void startVisibilityMonitoringInternal(Activity activity) {
+        SurfaceControl surfaceControl = SurfaceControlHelper.getSurfaceControl(activity);
+        try {
+            mService.startVisibilityMonitoring(surfaceControl);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Failed to startVisibilityMonitoring", e);
+        }
+    }
+
+    private void stopVisibilityMonitoringInternal() {
+        try {
+            mService.stopVisibilityMonitoring();
+            mVisibilityMonitoringStarted = false;
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Failed to stopVisibilityMonitoring", e);
+        }
+    }
+
+    /** @hide */
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     protected void onCarDisconnected() {
         mStateListeners.clear();
         mNavigationStateListeners.clear();

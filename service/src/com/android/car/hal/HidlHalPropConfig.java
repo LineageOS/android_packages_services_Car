@@ -40,7 +40,7 @@ public final class HidlHalPropConfig extends HalPropConfig {
             mConfig.areaConfigs = new ArrayList<VehicleAreaConfig>();
         }
         if (mConfig.configString == null) {
-            mConfig.configString = new String();
+            mConfig.configString = "";
         }
     }
 

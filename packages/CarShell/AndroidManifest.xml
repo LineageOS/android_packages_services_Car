@@ -21,33 +21,27 @@
         coreApp="true"
         android:sharedUserId="android.uid.shell"
         >
-    <!-- Permission required for ATS tests - AtsAudioDeviceTest#resetVolumeMute-->
+    <!-- Permission required for CTS tests - CarAudioManagerTest-->
     <uses-permission android:name="android.permission.MODIFY_AUDIO_ROUTING" />
+    <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME" />
+    <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
     <!-- To pass GtsInstallPackagesWhitelistDeviceTestCases b/173156153 -->
     <uses-permission android:name="android.permission.INSTALL_PACKAGES" />
     <!-- Permissions required for CTS tests - AssistUtilsHelperTest -->
     <uses-permission android:name="android.permission.ACCESS_VOICE_INTERACTION_SERVICE" />
     <!-- Permission required for ATS tests - AtsCarHostTestCases, AtsCarDeviceApp -->
     <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE" />
-    <!-- Permission required for ATS tests - AtsDeviceInfo, AtsAudioDeviceTestCases -->
-    <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME" />
-    <!-- Permission required for ATS tests - AtsCarTests#CarAudioManagerSystemTest -->
-    <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_SETTINGS" />
     <!-- Permission required for 'adb shell cmd location is-automotive-gnss-suspended' -->
     <uses-permission android:name="android.permission.CONTROL_AUTOMOTIVE_GNSS" />
     <!-- Permission required for ATS tests - AtsCarTests#CarPropertyManagerTest-->
     <uses-permission android:name="android.car.permission.CONTROL_CAR_CLIMATE" />
-    <!-- Permission required for ATS tests - AtsCarTests#CarAudioManagerSystemTest -->
-    <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
     <!-- Permissions required for ATS tests - AtsDeviceInfo -->
     <uses-permission android:name="android.car.permission.CAR_DIAGNOSTICS" />
     <!-- Permission required for 'adb shell cmd car_service silent-mode' -->
     <uses-permission android:name="android.car.permission.CAR_POWER" />
     <!-- Permission required for CTS test - OemCarServiceImplTest -->
     <uses-permission android:name="android.car.permission.CAR_TEST_SERVICE"/>
-    <!-- Permission required for ATS tests - AtsCarTests#CarPowerManagerTest-->
-    <uses-permission android:name="android.car.permission.CONTROL_CAR_POWER_POLICY" />
-    <uses-permission android:name="android.car.permission.CONTROL_SHUTDOWN_PROCESS" />
     <!-- Permissions required for ATS tests - AtsCarTests#CarWatchdogManagerTest-->
     <uses-permission android:name="android.car.permission.USE_CAR_WATCHDOG" />
     <uses-permission android:name="android.car.permission.COLLECT_CAR_WATCHDOG_METRICS" />
@@ -71,11 +65,14 @@
     <uses-permission android:name="android.permission.LOCATION_BYPASS" />
     <!-- Permissions required for CTS test - CarActivityManagerTest#getCarTaskViewController -->
     <uses-permission android:name="android.car.permission.MANAGE_CAR_SYSTEM_UI" />
+    <!-- Permission required for CTS test - CarPowerManagerTest-->
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_POWER_POLICY" />
     <!-- Permissions required for CTS test - CarPropertyManagerTest -->
     <uses-permission android:name="android.car.permission.READ_DRIVER_MONITORING_SETTINGS"/>
     <uses-permission android:name="android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"/>
     <uses-permission android:name="android.car.permission.READ_DRIVER_MONITORING_STATES"/>
     <uses-permission android:name="android.car.permission.CAR_DYNAMICS_STATE" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_DYNAMICS_STATE" />
     <uses-permission android:name="android.car.permission.CAR_ENGINE_DETAILED" />
     <uses-permission android:name="android.car.permission.CAR_MILEAGE" />
     <uses-permission android:name="android.car.permission.CAR_TIRES" />
@@ -87,6 +84,10 @@
     <uses-permission android:name="android.car.permission.CAR_ENERGY_PORTS" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_ENERGY_PORTS" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_SEATS" />
+    <uses-permission android:name="android.car.permission.READ_CAR_SEAT_BELTS"/>
+    <uses-permission android:name="android.car.permission.READ_IMPACT_SENSORS"/>
+    <uses-permission android:name="android.car.permission.READ_VALET_MODE"/>
+    <uses-permission android:name="android.car.permission.CONTROL_VALET_MODE"/>
     <uses-permission android:name="android.car.permission.CONTROL_CAR_WINDOWS" />
     <uses-permission android:name="android.car.permission.CONTROL_GLOVE_BOX" />
     <uses-permission android:name="android.car.permission.CAR_IDENTIFICATION" />
@@ -94,6 +95,7 @@
     <uses-permission android:name="android.car.permission.CONTROL_CAR_MIRRORS" />
     <uses-permission android:name="android.car.permission.READ_CAR_INTERIOR_LIGHTS" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS" />
+    <uses-permission android:name="android.car.permission.READ_CAR_AIRBAGS" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_AIRBAGS" />
     <uses-permission android:name="android.car.permission.CAR_POWERTRAIN" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_POWERTRAIN"/>
@@ -112,6 +114,10 @@
     <uses-permission android:name="android.car.permission.READ_WINDSHIELD_WIPERS" />
     <uses-permission android:name="android.car.permission.CONTROL_WINDSHIELD_WIPERS" />
     <uses-permission android:name="android.car.permission.CAR_EPOCH_TIME" />
+    <uses-permission android:name="android.car.permission.VMS_PUBLISHER" />
+    <uses-permission android:name="android.car.permission.VMS_SUBSCRIBER" />
+    <uses-permission android:name="android.car.permission.READ_ULTRASONICS_SENSOR_DATA" />
+    <uses-permission android:name="android.car.permission.CLEAR_CAR_DIAGNOSTICS" />
     <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_WINDOW"/>
     <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_WINDOW"/>
     <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_DOOR"/>
@@ -157,4 +163,10 @@
     <uses-permission android:name="android.car.permission.MANAGE_OCCUPANT_CONNECTION" />
     <!-- Permissions required for CarRemoteDeviceManagerPermissionTest -->
     <uses-permission android:name="android.car.permission.MANAGE_REMOTE_DEVICE" />
+    <!-- Permissions required for CarPackageManagerPermissionTest -->
+    <uses-permission android:name="android.car.permission.QUERY_DISPLAY_COMPATIBILITY" />
+    <!-- permissions required for CarRemoteAccessManagerTest -->
+    <uses-permission android:name="android.car.permission.CONTROL_REMOTE_ACCESS" />
+    <!-- permissions required for ClusterHomeManagerTest -->
+    <uses-permission android:name="android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL" />
 </manifest>

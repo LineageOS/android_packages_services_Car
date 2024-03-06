@@ -67,6 +67,7 @@
         <permission name="android.car.permission.CAR_DISPLAY_IN_CLUSTER"/>
         <permission name="android.car.permission.CAR_DRIVING_STATE"/>
         <permission name="android.car.permission.CAR_DYNAMICS_STATE"/>
+        <permission name="android.car.permission.CONTROL_CAR_DYNAMICS_STATE"/>
         <permission name="android.car.permission.CAR_EXTERIOR_LIGHTS"/>
         <permission name="android.car.permission.CAR_IDENTIFICATION"/>
         <permission name="android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL"/>
@@ -93,6 +94,11 @@
         <permission name="android.car.permission.CONTROL_CAR_MIRRORS"/>
         <permission name="android.car.permission.CONTROL_GLOVE_BOX"/>
         <permission name="android.car.permission.CONTROL_CAR_SEATS"/>
+        <permission name="android.car.permission.READ_CAR_SEAT_BELTS"/>
+        <permission name="android.car.permission.READ_IMPACT_SENSORS"/>
+        <permission name="android.car.permission.READ_VALET_MODE"/>
+        <permission name="android.car.permission.CONTROL_VALET_MODE"/>
+        <permission name="android.car.permission.READ_CAR_AIRBAGS"/>
         <permission name="android.car.permission.CONTROL_CAR_AIRBAGS"/>
         <permission name="android.car.permission.CONTROL_CAR_WINDOWS"/>
         <permission name="android.car.permission.GET_CAR_VENDOR_CATEGORY_INFO"/>
@@ -141,6 +147,7 @@
         <permission name="android.car.permission.SET_CAR_VENDOR_CATEGORY_9"/>
         <permission name="android.car.permission.GET_CAR_VENDOR_CATEGORY_10"/>
         <permission name="android.car.permission.SET_CAR_VENDOR_CATEGORY_10"/>
+        <permission name="android.car.permission.READ_ULTRASONICS_SENSOR_DATA"/>
 
         <!-- use for CarWatchdogReliabilityTest -->
         <permission name="android.car.permission.USE_CAR_WATCHDOG"/>
@@ -159,5 +166,7 @@
         <permission name="android.permission.CHANGE_OVERLAY_PACKAGES"/>
         <!-- use for RemoteTaskClientService -->
         <permission name="android.car.permission.CONTROL_REMOTE_ACCESS"/>
+        <!-- use for TunerTestFragment -->
+        <permission name="android.permission.ACCESS_BROADCAST_RADIO" />
     </privapp-permissions>
 </permissions>

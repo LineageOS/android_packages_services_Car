@@ -18,7 +18,6 @@ package android.car;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.NonNull;
-import android.car.annotation.ApiRequirements;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -42,8 +41,6 @@ public final class PlatformVersionMismatchException extends UnsupportedOperation
 
     @Override
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public String getMessage() {
         return "Expected version: "
                 + mExpectedPlatformApiVersion + ", Current version: " + Car.getPlatformVersion();
@@ -78,16 +75,12 @@ public final class PlatformVersionMismatchException extends UnsupportedOperation
      * Gets expected platform API version.
      */
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public @NonNull PlatformVersion getMinimumPlatformApiVersion() {
         return mExpectedPlatformApiVersion;
     }
 
     @Override
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -98,8 +91,6 @@ public final class PlatformVersionMismatchException extends UnsupportedOperation
     @Override
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -120,8 +111,6 @@ public final class PlatformVersionMismatchException extends UnsupportedOperation
     }
 
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final @NonNull Parcelable.Creator<PlatformVersionMismatchException> CREATOR
             = new Parcelable.Creator<PlatformVersionMismatchException>() {
         @Override

@@ -18,7 +18,6 @@ package android.car.media;
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.util.List;
 
@@ -27,8 +26,6 @@ import java.util.List;
  *
  * @hide
  */
-@ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-        minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
 @SystemApi
 public interface AudioZonesMirrorStatusCallback {
 
@@ -41,8 +38,6 @@ public interface AudioZonesMirrorStatusCallback {
      *                {@link CarAudioManager#AUDIO_REQUEST_STATUS_CANCELLED},
      *                {@link CarAudioManager#AUDIO_REQUEST_STATUS_STOPPED}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     void onAudioZonesMirrorStatusChanged(@NonNull List<Integer> mirroredAudioZones,
             @CarAudioManager.MediaAudioRequestStatus int status);
 }

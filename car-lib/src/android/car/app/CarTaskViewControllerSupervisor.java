@@ -20,7 +20,6 @@ import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED
 import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.app.Activity;
 import android.car.app.CarTaskViewControllerHostLifecycle.CarTaskViewControllerHostLifecycleObserver;
 import android.car.builtin.app.ActivityManagerHelper;
@@ -29,7 +28,7 @@ import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserLifecycleEventFilter;
 import android.content.Context;
-import android.os.Build;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArrayMap;
@@ -45,7 +44,6 @@ import java.util.concurrent.Executor;
  * - It is also responsible to dispatch {@link CarTaskViewControllerCallback} methods to the
  * clients.
  */
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 final class CarTaskViewControllerSupervisor {
     private static final String TAG = CarTaskViewControllerSupervisor.class.getSimpleName();
     private final ArrayMap<CarTaskViewControllerHostLifecycle, ActivityHolder> mActivityHolders =
@@ -59,7 +57,12 @@ final class CarTaskViewControllerSupervisor {
     private final IBinder.DeathRecipient mDeathRecipient = new IBinder.DeathRecipient() {
         @Override
         public void binderDied() {
-            mMainExecutor.execute(() -> onSystemUIProxyDisconnected());
+            long identity = Binder.clearCallingIdentity();
+            try {
+                mMainExecutor.execute(() -> onSystemUIProxyDisconnected());
+            } finally {
+                Binder.restoreCallingIdentity(identity);
+            }
         }
     };
 
@@ -159,7 +162,12 @@ final class CarTaskViewControllerSupervisor {
         mSystemUIProxyCallback = new ICarSystemUIProxyCallback.Stub() {
             @Override
             public void onConnected(ICarSystemUIProxy carSystemUIProxy) {
-                mMainExecutor.execute(() -> onSystemUIProxyConnected(carSystemUIProxy));
+                long identity = Binder.clearCallingIdentity();
+                try {
+                    mMainExecutor.execute(() -> onSystemUIProxyConnected(carSystemUIProxy));
+                } finally {
+                    Binder.restoreCallingIdentity(identity);
+                }
             }
         };
         try {
@@ -238,9 +246,10 @@ final class CarTaskViewControllerSupervisor {
             mCallbackExecutor.execute(() -> {
                 synchronized (mLock) {
                     Slogf.w(TAG, "car task view controller not found when triggering callback, "
-                                    + "not dispatching onConnected");
+                            + "not dispatching onConnected");
                     // Check for null because the mCarTaskViewController might have already been
-                    // released but this code path is executed later because the executor was busy.
+                    // released but this code path is executed later because the executor was
+                    // busy.
                     if (mCarTaskViewController == null) {
                         return;
                     }
@@ -260,7 +269,6 @@ final class CarTaskViewControllerSupervisor {
                 // connected while the activity is still visible.
                 mCarTaskViewController.releaseTaskViews();
             }
-
             mCallbackExecutor.execute(() -> {
                 synchronized (mLock) {
                     if (mCarTaskViewController == null) {

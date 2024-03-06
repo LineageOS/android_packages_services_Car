@@ -33,7 +33,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Resources;
 import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
-import android.frameworks.automotive.powerpolicy.internal.PolicyState;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.os.Binder;
@@ -112,7 +111,8 @@ public class MockedCarTestBase {
     private final CarUserService mCarUserService = mock(CarUserService.class);
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
     private final GarageModeService mGarageModeService = mock(GarageModeService.class);
-    private final FakeCarPowerPolicyDaemon mPowerPolicyDaemon = new FakeCarPowerPolicyDaemon();
+    private final ICarPowerPolicySystemNotification.Stub mPowerPolicyDaemon =
+            mock(ICarPowerPolicySystemNotification.Stub.class);
     private final ICarServiceHelper mICarServiceHelper = mock(ICarServiceHelper.class);
 
     private final Object mLock = new Object();
@@ -151,6 +151,10 @@ public class MockedCarTestBase {
 
     protected SystemInterface getFakeSystemInterface() {
         return mFakeSystemInterface;
+    }
+
+    protected ICarPowerPolicySystemNotification.Stub getMockedPowerPolicyDaemon() {
+        return mPowerPolicyDaemon;
     }
 
     protected void configureMockedHal() {
@@ -738,7 +742,8 @@ public class MockedCarTestBase {
         }
 
         @Override
-        public void scheduleActionForBootCompleted(Runnable action, Duration delay) {}
+        public void scheduleActionForBootCompleted(Runnable action, Duration delay,
+                Duration delayRange) {}
     }
 
     static final class MockTimeInterface implements TimeInterface {
@@ -760,34 +765,5 @@ public class MockedCarTestBase {
 
         @Override
         public void switchToFullWakeLock(int displayId) {}
-    }
-
-    static final class FakeCarPowerPolicyDaemon extends ICarPowerPolicySystemNotification.Stub {
-        @Override
-        public PolicyState notifyCarServiceReady() {
-            // do nothing
-            return null;
-        }
-
-        @Override
-        public void notifyPowerPolicyChange(String policyId, boolean force) {
-            // do nothing
-        }
-
-        @Override
-        public void notifyPowerPolicyDefinition(String policyId, String[] enabledComponents,
-                String[] disabledComponents) {
-            // do nothing
-        }
-
-        @Override
-        public String getInterfaceHash() {
-            return ICarPowerPolicySystemNotification.HASH;
-        }
-
-        @Override
-        public int getInterfaceVersion() {
-            return ICarPowerPolicySystemNotification.VERSION;
-        }
     }
 }

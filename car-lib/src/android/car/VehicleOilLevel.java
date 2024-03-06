@@ -16,28 +16,27 @@
 package android.car;
 
 import android.annotation.IntDef;
-import android.car.annotation.AddedInOrBefore;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
  * OilLevel in the engine
+ *
  * @hide
+ * @deprecated This API is deprecated in favor of {@link
+ * android.car.hardware.property.VehicleOilLevel}. This API will be marked as {@code @removed} in
+ * the next API release and then fully removed in two API releases.
  */
+@Deprecated
 public final class VehicleOilLevel {
     /**
      * List of Oil Levels from VHAL
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int CRITICALLY_LOW = 0;
-    @AddedInOrBefore(majorVersion = 33)
     public static final int LOW = 1;
-    @AddedInOrBefore(majorVersion = 33)
     public static final int NORMAL = 2;
-    @AddedInOrBefore(majorVersion = 33)
     public static final int HIGH = 3;
-    @AddedInOrBefore(majorVersion = 33)
     public static final int ERROR = 4;
 
     /** @hide */

@@ -22,6 +22,7 @@
 #include "PerformanceProfiler.h"
 
 #include <android/binder_interface_utils.h>
+#include <utils/SystemClock.h>
 
 namespace android {
 namespace automotive {
@@ -102,7 +103,7 @@ Result<void> ServiceManager::startWatchdogProcessService(const sp<Looper>& mainL
 
 Result<void> ServiceManager::startWatchdogPerfService(
         const sp<WatchdogServiceHelperInterface>& watchdogServiceHelper) {
-    mWatchdogPerfService = sp<WatchdogPerfService>::make(watchdogServiceHelper);
+    mWatchdogPerfService = sp<WatchdogPerfService>::make(watchdogServiceHelper, elapsedRealtime);
     if (auto result = mWatchdogPerfService->registerDataProcessor(sp<PerformanceProfiler>::make());
         !result.ok()) {
         return Error() << "Failed to register performance profiler: " << result.error();

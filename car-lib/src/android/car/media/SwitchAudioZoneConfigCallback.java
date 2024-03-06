@@ -18,15 +18,12 @@ package android.car.media;
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 /**
  * Callback to informed about car audio zone configuration request results
  *
  * @hide
  */
-@ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-        minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
 @SystemApi
 public interface SwitchAudioZoneConfigCallback {
     /**
@@ -36,8 +33,6 @@ public interface SwitchAudioZoneConfigCallback {
      * @param isSuccessful {@code true} if the audio config change is successful, {@code false}
      * otherwise (i.e. failed to register an audio policy to the audio service)
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     void onAudioZoneConfigSwitched(@NonNull CarAudioZoneConfigInfo zoneConfig,
             boolean isSuccessful);
 }

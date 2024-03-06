@@ -19,7 +19,6 @@ package com.android.car.internal.property;
 import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
 
 import android.annotation.Nullable;
-import android.car.annotation.ApiRequirements;
 import android.car.hardware.CarPropertyValue;
 import android.os.Parcelable;
 
@@ -101,43 +100,31 @@ public final class GetSetValueResult implements Parcelable {
     //@formatter:off
 
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public int getRequestId() {
         return mRequestId;
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public @Nullable CarPropertyValue getCarPropertyValue() {
         return mCarPropertyValue;
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public long getUpdateTimestampNanos() {
         return mUpdateTimestampNanos;
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public int getErrorCode() {
         return mErrorCode;
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public int getVendorErrorCode() {
         return mVendorErrorCode;
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     public void writeToParcel(@android.annotation.NonNull android.os.Parcel dest, int flags) {
@@ -154,8 +141,6 @@ public final class GetSetValueResult implements Parcelable {
         dest.writeInt(mVendorErrorCode);
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     public int describeContents() { return 0; }
@@ -183,8 +168,6 @@ public final class GetSetValueResult implements Parcelable {
         // onConstructed(); // You can define this method to get a callback
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public static final @android.annotation.NonNull Parcelable.Creator<GetSetValueResult> CREATOR
             = new Parcelable.Creator<GetSetValueResult>() {

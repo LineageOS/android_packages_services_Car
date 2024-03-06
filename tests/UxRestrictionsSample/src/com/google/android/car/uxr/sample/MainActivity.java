@@ -73,6 +73,9 @@ public class MainActivity extends AppCompatActivity
     private TextView mDrvStatus;
     private TextView mDistractionOptStatus;
     private TextView mUxrStatus;
+    private TextView mUxrRestrictionParametersMaxStringLength;
+    private TextView mUxrRestrictionParametersMaxContentDepth;
+    private TextView mUxrRestrictionParametersMaxCumulativeContent;
     private TextView mDistractionStatus;
     private Button mToggleButton;
     private Button mSaveUxrConfigButton;
@@ -91,6 +94,12 @@ public class MainActivity extends AppCompatActivity
         mDrvStatus = findViewById(R.id.driving_state);
         mDistractionOptStatus = findViewById(R.id.do_status);
         mUxrStatus = findViewById(R.id.uxr_status);
+        mUxrRestrictionParametersMaxStringLength = findViewById(
+                R.id.uxr_restriction_parameters_string_length);
+        mUxrRestrictionParametersMaxContentDepth = findViewById(
+                R.id.uxr_restriction_parameters_content_depth);
+        mUxrRestrictionParametersMaxCumulativeContent = findViewById(
+                R.id.uxr_restriction_parameters_cumulative_content);
         mDistractionStatus = findViewById(R.id.current_driver_distraction);
 
         mToggleButton = findViewById(R.id.toggle_status);
@@ -157,18 +166,33 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateUxRText(CarUxRestrictions restrictions) {
-        mDistractionOptStatus.setText(
-                restrictions.isRequiresDistractionOptimization()
-                        ? "Requires Distraction Optimization"
-                        : "No Distraction Optimization required");
+        if (restrictions.isRequiresDistractionOptimization()) {
+            mDistractionOptStatus.setText(getString(R.string.do_reqd));
+        } else {
+            mDistractionOptStatus.setText(getString(R.string.do_not_reqd));
+        }
 
-        mUxrStatus.setText("Active Restrictions : 0x"
-                + Integer.toHexString(restrictions.getActiveRestrictions())
-                + " - "
-                + Integer.toBinaryString(restrictions.getActiveRestrictions()));
+        mUxrStatus.setText(getString(R.string.active_restrictions,
+                Integer.toHexString(restrictions.getActiveRestrictions()),
+                Integer.toBinaryString(restrictions.getActiveRestrictions())));
+
+        mUxrRestrictionParametersMaxStringLength.setText(
+                getString(R.string.active_restriction_parameters_string_length,
+                        restrictions.getMaxRestrictedStringLength()));
+
+        mUxrRestrictionParametersMaxContentDepth.setText(
+                getString(R.string.active_restriction_parameters_content_depth,
+                        restrictions.getMaxContentDepth()));
+
+        mUxrRestrictionParametersMaxCumulativeContent.setText(
+                getString(R.string.active_restriction_parameters_cumulative_content,
+                        restrictions.getMaxCumulativeContentItems()));
 
         mDistractionOptStatus.requestLayout();
         mUxrStatus.requestLayout();
+        mUxrRestrictionParametersMaxStringLength.requestLayout();
+        mUxrRestrictionParametersMaxContentDepth.requestLayout();
+        mUxrRestrictionParametersMaxCumulativeContent.requestLayout();
     }
 
     private void onDriverDistractionChange(DriverDistractionChangeEvent event) {
