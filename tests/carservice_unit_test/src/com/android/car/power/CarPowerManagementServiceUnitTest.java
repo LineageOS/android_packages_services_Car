@@ -278,8 +278,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         if (mService != null) {
             mService.release();
         }
+        CarServiceUtils.quitHandlerThreads();
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
-        CarServiceUtils.finishAllHandlerTasks();
         mIOInterface.tearDown();
     }
 

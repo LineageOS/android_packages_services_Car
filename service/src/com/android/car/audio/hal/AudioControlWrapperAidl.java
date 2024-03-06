@@ -65,6 +65,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
 
     private static final int AIDL_AUDIO_CONTROL_VERSION_1 = 1;
     private static final int AIDL_AUDIO_CONTROL_VERSION_2 = 2;
+    private static final int AIDL_AUDIO_CONTROL_VERSION_3 = 3;
 
     private IBinder mBinder;
     private IAudioControl mAudioControl;
@@ -301,6 +302,12 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
             @Override
             public void run() {
                 try {
+                    if (mAudioControl.getInterfaceVersion() < AIDL_AUDIO_CONTROL_VERSION_3) {
+                        Slogf.w(TAG,
+                                "Failed to clear module change callback, feature not supported"
+                                + " for versions less than: " + AIDL_AUDIO_CONTROL_VERSION_3);
+                        return;
+                    }
                     mAudioControl.clearModuleChangeCallback();
                     mModuleChangeCallbackRegistered = false;
                 } catch (RemoteException e) {

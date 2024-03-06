@@ -47,6 +47,7 @@ using ::android::base::StringPrintf;
 using ::android::base::Trim;
 using ::android::base::unique_fd;
 using ::android::base::WriteStringToFd;
+using ::ndk::ScopedAStatus;
 
 namespace {
 
@@ -58,6 +59,18 @@ constexpr const char kPropertyNoBootAnimation[] = "debug.sf.nobootanimation";
 // To stop boot animation while it is being played.
 constexpr const char kPropertyBootAnimationExit[] = "service.bootanim.exit";
 constexpr const char* kSysfsDirForSilentMode[] = {"/sys/kernel/silent_boot", "/sys/power"};
+// Silent Mode types. Must be identical to definitions in SilentModeHandler.java.
+constexpr const char kSilentModeStringForcedSilent[] = "forced-silent";
+constexpr const char kSilentModeStringForcedNonSilent[] = "forced-non-silent";
+constexpr const char kSilentModeStringNonForced[] = "non-forced-silent-mode";
+constexpr int32_t kSilentModeTypeForcedSilent = 1;
+constexpr int32_t kSilentModeTypeForcedNonSilent = 2;
+constexpr int32_t kSilentModeTypeNonForced = 3;
+
+const std::unordered_map<std::string, int32_t> kSilentModeToType =
+        {{kSilentModeStringForcedSilent, kSilentModeTypeForcedSilent},
+         {kSilentModeStringForcedNonSilent, kSilentModeTypeForcedNonSilent},
+         {kSilentModeStringNonForced, kSilentModeTypeNonForced}};
 
 bool fileExists(const char* filename) {
     struct stat buffer;
@@ -90,14 +103,20 @@ void SilentModeHandler::init() {
     std::string sysfsDir = searchForSysfsDir();
     mSilentModeHwStateFilename = sysfsDir + kHwStateFilename;
     mKernelSilentModeFilename = sysfsDir + kKernelStateFilename;
-    if (mBootReason == kBootReasonForcedSilent) {
-        mForcedMode = true;
-        mSilentModeByHwState = true;
-    } else if (mBootReason == kBootReasonForcedNonSilent) {
-        mForcedMode = true;
-        mSilentModeByHwState = false;
+    bool forcedMode;
+    {
+        Mutex::Autolock lock(mMutex);
+        mForcedMode = false;
+        if (mBootReason == kBootReasonForcedSilent) {
+            mForcedMode = true;
+            mSilentModeByHwState = true;
+        } else if (mBootReason == kBootReasonForcedNonSilent) {
+            mForcedMode = true;
+            mSilentModeByHwState = false;
+        }
+        forcedMode = mForcedMode;
     }
-    if (mForcedMode) {
+    if (forcedMode) {
         handleSilentModeChange(mSilentModeByHwState);
         mSilentModeChangeHandler->notifySilentModeChange(mSilentModeByHwState);
         ALOGI("Now in forced mode: monitoring %s is disabled", mSilentModeHwStateFilename.c_str());
@@ -123,6 +142,29 @@ void SilentModeHandler::stopMonitoringSilentModeHwState() {
     }
     mFdSilentModeHwState.reset();
     mSysfsMonitor->release();
+}
+
+ScopedAStatus SilentModeHandler::setSilentMode(const std::string& silentMode) {
+    if (kSilentModeToType.count(silentMode) == 0) {
+        return ScopedAStatus::
+                fromExceptionCodeWithMessage(EX_ILLEGAL_ARGUMENT,
+                                             StringPrintf("Unsupported Silent Mode(%s)",
+                                                          silentMode.c_str())
+                                                     .c_str());
+    }
+    int32_t silentModeType = kSilentModeToType.at(silentMode);
+    switch (silentModeType) {
+        case kSilentModeTypeForcedSilent:
+            switchToForcedMode(true);
+            break;
+        case kSilentModeTypeForcedNonSilent:
+            switchToForcedMode(false);
+            break;
+        case kSilentModeTypeNonForced:
+            switchToNonForcedMode();
+            break;
+    }
+    return ScopedAStatus::ok();
 }
 
 Result<void> SilentModeHandler::dump(int fd, const Vector<String16>& /*args*/) {
@@ -185,6 +227,7 @@ void SilentModeHandler::startMonitoringSilentModeHwState() {
         return;
     }
     mIsMonitoring = true;
+    ALOGI("Started monitoring Silent Mode HW state");
 
     // Read the current silent mode HW state.
     handleSilentModeHwStateChange();
@@ -236,6 +279,43 @@ Result<void> SilentModeHandler::enableBootAnimation(bool enabled) {
         }
     }
     return {};
+}
+
+void SilentModeHandler::switchToForcedMode(bool silent) {
+    bool updated = false;
+    {
+        Mutex::Autolock lock(mMutex);
+        if (!mForcedMode) {
+            stopMonitoringSilentModeHwState();
+            mForcedMode = true;
+        }
+        if (mSilentModeByHwState != silent) {
+            mSilentModeByHwState = silent;
+            updated = true;
+        }
+    }
+    if (updated) {
+        updateKernelSilentMode(silent);
+        mSilentModeChangeHandler->notifySilentModeChange(silent);
+    }
+    ALOGI("Now in forced %s mode: monitoring %s is disabled", silent ? "silent" : "non-silent",
+          mSilentModeHwStateFilename.c_str());
+}
+
+void SilentModeHandler::switchToNonForcedMode() {
+    bool updated = false;
+    {
+        Mutex::Autolock lock(mMutex);
+        if (mForcedMode) {
+            ALOGI("Now in non forced mode: monitoring %s is started",
+                  mSilentModeHwStateFilename.c_str());
+            mForcedMode = false;
+            updated = true;
+        }
+    }
+    if (updated) {
+        startMonitoringSilentModeHwState();
+    }
 }
 
 Result<void> SilentModeHandler::updateKernelSilentMode(bool silent) {

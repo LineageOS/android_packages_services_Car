@@ -29,11 +29,8 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
 
 # Applications
 PRODUCT_PACKAGES += \
-    LiveWallpapersPicker \
     PartnerBookmarksProvider \
     preinstalled-packages-platform-generic-system.xml \
-    Stk \
-    Tag \
 
 # OTA support
 PRODUCT_PACKAGES += \
@@ -106,7 +103,6 @@ PRODUCT_ENFORCE_RRO_TARGETS := *
 PRODUCT_PACKAGES += \
     Bluetooth \
     CarActivityResolver \
-    CarManagedProvisioning \
     StatementService \
     SystemUpdater \
     pppd \
@@ -214,7 +210,6 @@ PRODUCT_PACKAGES += \
     CarRadioApp \
     OverviewApp \
     CarLauncher \
-    LocalMediaPlayer \
     CarMediaApp \
     CarMessengerApp \
     CarHTMLViewer \

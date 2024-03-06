@@ -407,7 +407,7 @@ public class MockedCarTestBase {
                 mCarImpl.release();
                 mCarImpl = null;
             }
-            CarServiceUtils.finishAllHandlerTasks();
+            CarServiceUtils.quitHandlerThreads();
             mMockIOInterface.tearDown();
             mHidlMockedVehicleHal = null;
             mAidlMockedVehicleHal = null;

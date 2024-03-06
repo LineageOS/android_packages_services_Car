@@ -40,6 +40,7 @@ interface ICarPowerPolicyDelegate {
   void notifyPowerPolicyDefinition(in @utf8InCpp String policyId, in @utf8InCpp String[] enabledComponents, in @utf8InCpp String[] disabledComponents);
   void notifyPowerPolicyGroupDefinition(in @utf8InCpp String policyGroupId, in String[] powerPolicyPerState);
   void applyPowerPolicyPerPowerStateChangeAsync(int requestId, in android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate.PowerState state);
+  void setSilentMode(in @utf8InCpp String silentMode);
   @Backing(type="int")
   enum PowerState {
     INVALID = 0,
