@@ -25,6 +25,7 @@ android_app {
 
     static_libs: [
         "CarSystemUI-core",
+        "displaycompat-service",
     ],
 
     libs: [

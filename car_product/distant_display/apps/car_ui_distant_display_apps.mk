@@ -18,4 +18,5 @@
 PRODUCT_PACKAGES += \
     CarDistantDisplaySystemUI \
     DesignComposeDriverUIPrebuilt \
-    PaintBooth
+    PaintBooth \
+    displaycompat-service-sharedlibrary \
