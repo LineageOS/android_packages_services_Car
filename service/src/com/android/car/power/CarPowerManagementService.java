@@ -35,7 +35,6 @@ import android.automotive.powerpolicy.internal.PowerPolicyInitData;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.ICarResultReceiver;
-import android.car.PlatformVersion;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.HandlerHelper;
@@ -3646,7 +3645,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * Utility method to help with memory freeing before entering Suspend-To-Disk
      */
     static void freeMemory() {
-        PlatformVersion platformVersion = Car.getPlatformVersion();
         ActivityManagerHelper.killAllBackgroundProcesses();
     }
 
