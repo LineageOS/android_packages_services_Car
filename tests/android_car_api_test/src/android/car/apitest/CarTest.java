@@ -17,6 +17,7 @@
 package android.car.apitest;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 
@@ -25,11 +26,14 @@ import android.car.CarVersion;
 import android.car.ICar;
 import android.car.PlatformVersion;
 import android.car.hardware.CarSensorManager;
+import android.car.test.CarTestManager;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
+import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -161,5 +165,22 @@ public final class CarTest extends CarLessApiTestBase {
                 CODENAME_REL.equals(Build.VERSION.CODENAME) ? Build.VERSION.SDK_INT
                         : Build.VERSION_CODES.CUR_DEVELOPMENT);
         assertThat(platformVersion.getMinorVersion()).isAtLeast(0);
+    }
+
+    // This test need to wait for car service release and initialization.
+    @Test
+    @LargeTest
+    public void testCarServiceReleaseReInit() throws Exception {
+        Car car = Car.createCar(mContext);
+
+        CarTestManager carTestManager = (CarTestManager) (car.getCarManager(Car.TEST_SERVICE));
+
+        assertWithMessage("Could not get service %s", Car.TEST_SERVICE).that(carTestManager)
+                .isNotNull();
+
+        Binder token = new Binder("testCarServiceReleaseReInit");
+        // Releaseing car service and re-initialize must not crash car service.
+        carTestManager.stopCarService(token);
+        carTestManager.startCarService(token);
     }
 }
