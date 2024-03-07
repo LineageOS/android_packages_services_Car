@@ -1147,6 +1147,11 @@ public class CarPropertyManager extends CarManagerBase {
      * <p>Note that the callback will be executed on the event handler provided to the
      * {@link android.car.Car} or the main thread if none was provided.
      *
+     * <p>
+     * If one {@link CarPropertyEventCallback} is already registered using
+     * {@link CarPropertyManager#subscribePropertyEvents}, caller must make sure the executor was
+     * null (using the default executor) when calling subscribePropertyEvents.
+     *
      * @param carPropertyEventCallback the CarPropertyEventCallback to be registered
      * @param propertyId               the property ID to subscribe
      * @param updateRateHz             how fast the property events are delivered in Hz

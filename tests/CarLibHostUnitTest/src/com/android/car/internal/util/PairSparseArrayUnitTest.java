@@ -18,11 +18,11 @@ package com.android.car.internal.util;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.AbstractExpectableTestCase;
 
 import org.junit.Test;
 
-public class PairSparseArrayUnitTest extends AbstractExtendedMockitoTestCase {
+public class PairSparseArrayUnitTest extends AbstractExpectableTestCase {
     private static final int FIRST_KEY = 10;
     private static final int SECOND_KEY = 20;
     private static final int THIRD_KEY = 30;
@@ -176,5 +176,25 @@ public class PairSparseArrayUnitTest extends AbstractExtendedMockitoTestCase {
 
         assertThat(map.getFirstKeys()).containsExactly(
                 FIRST_KEY, SECOND_KEY, THIRD_KEY, FOURTH_KEY);
+    }
+
+    @Test
+    public void test_clone() {
+        PairSparseArray<Integer> map = new PairSparseArray<>(16);
+
+        map.put(FIRST_KEY, FIRST_KEY, VALUE_1);
+        map.put(SECOND_KEY, FIRST_KEY, VALUE_2);
+        map.put(SECOND_KEY, SECOND_KEY, VALUE_2);
+
+        PairSparseArray<Integer> cloned = map.clone();
+
+        expectThat(cloned.get(FIRST_KEY, FIRST_KEY)).isEqualTo(VALUE_1);
+        expectThat(cloned.get(SECOND_KEY, FIRST_KEY)).isEqualTo(VALUE_2);
+        expectThat(cloned.get(SECOND_KEY, SECOND_KEY)).isEqualTo(VALUE_2);
+
+        cloned.put(SECOND_KEY, SECOND_KEY, VALUE_1);
+
+        expectThat(cloned.get(SECOND_KEY, SECOND_KEY)).isEqualTo(VALUE_1);
+        expectThat(map.get(SECOND_KEY, SECOND_KEY)).isEqualTo(VALUE_2);
     }
 }

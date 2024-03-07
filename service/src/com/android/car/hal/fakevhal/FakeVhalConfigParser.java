@@ -112,6 +112,8 @@ public final class FakeVhalConfigParser {
     private static final int FUEL_DOOR_REAR_LEFT = PortLocationType.REAR_LEFT;
     // TODO(b/241984846) Keep SEAT_2_CENTER from HVAC_LEFT here. May have a new design to handle
     //  HVAC zone ids.
+    private static final int HVAC_FRONT_ROW = SEAT_1_LEFT | SEAT_1_RIGHT;
+    private static final int HVAC_REAR_ROW = SEAT_2_LEFT | SEAT_2_CENTER | SEAT_2_RIGHT;
     private static final int HVAC_LEFT = SEAT_1_LEFT | SEAT_2_LEFT | SEAT_2_CENTER;
     private static final int HVAC_RIGHT = SEAT_1_RIGHT | SEAT_2_RIGHT;
     private static final int HVAC_ALL = HVAC_LEFT | HVAC_RIGHT;
@@ -135,6 +137,8 @@ public final class FakeVhalConfigParser {
             Map.entry("HVAC_ALL", HVAC_ALL),
             Map.entry("HVAC_LEFT", HVAC_LEFT),
             Map.entry("HVAC_RIGHT", HVAC_RIGHT),
+            Map.entry("HVAC_FRONT_ROW", HVAC_FRONT_ROW),
+            Map.entry("HVAC_REAR_ROW", HVAC_REAR_ROW),
             Map.entry("VENDOR_EXTENSION_INT_PROPERTY",
                     TestVendorProperty.VENDOR_EXTENSION_INT_PROPERTY),
             Map.entry("VENDOR_EXTENSION_BOOLEAN_PROPERTY",
