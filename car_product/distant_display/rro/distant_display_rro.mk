@@ -12,6 +12,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+
+$(call inherit-product, packages/services/Car/car_product/car_ui_portrait/rro/car-ui-customizations/product.mk)
+$(call inherit-product, packages/services/Car/car_product/car_ui_portrait/rro/car-ui-toolbar-customizations/product.mk)
+$(call inherit-product-if-exists, vendor/auto/embedded/products/coolwhip/car-ui-lib-rros/product.mk)
+$(call inherit-product-if-exists, vendor/google/nexus_overlay/fonts/fonts.mk)
 
 # All RROs to be included in car_ui_portrait builds.
 PRODUCT_PACKAGES += \
