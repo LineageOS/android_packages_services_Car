@@ -66,8 +66,7 @@ public final class CarDevicePolicyManagerUnitTest extends AbstractExtendedMockit
 
     @Test
     public void testRemoveUser_success() throws Exception {
-        int status = UserRemovalResult.STATUS_SUCCESSFUL;
-        mockRemoveUser(100, status);
+        mockRemoveUser(/* userId= */ 100);
 
         RemoveUserResult result = mMgr.removeUser(UserHandle.of(100));
 
@@ -186,7 +185,7 @@ public final class CarDevicePolicyManagerUnitTest extends AbstractExtendedMockit
         assertThrows(NullPointerException.class, () -> mMgr.stopUser(null));
     }
 
-    private void mockRemoveUser(@UserIdInt int userId, int status) throws Exception {
+    private void mockRemoveUser(@UserIdInt int userId) throws Exception {
         doAnswer((invocation) -> {
             @SuppressWarnings("unchecked")
             ResultCallbackImpl<UserRemovalResult> resultResultCallbackImpl =
