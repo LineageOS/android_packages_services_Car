@@ -60,9 +60,6 @@
             </intent-filter>
         </service>
 
-        <activity
-            android:name="com.android.car.pm.CarPackageManagerServiceTest$NonDoNoHistoryActivity"
-            android:noHistory="true"/>
         <activity android:name="com.android.car.pm.CarPackageManagerServiceTest$NonDoActivity"
             android:taskAffinity=""/>
         <activity android:name="com.android.car.pm.CarPackageManagerServiceTest$DoActivity"

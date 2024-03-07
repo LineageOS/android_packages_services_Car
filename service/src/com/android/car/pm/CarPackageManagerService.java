@@ -50,6 +50,7 @@ import android.car.content.pm.AppBlockingPackageInfo;
 import android.car.content.pm.CarAppBlockingPolicy;
 import android.car.content.pm.CarAppBlockingPolicyService;
 import android.car.content.pm.CarPackageManager;
+import android.car.content.pm.ICarBlockingUiCommandListener;
 import android.car.content.pm.ICarPackageManager;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
@@ -163,6 +164,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
 
     // For dumpsys logging.
     private final LocalLog mBlockedActivityLogs = new LocalLog(LOG_SIZE);
+    private final BlockingUiCommandListenerMediator mBlockingUiCommandListenerMediator;
 
     // Store the allowlist and blocklist strings from the resource file.
     private String mConfiguredAllowlist;
@@ -212,13 +214,17 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     private final boolean mPreventTemplatedAppsFromShowingDialog;
     private final String mTemplateActivityClassName;
 
-    private final ActivityLaunchListener mActivityLaunchListener = new ActivityLaunchListener();
+    private final ActivityListener mActivityListener = new ActivityListener();
 
     // K: (logical) display id of a physical display, V: UXR change listener of this display.
     // For multi-display, monitor UXR change on each display.
     @GuardedBy("mLock")
     private final SparseArray<UxRestrictionsListener> mUxRestrictionsListeners =
             new SparseArray<>();
+    // K: (logical) display id of a display, V: Task info of the blocking ui of this display.
+    // For multi-display, monitor blocking ui task information for each display.
+    @GuardedBy("mLock")
+    private final SparseArray<TaskInfo> mBlockingUiTaskInfoPerDisplay = new SparseArray<>();
     private final VendorServiceController mVendorServiceController;
 
     // Information related to when the installed packages should be parsed for building a allow and
@@ -279,6 +285,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         mPreventTemplatedAppsFromShowingDialog =
                 res.getBoolean(R.bool.config_preventTemplatedAppsFromShowingDialog);
         mTemplateActivityClassName = res.getString(R.string.config_template_activity_class_name);
+        mBlockingUiCommandListenerMediator = new BlockingUiCommandListenerMediator();
     }
 
 
@@ -663,6 +670,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             mActivityAllowlistMap.clear();
             mActivityDenylistPackages.clear();
             mClientPolicies.clear();
+            mBlockingUiTaskInfoPerDisplay.clear();
             if (mProxies != null) {
                 for (AppBlockingPolicyProxy proxy : mProxies) {
                     proxy.disconnect();
@@ -674,7 +682,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             mLock.notifyAll();
         }
         mContext.unregisterReceiver(mPackageParsingEventReceiver);
-        mActivityService.unregisterActivityLaunchListener(mActivityLaunchListener);
+        mActivityService.unregisterActivityListener(mActivityListener);
         synchronized (mLock) {
             for (int i = 0; i < mUxRestrictionsListeners.size(); i++) {
                 UxRestrictionsListener listener = mUxRestrictionsListeners.valueAt(i);
@@ -741,7 +749,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         mCarOccupantZoneService.registerCallback(mOccupantZoneCallback);
 
         mVendorServiceController.init();
-        mActivityService.registerActivityLaunchListener(mActivityLaunchListener);
+        mActivityService.registerActivityListener(mActivityListener);
     }
 
     private final ICarOccupantZoneCallback mOccupantZoneCallback =
@@ -1295,6 +1303,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                             PackageManagerHelper.PROPERTY_CAR_SERVICE_OVERLAY_PACKAGES,
                             /* default= */ null));
             mVendorServiceController.dump(writer);
+            mBlockingUiCommandListenerMediator.dump(writer);
         }
     }
 
@@ -1916,14 +1925,118 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         }
     }
 
-    private class ActivityLaunchListener implements CarActivityService.ActivityLaunchListener {
+    private class ActivityListener implements CarActivityService.ActivityListener {
         @Override
-        public void onActivityLaunch(TaskInfo topTask) {
+        public void onActivityCameOnTop(TaskInfo topTask) {
             if (topTask == null) {
                 Slogf.e(TAG, "Received callback with null top task.");
                 return;
             }
+            if (Objects.equals(mActivityBlockingActivity, topTask.topActivity)) {
+                // This is to keep track of the blocking ui taskInfo.
+                synchronized (mLock) {
+                    mBlockingUiTaskInfoPerDisplay.put(TaskInfoHelper.getDisplayId(topTask),
+                            topTask);
+                }
+            }
             blockTopActivityIfNecessary(topTask);
+        }
+
+        @Override
+        public void onActivityChangedInBackstack(TaskInfo taskInfo, int lastKnownDisplayId) {
+            if (taskInfo == null) {
+                Slogf.e(TAG, "Received callback with null task info.");
+                return;
+            }
+            if (isBlockingUiVisible(lastKnownDisplayId) && isNotBlockingUiTask(taskInfo)) {
+                mHandler.post(() -> finishBlockingUi(taskInfo));
+                synchronized (mLock) {
+                    mBlockingUiTaskInfoPerDisplay.delete(lastKnownDisplayId);
+                }
+            }
+        }
+    }
+
+    /**
+     * Checks if blocking ui is visible on that {@code displayId}.
+     *
+     * @param displayId the display id of the {@link TaskInfo}.
+     * @return {@code true} if the blocking ui is visible, {@code false} otherwise.
+     */
+    private boolean isBlockingUiVisible(int displayId) {
+        synchronized (mLock) {
+            return mBlockingUiTaskInfoPerDisplay.get(displayId) != null && TaskInfoHelper.isVisible(
+                    mBlockingUiTaskInfoPerDisplay.get(displayId));
+        }
+    }
+
+    /**
+     * Check if this stack change came from some {@code taskInfo} other than the blocking ui.
+     *
+     * @param taskInfo {@link TaskInfo} due to which the task stack changed.
+     * @return {@code true} if this stack change came from {@code taskInfo} other than the
+     * blocking ui, {@code false} otherwise.
+     */
+    private boolean isNotBlockingUiTask(TaskInfo taskInfo) {
+        return !Objects.equals(mActivityBlockingActivity, taskInfo.baseIntent.getComponent());
+    }
+
+    /**
+     * Registers the {@link ICarBlockingUiCommandListener} listening for the commands to control the
+     * blocking ui.
+     *
+     * @param listener  listener to register.
+     * @param displayId display Id with which the listener is associated.
+     */
+    public void registerBlockingUiCommandListener(ICarBlockingUiCommandListener listener,
+            int displayId) {
+        ensurePermission();
+        mBlockingUiCommandListenerMediator.registerBlockingUiCommandListener(listener, displayId);
+    }
+
+    /**
+     * Unregisters the {@link ICarBlockingUiCommandListener}.
+     *
+     * @param listener listener to unregister.
+     */
+    public void unregisterBlockingUiCommandListener(ICarBlockingUiCommandListener listener) {
+        ensurePermission();
+        mBlockingUiCommandListenerMediator.unregisterBlockingUiCommandListener(listener);
+    }
+
+    /**
+     * Broadcast the finish command to listeners.
+     *
+     * @param taskInfo the {@link TaskInfo} due to which finish is broadcast to the listeners.
+     */
+    public void finishBlockingUi(TaskInfo taskInfo) {
+        ensurePermission();
+        int displayId;
+        synchronized (mLock) {
+            displayId = mActivityService.getLastKnownDisplayIdForTask(taskInfo.taskId);
+        }
+        mBlockingUiCommandListenerMediator.finishBlockingUi(taskInfo, displayId);
+        mActivityService.cleanUpLastKnownDisplayIdForTask(taskInfo);
+    }
+
+    /**
+     * Get number of registered callbacks for the display ID.
+     *
+     * @param displayId display Id with which the listener is associated.
+     * @return number of registered callbacks for the given {@code displayId}.
+     */
+    @VisibleForTesting
+    public int getCarBlockingUiCommandListenerRegisteredCallbacksForDisplay(int displayId) {
+        return mBlockingUiCommandListenerMediator
+                .getCarBlockingUiCommandListenerRegisteredCallbacksForDisplay(displayId);
+    }
+
+    /** Ensure permission is granted. */
+    private void ensurePermission() {
+        if (mContext.checkCallingOrSelfPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
+                != PackageManager.PERMISSION_GRANTED) {
+            throw new SecurityException(
+                    "requires permission " + Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY);
         }
     }
 

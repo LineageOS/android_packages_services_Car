@@ -17,10 +17,12 @@
 package com.android.car.pm;
 
 import static android.Manifest.permission.QUERY_ALL_PACKAGES;
+import static android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY;
 import static android.car.content.pm.CarPackageManager.ERROR_CODE_NO_PACKAGE;
 import static android.car.content.pm.CarPackageManager.MANIFEST_METADATA_TARGET_CAR_VERSION;
 import static android.content.pm.PackageManager.MATCH_DEFAULT_ONLY;
 import static android.os.Process.INVALID_UID;
+import static android.view.Display.DEFAULT_DISPLAY;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
@@ -34,11 +36,15 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.car.CarVersion;
 import android.car.builtin.app.ActivityManagerHelper;
+import android.car.content.pm.ICarBlockingUiCommandListener;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -46,9 +52,12 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.Process;
+import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.UserHandle;
+import android.util.SparseIntArray;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -107,7 +116,7 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Before
     public void setUp() {
-        mSpiedContext = spy(InstrumentationRegistry.getInstrumentation().getTargetContext());
+        mSpiedContext = spy(InstrumentationRegistry.getInstrumentation().getContext());
 
         doReturn(mUserContext).when(mSpiedContext).createContextAsUser(mUserHandle, /* flags= */ 0);
 
@@ -336,5 +345,167 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
         when(context.getPackageManager()).thenReturn(pm);
         when(pm.getApplicationInfo(eq(packageName), any())).thenReturn(info);
         return info;
+    }
+
+    @Test
+    public void registerBlockingUiCommandListenerThrowsException_withoutPermission() {
+        applyPermission(PackageManager.PERMISSION_DENIED);
+        ICarBlockingUiCommandListener carBlockingUiCommandListener =
+                setupBlockingUiCommandListener();
+
+        assertThrows(SecurityException.class,
+                () -> mService.registerBlockingUiCommandListener(
+                        carBlockingUiCommandListener, DEFAULT_DISPLAY));
+    }
+
+    @Test
+    public void unregisterBlockingUiCommandListenerThrowsException_withoutPermission() {
+        applyPermission(PackageManager.PERMISSION_DENIED);
+        ICarBlockingUiCommandListener carBlockingUiCommandListener =
+                setupBlockingUiCommandListener();
+
+        assertThrows(SecurityException.class,
+                () -> mService.unregisterBlockingUiCommandListener(carBlockingUiCommandListener));
+    }
+
+    @Test
+    public void registerBlockingUiCommandListener() {
+        applyPermission(PackageManager.PERMISSION_GRANTED);
+        ICarBlockingUiCommandListener carBlockingUiCommandListener =
+                setupBlockingUiCommandListener();
+
+        mService.registerBlockingUiCommandListener(carBlockingUiCommandListener, DEFAULT_DISPLAY);
+
+        assertThat(mService.getCarBlockingUiCommandListenerRegisteredCallbacksForDisplay(
+                DEFAULT_DISPLAY)).isEqualTo(1);
+    }
+
+    @Test
+    public void unregisterBlockingUiCommandListener() {
+        applyPermission(PackageManager.PERMISSION_GRANTED);
+        ICarBlockingUiCommandListener carBlockingUiCommandListener =
+                setupBlockingUiCommandListener();
+
+        mService.registerBlockingUiCommandListener(carBlockingUiCommandListener, DEFAULT_DISPLAY);
+        mService.unregisterBlockingUiCommandListener(carBlockingUiCommandListener);
+
+        assertThat(mService.getCarBlockingUiCommandListenerRegisteredCallbacksForDisplay(
+                DEFAULT_DISPLAY)).isEqualTo(0);
+    }
+
+    @Test
+    public void registerBlockingUiCommandListener_sameListenerNotRegisteredAgain() {
+        applyPermission(PackageManager.PERMISSION_GRANTED);
+        ICarBlockingUiCommandListener carBlockingUiCommandListener =
+                setupBlockingUiCommandListener();
+
+        mService.registerBlockingUiCommandListener(carBlockingUiCommandListener, DEFAULT_DISPLAY);
+        mService.registerBlockingUiCommandListener(carBlockingUiCommandListener, DEFAULT_DISPLAY);
+
+        assertThat(mService.getCarBlockingUiCommandListenerRegisteredCallbacksForDisplay(
+                DEFAULT_DISPLAY)).isEqualTo(1);
+    }
+
+    @Test
+    public void registerBlockingUiCommandListener_registerMultipleListeners() {
+        applyPermission(PackageManager.PERMISSION_GRANTED);
+        ICarBlockingUiCommandListener carBlockingUiCommandListener1 =
+                setupBlockingUiCommandListener();
+        ICarBlockingUiCommandListener carBlockingUiCommandListener2 =
+                setupBlockingUiCommandListener();
+
+        mService.registerBlockingUiCommandListener(carBlockingUiCommandListener1, DEFAULT_DISPLAY);
+        mService.registerBlockingUiCommandListener(carBlockingUiCommandListener2, DEFAULT_DISPLAY);
+
+        assertThat(mService.getCarBlockingUiCommandListenerRegisteredCallbacksForDisplay(
+                DEFAULT_DISPLAY)).isEqualTo(2);
+    }
+
+    @Test
+    public void registerMultipleListeners_finishBlockingUiInvoked()
+            throws RemoteException {
+        applyPermission(PackageManager.PERMISSION_GRANTED);
+        ICarBlockingUiCommandListener carBlockingUiCommandListener1 =
+                setupBlockingUiCommandListener();
+        ICarBlockingUiCommandListener carBlockingUiCommandListener2 =
+                setupBlockingUiCommandListener();
+        ActivityManager.RunningTaskInfo taskInfo = createTask();
+        mockLastKnownDisplayId(taskInfo, DEFAULT_DISPLAY);
+
+        mService.registerBlockingUiCommandListener(carBlockingUiCommandListener1, DEFAULT_DISPLAY);
+        mService.registerBlockingUiCommandListener(carBlockingUiCommandListener2, DEFAULT_DISPLAY);
+        mService.finishBlockingUi(taskInfo);
+
+        verify(carBlockingUiCommandListener1).finishBlockingUi();
+        verify(carBlockingUiCommandListener2).finishBlockingUi();
+    }
+
+    @Test
+    public void registerListenerForOtherDisplay_finishBlockingUiNotInvoked()
+            throws RemoteException {
+        applyPermission(PackageManager.PERMISSION_GRANTED);
+        ICarBlockingUiCommandListener carBlockingUiCommandListener =
+                setupBlockingUiCommandListener();
+        ActivityManager.RunningTaskInfo taskInfo = createTask();
+        int tempDisplayId = 1;
+        mockLastKnownDisplayId(taskInfo, tempDisplayId);
+
+        mService.registerBlockingUiCommandListener(carBlockingUiCommandListener, tempDisplayId);
+        mService.finishBlockingUi(taskInfo);
+
+        verify(carBlockingUiCommandListener, times(0)).finishBlockingUi();
+    }
+
+    @Test
+    public void registerMultipleListenersForDifferentDisplay_finishBlockingUiInvokedForSomeDisplay()
+            throws RemoteException {
+        applyPermission(PackageManager.PERMISSION_GRANTED);
+        ICarBlockingUiCommandListener carBlockingUiCommandListener1 =
+                setupBlockingUiCommandListener();
+        ICarBlockingUiCommandListener carBlockingUiCommandListener2 =
+                setupBlockingUiCommandListener();
+        ICarBlockingUiCommandListener carBlockingUiCommandListener3 =
+                setupBlockingUiCommandListener();
+        ActivityManager.RunningTaskInfo taskInfo = createTask();
+        int tempDisplayId = 1;
+        mockLastKnownDisplayId(taskInfo, tempDisplayId);
+
+        mService.registerBlockingUiCommandListener(carBlockingUiCommandListener1, DEFAULT_DISPLAY);
+        mService.registerBlockingUiCommandListener(carBlockingUiCommandListener2, DEFAULT_DISPLAY);
+        mService.registerBlockingUiCommandListener(carBlockingUiCommandListener3, tempDisplayId);
+        mService.finishBlockingUi(taskInfo);
+
+        verify(carBlockingUiCommandListener1).finishBlockingUi();
+        verify(carBlockingUiCommandListener2).finishBlockingUi();
+        verify(carBlockingUiCommandListener3, times(0)).finishBlockingUi();
+    }
+
+    private ActivityManager.RunningTaskInfo createTask() {
+        ActivityManager.RunningTaskInfo taskInfo =
+                new ActivityManager.RunningTaskInfo();
+        taskInfo.taskId = 1;
+        taskInfo.displayId = DEFAULT_DISPLAY;
+        return taskInfo;
+    }
+
+    private ICarBlockingUiCommandListener setupBlockingUiCommandListener() {
+        ICarBlockingUiCommandListener carBlockingUiCommandListener =
+                mock(ICarBlockingUiCommandListener.class);
+        IBinder tempToken = new Binder();
+        when(carBlockingUiCommandListener.asBinder()).thenReturn(tempToken);
+        return carBlockingUiCommandListener;
+    }
+
+    private void applyPermission(int permissionValue) {
+        doReturn(permissionValue).when(mSpiedContext).checkCallingOrSelfPermission(
+                PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY);
+    }
+
+    private void mockLastKnownDisplayId(ActivityManager.RunningTaskInfo taskInfo,
+            int displayId) {
+        SparseIntArray tempLastKnownDisplayIdForTask = new SparseIntArray();
+        tempLastKnownDisplayIdForTask.put(taskInfo.taskId, displayId);
+        when(mMockActivityService.getLastKnownDisplayIdForTask(taskInfo.taskId)).thenReturn(
+                displayId);
     }
 }

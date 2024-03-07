@@ -21,6 +21,7 @@ import static android.car.Car.PERMISSION_MANAGE_DISPLAY_COMPATIBILITY;
 import static android.car.CarLibLog.TAG_CAR;
 
 import android.Manifest;
+import android.annotation.CallbackExecutor;
 import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -35,19 +36,24 @@ import android.car.CarVersion;
 import android.car.feature.Flags;
 import android.content.ComponentName;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.util.ArrayMap;
 import android.util.Log;
 
+import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executor;
 
 /**
  * Provides car specific API related with package management.
@@ -187,6 +193,16 @@ public final class CarPackageManager extends CarManagerBase {
     public @interface SetPolicyFlags {}
 
     private final ICarPackageManager mService;
+    private final Object mLock = new Object();
+    /**
+     * Map that stores externally created {@link ICarBlockingUiCommandListener} objects keyed by
+     * their corresponding internally provided {@link BlockingUiCommandListener} objects. Since
+     * ArrayMap's initial size is 10, and the blocking ui will have at most 1~2 listeners,
+     * initialize size of the map to be 2.
+     */
+    @GuardedBy("mLock")
+    private final Map<BlockingUiCommandListener, ICarBlockingUiCommandListener>
+            mICarBlockingUiCommandListener = new ArrayMap<>(2);
 
     /** @hide */
     public CarPackageManager(Car car, IBinder service) {
@@ -557,5 +573,95 @@ public final class CarPackageManager extends CarManagerBase {
         }
         // don't know what this is
         throw new IllegalStateException(e);
+    }
+
+    /**
+     * Callback interface to finish the blocking ui.
+     *
+     * @hide
+     */
+    public interface BlockingUiCommandListener {
+        /**
+         * Called when the blocking ui needs to be finished
+         */
+        void finishBlockingUi();
+    }
+
+    /**
+     * Registers the {@link BlockingUiCommandListener} for the BlockingUi.
+     *
+     * <p>Note: A listener can only listen for one displayId.
+     * <p>Note: A listener cannot be registered twice. Registering the second time would result in a
+     * no-op.
+     *
+     * @param displayId        {@link android.view.Display} for which the blocking ui is registered.
+     * @param callbackExecutor the executor to execute the callback with.
+     * @param listener         {@link BlockingUiCommandListener} listener.
+     * @throws IllegalStateException if the listener is already registered.
+     * @hide
+     */
+    public void registerBlockingUiCommandListener(int displayId,
+            @NonNull @CallbackExecutor Executor callbackExecutor,
+            @NonNull BlockingUiCommandListener listener) {
+        synchronized (mLock) {
+            if (mICarBlockingUiCommandListener.get(listener) != null) {
+                throw new IllegalStateException("BlockingUiListener already registered");
+            }
+            CarBlockingUiCommandListenerImpl carBlockingUiListener =
+                    new CarBlockingUiCommandListenerImpl(callbackExecutor, listener);
+            try {
+                mService.registerBlockingUiCommandListener(carBlockingUiListener, displayId);
+                mICarBlockingUiCommandListener.put(listener, carBlockingUiListener);
+            } catch (RemoteException e) {
+                handleRemoteExceptionFromCarService(e);
+            }
+        }
+    }
+
+    /**
+     * Unregisters the {@link BlockingUiCommandListener}.
+     *
+     * @hide
+     */
+    public void unregisterBlockingUiCommandListener(@NonNull BlockingUiCommandListener listener) {
+        synchronized (mLock) {
+            try {
+                if (mICarBlockingUiCommandListener.get(listener) == null) {
+                    Log.e(TAG, "BlockingUiListener already unregistered");
+                    return;
+                }
+                mService.unregisterBlockingUiCommandListener(
+                        mICarBlockingUiCommandListener.get(listener));
+            } catch (RemoteException e) {
+                handleRemoteExceptionFromCarService(e);
+            }
+            mICarBlockingUiCommandListener.remove(listener);
+        }
+    }
+
+    private class CarBlockingUiCommandListenerImpl extends ICarBlockingUiCommandListener.Stub {
+        private final Executor mExecutor;
+        private final BlockingUiCommandListener mListener;
+
+        CarBlockingUiCommandListenerImpl(Executor callbackExecutor,
+                BlockingUiCommandListener listener) {
+            mExecutor = callbackExecutor;
+            mListener = listener;
+        }
+
+        public void finishBlockingUi() throws RemoteException {
+            long identity = Binder.clearCallingIdentity();
+            try {
+                synchronized (mLock) {
+                    if (mICarBlockingUiCommandListener.get(mListener) == null) {
+                        Log.e(TAG, "BlockingUiListener already unregistered");
+                        return;
+                    }
+                    mExecutor.execute(mListener::finishBlockingUi);
+                }
+            } finally {
+                Binder.restoreCallingIdentity(identity);
+            }
+        }
     }
 }
