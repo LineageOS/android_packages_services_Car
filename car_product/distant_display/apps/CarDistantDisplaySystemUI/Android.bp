@@ -25,6 +25,7 @@ android_app {
 
     static_libs: [
         "CarSystemUI-core",
+        "displaycompat-service",
     ],
 
     libs: [
@@ -60,4 +61,10 @@ android_app {
         "privapp_whitelist_com.android.systemui",
         "allowed_privapp_com.android.carsystemui",
     ],
+}
+
+java_import {
+    name: "displaycompat-service",
+    jars: ["displaycompat-service.jar"],
+    sdk_version: "current",
 }

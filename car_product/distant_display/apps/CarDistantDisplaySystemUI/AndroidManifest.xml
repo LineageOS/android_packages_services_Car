@@ -41,6 +41,7 @@
     <!-- Permission to get outside temperature -->
     <uses-permission android:name="android.car.permission.CAR_EXTERIOR_ENVIRONMENT"/>
     <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL"/>
+    <uses-permission android:name="android.permission.ASSOCIATE_INPUT_DEVICE_TO_DISPLAY"/>
 
     <protected-broadcast android:name="REQUEST_FROM_SYSTEM_UI" />
     <application
