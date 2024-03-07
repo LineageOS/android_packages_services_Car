@@ -96,6 +96,6 @@
     </string-array>
 
     <!-- Calm mode overrides -->
-    <string name="config_calmMode_componentName">com.android.car.portraitlauncher/com.android.car.portraitlauncher.calmmode.CalmModeActivity</string>
+    <string name="config_calmMode_componentName">com.android.car.portraitlauncher/com.android.car.portraitlauncher.calmmode.PortraitCalmModeActivity</string>
 
 </resources>

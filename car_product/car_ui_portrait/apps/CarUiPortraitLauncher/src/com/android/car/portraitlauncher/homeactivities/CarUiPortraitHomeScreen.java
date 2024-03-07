@@ -95,6 +95,7 @@ import com.android.car.carlauncher.homescreen.audio.IntentHandler;
 import com.android.car.carlauncher.homescreen.audio.media.MediaIntentRouter;
 import com.android.car.carlauncher.taskstack.TaskStackChangeListeners;
 import com.android.car.portraitlauncher.R;
+import com.android.car.portraitlauncher.calmmode.PortraitCalmModeActivity;
 import com.android.car.portraitlauncher.common.CarUiPortraitServiceManager;
 import com.android.car.portraitlauncher.common.UserEventReceiver;
 import com.android.car.portraitlauncher.panel.TaskViewPanel;
@@ -280,6 +281,15 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             mIsRecentsOnTop = mTaskCategoryManager.isRecentsActivity(taskInfo);
             mIsAppGridOnTop = mTaskCategoryManager.isAppGridActivity(taskInfo);
 
+            // If Calm mode is active and any of notification center, recents or app grid are
+            // opened, then exit Calm mode, bring back control bar and status bar
+            if (mIsCalmMode && (mIsNotificationCenterOnTop || mIsRecentsOnTop || mIsAppGridOnTop)) {
+                PortraitCalmModeActivity.dismissCalmMode(getApplicationContext());
+                setControlBarVisibility(/* isVisible = */ true, /* animate = */ true);
+                notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, WindowInsets.Type.systemBars());
+                mIsCalmMode = false;
+            }
+
             if (mTaskCategoryManager.isBackgroundApp(taskInfo)) {
                 mTaskCategoryManager.setCurrentBackgroundApp(taskInfo.baseActivity);
                 mIsCalmMode = mTaskCategoryManager.isCalmModeActivity(taskInfo);
@@ -291,7 +301,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                                 taskInfo.taskId, getVisibleActivity(taskInfo)));
                     }
                     if (mAppGridTaskViewPanel.isOpen()) {
-                        mRootTaskViewPanel.closePanel(createReason(ON_CALM_MODE_STARTED,
+                        mAppGridTaskViewPanel.closePanel(createReason(ON_CALM_MODE_STARTED,
                                 taskInfo.taskId, getVisibleActivity(taskInfo)));
                     }
                     setControlBarVisibility(/* isVisible = */ false, /* animate = */ true);
