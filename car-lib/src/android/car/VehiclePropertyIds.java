@@ -1194,6 +1194,9 @@ public final class VehiclePropertyIds {
     /**
      * Night mode.
      *
+     * <p>True indicates that the night mode sensor has detected that the car cabin environment has
+     * low light.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
@@ -1201,9 +1204,6 @@ public final class VehiclePropertyIds {
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
      *  <li>{@code Boolean} property type
      * </ul>
-     *
-     * <p>True indicates that the night mode sensor has detected that the car cabin environment has
-     * low light.
      *
      * <p>Required Permission:
      * <ul>
