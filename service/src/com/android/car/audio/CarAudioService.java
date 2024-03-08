@@ -463,6 +463,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     @Override
     public void init() {
         boolean isAudioServerDown = !mAudioManager.isAudioServerRunning();
+        mAudioManager.setAudioServerStateCallback(mContext.getMainExecutor(),
+                mAudioServerStateCallback);
         synchronized (mImplLock) {
             mOccupantZoneService = CarLocalServices.getService(CarOccupantZoneService.class);
             mCarInputService = CarLocalServices.getService(CarInputService.class);
@@ -471,6 +473,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 mServiceEventLogger.log("Audio server is down at init");
                 Slogf.e(TAG, "Audio server is down at init, will wait for server state callback"
                         + " to initialize");
+                return;
             } else if (!runInLegacyMode()) {
                 // Must be called before setting up policies or audio control hal
                 loadAndInitCarAudioZonesLocked();
@@ -490,13 +493,14 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 Slogf.i(TAG, "Audio dynamic routing not enabled, run in legacy mode");
                 setupLegacyVolumeChangedListener();
             }
-
-            mAudioManager.setSupportedSystemUsages(CarAudioContext.getSystemUsages());
-            mAudioManager.setAudioServerStateCallback(mContext.getMainExecutor(),
-                    mAudioServerStateCallback);
-            restoreMasterMuteStateLocked();
         }
+        setSupportedUsages();
+        restoreMasterMuteState();
 
+    }
+
+    private void setSupportedUsages() {
+        mAudioManager.setSupportedSystemUsages(CarAudioContext.getSystemUsages());
     }
 
     @GuardedBy("mImplLock")
@@ -522,9 +526,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         mCarAudioPowerListener.startListeningForPolicyChanges();
     }
 
-    @GuardedBy("mImplLock")
-    private void restoreMasterMuteStateLocked() {
-        if (mIsAudioServerDown || mUseCarVolumeGroupMuting) {
+    private void restoreMasterMuteState() {
+        if (mUseCarVolumeGroupMuting) {
             return;
         }
         // Restore master mute state if applicable
@@ -536,10 +539,10 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     @Override
     public void release() {
+        mAudioManager.clearAudioServerStateCallback();
         releaseAudioCallbacks(/* isAudioServerDown= */ false);
         synchronized (mImplLock) {
             mCarVolumeCallbackHandler.release();
-            mAudioManager.clearAudioServerStateCallback();
         }
     }
 
@@ -3816,6 +3819,11 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     void audioDevicesAdded(AudioDeviceInfo[] addedDevices) {
+        synchronized (mImplLock) {
+            if (mIsAudioServerDown) {
+                return;
+            }
+        }
         Slogf.d(TAG, "Added audio devices " + Arrays.toString(addedDevices));
         List<AudioDeviceInfo> devices = filterBusDevices(addedDevices);
 
@@ -3847,6 +3855,11 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     void audioDevicesRemoved(AudioDeviceInfo[] removedDevices) {
+        synchronized (mImplLock) {
+            if (mIsAudioServerDown) {
+                return;
+            }
+        }
         Slogf.d(TAG, "Removed audio devices " + Arrays.toString(removedDevices));
         List<AudioDeviceInfo> devices = filterBusDevices(removedDevices);
 
