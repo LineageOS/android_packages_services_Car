@@ -22,4 +22,5 @@
     <item target="array/config_occupant_display_mapping" value="@array/config_occupant_display_mapping" />
     <item target="bool/audioUseDynamicRouting" value="@bool/audioUseDynamicRouting" />
     <item target="bool/audioUseCarVolumeGroupMuting" value="@bool/audioUseCarVolumeGroupMuting" />
+    <item target="xml/car_ux_restrictions_map" value="@xml/car_ux_restrictions_map" />
 </overlay>
