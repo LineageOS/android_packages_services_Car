@@ -38,7 +38,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 
 import java.math.BigInteger;
@@ -114,9 +113,9 @@ public class CustomUuidEirFragment extends Fragment {
         mBtAdapterToggle = (Switch) v.findViewById(R.id.bt_adapter_toggle);
 
         if (!BluetoothPermissionChecker.isPermissionGranted(
-                (KitchenSinkActivity) getHost(), Manifest.permission.BLUETOOTH_CONNECT)
+                getActivity(), Manifest.permission.BLUETOOTH_CONNECT)
                 || !BluetoothPermissionChecker.isPermissionGranted(
-                (KitchenSinkActivity) getHost(), Manifest.permission.BLUETOOTH_SCAN)) {
+                getActivity(), Manifest.permission.BLUETOOTH_SCAN)) {
             BluetoothPermissionChecker.requestMultiplePermissions(
                     new String[]{Manifest.permission.BLUETOOTH_CONNECT,
                             Manifest.permission.BLUETOOTH_SCAN},
@@ -203,7 +202,7 @@ public class CustomUuidEirFragment extends Fragment {
         // {@link BluetoothAdapter#SCAN_MODE_CONNECTABLE_DISCOVERABLE}, then we'll set "OFF" to
         // {@link BluetoothAdapter#SCAN_MODE_CONNECTABLE}.
         if (BluetoothPermissionChecker.isPermissionGranted(
-                (KitchenSinkActivity) getHost(), Manifest.permission.BLUETOOTH_SCAN)) {
+                getActivity(), Manifest.permission.BLUETOOTH_SCAN)) {
             mScanModeNotDiscoverable = mAdapter.getScanMode();
             Log.d(TAG, "Original scan mode was: " + mScanModeNotDiscoverable + ", "
                     + scanModeToText(mScanModeNotDiscoverable));
@@ -233,13 +232,13 @@ public class CustomUuidEirFragment extends Fragment {
     @Override
     public void onResume() {
         if (BluetoothPermissionChecker.isPermissionGranted(
-                (KitchenSinkActivity) getHost(), Manifest.permission.BLUETOOTH_CONNECT)) {
+                getActivity(), Manifest.permission.BLUETOOTH_CONNECT)) {
             mBtAdapterToggle.setEnabled(true);
         } else {
             mBtAdapterToggle.setEnabled(false);
         }
         if (BluetoothPermissionChecker.isPermissionGranted(
-                (KitchenSinkActivity) getHost(), Manifest.permission.BLUETOOTH_SCAN)) {
+                getActivity(), Manifest.permission.BLUETOOTH_SCAN)) {
             mAdvertisingToggle.setEnabled(true);
         } else {
             mAdvertisingToggle.setEnabled(false);

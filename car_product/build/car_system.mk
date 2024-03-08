@@ -238,6 +238,11 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     CarPermissionControllerRRO \
     CarSystemUIRRO \
+    CarSystemUIBottomRRO \
+    CarSystemUIBottomRoundedRRO \
+    CarSystemUILeftRRO \
+    CarSystemUIRightRRO \
+    CarSystemUIPersistentRRO \
 
 # System Server components
 # Order is important: if X depends on Y, then Y should precede X on the list.
@@ -268,3 +273,7 @@ else # !USE_CAR_FRAMEWORK_APEX
     PRODUCT_HIDDENAPI_STUBS_SYSTEM := android.car-system-stubs-dex
     PRODUCT_HIDDENAPI_STUBS_TEST := android.car-test-stubs-dex
 endif # USE_CAR_FRAMEWORK_APEX
+
+# Disable Dynamic System Update for automotive targets
+PRODUCT_NO_DYNAMIC_SYSTEM_UPDATE := true
+

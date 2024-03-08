@@ -16,6 +16,8 @@
 
 package com.android.car.internal.util;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
+
 import com.android.internal.util.Preconditions;
 
 import java.util.Arrays;
@@ -49,7 +51,7 @@ public class IntArray implements Cloneable {
      */
     public IntArray(int initialCapacity) {
         if (initialCapacity == 0) {
-            mValues = new int[0];
+            mValues = EMPTY_INT_ARRAY;
         } else {
             mValues = new int[initialCapacity];
         }

@@ -18,6 +18,7 @@ package com.android.car.remoteaccess;
 
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 import static android.content.Context.BIND_AUTO_CREATE;
+import static android.content.Context.RECEIVER_NOT_EXPORTED;
 
 import static com.android.car.CarServiceUtils.isEventOfType;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
@@ -26,6 +27,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.Car;
+import android.car.builtin.os.HandlerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
@@ -33,16 +35,23 @@ import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.remoteaccess.ICarRemoteAccessCallback;
 import android.car.remoteaccess.ICarRemoteAccessService;
 import android.car.remoteaccess.RemoteTaskClientRegistrationInfo;
+import android.car.remoteaccess.TaskScheduleInfo;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserLifecycleEventFilter;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.PackageInfoFlags;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.content.res.XmlResourceParser;
 import android.hardware.automotive.remoteaccess.IRemoteAccess;
+import android.hardware.automotive.remoteaccess.ScheduleInfo;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -50,6 +59,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -57,6 +67,7 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
@@ -76,6 +87,10 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -93,21 +108,28 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
 
     private static final String TAG = CarLog.tagFor(CarRemoteAccessService.class);
     private static final boolean DEBUG = Slogf.isLoggable(TAG, Log.DEBUG);
+
+    // Tag names for remote_access_serverless_client_map.xml.
+    private static final String XML_TAG_CLIENT_ID = "ClientId";
+    private static final String XML_TAG_PACKAGE_NAME = "PackageName";
+    private static final String XML_TAG_SERVERLESS_CLIENT = "ServerlessClient";
+    private static final String XML_TAG_SERVERLESS_CLIENT_MAP = "ServerlessClientMap";
+
     private static final int MILLI_TO_SECOND = 1000;
     private static final String TASK_PREFIX = "task";
     private static final String CLIENT_PREFIX = "client";
     private static final int RANDOM_STRING_LENGTH = 12;
     private static final int MIN_SYSTEM_UPTIME_FOR_REMOTE_ACCESS_IN_SEC = 30;
-    // Client ID remains valid for 30 days since issued.
-    private static final long CLIENT_ID_EXPIRATION_IN_MILLIS = 30L * 24L * 60L * 60L * 1000L;
     private static final Duration PACKAGE_SEARCH_DELAY = Duration.ofSeconds(1);
+    // Add some randomness to package search delay to avoid thundering herd issue.
+    private static final Duration PACKAGE_SEARCH_DELAY_RAND_RANGE = Duration.ofMillis(100);
     // Remote task client can use up to 30 seconds to initialize and upload necessary info to the
     // server.
     private static final long ALLOWED_TIME_FOR_REMOTE_TASK_CLIENT_INIT_MS = 30_000;
     private static final long SHUTDOWN_WARNING_MARGIN_IN_MS = 5000;
     private static final long INVALID_ALLOWED_SYSTEM_UPTIME = -1;
-    private static final int NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS = 100;
-    private static final int NOTIFY_AP_STATE_MAX_RETRY = 10;
+    private static final int DEFAULT_NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS = 100;
+    private static final int DEFAULT_NOTIFY_AP_STATE_MAX_RETRY = 10;
     // The buffer time after all the tasks for a specific remote task client service is completed
     // before we unbind the service.
     private static final int TASK_UNBIND_DELAY_MS = 1000;
@@ -129,6 +151,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private long mMaxTaskPendingMs = MAX_TASK_PENDING_MS;
     private final AtomicLong mTaskCount = new AtomicLong(/* initialValue= */ 0);
     private final AtomicLong mClientCount = new AtomicLong(/* initialValue= */ 0);
+    // Whether in vehicle task scheduling is supported by remote access HAL. Only set during init.
+    private boolean mIsHalTaskScheduleSupported;
     @GuardedBy("mLock")
     private final ArrayMap<String, String> mUidByClientId = new ArrayMap<>();
     @GuardedBy("mLock")
@@ -144,11 +168,13 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     @GuardedBy("mLock")
     private boolean mIsWakeupRequired;
     @GuardedBy("mLock")
-    private int mNotifyApPowerStateRetryCount;
+    private int mNotifyApStateChangeRetryCount;
     @GuardedBy("mLock")
     private final ArrayMap<String, Integer> mUidByName = new ArrayMap<>();
     @GuardedBy("mLock")
     private final SparseArray<String> mNameByUid = new SparseArray<>();
+    @GuardedBy("mLock")
+    private ArrayMap<String, String> mServerlessClientIdsByPackageName = new ArrayMap<>();
 
     private final RemoteAccessStorage mRemoteAccessStorage;
 
@@ -211,10 +237,20 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
     };
 
+    @GuardedBy("mLock")
+    private boolean isServerlessClientLocked(String clientId) {
+        for (int i = 0; i < mServerlessClientIdsByPackageName.size(); i++) {
+            if (mServerlessClientIdsByPackageName.valueAt(i).equals(clientId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void maybeStartNewRemoteTask(String clientId) {
         ICarRemoteAccessCallback callback;
         List<RemoteTask> remoteTasksToNotify = null;
-        RemoteTaskClientServiceInfo serviceInfo;
+        RemoteTaskClientServiceInfo serviceInfo = null;
         int taskMaxDurationInSec;
         long taskMaxDurationInMs;
         String uidName;
@@ -237,23 +273,20 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             }
             // If this clientId has never been stored on this device before,
             uidName = mUidByClientId.get(clientId);
-            if (uidName == null) {
+            // uidName might be null for serverless remote task client if the device just booted up
+            // and the client has not called addCarRemoteTaskClient yet. For regular remote task
+            // client, the client ID must already be stored in database, so during
+            // populatePackageClientIdMapping the mUidByClientId will contain clientId and uidName
+            // must not be null.
+            if (!isServerlessClientLocked(clientId) && uidName == null) {
                 Slogf.w(TAG, "Cannot notify task: client(%s) is not registered.", clientId);
                 Slogf.w(TAG, "Removing all the pending tasks for client ID: %s", clientId);
                 mTasksToBeNotifiedByClientId.remove(clientId);
                 return;
             }
-            // Token must not be null if mUidByClientId contains clientId.
-            token = mClientTokenByUidName.get(uidName);
-            if (!token.isClientIdValid()) {
-                // TODO(b/266371728): Handle client ID expiration.
-                Slogf.w(TAG, "Cannot notify task: clientID has expired: token = %s", token);
-                Slogf.w(TAG, "Removing all the pending tasks for client ID: %s", clientId);
-                // Remove all tasks for this client ID.
-                mTasksToBeNotifiedByClientId.remove(clientId);
-                return;
+            if (uidName != null) {
+                serviceInfo = mClientServiceInfoByUid.get(uidName);
             }
-            serviceInfo = mClientServiceInfoByUid.get(uidName);
             if (serviceInfo == null) {
                 Slogf.w(TAG, "Notifying task is delayed: the remote client service information "
                         + "for %s is not registered yet", uidName);
@@ -261,6 +294,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 // after searching for remote task client service is done.
                 return;
             }
+            // Token must not be null if mUidByClientId contains clientId.
+            token = mClientTokenByUidName.get(uidName);
             callback = token.getCallback();
             if (callback != null) {
                 remoteTasksToNotify = popTasksFromPendingQueueLocked(clientId);
@@ -303,6 +338,9 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private final UserManager mUserManager;
     private final long mShutdownTimeInMs;
     private final long mAllowedSystemUptimeMs;
+    private final int mNotifyApStateChangeMaxRetry;
+    private final int mNotifyApStateChangeRetrySleepInMs;
+    private final BroadcastReceiver mPackageRemovedReceiver;
 
     private String mWakeupServiceName = "";
     private String mVehicleId = "";
@@ -369,7 +407,41 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 new RemoteAccessStorage(context, systemInterface, inMemoryStorage);
         // TODO(b/263807920): CarService restart should be handled.
         systemInterface.scheduleActionForBootCompleted(() -> searchForRemoteTaskClientPackages(),
-                PACKAGE_SEARCH_DELAY);
+                PACKAGE_SEARCH_DELAY, PACKAGE_SEARCH_DELAY_RAND_RANGE);
+        mNotifyApStateChangeMaxRetry = getNotifyApStateChangeMaxRetry();
+        mNotifyApStateChangeRetrySleepInMs = getNotifyApStateChangeRetrySleepInMs();
+        mPackageRemovedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                onReceiveIntent(context, intent);
+            }
+        };
+    }
+
+    /**
+     * handles {@code ACTION_PACKAGE_REMOVED} intent.
+     */
+    @SuppressWarnings("unused")
+    private void onReceiveIntent(Context context, Intent intent) {
+        if (!intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED)) {
+            Slogf.w(TAG, "Received an unknown intent, ignore: " + intent);
+            return;
+        }
+        String packageName = Uri.parse(intent.getDataString()).getSchemeSpecificPart();
+        String clientId;
+        synchronized (mLock) {
+            if (!mServerlessClientIdsByPackageName.containsKey(packageName)) {
+                // Not a serverless client, ignore.
+                return;
+            }
+            clientId = mServerlessClientIdsByPackageName.get(packageName);
+        }
+        try {
+            mRemoteAccessHalWrapper.unscheduleAllTasks(clientId);
+        } catch (ServiceSpecificException | RemoteException e) {
+            Slogf.e(TAG, e, "failed to unschedule tasks for package: %s when it is removed",
+                    packageName);
+        }
     }
 
     @VisibleForTesting
@@ -402,6 +474,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         mPowerService = CarLocalServices.getService(CarPowerManagementService.class);
         populatePackageClientIdMapping();
         mRemoteAccessHalWrapper.init();
+        // This must be called after remoteAccessHalWrapper init complete.
+        mIsHalTaskScheduleSupported = mRemoteAccessHalWrapper.isTaskScheduleSupported();
         try {
             mWakeupServiceName = mRemoteAccessHalWrapper.getWakeupServiceName();
             mVehicleId = mRemoteAccessHalWrapper.getVehicleId();
@@ -423,12 +497,20 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
         mHandler.postWrapUpRemoteAccessService(mAllowedSystemUptimeMs);
         mHandler.postNotifyApStateChange(0);
+
+        IntentFilter filter = new IntentFilter(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addDataScheme("package");
+        // We are registering receiver for a system broadcast so the flag for NOT_EXPORTED does
+        // not really matter. But we are not expecting intents from other apps, so set it to
+        // NOT_EXPORTED to be safe.
+        mContext.registerReceiver(mPackageRemovedReceiver, filter, RECEIVER_NOT_EXPORTED);
     }
 
     @Override
     public void release() {
         Slogf.i(TAG, "release CarRemoteAccessService");
         mHandler.cancelAll();
+        mContext.unregisterReceiver(mPackageRemovedReceiver);
         mRemoteAccessHalWrapper.release();
         mRemoteAccessStorage.release();
     }
@@ -458,6 +540,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             printMap(writer, mClientServiceInfoByUid);
             writer.println("mUidAByName:");
             printMap(writer, mUidByName);
+            writer.println("mServerlessClientIdsByPackageName:");
+            printMap(writer, mServerlessClientIdsByPackageName);
             writer.println("mTasksToBeNotifiedByClientId");
             writer.increaseIndent();
             for (int i = 0; i < mTasksToBeNotifiedByClientId.size(); i++) {
@@ -485,6 +569,30 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
     }
 
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {
+        synchronized (mLock) {
+            for (int i = 0; i < mServerlessClientIdsByPackageName.size(); i++) {
+                long fieldToken = proto.start(CarRemoteAccessDumpProto.SERVERLESS_CLIENTS);
+                proto.write(CarRemoteAccessDumpProto.ServerlessClientInfo.CLIENT_ID,
+                        mServerlessClientIdsByPackageName.valueAt(i));
+                proto.write(CarRemoteAccessDumpProto.ServerlessClientInfo.PACKAGE_NAME,
+                        mServerlessClientIdsByPackageName.keyAt(i));
+                proto.end(fieldToken);
+            }
+        }
+    }
+
+    private String getPackageNameForCallingUid(int callingUid) {
+        String[] packageNames = mPackageManager.getPackagesForUid(callingUid);
+        if (packageNames.length != 1) {
+            throw new IllegalStateException("Failed to get package name, "
+                    + "sharedUserId must not be used by app.");
+        }
+        return packageNames[0];
+    }
+
     /**
      * Registers {@code ICarRemoteAccessCallback}.
      *
@@ -506,13 +614,28 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             Slogf.i(TAG, "addCarRemoteTaskClient from uid: %s", uidName);
             token = mClientTokenByUidName.get(uidName);
             if (token != null) {
+                // This is an already registered client.
                 ICarRemoteAccessCallback oldCallback = token.getCallback();
                 if (oldCallback != null) {
                     oldCallback.asBinder().unlinkToDeath(token, /* flags= */ 0);
                 }
             } else {
-                // Creates a new client ID with a null callback.
-                token = new ClientToken(generateNewClientId(), System.currentTimeMillis());
+                // This is a new client.
+                String packageName = getPackageNameForCallingUid(callingUid);
+                String clientId;
+                boolean isServerless;
+                if (mServerlessClientIdsByPackageName.containsKey(packageName)) {
+                    // This is a serverless remote task client. Use the preconfigured client ID.
+                    clientId = mServerlessClientIdsByPackageName.get(packageName);
+                    isServerless = true;
+                } else {
+                    // For regular remote task client, create a new random client ID.
+                    clientId = generateNewClientId();
+                    isServerless = false;
+                }
+                // Creates a new client token with a null callback. The callback will be registered
+                // in postRegistrationUpdated.
+                token = new ClientToken(clientId, System.currentTimeMillis(), isServerless);
                 mClientTokenByUidName.put(uidName, token);
                 mUidByClientId.put(token.getClientId(), uidName);
             }
@@ -570,6 +693,232 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         Slogf.i(TAG, "All active tasks removed for uid: %s, after %d ms, check whether we should "
                 + "shutdown", uidName, mTaskUnbindDelayMs);
         mHandler.postMaybeShutdown(/* delayMs= */ mTaskUnbindDelayMs);
+    }
+
+    @GuardedBy("mLock")
+    private String getUidNameForPackageNameLocked(String packageName) {
+        String uidName = "";
+        try {
+            uidName = getNameForUidLocked(mPackageManager.getPackageUidAsUser(
+                    packageName, PackageInfoFlags.of(0), /* uid= */ 0));
+        } catch (Exception e) {
+            // Do thing.
+        }
+        return uidName;
+    }
+
+    /**
+     * Used in testing only. Clear up the stored client token information for the package.
+     */
+    @GuardedBy("mLock")
+    private void clearUpClientTokenForPackageLocked(String packageName) {
+        String uidName = getUidNameForPackageNameLocked(packageName);
+        String clientId = "";
+        for (int i = 0; i < mClientTokenByUidName.size(); i++) {
+            if (!mClientTokenByUidName.keyAt(i).equals(uidName)) {
+                continue;
+            }
+            clientId = mClientTokenByUidName.valueAt(i).getClientId();
+            break;
+        }
+        if (!clientId.isEmpty()) {
+            Slogf.i(TAG, "Clearing stored client token for uidName: %s because the client is now a "
+                    + "serverless remote task client", uidName);
+            mClientTokenByUidName.remove(uidName);
+            mUidByClientId.remove(clientId);
+        }
+    }
+
+    /**
+     * {@link android.car.remoteaccess.CarRemoteAccessManager#addServerlessRemoteTaskClient}
+     */
+    @Override
+    public void addServerlessRemoteTaskClient(String packageName, String clientId) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_REMOTE_ACCESS);
+        Preconditions.checkArgument(packageName != null, "packageName must not be null");
+        Preconditions.checkArgument(clientId != null, "clientId must not be null");
+        synchronized (mLock) {
+            Slogf.i(TAG, "Adding a new test serverless remote task client, packageName: %s, "
+                    + "clientId: %s", packageName, clientId);
+            if (mServerlessClientIdsByPackageName.containsKey(packageName)) {
+                String message = "The package: " + packageName
+                        + " is already an serverless remote task client";
+                Slogf.w(TAG, message);
+                throw new IllegalArgumentException(message);
+            }
+            for (int i = 0; i < mServerlessClientIdsByPackageName.size(); i++) {
+                if (mServerlessClientIdsByPackageName.valueAt(i).equals(clientId)) {
+                    String message = "The client ID: " + clientId
+                            + " is already used, pick a different client ID";
+                    Slogf.w(TAG, message);
+                    throw new IllegalArgumentException(message);
+                }
+            }
+            mServerlessClientIdsByPackageName.put(packageName, clientId);
+            clearUpClientTokenForPackageLocked(packageName);
+        }
+    }
+
+    /**
+     * {@link android.car.remoteaccess.CarRemoteAccessManager#removeServerlessRemoteTaskClient}
+     */
+    @Override
+    public void removeServerlessRemoteTaskClient(String packageName) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_REMOTE_ACCESS);
+        Preconditions.checkArgument(packageName != null, "packageName must not be null");
+        synchronized (mLock) {
+            mServerlessClientIdsByPackageName.remove(packageName);
+            clearUpClientTokenForPackageLocked(packageName);
+        }
+    }
+
+    /**
+     * {@link android.car.remoteaccess.CarRemoteAccessManager#isTaskScheduleSupported}
+     */
+    @Override
+    public boolean isTaskScheduleSupported() {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_REMOTE_ACCESS);
+        if (!mIsHalTaskScheduleSupported) {
+            Slogf.i(TAG, "isTaskScheduleSupported returns false because remote access HAL does not"
+                    + " support task scheduling");
+            return false;
+        }
+        int callingUid = mDep.getCallingUid();
+        String packageName = getPackageNameForCallingUid(callingUid);
+        synchronized (mLock) {
+            if (!mServerlessClientIdsByPackageName.containsKey(packageName)) {
+                Slogf.i(TAG, "isTaskScheduleSupported returns false the client is not a serverless"
+                        + " remote task client");
+                return false;
+            }
+        }
+        Slogf.i(TAG, "isTaskScheduleSupported returns true");
+        return true;
+
+    }
+
+    private String getServerlessCallerClientId() throws IllegalStateException {
+        if (!mIsHalTaskScheduleSupported) {
+            throw new IllegalStateException("task schedule is not supported by HAL");
+        }
+        int callingUid = mDep.getCallingUid();
+        String packageName = getPackageNameForCallingUid(callingUid);
+        synchronized (mLock) {
+            if (mServerlessClientIdsByPackageName.containsKey(packageName)) {
+                return mServerlessClientIdsByPackageName.get(packageName);
+            }
+        }
+        throw new IllegalStateException("Caller is not a serverless remote task client");
+    }
+
+    /**
+     * {@link android.car.remoteaccess.CarRemoteAccessManager#scheduleTask}
+     */
+    @Override
+    public void scheduleTask(TaskScheduleInfo scheduleInfo) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_REMOTE_ACCESS);
+        Preconditions.checkArgument(scheduleInfo != null, "scheduleInfo must not be null");
+        Preconditions.checkArgument(scheduleInfo.scheduleId != null, "scheduleId must not be null");
+        Preconditions.checkArgument(scheduleInfo.taskData != null, "task data must not be null");
+        Preconditions.checkArgument(scheduleInfo.count >= 0, "count must >= 0");
+        Preconditions.checkArgument(scheduleInfo.startTimeInEpochSeconds > 0,
+                "startTimeInEpochSeconds must > 0");
+        Preconditions.checkArgument(scheduleInfo.periodicInSeconds >= 0,
+                "periodicInSeconds must >= 0");
+        ScheduleInfo halScheduleInfo = new ScheduleInfo();
+        String clientId = getServerlessCallerClientId();
+        halScheduleInfo.clientId = clientId;
+        halScheduleInfo.scheduleId = scheduleInfo.scheduleId;
+        halScheduleInfo.taskData = scheduleInfo.taskData;
+        halScheduleInfo.count = scheduleInfo.count;
+        halScheduleInfo.startTimeInEpochSeconds = scheduleInfo.startTimeInEpochSeconds;
+        halScheduleInfo.periodicInSeconds = scheduleInfo.periodicInSeconds;
+        try {
+            mRemoteAccessHalWrapper.scheduleTask(halScheduleInfo);
+        } catch (RemoteException | ServiceSpecificException e) {
+            throw new ServiceSpecificException(SERVICE_ERROR_CODE_GENERAL,
+                    "failed to call IRemoteAccess.scheduleTask with scheduleInfo: "
+                    + halScheduleInfo + ", error: " + e);
+        }
+    }
+
+    /**
+     * {@link android.car.remoteaccess.CarRemoteAccessManager#unscheduleTask}
+     */
+    @Override
+    public void unscheduleTask(String scheduleId) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_REMOTE_ACCESS);
+        Preconditions.checkArgument(scheduleId != null, "scheduleId must not be null");
+        String clientId = getServerlessCallerClientId();
+        try {
+            mRemoteAccessHalWrapper.unscheduleTask(clientId, scheduleId);
+        } catch (RemoteException | ServiceSpecificException e) {
+            throw new ServiceSpecificException(SERVICE_ERROR_CODE_GENERAL,
+                    "failed to call IRemoteAccess.unscheduleTask with clientId: "
+                    + clientId + ", scheduleId: " + scheduleId+ ", error: " + e);
+        }
+    }
+
+    /**
+     * {@link android.car.remoteaccess.CarRemoteAccessManager#unscheduleAllTasks}
+     */
+    @Override
+    public void unscheduleAllTasks() {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_REMOTE_ACCESS);
+        String clientId = getServerlessCallerClientId();
+        try {
+            mRemoteAccessHalWrapper.unscheduleAllTasks(clientId);
+        } catch (RemoteException | ServiceSpecificException e) {
+            throw new ServiceSpecificException(SERVICE_ERROR_CODE_GENERAL,
+                    "failed to call IRemoteAccess.unscheduleAllTasks with clientId: "
+                    + clientId + ", error: " + e);
+        }
+    }
+
+    /**
+     * {@link android.car.remoteaccess.CarRemoteAccessManager#isTaskScheduled}
+     */
+    @Override
+    public boolean isTaskScheduled(String scheduleId) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_REMOTE_ACCESS);
+        Preconditions.checkArgument(scheduleId != null, "scheduleId must not be null");
+        String clientId = getServerlessCallerClientId();
+        try {
+            return mRemoteAccessHalWrapper.isTaskScheduled(clientId, scheduleId);
+        } catch (RemoteException | ServiceSpecificException e) {
+            throw new ServiceSpecificException(SERVICE_ERROR_CODE_GENERAL,
+                    "failed to call IRemoteAccess.isTaskScheduled with clientId: "
+                    + clientId + ", scheduleId: " + scheduleId+ ", error: " + e);
+        }
+    }
+
+    /**
+     * {@link android.car.remoteaccess.CarRemoteAccessManager#getAllScheduledTasks}
+     */
+    @Override
+    public List<TaskScheduleInfo> getAllScheduledTasks() {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_REMOTE_ACCESS);
+        String clientId = getServerlessCallerClientId();
+        List<TaskScheduleInfo> taskScheduleInfoList = new ArrayList<>();
+        try {
+            List<ScheduleInfo> halScheduleInfoList = mRemoteAccessHalWrapper.getAllScheduledTasks(
+                    clientId);
+            for (int i = 0; i < halScheduleInfoList.size(); i++) {
+                ScheduleInfo halScheduleInfo = halScheduleInfoList.get(i);
+                TaskScheduleInfo taskScheduleInfo = new TaskScheduleInfo();
+                taskScheduleInfo.scheduleId = halScheduleInfo.scheduleId;
+                taskScheduleInfo.taskData = halScheduleInfo.taskData;
+                taskScheduleInfo.count = halScheduleInfo.count;
+                taskScheduleInfo.startTimeInEpochSeconds = halScheduleInfo.startTimeInEpochSeconds;
+                taskScheduleInfo.periodicInSeconds = halScheduleInfo.periodicInSeconds;
+                taskScheduleInfoList.add(taskScheduleInfo);
+            }
+            return taskScheduleInfoList;
+        } catch (RemoteException | ServiceSpecificException e) {
+            throw new ServiceSpecificException(SERVICE_ERROR_CODE_GENERAL,
+                    "failed to call IRemoteAccess.getAllScheduledTasks with clientId: "
+                    + clientId + ", error: " + e);
+        }
     }
 
     @GuardedBy("mLock")
@@ -688,21 +1037,141 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         return mAllowedSystemUptimeMs;
     }
 
-    private void populatePackageClientIdMapping() {
-        List<ClientIdEntry> clientIdEntries = mRemoteAccessStorage.getClientIdEntries();
-        if (clientIdEntries == null) return;
-
+    @VisibleForTesting
+    ArrayMap<String, String> getServerlessClientIdsByPackageName() {
         synchronized (mLock) {
-            for (int i = 0; i < clientIdEntries.size(); i++) {
-                ClientIdEntry entry = clientIdEntries.get(i);
-                mUidByClientId.put(entry.clientId, entry.uidName);
-                mClientTokenByUidName.put(entry.uidName,
-                        new ClientToken(entry.clientId, entry.idCreationTime));
+            return mServerlessClientIdsByPackageName;
+        }
+    }
+
+    private ArrayMap<String, String> parseServerlessClientIdsByPackageName() {
+        ArrayMap<String, String> clientIdsByPackageName = new ArrayMap<>();
+        try (XmlResourceParser parser = mContext.getResources().getXml(
+                R.xml.remote_access_serverless_client_map)) {
+            // Get to the first start tag.
+            while (parser.getEventType() != XmlPullParser.START_TAG) {
+                if (parser.next() == XmlPullParser.END_DOCUMENT) {
+                    break;
+                }
+            }
+
+            // Check the root tag.
+            parser.require(XmlPullParser.START_TAG, /* namespace= */ null,
+                    XML_TAG_SERVERLESS_CLIENT_MAP);
+            while (parser.next() != XmlPullParser.END_DOCUMENT) {
+                if (parser.getEventType() != XmlPullParser.START_TAG) {
+                    continue;
+                }
+                String name = parser.getName();
+                if (name.equals(XML_TAG_SERVERLESS_CLIENT)) {
+                    readServerlessClient(parser, clientIdsByPackageName);
+                } else {
+                    skip(parser);
+                }
+            }
+        } catch (Exception e) {
+            Slogf.e(TAG, "Failed to parse remote_access_serverless_client_map.xml, disabled all "
+                    + "serverless remote task client.", e);
+        }
+
+        return clientIdsByPackageName;
+    }
+
+    private void readServerlessClient(XmlPullParser parser,
+            ArrayMap<String, String> clientIdsByPackageName)
+            throws XmlPullParserException, IOException {
+        parser.require(XmlPullParser.START_TAG, /* namespace= */ null, XML_TAG_SERVERLESS_CLIENT);
+        String clientId = null;
+        String packageName = null;
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                continue;
+            }
+            String name = parser.getName();
+            if (name.equals(XML_TAG_CLIENT_ID)) {
+                clientId = readClientId(parser);
+            } else if (name.equals(XML_TAG_PACKAGE_NAME)) {
+                packageName = readPackageName(parser);
+            } else {
+                skip(parser);
+            }
+        }
+        if (clientId == null) {
+            throw new IllegalStateException("Missing ClientId field");
+        }
+        if (packageName == null) {
+            throw new IllegalStateException("Missing PackageName field");
+        }
+        clientIdsByPackageName.put(packageName, clientId);
+    }
+
+    private String readClientId(XmlPullParser parser)
+            throws XmlPullParserException, IOException {
+        parser.require(XmlPullParser.START_TAG, /* namespace= */ null, XML_TAG_CLIENT_ID);
+        String clientId = readText(parser);
+        parser.require(XmlPullParser.END_TAG, /* namespace= */ null, XML_TAG_CLIENT_ID);
+        return clientId;
+    }
+
+    private String readPackageName(XmlPullParser parser)
+            throws XmlPullParserException, IOException  {
+        parser.require(XmlPullParser.START_TAG, /* namespace= */ null, XML_TAG_PACKAGE_NAME);
+        String packageName = readText(parser);
+        parser.require(XmlPullParser.END_TAG, /* namespace= */ null, XML_TAG_PACKAGE_NAME);
+        return packageName;
+    }
+
+    // For the tags title and summary, extracts their text values.
+    private String readText(XmlPullParser parser) throws IOException, XmlPullParserException {
+        String result = "";
+        if (parser.next() == XmlPullParser.TEXT) {
+            result = parser.getText();
+            parser.nextTag();
+        }
+        return result;
+    }
+
+    // Skip uninterested tags.
+    private void skip(XmlPullParser parser) throws XmlPullParserException, IOException {
+        if (parser.getEventType() != XmlPullParser.START_TAG) {
+            throw new IllegalStateException("Invalid xml");
+        }
+        int depth = 1;
+        while (depth != 0) {
+            switch (parser.next()) {
+                case XmlPullParser.END_TAG:
+                    depth--;
+                    break;
+                case XmlPullParser.START_TAG:
+                    depth++;
+                    break;
             }
         }
     }
 
+    private void populatePackageClientIdMapping() {
+        List<ClientIdEntry> clientIdEntries = mRemoteAccessStorage.getClientIdEntries();
+        ArrayMap<String, String> clientIdsByPackageName = parseServerlessClientIdsByPackageName();
+
+        synchronized (mLock) {
+            if (clientIdEntries != null) {
+                for (int i = 0; i < clientIdEntries.size(); i++) {
+                    ClientIdEntry entry = clientIdEntries.get(i);
+                    mUidByClientId.put(entry.clientId, entry.uidName);
+                    mClientTokenByUidName.put(entry.uidName,
+                            new ClientToken(entry.clientId, entry.idCreationTime));
+                }
+            }
+            mServerlessClientIdsByPackageName = clientIdsByPackageName;
+            Slogf.i(TAG, "mServerlessClientIdsByPackageName: " + clientIdsByPackageName);
+        }
+    }
+
     private void saveClientIdInDb(ClientToken token, String uidName) {
+        if (token.isServerless()) {
+            // This token is static and no need to be stored in db.
+            return;
+        }
         ClientIdEntry entry = new ClientIdEntry(token.getClientId(), token.getIdCreationTime(),
                 uidName);
         if (!mRemoteAccessStorage.updateClientId(entry)) {
@@ -713,17 +1182,26 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private void postRegistrationUpdated(ICarRemoteAccessCallback callback, ClientToken token) {
         String clientId = token.getClientId();
         mHandler.post(() -> {
-            try {
-                if (DEBUG) {
-                    Slogf.d(TAG, "Calling onClientRegistrationUpdated: serviceName=%s, "
-                            + "vehicleId=%s, processorId=%s, clientId=%s", mWakeupServiceName,
-                            mVehicleId, mProcessorId, clientId);
+            if (DEBUG) {
+                Slogf.d(TAG, "Calling onClientRegistrationUpdated: serviceName=%s, "
+                        + "vehicleId=%s, processorId=%s, clientId=%s, isServerless=%s",
+                        mWakeupServiceName, mVehicleId, mProcessorId, clientId,
+                        token.isServerless());
+            }
+            if (!token.isServerless()) {
+                try {
+                    callback.onClientRegistrationUpdated(new RemoteTaskClientRegistrationInfo(
+                            mWakeupServiceName, mVehicleId, mProcessorId, clientId));
+                } catch (RemoteException e) {
+                    Slogf.e(TAG, e, "Calling onClientRegistrationUpdated() failed: clientId = %s",
+                            clientId);
                 }
-                callback.onClientRegistrationUpdated(new RemoteTaskClientRegistrationInfo(
-                        mWakeupServiceName, mVehicleId, mProcessorId, clientId));
-            } catch (RemoteException e) {
-                Slogf.e(TAG, e, "Calling onClientRegistrationUpdated() failed: clientId = %s",
-                        clientId);
+            } else {
+                try {
+                    callback.onServerlessClientRegistered(clientId);
+                } catch (RemoteException e) {
+                    Slogf.e(TAG, e, "Calling onServerlessClientRegistered() failed");
+                }
             }
 
             // After notify the client about the registration info, the callback is registered.
@@ -839,6 +1317,28 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         return timeout * MILLI_TO_SECOND;
     }
 
+    private int getNotifyApStateChangeRetrySleepInMs() {
+        int notifyApStateChangeRetrySleepInMs = mContext.getResources()
+                .getInteger(R.integer.config_notifyApStateChange_retry_sleep_ms);
+        if (notifyApStateChangeRetrySleepInMs < 0) {
+            Slogf.e(TAG, "Invalid config_notifyApStateChange_retry_sleep_ms from RRO: "
+                    + notifyApStateChangeRetrySleepInMs + ", must be a positive integer");
+            notifyApStateChangeRetrySleepInMs = DEFAULT_NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS;
+        }
+        return notifyApStateChangeRetrySleepInMs;
+    }
+
+    private int getNotifyApStateChangeMaxRetry() {
+        int notifyApStateChangeMaxRetry = mContext.getResources()
+                .getInteger(R.integer.config_notifyApStateChange_max_retry);
+        if (notifyApStateChangeMaxRetry < 0) {
+            Slogf.e(TAG, "Invalid config_notifyApStateChange_max_retry from RRO: "
+                    + notifyApStateChangeMaxRetry + ", must be a positive integer");
+            notifyApStateChangeMaxRetry = DEFAULT_NOTIFY_AP_STATE_MAX_RETRY;
+        }
+        return notifyApStateChangeMaxRetry;
+    }
+
     // Gets the UID name for the specified UID. Read from a cached map if exists. Uses package
     // manager to get UID if it does not exist in cached map.
     @GuardedBy("mLock")
@@ -871,7 +1371,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 String packageName = info.packageName;
                 ComponentName componentName = new ComponentName(packageName, info.name);
                 // We require client to has PERMISSION_CONTROL_REMOTE_ACCESS which is a system API
-                // so that they can be launched as systme user.
+                // so that they can be launched as system user.
                 if (mPackageManager.checkPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS,
                         packageName) != PackageManager.PERMISSION_GRANTED) {
                     Slogf.w(TAG, "Component(%s) has %s intent but doesn't have %s permission",
@@ -973,8 +1473,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         synchronized (mLock) {
             isReadyForRemoteTask = mIsReadyForRemoteTask;
             isWakeupRequired = mIsWakeupRequired;
-            mNotifyApPowerStateRetryCount++;
-            if (mNotifyApPowerStateRetryCount > NOTIFY_AP_STATE_MAX_RETRY) {
+            mNotifyApStateChangeRetryCount++;
+            if (mNotifyApStateChangeRetryCount > mNotifyApStateChangeMaxRetry) {
                 Slogf.e(TAG, "Reached max retry count for trying to notify AP state change, "
                         + "Failed to notify AP state Change!!!");
                 return;
@@ -982,12 +1482,12 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
         if (!mRemoteAccessHalWrapper.notifyApStateChange(isReadyForRemoteTask, isWakeupRequired)) {
             Slogf.e(TAG, "Cannot notify AP state change, waiting for "
-                    + NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS + "ms and retry");
-            mHandler.postNotifyApStateChange(NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS);
+                    + mNotifyApStateChangeRetrySleepInMs + "ms and retry");
+            mHandler.postNotifyApStateChange(mNotifyApStateChangeRetrySleepInMs);
             return;
         }
         synchronized (mLock) {
-            mNotifyApPowerStateRetryCount = 0;
+            mNotifyApStateChangeRetryCount = 0;
         }
         if (DEBUG) {
             Slogf.d(TAG, "Notified AP about new state, isReadyForRemoteTask: %B, "
@@ -1009,7 +1509,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             }
             for (int i = 0; i < mClientTokenByUidName.size(); i++) {
                 ClientToken token = mClientTokenByUidName.valueAt(i);
-                if (token.getCallback() == null || !token.isClientIdValid()) {
+                if (token.getCallback() == null) {
                     Slogf.w(TAG, "Notifying client(%s) of shutdownStarting is skipped: invalid "
                             + "client token", token);
                     continue;
@@ -1218,6 +1718,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         private final Object mTokenLock = new Object();
         private final String mClientId;
         private final long mIdCreationTimeInMs;
+        private final boolean mIsServerless;
 
         @GuardedBy("mTokenLock")
         private ICarRemoteAccessCallback mCallback;
@@ -1225,8 +1726,17 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         private boolean mIsReadyForShutdown;
 
         private ClientToken(String clientId, long idCreationTimeInMs) {
+            this(clientId, idCreationTimeInMs, /* isServerless= */ false);
+        }
+
+        private ClientToken(String clientId, long idCreationTimeInMs, boolean isServerless) {
             mClientId = clientId;
             mIdCreationTimeInMs = idCreationTimeInMs;
+            mIsServerless = isServerless;
+        }
+
+        public boolean isServerless() {
+            return mIsServerless;
         }
 
         public String getClientId() {
@@ -1241,12 +1751,6 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             synchronized (mTokenLock) {
                 return mCallback;
             }
-        }
-
-        public boolean isClientIdValid() {
-            long now = System.currentTimeMillis();
-            return mClientId != null
-                    && (now - mIdCreationTimeInMs) < CLIENT_ID_EXPIRATION_IN_MILLIS;
         }
 
         public void setCallback(ICarRemoteAccessCallback callback) {
@@ -1271,6 +1775,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         public void binderDied() {
             synchronized (mTokenLock) {
                 Slogf.w(TAG, "Client token callback binder died");
+                mCallback.asBinder().unlinkToDeath(this, /* flags= */ 0);
                 mCallback = null;
             }
         }
@@ -1283,6 +1788,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                         .append("mClientId=").append(mClientId)
                         .append(", mIdCreationTimeInMs=").append(mIdCreationTimeInMs)
                         .append(", hasCallback=").append(mCallback != null)
+                        .append(", isServerless=").append(mIsServerless)
                         .append(']')
                         .toString();
             }
@@ -1596,7 +2102,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         // instead fo equals, so two same string might not "==" each other.
         private void postServiceTimeout(Integer uid, long msgTimeMs) {
             synchronized (mHandlerLock) {
-                removeMessages(MSG_SERVICE_TIMEOUT, uid);
+                HandlerHelper.removeEqualMessages(this, MSG_SERVICE_TIMEOUT, uid);
                 Message msg = obtainMessage(MSG_SERVICE_TIMEOUT, uid);
                 sendMessageAtTime(msg, msgTimeMs);
             }
@@ -1640,7 +2146,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
 
         private void cancelServiceTimeout(int uid) {
-            removeMessages(MSG_SERVICE_TIMEOUT, uid);
+            HandlerHelper.removeEqualMessages(this, MSG_SERVICE_TIMEOUT, uid);
         }
 
         private void cancelAllServiceTimeout() {

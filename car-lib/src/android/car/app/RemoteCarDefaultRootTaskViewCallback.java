@@ -17,7 +17,6 @@
 package android.car.app;
 
 import android.annotation.NonNull;
-import android.car.annotation.ApiRequirements;
 
 /**
  * A callback interface for {@link RemoteCarDefaultRootTaskView}.
@@ -31,8 +30,6 @@ public interface RemoteCarDefaultRootTaskViewCallback
      *
      * @param taskView the new newly created {@link RemoteCarDefaultRootTaskView} instance.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     @Override
     default void onTaskViewCreated(@NonNull RemoteCarDefaultRootTaskView taskView) {}
 
@@ -41,8 +38,6 @@ public interface RemoteCarDefaultRootTaskViewCallback
      * {@link RemoteCarDefaultRootTaskView} is considered ready when it has completed all the
      * set up that is required.  This callback is only triggered once.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     @Override
     default void onTaskViewInitialized() {}
 
@@ -50,8 +45,6 @@ public interface RemoteCarDefaultRootTaskViewCallback
      * Called when the underlying {@link RemoteCarDefaultRootTaskView} is released.
      * This callback is only triggered once.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     @Override
     default void onTaskViewReleased() {}
 }

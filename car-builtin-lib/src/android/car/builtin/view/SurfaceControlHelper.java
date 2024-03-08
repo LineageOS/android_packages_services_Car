@@ -18,14 +18,14 @@ package android.car.builtin.view;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
-import android.car.builtin.annotation.AddedIn;
-import android.car.builtin.annotation.PlatformVersion;
-import android.os.Build;
+import android.app.Activity;
+import android.car.builtin.util.Slogf;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.SurfaceControl;
+import android.view.ViewRootImpl;
+import android.view.Window;
 import android.view.WindowManagerGlobal;
 
 /**
@@ -44,8 +44,6 @@ public final class SurfaceControlHelper {
      *
      * <p>For the detail, see {@link SurfaceControl#mirrorSurface(SurfaceControl)}
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @NonNull
     public static SurfaceControl mirrorSurface(@NonNull SurfaceControl mirrorOf) {
         return SurfaceControl.mirrorSurface(mirrorOf);
@@ -54,8 +52,6 @@ public final class SurfaceControlHelper {
     /**
      * Creates a mirrored Surface for the given Display.
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Nullable
     public static SurfaceControl mirrorDisplay(int displayId) {
         try {
@@ -72,9 +68,41 @@ public final class SurfaceControlHelper {
     /**
      * See {@link SurfaceControl(SurfaceControl)}}.
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static SurfaceControl copy(SurfaceControl source) {
         return new SurfaceControl(source, SurfaceControlHelper.class.getSimpleName());
+    }
+
+    private static ViewRootImpl getViewRootImpl(Activity activity) {
+        Window window = activity.getWindow();
+        if (window == null) {
+            Slogf.e(TAG, "Window is not ready yet: %s", activity.getComponentName());
+            return null;
+        }
+        ViewRootImpl viewRoot = window.getDecorView().getViewRootImpl();
+        if (viewRoot == null) {
+            Slogf.e(TAG, "ViewRoot is not attached to Window yet: %s",
+                    activity.getComponentName());
+            return null;
+        }
+        return viewRoot;
+    }
+
+    /**
+     * Gets {@link SurfaceControl} of given Activity.
+     *
+     * Note: SurfaceControl is not available during {@code onCreate} and {@code onResume}.
+     * You can access it from {@link Activity#onAttachedToWindow()}.
+     */
+    @Nullable public static SurfaceControl getSurfaceControl(@NonNull Activity activity) {
+        ViewRootImpl viewRoot = getViewRootImpl(activity);
+        if (viewRoot == null) {
+            return null;
+        }
+        SurfaceControl surface = viewRoot.getSurfaceControl();
+        if (surface == null) {
+            Slogf.e(TAG, "Surface is not prepared yet");
+            return null;
+        }
+        return surface;
     }
 }

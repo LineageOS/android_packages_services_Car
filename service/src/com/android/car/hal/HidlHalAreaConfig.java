@@ -16,6 +16,8 @@
 
 package com.android.car.hal;
 
+import static com.android.car.internal.common.CommonConstants.EMPTY_LONG_ARRAY;
+
 import android.hardware.automotive.vehicle.V2_0.VehicleAreaConfig;
 
 /**
@@ -88,5 +90,7 @@ public final class HidlHalAreaConfig extends HalAreaConfig {
      * Get the supported enum values.
      */
     @Override
-    public long[] getSupportedEnumValues() { return new long[0]; }
+    public long[] getSupportedEnumValues() {
+        return EMPTY_LONG_ARRAY;
+    }
 }

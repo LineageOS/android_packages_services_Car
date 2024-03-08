@@ -57,7 +57,7 @@
 
           audioVolumeAdjustmentContextsVersion - Integer version number currently limited to
                                                  numbers listed above. -->
-    <integer name="audioVolumeAdjustmentContextsVersion">2</integer>
+    <integer name="audioVolumeAdjustmentContextsVersion">1</integer>
 
     <!--  Configuration to persist global mute state. If this is set to true,
           Android will restore the global mute state on boot. If audioUseCarVolumeGroupMuting is
@@ -107,6 +107,14 @@
 
     <!--  The name of Activity who is in charge of ClusterHome. -->
     <string name="config_clusterHomeActivity" translatable="false">com.android.car.cluster.home/.ClusterHomeActivity</string>
+
+    <!-- Configures the mode in which ClusterHomeService operates.
+         Currently supported modes are:
+           0 (full mode): All VHAL properties in ClusterHalService#CORE_PROPERTIES must be
+                          available. Otherwise, the entire ClusterHomeService is disabled.
+           1 (light mode): ClusterHomeService is always enabled even without any VHAL properties.
+         -->
+   <integer name="config_clusterHomeServiceMode">0</integer>
 
     <!--  Service responsible for handling the rotary controller input. This service will start
           on boot or on user switch. Set this string to empty if you don't want to start this
@@ -371,11 +379,11 @@
         <item>displayPort=1,displayType=INSTRUMENT_CLUSTER,occupantZoneId=0,
             inputTypes=DPAD_KEYS</item>
         <item>displayPort=2,displayType=MAIN,occupantZoneId=1,
-            inputTypes=NAVIGATE_KEYS</item>
+            inputTypes=TOUCH_SCREEN</item>
         <item>displayPort=3,displayType=MAIN,occupantZoneId=2,
-            inputTypes=NAVIGATE_KEYS</item>
+            inputTypes=TOUCH_SCREEN</item>
         <item>displayUniqueId=virtual:com.example:MainD,displayType=MAIN,occupantZoneId=3,
-            inputTypes=NAVIGATE_KEYS</item>
+            inputTypes=TOUCH_SCREEN</item>
 
         NOTE: each item should have displayPort or displayUniqueId, if it has both, displayPort
           will be used.
@@ -390,19 +398,6 @@
 
     -->
     <string-array translatable="false" name="config_occupant_display_mapping">
-    </string-array>
-
-    <!--
-        Specifies whether CarLaunchParamControl prefers source. If prefer-source is enabled,
-        CarLaunchParamControl tries to launch Activities without any designated display to
-        the display where the source is located.
-
-        This can be configured in 3 ways:
-        A. No items - don't prefer source for any components.
-        B. 1 items with "*" - prefer source for all components.
-        C. enumerate items of "packageName/activityName" - prefer source for the specified ones.
-    -->
-    <string-array translatable="false" name="config_sourcePreferredComponents">
     </string-array>
 
     <!-- Specifies notice UI that will be launched when user starts a car or do user
@@ -606,4 +601,15 @@
          This is enabled only for a system having both driver and passenger zones. If the system
          has only driver zone or passenger zones, this configuration will be ignored. -->
     <bool name="config_assignPassengerActivityToForegroundCpuGroup">true</bool>
+    <!-- Max number of retires for notifying AP power state change. -->
+    <integer name="config_notifyApStateChange_max_retry">100</integer>
+    <!-- Number of ms to sleep between retries for notifying AP power state change. -->
+    <integer name="config_notifyApStateChange_retry_sleep_ms">100</integer>
+
+    <!-- Configurations for ClusterHome visibility monitoring.
+         Please refer to {@link SurfaceControl#TrustedPresentationThresholds} for the detail. -->
+    <fraction name="config_clusterHomeVisibility_minAlpha">100%</fraction>
+    <fraction name="config_clusterHomeVisibility_minRendered">99.9%</fraction>
+    <integer name="config_clusterHomeVisibility_stabilityMs">100</integer>
+
 </resources>

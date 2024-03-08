@@ -28,8 +28,135 @@ genrule {
     out: ["com/android/car/CarStatsLog.java"],
 }
 
+gensrcs {
+    name: "gen-car-service-dump-javastream-protos",
+
+    tools: [
+        "aprotoc",
+        "protoc-gen-javastream",
+        "soong_zip",
+    ],
+
+    tool_files: [
+        ":libprotobuf-internal-protos",
+    ],
+
+    cmd: "mkdir -p $(genDir)/$(in) " +
+            "&& $(location aprotoc) " +
+            "  --plugin=$(location protoc-gen-javastream) " +
+            "  --javastream_out=$(genDir)/$(in) " +
+            "  -Iexternal/protobuf/src " +
+            "  -I . " +
+            "  $(in) " +
+            "&& $(location soong_zip) -jar -o $(out) -C $(genDir)/$(in) -D $(genDir)/$(in)",
+
+    srcs: [
+        ":car-service-dump-proto-srcs",
+    ],
+
+    output_extension: "srcjar",
+}
+
+genrule {
+    name: "gen-native-dump-cppstream-proto-headers",
+    tools: [
+        "aprotoc",
+        "protoc-gen-cppstream",
+    ],
+    cmd: "mkdir -p $(genDir) " +
+            "&& $(location aprotoc) " +
+            "  --plugin=$(location protoc-gen-cppstream) " +
+            "  --cppstream_out=$(genDir) " +
+            "  --cppstream_opt=experimental_allow_proto3_optional " +
+            "  -Iexternal/protobuf/src " +
+            "  -Ipackages/services/Car/service/proto/android/car/watchdog " +
+            "  $(in) ",
+    srcs: [
+        ":native-dump-proto-srcs",
+    ],
+
+    out: [
+        "carwatchdog_daemon_dump.proto.h",
+        "performance_stats.proto.h",
+        "health_check_client_info.proto.h",
+    ],
+}
+
+genrule {
+    name: "gen-native-dump-proto-headers",
+    tools: [
+        "aprotoc",
+    ],
+    cmd: "mkdir -p $(genDir) " +
+            "&& $(location aprotoc) " +
+            "  --cpp_out=$(genDir) " +
+            "  --proto_path=external/protobuf/src/google/protobuf " +
+            "  --proto_path=packages/services/Car/service/proto/android/car/watchdog " +
+            "  $(in) ",
+    srcs: [
+        ":native-dump-proto-srcs",
+    ],
+    out: [
+        "carwatchdog_daemon_dump.pb.h",
+        "performance_stats.pb.h",
+        "health_check_client_info.pb.h",
+    ],
+}
+
+genrule {
+    name: "gen-native-dump-proto-srcs",
+    tools: [
+        "aprotoc",
+    ],
+    cmd: "mkdir -p $(genDir) " +
+            "&& $(location aprotoc) " +
+            "  --cpp_out=$(genDir) " +
+            "  --proto_path=external/protobuf/src/google/protobuf " +
+            "  --proto_path=packages/services/Car/service/proto/android/car/watchdog " +
+            "  $(in) ",
+    srcs: [
+        ":native-dump-proto-srcs",
+    ],
+    out: [
+        "carwatchdog_daemon_dump.pb.cc",
+        "performance_stats.pb.cc",
+        "health_check_client_info.pb.cc",
+    ],
+}
+
+filegroup {
+    name: "car-service-dump-proto-srcs",
+    srcs: [
+        "proto/android/car/**/*_dump.proto",
+    ],
+    exclude_srcs: [
+         ":native-dump-proto-srcs",
+    ],
+}
+
+filegroup {
+    name: "native-dump-proto-srcs",
+    srcs: [
+       "proto/android/car/watchdog/*_daemon_dump.proto",
+       "proto/android/car/watchdog/performance_stats.proto",
+       "proto/android/car/watchdog/health_check_client_info.proto",
+    ],
+}
+
+filegroup {
+    name: "car-service-non-dump-proto-srcs",
+    srcs: [
+        "proto/android/car/telemetry/*.proto",
+        "proto/android/car/watchdog/atoms.proto",
+    ],
+}
+
 java_defaults {
     name: "carservice-updatable-min-java-defaults",
+
+    defaults: [
+        "car-framework-aconfig-libraries",
+    ],
 
     srcs: [
         // add full source for all codes under p/s/Car to reduce unnecessary library allow listing.
@@ -38,12 +165,14 @@ java_defaults {
         ":android.car.watchdoglib-src",
         ":cartelemetry-cardata-proto-srcs",
         ":cartelemetryservice-proto-srcs",
+        ":car-service-non-dump-proto-srcs",
         ":com.android.car.procfsinspector-client-src",
-        ":statslog-Car-java-gen",
+        ":gen-car-service-dump-javastream-protos",
         ":iscriptexecutor_aidl",
-        "proto/**/*.proto",
+        ":statslog-Car-java-gen",
+        ":VhalTestVendorProperties",
         "src/**/*.java",
-        ],
+    ],
 
     aidl: {
         include_dirs: [
@@ -65,6 +194,7 @@ java_defaults {
         "framework-bluetooth",
         "framework-connectivity",
         "framework-connectivity-t.stubs.module_lib",
+        "framework-location",
         "framework-statsd",
         "framework-tethering",
         "framework-wifi",
@@ -74,6 +204,7 @@ java_defaults {
     ],
 
     static_libs: [
+        "android.automotive.powerpolicy.delegate-V1-java",
         "android.automotive.telemetry.internal-V2-java",  // ICarTelemetryInternal
         "android.automotive.watchdog.internal-V3-java",
         "android.frameworks.automotive.powerpolicy.internal-V1-java",
@@ -82,13 +213,15 @@ java_defaults {
         "android.hardware.automotive.audiocontrol-V1.0-java",
         "android.hardware.automotive.audiocontrol-V2.0-java",
         "android.hardware.automotive.audiocontrol-V3-java",
-        "android.hardware.automotive.remoteaccess-V1-java",
-        "android.hardware.automotive.vehicle-V2-java",
-        "android.hardware.automotive.vehicle.property-V2-java",
+        "android.hardware.automotive.remoteaccess-V2-java",
+        "android.hardware.automotive.vehicle-V3-java",
+        "android.hardware.automotive.vehicle.property-V3-java",
         "android.hardware.automotive.vehicle-V2.0-java",
         "android.hardware.health-V1.0-java",
         "android.hardware.health-V2.0-java",
         "android.hardware.automotive.occupant_awareness-V1-java",
+        "libprotobuf-java-lite",
+        "modules-utils-expresslog",
     ],
 
     proto: {
@@ -100,16 +233,10 @@ java_defaults {
         enabled: false,
     },
 
-    // Disable build in PDK, missing aidl import breaks build
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
-
     sdk_version: "module_current",
 
     java_resources: [
+        ":CarSvcProps_JSON",
         ":VehicleHalDefaultProperties_JSON",
     ],
 }
@@ -165,15 +292,9 @@ java_library {
     ],
 
     static_libs: [
-        "android.hardware.automotive.vehicle-V2-java",
+        "android.hardware.automotive.vehicle-V3-java",
         "android.hardware.automotive.vehicle-V2.0-java",
     ],
-
-    product_variables: {
-            pdk: {
-                enabled: false,
-            },
-    },
 }
 
 // Minimum code shared with carservice builtin.

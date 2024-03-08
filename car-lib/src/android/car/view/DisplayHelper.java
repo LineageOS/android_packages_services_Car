@@ -19,7 +19,6 @@ package android.car.view;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 import android.view.Display;
 
 /**
@@ -30,8 +29,6 @@ import android.view.Display;
 public final class DisplayHelper {
 
     /** The same value as {@code android.car.builtin.view.DisplayHelper.INVALID_PORT} */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int INVALID_PORT = -1;
 
     private DisplayHelper() {
@@ -41,8 +38,6 @@ public final class DisplayHelper {
     /**
      * @return the uniqueId of the given display.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Nullable
     public static String getUniqueId(@NonNull Display display) {
         return android.car.builtin.view.DisplayHelper.getUniqueId(display);
@@ -51,8 +46,6 @@ public final class DisplayHelper {
     /**
      * @return the physical port of the given display.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static int getPhysicalPort(@NonNull Display display) {
         return android.car.builtin.view.DisplayHelper.getPhysicalPort(display);
     }

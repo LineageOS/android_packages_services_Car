@@ -16,15 +16,17 @@
 
 package android.car.hardware.power;
 
+import static android.car.hardware.power.PowerComponentUtil.powerComponentsToString;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.NonNull;
-import android.car.annotation.AddedInOrBefore;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.AnnotationValidations;
 import com.android.car.internal.util.DataClass;
+import com.android.car.internal.util.Lists;
 
 /**
  * Car power policy definition.
@@ -34,25 +36,24 @@ public final class CarPowerPolicy implements Parcelable {
     /**
      * ID of power policy.
      */
-    private final @NonNull String mPolicyId;
+    private @NonNull String mPolicyId = "";
 
     /**
      * List of enabled components. Components are one of
      * {@code android.frameworks.automotive.powerpolicy.PowerComponent}.
      */
-    private final @NonNull int[] mEnabledComponents;
+    private @NonNull int[] mEnabledComponents = new int[]{};
 
     /**
      * List of disabled components. Components are one of
      * {@code android.frameworks.automotive.powerpolicy.PowerComponent}.
      */
-    private final @NonNull int[] mDisabledComponents;
+    private @NonNull int[] mDisabledComponents = new int[]{};
 
     /**
      * Returns {@code true} if the given component is enabled in the power policy. Otherwise,
      * {@code false}.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public boolean isComponentEnabled(int component) {
         for (int i = 0; i < mEnabledComponents.length; i++) {
             if (component == mEnabledComponents[i]) {
@@ -60,6 +61,14 @@ public final class CarPowerPolicy implements Parcelable {
             }
         }
         return false;
+    }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    public String toString() {
+        return String.format("%s(enabledComponents: %s, disabledComponents: %s)", mPolicyId,
+                powerComponentsToString(Lists.asImmutableList(mEnabledComponents)),
+                powerComponentsToString(Lists.asImmutableList(mDisabledComponents)));
     }
 
 
@@ -113,7 +122,6 @@ public final class CarPowerPolicy implements Parcelable {
      * ID of power policy.
      */
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public @NonNull String getPolicyId() {
         return mPolicyId;
     }
@@ -123,7 +131,6 @@ public final class CarPowerPolicy implements Parcelable {
      * {@code android.frameworks.automotive.powerpolicy.PowerComponent}.
      */
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public @NonNull int[] getEnabledComponents() {
         return mEnabledComponents;
     }
@@ -133,14 +140,12 @@ public final class CarPowerPolicy implements Parcelable {
      * {@code android.frameworks.automotive.powerpolicy.PowerComponent}.
      */
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public @NonNull int[] getDisabledComponents() {
         return mDisabledComponents;
     }
 
     @Override
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -153,7 +158,6 @@ public final class CarPowerPolicy implements Parcelable {
     @Override
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -181,7 +185,6 @@ public final class CarPowerPolicy implements Parcelable {
     }
 
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<CarPowerPolicy> CREATOR
             = new Parcelable.Creator<CarPowerPolicy>() {
         @Override

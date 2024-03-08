@@ -13,7 +13,7 @@ per-file src/android/car/media/ICarVolumeCallback.aidl = oscarazu@google.com, er
 per-file src/android/car/cluster/* = ycheo@google.com
 
 # Input
-per-file src/android/car/input/* = ycheo@google.com
+per-file src/android/car/input/* = ycheo@google.com, kanant@google.com
 
 # Navigation
 per-file src/android/car/navigation/* = ycheo@google.com
@@ -32,6 +32,9 @@ per-file src/android/car/hardware/power/* = ericjeong@google.com
 per-file src/android/car/Vehicle* = tylertrephan@google.com, shanyu@google.com
 per-file src/android/car/hardware/Car* = tylertrephan@google.com, shanyu@google.com
 per-file src/android/car/hardware/property/* = tylertrephan@google.com, shanyu@google.com
+per-file generated-prop-config/* = tylertrephan@google.com, shanyu@google.com
+per-file src/com/android/car/internal/property/* = tylertrephan@google.com, shanyu@google.com
+per-file src/com/android/car/internal/util/PairSparseArray.java = aaqibismail@google.com, tylertrephan@google.com, shanyu@google.com
 
 # RemoteAccess
 per-file src/android/car/remoteaccess/* = ericjeong@google.com, shanyu@google.com
@@ -40,5 +43,5 @@ per-file src/android/car/remoteaccess/* = ericjeong@google.com, shanyu@google.co
 per-file src/android/car/storagemonitoring/* = lakshmana@google.com
 
 # Watchdog
-per-file src/android/car/watchdog/* = lakshmana@google.com
-per-file src/android/car/os/* = lakshmana@google.com
+per-file src/android/car/watchdog/* = lakshmana@google.com, jahdiel@google.com
+per-file src/android/car/os/* = lakshmana@google.com, jahdiel@google.com

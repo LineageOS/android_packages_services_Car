@@ -23,6 +23,7 @@ import android.annotation.IntDef;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.ICarOccupantZoneCallback;
+import android.car.builtin.os.HandlerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.DisplayHelper;
 import android.car.settings.CarSettings;
@@ -38,6 +39,7 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
 import com.android.car.CarLocalServices;
@@ -46,6 +48,8 @@ import com.android.car.CarOccupantZoneService;
 import com.android.car.R;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.power.CarPowerDumpProto.ScreenOffHandlerProto;
+import com.android.car.power.CarPowerDumpProto.ScreenOffHandlerProto.DisplayPowerInfoProto;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -58,7 +62,7 @@ import java.lang.ref.WeakReference;
 import java.time.Duration;
 import java.util.List;
 
-final class ScreenOffHandler {
+class ScreenOffHandler {
     private static final String TAG = CarLog.tagFor(ScreenOffHandler.class);
 
     // Minimum and maximum timeout in milliseconds when there is no user.
@@ -521,7 +525,7 @@ final class ScreenOffHandler {
         }
 
         private void cancelUserActivityTimeout(int displayId) {
-            removeMessages(MSG_USER_ACTIVITY_TIMEOUT, displayId);
+            HandlerHelper.removeEqualMessages(this, MSG_USER_ACTIVITY_TIMEOUT, displayId);
         }
 
         @Override
@@ -657,6 +661,30 @@ final class ScreenOffHandler {
             for (int i = 0; i < mDisplayPowerInfos.size(); i++) {
                 writer.println(mDisplayPowerInfos.valueAt(i));
             }
+        }
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dumpProto(ProtoOutputStream proto) {
+        synchronized (mLock) {
+            long screenOffHandlerToken = proto.start(CarPowerDumpProto.SCREEN_OFF_HANDLER);
+            proto.write(ScreenOffHandlerProto.IS_AUTO_POWER_SAVING, mIsAutoPowerSaving);
+            proto.write(ScreenOffHandlerProto.BOOT_COMPLETED, mBootCompleted);
+            proto.write(
+                    ScreenOffHandlerProto.NO_USER_SCREEN_OFF_TIMEOUT_MS, mNoUserScreenOffTimeoutMs);
+            for (int i = 0; i < mDisplayPowerInfos.size(); i++) {
+                long displayPowerInfosToken = proto.start(
+                        ScreenOffHandlerProto.DISPLAY_POWER_INFOS);
+                DisplayPowerInfo displayInfo = mDisplayPowerInfos.valueAt(i);
+                proto.write(DisplayPowerInfoProto.DISPLAY_ID, displayInfo.getDisplayId());
+                proto.write(DisplayPowerInfoProto.USER_ID, displayInfo.getUserId());
+                proto.write(DisplayPowerInfoProto.MODE, displayInfo.getMode());
+                proto.write(DisplayPowerInfoProto.IS_DRIVER_DISPLAY, displayInfo.isDriverDisplay());
+                proto.write(DisplayPowerInfoProto.LAST_USER_ACTIVITY_TIME,
+                        displayInfo.getLastUserActivityTime());
+                proto.end(displayPowerInfosToken);
+            }
+            proto.end(screenOffHandlerToken);
         }
     }
 

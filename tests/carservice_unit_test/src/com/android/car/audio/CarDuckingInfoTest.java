@@ -22,8 +22,6 @@ import static android.media.AudioAttributes.USAGE_NOTIFICATION;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
 
 import android.audio.policy.configuration.V7_0.AudioUsage;
 import android.hardware.audio.common.PlaybackTrackMetadata;
@@ -46,8 +44,7 @@ public class CarDuckingInfoTest {
             List.of(CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
                     CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION));
     private static final List<PlaybackTrackMetadata> PLAYBACKTRACK_METADATA_HOLDING_FOCUS =
-            CarHalAudioUtils.audioAttributesToMetadatas(
-                    USAGES_HOLDING_FOCUS, mock(CarAudioZone.class, RETURNS_DEEP_STUBS));
+            CarHalAudioUtils.audioAttributesToMetadatas(USAGES_HOLDING_FOCUS);
 
     @Test
     public void constructor_nullAddressesToDuck_throws() {

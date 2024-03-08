@@ -16,16 +16,18 @@
 
 package android.car;
 
+import static android.car.feature.Flags.FLAG_PROJECTION_QUERY_BT_PROFILE_INHIBIT;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
 
 import android.annotation.CallbackExecutor;
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.bluetooth.BluetoothDevice;
-import android.car.annotation.AddedInOrBefore;
 import android.car.projection.ProjectionOptions;
 import android.car.projection.ProjectionStatus;
 import android.car.projection.ProjectionStatus.ProjectionState;
@@ -90,7 +92,6 @@ public final class CarProjectionManager extends CarManagerBase {
         /**
          * Voice search was requested by the user.
          */
-        @AddedInOrBefore(majorVersion = 33)
         void onVoiceAssistantRequest(boolean fromLongPress);
     }
 
@@ -103,7 +104,6 @@ public final class CarProjectionManager extends CarManagerBase {
          *
          * @param event The projection key event that occurred.
          */
-        @AddedInOrBefore(majorVersion = 33)
         void onKeyEvent(@KeyEventNum int event);
     }
     /**
@@ -114,7 +114,6 @@ public final class CarProjectionManager extends CarManagerBase {
      * {@link #KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP} event instead.
      */
     @Deprecated
-    @AddedInOrBefore(majorVersion = 33)
     public static final int PROJECTION_VOICE_SEARCH = 0x1;
     /**
      * Flag for {@link #registerProjectionListener(CarProjectionListener, int)}: subscribe to
@@ -124,7 +123,6 @@ public final class CarProjectionManager extends CarManagerBase {
      * {@link #KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN} event instead.
      */
     @Deprecated
-    @AddedInOrBefore(majorVersion = 33)
     public static final int PROJECTION_LONG_PRESS_VOICE_SEARCH = 0x2;
 
     /**
@@ -136,25 +134,21 @@ public final class CarProjectionManager extends CarManagerBase {
      * long-press timeout, {@link #KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN} will be fired,
      * followed by {@link #KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_UP}.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int KEY_EVENT_VOICE_SEARCH_KEY_DOWN = 0;
     /**
      * Event for {@link #addKeyEventHandler}: fired when the {@link KeyEvent#KEYCODE_VOICE_ASSIST}
      * key is released after a short-press.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP = 1;
     /**
      * Event for {@link #addKeyEventHandler}: fired when the {@link KeyEvent#KEYCODE_VOICE_ASSIST}
      * key is held down past the long-press timeout.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN = 2;
     /**
      * Event for {@link #addKeyEventHandler}: fired when the {@link KeyEvent#KEYCODE_VOICE_ASSIST}
      * key is released after a long-press.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_UP = 3;
     /**
      * Event for {@link #addKeyEventHandler}: fired when the {@link KeyEvent#KEYCODE_CALL} key is
@@ -165,29 +159,24 @@ public final class CarProjectionManager extends CarManagerBase {
      * long-press timeout, {@link #KEY_EVENT_CALL_LONG_PRESS_KEY_DOWN} will be fired, followed by
      * {@link #KEY_EVENT_CALL_LONG_PRESS_KEY_UP}.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int KEY_EVENT_CALL_KEY_DOWN = 4;
     /**
      * Event for {@link #addKeyEventHandler}: fired when the {@link KeyEvent#KEYCODE_CALL} key is
      * released after a short-press.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int KEY_EVENT_CALL_SHORT_PRESS_KEY_UP = 5;
     /**
      * Event for {@link #addKeyEventHandler}: fired when the {@link KeyEvent#KEYCODE_CALL} key is
      * held down past the long-press timeout.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int KEY_EVENT_CALL_LONG_PRESS_KEY_DOWN = 6;
     /**
      * Event for {@link #addKeyEventHandler}: fired when the {@link KeyEvent#KEYCODE_CALL} key is
      * released after a long-press.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int KEY_EVENT_CALL_LONG_PRESS_KEY_UP = 7;
 
     /** @hide */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int NUM_KEY_EVENTS = 8;
 
     /** @hide */
@@ -206,13 +195,10 @@ public final class CarProjectionManager extends CarManagerBase {
     public @interface KeyEventNum {}
 
     /** @hide */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int PROJECTION_AP_STARTED = 0;
     /** @hide */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int PROJECTION_AP_STOPPED = 1;
     /** @hide */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int PROJECTION_AP_FAILED = 2;
 
     private final ICarProjection mService;
@@ -255,7 +241,6 @@ public final class CarProjectionManager extends CarManagerBase {
          * @param details - contains detailed information about all currently registered projection
          *                  receivers.
          */
-        @AddedInOrBefore(majorVersion = 33)
         void onProjectionStatusChanged(@ProjectionState int state, @Nullable String packageName,
                 @NonNull List<ProjectionStatus> details);
     }
@@ -279,7 +264,6 @@ public final class CarProjectionManager extends CarManagerBase {
      */
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     @Deprecated
-    @AddedInOrBefore(majorVersion = 33)
     public void regsiterProjectionListener(CarProjectionListener listener, int voiceSearchFilter) {
         registerProjectionListener(listener, voiceSearchFilter);
     }
@@ -288,11 +272,10 @@ public final class CarProjectionManager extends CarManagerBase {
      * Register listener to monitor projection. Only one listener can be registered and
      * registering multiple times will lead into only the last listener to be active.
      *
-     * @param listener
+     * @param listener the listener to get projected notifications
      * @param voiceSearchFilter Flags of voice search requests to get notification.
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
-    @AddedInOrBefore(majorVersion = 33)
     public void registerProjectionListener(@NonNull CarProjectionListener listener,
             int voiceSearchFilter) {
         Objects.requireNonNull(listener, "listener cannot be null");
@@ -315,7 +298,6 @@ public final class CarProjectionManager extends CarManagerBase {
      */
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     @Deprecated
-    @AddedInOrBefore(majorVersion = 33)
     public void unregsiterProjectionListener() {
         unregisterProjectionListener();
     }
@@ -324,7 +306,6 @@ public final class CarProjectionManager extends CarManagerBase {
      * Unregister listener and stop listening projection events.
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
-    @AddedInOrBefore(majorVersion = 33)
     public void unregisterProjectionListener() {
         synchronized (mLock) {
             removeKeyEventHandler(mLegacyListenerTranslator);
@@ -388,7 +369,6 @@ public final class CarProjectionManager extends CarManagerBase {
      * @param eventHandler  The {@link ProjectionKeyEventHandler} to call when those events occur.
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
-    @AddedInOrBefore(majorVersion = 33)
     public void addKeyEventHandler(
             @NonNull Set<@KeyEventNum Integer> events,
             @NonNull ProjectionKeyEventHandler eventHandler) {
@@ -415,7 +395,6 @@ public final class CarProjectionManager extends CarManagerBase {
      *                          occur.
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
-    @AddedInOrBefore(majorVersion = 33)
     public void addKeyEventHandler(
             @NonNull Set<@KeyEventNum Integer> events,
             @CallbackExecutor @Nullable Executor callbackExecutor,
@@ -457,7 +436,6 @@ public final class CarProjectionManager extends CarManagerBase {
      * @param eventHandler The listener to remove.
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
-    @AddedInOrBefore(majorVersion = 33)
     public void removeKeyEventHandler(@NonNull ProjectionKeyEventHandler eventHandler) {
         synchronized (mLock) {
             KeyEventHandlerRecord record = mKeyEventHandlers.remove(eventHandler);
@@ -504,7 +482,6 @@ public final class CarProjectionManager extends CarManagerBase {
      * @param serviceIntent
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
-    @AddedInOrBefore(majorVersion = 33)
     public void registerProjectionRunner(@NonNull Intent serviceIntent) {
         Objects.requireNonNull(serviceIntent, "serviceIntent cannot be null");
         synchronized (mLock) {
@@ -523,7 +500,6 @@ public final class CarProjectionManager extends CarManagerBase {
      * @param serviceIntent
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
-    @AddedInOrBefore(majorVersion = 33)
     public void unregisterProjectionRunner(@NonNull Intent serviceIntent) {
         Objects.requireNonNull(serviceIntent, "serviceIntent cannot be null");
         synchronized (mLock) {
@@ -537,7 +513,6 @@ public final class CarProjectionManager extends CarManagerBase {
 
     /** @hide */
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         // nothing to do
     }
@@ -552,7 +527,6 @@ public final class CarProjectionManager extends CarManagerBase {
      * @param callback to receive notifications when access point status changed for the request
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
-    @AddedInOrBefore(majorVersion = 33)
     public void startProjectionAccessPoint(@NonNull ProjectionAccessPointCallback callback) {
         Objects.requireNonNull(callback, "callback cannot be null");
         synchronized (mLock) {
@@ -575,7 +549,6 @@ public final class CarProjectionManager extends CarManagerBase {
      * @param band one of the values from {@code android.net.wifi.WifiScanner#WIFI_BAND_*}
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
-    @AddedInOrBefore(majorVersion = 33)
     public @NonNull List<Integer> getAvailableWifiChannels(int band) {
         try {
             int[] channels = mService.getAvailableWifiChannels(band);
@@ -593,7 +566,6 @@ public final class CarProjectionManager extends CarManagerBase {
      * Stop Wi-Fi Access Point for wireless projection receiver app.
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
-    @AddedInOrBefore(majorVersion = 33)
     public void stopProjectionAccessPoint() {
         ProjectionAccessPointCallbackProxy proxy;
         synchronized (mLock) {
@@ -613,14 +585,14 @@ public final class CarProjectionManager extends CarManagerBase {
 
     /**
      * Request to disconnect the given profile on the given device, and prevent it from reconnecting
-     * until either the request is released, or the process owning the given token dies.
+     * until either the request is released, or the process owning the given token dies. Mainly
+     * intended to use with the {@code A2DP_SINK} profile.
      *
      * @param device  The device on which to inhibit a profile.
      * @param profile The {@link android.bluetooth.BluetoothProfile} to inhibit.
      * @return True if the profile was successfully inhibited, false if an error occurred.
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
-    @AddedInOrBefore(majorVersion = 33)
     public boolean requestBluetoothProfileInhibit(
             @NonNull BluetoothDevice device, int profile) {
         Objects.requireNonNull(device, "device cannot be null");
@@ -633,18 +605,40 @@ public final class CarProjectionManager extends CarManagerBase {
 
     /**
      * Release an inhibit request made by {@link #requestBluetoothProfileInhibit}, and reconnect the
-     * profile if no other inhibit requests are active.
+     * profile if no other inhibit requests are active. Mainly intended to use with the {@code
+     * A2DP_SINK} profile.
      *
      * @param device  The device on which to release the inhibit request.
      * @param profile The profile on which to release the inhibit request.
      * @return True if the request was released, false if an error occurred.
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
-    @AddedInOrBefore(majorVersion = 33)
     public boolean releaseBluetoothProfileInhibit(@NonNull BluetoothDevice device, int profile) {
         Objects.requireNonNull(device, "device cannot be null");
         try {
             return mService.releaseBluetoothProfileInhibit(device, profile, mToken);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, false);
+        }
+    }
+
+
+    /**
+     * Checks whether a request to disconnect the given profile on the given device has been made
+     * and if the inhibit request is still active. Mainly intended to use with the {@code A2DP_SINK}
+     * profile.
+     *
+     * @param device  The device on which to check the inhibit request.
+     * @param profile The profile on which to check the inhibit request.
+     * @return True if inhibit was requested and is still active, false if an error occurred or
+     *         inactive.
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
+    @FlaggedApi(FLAG_PROJECTION_QUERY_BT_PROFILE_INHIBIT)
+    public boolean isBluetoothProfileInhibited(@NonNull BluetoothDevice device, int profile) {
+        Objects.requireNonNull(device, "device cannot be null");
+        try {
+            return mService.isBluetoothProfileInhibited(device, profile, mToken);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, false);
         }
@@ -659,7 +653,6 @@ public final class CarProjectionManager extends CarManagerBase {
      * @see #registerProjectionStatusListener(ProjectionStatusListener)
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
-    @AddedInOrBefore(majorVersion = 33)
     public void updateProjectionStatus(@NonNull ProjectionStatus status) {
         Objects.requireNonNull(status, "status cannot be null");
         try {
@@ -678,7 +671,6 @@ public final class CarProjectionManager extends CarManagerBase {
      * @param listener the listener to receive notification for any projection status changes
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION_STATUS)
-    @AddedInOrBefore(majorVersion = 33)
     public void registerProjectionStatusListener(@NonNull ProjectionStatusListener listener) {
         Objects.requireNonNull(listener, "listener cannot be null");
         synchronized (mLock) {
@@ -716,7 +708,6 @@ public final class CarProjectionManager extends CarManagerBase {
      * registered with {@link #unregisterProjectionStatusListener(ProjectionStatusListener)}
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION_STATUS)
-    @AddedInOrBefore(majorVersion = 33)
     public void unregisterProjectionStatusListener(@NonNull ProjectionStatusListener listener) {
         Objects.requireNonNull(listener, "listener cannot be null");
         synchronized (mLock) {
@@ -753,7 +744,6 @@ public final class CarProjectionManager extends CarManagerBase {
      * can be parsed using {@link ProjectionOptions}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
-    @AddedInOrBefore(majorVersion = 33)
     public @NonNull Bundle getProjectionOptions() {
         try {
             return mService.getProjectionOptions();
@@ -767,7 +757,6 @@ public final class CarProjectionManager extends CarManagerBase {
      * hotspot credentials.
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
-    @AddedInOrBefore(majorVersion = 33)
     public void resetProjectionAccessPointCredentials() {
         try {
             mService.resetProjectionAccessPointCredentials();
@@ -780,13 +769,9 @@ public final class CarProjectionManager extends CarManagerBase {
      * Callback class for applications to receive updates about the LocalOnlyHotspot status.
      */
     public abstract static class ProjectionAccessPointCallback {
-        @AddedInOrBefore(majorVersion = 33)
         public static final int ERROR_NO_CHANNEL = 1;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int ERROR_GENERIC = 2;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int ERROR_INCOMPATIBLE_MODE = 3;
-        @AddedInOrBefore(majorVersion = 33)
         public static final int ERROR_TETHERING_DISALLOWED = 4;
 
         /**
@@ -805,7 +790,6 @@ public final class CarProjectionManager extends CarManagerBase {
          * instead.
          */
         @Deprecated
-        @AddedInOrBefore(majorVersion = 33)
         public void onStarted(@Nullable WifiConfiguration wifiConfiguration) {}
 
         /**
@@ -813,16 +797,13 @@ public final class CarProjectionManager extends CarManagerBase {
          *
          * @param softApConfiguration the {@link SoftApConfiguration} of the current hotspot.
          */
-        @AddedInOrBefore(majorVersion = 33)
         public void onStarted(@NonNull SoftApConfiguration softApConfiguration) {
             onStarted(softApConfiguration.toWifiConfiguration());
         }
 
         /** Called when access point is stopped. No events will be sent after that. */
-        @AddedInOrBefore(majorVersion = 33)
         public void onStopped() {}
         /** Called when access point failed to start. No events will be sent after that. */
-        @AddedInOrBefore(majorVersion = 33)
         public void onFailed(int reason) {}
     }
 

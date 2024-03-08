@@ -45,6 +45,7 @@ import java.util.concurrent.locks.ReentrantLock;
 final class CarEvsCameraClient {
 
     private static final String TAG = CarEvsCameraClient.class.getSimpleName();
+    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
 
     /**
      * Defines internal states.
@@ -148,7 +149,9 @@ final class CarEvsCameraClient {
         public CarEvsBufferDescriptor onBufferRequested() {
             try {
                 if (!mLock.tryLock(/* timeout= */ 100, TimeUnit.MILLISECONDS)) {
-                    Log.d(TAG, "Timer for new framebuffer expired.");
+                    if (DBG) {
+                      Log.d(TAG, "Timer for new framebuffer expired.");
+                    }
                     return null;
                 }
             } catch (InterruptedException e) {
@@ -159,7 +162,9 @@ final class CarEvsCameraClient {
             try {
                 ArrayList<CarEvsBufferDescriptor> buffers = mBufferQueue.get(mType);
                 if (buffers == null || buffers.isEmpty()) {
-                    Log.d(TAG, "No buffer is available for type=" + mType);
+                    if (DBG) {
+                        Log.d(TAG, "No buffer is available for type=" + mType);
+                    }
                     return null;
                 }
 
@@ -345,7 +350,7 @@ final class CarEvsCameraClient {
 
     @GuardedBy("mLock")
     private void handleVideoStreamLocked(int newState) {
-        Log.d(TAG, "Requested: " + streamStateToString(mStreamState) + " -> " +
+        Log.i(TAG, "Requested: " + streamStateToString(mStreamState) + " -> " +
                 streamStateToString(newState));
         if (newState == mStreamState) {
             // Safely ignore a request of transitioning to the current state.
@@ -373,7 +378,7 @@ final class CarEvsCameraClient {
         }
 
         mStreamState = newState;
-        Log.d(TAG, "Completed: " + streamStateToString(mStreamState));
+        Log.i(TAG, "Completed: " + streamStateToString(mStreamState));
     }
 
     private static @CarEvsServiceType int getServiceType(int descId) {

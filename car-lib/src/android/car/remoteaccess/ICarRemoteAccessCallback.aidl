@@ -29,6 +29,13 @@ oneway interface ICarRemoteAccessCallback {
      */
      void onClientRegistrationUpdated(in RemoteTaskClientRegistrationInfo info);
 
+     /**
+      * Called when a serverless remote task client is registered.
+      *
+      * @param clientId The pre-configured client ID for the serverless remote task client.
+      */
+    void onServerlessClientRegistered(in String clientId);
+
     /**
      * Called when registering the remote task client fails.
      */

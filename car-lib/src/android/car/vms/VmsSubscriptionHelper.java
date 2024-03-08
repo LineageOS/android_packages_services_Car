@@ -17,7 +17,6 @@
 package android.car.vms;
 
 import android.annotation.NonNull;
-import android.car.annotation.AddedInOrBefore;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseBooleanArray;
@@ -25,12 +24,9 @@ import android.util.SparseBooleanArray;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Internal utility for computing subscription updates.
@@ -43,10 +39,10 @@ public final class VmsSubscriptionHelper {
     private final Object mLock = new Object();
 
     @GuardedBy("mLock")
-    private final Set<VmsLayer> mLayerSubscriptions = new ArraySet<>();
+    private final ArraySet<VmsLayer> mLayerSubscriptions = new ArraySet<>();
 
     @GuardedBy("mLock")
-    private final Map<VmsLayer, SparseBooleanArray> mPublisherSubscriptions = new ArrayMap<>();
+    private final ArrayMap<VmsLayer, SparseBooleanArray> mPublisherSubscriptions = new ArrayMap<>();
 
     @GuardedBy("mLock")
     private boolean mPendingUpdate;
@@ -63,7 +59,6 @@ public final class VmsSubscriptionHelper {
     /**
      * Adds a subscription to a layer.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void subscribe(@NonNull VmsLayer layer) {
         Objects.requireNonNull(layer, "layer cannot be null");
         synchronized (mLock) {
@@ -77,7 +72,6 @@ public final class VmsSubscriptionHelper {
     /**
      * Adds a subscription to a specific provider of a layer.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void subscribe(@NonNull VmsLayer layer, int providerId) {
         Objects.requireNonNull(layer, "layer cannot be null");
         synchronized (mLock) {
@@ -94,7 +88,6 @@ public final class VmsSubscriptionHelper {
     /**
      * Removes a subscription to a layer.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void unsubscribe(@NonNull VmsLayer layer) {
         Objects.requireNonNull(layer, "layer cannot be null");
         synchronized (mLock) {
@@ -108,7 +101,6 @@ public final class VmsSubscriptionHelper {
     /**
      * Removes a subscription to the specific provider of a layer.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void unsubscribe(@NonNull VmsLayer layer, int providerId) {
         Objects.requireNonNull(layer, "layer cannot be null");
         synchronized (mLock) {
@@ -128,15 +120,22 @@ public final class VmsSubscriptionHelper {
      * Gets the current set of subscriptions.
      */
     @NonNull
-    @AddedInOrBefore(majorVersion = 33)
+    @GuardedBy("mLock")
     public Set<VmsAssociatedLayer> getSubscriptions() {
-        return Stream.concat(
-                mLayerSubscriptions.stream().map(
-                        layer -> new VmsAssociatedLayer(layer, Collections.emptySet())),
-                mPublisherSubscriptions.entrySet().stream()
-                        .filter(entry -> !mLayerSubscriptions.contains(entry.getKey()))
-                        .map(VmsSubscriptionHelper::toAssociatedLayer))
-                .collect(Collectors.toSet());
+        Set<VmsAssociatedLayer> vmsAssociatedLayerSet = new ArraySet<>();
+        for (int i = 0; i < mLayerSubscriptions.size(); i++) {
+            VmsLayer layer = mLayerSubscriptions.valueAt(i);
+            vmsAssociatedLayerSet.add(new VmsAssociatedLayer(layer, Collections.emptySet()));
+        }
+
+        for (int i = 0; i < mPublisherSubscriptions.size(); i++) {
+            VmsLayer layer = mPublisherSubscriptions.keyAt(i);
+            if (!mLayerSubscriptions.contains(layer)) {
+                vmsAssociatedLayerSet.add(
+                        toAssociatedLayer(layer, mPublisherSubscriptions.valueAt(i)));
+            }
+        }
+        return vmsAssociatedLayerSet;
     }
 
     private void publishSubscriptionUpdate() {
@@ -148,13 +147,12 @@ public final class VmsSubscriptionHelper {
         }
     }
 
-    private static VmsAssociatedLayer toAssociatedLayer(
-            Map.Entry<VmsLayer, SparseBooleanArray> entry) {
-        SparseBooleanArray providerIdArray = entry.getValue();
+    private static VmsAssociatedLayer toAssociatedLayer(VmsLayer layer,
+            SparseBooleanArray providerIdArray) {
         Set<Integer> providerIds = new ArraySet<>(providerIdArray.size());
         for (int i = 0; i < providerIdArray.size(); i++) {
             providerIds.add(providerIdArray.keyAt(i));
         }
-        return new VmsAssociatedLayer(entry.getKey(), providerIds);
+        return new VmsAssociatedLayer(layer, providerIds);
     }
 }

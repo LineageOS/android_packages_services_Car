@@ -97,18 +97,21 @@
         <item name="android:textSize">32sp</item>
     </style>
 
-    <style name="TextAppearance.CarUi.PreferenceCategoryTitle" parent="TextAppearance.CarUi.Body3">
-        <item name="android:fontFamily">sans-serif-medium</item>
+    <style name="TextAppearance.CarUi.PreferenceCategoryTitle"
+           parent="TextAppearance.Car.Subhead.Medium">
+        <item name="android:textColor">@color/car_on_surface_variant</item>
     </style>
 
-    <style name="TextAppearance.CarUi.PreferenceTitle" parent="TextAppearance.CarUi.Body1"/>
+    <style name="TextAppearance.CarUi.PreferenceSummary" parent="TextAppearance.Car.Body.Small">
+        <item name="android:textColor">@color/car_ui_preference_summary_color</item>
+    </style>
+
+    <style name="TextAppearance.CarUi.PreferenceTitle" parent="TextAppearance.Car.Body.Large">
+        <item name="android:textColor">@color/car_ui_preference_title_color</item>
+    </style>
 
     <style name="TextAppearance.CarUi.Body3">
         <item name="android:textSize">24sp</item>
-    </style>
-
-    <style name="TextAppearance.CarUi.PreferenceSummary" parent="TextAppearance.CarUi.Body3">
-        <item name="android:textColor">@color/car_ui_text_color_secondary</item>
     </style>
 
     <style name="TextAppearance.CarUi.ListItem" parent="TextAppearance.CarUi.Body1"/>
@@ -117,6 +120,14 @@
         <item name="android:textColor">@color/car_ui_text_color_secondary</item>
     </style>
 
+    <style name="TextAppearance.CarUi.AlertDialog.Title" parent="TextAppearance.Car.Subhead.Large">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/car_on_surface</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <style name="TextAppearance.CarUi.AlertDialog.Subtitle" parent="TextAppearance.Car.Body.Medium">
+    </style>
 
     <style name="Widget.CarUi.Toolbar.Container"></style>
     <style name="Widget.CarUi.Toolbar.LogoContainer">
@@ -145,6 +156,14 @@
     <style name="Widget.CarUi.Toolbar.BottomView">
         <item name="android:height">0.01dp</item>
         <item name="android:background">@android:color/transparent</item>
+    </style>
+    <style name="Widget.CarUi.Toolbar.Tab"/>
+    <style name="Widget.CarUi.Toolbar.Tab.Container">
+        <item name="android:orientation">vertical</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/car_ui_toolbar_tab_background</item>
     </style>
 
 </resources>

@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 import android.car.media.CarAudioManager;
 import android.car.media.IAudioZonesMirrorStatusCallback;
 import android.car.test.AbstractExpectableTestCase;
-import android.media.AudioDeviceInfo;
+import android.media.AudioDeviceAttributes;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -51,11 +51,11 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
     @Mock
     private CarAudioDeviceInfo mCarAudioDeviceInfoOne;
     @Mock
-    private AudioDeviceInfo mAudioDeviceInfoOne;
+    private AudioDeviceAttributes mAudioDeviceOne;
     @Mock
     private CarAudioDeviceInfo mCarAudioDeviceInfoTwo;
     @Mock
-    private AudioDeviceInfo mAudioDeviceInfoTwo;
+    private AudioDeviceAttributes mAudioDeviceTwo;
     private List<CarAudioDeviceInfo> mTestCarAudioDeviceInfos;
 
     @Before
@@ -64,8 +64,8 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
         mTestCallback = new TestAudioZonesMirrorStatusCallbackCallback();
         mTestCarAudioDeviceInfos = List.of(mCarAudioDeviceInfoOne, mCarAudioDeviceInfoTwo);
         mCarAudioMirrorRequestHandler.setMirrorDeviceInfos(mTestCarAudioDeviceInfos);
-        when(mCarAudioDeviceInfoOne.getAudioDeviceInfo()).thenReturn(mAudioDeviceInfoOne);
-        when(mCarAudioDeviceInfoTwo.getAudioDeviceInfo()).thenReturn(mAudioDeviceInfoTwo);
+        when(mCarAudioDeviceInfoOne.getAudioDevice()).thenReturn(mAudioDeviceOne);
+        when(mCarAudioDeviceInfoTwo.getAudioDevice()).thenReturn(mAudioDeviceTwo);
     }
 
     @Test
@@ -247,8 +247,8 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
         long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
 
         expectWithMessage("Audio mirror device info for request %s", requestId)
-                .that(mCarAudioMirrorRequestHandler.getAudioDeviceInfo(requestId))
-                .isEqualTo(mAudioDeviceInfoOne);
+                .that(mCarAudioMirrorRequestHandler.getAudioDevice(requestId))
+                .isEqualTo(mAudioDeviceOne);
     }
 
     @Test
@@ -257,8 +257,8 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
         long requestIdTwo = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
 
         expectWithMessage("Audio mirror device info for second request %s", requestIdTwo)
-                .that(mCarAudioMirrorRequestHandler.getAudioDeviceInfo(requestIdTwo))
-                .isEqualTo(mAudioDeviceInfoTwo);
+                .that(mCarAudioMirrorRequestHandler.getAudioDevice(requestIdTwo))
+                .isEqualTo(mAudioDeviceTwo);
     }
 
     @Test
@@ -266,7 +266,7 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
         mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-                () -> mCarAudioMirrorRequestHandler.getAudioDeviceInfo(INVALID_REQUEST_ID));
+                () -> mCarAudioMirrorRequestHandler.getAudioDevice(INVALID_REQUEST_ID));
 
         expectWithMessage("Get mirror device with invalid request id exception")
                 .that(thrown).hasMessageThat().contains("Request id for device");
@@ -358,7 +358,7 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
         expectWithMessage("Audio mirror rejected zones").that(mTestCallback.mZoneIds)
                 .asList().containsExactly(TEST_ZONE_1, TEST_ZONE_2);
         expectWithMessage("Audio device info for rejected request")
-                .that(mCarAudioMirrorRequestHandler.getAudioDeviceInfo(requestId)).isNull();
+                .that(mCarAudioMirrorRequestHandler.getAudioDevice(requestId)).isNull();
     }
 
     @Test

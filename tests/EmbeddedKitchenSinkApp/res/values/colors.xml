@@ -16,4 +16,5 @@
 <resources>
     <color name="car_teal_200">#ff80cbc4</color>
     <color name="car_teal_700">#ff00796b</color>
+    <color name="car_top_level_highlight">#2E3134</color>
 </resources>

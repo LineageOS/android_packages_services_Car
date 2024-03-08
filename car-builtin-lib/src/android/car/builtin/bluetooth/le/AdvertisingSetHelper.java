@@ -21,8 +21,6 @@ import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.bluetooth.annotations.RequiresBluetoothAdvertisePermission;
 import android.bluetooth.le.AdvertisingSet;
-import android.car.builtin.annotation.AddedIn;
-import android.car.builtin.annotation.PlatformVersion;
 
 /**
  * Provides access to hidden API {@code getOwnAddress()} in
@@ -46,7 +44,6 @@ public final class AdvertisingSetHelper {
             android.Manifest.permission.BLUETOOTH_ADVERTISE,
             android.Manifest.permission.BLUETOOTH_PRIVILEGED,
     })
-    @AddedIn(PlatformVersion.TIRAMISU_1)
     public static void getOwnAddress(@NonNull AdvertisingSet advertisingSet) {
         advertisingSet.getOwnAddress();
     }

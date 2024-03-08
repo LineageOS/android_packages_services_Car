@@ -1086,7 +1086,7 @@ final class StateMachine {
 
         String cameraId = mCameraIdOverride != null ? mCameraIdOverride : mCameraId;
         if (!mHalWrapper.openCamera(cameraId)) {
-            Slogf.e(mLogTag, "Failed to open a targer camera device, %s", cameraId);
+            Slogf.e(mLogTag, "Failed to open a target camera device, %s", cameraId);
             return ERROR_UNAVAILABLE;
         }
 

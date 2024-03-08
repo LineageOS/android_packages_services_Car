@@ -16,12 +16,10 @@
 
 package android.car.occupantconnection;
 
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 import android.os.IBinder;
 import android.os.Parcel;
 
@@ -77,20 +75,14 @@ public final class Payload extends LargeParcelableBase {
     }
 
     /** Returns a reference to the byte array of the payload. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Nullable
     public byte[] getBytes() {
-        assertPlatformVersionAtLeastU();
         return mBytes;
     }
 
     /** Returns a reference to the Binder object of the payload. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Nullable
     public IBinder getBinder() {
-        assertPlatformVersionAtLeastU();
         return mBinder;
     }
 
@@ -125,8 +117,6 @@ public final class Payload extends LargeParcelableBase {
         }
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @NonNull
     public static final Creator<Payload> CREATOR = new Creator<>() {
         /**
@@ -149,19 +139,14 @@ public final class Payload extends LargeParcelableBase {
     /**
      * {@inheritDoc}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     public int describeContents() {
         return 0;
     }
 
     /** Writes this {@link Payload} into the given {@link Parcel}. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     public void serialize(@NonNull Parcel dest, int flags) {
-        assertPlatformVersionAtLeastU();
         dest.writeBoolean(containsBinder());
         // writeByteArray() uses shared memory, so it cannot be called with writeStrongBinder()
         if (containsBinder()) {
@@ -172,21 +157,15 @@ public final class Payload extends LargeParcelableBase {
     }
 
     /** Writes {@code null} {@link Payload} to the given {@link Parcel}. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     public void serializeNullPayload(@NonNull Parcel dest) {
-        assertPlatformVersionAtLeastU();
         dest.writeBoolean(false);
         dest.writeByteArray(null);
     }
 
     /** Reads a {@link Payload} from the given {@link Parcel}. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     public void deserialize(@NonNull Parcel src) {
-        assertPlatformVersionAtLeastU();
         if (src.readBoolean()) {
             mBinder = src.readStrongBinder();
             mBytes = null;
@@ -209,16 +188,11 @@ public final class Payload extends LargeParcelableBase {
     // LargeParcelableBase is hidden class but it implements parcelable and closeable which are
     // public APIs. So the test is not able to find these methods in payload.java and complains.
     // More details in b/275738385
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     public void close() {
-        assertPlatformVersionAtLeastU();
         super.close();
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         super.writeToParcel(dest, flags);

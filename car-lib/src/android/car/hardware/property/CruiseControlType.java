@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -40,8 +39,6 @@ public class CruiseControlType {
      * can use this field to remain backwards compatible if {@code CruiseControlType} is extended to
      * include additional types.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int OTHER = 0;
     /**
      * Standard cruise control is when a system in the vehicle automatically maintains a set speed
@@ -49,15 +46,11 @@ public class CruiseControlType {
      * control does not include automatic acceleration and deceleration to maintain a set time gap
      * from a vehicle ahead.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STANDARD = 1;
     /**
      * Adaptive cruise control is when a system in the vehicle automatically accelerates and
      * decelerates to maintain a set speed and/or a set time gap from a vehicle ahead.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int ADAPTIVE = 2;
     /**
      * Predictive cruise control is a version of adaptive cruise control that also considers road
@@ -65,8 +58,6 @@ public class CruiseControlType {
      * acceleration, gear shifting, etc. for the vehicle. This feature is often used to optimize
      * fuel consumption.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int PREDICTIVE = 3;
 
     private CruiseControlType() {}
@@ -75,8 +66,6 @@ public class CruiseControlType {
      * Returns a user-friendly representation of a {@code CruiseControlType}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(
             @CruiseControlType.CruiseControlTypeInt int cruiseControlType) {
         switch (cruiseControlType) {

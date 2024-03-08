@@ -19,7 +19,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/grip_bar"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/panel_grip_bar_height"
-    android:background="@drawable/grip_bar_background">
+    android:layout_height="wrap_content">
 
 </com.android.car.portraitlauncher.panel.GripBarView>

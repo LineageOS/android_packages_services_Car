@@ -62,6 +62,10 @@ filegroup {
 
 java_library {
     name: "android.car",
+
+    defaults: [
+        "car-framework-aconfig-libraries",
+    ],
     srcs: [
         ":android.car-full-src",
     ],
@@ -73,15 +77,11 @@ java_library {
     libs: [
         "android.car.builtin",
         "framework-annotations-lib",
-        "modules-utils-preconditions",
         "framework-wifi",
         "framework-bluetooth",
+        "framework-location",
+        "modules-utils-preconditions",
     ],
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
     installable: true,
     // TODO(b/288271411): enable it when car mainline module is supported
     // min_sdk_version: "33",
@@ -108,11 +108,6 @@ stubs_defaults {
     libs: [
         "android.car",
     ],
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
 }
 
 genrule {
@@ -140,8 +135,9 @@ genrule {
 droidstubs {
     name: "android.car-stubs-docs",
     defaults: ["android.car-docs-default"],
-    args: "--hide UnavailableSymbol --stub-packages android.car* " +
-        "--hide-package com.android.internal --hide-package com.android.car.internal ",
+    args: "--hide UnavailableSymbol --hide HiddenSuperclass --stub-packages android.car* " +
+        "--hide-package com.android.internal --hide-package com.android.car.internal " +
+        "--error UnflaggedApi",
     installable: false,
     check_api: {
         last_released: {
@@ -172,7 +168,7 @@ droidstubs {
     args: "--hide CallbackInterface --hide UnavailableSymbol --hide HiddenSuperclass " +
         "--stub-packages android.car* " +
         "--show-annotation android.annotation.SystemApi --hide-package com.android.internal " +
-        "--hide-package com.android.car.internal ",
+        "--hide-package com.android.car.internal --error UnflaggedApi",
     installable: false,
     check_api: {
         last_released: {
@@ -225,11 +221,6 @@ droidstubs {
     api_filename: "api.txt",
     args: "--hide HiddenSuperclass --hide UnavailableSymbol --stub-packages android.car* ",
     installable: false,
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
 }
 
 // Generates stubs for API documentation.
@@ -261,7 +252,7 @@ droidstubs {
           "--hide MissingPermission " +
           "--hide HiddenSuperclass --hide DeprecationMismatch --hide UnavailableSymbol " +
           "--hide SdkConstant --hide HiddenTypeParameter " +
-          "--hide Todo --hide Typo ",
+          "--hide Todo ",
     write_sdk_values: true,
 }
 
@@ -307,21 +298,11 @@ java_defaults {
     name: "android.car-stubs.jar_defaults",
     java_version: "1.8",
     installable: false,
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
 }
 
 java_defaults {
     name: "android.car-stubs-dex.jar_defaults",
     compile_dex: true,
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
 }
 
 java_library {
@@ -402,4 +383,3 @@ filegroup {
         "api/system-removed.txt",
     ],
 }
-

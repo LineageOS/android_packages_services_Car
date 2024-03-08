@@ -2922,16 +2922,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testIsUserVisible_platformVersionNotAtLeastUDC() throws Exception {
-        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
-        mockUmGetVisibleUsers(mMockedUserManager, mContextUserId);
-
-        boolean visible = mCarUserService.isUserVisible(mContextUserId);
-
-        assertWithMessage("isUserVisible(%s)", mContextUserId).that(visible).isFalse();
-    }
-
-    @Test
     public void testIsUserVisible() throws Exception {
         mockUmGetVisibleUsers(mMockedUserManager, mContextUserId);
 

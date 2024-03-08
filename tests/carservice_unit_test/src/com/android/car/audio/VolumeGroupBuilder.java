@@ -23,6 +23,7 @@ import static com.android.car.audio.GainBuilder.MAX_GAIN;
 import static com.android.car.audio.GainBuilder.STEP_SIZE;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -49,6 +50,7 @@ public final class VolumeGroupBuilder {
     private boolean mIsMuted;
     private int mZoneId;
     private int mId;
+    private boolean mIsActive = true;
 
     /**
      * Add name for volume group
@@ -105,6 +107,14 @@ public final class VolumeGroupBuilder {
     }
 
     /**
+     * Sets is active for volume group
+     */
+    public VolumeGroupBuilder setIsActive(boolean isActive) {
+        mIsActive = isActive;
+        return this;
+    }
+
+    /**
      * Builds car volume group
      */
     public CarVolumeGroup build() {
@@ -156,6 +166,12 @@ public final class VolumeGroupBuilder {
 
         when(carVolumeGroup.calculateNewGainStageFromDeviceInfos())
                 .thenReturn(EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED);
+
+        when(carVolumeGroup.isActive()).thenReturn(mIsActive);
+
+        when(carVolumeGroup.audioDevicesAdded(anyList())).thenReturn(!mIsActive);
+        when(carVolumeGroup.audioDevicesRemoved(anyList())).thenReturn(!mIsActive);
+        when(carVolumeGroup.validateDeviceTypes(any())).thenReturn(true);
 
         return carVolumeGroup;
     }

@@ -47,11 +47,6 @@ android_app {
     dex_preopt: {
         enabled: false,
     },
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
 }
 
 android_test {
@@ -67,7 +62,7 @@ android_test {
         "androidx.test.core",
         "androidx.test.ext.junit",
         "androidx.test.rules",
-        "truth-prebuilt",
+        "truth",
     ],
     libs: [
         "android.car-system-stubs",

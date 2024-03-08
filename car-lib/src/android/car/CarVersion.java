@@ -16,8 +16,6 @@
 package android.car;
 
 import android.annotation.NonNull;
-import android.car.annotation.ApiRequirements;
-import android.car.annotation.ApiRequirements.PlatformVersion;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -25,22 +23,16 @@ import android.os.Parcelable;
 /**
  * Represents the API version of the {@code Car} SDK.
  */
-@ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-        minPlatformVersion = PlatformVersion.TIRAMISU_0)
 public final class CarVersion extends ApiVersion<CarVersion> implements Parcelable {
 
     /**
      * Contains pre-defined versions matching Car releases.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     public static class VERSION_CODES {
 
         /**
          * Helper object for main version of Android 13.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-                minPlatformVersion = PlatformVersion.TIRAMISU_0)
         @NonNull
         public static final CarVersion TIRAMISU_0 =
                 new CarVersion("TIRAMISU_0", Build.VERSION_CODES.TIRAMISU, 0);
@@ -48,8 +40,6 @@ public final class CarVersion extends ApiVersion<CarVersion> implements Parcelab
         /**
          * Helper object for first minor upgrade of Android 13.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-                minPlatformVersion = PlatformVersion.TIRAMISU_0)
         @NonNull
         public static final CarVersion TIRAMISU_1 =
                 new CarVersion("TIRAMISU_1", Build.VERSION_CODES.TIRAMISU, 1);
@@ -57,8 +47,6 @@ public final class CarVersion extends ApiVersion<CarVersion> implements Parcelab
         /**
          * Helper object for second minor upgrade of Android 13.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
-                minPlatformVersion = PlatformVersion.TIRAMISU_0)
         @NonNull
         public static final CarVersion TIRAMISU_2 =
                 new CarVersion("TIRAMISU_2", Build.VERSION_CODES.TIRAMISU, 2);
@@ -66,8 +54,6 @@ public final class CarVersion extends ApiVersion<CarVersion> implements Parcelab
         /**
          * Helper object for third minor upgrade of Android 13.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-                minPlatformVersion = PlatformVersion.TIRAMISU_0)
         @NonNull
         public static final CarVersion TIRAMISU_3 =
                 new CarVersion("TIRAMISU_3", Build.VERSION_CODES.TIRAMISU, 3);
@@ -75,20 +61,23 @@ public final class CarVersion extends ApiVersion<CarVersion> implements Parcelab
         /**
          * Helper object for main version of Android 14.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = PlatformVersion.TIRAMISU_0)
         @NonNull
         public static final CarVersion UPSIDE_DOWN_CAKE_0 =
                 new CarVersion("UPSIDE_DOWN_CAKE_0", Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 0);
 
-        /**
+       /**
          * Helper object for first minor upgrade of Android 14.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-                minPlatformVersion = PlatformVersion.TIRAMISU_0)
         @NonNull
         public static final CarVersion UPSIDE_DOWN_CAKE_1 =
                 new CarVersion("UPSIDE_DOWN_CAKE_1", Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 1);
+
+        /**
+         * Helper object for main version of Android 15.
+         */
+        @NonNull
+        public static final CarVersion VANILLA_ICE_CREAM_0 =
+                new CarVersion("VANILLA_ICE_CREAM_0", Build.VERSION_CODES.VANILLA_ICE_CREAM, 0);
 
         private VERSION_CODES() {
             throw new UnsupportedOperationException("Only provide constants");
@@ -105,8 +94,6 @@ public final class CarVersion extends ApiVersion<CarVersion> implements Parcelab
     /**
      * Creates a new instance with the given major and minor versions.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @NonNull
     public static CarVersion forMajorAndMinorVersions(int majorVersion, int minorVersion) {
         return new CarVersion(majorVersion, minorVersion);
@@ -115,8 +102,6 @@ public final class CarVersion extends ApiVersion<CarVersion> implements Parcelab
     /**
      * Creates a new instance for a major version (i.e., the minor version will be {@code 0}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @NonNull
     public static CarVersion forMajorVersion(int majorVersion) {
         return new CarVersion(majorVersion, /* minorVersion= */ 0);
@@ -131,21 +116,15 @@ public final class CarVersion extends ApiVersion<CarVersion> implements Parcelab
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     public int describeContents() {
         return 0;
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         writeToParcel(dest);
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @NonNull
     public static final Parcelable.Creator<CarVersion> CREATOR =
             new Parcelable.Creator<CarVersion>() {

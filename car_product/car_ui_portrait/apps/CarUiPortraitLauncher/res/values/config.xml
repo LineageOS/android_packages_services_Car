@@ -16,6 +16,11 @@
   -->
 
 <resources>
+    <!-- Determines whether the CarUiPortraitHomeScreen uses RemoteCarRootTaskView to host taskviews
+    . Uses CarTaskView is set to false. config_registerCarSystemUIProxy should be set to false if
+    this value is false.  -->
+    <bool name="use_remoteCarTaskView">true</bool>
+
     <string-array name="config_backgroundActivities" translatable="false">
         <item>com.google.android.apps.maps/com.google.android.maps.MapsActivity</item>
         <item>com.android.car.portraitlauncher/com.android.car.portraitlauncher.homeactivities.BackgroundPanelBaseActivity</item>
@@ -77,8 +82,9 @@
                  will be in different tasks, which will cause the test to fail.-->
         <item>android.server.wm.app/android.server.wm.app.AssistantActivity</item>
         <item>android.server.wm.app/android.server.wm.app.AnimationTestActivity</item>
-        <!-- TODO(b/297060765): TestActivity is expected to be at the top of the stack when
-                AssistantActivity hide. Put it in fullscreen panel to enforce it. -->
-        <item>android.server.wm.app/android.server.wm.app.TestActivity</item>
+        <!-- Add activity to full screen since focus is lost when all the windows are removed. -->
+        <item>android.server.wm.cts/android.server.wm.LayoutTests$TestActivity</item>
+        <!-- Add activity to full screen due to some issue with focus. -->
+        <item>android.server.wm.cts/android.server.wm.window.WindowUntrustedTouchTest$TestActivity</item>
     </string-array>
 </resources>

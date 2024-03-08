@@ -33,6 +33,7 @@
 #include <android-base/result.h>
 #include <android-base/stringprintf.h>
 #include <android/binder_auto_utils.h>
+#include <android/util/ProtoOutputStream.h>
 #include <cutils/multiuser.h>
 #include <utils/Mutex.h>
 
@@ -180,6 +181,9 @@ public:
             const std::function<void()>& alertHandler) override;
 
     android::base::Result<void> onDump(int fd) const override;
+    android::base::Result<void> onDumpProto(
+            const CollectionIntervals& collectionIntervals,
+            android::util::ProtoOutputStream& outProto) const override;
 
     bool dumpHelpText(int fd) const override;
 

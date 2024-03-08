@@ -33,6 +33,7 @@ import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.UserHandle;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -277,4 +278,8 @@ public class CarPerUserServiceHelper implements CarServiceBase {
         }
         pw.decreaseIndent();
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 }

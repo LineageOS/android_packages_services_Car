@@ -2475,6 +2475,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$PreviouslyConnectedDeviceActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$StylusUsiDetailsActivity"
             android:enabled="false"
             android:exported="false"
@@ -2503,6 +2512,15 @@
 
         <activity
             android:name="com.android.settings.wifi.dpp.WifiDppConfiguratorActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.wifi.dpp.WifiDppConfiguratorAuthActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
@@ -2636,6 +2654,15 @@
             <intent-filter tools:node="removeAll"/>
         </activity>
 
+        <activity
+            android:name="com.android.settings.connecteddevice.audiosharing.audiostreams.qrcode.QrCodeScanModeActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported, android:enabled">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
         <activity-alias
             android:name="com.android.settings.UsageStatsActivity"
             android:enabled="false"
@@ -2762,6 +2789,23 @@
             <intent-filter tools:node="removeAll"/>
         </activity>
 
+        <activity android:name="com.android.settings.biometrics.fingerprint2.ui.enrollment.activity.FingerprintEnrollmentV2Activity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.remoteauth.RemoteAuthActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
         <activity-alias
             android:name="com.android.settings.ConfirmDeviceCredentialActivity"
             android:enabled="false"
@@ -2840,6 +2884,10 @@
 
         <provider
             android:name="com.android.settings.homepage.contextualcards.SettingsContextualCardProvider"
+            tools:node="remove"/>
+
+        <provider
+            android:name="com.android.settings.biometrics.BiometricSettingsProvider"
             tools:node="remove"/>
 
         <provider

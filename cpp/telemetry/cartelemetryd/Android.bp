@@ -18,6 +18,7 @@ package {
 
 cc_defaults {
     name: "cartelemetryd_defaults",
+    cpp_std: "gnu++17",
     cflags: [
         "-Werror",
         "-Wall",

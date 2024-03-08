@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -40,8 +39,6 @@ public final class WindshieldWipersState {
      * framework can use this field to remain backwards compatible if {@code WindshieldWipersState}
      * is extended to include additional states.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int OTHER = 0;
 
     /**
@@ -50,8 +47,6 @@ public final class WindshieldWipersState {
      * to any of the following modes: {@link WindshieldWipersSwitch#OFF} or {@link
      * WindshieldWipersSwitch#AUTO}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int OFF = 1;
 
     /**
@@ -60,15 +55,11 @@ public final class WindshieldWipersState {
      * to any of the following modes: {@link WindshieldWipersSwitch#MIST}, {@code
      * INTERMITTENT_LEVEL_*}, {@code CONTINUOUS_LEVEL_*}, or {@link WindshieldWipersSwitch#AUTO}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int ON = 2;
 
     /**
      * Windshield wipers are in the service mode.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int SERVICE = 3;
 
     private WindshieldWipersState() {}
@@ -77,8 +68,6 @@ public final class WindshieldWipersState {
      * Returns a user-friendly representation of a {@code WindshieldWipersState}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(
             @WindshieldWipersStateInt int windshieldWipersState) {
         switch (windshieldWipersState) {

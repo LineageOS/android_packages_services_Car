@@ -18,7 +18,6 @@ package com.android.car.internal.test;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.car.annotation.ApiRequirements;
 import android.car.apitest.CarLessApiTestBase;
 import android.car.apitest.IStableAIDLTestBinder;
 import android.car.apitest.IStableAIDLTestCallback;
@@ -86,8 +85,6 @@ public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase 
     @Test
     @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
             + "hidden API")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testEchoSmallPayload() throws Exception {
         doTestLEcho(ARRAY_LENGTH_SMALL);
     }
@@ -95,8 +92,6 @@ public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase 
     @Test
     @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
             + "hidden API")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testEchoBigPayload() throws Exception {
         doTestLEcho(ARRAY_LENGTH_BIG);
     }
@@ -104,8 +99,6 @@ public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase 
     @Test
     @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
             + "hidden API")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testEchoSmallPayloadPerfTest() throws Exception {
         for (int i = 0; i < 1000; i++) {
             doTestLEcho(ARRAY_LENGTH_SMALL);
@@ -115,8 +108,6 @@ public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase 
     @Test
     @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
             + "hidden API")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testEchoBigPayloadPerfTest() throws Exception {
         for (int i = 0; i < 1000; i++) {
             doTestLEcho(ARRAY_LENGTH_BIG);
@@ -126,8 +117,6 @@ public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase 
     @Test
     @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
             + "hidden API")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testEchoMultipleArgsSmallPayload() throws Exception {
         doTestMultipleArgs(ARRAY_LENGTH_SMALL);
     }
@@ -135,8 +124,6 @@ public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase 
     @Test
     @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
             + "hidden API")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testEchoMultipleArgsBigPayload() throws Exception {
         doTestMultipleArgs(ARRAY_LENGTH_BIG);
     }
@@ -144,8 +131,6 @@ public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase 
     @Test
     @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
             + "hidden API")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testNullParcelable() throws Exception {
         StableAIDLTestLargeParcelable r = mBinder.echo(null);
 
@@ -161,8 +146,6 @@ public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase 
     @Test
     @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
             + "hidden API")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testEchoWithCallbackSmallPayload() throws Exception {
         doTestEchoWithCallback(ARRAY_LENGTH_SMALL);
     }
@@ -170,8 +153,6 @@ public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase 
     @Test
     @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
             + "hidden API")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testEchoWithCallbackBigPayload() throws Exception {
         doTestEchoWithCallback(ARRAY_LENGTH_BIG);
     }

@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -40,8 +39,6 @@ public final class LaneCenteringAssistState {
      * framework can use this field to remain backwards compatible if {@code
      * LaneCenteringAssistState} is extended to include additional states.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int OTHER = 0;
 
     /**
@@ -49,8 +46,6 @@ public final class LaneCenteringAssistState {
      * Therefore, LCA is not steering the car and waits for the driver to send an {@link
      * LaneCenteringAssistCommand#ACTIVATE} command.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int ENABLED = 1;
 
     /**
@@ -63,15 +58,11 @@ public final class LaneCenteringAssistState {
      * communicated through the {@link ErrorState} values and then return to the {@link #ENABLED}
      * state.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int ACTIVATION_REQUESTED = 2;
 
     /**
      * LCA is enabled and actively steering the car to keep it centered in its lane.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int ACTIVATED = 3;
 
     /**
@@ -81,8 +72,6 @@ public final class LaneCenteringAssistState {
      * ensure that the driver can always take control of the vehicle. This state should be set when
      * the user is actively overriding the LCA system.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int USER_OVERRIDE = 4;
 
     /**
@@ -92,8 +81,6 @@ public final class LaneCenteringAssistState {
      * attention), then the ADAS system will notify the driver of a potential need to deactivate and
      * give control back to the driver.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int FORCED_DEACTIVATION_WARNING = 5;
 
     private LaneCenteringAssistState() {}
@@ -102,8 +89,6 @@ public final class LaneCenteringAssistState {
      * Returns a user-friendly representation of a {@code LaneCenteringAssistState}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(
             @LaneCenteringAssistStateInt int laneCenteringAssistState) {
         switch (laneCenteringAssistState) {

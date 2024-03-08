@@ -839,24 +839,6 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
 
     @Test
-    public void testUnlockSystemUser_startedOk() throws Exception {
-        expectAmStartBgUser(UserHandle.USER_SYSTEM, /* toBeReturned= */true);
-
-        mSetter.unlockSystemUser();
-
-        verify(() -> ActivityManagerHelper.unlockUser(UserHandle.USER_SYSTEM), never());
-    }
-
-    @Test
-    public void testUnlockSystemUser_startFailUnlockedInstead() throws Exception {
-        expectAmStartBgUser(UserHandle.USER_SYSTEM, /* toBeReturned= */false);
-
-        mSetter.unlockSystemUser();
-
-        verify(() -> ActivityManagerHelper.unlockUser(UserHandle.USER_SYSTEM));
-    }
-
-    @Test
     public void testStartForegroundUser_ok() throws Exception {
         expectAmStartFgUser(10, /* toBeReturned= */ true);
 

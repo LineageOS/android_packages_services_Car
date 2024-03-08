@@ -19,6 +19,7 @@ package com.android.car.cluster;
 import static android.car.builtin.app.ActivityManagerHelper.createActivityOptions;
 import static android.content.Intent.ACTION_MAIN;
 
+import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 import static com.android.car.hal.ClusterHalService.DISPLAY_OFF;
 import static com.android.car.hal.ClusterHalService.DISPLAY_ON;
 import static com.android.car.hal.ClusterHalService.DONT_CARE;
@@ -49,7 +50,9 @@ import android.os.Bundle;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.text.TextUtils;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
+import android.view.SurfaceControl;
 
 import com.android.car.CarLog;
 import com.android.car.CarOccupantZoneService;
@@ -63,7 +66,7 @@ import com.android.car.internal.util.IndentingPrintWriter;
 /**
  * Service responsible for interactions between ClusterOS and ClusterHome.
  */
-public class ClusterHomeService extends IClusterHomeService.Stub
+public final class ClusterHomeService extends IClusterHomeService.Stub
         implements CarServiceBase, ClusterNavigationService.ClusterNavigationServiceCallback,
         ClusterHalService.ClusterHalEventCallback {
     private static final String TAG = CarLog.TAG_CLUSTER;
@@ -76,6 +79,7 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     private final CarOccupantZoneService mOccupantZoneService;
     private final FixedActivityService mFixedActivityService;
     private final ComponentName mClusterHomeActivity;
+    private final ClusterHealthMonitor mClusterHealthMonitor;
 
     private boolean mServiceEnabled;
 
@@ -105,6 +109,7 @@ public class ClusterHomeService extends IClusterHomeService.Stub
         mFixedActivityService = fixedActivityService;
         mClusterHomeActivity = ComponentName.unflattenFromString(
                 mContext.getString(R.string.config_clusterHomeActivity));
+        mClusterHealthMonitor = new ClusterHealthMonitor(mContext, mClusterHalService);
         mLastIntent = new Intent(ACTION_MAIN).setComponent(mClusterHomeActivity);
     }
 
@@ -116,9 +121,16 @@ public class ClusterHomeService extends IClusterHomeService.Stub
             Slogf.i(TAG, "Improper ClusterHomeActivity: %s", mClusterHomeActivity);
             return;
         }
-        if (!mClusterHalService.isCoreSupported()) {
-            Slogf.e(TAG, "No Cluster HAL properties");
+        if (!mClusterHalService.isServiceEnabled()) {
+            Slogf.e(TAG, "ClusterHomeService is disabled. To enable, it must be either in LIGHT "
+                    + "mode, or all core properties must be defined in FULL mode.");
             return;
+        }
+        // In FULL mode mOnOff is set to 'OFF', and can be changed by the CLUSTER_DISPLAY_STATE
+        // property. In LIGHT mode, we set it to 'ON' because the CLUSTER_DISPLAY_STATE property may
+        // not be available, and we do not subscribe to it.
+        if (mClusterHalService.isLightMode()) {
+            mOnOff = DISPLAY_ON;
         }
 
         mServiceEnabled = true;
@@ -126,6 +138,7 @@ public class ClusterHomeService extends IClusterHomeService.Stub
         mClusterNavigationService.setClusterServiceCallback(this);
 
         mOccupantZoneService.registerCallback(mOccupantZoneCallback);
+
         initClusterDisplay();
     }
 
@@ -166,7 +179,8 @@ public class ClusterHomeService extends IClusterHomeService.Stub
             new ICarOccupantZoneCallback.Stub() {
                 @Override
                 public void onOccupantZoneConfigChanged(int flags) throws RemoteException {
-                    if ((flags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY) != 0) {
+                    if ((flags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY) != 0
+                            || (flags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER) != 0) {
                         initClusterDisplay();
                     }
                 }
@@ -185,8 +199,27 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
-        // TODO: record the latest states from both sides
+        checkHasDumpPermissionGranted(mContext, "dump()");
+        writer.println("*ClusterHomeService*");
+
+        writer.increaseIndent();
+        writer.printf("mServiceEnabled: %b\n", mServiceEnabled);
+        writer.printf("isLightMode: %b\n", mClusterHalService.isLightMode());
+        writer.printf("mClusterDisplayId: %d\n", mClusterDisplayId);
+        writer.printf("mClusterHomeActivity: %s\n", mClusterHomeActivity);
+        writer.printf("mOnOff: %d\n", mOnOff);
+        writer.printf("mBounds: %s\n", mBounds);
+        writer.printf("mInsets: %s\n", mInsets);
+        writer.printf("mUiType: %d\n", mUiType);
+        writer.printf("mLastIntent: %s\n", mLastIntent);
+        writer.printf("mLastIntentUserId: %d\n", mLastIntentUserId);
+        mClusterHealthMonitor.dump(writer);
+        writer.decreaseIndent();
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     // ClusterHalEventListener starts
     @Override
@@ -370,6 +403,24 @@ public class ClusterHomeService extends IClusterHomeService.Stub
         enforcePermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL);
         if (!mServiceEnabled) throw new IllegalStateException("Service is not enabled");
         return createClusterState();
+    }
+
+    @Override
+    public void sendHeartbeat(long epochTimeNs, byte[] appMetadata) {
+        enforcePermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL);
+        mClusterHealthMonitor.sendHeartbeat(epochTimeNs, appMetadata);
+    }
+
+    @Override
+    public void startVisibilityMonitoring(SurfaceControl surface) {
+        enforcePermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL);
+        mClusterHealthMonitor.startVisibilityMonitoring(surface);
+    }
+
+    @Override
+    public void stopVisibilityMonitoring() {
+        enforcePermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL);
+        mClusterHealthMonitor.stopVisibilityMonitoring();
     }
     // IClusterHomeService ends
 

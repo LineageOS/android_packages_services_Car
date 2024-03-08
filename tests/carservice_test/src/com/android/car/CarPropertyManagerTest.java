@@ -223,7 +223,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
             | VehicleAreaSeat.ROW_2_RIGHT;
     private static final float INIT_TEMP_VALUE = 16f;
     private static final float CHANGED_TEMP_VALUE = 20f;
-    private static final int CALLBACK_SHORT_TIMEOUT_MS = 350; // ms
+    private static final int CALLBACK_SHORT_TIMEOUT_MS = 1000; // ms
     // Wait for CarPropertyManager register/unregister listener
     private static final long WAIT_FOR_NO_EVENTS = 50;
     private static final int VENDOR_CODE_FOR_NOT_AVAILABLE = 0x00ab;
@@ -274,6 +274,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
             getContext().getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.R;
         } else if (mTestName.getMethodName().endsWith("AfterS")) {
             getContext().getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.S;
+        } else if (mTestName.getMethodName().endsWith("AfterU")) {
+            getContext().getApplicationInfo().targetSdkVersion =
+                    Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
         }
     }
 
@@ -752,10 +755,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         assertThrows(IllegalStateException.class,
                 () -> mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_ACCESS_DENIED, 0));
 
-        assertThrows(IllegalArgumentException.class,
-                () -> mManager.getProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0));
-        assertThrows(IllegalArgumentException.class,
-                () -> mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0));
+        assertThat(mManager.getProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0)).isNull();
+        assertThat(mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0)).isEqualTo(0);
+        assertThat(mManager.getProperty(PROP_UNSUPPORTED, 0)).isNull();
 
         assertThrows(IllegalStateException.class,
                 () -> mManager.getProperty(PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE, 0));
@@ -785,10 +787,10 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 () -> mManager.getProperty(PROP_CAUSE_STATUS_CODE_ACCESS_DENIED, 0));
         assertThrows(PropertyAccessDeniedSecurityException.class,
                 () -> mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_ACCESS_DENIED, 0));
-        assertThrows(IllegalArgumentException.class,
-                () -> mManager.getProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0));
-        assertThrows(IllegalArgumentException.class,
-                () -> mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0));
+
+        assertThat(mManager.getProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0)).isNull();
+        assertThat(mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0)).isEqualTo(0);
+        assertThat(mManager.getProperty(PROP_UNSUPPORTED, 0)).isNull();
 
         assertThrows(PropertyNotAvailableAndRetryException.class,
                 () -> mManager.getProperty(PROP_CAUSE_STATUS_CODE_TRY_AGAIN, 0));
@@ -809,10 +811,21 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 () -> mManager.getProperty(NULL_VALUE_PROP, 0));
         assertThrows(PropertyNotAvailableException.class,
                 () -> mManager.getIntProperty(NULL_VALUE_PROP, 0));
-        assertThrows(IllegalArgumentException.class,
-                () -> mManager.getProperty(PROP_UNSUPPORTED, 0));
         assertThrows(PropertyNotAvailableException.class,
                 () -> mManager.getIntProperty(NULL_VALUE_PROP, 0));
+    }
+
+    @Test
+    public void testGetter_notSupportedPropertyAfterU() {
+        Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
+                .isAtLeast(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mManager.getProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0));
+        assertThrows(IllegalArgumentException.class,
+                () -> mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, 0));
+        assertThrows(IllegalArgumentException.class,
+                () -> mManager.getProperty(PROP_UNSUPPORTED, 0));
     }
 
     @Test
@@ -975,7 +988,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         long wheelLeftFrontTimestampNanos = Duration.ofSeconds(1).toNanos();
 
         float notNewEnoughWheelLeftFrontValue = 22.22f;
-        long notNewEnoughWheelLeftFrontTimestampNanos = Duration.ofMillis(1999).toNanos();
+        long notNewEnoughWheelLeftFrontTimestampNanos = Duration.ofMillis(1899).toNanos();
 
         float newEnoughWheelLeftFrontValue = 33.33f;
         long newEnoughWheelLeftFrontTimestampNanos = Duration.ofSeconds(2).toNanos();
@@ -1374,6 +1387,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         tempValue.value = new RawPropValues();
         tempValue.value.floatValues = new float[]{INIT_TEMP_VALUE};
         tempValue.prop = VehicleProperty.HVAC_TEMPERATURE_SET;
+        tempValue.areaId = DRIVER_SIDE_AREA_ID;
         addAidlProperty(VehicleProperty.HVAC_TEMPERATURE_SET, tempValue)
                 .addAreaConfig(DRIVER_SIDE_AREA_ID, /* minValue = */ 10, /* maxValue = */ 20)
                 .addAreaConfig(PASSENGER_SIDE_AREA_ID, /* minValue = */ 10, /* maxValue = */ 20);

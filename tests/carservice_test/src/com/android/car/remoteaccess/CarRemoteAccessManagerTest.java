@@ -84,6 +84,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -163,6 +164,10 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
                     PACKAGE_NAME_2)).thenReturn(PackageManager.PERMISSION_GRANTED);
             when(mPackageManager.checkPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS,
                     NO_PERMISSION_PACKAGE)).thenReturn(PackageManager.PERMISSION_DENIED);
+            when(mPackageManager.getPackagesForUid(Process.myUid())).thenReturn(
+                    new String[]{PACKAGE_NAME_1});
+            when(mPackageManager.getPackagesForUid(12345)).thenReturn(
+                    new String[]{PACKAGE_NAME_2});
         }
 
         @Override
@@ -171,8 +176,9 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
         }
 
         private boolean knownPackage(String packageName) {
-            return packageName.equals(PACKAGE_NAME_1) || packageName.equals(PACKAGE_NAME_2)
-                    || packageName.equals(NO_PERMISSION_PACKAGE);
+            return Objects.equals(packageName, PACKAGE_NAME_1)
+                    || Objects.equals(packageName, PACKAGE_NAME_2)
+                    || Objects.equals(packageName, NO_PERMISSION_PACKAGE);
         }
 
         @Override
@@ -230,7 +236,8 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
         }
 
         @Override
-        public void scheduleActionForBootCompleted(Runnable action, Duration delay) {
+        public void scheduleActionForBootCompleted(Runnable action, Duration delay,
+                Duration delayRange) {
             synchronized (mActionLock) {
                 mActions.add(action);
             }
@@ -410,9 +417,9 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
 
         mCarRemoteAccessManager.clearRemoteTaskClient();
 
+        clearInvocations(mRemoteTaskClientCallback);
         mCarRemoteAccessManager.setRemoteTaskClient(mExecutor, mRemoteTaskClientCallback);
 
-        clearInvocations(mRemoteTaskClientCallback);
         verify(mRemoteTaskClientCallback, timeout(DEFAULT_TIME_OUT_MS)).onRegistrationUpdated(
                 mRegistrationInfoCaptor.capture());
         registrationInfo = mRegistrationInfoCaptor.getValue();

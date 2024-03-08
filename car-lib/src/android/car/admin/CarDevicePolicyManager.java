@@ -28,7 +28,6 @@ import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.SyncResultCallback;
-import android.car.annotation.AddedInOrBefore;
 import android.car.builtin.util.EventLogHelper;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
@@ -72,7 +71,6 @@ public final class CarDevicePolicyManager extends CarManagerBase {
      * @hide
      */
     @VisibleForTesting
-    @AddedInOrBefore(majorVersion = 33)
     public static final String TAG = CarDevicePolicyManager.class.getSimpleName();
 
     private final ICarDevicePolicyService mService;
@@ -82,26 +80,21 @@ public final class CarDevicePolicyManager extends CarManagerBase {
     /**
      * Type used to indicate the user is a regular user.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int USER_TYPE_REGULAR = 0;
 
     /**
      * Type used to indicate the user is an admin user.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int USER_TYPE_ADMIN = 1;
 
     /**
      * Type used to indicate the user is a guest user.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int USER_TYPE_GUEST = 2;
 
     /** @hide - Used on test cases only */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int FIRST_USER_TYPE = USER_TYPE_REGULAR;
     /** @hide - Used on test cases only */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int LAST_USER_TYPE = USER_TYPE_GUEST;
 
     private static final int DEVICE_POLICY_MANAGER_TIMEOUT_MS =
@@ -150,7 +143,6 @@ public final class CarDevicePolicyManager extends CarManagerBase {
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
     @NonNull
-    @AddedInOrBefore(majorVersion = 33)
     @SuppressLint("VisibleForTests")
     public RemoveUserResult removeUser(@NonNull UserHandle user) {
         Objects.requireNonNull(user, "user cannot be null");
@@ -202,7 +194,6 @@ public final class CarDevicePolicyManager extends CarManagerBase {
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
     @NonNull
-    @AddedInOrBefore(majorVersion = 33)
     public CreateUserResult createUser(@Nullable String name, @UserType int type) {
         int uid = myUid();
         EventLogHelper.writeCarDevicePolicyManagerCreateUserReq(uid, UserHelperLite.safeName(name),
@@ -247,7 +238,6 @@ public final class CarDevicePolicyManager extends CarManagerBase {
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
     @NonNull
-    @AddedInOrBefore(majorVersion = 33)
     @Deprecated
     public StartUserInBackgroundResult startUserInBackground(@NonNull UserHandle user) {
         Objects.requireNonNull(user, "user cannot be null");
@@ -289,7 +279,6 @@ public final class CarDevicePolicyManager extends CarManagerBase {
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
     @NonNull
-    @AddedInOrBefore(majorVersion = 33)
     @Deprecated
     public StopUserResult stopUser(@NonNull UserHandle user) {
         Objects.requireNonNull(user, "user cannot be null");
@@ -318,7 +307,6 @@ public final class CarDevicePolicyManager extends CarManagerBase {
     }
 
     /** @hide */
-    @AddedInOrBefore(majorVersion = 33)
     public void setUserDisclaimerShown(@NonNull UserHandle user) {
         Objects.requireNonNull(user, "user cannot be null");
         try {
@@ -329,7 +317,6 @@ public final class CarDevicePolicyManager extends CarManagerBase {
     }
 
     /** @hide */
-    @AddedInOrBefore(majorVersion = 33)
     public void setUserDisclaimerAcknowledged(@NonNull UserHandle user) {
         Objects.requireNonNull(user, "user cannot be null");
         try {
@@ -341,7 +328,6 @@ public final class CarDevicePolicyManager extends CarManagerBase {
 
     /** @hide */
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         // nothing to do
     }

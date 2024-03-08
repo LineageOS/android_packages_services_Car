@@ -22,14 +22,18 @@ android_test {
     name: "CarServiceUnitTest",
 
     srcs: [
-            "src/**/*.java",
-            "src/**/*.aidl",
-        ],
+        "src/**/*.java",
+        "src/**/*.aidl",
+        ":car-service-dump-proto-srcs",
+    ],
+    proto: {
+        type: "lite",
+    },
 
     aidl: {
-            include_dirs: [
-                "packages/services/Car/car-lib/src",
-            ],
+        include_dirs: [
+            "packages/services/Car/car-lib/src",
+        ],
     },
 
     aaptflags: [
@@ -67,6 +71,10 @@ android_test {
         "framework-res",
     ],
 
+    defaults: [
+        "car-framework-aconfig-libraries",
+    ],
+
     static_libs: [
         "android.car.testapi",
         "android.car.test.utils",
@@ -79,11 +87,12 @@ android_test {
         "com.android.car.test.lib",
         "compatibility-device-util-axt",
         "frameworks-base-testutils",
+        "flag-junit",
         "mockito-target-extended",
         "SettingsLib",
         "servicestests-utils",
-        "truth-prebuilt",
-        "WindowManager-Shell",  // for CarActivityServiceTaskMonitorUnitTest
+        "truth",
+        "WindowManager-Shell", // for CarActivityServiceTaskMonitorUnitTest
         "vehicle-hal-support-lib",
     ],
 

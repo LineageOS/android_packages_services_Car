@@ -196,6 +196,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"車のワイパー情報の読み取り。"</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"車のワイパーの制御"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"車のワイパーの制御。"</string>
+    <string name="car_permission_label_query_display_compatibility" msgid="8846515818036686896">"ディスプレイ対応パッケージのクエリ。"</string>
+    <string name="car_permission_desc_query_display_compatibility" msgid="5344194045180717300">"ディスプレイ対応パッケージのクエリ。"</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"車内の別の乗員ゾーンとそのゾーンにインストールされた類似アプリ（発信者と同じパッケージ名を持つアプリ）の状態を監視して、ゾーンの電力を管理する。"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"車内の別の乗員ゾーンとそのゾーンにインストールされた類似アプリ（発信者と同じパッケージ名を持つアプリ）の状態を監視して、ゾーンの電力を管理する。"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"車内の別の乗員ゾーンにインストールされた類似アプリ（発信者と同じパッケージ名を持つアプリ）との接続を確立して通信する"</string>

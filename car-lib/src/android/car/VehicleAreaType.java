@@ -15,8 +15,9 @@
  */
 package android.car;
 
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
-import android.car.annotation.AddedInOrBefore;
+import android.car.feature.Flags;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -38,23 +39,24 @@ public final class VehicleAreaType {
      * android.car.VehiclePropertyIds#HVAC_STEERING_WHEEL_HEAT} are global properties. A global
      * property is always mapped to {@code VEHICLE_AREA_TYPE_GLOBAL}.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_AREA_TYPE_GLOBAL = 0;
     /** Area type is Window */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_AREA_TYPE_WINDOW = 2;
     /** Area type is Seat */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_AREA_TYPE_SEAT = 3;
     /** Area type is Door */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_AREA_TYPE_DOOR = 4;
     /** Area type is Mirror */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_AREA_TYPE_MIRROR = 5;
     /** Area type is Wheel */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_AREA_TYPE_WHEEL = 6;
+    /**
+     * Area type Vendor where the meaning of each area ID is vendor defined. For a specific
+     * property, each area ID within this area type is unique with no overlapping bits set.
+     **/
+    @FlaggedApi(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    public static final int VEHICLE_AREA_TYPE_VENDOR = 7;
+
     private VehicleAreaType() {}
 
     /** @hide */
@@ -64,7 +66,8 @@ public final class VehicleAreaType {
         VEHICLE_AREA_TYPE_SEAT,
         VEHICLE_AREA_TYPE_DOOR,
         VEHICLE_AREA_TYPE_MIRROR,
-        VEHICLE_AREA_TYPE_WHEEL
+        VEHICLE_AREA_TYPE_WHEEL,
+        VEHICLE_AREA_TYPE_VENDOR
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface VehicleAreaTypeValue {}

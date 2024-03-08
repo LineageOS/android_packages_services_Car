@@ -35,6 +35,7 @@ using aidl::android::hardware::automotive::evs::BufferDesc;
 using aidl::android::hardware::automotive::evs::CameraDesc;
 using aidl::android::hardware::automotive::evs::IEvsEnumerator;
 using aidl::android::hardware::automotive::evs::Stream;
+using aidl::android::hardware::graphics::common::PixelFormat;
 
 typedef struct {
     int32_t id;
@@ -89,46 +90,42 @@ bool RenderDirectView::activate() {
     bool foundCfg = false;
     std::unique_ptr<Stream> targetCfg(new Stream());
 
-    if (!foundCfg) {
-        // This logic picks the first configuration in the list among them that
-        // support RGBA8888 format and its frame rate is faster than minReqFps.
-        const int32_t minReqFps = 15;
-        int32_t maxArea = 0;
-        camera_metadata_entry_t streamCfgs;
-        if (!find_camera_metadata_entry(reinterpret_cast<camera_metadata_t*>(
-                                                mCameraDesc.metadata.data()),
-                                        ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS,
-                                        &streamCfgs)) {
-            // Stream configurations are found in metadata
-            RawStreamConfig* ptr = reinterpret_cast<RawStreamConfig*>(streamCfgs.data.i32);
-            for (unsigned idx = 0; idx < streamCfgs.count; idx += kStreamCfgSz) {
-                if (ptr->direction == ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT &&
-                    ptr->format == HAL_PIXEL_FORMAT_RGBA_8888) {
-                    if (ptr->framerate >= minReqFps && ptr->width * ptr->height > maxArea) {
-                        targetCfg->id = ptr->id;
-                        targetCfg->width = ptr->width;
-                        targetCfg->height = ptr->height;
+    // This logic picks the first configuration in the list among them that
+    // support RGBA8888 format and its frame rate is faster than minReqFps.
+    const int32_t minReqFps = 15;
+    int32_t maxArea = 0;
+    camera_metadata_entry_t streamCfgs;
+    if (!find_camera_metadata_entry(reinterpret_cast<camera_metadata_t*>(
+                                            mCameraDesc.metadata.data()),
+                                    ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS, &streamCfgs)) {
+        // Stream configurations are found in metadata
+        RawStreamConfig* ptr = reinterpret_cast<RawStreamConfig*>(streamCfgs.data.i32);
+        for (unsigned idx = 0; idx < streamCfgs.count; idx += kStreamCfgSz) {
+            if (ptr->direction == ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT &&
+                ptr->format == HAL_PIXEL_FORMAT_RGBA_8888) {
+                if (ptr->framerate >= minReqFps && ptr->width * ptr->height > maxArea) {
+                    targetCfg->id = ptr->id;
+                    targetCfg->width = ptr->width;
+                    targetCfg->height = ptr->height;
+                    targetCfg->format = static_cast<PixelFormat>(ptr->format);
 
-                        maxArea = ptr->width * ptr->height;
+                    maxArea = ptr->width * ptr->height;
 
-                        foundCfg = true;
-                    }
+                    foundCfg = true;
                 }
-                ++ptr;
             }
-        } else {
-            LOG(WARNING) << "No stream configuration data is found; "
-                         << "default parameters will be used.";
+            ++ptr;
         }
     }
 
-    // This client always wants below input data format
-    targetCfg->format = aidl::android::hardware::graphics::common::PixelFormat::RGBA_8888;
+    if (!foundCfg) {
+        LOG(WARNING) << "No stream configuration data is found; "
+                     << "default parameters will be used.";
+    }
 
     // Construct our video texture
-    mTexture.reset(createVideoTexture(mEnumerator, mCameraDesc.id.c_str(),
-                                      foundCfg ? std::move(targetCfg) : nullptr, sDisplay,
-                                      mConfig.getUseExternalMemory(),
+    mTexture.reset(createVideoTexture(mEnumerator, mCameraDesc.id.c_str(), std::move(targetCfg),
+                                      sDisplay, mConfig.getUseExternalMemory(),
                                       mConfig.getExternalMemoryFormat()));
     if (!mTexture) {
         LOG(ERROR) << "Failed to set up video texture for " << mCameraDesc.id;

@@ -152,6 +152,12 @@ class FakeCarProjectionService extends ICarProjection.Stub implements
     }
 
     @Override
+    public boolean isBluetoothProfileInhibited(BluetoothDevice device, int profile,
+            IBinder token) throws RemoteException {
+        return true;
+    }
+
+    @Override
     public void updateProjectionStatus(ProjectionStatus status, IBinder token)
             throws RemoteException {
         mCurrentProjectionStatus = status;

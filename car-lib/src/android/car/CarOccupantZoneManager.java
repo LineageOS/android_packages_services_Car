@@ -17,7 +17,6 @@
 package android.car;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -25,8 +24,6 @@ import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
-import android.car.annotation.AddedInOrBefore;
-import android.car.annotation.ApiRequirements;
 import android.hardware.display.DisplayManager;
 import android.os.Handler;
 import android.os.IBinder;
@@ -67,7 +64,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * Display type is not known. In some system, some displays may be just public display without
      * any additional information and such displays will be treated as unknown.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int DISPLAY_TYPE_UNKNOWN = 0;
 
     /**
@@ -75,19 +71,15 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * default. {@link Display#DEFAULT_DISPLAY} will be always have this type. But there can be
      * multiple of this type as each passenger can have their own main display.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int DISPLAY_TYPE_MAIN = 1;
 
     /** Instrument cluster display. This may exist only for driver. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int DISPLAY_TYPE_INSTRUMENT_CLUSTER = 2;
 
     /** Head Up Display. This may exist only for driver. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int DISPLAY_TYPE_HUD = 3;
 
     /** Dedicated display for showing IME for {@link #DISPLAY_TYPE_MAIN} */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int DISPLAY_TYPE_INPUT = 4;
 
     /**
@@ -95,7 +87,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * Activity running in {@link #DISPLAY_TYPE_MAIN} may use {@link android.app.Presentation} to
      * show additional information.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int DISPLAY_TYPE_AUXILIARY = 5;
 
     /** @hide */
@@ -112,25 +103,21 @@ public class CarOccupantZoneManager extends CarManagerBase {
     public @interface DisplayTypeEnum {}
 
     /** @hide */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int OCCUPANT_TYPE_INVALID = -1;
 
     /**
      * Represents the driver. There can be one or zero driver for the system. Zero driver situation
      * can happen if the system is configured to support only passengers.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int OCCUPANT_TYPE_DRIVER = 0;
 
     /**
      * Represents front passengers who sit in front side of car. Most cars will have only
      * one passenger of this type but this can be multiple.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int OCCUPANT_TYPE_FRONT_PASSENGER = 1;
 
     /** Represents passengers in rear seats. There can be multiple passengers of this type. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int OCCUPANT_TYPE_REAR_PASSENGER = 2;
 
     /** @hide */
@@ -152,7 +139,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      */
     public static final class OccupantZoneInfo implements Parcelable {
         /** @hide */
-        @AddedInOrBefore(majorVersion = 33)
         public static final int INVALID_ZONE_ID = -1;
 
         /**
@@ -164,18 +150,15 @@ public class CarOccupantZoneManager extends CarManagerBase {
          * <p>This id will remain the same for the same zone across configuration changes like
          * user switching or display changes</p>
          */
-        @AddedInOrBefore(majorVersion = 33)
         public int zoneId;
         /** Represents type of passenger */
         @OccupantTypeEnum
-        @AddedInOrBefore(majorVersion = 33)
         public final int occupantType;
         /**
          * Represents seat assigned for the occupant. In some system, this can have value of
          * {@link VehicleAreaSeat#SEAT_UNKNOWN}.
          */
         @VehicleAreaSeat.Enum
-        @AddedInOrBefore(majorVersion = 33)
         public final int seat;
 
         /** @hide */
@@ -195,13 +178,11 @@ public class CarOccupantZoneManager extends CarManagerBase {
 
         @Override
         @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-        @AddedInOrBefore(majorVersion = 33)
         public int describeContents() {
             return 0;
         }
 
         @Override
-        @AddedInOrBefore(majorVersion = 33)
         public void writeToParcel(Parcel dest, int flags) {
             dest.writeInt(zoneId);
             dest.writeInt(occupantType);
@@ -230,7 +211,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
             return hash;
         }
 
-        @AddedInOrBefore(majorVersion = 33)
         public static final Parcelable.Creator<OccupantZoneInfo> CREATOR =
                 new Parcelable.Creator<>() {
                     public OccupantZoneInfo createFromParcel(Parcel in) {
@@ -260,18 +240,15 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * Zone config change caused by display changes. A display could have been added / removed.
      * Besides change in display itself. this can lead into removal / addition of passenger zones.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int ZONE_CONFIG_CHANGE_FLAG_DISPLAY = 0x1;
 
     /** Zone config change caused by user change. Assigned user for passenger zones have changed. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int ZONE_CONFIG_CHANGE_FLAG_USER = 0x2;
 
     /**
      * Zone config change caused by audio zone change.
      * Assigned audio zone for passenger zones have changed.
      **/
-    @AddedInOrBefore(majorVersion = 33)
     public static final int ZONE_CONFIG_CHANGE_FLAG_AUDIO = 0x4;
 
     /** @hide */
@@ -289,8 +266,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int USER_ASSIGNMENT_RESULT_OK = 0;
 
     /**
@@ -300,8 +275,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int USER_ASSIGNMENT_RESULT_FAIL_ALREADY_ASSIGNED = 1;
 
     /**
@@ -310,8 +283,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int USER_ASSIGNMENT_RESULT_FAIL_NON_VISIBLE_USER = 2;
 
     /**
@@ -321,8 +292,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int USER_ASSIGNMENT_RESULT_FAIL_DRIVER_ZONE = 3;
 
     /** @hide */
@@ -339,8 +308,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * Invalid user ID. Zone with this user ID has no allocated user. Should have the same value
      * with {@link UserHandle#USER_NULL}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final @UserIdInt int INVALID_USER_ID = -10000;
 
     /**
@@ -357,7 +324,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
          *
          * @param changeFlags Reason for the zone change.
          */
-        @AddedInOrBefore(majorVersion = 33)
         void onOccupantZoneConfigChanged(@ZoneConfigChangeFlags int changeFlags);
     }
 
@@ -391,7 +357,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * or none is available at the moment, it will return empty list.
      */
     @NonNull
-    @AddedInOrBefore(majorVersion = 33)
     public List<OccupantZoneInfo> getAllOccupantZones() {
         try {
             return mService.getAllOccupantZones();
@@ -405,7 +370,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * the passenger, it will return empty list.
      */
     @NonNull
-    @AddedInOrBefore(majorVersion = 33)
     public List<Display> getAllDisplaysForOccupant(@NonNull OccupantZoneInfo occupantZone) {
         assertNonNullOccupant(occupantZone);
         try {
@@ -435,7 +399,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      *                    {@link #DISPLAY_TYPE_UNKNOWN} will always lead into {@code null} return.
      */
     @Nullable
-    @AddedInOrBefore(majorVersion = 33)
     public Display getDisplayForOccupant(@NonNull OccupantZoneInfo occupantZone,
             @DisplayTypeEnum int displayType) {
         assertNonNullOccupant(occupantZone);
@@ -465,7 +428,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.ACCESS_PRIVATE_DISPLAY_ID)
-    @AddedInOrBefore(majorVersion = 33)
     public int getDisplayIdForDriver(@DisplayTypeEnum int displayType) {
         try {
             return mService.getDisplayIdForDriver(displayType);
@@ -483,7 +445,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
-    @AddedInOrBefore(majorVersion = 33)
     public int getAudioZoneIdForOccupant(@NonNull OccupantZoneInfo occupantZone) {
         assertNonNullOccupant(occupantZone);
         try {
@@ -502,7 +463,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
     @Nullable
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
-    @AddedInOrBefore(majorVersion = 33)
     public OccupantZoneInfo getOccupantForAudioZoneId(int audioZoneId) {
         try {
             return mService.getOccupantForAudioZoneId(audioZoneId);
@@ -516,7 +476,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * if type is not specified or if display is no longer available.
      */
     @DisplayTypeEnum
-    @AddedInOrBefore(majorVersion = 33)
     public int getDisplayType(@NonNull Display display) {
         assertNonNullDisplay(display);
         try {
@@ -531,7 +490,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * {@link #INVALID_USER_ID} if user is not assigned or if zone is not available.
      */
     @UserIdInt
-    @AddedInOrBefore(majorVersion = 33)
     public int getUserForOccupant(@NonNull OccupantZoneInfo occupantZone) {
         assertNonNullOccupant(occupantZone);
         try {
@@ -548,8 +506,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      *        getting {@link #INVALID_USER_ID} result.
      * @return Valid user id or {@link #INVALID_USER_ID} if no user is assigned for the display.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @UserIdInt
     public int getUserForDisplayId(int displayId) {
         try {
@@ -571,8 +527,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Nullable
     public OccupantZoneInfo getOccupantZoneForDisplayId(int displayId) {
         try {
@@ -600,7 +554,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      */
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             Car.PERMISSION_MANAGE_OCCUPANT_ZONE})
-    @AddedInOrBefore(majorVersion = 33)
     @Deprecated
     public boolean assignProfileUserToOccupantZone(@NonNull OccupantZoneInfo occupantZone,
             @UserIdInt int userId) {
@@ -645,12 +598,9 @@ public class CarOccupantZoneManager extends CarManagerBase {
     @SystemApi
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             Car.PERMISSION_MANAGE_OCCUPANT_ZONE})
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @UserAssignmentResult
     public int assignVisibleUserToOccupantZone(@NonNull OccupantZoneInfo occupantZone,
             @NonNull UserHandle user) {
-        assertPlatformVersionAtLeastU();
         assertNonNullOccupant(occupantZone);
         try {
             return mService.assignVisibleUserToOccupantZone(occupantZone.zoneId, user);
@@ -675,11 +625,8 @@ public class CarOccupantZoneManager extends CarManagerBase {
     @SystemApi
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             Car.PERMISSION_MANAGE_OCCUPANT_ZONE})
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @UserAssignmentResult
     public int unassignOccupantZone(@NonNull OccupantZoneInfo occupantZone) {
-        assertPlatformVersionAtLeastU();
         try {
             return mService.unassignOccupantZone(occupantZone.zoneId);
         } catch (RemoteException e) {
@@ -704,7 +651,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * Registers the listener for occupant zone config change. Registering multiple listeners are
      * allowed.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void registerOccupantZoneConfigChangeListener(
             @NonNull OccupantZoneConfigChangeListener listener) {
         if (mListeners.addIfAbsent(listener)) {
@@ -721,7 +667,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
     /**
      * Unregisters the listener. Listeners not registered before will be ignored.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public void unregisterOccupantZoneConfigChangeListener(
             @NonNull OccupantZoneConfigChangeListener listener) {
         if (mListeners.remove(listener)) {
@@ -746,8 +691,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * {@link UserManager#isHeadlessSystemUserMode() Headless System User Mode}: The system user
      * apps may show UI even if there is no zone allocated.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Nullable
     public OccupantZoneInfo getMyOccupantZone() {
         try {
@@ -765,8 +708,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * @return Matching occupant zone or {@code null} if the user is not assigned or user has a
      * userId of {@code UserHandle#USER_NULL}.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @SuppressWarnings("UserHandle")
     @Nullable
     public OccupantZoneInfo getOccupantZoneForUser(@NonNull UserHandle user) {
@@ -789,8 +730,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      *                     {@link #OCCUPANT_TYPE_REAR_PASSENGER}.
      * @return Matching occupant zone or {@code null} if such zone does not exist.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Nullable
     public OccupantZoneInfo getOccupantZone(@OccupantTypeEnum int occupantType,
             @VehicleAreaSeat.Enum int seat) {
@@ -814,8 +753,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      *     <li>At least one passenger zone.
      * </ul>
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean hasDriverZone() {
         try {
             return mService.hasDriverZone();
@@ -828,8 +765,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * Returns {@code true} if the system has front or rear passenger zones. Check
      * {@link #hasDriverZone()} for possible system configurations.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean hasPassengerZones() {
         try {
             return mService.hasPassengerZones();
@@ -886,7 +821,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
 
     /** @hide */
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         // nothing to do
     }
@@ -919,8 +853,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * @return the supported input types for the occupant zone info and display type passed in as
      * the argument (see the full list of supported input types in the above)
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     public List<Integer> getSupportedInputTypes(@NonNull OccupantZoneInfo occupantZoneInfo,
             @DisplayTypeEnum int displayType) {

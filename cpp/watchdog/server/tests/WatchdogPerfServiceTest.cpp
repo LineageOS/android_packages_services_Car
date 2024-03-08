@@ -73,6 +73,7 @@ using ::testing::Return;
 using ::testing::StrictMock;
 using ::testing::UnorderedElementsAreArray;
 
+// TODO(b/289394446): Append 'Secs' to constants to specify time unit.
 constexpr std::chrono::seconds kTestPostSystemEventDuration = 10s;
 constexpr std::chrono::seconds kTestSystemEventCollectionInterval = 1s;
 constexpr std::chrono::seconds kTestPeriodicCollectionInterval = 5s;
@@ -96,11 +97,13 @@ std::string toString(const std::vector<ResourceStats>& resourceStats) {
 }
 
 ResourceUsageStats constructResourceUsageStats(
-        int64_t startTimeEpochMillis, const SystemSummaryUsageStats& systemSummaryUsageStats,
+        int64_t startTimeEpochMillis, std::chrono::seconds durationInSecs,
+        const SystemSummaryUsageStats& systemSummaryUsageStats,
         std::vector<UidResourceUsageStats> uidResourceUsageStats) {
     ResourceUsageStats resourceUsageStats;
     resourceUsageStats.startTimeEpochMillis = startTimeEpochMillis;
-    resourceUsageStats.durationInMillis = 1000;
+    resourceUsageStats.durationInMillis =
+            std::chrono::duration_cast<std::chrono::milliseconds>(durationInSecs).count();
     resourceUsageStats.systemSummaryUsageStats = systemSummaryUsageStats;
     resourceUsageStats.uidResourceUsageStats = uidResourceUsageStats;
 
@@ -163,6 +166,19 @@ public:
         mService->mCurrCollectionEvent = eventType;
     }
 
+    int64_t getCurrentCollectionIntervalMillis() {
+        // This method is always called while WatchdogPerfService is already
+        // holding the lock.
+        auto metadata = mService->getCurrentCollectionMetadataLocked();
+        if (metadata == nullptr) {
+            return std::chrono::duration_cast<std::chrono::milliseconds>(
+                           kTestSystemEventCollectionInterval)
+                    .count();
+        }
+        return std::chrono::duration_cast<std::chrono::milliseconds>(metadata->pollingIntervalNs)
+                .count();
+    }
+
     std::future<void> joinCollectionThread() {
         return std::async([&]() {
             if (mService->mCollectionThread.joinable()) {
@@ -182,12 +198,16 @@ namespace {
 class WatchdogPerfServiceTest : public ::testing::Test {
 protected:
     virtual void SetUp() {
+        mElapsedTimeSinceBootMs = 0;
         mMockUidStatsCollector = sp<MockUidStatsCollector>::make();
         mMockWatchdogServiceHelper = sp<MockWatchdogServiceHelper>::make();
         mMockDataProcessor = sp<StrictMock<MockDataProcessor>>::make();
         mMockProcDiskStatsCollector = sp<NiceMock<MockProcDiskStatsCollector>>::make();
         mMockProcStatCollector = sp<NiceMock<MockProcStatCollector>>::make();
-        mService = sp<WatchdogPerfService>::make(mMockWatchdogServiceHelper);
+        mService = sp<WatchdogPerfService>::
+                make(mMockWatchdogServiceHelper,
+                     std::bind(&WatchdogPerfServiceTest::incrementAndGetElapsedRealtimeSinceBootMs,
+                               this));
         mServicePeer = sp<internal::WatchdogPerfServicePeer>::make(mService);
         mLooperStub = sp<LooperStub>::make();
     }
@@ -283,6 +303,12 @@ protected:
         Mock::VerifyAndClearExpectations(mMockWatchdogServiceHelper.get());
     }
 
+    int64_t incrementAndGetElapsedRealtimeSinceBootMs() {
+        int64_t timeSinceBootMs = mElapsedTimeSinceBootMs;
+        mElapsedTimeSinceBootMs += mServicePeer->getCurrentCollectionIntervalMillis();
+        return timeSinceBootMs;
+    }
+
     sp<WatchdogPerfService> mService;
     sp<internal::WatchdogPerfServicePeer> mServicePeer;
     sp<LooperStub> mLooperStub;
@@ -291,6 +317,7 @@ protected:
     sp<MockProcDiskStatsCollector> mMockProcDiskStatsCollector;
     sp<MockWatchdogServiceHelper> mMockWatchdogServiceHelper;
     sp<MockDataProcessor> mMockDataProcessor;
+    int64_t mElapsedTimeSinceBootMs;
 };
 
 }  // namespace
@@ -510,7 +537,9 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
     ASSERT_RESULT_OK(mService->onCustomCollection(-1, firstArgs, /*numArgs=*/5));
 
     ResourceUsageStats expectedResourceUsageStats =
-            constructResourceUsageStats(/*startTimeEpochMillis=*/0, /*systemSummaryUsageStats=*/{},
+            constructResourceUsageStats(/*startTimeEpochMillis=*/0,
+                                        /*durationInSecs=*/kTestPeriodicCollectionInterval,
+                                        /*systemSummaryUsageStats=*/{},
                                         /*uidResourceUsageStats=*/{});
     expectedResourceStats = {
             constructResourceStats(expectedResourceUsageStats,
@@ -1698,6 +1727,9 @@ TEST_F(WatchdogPerfServiceTest, TestUnsentResourceStatsMaxCacheSize) {
     ASSERT_NO_FATAL_FAILURE(removePeriodicMonitorEvents());
 
     int32_t maxCacheSize = 10;
+    int64_t elapsedPeriodicIntervalMs =
+            std::chrono::duration_cast<std::chrono::milliseconds>(kTestPeriodicCollectionInterval)
+                    .count();
 
     std::vector<ResourceStats> expectedResourceStats = {};
 
@@ -1706,6 +1738,7 @@ TEST_F(WatchdogPerfServiceTest, TestUnsentResourceStatsMaxCacheSize) {
         expectedResourceStats.push_back(ResourceStats{
                 .resourceUsageStats = std::make_optional<ResourceUsageStats>({
                         .startTimeEpochMillis = i,
+                        .durationInMillis = elapsedPeriodicIntervalMs,
                 }),
         });
 
@@ -1735,6 +1768,7 @@ TEST_F(WatchdogPerfServiceTest, TestUnsentResourceStatsMaxCacheSize) {
     expectedResourceStats.push_back(ResourceStats{
             .resourceUsageStats = std::make_optional<ResourceUsageStats>({
                     .startTimeEpochMillis = maxCacheSize,
+                    .durationInMillis = elapsedPeriodicIntervalMs,
             }),
     });
 

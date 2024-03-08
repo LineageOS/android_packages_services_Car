@@ -17,6 +17,7 @@
 package com.android.car.pm;
 
 import static android.Manifest.permission.QUERY_ALL_PACKAGES;
+import static android.car.Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLOCKED_ACTIVITY_NAME;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLOCKED_TASK_ID;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_DISPLAY_ID;
@@ -91,6 +92,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.util.SparseLongArray;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 import android.view.accessibility.AccessibilityEvent;
 
@@ -98,6 +100,7 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
+import com.android.car.CarServiceHelperWrapper;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
 import com.android.car.am.CarActivityService;
@@ -337,7 +340,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             }
         }
         if (!bypass) { // block top activities if bypassing is disabled.
-            blockTopActivitiesOnAllDisplaysIfNecessary();
+            mHandler.post(this::blockTopActivitiesOnAllDisplaysIfNecessary);
         }
     }
 
@@ -671,7 +674,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             mLock.notifyAll();
         }
         mContext.unregisterReceiver(mPackageParsingEventReceiver);
-        mActivityService.registerActivityLaunchListener(null);
+        mActivityService.unregisterActivityLaunchListener(mActivityLaunchListener);
         synchronized (mLock) {
             for (int i = 0; i < mUxRestrictionsListeners.size(); i++) {
                 UxRestrictionsListener listener = mUxRestrictionsListeners.valueAt(i);
@@ -806,7 +809,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
 
         // Generate allowlist and denylist mapping for the package
         updateActivityAllowlistAndDenylistMap(packageName);
-        blockTopActivitiesOnAllDisplaysIfNecessary();
+        mHandler.post(this::blockTopActivitiesOnAllDisplaysIfNecessary);
     }
 
     private void doHandleRelease() {
@@ -847,7 +850,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 Slogf.d(TAG, "policy set:" + dumpPoliciesLocked(false));
             }
         }
-        blockTopActivitiesOnAllDisplaysIfNecessary();
+        mHandler.post(this::blockTopActivitiesOnAllDisplaysIfNecessary);
     }
 
     @Nullable
@@ -1295,6 +1298,10 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         }
     }
 
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
+
     @GuardedBy("mLock")
     private String dumpPoliciesLocked(boolean dumpAll) {
         StringBuilder sb = new StringBuilder();
@@ -1731,6 +1738,20 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         }
     }
 
+    @Override
+    public boolean requiresDisplayCompat(String packageName) {
+        if (!callerCanQueryPackage(packageName)) {
+            throw new SecurityException("requires permission " + QUERY_ALL_PACKAGES);
+        }
+        int callingUid = Binder.getCallingUid();
+        if (!hasPermissionGranted(PERMISSION_QUERY_DISPLAY_COMPATIBILITY, callingUid)) {
+            throw new SecurityException("requires permission "
+                    + PERMISSION_QUERY_DISPLAY_COMPATIBILITY);
+        }
+        return CarServiceHelperWrapper.getInstance().requiresDisplayCompat(
+                Objects.requireNonNull(packageName, "packageName cannot be Null"));
+    }
+
     private String[] findDistractionOptimizedActivitiesAsUser(String pkgName, int userId)
             throws NameNotFoundException {
         String regionString;
@@ -1945,8 +1966,8 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             if (shouldCheck) {
                 // Each UxRestrictionsListener is only responsible for blocking activities on their
                 // own display.
-                blockTopActivitiesOnDisplayIfNecessary(mActivityService.getVisibleTasksInternal(),
-                        mDisplayId);
+                mHandler.post(() -> blockTopActivitiesOnDisplayIfNecessary(
+                        mActivityService.getVisibleTasksInternal(), mDisplayId));
             }
         }
 

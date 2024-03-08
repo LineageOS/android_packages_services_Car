@@ -20,8 +20,6 @@
 $(call inherit-product, $(SRC_TARGET_DIR)/product/handheld_vendor.mk)
 
 ifneq (,$(filter userdebug eng, $(TARGET_BUILD_VARIANT)))
-# SEPolicy for test apps/services
-BOARD_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/test
 # Include carwatchdog testclient for debug builds
 PRODUCT_PACKAGES += carwatchdog_testclient
 BOARD_SEPOLICY_DIRS += packages/services/Car/cpp/watchdog/testclient/sepolicy

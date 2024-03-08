@@ -16,15 +16,13 @@
 
 package android.car.app;
 
-import static android.Manifest.permission.INTERACT_ACROSS_USERS;
 
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
+import static android.Manifest.permission.INTERACT_ACROSS_USERS;
 
 import android.annotation.IntDef;
 import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.annotation.UiContext;
@@ -32,8 +30,6 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.annotation.AddedInOrBefore;
-import android.car.annotation.ApiRequirements;
 import android.car.user.CarUserManager;
 import android.car.view.MirroredSurfaceView;
 import android.content.ActivityNotFoundException;
@@ -41,7 +37,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -72,16 +67,13 @@ public final class CarActivityManager extends CarManagerBase {
     private static final String TAG = CarActivityManager.class.getSimpleName();
 
     /** Indicates that the operation was successful. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int RESULT_SUCCESS = 0;
     /** Indicates that the operation was failed with the unknown reason. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int RESULT_FAILURE = -1;
     /**
      * Indicates that the operation was failed because the requester isn't the current user or
      * the system user
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int RESULT_INVALID_USER = -2;
 
     /** @hide */
@@ -98,7 +90,6 @@ public final class CarActivityManager extends CarManagerBase {
      * Internal error code for throwing {@link ActivityNotFoundException} from service.
      * @hide
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int ERROR_CODE_ACTIVITY_NOT_FOUND = -101;
 
     private final ICarActivityService mService;
@@ -142,7 +133,6 @@ public final class CarActivityManager extends CarManagerBase {
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)
     @ResultTypeEnum
-    @AddedInOrBefore(majorVersion = 33)
     public int setPersistentActivity(
             @NonNull ComponentName activity, int displayId, int featureId) {
         try {
@@ -169,11 +159,8 @@ public final class CarActivityManager extends CarManagerBase {
      * @param rootTaskToken the binder token of the root task.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void setPersistentActivitiesOnRootTask(@NonNull List<ComponentName> activities,
             @Nullable IBinder rootTaskToken) {
-        assertPlatformVersionAtLeastU();
         try {
             mService.setPersistentActivitiesOnRootTask(activities, rootTaskToken);
         } catch (IllegalArgumentException | IllegalStateException | SecurityException e) {
@@ -185,7 +172,6 @@ public final class CarActivityManager extends CarManagerBase {
 
     /** @hide */
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     protected void onCarDisconnected() {
         mTaskMonitorToken = null;
     }
@@ -206,7 +192,6 @@ public final class CarActivityManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
-    @AddedInOrBefore(majorVersion = 33)
     public boolean registerTaskMonitor() {
         Preconditions.checkState(
                 mTaskMonitorToken == null, "Can't register the multiple TaskMonitors");
@@ -228,7 +213,6 @@ public final class CarActivityManager extends CarManagerBase {
      */
     @Deprecated
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
-    @AddedInOrBefore(majorVersion = 33)
     public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo) {
         onTaskAppearedInternal(taskInfo, null);
     }
@@ -238,8 +222,6 @@ public final class CarActivityManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo,
                 @Nullable SurfaceControl leash) {
         onTaskAppearedInternal(taskInfo, leash);
@@ -260,7 +242,6 @@ public final class CarActivityManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
-    @AddedInOrBefore(majorVersion = 33)
     public void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo) {
         if (!hasValidToken()) return;
         try {
@@ -275,7 +256,6 @@ public final class CarActivityManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
-    @AddedInOrBefore(majorVersion = 33)
     public void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo) {
         if (!hasValidToken()) return;
         try {
@@ -290,7 +270,6 @@ public final class CarActivityManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
-    @AddedInOrBefore(majorVersion = 33)
     public void unregisterTaskMonitor() {
         if (!hasValidToken()) return;
         try {
@@ -305,8 +284,6 @@ public final class CarActivityManager extends CarManagerBase {
      * Returns all the visible tasks in the all displays. The order is not guaranteed.
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     public List<ActivityManager.RunningTaskInfo> getVisibleTasks() {
         try {
@@ -324,8 +301,6 @@ public final class CarActivityManager extends CarManagerBase {
      *         {@link Display.INVALID_DISPLAY} to retrieve the tasks in the all displays.
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     public List<ActivityManager.RunningTaskInfo> getVisibleTasks(int displayId) {
         try {
@@ -342,10 +317,7 @@ public final class CarActivityManager extends CarManagerBase {
      * <p>User picker UI will run as {@link android.os.UserHandle#SYSTEM} user.
      */
     @RequiresPermission(android.Manifest.permission.INTERACT_ACROSS_USERS)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void startUserPickerOnDisplay(int displayId) {
-        assertPlatformVersionAtLeastU();
         try {
             mService.startUserPickerOnDisplay(displayId);
         } catch (RemoteException e) {
@@ -361,11 +333,8 @@ public final class CarActivityManager extends CarManagerBase {
      *     Task's Surface for {@link MirroredSurfaceView}.
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Nullable
     public IBinder createTaskMirroringToken(int taskId) {
-        assertPlatformVersionAtLeastU();
         try {
             return mService.createTaskMirroringToken(taskId);
         } catch (RemoteException e) {
@@ -381,11 +350,8 @@ public final class CarActivityManager extends CarManagerBase {
      *     Display's Surface for {@link MirroredSurfaceView}.
      */
     @RequiresPermission(Car.PERMISSION_MIRROR_DISPLAY)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Nullable
     public IBinder createDisplayMirroringToken(int displayId) {
-        assertPlatformVersionAtLeastU();
         try {
             return mService.createDisplayMirroringToken(displayId);
         } catch (RemoteException e) {
@@ -403,11 +369,8 @@ public final class CarActivityManager extends CarManagerBase {
      * @hide Used by {@link MirroredSurfaceView} only.
      */
     @RequiresPermission(Car.PERMISSION_ACCESS_MIRRORRED_SURFACE)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Nullable
     public Pair<SurfaceControl, Rect> getMirroredSurface(@NonNull IBinder token) {
-        assertPlatformVersionAtLeastU();
         try {
             Rect outBounds = new Rect();
             // SurfaceControl constructor is hidden api, so we can get it by the return value.
@@ -435,11 +398,7 @@ public final class CarActivityManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
-    @ApiRequirements(
-            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void registerCarSystemUIProxy(@NonNull CarSystemUIProxy carSystemUIProxy) {
-        assertPlatformVersionAtLeastU();
         try {
             mService.registerCarSystemUIProxy(new CarSystemUIProxyAidlWrapper(carSystemUIProxy));
         } catch (RemoteException e) {
@@ -453,11 +412,7 @@ public final class CarActivityManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(
-            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public boolean isCarSystemUIProxyRegistered() {
-        assertPlatformVersionAtLeastU();
         try {
             return mService.isCarSystemUIProxyRegistered();
         } catch (RemoteException e) {
@@ -480,9 +435,6 @@ public final class CarActivityManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(allOf = {Car.PERMISSION_MANAGE_CAR_SYSTEM_UI, INTERACT_ACROSS_USERS})
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
     public void getCarTaskViewController(
             @NonNull Activity hostActivity,
@@ -512,16 +464,12 @@ public final class CarActivityManager extends CarManagerBase {
      */
     // TODO(b/293297847): Expose this as system API
     @RequiresPermission(allOf = {Car.PERMISSION_MANAGE_CAR_SYSTEM_UI, INTERACT_ACROSS_USERS})
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_1)
     @MainThread
     public void getCarTaskViewController(
             @UiContext @NonNull Context hostContext,
             @NonNull CarTaskViewControllerHostLifecycle carTaskViewControllerHostLifecycle,
             @NonNull Executor callbackExecutor,
             @NonNull CarTaskViewControllerCallback carTaskViewControllerCallback) {
-        assertPlatformVersionAtLeastU();
         try {
             if (mCarTaskViewControllerSupervisor == null) {
                 // Same supervisor is used for multiple activities.
@@ -550,10 +498,7 @@ public final class CarActivityManager extends CarManagerBase {
      * the given {@code RootTask} to be launched.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void moveRootTaskToDisplay(int taskId, int displayId) {
-        assertPlatformVersionAtLeastU();
         try {
             mService.moveRootTaskToDisplay(taskId, displayId);
         } catch (RemoteException e) {

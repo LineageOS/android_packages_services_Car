@@ -24,7 +24,6 @@ import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
-import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.RequiredFeature;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -44,62 +43,49 @@ import java.lang.annotation.Retention;
 @RequiredFeature(Car.OCCUPANT_AWARENESS_SERVICE)
 public final class OccupantAwarenessDetection implements Parcelable {
     /** Empty occupant flag. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_OCCUPANT_NONE = 0;
 
     /** Occupants that the system detects as the driver. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_OCCUPANT_DRIVER = 1 << 2;
 
     /** Occupants that the system detects as front seat passengers. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_OCCUPANT_FRONT_PASSENGER = 1 << 1;
 
     /** Occupants that the system detects in the second vehicle row, on the left. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_OCCUPANT_ROW_2_PASSENGER_LEFT = 1 << 3;
 
     /** Occupants that the system detects in the second vehicle row, in the center. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_OCCUPANT_ROW_2_PASSENGER_CENTER = 1 << 4;
 
     /** Occupants that the system detects in the second vehicle row, on the right. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_OCCUPANT_ROW_2_PASSENGER_RIGHT = 1 << 5;
 
     /** Occupants that the system detects in the third vehicle row, on the left. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_OCCUPANT_ROW_3_PASSENGER_LEFT = 1 << 6;
 
     /** Occupants that the system detects in the third vehicle row, in the middle. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_OCCUPANT_ROW_3_PASSENGER_CENTER = 1 << 7;
 
     /** Occupants that the system detects in the third vehicle row, on the right. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_OCCUPANT_ROW_3_PASSENGER_RIGHT = 1 << 8;
 
     /** All occupants that the system detects in the front row of the vehicle. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_OCCUPANT_ALL_FRONT_OCCUPANTS =
             VEHICLE_OCCUPANT_DRIVER | VEHICLE_OCCUPANT_FRONT_PASSENGER;
 
     /** All occupants that the system detects in the second row of the vehicle. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_OCCUPANT_ALL_ROW_2_OCCUPANTS =
             VEHICLE_OCCUPANT_ROW_2_PASSENGER_LEFT
                     | VEHICLE_OCCUPANT_ROW_2_PASSENGER_RIGHT
                     | VEHICLE_OCCUPANT_ROW_2_PASSENGER_CENTER;
 
     /** All occupants that the system detects in the third row of the vehicle. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_OCCUPANT_ALL_ROW_3_OCCUPANTS =
             VEHICLE_OCCUPANT_ROW_3_PASSENGER_LEFT
                     | VEHICLE_OCCUPANT_ROW_3_PASSENGER_RIGHT
                     | VEHICLE_OCCUPANT_ROW_3_PASSENGER_CENTER;
 
     /** All occupants that the system detects in the vehicle. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_OCCUPANT_ALL_OCCUPANTS =
             VEHICLE_OCCUPANT_ALL_FRONT_OCCUPANTS
                     | VEHICLE_OCCUPANT_ALL_ROW_2_OCCUPANTS
@@ -130,25 +116,21 @@ public final class OccupantAwarenessDetection implements Parcelable {
     public @interface VehicleOccupantRole {}
 
     /** No prediction could be made. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int CONFIDENCE_LEVEL_NONE = 0;
 
     /**
      * Best-guess, low-confidence prediction. Predictions exceeding this threshold are adequate for
      * non-critical applications.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int CONFIDENCE_LEVEL_LOW = 1;
 
     /**
      * High-confidence prediction. Predictions exceeding this threshold are adequate for
      * applications that require reliable predictions.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int CONFIDENCE_LEVEL_HIGH = 2;
 
     /** Highest confidence rate achievable. */
-    @AddedInOrBefore(majorVersion = 33)
     public static final int CONFIDENCE_LEVEL_MAX = 3;
 
     /**
@@ -167,28 +149,23 @@ public final class OccupantAwarenessDetection implements Parcelable {
     public @interface ConfidenceLevel {}
 
     /** The {@link VehicleOccupantRole} of the face associated with this event. */
-    @AddedInOrBefore(majorVersion = 33)
     public final @VehicleOccupantRole int role;
 
     /** Timestamp when the underlying detection data was detected, in milliseconds since boot. */
-    @AddedInOrBefore(majorVersion = 33)
     public final long timestampMillis;
 
     /** Indicates whether any person was detected for the given role. */
-    @AddedInOrBefore(majorVersion = 33)
     public final boolean isPresent;
 
     /**
      * {@link GazeDetection} data for the requested role, or {@code null} if no person was found.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public final @Nullable GazeDetection gazeDetection;
 
     /**
      * {@link DriverMonitoringDetection} data for the driver, or {@code null} if the role was
      * non-driver or if the detection could not be computed.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public final @Nullable DriverMonitoringDetection driverMonitoringDetection;
 
     public OccupantAwarenessDetection(
@@ -206,13 +183,11 @@ public final class OccupantAwarenessDetection implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeInt(role);
         dest.writeLong(timestampMillis);
@@ -235,7 +210,6 @@ public final class OccupantAwarenessDetection implements Parcelable {
                 + "}";
     }
 
-    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<OccupantAwarenessDetection> CREATOR =
             new Parcelable.Creator<OccupantAwarenessDetection>() {
                 public OccupantAwarenessDetection createFromParcel(Parcel in) {

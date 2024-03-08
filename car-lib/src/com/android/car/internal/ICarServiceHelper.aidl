@@ -44,14 +44,6 @@ interface ICarServiceHelper {
     void setPassengerDisplays(in int[] displayIds) = 1;
 
     /**
-     * Check
-     * {@link com.android.server.wm.CarLaunchParamsModifier#setSourcePreferredComponents(
-     *         boolean, List<ComponentName>)}.
-     */
-    void setSourcePreferredComponents(
-            boolean enableSourcePreferred, in List<ComponentName> sourcePreferredComponents) = 2;
-
-    /**
      * Sets whether it's safe to run operations (like DevicePolicyManager.lockNow()).
      */
     void setSafetyMode(boolean safe) = 3;
@@ -106,4 +98,9 @@ interface ICarServiceHelper {
      */
     void setPersistentActivitiesOnRootTask(in List<ComponentName> activity,
         in IBinder rootTaskToken) = 14;
+
+    /**
+     * Returns true if the given package requires launching in automotive compatibility mode.
+     */
+    boolean requiresDisplayCompat(String packageName) = 15;
 }

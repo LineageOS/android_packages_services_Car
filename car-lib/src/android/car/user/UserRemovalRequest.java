@@ -18,7 +18,6 @@ package android.car.user;
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 import android.os.Parcelable;
 import android.os.UserHandle;
 
@@ -54,8 +53,6 @@ public final class UserRemovalRequest implements Parcelable {
         }
 
         /** Builds and returns a {@link UserRemovalRequest}. */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull UserRemovalRequest build() {
             return new UserRemovalRequest(this);
         }
@@ -82,16 +79,12 @@ public final class UserRemovalRequest implements Parcelable {
 
 
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public @NonNull UserHandle getUserHandle() {
         return mUserHandle;
     }
 
     @Override
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void writeToParcel(@NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -101,8 +94,6 @@ public final class UserRemovalRequest implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -122,20 +113,14 @@ public final class UserRemovalRequest implements Parcelable {
     }
 
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final @NonNull Parcelable.Creator<UserRemovalRequest> CREATOR
             = new Parcelable.Creator<UserRemovalRequest>() {
         @Override
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public UserRemovalRequest[] newArray(int size) {
             return new UserRemovalRequest[size];
         }
 
         @Override
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public UserRemovalRequest createFromParcel(@NonNull android.os.Parcel in) {
             return new UserRemovalRequest(in);
         }

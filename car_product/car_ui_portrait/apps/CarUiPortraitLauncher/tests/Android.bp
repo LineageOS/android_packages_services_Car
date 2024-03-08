@@ -19,43 +19,49 @@ package {
 }
 
 android_test {
-  name: "CarUiPortraitLauncherTest",
+    name: "CarUiPortraitLauncherTest",
 
-  srcs: ["src/**/*.java"],
+    srcs: ["src/**/*.java"],
 
-  resource_dirs: ["res"],
+    resource_dirs: ["res"],
 
-  libs: [
-      "android.test.base",
-  ],
+    libs: [
+        "android.test.base",
+    ],
 
-  optimize: {
-      enabled: false,
-  },
+    optimize: {
+        enabled: false,
+    },
 
-  static_libs: [
-      "android.car.testapi",
-      "android.car.test.utils",
-      "androidx.test.core",
-      "androidx.test.runner",
-      "androidx.test.espresso.core",
-      "androidx.test.espresso.intents",
-      "androidx.test.ext.junit",
-      "truth-prebuilt",
-      "CarLauncher-core"
-  ],
+    static_libs: [
+        "android.car.testapi",
+        "android.car.test.utils",
+        "androidx.test.core",
+        "androidx.test.runner",
+        "androidx.test.espresso.core",
+        "androidx.test.espresso.intents",
+        "androidx.test.ext.junit",
+        "truth",
+        "ub-uiautomator",
+        "CarLauncher-core",
+    ],
 
-  platform_apis: true,
+    platform_apis: true,
 
-  certificate: "platform",
+    certificate: "platform",
 
-  privileged: true,
+    privileged: true,
 
-  manifest: "AndroidManifest.xml",
+    manifest: "AndroidManifest.xml",
 
-  instrumentation_for: "CarUiPortraitLauncher",
+    instrumentation_for: "CarUiPortraitLauncher",
 
-  dex_preopt: {
-      enabled: false,
-  },
+    dex_preopt: {
+        enabled: false,
+    },
+
+    test_suites: [
+        "automotive-tests",
+        "device-tests",
+    ],
 }

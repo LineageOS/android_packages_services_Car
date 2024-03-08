@@ -16,7 +16,6 @@
 package android.car;
 
 import android.annotation.SystemApi;
-import android.car.annotation.AddedInOrBefore;
 
 /**
  * VehicleAreaMirror is an abstraction for a mirror in a car. Some car APIs may provide control per
@@ -25,11 +24,8 @@ import android.car.annotation.AddedInOrBefore;
  */
 @SystemApi
 public final class VehicleAreaMirror {
-    @AddedInOrBefore(majorVersion = 33)
     public static final int MIRROR_DRIVER_LEFT   = 0x00000001;
-    @AddedInOrBefore(majorVersion = 33)
     public static final int MIRROR_DRIVER_RIGHT  = 0x00000002;
-    @AddedInOrBefore(majorVersion = 33)
     public static final int MIRROR_DRIVER_CENTER = 0x00000004;
 
     private VehicleAreaMirror() {}

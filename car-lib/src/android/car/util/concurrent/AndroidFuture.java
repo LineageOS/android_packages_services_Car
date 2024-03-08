@@ -21,7 +21,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 import android.annotation.CallSuper;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.car.annotation.AddedInOrBefore;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
@@ -109,7 +108,6 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
      * @return the completed future
      */
     @NonNull
-    @AddedInOrBefore(majorVersion = 33)
     public static <U> AndroidFuture<U> completedFuture(U value) {
         AndroidFuture<U> future = new AndroidFuture<>();
         future.complete(value);
@@ -117,7 +115,6 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public boolean complete(@Nullable T value) {
         boolean changed = super.complete(value);
         if (changed) {
@@ -127,7 +124,6 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public boolean completeExceptionally(@NonNull Throwable ex) {
         boolean changed = super.completeExceptionally(ex);
         if (changed) {
@@ -137,7 +133,6 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public boolean cancel(boolean mayInterruptIfRunning) {
         boolean changed = super.cancel(mayInterruptIfRunning);
         if (changed) {
@@ -154,7 +149,6 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
     }
 
     @CallSuper
-    @AddedInOrBefore(majorVersion = 33)
     protected void onCompleted(@Nullable T res, @Nullable Throwable err) {
         cancelTimeout();
 
@@ -183,13 +177,11 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public AndroidFuture<T> whenComplete(@NonNull BiConsumer<? super T, ? super Throwable> action) {
         return whenCompleteAsync(action, DIRECT_EXECUTOR);
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public AndroidFuture<T> whenCompleteAsync(
             @NonNull BiConsumer<? super T, ? super Throwable> action,
             @NonNull Executor executor) {
@@ -233,10 +225,12 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
 
     private void callListenerAsync(BiConsumer<? super T, ? super Throwable> listener,
             @Nullable T res, @Nullable Throwable err) {
-        if (mListenerExecutor == DIRECT_EXECUTOR) {
-            callListener(listener, res, err);
-        } else {
-            mListenerExecutor.execute(() -> callListener(listener, res, err));
+        synchronized (mLock) {
+            if (mListenerExecutor == DIRECT_EXECUTOR) {
+                callListener(listener, res, err);
+            } else {
+                mListenerExecutor.execute(() -> callListener(listener, res, err));
+            }
         }
     }
 
@@ -270,7 +264,6 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
 
     /** @inheritDoc */
     //@Override //TODO uncomment once java 9 APIs are exposed to frameworks
-    @AddedInOrBefore(majorVersion = 33)
     public AndroidFuture<T> orTimeout(long timeout, @NonNull TimeUnit unit) {
         mTimeoutHandler.postDelayed(this::triggerTimeout, this, unit.toMillis(timeout));
         return this;
@@ -288,7 +281,6 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
      *
      * @return {@code this} for chaining
      */
-    @AddedInOrBefore(majorVersion = 33)
     public AndroidFuture<T> cancelTimeout() {
         mTimeoutHandler.removeCallbacksAndMessages(this);
         return this;
@@ -297,7 +289,6 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
     /**
      * Specifies the handler on which timeout is to be triggered
      */
-    @AddedInOrBefore(majorVersion = 33)
     public AndroidFuture<T> setTimeoutHandler(@NonNull Handler h) {
         cancelTimeout();
         mTimeoutHandler = Preconditions.checkNotNull(h);
@@ -305,14 +296,12 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public <U> AndroidFuture<U> thenCompose(
             @NonNull Function<? super T, ? extends CompletionStage<U>> fn) {
         return thenComposeAsync(fn, DIRECT_EXECUTOR);
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public <U> AndroidFuture<U> thenComposeAsync(
             @NonNull Function<? super T, ? extends CompletionStage<U>> fn,
             @NonNull Executor executor) {
@@ -369,13 +358,11 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public <U> AndroidFuture<U> thenApply(@NonNull Function<? super T, ? extends U> fn) {
         return thenApplyAsync(fn, DIRECT_EXECUTOR);
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public <U> AndroidFuture<U> thenApplyAsync(@NonNull Function<? super T, ? extends U> fn,
             @NonNull Executor executor) {
         return new ThenApplyAsync<>(this, fn, executor);
@@ -418,7 +405,6 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public <U, V> AndroidFuture<V> thenCombine(
             @NonNull CompletionStage<? extends U> other,
             @NonNull BiFunction<? super T, ? super U, ? extends V> combineResults) {
@@ -426,7 +412,6 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
     }
 
     /** @see CompletionStage#thenCombine */
-    @AddedInOrBefore(majorVersion = 33)
     public AndroidFuture<T> thenCombine(@NonNull CompletionStage<Void> other) {
         return thenCombine(other, (res, aVoid) -> res);
     }
@@ -481,7 +466,6 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
      *
      * The resulting future is immediately completed.
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static <T> AndroidFuture<T> supply(Supplier<T> supplier) {
         return supplyAsync(supplier, DIRECT_EXECUTOR);
     }
@@ -489,7 +473,6 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
     /**
      * @see CompletableFuture#supplyAsync(Supplier, Executor)
      */
-    @AddedInOrBefore(majorVersion = 33)
     public static <T> AndroidFuture<T> supplyAsync(Supplier<T> supplier, Executor executor) {
         return new SupplyAsync<>(supplier, executor);
     }
@@ -513,7 +496,6 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(Parcel dest, int flags) {
         boolean done = isDone();
         dest.writeBoolean(done);
@@ -634,12 +616,10 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
 
-    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<AndroidFuture> CREATOR =
             new Parcelable.Creator<AndroidFuture>() {
                 public AndroidFuture createFromParcel(Parcel parcel) {

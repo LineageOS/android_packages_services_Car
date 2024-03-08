@@ -16,7 +16,6 @@
 package com.android.car.audio;
 
 import android.media.AudioManager;
-import android.util.ArrayMap;
 import android.util.SparseArray;
 
 import com.android.car.audio.CarAudioContext.AudioContext;
@@ -35,11 +34,9 @@ final class CarVolumeGroupFactory {
     private final int mConfigId;
     private final boolean mUseCarVolumeGroupMute;
     private final CarAudioSettings mCarAudioSettings;
-    private final SparseArray<String> mContextToAddress = new SparseArray<>();
+    private final SparseArray<CarAudioDeviceInfo> mContextToDeviceInfo = new SparseArray<>();
     private final CarAudioContext mCarAudioContext;
     private final AudioManager mAudioManager;
-    private final ArrayMap<String, CarAudioDeviceInfo> mAddressToCarAudioDeviceInfo =
-            new ArrayMap<>();
 
     private int mStepSize = UNSET_STEP_SIZE;
     private int mDefaultGain = Integer.MIN_VALUE;
@@ -62,30 +59,28 @@ final class CarVolumeGroupFactory {
     }
 
     CarVolumeGroup getCarVolumeGroup(boolean useCoreAudioVolume) {
-        Preconditions.checkArgument(mStepSize != UNSET_STEP_SIZE,
+        Preconditions.checkArgument(mContextToDeviceInfo.size() != 0,
                 "setDeviceInfoForContext has to be called at least once before building");
         CarVolumeGroup group;
         if (useCoreAudioVolume) {
-            group = new CoreAudioVolumeGroup(mAudioManager,
-                    mCarAudioContext, mCarAudioSettings, mContextToAddress,
-                    mAddressToCarAudioDeviceInfo, mZoneId, mConfigId, mId, mName,
-                    mUseCarVolumeGroupMute);
+            group = new CoreAudioVolumeGroup(mAudioManager, mCarAudioContext, mCarAudioSettings,
+                    mContextToDeviceInfo, mZoneId, mConfigId, mId, mName, mUseCarVolumeGroupMute);
         } else {
             group = new CarAudioVolumeGroup(mCarAudioContext, mCarAudioSettings,
-                    mContextToAddress, mAddressToCarAudioDeviceInfo, mZoneId, mConfigId, mId, mName,
-                    mStepSize, mDefaultGain, mMinGain, mMaxGain, mUseCarVolumeGroupMute);
+                    mContextToDeviceInfo, mZoneId, mConfigId, mId, mName, mStepSize, mDefaultGain,
+                    mMinGain, mMaxGain, mUseCarVolumeGroupMute);
         }
         group.init();
         return group;
     }
 
     void setDeviceInfoForContext(int carAudioContextId, CarAudioDeviceInfo info) {
-        Preconditions.checkArgument(mContextToAddress.get(carAudioContextId) == null,
+        Preconditions.checkArgument(mContextToDeviceInfo.get(carAudioContextId) == null,
                 "Context %s has already been set to %s",
                 mCarAudioContext.toString(carAudioContextId),
-                mContextToAddress.get(carAudioContextId));
+                mContextToDeviceInfo.get(carAudioContextId));
 
-        if (mAddressToCarAudioDeviceInfo.isEmpty()) {
+        if (mContextToDeviceInfo.size() == 0) {
             mStepSize = info.getStepValue();
         } else {
             Preconditions.checkArgument(
@@ -93,8 +88,7 @@ final class CarVolumeGroupFactory {
                     "Gain controls within one group must have same step value");
         }
 
-        mAddressToCarAudioDeviceInfo.put(info.getAddress(), info);
-        mContextToAddress.put(carAudioContextId, info.getAddress());
+        mContextToDeviceInfo.put(carAudioContextId, info);
 
         // TODO(b/271749259) - this logic is redundant now. clean up
         if (info.getDefaultGain() > mDefaultGain) {

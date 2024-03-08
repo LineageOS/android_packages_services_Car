@@ -180,7 +180,7 @@ public final class UserHalService extends HalServiceBase {
         for (int i = 0; i < props.size(); i++) {
             int prop = props.get(i);
             if (DBG) Slogf.d(TAG, "subscribing to property " + prop);
-            mHal.subscribeProperty(this, prop);
+            mHal.subscribePropertySafe(this, prop);
         }
     }
 

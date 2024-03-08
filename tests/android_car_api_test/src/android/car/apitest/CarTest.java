@@ -17,7 +17,6 @@
 package android.car.apitest;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 
@@ -26,7 +25,6 @@ import android.car.CarVersion;
 import android.car.ICar;
 import android.car.PlatformVersion;
 import android.car.hardware.CarSensorManager;
-import android.car.test.ApiCheckerRule.Builder;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.Build;
@@ -65,12 +63,6 @@ public final class CarTest extends CarLessApiTestBase {
 
     private void waitForConnection(long timeoutMs) throws InterruptedException {
         mConnectionWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
-    }
-
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        builder.disableAnnotationsCheck();
     }
 
     @Test
@@ -168,47 +160,5 @@ public final class CarTest extends CarLessApiTestBase {
                 CODENAME_REL.equals(Build.VERSION.CODENAME) ? Build.VERSION.SDK_INT
                         : Build.VERSION_CODES.CUR_DEVELOPMENT);
         assertThat(platformVersion.getMinorVersion()).isAtLeast(0);
-    }
-
-    /**
-     * Tests if {@link Car#getPlatformVersion()} is returning the right version defined
-     * in {@link PlatformVersion.VERSION_CODES}. All {@code isAtLeast} checks are there to
-     * identify the right {@link PlatformVersion.VERSION_CODES} to compare.
-     */
-    @Test
-    public void testPlatformVersionMatch() throws Exception {
-        PlatformVersion platformVersion = Car.getPlatformVersion();
-
-        assertWithMessage("platformVersion").that(
-                platformVersion.isAtLeast(PlatformVersion.VERSION_CODES.TIRAMISU_0)).isTrue();
-
-        if (!platformVersion.isAtLeast(PlatformVersion.VERSION_CODES.TIRAMISU_1)) {
-            assertWithMessage("platformVersion").that(platformVersion).isEqualTo(
-                    PlatformVersion.VERSION_CODES.TIRAMISU_0);
-            return;
-        }
-
-        if (!platformVersion.isAtLeast(PlatformVersion.VERSION_CODES.TIRAMISU_2)) {
-            assertWithMessage("platformVersion").that(platformVersion).isEqualTo(
-                    PlatformVersion.VERSION_CODES.TIRAMISU_1);
-            return;
-        }
-
-        if (!platformVersion.isAtLeast(PlatformVersion.VERSION_CODES.TIRAMISU_3)) {
-            assertWithMessage("platformVersion").that(platformVersion).isEqualTo(
-                    PlatformVersion.VERSION_CODES.TIRAMISU_2);
-            return;
-        }
-
-        // If it has passed all previous version checks but it not the next version, assert
-        // the version before the next one.
-        if (!platformVersion.isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
-            assertWithMessage("platformVersion").that(platformVersion).isEqualTo(
-                    PlatformVersion.VERSION_CODES.TIRAMISU_3);
-            return;
-        }
-        // should be U_0. This part should be updated when we have a newer version.
-        assertWithMessage("platformVersion").that(platformVersion).isEqualTo(
-                PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0);
     }
 }

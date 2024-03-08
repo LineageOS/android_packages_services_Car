@@ -14,17 +14,29 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/item_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="@dimen/media_browse_header_item_margin">
+    android:layout_marginStart="@dimen/media_browse_header_action_margin"
+    android:background="@drawable/car_ui_toolbar_background"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:id="@+id/browse_item_actions_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|left"
+        android:layout_marginStart="@dimen/media_browse_header_action_margin" />
+
     <TextView
         android:id="@+id/title"
         style="@style/BrowseSubheaderStyle"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:includeFontPadding="false"/>
-</FrameLayout>
+        android:singleLine="true"
+        android:includeFontPadding="false"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:visibility="gone"/>
+</LinearLayout>

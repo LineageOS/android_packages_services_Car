@@ -38,8 +38,8 @@ android_test {
         "androidx.test.ext.junit",
         "androidx.test.rules",
         "mockito-target-extended",
-        "truth-prebuilt",
-        "experimentalcar-service-test-static-lib"
+        "truth",
+        "experimentalcar-service-test-static-lib",
     ],
 
     jni_libs: [

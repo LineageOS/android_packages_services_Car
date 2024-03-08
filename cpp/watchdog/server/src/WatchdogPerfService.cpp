@@ -23,6 +23,7 @@
 #include <android-base/parseint.h>
 #include <android-base/stringprintf.h>
 #include <android-base/strings.h>
+#include <android/util/ProtoOutputStream.h>
 #include <log/log.h>
 #include <processgroup/sched_policy.h>
 
@@ -30,6 +31,10 @@
 
 #include <iterator>
 #include <vector>
+
+#include <carwatchdog_daemon_dump.proto.h>
+#include <health_check_client_info.proto.h>
+#include <performance_stats.proto.h>
 
 namespace android {
 namespace automotive {
@@ -51,6 +56,7 @@ using ::android::base::Split;
 using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
+using ::android::util::ProtoOutputStream;
 
 const int32_t kMaxCachedUnsentResourceStats = 10;
 const std::chrono::nanoseconds kPrevUnsentResourceStatsDelayNs = 3s;
@@ -127,6 +133,27 @@ constexpr const char* toString(std::variant<EventType, SwitchMessage> what) {
                 }
             },
             what);
+}
+
+constexpr int toProtoEventType(EventType eventType) {
+    switch (eventType) {
+        case EventType::INIT:
+            return PerformanceProfilerDump::INIT;
+        case EventType::TERMINATED:
+            return PerformanceProfilerDump::TERMINATED;
+        case EventType::BOOT_TIME_COLLECTION:
+            return PerformanceProfilerDump::BOOT_TIME_COLLECTION;
+        case EventType::PERIODIC_COLLECTION:
+            return PerformanceProfilerDump::PERIODIC_COLLECTION;
+        case EventType::USER_SWITCH_COLLECTION:
+            return PerformanceProfilerDump::USER_SWITCH_COLLECTION;
+        case EventType::WAKE_UP_COLLECTION:
+            return PerformanceProfilerDump::WAKE_UP_COLLECTION;
+        case EventType::CUSTOM_COLLECTION:
+            return PerformanceProfilerDump::CUSTOM_COLLECTION;
+        default:
+            return PerformanceProfilerDump::EVENT_TYPE_UNSPECIFIED;
+    }
 }
 
 constexpr const char* toString(SystemState systemState) {
@@ -579,6 +606,39 @@ Result<void> WatchdogPerfService::onDump(int fd) const {
     return {};
 }
 
+Result<void> WatchdogPerfService::onDumpProto(ProtoOutputStream& outProto) const {
+    Mutex::Autolock lock(mMutex);
+    if (mCurrCollectionEvent == EventType::TERMINATED) {
+        ALOGW("%s not active. Dumping cached data", kServiceName);
+    }
+
+    uint64_t performanceProfilerDumpToken =
+            outProto.start(CarWatchdogDaemonDump::PERFORMANCE_PROFILER_DUMP);
+
+    outProto.write(PerformanceProfilerDump::CURRENT_EVENT, toProtoEventType(mCurrCollectionEvent));
+
+    DataProcessorInterface::CollectionIntervals collectionIntervals =
+            {.mBoottimeIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+                     mBoottimeCollection.pollingIntervalNs),
+             .mPeriodicIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+                     mPeriodicCollection.pollingIntervalNs),
+             .mUserSwitchIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+                     mUserSwitchCollection.pollingIntervalNs),
+             .mWakeUpIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+                     mWakeUpCollection.pollingIntervalNs),
+             .mCustomIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+                     mCustomCollection.pollingIntervalNs)};
+
+    // Populate Performance Stats
+    for (const auto& processor : mDataProcessors) {
+        processor->onDumpProto(collectionIntervals, outProto);
+    }
+
+    outProto.end(performanceProfilerDumpToken);
+
+    return {};
+}
+
 bool WatchdogPerfService::dumpHelpText(int fd) const {
     return WriteStringToFd(StringPrintf(kHelpText, kServiceName, kStartCustomCollectionFlag,
                                         kIntervalFlag,
@@ -823,6 +883,7 @@ Result<void> WatchdogPerfService::collectLocked(WatchdogPerfService::EventMetada
     }
 
     time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    int64_t timeSinceBootMs = kGetElapsedTimeSinceBootMsFunc();
 
     if (mUidStatsCollector->enabled()) {
         if (const auto result = mUidStatsCollector->collect(); !result.ok()) {
@@ -875,8 +936,14 @@ Result<void> WatchdogPerfService::collectLocked(WatchdogPerfService::EventMetada
     }
 
     if (!isEmpty(resourceStats)) {
+        if (resourceStats.resourceUsageStats.has_value()) {
+            resourceStats.resourceUsageStats->durationInMillis =
+                    timeSinceBootMs - mLastCollectionTimeMs;
+        }
         cacheUnsentResourceStatsLocked(std::move(resourceStats));
     }
+
+    mLastCollectionTimeMs = timeSinceBootMs;
 
     if (mUnsentResourceStats.empty() || !mWatchdogServiceHelper->isServiceConnected()) {
         if (DEBUG && !mWatchdogServiceHelper->isServiceConnected()) {

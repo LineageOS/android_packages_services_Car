@@ -36,6 +36,7 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockContextCreateConte
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 
+import static com.android.car.internal.common.CommonConstants.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static com.android.car.occupantconnection.CarRemoteDeviceService.INITIAL_APP_STATE;
 import static com.android.car.occupantconnection.CarRemoteDeviceService.INITIAL_OCCUPANT_ZONE_STATE;
 
@@ -641,7 +642,7 @@ public class CarRemoteDeviceServiceTest {
     }
 
     @Test
-    public void testOccupantZonePowerStateChanged() throws RemoteException {
+    public void testOccupantZonePowerStateChanged() {
         DisplayListener[] displayListener = new DisplayListener[1];
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
@@ -661,7 +662,30 @@ public class CarRemoteDeviceServiceTest {
     }
 
     @Test
-    public void testUserAssigned() throws RemoteException {
+    public void testUserStarting() {
+        UserLifecycleListener[] userLifecycleListeners = new UserLifecycleListener[1];
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            userLifecycleListeners[0] = (UserLifecycleListener) args[1];
+            return null;
+        }).when(mUserService).addUserLifecycleListener(any(), any());
+
+        mService.init();
+        mOccupantZoneStateMap.put(mOccupantZone, FLAG_OCCUPANT_ZONE_POWER_ON);
+
+        mockPerUserInfo(USER_ID, mOccupantZone);
+        // Remove the item added by previous line, then check whether it can be added back
+        // after onEvent().
+        mPerUserInfoMap.remove(USER_ID);
+        UserLifecycleEvent event = new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_STARTING,
+                /* from= */ USER_ID, /* to= */ USER_ID);
+        userLifecycleListeners[0].onEvent(event);
+
+        assertThat(mPerUserInfoMap.get(USER_ID).zone).isEqualTo(mOccupantZone);
+    }
+
+    @Test
+    public void testUserAssigned() {
         UserLifecycleListener[] userLifecycleListeners = new UserLifecycleListener[1];
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
@@ -684,7 +708,7 @@ public class CarRemoteDeviceServiceTest {
     }
 
     @Test
-    public void testUserUnassigned() throws RemoteException {
+    public void testUserUnassigned() {
         UserLifecycleListener[] userLifecycleListeners = new UserLifecycleListener[1];
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
@@ -708,7 +732,7 @@ public class CarRemoteDeviceServiceTest {
     }
 
     @Test
-    public void testUserSwitched() throws RemoteException {
+    public void testUserSwitched() {
         UserLifecycleListener[] userLifecycleListeners = new UserLifecycleListener[1];
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();

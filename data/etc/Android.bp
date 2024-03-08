@@ -143,6 +143,7 @@ prebuilt_etc {
     sub_dir: "permissions",
     src: "com.android.car.bugreport.xml",
     filename_from_src: true,
+    system_ext_specific: true,
 }
 
 prebuilt_etc {
@@ -270,5 +271,12 @@ prebuilt_etc {
     name: "allowed_privapp_com.google.android.car.multidisplaytest",
     sub_dir: "permissions",
     src: "com.google.android.car.multidisplaytest.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.appgrid.test",
+    sub_dir: "permissions",
+    src: "com.android.car.appgrid.test.xml",
     filename_from_src: true,
 }

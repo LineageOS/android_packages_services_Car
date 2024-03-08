@@ -17,15 +17,11 @@
 package android.car.builtin.display;
 
 import android.annotation.FloatRange;
-import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
-import android.car.builtin.annotation.AddedIn;
-import android.car.builtin.annotation.PlatformVersion;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManager.DisplayListener;
 import android.hardware.display.DisplayManager.EventsMask;
-import android.os.Build;
 import android.os.Handler;
 
 /**
@@ -41,8 +37,6 @@ public final class DisplayManagerHelper {
      *
      * @see #registerDisplayListener(DisplayListener, Handler, long)
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final long EVENT_FLAG_DISPLAY_ADDED = DisplayManager.EVENT_FLAG_DISPLAY_ADDED;
 
     /**
@@ -50,8 +44,6 @@ public final class DisplayManagerHelper {
      *
      * @see #registerDisplayListener(DisplayListener, Handler, long)
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final long EVENT_FLAG_DISPLAY_REMOVED = DisplayManager.EVENT_FLAG_DISPLAY_REMOVED;
 
     /**
@@ -59,8 +51,6 @@ public final class DisplayManagerHelper {
      *
      * @see #registerDisplayListener(DisplayListener, Handler, long)
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final long EVENT_FLAG_DISPLAY_CHANGED = DisplayManager.EVENT_FLAG_DISPLAY_CHANGED;
 
     /**
@@ -70,8 +60,6 @@ public final class DisplayManagerHelper {
      *
      * @see #registerDisplayListener(DisplayListener, Handler, long)
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final long EVENT_FLAG_DISPLAY_BRIGHTNESS =
             DisplayManager.EVENT_FLAG_DISPLAY_BRIGHTNESS;
 
@@ -95,8 +83,6 @@ public final class DisplayManagerHelper {
      * @see DisplayManager#registerDisplayListener(DisplayListener, Handler)
      * @see DisplayManager#unregisterDisplayListener
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void registerDisplayListener(Context context, DisplayListener listener,
             Handler handler, @EventsMask long eventsMask) {
         DisplayManager displayManager = context.getSystemService(DisplayManager.class);
@@ -109,8 +95,6 @@ public final class DisplayManagerHelper {
      * @param context Context to use.
      * @param displayId The display of which brightness value to get from.
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static float getBrightness(Context context, int displayId) {
         DisplayManager displayManager = context.getSystemService(DisplayManager.class);
         return displayManager.getBrightness(displayId);
@@ -123,8 +107,6 @@ public final class DisplayManagerHelper {
      * @param displayId the logical display id
      * @param brightness The brightness value from 0.0f to 1.0f.
      */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void setBrightness(Context context, int displayId,
             @FloatRange(from = 0f, to = 1f) float brightness) {
         DisplayManager displayManager = context.getSystemService(DisplayManager.class);

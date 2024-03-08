@@ -196,6 +196,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Nolasīt informāciju par automašīnas vējstikla tīrītājiem."</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"kontrolēt automašīnas vējstikla tīrītājus"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Kontrolēt automašīnas vējstikla tīrītājus."</string>
+    <string name="car_permission_label_query_display_compatibility" msgid="8846515818036686896">"sūtīt pieprasījumus par pakotnēm, kam nepieciešama saderība ar displejiem"</string>
+    <string name="car_permission_desc_query_display_compatibility" msgid="5344194045180717300">"Sūtīt pieprasījumus par pakotnēm, kam nepieciešama saderība ar displejiem."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"uzraudzīt automašīnas pārējo pasažieru zonu stāvokli un šajās zonās instalētās līdzīgās lietotnes (lietotnes, kam ir tāds pats pakotnes nosaukums kā izsaucējam), kā arī pārvaldīt enerģijas lietojumu šajās zonās"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Uzraudzīt automašīnas pārējo pasažieru zonu stāvokli un šajās zonās instalētās līdzīgās lietotnes (lietotnes, kam ir tāds pats pakotnes nosaukums kā izsaucējam), kā arī pārvaldīt enerģijas lietojumu šajās zonās."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"veidot savienojumus un uzturēt sakarus ar pārējās automašīnas pasažieru zonās instalētajām līdzīgajām lietotnēm (lietotnēm, kam ir tāds pats pakotnes nosaukums kā izsaucējam)"</string>

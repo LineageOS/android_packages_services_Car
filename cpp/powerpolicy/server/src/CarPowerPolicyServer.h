@@ -21,6 +21,7 @@
 #include "PowerComponentHandler.h"
 #include "SilentModeHandler.h"
 
+#include <aidl/android/automotive/powerpolicy/internal/BnCarPowerPolicyDelegate.h>
 #include <aidl/android/frameworks/automotive/powerpolicy/BnCarPowerPolicyServer.h>
 #include <aidl/android/frameworks/automotive/powerpolicy/internal/BnCarPowerPolicySystemNotification.h>
 #include <android-base/result.h>
@@ -43,14 +44,14 @@ namespace automotive {
 namespace powerpolicy {
 
 struct CallbackInfo {
-    CallbackInfo(::ndk::SpAIBinder binder,
-                 const ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicyFilter&
-                         filter,
-                 int32_t pid) :
+    CallbackInfo(
+            ndk::SpAIBinder binder,
+            const aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicyFilter& filter,
+            int32_t pid) :
           binder(binder), filter(filter), pid(pid) {}
 
-    ::ndk::SpAIBinder binder;
-    ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicyFilter filter;
+    ndk::SpAIBinder binder;
+    aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicyFilter filter;
     pid_t pid;
 };
 
@@ -80,9 +81,9 @@ private:
     CarPowerPolicyServer* mService;
 };
 
-class MessageHandlerImpl : public android::MessageHandler {
+class EventHandler : public android::MessageHandler {
 public:
-    explicit MessageHandlerImpl(CarPowerPolicyServer* service);
+    explicit EventHandler(CarPowerPolicyServer* service);
 
     void handleMessage(const android::Message& message) override;
 
@@ -90,22 +91,66 @@ private:
     CarPowerPolicyServer* mService;
 };
 
+class RequestIdHandler : public android::MessageHandler {
+public:
+    explicit RequestIdHandler(CarPowerPolicyServer* service);
+
+    void handleMessage(const android::Message& message) override;
+
+private:
+    CarPowerPolicyServer* mService;
+};
+
+// TODO(b/301025020): Remove CarServiceNotificationHandler once CarPowerPolicyDelegate is ready.
 class CarServiceNotificationHandler :
-      public ::aidl::android::frameworks::automotive::powerpolicy::internal::
+      public aidl::android::frameworks::automotive::powerpolicy::internal::
               BnCarPowerPolicySystemNotification {
 public:
     explicit CarServiceNotificationHandler(CarPowerPolicyServer* server);
 
-    binder_status_t dump(int fd, const char** args, uint32_t numArgs) override;
-    ::ndk::ScopedAStatus notifyCarServiceReady(
-            ::aidl::android::frameworks::automotive::powerpolicy::internal::PolicyState*
-                    policyState) override;
-    ::ndk::ScopedAStatus notifyPowerPolicyChange(const std::string& policyId, bool force) override;
-    ::ndk::ScopedAStatus notifyPowerPolicyDefinition(
+    binder_status_t dump(int fd, const char** args, uint32_t numArgs) override EXCLUDES(mMutex);
+    ndk::ScopedAStatus notifyCarServiceReady(
+            aidl::android::frameworks::automotive::powerpolicy::internal::PolicyState* policyState)
+            override EXCLUDES(mMutex);
+    ndk::ScopedAStatus notifyPowerPolicyChange(const std::string& policyId, bool force) override
+            EXCLUDES(mMutex);
+    ndk::ScopedAStatus notifyPowerPolicyDefinition(
             const std::string& policyId, const std::vector<std::string>& enabledComponents,
-            const std::vector<std::string>& disabledComponents) override;
+            const std::vector<std::string>& disabledComponents) override EXCLUDES(mMutex);
 
-    void terminate();
+    void terminate() EXCLUDES(mMutex);
+
+private:
+    android::Mutex mMutex;
+    CarPowerPolicyServer* mService GUARDED_BY(mMutex);
+};
+
+class CarPowerPolicyDelegate final :
+      public aidl::android::automotive::powerpolicy::internal::BnCarPowerPolicyDelegate {
+public:
+    explicit CarPowerPolicyDelegate(CarPowerPolicyServer* service);
+
+    binder_status_t dump(int fd, const char** args, uint32_t numArgs) override EXCLUDES(mMutex);
+    ndk::ScopedAStatus notifyCarServiceReady(
+            const std::shared_ptr<aidl::android::automotive::powerpolicy::internal::
+                                          ICarPowerPolicyDelegateCallback>& callback,
+            aidl::android::automotive::powerpolicy::internal::PowerPolicyInitData* aidlReturn)
+            override;
+    ndk::ScopedAStatus applyPowerPolicyAsync(int32_t requestId, const std::string& policyId,
+                                             bool force) override EXCLUDES(mMutex);
+    ndk::ScopedAStatus setPowerPolicyGroup(const std::string& policyGroupId) override
+            EXCLUDES(mMutex);
+    ndk::ScopedAStatus notifyPowerPolicyDefinition(
+            const std::string& policyId, const std::vector<std::string>& enabledComponents,
+            const std::vector<std::string>& disabledComponents) override EXCLUDES(mMutex);
+    ndk::ScopedAStatus notifyPowerStateChange(
+            ::aidl::android::automotive::powerpolicy::internal::ICarPowerPolicyDelegate::PowerState
+                    in_state);
+
+    void terminate() EXCLUDES(mMutex);
+    ndk::ScopedAStatus runWithService(
+            const std::function<ndk::ScopedAStatus(CarPowerPolicyServer*)>& action,
+            const std::string& actionTitle) EXCLUDES(mMutex);
 
 private:
     android::Mutex mMutex;
@@ -130,68 +175,86 @@ public:
  */
 class CarPowerPolicyServer final :
       public ISilentModeChangeHandler,
-      public ::aidl::android::frameworks::automotive::powerpolicy::BnCarPowerPolicyServer {
+      public aidl::android::frameworks::automotive::powerpolicy::BnCarPowerPolicyServer {
 public:
-    static base::Result<std::shared_ptr<CarPowerPolicyServer>> startService(
-            const sp<android::Looper>& looper);
+    static android::base::Result<std::shared_ptr<CarPowerPolicyServer>> startService(
+            const android::sp<android::Looper>& looper);
     static void terminateService();
 
+    CarPowerPolicyServer();
+    android::base::Result<void> init(const sp<android::Looper>& looper);
+
     // Implements ICarPowerPolicyServer.aidl.
-    status_t dump(int fd, const char** args, uint32_t numArgs) override;
-    ::ndk::ScopedAStatus getCurrentPowerPolicy(
-            ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy* aidlReturn)
-            override;
-    ::ndk::ScopedAStatus getPowerComponentState(
-            ::aidl::android::frameworks::automotive::powerpolicy::PowerComponent componentId,
+    status_t dump(int fd, const char** args, uint32_t numArgs) override EXCLUDES(mMutex);
+    ndk::ScopedAStatus getCurrentPowerPolicy(
+            aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy* aidlReturn) override
+            EXCLUDES(mMutex);
+    ndk::ScopedAStatus getPowerComponentState(
+            aidl::android::frameworks::automotive::powerpolicy::PowerComponent componentId,
             bool* aidlReturn) override;
-    ::ndk::ScopedAStatus registerPowerPolicyChangeCallback(
+    ndk::ScopedAStatus registerPowerPolicyChangeCallback(
             const std::shared_ptr<aidl::android::frameworks::automotive::powerpolicy::
                                           ICarPowerPolicyChangeCallback>& callback,
-            const ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicyFilter&
-                    filter) override;
-    ::ndk::ScopedAStatus unregisterPowerPolicyChangeCallback(
+            const aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicyFilter& filter)
+            override EXCLUDES(mMutex);
+    ndk::ScopedAStatus unregisterPowerPolicyChangeCallback(
             const std::shared_ptr<aidl::android::frameworks::automotive::powerpolicy::
-                                          ICarPowerPolicyChangeCallback>& callback) override;
-
-    void connectToVhalHelper();
-    void handleBinderDeath(const AIBinder* client);
-    void handleVhalDeath();
+                                          ICarPowerPolicyChangeCallback>& callback) override
+            EXCLUDES(mMutex);
+    ndk::ScopedAStatus applyPowerPolicy(const std::string& policyId) override EXCLUDES(mMutex);
+    ndk::ScopedAStatus setPowerPolicyGroup(const std::string& policyGroupId) override;
 
     // Implements ICarPowerPolicySystemNotification.aidl.
-    ::ndk::ScopedAStatus notifyCarServiceReady(
-            ::aidl::android::frameworks::automotive::powerpolicy::internal::PolicyState*
-                    policyState);
-    ::ndk::ScopedAStatus notifyPowerPolicyChange(const std::string& policyId, bool force);
-    ::ndk::ScopedAStatus notifyPowerPolicyDefinition(
+    ndk::ScopedAStatus notifyCarServiceReady(
+            aidl::android::frameworks::automotive::powerpolicy::internal::PolicyState* policyState)
+            EXCLUDES(mMutex);
+    ndk::ScopedAStatus notifyPowerPolicyChange(const std::string& policyId, bool force);
+    ndk::ScopedAStatus notifyPowerPolicyDefinition(
             const std::string& policyId, const std::vector<std::string>& enabledComponents,
             const std::vector<std::string>& disabledComponents);
+
+    // Internal implementation of ICarPowerPolicyDelegate.aidl.
+    ndk::ScopedAStatus applyPowerPolicyAsync(int32_t requestId, const std::string& policyId,
+                                             bool force);
+    ndk::ScopedAStatus notifyCarServiceReadyInternal(
+            const std::shared_ptr<aidl::android::automotive::powerpolicy::internal::
+                                          ICarPowerPolicyDelegateCallback>& callback,
+            aidl::android::automotive::powerpolicy::internal::PowerPolicyInitData* aidlReturn);
+
+    // Implements ISilentModeChangeHandler.
+    void notifySilentModeChange(const bool isSilent) EXCLUDES(mMutex);
 
     /**
      * Applies the given power policy.
      *
+     * @param policyId ID of a power policy to apply.
      * @param carServiceInOperation expected Car Service running state.
      * @param force whether to apply the policy even when the current policy is a system
      *        power policy.
      */
     android::base::Result<void> applyPowerPolicy(const std::string& policyId,
-                                                 const bool carServiceInOperation,
-                                                 const bool force);
+                                                 const bool carServiceInOperation, const bool force)
+            EXCLUDES(mMutex);
     /**
      * Sets the power policy group which contains rules to map a power state to a default power
      * policy to apply.
      */
-    android::base::Result<void> setPowerPolicyGroup(const std::string& groupId);
+    android::base::Result<void> setPowerPolicyGroupInternal(const std::string& groupId)
+            EXCLUDES(mMutex);
 
-    // Implements ISilentModeChangeHandler.
-    void notifySilentModeChange(const bool isSilent);
+    void connectToVhalHelper() EXCLUDES(mMutex);
+    void handleClientBinderDeath(const AIBinder* client) EXCLUDES(mMutex);
+    void handleCarServiceBinderDeath() EXCLUDES(mMutex);
+    void handleVhalDeath() EXCLUDES(mMutex);
+    void handleApplyPowerPolicyRequest(const int32_t requestId);
 
 private:
-    friend class ::ndk::SharedRefBase;
+    friend class ndk::SharedRefBase;
 
-    // OnBinderDiedContext is a type used as a cookie passed deathRecipient. The deathRecipient's
-    // onBinderDied function takes only a cookie as input and we have to store all the contexts
-    // as the cookie.
-    struct OnBinderDiedContext {
+    // OnClientBinderDiedContext is a type used as a cookie passed deathRecipient. The
+    // deathRecipient's onClientBinderDied function takes only a cookie as input and we have to
+    // store all the contexts as the cookie.
+    struct OnClientBinderDiedContext {
         CarPowerPolicyServer* server;
         const AIBinder* clientId;
     };
@@ -214,35 +277,49 @@ private:
                                       void* cookie) override;
     };
 
-    CarPowerPolicyServer();
+    struct PolicyRequest {
+        std::string policyId;
+        bool force;
+    };
 
-    void terminate();
-    bool isRegisteredLocked(const AIBinder* binder);
+    void terminate() EXCLUDES(mMutex);
+    bool isRegisteredLocked(const AIBinder* binder) REQUIRES(mMutex);
     void connectToVhal();
-    void applyInitialPowerPolicy();
     void subscribeToVhal();
     void subscribeToProperty(
             int32_t prop,
             std::function<void(const android::frameworks::automotive::vhal::IHalPropValue&)>
-                    processor);
-    android::base::Result<void> notifyVhalNewPowerPolicy(const std::string& policyId);
-    bool isPropertySupported(const int32_t prop);
-    bool isPowerPolicyAppliedLocked() const;
-    android::base::Result<void> init(const sp<android::Looper>& looper);
+                    processor) EXCLUDES(mMutex);
+    bool isPropertySupported(const int32_t prop) EXCLUDES(mMutex);
+    bool isPowerPolicyAppliedLocked() const REQUIRES(mMutex);
+    bool canApplyPowerPolicyLocked(const CarPowerPolicyMeta& policyMeta, const bool force,
+                                   std::vector<CallbackInfo>& outClients) REQUIRES(mMutex);
+    void applyInitialPowerPolicy() EXCLUDES(mMutex);
+    void applyAndNotifyPowerPolicy(const CarPowerPolicyMeta& policyMeta,
+                                   const std::vector<CallbackInfo>& clients,
+                                   const bool notifyCarService);
+    android::base::Result<void> applyPowerPolicyInternal(const std::string& policyId,
+                                                         const bool force,
+                                                         const bool notifyCarService)
+            EXCLUDES(mMutex);
+    android::base::Result<void> notifyVhalNewPowerPolicy(const std::string& policyId)
+            EXCLUDES(mMutex);
 
-    static void onBinderDied(void* cookie);
+    static void onClientBinderDied(void* cookie);
+    static void onCarServiceBinderDied(void* cookie);
     static std::string callbackToString(const CallbackInfo& callback);
 
     // For test-only.
     void setLinkUnlinkImpl(std::unique_ptr<LinkUnlinkImpl> impl);
-    std::vector<CallbackInfo> getPolicyChangeCallbacks();
-    size_t countOnBinderDiedContexts();
+    std::vector<CallbackInfo> getPolicyChangeCallbacks() EXCLUDES(mMutex);
+    size_t countOnClientBinderDiedContexts() EXCLUDES(mMutex);
 
 private:
     static std::shared_ptr<CarPowerPolicyServer> sCarPowerPolicyServer;
 
-    sp<android::Looper> mHandlerLooper;
-    sp<MessageHandlerImpl> mMessageHandler;
+    android::sp<android::Looper> mHandlerLooper;
+    android::sp<EventHandler> mEventHandler;
+    android::sp<RequestIdHandler> mRequestIdHandler;
     PowerComponentHandler mComponentHandler;
     PolicyManager mPolicyManager;
     SilentModeHandler mSilentModeHandler;
@@ -260,7 +337,8 @@ private:
     // No thread-safety guard is needed because only accessed through main thread handler.
     bool mIsFirstConnectionToVhal;
     std::unordered_map<int32_t, bool> mSupportedProperties;
-    ::ndk::ScopedAIBinder_DeathRecipient mDeathRecipient GUARDED_BY(mMutex);
+    ndk::ScopedAIBinder_DeathRecipient mClientDeathRecipient GUARDED_BY(mMutex);
+    ndk::ScopedAIBinder_DeathRecipient mCarServiceDeathRecipient GUARDED_BY(mMutex);
     // Thread-safe because only initialized once.
     std::shared_ptr<PropertyChangeListener> mPropertyChangeListener;
     std::unique_ptr<android::frameworks::automotive::vhal::ISubscriptionClient> mSubscriptionClient;
@@ -271,9 +349,13 @@ private:
     // Thread-safe because only initialized once or modified in test.
     std::unique_ptr<LinkUnlinkImpl> mLinkUnlinkImpl;
 
-    // A map of callback ptr to context that is required for handleBinderDeath.
-    std::unordered_map<const AIBinder*, std::unique_ptr<OnBinderDiedContext>> mOnBinderDiedContexts
-            GUARDED_BY(mMutex);
+    std::shared_ptr<CarPowerPolicyDelegate> mCarPowerPolicyDelegate GUARDED_BY(mMutex);
+    ndk::SpAIBinder mPowerPolicyDelegateCallback GUARDED_BY(mMutex);
+
+    // A map of callback ptr to context that is required for handleClientBinderDeath.
+    std::unordered_map<const AIBinder*, std::unique_ptr<OnClientBinderDiedContext>>
+            mOnClientBinderDiedContexts GUARDED_BY(mMutex);
+    std::unordered_map<uint32_t, PolicyRequest> mPolicyRequestById GUARDED_BY(mMutex);
 
     // For unit tests.
     friend class android::frameworks::automotive::powerpolicy::internal::CarPowerPolicyServerPeer;

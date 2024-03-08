@@ -19,7 +19,6 @@ package android.car.hardware.property;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -40,22 +39,16 @@ public class HandsOnDetectionWarning {
      * framework can use this field to remain backwards compatible if {@code
      * HandsOnDetectionWarning} is extended to include additional states.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int OTHER = 0;
     /**
      * HOD is enabled and the driver's current safety does not warrant sending a warning. This state
      * is independent of whether the driver actually has their hands on or off the wheel.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int NO_WARNING = 1;
     /**
      * HOD is enabled and the driver's hands have been off the wheel for too long a duration, and
      * the vehicle is sending a warning to the driver as a consequence of this.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int WARNING = 2;
 
     private HandsOnDetectionWarning() {}
@@ -64,8 +57,6 @@ public class HandsOnDetectionWarning {
      * Returns a user-friendly representation of a {@code HandsOnDetectionWarning}.
      */
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(
             @HandsOnDetectionWarning.HandsOnDetectionWarningInt int handsOnDetectionWarning) {
         switch (handsOnDetectionWarning) {

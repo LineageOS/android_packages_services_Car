@@ -299,7 +299,7 @@ public class DiagnosticHalService extends HalServiceBase {
                     .append(rate)
                     .toString());
         }
-        mVehicleHal.subscribeProperty(this, propId,
+        mVehicleHal.subscribePropertySafe(this, propId,
                 fixSamplingRateForProperty(propConfig, rate));
         return true;
     }
@@ -327,7 +327,7 @@ public class DiagnosticHalService extends HalServiceBase {
                     .append(toHexString(propId))
                     .toString());
         }
-        mVehicleHal.unsubscribeProperty(this, propId);
+        mVehicleHal.unsubscribePropertySafe(this, propId);
 
     }
 
