@@ -994,14 +994,6 @@ public final class VehiclePropertyIds {
     /**
      * Vehicle transmission's current {@link VehicleGear}.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Integer} property type
-     * </ul>
-     *
      * <p>{@code CURRENT_GEAR}'s value may not match that of {@link
      * VehiclePropertyIds#GEAR_SELECTION}. For example, if the {@link
      * VehiclePropertyIds#GEAR_SELECTION} is {@link VehicleGear#GEAR_DRIVE} in a vehicle with an
@@ -1037,6 +1029,14 @@ public final class VehiclePropertyIds {
      *  <li>configArray[4] = {@link VehicleGear#GEAR_FIRST}
      *  <li>configArray[5] = {@link VehicleGear#GEAR_SECOND}
      *  <li>...
+     * </ul>
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
      * </ul>
      *
      * <p>Required Permission:
