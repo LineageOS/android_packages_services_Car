@@ -172,5 +172,7 @@
         <permission name="android.permission.ACCESS_BROADCAST_RADIO" />
         <!-- use for allowlisting automotive driver assistance packages from camera privacy -->
         <permission name="android.permission.CAMERA_PRIVACY_ALLOWLIST" />
+	<!-- use for Camera2 TestFragment -->
+        <permission name="android.permission.SYSTEM_CAMERA"/>
     </privapp-permissions>
 </permissions>

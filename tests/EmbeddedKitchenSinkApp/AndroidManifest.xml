@@ -245,6 +245,7 @@
 
     <!-- To access Camera2 -->
     <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.SYSTEM_CAMERA"/>
     <uses-permission android:name="android.permission.CAMERA_HEADLESS_SYSTEM_USER"/>
     <uses-permission android:name="android.permission.CAMERA_PRIVACY_ALLOWLIST"/>
 
@@ -330,6 +331,15 @@
              android:exported="true">
             <intent-filter>
               <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".camera2.MultiCameraPreviewActivity"
+            android:label="@string/camera2_multi_camera_preview"
+            android:showForAllUsers="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>
 
