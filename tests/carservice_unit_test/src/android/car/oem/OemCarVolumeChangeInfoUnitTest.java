@@ -77,7 +77,7 @@ public final class OemCarVolumeChangeInfoUnitTest extends AbstractExpectableTest
                 new OemCarVolumeChangeInfo.Builder(/* volumeChanged= */ true).build();
 
         info.writeToParcel(parcel, /* flags= */ 0);
-        parcel.setDataPosition(/* position= */ 0);
+        parcel.setDataPosition(/* pos= */ 0);
 
         expectWithMessage("Car volume change from parcel")
                 .that(OemCarVolumeChangeInfo.CREATOR.createFromParcel(parcel)).isEqualTo(info);

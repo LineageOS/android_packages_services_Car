@@ -37,6 +37,7 @@ final class CarAudioServerStateCallback extends AudioManager.AudioServerStateCal
     public void onAudioServerDown() {
         Slogf.w(TAG, "Audio server died, setting audio as disabled");
         mCarAudioService.setAudioEnabled(false);
+        mCarAudioService.releaseAudioCallbacks(/* isAudioServerDown= */ true);
     }
 
     @Override

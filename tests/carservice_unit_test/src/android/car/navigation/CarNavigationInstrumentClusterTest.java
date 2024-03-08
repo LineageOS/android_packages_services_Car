@@ -30,9 +30,9 @@ public final class CarNavigationInstrumentClusterTest {
     @Test
     public void testCopyConstructor_constructsAsExpected() {
         CarNavigationInstrumentCluster carNavigationInstrumentCluster =
-                CarNavigationInstrumentCluster.createCustomImageCluster(/* minIntervalMs= */ 100,
-                        /* imageWidth= */ 800, /* imageHeight= */ 480,
-                        /* imageColorDepthBits= */ 32);
+                CarNavigationInstrumentCluster.createCustomImageCluster(
+                        /* minIntervalMillis= */ 100, /* imageWidth= */ 800,
+                        /* imageHeight= */ 480, /* imageColorDepthBits= */ 32);
 
         CarNavigationInstrumentCluster copy = new CarNavigationInstrumentCluster(
                 carNavigationInstrumentCluster);
@@ -55,9 +55,9 @@ public final class CarNavigationInstrumentClusterTest {
     @Test
     public void testCreateFromParcel() {
         CarNavigationInstrumentCluster carNavigationInstrumentCluster =
-                CarNavigationInstrumentCluster.createCustomImageCluster(/* minIntervalMs= */ 100,
-                        /* imageWidth= */ 800, /* imageHeight= */ 480,
-                        /* imageColorDepthBits= */ 32);
+                CarNavigationInstrumentCluster.createCustomImageCluster(
+                        /* minIntervalMillis= */ 100, /* imageWidth= */ 800,
+                        /* imageHeight= */ 480, /* imageColorDepthBits= */ 32);
         Parcel parcel = Parcel.obtain();
         carNavigationInstrumentCluster.writeToParcel(parcel, 0);
         parcel.setDataPosition(0);
