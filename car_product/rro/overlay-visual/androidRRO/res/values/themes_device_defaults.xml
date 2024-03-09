@@ -19,7 +19,7 @@
     It is how the device default is changed to match the desired look for a car theme.
 -->
 <resources>
-    <style name="Theme.DeviceDefault" parent="*android:Theme.DeviceDefaultBase">
+    <style name="Theme.DeviceDefaultBaseCar" parent="*android:Theme.DeviceDefaultBase">
         <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
         <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
         <item name="android:buttonStyle">@*android:style/Widget.DeviceDefault.Button</item>
@@ -51,8 +51,11 @@
         <item name="android:radioButtonStyle">@style/Widget.DeviceDefault.CompoundButton.RadioButton</item>
 
         <item name="*android:disabledAlpha">@dimen/car_disabled_alpha</item>
-        <item name="android:windowLayoutInDisplayCutoutMode">always</item>
         <item name="android:isLightTheme">false</item>
+    </style>
+
+    <style name="Theme.DeviceDefault" parent="Theme.DeviceDefaultBaseCar">
+        <item name="android:windowLayoutInDisplayCutoutMode">always</item>
     </style>
 
     <style name="Theme.DeviceDefault.Dialog" parent="android:Theme.Material.Dialog">
@@ -172,8 +175,7 @@
 
     <!-- This theme is applied as the app base. Attributes not defined in app/ activity themes will fallthrough to this
     theme. This makes it app facing, regardless if the app is directly using it or a theme that inherits from it.  -->
-    <style name="Theme.DeviceDefault.Light.DarkActionBar"  parent="android:Theme.DeviceDefault">
-        <item name="android:windowLayoutInDisplayCutoutMode">default</item>
+    <style name="Theme.DeviceDefault.Light.DarkActionBar"  parent="Theme.DeviceDefaultBaseCar">
         <item name="android:isLightTheme">false</item>
     </style>
 
