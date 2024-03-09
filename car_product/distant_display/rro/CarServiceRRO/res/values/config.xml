@@ -22,5 +22,31 @@
   See also packages/services/Car/service/res/values/config.xml
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="instrumentClusterRendererService" translatable="false">com.android.designcompose.reference.driverui/.ClusterRenderingService</string>
+    <!--  The name of Activity who is in charge of ClusterHome. -->
+    <string name="config_clusterHomeActivity" translatable="false">com.android.car.driverui/.MainActivity</string>
+
+    <string-array translatable="false" name="config_allowed_optional_car_features">
+        <item>car_navigation_service</item>
+        <item>cluster_home_service</item>
+        <item>com.android.car.user.CarUserNoticeService</item>
+        <item>diagnostic</item>
+        <item>storage_monitoring</item>
+        <item>vehicle_map_service</item>
+        <item>car_evs_service</item>
+        <item>car_telemetry_service</item>
+    </string-array>
+
+    <!-- Assign occupant zones to seats/passengers. -->
+    <string-array translatable="false" name="config_occupant_zones">
+        <item>occupantZoneId=0,occupantType=DRIVER,seatRow=1,seatSide=driver</item>
+    </string-array>
+
+    <!-- Assign displays to occupant zones.  -->
+    <string-array translatable="false" name="config_occupant_display_mapping">
+        <item>displayPort=0,displayType=MAIN,occupantZoneId=0,inputTypes=TOUCH_SCREEN|DPAD_KEYS|NAVIGATE_KEYS|ROTARY_NAVIGATION</item>
+        <item>displayPort=1,displayType=INSTRUMENT_CLUSTER,occupantZoneId=0,inputTypes=DPAD_KEYS</item>
+    </string-array>
+
+    <bool name="audioUseDynamicRouting">true</bool>
+    <bool name="audioUseCarVolumeGroupMuting">true</bool>
 </resources>

@@ -42,6 +42,15 @@ public class Camera2TestFragment extends Fragment {
                     getContext().startActivityAsUser(intent, UserHandle.SYSTEM);
                 }
             });
+        Button multiCameraPreview = (Button) view.findViewById(R.id.camera2_multi_camera_preview);
+        multiCameraPreview.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(getContext(), MultiCameraPreviewActivity.class);
+                    getContext().startActivity(intent);
+                }
+        });
+
         return view;
     }
 }
