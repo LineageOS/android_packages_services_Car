@@ -30,4 +30,14 @@ java_library {
     ],
 
     libs: ["android.car-system-stubs"],
+
+    visibility: ["//packages/services/Car:__subpackages__"],
+}
+
+filegroup {
+    name: "com.android.car.test.lib-srcs",
+
+    srcs: ["src/**/*.java"],
+
+    visibility: ["//packages/services/Car:__subpackages__"],
 }
