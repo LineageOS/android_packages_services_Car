@@ -48,6 +48,7 @@ allow carservice_app {
     overlay_service
     power_service
     procfsinspector_service
+    registry_service
     sensorservice_service
     statsmanager_service
     surfaceflinger_service
