@@ -416,6 +416,12 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
         super.onCreate(savedInstanceState);
         setContentView(R.layout.kitchen_activity);
 
+        findViewById(R.id.root).setOnApplyWindowInsetsListener((v, insets) -> {
+            final android.graphics.Insets i = insets.getSystemWindowInsets();
+            v.setPadding(i.left, i.top, i.right, i.bottom);
+            return insets.inset(i).consumeSystemWindowInsets();
+        });
+
         // Connection to Car Service does not work for non-automotive yet.
         if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
             initCarApi();
