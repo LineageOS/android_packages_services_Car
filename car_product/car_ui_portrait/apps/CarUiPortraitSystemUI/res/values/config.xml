@@ -73,4 +73,7 @@
         <item>com.android.car.portraitlauncher</item>
         <item>com.android.car.notification</item>
     </string-array>
+
+    <!-- Blocking activity feature flag -->
+    <bool name="config_enableAppBlockingActivities">false</bool>
 </resources>
