@@ -367,27 +367,165 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
-    public CarPowerManagementService(Context context, PowerHalService powerHal,
-            SystemInterface systemInterface, CarUserService carUserService,
-            IInterface powerPolicyDaemon) {
-        this(context, context.getResources(), powerHal, systemInterface,
-                context.getSystemService(UserManager.class), carUserService, powerPolicyDaemon,
-                new PowerComponentHandler(context, systemInterface), /* featureFlags= */ null,
-                /* screenOffHandler= */ null, /* silentModeHwStatePath= */ null,
-                /* silentModeKernelStatePath= */ null, /* bootReason= */ null);
+    /**
+     * Builder for {@link android.car.power.CarPowerManagementService}.
+     */
+    public static final class Builder {
+        private Context mContext;
+        private PowerHalService mPowerHalService;
+        private SystemInterface mSystemInterface;
+        private UserManager mUserManager;
+        private CarUserService mCarUserService;
+        private PowerComponentHandler mPowerComponentHandler;
+        private @Nullable IInterface mPowerPolicyDaemon;
+        private @Nullable FeatureFlags mFeatureFlags;
+        private @Nullable ScreenOffHandler mScreenOffHandler;
+        private @Nullable String mSilentModeHwStatePath;
+        private @Nullable String mSilentModeKernelStatePath;
+        private @Nullable String mBootReason;
+        private Resources mResources;
+        private boolean mBuilt;
+
+        /**
+         * Sets the {@link Context}.
+         */
+        public Builder setContext(Context context) {
+            mContext = context;
+            return this;
+        }
+
+        /**
+         * Sets the {@link PowerHalService}.
+         */
+        public Builder setPowerHalService(PowerHalService powerHalService) {
+            mPowerHalService = powerHalService;
+            return this;
+        }
+
+        /**
+         * Sets the {@link SystemInterface}.
+         */
+        public Builder setSystemInterface(SystemInterface systemInterface) {
+            mSystemInterface = systemInterface;
+            return this;
+        }
+
+        /**
+         * Sets the {@link CarUserService}.
+         */
+        public Builder setCarUserService(CarUserService carUserService) {
+            mCarUserService = carUserService;
+            return this;
+        }
+
+        /**
+         * Sets the {@link IInterface} for power policy daemon.
+         */
+        public Builder setPowerPolicyDaemon(@Nullable IInterface powerPolicyDaemon) {
+            mPowerPolicyDaemon = powerPolicyDaemon;
+            return this;
+        }
+
+        /**
+         * Builds the object.
+         */
+        public CarPowerManagementService build() {
+            if (mBuilt) {
+                throw new IllegalStateException("Only allowed to be built once");
+            }
+            mBuilt = true;
+            return new CarPowerManagementService(this);
+        }
+
+        /**
+         * Sets the {@link PowerComponentHandler}.
+         */
+        @VisibleForTesting
+        public Builder setPowerComponentHandler(PowerComponentHandler powerComponentHandler) {
+            mPowerComponentHandler = powerComponentHandler;
+            return this;
+        }
+
+        /**
+         * Sets the {@link UserManager}.
+         */
+        @VisibleForTesting
+        public Builder setUserManager(UserManager userManager) {
+            mUserManager = userManager;
+            return this;
+        }
+
+        /**
+         * Sets the {@link FeatureFlags}.
+         */
+        @VisibleForTesting
+        public Builder setFeatureFlags(FeatureFlags featureFlags) {
+            mFeatureFlags = featureFlags;
+            return this;
+        }
+
+        /**
+         * Sets the {@link ScreenOffHandler}.
+         */
+        @VisibleForTesting
+        public Builder setScreenOffHandler(ScreenOffHandler screenOffHandler) {
+            mScreenOffHandler = screenOffHandler;
+            return this;
+        }
+
+        /**
+         * Sets the silent mode hardware state path.
+         */
+        @VisibleForTesting
+        public Builder setSilentModeHwStatePath(String silentModeHwStatePath) {
+            mSilentModeHwStatePath = silentModeHwStatePath;
+            return this;
+        }
+
+        /**
+         * Sets the silent mode kernel state path.
+         */
+        @VisibleForTesting
+        public Builder setSilentModeKernelStatePath(String silentModeKernelStatePath) {
+            mSilentModeKernelStatePath = silentModeKernelStatePath;
+            return this;
+        }
+
+        /**
+         * Sets the boot reason.
+         */
+        @VisibleForTesting
+        public Builder setBootReason(String bootReason) {
+            mBootReason = bootReason;
+            return this;
+        }
+
+        /**
+         * Sets the {@link Resources}.
+         */
+        @VisibleForTesting
+        public Builder setResources(Resources resources) {
+            mResources = resources;
+            return this;
+        }
     }
 
-    @VisibleForTesting
-    public CarPowerManagementService(Context context, Resources resources, PowerHalService powerHal,
-            SystemInterface systemInterface, UserManager userManager, CarUserService carUserService,
-            IInterface powerPolicyDaemon, PowerComponentHandler powerComponentHandler,
-            @Nullable FeatureFlags featureFlags, @Nullable ScreenOffHandler screenOffHandler,
-            @Nullable String silentModeHwStatePath, @Nullable String silentModeKernelStatePath,
-            @Nullable String bootReason) {
-        mContext = context;
-        mHal = powerHal;
-        mSystemInterface = systemInterface;
-        mUserManager = userManager;
+    public CarPowerManagementService(Context context, PowerHalService powerHalService,
+            SystemInterface systemInterface, CarUserService carUserService,
+            IInterface powerPolicyDaemon) {
+        this(new Builder().setContext(context).setPowerHalService(powerHalService)
+                .setSystemInterface(systemInterface).setCarUserService(carUserService)
+                .setPowerPolicyDaemon(powerPolicyDaemon));
+    }
+
+    private CarPowerManagementService(Builder builder) {
+        mContext = Objects.requireNonNull(builder.mContext);
+        mHal = Objects.requireNonNull(builder.mPowerHalService);
+        mSystemInterface = Objects.requireNonNull(builder.mSystemInterface);
+        mUserManager = Objects.requireNonNullElseGet(builder.mUserManager,
+                () -> builder.mContext.getSystemService(UserManager.class));
+        Resources resources =  Objects.requireNonNullElseGet(builder.mResources,
+                () -> builder.mContext.getResources());
         mShutdownPrepareTimeMs = resources.getInteger(
                 R.integer.maxGarageModeRunningDurationInSecs) * 1000;
         mSwitchGuestUserBeforeSleep = resources.getBoolean(
@@ -399,10 +537,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     mShutdownPrepareTimeMs, MIN_MAX_GARAGE_MODE_DURATION_MS);
             mShutdownPrepareTimeMs = MIN_MAX_GARAGE_MODE_DURATION_MS;
         }
-        mUserService = carUserService;
-        if (featureFlags != null) {
-            mFeatureFlags = featureFlags;
+        mUserService = Objects.requireNonNull(builder.mCarUserService);
+        if (builder.mFeatureFlags != null) {
+            mFeatureFlags = builder.mFeatureFlags;
         }
+        // In a real situation, this should be null.
+        IInterface powerPolicyDaemon = builder.mPowerPolicyDaemon;
         if (mFeatureFlags.carPowerPolicyRefactoring()) {
             mRefactoredCarPowerPolicyDaemon = (ICarPowerPolicyDelegate) powerPolicyDaemon;
         } else {
@@ -412,19 +552,21 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 mHasControlOverDaemon = true;
             }
         }
-        mWifiManager = context.getSystemService(WifiManager.class);
+        mWifiManager = mContext.getSystemService(WifiManager.class);
         mTetheringManager = mContext.getSystemService(TetheringManager.class);
         mWifiStateFile = new AtomicFile(
                 new File(mSystemInterface.getSystemCarDir(), WIFI_STATE_FILENAME));
         mTetheringStateFile = new AtomicFile(
                 new File(mSystemInterface.getSystemCarDir(), TETHERING_STATE_FILENAME));
         mWifiAdjustmentForSuspend = isWifiAdjustmentForSuspendConfig();
-        mPowerComponentHandler = powerComponentHandler;
-        mSilentModeHandler = new SilentModeHandler(this, mFeatureFlags, silentModeHwStatePath,
-                silentModeKernelStatePath, bootReason);
+        mPowerComponentHandler = Objects.requireNonNullElseGet(builder.mPowerComponentHandler,
+                () -> new PowerComponentHandler(mContext, mSystemInterface));
+        mSilentModeHandler = new SilentModeHandler(this, mFeatureFlags,
+                builder.mSilentModeHwStatePath, builder.mSilentModeKernelStatePath,
+                builder.mBootReason);
         mMaxSuspendWaitDurationMs = Math.max(MIN_SUSPEND_WAIT_DURATION_MS,
                 Math.min(getMaxSuspendWaitDurationConfig(), MAX_SUSPEND_WAIT_DURATION_MS));
-        mScreenOffHandler = Objects.requireNonNullElseGet(screenOffHandler, () ->
+        mScreenOffHandler = Objects.requireNonNullElseGet(builder.mScreenOffHandler, () ->
                 new ScreenOffHandler(mContext, mSystemInterface, mHandler.getLooper()));
     }
 

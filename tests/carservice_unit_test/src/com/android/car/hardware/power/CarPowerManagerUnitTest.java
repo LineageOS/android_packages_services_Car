@@ -463,11 +463,11 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
         } else {
             powerPolicyDaemon = mPowerPolicyDaemon;
         }
-        mService = new CarPowerManagementService(mContext, mResources, mPowerHal, mSystemInterface,
-                mUserManager, mCarUserService, powerPolicyDaemon, mPowerComponentHandler,
-                /* featureFlags= */ null, /* screenOffHandler= */ null,
-                /* silentModeHwStatePath= */ null, /* silentModeKernelStatePath= */ null,
-                /* bootReason= */ null);
+        mService = new CarPowerManagementService.Builder().setContext(mContext)
+                .setResources(mResources).setPowerHalService(mPowerHal)
+                .setSystemInterface(mSystemInterface).setUserManager(mUserManager)
+                .setCarUserService(mCarUserService).setPowerPolicyDaemon(powerPolicyDaemon)
+                .setPowerComponentHandler(mPowerComponentHandler).build();
         mService.init();
         if (Flags.carPowerPolicyRefactoring()) {
             mService.initializePowerPolicy();

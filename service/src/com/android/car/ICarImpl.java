@@ -315,10 +315,17 @@ public class ICarImpl extends ICar.Stub {
         mSystemActivityMonitoringService = constructWithTrace(
                 t, SystemActivityMonitoringService.class,
                 () -> new SystemActivityMonitoringService(mContext), allServices);
+
         mCarPowerManagementService = constructWithTrace(
                 t, CarPowerManagementService.class,
-                () -> new CarPowerManagementService(mContext, mHal.getPowerHal(), mSystemInterface,
-                        mCarUserService, builder.mPowerPolicyDaemon), allServices);
+                () -> new CarPowerManagementService.Builder()
+                        .setContext(mContext)
+                        .setPowerHalService(mHal.getPowerHal())
+                        .setSystemInterface(mSystemInterface)
+                        .setCarUserService(mCarUserService)
+                        .setPowerPolicyDaemon(builder.mPowerPolicyDaemon)
+                        .build(),
+                allServices);
         if (mFeatureController.isFeatureEnabled(CarFeatures.FEATURE_CAR_USER_NOTICE_SERVICE)) {
             mCarUserNoticeService = constructWithTrace(
                     t, CarUserNoticeService.class, () -> new CarUserNoticeService(mContext),
