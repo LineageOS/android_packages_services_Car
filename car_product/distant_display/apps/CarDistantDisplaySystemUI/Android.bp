@@ -63,10 +63,8 @@ android_app {
     ],
 }
 
-android_library_import {
+java_import {
     name: "displaycompat-service",
-    aars: [
-        "displaycompat-service.aar",
-    ],
+    jars: ["displaycompat-service.jar"],
     sdk_version: "current",
 }
