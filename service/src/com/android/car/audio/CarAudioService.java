@@ -112,7 +112,6 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.UserHandle;
-import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.ArraySet;
@@ -416,7 +415,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 "Context to create car audio service can not be null");
         mCarAudioConfigurationPath = audioConfigurationPath;
         mCarAudioFadeConfigurationPath = audioFadeConfigurationPath;
-        mTelephonyManager = mContext.getSystemService(TelephonyManager.class);
+        mTelephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
 
         mUseDynamicRouting = mContext.getResources().getBoolean(R.bool.audioUseDynamicRouting);
@@ -557,7 +556,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             // to audio control HAL (ACH), since AFH holds a reference to ACH
             releaseHalAudioFocusLocked();
             releaseCoreVolumeGroupCallbackLocked();
-            releaseAudioPlaybackMonitorLocked();
             releasePowerListenerLocked();
             releaseAudioDeviceInfoCallbackLocked();
             releaseHalAudioModuleChangeCallbackLocked();
@@ -583,14 +581,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
         mCarAudioPowerListener.stopListeningForPolicyChanges();
         mCarAudioPowerListener = null;
-    }
-
-    @GuardedBy("mImplLock")
-    private void releaseAudioPlaybackMonitorLocked() {
-        if (mCarAudioPlaybackMonitor != null) {
-            mCarAudioPlaybackMonitor.reset();
-            mCarAudioPlaybackMonitor = null;
-        }
     }
 
     @GuardedBy("mImplLock")
@@ -1896,10 +1886,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         if (!mUseMinMaxActivationVolume) {
             return;
         }
-        int telephonyDefaultDataSubscriptionId = SubscriptionManager
-                .getDefaultDataSubscriptionId();
-        mCarAudioPlaybackMonitor = new CarAudioPlaybackMonitor(this,
-                mTelephonyManager.createForSubscriptionId(telephonyDefaultDataSubscriptionId));
+        mCarAudioPlaybackMonitor = new CarAudioPlaybackMonitor(this);
     }
 
     @GuardedBy("mImplLock")
