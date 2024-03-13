@@ -83,7 +83,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_toLeftOf="@id/user_name_container"
-            style="@style/QuickControlEntryPointButton">
+            style="@style/TopBarButton">
                 <ImageView
                     android:id="@+id/distant_display_nav"
                     android:layout_height="match_parent"
