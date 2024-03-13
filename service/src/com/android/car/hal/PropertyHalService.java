@@ -155,6 +155,17 @@ public class PropertyHalService extends HalServiceBase {
     @Retention(RetentionPolicy.SOURCE)
     private @interface AsyncRequestType {}
 
+    public record ClientType(Integer requestId) {
+        @Override
+        public String toString() {
+            if (requestId == CAR_PROP_SVC_REQUEST_ID) {
+                return "PropertyHalService.subscribeProperty";
+            }
+            return "PropertyHalService.setCarPropertyValuesAsync(requestId="
+                    + requestId.toString() + ")";
+        }
+    }
+
     private static final class GetSetValueResultWrapper {
         private GetSetValueResult mGetSetValueResult;
         private long mAsyncRequestStartTime;
@@ -412,7 +423,7 @@ public class PropertyHalService extends HalServiceBase {
     // client requests at 10hz, then we should do nothing, however, if we internally unsubscribe,
     // then the [propA, areaA] should be subscribed at 10hz.
     @GuardedBy("mLock")
-    private final SubscriptionManager<Integer> mSubManager = new SubscriptionManager<>();
+    private final SubscriptionManager<ClientType> mSubManager = new SubscriptionManager<>();
 
     private class AsyncRequestTimeoutCallback implements TimeoutCallback {
         @Override
@@ -1008,7 +1019,7 @@ public class PropertyHalService extends HalServiceBase {
             mHalPropIdToWaitingUpdateRequestInfo.remove(halPropId);
         }
         // We no longer need to subscribe to the property.
-        mSubManager.stageUnregister(pendingRequest.getServiceRequestId(),
+        mSubManager.stageUnregister(new ClientType(pendingRequest.getServiceRequestId()),
                 new ArraySet<Integer>(Set.of(halPropId)));
     }
 
@@ -1207,9 +1218,9 @@ public class PropertyHalService extends HalServiceBase {
                 }
                 int halPropId = managerToHalPropId(mgrPropId);
                 // Note that we use halPropId instead of mgrPropId in mSubManager.
-                mSubManager.stageNewOptions(CAR_PROP_SVC_REQUEST_ID, List.of(newCarSubscription(
-                        halPropId, areaIds, updateRateHz, carSubscription.enableVariableUpdateRate,
-                        carSubscription.resolution)));
+                mSubManager.stageNewOptions(new ClientType(CAR_PROP_SVC_REQUEST_ID),
+                        List.of(newCarSubscription(halPropId, areaIds, updateRateHz,
+                        carSubscription.enableVariableUpdateRate, carSubscription.resolution)));
             }
             try {
                 updateSubscriptionRateLocked();
@@ -1234,8 +1245,8 @@ public class PropertyHalService extends HalServiceBase {
         synchronized (mLock) {
             // Even though this involves binder call, this must be done inside the lock so that
             // the state in {@code mSubManager} is consistent with the state in VHAL.
-            mSubManager.stageUnregister(CAR_PROP_SVC_REQUEST_ID, new ArraySet<Integer>(Set.of(
-                    halPropId)));
+            mSubManager.stageUnregister(new ClientType(CAR_PROP_SVC_REQUEST_ID),
+                    new ArraySet<Integer>(Set.of(halPropId)));
             try {
                 updateSubscriptionRateLocked();
             } catch (ServiceSpecificException e) {
@@ -1491,10 +1502,9 @@ public class PropertyHalService extends HalServiceBase {
                 // Check payload if it is an userdebug build.
                 if (BuildHelper.isDebuggableBuild()
                         && !mPropertyHalServiceConfigs.checkPayload(halPropValue)) {
-                    Slogf.w(TAG,
+                    Slogf.wtf(TAG,
                             "Drop event for property: %s because it is failed "
                                     + "in payload checking.", halPropValue);
-                    continue;
                 }
                 int mgrPropId = halToManagerPropId(halPropId);
                 if (DBG && halPropValue.getStatus() != VehiclePropertyStatus.AVAILABLE) {
@@ -1797,7 +1807,7 @@ public class PropertyHalService extends HalServiceBase {
                 // Enable VUR for continuous since we only want to know when the value is updated.
                 boolean enableVur = (halPropConfig.getChangeMode()
                         == CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS);
-                mSubManager.stageNewOptions(setRequestInfo.getServiceRequestId(),
+                mSubManager.stageNewOptions(new ClientType(setRequestInfo.getServiceRequestId()),
                         // Note that we use halPropId instead of mgrPropId in mSubManager.
                         List.of(newCarSubscription(halPropId,
                                 new int[]{setRequestInfo.getAreaId()},

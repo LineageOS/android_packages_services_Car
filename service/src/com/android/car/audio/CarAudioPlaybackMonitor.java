@@ -16,44 +16,18 @@
 
 package com.android.car.audio;
 
-import static android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
-import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
-
-import android.car.media.CarAudioManager;
 import android.media.AudioAttributes;
-import android.telephony.TelephonyCallback;
-import android.telephony.TelephonyManager;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 public final class CarAudioPlaybackMonitor {
 
     private final CarAudioService mCarAudioService;
-    private final TelephonyManager mTelephonyManager;
-    private final Executor mExecutor;
-    private final CarCallStateListener mCallStateCallback;
 
-    CarAudioPlaybackMonitor(CarAudioService carAudioService, TelephonyManager telephonyManager) {
+    CarAudioPlaybackMonitor(CarAudioService carAudioService) {
         mCarAudioService = Objects.requireNonNull(carAudioService,
                 "Car audio service can not be null");
-        mTelephonyManager = Objects.requireNonNull(telephonyManager,
-                "Telephony manager can not be null");
-        mExecutor = Executors.newSingleThreadExecutor();
-        mCallStateCallback = new CarCallStateListener();
-        mTelephonyManager.registerTelephonyCallback(mExecutor, mCallStateCallback);
-    }
-
-    /**
-     * Reset car audio playback monitor
-     *
-     * <p>Once reset, car audio playback monitor cannot be reused since the listener to
-     * {@link TelephonyManager} has been unregistered.</p>
-     */
-    void reset() {
-        mTelephonyManager.unregisterTelephonyCallback(mCallStateCallback);
     }
 
     /**
@@ -71,26 +45,5 @@ public final class CarAudioPlaybackMonitor {
         }
         mCarAudioService.handleActivationVolumeWithAudioAttributes(newActivePlaybackAttributes,
                 zoneId);
-    }
-
-    private class CarCallStateListener extends TelephonyCallback
-            implements TelephonyCallback.CallStateListener {
-        @Override
-        public void onCallStateChanged(int state) {
-            int usage;
-            switch (state) {
-                case TelephonyManager.CALL_STATE_RINGING:
-                    usage = USAGE_NOTIFICATION_RINGTONE;
-                    break;
-                case TelephonyManager.CALL_STATE_OFFHOOK:
-                    usage = USAGE_VOICE_COMMUNICATION;
-                    break;
-                default:
-                    return;
-            }
-            AudioAttributes audioAttributes = CarAudioContext.getAudioAttributeFromUsage(usage);
-            mCarAudioService.handleActivationVolumeWithAudioAttributes(List.of(audioAttributes),
-                    CarAudioManager.PRIMARY_AUDIO_ZONE);
-        }
     }
 }

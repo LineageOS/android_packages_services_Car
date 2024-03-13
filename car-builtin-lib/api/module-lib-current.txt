@@ -550,7 +550,7 @@ package android.car.builtin.util {
   }
 
   public final class UsageStatsManagerHelper {
-    method public static void reportUserInteraction(@NonNull android.app.usage.UsageStatsManager, @NonNull String, int);
+    method public static void reportUserInteraction(@NonNull android.app.usage.UsageStatsManager, @NonNull String, int, @NonNull android.os.PersistableBundle);
   }
 
   public final class ValidationHelper {
