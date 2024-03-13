@@ -35,6 +35,7 @@ import static android.car.VehicleAreaSeat.SEAT_ROW_2_RIGHT;
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextCreateContextAsUser;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE;
 
 import static com.android.car.internal.common.CommonConstants.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static com.android.car.occupantconnection.CarRemoteDeviceService.INITIAL_APP_STATE;
@@ -678,6 +679,29 @@ public class CarRemoteDeviceServiceTest {
         // after onEvent().
         mPerUserInfoMap.remove(USER_ID);
         UserLifecycleEvent event = new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_STARTING,
+                /* from= */ USER_ID, /* to= */ USER_ID);
+        userLifecycleListeners[0].onEvent(event);
+
+        assertThat(mPerUserInfoMap.get(USER_ID).zone).isEqualTo(mOccupantZone);
+    }
+
+    @Test
+    public void testUserBecameVisible() {
+        UserLifecycleListener[] userLifecycleListeners = new UserLifecycleListener[1];
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            userLifecycleListeners[0] = (UserLifecycleListener) args[1];
+            return null;
+        }).when(mUserService).addUserLifecycleListener(any(), any());
+
+        mService.init();
+        mOccupantZoneStateMap.put(mOccupantZone, FLAG_OCCUPANT_ZONE_POWER_ON);
+
+        mockPerUserInfo(USER_ID, mOccupantZone);
+        // Remove the item added by previous line, then check whether it can be added back
+        // after onEvent().
+        mPerUserInfoMap.remove(USER_ID);
+        UserLifecycleEvent event = new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_VISIBLE,
                 /* from= */ USER_ID, /* to= */ USER_ID);
         userLifecycleListeners[0].onEvent(event);
 
