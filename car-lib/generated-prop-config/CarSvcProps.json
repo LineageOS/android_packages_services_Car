@@ -736,7 +736,7 @@
     "HVAC_TEMPERATURE_SET": {
       "propertyName": "HVAC_TEMPERATURE_SET",
       "propertyId": 358614275,
-      "description": "HVAC, target temperature set.",
+      "description": "HVAC target temperature set in Celsius.",
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"

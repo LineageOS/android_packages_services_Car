@@ -1436,10 +1436,26 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
     public static final int HVAC_TEMPERATURE_CURRENT = 358614274;
     /**
-     * HVAC, target temperature set.
+     * HVAC target temperature set in Celsius.
      *
-     * <p>The {@code configArray} is used to indicate the valid values for HVAC in Fahrenheit and
-     * Celsius. Android might use it in the HVAC app UI.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the minimum
+     * temperature setting in Celsius.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the maximum
+     * temperature setting in Celsius.
+     *
+     * <p>The vehicle may not support setting a continuous range of temperature values in between
+     * the min and max values.
+     *
+     * <p>Therefore, if the vehicle supports {@link #HVAC_TEMPERATURE_VALUE_SUGGESTION}, the
+     * application should use that property to get a supported value before setting {@code
+     * HVAC_TEMPERATURE_SET}. The application should also use {@link
+     * #HVAC_TEMPERATURE_VALUE_SUGGESTION} for converting the temperature from Celsius to Fahrenheit
+     * and vice versa for this vehicle.
+     *
+     * <p>Else if the {@link android.car.hardware.CarPropertyConfig#getConfigArray()} is defined,
+     * then it represents the list of valid temperature values that can be set. It also describes a
+     * lookup table to convert the temperature from Celsius to Fahrenheit and vice versa for this
+     * vehicle.
      *
      * <p>The {@code configArray} is set as follows:
      * <ul>
@@ -1458,18 +1474,39 @@ public final class VehiclePropertyIds {
      * <p>For example, if the vehicle supports temperature values as:
      * <pre>
      * [16.0, 16.5, 17.0 ,..., 28.0] in Celsius
-     * [60.5, 61.5, 62.5 ,..., 85.5] in Fahrenheit
+     * [60.5, 61.5, 62.5 ,..., 84.5] in Fahrenheit
      * </pre>
      *
      * <p>The {@code configArray} should be:
      * <pre>
-     * configArray = {160, 280, 5, 605, 855, 10}.
+     * {@code configArray = {160, 280, 5, 605, 845, 10}}
      * </pre>
      *
-     * <p>If the vehicle supports {@link VehiclePropertyIds#HVAC_TEMPERATURE_VALUE_SUGGESTION},
-     * the application can use that property to get the suggested value before setting
-     * {@code HVAC_TEMPERATURE_SET}. Otherwise, the application may choose the
-     * value in {@code configArray} of {@code HVAC_TEMPERATURE_SET} by itself.
+     * <p>If the {@code configArray} is defined, applications should not use any other method for
+     * converting temperature values besides {@link #HVAC_TEMPERATURE_VALUE_SUGGESTION}, such as the
+     * standard unit conversion formula of {@code F = (9/5) * C + 32}. Any value set that is not
+     * contained within the list of valid values is considered undefined behavior and may result in
+     * inconsistencies in the value set by the application and the value set in the VHAL.
+     *
+     * <p>For converting the temperature from Celsius to Fahrenheit use the following:
+     * <pre>
+     * {@code
+     * // Given tempC and configArray
+     * float minTempC = configArray.get(0) / 10f;
+     * float temperatureIncrementCelsius = configArray.get(2) / 10f;
+     * float minTempF = configArray.get(3) / 10f;
+     * float temperatureIncrementFahrenheit = configArray.get(5) / 10f;
+     * // Round to the closest increment
+     * int numIncrements = Math.round((tempC - minTempC) / temperatureIncrementCelsius);
+     * float tempF = temperatureIncrementFahrenheit * numIncrements + minTempF;
+     * }
+     * </pre>
+     * <p>For converting the temperature from Fahrenheit to Celsius, use the same method as above
+     * except changing the Celsius values to the relevant Fahrenheit values.
+     *
+     * <p>Othwerise, if neither {@link #HVAC_TEMPERATURE_VALUE_SUGGESTION} nor the {@code
+     * configArray} are defined, the application should use the standard unit conversion formula of
+     * {@code F = (9/5) * C + 32}.
      *
      * <p>Property Config:
      * <ul>
