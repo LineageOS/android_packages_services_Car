@@ -544,7 +544,7 @@ public final class SubscriptionManager<ClientType> {
                         + rateInfoForClients.getUpdateRateHz(client) + " hz"
                         + ", enableVur: "
                         + rateInfoForClients.isVariableUpdateRateEnabled(client)
-                        + ", resoliution: " + rateInfoForClients.getResolution(client));
+                        + ", resolution: " + rateInfoForClients.getResolution(client));
             }
             writer.decreaseIndent();
         }
