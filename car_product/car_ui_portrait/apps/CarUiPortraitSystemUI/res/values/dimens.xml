@@ -61,7 +61,7 @@
     <item name="hvac_heat_or_cool_off_alpha" format="float" type="dimen">0.3</item>
 
     <dimen name="system_bar_icon_drawing_size">56dp</dimen>
-    <dimen name="system_bar_button_size">88dp</dimen>
+    <dimen name="system_bar_button_size">72dp</dimen>
     <!-- Margin between the system bar buttons -->
     <dimen name="system_bar_button_margin">16dp</dimen>
     <!-- Padding between the system bar button and the icon within it -->
@@ -72,7 +72,6 @@
     <dimen name="system_bar_background_pill_size">64dp</dimen>
     <dimen name="system_bar_minimize_icon_height">17dp</dimen>
     <dimen name="system_bar_minimize_icon_width">28dp</dimen>
-
 
     <dimen name="user_avatar_background_radius">13dp</dimen>
 
@@ -120,4 +119,7 @@
     <dimen name="pin_pad_key_height">108dp</dimen>
     <dimen name="pin_pad_key_margin">10dp</dimen>
     <dimen name="lock_pattern_dot_size">32dp</dimen>
+
+    <dimen name="dock_container_margin">@*android:dimen/car_padding_3</dimen>
+    <dimen name="dock_item_size">80dp</dimen>
 </resources>

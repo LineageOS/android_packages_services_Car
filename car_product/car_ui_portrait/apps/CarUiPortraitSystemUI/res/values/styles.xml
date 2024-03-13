@@ -34,6 +34,13 @@
         <item name="selectedAlpha">1.0</item>
     </style>
 
+    <!-- TODO(b/304320644): update SystemBarButton -->
+    <style name="SystemBarButtonWithDock" parent="SystemBarButton">
+        <item name="android:layout_marginStart">0dp</item>
+        <item name="android:layout_marginEnd">0dp</item>
+        <item name="android:layout_centerVertical">true</item>
+    </style>
+
     <style name="CarTopSystemBarButton">
         <item name="android:layout_width">@dimen/top_system_bar_icon_size</item>
         <item name="android:layout_height">@dimen/top_system_bar_icon_size</item>
@@ -68,6 +75,7 @@
     </style>
 
     <style name="QuickControlEntryPointButton">
+        <item name="android:layout_marginStart">@dimen/top_system_bar_icon_horizontal_margin</item>
         <item name="android:layout_marginEnd">@dimen/top_system_bar_icon_horizontal_margin</item>
         <item name="android:background">@drawable/status_icon_background</item>
         <item name="android:layout_width">@dimen/top_system_bar_icon_size</item>

@@ -38,7 +38,7 @@
                     android:duration="300"
                     android:startOffset="0"
                     android:valueFrom="@color/car_nav_icon_background_color_selected"
-                    android:valueTo="@color/car_nav_icon_background_color"
+                    android:valueTo="@color/transparent"
                     android:valueType="colorType">
                     <aapt:attr name="android:interpolator">
                         <pathInterpolator android:pathData="M 0.0,0.0 c0.526,0 0,1 1.0,1.0" />
