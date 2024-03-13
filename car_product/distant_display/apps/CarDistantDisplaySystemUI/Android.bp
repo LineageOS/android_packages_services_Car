@@ -63,8 +63,10 @@ android_app {
     ],
 }
 
-java_import {
+android_library_import {
     name: "displaycompat-service",
-    jars: ["displaycompat-service.jar"],
-    sdk_version: "current",
+    aars: [
+        "displaycompat-service.aar",
+    ],
+    min_sdk_version: "VanillaIceCream",
 }
