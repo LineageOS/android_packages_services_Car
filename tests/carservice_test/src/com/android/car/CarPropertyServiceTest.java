@@ -255,19 +255,16 @@ public class CarPropertyServiceTest extends MockedCarTestBase {
                 AidlVehiclePropValueBuilder.newBuilder(TEST_SUBSCRIBE_PROP)
                     .addFloatValues(1.23f)
                     .setTimestamp(SystemClock.elapsedRealtimeNanos()).build());
+        // The first unsubscribe will throw exception, then the error goes away.
+        doThrow(new ServiceSpecificException(0)).doNothing()
+                .when(mMockPropertyHandler).onPropertyUnsubscribe(anyInt());
 
         mService.registerListener(List.of(options), mockHandler);
 
         verify(mMockPropertyHandler).onPropertySubscribe(eq(TEST_SUBSCRIBE_PROP), any(), eq(10f));
 
-        doThrow(new ServiceSpecificException(0)).when(mMockPropertyHandler).onPropertyUnsubscribe(
-                anyInt());
-
         assertThrows(ServiceSpecificException.class, () ->
                 mService.unregisterListener(TEST_SUBSCRIBE_PROP, mockHandler));
-
-        // Simulate the error goes away.
-        doNothing().when(mMockPropertyHandler).onPropertyUnsubscribe(anyInt());
 
         // Retry.
         mService.unregisterListener(TEST_SUBSCRIBE_PROP, mockHandler);
