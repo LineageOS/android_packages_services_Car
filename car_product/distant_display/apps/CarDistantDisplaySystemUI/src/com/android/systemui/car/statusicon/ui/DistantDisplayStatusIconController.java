@@ -18,39 +18,36 @@ package com.android.systemui.car.statusicon.ui;
 
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.View;
-import android.widget.ImageView;
 
 import com.android.systemui.R;
-import com.android.systemui.car.statusicon.StatusIconController;
-import com.android.systemui.car.statusicon.StatusIconPanelViewController;
-import com.android.systemui.car.systembar.DistantDisplayController;
+import com.android.systemui.car.distantdisplay.common.DistantDisplayController;
+import com.android.systemui.car.statusicon.StatusIconView;
+import com.android.systemui.car.statusicon.StatusIconViewController;
+import com.android.systemui.car.systembar.element.CarSystemBarElementStateController;
+import com.android.systemui.car.systembar.element.CarSystemBarElementStatusBarDisableController;
 import com.android.systemui.dagger.qualifiers.Main;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 
-public class DistantDisplayStatusIconController extends StatusIconController implements
+public class DistantDisplayStatusIconController extends StatusIconViewController implements
         DistantDisplayController.StatusChangeListener {
     public static final String TAG = DistantDisplayStatusIconController.class.getSimpleName();
     private static final int DEFAULT_DISPLAY_ID = 0;
-    private final Provider<StatusIconPanelViewController.Builder> mPanelControllerBuilderProvider;
     private final DistantDisplayController mDistantDisplayController;
     private final Drawable mDistantDisplayDrawable;
     private final Drawable mDefaultDisplayDrawable;
-    private ImageView mDistantDisplayButton;
     private int mCurrentDisplayId;
 
-    private StatusIconPanelViewController mDistantDisplayPanelController;
-
-    @Inject
+    @AssistedInject
     DistantDisplayStatusIconController(
-            Provider<StatusIconPanelViewController.Builder> panelControllerBuilderProvider,
+            @Assisted StatusIconView view,
+            CarSystemBarElementStatusBarDisableController disableController,
+            CarSystemBarElementStateController stateController,
             DistantDisplayController distantDisplayController,
             @Main Resources resources) {
-        mPanelControllerBuilderProvider = panelControllerBuilderProvider;
+        super(view, disableController, stateController);
         mDistantDisplayController = distantDisplayController;
         mDistantDisplayDrawable = resources.getDrawable(
                 R.drawable.ic_sys_ui_send_to_distant_display, /* theme= */ null);
@@ -58,25 +55,21 @@ public class DistantDisplayStatusIconController extends StatusIconController imp
                 R.drawable.ic_sys_ui_bring_back, /* theme= */ null);
     }
 
-    /**
-     * Find the {@link DistantDisplayButton} from a view and sets button state.
-     */
-    public void addDistantDisplayButtonView(View view) {
-        if (mDistantDisplayButton != null) return;
+    @AssistedFactory
+    public interface Factory extends
+            StatusIconViewController.Factory<DistantDisplayStatusIconController> {
+    }
 
-        mDistantDisplayButton = view.findViewById(getId());
-
-        if (mDistantDisplayButton == null) {
-            Log.e(TAG, "Distant Display button view not found to initialize button and panel.");
-            return;
-        }
-
-        mDistantDisplayPanelController = mPanelControllerBuilderProvider.get()
-                .setGravity(Gravity.TOP | Gravity.END).build(mDistantDisplayButton,
-                        getPanelContentLayout(), R.dimen.car_profile_quick_controls_panel_width);
-        mDistantDisplayPanelController.init();
-        registerIconView(mDistantDisplayButton);
+    @Override
+    protected void onViewAttached() {
+        super.onViewAttached();
         mDistantDisplayController.setDistantDisplayControlStatusInfoListener(this);
+    }
+
+    @Override
+    protected void onViewDetached() {
+        super.onViewDetached();
+        mDistantDisplayController.removeDistantDisplayControlStatusInfoListener();
     }
 
     @Override
@@ -87,25 +80,6 @@ public class DistantDisplayStatusIconController extends StatusIconController imp
             setIconDrawableToDisplay(mDefaultDisplayDrawable);
         }
         onStatusUpdated();
-    }
-
-    @Override
-    public void onDestroy() {
-        if (mDistantDisplayButton != null) {
-            unregisterIconView(mDistantDisplayButton);
-        }
-        mDistantDisplayController.removeDistantDisplayControlStatusInfoListener();
-        mDistantDisplayButton = null;
-    }
-
-    @Override
-    protected int getId() {
-        return R.id.distant_display_nav;
-    }
-
-    @Override
-    protected int getPanelContentLayout() {
-        return R.layout.qc_distant_display_panel;
     }
 
     @Override

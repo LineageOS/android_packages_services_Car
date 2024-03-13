@@ -75,23 +75,26 @@
                  android:contentDescription="@string/system_bar_mic_privacy_chip"
         />
 
-        <FrameLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
+        <com.android.systemui.car.systembar.CarSystemBarPanelButtonView
             android:id="@+id/distant_display_nav_container"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_toLeftOf="@id/user_name_container"
-            style="@style/TopBarButton">
-                <ImageView
+            style="@style/TopBarButton"
+            systemui:panelLayoutRes="@layout/qc_distant_display_panel"
+            systemui:panelWidthRes="@dimen/car_profile_quick_controls_panel_width"
+            systemui:gravity="top|end"
+            systemui:disabledWhileUnprovisioned="true">
+                <com.android.systemui.car.statusicon.StatusIconView
                     android:id="@+id/distant_display_nav"
                     android:layout_height="match_parent"
                     android:layout_width="@dimen/distant_display_button_size"
                     android:scaleType="center"
                     android:layout_gravity="center"
-                    android:tint="@color/system_bar_icon_color_with_selection"
-                    android:background="@drawable/status_icon_background"
-                    android:src="@drawable/ic_sys_ui_send_to_distant_display"/>
-        </FrameLayout>
+                    android:tint="@color/car_status_icon_color"
+                    android:duplicateParentState="true"
+                    systemui:controller="com.android.systemui.car.statusicon.ui.DistantDisplayStatusIconController"/>
+        </com.android.systemui.car.systembar.CarSystemBarPanelButtonView>
 
         <FrameLayout
             android:id="@+id/user_name_container"
