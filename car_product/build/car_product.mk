@@ -83,4 +83,9 @@ include packages/services/Car/cpp/evs/apps/sepolicy/evsapp.mk
 endif
 
 $(call inherit-product, device/sample/products/location_overlay.mk)
-$(call inherit-product, packages/services/Car/car_product/rro/ThemeSamples/product.mk)
+
+# Theme RROs that are used to control the system theme on the runtime.
+$(call inherit-product-if-exists, packages/services/Car/car_product/rro/ThemeSamples/product.mk)
+
+# SystemUI RROs that are used to control the CarSystemUI features on the runtime.
+$(call inherit-product-if-exists, packages/apps/Car/SystemUI/samples/systemui_sample_rros.mk)
