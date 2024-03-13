@@ -27,6 +27,7 @@ PRODUCT_PACKAGES += \
     CarActivityResolver \
     CarDeveloperOptions \
     CarSettingsIntelligence \
+    CarManagedProvisioning \
     CarProvision \
     StatementService \
     SystemUpdater
@@ -146,6 +147,7 @@ PRODUCT_PACKAGES += \
     OverviewApp \
     CarLauncher \
     CarSystemUI \
+    LocalMediaPlayer \
     CarMediaApp \
     CarMessengerApp \
     CarHTMLViewer \
