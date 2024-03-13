@@ -1078,6 +1078,14 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
+     * @deprecated Use
+     * {@link CarPropertyManager#subscribePropertyEvents(int, float, CarPropertyEventCallback)}
+     * instead. Note that {@code subscribePropertyEvents} by default has variable update rate on
+     * for continuous properties, but {@code registerCallback} by default has variable update rate
+     * off. If you want to keep the current behavior of receiving property events for duplicate
+     * values (which hurts performance), please specify the variable update rate option via
+     * {@link Subscription.Builder#setVariableUpdateRateEnabled}.
+     *
      * Registers {@link CarPropertyEventCallback} to get property updates.
      * Multiple callbacks can be registered for a single property or the same callback can be used
      * for different properties. If the same callback is registered again for the same property,
@@ -1159,6 +1167,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws SecurityException if the property is supported and the caller has write permission,
      *                           but does not have read permission.
      */
+    @Deprecated
     @SuppressWarnings("FormatString")
     public boolean registerCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback,
             int propertyId, @FloatRange(from = 0.0, to = 100.0) float updateRateHz) {
@@ -1770,6 +1779,9 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
+     * @deprecated Use
+     * {@link CarPropertyManager#unsubscribePropertyEvents(CarPropertyEventCallback)} instead.
+     *
      * Stop getting property updates for the given {@link CarPropertyEventCallback}. If there are
      * multiple registrations for this {@link CarPropertyEventCallback}, all listening will be
      * stopped.
@@ -1778,6 +1790,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws SecurityException if the caller does not have read permission to the properties
      *                           registered for this callback.
      */
+    @Deprecated
     public void unregisterCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback) {
         if (DBG) {
             Log.d(TAG, "unregisterCallback, callback: " + carPropertyEventCallback);
@@ -1817,6 +1830,9 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
+     * @deprecated Use
+     * {@link CarPropertyManager#unsubscribePropertyEvents(int, CarPropertyEventCallback)} instead.
+     *
      * Stop getting update for {@code propertyId} to the given {@link CarPropertyEventCallback}. If
      * the same {@link CarPropertyEventCallback} is used for other properties, those subscriptions
      * will not be affected.
@@ -1825,6 +1841,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @param propertyId The property ID to unsubscribe.
      * @throws SecurityException if the caller does not have read permission to the property.
      */
+    @Deprecated
     @SuppressWarnings("FormatString")
     public void unregisterCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback,
             int propertyId) {
