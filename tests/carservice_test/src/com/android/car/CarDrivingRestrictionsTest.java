@@ -26,9 +26,10 @@ import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateManager;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsManager;
+import android.car.hardware.CarPropertyValue;
 import android.hardware.automotive.vehicle.VehicleGear;
+import android.hardware.automotive.vehicle.VehicleIgnitionState;
 import android.hardware.automotive.vehicle.VehicleProperty;
-import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -44,10 +45,10 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class CarDrivingRestrictionsTest extends MockedCarTestBase {
-    private static final String TAG = CarDrivingRestrictionsTest.class
-            .getSimpleName();
+    private static final String TAG = CarDrivingRestrictionsTest.class.getSimpleName();
     private CarDrivingStateManager mCarDrivingStateManager;
     private CarUxRestrictionsManager mCarUxRManager;
+    private DrivingStateListener mDrivingStateListener;
     // Currently set restrictions currently set in car_ux_restrictions_map.xml
     private static final int UX_RESTRICTIONS_MOVING = CarUxRestrictions.UX_RESTRICTIONS_NO_DIALPAD
             | CarUxRestrictions.UX_RESTRICTIONS_NO_FILTERING
@@ -73,6 +74,10 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
                 .newBuilder(VehicleProperty.GEAR_SELECTION)
                 .addIntValues(0)
                 .build());
+        addAidlProperty(VehicleProperty.IGNITION_STATE, AidlVehiclePropValueBuilder
+                .newBuilder(VehicleProperty.IGNITION_STATE)
+                .addIntValues(0)
+                .build());
     }
 
     @Override
@@ -82,191 +87,253 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
                 .getCarManager(Car.CAR_DRIVING_STATE_SERVICE);
         mCarUxRManager = (CarUxRestrictionsManager) getCar()
                 .getCarManager(Car.CAR_UX_RESTRICTION_SERVICE);
+        mDrivingStateListener = new DrivingStateListener();
+        mCarDrivingStateManager.registerListener(mDrivingStateListener);
+        mCarUxRManager.registerListener(mDrivingStateListener);
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        super.tearDown();
+        mCarDrivingStateManager.unregisterListener();
+        mCarUxRManager.unregisterListener();
+    }
+
+    private void aidlInjectIntEvent(int propertyId, int value, int status) {
+        getAidlMockedVehicleHal().injectEvent(
+                AidlVehiclePropValueBuilder.newBuilder(propertyId)
+                        .addIntValues(value)
+                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                        .setStatus(status)
+                        .build());
+    }
+
+    private void aidlInjectVehicleSpeedEvent(float value, int status) {
+        getAidlMockedVehicleHal().injectEvent(
+                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.PERF_VEHICLE_SPEED)
+                        .addFloatValues(value)
+                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                        .setStatus(status)
+                        .build());
+    }
+
+    private void aidlInjectParkingBrakeEvent(boolean value, int status) {
+        getAidlMockedVehicleHal().injectEvent(
+                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.PARKING_BRAKE_ON)
+                        .setBooleanValue(value)
+                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                        .setStatus(status)
+                        .build());
     }
 
     @Test
     public void testDrivingStateChange() throws InterruptedException {
         CarDrivingStateEvent drivingEvent;
         CarUxRestrictions restrictions;
-        DrivingStateListener listener = new DrivingStateListener();
-        mCarDrivingStateManager.registerListener(listener);
-        mCarUxRManager.registerListener(listener);
         // With no gear value available, driving state should be unknown
-        listener.reset();
+        mDrivingStateListener.reset();
         // Test Parked state and corresponding restrictions based on car_ux_restrictions_map.xml
         Log.d(TAG, "Injecting gear park");
-        getAidlMockedVehicleHal().injectEvent(
-                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.GEAR_SELECTION)
-                        .addIntValues(VehicleGear.GEAR_PARK)
-                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                        .build());
-        drivingEvent = listener.waitForDrivingStateChange();
+        aidlInjectIntEvent(VehicleProperty.GEAR_SELECTION, VehicleGear.GEAR_PARK,
+                CarPropertyValue.STATUS_AVAILABLE);
+        drivingEvent = mDrivingStateListener.waitForDrivingStateChange();
         assertNotNull(drivingEvent);
         assertThat(drivingEvent.eventValue).isEqualTo(CarDrivingStateEvent.DRIVING_STATE_PARKED);
 
         Log.d(TAG, "Injecting speed 0");
-        getAidlMockedVehicleHal().injectEvent(
-                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.PERF_VEHICLE_SPEED)
-                        .addFloatValues(0.0f)
-                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                        .build());
+        aidlInjectVehicleSpeedEvent(0.0f, CarPropertyValue.STATUS_AVAILABLE);
 
-        // Switch gear to drive.  Driving state changes to Idling but the UX restrictions don't
+        // Switch gear to drive. Driving state changes to Idling but the UX restrictions don't
         // change between parked and idling.
-        listener.reset();
+        mDrivingStateListener.reset();
         Log.d(TAG, "Injecting gear drive");
-        getAidlMockedVehicleHal().injectEvent(
-                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.GEAR_SELECTION)
-                        .addIntValues(VehicleGear.GEAR_DRIVE)
-                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                        .build());
-        drivingEvent = listener.waitForDrivingStateChange();
+        aidlInjectIntEvent(VehicleProperty.GEAR_SELECTION, VehicleGear.GEAR_DRIVE,
+                CarPropertyValue.STATUS_AVAILABLE);
+        drivingEvent = mDrivingStateListener.waitForDrivingStateChange();
         assertNotNull(drivingEvent);
         assertThat(drivingEvent.eventValue).isEqualTo(CarDrivingStateEvent.DRIVING_STATE_IDLING);
 
         // Test Moving state and corresponding restrictions based on car_ux_restrictions_map.xml
-        listener.reset();
+        mDrivingStateListener.reset();
         Log.d(TAG, "Injecting speed 30");
-        getAidlMockedVehicleHal().injectEvent(
-                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.PERF_VEHICLE_SPEED)
-                        .addFloatValues(30.0f)
-                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                        .build());
-        drivingEvent = listener.waitForDrivingStateChange();
+        aidlInjectVehicleSpeedEvent(30.0f, CarPropertyValue.STATUS_AVAILABLE);
+        drivingEvent = mDrivingStateListener.waitForDrivingStateChange();
         assertNotNull(drivingEvent);
         assertThat(drivingEvent.eventValue).isEqualTo(CarDrivingStateEvent.DRIVING_STATE_MOVING);
-        restrictions = listener.waitForUxRestrictionsChange(UX_RESTRICTIONS_MOVING);
+        restrictions = mDrivingStateListener.waitForUxRestrictionsChange(UX_RESTRICTIONS_MOVING);
         assertNotNull(restrictions);
         assertTrue(restrictions.isRequiresDistractionOptimization());
         assertThat(restrictions.getActiveRestrictions()).isEqualTo(UX_RESTRICTIONS_MOVING);
 
         // Test Idling state and corresponding restrictions based on car_ux_restrictions_map.xml
-        listener.reset();
+        mDrivingStateListener.reset();
         Log.d(TAG, "Injecting speed 0");
-        getAidlMockedVehicleHal().injectEvent(
-                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.PERF_VEHICLE_SPEED)
-                        .addFloatValues(0.0f)
-                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                        .build());
-        drivingEvent = listener.waitForDrivingStateChange();
+        aidlInjectVehicleSpeedEvent(0.0f, CarPropertyValue.STATUS_AVAILABLE);
+        drivingEvent = mDrivingStateListener.waitForDrivingStateChange();
         assertNotNull(drivingEvent);
         assertThat(drivingEvent.eventValue).isEqualTo(CarDrivingStateEvent.DRIVING_STATE_IDLING);
-        restrictions = listener.waitForUxRestrictionsChange(UX_RESTRICTIONS_IDLE);
+        restrictions = mDrivingStateListener.waitForUxRestrictionsChange(UX_RESTRICTIONS_IDLE);
         assertNotNull(restrictions);
         assertTrue(restrictions.isRequiresDistractionOptimization());
         assertThat(restrictions.getActiveRestrictions()).isEqualTo(UX_RESTRICTIONS_IDLE);
 
         // Test Moving state and corresponding restrictions when driving in reverse.
         Log.d(TAG, "Injecting gear reverse");
-        getAidlMockedVehicleHal().injectEvent(
-                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.GEAR_SELECTION)
-                        .addIntValues(VehicleGear.GEAR_REVERSE)
-                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                        .build());
+        aidlInjectIntEvent(VehicleProperty.GEAR_SELECTION, VehicleGear.GEAR_REVERSE,
+                CarPropertyValue.STATUS_AVAILABLE);
 
-        listener.reset();
+        mDrivingStateListener.reset();
         Log.d(TAG, "Injecting speed -10");
-        getAidlMockedVehicleHal().injectEvent(
-                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.PERF_VEHICLE_SPEED)
-                        .addFloatValues(-10.0f)
-                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                        .build());
-        drivingEvent = listener.waitForDrivingStateChange();
+        aidlInjectVehicleSpeedEvent(-10.0f, CarPropertyValue.STATUS_AVAILABLE);
+        drivingEvent = mDrivingStateListener.waitForDrivingStateChange();
         assertNotNull(drivingEvent);
         assertThat(drivingEvent.eventValue).isEqualTo(CarDrivingStateEvent.DRIVING_STATE_MOVING);
-        restrictions = listener.waitForUxRestrictionsChange(UX_RESTRICTIONS_MOVING);
+        restrictions = mDrivingStateListener.waitForUxRestrictionsChange(UX_RESTRICTIONS_MOVING);
         assertNotNull(restrictions);
         assertTrue(restrictions.isRequiresDistractionOptimization());
         assertThat(restrictions.getActiveRestrictions()).isEqualTo(UX_RESTRICTIONS_MOVING);
 
-        // Apply Parking brake.  Supported gears is not provided in this test and hence
+        // Apply Parking brake. Supported gears is not provided in this test and hence
         // Automatic transmission should be assumed and hence parking brake state should not
         // make a difference to the driving state.
-        listener.reset();
+        mDrivingStateListener.reset();
         Log.d(TAG, "Injecting parking brake on");
-        getAidlMockedVehicleHal().injectEvent(
-                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.PARKING_BRAKE_ON)
-                        .setBooleanValue(true)
-                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                        .build());
-        drivingEvent = listener.waitForDrivingStateChange();
+        aidlInjectParkingBrakeEvent(true, CarPropertyValue.STATUS_AVAILABLE);
+        drivingEvent = mDrivingStateListener.waitForDrivingStateChange();
         assertNull(drivingEvent);
-
-        mCarDrivingStateManager.unregisterListener();
-        mCarUxRManager.unregisterListener();
     }
 
     @Test
     public void testDrivingStateChangeForMalformedInputs() throws InterruptedException {
         CarDrivingStateEvent drivingEvent;
         CarUxRestrictions restrictions;
-        DrivingStateListener listener = new DrivingStateListener();
-        mCarDrivingStateManager.registerListener(listener);
-        mCarUxRManager.registerListener(listener);
 
         // Start with gear = park and speed = 0 to begin with a known state.
-        listener.reset();
+        mDrivingStateListener.reset();
         Log.d(TAG, "Injecting gear park");
-        getAidlMockedVehicleHal().injectEvent(
-                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.GEAR_SELECTION)
-                        .addIntValues(VehicleGear.GEAR_PARK)
-                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                        .build());
-        drivingEvent = listener.waitForDrivingStateChange();
+        aidlInjectIntEvent(VehicleProperty.GEAR_SELECTION, VehicleGear.GEAR_PARK,
+                CarPropertyValue.STATUS_AVAILABLE);
+        drivingEvent = mDrivingStateListener.waitForDrivingStateChange();
         assertNotNull(drivingEvent);
         assertThat(drivingEvent.eventValue).isEqualTo(CarDrivingStateEvent.DRIVING_STATE_PARKED);
 
         Log.d(TAG, "Injecting speed 0");
-        getAidlMockedVehicleHal().injectEvent(
-                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.PERF_VEHICLE_SPEED)
-                        .addFloatValues(0.0f)
-                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                        .build());
+        aidlInjectVehicleSpeedEvent(0.0f, CarPropertyValue.STATUS_AVAILABLE);
 
-        // Inject an invalid gear.  Since speed is still valid, idling will be the expected
+        // Inject an invalid gear. Since speed is still valid, idling will be the expected
         // driving state
-        listener.reset();
-        Log.d(TAG, "Injecting gear -1");
-        getAidlMockedVehicleHal().injectEvent(
-                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.GEAR_SELECTION)
-                        .addIntValues(-1)
-                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                        .build());
-        drivingEvent = listener.waitForDrivingStateChange();
-        if (Build.IS_DEBUGGABLE) {
-            // In userdebug build, payloadChecker in HAL drops the invalid event.
-            assertNull(drivingEvent);
-        } else {
-            assertNotNull(drivingEvent);
-            assertThat(drivingEvent.eventValue).isEqualTo(
-                    CarDrivingStateEvent.DRIVING_STATE_IDLING);
-        }
+        mDrivingStateListener.reset();
+        Log.d(TAG, "Injecting gear -1 with status unavailable");
+        aidlInjectIntEvent(VehicleProperty.GEAR_SELECTION, -1, CarPropertyValue.STATUS_UNAVAILABLE);
+        drivingEvent = mDrivingStateListener.waitForDrivingStateChange();
+        assertNotNull(drivingEvent);
+        assertThat(drivingEvent.eventValue).isEqualTo(CarDrivingStateEvent.DRIVING_STATE_IDLING);
+
         // Now, send in an invalid speed value as well, now the driving state will be unknown and
         // the UX restrictions will change to fully restricted.
-        listener.reset();
-        Log.d(TAG, "Injecting speed -1");
-        getAidlMockedVehicleHal().injectEvent(
-                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.PERF_VEHICLE_SPEED)
-                        .addFloatValues(-1.0f)
-                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                        .build());
-        drivingEvent = listener.waitForDrivingStateChange();
-        if (Build.IS_DEBUGGABLE) {
-            // In userdebug build, payloadChecker in HAL drops the invalid event.
-            assertNull(drivingEvent);
-        } else {
-            assertNotNull(drivingEvent);
-            assertThat(drivingEvent.eventValue).isEqualTo(
-                    CarDrivingStateEvent.DRIVING_STATE_UNKNOWN);
-            restrictions = listener.waitForUxRestrictionsChange(
-                    CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED);
-            assertNotNull(restrictions);
-            assertTrue(restrictions.isRequiresDistractionOptimization());
-            assertThat(restrictions.getActiveRestrictions())
-                    .isEqualTo(CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED);
-        }
-        mCarDrivingStateManager.unregisterListener();
-        mCarUxRManager.unregisterListener();
+        mDrivingStateListener.reset();
+        Log.d(TAG, "Injecting speed -1 with status unavailable");
+        aidlInjectVehicleSpeedEvent(-1.0f, CarPropertyValue.STATUS_UNAVAILABLE);
+        drivingEvent = mDrivingStateListener.waitForDrivingStateChange();
+        assertNotNull(drivingEvent);
+        assertThat(drivingEvent.eventValue).isEqualTo(CarDrivingStateEvent.DRIVING_STATE_UNKNOWN);
+        restrictions = mDrivingStateListener.waitForUxRestrictionsChange(
+                CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED);
+        assertNotNull(restrictions);
+        assertTrue(restrictions.isRequiresDistractionOptimization());
+        assertThat(restrictions.getActiveRestrictions())
+                .isEqualTo(CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED);
+    }
+
+    private CarDrivingStateEvent setupDrivingStateUnknown() throws InterruptedException {
+        CarDrivingStateEvent drivingEvent;
+        mDrivingStateListener.reset();
+
+        // Inject an invalid gear.
+        Log.d(TAG, "Injecting gear -1 with status unavailable");
+        aidlInjectIntEvent(VehicleProperty.GEAR_SELECTION, -1, CarPropertyValue.STATUS_UNAVAILABLE);
+
+        drivingEvent = mDrivingStateListener.waitForDrivingStateChange();
+        assertNull(drivingEvent);
+
+        // Now, send in an invalid speed value as well, now the driving state will be unknown.
+        mDrivingStateListener.reset();
+        Log.d(TAG, "Injecting speed -1 with status unavailable");
+        aidlInjectVehicleSpeedEvent(-1.0f, CarPropertyValue.STATUS_UNAVAILABLE);
+
+        drivingEvent = mDrivingStateListener.waitForDrivingStateChange();
+        assertNotNull(drivingEvent);
+        assertThat(drivingEvent.eventValue).isEqualTo(CarDrivingStateEvent.DRIVING_STATE_UNKNOWN);
+        return drivingEvent;
+    }
+
+    @Test
+    public void testGearUnknown_speedUnknown_ignitionStateOff_drivingStateInferredAsParked()
+            throws InterruptedException {
+        setupDrivingStateUnknown();
+
+        mDrivingStateListener.reset();
+        Log.d(TAG, "Injecting ignition state off");
+        aidlInjectIntEvent(VehicleProperty.IGNITION_STATE, VehicleIgnitionState.OFF,
+                CarPropertyValue.STATUS_AVAILABLE);
+
+        CarDrivingStateEvent drivingEvent;
+        drivingEvent = mDrivingStateListener.waitForDrivingStateChange();
+        assertNotNull(drivingEvent);
+        assertThat(drivingEvent.eventValue).isEqualTo(CarDrivingStateEvent.DRIVING_STATE_PARKED);
+    }
+
+    @Test
+    public void testGearUnknown_speedUnknown_ignitionStateAcc_drivingStateInferredAsParked()
+            throws InterruptedException {
+        setupDrivingStateUnknown();
+
+        mDrivingStateListener.reset();
+        Log.d(TAG, "Injecting ignition state acc");
+        aidlInjectIntEvent(VehicleProperty.IGNITION_STATE, VehicleIgnitionState.ACC,
+                CarPropertyValue.STATUS_AVAILABLE);
+
+        CarDrivingStateEvent drivingEvent;
+        drivingEvent = mDrivingStateListener.waitForDrivingStateChange();
+        assertNotNull(drivingEvent);
+        assertThat(drivingEvent.eventValue).isEqualTo(CarDrivingStateEvent.DRIVING_STATE_PARKED);
+    }
+
+    @Test
+    public void testGearUnknown_speedUnknown_ignitionStateLock_drivingStateInferredAsParked()
+            throws InterruptedException {
+        setupDrivingStateUnknown();
+
+        mDrivingStateListener.reset();
+        Log.d(TAG, "Injecting ignition state lock");
+        aidlInjectIntEvent(VehicleProperty.IGNITION_STATE, VehicleIgnitionState.LOCK,
+                CarPropertyValue.STATUS_AVAILABLE);
+
+        CarDrivingStateEvent drivingEvent;
+        drivingEvent = mDrivingStateListener.waitForDrivingStateChange();
+        assertNotNull(drivingEvent);
+        assertThat(drivingEvent.eventValue).isEqualTo(CarDrivingStateEvent.DRIVING_STATE_PARKED);
+    }
+
+    @Test
+    public void testGearUnknown_speedUnknown_ignitionStateOn_drivingStateInferredAsUnknown()
+            throws InterruptedException {
+        CarDrivingStateEvent drivingEvent;
+        drivingEvent = setupDrivingStateUnknown();
+        CarUxRestrictions restrictions;
+        restrictions = mDrivingStateListener.waitForUxRestrictionsChange(
+                CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED);
+
+        mDrivingStateListener.reset();
+        Log.d(TAG, "Injecting ignition state on");
+        aidlInjectIntEvent(VehicleProperty.IGNITION_STATE, VehicleIgnitionState.ON,
+                CarPropertyValue.STATUS_AVAILABLE);
+
+        assertThat(drivingEvent.eventValue).isEqualTo(CarDrivingStateEvent.DRIVING_STATE_UNKNOWN);
+        assertNotNull(restrictions);
+        assertTrue(restrictions.isRequiresDistractionOptimization());
+        assertThat(restrictions.getActiveRestrictions())
+                .isEqualTo(CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED);
     }
 
     /**
@@ -320,7 +387,7 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
             synchronized (mUxRLock) {
                 while ((mLastRestrictions == null
                         || mLastRestrictions.getActiveRestrictions() != expectedRestrictions)
-                            && (start + DEFAULT_WAIT_TIMEOUT_MS > SystemClock.elapsedRealtime())) {
+                        && (start + DEFAULT_WAIT_TIMEOUT_MS > SystemClock.elapsedRealtime())) {
                     mUxRLock.wait(100L);
                 }
                 return mLastRestrictions;
