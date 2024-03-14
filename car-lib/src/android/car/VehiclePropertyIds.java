@@ -257,6 +257,11 @@ public final class VehiclePropertyIds {
     /**
      * {@link PortLocationType} for the fuel door location.
      *
+     * <p>This property communicates the location of the fuel door on the vehicle. This property
+     * will not be implemented for electric vehicles. That is, if {@link #INFO_FUEL_TYPE} only
+     * contains {@link FuelType#ELECTRIC}, this property will not be implemented. For EVs, see
+     * {@link #INFO_EV_PORT_LOCATION} or {@link #INFO_MULTI_EV_PORT_LOCATIONS}.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
@@ -686,7 +691,14 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_SPEED)
     public static final int WHEEL_TICK = 290521862;
     /**
-     * Fuel remaining in the vehicle in milliliters.
+     * Fuel level in milliliters.
+     *
+     * <p>This property communicates the current amount of fuel remaining in the vehicle in
+     * milliliters. This property will not be implemented for electric vehicles. That is, if {@link
+     * #INFO_FUEL_TYPE} only contains {@link FuelType#ELECTRIC}, this property will not be
+     * implemented. For EVs, see {@link #EV_BATTERY_LEVEL}.
+     *
+     * <p>This property's value will not exceed {@link #INFO_FUEL_CAPACITY}.
      *
      * <p>Property Config:
      * <ul>
@@ -706,6 +718,11 @@ public final class VehiclePropertyIds {
     public static final int FUEL_LEVEL = 291504903;
     /**
      * Fuel door open.
+     *
+     * <p>This property communicates whether the fuel door on the vehicle is open or not. This
+     * property will not be implemented for electric vehicles. That is, if {@link #INFO_FUEL_TYPE}
+     * only contains {@link FuelType#ELECTRIC}, this property will not be implemented. For EVs, see
+     * {@link #EV_CHARGE_PORT_OPEN}.
      *
      * <p>Property Config:
      * <ul>
