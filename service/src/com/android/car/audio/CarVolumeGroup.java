@@ -37,6 +37,7 @@ import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADPHONES;
 import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET;
 
 import static com.android.car.audio.hal.HalAudioGainCallback.reasonToString;
+import static com.android.car.audio.CarActivationVolumeConfig.ActivationVolumeInvocationType;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
@@ -544,8 +545,12 @@ import java.util.Set;
         storeGainIndexForUserLocked(gainIndex, mUserId);
     }
 
-    boolean handleActivationVolume() {
-        if (!carAudioMinMaxActivationVolume()) {
+    boolean handleActivationVolume(
+            @ActivationVolumeInvocationType int activationVolumeInvocationType) {
+        if (!carAudioMinMaxActivationVolume()
+                || (getActivationVolumeInvocationType() & activationVolumeInvocationType) == 0) {
+            // Min/max activation volume is not invoked if the given invocation type is not allowed
+            // for the volume group.
             return false;
         }
         boolean invokeVolumeGainIndexChanged = true;

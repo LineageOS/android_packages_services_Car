@@ -953,20 +953,24 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 getVolumeGroupInfo(zoneId, groupId), callbackFlags, eventTypes)));
     }
 
-    void handleActivationVolumeWithAudioAttributes(List<AudioAttributes> audioAttributesList,
-                                                   int zoneId) {
+    void handleActivationVolumeWithActivationInfos(
+            List<CarAudioPlaybackMonitor.ActivationInfo> activationInfoList, int zoneId,
+            int zoneConfigId) {
         ArrayList<Integer> groupIdList = new ArrayList<>();
         synchronized (mImplLock) {
-            for (int i = 0; i < audioAttributesList.size(); i++) {
-                AudioAttributes audioAttributes = audioAttributesList.get(i);
+            if (mCarAudioZones.get(zoneId).getCurrentCarAudioZoneConfig().getZoneConfigId()
+                    != zoneConfigId) {
+                Slogf.w(CarLog.TAG_AUDIO, "Zone configuration for zone %d is changed, no "
+                                + "activation volume is invoked", zoneId);
+                return;
+            }
+            for (int i = 0; i < activationInfoList.size(); i++) {
+                int volumeGroupId = activationInfoList.get(i)
+                        .mGroupId;
                 CarVolumeGroup volumeGroup = mCarAudioZones.get(zoneId)
-                        .getVolumeGroupForAudioAttributes(audioAttributes);
-                if (volumeGroup == null) {
-                    Slogf.w(CarLog.TAG_AUDIO, "Audio attributes %s is not found in zone %d",
-                            audioAttributes, zoneId);
-                    continue;
-                }
-                if (!volumeGroup.handleActivationVolume()) {
+                        .getCurrentVolumeGroup(volumeGroupId);
+                if (!volumeGroup.handleActivationVolume(
+                        activationInfoList.get(i).mInvocationType)) {
                     continue;
                 }
                 groupIdList.add(volumeGroup.getId());
@@ -1894,7 +1898,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         if (!mUseMinMaxActivationVolume) {
             return;
         }
-        mCarAudioPlaybackMonitor = new CarAudioPlaybackMonitor(this);
+        mCarAudioPlaybackMonitor = new CarAudioPlaybackMonitor(this, mCarAudioZones);
     }
 
     @GuardedBy("mImplLock")

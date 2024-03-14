@@ -81,6 +81,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
             - TestCarAudioDeviceInfoBuilder.MIN_GAIN) / TestCarAudioDeviceInfoBuilder.STEP_VALUE;
     private static final int MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE = 20;
     private static final int MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE = 80;
+    private static final int SUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE =
+            CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_SOURCE_CHANGED;
     private static final int ACTIVATION_VOLUME_INVOCATION_TYPE =
             CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT
                     | CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_SOURCE_CHANGED;
@@ -500,7 +502,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         carVolumeGroup.setCurrentGainIndex(MAX_GAIN_INDEX);
 
         expectWithMessage("No adjustment to activation volume with activation volume disabled")
-                .that(carVolumeGroup.handleActivationVolume()).isFalse();
+                .that(carVolumeGroup.handleActivationVolume(
+                        SUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE)).isFalse();
         expectWithMessage("Unchanged gain index with activation volume disabled")
                 .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(MAX_GAIN_INDEX);
     }
@@ -513,7 +516,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         carVolumeGroup.setCurrentGainIndex(currentGainIndex);
 
         expectWithMessage("No adjustment for activation volume")
-                .that(carVolumeGroup.handleActivationVolume()).isFalse();
+                .that(carVolumeGroup.handleActivationVolume(
+                        SUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE)).isFalse();
         expectWithMessage("Gain index without activation volume adjustment")
                 .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(currentGainIndex);
     }
@@ -525,7 +529,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         carVolumeGroup.setCurrentGainIndex(MIN_ACTIVATION_GAIN_INDEX - 1);
 
         expectWithMessage("Success for adjusting to min activation volume")
-                .that(carVolumeGroup.handleActivationVolume()).isTrue();
+                .that(carVolumeGroup.handleActivationVolume(
+                        SUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE)).isTrue();
         expectWithMessage("Gain index for adjusting to min activation volume")
                 .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(MIN_ACTIVATION_GAIN_INDEX);
     }
@@ -537,7 +542,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         carVolumeGroup.setCurrentGainIndex(MAX_ACTIVATION_GAIN_INDEX + 1);
 
         expectWithMessage("Success for adjusting to max activation volume")
-                .that(carVolumeGroup.handleActivationVolume()).isTrue();
+                .that(carVolumeGroup.handleActivationVolume(
+                        SUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE)).isTrue();
         expectWithMessage("Gain index for adjusting to max activation volume")
                 .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(MAX_ACTIVATION_GAIN_INDEX);
     }
@@ -550,7 +556,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         carVolumeGroup.setMute(true);
 
         expectWithMessage("Failure for changing to activation volume with mute")
-                .that(carVolumeGroup.handleActivationVolume()).isFalse();
+                .that(carVolumeGroup.handleActivationVolume(
+                        SUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE)).isFalse();
         expectWithMessage("Gain index with activation volume and mute")
                 .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(MIN_GAIN_INDEX);
     }
@@ -561,7 +568,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
         carVolumeGroup.setCurrentGainIndex(MAX_ACTIVATION_GAIN_INDEX + 1);
         carVolumeGroup.setMute(true);
-        carVolumeGroup.handleActivationVolume();
+        carVolumeGroup.handleActivationVolume(SUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE);
 
         carVolumeGroup.setMute(false);
 
@@ -578,7 +585,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         carVolumeGroup.setBlocked(blockedIndex);
 
         expectWithMessage("Failure for changing to activation volume with block")
-                .that(carVolumeGroup.handleActivationVolume()).isFalse();
+                .that(carVolumeGroup.handleActivationVolume(
+                        SUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE)).isFalse();
         expectWithMessage("Gain index with activation volume and block")
                 .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(blockedIndex);
     }
@@ -590,7 +598,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         carVolumeGroup.setCurrentGainIndex(MAX_GAIN_INDEX);
         int blockedIndex = MAX_ACTIVATION_GAIN_INDEX + 1;
         carVolumeGroup.setBlocked(blockedIndex);
-        carVolumeGroup.handleActivationVolume();
+        carVolumeGroup.handleActivationVolume(SUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE);
 
         carVolumeGroup.resetBlocked();
 
@@ -607,7 +615,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         carVolumeGroup.setAttenuatedGain(attenuatedIndex);
 
         expectWithMessage("Changing to activation volume with attenuated gain")
-                .that(carVolumeGroup.handleActivationVolume()).isFalse();
+                .that(carVolumeGroup.handleActivationVolume(
+                        SUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE)).isFalse();
         expectWithMessage("Gain index with activation volume and attenuated gain applied")
                 .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(attenuatedIndex);
     }
@@ -619,7 +628,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         carVolumeGroup.setCurrentGainIndex(MAX_GAIN_INDEX);
         int attenuatedIndex = MAX_ACTIVATION_GAIN_INDEX + 1;
         carVolumeGroup.setAttenuatedGain(attenuatedIndex);
-        carVolumeGroup.handleActivationVolume();
+        carVolumeGroup.handleActivationVolume(SUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE);
 
         carVolumeGroup.resetAttenuation();
 
@@ -636,7 +645,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         carVolumeGroup.setLimit(limitedGainIndex);
 
         expectWithMessage("Volume changed due to activation volume over limit and limit "
-                + "over current gain").that(carVolumeGroup.handleActivationVolume()).isTrue();
+                + "over current gain").that(carVolumeGroup.handleActivationVolume(
+                        SUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE)).isTrue();
         expectWithMessage("Gain index with activation volume over limit and limit "
                 + "over current gain").that(carVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(limitedGainIndex);
@@ -649,7 +659,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         carVolumeGroup.setCurrentGainIndex(MIN_ACTIVATION_GAIN_INDEX - 2);
         int limitedGainIndex = MIN_ACTIVATION_GAIN_INDEX - 1;
         carVolumeGroup.setLimit(limitedGainIndex);
-        carVolumeGroup.handleActivationVolume();
+        carVolumeGroup.handleActivationVolume(SUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE);
 
         carVolumeGroup.resetLimit();
 
@@ -667,8 +677,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         carVolumeGroup.setLimit(limitedGainIndex);
 
         expectWithMessage("Volume changed due to activation volume over current gain and "
-                + "current gain over limit").that(carVolumeGroup.handleActivationVolume())
-                .isFalse();
+                + "current gain over limit").that(carVolumeGroup.handleActivationVolume(
+                        SUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE)).isFalse();
         expectWithMessage("Gain index with activation volume over current gain and "
                 + "current gain over limit").that(carVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(limitedGainIndex);
@@ -681,7 +691,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         carVolumeGroup.setCurrentGainIndex(MIN_ACTIVATION_GAIN_INDEX - 1);
         int limitedGainIndex = MIN_ACTIVATION_GAIN_INDEX - 2;
         carVolumeGroup.setLimit(limitedGainIndex);
-        carVolumeGroup.handleActivationVolume();
+        carVolumeGroup.handleActivationVolume(SUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE);
 
         carVolumeGroup.resetLimit();
         expectWithMessage("Gain index with activation volume over current gain, current gain "
@@ -698,7 +708,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         carVolumeGroup.setLimit(limitedGainIndex);
 
         expectWithMessage("Changing to activation volume below limit")
-                .that(carVolumeGroup.handleActivationVolume()).isTrue();
+                .that(carVolumeGroup.handleActivationVolume(
+                        SUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE)).isTrue();
         expectWithMessage("Gain index with activation volume below limit")
                 .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(MIN_ACTIVATION_GAIN_INDEX);
     }

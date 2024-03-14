@@ -296,6 +296,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final int TEST_GAIN_DEFAULT_VALUE = -2000;
     private static final int TEST_GAIN_STEP_VALUE = 2;
 
+    private static final int TEST_PLAYBACK_UID = 10101;
+
     private static final CarOccupantZoneManager.OccupantZoneInfo TEST_DRIVER_OCCUPANT =
             getOccupantInfo(TEST_DRIVER_OCCUPANT_ZONE_ID,
                     CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER,
@@ -5267,6 +5269,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
         CarVolumeEventCallbackImpl volumeEventCallback = new CarVolumeEventCallbackImpl();
         service.registerCarVolumeEventCallback(volumeEventCallback);
+        int currentConfigId = service.getCurrentAudioZoneConfigInfo(PRIMARY_AUDIO_ZONE)
+                .getConfigId();
         int mediaMaxActivationGainIndex = service.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE,
                 TEST_PRIMARY_ZONE_GROUP_0).getMaxActivationVolumeGainIndex();
         service.setGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
@@ -5275,15 +5279,19 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         volumeEventCallback.reset();
         reset(mCarVolumeCallbackHandler);
         int navMinActivationGainIndex = service.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE,
-                TEST_PRIMARY_ZONE_GROUP_0).getMinActivationVolumeGainIndex();
+                TEST_PRIMARY_ZONE_GROUP_1).getMinActivationVolumeGainIndex();
         service.setGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_1,
                 navMinActivationGainIndex - 1, TEST_FLAGS);
         volumeEventCallback.waitForCallback();
         volumeEventCallback.reset();
         reset(mCarVolumeCallbackHandler);
 
-        service.handleActivationVolumeWithAudioAttributes(List.of(
-                ATTRIBUTES_ASSISTANCE_NAVIGATION_GUIDANCE, ATTRIBUTES_MEDIA), PRIMARY_AUDIO_ZONE);
+        service.handleActivationVolumeWithActivationInfos(List.of(
+                new CarAudioPlaybackMonitor.ActivationInfo(TEST_PRIMARY_ZONE_GROUP_0,
+                        CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT),
+                new CarAudioPlaybackMonitor.ActivationInfo(TEST_PRIMARY_ZONE_GROUP_1,
+                        CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT)),
+                PRIMARY_AUDIO_ZONE, currentConfigId);
 
         expectWithMessage("Media volume for above-activation gain index")
                 .that(service.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0))
@@ -5325,7 +5333,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         reset(mCarVolumeCallbackHandler);
 
         callback.onPlaybackConfigChanged(List.of(new AudioPlaybackConfigurationBuilder()
-                .setUsage(USAGE_MEDIA).setDeviceAddress(MEDIA_TEST_DEVICE).build()));
+                .setUsage(USAGE_MEDIA).setDeviceAddress(MEDIA_TEST_DEVICE)
+                .setClientUid(TEST_PLAYBACK_UID).build()));
 
         expectWithMessage("Playback group volume with activation volume flag disabled")
                 .that(service.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0))
@@ -5352,7 +5361,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         reset(mCarVolumeCallbackHandler);
 
         callback.onPlaybackConfigChanged(List.of(new AudioPlaybackConfigurationBuilder()
-                .setUsage(USAGE_MEDIA).setDeviceAddress(MEDIA_TEST_DEVICE).build()));
+                .setUsage(USAGE_MEDIA).setDeviceAddress(MEDIA_TEST_DEVICE)
+                .setClientUid(TEST_PLAYBACK_UID).build()));
 
         expectWithMessage("Playback group volume with activation volume feature disabled")
                 .that(service.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0))
@@ -5379,7 +5389,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         reset(mCarVolumeCallbackHandler);
 
         callback.onPlaybackConfigChanged(List.of(new AudioPlaybackConfigurationBuilder()
-                .setUsage(USAGE_MEDIA).setDeviceAddress(MEDIA_TEST_DEVICE).build()));
+                .setUsage(USAGE_MEDIA).setDeviceAddress(MEDIA_TEST_DEVICE)
+                .setClientUid(TEST_PLAYBACK_UID).build()));
 
         expectWithMessage("Playback group volume for above-activation gain index")
                 .that(service.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0))
@@ -5416,7 +5427,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         callback.onPlaybackConfigChanged(List.of(new AudioPlaybackConfigurationBuilder()
                 .setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
-                .setDeviceAddress(NAVIGATION_TEST_DEVICE).build()));
+                .setDeviceAddress(NAVIGATION_TEST_DEVICE).setClientUid(TEST_PLAYBACK_UID)
+                .build()));
 
         expectWithMessage("Playback group volume for below-activation gain index")
                 .that(service.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_1))
@@ -5452,7 +5464,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         reset(mCarVolumeCallbackHandler);
 
         callback.onPlaybackConfigChanged(List.of(new AudioPlaybackConfigurationBuilder()
-                .setUsage(USAGE_MEDIA).setDeviceAddress(MEDIA_TEST_DEVICE).build()));
+                .setUsage(USAGE_MEDIA).setDeviceAddress(MEDIA_TEST_DEVICE)
+                .setClientUid(TEST_PLAYBACK_UID).build()));
 
         expectWithMessage("Playback group volume in activation volume range")
                 .that(service.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0))
@@ -5483,7 +5496,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         reset(mCarVolumeCallbackHandler);
 
         callback.onPlaybackConfigChanged(List.of(new AudioPlaybackConfigurationBuilder()
-                .setUsage(USAGE_MEDIA).setDeviceAddress(MEDIA_TEST_DEVICE).build()));
+                .setUsage(USAGE_MEDIA).setDeviceAddress(MEDIA_TEST_DEVICE)
+                .setClientUid(TEST_PLAYBACK_UID).build()));
 
         expectWithMessage("Mute state with playback volume higher than max activation volume")
                 .that(service.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0))
@@ -5514,7 +5528,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         volumeEventCallback.reset();
         reset(mCarVolumeCallbackHandler);
         callback.onPlaybackConfigChanged(List.of(new AudioPlaybackConfigurationBuilder()
-                .setUsage(USAGE_MEDIA).setDeviceAddress(MEDIA_TEST_DEVICE).build()));
+                .setUsage(USAGE_MEDIA).setDeviceAddress(MEDIA_TEST_DEVICE)
+                .setClientUid(TEST_PLAYBACK_UID).build()));
         volumeEventCallback.waitForCallback();
         volumeEventCallback.reset();
         reset(mCarVolumeCallbackHandler);
