@@ -321,7 +321,7 @@
     "FUEL_LEVEL": {
       "propertyName": "FUEL_LEVEL",
       "propertyId": 291504903,
-      "description": "Fuel remaining in the vehicle in milliliters.",
+      "description": "Fuel level in milliliters.",
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENERGY"
