@@ -28,7 +28,7 @@ oneway interface ICarEvsStreamCallback {
     /**
      * Called upon a new EVS stream event
      */
-    void onStreamEvent(int event);
+    void onStreamEvent(int origin, int event);
 
     /**
      * Called when a new EVS frame arrives

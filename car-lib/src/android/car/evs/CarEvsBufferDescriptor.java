@@ -120,7 +120,8 @@ public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public String toString() {
-        return "CarEvsBufferDescriptor: id = " + mId + ", buffer = " + mHardwareBuffer;
+        return "CarEvsBufferDescriptor: id = " + mId + ", type = " + mType +
+                ", buffer = " + mHardwareBuffer;
     }
 
     @Override
