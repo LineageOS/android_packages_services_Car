@@ -67,4 +67,10 @@
     <!-- 1 left -->
     <!-- 2 right -->
     <integer name="config_showDisplayCompatToolbarOnSystemBar">0</integer>
+
+    <!-- A list of packages that are excluded from being shown on Dock -->
+    <string-array name="config_packagesExcludedFromDock" translatable="false">
+        <item>com.android.car.portraitlauncher</item>
+        <item>com.android.car.notification</item>
+    </string-array>
 </resources>
