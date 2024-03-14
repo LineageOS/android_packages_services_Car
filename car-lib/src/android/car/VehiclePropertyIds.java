@@ -209,13 +209,13 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_FUEL_TYPE = 289472773;
     /**
-     * Nominal battery capacity for EV or hybrid vehicle.
+     * Nominal usable battery capacity for EV or hybrid vehicle.
      *
      * <p>Returns the nominal battery capacity in {@link android.car.VehicleUnit#WATT_HOUR}, if EV
-     * or hybrid. This is the battery capacity when the vehicle is new. This value might be
+     * or hybrid. This is the usable battery capacity when the vehicle is new. This value might be
      * different from {@link #EV_CURRENT_BATTERY_CAPACITY} because {@link
-     * #EV_CURRENT_BATTERY_CAPACITY} returns the real-time battery capacity taking into account
-     * factors such as battery aging and temperature dependency.
+     * #EV_CURRENT_BATTERY_CAPACITY} returns the real-time usable battery capacity taking into
+     * account factors such as battery aging and temperature dependency.
      *
      * <p>Property Config:
      * <ul>
@@ -753,12 +753,12 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_ENERGY)
     public static final int EV_BATTERY_LEVEL = 291504905;
     /**
-     * Current battery capacity for EV or hybrid vehicle.
+     * Current usable battery capacity for EV or hybrid vehicle.
      *
      * <p>Returns the actual value of battery capacity in {@link android.car.VehicleUnit#WATT_HOUR},
-     * if EV or hybrid. This property captures the real-time battery capacity taking into account
-     * factors such as battery aging and temperature dependency. Therefore, this value might be
-     * different from {@link #INFO_EV_BATTERY_CAPACITY} because {@link #INFO_EV_BATTERY_CAPACITY}
+     * if EV or hybrid. This property captures the real-time usable battery capacity taking into
+     * account factors such as battery aging and temperature dependency. Therefore, this value might
+     * be different from {@link #INFO_EV_BATTERY_CAPACITY} because {@link #INFO_EV_BATTERY_CAPACITY}
      * returns the nominal battery capacity from when the vehicle was new.
      *
      * <p>Property Config:
