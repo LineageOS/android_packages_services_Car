@@ -559,6 +559,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             // to audio control HAL (ACH), since AFH holds a reference to ACH
             releaseHalAudioFocusLocked();
             releaseCoreVolumeGroupCallbackLocked();
+            releaseAudioPlaybackMonitorLocked();
             releasePowerListenerLocked();
             releaseAudioDeviceInfoCallbackLocked();
             releaseHalAudioModuleChangeCallbackLocked();
@@ -589,6 +590,14 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
         mCarAudioPowerListener.stopListeningForPolicyChanges();
         mCarAudioPowerListener = null;
+    }
+
+    @GuardedBy("mImplLock")
+    private void releaseAudioPlaybackMonitorLocked() {
+        if (mCarAudioPlaybackMonitor == null) {
+            return;
+        }
+        mCarAudioPlaybackMonitor = null;
     }
 
     @GuardedBy("mImplLock")
@@ -992,6 +1001,14 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         callbackVolumeGroupEvent(List.of(convertVolumeChangesToEvents(volumeGroupInfoList,
                 EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED, List.of(EXTRA_INFO_ATTENUATION_ACTIVATION,
                         EXTRA_INFO_SHOW_UI))));
+    }
+
+    @GuardedBy("mImplLock")
+    private void resetActivationTypeLocked(CarAudioZoneConfigInfo configInfo) {
+        if (mCarAudioPlaybackMonitor == null) {
+            return;
+        }
+        mCarAudioPlaybackMonitor.resetActivationTypesForZone(configInfo.getZoneId());
     }
 
     private void handleMuteChanged(int zoneId, int groupId, int flags) {
@@ -3184,6 +3201,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 zone.updateVolumeGroupsSettingsForUser(userId);
                 carVolumeGroupInfoList = getVolumeGroupInfosForZoneLocked(zoneId);
                 updateFadeManagerConfigurationLocked(zone.isPrimaryZone());
+                resetActivationTypeLocked(zoneConfig);
             } catch (Exception e) {
                 Slogf.e(TAG, "Failed to switch configuration id " + zoneConfig.getConfigId());
                 zone.setCurrentCarZoneConfig(prevZoneConfig.getCarAudioZoneConfigInfo());

@@ -18,12 +18,15 @@ package com.android.car.audio;
 
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_MEDIA;
+import static android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 
 import android.car.test.AbstractExpectableTestCase;
@@ -91,8 +94,20 @@ public final class CarAudioPlaybackMonitorTest extends AbstractExpectableTestCas
                 () -> new CarAudioPlaybackMonitor(/* carAudioService= */ null,
                         mCarAudioZones));
 
-        expectWithMessage("Null car audio service exception")
-                .that(thrown).hasMessageThat().contains("Car audio service can not be null");
+        expectWithMessage("Car playback monitor construction exception with null "
+                + "car audio service").that(thrown).hasMessageThat()
+                .contains("Car audio service can not be null");
+    }
+
+    @Test
+    public void construct_withNullCarAudioZones_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class,
+                () -> new CarAudioPlaybackMonitor(mMockCarAudioService,
+                        /* carAudioZones= */ null));
+
+        expectWithMessage("Car playback monitor construction exception with null "
+                + "car audio zones").that(thrown).hasMessageThat()
+                .contains("Car audio zones can not be null");
     }
 
     @Test
@@ -127,6 +142,124 @@ public final class CarAudioPlaybackMonitorTest extends AbstractExpectableTestCas
                                 CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT),
                         new CarAudioPlaybackMonitor.ActivationInfo(DEFAULT_NAVIGATION_GROUP_ID,
                                 CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT));
+    }
+
+    @Test
+    public void onActiveAudioPlaybackAttributesAdded_forAudioAttributesOfFirstTime() {
+        mCarAudioPlaybackMonitor.onActiveAudioPlaybackAttributesAdded(List.of(
+                new Pair<>(TEST_NAVIGATION_AUDIO_ATTRIBUTE, PLAYBACK_UID_1)), PRIMARY_ZONE_ID);
+        reset(mMockCarAudioService);
+
+        mCarAudioPlaybackMonitor.onActiveAudioPlaybackAttributesAdded(List.of(
+                new Pair<>(TEST_MEDIA_AUDIO_ATTRIBUTE, PLAYBACK_UID_2)), PRIMARY_ZONE_ID);
+
+        verify(mMockCarAudioService).handleActivationVolumeWithActivationInfos(
+                mActivationInfoCaptor.capture(), eq(PRIMARY_ZONE_ID), eq(DEFAULT_ZONE_CONFIG_ID));
+        expectWithMessage("Activation infos of playback configuration for the first-time media"
+                + " attributes").that(mActivationInfoCaptor.getValue())
+                .containsExactly(new CarAudioPlaybackMonitor.ActivationInfo(
+                        DEFAULT_MEDIA_GROUP_ID,
+                        CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT));
+    }
+
+    @Test
+    public void onActiveAudioPlaybackAttributesAdded_withSourceChanged() {
+        mCarAudioPlaybackMonitor.onActiveAudioPlaybackAttributesAdded(List.of(
+                new Pair<>(TEST_MEDIA_AUDIO_ATTRIBUTE, PLAYBACK_UID_1)), PRIMARY_ZONE_ID);
+        reset(mMockCarAudioService);
+
+        mCarAudioPlaybackMonitor.onActiveAudioPlaybackAttributesAdded(List.of(
+                new Pair<>(TEST_MEDIA_AUDIO_ATTRIBUTE, PLAYBACK_UID_2)), PRIMARY_ZONE_ID);
+
+        verify(mMockCarAudioService).handleActivationVolumeWithActivationInfos(
+                mActivationInfoCaptor.capture(), eq(PRIMARY_ZONE_ID), eq(DEFAULT_ZONE_CONFIG_ID));
+        expectWithMessage("Activation infos of playback configuration with playback source"
+                + " changed").that(mActivationInfoCaptor.getValue())
+                .containsExactly(new CarAudioPlaybackMonitor.ActivationInfo(DEFAULT_MEDIA_GROUP_ID,
+                        CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_SOURCE_CHANGED));
+    }
+
+    @Test
+    public void onActiveAudioPlaybackAttributesAdded_withPlaybackChanged() {
+        mCarAudioPlaybackMonitor.onActiveAudioPlaybackAttributesAdded(List.of(
+                new Pair<>(TEST_MEDIA_AUDIO_ATTRIBUTE, PLAYBACK_UID_1)), PRIMARY_ZONE_ID);
+        reset(mMockCarAudioService);
+
+        mCarAudioPlaybackMonitor.onActiveAudioPlaybackAttributesAdded(List.of(
+                new Pair<>(TEST_MEDIA_AUDIO_ATTRIBUTE, PLAYBACK_UID_1)), PRIMARY_ZONE_ID);
+
+        verify(mMockCarAudioService).handleActivationVolumeWithActivationInfos(
+                mActivationInfoCaptor.capture(), eq(PRIMARY_ZONE_ID), eq(DEFAULT_ZONE_CONFIG_ID));
+        expectWithMessage("Activation infos of playback configuration with playback changed")
+                .that(mActivationInfoCaptor.getValue())
+                .containsExactly(new CarAudioPlaybackMonitor.ActivationInfo(DEFAULT_MEDIA_GROUP_ID,
+                        CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_PLAYBACK_CHANGED));
+    }
+
+    @Test
+    public void onActiveAudioPlaybackAttributesAdded_withNoVolumeGroupFound() {
+        AudioAttributes ringtoneAudioAttribute =
+                new AudioAttributes.Builder().setUsage(USAGE_NOTIFICATION_RINGTONE).build();
+
+        mCarAudioPlaybackMonitor.onActiveAudioPlaybackAttributesAdded(List.of(
+                        new Pair<>(ringtoneAudioAttribute, PLAYBACK_UID_1)), SECONDARY_ZONE_ID);
+
+        verify(mMockCarAudioService, never()).handleActivationVolumeWithActivationInfos(any(),
+                anyInt(), anyInt());
+    }
+
+    @Test
+    public void onActiveAudioPlaybackAttributesAdded_afterActivationTypesForZonesReset() {
+        mCarAudioPlaybackMonitor.onActiveAudioPlaybackAttributesAdded(List.of(
+                new Pair<>(TEST_NAVIGATION_AUDIO_ATTRIBUTE, PLAYBACK_UID_1)), PRIMARY_ZONE_ID);
+        reset(mMockCarAudioService);
+        mCarAudioPlaybackMonitor.resetActivationTypesForZone(PRIMARY_ZONE_ID);
+
+        mCarAudioPlaybackMonitor.onActiveAudioPlaybackAttributesAdded(List.of(
+                new Pair<>(TEST_NAVIGATION_AUDIO_ATTRIBUTE, PLAYBACK_UID_2)), PRIMARY_ZONE_ID);
+
+        verify(mMockCarAudioService).handleActivationVolumeWithActivationInfos(
+                mActivationInfoCaptor.capture(), eq(PRIMARY_ZONE_ID), eq(DEFAULT_ZONE_CONFIG_ID));
+        expectWithMessage("Activation infos of playback configuration after "
+                + "activation types of zones reset").that(mActivationInfoCaptor.getValue())
+                .containsExactly(new CarAudioPlaybackMonitor.ActivationInfo(
+                        DEFAULT_NAVIGATION_GROUP_ID,
+                        CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT));
+    }
+
+    @Test
+    public void equals_withActivationInfoWithDifferentTypeObject() {
+        CarAudioPlaybackMonitor.ActivationInfo activationInfo = new CarAudioPlaybackMonitor
+                .ActivationInfo(DEFAULT_MEDIA_GROUP_ID,
+                CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT);
+
+        expectWithMessage("Activation info").that(activationInfo).isNotEqualTo(mPrimaryZone);
+    }
+
+    @Test
+    public void equals_withDifferentActivationInfo() {
+        CarAudioPlaybackMonitor.ActivationInfo activationInfo1 = new CarAudioPlaybackMonitor
+                .ActivationInfo(DEFAULT_MEDIA_GROUP_ID,
+                CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT);
+        CarAudioPlaybackMonitor.ActivationInfo activationInfo2 = new CarAudioPlaybackMonitor
+                .ActivationInfo(DEFAULT_MEDIA_GROUP_ID,
+                CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_PLAYBACK_CHANGED);
+
+        expectWithMessage("Activation info with different invocation types")
+                .that(activationInfo1).isNotEqualTo(activationInfo2);
+    }
+
+    @Test
+    public void hashCode_forActivationInfo() {
+        CarAudioPlaybackMonitor.ActivationInfo activationInfo1 = new CarAudioPlaybackMonitor
+                .ActivationInfo(DEFAULT_MEDIA_GROUP_ID,
+                CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT);
+        CarAudioPlaybackMonitor.ActivationInfo activationInfo2 = new CarAudioPlaybackMonitor
+                .ActivationInfo(DEFAULT_MEDIA_GROUP_ID,
+                CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT);
+
+        expectWithMessage("Hash code of activation info").that(activationInfo1.hashCode())
+                .isEqualTo(activationInfo2.hashCode());
     }
 
     private CarAudioZone generatePrimaryZone() {

@@ -83,6 +83,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     private static final int MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE = 80;
     private static final int SUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE =
             CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_SOURCE_CHANGED;
+    private static final int UNSUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE =
+            CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_PLAYBACK_CHANGED;
     private static final int ACTIVATION_VOLUME_INVOCATION_TYPE =
             CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT
                     | CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_SOURCE_CHANGED;
@@ -501,10 +503,23 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
         carVolumeGroup.setCurrentGainIndex(MAX_GAIN_INDEX);
 
-        expectWithMessage("No adjustment to activation volume with activation volume disabled")
+        expectWithMessage("Adjustment to activation volume with activation volume disabled")
                 .that(carVolumeGroup.handleActivationVolume(
                         SUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE)).isFalse();
-        expectWithMessage("Unchanged gain index with activation volume disabled")
+        expectWithMessage("Gain index with activation volume disabled")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(MAX_GAIN_INDEX);
+    }
+
+    @Test
+    public void handleActivationVolume_withUnsupportedActivationInvocationType() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(MAX_GAIN_INDEX);
+
+        expectWithMessage("Adjustment to activation volume with unsupported activation "
+                + "invocation type").that(carVolumeGroup.handleActivationVolume(
+                UNSUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE)).isFalse();
+        expectWithMessage("Gain index with unsupported activation invocation type")
                 .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(MAX_GAIN_INDEX);
     }
 
@@ -515,7 +530,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
         carVolumeGroup.setCurrentGainIndex(currentGainIndex);
 
-        expectWithMessage("No adjustment for activation volume")
+        expectWithMessage("Adjustment for activation volume")
                 .that(carVolumeGroup.handleActivationVolume(
                         SUPPORTED_ACTIVATION_VOLUME_INVOCATION_TYPE)).isFalse();
         expectWithMessage("Gain index without activation volume adjustment")

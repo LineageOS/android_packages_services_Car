@@ -29,9 +29,9 @@
         </activationVolumeConfig>
     </activationVolumeConfigs>
     <zones>
-        <zone name="primary zone" isPrimary="true" audioZoneId="0" occupantZoneId="1">
+        <zone name="primary zone" isPrimary="true" audioZoneId="0" occupantZoneId="0">
             <zoneConfigs>
-                <zoneConfig name="primary zone config 1" isDefault="true">
+                <zoneConfig name="primary_zone_config_1" isDefault="true">
                     <volumeGroups>
                         <group activationConfig="activation_volume_on_boot_config">
                             <device address="media_bus_device">
@@ -67,6 +67,50 @@
                                 <context context="emergency"/>
                                 <context context="safety"/>
                                 <context context="vehicle_status"/>
+                            </device>
+                        </group>
+                    </volumeGroups>
+                </zoneConfig>
+            </zoneConfigs>
+        </zone>
+        <zone name="secondary zone" audioZoneId="1" occupantZoneId="1">
+            <zoneConfigs>
+                <zoneConfig name="secondary_zone_config_1" isDefault="true">
+                    <volumeGroups>
+                        <group activationConfig="activation_volume_on_boot_config">
+                            <device address="secondary_zone_bus_100">
+                                <context context="music"/>
+                                <context context="navigation"/>
+                                <context context="voice_command"/>
+                                <context context="call_ring"/>
+                                <context context="call"/>
+                                <context context="alarm"/>
+                                <context context="system_sound"/>
+                                <context context="notification"/>
+                                <context context="emergency"/>
+                                <context context="safety"/>
+                                <context context="vehicle_status"/>
+                                <context context="announcement"/>
+                            </device>
+                        </group>
+                    </volumeGroups>
+                </zoneConfig>
+                <zoneConfig name="secondary_zone_config_2">
+                    <volumeGroups>
+                        <group activationConfig="activation_volume_on_boot_config">
+                            <device address="secondary_zone_bus_200">
+                                <context context="music"/>
+                                <context context="navigation"/>
+                                <context context="voice_command"/>
+                                <context context="call_ring"/>
+                                <context context="call"/>
+                                <context context="alarm"/>
+                                <context context="system_sound"/>
+                                <context context="notification"/>
+                                <context context="emergency"/>
+                                <context context="safety"/>
+                                <context context="vehicle_status"/>
+                                <context context="announcement"/>
                             </device>
                         </group>
                     </volumeGroups>

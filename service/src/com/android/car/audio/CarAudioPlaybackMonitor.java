@@ -51,6 +51,12 @@ public final class CarAudioPlaybackMonitor {
         mZoneIdGroupIdToUidMap = new SparseArray<>();
     }
 
+    void resetActivationTypesForZone(int zoneId) {
+        synchronized (mLock) {
+            mZoneIdGroupIdToUidMap.remove(zoneId);
+        }
+    }
+
     /**
      * Informs {@link CarAudioService} that newly active playbacks are received and min/max
      * activation volume should be applied if needed.

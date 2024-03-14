@@ -5318,6 +5318,34 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void handleActivationVolumeWithAudioAttributes_withNonCurrentZoneConfig()
+            throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
+        CarVolumeEventCallbackImpl volumeEventCallback = new CarVolumeEventCallbackImpl();
+        service.registerCarVolumeEventCallback(volumeEventCallback);
+        int nonCurrentConfigId = getZoneConfigToSwitch(service, TEST_REAR_LEFT_ZONE_ID)
+                .getConfigId();
+        int mediaGainIndexAboveMaxActivation = service.getVolumeGroupInfo(TEST_REAR_LEFT_ZONE_ID,
+                SECONDARY_ZONE_VOLUME_GROUP_ID).getMaxActivationVolumeGainIndex() + 1;
+        service.setGroupVolume(TEST_REAR_LEFT_ZONE_ID, SECONDARY_ZONE_VOLUME_GROUP_ID,
+                mediaGainIndexAboveMaxActivation, TEST_FLAGS);
+        volumeEventCallback.waitForCallback();
+        volumeEventCallback.reset();
+        reset(mCarVolumeCallbackHandler);
+
+        service.handleActivationVolumeWithActivationInfos(List.of(
+                        new CarAudioPlaybackMonitor.ActivationInfo(TEST_REAR_LEFT_ZONE_ID,
+                                CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT)),
+                TEST_REAR_LEFT_ZONE_ID, nonCurrentConfigId);
+
+        verify(mCarVolumeCallbackHandler, never()).onVolumeGroupChange(eq(TEST_REAR_LEFT_ZONE_ID),
+                eq(SECONDARY_ZONE_VOLUME_GROUP_ID), anyInt());
+        expectWithMessage("Volume event callback for non-current zone config activation volume")
+                .that(volumeEventCallback.waitForCallback()).isFalse();
+    }
+
+    @Test
     public void onPlaybackConfigChanged_withActivationVolumeFlagDisabled() throws Exception {
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
@@ -5508,6 +5536,70 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 TEST_PRIMARY_ZONE_GROUP_0, TEST_FLAGS);
         expectWithMessage("No volume event callback for activation volume when mute")
                 .that(volumeEventCallback.waitForCallback()).isFalse();
+    }
+
+    @Test
+    public void onPlaybackConfigChanged_afterZoneConfigSwitched() throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
+        SwitchAudioZoneConfigCallbackImpl zoneConfigSwitchCallback =
+                new SwitchAudioZoneConfigCallbackImpl();
+        assignOccupantToAudioZones();
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        CarVolumeEventCallbackImpl volumeEventCallback = new CarVolumeEventCallbackImpl();
+        service.registerCarVolumeEventCallback(volumeEventCallback);
+        // adjust volume above activation volume
+        int maxActivationVolume = service.getVolumeGroupInfo(TEST_REAR_LEFT_ZONE_ID,
+                TEST_SECONDARY_ZONE_GROUP_0).getMaxActivationVolumeGainIndex();
+        service.setGroupVolume(TEST_REAR_LEFT_ZONE_ID, TEST_SECONDARY_ZONE_GROUP_0,
+                maxActivationVolume + 1, TEST_FLAGS);
+        volumeEventCallback.waitForCallback();
+        volumeEventCallback.reset();
+        reset(mCarVolumeCallbackHandler);
+        // playback before zone config switching
+        callback.onPlaybackConfigChanged(List.of(new AudioPlaybackConfigurationBuilder()
+                .setUsage(USAGE_MEDIA).setDeviceAddress(SECONDARY_TEST_DEVICE_CONFIG_0)
+                .setClientUid(TEST_PLAYBACK_UID).build()));
+        verify(mCarVolumeCallbackHandler).onVolumeGroupChange(eq(TEST_REAR_LEFT_ZONE_ID),
+                eq(TEST_SECONDARY_ZONE_GROUP_0), anyInt());
+        CarAudioZoneConfigInfo zoneConfigSwitchTo = getZoneConfigToSwitch(service,
+                TEST_REAR_LEFT_ZONE_ID);
+        volumeEventCallback.waitForCallback();
+        volumeEventCallback.reset();
+        reset(mCarVolumeCallbackHandler);
+        // zone config switching
+        service.switchZoneToConfig(zoneConfigSwitchTo, zoneConfigSwitchCallback);
+        zoneConfigSwitchCallback.waitForCallback();
+        // adjust volume above activation volume
+        maxActivationVolume = service.getVolumeGroupInfo(TEST_REAR_LEFT_ZONE_ID,
+                TEST_SECONDARY_ZONE_GROUP_0).getMaxActivationVolumeGainIndex();
+        service.setGroupVolume(TEST_REAR_LEFT_ZONE_ID, TEST_SECONDARY_ZONE_GROUP_0,
+                maxActivationVolume + 1, TEST_FLAGS);
+        volumeEventCallback.waitForCallback();
+        volumeEventCallback.reset();
+        reset(mCarVolumeCallbackHandler);
+
+        callback.onPlaybackConfigChanged(List.of(new AudioPlaybackConfigurationBuilder()
+                .setUsage(USAGE_MEDIA).setDeviceAddress(SECONDARY_TEST_DEVICE_CONFIG_1_0)
+                .setClientUid(TEST_PLAYBACK_UID).build()));
+
+        expectWithMessage("Playback group volume after zone config switch")
+                .that(service.getGroupVolume(TEST_REAR_LEFT_ZONE_ID, TEST_SECONDARY_ZONE_GROUP_0))
+                .isEqualTo(maxActivationVolume);
+        verify(mCarVolumeCallbackHandler).onVolumeGroupChange(eq(TEST_REAR_LEFT_ZONE_ID),
+                eq(TEST_SECONDARY_ZONE_GROUP_0), anyInt());
+        expectWithMessage("Volume event callback after zone config switch")
+                .that(volumeEventCallback.waitForCallback()).isTrue();
+        expectWithMessage("Volume events count after zone config switch")
+                .that(volumeEventCallback.getVolumeGroupEvents()).hasSize(1);
+        CarVolumeGroupEvent groupEvent = volumeEventCallback.getVolumeGroupEvents().get(0);
+        expectWithMessage("Volume event type after zone config switch")
+                .that(groupEvent.getEventTypes())
+                .isEqualTo(CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED);
+        expectWithMessage("Volume group info after zone config switch")
+                .that(groupEvent.getCarVolumeGroupInfos()).containsExactly(
+                        service.getVolumeGroupInfo(TEST_REAR_LEFT_ZONE_ID,
+                                TEST_SECONDARY_ZONE_GROUP_0));
     }
 
     @Test
