@@ -112,6 +112,7 @@ struct UidProcStats {
      */
     uint64_t totalRssKb = 0;
     uint64_t totalPssKb = 0;
+    // TODO(b/333212872): Handles totalUssKb, totalSwapPssKb calculation logic here.
     std::unordered_map<pid_t, ProcessStats> processStatsByPid = {};
     std::string toString() const;
 };
