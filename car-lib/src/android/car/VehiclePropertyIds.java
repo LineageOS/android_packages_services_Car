@@ -40,6 +40,7 @@ import android.car.hardware.property.DriverDrowsinessAttentionWarning;
 import android.car.hardware.property.EmergencyLaneKeepAssistState;
 import android.car.hardware.property.ErrorState;
 import android.car.hardware.property.EvChargeState;
+import android.car.hardware.property.EvChargingConnectorType;
 import android.car.hardware.property.EvRegenerativeBrakingState;
 import android.car.hardware.property.EvStoppingMode;
 import android.car.hardware.property.ForwardCollisionWarningState;
@@ -250,7 +251,7 @@ public final class VehiclePropertyIds {
      *  <li>Property is not writable.
      * </ul>
      *
-     * @data_enum {@link EvConnectorType}
+     * @data_enum {@link EvChargingConnectorType}
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_EV_CONNECTOR_TYPE = 289472775;
