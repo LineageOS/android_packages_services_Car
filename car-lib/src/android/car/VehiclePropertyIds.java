@@ -157,6 +157,11 @@ public final class VehiclePropertyIds {
     /**
      * Fuel capacity of the vehicle in milliliters.
      *
+     * <p>This property communicates the maximum amount of the fuel that can be stored in the
+     * vehicle in milliliters. This property will not be implemented for electric vehicles. That is,
+     * if {@link #INFO_FUEL_TYPE} only contains {@link FuelType#ELECTRIC}, this property will not be
+     * implemented. For EVs, see {@link #INFO_EV_BATTERY_CAPACITY}.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
