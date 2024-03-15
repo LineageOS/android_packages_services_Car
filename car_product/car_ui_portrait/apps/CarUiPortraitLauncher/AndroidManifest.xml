@@ -96,7 +96,7 @@
                  launcher. -->
             <intent-filter tools:node="removeAll" />
         </activity>
-        <activity android:name=".calmmode.CalmModeActivity"
+        <activity android:name=".calmmode.PortraitCalmModeActivity"
             android:theme="@style/Theme.CalmMode"
             android:excludeFromRecents="true"
             android:exported="true"
