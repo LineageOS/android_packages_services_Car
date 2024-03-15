@@ -214,8 +214,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Funda ama-windshield wiper emoto."</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"lawula ama-windshield wiper emoto"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Lawula ama-windshield wiper emoto."</string>
-    <string name="car_permission_label_query_display_compatibility" msgid="8846515818036686896">"umbuzo ngokubonisa amaphakheji ahambisanayo"</string>
-    <string name="car_permission_desc_query_display_compatibility" msgid="5344194045180717300">"Umbuzo ngokubonisa amaphakheji ahambisanayo."</string>
+    <string name="car_permission_label_manage_display_compatibility" msgid="8846515818036686896">"umbuzo ngokubonisa amaphakheji ahambisanayo"</string>
+    <string name="car_permission_desc_manage_display_compatibility" msgid="5344194045180717300">"Umbuzo ngokubonisa amaphakheji ahambisanayo."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"qapha izimo zezinye izindawo ezihlala emotweni kanye nama-app ontanga (ama-app anegama lephakheji elifanayo nelomuntu ofonayo) elifakwe kulawo mazoni, futhi ulawule amandla alawo mazoni."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Qapha izimo zezinye izindawo ezihlala emotweni kanye nama-app ontanga (ama-app anegama lephakheji elifanayo nelomuntu ofonayo) elifakwe kulawo mazoni, futhi ulawule amandla alawo mazoni."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"sungula uxhumo futhi uxhumane nama-app ontanga (ama-app anegama lephakheji elifanayo nelomuntu ofonayo) afakwe kwamanye amazoni asemotweni"</string>

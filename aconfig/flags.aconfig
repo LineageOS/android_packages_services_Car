@@ -14,7 +14,7 @@ flag {
   name: "display_compatibility"
   is_exported: true
   namespace: "car_framework"
-  description: "This flag controls if apps can query packages that need car display compatibility treatment"
+  description: "This flag controls the display compatibility system feature."
   bug: "291638685"
 }
 
