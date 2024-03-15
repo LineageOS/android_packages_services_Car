@@ -214,8 +214,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"कारच्या विंडशिल्ड वायपरशी संबंधित डेटा वाचा."</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"कारची विंडशिल्ड वायपर नियंत्रित करा"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"कारची विंडशिल्ड वायपर नियंत्रित करा."</string>
-    <string name="car_permission_label_query_display_compatibility" msgid="8846515818036686896">"क्वेरी डिस्प्ले कंपॅटिबिलिटी पॅकेज"</string>
-    <string name="car_permission_desc_query_display_compatibility" msgid="5344194045180717300">"क्वेरी डिस्प्ले कंपॅटिबिलिटी पॅकेज."</string>
+    <string name="car_permission_label_manage_display_compatibility" msgid="8846515818036686896">"क्वेरी डिस्प्ले कंपॅटिबिलिटी पॅकेज"</string>
+    <string name="car_permission_desc_manage_display_compatibility" msgid="5344194045180717300">"क्वेरी डिस्प्ले कंपॅटिबिलिटी पॅकेज."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"कारमधील इतर ऑक्युपंट झोन आणि त्या झोनमध्ये इंस्टॉल केलेल्या पीअर ॲप्सच्या (कॉलरचेच पॅकेज नाव असलेली ॲप्स) स्थितींचे निरीक्षण करा आणि त्या झोनची पॉवर व्यवस्थापित करा."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"कारमधील इतर ऑक्युपंट झोन आणि त्या झोनमध्ये इंस्टॉल केलेल्या पीअर ॲप्सच्या (कॉलरचेच पॅकेज नाव असलेली ॲप्स) स्थितींचे निरीक्षण करा आणि त्या झोनची पॉवर व्यवस्थापित करा."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"कारमधील इतर ऑक्युपंट झोनमध्ये इंस्टॉल केलेल्या पीअर ॲप्ससोबत (कॉलरचेच पॅकेज नाव असलेली ॲप्स) कनेक्ट करा आणि संवाद साधा"</string>

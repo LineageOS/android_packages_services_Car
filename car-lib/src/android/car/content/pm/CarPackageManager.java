@@ -17,7 +17,7 @@
 package android.car.content.pm;
 
 import static android.car.Car.PERMISSION_CONTROL_APP_BLOCKING;
-import static android.car.Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY;
+import static android.car.Car.PERMISSION_MANAGE_DISPLAY_COMPATIBILITY;
 import static android.car.CarLibLog.TAG_CAR;
 
 import android.Manifest;
@@ -510,7 +510,7 @@ public final class CarPackageManager extends CarManagerBase {
      */
     @FlaggedApi(Flags.FLAG_DISPLAY_COMPATIBILITY)
     @SystemApi
-    @RequiresPermission(allOf = {PERMISSION_QUERY_DISPLAY_COMPATIBILITY,
+    @RequiresPermission(allOf = {PERMISSION_MANAGE_DISPLAY_COMPATIBILITY,
             android.Manifest.permission.QUERY_ALL_PACKAGES})
     public boolean requiresDisplayCompat(@NonNull String packageName) throws NameNotFoundException {
         if (!Flags.displayCompatibility()) {

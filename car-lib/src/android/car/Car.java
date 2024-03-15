@@ -1310,14 +1310,14 @@ public final class Car implements ICarBase {
             "android.car.permission.MANAGE_CAR_SYSTEM_UI";
 
     /**
-     * Permission necessary to query if a package requires launching in automotive compatibility
-     * mode or not
+     * Permission necessary to manage packages that requires launching in automotive compatibility
+     * mode.
      * @hide
      */
     @FlaggedApi(Flags.FLAG_DISPLAY_COMPATIBILITY)
     @SystemApi
-    public static final String PERMISSION_QUERY_DISPLAY_COMPATIBILITY =
-            "android.car.permission.QUERY_DISPLAY_COMPATIBILITY";
+    public static final String PERMISSION_MANAGE_DISPLAY_COMPATIBILITY =
+            "android.car.permission.MANAGE_DISPLAY_COMPATIBILITY";
 
     /**
      * Permission necessary to read state of car airbags.

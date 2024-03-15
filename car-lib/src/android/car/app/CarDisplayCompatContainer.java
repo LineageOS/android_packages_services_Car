@@ -111,7 +111,7 @@ public final class CarDisplayCompatContainer {
      * @hide
      */
     @SystemApi
-    @RequiresPermission(Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY)
+    @RequiresPermission(Car.PERMISSION_MANAGE_DISPLAY_COMPATIBILITY)
     @NonNull
     public Rect setWindowBounds(@NonNull Rect windowBounds) {
         return new Rect();
@@ -123,7 +123,7 @@ public final class CarDisplayCompatContainer {
      * @hide
      */
     @SystemApi
-    @RequiresPermission(Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY)
+    @RequiresPermission(Car.PERMISSION_MANAGE_DISPLAY_COMPATIBILITY)
     public void setDensity(int density) {
     }
 
@@ -134,7 +134,7 @@ public final class CarDisplayCompatContainer {
      * @hide
      */
     @SystemApi
-    @RequiresPermission(Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY)
+    @RequiresPermission(Car.PERMISSION_MANAGE_DISPLAY_COMPATIBILITY)
     public void setVisibility(int visibility) {
     }
 
@@ -144,7 +144,7 @@ public final class CarDisplayCompatContainer {
      * @hide
      */
     @SystemApi
-    @RequiresPermission(Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY)
+    @RequiresPermission(Car.PERMISSION_MANAGE_DISPLAY_COMPATIBILITY)
     public void startActivity(@NonNull Intent intent, @Nullable Bundle bundle) {
     }
 
@@ -154,7 +154,7 @@ public final class CarDisplayCompatContainer {
      * @hide
      */
     @SystemApi
-    @RequiresPermission(Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY)
+    @RequiresPermission(Car.PERMISSION_MANAGE_DISPLAY_COMPATIBILITY)
     public void onBackPressed() {
     }
 }

@@ -38,7 +38,7 @@ public final class CarDisplayCompatManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @RequiresPermission(Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY)
+    @RequiresPermission(Car.PERMISSION_MANAGE_DISPLAY_COMPATIBILITY)
     @Nullable
     public CarDisplayCompatContainer initializeDisplayCompatContainer(
             @NonNull CarDisplayCompatContainer.Builder builder) {

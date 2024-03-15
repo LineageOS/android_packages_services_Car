@@ -216,8 +216,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"קריאה של המגבים של הרכב."</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"שליטה במגבים של הרכב"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"שליטה במגבים של הרכב."</string>
-    <string name="car_permission_label_query_display_compatibility" msgid="8846515818036686896">"חבילות תאימות להצגת שאילתות"</string>
-    <string name="car_permission_desc_query_display_compatibility" msgid="5344194045180717300">"חבילות תאימות להצגת שאילתות."</string>
+    <string name="car_permission_label_manage_display_compatibility" msgid="8846515818036686896">"חבילות תאימות להצגת שאילתות"</string>
+    <string name="car_permission_desc_manage_display_compatibility" msgid="5344194045180717300">"חבילות תאימות להצגת שאילתות."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"מעקב אחר המצבים של אזורי הנוסעים האחרים ברכב ואפליקציות שנבחרו לצורך השוואה (אפליקציות שיש להן שם חבילה זהה למתקשר) המותקנות באזורים האלה, וניהול העוצמה באזורים האלה."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"מעקב אחר המצבים של אזורי הנוסעים האחרים ברכב ואפליקציות שנבחרו לצורך השוואה (אפליקציות שיש להן שם חבילה זהה למתקשר) המותקנות באזורים האלה, וניהול העוצמה באזורים האלה."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"יצירת חיבור ותקשורת עם אפליקציות שנבחרו לצורך השוואה (אפליקציות שיש להן שם חבילה זהה למתקשר) המותקנות באזורי הנוסעים האחרים ברכב."</string>
