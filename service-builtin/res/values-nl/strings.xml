@@ -26,7 +26,7 @@
     <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"Invoergebeurtenissen verwerken"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"Je kunt deze functie niet gebruiken tijdens het rijden"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"Selecteer <xliff:g id="EXIT_BUTTON">%s</xliff:g> om opnieuw te beginnen met de veilige app-functies."</string>
-    <string name="exit_button" msgid="3491899413031549265">"Vorige"</string>
+    <string name="exit_button" msgid="3491899413031549265">"Terug"</string>
     <string name="exit_button_close_application" msgid="5153716684207539041">"App sluiten"</string>
     <string name="exit_button_go_back" msgid="6921595432375141935">"Terug"</string>
     <string name="importance_default" msgid="8017186728206153704">"Standaardbelang"</string>
