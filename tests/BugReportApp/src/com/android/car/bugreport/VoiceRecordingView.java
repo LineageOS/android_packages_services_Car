@@ -15,7 +15,6 @@
  */
 package com.android.car.bugreport;
 
-import android.annotation.Nullable;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -26,6 +25,8 @@ import android.media.MediaRecorder;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+
+import androidx.annotation.Nullable;
 
 /**
  * A view that draws MIC icon and an animated ellipsoid. The ellipsoid animation shows the sound
