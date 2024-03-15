@@ -91,6 +91,7 @@ android_test {
         "flag-junit",
         "ravenwood-junit",
         "mockito-target-extended",
+        "ravenwood-junit",
         "SettingsLib",
         "servicestests-utils",
         "truth",
@@ -120,6 +121,7 @@ android_ravenwood_test {
 
     srcs: [
         "src/com/android/car/CarPropertyServiceUnitTest.java",
+        "src/com/android/car/hal/property/PropertyHalServiceConfigsUnitTest.java",
         // Don't depends on "com.android.car.test" because it uses
         // "mockito-target-extended" which might not be the same mockito
         // library used on host.
@@ -128,6 +130,7 @@ android_ravenwood_test {
 
     static_libs: [
         "android.car",
+        "android.car.test.utils",
         "androidx.annotation_annotation",
         "androidx.test.rules",
         "car-service-test-static-lib",
