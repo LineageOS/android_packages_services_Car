@@ -183,13 +183,15 @@ public final class VehiclePropertyIds {
      * the vehicle.
      *
      * <p>For example:
-     *  <p>FHEVs (Fully Hybrid Electric Vehicles) will not include {@link FuelType#ELECTRIC} in its
+     * <ul>
+     *  <li>FHEVs (Fully Hybrid Electric Vehicles) will not include {@link FuelType#ELECTRIC} in its
      *  {@code Integer[]} value. So {@code INFO_FUEL_TYPE} will be populated as such:
      *  { {@link FuelType#UNLEADED} }.
-     *  <p>On the other hand, PHEVs (Partially Hybrid Electric Vehicles) are plug in rechargeable,
+     *  <li>On the other hand, PHEVs (Plug-in Hybrid Electric Vehicles) are plug in rechargeable,
      *  and hence will include {@link FuelType#ELECTRIC} in {@code INFO_FUEL_TYPE}'s {@code
      *  Integer[]} value. So {@code INFO_FUEL_TYPE} will be populated as such:
      *  { {@link FuelType#UNLEADED}, {@link FuelType#ELECTRIC} }.
+     * </ul>
      *
      * <p>Property Config:
      * <ul>
