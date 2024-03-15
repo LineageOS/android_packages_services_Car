@@ -2162,7 +2162,7 @@
     "WINDOW_LOCK": {
       "propertyName": "WINDOW_LOCK",
       "propertyId": 320867268,
-      "description": "Window Lock.",
+      "description": "Window Child Lock.",
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_WINDOWS"
