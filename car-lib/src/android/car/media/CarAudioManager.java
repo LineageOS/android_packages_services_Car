@@ -47,6 +47,7 @@ import android.os.RemoteException;
 import android.util.Slog;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.ICarBase;
 import com.android.car.internal.annotation.AttributeUsage;
 import com.android.internal.annotations.GuardedBy;
 
@@ -1742,7 +1743,7 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /** @hide */
-    public CarAudioManager(Car car, IBinder service) {
+    public CarAudioManager(ICarBase car, IBinder service) {
         super(car);
         mService = ICarAudio.Stub.asInterface(service);
         mAudioManager = getContext().getSystemService(AudioManager.class);
