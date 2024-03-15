@@ -23,6 +23,9 @@
   "auto-presubmit": [
     {
       "name": "hal_implementation_test"
+    },
+    {
+      "name": "CarLibDeviceUnitTest"
     }
   ],
   "ravenwood-presubmit": [
