@@ -43,7 +43,11 @@ MATCHER_P(ProcessStatsEq, expected, "") {
                              ::testing::Eq(expected.ioBlockedTasksCount)) &&
             ::testing::Value(actual.cpuCyclesByTid,
                              ::testing::UnorderedPointwise(CpuCyclesByTidEq(),
-                                                           expected.cpuCyclesByTid));
+                                                           expected.cpuCyclesByTid)) &&
+            ::testing::Value(actual.rssKb, ::testing::Eq(expected.rssKb)) &&
+            ::testing::Value(actual.pssKb, ::testing::Eq(expected.pssKb)) &&
+            ::testing::Value(actual.ussKb, ::testing::Eq(expected.ussKb)) &&
+            ::testing::Value(actual.swapPssKb, ::testing::Eq(expected.swapPssKb));
 }
 
 MATCHER(ProcessStatsByPidEq, "") {
@@ -61,6 +65,8 @@ MATCHER_P(UidProcStatsEq, expected, "") {
             ::testing::Value(actual.totalTasksCount, ::testing::Eq(expected.totalTasksCount)) &&
             ::testing::Value(actual.ioBlockedTasksCount,
                              ::testing::Eq(expected.ioBlockedTasksCount)) &&
+            ::testing::Value(actual.totalRssKb, ::testing::Eq(expected.totalRssKb)) &&
+            ::testing::Value(actual.totalPssKb, ::testing::Eq(expected.totalPssKb)) &&
             ::testing::Value(actual.processStatsByPid,
                              ::testing::UnorderedPointwise(ProcessStatsByPidEq(),
                                                            expected.processStatsByPid));

@@ -22,6 +22,7 @@
 #include <android-base/stringprintf.h>
 #include <gmock/gmock.h>
 
+#include <android_car_feature.h>
 #include <inttypes.h>
 
 #include <algorithm>
@@ -34,9 +35,12 @@ namespace watchdog {
 using ::android::automotive::watchdog::testing::populateProcPidDir;
 using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
+using ::android::car::feature::car_watchdog_memory_profiling;
 using ::testing::UnorderedPointwise;
 
 namespace {
+
+constexpr uint64_t kTestPrivateDirtyKb = 100;
 
 MATCHER(UidProcStatsByUidEq, "") {
     const auto& actual = std::get<0>(arg);
@@ -48,6 +52,41 @@ MATCHER(UidProcStatsByUidEq, "") {
 std::string pidStatusStr(pid_t pid, uid_t uid) {
     return StringPrintf("Pid:\t%" PRIu32 "\nTgid:\t%" PRIu32 "\nUid:\t%" PRIu32 "\n", pid, pid,
                         uid);
+}
+
+std::string smapsRollupStr(uint64_t rssKb, uint64_t pssKb, uint64_t ussKb, uint64_t swapPssKb) {
+    std::string buffer;
+    StringAppendF(&buffer,
+                  "5592470000-7ffc9a9000 ---p 00000000 00:00 0                              "
+                  "[rollup]\n");
+    // clang-format off
+    StringAppendF(&buffer, "Rss: %" PRIu64 " kB\n", rssKb);
+    StringAppendF(&buffer, "Pss: %" PRIu64 " kB\n", pssKb);
+    StringAppendF(&buffer, "Pss_Anon:           1628 kB\n"
+                           "Pss_File:            360 kB\n"
+                           "Pss_Shmem:           303 kB\n"
+                           "Shared_Clean:       2344 kB\n"
+                           "Shared_Dirty:        688 kB\n");
+    /**
+     * Private_Dirty is 100 KB and ussKB = Private_Dirty + Private_Clean. So, ensure that ussKb
+     * is at least 100 KB before proceeding.
+     */
+    EXPECT_GT(ussKb, kTestPrivateDirtyKb);
+    StringAppendF(&buffer, "Private_Clean:      %" PRIu64 " kB\n", ussKb - kTestPrivateDirtyKb);
+    StringAppendF(&buffer, "Private_Dirty:      %" PRIu64 " kB\n", kTestPrivateDirtyKb);
+    StringAppendF(&buffer, "Referenced:         4908 kB\n"
+                           "Anonymous:          1628 kB\n"
+                           "LazyFree:              0 kB\n"
+                           "AnonHugePages:         0 kB\n"
+                           "ShmemPmdMapped:        0 kB\n"
+                           "FilePmdMapped:         0 kB\n"
+                           "Shared_Hugetlb:        0 kB\n"
+                           "Private_Hugetlb:       0 kB\n"
+                           "Swap:               5860 kB\n");
+    StringAppendF(&buffer, "SwapPss:            %" PRIu64 " kB\n", swapPssKb);
+    StringAppendF(&buffer, "Locked:                0 kB");
+    // clang-format on
+    return buffer;
 }
 
 std::string toString(const std::unordered_map<uid_t, UidProcStats>& uidProcStatsByUid) {
@@ -62,6 +101,27 @@ std::string toString(const std::unordered_map<uid_t, UidProcStats>& uidProcStats
 
 int64_t ticksToMillis(int32_t clockTicks) {
     return (clockTicks * 1000) / sysconf(_SC_CLK_TCK);
+}
+
+void applyFeatureFilter(std::unordered_map<uid_t, UidProcStats>* uidProcStatsByUid) {
+    if (car_watchdog_memory_profiling()) {
+        return;
+    }
+    for (auto& [uid, uidProcStats] : *uidProcStatsByUid) {
+        uidProcStats.totalRssKb = 0;
+        uidProcStats.totalPssKb = 0;
+        for (auto& [pid, processStats] : uidProcStats.processStatsByPid) {
+            processStats.rssKb = 0;
+            processStats.pssKb = 0;
+            processStats.ussKb = 0;
+            processStats.swapPssKb = 0;
+        }
+    }
+}
+
+bool isSmapsRollupSupported(std::string rootPath) {
+    std::string path = StringPrintf((rootPath + kSmapsRollupFileFormat).c_str(), 1);
+    return access(path.c_str(), R_OK) == 0;
 }
 
 }  // namespace
@@ -82,6 +142,12 @@ TEST(UidProcStatsCollectorTest, TestValidStatFiles) {
             {1000, pidStatusStr(1000, 10001234)},
     };
 
+    std::unordered_map<pid_t, std::string> perProcessSmapsRollup = {
+            {1, smapsRollupStr(/*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656, /*swapPssKb=*/200)},
+            {1000,
+             smapsRollupStr(/*rssKb=*/2000, /*pssKb=*/1635, /*ussKb=*/1286, /*swapPssKb=*/600)},
+    };
+
     std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 3 2 0 0 0 0 2 0 19\n"},
             {453, "453 (init) D 0 0 0 0 0 0 0 0 20 0 3 2 0 0 0 0 2 0 275\n"},
@@ -100,41 +166,50 @@ TEST(UidProcStatsCollectorTest, TestValidStatFiles) {
     std::unordered_map<uid_t, UidProcStats> expected =
             {{0,
               UidProcStats{.cpuTimeMillis = ticksToMillis(10),
-                           .cpuCycles = 105000000,
+                           .cpuCycles = 105'000'000,
                            .totalMajorFaults = 220,
                            .totalTasksCount = 2,
                            .ioBlockedTasksCount = 1,
-                           .processStatsByPid = {{1,
-                                                  {"init",
-                                                   ticksToMillis(19),
-                                                   ticksToMillis(10),
-                                                   105000000,
-                                                   220,
-                                                   2,
-                                                   1,
-                                                   {{1, 15000000}, {453, 90000000}}}}}}},
+                           .totalRssKb = 1000,
+                           .totalPssKb = 865,
+                           .processStatsByPid =
+                                   {{1,
+                                     {/*comm=*/"init", /*startTimeMillis=*/ticksToMillis(19),
+                                      /*cpuTimeMillis=*/ticksToMillis(10),
+                                      /*totalCpuCycles=*/105'000'000, /*totalMajorFaults=*/220,
+                                      /*totalTasksCount=*/2, /*ioBlockedTasksCount=*/1,
+                                      /*cpuCyclesByTid=*/{{1, 15'000'000}, {453, 90'000'000}},
+                                      /*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656,
+                                      /*swapPssKb=*/200}}}}},
              {10001234,
               UidProcStats{.cpuTimeMillis = ticksToMillis(12'000),
                            .cpuCycles = 216100000000,
                            .totalMajorFaults = 600,
                            .totalTasksCount = 2,
                            .ioBlockedTasksCount = 2,
-                           .processStatsByPid = {
-                                   {1000,
-                                    {"system_server",
-                                     ticksToMillis(13'400),
-                                     ticksToMillis(12'000),
-                                     216100000000,
-                                     600,
-                                     2,
-                                     2,
-                                     {{1000, 198100000000}, {1100, 18000000000}}}}}}}};
+                           .totalRssKb = 2000,
+                           .totalPssKb = 1635,
+                           .processStatsByPid = {{1000,
+                                                  {/*comm=*/"system_server",
+                                                   /*startTimeMillis=*/ticksToMillis(13'400),
+                                                   /*cpuTimeMillis=*/ticksToMillis(12'000),
+                                                   /*totalCpuCycles=*/216100000000,
+                                                   /*totalMajorFaults=*/600,
+                                                   /*totalTasksCount=*/2,
+                                                   /*ioBlockedTasksCount=*/2, /*cpuCyclesByTid=*/
+                                                   {{1000, 198100000000}, {1100, 18000000000}},
+                                                   /*rssKb=*/2000,
+                                                   /*pssKb=*/1635,
+                                                   /*ussKb=*/1286,
+                                                   /*swapPssKb=*/600}}}}}};
+    applyFeatureFilter(&expected);
 
     TemporaryDir firstSnapshot;
     ASSERT_RESULT_OK(populateProcPidDir(firstSnapshot.path, pidToTids, perProcessStat,
-                                        perProcessStatus, perThreadStat, perThreadTimeInState));
+                                        perProcessStatus, perProcessSmapsRollup,
+                                        /*processStatm=*/{}, perThreadStat, perThreadTimeInState));
 
-    UidProcStatsCollector collector(firstSnapshot.path);
+    UidProcStatsCollector collector(firstSnapshot.path, isSmapsRollupSupported(firstSnapshot.path));
     collector.init();
 
     ASSERT_TRUE(collector.enabled())
@@ -155,6 +230,12 @@ TEST(UidProcStatsCollectorTest, TestValidStatFiles) {
     perProcessStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 920 0 10 10 0 0 0 0 2 0 19\n"},
             {1000, "1000 (system_server) R 1 0 0 0 0 0 0 0 1550 0 10000 8000 0 0 0 0 2 0 13400\n"},
+    };
+
+    perProcessSmapsRollup = {
+            {1, smapsRollupStr(/*rssKb=*/3000, /*pssKb=*/1865, /*ussKb=*/1656, /*swapPssKb=*/900)},
+            {1000,
+             smapsRollupStr(/*rssKb=*/2010, /*pssKb=*/1645, /*ussKb=*/1296, /*swapPssKb=*/610)},
     };
 
     perThreadStat = {
@@ -180,34 +261,43 @@ TEST(UidProcStatsCollectorTest, TestValidStatFiles) {
                   .totalMajorFaults = 700,
                   .totalTasksCount = 2,
                   .ioBlockedTasksCount = 0,
+                  .totalRssKb = 3000,
+                  .totalPssKb = 1865,
                   .processStatsByPid = {{1,
-                                         {"init",
-                                          ticksToMillis(19),
-                                          ticksToMillis(10),
-                                          200'000'000,
-                                          700,
-                                          2,
-                                          0,
-                                          {{1, 200'000'000}, {453, 0}}}}}}},
+                                         {/*comm=*/"init", /*startTimeMillis=*/ticksToMillis(19),
+                                          /*cpuTimeMillis=*/ticksToMillis(10),
+                                          /*totalCpuCycles=*/200'000'000, /*totalMajorFaults=*/700,
+                                          /*totalTasksCount=*/2, /*ioBlockedTasksCount=*/0,
+                                          /*cpuCyclesByTid=*/{{1, 200'000'000}, {453, 0}},
+                                          /*rssKb=*/3000,
+                                          /*pssKb=*/1865,
+                                          /*ussKb=*/1656,
+                                          /*swapPssKb=*/900}}}}},
                 {10001234,
                  {.cpuTimeMillis = ticksToMillis(6'000),
                   .cpuCycles = 18'000'000'000,
                   .totalMajorFaults = 950,
                   .totalTasksCount = 2,
                   .ioBlockedTasksCount = 0,
-                  .processStatsByPid = {{1000,
-                                         {"system_server",
-                                          ticksToMillis(13'400),
-                                          ticksToMillis(6'000),
-                                          18'000'000'000,
-                                          950,
-                                          2,
-                                          0,
-                                          {{1000, 0}, {1400, 18'000'000'000}}}}}}}};
+                  .totalRssKb = 2010,
+                  .totalPssKb = 1645,
+                  .processStatsByPid = {
+                          {1000,
+                           {/*comm=*/"system_server", /*startTimeMillis=*/ticksToMillis(13'400),
+                            /*cpuTimeMillis=*/ticksToMillis(6'000),
+                            /*totalCpuCycles=*/18'000'000'000, /*totalMajorFaults=*/950,
+                            /*totalTasksCount=*/2, /*ioBlockedTasksCount=*/0,
+                            /*cpuCyclesByTid=*/{{1000, 0}, {1400, 18'000'000'000}},
+                            /*rssKb=*/2010,
+                            /*pssKb=*/1645,
+                            /*ussKb=*/1296,
+                            /*swapPssKb=*/610}}}}}};
+    applyFeatureFilter(&expected);
 
     TemporaryDir secondSnapshot;
     ASSERT_RESULT_OK(populateProcPidDir(secondSnapshot.path, pidToTids, perProcessStat,
-                                        perProcessStatus, perThreadStat, perThreadTimeInState));
+                                        perProcessStatus, perProcessSmapsRollup,
+                                        /*processStatm=*/{}, perThreadStat, perThreadTimeInState));
 
     collector.mPath = secondSnapshot.path;
 
@@ -246,6 +336,14 @@ TEST(UidProcStatsCollectorTest, TestHandlesProcessTerminationBetweenScanningAndP
             {3000, pidStatusStr(3000, 10001234)},
     };
 
+    std::unordered_map<pid_t, std::string> perProcessSmapsRollup = {
+            {1, smapsRollupStr(/*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656, /*swapPssKb=*/200)},
+            {2000,
+             smapsRollupStr(/*rssKb=*/2000, /*pssKb=*/1635, /*ussKb=*/1286, /*swapPssKb=*/600)},
+            {3000,
+             smapsRollupStr(/*rssKb=*/5642, /*pssKb=*/2312, /*ussKb=*/944, /*swapPssKb=*/500)},
+    };
+
     std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 10 10 0 0 0 0 1 0 19\n"},
             // Process 2000 terminated.
@@ -265,45 +363,49 @@ TEST(UidProcStatsCollectorTest, TestHandlesProcessTerminationBetweenScanningAndP
                            .totalMajorFaults = 220,
                            .totalTasksCount = 1,
                            .ioBlockedTasksCount = 0,
-                           .processStatsByPid = {{1,
-                                                  {"init",
-                                                   ticksToMillis(19),
-                                                   ticksToMillis(20),
-                                                   200'000'000,
-                                                   220,
-                                                   1,
-                                                   0,
-                                                   {{1, 200'000'000}}}}}}},
+                           .totalRssKb = 1000,
+                           .totalPssKb = 865,
+                           .processStatsByPid =
+                                   {{1,
+                                     {/*comm=*/"init", /*startTimeMillis=*/ticksToMillis(19),
+                                      /*cpuTimeMillis=*/ticksToMillis(20),
+                                      /*totalCpuCycles=*/200'000'000, /*totalMajorFaults=*/220,
+                                      /*totalTasksCount=*/1, /*ioBlockedTasksCount=*/0,
+                                      /*cpuCyclesByTid=*/{{1, 200'000'000}},
+                                      /*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656,
+                                      /*swapPssKb=*/200}}}}},
              {10001234,
               UidProcStats{.cpuTimeMillis = ticksToMillis(140),
                            .cpuCycles = 0,
                            .totalMajorFaults = 11500,
                            .totalTasksCount = 2,
                            .ioBlockedTasksCount = 0,
-                           .processStatsByPid = {{2000,
-                                                  {"logd",
-                                                   ticksToMillis(4567),
-                                                   ticksToMillis(60),
-                                                   0,
-                                                   1200,
-                                                   1,
-                                                   0,
-                                                   {}}},
-                                                 {3000,
-                                                  {"disk I/O",
-                                                   ticksToMillis(67890),
-                                                   ticksToMillis(80),
-                                                   0,
-                                                   10'300,
-                                                   1,
-                                                   0,
-                                                   {}}}}}}};
+                           .totalRssKb = 7642,
+                           .totalPssKb = 3947,
+                           .processStatsByPid =
+                                   {{2000,
+                                     {/*comm=*/"logd", /*startTimeMillis=*/ticksToMillis(4567),
+                                      /*cpuTimeMillis=*/ticksToMillis(60), /*totalCpuCycles=*/0,
+                                      /*totalMajorFaults=*/1200, /*totalTasksCount=*/1,
+                                      /*ioBlockedTasksCount=*/0, /*cpuCyclesByTid=*/{},
+                                      /*rssKb=*/2000, /*pssKb=*/1635, /*ussKb=*/1286,
+                                      /*swapPssKb=*/600}},
+                                    {3000,
+                                     {/*comm=*/"disk I/O",
+                                      /*startTimeMillis=*/ticksToMillis(67890),
+                                      /*cpuTimeMillis=*/ticksToMillis(80), /*totalCpuCycles=*/0,
+                                      /*totalMajorFaults=*/10'300, /*totalTasksCount=*/1,
+                                      /*ioBlockedTasksCount=*/0, /*cpuCyclesByTid=*/{},
+                                      /*rssKb=*/5642, /*pssKb=*/2312, /*ussKb=*/944,
+                                      /*swapPssKb=*/500}}}}}};
+    applyFeatureFilter(&expected);
 
     TemporaryDir procDir;
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
-                                        perThreadStat, perThreadTimeInState));
+                                        perProcessSmapsRollup, /*processStatm=*/{}, perThreadStat,
+                                        perThreadTimeInState));
 
-    UidProcStatsCollector collector(procDir.path);
+    UidProcStatsCollector collector(procDir.path, isSmapsRollupSupported(procDir.path));
     collector.init();
 
     ASSERT_TRUE(collector.enabled())
@@ -336,6 +438,14 @@ TEST(UidProcStatsCollectorTest, TestHandlesPidTidReuse) {
             {2345, pidStatusStr(2345, 10001234)},
     };
 
+    std::unordered_map<pid_t, std::string> perProcessSmapsRollup = {
+            {1, smapsRollupStr(/*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656, /*swapPssKb=*/200)},
+            {1000,
+             smapsRollupStr(/*rssKb=*/2000, /*pssKb=*/1635, /*ussKb=*/1286, /*swapPssKb=*/600)},
+            {2345,
+             smapsRollupStr(/*rssKb=*/5642, /*pssKb=*/2312, /*ussKb=*/944, /*swapPssKb=*/500)},
+    };
+
     std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 10 10 0 0 0 0 4 0 19\n"},
             {367, "367 (init) S 0 0 0 0 0 0 0 0 400 0 10 10 0 0 0 0 4 0 100\n"},
@@ -361,48 +471,59 @@ TEST(UidProcStatsCollectorTest, TestHandlesPidTidReuse) {
                            .totalMajorFaults = 1200,
                            .totalTasksCount = 4,
                            .ioBlockedTasksCount = 1,
+                           .totalRssKb = 1000,
+                           .totalPssKb = 865,
                            .processStatsByPid = {{1,
-                                                  {"init",
-                                                   ticksToMillis(19),
-                                                   ticksToMillis(80),
-                                                   1'160'000'000,
-                                                   1200,
-                                                   4,
-                                                   1,
+                                                  {/*comm=*/"init",
+                                                   /*startTimeMillis=*/ticksToMillis(19),
+                                                   /*cpuTimeMillis=*/ticksToMillis(80),
+                                                   /*totalCpuCycles=*/1'160'000'000,
+                                                   /*totalMajorFaults=*/1200,
+                                                   /*totalTasksCount=*/4,
+                                                   /*ioBlockedTasksCount=*/1, /*cpuCyclesByTid=*/
                                                    {{1, 60'000'000},
                                                     {367, 340'000'000},
                                                     {453, 360'000'000},
-                                                    {589, 400'000'000}}}}}}},
+                                                    {589, 400'000'000}},
+                                                   /*rssKb=*/1000,
+                                                   /*pssKb=*/865,
+                                                   /*ussKb=*/656,
+                                                   /*swapPssKb=*/200}}}}},
              {10001234,
               UidProcStats{.cpuTimeMillis = ticksToMillis(40),
                            .cpuCycles = 420'000'000,
                            .totalMajorFaults = 54'604,
                            .totalTasksCount = 2,
                            .ioBlockedTasksCount = 0,
-                           .processStatsByPid = {{1000,
-                                                  {"system_server",
-                                                   ticksToMillis(1000),
-                                                   ticksToMillis(20),
-                                                   60'000'000,
-                                                   250,
-                                                   1,
-                                                   0,
-                                                   {{1000, 60'000'000}}}},
-                                                 {2345,
-                                                  {"logd",
-                                                   ticksToMillis(456),
-                                                   ticksToMillis(20),
-                                                   360'000'000,
-                                                   54'354,
-                                                   1,
-                                                   0,
-                                                   {{2345, 360'000'000}}}}}}}};
+                           .totalRssKb = 7642,
+                           .totalPssKb = 3947,
+                           .processStatsByPid =
+                                   {{1000,
+                                     {/*comm=*/"system_server",
+                                      /*startTimeMillis=*/ticksToMillis(1000),
+                                      /*cpuTimeMillis=*/ticksToMillis(20),
+                                      /*totalCpuCycles=*/60'000'000, /*totalMajorFaults=*/250,
+                                      /*totalTasksCount=*/1, /*ioBlockedTasksCount=*/0,
+                                      /*cpuCyclesByTid=*/{{1000, 60'000'000}},
+                                      /*rssKb=*/2000, /*pssKb=*/1635, /*ussKb=*/1286,
+                                      /*swapPssKb=*/600}},
+                                    {2345,
+                                     {/*comm=*/"logd", /*startTimeMillis=*/ticksToMillis(456),
+                                      /*cpuTimeMillis=*/ticksToMillis(20),
+                                      /*totalCpuCycles=*/360'000'000,
+                                      /*totalMajorFaults=*/54'354,
+                                      /*totalTasksCount=*/1, /*ioBlockedTasksCount=*/0,
+                                      /*cpuCyclesByTid=*/{{2345, 360'000'000}},
+                                      /*rssKb=*/5642, /*pssKb=*/2312, /*ussKb=*/944,
+                                      /*swapPssKb=*/500}}}}}};
+    applyFeatureFilter(&expected);
 
     TemporaryDir firstSnapshot;
     ASSERT_RESULT_OK(populateProcPidDir(firstSnapshot.path, pidToTids, perProcessStat,
-                                        perProcessStatus, perThreadStat, perThreadTimeInState));
+                                        perProcessStatus, perProcessSmapsRollup,
+                                        /*processStatm=*/{}, perThreadStat, perThreadTimeInState));
 
-    UidProcStatsCollector collector(firstSnapshot.path);
+    UidProcStatsCollector collector(firstSnapshot.path, isSmapsRollupSupported(firstSnapshot.path));
     collector.init();
 
     ASSERT_TRUE(collector.enabled())
@@ -435,6 +556,14 @@ TEST(UidProcStatsCollectorTest, TestHandlesPidTidReuse) {
             {1000, pidStatusStr(1000, 10001234)},
     };
 
+    perProcessSmapsRollup = {
+            {1, smapsRollupStr(/*rssKb=*/1500, /*pssKb=*/965, /*ussKb=*/756, /*swapPssKb=*/300)},
+            {367,
+             smapsRollupStr(/*rssKb=*/2000, /*pssKb=*/1635, /*ussKb=*/1286, /*swapPssKb=*/600)},
+            {1000,
+             smapsRollupStr(/*rssKb=*/5642, /*pssKb=*/2312, /*ussKb=*/944, /*swapPssKb=*/500)},
+    };
+
     perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 500 0 20 20 0 0 0 0 2 0 19\n"},
             {589, "589 (init) S 0 0 0 0 0 0 0 0 300 0 10 10 0 0 0 0 2 0 2345\n"},
@@ -459,44 +588,57 @@ TEST(UidProcStatsCollectorTest, TestHandlesPidTidReuse) {
                               .totalMajorFaults = 600,
                               .totalTasksCount = 2,
                               .ioBlockedTasksCount = 0,
-                              .processStatsByPid = {{1,
-                                                     {"init",
-                                                      ticksToMillis(19),
-                                                      ticksToMillis(40),
-                                                      400'000'000,
-                                                      600,
-                                                      2,
-                                                      0,
-                                                      {{1, 340'000'000}, {589, 60'000'000}}}}}}},
+                              .totalRssKb = 1500,
+                              .totalPssKb = 965,
+                              .processStatsByPid =
+                                      {{1,
+                                        {/*comm=*/"init", /*startTimeMillis=*/ticksToMillis(19),
+                                         /*cpuTimeMillis=*/ticksToMillis(40),
+                                         /*totalCpuCycles=*/400'000'000, /*totalMajorFaults=*/600,
+                                         /*totalTasksCount=*/2, /*ioBlockedTasksCount=*/0,
+                                         /*cpuCyclesByTid=*/{{1, 340'000'000}, {589, 60'000'000}},
+                                         /*rssKb=*/1500, /*pssKb=*/965, /*ussKb=*/756,
+                                         /*swapPssKb=*/300}}}}},
                 {10001234,
                  UidProcStats{.cpuTimeMillis = ticksToMillis(100),
                               .cpuCycles = 1'233'000'000,
                               .totalMajorFaults = 2100,
                               .totalTasksCount = 4,
                               .ioBlockedTasksCount = 1,
+                              .totalRssKb = 7642,
+                              .totalPssKb = 3947,
                               .processStatsByPid = {{367,
-                                                     {"system_server",
-                                                      ticksToMillis(3450),
-                                                      ticksToMillis(60),
-                                                      813'000'000,
-                                                      100,
-                                                      2,
-                                                      0,
-                                                      {{367, 213'000'000}, {2000, 600'000'000}}}},
+                                                     {/*comm=*/"system_server",
+                                                      /*startTimeMillis=*/ticksToMillis(3450),
+                                                      /*cpuTimeMillis=*/ticksToMillis(60),
+                                                      /*totalCpuCycles=*/813'000'000,
+                                                      /*totalMajorFaults=*/100,
+                                                      /*totalTasksCount=*/2,
+                                                      /*ioBlockedTasksCount=*/0, /*cpuCyclesByTid=*/
+                                                      {{367, 213'000'000}, {2000, 600'000'000}},
+                                                      /*rssKb=*/2000,
+                                                      /*pssKb=*/1635,
+                                                      /*ussKb=*/1286,
+                                                      /*swapPssKb=*/600}},
                                                     {1000,
-                                                     {"logd",
-                                                      ticksToMillis(4650),
-                                                      ticksToMillis(40),
-                                                      420'000'000,
-                                                      2000,
-                                                      2,
-                                                      1,
-                                                      {{1000, 360'000'000},
-                                                       {453, 60'000'000}}}}}}}};
+                                                     {/*comm=*/"logd",
+                                                      /*startTimeMillis=*/ticksToMillis(4650),
+                                                      /*cpuTimeMillis=*/ticksToMillis(40),
+                                                      /*totalCpuCycles=*/420'000'000,
+                                                      /*totalMajorFaults=*/2000,
+                                                      /*totalTasksCount=*/2,
+                                                      /*ioBlockedTasksCount=*/1, /*cpuCyclesByTid=*/
+                                                      {{1000, 360'000'000}, {453, 60'000'000}},
+                                                      /*rssKb=*/5642,
+                                                      /*pssKb=*/2312,
+                                                      /*ussKb=*/944,
+                                                      /*swapPssKb=*/500}}}}}};
+    applyFeatureFilter(&expected);
 
     TemporaryDir secondSnapshot;
     ASSERT_RESULT_OK(populateProcPidDir(secondSnapshot.path, pidToTids, perProcessStat,
-                                        perProcessStatus, perThreadStat, perThreadTimeInState));
+                                        perProcessStatus, perProcessSmapsRollup,
+                                        /*processStatm=*/{}, perThreadStat, perThreadTimeInState));
 
     collector.mPath = secondSnapshot.path;
 
@@ -508,6 +650,72 @@ TEST(UidProcStatsCollectorTest, TestHandlesPidTidReuse) {
 
     EXPECT_THAT(actual, UnorderedPointwise(UidProcStatsByUidEq(), expected))
             << "Second snapshot doesn't match.\nExpected:\n"
+            << toString(expected) << "\nActual:\n"
+            << toString(actual);
+}
+
+TEST(UidProcStatsCollectorTest, TestHandlesNoSmapsRollupKernelSupport) {
+    std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
+            {1, {1}},
+    };
+
+    std::unordered_map<pid_t, std::string> perProcessStat = {
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 10 10 0 0 0 0 1 0 19\n"},
+    };
+
+    std::unordered_map<pid_t, std::string> perProcessStatus = {
+            {1, pidStatusStr(1, 0)},
+    };
+
+    std::unordered_map<pid_t, std::string> perProcessStatm = {
+            {1, "2969783 1481 938 530 0 5067 0"},
+    };
+
+    std::unordered_map<pid_t, std::string> perThreadStat = {
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 10 10 0 0 0 0 1 0 19\n"},
+    };
+
+    std::unordered_map<pid_t, std::string> perThreadTimeInState = {
+            {1, "cpu0\n300000 0\n1700000 20\ncpu4\n710000 0\n1800000 0\ncpu7\n2000000 0"},
+    };
+
+    std::unordered_map<uid_t, UidProcStats> expected = {
+            {0,
+             UidProcStats{.cpuTimeMillis = ticksToMillis(20),
+                          .cpuCycles = 340'000'000,
+                          .totalMajorFaults = 200,
+                          .totalTasksCount = 1,
+                          .ioBlockedTasksCount = 0,
+                          .totalRssKb = 5924,
+                          .totalPssKb = 0,
+                          .processStatsByPid = {
+                                  {1,
+                                   {/*comm=*/"init", /*startTimeMillis=*/ticksToMillis(19),
+                                    /*cpuTimeMillis=*/ticksToMillis(20),
+                                    /*totalCpuCycles=*/340'000'000,
+                                    /*totalMajorFaults=*/200, /*totalTasksCount=*/1,
+                                    /*ioBlockedTasksCount=*/0,
+                                    /*cpuCyclesByTid=*/{{1, 340'000'000}},
+                                    /*rssKb=*/5924, /*pssKb=*/0, /*ussKb=*/2172,
+                                    /*swapPssKb=*/0}}}}}};
+    applyFeatureFilter(&expected);
+
+    TemporaryDir procDir;
+    ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
+                                        /*processSmapsRollup=*/{}, perProcessStatm, perThreadStat,
+                                        perThreadTimeInState));
+
+    UidProcStatsCollector collector(procDir.path, isSmapsRollupSupported(procDir.path));
+    collector.init();
+
+    ASSERT_TRUE(collector.enabled())
+            << "Files under the path `" << procDir.path << "` are inaccessible";
+    ASSERT_RESULT_OK(collector.collect());
+
+    auto actual = collector.deltaStats();
+
+    EXPECT_THAT(actual, UnorderedPointwise(UidProcStatsByUidEq(), expected))
+            << "Proc pid contents doesn't match.\nExpected:\n"
             << toString(expected) << "\nActual:\n"
             << toString(actual);
 }
@@ -525,6 +733,10 @@ TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedProcessStatFile) {
             {1, pidStatusStr(1, 0)},
     };
 
+    std::unordered_map<pid_t, std::string> perProcessSmapsRollup = {
+            {1, smapsRollupStr(/*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656, /*swapPssKb=*/200)},
+    };
+
     std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 19\n"},
     };
@@ -535,9 +747,10 @@ TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedProcessStatFile) {
 
     TemporaryDir procDir;
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
-                                        perThreadStat, perThreadTimeInState));
+                                        perProcessSmapsRollup, /*processStatm=*/{}, perThreadStat,
+                                        perThreadTimeInState));
 
-    UidProcStatsCollector collector(procDir.path);
+    UidProcStatsCollector collector(procDir.path, isSmapsRollupSupported(procDir.path));
     collector.init();
 
     ASSERT_TRUE(collector.enabled())
@@ -558,6 +771,10 @@ TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedProcessStatusFile) {
             {1, "Pid:\t1\nTgid:\t1\nCORRUPTED DATA\n"},
     };
 
+    std::unordered_map<pid_t, std::string> perProcessSmapsRollup = {
+            {1, smapsRollupStr(/*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656, /*swapPssKb=*/200)},
+    };
+
     std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 19\n"},
     };
@@ -568,9 +785,10 @@ TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedProcessStatusFile) {
 
     TemporaryDir procDir;
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
-                                        perThreadStat, perThreadTimeInState));
+                                        perProcessSmapsRollup, /*processStatm=*/{}, perThreadStat,
+                                        perThreadTimeInState));
 
-    UidProcStatsCollector collector(procDir.path);
+    UidProcStatsCollector collector(procDir.path, isSmapsRollupSupported(procDir.path));
     collector.init();
 
     ASSERT_TRUE(collector.enabled())
@@ -591,6 +809,10 @@ TEST(UidProcStatsCollectorTest, TestErrorOnProcessStatusFileWithNoUid) {
             {1, "Pid:\t1\nTgid:\t1\n"},
     };
 
+    std::unordered_map<pid_t, std::string> perProcessSmapsRollup = {
+            {1, smapsRollupStr(/*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656, /*swapPssKb=*/200)},
+    };
+
     std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 19\n"},
     };
@@ -601,9 +823,10 @@ TEST(UidProcStatsCollectorTest, TestErrorOnProcessStatusFileWithNoUid) {
 
     TemporaryDir procDir;
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
-                                        perThreadStat, perThreadTimeInState));
+                                        perProcessSmapsRollup, /*processStatm=*/{}, perThreadStat,
+                                        perThreadTimeInState));
 
-    UidProcStatsCollector collector(procDir.path);
+    UidProcStatsCollector collector(procDir.path, isSmapsRollupSupported(procDir.path));
     collector.init();
 
     ASSERT_TRUE(collector.enabled())
@@ -625,6 +848,10 @@ TEST(UidProcStatsCollectorTest, TestErrorOnProcessStatusFileWithNoTgid) {
             {1, "Pid:\t1\nUid:\t1\n"},
     };
 
+    std::unordered_map<pid_t, std::string> perProcessSmapsRollup = {
+            {1, smapsRollupStr(/*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656, /*swapPssKb=*/200)},
+    };
+
     std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 19\n"},
     };
@@ -635,9 +862,10 @@ TEST(UidProcStatsCollectorTest, TestErrorOnProcessStatusFileWithNoTgid) {
 
     TemporaryDir procDir;
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
-                                        perThreadStat, perThreadTimeInState));
+                                        perProcessSmapsRollup, /*processStatm=*/{}, perThreadStat,
+                                        perThreadTimeInState));
 
-    UidProcStatsCollector collector(procDir.path);
+    UidProcStatsCollector collector(procDir.path, isSmapsRollupSupported(procDir.path));
     collector.init();
 
     ASSERT_TRUE(collector.enabled())
@@ -659,6 +887,10 @@ TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedThreadStatFile) {
             {1, pidStatusStr(1, 0)},
     };
 
+    std::unordered_map<pid_t, std::string> perProcessSmapsRollup = {
+            {1, smapsRollupStr(/*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656, /*swapPssKb=*/200)},
+    };
+
     std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 2 0 678\n"},
             {234, "234 (init) D 0 0 0 0 0 0 0 0 200 0 0 0 CORRUPTED DATA\n"},
@@ -670,9 +902,10 @@ TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedThreadStatFile) {
 
     TemporaryDir procDir;
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
-                                        perThreadStat, perThreadTimeInState));
+                                        perProcessSmapsRollup, /*processStatm=*/{}, perThreadStat,
+                                        perThreadTimeInState));
 
-    UidProcStatsCollector collector(procDir.path);
+    UidProcStatsCollector collector(procDir.path, isSmapsRollupSupported(procDir.path));
     collector.init();
 
     ASSERT_TRUE(collector.enabled())
@@ -693,6 +926,10 @@ TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedThreadTimeInStateFile) {
             {1, pidStatusStr(1, 0)},
     };
 
+    std::unordered_map<pid_t, std::string> perProcessSmapsRollup = {
+            {1, smapsRollupStr(/*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656, /*swapPssKb=*/200)},
+    };
+
     std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 2 0 678\n"},
             {234, "234 (init) D 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 2 0 500\n"},
@@ -705,9 +942,10 @@ TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedThreadTimeInStateFile) {
 
     TemporaryDir procDir;
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
-                                        perThreadStat, perThreadTimeInState));
+                                        perProcessSmapsRollup, /*processStatm=*/{}, perThreadStat,
+                                        perThreadTimeInState));
 
-    UidProcStatsCollector collector(procDir.path);
+    UidProcStatsCollector collector(procDir.path, isSmapsRollupSupported(procDir.path));
     collector.init();
 
     ASSERT_TRUE(collector.enabled())
@@ -729,6 +967,10 @@ TEST(UidProcStatsCollectorTest, TestHandlesSpaceInCommName) {
             {1, pidStatusStr(1, 0)},
     };
 
+    std::unordered_map<pid_t, std::string> perProcessSmapsRollup = {
+            {1, smapsRollupStr(/*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656, /*swapPssKb=*/200)},
+    };
+
     std::unordered_map<pid_t, std::string> perThreadStat = {
             {1,
              "1 (random process name with space) S 0 0 0 0 0 0 0 0 200 0 10 10 0 0 0 0 1 0 19\n"},
@@ -745,21 +987,26 @@ TEST(UidProcStatsCollectorTest, TestHandlesSpaceInCommName) {
                           .totalMajorFaults = 200,
                           .totalTasksCount = 1,
                           .ioBlockedTasksCount = 0,
-                          .processStatsByPid = {{1,
-                                                 {"random process name with space",
-                                                  ticksToMillis(19),
-                                                  ticksToMillis(20),
-                                                  340'000'000,
-                                                  200,
-                                                  1,
-                                                  0,
-                                                  {{1, 340'000'000}}}}}}}};
+                          .totalRssKb = 1000,
+                          .totalPssKb = 865,
+                          .processStatsByPid = {
+                                  {1,
+                                   {/*comm=*/"random process name with space",
+                                    /*startTimeMillis=*/ticksToMillis(19),
+                                    /*cpuTimeMillis=*/ticksToMillis(20),
+                                    /*totalCpuCycles=*/340'000'000, /*totalMajorFaults=*/200,
+                                    /*totalTasksCount=*/1, /*ioBlockedTasksCount=*/0,
+                                    /*cpuCyclesByTid=*/{{1, 340'000'000}},
+                                    /*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656,
+                                    /*swapPssKb=*/200}}}}}};
+    applyFeatureFilter(&expected);
 
     TemporaryDir procDir;
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
-                                        perThreadStat, perThreadTimeInState));
+                                        perProcessSmapsRollup, /*processStatm=*/{}, perThreadStat,
+                                        perThreadTimeInState));
 
-    UidProcStatsCollector collector(procDir.path);
+    UidProcStatsCollector collector(procDir.path, isSmapsRollupSupported(procDir.path));
     collector.init();
 
     ASSERT_TRUE(collector.enabled())
@@ -787,6 +1034,10 @@ TEST(UidProcStatsCollectorTest, TestHandlesTimeInStateFileDisabledWithNoFile) {
             {1, pidStatusStr(1, 0)},
     };
 
+    std::unordered_map<pid_t, std::string> perProcessSmapsRollup = {
+            {1, smapsRollupStr(/*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656, /*swapPssKb=*/200)},
+    };
+
     std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 10 10 0 0 0 0 1 0 19\n"},
     };
@@ -800,21 +1051,25 @@ TEST(UidProcStatsCollectorTest, TestHandlesTimeInStateFileDisabledWithNoFile) {
                           .totalMajorFaults = 200,
                           .totalTasksCount = 1,
                           .ioBlockedTasksCount = 0,
-                          .processStatsByPid = {{1,
-                                                 {"init",
-                                                  ticksToMillis(19),
-                                                  ticksToMillis(20),
-                                                  0,
-                                                  200,
-                                                  1,
-                                                  0,
-                                                  {}}}}}}};
+                          .totalRssKb = 1000,
+                          .totalPssKb = 865,
+                          .processStatsByPid = {
+                                  {1,
+                                   {/*comm=*/"init", /*startTimeMillis=*/ticksToMillis(19),
+                                    /*cpuTimeMillis=*/ticksToMillis(20), /*totalCpuCycles=*/0,
+                                    /*totalMajorFaults=*/200, /*totalTasksCount=*/1,
+                                    /*ioBlockedTasksCount=*/0, /*cpuCyclesByTid=*/{},
+                                    /*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656,
+                                    /*swapPssKb=*/200}}}}}};
+
+    applyFeatureFilter(&expected);
 
     TemporaryDir procDir;
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
-                                        perThreadStat, {}));
+                                        perProcessSmapsRollup, /*processStatm=*/{}, perThreadStat,
+                                        {}));
 
-    UidProcStatsCollector collector(procDir.path);
+    UidProcStatsCollector collector(procDir.path, isSmapsRollupSupported(procDir.path));
     collector.init();
 
     ASSERT_TRUE(collector.enabled())
@@ -842,6 +1097,10 @@ TEST(UidProcStatsCollectorTest, TestHandlesTimeInStateFileDisabledWithEmptyFile)
             {1, pidStatusStr(1, 0)},
     };
 
+    std::unordered_map<pid_t, std::string> perProcessSmapsRollup = {
+            {1, smapsRollupStr(/*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656, /*swapPssKb=*/200)},
+    };
+
     std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 10 10 0 0 0 0 1 0 19\n"},
     };
@@ -857,21 +1116,24 @@ TEST(UidProcStatsCollectorTest, TestHandlesTimeInStateFileDisabledWithEmptyFile)
                           .totalMajorFaults = 200,
                           .totalTasksCount = 1,
                           .ioBlockedTasksCount = 0,
-                          .processStatsByPid = {{1,
-                                                 {"init",
-                                                  ticksToMillis(19),
-                                                  ticksToMillis(20),
-                                                  0,
-                                                  200,
-                                                  1,
-                                                  0,
-                                                  {}}}}}}};
+                          .totalRssKb = 1000,
+                          .totalPssKb = 865,
+                          .processStatsByPid = {
+                                  {1,
+                                   {/*comm=*/"init", /*startTimeMillis=*/ticksToMillis(19),
+                                    /*cpuTimeMillis=*/ticksToMillis(20), /*totalCpuCycles=*/0,
+                                    /*totalMajorFaults=*/200, /*totalTasksCount=*/1,
+                                    /*ioBlockedTasksCount=*/0, /*cpuCyclesByTid=*/{},
+                                    /*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656,
+                                    /*swapPssKb=*/200}}}}}};
+    applyFeatureFilter(&expected);
 
     TemporaryDir procDir;
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
-                                        perThreadStat, {}));
+                                        perProcessSmapsRollup, /*processStatm=*/{}, perThreadStat,
+                                        {}));
 
-    UidProcStatsCollector collector(procDir.path);
+    UidProcStatsCollector collector(procDir.path, isSmapsRollupSupported(procDir.path));
     collector.init();
 
     ASSERT_TRUE(collector.enabled())
@@ -899,6 +1161,10 @@ TEST(UidProcStatsCollectorTest, TestHandlesTimeInStateFileDisabledWithZeroCpuCyc
             {1, pidStatusStr(1, 0)},
     };
 
+    std::unordered_map<pid_t, std::string> perProcessSmapsRollup = {
+            {1, smapsRollupStr(/*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656, /*swapPssKb=*/200)},
+    };
+
     std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 10 10 0 0 0 0 1 0 19\n"},
     };
@@ -914,21 +1180,24 @@ TEST(UidProcStatsCollectorTest, TestHandlesTimeInStateFileDisabledWithZeroCpuCyc
                           .totalMajorFaults = 200,
                           .totalTasksCount = 1,
                           .ioBlockedTasksCount = 0,
-                          .processStatsByPid = {{1,
-                                                 {"init",
-                                                  ticksToMillis(19),
-                                                  ticksToMillis(20),
-                                                  0,
-                                                  200,
-                                                  1,
-                                                  0,
-                                                  {}}}}}}};
+                          .totalRssKb = 1000,
+                          .totalPssKb = 865,
+                          .processStatsByPid = {
+                                  {1,
+                                   {/*comm=*/"init", /*startTimeMillis=*/ticksToMillis(19),
+                                    /*cpuTimeMillis=*/ticksToMillis(20), /*totalCpuCycles=*/0,
+                                    /*totalMajorFaults=*/200, /*totalTasksCount=*/1,
+                                    /*ioBlockedTasksCount=*/0, /*cpuCyclesByTid=*/{},
+                                    /*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656,
+                                    /*swapPssKb=*/200}}}}}};
+    applyFeatureFilter(&expected);
 
     TemporaryDir procDir;
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
-                                        perThreadStat, {}));
+                                        perProcessSmapsRollup, /*processStatm=*/{}, perThreadStat,
+                                        {}));
 
-    UidProcStatsCollector collector(procDir.path);
+    UidProcStatsCollector collector(procDir.path, isSmapsRollupSupported(procDir.path));
     collector.init();
 
     ASSERT_TRUE(collector.enabled())
@@ -956,6 +1225,10 @@ TEST(UidProcStatsCollectorTest, TestHandlesNoTimeInStateFileDuringCollection) {
             {1, pidStatusStr(1, 0)},
     };
 
+    std::unordered_map<pid_t, std::string> perProcessSmapsRollup = {
+            {1, smapsRollupStr(/*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656, /*swapPssKb=*/200)},
+    };
+
     std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 10 10 0 0 0 0 2 0 19\n"},
             {234, "1 (init) S 0 0 0 0 0 0 0 0 10 0 5 5 0 0 0 0 2 0 19\n"},
@@ -973,21 +1246,25 @@ TEST(UidProcStatsCollectorTest, TestHandlesNoTimeInStateFileDuringCollection) {
                           .totalMajorFaults = 210,
                           .totalTasksCount = 2,
                           .ioBlockedTasksCount = 0,
-                          .processStatsByPid = {{1,
-                                                 {"init",
-                                                  ticksToMillis(19),
-                                                  ticksToMillis(30),
-                                                  340'000'000,
-                                                  210,
-                                                  2,
-                                                  0,
-                                                  {{1, 340'000'000}}}}}}}};
+                          .totalRssKb = 1000,
+                          .totalPssKb = 865,
+                          .processStatsByPid = {
+                                  {1,
+                                   {/*comm=*/"init", /*startTimeMillis=*/ticksToMillis(19),
+                                    /*cpuTimeMillis=*/ticksToMillis(30),
+                                    /*totalCpuCycles=*/340'000'000, /*totalMajorFaults=*/210,
+                                    /*totalTasksCount=*/2, /*ioBlockedTasksCount=*/0,
+                                    /*cpuCyclesByTid=*/{{1, 340'000'000}},
+                                    /*rssKb=*/1000, /*pssKb=*/865, /*ussKb=*/656,
+                                    /*swapPssKb=*/200}}}}}};
+    applyFeatureFilter(&expected);
 
     TemporaryDir procDir;
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
-                                        perThreadStat, perThreadTimeInState));
+                                        perProcessSmapsRollup, /*processStatm=*/{}, perThreadStat,
+                                        perThreadTimeInState));
 
-    UidProcStatsCollector collector(procDir.path);
+    UidProcStatsCollector collector(procDir.path, isSmapsRollupSupported(procDir.path));
     collector.init();
 
     ASSERT_TRUE(collector.enabled())
@@ -1000,6 +1277,41 @@ TEST(UidProcStatsCollectorTest, TestHandlesNoTimeInStateFileDuringCollection) {
             << "Proc pid contents doesn't match.\nExpected:\n"
             << toString(expected) << "\nActual:\n"
             << toString(actual);
+}
+
+TEST(UidProcStatsCollectorTest, TestCollectorStatusOnMissingSmapsRollupAndStatmFiles) {
+    std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
+            {1, {1}},
+    };
+
+    std::unordered_map<pid_t, std::string> perProcessStat = {
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 10 10 0 0 0 0 1 0 19\n"},
+    };
+
+    std::unordered_map<pid_t, std::string> perProcessStatus = {
+            {1, pidStatusStr(1, 0)},
+    };
+
+    std::unordered_map<pid_t, std::string> perThreadStat = {
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 10 10 0 0 0 0 1 0 19\n"},
+    };
+
+    std::unordered_map<pid_t, std::string> perThreadTimeInState = {
+            {1, "cpu0\n300000 0\n1700000 20\ncpu4\n710000 0\n1800000 0\ncpu7\n2000000 0"},
+    };
+
+    TemporaryDir procDir;
+    ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
+                                        /*processSmapsRollup=*/{}, /*processStatm=*/{},
+                                        perThreadStat, perThreadTimeInState));
+
+    UidProcStatsCollector collector(procDir.path, isSmapsRollupSupported(procDir.path));
+    collector.init();
+
+    ASSERT_EQ(!car_watchdog_memory_profiling(), collector.enabled())
+            << "Collector status when memory profiling feature is "
+            << (car_watchdog_memory_profiling() ? "enabled" : "disabled")
+            << " and per-process smaps rollup / statm are missing";
 }
 
 TEST(UidProcStatsCollectorTest, TestUidProcStatsCollectorContentsFromDevice) {
