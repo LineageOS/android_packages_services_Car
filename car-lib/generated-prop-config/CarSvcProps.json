@@ -73,7 +73,7 @@
     "INFO_EV_BATTERY_CAPACITY": {
       "propertyName": "INFO_EV_BATTERY_CAPACITY",
       "propertyId": 291504390,
-      "description": "Nominal battery capacity for EV or hybrid vehicle.",
+      "description": "Nominal usable battery capacity for EV or hybrid vehicle.",
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
@@ -361,7 +361,7 @@
     "EV_CURRENT_BATTERY_CAPACITY": {
       "propertyName": "EV_CURRENT_BATTERY_CAPACITY",
       "propertyId": 291504909,
-      "description": "Current battery capacity for EV or hybrid vehicle.",
+      "description": "Current usable battery capacity for EV or hybrid vehicle.",
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENERGY"
