@@ -448,6 +448,10 @@ public final class VehiclePropertyIds {
      *
      * <p>Left is negative.
      *
+     * <p>This property is independent of the angle of the steering wheel. This property
+     * communicates the angle of the front wheels with respect to the vehicle, not the angle of the
+     * steering wheel.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
@@ -469,6 +473,10 @@ public final class VehiclePropertyIds {
      * Rear bicycle model steering angle for vehicle in degrees.
      *
      * <p>Left is negative.
+     *
+     * <p>This property is independent of the angle of the steering wheel. This property
+     * communicates the angle of the rear wheels with respect to the vehicle, not the angle of the
+     * steering wheel.
      *
      * <p>Property Config:
      * <ul>
