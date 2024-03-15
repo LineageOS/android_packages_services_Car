@@ -182,6 +182,13 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     private static final String SECONDARY_ZONE_BACK_MICROPHONE_ADDRESS = "Built-In Back Mic";
     private static final String SECONDARY_ZONE_BUS_1000_INPUT_ADDRESS = "bus_1000_input";
 
+    private static final int PRIMARY_ZONE_GROUP_0_ACTIVATION_VOLUME_TYPE =
+            CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT;
+    private static final int PRIMARY_ZONE_DEFAULT_ACTIVATION_VOLUME_TYPE =
+            CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT
+                    | CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_SOURCE_CHANGED
+                    | CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_PLAYBACK_CHANGED;
+
     private static final int PRIMARY_OCCUPANT_ID = 1;
     private static final int SECONDARY_ZONE_ID = 2;
     private List<CarAudioDeviceInfo> mCarAudioOutputDeviceInfos;
@@ -1603,12 +1610,18 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
             expectWithMessage("Primary zone volume group 0 max activation volume")
                     .that(volumeGroups[0].getMaxActivationGainIndex())
                     .isLessThan(volumeGroups[0].getMaxGainIndex());
+            expectWithMessage("Primary zone volume group 0 activation volume invocation types")
+                    .that(volumeGroups[0].getActivationVolumeInvocationType())
+                    .isEqualTo(PRIMARY_ZONE_GROUP_0_ACTIVATION_VOLUME_TYPE);
             expectWithMessage("Primary zone volume group 1 min activation volume")
                     .that(volumeGroups[1].getMinActivationGainIndex())
                     .isEqualTo(volumeGroups[1].getMinGainIndex());
             expectWithMessage("Primary zone volume group 1 max activation volume")
                     .that(volumeGroups[1].getMaxActivationGainIndex())
                     .isEqualTo(volumeGroups[1].getMaxGainIndex());
+            expectWithMessage("Primary zone volume group 1 activation volume invocation types")
+                    .that(volumeGroups[1].getActivationVolumeInvocationType())
+                    .isEqualTo(PRIMARY_ZONE_DEFAULT_ACTIVATION_VOLUME_TYPE);
         }
     }
 
@@ -1670,6 +1683,91 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
             expectWithMessage("Min greater than max activation volume exception")
                     .that(thrown).hasMessageThat().contains("can not be larger than or equal to");
+        }
+    }
+
+    @Test
+    public void loadAudioZones_withInvalidMinMaxActivationVolumeActivationType_fails()
+            throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        try (InputStream versionFourStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_with_invalid_activation_volume_type)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+                    /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
+                    /* useFadeManagerConfiguration= */ false,
+                    /* carAudioFadeConfigurationHelper= */ null);
+
+            IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                    cazh::loadAudioZones);
+
+            expectWithMessage("Invalid activation volume invocation type exception")
+                    .that(thrown).hasMessageThat()
+                    .contains("is invalid for group invocationType");
+        }
+    }
+
+    @Test
+    public void loadAudioZones_withMutlipleActivationVolumeConfigEntriesInOneConfig_fails()
+            throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        try (InputStream versionFourStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_with_activation_volume_multiple_entries)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+                    /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
+                    /* useFadeManagerConfiguration= */ false,
+                    /* carAudioFadeConfigurationHelper= */ null);
+
+            IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                    cazh::loadAudioZones);
+
+            expectWithMessage("Multiple activation volume entries in one config exception")
+                    .that(thrown).hasMessageThat().contains("is not supported");
+        }
+    }
+
+    @Test
+    public void loadAudioZones_withRepeatedActivationVolumeConfigName_fails()
+            throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        try (InputStream versionFourStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_with_activation_volume_repeated_config_name)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+                    /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
+                    /* useFadeManagerConfiguration= */ false,
+                    /* carAudioFadeConfigurationHelper= */ null);
+
+            IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                    cazh::loadAudioZones);
+
+            expectWithMessage("Repeated activation volume config name exception")
+                    .that(thrown).hasMessageThat().contains("can not repeat");
+        }
+    }
+
+    @Test
+    public void loadAudioZones_withoutActivationVolumeConfigName_fails()
+            throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        try (InputStream versionFourStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_without_activation_volume_config_name)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+                    /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
+                    /* useFadeManagerConfiguration= */ false,
+                    /* carAudioFadeConfigurationHelper= */ null);
+
+            NullPointerException thrown = assertThrows(NullPointerException.class,
+                    cazh::loadAudioZones);
+
+            expectWithMessage("No activation volume config name exception")
+                    .that(thrown).hasMessageThat().contains("must be present");
         }
     }
 
