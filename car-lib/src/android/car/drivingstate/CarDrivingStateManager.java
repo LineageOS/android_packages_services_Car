@@ -45,7 +45,6 @@ import java.lang.ref.WeakReference;
 @SystemApi
 public final class CarDrivingStateManager extends CarManagerBase {
     private static final String TAG = "CarDrivingStateMgr";
-    private static final boolean DBG = false;
     private static final boolean VDBG = false;
     private static final int MSG_HANDLE_DRIVING_STATE_CHANGE = 0;
 

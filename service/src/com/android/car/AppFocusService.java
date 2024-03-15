@@ -31,6 +31,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.util.ArraySet;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.proto.ProtoOutputStream;
 
@@ -51,7 +52,7 @@ import java.util.Set;
  */
 public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
         BinderInterfaceContainer.BinderEventHandler<IAppFocusOwnershipCallback> {
-    private static final boolean DBG = false;
+    private static final boolean DBG = Slogf.isLoggable(CarLog.TAG_APP_FOCUS, Log.DEBUG);
     private static final boolean DBG_EVENT = false;
 
     // This constant should be equal to PermissionChecker.PERMISSION_GRANTED.

@@ -20,9 +20,6 @@ import android.content.Intent;
 
 /** Proxy service for CarPerUserServiceImpl */
 public class CarPerUserService extends ServiceProxy {
-    private static final boolean DBG = false;
-    private static final String TAG = CarPerUserService.class.getSimpleName();
-
     public CarPerUserService() {
         super(UpdatablePackageDependency.CAR_USER_PER_SERVICE_IMPL_CLASS);
     }
