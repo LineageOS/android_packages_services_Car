@@ -15,19 +15,31 @@
  */
 package android.car.app;
 
+import static android.Manifest.permission.INTERACT_ACROSS_USERS;
+
 import android.annotation.FlaggedApi;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
+import android.annotation.UiThread;
 import android.app.Activity;
 import android.car.Car;
+import android.car.builtin.util.Slogf;
+import android.car.builtin.view.ViewHelper;
 import android.car.feature.Flags;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.SurfaceView;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -35,48 +47,35 @@ import java.util.function.Consumer;
  *
  * @hide
  */
+//TODO: b/329677726 Allow setting width, height and density from CarDisplayCompatContainer
 @FlaggedApi(Flags.FLAG_DISPLAY_COMPATIBILITY)
 @SystemApi
 public final class CarDisplayCompatContainer {
+    private static final String TAG = CarDisplayCompatContainer.class.getSimpleName();
+    @NonNull
+    private final CarActivityManager mCarActivityManager;
+    @NonNull
+    private Activity mActivity;
+    @Nullable
+    private Consumer<SurfaceView> mSurfaceViewCallback;
+    @Nullable
+    private CarTaskViewController mCarTaskViewController;
+    @Nullable
+    private RemoteCarTaskView mRemoteCarTaskView;
+    @Nullable
+    private Intent mIntent;
 
+    @FlaggedApi(Flags.FLAG_DISPLAY_COMPATIBILITY)
     public static final class Builder {
         @NonNull
         private Activity mActivity;
-        private int mWidth;
-        private int mHeight;
-        private int mDensityDpi;
         @Nullable
-        private Consumer<SurfaceView> mCallback;
+        private Consumer<SurfaceView> mSurfaceViewCallBack;
+        @NonNull
+        private CarActivityManager mCarActivityManager;
 
         public Builder(@NonNull Activity activity) {
             mActivity = activity;
-        }
-
-        /**
-         * set width in px
-         */
-        @NonNull
-        public Builder setWidth(int width) {
-            mWidth = width;
-            return this;
-        }
-
-        /**
-         * set height in px
-         */
-        @NonNull
-        public Builder setHeight(int height) {
-            mHeight = height;
-            return this;
-        }
-
-        /**
-         * set density in dpi
-         */
-        @NonNull
-        public Builder setDensity(int densityDpi) {
-            mDensityDpi = densityDpi;
-            return this;
         }
 
         /**
@@ -84,7 +83,16 @@ public final class CarDisplayCompatContainer {
          */
         @NonNull
         public Builder setSurfaceViewCallback(@Nullable Consumer<SurfaceView> callback) {
-            mCallback = callback;
+            mSurfaceViewCallBack = callback;
+            return this;
+        }
+
+        /**
+         * set a car instance
+         */
+        @NonNull
+        Builder setCarActivityManager(@NonNull CarActivityManager carActivityManager) {
+            mCarActivityManager = carActivityManager;
             return this;
         }
 
@@ -94,15 +102,19 @@ public final class CarDisplayCompatContainer {
         @NonNull
         CarDisplayCompatContainer build() {
             return new CarDisplayCompatContainer(
-                    mActivity, mWidth, mHeight, mDensityDpi, mCallback);
+                    mActivity, mSurfaceViewCallBack, mCarActivityManager);
         }
     }
 
     /**
      * @hide
      */
-    CarDisplayCompatContainer(@NonNull Activity activity, int width, int height, int densityDpi,
-            @Nullable Consumer<SurfaceView> callback) {
+    CarDisplayCompatContainer(@NonNull Activity activity,
+            @Nullable Consumer<SurfaceView> callback,
+            @NonNull CarActivityManager carActivityManager) {
+        mActivity = activity;
+        mSurfaceViewCallback = callback;
+        mCarActivityManager = carActivityManager;
     }
 
     /**
@@ -110,21 +122,17 @@ public final class CarDisplayCompatContainer {
      *
      * @hide
      */
+    @UiThread
     @SystemApi
     @RequiresPermission(Car.PERMISSION_MANAGE_DISPLAY_COMPATIBILITY)
     @NonNull
     public Rect setWindowBounds(@NonNull Rect windowBounds) {
-        return new Rect();
-    }
-
-    /**
-     * Set the density of the display compat container
-     *
-     * @hide
-     */
-    @SystemApi
-    @RequiresPermission(Car.PERMISSION_MANAGE_DISPLAY_COMPATIBILITY)
-    public void setDensity(int density) {
+        if (mRemoteCarTaskView != null) {
+            mRemoteCarTaskView.setWindowBounds(windowBounds);
+        }
+        Rect actualWindowBounds = new Rect();
+        ViewHelper.getBoundsOnScreen(mRemoteCarTaskView, actualWindowBounds);
+        return actualWindowBounds;
     }
 
     /**
@@ -133,9 +141,13 @@ public final class CarDisplayCompatContainer {
      *
      * @hide
      */
+    @UiThread
     @SystemApi
     @RequiresPermission(Car.PERMISSION_MANAGE_DISPLAY_COMPATIBILITY)
     public void setVisibility(int visibility) {
+        if (mRemoteCarTaskView != null) {
+            mRemoteCarTaskView.setVisibility(visibility);
+        }
     }
 
     /**
@@ -143,9 +155,22 @@ public final class CarDisplayCompatContainer {
      *
      * @hide
      */
+    @UiThread
     @SystemApi
-    @RequiresPermission(Car.PERMISSION_MANAGE_DISPLAY_COMPATIBILITY)
+    @RequiresPermission(allOf = {Car.PERMISSION_MANAGE_DISPLAY_COMPATIBILITY,
+            Car.PERMISSION_MANAGE_CAR_SYSTEM_UI,
+            INTERACT_ACROSS_USERS})
     public void startActivity(@NonNull Intent intent, @Nullable Bundle bundle) {
+        mIntent = intent;
+        Context context = mActivity.getApplicationContext();
+        RemoteCarRootTaskViewCallback remoteCarTaskViewCallback =
+                new RemoteCarRootTaskViewCallbackImpl(mRemoteCarTaskView,
+                        intent, context, mSurfaceViewCallback);
+        CarTaskViewControllerCallback carTaskViewControllerCallback =
+                new CarTaskViewControllerCallbackImpl(remoteCarTaskViewCallback);
+
+        mCarActivityManager.getCarTaskViewController(mActivity, mActivity.getMainExecutor(),
+                carTaskViewControllerCallback);
     }
 
     /**
@@ -153,8 +178,90 @@ public final class CarDisplayCompatContainer {
      *
      * @hide
      */
+    @UiThread
     @SystemApi
     @RequiresPermission(Car.PERMISSION_MANAGE_DISPLAY_COMPATIBILITY)
-    public void onBackPressed() {
+    public void notifyBackPressed() {
+    }
+
+    private static final class RemoteCarRootTaskViewCallbackImpl implements
+            RemoteCarRootTaskViewCallback {
+        private RemoteCarTaskView mRemoteCarTaskView;
+        private final Intent mIntent;
+        private final Context mContext;
+        private Consumer<SurfaceView> mSurfaceViewCallback;
+        private RemoteCarRootTaskViewCallbackImpl(
+                RemoteCarTaskView remoteCarTaskView,
+                Intent intent,
+                Context context,
+                Consumer<SurfaceView> callback) {
+            mRemoteCarTaskView = remoteCarTaskView;
+            mIntent = intent;
+            mContext = context;
+            mSurfaceViewCallback = callback;
+        }
+
+        @Override
+        public void onTaskViewCreated(@NonNull RemoteCarRootTaskView taskView) {
+            mRemoteCarTaskView = taskView;
+            if (mSurfaceViewCallback != null) {
+                mSurfaceViewCallback.accept(mRemoteCarTaskView);
+            }
+            if (mIntent != null) {
+                mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mContext.startActivity(mIntent);
+            }
+        }
+    }
+
+    private final class CarTaskViewControllerCallbackImpl implements CarTaskViewControllerCallback {
+        private final RemoteCarRootTaskViewCallback mRemoteCarRootTaskViewCallback;
+
+        private CarTaskViewControllerCallbackImpl(
+                @Nullable RemoteCarRootTaskViewCallback remoteCarRootTaskViewCallback) {
+            mRemoteCarRootTaskViewCallback = remoteCarRootTaskViewCallback;
+        }
+
+        @RequiresPermission("android.car.permission.CONTROL_CAR_APP_LAUNCH")
+        @Override
+        public void onConnected(@NonNull CarTaskViewController carTaskViewController) {
+            mCarTaskViewController = carTaskViewController;
+            if (mIntent != null) {
+                String packageName = mIntent.getComponent().getPackageName();
+                if (packageName != null) {
+                    List<ComponentName> componentNames = queryActivitiesFromPackage(mActivity,
+                            packageName);
+                    mCarTaskViewController.createRemoteCarRootTaskView(
+                            new RemoteCarRootTaskViewConfig.Builder()
+                                    .setAllowListedActivities(componentNames)
+                                    .build(),
+                            mActivity.getMainExecutor(),
+                            mRemoteCarRootTaskViewCallback);
+                }
+            }
+        }
+
+        @Override
+        public void onDisconnected(@NonNull CarTaskViewController carTaskViewController) {
+            mRemoteCarTaskView = null;
+        }
+    }
+
+    private static List<ComponentName> queryActivitiesFromPackage(
+            Activity activity, String packageName) {
+        List<ComponentName> componentNames = new ArrayList<>();
+        PackageInfo packageInfo;
+        try {
+            packageInfo = activity.getPackageManager().getPackageInfo(
+                    packageName,
+                    PackageManager.GET_ACTIVITIES);
+            for (ActivityInfo info: packageInfo.activities) {
+                ComponentName componentName = new ComponentName(packageName, info.name);
+                componentNames.add(componentName);
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            Slogf.e(TAG, "Package '%s' not found : %s", packageName , e);
+        }
+        return componentNames;
     }
 }

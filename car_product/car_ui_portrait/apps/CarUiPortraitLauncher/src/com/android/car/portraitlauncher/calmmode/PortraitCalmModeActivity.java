@@ -27,33 +27,44 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowInsets;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 
 import com.android.car.portraitlauncher.R;
 
-public class CalmModeActivity extends FragmentActivity {
-    private static final String TAG = CalmModeActivity.class.getSimpleName();
+// TODO(b/329713280): Add portrait-specific tests
+public class PortraitCalmModeActivity extends FragmentActivity {
+    private static final String TAG = PortraitCalmModeActivity.class.getSimpleName();
     private static final boolean DEBUG = Build.isDebuggable();
+    private static final String APP_PACKAGE_NAME = "com.android.car.portraitlauncher";
+    public static final String INTENT_ACTION_DISMISS_CALM_MODE =
+            APP_PACKAGE_NAME + ".ACTION_DISMISS_CALM_MODE";
+    public static final Intent INTENT_DISMISS_CALM_MODE;
 
-    private final BroadcastReceiver mCloseSystemDialogsReceiver =
-            new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    String action = intent.getAction();
-                    if (Intent.ACTION_CLOSE_SYSTEM_DIALOGS.equals(action)) {
-                        if (DEBUG) {
-                            Log.v(TAG, "Received ACTION_CLOSE_SYSTEM_DIALOGS broadcast:"
-                                            + " intent=" + intent + ", user=" + context.getUser());
-                        }
-                        finish();
-                        return;
-                    }
-                    if (DEBUG) {
-                        Log.w(TAG, "Unexpected intent " + intent);
-                    }
-                }
-            };
+    static {
+        INTENT_DISMISS_CALM_MODE = new Intent();
+        INTENT_DISMISS_CALM_MODE.setPackage(APP_PACKAGE_NAME);
+        INTENT_DISMISS_CALM_MODE.setAction(INTENT_ACTION_DISMISS_CALM_MODE);
+    }
+
+    /** Sends a broadcast intent to end Calm mode
+     * @param context used for sending broadcast
+     */
+    public static void dismissCalmMode(@NonNull Context context) {
+        context.sendBroadcast(INTENT_DISMISS_CALM_MODE);
+    }
+
+    private final BroadcastReceiver mDismissReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (DEBUG) {
+                Log.v(TAG, "Received broadcast:" + " intent=" + intent
+                        + ", extras=" + intent.getExtras() + ", user= " + context.getUser());
+            }
+            finish();
+        }
+    };
 
     private final View.OnApplyWindowInsetsListener mOnApplyWindowInsetsListener =
             (v, insets) -> {
@@ -69,7 +80,6 @@ public class CalmModeActivity extends FragmentActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setDecorFitsSystemWindows(/* decorFitsSystemWindows= */ false);
-        setContentView(R.layout.calm_mode_fragment);
         getWindow()
                 .getDecorView()
                 .getRootView()
@@ -80,14 +90,15 @@ public class CalmModeActivity extends FragmentActivity {
 
     private void registerBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
-        registerReceiver(mCloseSystemDialogsReceiver, filter, /* broadcastPermission= */ null,
-                /* scheduler= */ null, Context.RECEIVER_EXPORTED);
+        filter.addAction(PortraitCalmModeActivity.INTENT_ACTION_DISMISS_CALM_MODE);
+        registerReceiver(mDismissReceiver, filter, /* broadcastPermission= */ null,
+                /* scheduler= */ null, Context.RECEIVER_NOT_EXPORTED);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mCloseSystemDialogsReceiver);
+        unregisterReceiver(mDismissReceiver);
     }
+
 }

@@ -2196,10 +2196,9 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * use {@link android.car.hardware.power.CarPowerManager} instead.
-     *
-     * @to_be_deprecated
+     * @deprecated use {@link android.car.hardware.power.CarPowerManager} instead.
      */
+    @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
     public static final int AP_POWER_STATE_REQ = 289475072;
     /**
@@ -2209,10 +2208,9 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * use {@link android.car.hardware.power.CarPowerManager} instead.
-     *
-     * @to_be_deprecated
+     * @deprecated use {@link android.car.hardware.power.CarPowerManager} instead.
      */
+    @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
     public static final int AP_POWER_STATE_REPORT = 289475073;
     /**
@@ -2222,10 +2220,9 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * use {@link android.car.hardware.power.CarPowerManager} instead.
-     *
-     * @to_be_deprecated
+     * @deprecated use {@link android.car.hardware.power.CarPowerManager} instead.
      */
+    @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
     public static final int AP_POWER_BOOTUP_REASON = 289409538;
     /**
@@ -2235,10 +2232,9 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * use {@link android.car.hardware.power.CarPowerManager} instead.
-     *
-     * @to_be_deprecated
+     * @deprecated use {@link android.car.hardware.power.CarPowerManager} instead.
      */
+    @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
     public static final int DISPLAY_BRIGHTNESS = 289409539;
     /**
@@ -2248,10 +2244,9 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * use {@link android.car.hardware.power.CarPowerManager} instead.
-     *
-     * @to_be_deprecated
+     * @deprecated use {@link android.car.hardware.power.CarPowerManager} instead.
      */
+    @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
     public static final int PER_DISPLAY_BRIGHTNESS = 289475076;
     /**
@@ -2333,10 +2328,9 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * use {@link android.car.input.CarInputManager} instead.
-     *
-     * @to_be_deprecated
+     * @deprecated car service internal use only.
      */
+    @Deprecated
     public static final int HW_KEY_INPUT = 289475088;
     /**
      * Door position.
@@ -4451,10 +4445,9 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * use {@link android.car.vms.VmsClientManager} instead.
-     *
-     * @to_be_deprecated
+     * @deprecated use {@link android.car.vms.VmsClientManager} instead.
      */
+    @Deprecated
     @RequiresPermission(anyOf = {Car.PERMISSION_VMS_PUBLISHER, Car.PERMISSION_VMS_SUBSCRIBER})
     public static final int VEHICLE_MAP_SERVICE = 299895808;
     /**
@@ -4747,10 +4740,9 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * use {@link android.car.diagnostic.CarDiagnosticManager} instead.
-     *
-     * @to_be_deprecated
+     * @deprecated use {@link android.car.diagnostic.CarDiagnosticManager} instead.
      */
+    @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
     public static final int OBD2_LIVE_FRAME = 299896064;
     /**
@@ -4760,10 +4752,9 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * use {@link android.car.diagnostic.CarDiagnosticManager} instead.
-     *
-     * @to_be_deprecated
+     * @deprecated use {@link android.car.diagnostic.CarDiagnosticManager} instead.
      */
+    @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
     public static final int OBD2_FREEZE_FRAME = 299896065;
     /**
@@ -4773,10 +4764,9 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * use {@link android.car.diagnostic.CarDiagnosticManager} instead.
-     *
-     * @to_be_deprecated
+     * @deprecated use {@link android.car.diagnostic.CarDiagnosticManager} instead.
      */
+    @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
     public static final int OBD2_FREEZE_FRAME_INFO = 299896066;
     /**
@@ -4786,10 +4776,9 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * use {@link android.car.diagnostic.CarDiagnosticManager} instead.
-     *
-     * @to_be_deprecated
+     * @deprecated use {@link android.car.diagnostic.CarDiagnosticManager} instead.
      */
+    @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR)
     public static final int OBD2_FREEZE_FRAME_CLEAR = 299896067;
     /**

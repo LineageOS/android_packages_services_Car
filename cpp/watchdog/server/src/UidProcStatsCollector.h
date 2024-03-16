@@ -20,9 +20,11 @@
 #include <android-base/result.h>
 #include <android-base/stringprintf.h>
 #include <gtest/gtest_prod.h>
+#include <meminfo/procmeminfo.h>
 #include <utils/Mutex.h>
 #include <utils/RefBase.h>
 
+#include <android_car_feature.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -43,9 +45,15 @@ constexpr const char kProcDirPath[] = "/proc";
 constexpr const char kStatFileFormat[] = "/%" PRIu32 "/stat";
 constexpr const char kTaskDirFormat[] = "/%" PRIu32 "/task";
 constexpr const char kStatusFileFormat[] = "/%" PRIu32 "/status";
-constexpr const char kTimeInStateFormat[] = "/%" PRIu32 "/time_in_state";
-// Per-pid/tid stats.
-// The int64_t type is used due to AIDL limitations representing long field values.
+constexpr const char kSmapsRollupFileFormat[] = "/%" PRIu32 "/smaps_rollup";
+constexpr const char kStatmFileFormat[] = "/%" PRIu32 "/statm";
+constexpr const char kTimeInStateFileFormat[] = "/%" PRIu32 "/time_in_state";
+
+/**
+ * Per-pid/tid stats.
+ *
+ * The int64_t type is used due to AIDL limitations representing long field values.
+ */
 struct PidStat {
     std::string comm = "";
     std::string state = "";
@@ -65,6 +73,21 @@ struct ProcessStats {
     int totalTasksCount = 0;
     int ioBlockedTasksCount = 0;
     std::unordered_map<pid_t, uint64_t> cpuCyclesByTid = {};
+    uint64_t rssKb = 0;
+    /**
+     * PSS/SwapPss will be missing when the smaps_rollup file is not supported or missing for
+     * a process. In such cases, use RSS to rank the processes by memory usage.
+     */
+    uint64_t pssKb = 0;
+    /**
+     * Unique set size is the portion of memory unique (private) to the process. Unshared memory
+     * is reported as USS.
+     *
+     * PSS - USS = Proportional portion of memory shared with one or more process.
+     * RSS - USS = Total portion of memory shared with one or more process.
+     */
+    uint64_t ussKb = 0;
+    uint64_t swapPssKb = 0;
     std::string toString() const;
 };
 
@@ -75,12 +98,28 @@ struct UidProcStats {
     uint64_t totalMajorFaults = 0;
     int totalTasksCount = 0;
     int ioBlockedTasksCount = 0;
+    /**
+     * When smaps_rollup is supported by the Kernel, totalPssKb will be populated. When this
+     * feature is not supported, use totalRssKb to rank the UIDs.
+     *
+     * totalRssKb counts total shared memory from each of the processes. Thus leading to counting
+     * the same portion of memory more than once:
+     *
+     * For example, if N processes share X amount of memory and a subset of the processes (say M)
+     * belong to same UID, then
+     * 1. totalRssKb across all UIDs += Unique memory for N processes + (N * X).
+     * 2. totalRssKb for the UID += Unique memory for M processes + (M * X).
+     */
+    uint64_t totalRssKb = 0;
+    uint64_t totalPssKb = 0;
     std::unordered_map<pid_t, ProcessStats> processStatsByPid = {};
     std::string toString() const;
 };
 
-// Collector/parser for `/proc/[pid]/stat`, `/proc/[pid]/task/[tid]/stat` and /proc/[pid]/status`
-// files.
+/**
+ * Collector/parser for `/proc/[pid]/stat`, `/proc/[pid]/task/[tid]/stat` and /proc/[pid]/status`
+ * files.
+ */
 class UidProcStatsCollectorInterface : public RefBase {
 public:
     // Initializes the collector.
@@ -99,11 +138,10 @@ public:
 
 class UidProcStatsCollector final : public UidProcStatsCollectorInterface {
 public:
-    explicit UidProcStatsCollector(const std::string& path = kProcDirPath) :
-          mMillisPerClockTick(1000 / sysconf(_SC_CLK_TCK)),
-          mPath(path),
-          mLatestStats({}),
-          mDeltaStats({}) {}
+    UidProcStatsCollector() :
+          UidProcStatsCollector(kProcDirPath, ::android::meminfo::IsSmapsRollupSupported()) {}
+    // Used by tests.
+    UidProcStatsCollector(const std::string& path, bool isSmapsRollupSupported);
 
     ~UidProcStatsCollector() {}
 
@@ -123,7 +161,7 @@ public:
 
     bool enabled() const {
         Mutex::Autolock lock(mMutex);
-        return mEnabled;
+        return mIsEnabled;
     }
 
     const std::string dirPath() const { return mPath; }
@@ -135,32 +173,60 @@ public:
 private:
     android::base::Result<std::unordered_map<uid_t, UidProcStats>> readUidProcStatsLocked() const;
 
-    // Reads the contents of the below files:
-    // 1. Pid stat file at |mPath| + |kStatFileFormat|
-    // 2. Aggregated per-process status at |mPath| + |kStatusFileFormat|
-    // 3. Tid stat file at |mPath| + |kTaskDirFormat| + |kStatFileFormat|
+    /**
+     * Reads the contents of the below files:
+     * 1. Pid stat file at |mPath| + |kStatFileFormat|
+     * 2. Aggregated per-process status at |mPath| + |kStatusFileFormat|
+     * 3. Tid stat file at |mPath| + |kTaskDirFormat| + |kStatFileFormat|
+     */
     android::base::Result<std::tuple<uid_t, ProcessStats>> readProcessStatsLocked(pid_t pid) const;
+
+    /**
+     * Reads the smaps rollup file and populates the ProcessStats pointer with info for the given
+     * pid.
+     * Returns true and updates the out pointer only when the read is successful.
+     * Returns false when either the smaps_rollup file is not supported or not available for
+     * the process. When the process terminates while reading, the file won't be available.
+     */
+    bool readSmapsRollup(pid_t pid, ProcessStats* processStatsOut) const;
+
+    size_t mPageSizeKb;
+
+    // Tracks memory profiling feature flag.
+    bool mIsMemoryProfilingEnabled;
+
+    // Tracks smaps rollup support in the Kernel.
+    bool mIsSmapsRollupSupported;
 
     // Number of milliseconds per clock cycle.
     int32_t mMillisPerClockTick;
 
-    // Proc directory path. Default value is |kProcDirPath|.
-    // Updated by tests to point to a different location when needed.
+    /**
+     * Proc directory path. Default value is |kProcDirPath|.
+     *
+     * Updated by tests to point to a different location when needed.
+     */
     std::string mPath;
 
     // Makes sure only one collection is running at any given time.
     mutable Mutex mMutex;
 
-    // True if the below files are accessible:
-    // 1. Pid stat file at |mPath| + |kTaskStatFileFormat|
-    // 2. Tid stat file at |mPath| + |kTaskDirFormat| + |kStatFileFormat|
-    // 3. Pid status file at |mPath| + |kStatusFileFormat|
-    // Otherwise, set to false.
-    bool mEnabled GUARDED_BY(mMutex);
+    /**
+     * True if the below files are accessible:
+     * 1. Pid stat file at |mPath| + |kStatFileFormat|
+     * 2. Tid stat file at |mPath| + |kTaskDirFormat| + |kStatFileFormat|
+     * 3. Pid status file at |mPath| + |kStatusFileFormat|
+     * 4. Pid statm file at |mPath| + |kStatmFileFormat|
+     *
+     * Otherwise, set to false.
+     */
+    bool mIsEnabled GUARDED_BY(mMutex);
 
-    // True if the tid time_in_state file at
-    // |mPath| + |kTaskDirFormat| + |kTimeInStateFormat| is available.
-    bool mTimeInStateEnabled GUARDED_BY(mMutex);
+    /**
+     * True if the tid time_in_state file at |mPath| + |kTaskDirFormat| + |kTimeInStateFileFormat|
+     * is available.
+     */
+    bool mIsTimeInStateEnabled GUARDED_BY(mMutex);
 
     // Latest dump of per-UID stats.
     std::unordered_map<uid_t, UidProcStats> mLatestStats GUARDED_BY(mMutex);

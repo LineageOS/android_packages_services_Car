@@ -47,6 +47,8 @@ Result<void> populateProcPidDir(const std::string& procDirPath,
                                 const std::unordered_map<pid_t, std::vector<pid_t>>& pidToTids,
                                 const std::unordered_map<pid_t, std::string>& processStat,
                                 const std::unordered_map<pid_t, std::string>& processStatus,
+                                const std::unordered_map<pid_t, std::string>& processSmapsRollup,
+                                const std::unordered_map<pid_t, std::string>& processStatm,
                                 const std::unordered_map<pid_t, std::string>& threadStat,
                                 const std::unordered_map<pid_t, std::string>& threadTimeInState) {
     for (const auto& it : pidToTids) {
@@ -74,13 +76,29 @@ Result<void> populateProcPidDir(const std::string& procDirPath,
             }
         }
 
-        // 4. Create /proc/PID/task dir.
+        // 4. Create /proc/PID/smaps_rollup file.
+        if (processSmapsRollup.find(pid) != processSmapsRollup.end()) {
+            std::string path = StringPrintf((procDirPath + kSmapsRollupFileFormat).c_str(), pid);
+            if (!WriteStringToFile(processSmapsRollup.at(pid), path)) {
+                return Error() << "Failed to write pid smaps_rollup file " << path;
+            }
+        }
+
+        // 5. Create /proc/PID/statm file.
+        if (processStatm.find(pid) != processStatm.end()) {
+            std::string path = StringPrintf((procDirPath + kStatmFileFormat).c_str(), pid);
+            if (!WriteStringToFile(processStatm.at(pid), path)) {
+                return Error() << "Failed to write pid statm file " << path;
+            }
+        }
+
+        // 6. Create /proc/PID/task dir.
         const auto& taskDirRes = makeDir(StringPrintf((procDirPath + kTaskDirFormat).c_str(), pid));
         if (!taskDirRes.ok()) {
             return Error() << "Failed to create task directory: " << taskDirRes.error();
         }
 
-        // 5. Create /proc/PID/task/TID dirs, /proc/PID/task/TID/stat and
+        // 7. Create /proc/PID/task/TID dirs, /proc/PID/task/TID/stat and
         //    /proc/PID/task/TID/time_in_state files.
         for (const auto& tid : it.second) {
             const auto& tidDirRes = makeDir(
@@ -98,7 +116,8 @@ Result<void> populateProcPidDir(const std::string& procDirPath,
             }
             if (threadTimeInState.find(tid) != threadTimeInState.end()) {
                 std::string path =
-                        StringPrintf((procDirPath + kTaskDirFormat + kTimeInStateFormat).c_str(),
+                        StringPrintf((procDirPath + kTaskDirFormat + kTimeInStateFileFormat)
+                                             .c_str(),
                                      pid, tid);
                 if (!WriteStringToFile(threadTimeInState.at(tid), path)) {
                     return Error() << "Failed to write thread time_in_state file " << path;
