@@ -27,11 +27,8 @@
     </item>
 
     <item
-        android:id="@+id/nav_bar_button_unselected">
-        <ripple android:color="@color/car_ui_ripple_color">
-            <item android:drawable="@drawable/nav_bar_button_background_unselected" />
-        </ripple>
-    </item>
+        android:id="@+id/nav_bar_button_unselected"
+        android:drawable="@color/transparent"/>
 
     <transition
         android:drawable="@drawable/nav_bar_button_background_unselected_to_selected_anim"

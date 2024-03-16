@@ -20,6 +20,7 @@ import static com.android.car.bugreport.PackageUtils.getPackageVersion;
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.database.ContentObserver;
@@ -93,7 +94,7 @@ public class BugReportInfoActivity extends Activity {
         mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
                 DividerItemDecoration.VERTICAL));
 
-        mConfig = Config.create();
+        mConfig = Config.create(getApplicationContext());
 
         mBugInfoAdapter = new BugInfoAdapter(this::onBugReportItemClicked, mConfig);
         mRecyclerView.setAdapter(mBugInfoAdapter);
@@ -113,9 +114,12 @@ public class BugReportInfoActivity extends Activity {
     protected void onStart() {
         super.onStart();
         new BugReportsLoaderAsyncTask(this).execute();
-        // As BugStorageProvider is running under user0, we register using USER_ALL.
-        getContentResolver().registerContentObserver(BugStorageProvider.BUGREPORT_CONTENT_URI, true,
-                mBugStorageObserver, UserHandle.USER_ALL);
+        // As BugStorageProvider is running under user0, we register using UserHandle.ALL.
+        Context context = getApplicationContext().createContextAsUser(UserHandle.ALL, /* flags= */
+                0);
+        context.getContentResolver().registerContentObserver(
+                BugStorageProvider.BUGREPORT_CONTENT_URI, true,
+                mBugStorageObserver);
     }
 
     @Override

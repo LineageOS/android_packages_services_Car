@@ -17,7 +17,7 @@
 package com.android.car.pm;
 
 import static android.Manifest.permission.QUERY_ALL_PACKAGES;
-import static android.car.Car.PERMISSION_QUERY_DISPLAY_COMPATIBILITY;
+import static android.car.Car.PERMISSION_MANAGE_DISPLAY_COMPATIBILITY;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLOCKED_ACTIVITY_NAME;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLOCKED_TASK_ID;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_DISPLAY_ID;
@@ -1744,9 +1744,9 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             throw new SecurityException("requires permission " + QUERY_ALL_PACKAGES);
         }
         int callingUid = Binder.getCallingUid();
-        if (!hasPermissionGranted(PERMISSION_QUERY_DISPLAY_COMPATIBILITY, callingUid)) {
+        if (!hasPermissionGranted(PERMISSION_MANAGE_DISPLAY_COMPATIBILITY, callingUid)) {
             throw new SecurityException("requires permission "
-                    + PERMISSION_QUERY_DISPLAY_COMPATIBILITY);
+                    + PERMISSION_MANAGE_DISPLAY_COMPATIBILITY);
         }
         return CarServiceHelperWrapper.getInstance().requiresDisplayCompat(
                 Objects.requireNonNull(packageName, "packageName cannot be Null"));

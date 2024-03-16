@@ -40,6 +40,7 @@ import android.car.hardware.property.DriverDrowsinessAttentionWarning;
 import android.car.hardware.property.EmergencyLaneKeepAssistState;
 import android.car.hardware.property.ErrorState;
 import android.car.hardware.property.EvChargeState;
+import android.car.hardware.property.EvChargingConnectorType;
 import android.car.hardware.property.EvRegenerativeBrakingState;
 import android.car.hardware.property.EvStoppingMode;
 import android.car.hardware.property.ForwardCollisionWarningState;
@@ -157,6 +158,11 @@ public final class VehiclePropertyIds {
     /**
      * Fuel capacity of the vehicle in milliliters.
      *
+     * <p>This property communicates the maximum amount of the fuel that can be stored in the
+     * vehicle in milliliters. This property will not be implemented for electric vehicles. That is,
+     * if {@link #INFO_FUEL_TYPE} only contains {@link FuelType#ELECTRIC}, this property will not be
+     * implemented. For EVs, see {@link #INFO_EV_BATTERY_CAPACITY}.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
@@ -182,13 +188,15 @@ public final class VehiclePropertyIds {
      * the vehicle.
      *
      * <p>For example:
-     *  <p>FHEVs (Fully Hybrid Electric Vehicles) will not include {@link FuelType#ELECTRIC} in its
+     * <ul>
+     *  <li>FHEVs (Fully Hybrid Electric Vehicles) will not include {@link FuelType#ELECTRIC} in its
      *  {@code Integer[]} value. So {@code INFO_FUEL_TYPE} will be populated as such:
      *  { {@link FuelType#UNLEADED} }.
-     *  <p>On the other hand, PHEVs (Partially Hybrid Electric Vehicles) are plug in rechargeable,
+     *  <li>On the other hand, PHEVs (Plug-in Hybrid Electric Vehicles) are plug in rechargeable,
      *  and hence will include {@link FuelType#ELECTRIC} in {@code INFO_FUEL_TYPE}'s {@code
      *  Integer[]} value. So {@code INFO_FUEL_TYPE} will be populated as such:
      *  { {@link FuelType#UNLEADED}, {@link FuelType#ELECTRIC} }.
+     * </ul>
      *
      * <p>Property Config:
      * <ul>
@@ -209,13 +217,13 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_FUEL_TYPE = 289472773;
     /**
-     * Nominal battery capacity for EV or hybrid vehicle.
+     * Nominal usable battery capacity for EV or hybrid vehicle.
      *
      * <p>Returns the nominal battery capacity in {@link android.car.VehicleUnit#WATT_HOUR}, if EV
-     * or hybrid. This is the battery capacity when the vehicle is new. This value might be
+     * or hybrid. This is the usable battery capacity when the vehicle is new. This value might be
      * different from {@link #EV_CURRENT_BATTERY_CAPACITY} because {@link
-     * #EV_CURRENT_BATTERY_CAPACITY} returns the real-time battery capacity taking into account
-     * factors such as battery aging and temperature dependency.
+     * #EV_CURRENT_BATTERY_CAPACITY} returns the real-time usable battery capacity taking into
+     * account factors such as battery aging and temperature dependency.
      *
      * <p>Property Config:
      * <ul>
@@ -250,7 +258,7 @@ public final class VehiclePropertyIds {
      *  <li>Property is not writable.
      * </ul>
      *
-     * @data_enum {@link EvConnectorType}
+     * @data_enum {@link EvChargingConnectorType}
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_EV_CONNECTOR_TYPE = 289472775;
@@ -349,14 +357,6 @@ public final class VehiclePropertyIds {
     /**
      * Vehicle's exterior dimensions in millimeters.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
-     *  <li>{@code Integer[]} property type
-     * </ul>
-     *
      * <p>Exterior dimensions defined in the {@link CarPropertyValue#getValue()} {@code Integer[]}:
      * <ul>
      *  <li>Integer[0] = height
@@ -367,6 +367,14 @@ public final class VehiclePropertyIds {
      *  <li>Integer[5] = track width front
      *  <li>Integer[6] = track width rear
      *  <li>Integer[7] = curb to curb turning diameter
+     * </ul>
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer[]} property type
      * </ul>
      *
      * <p>Required Permission:
@@ -399,6 +407,12 @@ public final class VehiclePropertyIds {
     /**
      * Speed of the vehicle in meters per second.
      *
+     * <p>When the vehicle is moving forward, {@code PERF_VEHICLE_SPEED} is positive and negative
+     * when the vehicle is moving backward. Also, this value is independent of gear value ({@link
+     * #CURRENT_GEAR} or {@link #GEAR_SELECTION}). For example, if {@link #GEAR_SELECTION} is
+     * {@link VehicleGear#GEAR_NEUTRAL}, {@code PERF_VEHICLE_SPEED} is positive when the vehicle is
+     * moving forward, negative when moving backward, and zero when not moving.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
@@ -406,12 +420,6 @@ public final class VehiclePropertyIds {
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
      *  <li>{@code Float} property type
      * </ul>
-     *
-     * <p>When the vehicle is moving forward, {@code PERF_VEHICLE_SPEED} is positive and negative
-     * when the vehicle is moving backward. Also, this value is independent of gear value ({@link
-     * #CURRENT_GEAR} or {@link #GEAR_SELECTION}). For example, if {@link #GEAR_SELECTION} is
-     * {@link VehicleGear#GEAR_NEUTRAL}, {@code PERF_VEHICLE_SPEED} is positive when the vehicle is
-     * moving forward, negative when moving backward, and zero when not moving.
      *
      * <p>Required Permission:
      * <ul>
@@ -424,6 +432,9 @@ public final class VehiclePropertyIds {
     /**
      * Speed of the vehicle in meters per second for displays.
      *
+     * <p>Some cars display a slightly slower speed than the actual speed. This is
+     * usually displayed on the speedometer.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
@@ -431,9 +442,6 @@ public final class VehiclePropertyIds {
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
      *  <li>{@code Float} property type
      * </ul>
-     *
-     * <p>Some cars display a slightly slower speed than the actual speed. This is
-     * usually displayed on the speedometer.
      *
      * <p>Required Permission:
      * <ul>
@@ -637,14 +645,6 @@ public final class VehiclePropertyIds {
     /**
      * Reports wheel ticks.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
-     *  <li>{@code Long[]} property type
-     * </ul>
-     *
      * <p>The first element in the array is a reset count.  A reset indicates
      * previous tick counts are not comparable with this and future ones.  Some
      * sort of discontinuity in tick counting has occurred.
@@ -681,6 +681,14 @@ public final class VehiclePropertyIds {
      * </ul>
      *
      * <p>NOTE:  If a wheel is not supported, its value is always 0.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Long[]} property type
+     * </ul>
      *
      * <p>Required Permission:
      * <ul>
@@ -770,12 +778,12 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_ENERGY)
     public static final int EV_BATTERY_LEVEL = 291504905;
     /**
-     * Current battery capacity for EV or hybrid vehicle.
+     * Current usable battery capacity for EV or hybrid vehicle.
      *
      * <p>Returns the actual value of battery capacity in {@link android.car.VehicleUnit#WATT_HOUR},
-     * if EV or hybrid. This property captures the real-time battery capacity taking into account
-     * factors such as battery aging and temperature dependency. Therefore, this value might be
-     * different from {@link #INFO_EV_BATTERY_CAPACITY} because {@link #INFO_EV_BATTERY_CAPACITY}
+     * if EV or hybrid. This property captures the real-time usable battery capacity taking into
+     * account factors such as battery aging and temperature dependency. Therefore, this value might
+     * be different from {@link #INFO_EV_BATTERY_CAPACITY} because {@link #INFO_EV_BATTERY_CAPACITY}
      * returns the nominal battery capacity from when the vehicle was new.
      *
      * <p>Property Config:
@@ -961,14 +969,6 @@ public final class VehiclePropertyIds {
     /**
      * Currently selected gear by user.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Integer} property type
-     * </ul>
-     *
      * <p> See {@link VehicleGear} for gear value enum.
      *
      * <p>configArray represents the list of supported gears for the vehicle. For example,
@@ -1002,7 +1002,19 @@ public final class VehiclePropertyIds {
      *  <li>...
      * </ul>
      *
-     * <p>Requires permission: {@link Car#PERMISSION_POWERTRAIN}.
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Normal permission {@link Car#PERMISSION_POWERTRAIN} to read property.
+     *  <li>Property is not writable.
+     * </ul>
      *
      * @data_enum {@link VehicleGear}
      */

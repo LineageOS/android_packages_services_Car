@@ -1167,14 +1167,13 @@
         android:label="@string/car_permission_label_control_windshield_wipers"
         android:description="@string/car_permission_desc_control_windshield_wipers"/>
 
-     <!-- Allows an application to query if a package requires display compatibility treatment or
-          not.
+     <!-- Allows an application to manage packages that require display compatibility mode.
          <p>Protection level: signature|privileged
       -->
-     <permission android:name="android.car.permission.QUERY_DISPLAY_COMPATIBILITY"
+     <permission android:name="android.car.permission.MANAGE_DISPLAY_COMPATIBILITY"
         android:protectionLevel="signature|privileged"
-        android:label="@string/car_permission_label_query_display_compatibility"
-        android:description="@string/car_permission_desc_query_display_compatibility"/>
+        android:label="@string/car_permission_label_manage_display_compatibility"
+        android:description="@string/car_permission_desc_manage_display_compatibility"/>
 
     <!-- Allows an application to read the vehicle's persist tethering settings.
          <p>Protection level: signature|privileged

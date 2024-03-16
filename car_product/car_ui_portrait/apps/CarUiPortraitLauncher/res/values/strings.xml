@@ -29,8 +29,8 @@
     <string name="audio_route_phone_speaker">Phone speaker</string>
     <!-- Label for routing phone audio to the phone earpiece. [CHAR LIMIT=30] -->
     <string name="audio_route_handset">Phone</string>
-    <!-- AutoEnhance back button [CHAR LIMIT=30] -->
+    <!-- DisplayCompat back button [CHAR LIMIT=30] -->
     <string name="back">Back</string>
-    <!-- AutoEnhance fullscreen button [CHAR LIMIT=30] -->
+    <!-- DisplayCompat fullscreen button [CHAR LIMIT=30] -->
     <string name="fullscreen">Full Screen</string>
 </resources>

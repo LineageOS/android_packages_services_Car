@@ -34,8 +34,8 @@
         <permission name="android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY"/>
         <!-- used for enabling RemoteCarDefaultRootTaskView -->
         <permission name="android.car.permission.MANAGE_CAR_SYSTEM_UI"/>
-        <!-- used for querying AutoEnhance packages -->
-        <permission name="android.car.permission.QUERY_DISPLAY_COMPATIBILITY"/>
+        <!-- used for managing display compat packages -->
+        <permission name="android.car.permission.MANAGE_DISPLAY_COMPATIBILITY"/>
         <!-- used for receiving broadcasted dock events -->
         <permission name="com.android.car.docklib.permission.BROADCAST_RECEIVER"/>
     </privapp-permissions>

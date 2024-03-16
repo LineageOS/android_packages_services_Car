@@ -15,7 +15,6 @@
  */
 package com.android.car.bugreport;
 
-import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -156,7 +155,7 @@ public class BugInfoAdapter extends RecyclerView.Adapter<BugInfoAdapter.BugInfoV
 
     private void showOrHideUploadButton(MetaBugReport bugReport, BugInfoViewHolder holder) {
         // Enable the upload button only for userdebug/eng builds.
-        if (pendingUserAction(bugReport) && Build.IS_DEBUGGABLE) {
+        if (pendingUserAction(bugReport) && Config.isDebuggable()) {
             holder.mUploadButton.setText(R.string.bugreport_upload_gcs_button_text);
             holder.mUploadButton.setEnabled(true);
             holder.mUploadButton.setVisibility(View.VISIBLE);

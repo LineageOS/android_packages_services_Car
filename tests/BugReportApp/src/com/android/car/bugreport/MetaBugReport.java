@@ -17,9 +17,10 @@ package com.android.car.bugreport;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-import android.annotation.IntDef;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import androidx.annotation.IntDef;
 
 import com.google.auto.value.AutoValue;
 

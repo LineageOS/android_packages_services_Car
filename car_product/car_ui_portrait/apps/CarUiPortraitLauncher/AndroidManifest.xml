@@ -26,8 +26,8 @@
     <!-- Permission to manage USB -->
     <uses-permission android:name="android.permission.MANAGE_USB"/>
 
-    <!-- Permissions to support autoenhance -->
-    <uses-permission android:name="android.car.permission.QUERY_DISPLAY_COMPATIBILITY"/>
+    <!-- Permissions to support display compat -->
+    <uses-permission android:name="android.car.permission.MANAGE_DISPLAY_COMPATIBILITY"/>
 
     <application
         android:label="@string/app_title"

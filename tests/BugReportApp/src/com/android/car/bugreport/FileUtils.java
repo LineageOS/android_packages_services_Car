@@ -16,6 +16,7 @@
 package com.android.car.bugreport;
 
 import android.content.Context;
+import android.os.UserManager;
 import android.util.Log;
 
 import com.google.common.base.Preconditions;
@@ -48,7 +49,7 @@ public class FileUtils {
     private static final String FS = "@";
 
     static File getPendingDir(Context context) {
-        Preconditions.checkArgument(context.getUser().isSystem(),
+        Preconditions.checkArgument(context.getSystemService(UserManager.class).isSystemUser(),
                 "Must be called from the system user.");
         File dir = new File(context.getDataDir(), PENDING_DIR);
         dir.mkdirs();
@@ -60,7 +61,7 @@ public class FileUtils {
      * single file.
      */
     static File getTempDir(Context context, String timestamp) {
-        Preconditions.checkArgument(!context.getUser().isSystem(),
+        Preconditions.checkArgument(!context.getSystemService(UserManager.class).isSystemUser(),
                 "Must be called from the current user.");
         File dir = new File(context.getDataDir(), TEMP_DIR + "/" + timestamp);
         dir.mkdirs();
@@ -102,9 +103,9 @@ public class FileUtils {
      * Returns a {@link File} object pointing to a path in a temp directory under current users
      * {@link Context#getDataDir}.
      *
-     * @param context       - an application context.
-     * @param timestamp     - generates file for this timestamp
-     * @param suffix        - a filename suffix.
+     * @param context   - an application context.
+     * @param timestamp - generates file for this timestamp
+     * @param suffix    - a filename suffix.
      * @return A file.
      */
     static File getFileWithSuffix(Context context, String timestamp, String suffix) {
@@ -115,9 +116,9 @@ public class FileUtils {
      * Returns a {@link File} object pointing to a path in a temp directory under current users
      * {@link Context#getDataDir}.
      *
-     * @param context     - an application context.
-     * @param timestamp   - generates file for this timestamp.
-     * @param name        - a filename
+     * @param context   - an application context.
+     * @param timestamp - generates file for this timestamp.
+     * @param name      - a filename
      * @return A file.
      */
     static File getFile(Context context, String timestamp, String name) {

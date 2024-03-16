@@ -29,13 +29,13 @@ android_app {
 
     aaptflags: ["--auto-add-overlay"],
 
-    certificate: "platform",
-
-    privileged: true,
-
     optimize: {
         enabled: false,
     },
+
+    certificate: "platform",
+
+    privileged: true,
 
     enforce_uses_libs: false,
     dex_preopt: {
@@ -45,6 +45,7 @@ android_app {
     libs: [
         "android.car",
         "auto_value_annotations",
+        "androidx.annotation_annotation",
     ],
 
     static_libs: [

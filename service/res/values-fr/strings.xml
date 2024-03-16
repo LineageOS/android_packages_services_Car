@@ -214,8 +214,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Lire les infos concernant les essuie-glaces de la voiture."</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"contrôler les essuie-glaces de la voiture"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Contrôler les essuie-glaces de la voiture."</string>
-    <string name="car_permission_label_query_display_compatibility" msgid="8846515818036686896">"packages de compatibilité d\'affichage des requêtes"</string>
-    <string name="car_permission_desc_query_display_compatibility" msgid="5344194045180717300">"Packages de compatibilité d\'affichage des requêtes."</string>
+    <string name="car_permission_label_manage_display_compatibility" msgid="8846515818036686896">"packages de compatibilité d\'affichage des requêtes"</string>
+    <string name="car_permission_desc_manage_display_compatibility" msgid="5344194045180717300">"Packages de compatibilité d\'affichage des requêtes."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"Surveiller les états d\'autres zones de l\'occupant dans la voiture et d\'applis similaires (applis ayant le même nom de package que l\'appelant) installées dans ces zones, et gérer l\'alimentation de ces zones."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Surveiller les états d\'autres zones de l\'occupant dans la voiture et d\'applis similaires (applis ayant le même nom de package que l\'appelant) installées dans ces zones, et gérer l\'alimentation de ces zones."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"Établir une connexion et communiquer avec des applis similaires (applis ayant le même nom de package que l\'appelant) installées dans d\'autres zones de l\'occupant dans la voiture."</string>

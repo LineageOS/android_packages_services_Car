@@ -164,6 +164,13 @@ public class CarUiPortraitTemperatureControlView extends LinearLayout implements
     }
 
     /**
+     * Set the {@link OnClickListener} for the temperature TextView.
+     */
+    public void setTemperatureTextClickListener(OnClickListener onClickListener) {
+        mTempTextView.setOnClickListener(onClickListener);
+    }
+
+    /**
      * Updates the temperature view logic on the UI thread.
      */
     protected void updateTemperatureViewUiThread() {
