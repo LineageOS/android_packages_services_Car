@@ -38,9 +38,12 @@ import androidx.fragment.app.FragmentActivity;
 import com.google.android.car.kitchensink.R;
 
 import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 
@@ -48,12 +51,13 @@ public final class MultiCameraPreviewActivity extends FragmentActivity {
     private static final String TAG = MultiCameraPreviewActivity.class.getSimpleName();
     private final List<CameraPreviewManager> mCameraPreviewManagerList = new ArrayList<>();
     private final List<SurfaceView> mPreviewSurfaceViewList = new ArrayList<>();
-    private final List<CheckBox> mPreviewSelectionCheckBoxList = new ArrayList<>();
+    private final List<CheckBox> mSelectionCheckBoxList = new ArrayList<>();
     private CameraManager mCameraManager;
     private ListView mDetailsListView;
     private String[] mCameraIds;
     private HandlerThread mSessionHandlerThread;
     private boolean mIsPreviewStarted;
+    private boolean mIsRecordingStarted;
     private MemoryInfo mSessionMemoryInfo;
 
     @Override
@@ -71,11 +75,19 @@ public final class MultiCameraPreviewActivity extends FragmentActivity {
             }
         });
 
-        Button startButton = (Button) findViewById(R.id.start_button);
-        startButton.setOnClickListener(new View.OnClickListener() {
+        Button startPreviewButton = (Button) findViewById(R.id.start_preview_button);
+        startPreviewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startPreviews();
+            }
+        });
+
+        Button startRecordingButton = (Button) findViewById(R.id.start_recording_button);
+        startRecordingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startRecording();
             }
         });
 
@@ -83,7 +95,7 @@ public final class MultiCameraPreviewActivity extends FragmentActivity {
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                stopPreviews();
+                stopSession();
             }
         });
 
@@ -171,7 +183,6 @@ public final class MultiCameraPreviewActivity extends FragmentActivity {
         ));
 
         Button detailsButton = (Button) previewLayout.findViewById(R.id.details_button);
-        detailsButton.setText(String.format("Details %s", mCameraIds[camIdx]));
         detailsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -179,42 +190,73 @@ public final class MultiCameraPreviewActivity extends FragmentActivity {
             }
         });
 
+        CheckBox selectionCheckBox = (CheckBox) previewLayout.findViewById(R.id.selection_checkbox);
+        selectionCheckBox.setText(
+                getString(R.string.camera2_selection_checkbox, mCameraIds[camIdx]));
         SurfaceView surfaceView = (SurfaceView) previewLayout.findViewById(R.id.preview_surface);
-        CheckBox previewSelectionCheckBox = (CheckBox) previewLayout.findViewById(
-                R.id.preview_checkbox);
-        mPreviewSelectionCheckBoxList.add(previewSelectionCheckBox);
+
+        mSelectionCheckBoxList.add(selectionCheckBox);
         mPreviewSurfaceViewList.add(surfaceView);
     }
 
     private void startPreviews() {
-        // Do nothing if preview has already started
-        if (mIsPreviewStarted) {
-            Log.i(TAG, "Start preview button pressed when a preview is already running.");
+        // Do nothing if a session has already started
+        if (mIsPreviewStarted || mIsRecordingStarted) {
+            Log.i(TAG, "Start preview button pressed when a session is already running.");
             return;
         }
         // Freeze checkbox selections
-        for (CheckBox checkBox : mPreviewSelectionCheckBoxList) {
+        for (CheckBox checkBox : mSelectionCheckBoxList) {
             checkBox.setEnabled(false);
         }
         // Open Cameras and start previews
         for (int i = 0; i < mCameraIds.length; i++) {
-            if (mPreviewSelectionCheckBoxList.get(i).isChecked()) {
-                mCameraPreviewManagerList.get(i).startSession();
+            if (mSelectionCheckBoxList.get(i).isChecked()) {
+                mCameraPreviewManagerList.get(i).startPreviewSession();
             }
         }
         // Set flag
         mIsPreviewStarted = true;
     }
 
-    private void stopPreviews() {
-        // Do nothing if preview has not been started
-        if (!mIsPreviewStarted) {
-            Log.i(TAG, "Stop preview button pressed when no preview has been started.");
+    private void startRecording() {
+        // Do nothing if a session has already started
+        if (mIsPreviewStarted || mIsRecordingStarted) {
+            Log.i(TAG, "Start recording button pressed when a session is already running.");
+            return;
+        }
+        // Freeze checkbox selections
+        for (CheckBox checkBox : mSelectionCheckBoxList) {
+            checkBox.setEnabled(false);
+        }
+
+        // Get file prefix from current time
+        String dateTimeString =
+                new SimpleDateFormat("yyyy-MM-dd_hh.mm.ss", Locale.US)
+                        .format(Calendar.getInstance().getTime());
+        String filePathPrefix = String.format("%s/camera2_video_%s",
+                getExternalFilesDir(null), dateTimeString);
+
+        // Open Cameras and start recording
+        for (int i = 0; i < mCameraIds.length; i++) {
+            if (mSelectionCheckBoxList.get(i).isChecked()) {
+                mCameraPreviewManagerList.get(i).startRecordingSession(filePathPrefix);
+            }
+        }
+        // Set flag
+        mIsRecordingStarted = true;
+    }
+
+    private void stopSession() {
+        // Do nothing if no preview has been started
+        if (!mIsPreviewStarted && !mIsRecordingStarted) {
+            Log.i(TAG, "Stop button pressed when no session has been started.");
             return;
         }
 
-        // Unset flag
+        // Unset flags
         mIsPreviewStarted = false;
+        mIsRecordingStarted = false;
 
         // Session memory usage and end cpu usage at the end
         mSessionMemoryInfo = new MemoryInfo();
@@ -225,18 +267,17 @@ public final class MultiCameraPreviewActivity extends FragmentActivity {
         mDetailsListView.setAdapter(new ArrayAdapter<String>(
                 this, R.layout.camera2_details_list_item, sessionMetricsInfo));
 
-        // Close Cameras that are already open
+        // Stop camera sessions that have been started
         for (int i = 0; i < mCameraIds.length; i++) {
-            if (mPreviewSelectionCheckBoxList.get(i).isChecked()) {
+            if (mSelectionCheckBoxList.get(i).isChecked()) {
                 mCameraPreviewManagerList.get(i).stopSession();
             }
         }
 
         // Un-freeze checkbox selections
-        for (CheckBox checkBox : mPreviewSelectionCheckBoxList) {
+        for (CheckBox checkBox : mSelectionCheckBoxList) {
             checkBox.setEnabled(true);
         }
-
     }
 
     private List<String> getSessionMetricsInfo(MemoryInfo memInfo) {
