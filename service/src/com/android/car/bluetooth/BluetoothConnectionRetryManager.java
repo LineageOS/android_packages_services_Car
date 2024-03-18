@@ -376,6 +376,7 @@ public final class BluetoothConnectionRetryManager {
         filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         // TODO (201800664): Profile State Change actions are hidden. This is a work around for now
         filter.addAction(BluetoothUtils.A2DP_SINK_CONNECTION_STATE_CHANGED);
+        filter.addAction(BluetoothUtils.A2DP_SOURCE_CONNECTION_STATE_CHANGED);
         filter.addAction(BluetoothUtils.HFP_CLIENT_CONNECTION_STATE_CHANGED);
         filter.addAction(BluetoothUtils.MAP_CLIENT_CONNECTION_STATE_CHANGED);
         filter.addAction(BluetoothUtils.PAN_CONNECTION_STATE_CHANGED);
