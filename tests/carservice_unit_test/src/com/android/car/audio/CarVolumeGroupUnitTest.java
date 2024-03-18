@@ -2001,6 +2001,15 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void hasAudioAttributes_withAttributeUsageInVolumeGroup() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+
+        expectWithMessage("Audio attributes with game usage in volume group")
+                .that(carVolumeGroup.hasAudioAttributes(new AudioAttributes.Builder()
+                        .setUsage(USAGE_GAME).build())).isTrue();
+    }
+
+    @Test
     public void hasAudioAttributes_withAttributesNotInVolumeGroup() {
         CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
 
