@@ -976,18 +976,9 @@ import java.util.Set;
 
     boolean hasAudioAttributes(AudioAttributes audioAttributes) {
         synchronized (mLock) {
-            for (int index = 0; index < mContextToAddress.size(); index++) {
-                int context = mContextToAddress.keyAt(index);
-                AudioAttributes[] contextAttributes =
-                        mCarAudioContext.getAudioAttributesForContext(context);
-                for (int attrIndex = 0; attrIndex < contextAttributes.length; attrIndex++) {
-                    if (Objects.equals(contextAttributes[attrIndex], audioAttributes)) {
-                        return true;
-                    }
-                }
-            }
+            return mContextToAddress.contains(mCarAudioContext.getContextForAttributes(
+                    audioAttributes));
         }
-        return false;
     }
 
     List<AudioAttributes> getAudioAttributes() {
