@@ -218,8 +218,10 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                 Display display = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
                 if (mCurrentDisplayState == display.getState()) {
                     // We already handled this display state change.
-                    Slogf.i(TAG_EVS, "We already handled a reported display status, %d",
-                            display.getState());
+                    if (DBG) {
+                        Slogf.d(TAG_EVS, "We already handled a reported display status, %d",
+                                display.getState());
+                    }
                     return;
                 }
 
