@@ -55,8 +55,9 @@ import com.android.internal.annotations.VisibleForTesting;
 @Deprecated
 @SystemApi
 public abstract class VmsPublisherClientService extends Service {
-    private static final boolean DBG = false;
-    private static final String TAG = "VmsPublisherClientService";
+    private static final String TAG = "VmsPublisherClientSvc";
+
+    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
 
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());

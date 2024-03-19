@@ -32,6 +32,7 @@ import android.database.ContentObserver;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.RemoteException;
 import android.provider.Settings;
+import android.util.Log;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -47,7 +48,7 @@ import java.util.List;
  */
 public class CarNightService implements CarServiceBase {
 
-    public static final boolean DBG = false;
+    public static final boolean DBG = Slogf.isLoggable(CarLog.TAG_SENSOR, Log.DEBUG);
 
     @IntDef({FORCED_SENSOR_MODE, FORCED_DAY_MODE, FORCED_NIGHT_MODE})
     @Retention(RetentionPolicy.SOURCE)

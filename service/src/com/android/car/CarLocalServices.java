@@ -22,6 +22,7 @@ import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager;
 import android.content.Context;
 import android.util.ArrayMap;
+import android.util.Log;
 
 import com.android.car.power.CarPowerManagementService;
 import com.android.internal.annotations.VisibleForTesting;
@@ -31,9 +32,10 @@ import com.android.internal.annotations.VisibleForTesting;
  * This is for accessing other car service components.
  */
 public final class CarLocalServices {
-    private static final boolean DBG = false;
 
     private static final String TAG = CarLog.tagFor(CarLocalServices.class);
+
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private CarLocalServices() {}
 

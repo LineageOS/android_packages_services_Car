@@ -33,6 +33,7 @@ import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.UserHandle;
+import android.util.Log;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -52,7 +53,7 @@ import java.util.List;
 public class CarPerUserServiceHelper implements CarServiceBase {
 
     private static final String TAG = CarLog.tagFor(CarPerUserServiceHelper.class);
-    private static boolean DBG = false;
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private final Context mContext;
     private final CarUserService mUserService;

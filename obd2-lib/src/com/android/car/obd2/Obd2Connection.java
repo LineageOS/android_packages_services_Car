@@ -30,7 +30,7 @@ import java.util.Set;
 /** This class represents a connection between Java code and a "vehicle" that talks OBD2. */
 public class Obd2Connection {
     private static final String TAG = Obd2Connection.class.getSimpleName();
-    private static final boolean DBG = false;
+    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
 
     /**
      * The transport layer that moves OBD2 requests from us to the remote entity and viceversa. It

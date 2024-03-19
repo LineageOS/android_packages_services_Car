@@ -39,6 +39,7 @@ import android.hardware.automotive.vehicle.UserInfo;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
+import android.util.Log;
 import android.util.Pair;
 
 import com.android.car.CarLog;
@@ -67,7 +68,7 @@ final class InitialUserSetter {
     @VisibleForTesting
     static final String TAG = CarLog.tagFor(InitialUserSetter.class);
 
-    private static final boolean DBG = false;
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     private static final int BOOT_USER_NOT_FOUND = -1;
 
     /**

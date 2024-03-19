@@ -24,6 +24,7 @@ import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
+import android.util.Log;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -32,7 +33,7 @@ import com.android.car.internal.util.IndentingPrintWriter;
 public class LocationManagerProxy extends ILocationManagerProxy.Stub {
 
     private static final String TAG = CarLog.tagFor(LocationManagerProxy.class);
-    private static final boolean DBG = false;
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private final LocationManager mLocationManager;
 

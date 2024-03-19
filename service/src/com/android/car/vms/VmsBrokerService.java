@@ -40,6 +40,7 @@ import android.os.RemoteException;
 import android.os.SharedMemory;
 import android.util.ArrayMap;
 import android.util.ArraySet;
+import android.util.Log;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
@@ -69,8 +70,9 @@ import java.util.stream.Collectors;
  * notifications to clients about layer offering or subscription state changes.
  */
 public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServiceBase {
-    private static final boolean DBG = false;
     private static final String TAG = CarLog.tagFor(VmsBrokerService.class);
+
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private final Context mContext;
     private final PackageManager mPackageManager;

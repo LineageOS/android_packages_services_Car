@@ -40,6 +40,7 @@ import android.os.HandlerThread;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.util.proto.ProtoOutputStream;
 
@@ -59,7 +60,7 @@ import java.util.List;
  */
 public class CarDrivingStateService extends ICarDrivingState.Stub implements CarServiceBase {
     private static final String TAG = CarLog.tagFor(CarDrivingStateService.class);
-    private static final boolean DBG = false;
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     private static final int MAX_TRANSITION_LOG_SIZE = 20;
     private static final int PROPERTY_UPDATE_RATE = 5; // Update rate in Hz
     private final Context mContext;

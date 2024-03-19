@@ -32,6 +32,7 @@ import android.hardware.automotive.occupant_awareness.IOccupantAwareness;
 import android.hardware.automotive.occupant_awareness.IOccupantAwarenessClientCallback;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.util.Log;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -65,7 +66,7 @@ public class OccupantAwarenessService
         extends android.car.occupantawareness.IOccupantAwarenessManager.Stub
         implements CarServiceBase {
     private static final String TAG = CarLog.tagFor(OccupantAwarenessService.class);
-    private static final boolean DBG = false;
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     // HAL service identifier name.
     @VisibleForTesting

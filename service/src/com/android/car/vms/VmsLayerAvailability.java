@@ -22,6 +22,7 @@ import android.car.vms.VmsAvailableLayers;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
+import android.util.Log;
 
 import com.android.car.CarLog;
 import com.android.internal.annotations.GuardedBy;
@@ -43,8 +44,8 @@ import java.util.stream.Collectors;
  */
 
 class VmsLayerAvailability {
-    private static final boolean DBG = false;
     private static final String TAG = CarLog.tagFor(VmsLayerAvailability.class);
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")

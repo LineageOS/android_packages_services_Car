@@ -64,7 +64,7 @@ import java.lang.ref.WeakReference;
 @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
 public abstract class CarInputHandlingService extends Service {
     private static final String TAG = CarLibLog.TAG_INPUT;
-    private static final boolean DBG = false;
+    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
 
     public static final String INPUT_CALLBACK_BINDER_KEY = "callback_binder";
     public static final int INPUT_CALLBACK_BINDER_CODE = IBinder.FIRST_CALL_TRANSACTION;
