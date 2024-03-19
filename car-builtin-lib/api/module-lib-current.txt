@@ -38,7 +38,6 @@ package android.car.builtin.app {
     method @RequiresPermission(android.Manifest.permission.INTERNAL_SYSTEM_WINDOW) public static void moveRootTaskToDisplay(int, int);
     method public static void registerProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
     method public static boolean removeTask(int);
-    method public static void setFocusedRootTask(int);
     method public static void setFocusedTask(int);
     method public static boolean startUserInBackground(int);
     method public static boolean startUserInBackgroundVisibleOnDisplay(int, int);
