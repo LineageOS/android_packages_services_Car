@@ -261,10 +261,12 @@
     <string name="property_clear" translatable="false">Clear Log</string>
     <string name="property_get" translatable="false">Get</string>
     <string name="property_get_async" translatable="false">Get Async</string>
-    <string name="property_register" translatable="false">Register</string>
     <string name="property_set" translatable="false">Set</string>
     <string name="property_set_async" translatable="false">Set Async</string>
-    <string name="property_unregister" translatable="false">Unregister</string>
+    <string name="property_subscription_rate_hz" translatable="false">Subscription Rate (Hz)</string>
+    <string name="property_resolution" translatable="false">Resolution</string>
+    <string name="property_variable_update_rate" translatable="false">Variable Update Rate</string>
+    <string name="set_value_hint" translatable="false">value</string>
 
     <!-- radio test -->
     <string name="radio_fm_am_tuner" translatable="false">FM/AM Tuner</string>

@@ -14,107 +14,183 @@
      limitations under the License.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal" >
-    <ListView
-        android:id="@+id/lvPropertyList"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:layout_width="0dp"
-        android:scrollbars="vertical">
-    </ListView>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:layout_width="0dp"
-        android:orientation="vertical" >
+    android:layout_width="match_parent"
+    android:orientation="vertical" >
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_height="0dp"
+    <LinearLayout
+        android:baselineAligned="false"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:orientation="horizontal" >
+        <Spinner
+            android:baselineAligned="false"
+            android:id="@+id/sPropertyId"
+            android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:layout_width="match_parent"
-            android:orientation="horizontal" >
-            <Spinner
-                android:id="@+id/sPropertyId"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_width="0dp" />
-            <Button
-                android:id="@+id/bGetProperty"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:text="@string/property_get"
-                android:textSize="@dimen/propertyTextSize"/>
-            <Button
-                android:id="@+id/getPropertyAsync"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:text="@string/property_get_async"
-                android:textSize="@dimen/propertyTextSize"/>
-            <TextView
-                android:id="@+id/tvGetPropertyValue"
-                android:gravity="center"
-                android:layout_height="wrap_content"
-                android:layout_weight="3"
-                android:layout_width="0dp"
-                android:textSize="@dimen/propertyValueTextSize"/>
-        </LinearLayout>
-
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_height="0dp"
+            android:layout_width="0dp" />
+        <Button
+            android:baselineAligned="false"
+            android:id="@+id/bGetProperty"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_width="match_parent"
-            android:orientation="horizontal" >
-            <Spinner
-                android:id="@+id/sAreaId"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_width="0dp" />
-            <EditText
-                android:id="@+id/etSetPropertyValue"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_width="0dp"
-                android:inputType="text" />
-            <Button
-                android:id="@+id/bSetProperty"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:text="@string/property_set"
-                android:textSize="@dimen/propertyTextSize"/>
-            <Button
-                android:id="@+id/SetPropertyAsync"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:text="@string/property_set_async"
-                android:textSize="@dimen/propertyTextSize"/>
-        </LinearLayout>
+            android:layout_width="0dp"
+            android:text="@string/property_get"
+            android:textSize="@dimen/propertyTextSize"/>
+        <Button
+            android:baselineAligned="false"
+            android:id="@+id/getPropertyAsync"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:text="@string/property_get_async"
+            android:textSize="@dimen/propertyTextSize"/>
+    </LinearLayout>
 
+    <LinearLayout
+        android:baselineAligned="false"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:orientation="horizontal" >
+        <Spinner
+            android:baselineAligned="false"
+            android:id="@+id/sAreaId"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_width="0dp" />
+        <EditText
+            android:baselineAligned="false"
+            android:importantForAutofill="no"
+            android:hint="@string/set_value_hint"
+            android:id="@+id/etSetPropertyValue"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:inputType="text" />
+        <Button
+            android:baselineAligned="false"
+            android:id="@+id/bSetProperty"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:text="@string/property_set"
+            android:textSize="@dimen/propertyTextSize"/>
+        <Button
+            android:baselineAligned="false"
+            android:id="@+id/SetPropertyAsync"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:text="@string/property_set_async"
+            android:textSize="@dimen/propertyTextSize"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:baselineAligned="false"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:layout_width="match_parent"
+        android:orientation="horizontal" >
+        <LinearLayout
+            android:baselineAligned="false"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:orientation="vertical" >
+            <LinearLayout
+                android:baselineAligned="false"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:orientation="horizontal" >
+                <TextView
+                    android:baselineAligned="false"
+                    android:id="@+id/tvSubscriptionRate"
+                    android:gravity="end"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:text="@string/property_subscription_rate_hz"
+                    android:textSize="@dimen/propertyTextSize"/>
+                <Spinner
+                    android:baselineAligned="false"
+                    android:id="@+id/sSubscriptionRate"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_width="0dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:baselineAligned="false"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:orientation="horizontal" >
+                <TextView
+                    android:baselineAligned="false"
+                    android:id="@+id/tvResolution"
+                    android:gravity="end"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:text="@string/property_resolution"
+                    android:textSize="@dimen/propertyTextSize"/>
+                <Spinner
+                    android:baselineAligned="false"
+                    android:id="@+id/sResolution"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_width="0dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:baselineAligned="false"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:orientation="horizontal" >
+                <TextView
+                    android:baselineAligned="false"
+                    android:id="@+id/tvVariableUpdateRate"
+                    android:gravity="end"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:text="@string/property_variable_update_rate"
+                    android:textSize="@dimen/propertyTextSize"/>
+                <Spinner
+                    android:baselineAligned="false"
+                    android:id="@+id/sVariableUpdateRate"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_width="0dp" />
+            </LinearLayout>
+        </LinearLayout>
         <!-- Event Log -->
         <ScrollView
+            android:baselineAligned="false"
             android:id="@+id/svEventLog"
-            android:layout_height="0dp"
-            android:layout_weight="6"
-            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_width="0dp"
             android:scrollbars="vertical">
             <TextView
+                android:baselineAligned="false"
                 android:id="@+id/tvEventLog"
-                android:gravity="left"
+                android:gravity="start"
                 android:layout_height="match_parent"
                 android:layout_width="match_parent"
                 android:textSize="@dimen/propertyValueTextSize"/>
         </ScrollView>
-        <Button
-            android:id="@+id/bClearLog"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_width="match_parent"
-            android:text="@string/property_clear"
-            android:textSize="@dimen/propertyTextSize"/>
     </LinearLayout>
+    <Button
+        android:baselineAligned="false"
+        android:id="@+id/bClearLog"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:text="@string/property_clear"
+        android:textSize="@dimen/propertyTextSize"/>
 </LinearLayout>
