@@ -98,4 +98,10 @@
     <!-- Calm mode overrides -->
     <string name="config_calmMode_componentName">com.android.car.portraitlauncher/com.android.car.portraitlauncher.calmmode.PortraitCalmModeActivity</string>
 
+    <!--
+        Config for allowing NDO apps to be opened while driving if they contain an active media
+        session
+        TODO(b/310687870): Add RB to testing plan
+    -->
+    <bool name="config_enableMediaSessionAppsWhileDriving">false</bool>
 </resources>

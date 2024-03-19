@@ -142,6 +142,7 @@ import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.MockSettings;
 import android.car.test.util.TemporaryFile;
+import android.content.AttributionSource;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -438,6 +439,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Mock
     private ContentResolver mMockContentResolver;
     @Mock
+    private AttributionSource mMockAttributionSource;
+    @Mock
     IBinder mBinder;
     @Mock
     IBinder mVolumeCallbackBinder;
@@ -580,6 +583,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockContext.getSystemService(Context.AUDIO_SERVICE))
                 .thenReturn(mAudioManager);
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
+        when(mMockContext.getAttributionSource()).thenReturn(mMockAttributionSource);
         doReturn(true)
                 .when(() -> AudioManagerHelper
                         .setAudioDeviceGain(any(), any(), anyInt(), anyBoolean()));

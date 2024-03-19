@@ -920,6 +920,34 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
+    public void testInitializePowerPolicy_invalidPowerState_powerPolicyRefactorFlagEnabled()
+            throws Exception {
+        mRefactoredPowerPolicyDaemon = new FakeRefactoredCarPowerPolicyDaemon(mFileKernelSilentMode,
+                new int[]{CUSTOM_COMPONENT_1000, CUSTOM_COMPONENT_1001, CUSTOM_COMPONENT_1002,
+                        CUSTOM_COMPONENT_1003});
+        setCarPowerPolicyRefactoringFeatureFlag(true);
+        mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
+                mSystemInterface, mUserManager, mUserService, mRefactoredPowerPolicyDaemon,
+                mPowerComponentHandler, mFeatureFlags, mScreenOffHandler,
+                mFileHwStateMonitoring.getFile().getPath(),
+                mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
+        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        CarLocalServices.addService(CarPowerManagementService.class, mService);
+        mService.init();
+        int invalidPowerState = -1;
+        int shutdownParam = 0;
+        mPowerHal.setCurrentPowerState(new PowerState(invalidPowerState, shutdownParam));
+        assertWithMessage("Power HAL current power state").that(
+                mPowerHal.getCurrentPowerState().mState).isEqualTo(invalidPowerState);
+
+        mService.initializePowerPolicy();
+
+        assertWithMessage("Power policy daemon last notified power state").that(
+                mRefactoredPowerPolicyDaemon.getLastNotifiedPowerState()).isNotEqualTo(
+                        invalidPowerState);
+    }
+
+    @Test
     public void testDefineValidPowerPolicy_powerPolicyRefactorFlagDisabled() {
         int status = mService.definePowerPolicy(POWER_POLICY_VALID_1,
                 new String[]{"AUDIO", "BLUETOOTH"}, new String[]{"WIFI"});

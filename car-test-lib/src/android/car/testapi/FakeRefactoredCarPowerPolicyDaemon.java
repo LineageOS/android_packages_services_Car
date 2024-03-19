@@ -83,6 +83,7 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
     private String mLastAppliedPowerPolicyId = SYSTEM_POWER_POLICY_INITIAL_ON;
     private String mLastSetPowerPolicyGroupId = POLICY_PER_STATE_GROUP_ID;
 
+    private int mLastNotifiedPowerState;
     private boolean mSilentModeOn;
     private String mPendingPowerPolicyId;
     private String mLastDefinedPolicyId;
@@ -228,6 +229,7 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
             try {
                 mCallback.onApplyPowerPolicySucceeded(requestId, policy);
                 mCallback.updatePowerComponents(policy);
+                mLastNotifiedPowerState = state;
                 mLastAppliedPowerPolicyId = policy.policyId;
                 mComponentHandler.applyPolicy(policy);
             } catch (Exception e) {
@@ -295,6 +297,14 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
         policyGroup.put(PowerState.WAIT_FOR_VHAL, mPolicies.get(waitForVhalPolicyId));
         policyGroup.put(PowerState.ON, mPolicies.get(onPolicyId));
         mPowerPolicyGroups.put(policyGroupId, policyGroup);
+    }
+
+    /**
+     * Get the last power state notified to the daemon
+     * @return Last notified power state
+     */
+    public int getLastNotifiedPowerState() {
+        return mLastNotifiedPowerState;
     }
 
     public String getLastAppliedPowerPolicyId() {

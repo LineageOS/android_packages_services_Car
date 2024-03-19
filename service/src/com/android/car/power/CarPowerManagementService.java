@@ -2176,7 +2176,15 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mPowerComponentHandler.applyPowerPolicy(currentPowerPolicy);
             notifyPowerPolicyChange(currentPowerPolicy);
             // To cover the case where power state changed before connecting to CPPD.
-            notifyPowerStateChangeToDaemon(daemon, getPowerState());
+            int currentPowerState = getPowerState();
+            if (currentPowerState != CarPowerManager.STATE_WAIT_FOR_VHAL
+                    && currentPowerState != CarPowerManager.STATE_ON) {
+                Slogf.w(TAG, "Current power state is %s, doesn't correspond to wait for VHAL "
+                        + "or on state, skipping notification of power state to daemon.",
+                        powerStateToString(currentPowerState));
+            } else {
+                notifyPowerStateChangeToDaemon(daemon, currentPowerState);
+            }
         } else {
             Slogf.i(TAG, "CPMS is taking control from carpowerpolicyd");
             ICarPowerPolicySystemNotification daemon;
