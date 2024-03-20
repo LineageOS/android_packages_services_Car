@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car.user;
+package android.car.user;
 
-import static android.car.testapi.CarMockitoHelper.mockHandleRemoteExceptionFromCarServiceWithDefaultValue;
-import static android.car.testapi.CarTestingHelper.getResult;
+import static android.car.test.mock.CarMockitoHelper.mockHandleRemoteExceptionFromCarServiceWithDefaultValue;
+import static android.car.test.util.CarTestingHelper.getResult;
 import static android.os.UserHandle.SYSTEM;
 import static android.os.UserHandle.USER_SYSTEM;
 
@@ -39,23 +39,13 @@ import static org.mockito.Mockito.when;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
-import android.car.Car;
 import android.car.ICarUserService;
 import android.car.SyncResultCallback;
-import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.AbstractExpectableTestCase;
 import android.car.test.util.UserTestingHelper;
-import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserHandleSwitchUiCallback;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.CarUserManager.UserSwitchUiCallback;
-import android.car.user.UserCreationRequest;
-import android.car.user.UserCreationResult;
-import android.car.user.UserIdentificationAssociationResponse;
-import android.car.user.UserLifecycleEventFilter;
-import android.car.user.UserRemovalRequest;
-import android.car.user.UserRemovalResult;
-import android.car.user.UserSwitchRequest;
-import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
 import android.car.util.concurrent.AsyncFuture;
 import android.content.Context;
@@ -67,21 +57,36 @@ import android.hardware.automotive.vehicle.UserIdentificationAssociationValue;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.platform.test.ravenwood.RavenwoodRule;
 
+import com.android.car.internal.ICarBase;
 import com.android.car.internal.ResultCallbackImpl;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCase {
+@RunWith(MockitoJUnitRunner.class)
+public final class CarUserManagerUnitTest extends AbstractExpectableTestCase {
+
+    // Need to a rule to setup host implementation for SystemProperties.get which is used inside
+    // CarSystemProperties.getUserHalTimeout() during CarUserManager initialization.
+    @Rule
+    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder()
+            .setSystemPropertyImmutable("android.car.user_hal_timeout", "")
+            // AndroidFuture uses getMainHandler
+            .setProvideMainThread(true)
+            .build();
 
     @Mock
-    private Car mCar;
+    private ICarBase mCar;
     @Mock
     private UserManager mUserManager;
     @Mock
@@ -91,18 +96,10 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
 
     private CarUserManager mMgr;
 
-    public CarUserManagerUnitTest() {
-        super(CarUserManager.TAG);
-    }
-
-    @Override
-    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(UserManager.class);
-    }
-
     @Before
     public void setFixtures() {
-        mMgr = new CarUserManager(mCar, mService, mUserManager);
+        mMgr = new CarUserManager(mCar, mService, mUserManager,
+                /* isHeadlessSystemUserMode= */ true);
         when(mCar.getContext()).thenReturn(mMockContext);
     }
 
@@ -145,7 +142,6 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void testIsValidUserId_headlessSystemUser() {
-        mockIsHeadlessSystemUserMode(true);
         setExistingUsers(USER_SYSTEM);
 
         assertThat(mMgr.isValidUser(USER_SYSTEM)).isFalse();
@@ -153,7 +149,6 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void testIsValidUser_headlessSystemUser() {
-        mockIsHeadlessSystemUserMode(true);
         setExistingUsers(USER_SYSTEM);
 
         assertThat(mMgr.isValidUser(SYSTEM)).isFalse();
@@ -852,5 +847,10 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
                 .mapToObj(id -> UserHandle.of(id))
                 .collect(Collectors.toList());
         when(mUserManager.getUserHandles(/* excludeDying= */ true)).thenReturn(userHandles);
+    }
+
+    private void mockIsHeadlessSystemUserMode(boolean mode) {
+        mMgr = new CarUserManager(mCar, mService, mUserManager,
+                /* isHeadlessSystemUserMode= */ mode);
     }
 }

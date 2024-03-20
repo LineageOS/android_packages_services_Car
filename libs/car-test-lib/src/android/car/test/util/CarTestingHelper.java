@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.car.testapi;
+package android.car.test.util;
 
 import android.annotation.NonNull;
 import android.car.util.concurrent.AsyncFuture;

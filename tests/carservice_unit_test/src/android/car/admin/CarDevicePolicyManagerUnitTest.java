@@ -15,7 +15,7 @@
  */
 package android.car.admin;
 
-import static android.car.testapi.CarMockitoHelper.mockHandleRemoteExceptionFromCarServiceWithDefaultValue;
+import static android.car.test.mock.CarMockitoHelper.mockHandleRemoteExceptionFromCarServiceWithDefaultValue;
 
 import static com.google.common.truth.Truth.assertThat;
 

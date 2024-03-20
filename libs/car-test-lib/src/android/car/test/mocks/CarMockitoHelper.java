@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.testapi;
+package android.car.test.mock;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doAnswer;
 
 import android.annotation.NonNull;
-import android.car.Car;
 import android.os.RemoteException;
 import android.util.Log;
+
+import com.android.car.internal.ICarBase;
 
 /**
  * Provides common Mockito calls for Car-specific classes.
@@ -36,7 +37,7 @@ public final class CarMockitoHelper {
      * it returns the passed as 2nd argument.
      */
     public static void mockHandleRemoteExceptionFromCarServiceWithDefaultValue(
-            @NonNull Car car) {
+            @NonNull ICarBase car) {
         doAnswer((invocation) -> {
             Log.v(TAG, "mocking handleRemoteExceptionFromCarService(): args=" + invocation);
             Object returnValue = invocation.getArguments()[1];
