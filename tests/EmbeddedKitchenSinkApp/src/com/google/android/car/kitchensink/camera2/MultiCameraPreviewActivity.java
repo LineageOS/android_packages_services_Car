@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.os.Debug;
 import android.os.Debug.MemoryInfo;
 import android.os.HandlerThread;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
@@ -42,6 +43,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -58,7 +60,7 @@ public final class MultiCameraPreviewActivity extends FragmentActivity {
     private HandlerThread mSessionHandlerThread;
     private boolean mIsPreviewStarted;
     private boolean mIsRecordingStarted;
-    private MemoryInfo mSessionMemoryInfo;
+    private long mSessionStartTimeMs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -215,6 +217,10 @@ public final class MultiCameraPreviewActivity extends FragmentActivity {
                 mCameraPreviewManagerList.get(i).startPreviewSession();
             }
         }
+
+        // Set Start Time
+        mSessionStartTimeMs = SystemClock.elapsedRealtime();
+
         // Set flag
         mIsPreviewStarted = true;
     }
@@ -243,6 +249,10 @@ public final class MultiCameraPreviewActivity extends FragmentActivity {
                 mCameraPreviewManagerList.get(i).startRecordingSession(filePathPrefix);
             }
         }
+
+        // Set Start Time
+        mSessionStartTimeMs = SystemClock.elapsedRealtime();
+
         // Set flag
         mIsRecordingStarted = true;
     }
@@ -258,14 +268,22 @@ public final class MultiCameraPreviewActivity extends FragmentActivity {
         mIsPreviewStarted = false;
         mIsRecordingStarted = false;
 
-        // Session memory usage and end cpu usage at the end
-        mSessionMemoryInfo = new MemoryInfo();
-        Debug.getMemoryInfo(mSessionMemoryInfo);
+        // Session memory usage
+        MemoryInfo sessionMemoryInfo = new MemoryInfo();
+        Debug.getMemoryInfo(sessionMemoryInfo);
+
+        // Get Frame Counts
+        Map<String, Long> frameCountMap = getSessionFrameCounts();
+
+        // Get End Time
+        long sessionDurationMs = SystemClock.elapsedRealtime() - mSessionStartTimeMs;
 
         // View Session Metrics
-        List<String> sessionMetricsInfo = getSessionMetricsInfo(mSessionMemoryInfo);
+        List<String> sessionMetricsInfoText = getSessionMemoryInfoText(sessionMemoryInfo);
+        sessionMetricsInfoText.add("");
+        sessionMetricsInfoText.addAll(getSessionFpsInfoText(frameCountMap, sessionDurationMs));
         mDetailsListView.setAdapter(new ArrayAdapter<String>(
-                this, R.layout.camera2_details_list_item, sessionMetricsInfo));
+                this, R.layout.camera2_details_list_item, sessionMetricsInfoText));
 
         // Stop camera sessions that have been started
         for (int i = 0; i < mCameraIds.length; i++) {
@@ -280,8 +298,34 @@ public final class MultiCameraPreviewActivity extends FragmentActivity {
         }
     }
 
-    private List<String> getSessionMetricsInfo(MemoryInfo memInfo) {
-        List<String> infoList = new ArrayList<>(Arrays.asList("SESSION MEMORY INFO (kB)"));
+    private Map<String, Long> getSessionFrameCounts() {
+        Map<String, Long> frameCountMap = new HashMap<>();
+        for (int i = 0; i < mCameraIds.length; i++) {
+            if (mSelectionCheckBoxList.get(i).isChecked()) {
+                frameCountMap.put(
+                        mCameraIds[i],
+                        mCameraPreviewManagerList.get(i).getFrameCountOfLastSession());
+            }
+        }
+        return frameCountMap;
+    }
+
+    private static List<String> getSessionFpsInfoText(
+            Map<String, Long> frameCountMap, Long sessionDurationMs) {
+        List<String> infoList = new ArrayList<>(List.of("SESSION FPS INFO (Hz)"));
+        for (Map.Entry<String, Long> entry : frameCountMap.entrySet()) {
+            String cameraId = entry.getKey();
+            long frameCount = entry.getValue();
+            infoList.add(String.format(
+                    "Effective FPS of camera %s: %.2f",
+                    cameraId,
+                    (1000.0 * frameCount) / sessionDurationMs));
+        }
+        return infoList;
+    }
+
+    private List<String> getSessionMemoryInfoText(MemoryInfo memInfo) {
+        List<String> infoList = new ArrayList<>(List.of("SESSION MEMORY INFO (kB)"));
         Map<String, String> memStats = memInfo.getMemoryStats();
         for (Map.Entry<String, String> memStat : memStats.entrySet()) {
             infoList.add(String.format("%s: %s", memStat.getKey(), memStat.getValue()));
