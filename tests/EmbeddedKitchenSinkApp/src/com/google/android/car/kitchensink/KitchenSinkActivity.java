@@ -391,7 +391,9 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         Log.i(TAG, "onNewIntent");
-        if (intent.getCategories().contains(NotificationFragment.INTENT_CATEGORY_SELF_DISMISS)) {
+        if (intent.getCategories() != null
+                && intent.getCategories().contains(
+                        NotificationFragment.INTENT_CATEGORY_SELF_DISMISS)) {
             NotificationManager nm = this.getSystemService(NotificationManager.class);
             nm.cancel(NotificationFragment.SELF_DISMISS_NOTIFICATION_ID);
         }
