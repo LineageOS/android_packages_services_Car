@@ -84,10 +84,11 @@ import com.android.car.internal.util.IntArray;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -98,6 +99,7 @@ import java.util.concurrent.Executor;
 /**
  * <p>This class contains unit tests for the {@link CarPropertyManager}.
  */
+@RunWith(MockitoJUnitRunner.class)
 public final class CarPropertyManagerUnitTest {
     // Required to set the process ID and set the "main" thread for this test, otherwise
     // getMainLooper will return null.
@@ -227,8 +229,6 @@ public final class CarPropertyManagerUnitTest {
 
     @Before
     public void setUp() throws RemoteException {
-        MockitoAnnotations.initMocks(this);
-
         mMainHandler = new Handler(Looper.getMainLooper());
         when(mCar.getContext()).thenReturn(mContext);
         when(mCar.getEventHandler()).thenReturn(mMainHandler);
