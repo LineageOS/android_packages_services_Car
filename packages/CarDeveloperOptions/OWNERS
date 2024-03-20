@@ -1,7 +1,9 @@
 # People who can approve changes for submission.
 
 # Primary
-alexstetson@google.com
+eschiang@google.com
+cassieyw@google.com
 
 # Secondary (only if people in Primary are unreachable)
-nehah@google.com
+dnek@google.com
+alexstetson@google.com
