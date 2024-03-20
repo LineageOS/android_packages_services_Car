@@ -107,8 +107,9 @@ private:
         uint32_t frameId;
         uint32_t refCount;
         FrameRecord(uint32_t id) : frameId(id), refCount(0){};
+        FrameRecord(uint32_t id, uint32_t count) : frameId(id), refCount(count) {};
     };
-    std::vector<FrameRecord> mFrames;
+    std::vector<FrameRecord> mFrames GUARDED_BY(mFrameMutex);
     std::weak_ptr<VirtualCamera> mPrimaryClient;
     std::string mId;
     aidlevs::Stream mStreamConfig;
