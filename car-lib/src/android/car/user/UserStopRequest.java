@@ -44,6 +44,7 @@ public final class UserStopRequest implements Parcelable {
         private final @NonNull UserHandle mUserHandle;
         // withDelayedLocking is true by default, as it is the most common use case.
         private boolean mWithDelayedLocking = true;
+        // Note that mForce doesn't actually do anything. Its value is irrelevant.
         private boolean mForce;
 
         public Builder(@NonNull UserHandle userHandle) {
