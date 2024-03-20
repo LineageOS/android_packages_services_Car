@@ -2211,7 +2211,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         callback.onAudioServerDown();
 
-        verify(mAudioControlWrapperAidl).onDevicesToMuteChange(any());
+        verify(mAudioControlWrapperAidl, never()).onDevicesToMuteChange(any());
         // Routing policy is not unregistered on audio server going down
         verify(mAudioManager, times(AUDIO_SERVICE_POLICY_REGISTRATIONS - 1))
                 .unregisterAudioPolicy(any());
@@ -2223,7 +2223,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         verify(mAudioControlWrapperAidl).clearModuleChangeCallback();
         verify(mMockOccupantZoneService).unregisterCallback(occupantZoneCallback);
         verify(mMockCarInputService).unregisterKeyEventListener(keyInputListener);
-        verify(mAudioControlWrapperAidl).unlinkToDeath();
+        verify(mAudioControlWrapperAidl, never()).unlinkToDeath();
     }
 
     @Test
@@ -2238,7 +2238,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         callback.onAudioServerDown();
 
-        verify(mAudioControlWrapperAidl).onDevicesToMuteChange(any());
+        verify(mAudioControlWrapperAidl, never()).onDevicesToMuteChange(any());
         // Routing policy is not unregistered on audio server going down
         verify(mAudioManager, times(AUDIO_SERVICE_POLICY_REGISTRATIONS_WITH_FADE_MANAGER - 1))
                 .unregisterAudioPolicy(any());
@@ -2250,7 +2250,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         verify(mAudioControlWrapperAidl).clearModuleChangeCallback();
         verify(mMockOccupantZoneService).unregisterCallback(occupantZoneCallback);
         verify(mMockCarInputService).unregisterKeyEventListener(keyInputListener);
-        verify(mAudioControlWrapperAidl).unlinkToDeath();
+        verify(mAudioControlWrapperAidl, never()).unlinkToDeath();
     }
 
     @Test
@@ -2265,7 +2265,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         callback.onAudioServerDown();
 
-        verify(mAudioControlWrapperAidl).onDevicesToMuteChange(any());
+        verify(mAudioControlWrapperAidl, never()).onDevicesToMuteChange(any());
         // Routing policy is not unregistered on audio server going down
         verify(mAudioManager, times(AUDIO_SERVICE_POLICY_REGISTRATIONS - 1))
                 .unregisterAudioPolicy(any());
@@ -2277,7 +2277,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         verify(mAudioControlWrapperAidl).clearModuleChangeCallback();
         verify(mMockOccupantZoneService).unregisterCallback(occupantZoneCallback);
         verify(mMockCarInputService).unregisterKeyEventListener(keyInputListener);
-        verify(mAudioControlWrapperAidl).unlinkToDeath();
+        verify(mAudioControlWrapperAidl, never()).unlinkToDeath();
     }
 
     @Test
