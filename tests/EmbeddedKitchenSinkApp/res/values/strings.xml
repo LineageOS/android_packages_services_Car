@@ -445,6 +445,12 @@
     <!-- Fullscreen Activity Test -->
     <string name="nav_to_full_screen" translatable="false">Navigate to Full Screen</string>
     <string name="cancel" translatable="false">Cancel</string>
+    <string name="show_car_ui_dialog" translatable="false">Show Dialog from car_ui_lib</string>
+    <string name="car_ui_dialog_title" translatable="false">Dialog from car_ui_lib</string>
+    <string name="show_dialog" translatable="false">Show Dialog</string>
+    <string name="dialog_title" translatable="false">Dialog</string>
+    <string name="dismiss_btn_text" translatable="false">Dismiss</string>
+    <string name="edit_text_hint" translatable="false">Placeholder</string>
 
     <!-- CarTelemetryService Test -->
     <string name="gear_change_config" translatable="false">on_gear_change:</string>

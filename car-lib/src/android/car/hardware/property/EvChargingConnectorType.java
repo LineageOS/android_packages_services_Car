@@ -39,52 +39,62 @@ public final class EvChargingConnectorType {
     /**
      * IEC 62196 Type 1 connector
      *
-     * <p>It is colloquially known as the "Yazaki connector" or "J1772 connector".
+     * <p>Also known as the "Yazaki connector" or "J1772 connector".
      */
     public static final int IEC_TYPE_1_AC = 1;
 
     /**
      * IEC 62196 Type 2 connector
      *
-     * <p>It is colloquially known as the "Mennekes connector".
+     * <p>Also known as the "Mennekes connector".
      */
     public static final int IEC_TYPE_2_AC = 2;
 
     /**
      * IEC 62196 Type 3 connector
      *
-     * <p>It is colloquially known as the "Scame connector".
+     * <p>Also known as the "Scame connector".
      */
     public static final int IEC_TYPE_3_AC = 3;
 
     /**
      * IEC 62196 Type AA connector
      *
-     * <p>It is colloquially known as the "Chademo connector".
+     * <p>Also known as the "Chademo connector".
      */
     public static final int IEC_TYPE_4_DC = 4;
 
     /**
      * IEC 62196 Type EE connector
      *
-     * <p>It is colloquially known as the “CCS1 connector” or “Combo1 connector".
+     * <p>Also known as the “CCS1 connector” or “Combo1 connector".
      */
     public static final int IEC_TYPE_1_CCS_DC = 5;
 
     /**
      * IEC 62196 Type EE connector
      *
-     * <p>It is colloquially known as the “CCS2 connector” or “Combo2 connector”.
+     * <p>Also known as the “CCS2 connector” or “Combo2 connector”.
      */
     public static final int IEC_TYPE_2_CCS_DC = 6;
 
     /** Connector of Tesla Roadster */
     public static final int TESLA_ROADSTER = 7;
 
-    /** High Power Wall Charger of Tesla */
+    /**
+     * High Power Wall Charger of Tesla.
+     *
+     * <p>This is the same connector as the {@link #TESLA_SUPERCHARGER}.
+     * @see #TESLA_SUPERCHARGER
+     */
     public static final int TESLA_HPWC = 8;
 
-    /** Supercharger of Tesla */
+    /**
+     * SAE J3400 connector
+     *
+     * <p>Also known as the "North American Charging Standard" (NACS)
+     * or the "Tesla charging standard" connector.
+     */
     public static final int TESLA_SUPERCHARGER = 9;
 
     /** GBT_AC Fast Charging Standard */

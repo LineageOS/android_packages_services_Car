@@ -239,8 +239,6 @@ PRODUCT_PACKAGES += \
     CarPermissionControllerRRO \
     CarSystemUIRRO
 
-$(call inherit-product-if-exists, packages/apps/Car/SystemUI/samples/systemui_sample_rros.mk)
-
 # System Server components
 # Order is important: if X depends on Y, then Y should precede X on the list.
 PRODUCT_SYSTEM_SERVER_JARS += car-frameworks-service
