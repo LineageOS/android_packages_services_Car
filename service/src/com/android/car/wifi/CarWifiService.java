@@ -23,6 +23,7 @@ import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_FAILED;
 
 import static com.android.car.CarServiceUtils.getHandlerThread;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.Car;
 import android.car.builtin.util.Slogf;
@@ -49,6 +50,7 @@ import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
@@ -214,6 +216,7 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dumpProto(ProtoOutputStream proto) {
         proto.write(CarWifiDumpProto.PERSIST_TETHERING_CAPABILITIES_ENABLED,
                 mIsPersistTetheringCapabilitiesEnabled);
@@ -225,6 +228,7 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("**CarWifiService**");
         writer.println();
