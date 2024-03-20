@@ -25,8 +25,8 @@ import com.android.car.qc.QCItem;
 import com.android.car.qc.QCList;
 import com.android.car.qc.QCRow;
 import com.android.car.qc.provider.BaseLocalQCProvider;
+import com.android.systemui.car.distantdisplay.common.DistantDisplayController;
 import com.android.systemui.car.distantdisplay.common.DistantDisplayQcItem;
-import com.android.systemui.car.systembar.DistantDisplayController;
 
 import javax.inject.Inject;
 

@@ -74,7 +74,7 @@
         <item name="android:textColor">@color/car_on_surface_variant</item>
     </style>
 
-    <style name="QuickControlEntryPointButton">
+    <style name="TopBarButton">
         <item name="android:layout_marginStart">@dimen/top_system_bar_icon_horizontal_margin</item>
         <item name="android:layout_marginEnd">@dimen/top_system_bar_icon_horizontal_margin</item>
         <item name="android:background">@drawable/status_icon_background</item>

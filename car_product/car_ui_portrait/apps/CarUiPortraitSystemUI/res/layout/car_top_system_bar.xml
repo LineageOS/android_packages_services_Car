@@ -28,15 +28,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
-            android:id="@+id/qc_entry_points_container"
+        <include layout="@layout/qc_status_icons_horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginStart="@dimen/car_quick_controls_entry_points_start_margin"
-            android:orientation="horizontal"
             android:layout_centerVertical="true"
             android:layout_toStartOf="@+id/clock"
-            android:layout_alignParentStart="true"/>
+            android:layout_alignParentStart="true" />
 
         <com.android.systemui.statusbar.policy.Clock
             android:id="@+id/clock"

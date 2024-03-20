@@ -21,4 +21,5 @@ runtime_resource_overlay {
     manifest: "AndroidManifest.xml",
     sdk_version: "current",
     product_specific: true,
+    static_libs: ["CarSystemUI-res"],
 }

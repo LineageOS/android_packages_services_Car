@@ -16,6 +16,52 @@
   -->
 
 <overlay>
-    <item target="array/config_quickControlsEntryPointIconControllers"
-          value="@array/config_quickControlsEntryPointIconControllers"/>
+    <item target="layout/qc_status_icons_horizontal"
+          value="@layout/qc_status_icons_horizontal"/>
+    <item target="layout/qc_status_icons_vertical"
+        value="@layout/qc_status_icons_vertical"/>
+
+    <item target="attr/controller" value="@attr/controller"/>
+    <item target="attr/systemBarDisableFlags" value="@attr/systemBarDisableFlags"/>
+    <item target="attr/systemBarDisable2Flags" value="@attr/systemBarDisable2Flags"/>
+    <item target="attr/disableForLockTaskModeLocked" value="@attr/disableForLockTaskModeLocked"/>
+    <item target="attr/panelLayoutRes" value="@attr/panelLayoutRes"/>
+    <item target="attr/panelWidthRes" value="@attr/panelWidthRes"/>
+    <item target="attr/xOffset" value="@attr/xOffset"/>
+    <item target="attr/yOffset" value="@attr/yOffset"/>
+    <item target="attr/gravity" value="@attr/gravity"/>
+    <item target="attr/disabledWhileDriving" value="@attr/disabledWhileDriving"/>
+    <item target="attr/disabledWhileUnprovisioned" value="@attr/disabledWhileUnprovisioned"/>
+    <item target="attr/showAsDropDown" value="@attr/showAsDropDown"/>
+    <item target="attr/remoteQCProvider" value="@attr/remoteQCProvider"/>
+    <item target="attr/localQCProvider" value="@attr/localQCProvider"/>
+
+    <item target="attr/layout_constraintHorizontal_chainStyle" value="@attr/layout_constraintHorizontal_chainStyle"/>
+    <item target="attr/layout_constraintHorizontal_bias" value="@attr/layout_constraintHorizontal_bias"/>
+    <item target="attr/layout_constraintHorizontal_weight" value="@attr/layout_constraintHorizontal_weight"/>
+    <item target="attr/layout_constraintDimensionRatio" value="@attr/layout_constraintDimensionRatio"/>
+    <item target="attr/layout_constraintGuide_end" value="@attr/layout_constraintGuide_end"/>
+    <item target="attr/layout_constraintBottom_toBottomOf" value="@attr/layout_constraintBottom_toBottomOf"/>
+    <item target="attr/layout_constraintBottom_toTopOf" value="@attr/layout_constraintBottom_toTopOf"/>
+    <item target="attr/layout_constraintEnd_toStartOf" value="@attr/layout_constraintEnd_toStartOf"/>
+    <item target="attr/layout_constraintEnd_toEndOf" value="@attr/layout_constraintEnd_toEndOf"/>
+    <item target="attr/layout_constraintStart_toStartOf" value="@attr/layout_constraintStart_toStartOf"/>
+    <item target="attr/layout_constraintStart_toEndOf" value="@attr/layout_constraintStart_toEndOf"/>
+    <item target="attr/layout_constraintTop_toTopOf" value="@attr/layout_constraintTop_toTopOf"/>
+    <item target="attr/layout_constraintTop_toBottomOf" value="@attr/layout_constraintTop_toBottomOf"/>
+    <item target="attr/layout_constraintHeight_default" value="@attr/layout_constraintHeight_default"/>
+
+    <item target="id/bluetooth_panel_button" value="@id/bluetooth_panel_button"/>
+    <item target="id/bluetooth_status_icon" value="@id/bluetooth_status_icon"/>
+    <item target="id/connectivity_panel_button" value="@id/connectivity_panel_button"/>
+    <item target="id/connectivity_status_icon" value="@id/connectivity_status_icon"/>
+    <item target="id/display_panel_button" value="@id/display_panel_button"/>
+    <item target="id/display_status_icon" value="@id/display_status_icon"/>
+    <item target="id/connectivity_panel_button" value="@id/connectivity_panel_button"/>
+    <item target="id/connectivity_status_icon" value="@id/connectivity_status_icon"/>
+    <item target="id/display_panel_button" value="@id/display_panel_button"/>
+    <item target="id/display_status_icon" value="@id/display_status_icon"/>
+    <item target="id/qc_bluetooth_footer_button" value="@id/qc_bluetooth_footer_button"/>
+    <item target="id/qc_connectivity_footer_button" value="@id/qc_connectivity_footer_button"/>
+    <item target="id/qc_display_footer_button" value="@id/qc_display_footer_button"/>
 </overlay>

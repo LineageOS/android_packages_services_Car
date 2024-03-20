@@ -17,6 +17,8 @@
 package com.android.systemui.car.qc;
 
 import com.android.car.qc.provider.BaseLocalQCProvider;
+import com.android.systemui.car.statusicon.ui.DistantDisplayStatusIconController;
+import com.android.systemui.car.systembar.element.CarSystemBarElementController;
 
 import dagger.Binds;
 import dagger.Module;
@@ -34,4 +36,11 @@ public abstract class DistantDisplayQuickControlsModule {
     @ClassKey(DisplaySwitcher.class)
     public abstract BaseLocalQCProvider bindDisplaySwitcher(
             DisplaySwitcher displaySwitcher);
+
+    /** Injects DistantDisplayStatusIconController. */
+    @Binds
+    @IntoMap
+    @ClassKey(DistantDisplayStatusIconController.class)
+    public abstract CarSystemBarElementController.Factory bindDistantDisplayStatusIconController(
+            DistantDisplayStatusIconController.Factory distantDisplayStatusIconController);
 }
