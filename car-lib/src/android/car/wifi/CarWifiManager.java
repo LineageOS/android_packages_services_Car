@@ -25,6 +25,8 @@ import android.car.feature.Flags;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.android.car.internal.ICarBase;
+
 /**
  * CarWifiManager provides API to allow for applications to perform Wi-Fi specific operations.
  *
@@ -36,7 +38,7 @@ public final class CarWifiManager extends CarManagerBase {
     private final ICarWifi mService;
 
     /** @hide */
-    public CarWifiManager(Car car, IBinder service) {
+    public CarWifiManager(ICarBase car, IBinder service) {
         super(car);
         mService = ICarWifi.Stub.asInterface(service);
     }
