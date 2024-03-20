@@ -2648,7 +2648,7 @@ public final class Car implements ICarBase {
                 manager = new ClusterHomeManager(this, binder);
                 break;
             case CAR_EVS_SERVICE:
-                manager = new CarEvsManager(this, binder);
+                manager = new CarEvsManager(this, binder, /* featureFlags= */ null);
                 break;
             case CAR_TELEMETRY_SERVICE:
                 manager = new CarTelemetryManager(this, binder);
