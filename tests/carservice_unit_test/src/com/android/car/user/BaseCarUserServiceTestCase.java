@@ -1026,7 +1026,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
             i++;
         }
         Preconditions.checkArgument(foundCurrentUser,
-                "no user with id " + currentUserId + " on " + mExistingUsers);
+                "no user with id %d on %s", currentUserId, mExistingUsers);
         return infos;
     }
 
