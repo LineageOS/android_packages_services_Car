@@ -227,12 +227,12 @@ protected:
 
     virtual void TearDown() {
         mMockWatchdogServiceHelper.clear();
-        mMockDeathRegistrationWrapper.clear();
         mMockIoOveruseConfigs.clear();
         mMockPackageInfoResolver.clear();
         mMockUidStatsCollector.clear();
         mIoOveruseMonitor.clear();
         mIoOveruseMonitorPeer.clear();
+        mMockDeathRegistrationWrapper.clear();
     }
 
     void setUpPackagesAndConfigurations() {
