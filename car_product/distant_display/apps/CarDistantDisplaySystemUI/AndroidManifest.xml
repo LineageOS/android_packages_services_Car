@@ -22,9 +22,6 @@
           android:sharedUserId="android.uid.systemui"
           coreApp="true">
 
-    <!-- This is needed since the compiled aar is against VanillaIceCream -->
-    <uses-sdk android:minSdkVersion="VanillaIceCream"/>
-
     <!-- Permission to assign Activity to TDA -->
     <uses-permission android:name="android.car.permission.CONTROL_CAR_APP_LAUNCH"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
