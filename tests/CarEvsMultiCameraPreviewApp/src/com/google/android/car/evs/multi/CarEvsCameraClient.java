@@ -116,16 +116,16 @@ final class CarEvsCameraClient {
 
     final class StreamHandler implements CarEvsManager.CarEvsStreamCallback {
         @Override
-        public void onStreamEvent(int event) {
+        public void onStreamEvent(int from, int event) {
             // TOOD: handle stream events.
-            Log.i(TAG, "Client " + this + " received " + event);
+            Log.i(TAG, "Client " + this + " received " + event + " from " + from);
         }
 
         @Override
         public void onNewFrame(CarEvsBufferDescriptor desc) {
             mLock.lock();
             try {
-                @CarEvsServiceType int type = getServiceType(desc.getId());
+                @CarEvsServiceType int type = desc.getType();
                 ArrayList bufferQueue = mBufferQueue.get(type);
                 if (bufferQueue == null) {
                     return;
@@ -379,10 +379,6 @@ final class CarEvsCameraClient {
 
         mStreamState = newState;
         Log.i(TAG, "Completed: " + streamStateToString(mStreamState));
-    }
-
-    private static @CarEvsServiceType int getServiceType(int descId) {
-        return descId >> BUFFER_ID_BITDEPTH;
     }
 
     private static String streamStateToString(int state) {

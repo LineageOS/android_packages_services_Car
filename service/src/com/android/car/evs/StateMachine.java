@@ -245,8 +245,7 @@ final class StateMachine {
                 while (idx-- > 0) {
                     ICarEvsStreamCallback callback = mCallbacks.getBroadcastItem(idx);
                     try {
-                        int taggedEvent = CarEvsUtils.putTag(mServiceType, event);
-                        callback.onStreamEvent(taggedEvent);
+                        callback.onStreamEvent(mServiceType, event);
                     } catch (RemoteException e) {
                         Slogf.w(mLogTag, "Failed to forward an event to %s", callback);
                     }
@@ -270,12 +269,12 @@ final class StateMachine {
                 while (idx-- > 0) {
                     ICarEvsStreamCallback callback = mCallbacks.getBroadcastItem(idx);
                     try {
-                        int bufferId = CarEvsUtils.putTag(mServiceType, id);
                         CarEvsBufferDescriptor descriptor;
                         if (Flags.carEvsStreamManagement()) {
-                            descriptor = new CarEvsBufferDescriptor(bufferId, mServiceType, buffer);
+                            descriptor = new CarEvsBufferDescriptor(id, mServiceType, buffer);
                         } else {
-                            descriptor = new CarEvsBufferDescriptor(bufferId, buffer);
+                            descriptor = new CarEvsBufferDescriptor(
+                                    CarEvsUtils.putTag(mServiceType, id), buffer);
                         }
                         callback.onNewFrame(descriptor);
                         refcount += 1;
@@ -819,9 +818,7 @@ final class StateMachine {
         }
 
         try {
-            int taggedEvent = CarEvsUtils.putTag(mServiceType,
-                    CarEvsManager.STREAM_EVENT_STREAM_STOPPED);
-            callback.onStreamEvent(taggedEvent);
+            callback.onStreamEvent(mServiceType, CarEvsManager.STREAM_EVENT_STREAM_STOPPED);
         } catch (RemoteException e) {
             // Likely the binder death incident
             Slogf.w(TAG_EVS, Log.getStackTraceString(e));
