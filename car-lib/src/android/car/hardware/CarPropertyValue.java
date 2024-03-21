@@ -280,8 +280,8 @@ public final class CarPropertyValue<T> implements Parcelable {
      * Returns the value for {@code CarPropertyValue}.
      *
      * <p>
-     * <b>Note:</b>Caller must check the value of {@link #getStatus()}. Only use
-     * {@link #getValue()} when {@link #getStatus()} is {@link #STATUS_AVAILABLE}. If not,
+     * <b>Note:</b>Caller must check the value of {@link #getPropertyStatus()}. Only use
+     * {@link #getValue()} when {@link #getPropertyStatus()} is {@link #STATUS_AVAILABLE}. If not,
      * {@link #getValue()} is meaningless.
      */
     @NonNull
