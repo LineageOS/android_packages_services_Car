@@ -68,5 +68,5 @@ android_library_import {
     aars: [
         "displaycompat-service.aar",
     ],
-    min_sdk_version: "VanillaIceCream",
+    sdk_version: "34",
 }
