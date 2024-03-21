@@ -18,6 +18,7 @@
     <dimen name="car_padding_1">8dp</dimen>
     <dimen name="car_padding_2">16dp</dimen>
     <dimen name="car_padding_3">24dp</dimen>
+    <dimen name="car_padding_4">32dp</dimen>
 
     <dimen name="car_quick_controls_entry_points_icon_space">12dp</dimen>
 
@@ -43,7 +44,13 @@
     <dimen name="car_quick_controls_entry_points_button_margin_start">12dp</dimen>
     <dimen name="car_quick_controls_entry_points_button_margin_end">12dp</dimen>
     <dimen name="car_quick_controls_entry_points_clock_text_size">28sp</dimen>
+    <dimen name="car_quick_controls_panel_footer_button_view_height">60dp</dimen>
+    <dimen name="car_quick_controls_footer_button_min_height">56dp</dimen>
+    <dimen name="car_quick_controls_panel_footer_button_view_padding">10dp</dimen>
+    <dimen name="car_quick_controls_icon_drawable_width">24dp</dimen>
+    <dimen name="car_quick_controls_icon_drawable_height">24dp</dimen>
     <dimen name="car_body1_size">32sp</dimen>
+    <dimen name="car_body3_size">26sp</dimen>
     <dimen name="system_bar_user_icon_drawing_size">36dp</dimen>
     <dimen name="user_icon_background_size">128dp</dimen>
     <dimen name="system_bar_button_size">76dp</dimen>

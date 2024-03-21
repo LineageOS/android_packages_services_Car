@@ -137,16 +137,19 @@ bool HalCamera::changeFramesInFlight(int delta) {
     newRecords.reserve(bufferCount);
 
     // Copy and compact the old records that are still active
-    for (const auto& rec : mFrames) {
-        if (rec.refCount > 0) {
-            newRecords.push_back(std::move(rec));
+    {
+        std::lock_guard lock(mFrameMutex);
+        for (const auto& rec : mFrames) {
+            if (rec.refCount > 0) {
+                newRecords.push_back(std::move(rec));
+            }
         }
-    }
-    if (newRecords.size() > static_cast<unsigned>(bufferCount)) {
-        LOG(WARNING) << "We found more frames in use than requested.";
-    }
+        if (newRecords.size() > static_cast<unsigned>(bufferCount)) {
+            LOG(WARNING) << "We found more frames in use than requested.";
+        }
 
-    mFrames.swap(newRecords);
+        mFrames.swap(newRecords);
+    }
     return true;
 }
 
@@ -178,18 +181,21 @@ bool HalCamera::changeFramesInFlight(const std::vector<BufferDesc>& buffers, int
     std::vector<FrameRecord> newRecords;
     newRecords.reserve(bufferCount);
 
-    // Copy and compact the old records that are still active
-    for (const auto& rec : mFrames) {
-        if (rec.refCount > 0) {
-            newRecords.push_back(std::move(rec));
+    {
+        std::lock_guard lock(mFrameMutex);
+        // Copy and compact the old records that are still active
+        for (const auto& rec : mFrames) {
+            if (rec.refCount > 0) {
+                newRecords.push_back(std::move(rec));
+            }
         }
-    }
 
-    if (newRecords.size() > static_cast<unsigned>(bufferCount)) {
-        LOG(WARNING) << "We found more frames in use than requested.";
-    }
+        if (newRecords.size() > static_cast<unsigned>(bufferCount)) {
+            LOG(WARNING) << "We found more frames in use than requested.";
+        }
 
-    mFrames.swap(newRecords);
+        mFrames.swap(newRecords);
+    }
 
     return true;
 }
@@ -366,7 +372,15 @@ ScopedAStatus HalCamera::deliverFrame(const std::vector<BufferDesc>& buffers) {
 
         // Reports a returned buffer
         mUsageStats->framesReturned(buffers);
+
+        // Adding skipped capture requests back to the queue.
+        std::lock_guard<std::mutex> lock(mFrameMutex);
+        mNextRequests.insert(mNextRequests.end(),
+                             std::make_move_iterator(puntedRequests.begin()),
+                             std::make_move_iterator(puntedRequests.end()));
     } else {
+        std::lock_guard lock(mFrameMutex);
+
         // Add an entry for this frame in our tracking list.
         unsigned i;
         for (i = 0; i < mFrames.size(); ++i) {
@@ -376,16 +390,13 @@ ScopedAStatus HalCamera::deliverFrame(const std::vector<BufferDesc>& buffers) {
         }
 
         if (i == mFrames.size()) {
-            mFrames.push_back(buffers[0].bufferId);
+            mFrames.emplace_back(buffers[0].bufferId, frameDeliveries);
         } else {
             mFrames[i].frameId = buffers[0].bufferId;
+            mFrames[i].refCount = frameDeliveries;
         }
-        mFrames[i].refCount = frameDeliveries;
-    }
 
-    {
         // Adding skipped capture requests back to the queue.
-        std::lock_guard<std::mutex> lock(mFrameMutex);
         mNextRequests.insert(mNextRequests.end(),
                              std::make_move_iterator(puntedRequests.begin()),
                              std::make_move_iterator(puntedRequests.end()));

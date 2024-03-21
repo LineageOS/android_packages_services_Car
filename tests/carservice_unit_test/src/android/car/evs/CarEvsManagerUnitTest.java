@@ -228,9 +228,10 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
                 .isEqualTo(ERROR_NONE);
 
         ICarEvsStreamCallback cb = mCarEvsStreamCallbackCaptor.getValue();
-        cb.onStreamEvent(CarEvsManager.STREAM_EVENT_STREAM_STOPPED);
-        verify(mMockCarEvsStreamCallback, atLeastOnce())
-                .onStreamEvent(CarEvsManager.STREAM_EVENT_STREAM_STOPPED);
+        cb.onStreamEvent(CarEvsManager.SERVICE_TYPE_REARVIEW,
+                CarEvsManager.STREAM_EVENT_STREAM_STOPPED);
+        verify(mMockCarEvsStreamCallback, atLeastOnce()).onStreamEvent(
+                CarEvsManager.SERVICE_TYPE_REARVIEW, CarEvsManager.STREAM_EVENT_STREAM_STOPPED);
 
         int bufferId = 1;
         HardwareBuffer hwbuffer =
@@ -238,7 +239,8 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
                                       /* format= */ HardwareBuffer.RGBA_8888,
                                       /* layers= */ 1,
                                       /* usage= */ HardwareBuffer.USAGE_CPU_READ_OFTEN);
-        CarEvsBufferDescriptor buffer = new CarEvsBufferDescriptor(bufferId, hwbuffer);
+        CarEvsBufferDescriptor buffer = new CarEvsBufferDescriptor(bufferId,
+                CarEvsManager.SERVICE_TYPE_REARVIEW, hwbuffer);
         cb.onNewFrame(buffer);
         verify(mMockCarEvsStreamCallback, atLeastOnce()).onNewFrame(buffer);
     }

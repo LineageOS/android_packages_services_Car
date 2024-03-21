@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2022 The Android Open Source Project
+  ~ Copyright (C) 2023 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,14 +13,12 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/TopBarButton">
-    <ImageView
-        android:layout_width="@dimen/top_system_bar_qc_icon_drawing_size"
-        android:layout_height="@dimen/top_system_bar_qc_icon_drawing_size"
-        android:layout_gravity="center"
-        android:tag="@string/qc_icon_tag"/>
-</FrameLayout>
-
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="@dimen/car_quick_controls_icon_drawable_width"
+        android:height="@dimen/car_quick_controls_icon_drawable_height"
+        android:viewportWidth="36"
+        android:viewportHeight="36">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M14.9999 9L12.8774 11.1225L19.7549 18L12.8774 24.8775L14.9999 27L23.9999 18L14.9999 9Z"/>
+</vector>

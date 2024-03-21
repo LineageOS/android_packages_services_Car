@@ -17,8 +17,6 @@
 <overlay>
     <item target="layout/car_bottom_system_bar" value="@layout/car_passenger_bottom_system_bar"/>
 
-    <item target="array/config_quickControlsEntryPointIconControllers" value="@array/config_quickControlsEntryPointIconControllers"/>
-
     <item target="bool/config_enableTopSystemBar" value="false"/>
     <item target="string/config_notificationPanelViewMediator" value="@string/config_notificationPanelViewMediator" />
 
@@ -46,15 +44,36 @@
     <!-- start the intent as a broad cast instead of an activity if true-->
     <item target="attr/broadcast" value="@attr/broadcast"/>
 
+    <item target="attr/datePattern" value="@attr/datePattern"/>
+    <item target="attr/controller" value="@attr/controller"/>
+    <item target="attr/systemBarDisableFlags" value="@attr/systemBarDisableFlags"/>
+    <item target="attr/systemBarDisable2Flags" value="@attr/systemBarDisable2Flags"/>
+    <item target="attr/disableForLockTaskModeLocked" value="@attr/disableForLockTaskModeLocked"/>
+    <item target="attr/panelLayoutRes" value="@attr/panelLayoutRes"/>
+    <item target="attr/panelWidthRes" value="@attr/panelWidthRes"/>
+    <item target="attr/xOffset" value="@attr/xOffset"/>
+    <item target="attr/yOffset" value="@attr/yOffset"/>
+    <item target="attr/gravity" value="@attr/gravity"/>
+    <item target="attr/disabledWhileDriving" value="@attr/disabledWhileDriving"/>
+    <item target="attr/disabledWhileUnprovisioned" value="@attr/disabledWhileUnprovisioned"/>
+    <item target="attr/showAsDropDown" value="@attr/showAsDropDown"/>
+    <item target="attr/remoteQCProvider" value="@attr/remoteQCProvider"/>
+    <item target="attr/localQCProvider" value="@attr/localQCProvider"/>
 
     <item target="attr/layoutDescription" value="@attr/layoutDescription"/>
+    <item target="attr/layout_constraintHorizontal_chainStyle" value="@attr/layout_constraintHorizontal_chainStyle"/>
+    <item target="attr/layout_constraintHorizontal_bias" value="@attr/layout_constraintHorizontal_bias"/>
+    <item target="attr/layout_constraintHorizontal_weight" value="@attr/layout_constraintHorizontal_weight"/>
+    <item target="attr/layout_constraintDimensionRatio" value="@attr/layout_constraintDimensionRatio"/>
     <item target="attr/layout_constraintGuide_end" value="@attr/layout_constraintGuide_end"/>
     <item target="attr/layout_constraintBottom_toBottomOf" value="@attr/layout_constraintBottom_toBottomOf"/>
+    <item target="attr/layout_constraintBottom_toTopOf" value="@attr/layout_constraintBottom_toTopOf"/>
+    <item target="attr/layout_constraintEnd_toStartOf" value="@attr/layout_constraintEnd_toStartOf"/>
     <item target="attr/layout_constraintEnd_toEndOf" value="@attr/layout_constraintEnd_toEndOf"/>
+    <item target="attr/layout_constraintStart_toStartOf" value="@attr/layout_constraintStart_toStartOf"/>
     <item target="attr/layout_constraintStart_toEndOf" value="@attr/layout_constraintStart_toEndOf"/>
+    <item target="attr/layout_constraintTop_toTopOf" value="@attr/layout_constraintTop_toTopOf"/>
     <item target="attr/layout_constraintTop_toBottomOf" value="@attr/layout_constraintTop_toBottomOf"/>
-
-
 
     <item target="id/nav_buttons" value="@id/nav_buttons"/>
     <item target="id/home" value="@id/home"/>
@@ -62,12 +81,10 @@
     <item target="id/hvac_decrease_button" value="@id/hvac_decrease_button"/>
     <item target="id/hvac_temperature_text" value="@id/hvac_temperature_text"/>
     <item target="id/hvac_increase_button" value="@id/hvac_increase_button"/>
-    <item target="id/qc_entry_points_container" value="@id/qc_entry_points_container"/>
     <item target="id/control_center_nav" value="@id/control_center_nav"/>
     <item target="string/system_bar_control_center_label" value="@string/system_bar_control_center_label"/>
     <item target="dimen/system_bar_button_size" value="@dimen/system_bar_button_size"/>
     <item target="dimen/system_bar_button_padding" value="@dimen/system_bar_button_padding"/>
-    <item target="style/ControlCenterSystemBarButton" value="@style/ControlCenterSystemBarButton"/>
 
 
     <!-- Passenger QuickControls related fields -->
@@ -76,7 +93,6 @@
     <item target="color/system_bar_text_color_with_selection" value="@color/system_bar_text_color_with_selection"/>
     <item target="color/system_bar_text_selected_color" value="@color/system_bar_text_selected_color"/>
     <item target="color/system_bar_text_color" value="@color/system_bar_text_color"/>
-    <item target="dimen/system_bar_user_icon_drawing_size" value="@dimen/system_bar_user_icon_drawing_size"/>
     <item target="drawable/car_user_icon_circle_background" value="@drawable/car_user_icon_circle_background"/>
     <item target="color/car_user_switcher_add_user_background_color" value="@color/car_user_switcher_add_user_background_color"/>
     <item target="dimen/user_icon_background_size" value="@dimen/user_icon_background_size"/>
@@ -86,14 +102,13 @@
     <item target="drawable/system_bar_pill_rotary_background" value="@drawable/system_bar_pill_rotary_background"/>
     <item target="color/system_bar_background_pill_color" value="@color/system_bar_background_pill_color"/>
     <item target="drawable/system_bar_background_pill" value="@drawable/system_bar_background_pill"/>
-    <item target="attr/showAsDropDown" value="@attr/showAsDropDown"/>
-    <item target="attr/panelGravity" value="@attr/panelGravity"/>
-    <item target="layout/car_qc_entry_points_button" value="@layout/car_qc_entry_points_button"/>
+    <item target="drawable/car_quick_controls_pill_button_background" value="@drawable/car_quick_controls_pill_button_background"/>
     <item target="id/user_icon" value="@id/user_icon"/>
     <item target="id/user_name_text" value="@id/user_name_text"/>
     <item target="id/clock" value="@id/clock"/>
     <item target="attr/amPmStyle" value="@attr/amPmStyle"/>
-    <item target="style/QuickControlEntryPointButton" value="@style/QuickControlEntryPointButton"/>
+    <item target="style/TopBarButton" value="@style/TopBarButton"/>
+    <item target="style/QCFooterButtonViewStyle" value="@style/QCFooterButtonViewStyle"/>
     <item target="drawable/system_bar_background" value="@drawable/system_bar_background"/>
     <item target="attr/showDark" value="@attr/showDark"/>
     <item target="dimen/car_quick_controls_entry_points_icon_width" value="@dimen/car_quick_controls_entry_points_icon_width"/>
@@ -102,10 +117,18 @@
     <item target="dimen/car_quick_controls_entry_points_button_margin_bottom" value="@dimen/car_quick_controls_entry_points_button_margin_bottom"/>
     <item target="dimen/car_quick_controls_entry_points_button_margin_start" value="@dimen/car_quick_controls_entry_points_button_margin_start"/>
     <item target="dimen/car_quick_controls_entry_points_button_margin_end" value="@dimen/car_quick_controls_entry_points_button_margin_end"/>
+    <item target="dimen/car_quick_controls_panel_footer_button_view_height" value="@dimen/car_quick_controls_panel_footer_button_view_height"/>
+    <item target="dimen/car_quick_controls_footer_button_min_height" value="@dimen/car_quick_controls_footer_button_min_height"/>
+    <item target="dimen/car_quick_controls_panel_footer_button_view_padding" value="@dimen/car_quick_controls_panel_footer_button_view_padding"/>
+    <item target="dimen/car_quick_controls_icon_drawable_width" value="@dimen/car_quick_controls_icon_drawable_width"/>
+    <item target="dimen/car_quick_controls_icon_drawable_height" value="@dimen/car_quick_controls_icon_drawable_height"/>
     <item target="dimen/car_body1_size" value="@dimen/car_body1_size"/>
+    <item target="dimen/car_body3_size" value="@dimen/car_body3_size"/>
     <item target="dimen/car_padding_1" value="@dimen/car_padding_1"/>
     <item target="dimen/car_padding_2" value="@dimen/car_padding_2"/>
     <item target="dimen/car_padding_3" value="@dimen/car_padding_3"/>
+    <item target="dimen/car_padding_4" value="@dimen/car_padding_4"/>
     <item target="string/qc_icon_tag" value="@string/qc_icon_tag"/>
     <item target="style/TextAppearance.SystemBar.ClockWithSelection" value="@style/TextAppearance.SystemBar.ClockWithSelection"/>
+    <item target="style/TextAppearance.SystemBar.Username" value="@style/TextAppearance.SystemBar.Username"/>
 </overlay>

@@ -1102,7 +1102,8 @@ package android.car.evs {
 
   public static interface CarEvsManager.CarEvsStreamCallback {
     method public default void onNewFrame(@NonNull android.car.evs.CarEvsBufferDescriptor);
-    method public default void onStreamEvent(int);
+    method @Deprecated public default void onStreamEvent(int);
+    method @FlaggedApi("android.car.feature.car_evs_stream_management") public default void onStreamEvent(int, int);
   }
 
   public final class CarEvsStatus implements android.os.Parcelable {

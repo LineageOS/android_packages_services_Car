@@ -1094,6 +1094,18 @@ public class CarOccupantZoneServiceTest {
                 CarOccupantZoneManager.DISPLAY_TYPE_HUD)).isEqualTo(Display.INVALID_DISPLAY);
         assertThat(mManager.getDisplayIdForDriver(
                 CarOccupantZoneManager.DISPLAY_TYPE_AUXILIARY)).isEqualTo(Display.INVALID_DISPLAY);
+        assertThat(mManager.getDisplayIdForDriver(
+                CarOccupantZoneManager.DISPLAY_TYPE_AUXILIARY_2)).isEqualTo(
+                        Display.INVALID_DISPLAY);
+        assertThat(mManager.getDisplayIdForDriver(
+                CarOccupantZoneManager.DISPLAY_TYPE_AUXILIARY_3)).isEqualTo(
+                        Display.INVALID_DISPLAY);
+        assertThat(mManager.getDisplayIdForDriver(
+                CarOccupantZoneManager.DISPLAY_TYPE_AUXILIARY_4)).isEqualTo(
+                        Display.INVALID_DISPLAY);
+        assertThat(mManager.getDisplayIdForDriver(
+                CarOccupantZoneManager.DISPLAY_TYPE_AUXILIARY_5)).isEqualTo(
+                        Display.INVALID_DISPLAY);
     }
 
     @Test

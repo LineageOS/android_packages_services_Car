@@ -1,0 +1,6 @@
+# Bug component: 1316886
+# Project owners
+include platform/packages/services/Car:/OWNERS
+
+# Bluetooth property file
+per-file properties/bluetooth.prop: = file:platform/packages/modules/Bluetooth:/OWNERS_automotive

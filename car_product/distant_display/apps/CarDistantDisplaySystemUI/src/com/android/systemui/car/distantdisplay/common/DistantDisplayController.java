@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.systemui.car.systembar;
+package com.android.systemui.car.distantdisplay.common;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -31,8 +31,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.android.systemui.R;
-import com.android.systemui.car.distantdisplay.common.DistantDisplayQcItem;
-import com.android.systemui.car.distantdisplay.common.TaskViewController;
 import com.android.systemui.car.distantdisplay.util.AppCategoryDetector;
 import com.android.systemui.car.qc.DistantDisplayControlsUpdateListener;
 import com.android.systemui.dagger.SysUISingleton;

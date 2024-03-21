@@ -218,8 +218,10 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                 Display display = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
                 if (mCurrentDisplayState == display.getState()) {
                     // We already handled this display state change.
-                    Slogf.i(TAG_EVS, "We already handled a reported display status, %d",
-                            display.getState());
+                    if (DBG) {
+                        Slogf.d(TAG_EVS, "We already handled a reported display status, %d",
+                                display.getState());
+                    }
                     return;
                 }
 
@@ -685,8 +687,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         Objects.requireNonNull(buffer);
 
         // 8 MSB tells the service type of this buffer.
-        @CarEvsServiceType int type = CarEvsUtils.getTag(buffer.getId());
-        mServiceInstances.get(type).doneWithFrame(buffer.getId());
+        mServiceInstances.get(buffer.getType()).doneWithFrame(buffer.getId());
     }
 
     /**
@@ -1104,18 +1105,6 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             if (instance.requestStopActivity(REQUEST_PRIORITY_HIGH) != ERROR_NONE) {
                 Slogf.i(TAG_EVS, "Failed to stop the rearview activity.");
             }
-        }
-    }
-
-    /** Notify the client of a video stream loss */
-    private static void notifyStreamStopped(@NonNull ICarEvsStreamCallback callback) {
-        Objects.requireNonNull(callback);
-
-        try {
-            callback.onStreamEvent(CarEvsManager.STREAM_EVENT_STREAM_STOPPED);
-        } catch (RemoteException e) {
-            // Likely the binder death incident
-            Slogf.w(TAG_EVS, Log.getStackTraceString(e));
         }
     }
 

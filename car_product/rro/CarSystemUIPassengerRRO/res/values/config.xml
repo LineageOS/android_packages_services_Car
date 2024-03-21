@@ -14,9 +14,6 @@
   ~ limitations under the License.
   -->
 <resources>
-    <string-array name="config_quickControlsEntryPointIconControllers" translatable="false">
-        <item>com.android.systemui.car.statusicon.ui.QuickControlsStatusIconListController</item>
-    </string-array>
 
     <string name="config_notificationPanelViewMediator" translatable="false">
         com.android.systemui.car.notification.BottomNotificationPanelViewMediator</string>

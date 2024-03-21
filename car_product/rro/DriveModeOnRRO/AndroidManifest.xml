@@ -18,7 +18,6 @@
           package="com.android.systemui.drivemode.on.rro">
     <application android:hasCode="false"/>
     <overlay
-        android:targetName="CarSystemUI"
         android:targetPackage="com.android.systemui"
         android:resourcesMap="@xml/overlays"
         android:isStatic="false"/>
