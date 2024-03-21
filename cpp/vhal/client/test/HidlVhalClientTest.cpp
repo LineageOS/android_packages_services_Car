@@ -345,20 +345,31 @@ TEST_F(HidlVhalClientTest, testGetAllPropConfigs) {
 
     ASSERT_EQ(configs.size(), static_cast<size_t>(2));
     ASSERT_EQ(configs[0]->getPropId(), TEST_PROP_ID);
+    ASSERT_EQ(configs[0]->getAccess(), 0);
     ASSERT_EQ(configs[0]->getAreaConfigSize(), static_cast<size_t>(2));
 
     const std::unique_ptr<IHalAreaConfig>& areaConfig0 = configs[0]->getAreaConfigs()[0];
     ASSERT_EQ(areaConfig0->getAreaId(), TEST_AREA_ID);
+    ASSERT_EQ(areaConfig0->getAccess(), 0);
     ASSERT_EQ(areaConfig0->getMinInt32Value(), 0);
     ASSERT_EQ(areaConfig0->getMaxInt32Value(), 1);
+    ASSERT_FALSE(areaConfig0->isVariableUpdateRateSupported());
 
     const std::unique_ptr<IHalAreaConfig>& areaConfig1 = configs[0]->getAreaConfigs()[1];
     ASSERT_EQ(areaConfig1->getAreaId(), TEST_AREA_ID_2);
+    ASSERT_EQ(areaConfig1->getAccess(), 0);
     ASSERT_EQ(areaConfig1->getMinInt32Value(), 2);
     ASSERT_EQ(areaConfig1->getMaxInt32Value(), 3);
+    ASSERT_FALSE(areaConfig1->isVariableUpdateRateSupported());
 
     ASSERT_EQ(configs[1]->getPropId(), TEST_PROP_ID_2);
-    ASSERT_EQ(configs[1]->getAreaConfigSize(), static_cast<size_t>(0));
+    ASSERT_EQ(configs[1]->getAccess(), 0);
+    ASSERT_EQ(configs[1]->getAreaConfigSize(), static_cast<size_t>(1));
+
+    const std::unique_ptr<IHalAreaConfig>& areaConfig2 = configs[1]->getAreaConfigs()[0];
+    ASSERT_EQ(areaConfig2->getAreaId(), 0);
+    ASSERT_EQ(areaConfig2->getAccess(), 0);
+    ASSERT_FALSE(areaConfig2->isVariableUpdateRateSupported());
 }
 
 TEST_F(HidlVhalClientTest, testGetPropConfigs) {
@@ -390,22 +401,31 @@ TEST_F(HidlVhalClientTest, testGetPropConfigs) {
 
     ASSERT_EQ(configs.size(), static_cast<size_t>(2));
     ASSERT_EQ(configs[0]->getPropId(), TEST_PROP_ID);
+    ASSERT_EQ(configs[0]->getAccess(), 0);
     ASSERT_EQ(configs[0]->getAreaConfigSize(), static_cast<size_t>(2));
 
     const std::unique_ptr<IHalAreaConfig>& areaConfig0 = configs[0]->getAreaConfigs()[0];
     ASSERT_EQ(areaConfig0->getAreaId(), TEST_AREA_ID);
+    ASSERT_EQ(areaConfig0->getAccess(), 0);
     ASSERT_EQ(areaConfig0->getMinInt32Value(), 0);
     ASSERT_EQ(areaConfig0->getMaxInt32Value(), 1);
     ASSERT_FALSE(areaConfig0->isVariableUpdateRateSupported());
 
     const std::unique_ptr<IHalAreaConfig>& areaConfig1 = configs[0]->getAreaConfigs()[1];
     ASSERT_EQ(areaConfig1->getAreaId(), TEST_AREA_ID_2);
+    ASSERT_EQ(areaConfig1->getAccess(), 0);
     ASSERT_EQ(areaConfig1->getMinInt32Value(), 2);
     ASSERT_EQ(areaConfig1->getMaxInt32Value(), 3);
     ASSERT_FALSE(areaConfig1->isVariableUpdateRateSupported());
 
     ASSERT_EQ(configs[1]->getPropId(), TEST_PROP_ID_2);
-    ASSERT_EQ(configs[1]->getAreaConfigSize(), static_cast<size_t>(0));
+    ASSERT_EQ(configs[1]->getAccess(), 0);
+    ASSERT_EQ(configs[1]->getAreaConfigSize(), static_cast<size_t>(1));
+
+    const std::unique_ptr<IHalAreaConfig>& areaConfig2 = configs[1]->getAreaConfigs()[0];
+    ASSERT_EQ(areaConfig2->getAreaId(), 0);
+    ASSERT_EQ(areaConfig2->getAccess(), 0);
+    ASSERT_FALSE(areaConfig2->isVariableUpdateRateSupported());
 }
 
 TEST_F(HidlVhalClientTest, testGetPropConfigsError) {

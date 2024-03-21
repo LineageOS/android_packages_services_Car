@@ -30,9 +30,16 @@ using ::android::hardware::automotive::vehicle::toInt;
 
 HidlHalPropConfig::HidlHalPropConfig(VehiclePropConfig&& config) {
     mPropConfig = std::move(config);
-    for (VehicleAreaConfig& areaConfig : mPropConfig.areaConfigs) {
-        mAreaConfigs.push_back(std::make_unique<HidlHalAreaConfig>(std::move(areaConfig),
+    if (mPropConfig.areaConfigs.size() == 0) {
+        VehicleAreaConfig globalAreaConfig;
+        globalAreaConfig.areaId = 0;
+        mAreaConfigs.push_back(std::make_unique<HidlHalAreaConfig>(std::move(globalAreaConfig),
                                                                    toInt(mPropConfig.access)));
+    } else {
+        for (VehicleAreaConfig& areaConfig : mPropConfig.areaConfigs) {
+            mAreaConfigs.push_back(std::make_unique<HidlHalAreaConfig>(std::move(areaConfig),
+                                                                       toInt(mPropConfig.access)));
+        }
     }
 }
 
