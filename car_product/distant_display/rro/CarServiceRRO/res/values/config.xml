@@ -45,6 +45,7 @@
     <string-array translatable="false" name="config_occupant_display_mapping">
         <item>displayPort=0,displayType=MAIN,occupantZoneId=0,inputTypes=TOUCH_SCREEN|DPAD_KEYS|NAVIGATE_KEYS|ROTARY_NAVIGATION</item>
         <item>displayPort=1,displayType=INSTRUMENT_CLUSTER,occupantZoneId=0,inputTypes=DPAD_KEYS</item>
+        <item>displayUniqueId=virtual:com.android.systemui:DistantDisplay,displayType=AUXILIARY_2,occupantZoneId=0,inputTypes=DPAD_KEYS</item>
     </string-array>
 
     <bool name="audioUseDynamicRouting">true</bool>
