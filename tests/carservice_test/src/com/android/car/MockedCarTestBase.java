@@ -120,6 +120,7 @@ public class MockedCarTestBase {
     private CarWatchdogService mCarWatchdogService = mock(CarWatchdogService.class);
     private CarPerformanceService mCarPerformanceService;
     private CarRemoteAccessServiceConstructor mCarRemoteAccessServiceConstructor;
+    private AppFocusService mAppFocusService;
 
     private final CarUserService mCarUserService = mock(CarUserService.class);
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
@@ -225,6 +226,15 @@ public class MockedCarTestBase {
     protected void setCarRemoteAccessServiceConstructor(
             CarRemoteAccessServiceConstructor constructor) {
         mCarRemoteAccessServiceConstructor = constructor;
+    }
+
+    /**
+     * Set the AppFocusService to be used during the test.
+     *
+     * If not called, the real service would be used.
+     */
+    protected void setAppFocusService(AppFocusService service) {
+        mAppFocusService = service;
     }
 
     /**
@@ -374,6 +384,7 @@ public class MockedCarTestBase {
                 .setCarPerformanceService(mCarPerformanceService)
                 .setCarTelemetryService(mCarTelemetryService)
                 .setCarRemoteAccessServiceConstructor(mCarRemoteAccessServiceConstructor)
+                .setAppFocusService(mAppFocusService)
                 .setGarageModeService(mGarageModeService)
                 .setPowerPolicyDaemon(powerPolicyDaemon)
                 .setDoPriorityInitInConstruction(false)
