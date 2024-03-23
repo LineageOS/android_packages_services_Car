@@ -1829,7 +1829,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
      * @param prop prop to be set
      * @param response response to be set on event
      * @param rightRequestId whether the response id should match the request
-     * @param countDownLatch A {@link CountDownLatch} to control when to send the event.
+     * @param latch A {@link CountDownLatch} to control when to send the event.
      * @return A copy of the update property value.
      *
      * @return reference to the value passed to {@code set()}.

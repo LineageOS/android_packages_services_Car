@@ -59,11 +59,6 @@ public final class MockedUserHandleBuilder {
         return this;
     }
 
-    private MockedUserHandleBuilder setInitialized() {
-        when(mUserHandleHelper.isInitializedUser(mUser)).thenReturn(true);
-        return this;
-    }
-
     private MockedUserHandleBuilder expectGettersFail() {
         RuntimeException exception = new RuntimeException("D'OH!");
         when(mUserHandleHelper.isAdminUser(mUser)).thenThrow(exception);

@@ -33,7 +33,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
 import android.car.SyncResultCallback;
@@ -49,10 +48,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.pm.UserInfo;
-import android.content.pm.UserInfo.UserInfoFlag;
 import android.os.UserHandle;
-import android.os.UserManager;
 import android.util.Log;
 
 import com.android.car.BuiltinPackageDependency;
@@ -154,24 +150,20 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testCreateUser_ok_normalUser() {
-        createUserOkTest(/* userInfoFlags=*/ 0, CarDevicePolicyManager.USER_TYPE_REGULAR,
-                UserManager.USER_TYPE_FULL_SECONDARY);
+        createUserOkTest(CarDevicePolicyManager.USER_TYPE_REGULAR);
     }
 
     @Test
     public void testCreateUser_ok_admin() {
-        createUserOkTest(UserInfo.FLAG_ADMIN, CarDevicePolicyManager.USER_TYPE_ADMIN,
-                UserManager.USER_TYPE_FULL_SECONDARY);
+        createUserOkTest(CarDevicePolicyManager.USER_TYPE_ADMIN);
     }
 
     @Test
     public void testCreateUser_ok_guest() {
-        createUserOkTest(/* userInfoFlags=*/ 0, CarDevicePolicyManager.USER_TYPE_GUEST,
-                UserManager.USER_TYPE_FULL_GUEST);
+        createUserOkTest(CarDevicePolicyManager.USER_TYPE_GUEST);
     }
 
-    private void createUserOkTest(@UserInfoFlag int flags,
-            @CarDevicePolicyManager.UserType int carDpmUserType, @NonNull String userType) {
+    private void createUserOkTest(@CarDevicePolicyManager.UserType int carDpmUserType) {
         mService.createUser("name", carDpmUserType, mUserCreationResultCallbackImpl);
         UserCreationRequest.Builder userCreationRequestBuilder =
                 new UserCreationRequest.Builder().setName("name");

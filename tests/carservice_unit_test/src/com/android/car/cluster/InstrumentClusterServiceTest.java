@@ -331,8 +331,8 @@ public final class InstrumentClusterServiceTest extends AbstractExtendedMockitoT
             extends IInstrumentClusterNavigation.Stub {
 
         private final CarNavigationInstrumentCluster mClusterInfo =
-                CarNavigationInstrumentCluster.createCustomImageCluster(/*minIntervalMs= */ 100,
-                        /* imageWidth= */ 800, /* imageHeight= */ 480,
+                CarNavigationInstrumentCluster.createCustomImageCluster(
+                        /* minIntervalMillis= */ 100, /* imageWidth= */ 800, /* imageHeight= */ 480,
                         /* imageColorDepthBits= */ 32);
 
         private Bundle mLastBundle;

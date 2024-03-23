@@ -22,21 +22,15 @@ import static android.car.evs.CarEvsManager.SERVICE_STATE_ACTIVE;
 import static android.car.evs.CarEvsManager.SERVICE_STATE_INACTIVE;
 import static android.car.evs.CarEvsManager.SERVICE_STATE_REQUESTED;
 import static android.car.evs.CarEvsManager.SERVICE_STATE_UNAVAILABLE;
-import static android.car.evs.CarEvsManager.SERVICE_TYPE_DRIVERVIEW;
 import static android.car.evs.CarEvsManager.SERVICE_TYPE_FRONTVIEW;
-import static android.car.evs.CarEvsManager.SERVICE_TYPE_FRONT_PASSENGERSVIEW;
 import static android.car.evs.CarEvsManager.SERVICE_TYPE_LEFTVIEW;
 import static android.car.evs.CarEvsManager.SERVICE_TYPE_REARVIEW;
-import static android.car.evs.CarEvsManager.SERVICE_TYPE_REAR_PASSENGERSVIEW;
 import static android.car.evs.CarEvsManager.SERVICE_TYPE_RIGHTVIEW;
 import static android.car.evs.CarEvsManager.SERVICE_TYPE_SURROUNDVIEW;
-import static android.car.evs.CarEvsManager.SERVICE_TYPE_USER_DEFINED;
-import static android.car.evs.CarEvsManager.STREAM_EVENT_STREAM_STOPPED;
 import static android.car.hardware.property.CarPropertyEvent.PROPERTY_EVENT_ERROR;
 import static android.car.hardware.property.CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE;
 
 import static com.android.car.CarLog.TAG_EVS;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doNothing;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
@@ -45,7 +39,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyFloat;
 import static org.mockito.Mockito.anyInt;
@@ -53,7 +46,6 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
@@ -86,10 +78,10 @@ import android.os.Looper;
 import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.UserHandle;
-import android.view.Display;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+import android.view.Display;
 
 import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarPropertyService;
@@ -392,7 +384,7 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         verify(mMockEvsHalWrapper).doneWithFrame(anyInt());
 
         // Nothing to verify from below line but added to increase the code coverage.
-        mHalCallbackCaptor.getValue().onHalEvent(/* eventType= */ 0);
+        mHalCallbackCaptor.getValue().onHalEvent(/* event= */ 0);
     }
 
     @Test

@@ -72,10 +72,6 @@ public final class CarPropertyManagerUnitTest {
     @Mock
     private Context mContext;
     @Mock
-    private CarPropertyManager.CarPropertyEventCallback mCarPropertyEventCallback;
-    @Mock
-    private CarPropertyManager.CarPropertyEventCallback mCarPropertyEventCallback2;
-    @Mock
     private CarPropertyManager.GetPropertyCallback mGetPropertyCallback;
 
     private CarPropertyManager mCarPropertyManager;

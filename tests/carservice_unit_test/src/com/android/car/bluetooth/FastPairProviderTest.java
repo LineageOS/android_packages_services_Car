@@ -84,7 +84,6 @@ import java.util.Map;
 @RunWith(MockitoJUnitRunner.class)
 public class FastPairProviderTest {
     private static final String KEY_NUM_ACCOUNT_KEYS = "AccountKeysCount";
-    private static final String FAST_PAIR_PREFERENCES = "com.candroid.car.bluetooth";
 
     public static final ParcelUuid SERVICE_UUID = ParcelUuid
             .fromString("0000FE2C-0000-1000-8000-00805f9b34fb");
@@ -287,10 +286,6 @@ public class FastPairProviderTest {
 
     private void setPrivateKey(String keyBase64) {
         when(mMockResources.getString(anyInt())).thenReturn(keyBase64);
-    }
-
-    private void setAutomaticAcceptance(boolean shouldAcceptAutomatically) {
-        when(mMockResources.getBoolean(anyInt())).thenReturn(shouldAcceptAutomatically);
     }
 
     private void createProviderUnderTest() {

@@ -97,8 +97,6 @@ public final class AidlVehicleStubUnitTest {
     private static final int TEST_AREA = 4;
     private static final int TEST_STATUS = 5;
 
-    private static final int VHAL_PROP_SUPPORTED_PROPERTY_IDS = 0x11410F48;
-
     private static final HalPropValue HVAC_PROP_VALUE;
     private static final HalPropValue TEST_PROP_VALUE;
 
@@ -304,7 +302,6 @@ public final class AidlVehicleStubUnitTest {
                     LargeParcelable.reconstructStableAIDLParcelable(
                             requests, /*keepSharedMemory=*/false);
             assertThat(requests.payloads.length).isEqualTo(1);
-            GetValueRequest request = requests.payloads[0];
 
             GetValueResults results = createGetValueResults(StatusCode.OK, requests.payloads);
 

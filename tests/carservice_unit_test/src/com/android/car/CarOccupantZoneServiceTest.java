@@ -1129,7 +1129,7 @@ public class CarOccupantZoneServiceTest {
         mService.init();
 
         int driverUser = mManager.getUserForOccupant(mZoneDriverLHD);
-        assertThat(CURRENT_USER).isEqualTo(driverUser);
+        assertThat(driverUser).isEqualTo(CURRENT_USER);
 
         assertThat(mManager.getUserForOccupant(mZoneFrontPassengerLHD)).isEqualTo(
                 CarOccupantZoneManager.INVALID_USER_ID);
@@ -1151,7 +1151,7 @@ public class CarOccupantZoneServiceTest {
         mService.mUserLifecycleListener.onEvent(new UserLifecycleEvent(
                 CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, newUserId));
 
-        assertThat(newUserId).isEqualTo(mManager.getUserForOccupant(mZoneDriverLHD));
+        assertThat(mManager.getUserForOccupant(mZoneDriverLHD)).isEqualTo(newUserId);
 
         assertThat(mManager.getUserForOccupant(mZoneFrontPassengerLHD)).isEqualTo(
                 CarOccupantZoneManager.INVALID_USER_ID);
@@ -1230,7 +1230,7 @@ public class CarOccupantZoneServiceTest {
     public void testGetSupportedInputTypes_driverZoneInfo() {
         mService.init();
 
-        assertThat(mService.getSupportedInputTypes(/* zoneId= */ 0,
+        assertThat(mService.getSupportedInputTypes(/* occupantZoneId= */ 0,
                 CarOccupantZoneManager.DISPLAY_TYPE_MAIN)).asList().containsExactly(CarInputManager
                 .INPUT_TYPE_DPAD_KEYS, CarInputManager.INPUT_TYPE_NAVIGATE_KEYS, CarInputManager
                 .INPUT_TYPE_ROTARY_NAVIGATION, CarInputManager.INPUT_TYPE_TOUCH_SCREEN);

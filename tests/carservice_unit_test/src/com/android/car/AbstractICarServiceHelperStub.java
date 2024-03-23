@@ -125,8 +125,6 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
     @Override
     public void setProcessProfile(int pid, int uid, @NonNull String profile) {
         Log.d(TAG, "setProcessProfile(" + pid + "," + uid + "," + profile + ")");
-
-        return;
     }
 
     @Override

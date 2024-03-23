@@ -516,7 +516,7 @@ public class FastPairGattServerTest {
         setCurrentRpa(TEST_RPA_STRING);
         connectDevice(mMockBluetoothDevice);
         byte[] request = buildKeyBasedPairingRequest(KEY_BASED_PAIRING_REQUEST_MSG_TYPE,
-                /* flags= */ (byte) 0x00, TEST_RPA_BYTES, /* seeker_address= */ null, TEST_SALT_8,
+                /* flags= */ (byte) 0x00, TEST_RPA_BYTES, /* seeker= */ null, TEST_SALT_8,
                 TEST_PUBLIC_KEY_A, TEST_GENERATED_KEY);
         byte[] encryptedResponse = sendKeyBasedPairingRequest(mMockBluetoothDevice, request);
         assertThat(encryptedResponse).isNotNull();
@@ -546,7 +546,7 @@ public class FastPairGattServerTest {
         setAvailableAccountKeys(List.of(new AccountKey(TEST_VALID_ACCOUNT_KEY)));
         connectDevice(mMockBluetoothDevice);
         byte[] request = buildKeyBasedPairingRequest(KEY_BASED_PAIRING_REQUEST_MSG_TYPE,
-                /* flags= */ (byte) 0x00, TEST_RPA_BYTES, /* seeker_address= */ null, TEST_SALT_8,
+                /* flags= */ (byte) 0x00, TEST_RPA_BYTES, /* seeker= */ null, TEST_SALT_8,
                 TEST_PUBLIC_KEY_A, TEST_VALID_ACCOUNT_KEY);
         request = Arrays.copyOfRange(request, 0, 16);
         byte[] encryptedResponse = sendKeyBasedPairingRequest(mMockBluetoothDevice, request);
@@ -576,7 +576,7 @@ public class FastPairGattServerTest {
         setCurrentRpa(TEST_RPA_STRING);
         connectDevice(mMockBluetoothDevice);
         byte[] request = buildKeyBasedPairingRequest(KEY_BASED_PAIRING_REQUEST_MSG_TYPE,
-                /* flags= */ (byte) 0x00, TEST_RPA_BYTES, /* seeker_address= */ null, TEST_SALT_8,
+                /* flags= */ (byte) 0x00, TEST_RPA_BYTES, /* seeker= */ null, TEST_SALT_8,
                 TEST_PUBLIC_KEY_A, TEST_WRONG_GENERATED_KEY);
         byte[] encryptedResponse = sendKeyBasedPairingRequest(mMockBluetoothDevice, request);
         assertThat(encryptedResponse).isNull();
@@ -593,7 +593,7 @@ public class FastPairGattServerTest {
         for (int i = 0; i < 10; i++) {
             connectDevice(mMockBluetoothDevice);
             byte[] request = buildKeyBasedPairingRequest(KEY_BASED_PAIRING_REQUEST_MSG_TYPE,
-                    /* flags= */ (byte) 0x00, TEST_RPA_BYTES, /* seeker_address= */ null,
+                    /* flags= */ (byte) 0x00, TEST_RPA_BYTES, /* seeker= */ null,
                     TEST_SALT_8, TEST_PUBLIC_KEY_A, TEST_WRONG_GENERATED_KEY);
             byte[] encryptedResponse = sendKeyBasedPairingRequest(mMockBluetoothDevice, request);
             assertThat(encryptedResponse).isNull();
@@ -603,7 +603,7 @@ public class FastPairGattServerTest {
 
         connectDevice(mMockBluetoothDevice);
         byte[] request = buildKeyBasedPairingRequest(KEY_BASED_PAIRING_REQUEST_MSG_TYPE,
-                /* flags= */ (byte) 0x00, TEST_RPA_BYTES, /* seeker_address= */ null, TEST_SALT_8,
+                /* flags= */ (byte) 0x00, TEST_RPA_BYTES, /* seeker= */ null, TEST_SALT_8,
                 TEST_PUBLIC_KEY_A, TEST_GENERATED_KEY);
         byte[] encryptedResponse = sendKeyBasedPairingRequest(mMockBluetoothDevice, request);
         assertThat(encryptedResponse).isNull();
@@ -648,7 +648,7 @@ public class FastPairGattServerTest {
         sendPairingRequestBroadcast(mMockBluetoothDevice, TEST_PAIRING_KEY);
         byte[] request = buildPasskeyRequest(PASSKEY_REQUEST_SEEKER, TEST_WRONG_PAIRING_KEY_BYTES,
                 TEST_SALT_12, TEST_GENERATED_KEY);
-        byte[] encryptedResponse = sendPasskeyRequest(mMockBluetoothDevice, request);
+        sendPasskeyRequest(mMockBluetoothDevice, request);
         verify(mMockBluetoothDevice).setPairingConfirmation(eq(false));
         assertThat(mTestGattServer.isFastPairSessionActive()).isFalse();
     }
@@ -660,7 +660,7 @@ public class FastPairGattServerTest {
         sendBondStateChangeBroadcast(mMockBluetoothDevice,
                 BluetoothDevice.BOND_BONDING, BluetoothDevice.BOND_NONE);
         sendPairingRequestBroadcast(mMockBluetoothDevice, TEST_PAIRING_KEY);
-        byte[] encryptedResponse = sendPasskeyRequest(mMockBluetoothDevice, TEST_REQUEST_SHORT);
+        sendPasskeyRequest(mMockBluetoothDevice, TEST_REQUEST_SHORT);
         assertThat(mTestGattServer.isFastPairSessionActive()).isFalse();
     }
 
@@ -671,7 +671,7 @@ public class FastPairGattServerTest {
         sendBondStateChangeBroadcast(mMockBluetoothDevice,
                 BluetoothDevice.BOND_BONDING, BluetoothDevice.BOND_NONE);
         sendPairingRequestBroadcast(mMockBluetoothDevice, TEST_PAIRING_KEY);
-        byte[] encryptedResponse = sendPasskeyRequest(mMockBluetoothDevice, null);
+        sendPasskeyRequest(mMockBluetoothDevice, null);
         assertThat(mTestGattServer.isFastPairSessionActive()).isFalse();
     }
 
@@ -709,7 +709,7 @@ public class FastPairGattServerTest {
                 BluetoothDevice.BOND_BONDING, BluetoothDevice.BOND_NONE);
         byte[] request = buildPasskeyRequest(PASSKEY_REQUEST_SEEKER, TEST_PAIRING_KEY_BYTES,
                 TEST_SALT_12, TEST_GENERATED_KEY);
-        byte[] unused = sendPasskeyRequest(mMockBluetoothDevice, request);
+        sendPasskeyRequest(mMockBluetoothDevice, request);
         sendPairingRequestBroadcast(mMockBluetoothDevice, TEST_PAIRING_KEY);
         byte[] encryptedResponse = mPasskeyCharacteristic.getValue();
         byte[] passkeyResponse = decrypt(encryptedResponse, TEST_GENERATED_KEY);
@@ -753,7 +753,7 @@ public class FastPairGattServerTest {
                 BluetoothDevice.BOND_BONDED, BluetoothDevice.BOND_BONDING);
         assertThat(mTestGattServer.isFastPairSessionActive()).isTrue();
         byte[] request = buildAccountKeyRequest(TEST_VALID_ACCOUNT_KEY, TEST_GENERATED_KEY);
-        byte[] encryptedResponse = sendAccountKeyRequest(mMockBluetoothDevice, request);
+        sendAccountKeyRequest(mMockBluetoothDevice, request);
         verify(mMockFastPairAccountKeyStorage).add(eq(new AccountKey(TEST_VALID_ACCOUNT_KEY)));
         assertThat(mTestGattServer.isFastPairSessionActive()).isFalse();
     }
@@ -766,7 +766,7 @@ public class FastPairGattServerTest {
                 BluetoothDevice.BOND_BONDED, BluetoothDevice.BOND_BONDING);
         assertThat(mTestGattServer.isFastPairSessionActive()).isTrue();
         byte[] request = buildAccountKeyRequest(TEST_INVALID_ACCOUNT_KEY, TEST_GENERATED_KEY);
-        byte[] encryptedResponse = sendAccountKeyRequest(mMockBluetoothDevice, request);
+        sendAccountKeyRequest(mMockBluetoothDevice, request);
         verify(mMockFastPairAccountKeyStorage, never()).add(any());
         assertThat(mTestGattServer.isFastPairSessionActive()).isFalse();
     }
@@ -778,7 +778,7 @@ public class FastPairGattServerTest {
         sendBondStateChangeBroadcast(mMockBluetoothDevice,
                 BluetoothDevice.BOND_BONDED, BluetoothDevice.BOND_BONDING);
         assertThat(mTestGattServer.isFastPairSessionActive()).isTrue();
-        byte[] encryptedResponse = sendAccountKeyRequest(mMockBluetoothDevice, new byte[]{});
+        sendAccountKeyRequest(mMockBluetoothDevice, new byte[]{});
         verify(mMockFastPairAccountKeyStorage, never()).add(any());
         assertThat(mTestGattServer.isFastPairSessionActive()).isFalse();
     }
@@ -790,7 +790,7 @@ public class FastPairGattServerTest {
         sendBondStateChangeBroadcast(mMockBluetoothDevice,
                 BluetoothDevice.BOND_BONDED, BluetoothDevice.BOND_BONDING);
         assertThat(mTestGattServer.isFastPairSessionActive()).isTrue();
-        byte[] encryptedResponse = sendAccountKeyRequest(mMockBluetoothDevice, TEST_REQUEST_SHORT);
+        sendAccountKeyRequest(mMockBluetoothDevice, TEST_REQUEST_SHORT);
         verify(mMockFastPairAccountKeyStorage, never()).add(any());
         assertThat(mTestGattServer.isFastPairSessionActive()).isFalse();
     }
@@ -802,7 +802,7 @@ public class FastPairGattServerTest {
         sendBondStateChangeBroadcast(mMockBluetoothDevice,
                 BluetoothDevice.BOND_BONDED, BluetoothDevice.BOND_BONDING);
         assertThat(mTestGattServer.isFastPairSessionActive()).isTrue();
-        byte[] encryptedResponse = sendAccountKeyRequest(mMockBluetoothDevice, null);
+        sendAccountKeyRequest(mMockBluetoothDevice, null);
         verify(mMockFastPairAccountKeyStorage, never()).add(any());
         assertThat(mTestGattServer.isFastPairSessionActive()).isFalse();
     }
