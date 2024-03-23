@@ -783,7 +783,7 @@ public final class CarWatchdogManager extends CarManagerBase {
         // Call the client callback to check if the client is active.
         executor.execute(() -> {
             boolean checkDone = clientCallback.onCheckHealthStatus(sessionId, timeout);
-            Log.e(TAG, "Called clientCallback.onCheckHealthStatus");
+            Log.i(TAG, "Called clientCallback.onCheckHealthStatus");
             if (checkDone) {
                 boolean shouldReport;
                 synchronized (mLock) {

@@ -214,8 +214,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Læse oplysninger om bilens vinduesviskere."</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"kontrollere bilens vinduesviskere"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Kontrollere bilens vinduesviskere."</string>
-    <string name="car_permission_label_manage_display_compatibility" msgid="8846515818036686896">"sende forespørgsler om pakker vedrørende skærmkompatibilitet"</string>
-    <string name="car_permission_desc_manage_display_compatibility" msgid="5344194045180717300">"Sende forespørgsler om pakker vedrørende skærmkompatibilitet."</string>
+    <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"administrer pakker til skærmkompatibilitet"</string>
+    <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"administrer pakker til skærmkompatibilitet."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"holde øje med tilstanden af andre tilstedeværelseszoner i bilen og lignende apps (apps, der har samme pakkenavn som den, der ringer), som er installeret i de pågældende zoner, og styre strømforsyningen i zonerne."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Holde øje med tilstanden af andre tilstedeværelseszoner i bilen og lignende apps (apps, der har samme pakkenavn som den, der ringer), som er installeret i de pågældende zoner, og styre strømforsyningen i zonerne."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"oprette forbindelse og kommunikere med lignende apps (app, der har samme pakkenavn som den, der ringer), som er installeret i andre tilstedeværelseszoner i bilen"</string>

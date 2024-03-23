@@ -214,8 +214,8 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Avtomobil şüşəsilənlərinin oxunması."</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"avtomobil şüşəsilənlərinin idarə edilməsi"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Avtomobil şüşəsilənlərinin idarə edilməsi."</string>
-    <string name="car_permission_label_manage_display_compatibility" msgid="8846515818036686896">"displey uyğunluğu paketləri üçün sorğu göndərin"</string>
-    <string name="car_permission_desc_manage_display_compatibility" msgid="5344194045180717300">"Displey uyğunluğu paketləri üçün sorğu göndərin."</string>
+    <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"displey uyğunluğu paketlərini idarə edin"</string>
+    <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"displey uyğunluğu paketlərini idarə edin."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"avtomobildə digər sərnişin zonalarının və orada quraşdırılmış analoq tətbiqlərin (zəng edənlə eyni paket adına malik tətbiqlər) vəziyyətini müşahidə edin və həmin zonaların gücünü idarə edin."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Avtomobildə digər sərnişin zonalarının və orada quraşdırılmış analoq tətbiqlərin (zəng edənlə eyni paket adına malik tətbiqlər) vəziyyətini müşahidə edin və həmin zonaların gücünü idarə edin."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"avtomobildə digər sərnişin zonalarında quraşdırılmış analoq tətbiqləri (zəng edənlə eyni paket adına malik tətbiqlər) ilə bağlantı yaradın qurun və əlaqə saxlayın."</string>
