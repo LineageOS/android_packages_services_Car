@@ -886,7 +886,7 @@ public class InputHalServiceTest {
                         /* floatValues= */ new float[] {},
                         /* int64Values= */ new long[] {downTime},
                         /* stringValue= */ "",
-                        /* byteValue= */ new byte[] {}
+                        /* byteValues= */ new byte[] {}
                 )));
         verify(mInputListener).onKeyEvent(captor.capture(), eq(expectedDisplay),
                 eq(seat));
@@ -927,7 +927,7 @@ public class InputHalServiceTest {
                         floatArray,
                         /* int64Values= */ new long[] {downTimeNanos},
                         /* stringValue= */ "",
-                        /* byteValue= */ new byte[] {}
+                        /* byteValues= */ new byte[] {}
                 )));
         verify(mInputListener).onMotionEvent(captor.capture(), eq(expectedDisplay), eq(seat));
         reset(mInputListener);

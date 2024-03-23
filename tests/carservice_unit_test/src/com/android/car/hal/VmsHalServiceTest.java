@@ -1063,7 +1063,7 @@ public class VmsHalServiceTest {
 
     @Test
     public void testDumpMetrics_NonVendorProperty() throws Exception {
-        HalPropValue vehicleProp = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0,
+        HalPropValue vehicleProp = mPropValueBuilder.build(/* prop= */ 0, /* areaId= */ 0,
                 toByteArray(PAYLOAD_AS_LIST));
         when(mVehicleHal.get(anyInt())).thenReturn(vehicleProp);
 
@@ -1084,7 +1084,7 @@ public class VmsHalServiceTest {
                 metricsPropertyId);
         setUp();
 
-        HalPropValue metricsProperty = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0,
+        HalPropValue metricsProperty = mPropValueBuilder.build(/* prop= */ 0, /* areaId= */ 0,
                 toByteArray(PAYLOAD_AS_LIST));
         when(mVehicleHal.get(metricsPropertyId)).thenReturn(metricsProperty);
 

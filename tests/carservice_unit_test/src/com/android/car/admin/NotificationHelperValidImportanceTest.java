@@ -107,7 +107,7 @@ public final class NotificationHelperValidImportanceTest {
         NotificationChannel channel = captor.getValue();
         assertWithMessage("channel id").that(channel.getId()).isEqualTo(mChannelId);
         assertWithMessage("importance").that(channel.getImportance()).isEqualTo(mImportance);
-        assertWithMessage("name").that(channel.getName()).isEqualTo(IMPORTANCE_NAME);
+        assertWithMessage("name").that(channel.getName().toString()).isEqualTo(IMPORTANCE_NAME);
     }
 
     @Parameterized.Parameters

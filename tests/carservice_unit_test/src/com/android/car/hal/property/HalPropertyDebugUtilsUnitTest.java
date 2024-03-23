@@ -126,7 +126,7 @@ public class HalPropertyDebugUtilsUnitTest {
 
     @Test
     public void testToAreaIdString_handlesUnknownAreaType() {
-        assertThat(toAreaIdString(VehicleProperty.INVALID, /*areadId=*/
+        assertThat(toAreaIdString(VehicleProperty.INVALID, /*areaId=*/
                 0)).isEqualTo("UNKNOWN_AREA_ID(0x0)");
     }
 

@@ -157,7 +157,8 @@ public class AppFocusServiceTest {
                 () -> mService.getAppTypeOwner(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
     }
 
-    private class AppFocusChangedListener implements CarAppFocusManager.OnAppFocusChangedListener {
+    private static final class AppFocusChangedListener
+            implements CarAppFocusManager.OnAppFocusChangedListener {
 
         private final Semaphore mSemaphore = new Semaphore(0);
         private int mLastAppType;
@@ -179,7 +180,7 @@ public class AppFocusServiceTest {
         }
     }
 
-    private class AppFocusOwnershipCallback implements
+    private static final class AppFocusOwnershipCallback implements
             CarAppFocusManager.OnAppFocusOwnershipCallback {
 
         private final Semaphore mSemaphore = new Semaphore(0);
@@ -195,14 +196,6 @@ public class AppFocusServiceTest {
         public void onAppFocusOwnershipGranted(int appType) {
             mGrantedAppTypes = mGrantedAppTypes | appType;
             mSemaphore.release();
-        }
-
-        public void waitForEvent() throws Exception {
-            mSemaphore.tryAcquire(WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        }
-
-        public void resetWait() {
-            mSemaphore.drainPermits();
         }
     }
 }

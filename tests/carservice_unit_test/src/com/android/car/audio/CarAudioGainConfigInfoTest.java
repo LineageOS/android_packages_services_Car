@@ -105,7 +105,6 @@ public final class CarAudioGainConfigInfoTest {
         CarAudioGainConfigInfo carGainInfo1 = new CarAudioGainConfigInfo(gainInfo);
         CarAudioGainConfigInfo carGainInfo2 = new CarAudioGainConfigInfo(gainInfo);
 
-        assertWithMessage("Audio Gain Configs").that(carGainInfo1 == carGainInfo2).isFalse();
         assertWithMessage("Audio Gain Configs").that(carGainInfo1.equals(carGainInfo2)).isTrue();
         assertWithMessage("Audio Gain Configs").that(carGainInfo1).isEqualTo(carGainInfo2);
     }

@@ -83,7 +83,7 @@ public final class CarRemoteDeviceManagerUnitTest {
     @Test
     public void testGetEndpointPackageInfoWithNullParameters_throwsException() {
         assertThrows(NullPointerException.class,
-                () -> mRemoteDeviceManager.getEndpointPackageInfo(/* receiverZone= */ null));
+                () -> mRemoteDeviceManager.getEndpointPackageInfo(/* occupantZone= */ null));
     }
 
     @Test

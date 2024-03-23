@@ -100,7 +100,7 @@ public final class HidlVehicleStubUnitTest {
     private VehicleStub mHidlVehicleStub;
 
     private AsyncGetSetRequest defaultVehicleStubAsyncRequest(HalPropValue value) {
-        return new AsyncGetSetRequest(/* serviceRequestId=*/ 0, value, /* timeoutInMs= */ 1000);
+        return new AsyncGetSetRequest(/* serviceRequestId=*/ 0, value, /* timeoutUptimeMs= */ 1000);
     }
 
     @Before
@@ -153,7 +153,7 @@ public final class HidlVehicleStubUnitTest {
 
         doAnswer(inv -> {
             getPropConfigsCallback callback = (getPropConfigsCallback) inv.getArgument(1);
-            callback.onValues(StatusCode.INVALID_ARG, /* configs = */ null);
+            callback.onValues(StatusCode.INVALID_ARG, /* propConfigs = */ null);
             return null;
         }).when(mHidlVehicle).getPropConfigs(
                 eq(new ArrayList<>(Arrays.asList(VHAL_PROP_SUPPORTED_PROPERTY_IDS))), any());
@@ -278,7 +278,7 @@ public final class HidlVehicleStubUnitTest {
 
         doAnswer(inv -> {
             getCallback callback = (getCallback) inv.getArgument(1);
-            callback.onValues(StatusCode.INVALID_ARG, /* configs= */ null);
+            callback.onValues(StatusCode.INVALID_ARG, /* propValue= */ null);
             return null;
         }).when(mHidlVehicle).get(any(), any());
 
@@ -470,10 +470,10 @@ public final class HidlVehicleStubUnitTest {
         }).when(mHidlVehicle).get(any(), any());
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/* isAidl= */ false);
-        HalPropValue newTestValue = builder.build(/* propId= */ 2, /* areaId= */ 0, TEST_VALUE);
+        HalPropValue newTestValue = builder.build(/* prop= */ 2, /* areaId= */ 0, TEST_VALUE);
         AsyncGetSetRequest request0 = defaultVehicleStubAsyncRequest(TEST_PROP_VALUE);
         AsyncGetSetRequest request1 = new AsyncGetSetRequest(
-                /* serviceRequestId=*/ 1, newTestValue, /* timeoutInMs= */ 1000);
+                /* serviceRequestId=*/ 1, newTestValue, /* timeoutUptimeMs= */ 1000);
         ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
                 ArgumentCaptor.forClass(List.class);
 

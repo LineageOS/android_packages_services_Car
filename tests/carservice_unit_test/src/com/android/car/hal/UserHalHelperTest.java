@@ -454,7 +454,7 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testToUserIdentificationResponse_invalidPropType() {
-        HalPropValue prop = mPropValueBuilder.build(/* propId= */ 0, /* areaId= */ 0);
+        HalPropValue prop = mPropValueBuilder.build(/* prop= */ 0, /* areaId= */ 0);
 
         assertThrows(IllegalArgumentException.class,
                 () -> UserHalHelper.toUserIdentificationResponse(prop));
@@ -552,7 +552,7 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testToInitialUserInfoResponse_invalidPropType() {
-        HalPropValue prop = mPropValueBuilder.build(/* propId= */ 0, /* areaId= */ 0);
+        HalPropValue prop = mPropValueBuilder.build(/* prop= */ 0, /* areaId= */ 0);
         assertThrows(IllegalArgumentException.class,
                 () -> UserHalHelper.toInitialUserInfoResponse(prop));
     }

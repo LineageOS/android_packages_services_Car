@@ -63,7 +63,8 @@ public class DiagnosticHalServiceTest {
     private DiagnosticHalService.DiagnosticListener mListener;
 
     private DiagnosticHalService mService;
-    private final HalPropValueBuilder mPropValueBuilder = new HalPropValueBuilder(/* aidl= */ true);
+    private final HalPropValueBuilder mPropValueBuilder = new HalPropValueBuilder(
+            /* isAidl= */ true);
 
     private VehiclePropConfig mFreezeFrameConfig;
     private VehiclePropConfig mLiveFrameConfig;

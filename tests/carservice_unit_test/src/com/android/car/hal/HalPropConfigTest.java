@@ -62,7 +62,6 @@ public final class HalPropConfigTest {
     private static final int TEST_AREA_ID = 2;
     private static final int TEST_ALTERNATE_AREA_ID = 3;
     private static final int TEST_ACCESS = VehiclePropertyAccess.READ_WRITE;
-    private static final int TEST_ALTERNATE_ACCESS = VehiclePropertyAccess.READ;
     private static final int TEST_CHANGE_MODE = VehiclePropertyChangeMode.ON_CHANGE;
     private static final int[] TEST_CONFIG_ARRAY = new int[]{1, 2, 3};
     private static final ArrayList<Integer> TEST_CONFIG_ARRAY_LIST = new ArrayList<Integer>(
@@ -276,7 +275,7 @@ public final class HalPropConfigTest {
 
         AreaIdConfig<?> areaIdConfig = carPropertyConfig.getAreaIdConfig(/*areaId=*/0);
         assertThat(areaIdConfig).isNotNull();
-        assertThat(areaIdConfig.getAreaId()).isEqualTo(/*areaId=*/0);
+        assertThat(areaIdConfig.getAreaId()).isEqualTo(0);
         assertThat(areaIdConfig.getMinValue()).isNull();
         assertThat(areaIdConfig.getMaxValue()).isNull();
         assertThat(areaIdConfig.getSupportedEnumValues()).isEmpty();
