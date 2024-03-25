@@ -101,6 +101,8 @@ public final class VehiclePropertyIds {
     /**
      * Manufacturer of vehicle.
      *
+     * <p>This property communicates the vehicle's public brand name.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
@@ -119,6 +121,8 @@ public final class VehiclePropertyIds {
     public static final int INFO_MAKE = 286261505;
     /**
      * Model of vehicle.
+     *
+     * <p>This property communicates the vehicle's public model name.
      *
      * <p>Property Config:
      * <ul>
