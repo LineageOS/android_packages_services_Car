@@ -16,31 +16,49 @@
 
 package com.android.car.wifi;
 
-import static com.google.common.truth.Truth.assertThat;
-
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.feature.Flags;
+import android.car.hardware.power.CarPowerManager;
+import android.car.hardware.power.ICarPowerStateListener;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.MockSettings;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.TetheringManager;
 import android.net.wifi.WifiManager;
+import android.platform.test.flag.junit.SetFlagsRule;
 
+import com.android.car.CarLocalServices;
 import com.android.car.R;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.concurrent.Executor;
+
 @RunWith(MockitoJUnitRunner.class)
 public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
+    @Rule
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
     @Mock
     private Context mContext;
     @Mock
@@ -55,9 +73,13 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
     private TetheringManager mTetheringManager;
     @Mock
     private CarPowerManagementService mCarPowerManagementService;
-
+    @Mock
+    private SharedPreferences mSharedPreferences;
+    @Mock
+    private SharedPreferences.Editor mSharedPreferencesEditor;
     private MockSettings mMockSettings;
-
+    private CarPowerManagementService mOriginalCarPowerManagementService;
+    private CarUserService mOriginalCarUserService;
     private CarWifiService mCarWifiService;
 
     @Override
@@ -67,22 +89,123 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
 
     @Before
     public void setUp() {
+        mOriginalCarUserService = CarLocalServices.getService(CarUserService.class);
+        CarLocalServices.removeServiceForTest(CarUserService.class);
+        CarLocalServices.addService(CarUserService.class, mCarUserService);
+
+        mOriginalCarPowerManagementService = CarLocalServices.getService(
+                CarPowerManagementService.class);
+        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        CarLocalServices.addService(CarPowerManagementService.class, mCarPowerManagementService);
+
         when(mContext.getResources()).thenReturn(mResources);
         when(mContext.getContentResolver()).thenReturn(mContentResolver);
+        when(mContext.getSharedPreferences(anyString(), anyInt())).thenReturn(mSharedPreferences);
+        when(mSharedPreferences.edit()).thenReturn(mSharedPreferencesEditor);
         when(mContext.getSystemService(WifiManager.class)).thenReturn(mWifiManager);
         when(mContext.getSystemService(TetheringManager.class)).thenReturn(mTetheringManager);
+        when(mResources.getBoolean(R.bool.config_enablePersistTetheringCapabilities)).thenReturn(
+                true);
         mMockSettings.putString(CarSettings.Global.ENABLE_PERSISTENT_TETHERING, "false");
-        mCarWifiService = new CarWifiService(mContext, mCarPowerManagementService, mCarUserService);
+        mSetFlagsRule.enableFlags(Flags.FLAG_PERSIST_AP_SETTINGS);
+
+        mCarWifiService = new CarWifiService(mContext);
+    }
+
+    @After
+    public void tearDown() {
+        CarLocalServices.removeServiceForTest(CarUserService.class);
+        CarLocalServices.addService(CarUserService.class, mOriginalCarUserService);
+        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        CarLocalServices.addService(CarPowerManagementService.class,
+                mOriginalCarPowerManagementService);
     }
 
     @Test
-    public void testCanControlPersistTetheringSettings_returnsTrue() {
-        when(mResources.getBoolean(R.bool.config_enablePersistTetheringCapabilities)).thenReturn(
-                true);
-        mCarWifiService = new CarWifiService(mContext, mCarPowerManagementService, mCarUserService);
+    public void testCanControlPersistTetheringSettings_capabilityTrue_returnsTrue() {
+        mCarWifiService.init();
 
         boolean result = mCarWifiService.canControlPersistTetheringSettings();
+        expectWithMessage("Can control persist tethering settings").that(result).isTrue();
+    }
 
-        assertThat(result).isTrue();
+    @Test
+    public void testCanControlPersistTetheringSettings_capabilityFalse_returnsFalse() {
+        when(mResources.getBoolean(R.bool.config_enablePersistTetheringCapabilities)).thenReturn(
+                false);
+
+        mCarWifiService = new CarWifiService(mContext);
+        mCarWifiService.init();
+
+        boolean result = mCarWifiService.canControlPersistTetheringSettings();
+        expectWithMessage("Can control persist tethering settings").that(result).isFalse();
+    }
+
+    @Test
+    public void testPersistCarSettingOn_userUnlockBeforePowerOn_tetheringOn() throws Exception {
+        mMockSettings.putString(CarSettings.Global.ENABLE_PERSISTENT_TETHERING, "true");
+        when(mSharedPreferences.getBoolean(anyString(), anyBoolean())).thenReturn(true);
+
+        mCarWifiService = new CarWifiService(mContext);
+        mCarWifiService.init();
+        getUserLifecycleListener().run();
+        getCarPowerStateListener().onStateChanged(CarPowerManager.STATE_ON, 0);
+
+        verify(mTetheringManager).startTethering(eq(TetheringManager.TETHERING_WIFI), any(
+                Executor.class), any(TetheringManager.StartTetheringCallback.class));
+    }
+
+    @Test
+    public void testPersistCarSettingOn_powerOnBeforeUserUnlock_tetheringOn() throws Exception {
+        mMockSettings.putString(CarSettings.Global.ENABLE_PERSISTENT_TETHERING, "true");
+        when(mSharedPreferences.getBoolean(anyString(), anyBoolean())).thenReturn(true);
+        when(mCarPowerManagementService.getPowerState()).thenReturn(CarPowerManager.STATE_ON);
+
+        mCarWifiService = new CarWifiService(mContext);
+        mCarWifiService.init();
+        getCarPowerStateListener().onStateChanged(CarPowerManager.STATE_ON, 0);
+        getUserLifecycleListener().run();
+
+        verify(mTetheringManager).startTethering(eq(TetheringManager.TETHERING_WIFI), any(
+                Executor.class), any(TetheringManager.StartTetheringCallback.class));
+    }
+
+    @Test
+    public void testPersistCarSettingOff_powerOnBeforeUserUnlock_noTethering() throws Exception {
+        when(mCarPowerManagementService.getPowerState()).thenReturn(CarPowerManager.STATE_ON);
+
+        mCarWifiService = new CarWifiService(mContext);
+        mCarWifiService.init();
+        getCarPowerStateListener().onStateChanged(CarPowerManager.STATE_ON, 0);
+        getUserLifecycleListener().run();
+
+        verify(mTetheringManager, never()).startTethering(eq(TetheringManager.TETHERING_WIFI), any(
+                Executor.class), any(TetheringManager.StartTetheringCallback.class));
+    }
+
+    @Test
+    public void testPersistCarSettingOff_userUnlockBeforePowerOn_noTethering() throws Exception {
+        mCarWifiService.init();
+        getUserLifecycleListener().run();
+        getCarPowerStateListener().onStateChanged(CarPowerManager.STATE_ON, 0);
+
+        verify(mTetheringManager, never()).startTethering(eq(TetheringManager.TETHERING_WIFI), any(
+                Executor.class), any(TetheringManager.StartTetheringCallback.class));
+    }
+
+    private ICarPowerStateListener getCarPowerStateListener() {
+        ArgumentCaptor<ICarPowerStateListener> internalListenerCaptor =
+                ArgumentCaptor.forClass(ICarPowerStateListener.class);
+        verify(mCarPowerManagementService).registerListener(
+                internalListenerCaptor.capture());
+        return internalListenerCaptor.getValue();
+    }
+
+    private Runnable getUserLifecycleListener() {
+        ArgumentCaptor<Runnable> internalListenerCaptor =
+                ArgumentCaptor.forClass(Runnable.class);
+        verify(mCarUserService).runOnUser0Unlock(
+                internalListenerCaptor.capture());
+        return internalListenerCaptor.getValue();
     }
 }

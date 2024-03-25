@@ -46,6 +46,7 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.proto.ProtoOutputStream;
 
+import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
@@ -165,8 +166,7 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
     @GuardedBy("mLock")
     private SharedPreferences mSharedPreferences;
 
-    public CarWifiService(Context context, CarPowerManagementService powerManagementService,
-            CarUserService userService) {
+    public CarWifiService(Context context) {
         mContext = context;
         mIsPersistTetheringCapabilitiesEnabled = context.getResources().getBoolean(
                 R.bool.config_enablePersistTetheringCapabilities);
@@ -176,8 +176,8 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
                         ENABLE_PERSISTENT_TETHERING));
         mWifiManager = context.getSystemService(WifiManager.class);
         mTetheringManager = context.getSystemService(TetheringManager.class);
-        mCarPowerManagementService = powerManagementService;
-        mCarUserService = userService;
+        mCarPowerManagementService = CarLocalServices.getService(CarPowerManagementService.class);
+        mCarUserService = CarLocalServices.getService(CarUserService.class);
     }
 
     @Override
