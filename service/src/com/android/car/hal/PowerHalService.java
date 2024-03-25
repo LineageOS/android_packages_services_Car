@@ -584,6 +584,25 @@ public class PowerHalService extends HalServiceBase {
     }
 
     /**
+     * Returns whether {@code VEHICLE_IN_USE} is supported and getting it returns a valid value.
+     */
+    public boolean isVehicleInUseSupported() {
+        try {
+            HalPropValue value = mHal.get(VEHICLE_IN_USE);
+            if (value.getStatus() != VehiclePropertyStatus.AVAILABLE) {
+                Slogf.w(CarLog.TAG_POWER,
+                        "VEHICLE_IN_USE is supported in config but getting it returns a property "
+                        + "value: " + value + " which does not contain AVAILABLE status");
+                return false;
+            }
+            return true;
+        } catch (ServiceSpecificException | IllegalArgumentException e) {
+            Slogf.w(CarLog.TAG_POWER, "VEHICLE_IN_USE is not supported", e);
+            return false;
+        }
+    }
+
+    /**
      * Gets the head unit's bootup reason.
      *
      * This reason is only set once during bootup and will not change if, say user enters the
