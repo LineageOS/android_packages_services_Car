@@ -354,8 +354,9 @@ final class CarAudioZoneConfig {
                 isFadeManagerConfigurationEnabled());
         if (isFadeManagerConfigurationEnabled()) {
             writer.printf("Default car audio fade manager config name: %s\n",
-                    mDefaultCarAudioFadeConfiguration.getName());
-            writer.printf("Transient car audio fade manager configurations: %d\n",
+                    mDefaultCarAudioFadeConfiguration == null ? "none"
+                    : mDefaultCarAudioFadeConfiguration.getName());
+            writer.printf("Transient car audio fade manager configurations#: %d\n",
                     mAudioAttributesToCarAudioFadeConfiguration.size());
             writer.increaseIndent();
             for (Map.Entry<AudioAttributes, CarAudioFadeConfiguration> entry :
