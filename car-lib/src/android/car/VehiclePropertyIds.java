@@ -5826,10 +5826,13 @@ public final class VehiclePropertyIds {
     public static final int EV_REGENERATIVE_BRAKING_STATE = 289410884;
 
     /**
-     * Vehicle’s curb weight.
+     * Vehicle’s curb weight in kilograms.
      *
-     * <p>Returns the vehicle's curb weight in kilograms. configArray[0] specifies the vehicle’s
-     * gross weight in kilograms.
+     * <p>Returns the vehicle's curb weight in kilograms. This is the total weight of a vehicle,
+     * inclusive of standard equipment and necessary operating fluids such as motor oil,
+     * transmission oil and brake fluid, but without passengers or cargo. configArray[0] specifies
+     * the vehicle’s gross weight in kilograms. This is the vehicle curb weight plus the maximum
+     * payload (passengers + cargo) the vehicle can support.
      *
      * <p>Property Config:
      * <ul>
