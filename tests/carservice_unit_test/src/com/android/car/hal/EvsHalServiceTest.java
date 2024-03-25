@@ -24,6 +24,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.car.evs.CarEvsManager;
 import android.hardware.automotive.vehicle.EvsServiceState;
@@ -39,6 +40,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -52,6 +55,7 @@ import java.util.stream.IntStream;
 public class EvsHalServiceTest {
     @Mock VehicleHal mVehicleHal;
     @Mock EvsHalService.EvsHalEventListener mListener;
+    @Captor ArgumentCaptor<HalPropValue> mPropCaptor;
 
     private static final HalPropConfig EVS_SERVICE_REQUEST =
             new AidlHalPropConfig(
@@ -62,11 +66,20 @@ public class EvsHalServiceTest {
 
     private static final int TRUE = 1;
     private static final int FALSE = 0;
+    private static final HalPropValueBuilder PROP_VALUE_BUILDER = new HalPropValueBuilder(
+            /*isAidl=*/true);
 
-    private final HalPropValueBuilder mPropValueBuilder = new HalPropValueBuilder(/*isAidl=*/true);
+    private List<Integer> getIntValues(HalPropValue value) {
+        List<Integer> intValues = new ArrayList<Integer>();
+        for (int i = 0; i < value.getInt32ValuesSize(); i++) {
+            intValues.add(value.getInt32Value(i));
+        }
+        return intValues;
+    }
 
     @Before
     public void setUp() {
+        when(mVehicleHal.getHalPropValueBuilder()).thenReturn(PROP_VALUE_BUILDER);
         mEvsHalService = new EvsHalService(mVehicleHal);
         mEvsHalService.init();
     }
@@ -124,14 +137,15 @@ public class EvsHalServiceTest {
     @Test
     public void handleInvalidHalEvents() {
         subscribeListener(ImmutableSet.of(EVS_SERVICE_REQUEST));
-        HalPropValue v = mPropValueBuilder.build(VehicleProperty.EVS_SERVICE_REQUEST, /*areaId=*/0);
+        HalPropValue v = PROP_VALUE_BUILDER.build(VehicleProperty.EVS_SERVICE_REQUEST,
+                /*areaId=*/0);
 
         // Not type, no state.
         mEvsHalService.onHalEvents(ImmutableList.of(v));
         verify(mListener, never()).onEvent(anyInt(), anyBoolean());
 
         // Not state.
-        v = mPropValueBuilder.build(VehicleProperty.EVS_SERVICE_REQUEST, /*areaId=*/0,
+        v = PROP_VALUE_BUILDER.build(VehicleProperty.EVS_SERVICE_REQUEST, /*areaId=*/0,
                 EvsServiceType.REARVIEW);
         mEvsHalService.onHalEvents(ImmutableList.of(v));
         verify(mListener, never()).onEvent(anyInt(), anyBoolean());
@@ -147,14 +161,31 @@ public class EvsHalServiceTest {
                 .isTrue();
     }
 
-    // TODO(b/179029031): Adds more tests to verify the surround view service integration.
+    @Test
+    public void testUpdateCameraServiceCurrentState() {
+        int[] states = {CarEvsManager.SERVICE_STATE_ACTIVE, CarEvsManager.SERVICE_STATE_INACTIVE,
+                CarEvsManager.SERVICE_STATE_INACTIVE, CarEvsManager.SERVICE_STATE_INACTIVE,
+                CarEvsManager.SERVICE_STATE_INACTIVE, CarEvsManager.SERVICE_STATE_INACTIVE,
+                CarEvsManager.SERVICE_STATE_INACTIVE, CarEvsManager.SERVICE_STATE_INACTIVE};
+
+        mEvsHalService.reportCurrentState(states);
+
+        verify(mVehicleHal).set(mPropCaptor.capture());
+        HalPropValue prop = mPropCaptor.getValue();
+        assertThat(prop.getPropId()).isEqualTo(VehicleProperty.CAMERA_SERVICE_CURRENT_STATE);
+        assertThat(getIntValues(prop)).containsExactly(
+                CarEvsManager.SERVICE_STATE_ACTIVE, CarEvsManager.SERVICE_STATE_INACTIVE,
+                CarEvsManager.SERVICE_STATE_INACTIVE, CarEvsManager.SERVICE_STATE_INACTIVE,
+                CarEvsManager.SERVICE_STATE_INACTIVE, CarEvsManager.SERVICE_STATE_INACTIVE,
+                CarEvsManager.SERVICE_STATE_INACTIVE, CarEvsManager.SERVICE_STATE_INACTIVE);
+    }
 
     private void dispatchEvsServiceRequest(int type, int state) {
         mEvsHalService.onHalEvents(ImmutableList.of(buildEvsServiceRequestProp(type, state)));
     }
 
     private HalPropValue buildEvsServiceRequestProp(int type, int state) {
-        return mPropValueBuilder.build(VehicleProperty.EVS_SERVICE_REQUEST, /*areaId=*/0,
+        return PROP_VALUE_BUILDER.build(VehicleProperty.EVS_SERVICE_REQUEST, /*areaId=*/0,
                 new int[]{type, state});
     }
 
