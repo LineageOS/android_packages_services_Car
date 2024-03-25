@@ -16,15 +16,13 @@
 
 package com.android.car;
 
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doNothing;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doThrow;
-
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -32,7 +30,6 @@ import android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate;
 import android.car.Car;
 import android.car.ICarResultReceiver;
 import android.car.feature.Flags;
-import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.content.res.Resources;
 import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
@@ -40,6 +37,7 @@ import android.os.Bundle;
 import android.os.HandlerThread;
 import android.os.IInterface;
 import android.os.Looper;
+import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
@@ -49,6 +47,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.internal.ICarServiceHelper;
+import com.android.car.internal.StaticBinderInterface;
 import com.android.car.os.CarPerformanceService;
 import com.android.car.remoteaccess.CarRemoteAccessService;
 import com.android.car.systeminterface.ActivityManagerInterface;
@@ -89,7 +88,7 @@ import java.io.IOException;
  * </ol>
  */
 @RunWith(MockitoJUnitRunner.class)
-public final class ICarImplTest extends AbstractExtendedMockitoTestCase {
+public final class ICarImplTest {
     private static final String TAG = ICarImplTest.class.getSimpleName();
 
     @Mock private ActivityManagerInterface mMockActivityManagerInterface;
@@ -119,15 +118,6 @@ public final class ICarImplTest extends AbstractExtendedMockitoTestCase {
         public void send(int resultCode, Bundle resultData) {
             Log.i(TAG, "CarServiceConnectedCallback.send(int resultCode, Bundle resultData)");
         }
-    }
-
-    public ICarImplTest() {
-        super(ICarImpl.TAG, CarLog.TAG_SERVICE);
-    }
-
-    @Override
-    protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
-        builder.spyStatic(ICarImpl.class);
     }
 
     /**
@@ -220,9 +210,19 @@ public final class ICarImplTest extends AbstractExtendedMockitoTestCase {
                 .setGarageModeService(mMockGarageModeService)
                 .setPowerPolicyDaemon(powerPolicyDaemon)
                 .setDoPriorityInitInConstruction(false)
+                .setTestStaticBinder(new StaticBinderInterface() {
+                    @Override
+                    public int getCallingUid() {
+                        return Process.SYSTEM_UID;
+                    }
+
+                    @Override
+                    public int getCallingPid() {
+                        return 0;
+                    }
+                })
                 .build();
 
-        doNothing().when(() -> ICarImpl.assertCallingFromSystemProcess());
         carImpl.setSystemServerConnections(mICarServiceHelper, new CarServiceConnectedCallback());
         carImpl.init();
         Car mCar = new Car(mContext, carImpl, /* handler= */ null);

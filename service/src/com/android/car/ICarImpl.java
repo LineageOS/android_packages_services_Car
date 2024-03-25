@@ -48,7 +48,6 @@ import android.content.om.OverlayManager;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.VehicleProperty;
-import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -79,6 +78,8 @@ import com.android.car.hal.VehicleHal;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.ICarSystemServerClient;
+import com.android.car.internal.StaticBinderInterface;
+import com.android.car.internal.SystemStaticBinder;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.occupantconnection.CarOccupantConnectionService;
 import com.android.car.occupantconnection.CarRemoteDeviceService;
@@ -207,12 +208,17 @@ public class ICarImpl extends ICar.Stub {
             (FileDescriptor in, FileDescriptor out, FileDescriptor err, String[] args) ->
                     newCarShellCommand().exec(ICarImpl.this, in, out, err, args);
 
+    // A static Binder class implementation. Faked during unit tests.
+    private final StaticBinderInterface mStaticBinder;
+
     private ICarImpl(Builder builder) {
         LimitedTimingsTraceLog t = new LimitedTimingsTraceLog(
                 CAR_SERVICE_INIT_TIMING_TAG, TraceHelper.TRACE_TAG_CAR_SERVICE,
                 CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS);
         t.traceBegin("ICarImpl.constructor");
 
+        mStaticBinder = Objects.requireNonNullElseGet(builder.mStaticBinder,
+                () -> new SystemStaticBinder());
         mDoPriorityInitInConstruction = builder.mDoPriorityInitInConstruction;
 
         mContext = builder.mContext;
@@ -551,7 +557,7 @@ public class ICarImpl extends ICar.Stub {
             ICarResultReceiver resultReceiver) {
         Bundle bundle;
         try {
-            EventLogHelper.writeCarServiceSetCarServiceHelper(Binder.getCallingPid());
+            EventLogHelper.writeCarServiceSetCarServiceHelper(mStaticBinder.getCallingPid());
             assertCallingFromSystemProcess();
 
             mCarServiceHelperWrapper.setCarServiceHelper(carServiceHelper);
@@ -615,8 +621,9 @@ public class ICarImpl extends ICar.Stub {
         return mCarExperimentalFeatureServiceController.getCarManagerClassForFeature(featureName);
     }
 
-    static void assertCallingFromSystemProcess() {
-        int uid = Binder.getCallingUid();
+
+    private void assertCallingFromSystemProcess() {
+        int uid = mStaticBinder.getCallingUid();
         if (uid != Process.SYSTEM_UID) {
             throw new SecurityException("Only allowed from system");
         }
@@ -752,7 +759,7 @@ public class ICarImpl extends ICar.Stub {
         if (mContext.checkCallingOrSelfPermission(android.Manifest.permission.DUMP)
                 != PackageManager.PERMISSION_GRANTED) {
             writer.println("Permission Denial: can't dump CarService from from pid="
-                    + Binder.getCallingPid() + ", uid=" + Binder.getCallingUid()
+                    + mStaticBinder.getCallingPid() + ", uid=" + mStaticBinder.getCallingUid()
                     + " without permission " + android.Manifest.permission.DUMP);
             return;
         }
@@ -1162,6 +1169,7 @@ public class ICarImpl extends ICar.Stub {
         CarTelemetryService mCarTelemetryService;
         CarRemoteAccessService mCarRemoteAccessService;
         boolean mDoPriorityInitInConstruction;
+        StaticBinderInterface mStaticBinder;
 
         /**
          * Builds the ICarImpl object represented by this builder object
@@ -1300,6 +1308,15 @@ public class ICarImpl extends ICar.Stub {
          */
         public Builder setDoPriorityInitInConstruction(boolean doPriorityInitInConstruction) {
             mDoPriorityInitInConstruction = doPriorityInitInConstruction;
+            return this;
+        }
+
+        /**
+         * Sets the calling Uid, only used for testing.
+         */
+        @VisibleForTesting
+        public Builder setTestStaticBinder(StaticBinderInterface testStaticBinder) {
+            mStaticBinder = testStaticBinder;
             return this;
         }
     }

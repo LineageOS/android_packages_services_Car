@@ -17,7 +17,6 @@ package com.android.car;
 
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
 
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doNothing;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -46,6 +45,7 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.IInterface;
+import android.os.Process;
 import android.os.UserHandle;
 import android.util.ArrayMap;
 import android.util.ArraySet;
@@ -61,6 +61,7 @@ import com.android.car.hal.test.AidlVehiclePropConfigBuilder;
 import com.android.car.hal.test.HidlMockedVehicleHal;
 import com.android.car.hal.test.HidlVehiclePropConfigBuilder;
 import com.android.car.internal.ICarServiceHelper;
+import com.android.car.internal.StaticBinderInterface;
 import com.android.car.os.CarPerformanceService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.remoteaccess.CarRemoteAccessService;
@@ -293,7 +294,6 @@ public class MockedCarTestBase {
     protected MockitoSession createMockingSession() {
         return mockitoSession()
                 .initMocks(this)
-                .spyStatic(ICarImpl.class)
                 .strictness(Strictness.LENIENT)
                 .startMocking();
     }
@@ -376,9 +376,19 @@ public class MockedCarTestBase {
                 .setGarageModeService(mGarageModeService)
                 .setPowerPolicyDaemon(powerPolicyDaemon)
                 .setDoPriorityInitInConstruction(false)
+                .setTestStaticBinder(new StaticBinderInterface() {
+                    @Override
+                    public int getCallingUid() {
+                        return Process.SYSTEM_UID;
+                    }
+
+                    @Override
+                    public int getCallingPid() {
+                        return 0;
+                    }
+                })
                 .build();
 
-        doNothing().when(() -> ICarImpl.assertCallingFromSystemProcess());
         carImpl.setSystemServerConnections(mICarServiceHelper,
                 new ICarImplTest.CarServiceConnectedCallback());
         spyOnBeforeCarImplInit(carImpl);
