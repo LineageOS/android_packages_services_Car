@@ -1394,6 +1394,15 @@ public final class Car implements ICarBase {
             "android.car.permission.READ_PERSIST_TETHERING_SETTINGS";
 
     /**
+     * Permission necessary to bind with app card providers.
+     * @hide
+     */
+    @FlaggedApi(Flags.FLAG_CAR_APP_CARD)
+    @SystemApi
+    public static final String PERMISSION_BIND_APP_CARD_PROVIDER =
+            "android.car.permission.BIND_APP_CARD_PROVIDER";
+
+    /**
      * Intent for connecting to the template renderer. Services that handle this intent must also
      * hold {@link #PERMISSION_TEMPLATE_RENDERER}. Applications would not bind to this service
      * directly, but instead they would use

@@ -196,3 +196,12 @@ flag {
   description: "Enables use of new property status API"
   bug: "326109669"
 }
+
+# CarAppCard
+flag {
+  name: "car_app_card"
+  is_exported: true
+  namespace: "car_framework"
+  description: "Enables use of Car App Card APIs"
+  bug: "331282711"
+}
