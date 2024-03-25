@@ -2896,7 +2896,7 @@
     "VEHICLE_CURB_WEIGHT": {
       "propertyName": "VEHICLE_CURB_WEIGHT",
       "propertyId": 289410886,
-      "description": "Vehicle’s curb weight.",
+      "description": "Vehicle’s curb weight in kilograms.",
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.PRIVILEGED_CAR_INFO"
