@@ -72,8 +72,7 @@ android_test {
     ],
 
     test_suites: [
-        "general-tests",
+        "device-tests",
         "automotive-tests",
-        "automotive-general-tests",
     ],
 }
