@@ -16,6 +16,7 @@
 
 package com.android.systemui.car.distantdisplay.common;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -36,6 +37,8 @@ import com.android.systemui.car.qc.DistantDisplayControlsUpdateListener;
 import com.android.systemui.dagger.SysUISingleton;
 import com.android.systemui.settings.UserTracker;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -54,12 +57,13 @@ public class DistantDisplayController {
     private final Context mContext;
     private final UserTracker mUserTracker;
     private final TaskViewController mTaskViewController;
+    private final List<ComponentName> mRestrictedActivities;
     private final Drawable mDistantDisplayDrawable;
     private final Drawable mDefaultDisplayDrawable;
     @Nullable
-    private String mTopPackageOnDefaultDisplay;
+    private ComponentName mTopActivityOnDefaultDisplay;
     @Nullable
-    private String mTopPackageOnDistantDisplay;
+    private ComponentName mTopActivityOnDistantDisplay;
     private StatusChangeListener mStatusChangeListener;
     private DistantDisplayControlsUpdateListener mDistantDisplayControlsUpdateListener;
 
@@ -82,13 +86,13 @@ public class DistantDisplayController {
     private final TaskViewController.Callback mTaskViewControllerCallback =
             new TaskViewController.Callback() {
                 @Override
-                public void topAppOnDisplayChanged(int displayId, String packageName) {
+                public void topAppOnDisplayChanged(int displayId, ComponentName componentName) {
                     if (displayId == Display.DEFAULT_DISPLAY) {
-                        mTopPackageOnDefaultDisplay = packageName;
+                        mTopActivityOnDefaultDisplay = componentName;
                         updateButtonState();
 
                     } else if (displayId == mDistantDisplayId) {
-                        mTopPackageOnDistantDisplay = packageName;
+                        mTopActivityOnDistantDisplay = componentName;
                         updateButtonState();
                     }
                 }
@@ -126,6 +130,13 @@ public class DistantDisplayController {
                 R.drawable.ic_distant_display_nav, /* theme= */ null);
         mDefaultDisplayDrawable = mContext.getResources().getDrawable(
                 R.drawable.ic_default_display_nav, /* theme= */ null);
+        mRestrictedActivities = new ArrayList<>();
+        String[] ddRestrictedActivities = mContext.getResources().getStringArray(
+                R.array.config_restrictedActivities);
+        for (String ddRestrictedActivity : ddRestrictedActivities) {
+            mRestrictedActivities.add(
+                    ComponentName.unflattenFromString(ddRestrictedActivity));
+        }
         mMediaSessionManager = mContext.getSystemService(MediaSessionManager.class);
         mMediaSessionManager.addOnActiveSessionsChangedListener(/* notificationListener= */ null,
                 userTracker.getUserHandle(),
@@ -190,14 +201,14 @@ public class DistantDisplayController {
      * {@link com.android.systemui.car.distantdisplay.common.DistantDisplayQcItem}
      */
     public DistantDisplayQcItem getControls() {
-        if (isVideoApp(mTopPackageOnDistantDisplay)) {
+        if (canMoveBetweenDisplays(mTopActivityOnDistantDisplay)) {
             return new DistantDisplayQcItem.Builder()
                     .setTitle(mContext.getString(R.string.qc_bring_back_to_default_display_title))
                     .setIcon(mDefaultDisplayDrawable)
                     .setActionHandler((item, context, intent) ->
                             mTaskViewController.moveTaskFromDistantDisplay())
                     .build();
-        } else if (isVideoApp(mTopPackageOnDefaultDisplay)) {
+        } else if (canMoveBetweenDisplays(mTopActivityOnDefaultDisplay)) {
             return new DistantDisplayQcItem.Builder()
                     .setTitle(mContext.getString(R.string.qc_send_to_pano_title))
                     .setIcon(mDistantDisplayDrawable)
@@ -212,10 +223,10 @@ public class DistantDisplayController {
     private Optional<MediaController> getMediaControllerFromActiveMediaSession() {
 
         String foregroundMediaPackage;
-        if (isVideoApp(mTopPackageOnDistantDisplay)) {
-            foregroundMediaPackage = mTopPackageOnDistantDisplay;
-        } else if (isVideoApp(mTopPackageOnDefaultDisplay)) {
-            foregroundMediaPackage = mTopPackageOnDefaultDisplay;
+        if (isVideoApp(mTopActivityOnDistantDisplay)) {
+            foregroundMediaPackage = mTopActivityOnDistantDisplay.getPackageName();
+        } else if (isVideoApp(mTopActivityOnDefaultDisplay)) {
+            foregroundMediaPackage = mTopActivityOnDefaultDisplay.getPackageName();
         } else {
             foregroundMediaPackage = null;
         }
@@ -231,7 +242,13 @@ public class DistantDisplayController {
                 .findFirst();
     }
 
-    private boolean isVideoApp(String packageName) {
+    private boolean canMoveBetweenDisplays(ComponentName componentName) {
+        return componentName != null && !mRestrictedActivities.contains(componentName);
+    }
+
+    private boolean isVideoApp(ComponentName componentName) {
+        if (componentName == null) return false;
+        String packageName = componentName.getPackageName();
         if (packageName == null) return false;
         return AppCategoryDetector.isVideoApp(mUserTracker.getUserContext().getPackageManager(),
                 packageName);
@@ -240,10 +257,10 @@ public class DistantDisplayController {
     private void updateButtonState() {
         if (mStatusChangeListener == null) return;
 
-        if (isVideoApp(mTopPackageOnDistantDisplay)) {
+        if (canMoveBetweenDisplays(mTopActivityOnDistantDisplay)) {
             mStatusChangeListener.onDisplayChanged(mDistantDisplayId);
             mStatusChangeListener.onVisibilityChanged(true);
-        } else if (isVideoApp(mTopPackageOnDefaultDisplay)) {
+        } else if (canMoveBetweenDisplays(mTopActivityOnDefaultDisplay)) {
             mStatusChangeListener.onDisplayChanged(Display.DEFAULT_DISPLAY);
             mStatusChangeListener.onVisibilityChanged(true);
         } else {
