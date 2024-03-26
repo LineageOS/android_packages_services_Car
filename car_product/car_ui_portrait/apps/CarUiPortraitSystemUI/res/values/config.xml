@@ -68,6 +68,13 @@
     <!-- 2 right -->
     <integer name="config_showDisplayCompatToolbarOnSystemBar">0</integer>
 
+    <!-- A list of components that are shown on Dock by default -->
+    <string-array name="config_defaultDockApps" translatable="false">
+        <item>com.android.vending/com.google.android.finsky.carmainactivity.MainActivity</item>
+        <item>com.google.android.bluetooth/com.android.bluetooth.avrcpcontroller.BluetoothMediaBrowserService</item>
+        <item>com.android.car.dialer/com.android.car.dialer.ui.TelecomActivity</item>
+    </string-array>
+
     <!-- A list of packages that are excluded from being shown on Dock -->
     <string-array name="config_packagesExcludedFromDock" translatable="false">
         <item>com.android.car.portraitlauncher</item>
