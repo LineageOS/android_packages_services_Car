@@ -208,6 +208,12 @@ public class BugReportService extends Service {
         }
     }
 
+    static Intent buildStartBugReportIntent(Context context) {
+        Intent intent = new Intent(context, BugReportService.class);
+        intent.setAction(ACTION_START_AUDIO_LATER);
+        return intent;
+    }
+
     @Override
     public void onCreate() {
         Preconditions.checkState(Config.isBugReportEnabled(), "BugReport is disabled.");
