@@ -564,6 +564,11 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             releaseHalAudioModuleChangeCallbackLocked();
             mOccupantZoneService.unregisterCallback(mOccupantZoneCallback);
             mCarInputService.unregisterKeyEventListener(mCarKeyEventListener);
+            // Audio control may be running in the same process as audio server.
+            // Thus we can not release the audio control wrapper for now
+            if (mIsAudioServerDown) {
+                return;
+            }
             // Audio control wrapper must be released last
             releaseAudioControlWrapperLocked();
         }
@@ -3668,7 +3673,22 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     private void audioControlDied() {
+        // If audio server is down, do not attempt to recover since it may lead to contention.
+        // Once the audio server is back up the audio control HAL will be re-initialized.
+        if (!mAudioManager.isAudioServerRunning()) {
+            String message = "Audio control died while audio server is not running";
+            Slogf.w(TAG, message);
+            mServiceEventLogger.log(message);
+            return;
+        }
         synchronized (mImplLock) {
+            // Verify the server has not gone down to prevent releasing audio control HAL
+            if (mIsAudioServerDown) {
+                String message = "Audio control died while audio server is down";
+                Slogf.w(TAG, message);
+                mServiceEventLogger.log(message);
+                return;
+            }
             resetHalAudioFocusLocked();
             resetHalAudioGainLocked();
             resetHalAudioModuleChangeLocked();
