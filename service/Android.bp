@@ -177,7 +177,7 @@ java_defaults {
 
     aidl: {
         include_dirs: [
-            "packages/services/Car/procfs-inspector/client/src",
+            "packages/services/Car/lib/procfs-inspector/client/src",
         ],
     },
 
