@@ -345,6 +345,7 @@ Return<EvsResult> VirtualCamera::startVideoStream(
         auto pHwCamera = iter->second.promote();
         if (pHwCamera == nullptr) {
             LOG(ERROR) << "Failed to start a video stream on " << iter->first;
+            ++iter;
             continue;
         }
 
