@@ -325,7 +325,12 @@ public class CarAudioZone {
      */
     public void updateVolumeGroupsSettingsForUser(int userId) {
         for (int index = 0; index < mCarAudioZoneConfigs.size(); index++) {
-            mCarAudioZoneConfigs.valueAt(index).updateVolumeGroupsSettingsForUser(userId);
+            CarAudioZoneConfig config = mCarAudioZoneConfigs.valueAt(index);
+            if (!config.isSelected()) {
+                continue;
+            }
+            config.updateVolumeGroupsSettingsForUser(userId);
+            return;
         }
     }
 

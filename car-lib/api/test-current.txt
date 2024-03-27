@@ -45,6 +45,7 @@ package android.car {
     field public static final String OCCUPANT_AWARENESS_SERVICE = "occupant_awareness";
     field public static final String PERMISSION_ACCESS_MIRRORRED_SURFACE = "android.car.permission.ACCESS_MIRRORED_SURFACE";
     field public static final String PERMISSION_ADJUST_RANGE_REMAINING = "android.car.permission.ADJUST_RANGE_REMAINING";
+    field @FlaggedApi("android.car.feature.car_app_card") public static final String PERMISSION_BIND_APP_CARD_PROVIDER = "android.car.permission.BIND_APP_CARD_PROVIDER";
     field public static final String PERMISSION_CAR_DIAGNOSTIC_CLEAR = "android.car.permission.CLEAR_CAR_DIAGNOSTICS";
     field public static final String PERMISSION_CAR_DIAGNOSTIC_READ_ALL = "android.car.permission.CAR_DIAGNOSTICS";
     field public static final String PERMISSION_CAR_DRIVING_STATE = "android.car.permission.CAR_DRIVING_STATE";
