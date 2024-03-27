@@ -93,6 +93,8 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
     private static final int TEST_GAIN_DEFAULT_VALUE = -2000;
     private static final int TEST_GAIN_STEP_VALUE = 2;
 
+    private static final int TEST_USER_ID = 13;
+
 
     private static final AudioAttributes TEST_MEDIA_ATTRIBUTE =
             CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA);
@@ -868,6 +870,18 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
 
         expectWithMessage("Audio devices removed null devices exception").that(thrown)
                 .hasMessageThat().contains("Audio devices");
+    }
+
+    @Test
+    public void updateVolumeGroupsSettingsForUser() {
+        when(mMockZoneConfig1.isSelected()).thenReturn(true);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+
+        mTestAudioZone.updateVolumeGroupsSettingsForUser(TEST_USER_ID);
+
+        verify(mMockZoneConfig0, never()).updateVolumeGroupsSettingsForUser(TEST_USER_ID);
+        verify(mMockZoneConfig1).updateVolumeGroupsSettingsForUser(TEST_USER_ID);
     }
 
     private CarAudioZoneConfigInfo getFirstNonCurrentZoneConfigInfo(CarAudioZone audioZone) {
