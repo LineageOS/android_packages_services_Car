@@ -2881,6 +2881,42 @@
             <intent-filter tools:node="removeAll"/>
         </activity>
 
+        <activity
+            android:name="com.android.settings.Settings$CellularSecuritySettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$HearingDevicesActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$HearingDevicesPairingActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$ColorContrastActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
         <activity-alias
             android:name="com.android.settings.ConfirmDeviceCredentialActivity"
             android:enabled="false"
@@ -2919,6 +2955,15 @@
 
         <activity-alias
             android:name="com.android.settings.MediaRoutingControlActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported, android:enabled">
+            <intent-filter tools:node="removeAll"/>
+        </activity-alias>>
+
+        <activity-alias
+            android:name="com.android.settings.BackupTasksActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
@@ -3179,6 +3224,15 @@
 
         <receiver
             android:name="com.android.settings.safetycenter.SafetySourceBroadcastReceiver"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
+        <receiver
+            android:name="com.android.settings.privatespace.PrivateSpaceBroadcastReceiver"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
