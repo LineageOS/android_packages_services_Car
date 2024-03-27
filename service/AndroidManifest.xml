@@ -1184,10 +1184,23 @@
         android:label="@string/car_permission_label_read_persist_tethering_settings"
         android:description="@string/car_permission_desc_read_persist_tethering_settings" />
 
+    <!-- Allows the holder of this permission to bind with app card providers.
+         <p>Protection level: signature|privileged
+
+         NOTE: This permission isn't tested on the platform instead it is tested in an
+         unbundled library.
+    -->
+    <permission
+        android:name="android.car.permission.BIND_APP_CARD_PROVIDER"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_bind_app_card_provider"
+        android:description="@string/car_permission_desc_bind_app_card_provider" />
+
 
     <!-- NOTE: when you're adding a new permission, you should edit
-         cts/tests/tests/permission2/res/raw/automotive_android_manifest.xml accordingly and run
-         the test with 'atest android.permission2.cts.PermissionPolicyTest' to verify it.
+         packages/modules/Permission/tests/cts/permissionpolicy/res/raw/automotive_android_manifest.xml
+         accordingly and run the test with 'atest android.permission2.cts.PermissionPolicyTest'
+         to verify it.
     -->
 
     <application android:label="@string/app_title"

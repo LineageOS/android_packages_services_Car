@@ -667,6 +667,11 @@
     <!-- Permission text: apps that need to run in display compatibility mode [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_manage_display_compatibility">manage display compatibility packages.</string>
 
+    <!-- Permission text: system app that needs to bind with app card providers [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_bind_app_card_provider">bind to app card providers</string>
+    <!-- Permission text: system app that needs to bind with app card providers [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_bind_app_card_provider">bind to app card providers.</string>
+
     <!-- Permission text: apps can monitor the states of other occupant zones in the car and peer
          apps (apps that have the same package name as the caller) installed in those zones,
          and manage the power of those zones.
