@@ -45,6 +45,10 @@ public final class VehicleIgnitionState {
     /**
      * Steering wheel is not locked, engine and all accessories are off. If car can be in {@code
      * LOCK} and {@code OFF} state at the same time than HAL must report {@code LOCK} state.
+     *
+     * <p>If {@link android.car.VehiclePropertyIds#IGNITION_STATE} is implemented on a BEV, then
+     * this state communicates the BEV's High Voltage battery is disconnected and thus the vehicle
+     * is OFF.
      */
     public static final int OFF = 2;
 
@@ -57,6 +61,10 @@ public final class VehicleIgnitionState {
     /**
      * Ignition is in state on. Accessories and instrument cluster available, engine might be
      * running or ready to be started.
+     *
+     * <p>If {@link android.car.VehiclePropertyIds#IGNITION_STATE} is implemented on a BEV, then
+     * this state communicates the BEV's High Voltage battery is connected and thus the vehicle is
+     * ON.
      */
     public static final int ON = 4;
 
