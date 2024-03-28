@@ -31,11 +31,19 @@ using ::android::hardware::automotive::vehicle::toInt;
 
 AidlHalPropConfig::AidlHalPropConfig(VehiclePropConfig&& config) {
     mPropConfig = std::move(config);
-    for (VehicleAreaConfig& areaConfig : mPropConfig.areaConfigs) {
-        int32_t access = (areaConfig.access == VehiclePropertyAccess::NONE)
-                ? toInt(mPropConfig.access)
-                : toInt(areaConfig.access);
-        mAreaConfigs.push_back(std::make_unique<AidlHalAreaConfig>(std::move(areaConfig), access));
+    if (mPropConfig.areaConfigs.size() == 0) {
+        VehicleAreaConfig globalAreaConfig;
+        globalAreaConfig.areaId = 0;
+        mAreaConfigs.push_back(std::make_unique<AidlHalAreaConfig>(std::move(globalAreaConfig),
+                                                                   toInt(mPropConfig.access)));
+    } else {
+        for (VehicleAreaConfig& areaConfig : mPropConfig.areaConfigs) {
+            int32_t access = (areaConfig.access == VehiclePropertyAccess::NONE)
+                    ? toInt(mPropConfig.access)
+                    : toInt(areaConfig.access);
+            mAreaConfigs.push_back(
+                    std::make_unique<AidlHalAreaConfig>(std::move(areaConfig), access));
+        }
     }
 }
 
