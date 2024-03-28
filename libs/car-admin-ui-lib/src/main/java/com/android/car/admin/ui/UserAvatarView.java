@@ -29,7 +29,7 @@ import com.android.settingslib.drawable.UserIconDrawable;
 
 // TODO(b/176262528): copied from com.android.systemui, ideally it should be provided by a common
 // library like SettingsLib. If not, then this whole project / package should be renamed to
-// "car-user-ui-lib", not "car-admin-ui-lib".
+// "car-user-ui-libs", not "car-admin-ui-libs".
 
 /**
  * A view that displays a user image cropped to a circle with an optional frame.

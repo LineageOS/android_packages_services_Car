@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef LIB_PROCFS_INSPECTOR_SERVER_SERVER_H_
-#define LIB_PROCFS_INSPECTOR_SERVER_SERVER_H_
+#ifndef LIBS_PROCFS_INSPECTOR_SERVER_SERVER_H_
+#define LIBS_PROCFS_INSPECTOR_SERVER_SERVER_H_
 
 #define LOG_TAG "com.android.car.procfsinspector"
 #define SERVICE_NAME "com.android.car.procfsinspector"
@@ -59,4 +59,4 @@ public:
     std::vector<ProcessInfo> readProcessTable() override;
 };
 }  // namespace procfsinspector
-#endif  // LIB_PROCFS_INSPECTOR_SERVER_SERVER_H_
+#endif  // LIBS_PROCFS_INSPECTOR_SERVER_SERVER_H_

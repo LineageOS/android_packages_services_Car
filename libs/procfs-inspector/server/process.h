@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef LIB_PROCFS_INSPECTOR_SERVER_PROCESS_H_
-#define LIB_PROCFS_INSPECTOR_SERVER_PROCESS_H_
+#ifndef LIBS_PROCFS_INSPECTOR_SERVER_PROCESS_H_
+#define LIBS_PROCFS_INSPECTOR_SERVER_PROCESS_H_
 
 #include <sys/types.h>
 
@@ -41,4 +41,4 @@ private:
 };
 }  // namespace procfsinspector
 
-#endif  // LIB_PROCFS_INSPECTOR_SERVER_PROCESS_H_
+#endif  // LIBS_PROCFS_INSPECTOR_SERVER_PROCESS_H_
