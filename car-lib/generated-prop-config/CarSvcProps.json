@@ -528,7 +528,7 @@
     "EV_BRAKE_REGENERATION_LEVEL": {
       "propertyName": "EV_BRAKE_REGENERATION_LEVEL",
       "propertyId": 289408012,
-      "description": "Regenerative braking level of a electronic vehicle.",
+      "description": "Regenerative braking level of an electronic vehicle.",
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -2881,7 +2881,7 @@
     "EV_REGENERATIVE_BRAKING_STATE": {
       "propertyName": "EV_REGENERATIVE_BRAKING_STATE",
       "propertyId": 289410884,
-      "description": "Regenerative braking or one-pedal drive state of the car.",
+      "description": "Regenerative braking or one-pedal drive setting on the car.",
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENERGY"
