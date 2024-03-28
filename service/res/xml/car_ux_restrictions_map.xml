@@ -106,7 +106,7 @@ Note:
         NOTE:
         1. The speed units is in meters per second to be in accordance with the
         PERF_VEHICLE SPEED definition in hardware/interfaces/automotive/vehicle/2.0/types.hal
-        2. The speed ranges should be non overlapping, i.e one speed value cannot be in more
+        2. The speed ranges should be non overlapping, i.e. one speed value cannot be in more
         than one range.  It is denoted in a left closed, right open interval [minSpeed, maxSpeed).
         For ex: [0,5) indicates speed >= 0 && speed < 5.0m/s.
         3. For a speed range with no high limit, maxSpeed is not filled.  For ex., if the speed
