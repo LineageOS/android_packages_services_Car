@@ -52,10 +52,11 @@ import com.android.car.internal.ICarBase;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Duration;
 import java.util.List;
@@ -65,6 +66,7 @@ import java.util.concurrent.Executor;
 /**
  * <p>This class contains unit tests for the {@link CarRemoteAccessManager}.
  */
+@RunWith(MockitoJUnitRunner.class)
 public final class CarRemoteAccessManagerUnitTest extends AbstractExpectableTestCase {
     private static final int DEFAULT_TIMEOUT = 3000;
 
@@ -93,8 +95,6 @@ public final class CarRemoteAccessManagerUnitTest extends AbstractExpectableTest
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-
         when(mBinder.queryLocalInterface(anyString())).thenReturn(mService);
         when(mCar.handleRemoteExceptionFromCarService(any(RemoteException.class), any()))
                 .thenAnswer((inv) -> {

@@ -248,6 +248,9 @@ public final class VehiclePropertyIds {
     /**
      * List of {@link android.car.hardware.property.EvChargingConnectorType}s this vehicle may use.
      *
+     * <p>If the vehicle has multiple charging ports, this property will return all possible
+     * connector types that can be used by at least one charging port on the vehicle.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
@@ -817,6 +820,9 @@ public final class VehiclePropertyIds {
     /**
      * EV charge port open.
      *
+     * <p>If the vehicle has multiple charging ports, this property will return true if any of the
+     * charge ports are open.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -840,6 +846,9 @@ public final class VehiclePropertyIds {
     public static final int EV_CHARGE_PORT_OPEN = 287310602;
     /**
      * EV charge port connected.
+     *
+     * <p>If the vehicle has multiple charging ports, this property will return true if any of the
+     * charge ports are connected.
      *
      * <p>Property Config:
      * <ul>

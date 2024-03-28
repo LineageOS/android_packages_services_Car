@@ -40,7 +40,8 @@ import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
-import android.car.feature.Flags;
+import android.car.feature.FeatureFlags;
+import android.car.feature.FeatureFlagsImpl;
 import android.car.user.CarUserManager;
 import android.content.Context;
 import android.content.om.OverlayInfo;
@@ -134,6 +135,8 @@ public class ICarImpl extends ICar.Stub {
 
     private final SystemInterface mSystemInterface;
 
+    private final FeatureFlags mFeatureFlags;
+
     private final CarOemProxyService mCarOemService;
     private final SystemActivityMonitoringService mSystemActivityMonitoringService;
     private final CarPowerManagementService mCarPowerManagementService;
@@ -219,6 +222,8 @@ public class ICarImpl extends ICar.Stub {
 
         mStaticBinder = Objects.requireNonNullElseGet(builder.mStaticBinder,
                 () -> new SystemStaticBinder());
+        mFeatureFlags = Objects.requireNonNullElseGet(builder.mFeatureFlags,
+                () -> new FeatureFlagsImpl());
         mDoPriorityInitInConstruction = builder.mDoPriorityInitInConstruction;
 
         mContext = builder.mContext;
@@ -315,10 +320,18 @@ public class ICarImpl extends ICar.Stub {
         mSystemActivityMonitoringService = constructWithTrace(
                 t, SystemActivityMonitoringService.class,
                 () -> new SystemActivityMonitoringService(mContext), allServices);
+
         mCarPowerManagementService = constructWithTrace(
                 t, CarPowerManagementService.class,
-                () -> new CarPowerManagementService(mContext, mHal.getPowerHal(), mSystemInterface,
-                        mCarUserService, builder.mPowerPolicyDaemon), allServices);
+                () -> new CarPowerManagementService.Builder()
+                        .setContext(mContext)
+                        .setPowerHalService(mHal.getPowerHal())
+                        .setSystemInterface(mSystemInterface)
+                        .setCarUserService(mCarUserService)
+                        .setPowerPolicyDaemon(builder.mPowerPolicyDaemon)
+                        .setFeatureFlags(mFeatureFlags)
+                        .build(),
+                allServices);
         if (mFeatureController.isFeatureEnabled(CarFeatures.FEATURE_CAR_USER_NOTICE_SERVICE)) {
             mCarUserNoticeService = constructWithTrace(
                     t, CarUserNoticeService.class, () -> new CarUserNoticeService(mContext),
@@ -725,12 +738,12 @@ public class ICarImpl extends ICar.Stub {
             default:
                 // CarDisplayCompatManager does not need a new service but the Car class
                 // doesn't allow a new Manager class without a service.
-                if (Flags.displayCompatibility()) {
+                if (mFeatureFlags.displayCompatibility()) {
                     if (serviceName.equals(CAR_DISPLAY_COMPAT_SERVICE)) {
                         return mCarActivityService;
                     }
                 }
-                if (Flags.persistApSettings()) {
+                if (mFeatureFlags.persistApSettings()) {
                     if (serviceName.equals(Car.CAR_WIFI_SERVICE)) {
                         return mCarWifiService;
                     }
@@ -805,7 +818,7 @@ public class ICarImpl extends ICar.Stub {
                 String[] services = new String[length];
                 System.arraycopy(args, 1, services, 0, length);
                 if (dumpToProto) {
-                    if (!Flags.carDumpToProto()) {
+                    if (!mFeatureFlags.carDumpToProto()) {
                         writer.println("Cannot dump " + services[0]
                                 + " to proto since FLAG_CAR_DUMP_TO_PROTO is disabled");
                         return;
@@ -1170,6 +1183,7 @@ public class ICarImpl extends ICar.Stub {
         CarRemoteAccessService mCarRemoteAccessService;
         boolean mDoPriorityInitInConstruction;
         StaticBinderInterface mStaticBinder;
+        FeatureFlags mFeatureFlags;
 
         /**
          * Builds the ICarImpl object represented by this builder object
@@ -1317,6 +1331,14 @@ public class ICarImpl extends ICar.Stub {
         @VisibleForTesting
         public Builder setTestStaticBinder(StaticBinderInterface testStaticBinder) {
             mStaticBinder = testStaticBinder;
+            return this;
+        }
+
+        /**
+         * Sets the feature flags.
+         */
+        public Builder setFeatureFlags(FeatureFlags featureFlags) {
+            mFeatureFlags = featureFlags;
             return this;
         }
     }
