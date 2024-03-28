@@ -15,11 +15,12 @@
  */
 package com.android.car.hal;
 
+import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_BOOTUP_REASON;
 import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE_REPORT;
 import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE_REQ;
-import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_BOOTUP_REASON;
 import static android.hardware.automotive.vehicle.VehicleProperty.DISPLAY_BRIGHTNESS;
 import static android.hardware.automotive.vehicle.VehicleProperty.PER_DISPLAY_BRIGHTNESS;
+import static android.hardware.automotive.vehicle.VehicleProperty.SHUTDOWN_REQUEST;
 import static android.hardware.automotive.vehicle.VehicleProperty.VEHICLE_IN_USE;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -519,7 +520,7 @@ public class PowerHalService extends HalServiceBase {
         }
 
         try {
-            mHal.set(VehicleProperty.SHUTDOWN_REQUEST, /* areaId= */ 0).to(shutdownParam);
+            mHal.set(SHUTDOWN_REQUEST, /* areaId= */ 0).to(shutdownParam);
         } catch (ServiceSpecificException | IllegalArgumentException e) {
             Slogf.e(CarLog.TAG_POWER, "cannot send SHUTDOWN_REQUEST to VHAL", e);
         }
@@ -600,6 +601,13 @@ public class PowerHalService extends HalServiceBase {
             Slogf.w(CarLog.TAG_POWER, "VEHICLE_IN_USE is not supported", e);
             return false;
         }
+    }
+
+    /**
+     * Returns whether {@code SHUTDOWN_REQUEST} is supported
+     */
+    public boolean isShutdownRequestSupported() {
+        return mHal.getPropConfig(SHUTDOWN_REQUEST) != null;
     }
 
     /**

@@ -121,4 +121,9 @@ interface ICarRemoteAccessService {
      * For testing only. Check whether the VHAL property: {@code VEHICLE_IN_USE} is supported.
      */
     boolean isVehicleInUseSupported();
+
+    /**
+     * For testing only. Check whether the VHAL property: {@code SHUTDOWN_REQUEST} is supported.
+     */
+    boolean isShutdownRequestSupported();
 }
