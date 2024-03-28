@@ -32,7 +32,6 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.power.CarPowerDumpProto.SilentModeHandlerProto;
 import com.android.internal.annotations.GuardedBy;
-import com.android.internal.annotations.VisibleForTesting;
 
 import libcore.io.IoUtils;
 
@@ -98,7 +97,6 @@ final class SilentModeHandler {
     // Allows for injecting feature flag values during testing
     private FeatureFlags mFeatureFlags = new FeatureFlagsImpl();
 
-    @VisibleForTesting
     SilentModeHandler(@NonNull CarPowerManagementService service, FeatureFlags featureFlags,
             @Nullable String hwStateMonitoringFileName, @Nullable String kernelSilentModeFileName,
             @Nullable String bootReason) {
