@@ -392,9 +392,16 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         // Now that we're sure we'll accept this request, update any requests which we would
         // block but are already out of focus but waiting to come back
         List<AudioFocusEntry> blocked = evaluationResults.getNewlyBlockedAudioFocusEntries();
-        Map<AudioAttributes, CarAudioFadeConfiguration> transientCarAudioFadeConfigs = null;
+        CarAudioFadeConfiguration transientCarAudioFadeConfigFromXml = null;
+        CarAudioFadeConfiguration defaultCarAudioFadeConfigFromXml = null;
+        Map<AudioAttributes, CarAudioFadeConfiguration> transientCarAudioFadeConfigsFromOemService =
+                null;
         if (isFadeManagerSupported()) {
-            transientCarAudioFadeConfigs =
+            defaultCarAudioFadeConfigFromXml = mCarAudioZone.getCurrentCarAudioZoneConfig()
+                    .getDefaultCarAudioFadeConfiguration();
+            transientCarAudioFadeConfigFromXml = mCarAudioZone.getCurrentCarAudioZoneConfig()
+                    .getCarAudioFadeConfigurationForAudioAttributes(newEntryAfi.getAttributes());
+            transientCarAudioFadeConfigsFromOemService =
                     evaluationResults.getAudioAttributesToCarAudioFadeConfigurationMap();
         }
         for (int index = 0; index < blocked.size(); index++) {
@@ -405,7 +412,10 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
             if (permanent) {
                 FadeManagerConfiguration transientFadeManagerConfig = getTransientFadeManagerConfig(
-                        entry.getAudioFocusInfo().getAttributes(), transientCarAudioFadeConfigs);
+                        defaultCarAudioFadeConfigFromXml, getOptimalUsageBasedTransientFadeConfig(
+                                entry.getAudioFocusInfo().getAttributes(),
+                                transientCarAudioFadeConfigFromXml,
+                                transientCarAudioFadeConfigsFromOemService));
                 // This entry has now lost focus forever
                 sendFocusLossLocked(entry.getAudioFocusInfo(), AUDIOFOCUS_LOSS, newEntryAfi,
                         !entry.isDucked(), transientFadeManagerConfig);
@@ -440,7 +450,10 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
             if (permanent) {
                 FadeManagerConfiguration transientFadeManagerConfig = getTransientFadeManagerConfig(
-                        entry.getAudioFocusInfo().getAttributes(), transientCarAudioFadeConfigs);
+                        defaultCarAudioFadeConfigFromXml, getOptimalUsageBasedTransientFadeConfig(
+                                entry.getAudioFocusInfo().getAttributes(),
+                                transientCarAudioFadeConfigFromXml,
+                                transientCarAudioFadeConfigsFromOemService));
                 sendFocusLossLocked(entry.getAudioFocusInfo(), AUDIOFOCUS_LOSS, newEntryAfi,
                         !entry.isDucked(), transientFadeManagerConfig);
                 permanentlyLost.add(entry);
@@ -539,17 +552,10 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                         getVolumeGroupForAttribute(audioFocusInfo.getAttributes()),
                         AudioManager.AUDIOFOCUS_GAIN).build();
 
-        OemCarAudioFocusResult.Builder builder = new OemCarAudioFocusResult.Builder(
+        OemCarAudioFocusResult focusResult = new OemCarAudioFocusResult.Builder(
                 convertAudioFocusEntries(holdersEvaluation.mChangedEntries),
                 convertAudioFocusEntries(losersEvaluation.mChangedEntries),
-                results).setAudioFocusEntry(focusEntry);
-        Map<AudioAttributes, CarAudioFadeConfiguration> audioAttributesToCarAudioFadeConfig =
-                getAllTransientCarAudioFadeConfigurations();
-        if (audioAttributesToCarAudioFadeConfig != null) {
-            builder.setAudioAttributesToCarAudioFadeConfigurationMap(
-                    audioAttributesToCarAudioFadeConfig);
-        }
-        OemCarAudioFocusResult focusResult = builder.build();
+                results).setAudioFocusEntry(focusEntry).build();
         t.traceEnd();
         return focusResult;
     }
@@ -1184,25 +1190,38 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         }
     }
 
-    private FadeManagerConfiguration getTransientFadeManagerConfig(AudioAttributes attr,
-            Map<AudioAttributes, CarAudioFadeConfiguration> attrToCarAudioFadeConfigurationsMap) {
+    private FadeManagerConfiguration getTransientFadeManagerConfig(
+            CarAudioFadeConfiguration defaultCarAudioFadeConfigFromXml,
+            CarAudioFadeConfiguration transientCarAudioFadeConfig) {
         if (!isFadeManagerSupported()) {
             return null;
         }
 
-        if (attrToCarAudioFadeConfigurationsMap != null
-                && attrToCarAudioFadeConfigurationsMap.containsKey(attr)) {
-            return attrToCarAudioFadeConfigurationsMap.get(attr).getFadeManagerConfiguration();
+        if (transientCarAudioFadeConfig != null) {
+            return transientCarAudioFadeConfig.getFadeManagerConfiguration();
         }
-
-        CarAudioFadeConfiguration defaultCarAudioFadeConfig =
-                mCarAudioZone.getCurrentCarAudioZoneConfig().getDefaultCarAudioFadeConfiguration();
 
         // Default configuration for primary zone is already set with core audio framework.
         // Therefore, no need to set default fade config as transient. When not primary, use default
         // fade configuration for transient if none is set.
-        return (defaultCarAudioFadeConfig == null || mCarAudioZone.isPrimaryZone()) ? null :
-                defaultCarAudioFadeConfig.getFadeManagerConfiguration();
+        return (defaultCarAudioFadeConfigFromXml == null || mCarAudioZone.isPrimaryZone())
+                ? null : defaultCarAudioFadeConfigFromXml.getFadeManagerConfiguration();
+    }
+
+    // priority: transient from oem service > transient from xml
+    private CarAudioFadeConfiguration getOptimalUsageBasedTransientFadeConfig(AudioAttributes attr,
+            CarAudioFadeConfiguration transientCarAudioFadeConfigFromXml,
+            Map<AudioAttributes,
+                    CarAudioFadeConfiguration> attrToCarAudioFadeConfigsFromOemService) {
+        if (!isFadeManagerSupported()) {
+            return null;
+        }
+
+        if (attrToCarAudioFadeConfigsFromOemService != null
+                && !attrToCarAudioFadeConfigsFromOemService.isEmpty()) {
+            return attrToCarAudioFadeConfigsFromOemService.get(attr);
+        }
+        return transientCarAudioFadeConfigFromXml;
     }
 
     private Map<AudioAttributes,
