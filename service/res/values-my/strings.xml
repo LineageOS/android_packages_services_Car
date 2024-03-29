@@ -216,6 +216,10 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"ကား၏ လေကာမှန်ရေယက်များကို ထိန်းချုပ်ပါ။"</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"ဖန်သားပြင် ကိုက်ညီမှုဆိုင်ရာပက်ကေ့ဂျ်များ စီမံခြင်း"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"ဖန်သားပြင် ကိုက်ညီမှုဆိုင်ရာပက်ကေ့ဂျ်များ စီမံခြင်း။"</string>
+    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
+    <skip />
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"ကားထဲရှိ အခြားလိုက်ပါသူရှိသည့် နေရာများနှင့် ထိုနေရာများတွင် တပ်ဆင်ထားသည့် အမျိုးအစားတူ အက်ပ်များ (ခေါ်ဆိုသူနှင့် ပက်ကေ့ချ်အမည်တူညီသော အက်ပ်များ) ၏ အခြေအနေကို စောင့်ကြည့်စစ်ဆေးပြီး ထိုနေရာများ၏ စွမ်းအင်ပါဝါကို စီမံပါ။"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"ကားထဲရှိ အခြားလိုက်ပါသူရှိသည့် နေရာများနှင့် ထိုနေရာများတွင် တပ်ဆင်ထားသည့် အမျိုးအစားတူ အက်ပ်များ (ခေါ်ဆိုသူနှင့် ပက်ကေ့ချ်အမည်တူညီသော အက်ပ်များ) ၏ အခြေအနေကို စောင့်ကြည့်စစ်ဆေးပြီး ထိုနေရာများ၏ စွမ်းအင်ပါဝါကို စီမံပါ။"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"ချိတ်ဆက်မှုပြုပြီး ကားထဲရှိ အခြားလိုက်ပါသူရှိသည့် နေရာများတွင် ထည့်သွင်းထားသည့် အမျိုးအစားတူ အက်ပ်များ (ခေါ်ဆိုသူနှင့် ပက်ကေ့ချ်အမည်တူညီသော အက်ပ်များ) နှင့် ဆက်သွယ်ပါ"</string>

@@ -214,8 +214,10 @@
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Branje brisalcev vetrobranskega stekla avtomobila."</string>
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"nadziranje brisalcev vetrobranskega stekla avtomobila"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Nadziranje brisalcev vetrobranskega stekla avtomobila."</string>
-    <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"upravljanje paketov za združljivost z zaslonom"</string>
-    <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"upravljanje paketov za združljivost z zaslonom."</string>
+    <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"upravljanje paketov, ki zahtevajo združljivost z zaslonom"</string>
+    <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"upravljanje paketov, ki zahtevajo združljivost z zaslonom."</string>
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"povezovanje s ponudniki kartic v aplikacijah"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"povezovanje s ponudniki kartic v aplikacijah."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"nadziranje stanj drugih območij potnikov v avtomobilu in primerljivih aplikacij (aplikacije, ki imajo isto ime paketa kot klicatelj), nameščenih na teh območjih, ter upravljanje napajanja teh območij"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Nadziranje stanj drugih območij potnikov v avtomobilu in primerljivih aplikacij (aplikacije, ki imajo isto ime paketa kot klicatelj), nameščenih na teh območjih, ter upravljanje napajanja teh območij."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"vzpostavitev povezave in komuniciranje s primerljivimi aplikacijami (aplikacije, ki imajo isto ime paketa kot klicatelj), nameščenimi na drugih območjih potnikov v avtomobilu"</string>

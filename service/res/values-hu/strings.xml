@@ -216,6 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Az autó ablaktörlőinek vezérlése."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"kijelzőkompatibilitási csomagok kezelése"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"kijelzőkompatibilitási csomagok kezelése."</string>
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"csatlakozás kártyaalkalmazás-szolgáltatókhoz"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"csatlakozás kártyaalkalmazás-szolgáltatókhoz."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"az autó utastere más zónái állapotának és az ezekbe a zónákba telepített hasonló alkalmazásoknak (olyan alkalmazásoknak, amelyek ugyanazzal a csomagnévvel rendelkeznek, mint a hívó) a megfigyelése, valamint a zónák áramellátásának kezelése."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Az autó utastere más zónái állapotának és az ezekbe a zónákba telepített hasonló alkalmazásoknak (olyan alkalmazásoknak, amelyek ugyanazzal a csomagnévvel rendelkeznek, mint a hívó) a megfigyelése, valamint a zónák áramellátásának kezelése."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"kapcsolat létrehozása és kommunikáció hasonló alkalmazásokkal (olyan alkalmazásokkal, amelyek ugyanazzal a csomagnévvel rendelkeznek, mint a hívó), amelyek az autó utasterének más zónáiba vannak telepítve."</string>

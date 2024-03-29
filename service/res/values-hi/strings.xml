@@ -216,6 +216,10 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"कार के विंडशील्ड वाइपर कंट्रोल करने की अनुमति दें."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"इस एपीआई की मदद से, ऐसे पैकेज मैनेज किए जा सकेंगे जिनके लिए, डिसप्ले के साथ काम करने से जुड़ा ट्रीटमेंट ज़रूरी है"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"इस एपीआई की मदद से, ऐसे पैकेज मैनेज किए जा सकेंगे जिनके लिए, डिसप्ले के साथ काम करने से जुड़ा ट्रीटमेंट ज़रूरी है."</string>
+    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
+    <skip />
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"यह अनुमति मिलने पर ऐप्लिकेशन, कार के दूसरे ऑक्यूपंट ज़ोन की स्थितियों और उन ज़ोन में इंस्टॉल किए गए मिलते-जुलते ऐप्लिकेशन (इन ऐप्लिकेशन और कॉलर ऐप्लिकेशन का पैकेज एक ही होता है) की स्थितियों को मॉनिटर कर सकते हैं. साथ ही, वे इन ज़ोन में पावर को मैनेज कर सकते हैं."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"कार के दूसरे ऑक्यूपंट ज़ोन की स्थितियों और उन ज़ोन में इंस्टॉल किए गए मिलते-जुलते ऐप्लिकेशन (इन ऐप्लिकेशन और कॉलर के ऐप्लिकेशन के पैकेज का नाम एक ही होता है) की स्थितियों को मॉनिटर करने की अनुमति दें. साथ ही, इन ज़ोन में पावर को मैनेज करने की अनुमति दें."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"यह अनुमति मिलने पर ऐप्लिकेशन, कार के दूसरे ऑक्यूपंट ज़ोन में इंस्टॉल किए गए मिलते-जुलते ऐप्लिकेशन (इन ऐप्लिकेशन और कॉलर ऐप्लिकेशन का पैकेज एक ही होता है) से कनेक्ट और इंटरैक्ट कर सकते हैं"</string>

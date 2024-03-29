@@ -216,6 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"აკონტროლეთ მანქანის საქარე მინის საწმენდები."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"ეკრანის თავსებადობის პაკეტების მართვა"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"ეკრანის თავსებადობის პაკეტების მართვა."</string>
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"დაკავშირება აპის ბარათების პროვაიდერებთან"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"დაკავშირება აპის ბარათების პროვაიდერებთან."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"დააკვირდით სხვა ოკუპანტთა ზონების მდგომარეობას მანქანისა და ამ ზონებში დაყენებულ თანატოლ აპებში (აპები, რომლებსაც აქვთ იგივე პაკეტის სახელი აბონენტთან) და მართეთ ამ ზონების სიმძლავრე."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"დააკვირდით სხვა ოკუპანტთა ზონების მდგომარეობას მანქანისა და ამ ზონებში დაყენებულ თანატოლ აპებში (აპები, რომლებსაც აქვთ იგივე პაკეტის სახელი აბონენტთან) და მართეთ ამ ზონების სიმძლავრე."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"დაამყარეთ კავშირი და დაუკავშირდით თანატოლ აპებს (აპები, რომლებსაც აქვთ იგივე პაკეტის სახელი აბონენტთან) დაინსტალირებული მანქანის სხვა ზონებში"</string>
