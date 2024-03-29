@@ -216,6 +216,10 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"গাড়ীৰ ৱিণ্ডশ্বিল্ড ৱাইপাৰ নিয়ন্ত্ৰণ কৰক।"</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"ডিছপ্লে’ৰ সুসংগতা পেকেজ পৰিচালনা কৰক"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"ডিছপ্লে’ৰ সুসংগতা পেকেজ পৰিচালনা কৰক।"</string>
+    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
+    <skip />
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"গাড়ীখনৰ অন্য আৰোহীৰ স্থানৰ আৰু সেই স্থানত ইনষ্টল কৰি থোৱা সহযোগী এপ্‌সমূহ (কলাৰগৰাকীৰ সৈতে একে নামৰ পেকেজ থকা এপ্‌সমূহ)ৰ স্থিতি নিৰীক্ষণ কৰক আৰু সেই স্থানসমূহৰ পাৱাৰ পৰিচালনা কৰক।"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"গাড়ীখনৰ অন্য আৰোহীৰ স্থানৰ আৰু সেই স্থানত ইনষ্টল কৰি থোৱা সহযোগী এপ্‌সমূহ (কলাৰগৰাকীৰ সৈতে একে নামৰ পেকেজ থকা এপ্‌সমূহ)ৰ স্থিতি নিৰীক্ষণ কৰক আৰু সেই স্থানসমূহৰ পাৱাৰ পৰিচালনা কৰক।"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"গাড়ীখনৰ অন্য আৰোহীৰ স্থানত ইনষ্টল কৰি থোৱা সহযোগী এপ্‌সমূহ (কলাৰগৰাকীৰ সৈতে একে নামৰ পেকেজ থকা এপ্‌সমূহ)ৰ সৈতে সংযোগ স্থাপন কৰক আৰু যোগাযোগ কৰক"</string>

@@ -216,6 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"कारको विन्डसिल्ड वाइपरहरू प्रयोग गर्ने।"</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"डिस्प्ले कम्प्याटिबिलिटी प्याकेजहरू व्यवस्थापन गर्नुहोस्"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"डिस्प्ले कम्प्याटिबिलिटी प्याकेजहरू व्यवस्थापन गर्नुहोस्।"</string>
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"एप कार्ड जारी गर्ने कम्पनीसँग कनेक्ट गर्नुहोस्"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"एप कार्ड जारी गर्ने कम्पनीसँग कनेक्ट गर्नुहोस्।"</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"कारमा यात्रु बसेका अन्य सिट र ती सिटसँग कनेक्ट गरिएका डिभाइसहरूमा इन्स्टल गरिएका पियर एप (कल गर्न प्रयोग गरिने एपको जस्तै प्याकेजको नाम भएका एपहरू) को स्थिति जाँच्नुहोस् र ती सिटहरूलाई कति ऊर्जा खपत गर्न दिने भन्ने कुरा व्यवस्थापन गर्नुहोस्।"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"कारमा यात्रु बसेका अन्य सिट र ती सिटसँग कनेक्ट गरिएका डिभाइसहरूमा इन्स्टल गरिएका पियर एप (कल गर्न प्रयोग गरिने एपको जस्तै प्याकेजको नाम भएका एपहरू) को स्थिति जाँच्नुहोस् र ती सिटहरूलाई कति ऊर्जा खपत गर्न दिने भन्ने कुरा व्यवस्थापन गर्नुहोस्।"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"कारमा यात्रु बसेका अन्य सिटसँग कनेक्ट गरिएका डिभाइसहरूमा इन्स्टल गरिएका पियर एपहरू (कल गर्न प्रयोग गरिने एपको जस्तै प्याकेजको नाम भएका एपहरू) सँग कनेक्ट गर्नुहोस् र ती एपहरूसँग अन्तर्क्रिया गर्नुहोस्"</string>

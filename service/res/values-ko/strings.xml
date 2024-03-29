@@ -216,6 +216,10 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"차량 와이퍼를 제어합니다."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"디스플레이 호환성 패키지 관리"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"디스플레이 호환성 패키지 관리"</string>
+    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
+    <skip />
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"차량 내 다른 승객 공간의 상태와 해당 공간에 설치된 동종 앱(호출자와 같은 패키지 이름을 가진 앱)의 상태를 모니터링하고 승객 공간의 출력을 관리합니다."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"차량 내 다른 승객 공간의 상태와 해당 공간에 설치된 동종 앱(호출자와 같은 패키지 이름을 가진 앱)의 상태를 모니터링하고 승객 공간의 출력을 관리합니다."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"차량 내 다른 승객 공간에 설치된 동종 앱(호출자와 같은 패키지 이름을 가진 앱)과 연결을 설정하고 통신합니다."</string>

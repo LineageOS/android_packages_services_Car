@@ -216,6 +216,10 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Kiểm soát cần gạt nước của ô tô."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"quản lý gói về khả năng tương thích với màn hình"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"quản lý gói về khả năng tương thích với màn hình."</string>
+    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
+    <skip />
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"theo dõi trạng thái và quản lý điện năng ở khu vực của những người khác trong xe cũng như các ứng dụng ngang hàng (ứng dụng có cùng tên gói với ứng dụng gọi) được cài đặt trong những khu vực đó."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Theo dõi trạng thái và quản lý điện năng ở khu vực của những người khác trong xe cũng như các ứng dụng ngang hàng (ứng dụng có cùng tên gói với ứng dụng gọi) được cài đặt trong những khu vực đó."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"thiết lập kết nối và giao tiếp với các ứng dụng ngang hàng (ứng dụng có cùng tên gói với ứng dụng gọi) được cài đặt ở khu vực của những người khác trong xe."</string>

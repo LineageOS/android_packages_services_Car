@@ -216,6 +216,10 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"कारची विंडशिल्ड वायपर नियंत्रित करा."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"डिस्प्ले कंपॅटिबिलिटी पॅकेज व्यवस्थापित करा"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"डिस्प्ले कंपॅटिबिलिटी पॅकेज व्यवस्थापित करा."</string>
+    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
+    <skip />
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"कारमधील इतर ऑक्युपंट झोन आणि त्या झोनमध्ये इंस्टॉल केलेल्या पीअर ॲप्सच्या (कॉलरचेच पॅकेज नाव असलेली ॲप्स) स्थितींचे निरीक्षण करा आणि त्या झोनची पॉवर व्यवस्थापित करा."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"कारमधील इतर ऑक्युपंट झोन आणि त्या झोनमध्ये इंस्टॉल केलेल्या पीअर ॲप्सच्या (कॉलरचेच पॅकेज नाव असलेली ॲप्स) स्थितींचे निरीक्षण करा आणि त्या झोनची पॉवर व्यवस्थापित करा."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"कारमधील इतर ऑक्युपंट झोनमध्ये इंस्टॉल केलेल्या पीअर ॲप्ससोबत (कॉलरचेच पॅकेज नाव असलेली ॲप्स) कनेक्ट करा आणि संवाद साधा"</string>

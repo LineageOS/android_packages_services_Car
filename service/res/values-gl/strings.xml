@@ -216,6 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Controlar os limpaparabrisas do coche"</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"xestionar os paquetes de compatibilidade da pantalla"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"xestionar os paquetes de compatibilidade da pantalla."</string>
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"vincular a provedores de aplicacións de tarxetas"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"vincular a provedores de aplicacións de tarxetas."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"supervisar o estado doutras zonas de pasaxeiros do coche e das aplicacións semellantes instaladas nelas (aquelas que teñen o mesmo nome de paquete que a persoa que realiza a chamada), así como xestionar a enerxía desas zonas."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Supervisar o estado doutras zonas de pasaxeiros do coche e das aplicacións semellantes instaladas nelas (aquelas que teñen o mesmo nome de paquete que a persoa que realiza a chamada), así como xestionar a enerxía desas zonas."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"establecer conexión e comunicarse con aplicacións semellantes (aquelas que teñen o mesmo nome de paquete que a persoa que realiza a chamada) instaladas noutras zonas de pasaxeiros do coche"</string>
