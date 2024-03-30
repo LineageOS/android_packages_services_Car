@@ -17,6 +17,7 @@
 // Build the Builtin Car service. This one is not updated from mainline.
 
 package {
+    default_team: "trendy_team_aaos_framework",
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
