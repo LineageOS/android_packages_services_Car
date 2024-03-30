@@ -216,6 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Көліктің терезе тазалағыштарын басқару"</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"дисплейдің үйлесімділік пакеттерін басқару"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"дисплейдің үйлесімділік пакеттерін басқару."</string>
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"қолданба картасының провайдерлеріне байланыстыру"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"қолданба картасының провайдерлеріне байланыстыру."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"көліктегі басқа жолаушы орындарының және сол орындарда орнатылған түйіндес қолданбалардың (пакет атаулары абоненттікімен бірдей қолданбалар) жағдайын бақылап, аталған орындардағы электр қуат көзін басқарыңыз."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Көліктегі басқа жолаушы орындарының және сол орындарда орнатылған түйіндес қолданбалардың (пакет атаулары абоненттікімен бірдей қолданбалар) жағдайын бақылап, аталған орындардағы электр қуат көзін басқарыңыз."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"көліктегі басқа жолаушы орындарында орнатылған түйіндес қолданбалармен (пакет атаулары абоненттікімен бірдей қолданбалар) байланыс орнатыңыз және деректермен алмасыңыз"</string>

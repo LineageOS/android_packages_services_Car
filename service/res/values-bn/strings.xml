@@ -216,6 +216,10 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"গাড়ির উইন্ডশিল্ড ওয়াইপার, নিয়ন্ত্রণ করতে পারে।"</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"ডিসপ্লে কম্প্যাটিবিলিটি প্যাকেজ ম্যানেজ করুন"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"ডিসপ্লে কম্প্যাটিবিলিটি প্যাকেজ ম্যানেজ করুন।"</string>
+    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
+    <skip />
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"গাড়িতে থাকা অন্যান্য সিটিং জোন এবং সেই জোনে ইনস্টল করা পিয়ার অ্যাপগুলির (কলারের মতো একই প্যাকেজ নাম আছে এমন অ্যাপ) স্ট্যাটাস মনিটর করুন, এছাড়া সেই জোনগুলির পাওয়ার ম্যানেজ করুন।"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"গাড়িতে থাকা অন্যান্য সিটিং জোন এবং সেই জোনে ইনস্টল করা পিয়ার অ্যাপগুলির (কলারের মতো একই প্যাকেজ নাম আছে এমন অ্যাপ) স্ট্যাটাস মনিটর করুন, এছাড়া সেই জোনগুলির পাওয়ার ম্যানেজ করুন।"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"কানেক্ট করুন এবং গাড়ির অন্যান্য সিটিং জোনে ইনস্টল করা পিয়ার অ্যাপগুলির (কলারের মতো একই প্যাকেজ নাম আছে এমন অ্যাপ) সাথে যোগাযোগ করুন"</string>

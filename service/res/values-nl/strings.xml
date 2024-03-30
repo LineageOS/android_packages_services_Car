@@ -216,6 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Ruitenwissers van auto bedienen."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"weergavecompatibiliteitspakketten beheren"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"weergavecompatibiliteitspakketten beheren."</string>
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"binden aan providers van app-kaarten"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"binden aan providers van app-kaarten."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"de statussen bijhouden van andere passagierszones in de auto en vergelijkbare apps (apps die dezelfde pakketnaam hebben als de beller) die zijn geïnstalleerd in die zones, en de stroomvoorziening van die zones beheren"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"De statussen bijhouden van andere passagierszones in de auto en vergelijkbare apps (apps die dezelfde pakketnaam hebben als de beller) die zijn geïnstalleerd in die zones, en de stroomvoorziening van die zones beheren."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"verbinding maken en communiceren met vergelijkbare apps (apps die dezelfde pakketnaam hebben als de beller) die zijn geïnstalleerd in andere passagierszones in de auto"</string>

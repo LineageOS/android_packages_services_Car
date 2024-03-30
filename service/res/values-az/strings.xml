@@ -216,6 +216,10 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Avtomobil şüşəsilənlərinin idarə edilməsi."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"displey uyğunluğu paketlərini idarə edin"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"displey uyğunluğu paketlərini idarə edin."</string>
+    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
+    <skip />
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"avtomobildə digər sərnişin zonalarının və orada quraşdırılmış analoq tətbiqlərin (zəng edənlə eyni paket adına malik tətbiqlər) vəziyyətini müşahidə edin və həmin zonaların gücünü idarə edin."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Avtomobildə digər sərnişin zonalarının və orada quraşdırılmış analoq tətbiqlərin (zəng edənlə eyni paket adına malik tətbiqlər) vəziyyətini müşahidə edin və həmin zonaların gücünü idarə edin."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"avtomobildə digər sərnişin zonalarında quraşdırılmış analoq tətbiqləri (zəng edənlə eyni paket adına malik tətbiqlər) ilə bağlantı yaradın qurun və əlaqə saxlayın."</string>

@@ -216,6 +216,10 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"控制汽車的擋風玻璃水撥。"</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"管理有顯示兼容性問題的應用程式"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"管理有顯示兼容性問題的應用程式。"</string>
+    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
+    <skip />
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"監控汽車中其他乘客區域的狀態和安裝在這些區域的同類應用程式 (與來電者具有相同套件名稱的應用程式)，並管理這些區域的電源。"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"監控汽車中其他乘客區域的狀態和安裝在這些區域的同類應用程式 (與來電者具有相同套件名稱的應用程式)，並管理這些區域的電源。"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"與安裝在汽車中其他乘客區域的同類應用程式 (與來電者具有相同套件名稱的應用程式) 建立連接及進行通訊"</string>

@@ -216,6 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"ຄວບຄຸມເຄື່ອງປັດນ້ຳຝົນຂອງລົດ."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"ຈັດການແພັກ​ເກດຄວາມເຂົ້າກັນໄດ້ຂອງການສະແດງຜົນ"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"ຈັດການແພັກ​ເກດຄວາມເຂົ້າກັນໄດ້ຂອງການສະແດງຜົນ."</string>
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"ເຊື່ອມໂຍງກັບຜູ້ໃຫ້ບໍລິການບັດແອັບ"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"ເຊື່ອມໂຍງກັບຜູ້ໃຫ້ບໍລິການບັດແອັບ."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"ເຝົ້າຕິດຕາມສະຖານະຂອງເຂດທີ່ມີການເຂົ້າໃຊ້ອື່ນໆໃນລົດ ແລະ ແອັບທຽບເທົ່າ (ແອັບທີ່ມີຊື່ແພັກເກດດຽວກັນກັບຜູ້ເອີ້ນໃຊ້) ເຊິ່ງຕິດຕັ້ງໄວ້ໃນເຂດເຫຼົ່ານັ້ນ ແລະ ຈັດການກຳລັງໄຟຟ້າຂອງເຂດເຫຼົ່ານັ້ນ."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"ເຝົ້າຕິດຕາມສະຖານະຂອງເຂດທີ່ມີການເຂົ້າໃຊ້ອື່ນໆໃນລົດ ແລະ ແອັບທຽບເທົ່າ (ແອັບທີ່ມີຊື່ແພັກເກດດຽວກັນກັບຜູ້ເອີ້ນໃຊ້) ເຊິ່ງຕິດຕັ້ງໄວ້ໃນເຂດເຫຼົ່ານັ້ນ ແລະ ຈັດການກຳລັງໄຟຟ້າຂອງເຂດເຫຼົ່ານັ້ນ."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"ສ້າງການເຊື່ອມຕໍ່ ແລະ ສື່ສານກັບແອັບທຽບເທົ່າ (ແອັບທີ່ມີຊື່ແພັກເກດດຽວກັນກັບຜູ້ເອີ້ນໃຊ້) ເຊິ່ງຕິດຕັ້ງໄວ້ໃນເຂດທີ່ມີການເຂົ້າໃຊ້ອື່ນໆໃນລົດ"</string>

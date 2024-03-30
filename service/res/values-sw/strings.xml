@@ -216,6 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Dhibiti waipa za gari."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"vifurushi vya kudhibiti uoanifu wa skrini"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"vifurushi vya kudhibiti uoanifu wa skrini."</string>
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"kuunganisha na watoa huduma wa kadi ya programu"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"kuunganisha na watoa huduma wa kadi ya programu."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"fuatilia hali za maeneo mengine alipo mwenye gari na programu zingine (programu ambazo zina jina la kifurushi sawa na anayepiga) zilizosakinishwa katika maeneo hayo na udhibiti matumizi katika maeneo hayo."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Fuatilia hali za maeneo mengine alipo mwenye gari na programu zingine (programu ambazo zina jina la kifurushi sawa na anayepiga) zilizosakinishwa katika maeneo hayo na udhibiti matumizi katika maeneo hayo."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"anzisha muunganisho na uwasiliane na programu zingine (programu ambazo zina jina la kifurushi sawa na anayepiga) zilizosakinishwa katika maeneo mengine alipo mwenye gari."</string>

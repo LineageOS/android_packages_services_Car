@@ -216,6 +216,10 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Kontrolin ang mga windshield wiper ng kotse."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"pamahalaan ang mga package ng compatibility sa display"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"pamahalaan ang mga package ng compatibility sa display."</string>
+    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
+    <skip />
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"subaybayan ang mga status ng iba pang occupant zone sa kotse at mga peer app (mga app na may kaparehong pangalan ng package ng caller) na naka-install sa mga zone na iyon, at pamahalaan ang power ng mga zone na iyon."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Subaybayan ang mga status ng iba pang occupant zone sa kotse at mga peer app (mga app na may kaparehong pangalan ng package ng caller) na naka-install sa mga zone na iyon, at pamahalaan ang power ng mga zone na iyon."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"bumuo ng koneksyon at makipag-ugnayan sa mga peer app (mga app na may kaparehong pangalan ng package ng caller) na naka-install sa iba pang occupant zone sa kotse"</string>

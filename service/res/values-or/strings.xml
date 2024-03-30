@@ -216,6 +216,10 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"କାରର ୱିଣ୍ଡସିଲ୍ଡ ୱାଇପରଗୁଡ଼ିକୁ ନିୟନ୍ତ୍ରଣ କରିପାରିବ।"</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"ଡିସପ୍ଲେ କମ୍ପାଟିବିଲିଟୀ ପେକେଜଗୁଡ଼ିକୁ ପରିଚାଳନା କରନ୍ତୁ"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"ଡିସପ୍ଲେ କମ୍ପାଟିବିଲିଟୀ ପେକେଜଗୁଡ଼ିକୁ ପରିଚାଳନା କରନ୍ତୁ।"</string>
+    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
+    <skip />
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"କାରରେ ଥିବା ଅନ୍ୟ ଅକ୍ୟୁପେଣ୍ଟ ଜୋନଗୁଡ଼ିକର ସ୍ଥିତି ଏବଂ ସେହି ଜୋନଗୁଡ଼ିକରେ ଇନଷ୍ଟଲ କରାଯାଇଥିବା ପିଅର ଆପ୍ସ (କଲରଙ୍କ ପରି ସମାନ ପେକେଜ ନାମ ଥିବା ଆପ୍ସ)କୁ ମନିଟର କରନ୍ତୁ ଏବଂ ସେହି ଜୋନଗୁଡ଼ିକର ପାୱାରକୁ ପରିଚାଳନା କରନ୍ତୁ।"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"କାରରେ ଥିବା ଅନ୍ୟ ଅକ୍ୟୁପେଣ୍ଟ ଜୋନଗୁଡ଼ିକର ସ୍ଥିତି ଏବଂ ସେହି ଜୋନଗୁଡ଼ିକରେ ଇନଷ୍ଟଲ କରାଯାଇଥିବା ପିଅର ଆପ୍ସ (କଲରଙ୍କ ପରି ସମାନ ପେକେଜ ନାମ ଥିବା ଆପ୍ସ)କୁ ମନିଟର କରନ୍ତୁ ଏବଂ ସେହି ଜୋନଗୁଡ଼ିକର ପାୱାରକୁ ପରିଚାଳନା କରନ୍ତୁ।"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"କନେକ୍ସନ ସ୍ଥାପନ କରନ୍ତୁ ଏବଂ କାରରେ ଥିବା ଅନ୍ୟ ଅକ୍ୟୁପେଣ୍ଟ ଜୋନଗୁଡ଼ିକରେ ଇନଷ୍ଟଲ କରାଯାଇଥିବା ପିଅର ଆପ୍ସ (କଲରଙ୍କ ପରି ସମାନ ପେକେଜ ନାମ ଥିବା ଆପ୍ସ) ସହ କମ୍ୟୁନିକେଟ କରନ୍ତୁ"</string>

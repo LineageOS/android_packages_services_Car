@@ -216,6 +216,10 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Kawal pengelap cermin depan kereta."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"urus pakej keserasian paparan"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"urus pakej keserasian paparan."</string>
+    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
+    <skip />
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"pantau keadaan zon penumpang lain di dalam kereta dan apl setara (apl yang mempunyai nama pakej yang sama dengan pemanggil) yang dipasang dalam zon tersebut, serta urus kuasa zon tersebut."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Pantau keadaan zon penumpang lain di dalam kereta dan apl setara (apl yang mempunyai nama pakej yang sama dengan pemanggil) yang dipasang dalam zon tersebut, serta urus kuasa zon tersebut."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"wujudkan sambungan dan berkomunikasi dengan apl setara (apl yang mempunyai nama pakej yang sama dengan pemanggil) yang dipasang dalam zon penumpang lain di dalam kereta"</string>

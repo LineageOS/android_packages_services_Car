@@ -216,6 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Control car’s windshield wipers."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"manage display compatibility packages"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"manage display compatibility packages."</string>
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"bind to app card providers"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"bind to app card providers."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"monitor the states of other occupant zones in the car and peer apps (apps that have the same package name as the caller) installed in those zones, and manage the power of those zones."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Monitor the states of other occupant zones in the car and peer apps (apps that have the same package name as the caller) installed in those zones, and manage the power of those zones."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"establish connection and communicate to peer apps (apps that have the same package name as the caller) installed in other occupant zones in the car"</string>
