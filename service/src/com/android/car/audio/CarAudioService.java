@@ -3402,7 +3402,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         return groupId;
     }
 
-    private void handleOccupantZoneUserChanged() {
+    void handleOccupantZoneUserChanged() {
         int driverUserId = mOccupantZoneService.getDriverUserId();
         synchronized (mImplLock) {
             if (!isOccupantZoneMappingAvailableLocked()) {

@@ -46,5 +46,6 @@ final class CarAudioServerStateCallback extends AudioManager.AudioServerStateCal
         // No need to re-enable audio as initialization will query the power policy
         // and enable as required.
         mCarAudioService.init();
+        mCarAudioService.handleOccupantZoneUserChanged();
     }
 }
