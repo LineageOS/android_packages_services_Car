@@ -96,13 +96,11 @@ public class SystemActivityMonitoringServiceUnitTest extends AbstractExtendedMoc
 
         mService.init();
 
-        ProcessObserverCallback cb = verifyAndGetProcessObserverCallback();
-
         mProcessGroupsForGet.add(ProcessHelper.THREAD_GROUP_TOP_APP);
         int processPid = 1;
         // appId does not matter here but better to avoid 0.
         int processUid = UserHandle.getUid(mNonCurrentUserId, /* appId= */ 1);
-        cb.onForegroundActivitiesChanged(processPid, processUid, /* foregroundActivities= */ true);
+        mService.handleFocusChanged(processPid, processUid);
 
         verify(mICarServiceHelper).getProcessGroup(processPid);
         verify(mICarServiceHelper).setProcessGroup(processPid, ProcessHelper.THREAD_GROUP_DEFAULT);
@@ -115,8 +113,6 @@ public class SystemActivityMonitoringServiceUnitTest extends AbstractExtendedMoc
 
         mService.init();
 
-        ProcessObserverCallback cb = verifyAndGetProcessObserverCallback();
-
         // 1st entry is not top app yet, so it will retry.
         mProcessGroupsForGet.add(ProcessHelper.THREAD_GROUP_DEFAULT);
         mProcessGroupsForGet.add(ProcessHelper.THREAD_GROUP_TOP_APP);
@@ -124,7 +120,7 @@ public class SystemActivityMonitoringServiceUnitTest extends AbstractExtendedMoc
         int processPid = 1;
         // appId does not matter here but better to avoid 0.
         int processUid = UserHandle.getUid(mNonCurrentUserId, /* appId= */ 1);
-        cb.onForegroundActivitiesChanged(processPid, processUid, /* foregroundActivities= */ true);
+        mService.handleFocusChanged(processPid, processUid);
 
         // Double the waiting time so that we have enough delay
         waitForHandlerThreadToComplete(2 * PASSENGER_PROCESS_GROUP_SET_RETRY_TIMEOUT_MS);
@@ -141,14 +137,12 @@ public class SystemActivityMonitoringServiceUnitTest extends AbstractExtendedMoc
 
         mService.init();
 
-        ProcessObserverCallback cb = verifyAndGetProcessObserverCallback();
-
         mThrowExceptionOnGetSetProcessGroup = true;
 
         int processPid = 1;
         // appId does not matter here but better to avoid 0.
         int processUid = UserHandle.getUid(mNonCurrentUserId, /* appId= */ 1);
-        cb.onForegroundActivitiesChanged(processPid, processUid, /* foregroundActivities= */ true);
+        mService.handleFocusChanged(processPid, processUid);
 
         verify(mICarServiceHelper).getProcessGroup(processPid);
         verify(mICarServiceHelper, never()).setProcessGroup(anyInt(), anyInt());
@@ -161,12 +155,10 @@ public class SystemActivityMonitoringServiceUnitTest extends AbstractExtendedMoc
 
         mService.init();
 
-        ProcessObserverCallback cb = verifyAndGetProcessObserverCallback();
-
         int processPid = 1;
         // appId does not matter here but better to avoid 0.
         int processUid = UserHandle.getUid(ActivityManager.getCurrentUser(), /* appId= */ 1);
-        cb.onForegroundActivitiesChanged(processPid, processUid, /* foregroundActivities= */ true);
+        mService.handleFocusChanged(processPid, processUid);
 
         verify(mICarServiceHelper, never()).getProcessGroup(processPid);
         verify(mICarServiceHelper, never()).setProcessGroup(anyInt(), anyInt());
@@ -179,12 +171,10 @@ public class SystemActivityMonitoringServiceUnitTest extends AbstractExtendedMoc
 
         mService.init();
 
-        ProcessObserverCallback cb = verifyAndGetProcessObserverCallback();
-
         int processPid = 1;
         // appId does not matter here but better to avoid 0.
         int processUid = UserHandle.getUid(UserHandle.USER_SYSTEM, /* appId= */ 1);
-        cb.onForegroundActivitiesChanged(processPid, processUid, /* foregroundActivities= */ true);
+        mService.handleFocusChanged(processPid, processUid);
 
         verify(mICarServiceHelper, never()).getProcessGroup(processPid);
         verify(mICarServiceHelper, never()).setProcessGroup(anyInt(), anyInt());
@@ -289,13 +279,11 @@ public class SystemActivityMonitoringServiceUnitTest extends AbstractExtendedMoc
 
         mService.init();
 
-        ProcessObserverCallback cb = verifyAndGetProcessObserverCallback();
-
         mProcessGroupsForGet.add(ProcessHelper.THREAD_GROUP_TOP_APP);
         int processPid = 1;
         // appId does not matter here but better to avoid 0.
         int processUid = UserHandle.getUid(mNonCurrentUserId, /* appId= */ 1);
-        cb.onForegroundActivitiesChanged(processPid, processUid, /* foregroundActivities= */ true);
+        mService.handleFocusChanged(processPid, processUid);
 
         verify(mICarServiceHelper, never()).getProcessGroup(processPid);
         verify(mICarServiceHelper, never()).setProcessGroup(processPid,
