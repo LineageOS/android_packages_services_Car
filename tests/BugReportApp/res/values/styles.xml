@@ -21,6 +21,10 @@
     <item name="android:clickable">true</item>
   </style>
 
+  <style name="transparent_button" parent="standard_button">
+    <item name="android:background">@null</item>
+  </style>
+
   <style name="Widget.BugReportUi.InfoActionButton" parent="android:Widget.DeviceDefault.Button">
     <item name="android:textSize">@dimen/bug_report_button_text_size</item>
   </style>
@@ -32,5 +36,10 @@
   <style name="TextAppearance.BugReportUi.Body" parent="android:TextAppearance.DeviceDefault">
     <item name="android:textColor">?android:attr/textColorPrimary</item>
     <item name="android:textSize">@dimen/bug_report_small_text_size</item>
+  </style>
+
+  <style
+      name="DialogWithNullBackground" parent="@android:style/Theme.DeviceDefault.Dialog">
+    <item name="android:windowBackground">@null</item>
   </style>
 </resources>
