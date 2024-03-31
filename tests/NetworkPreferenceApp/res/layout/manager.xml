@@ -103,7 +103,8 @@
                         android:id="@+id/OEMPaidAppsEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textNoSuggestions"/>
+                        android:inputType="textNoSuggestions|textMultiLine"
+                        android:lines="2"/>
                 </LinearLayout>
                 <LinearLayout
                     style="@style/SectionContainer"
@@ -157,7 +158,8 @@
                         android:id="@+id/OEMPrivateOnlyAppsEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textNoSuggestions"/>
+                        android:inputType="textNoSuggestions|textMultiLine"
+                        android:lines="2"/>
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
