@@ -2070,11 +2070,12 @@ public final class CarAudioManager extends CarManagerBase {
          *
          * <p><b>Notes:</b>
          * <ul>
-         *     <li>If both {@link CarVolumeCallback} and {@link CarVolumeGroupEventCallback}
+         *     <li>If both {@link CarVolumeCallback} and {@code CarVolumeGroupEventCallback}
          *     are registered by the same app, then volume group index changes are <b>only</b>
-         *     propagated through CarVolumeGroupEventCallback (until it is unregistered)</li>
+         *     propagated through {@code CarVolumeGroupEventCallback}
+         *     (until it is unregistered)</li>
          *     <li>Apps are encouraged to migrate to the new callback
-         *     {@link CarVolumeGroupEventCallback}</li>
+         *     {@code CarVolumeGroupEventCallback}</li>
          * </ul>
          *
          * @param zoneId Id of the audio zone that volume change happens
@@ -2110,11 +2111,12 @@ public final class CarAudioManager extends CarManagerBase {
          *     <li>If {@link CarAudioManager#AUDIO_FEATURE_VOLUME_GROUP_MUTING} is enabled
          *     this will be triggered on mute changes. Otherwise, car audio mute changes will
          *     trigger {@link #onMasterMuteChanged(int, int)}</li>
-         *     <li>If both {@link CarVolumeCallback} and {@link CarVolumeGroupEventCallback}
+         *     <li>If both {@link CarVolumeCallback} and {@code CarVolumeGroupEventCallback}
          *     are registered by the same app, then volume group mute changes are <b>only</b>
-         *     propagated through CarVolumeGroupEventCallback (until it is unregistered)</li>
+         *     propagated through {@code CarVolumeGroupEventCallback}
+         *     (until it is unregistered)</li>
          *     <li>Apps are encouraged to migrate to the new callback
-         *     {@link CarVolumeGroupEventCallback}</li>
+         *     {@code CarVolumeGroupEventCallback}</li>
          * </ul>
          *
          * @param zoneId Id of the audio zone that volume change happens
