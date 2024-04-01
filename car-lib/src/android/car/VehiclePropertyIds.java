@@ -283,6 +283,11 @@ public final class VehiclePropertyIds {
     /**
      * {@link PortLocationType} for the EV port location.
      *
+     * <p>This property communicates the location of the charging port on the EV. If there are
+     * multiple ports on the vehicle, this will communicate the port that enables the fastest
+     * charging on the vehicle. See {@link #INFO_MULTI_EV_PORT_LOCATIONS} to get information on all
+     * port locations.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
