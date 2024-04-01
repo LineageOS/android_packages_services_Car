@@ -171,4 +171,12 @@ public final class Stubs {
             setResult(RESULT_CANCELED);
         }
     }
+
+    /** Stub activity for Dream Settings. */
+    public static class DreamSettingsStub extends BaseActivity {
+        @Override
+        protected CharSequence getMessage() {
+            return getResources().getString(R.string.dream_not_supported);
+        }
+    }
 }

@@ -240,6 +240,17 @@
             </intent-filter>
         </activity>
 
+        <!-- Dream settings stub -->
+        <activity android:name=".Stubs$DreamSettingsStub"
+            android:label="@string/stub_name"
+            android:excludeFromRecents="true"
+            android:exported="true">
+            <intent-filter android:priority="-1">
+                <action android:name="android.settings.DREAM_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <!-- Contacts package stubs -->
         <activity
             android:name=".Stubs$ContactsStub"

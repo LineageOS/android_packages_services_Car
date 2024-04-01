@@ -59,4 +59,9 @@
     <string name="notification_bugreport_channel_name">Bug report status channel</string>
     <string name="notification_screenshot_message">Taking a screenshot</string>
     <string name="notification_screenshot_channel_name">Bug report screenshot channel</string>
+
+    <!-- Choice dialog strings -->
+    <string name="choice_dialog_title">Ready to speak bug description</string>
+    <string name="choice_dialog_begin_now">Begin now</string>
+    <string name="choice_dialog_speak_later">Speak later</string>
 </resources>

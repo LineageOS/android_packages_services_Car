@@ -16,6 +16,9 @@
     <!-- Toast message displayed when documentsui isn't supported. [CHAR LIMIT=NONE] -->
     <string name="documentsui_not_supported">File Management is not supported on this device</string>
 
+    <!-- Toast message displayed when android.settings.DREAM_SETTINGS isn't supported. [CHAR LIMIT=NONE] -->
+    <string name="dream_not_supported">Screensavers are not supported on this device</string>
+
     <!-- Stub name [CHAR LIMIT=NONE]-->
     <string name="stub_name">None</string>
 

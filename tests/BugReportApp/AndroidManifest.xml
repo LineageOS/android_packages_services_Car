@@ -56,6 +56,19 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ChoiceDialogActivity"
+            android:theme="@style/DialogWithNullBackground"
+            android:exported="true"
+            android:launchMode="singleInstance"
+            android:excludeFromRecents="true">
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+            <intent-filter>
+                <action android:name="com.android.car.bugreport.action.START_BUG_REPORT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+        </activity>
+
         <!--
           singleInstance allows starting bugreport dialog when BugReportInfoActivity is open.
         -->
