@@ -2386,6 +2386,34 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void onAudioServerUp_forUserIdAssignments() throws Exception {
+        CarAudioService service = setUpAudioService();
+        AudioServerStateCallback callback = getAudioServerStateCallback();
+        callback.onAudioServerDown();
+
+        callback.onAudioServerUp();
+
+        expectWithMessage("Re-initialized Car Audio Service Zones")
+                .that(service.getAudioZoneIds()).asList()
+                .containsExactly(PRIMARY_AUDIO_ZONE, TEST_REAR_LEFT_ZONE_ID,
+                        TEST_REAR_RIGHT_ZONE_ID, TEST_FRONT_ZONE_ID, TEST_REAR_ROW_3_ZONE_ID);
+        expectWithMessage("Primary user id after server recovery")
+                .that(service.getUserIdForZone(PRIMARY_AUDIO_ZONE)).isEqualTo(TEST_DRIVER_USER_ID);
+        expectWithMessage("Rear left user id after server recovery")
+                .that(service.getUserIdForZone(TEST_REAR_LEFT_ZONE_ID))
+                .isEqualTo(TEST_REAR_LEFT_USER_ID);
+        expectWithMessage("Rear right user id after server recovery")
+                .that(service.getUserIdForZone(TEST_REAR_RIGHT_ZONE_ID))
+                .isEqualTo(TEST_REAR_RIGHT_USER_ID);
+        expectWithMessage("Rear front user id after server recovery")
+                .that(service.getUserIdForZone(TEST_FRONT_ZONE_ID))
+                .isEqualTo(TEST_FRONT_PASSENGER_USER_ID);
+        expectWithMessage("Rear row 3 user id after server recovery")
+                .that(service.getUserIdForZone(TEST_REAR_ROW_3_ZONE_ID))
+                .isEqualTo(TEST_REAR_ROW_3_PASSENGER_USER_ID);
+    }
+
+    @Test
     public void registerVolumeCallback_verifyCallbackHandler() throws Exception {
         int uid = Binder.getCallingUid();
         CarAudioService service = setUpAudioService();

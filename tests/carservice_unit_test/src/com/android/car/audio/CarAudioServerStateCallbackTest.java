@@ -62,5 +62,6 @@ public class CarAudioServerStateCallbackTest extends AbstractExpectableTestCase 
 
         verify(mMockCarAudioService).release();
         verify(mMockCarAudioService).init();
+        verify(mMockCarAudioService).handleOccupantZoneUserChanged();
     }
 }
