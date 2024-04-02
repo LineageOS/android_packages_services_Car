@@ -52,4 +52,7 @@
     <string name="notification_bugreport_channel_name" msgid="776902295433824255">"Saluran status laporan bug"</string>
     <string name="notification_screenshot_message" msgid="4334354123333893911">"Mengambil screenshot"</string>
     <string name="notification_screenshot_channel_name" msgid="147055389545365419">"Saluran screenshot laporan bug"</string>
+    <string name="choice_dialog_title" msgid="2105355715733829907">"Siap menjelaskan deskripsi bug"</string>
+    <string name="choice_dialog_begin_now" msgid="7326462054665389346">"Mulai sekarang"</string>
+    <string name="choice_dialog_speak_later" msgid="1297471567273228307">"Bicara nanti"</string>
 </resources>
