@@ -35,6 +35,7 @@ import static org.mockito.Mockito.when;
 
 import android.media.AudioAttributes;
 import android.media.AudioPlaybackConfiguration;
+import android.util.Pair;
 
 import com.google.common.collect.ImmutableList;
 
@@ -66,6 +67,9 @@ public final class ZoneAudioPlaybackCallbackTest {
     private static final long TIMER_AFTER_TIMEOUT_MS =
             TIMER_START_TIME_MS + KEY_EVENT_TIMEOUT_MS + 1;
 
+    private static final int PLAYBACK_UID_1 = 10101;
+    private static final int PLAYBACK_UID_2 = 10102;
+
     private static final AudioAttributes TEST_MEDIA_AUDIO_ATTRIBUTE =
             new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
     private static final AudioAttributes TEST_NAVIGATION_AUDIO_ATTRIBUTE =
@@ -93,7 +97,7 @@ public final class ZoneAudioPlaybackCallbackTest {
     @Mock
     private SystemClockWrapper mClock;
     @Captor
-    private ArgumentCaptor<List<AudioAttributes>> mAudioAttributesCaptor;
+    private ArgumentCaptor<List<Pair<AudioAttributes, Integer>>> mAudioAttributesCaptor;
 
     private CarAudioZone mPrimaryZone;
 
@@ -519,10 +523,12 @@ public final class ZoneAudioPlaybackCallbackTest {
                 new AudioPlaybackConfigurationBuilder()
                         .setUsage(USAGE_MEDIA)
                         .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
+                        .setClientUid(PLAYBACK_UID_1)
                         .build(),
                 new AudioPlaybackConfigurationBuilder()
                         .setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
                         .setDeviceAddress(PRIMARY_NAVIGATION_ADDRESS)
+                        .setClientUid(PLAYBACK_UID_2)
                         .build()
         );
         ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
@@ -530,8 +536,8 @@ public final class ZoneAudioPlaybackCallbackTest {
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
-        verifyActivationPlaybacks(List.of(TEST_MEDIA_AUDIO_ATTRIBUTE,
-                TEST_NAVIGATION_AUDIO_ATTRIBUTE));
+        verifyActivationPlaybacks(List.of(new Pair<>(TEST_MEDIA_AUDIO_ATTRIBUTE, PLAYBACK_UID_1),
+                new Pair<>(TEST_NAVIGATION_AUDIO_ATTRIBUTE, PLAYBACK_UID_2)));
     }
 
     @Test
@@ -541,11 +547,13 @@ public final class ZoneAudioPlaybackCallbackTest {
                         .setUsage(USAGE_MEDIA)
                         .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
                         .setInactive()
+                        .setClientUid(PLAYBACK_UID_1)
                         .build(),
                 new AudioPlaybackConfigurationBuilder()
                         .setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
                         .setDeviceAddress(PRIMARY_NAVIGATION_ADDRESS)
                         .setInactive()
+                        .setClientUid(PLAYBACK_UID_2)
                         .build()
         );
 
@@ -564,10 +572,12 @@ public final class ZoneAudioPlaybackCallbackTest {
                 new AudioPlaybackConfigurationBuilder()
                         .setUsage(USAGE_MEDIA)
                         .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
+                        .setClientUid(PLAYBACK_UID_1)
                         .build(),
                 new AudioPlaybackConfigurationBuilder()
                         .setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
                         .setDeviceAddress(PRIMARY_NAVIGATION_ADDRESS)
+                        .setClientUid(PLAYBACK_UID_2)
                         .build()
         );
         List<AudioPlaybackConfiguration> configurationsChanged = ImmutableList.of(
@@ -587,8 +597,8 @@ public final class ZoneAudioPlaybackCallbackTest {
         callback.onPlaybackConfigChanged(activeConfigurations);
         callback.onPlaybackConfigChanged(configurationsChanged);
 
-        verifyActivationPlaybacks(List.of(TEST_MEDIA_AUDIO_ATTRIBUTE,
-                TEST_NAVIGATION_AUDIO_ATTRIBUTE));
+        verifyActivationPlaybacks(List.of(new Pair<>(TEST_MEDIA_AUDIO_ATTRIBUTE, PLAYBACK_UID_1),
+                new Pair<>(TEST_NAVIGATION_AUDIO_ATTRIBUTE, PLAYBACK_UID_2)));
     }
 
     private CarAudioZone generatePrimaryZone() {
@@ -614,10 +624,11 @@ public final class ZoneAudioPlaybackCallbackTest {
 
     }
 
-    private void verifyActivationPlaybacks(List<AudioAttributes> newlyActiveAudioAttributes) {
+    private void verifyActivationPlaybacks(List<Pair<AudioAttributes, Integer>>
+                                                   newlyActiveAudioAttributes) {
         verify(mCarAudioPlaybackMonitor).onActiveAudioPlaybackAttributesAdded(
                 mAudioAttributesCaptor.capture(), eq(PRIMARY_ZONE_ID));
-        assertWithMessage("Audio attributes for newly active playbacks")
+        assertWithMessage("Audio attributes with uid for newly active playbacks")
                 .that(mAudioAttributesCaptor.getValue())
                 .containsExactlyElementsIn(newlyActiveAudioAttributes);
     }

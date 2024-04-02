@@ -14,10 +14,16 @@
      limitations under the License.
 -->
 <carAudioConfiguration version="3">
+    <activationVolumeConfigs>
+        <activationVolumeConfig name="activation_volume_on_boot_config">
+            <activationVolumeConfigEntry minActivationVolumePercentage="10"
+                maxActivationVolumePercentage="90" />
+        </activationVolumeConfig>
+    </activationVolumeConfigs>
     <zones>
         <zone name="primary zone" isPrimary="true" audioZoneId="0" occupantZoneId="1">
             <zoneConfigs>
-                <zoneConfig  name="primary zone config 1" isDefault="true">
+                <zoneConfig name="primary_zone_config_1" isDefault="true">
                     <volumeGroups>
                         <group>
                             <device address="bus0_media_out">
@@ -27,8 +33,7 @@
                                 <context context="call_ring"/>
                             </device>
                         </group>
-                        <group minActivationVolumePercentage="10"
-                            maxActivationVolumePercentage="90">
+                        <group activationConfig="activation_volume_on_boot_config">
                             <device address="bus1_navigation_out">
                                 <context context="navigation"/>
                                 <context context="emergency"/>
