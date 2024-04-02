@@ -6,5 +6,7 @@
     <string name="pip_not_supported" msgid="8681268258599412706">"„Слика во слика“ не е поддржана на уредов"</string>
     <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"„Управување со непознати извори на апликации“ не е поддржано на уредов"</string>
     <string name="documentsui_not_supported" msgid="2786636475647817501">"„Управување со датотеки“ не е поддржано на уредов"</string>
+    <!-- no translation found for dream_not_supported (2274365800432553936) -->
+    <skip />
     <string name="stub_name" msgid="3987164490218189006">"Нема"</string>
 </resources>
