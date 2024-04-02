@@ -598,7 +598,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
          * function.
          *
          * @return Builder<T>
-         * @deprecated - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
+         * @removed - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
          */
         @Deprecated
         public Builder<T> addAreas(int[] areaIds) {
@@ -619,7 +619,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
          * function.
          *
          * @return Builder<T>
-         * @deprecated - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
+         * @removed - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
          */
         @Deprecated
         public Builder<T> addArea(int areaId) {
@@ -638,7 +638,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
          * function.
          *
          * @return Builder<T>
-         * @deprecated - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
+         * @removed - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
          */
         @Deprecated
         public Builder<T> addAreaConfig(int areaId, T min, T max) {
