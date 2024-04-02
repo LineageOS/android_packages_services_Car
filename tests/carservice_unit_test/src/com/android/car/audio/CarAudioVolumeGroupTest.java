@@ -85,8 +85,6 @@ public final class CarAudioVolumeGroupTest extends AbstractExtendedMockitoTestCa
             DEFAULT_GAIN);
     private static final int MIN_GAIN_INDEX = 0;
     private static final int MAX_GAIN_INDEX = getIndexForGain(MIN_GAIN, STEP_SIZE, MAX_GAIN);
-    private static final int MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE = 10;
-    private static final int MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE = 90;
     private static final int TEST_GAIN_INDEX = 35;
     private static final int TEST_USER_11 = 11;
     private static final String GROUP_NAME = "group_0";
@@ -107,6 +105,11 @@ public final class CarAudioVolumeGroupTest extends AbstractExtendedMockitoTestCa
             TEST_GAIN_STEP_VALUE, TEST_GAIN_DEFAULT_VALUE);
     private static final int EVENT_TYPE_VOLUME_INDEX_MIN_MAX = 0x7;
     private static final int EVENT_TYPE_NONE = 0;
+
+    private static final CarActivationVolumeConfig CAR_ACTIVATION_VOLUME_CONFIG =
+            new CarActivationVolumeConfig(CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT,
+                    /* minActivationVolumePercentage= */ 10,
+                    /* maxActivationVolumePercentage= */ 90);
 
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
             new CarAudioContext(CarAudioContext.getAllContextsInfo(),
@@ -677,7 +680,7 @@ public final class CarAudioVolumeGroupTest extends AbstractExtendedMockitoTestCa
         CarAudioVolumeGroup carVolumeGroup = new CarAudioVolumeGroup(TEST_CAR_AUDIO_CONTEXT,
                 mSettingsMock, contextToDeviceInfo, ZONE_ID, ZONE_CONFIG_ID, GROUP_ID, GROUP_NAME,
                 STEP_SIZE, DEFAULT_GAIN, MIN_GAIN, MAX_GAIN, /* useCarVolumeGroupMute= */ false,
-                MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE, MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE);
+                CAR_ACTIVATION_VOLUME_CONFIG);
         return carVolumeGroup;
     }
 
@@ -713,8 +716,7 @@ public final class CarAudioVolumeGroupTest extends AbstractExtendedMockitoTestCa
 
         return new CarAudioVolumeGroup(TEST_CAR_AUDIO_CONTEXT, settings, contextToDeviceInfo,
                 ZONE_ID, ZONE_CONFIG_ID, GROUP_ID, GROUP_NAME, STEP_SIZE, DEFAULT_GAIN, MIN_GAIN,
-                MAX_GAIN, /* useCarVolumeGroupMute= */ false, MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE,
-                MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE);
+                MAX_GAIN, /* useCarVolumeGroupMute= */ false, CAR_ACTIVATION_VOLUME_CONFIG);
     }
 
     private static final class SettingsBuilder {

@@ -65,11 +65,9 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
     CoreAudioVolumeGroup(AudioManager audioManager, CarAudioContext carAudioContext,
             CarAudioSettings settingsManager, SparseArray<CarAudioDeviceInfo> contextToDevices,
             int zoneId, int configId, int volumeGroupId, String name,
-            boolean useCarVolumeGroupMute, int maxActivationVolumePercentage,
-            int minActivationVolumePercentage) {
+            boolean useCarVolumeGroupMute, CarActivationVolumeConfig carActivationVolumeConfig) {
         super(carAudioContext, settingsManager, contextToDevices, zoneId, configId, volumeGroupId,
-                name, useCarVolumeGroupMute, maxActivationVolumePercentage,
-                minActivationVolumePercentage);
+                name, useCarVolumeGroupMute, carActivationVolumeConfig);
         mAudioManager = audioManager;
         mAudioAttributes = CoreAudioHelper.selectAttributesForVolumeGroupName(name);
         mAmId = CoreAudioHelper.getVolumeGroupIdForAudioAttributes(mAudioAttributes);

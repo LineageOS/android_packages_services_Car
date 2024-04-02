@@ -18,15 +18,18 @@ package com.android.car.hal;
 
 import static android.car.evs.CarEvsManager.SERVICE_TYPE_REARVIEW;
 import static android.car.evs.CarEvsManager.SERVICE_TYPE_SURROUNDVIEW;
+import static android.hardware.automotive.vehicle.VehicleProperty.CAMERA_SERVICE_CURRENT_STATE;
 import static android.hardware.automotive.vehicle.VehicleProperty.EVS_SERVICE_REQUEST;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.builtin.util.Slogf;
+import android.car.evs.CarEvsManager.CarEvsServiceState;
 import android.car.evs.CarEvsManager.CarEvsServiceType;
 import android.hardware.automotive.vehicle.EvsServiceRequestIndex;
 import android.hardware.automotive.vehicle.EvsServiceState;
 import android.hardware.automotive.vehicle.EvsServiceType;
+import android.os.ServiceSpecificException;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -47,6 +50,7 @@ public class EvsHalService extends HalServiceBase {
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private static final int[] SUPPORTED_PROPERTIES = new int[] {
+        CAMERA_SERVICE_CURRENT_STATE,
         EVS_SERVICE_REQUEST,
     };
 
@@ -56,14 +60,17 @@ public class EvsHalService extends HalServiceBase {
     private final SparseArray<HalPropConfig> mProperties = new SparseArray();
 
     private final VehicleHal mHal;
+    private final HalPropValueBuilder mPropValueBuilder;
 
     @GuardedBy("mLock")
     private EvsHalEventListener mListener;
 
     private boolean mIsEvsServiceRequestSupported;
+    private boolean mIsCameraServiceCurrentStateSupported;
 
     public EvsHalService(VehicleHal hal) {
         mHal = hal;
+        mPropValueBuilder = hal.getHalPropValueBuilder();
     }
 
     /**
@@ -93,11 +100,17 @@ public class EvsHalService extends HalServiceBase {
         }
 
         mHal.subscribePropertySafe(this, EVS_SERVICE_REQUEST);
+        mHal.subscribePropertySafe(this, CAMERA_SERVICE_CURRENT_STATE);
     }
 
     /** Returns whether {@code EVS_SERVICE_REQUEST} is supported */
     public boolean isEvsServiceRequestSupported() {
         return mIsEvsServiceRequestSupported;
+    }
+
+    /** Returns whether {@code CAMERA_SERVICE_CURRENT_STATE} is supported */
+    public boolean isCameraServiceCurrentStateSupported() {
+        return mIsCameraServiceCurrentStateSupported;
     }
 
     @Override
@@ -137,6 +150,8 @@ public class EvsHalService extends HalServiceBase {
             }
 
             mIsEvsServiceRequestSupported = mProperties.contains(EVS_SERVICE_REQUEST);
+            mIsCameraServiceCurrentStateSupported =
+                    mProperties.contains(CAMERA_SERVICE_CURRENT_STATE);
         }
     }
 
@@ -153,6 +168,23 @@ public class EvsHalService extends HalServiceBase {
         }
 
         dispatchHalEvents(values, listener);
+    }
+
+    /**
+     * Reports the current state of CarEvsService.
+     *
+     * @param state {@link android.car.evs.CarEvsManager#CarEvsServiceState} value that represents
+     *              the current state of {@code CarEvsService}.
+     */
+    public void reportCurrentState(@CarEvsServiceState int[] state) {
+        HalPropValue currentStates = mPropValueBuilder.build(CAMERA_SERVICE_CURRENT_STATE,
+                /* areaId= */ 0, /* values= */ state);
+
+        try {
+            mHal.set(currentStates);
+        } catch (ServiceSpecificException | IllegalArgumentException e) {
+            Slogf.e(TAG, "Failed to set a hal property: %s, err: %s", currentStates, e);
+        }
     }
 
     private void dispatchHalEvents(List<HalPropValue> values, EvsHalEventListener listener) {
@@ -181,6 +213,10 @@ public class EvsHalService extends HalServiceBase {
                     listener.onEvent(type, on);
                     break;
 
+                case CAMERA_SERVICE_CURRENT_STATE:
+                    // Nothing to do with this write-only property.
+                    break;
+
                 default:
                     if (DBG) {
                         Slogf.d(TAG, "Received unknown property change: " + v);
@@ -195,5 +231,7 @@ public class EvsHalService extends HalServiceBase {
     public void dump(PrintWriter writer) {
         writer.println("*EVSHALSERVICE*");
         writer.printf("Use EVS_SERVICE_REQUEST: %b\n", isEvsServiceRequestSupported());
+        writer.printf("Use CAMERA_SERVICE_CURRENT_STATE: %b\n",
+                isCameraServiceCurrentStateSupported());
     }
 }

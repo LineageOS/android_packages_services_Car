@@ -52,4 +52,10 @@
     <string name="notification_bugreport_channel_name" msgid="776902295433824255">"Canal de estado de informes de errores"</string>
     <string name="notification_screenshot_message" msgid="4334354123333893911">"Haciendo captura de pantalla"</string>
     <string name="notification_screenshot_channel_name" msgid="147055389545365419">"Canal de capturas de pantalla de un informe de error"</string>
+    <!-- no translation found for choice_dialog_title (2105355715733829907) -->
+    <skip />
+    <!-- no translation found for choice_dialog_begin_now (7326462054665389346) -->
+    <skip />
+    <!-- no translation found for choice_dialog_speak_later (1297471567273228307) -->
+    <skip />
 </resources>

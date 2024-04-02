@@ -19,12 +19,20 @@ package com.android.systemui.car.systembar;
 import android.content.Context;
 import android.content.res.Configuration;
 
+import com.android.systemui.car.CarServiceProvider;
 import com.android.systemui.car.dagger.CarSysUIDynamicOverride;
 import com.android.systemui.car.displayarea.CarDisplayAreaController;
+import com.android.systemui.car.statusbar.UserNameViewController;
+import com.android.systemui.car.statusicon.StatusIconPanelViewController;
 import com.android.systemui.dagger.SysUISingleton;
+import com.android.systemui.settings.UserFileManager;
+import com.android.systemui.settings.UserTracker;
 
+import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
+
+import javax.inject.Provider;
 
 /**
  * Dagger injection module for {@link CarSystemBar} in CarUiPortraitSystemUI.
@@ -56,5 +64,37 @@ public abstract class CarUiPortraitSystemBarModule {
         }
 
         return new CarUiPortraitButtonSelectionStateController(context);
+    }
+
+    @SysUISingleton
+    @Provides
+    @CarSysUIDynamicOverride
+    static CarSystemBarController provideCarSystemBarController(
+            Context context,
+            UserTracker userTracker,
+            CarSystemBarViewFactory carSystemBarViewFactory,
+            CarServiceProvider carServiceProvider,
+            ButtonSelectionStateController buttonSelectionStateController,
+            Lazy<UserNameViewController> userNameViewControllerLazy,
+            Lazy<MicPrivacyChipViewController> micPrivacyChipViewControllerLazy,
+            Lazy<CameraPrivacyChipViewController> cameraPrivacyChipViewControllerLazy,
+            ButtonRoleHolderController buttonRoleHolderController,
+            SystemBarConfigs systemBarConfigs,
+            Provider<StatusIconPanelViewController.Builder> panelControllerBuilderProvider,
+            UserFileManager userFileManager) {
+        if (context.getResources().getConfiguration().orientation
+                == Configuration.ORIENTATION_LANDSCAPE) {
+            return new CarSystemBarController(context, userTracker, carSystemBarViewFactory,
+                    carServiceProvider, buttonSelectionStateController, userNameViewControllerLazy,
+                    micPrivacyChipViewControllerLazy, cameraPrivacyChipViewControllerLazy,
+                    buttonRoleHolderController, systemBarConfigs, panelControllerBuilderProvider,
+                    userFileManager);
+        }
+
+        return new CarUiPortraitSystemBarController(context, userTracker, carSystemBarViewFactory,
+                carServiceProvider, buttonSelectionStateController, userNameViewControllerLazy,
+                micPrivacyChipViewControllerLazy, cameraPrivacyChipViewControllerLazy,
+                buttonRoleHolderController, systemBarConfigs, panelControllerBuilderProvider,
+                userFileManager);
     }
 }

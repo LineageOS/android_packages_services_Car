@@ -51,7 +51,9 @@ import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
+import android.os.Binder;
 import android.os.Bundle;
+import android.util.Pair;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -101,7 +103,7 @@ public final class HalAudioFocusTest extends AbstractExpectableTestCase {
     @Mock
     private CarAudioPlaybackMonitor mCarAudioPlaybackMonitor;
     @Captor
-    private ArgumentCaptor<List<AudioAttributes>> mAudioAttributesCaptor;
+    private ArgumentCaptor<List<Pair<AudioAttributes, Integer>>> mAudioAttributesCaptor;
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
             new CarAudioContext(CarAudioContext.getAllContextsInfo(),
                     /* useCoreAudioRouting= */ false);
@@ -133,13 +135,15 @@ public final class HalAudioFocusTest extends AbstractExpectableTestCase {
     @Test
     public void requestAudioFocus_notifiesHalOfFocusChange() {
         whenAnyFocusRequestGranted();
+        int uid = Binder.getCallingUid();
 
         mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
 
         verify(mAudioControlWrapper).onAudioFocusChange(METADATA_MEDIA, ZONE_ID,
                 AUDIOFOCUS_REQUEST_GRANTED);
-        expectWithMessage("Playback audio attributes with audio focus requested")
-                .that(getCarAudioPlaybackMonitorAttributes(ZONE_ID)).containsExactly(ATTR_MEDIA);
+        expectWithMessage("Playback audio attributes and uid pairs with audio focus requested")
+                .that(getCarAudioPlaybackMonitorAttributes(ZONE_ID))
+                .containsExactly(new Pair<>(ATTR_MEDIA, uid));
     }
 
     @Test
@@ -217,14 +221,16 @@ public final class HalAudioFocusTest extends AbstractExpectableTestCase {
     @Test
     public void requestAudioFocus_withSameZoneAndUsage_keepsExistingRequest() {
         whenAnyFocusRequestGranted();
+        int uid = Binder.getCallingUid();
 
         mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
         AudioFocusRequest firstRequest = getLastRequest();
         mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
 
         verify(mMockAudioManager, never()).abandonAudioFocusRequest(firstRequest);
-        expectWithMessage("Playback audio attributes with the same zone and usage focuses")
-                .that(getCarAudioPlaybackMonitorAttributes(ZONE_ID)).containsExactly(ATTR_MEDIA);
+        expectWithMessage("Playback audio attributes and uid pairs with the same zone and "
+                + "usage focuses").that(getCarAudioPlaybackMonitorAttributes(ZONE_ID))
+                .containsExactly(new Pair<>(ATTR_MEDIA, uid));
     }
 
     @Test
@@ -507,7 +513,7 @@ public final class HalAudioFocusTest extends AbstractExpectableTestCase {
         return captor.getValue();
     }
 
-    private List<AudioAttributes> getCarAudioPlaybackMonitorAttributes(int zoneId) {
+    private List<Pair<AudioAttributes, Integer>> getCarAudioPlaybackMonitorAttributes(int zoneId) {
         verify(mCarAudioPlaybackMonitor).onActiveAudioPlaybackAttributesAdded(
                 mAudioAttributesCaptor.capture(), eq(zoneId));
         return mAudioAttributesCaptor.getValue();

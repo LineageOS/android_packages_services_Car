@@ -25,6 +25,7 @@ import android.annotation.Nullable;
 import android.media.AudioAttributes;
 import android.media.AudioPlaybackConfiguration;
 import android.util.ArrayMap;
+import android.util.Pair;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.audio.CarAudioDumpProto.CarAudioPlaybackCallbackProto;
@@ -65,13 +66,13 @@ final class ZoneAudioPlaybackCallback {
     public void onPlaybackConfigChanged(List<AudioPlaybackConfiguration> configurations) {
         ArrayMap<String, AudioPlaybackConfiguration> newActiveConfigs =
                 filterNewActiveConfiguration(configurations);
-        List<AudioAttributes> newlyActiveAudioAttributes = new ArrayList<>();
+        List<Pair<AudioAttributes, Integer>> newlyActiveAudioAttributesWithUid = new ArrayList<>();
 
         synchronized (mLock) {
             List<AudioPlaybackConfiguration> newlyInactiveConfigurations =
                     getNewlyInactiveConfigurationsLocked(newActiveConfigs);
             if (mCarAudioPlaybackMonitor != null) {
-                newlyActiveAudioAttributes = getNewlyActiveAudioAttributes(newActiveConfigs);
+                newlyActiveAudioAttributesWithUid = getNewlyActiveAudioAttributes(newActiveConfigs);
             }
 
             mLastActiveConfigs.clear();
@@ -80,9 +81,9 @@ final class ZoneAudioPlaybackCallback {
             startTimersForContextThatBecameInactiveLocked(newlyInactiveConfigurations);
         }
 
-        if (mCarAudioPlaybackMonitor != null && !newlyActiveAudioAttributes.isEmpty()) {
+        if (mCarAudioPlaybackMonitor != null && !newlyActiveAudioAttributesWithUid.isEmpty()) {
             mCarAudioPlaybackMonitor.onActiveAudioPlaybackAttributesAdded(
-                    newlyActiveAudioAttributes, mCarAudioZone.getId());
+                    newlyActiveAudioAttributesWithUid, mCarAudioZone.getId());
         }
     }
 
@@ -126,7 +127,7 @@ final class ZoneAudioPlaybackCallback {
     }
 
     @GuardedBy("mLock")
-    private List<AudioAttributes> getNewlyActiveAudioAttributes(
+    private List<Pair<AudioAttributes, Integer>> getNewlyActiveAudioAttributes(
             ArrayMap<String, AudioPlaybackConfiguration> newActiveConfigurations) {
         List<AudioPlaybackConfiguration> audioPlaybackConfigurationsWithNewAttributes =
                 new ArrayList<>();
@@ -137,7 +138,18 @@ final class ZoneAudioPlaybackCallback {
             audioPlaybackConfigurationsWithNewAttributes
                     .add(newActiveConfigurations.valueAt(index));
         }
-        return getAudioAttributesFromPlaybacks(audioPlaybackConfigurationsWithNewAttributes);
+        List<Pair<AudioAttributes, Integer>> attributesUidList = new ArrayList<>();
+        for (int index = 0; index < audioPlaybackConfigurationsWithNewAttributes.size(); index++) {
+            AudioPlaybackConfiguration configuration = audioPlaybackConfigurationsWithNewAttributes
+                    .get(index);
+            List<AudioAttributes> attributes = getAudioAttributesFromPlaybacks(
+                    List.of(configuration));
+            if (attributes.isEmpty()) {
+                continue;
+            }
+            attributesUidList.add(new Pair<>(attributes.get(0), configuration.getClientUid()));
+        }
+        return attributesUidList;
     }
 
     private ArrayMap<String, AudioPlaybackConfiguration> filterNewActiveConfiguration(

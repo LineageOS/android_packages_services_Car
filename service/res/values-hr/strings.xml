@@ -216,10 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Upravljanje brisačima vjetrobrana automobila."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"upravljanje paketima kompatibilnosti prikaza"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"upravljanje paketima kompatibilnosti prikaza."</string>
-    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
-    <skip />
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"povežite se s widgetima kartice s predloškom aplikacije koje se dohvaćaju pomoću pružatelja sadržaja"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"Povežite se s widgetima kartice s predloškom aplikacije koje se dohvaćaju pomoću pružatelja sadržaja."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"nadzirati stanja drugih putničkih zona u automobilu i aplikacija iste kategorije (aplikacije s istim nazivom paketa kao pozivatelj) koje su instalirane u tim zonama te upravljati napajanjem u tim zonama."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Nadzire stanja drugih putničkih zona u automobilu i aplikacija iste kategorije (aplikacije s istim nazivom paketa kao pozivatelj) koje su instalirane u tim zonama te upravlja napajanjem u tim zonama."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"uspostaviti vezu i komunicirati s aplikacijama iste kategorije (aplikacije s istim nazivom paketa kao pozivatelj) koje su instalirane u drugim putničkim zonama u automobilu"</string>

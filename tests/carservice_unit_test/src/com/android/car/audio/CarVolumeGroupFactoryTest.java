@@ -44,8 +44,10 @@ public final class CarVolumeGroupFactoryTest {
     private static final int MIN_GAIN_INDEX = 0;
     private static final int MAX_GAIN_INDEX = (TestCarAudioDeviceInfoBuilder.MAX_GAIN
             - TestCarAudioDeviceInfoBuilder.MIN_GAIN) / TestCarAudioDeviceInfoBuilder.STEP_VALUE;
-    private static final int MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE = 10;
-    private static final int MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE = 90;
+    private static final CarActivationVolumeConfig CAR_ACTIVATION_VOLUME_CONFIG =
+            new CarActivationVolumeConfig(CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT,
+                    /* minActivationVolumePercentage= */ 10,
+                    /* maxActivationVolumePercentage= */ 90);
     private static final String GROUP_NAME = "group_0";
     private static final String MEDIA_DEVICE_ADDRESS = "music";
     private static final String NAVIGATION_DEVICE_ADDRESS = "navigation";
@@ -296,8 +298,7 @@ public final class CarVolumeGroupFactoryTest {
                 () -> new CarVolumeGroupFactory(/* audioManager= */ null,
                         /* carAudioSettings= */ null, TEST_CAR_AUDIO_CONTEXT, ZONE_ID,
                         CONFIG_ID, GROUP_ID, GROUP_NAME, /* useCarVolumeGroupMute= */ true,
-                        MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE,
-                        MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE));
+                        CAR_ACTIVATION_VOLUME_CONFIG));
 
         expect.withMessage("Constructor null car audio settings exception")
                 .that(thrown).hasMessageThat()
@@ -310,8 +311,7 @@ public final class CarVolumeGroupFactoryTest {
                 () -> new CarVolumeGroupFactory(/* audioManager= */ null, mSettingsMock,
                         /* carAudioContext= */ null, ZONE_ID, CONFIG_ID, GROUP_ID,
                         GROUP_NAME, /* useCarVolumeGroupMute= */ true,
-                        MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE,
-                        MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE));
+                        CAR_ACTIVATION_VOLUME_CONFIG));
 
         expect.withMessage("Constructor null car audio context exception")
                 .that(thrown).hasMessageThat()
@@ -321,6 +321,6 @@ public final class CarVolumeGroupFactoryTest {
     CarVolumeGroupFactory getFactory() {
         return new CarVolumeGroupFactory(mAudioManagerMock, mSettingsMock, TEST_CAR_AUDIO_CONTEXT,
                 ZONE_ID, CONFIG_ID, GROUP_ID, GROUP_NAME, /* useCarVolumeGroupMute= */ true,
-                MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE, MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE);
+                CAR_ACTIVATION_VOLUME_CONFIG);
     }
 }

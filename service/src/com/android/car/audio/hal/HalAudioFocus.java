@@ -42,6 +42,7 @@ import android.os.Bundle;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
+import android.util.Pair;
 import android.util.SparseArray;
 import android.util.proto.ProtoOutputStream;
 
@@ -361,8 +362,8 @@ public final class HalAudioFocus implements HalFocusListener {
         }
         long identity = Binder.clearCallingIdentity();
         try {
-            mCarAudioPlaybackMonitor.onActiveAudioPlaybackAttributesAdded(List.of(attributes),
-                    zoneId);
+            mCarAudioPlaybackMonitor.onActiveAudioPlaybackAttributesAdded(List.of(
+                    new Pair<>(attributes, Binder.getCallingUid())), zoneId);
         } finally {
             Binder.restoreCallingIdentity(identity);
         }

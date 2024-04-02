@@ -52,4 +52,7 @@
     <string name="notification_bugreport_channel_name" msgid="776902295433824255">"Bug report status channel"</string>
     <string name="notification_screenshot_message" msgid="4334354123333893911">"Taking a screenshot"</string>
     <string name="notification_screenshot_channel_name" msgid="147055389545365419">"Bug report screenshot channel"</string>
+    <string name="choice_dialog_title" msgid="2105355715733829907">"Ready to speak bug description"</string>
+    <string name="choice_dialog_begin_now" msgid="7326462054665389346">"Begin now"</string>
+    <string name="choice_dialog_speak_later" msgid="1297471567273228307">"Speak later"</string>
 </resources>

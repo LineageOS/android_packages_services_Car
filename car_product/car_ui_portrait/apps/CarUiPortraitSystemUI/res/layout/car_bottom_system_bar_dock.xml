@@ -28,7 +28,7 @@
         android:id="@+id/nav_buttons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layoutDirection="ltr"
+        android:orientation="horizontal"
         android:gravity="center">
 
         <com.android.systemui.car.hvac.CarUiPortraitTemperatureControlView
@@ -45,13 +45,12 @@
 
         <com.android.systemui.car.systembar.CarUiPortraitAppGridButton
             android:id="@+id/grid_nav"
-            android:contentDescription="@string/system_bar_applications_label"
             style="@style/SystemBarButtonWithDock"
-            systemui:componentNames="@string/config_appGridComponentName"
-            systemui:highlightWhenSelected="true"
+            systemui:componentNames="com.android.car.portraitlauncher/com.android.car.carlauncher.AppGridActivity"
             systemui:icon="@drawable/car_ic_apps"
-            systemui:intent="@string/system_bar_app_drawer_intent"
-            systemui:clearBackStack="true"/>
+            systemui:highlightWhenSelected="false"
+            systemui:intent="intent:#Intent;action=com.android.car.carlauncher.ACTION_APP_GRID;package=com.android.car.portraitlauncher;launchFlags=0x24000000;end"
+            systemui:clearBackStack="false" />
 
         <com.android.car.docklib.view.DockView
             android:id="@+id/dock"
@@ -59,9 +58,9 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/dock_container_margin" />
 
+        <!-- TODO(b/255887799): Use AssistantButton instead of CarUiAssistantButton once is fixed.     -->
         <com.android.systemui.car.systembar.CarUiAssistantButton
-            android:id="@+id/assistant"
-            android:contentDescription="@string/system_bar_assistant_label"
+            android:id="@+id/assist"
             style="@style/SystemBarButtonWithDock"
             systemui:icon="@drawable/car_ic_mic"
             systemui:highlightWhenSelected="true"

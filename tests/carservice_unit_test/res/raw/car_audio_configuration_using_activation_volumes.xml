@@ -14,13 +14,26 @@
      limitations under the License.
 -->
 <carAudioConfiguration version="4">
+    <activationVolumeConfigs>
+        <activationVolumeConfig name="activation_volume_on_boot_config">
+            <activationVolumeConfigEntry minActivationVolumePercentage="30"
+                maxActivationVolumePercentage="70" invocationType="onBoot" />
+        </activationVolumeConfig>
+        <activationVolumeConfig name="activation_volume_on_source_changed_config">
+            <activationVolumeConfigEntry minActivationVolumePercentage="30"
+                maxActivationVolumePercentage="70" invocationType="onSourceChanged" />
+        </activationVolumeConfig>
+        <activationVolumeConfig name="activation_volume_on_playback_changed_config">
+            <activationVolumeConfigEntry minActivationVolumePercentage="30"
+                maxActivationVolumePercentage="70" />
+        </activationVolumeConfig>
+    </activationVolumeConfigs>
     <zones>
-        <zone name="primary zone" isPrimary="true" audioZoneId="0" occupantZoneId="1">
+        <zone name="primary zone" isPrimary="true" audioZoneId="0" occupantZoneId="0">
             <zoneConfigs>
-                <zoneConfig name="primary zone config 1" isDefault="true">
+                <zoneConfig name="primary_zone_config_1" isDefault="true">
                     <volumeGroups>
-                        <group  minActivationVolumePercentage="30"
-                            maxActivationVolumePercentage="70">
+                        <group activationConfig="activation_volume_on_boot_config">
                             <device address="media_bus_device">
                                 <context context="music"/>
                                 <context context="announcement"/>
@@ -29,8 +42,7 @@
                                 <context context="notification"/>
                             </device>
                         </group>
-                        <group minActivationVolumePercentage="30"
-                            maxActivationVolumePercentage="70">
+                        <group activationConfig="activation_volume_on_source_changed_config">
                             <device address="navigation_bus_device">
                                 <context context="navigation"/>
                             </device>
@@ -38,8 +50,7 @@
                                 <context context="voice_command"/>
                             </device>
                         </group>
-                        <group minActivationVolumePercentage="30"
-                            maxActivationVolumePercentage="70">
+                        <group activationConfig="activation_volume_on_playback_changed_config">
                             <device address="call_bus_device">
                                 <context context="call"/>
                             </device>
@@ -47,8 +58,7 @@
                                 <context context="call_ring"/>
                             </device>
                         </group>
-                        <group minActivationVolumePercentage="30"
-                            maxActivationVolumePercentage="70">
+                        <group activationConfig="activation_volume_on_playback_changed_config">
                             <device address="alarm_bus_device">
                                 <context context="alarm"/>
                             </device>
@@ -57,6 +67,50 @@
                                 <context context="emergency"/>
                                 <context context="safety"/>
                                 <context context="vehicle_status"/>
+                            </device>
+                        </group>
+                    </volumeGroups>
+                </zoneConfig>
+            </zoneConfigs>
+        </zone>
+        <zone name="secondary zone" audioZoneId="1" occupantZoneId="1">
+            <zoneConfigs>
+                <zoneConfig name="secondary_zone_config_1" isDefault="true">
+                    <volumeGroups>
+                        <group activationConfig="activation_volume_on_boot_config">
+                            <device address="secondary_zone_bus_100">
+                                <context context="music"/>
+                                <context context="navigation"/>
+                                <context context="voice_command"/>
+                                <context context="call_ring"/>
+                                <context context="call"/>
+                                <context context="alarm"/>
+                                <context context="system_sound"/>
+                                <context context="notification"/>
+                                <context context="emergency"/>
+                                <context context="safety"/>
+                                <context context="vehicle_status"/>
+                                <context context="announcement"/>
+                            </device>
+                        </group>
+                    </volumeGroups>
+                </zoneConfig>
+                <zoneConfig name="secondary_zone_config_2">
+                    <volumeGroups>
+                        <group activationConfig="activation_volume_on_boot_config">
+                            <device address="secondary_zone_bus_200">
+                                <context context="music"/>
+                                <context context="navigation"/>
+                                <context context="voice_command"/>
+                                <context context="call_ring"/>
+                                <context context="call"/>
+                                <context context="alarm"/>
+                                <context context="system_sound"/>
+                                <context context="notification"/>
+                                <context context="emergency"/>
+                                <context context="safety"/>
+                                <context context="vehicle_status"/>
+                                <context context="announcement"/>
                             </device>
                         </group>
                     </volumeGroups>

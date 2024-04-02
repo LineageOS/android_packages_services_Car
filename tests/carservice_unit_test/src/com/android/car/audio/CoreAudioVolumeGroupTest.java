@@ -83,8 +83,11 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
     private static final String TAG = CoreAudioVolumeGroupTest.class.getSimpleName();
 
     private static final int ZONE_CONFIG_ID = 0;
-    private static final int MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE = 10;
-    private static final int MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE = 90;
+    private static final CarActivationVolumeConfig CAR_ACTIVATION_VOLUME_CONFIG =
+            new CarActivationVolumeConfig(CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT,
+                    /* minActivationVolumePercentage= */ 10,
+                    /* maxActivationVolumePercentage= */ 90);
+
     private CarAudioContext mMusicContext;
     private CarAudioContext mNavContext;
     private CarAudioContext mOemContext;
@@ -176,7 +179,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         mMusicCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, mMusicContext,
                 mSettingsMock, musicContextToDeviceInfo, PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID,
                 MUSIC_CAR_GROUP_ID, MUSIC_GROUP_NAME, /* useCarVolumeGroupMute= */ false,
-                MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE, MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE);
+                CAR_ACTIVATION_VOLUME_CONFIG);
 
         SparseArray<CarAudioDeviceInfo> navContextToDeviceInfo = new SparseArray<>();
         navContextToDeviceInfo.put(NAV_STRATEGY_ID, mNavInfoMock);
@@ -184,7 +187,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         mNavCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, mNavContext,
                 mSettingsMock, navContextToDeviceInfo, PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID,
                 NAV_CAR_GROUP_ID, NAV_GROUP_NAME, /* useCarVolumeGroupMute= */ false,
-                MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE, MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE);
+                CAR_ACTIVATION_VOLUME_CONFIG);
 
         SparseArray<CarAudioDeviceInfo> oemContextToDeviceInfo = new SparseArray<>();
         oemContextToDeviceInfo.put(OEM_STRATEGY_ID, mOemInfoMock);
@@ -192,8 +195,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         mOemCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, mOemContext,
                 mSettingsMock, oemContextToDeviceInfo,
                 PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, OEM_CAR_GROUP_ID, OEM_GROUP_NAME,
-                /* useCarVolumeGroupMute= */ false, MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE,
-                MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE);
+                /* useCarVolumeGroupMute= */ false, CAR_ACTIVATION_VOLUME_CONFIG);
     }
 
     @Test
