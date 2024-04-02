@@ -16,7 +16,6 @@
 
 package com.android.car.watchdog;
 
-import static android.car.PlatformVersion.VERSION_CODES;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
@@ -622,11 +621,6 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     private void notifyPowerCycleChange(@PowerCycle int powerCycle) {
-        // TODO(b/236876940): Change version check to TIRAMISU_2 when cherry picking to T-QPR2.
-        if (!Car.getPlatformVersion().isAtLeast(VERSION_CODES.UPSIDE_DOWN_CAKE_0)
-                && powerCycle == PowerCycle.POWER_CYCLE_SUSPEND_EXIT) {
-            return;
-        }
         try {
             mCarWatchdogDaemonHelper.notifySystemStateChange(
                     StateType.POWER_CYCLE, powerCycle, MISSING_ARG_VALUE);
@@ -756,11 +750,6 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             if (!isEventAnyOfTypes(TAG, event, USER_LIFECYCLE_EVENT_TYPE_STARTING,
                     USER_LIFECYCLE_EVENT_TYPE_SWITCHING, USER_LIFECYCLE_EVENT_TYPE_UNLOCKING,
                     USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED, USER_LIFECYCLE_EVENT_TYPE_STOPPED)) {
-                return;
-            }
-            if (!Car.getPlatformVersion().isAtLeast(VERSION_CODES.TIRAMISU_1)
-                    && !isEventAnyOfTypes(TAG, event,
-                    USER_LIFECYCLE_EVENT_TYPE_STARTING, USER_LIFECYCLE_EVENT_TYPE_STOPPED)) {
                 return;
             }
 

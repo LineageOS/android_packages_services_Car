@@ -37,7 +37,6 @@ import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.ICarOccupantZone;
 import android.car.ICarOccupantZoneCallback;
-import android.car.PlatformVersion;
 import android.car.VehicleAreaSeat;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.DisplayHelper;
@@ -128,8 +127,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         DisplayConfig(int displayType, int occupantZoneId, IntArray inputTypes) {
             this.displayType = displayType;
             this.occupantZoneId = occupantZoneId;
-            if (inputTypes == null && Car.getPlatformVersion().isAtLeast(
-                    PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
+            if (inputTypes == null) {
                 Slogf.w(TAG, "No input type was defined for displayType:%d "
                         + " and occupantZoneId:%d", displayType, occupantZoneId);
             }
