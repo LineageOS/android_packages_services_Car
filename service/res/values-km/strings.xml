@@ -216,10 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"គ្រប់គ្រង​ផ្លិតទឹករបស់រថយន្ត។"</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"គ្រប់គ្រងកញ្ចប់នៃភាពត្រូវគ្នាក្នុងការបង្ហាញ"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"គ្រប់គ្រងកញ្ចប់នៃភាពត្រូវគ្នាក្នុងការបង្ហាញ។"</string>
-    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
-    <skip />
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"ភ្ជាប់ទៅក្រុមហ៊ុនផ្ដល់កាតកម្មវិធី"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"ភ្ជាប់ទៅក្រុមហ៊ុនផ្ដល់កាតកម្មវិធី។"</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"តាមដានស្ថានភាព​នៃតំបន់អ្នកជិះផ្សេងទៀតក្នុង​រថយន្ត និងកម្មវិធីដូចគ្នា (កម្មវិធីដែលមាន​ឈ្មោះកញ្ចប់ដូចគ្នានឹង​ខាងហៅ) ដែលបានដំឡើង​នៅក្នុងតំបន់ទាំងនោះ និងគ្រប់គ្រងថាមពល​នៃតំបន់ទាំងនោះ។"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"តាមដានស្ថានភាព​នៃតំបន់អ្នកជិះផ្សេងទៀតក្នុង​រថយន្ត និងកម្មវិធីដូចគ្នា (កម្មវិធីដែលមាន​ឈ្មោះកញ្ចប់ដូចគ្នានឹង​ខាងហៅ) ដែលបានដំឡើង​នៅក្នុងតំបន់ទាំងនោះ និងគ្រប់គ្រងថាមពល​នៃតំបន់ទាំងនោះ។"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"បង្កើតការតភ្ជាប់ និងភ្ជាប់ទំនាក់ទំនង​ជាមួយកម្មវិធីដូចគ្នា (កម្មវិធីដែលមាន​ឈ្មោះកញ្ចប់ដូចគ្នានឹងខាងហៅ) ដែលបានដំឡើង​នៅក្នុងតំបន់អ្នកជិះផ្សេងទៀតក្នុងរថយន្ត"</string>

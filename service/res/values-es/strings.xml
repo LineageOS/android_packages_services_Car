@@ -216,10 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Controlar los limpiaparabrisas del coche."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"gestionar paquetes de compatibilidad de pantalla"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"gestionar paquetes de compatibilidad de pantalla."</string>
-    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
-    <skip />
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"vincular con proveedores de la tarjeta de la aplicación"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"vincular con proveedores de la tarjeta de la aplicación."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"monitorizar el estado de las zonas de otros ocupantes del coche y de las aplicaciones similares (aplicaciones que tienen el mismo nombre de paquete que el llamador) instaladas en esas zonas, así como gestionar el suministro de energía de esas zonas"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Monitorizar el estado de las zonas de otros ocupantes del coche y de las aplicaciones similares (aplicaciones que tienen el mismo nombre de paquete que el llamador) instaladas en esas zonas, así como gestionar el suministro de energía de esas zonas."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"establecer conexión y comunicarse con aplicaciones similares (aplicaciones que tienen el mismo nombre de paquete que el llamador) instaladas en las zonas de otros ocupantes del coche"</string>

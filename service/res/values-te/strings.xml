@@ -216,10 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"కారు విండ్‌షీల్డ్ వైపర్‌లను కంట్రోల్ చేయండి."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"డిస్‌ప్లే అనుకూలత ప్యాకేజీలను మేనేజ్ చేయండి"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"డిస్‌ప్లే అనుకూలత ప్యాకేజీలను మేనేజ్ చేయండి."</string>
-    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
-    <skip />
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"యాప్ కార్డ్ ప్రొవైడర్‌లతో కనెక్ట్ చేయండి"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"యాప్ కార్డ్ ప్రొవైడర్‌లతో కనెక్ట్ చేయండి."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"కారులోని ఇతర బస చేసే జోన్‌ల స్టేట్‌లను పర్యవేక్షించండి, ఆ జోన్‌లలో ఇన్‌స్టాల్ చేయబడిన పీర్ యాప్‌లు (కాలర్ లాగా ఒకే ప్యాకేజీ పేరు ఉన్న యాప్‌లు), ఆ జోన్‌ల పవర్‌ను మేనేజ్ చేయండి."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"కారులోని ఇతర బస చేసే జోన్‌ల స్టేట్‌లను పర్యవేక్షించండి, ఆ జోన్‌లలో ఇన్‌స్టాల్ చేయబడిన పీర్ యాప్‌లు (కాలర్ లాగా ఒకే ప్యాకేజీ పేరు ఉన్న యాప్‌లు), ఆ జోన్‌ల పవర్‌ను మేనేజ్ చేయండి."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"కారులోని ఇతర బస చేసే జోన్‌లలో ఇన్‌స్టాల్ చేయబడిన పీర్ యాప్‌లకు (కాలర్ లాగా ఒకే ప్యాకేజీ పేరు ఉన్న యాప్‌లు) కనెక్షన్‌ను ఏర్పాటు చేయండి, కమ్యూనికేట్ చేయండి"</string>

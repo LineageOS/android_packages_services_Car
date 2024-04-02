@@ -216,10 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"کار کے ونڈشیلڈ وائپرز کو کنٹرول کریں۔"</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"ڈسپلے کی موافقت کے پیکیجز کا نظم کریں"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"ڈسپلے کی موافقت کے پیکیجز کا نظم کریں۔"</string>
-    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
-    <skip />
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"ایپ کارڈ فراہم کنندگان سے منسلک کریں"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"ایپ کارڈ فراہم کنندگان سے منسلک کریں۔"</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"کار میں ساکن کے دیگر زونز کی حالتوں اور ان زونز میں انسٹال کردہ پیئر ایپس (ایسی ایپس جن کے کالر اور پیکیج کا نام ایک ہو) کو مانیٹر کریں اور ان زونز کے پاور کا نظم کریں۔"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"کار میں ساکن کے دیگر زونز کی حالتوں اور ان زونز میں انسٹال کردہ پیئر ایپس (ایسی ایپس جن کے کالر اور پیکیج کا نام ایک ہو) کو مانیٹر کریں اور ان زونز کے پاور کا نظم کریں۔"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"پیئر ایپس (ایسی ایپس جن کے کالر اور پیکیج کا نام ایک ہو) سے کنکشن قائم کریں اور کار میں ساکن کے دیگر زونز میں انسٹال کردہ پیئر ایپس کے ساتھ مواصلت کریں"</string>

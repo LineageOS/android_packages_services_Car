@@ -216,10 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Aracın sileceklerini kontrol edebilir."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"ekran uyumluluk paketlerini yönetme"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"ekran uyumluluk paketlerini yönetme"</string>
-    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
-    <skip />
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"uygulama kartı sağlayıcılarına bağlanma"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"uygulama kartı sağlayıcılarına bağlanma."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"arabadaki diğer yolcu bölgelerinin durumunu ve bu bölgelere yüklenmiş benzer uygulamaları (arayanla aynı paket adına sahip uygulamalar) izleyip bu bölgelerin güç kullanımını yönetme"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Arabadaki diğer yolcu bölgelerinin durumunu ve bu bölgelere yüklenmiş benzer uygulamaları (arayanla aynı paket adına sahip uygulamalar) izleyip bu bölgelerin güç kullanımını yönetme"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"arabadaki diğer yolcu bölgelerine yüklenmiş benzer uygulamalarla (arayanla aynı paket adına sahip uygulamalar) bağlantı ve iletişim kurma"</string>

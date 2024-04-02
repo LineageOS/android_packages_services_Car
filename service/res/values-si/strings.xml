@@ -216,10 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"මෝටර් රථයේ හුළං පලිහ පිසින පාලනය කරන්න."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"සංදර්ශක අනුකූලතා පැකේජ කළමනාකරණය කරන්න"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"සංදර්ශක අනුකූලතා පැකේජ කළමනාකරණය කරන්න."</string>
-    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
-    <skip />
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"යෙදුම් කාඩ්පත් සපයන්නන් වෙත බැඳීම"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"යෙදුම් කාඩ්පත් සපයන්නන් වෙත බැඳීම."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"එම කලාප තුළ ස්ථාපනය කර ඇති මෝටර් රථ සහ සම වයසේ යෙදුම් (ඇමතුම්කරු මෙන් එකම පැකේජ නාමය ඇති යෙදුම්) තුළ ඇති අනෙකුත් පදිංචිකරුවන්ගේ කලාපවල තත්ත්වයන් අධීක්ෂණය කරන්න, සහ එම කලාපවල බලය කළමනාකරණය කරන්න."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"එම කලාප තුළ ස්ථාපනය කර ඇති මෝටර් රථ සහ සම වයසේ යෙදුම් (ඇමතුම්කරු මෙන් එකම පැකේජ නාමය ඇති යෙදුම්) තුළ ඇති අනෙකුත් පදිංචිකරුවන්ගේ කලාපවල තත්ත්වයන් අධීක්ෂණය කරන්න, සහ එම කලාපවල බලය කළමනාකරණය කරන්න."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"මෝටර් රථයේ වෙනත් පදිංචිකරුවන්ගේ කලාපවල ස්ථාපනය කර ඇති සම වයසේ යෙදුම් (ඇමතුම්කරු මෙන් එකම පැකේජ නම ඇති යෙදුම්) වෙත සම්බන්ධතාවය ස්ථාපිත කර සන්නිවේදනය කරන්න."</string>
