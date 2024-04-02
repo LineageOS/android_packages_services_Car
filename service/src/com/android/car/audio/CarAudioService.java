@@ -112,6 +112,7 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.UserHandle;
+import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.ArraySet;
@@ -415,7 +416,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 "Context to create car audio service can not be null");
         mCarAudioConfigurationPath = audioConfigurationPath;
         mCarAudioFadeConfigurationPath = audioFadeConfigurationPath;
-        mTelephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
+        mTelephonyManager = mContext.getSystemService(TelephonyManager.class);
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
 
         mUseDynamicRouting = mContext.getResources().getBoolean(R.bool.audioUseDynamicRouting);
@@ -597,6 +598,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         if (mCarAudioPlaybackMonitor == null) {
             return;
         }
+        mCarAudioPlaybackMonitor.reset();
         mCarAudioPlaybackMonitor = null;
     }
 
@@ -1915,7 +1917,10 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         if (!mUseMinMaxActivationVolume) {
             return;
         }
-        mCarAudioPlaybackMonitor = new CarAudioPlaybackMonitor(this, mCarAudioZones);
+        int telephonyDefaultDataSubscriptionId = SubscriptionManager
+                .getDefaultDataSubscriptionId();
+        mCarAudioPlaybackMonitor = new CarAudioPlaybackMonitor(this, mCarAudioZones,
+                mTelephonyManager.createForSubscriptionId(telephonyDefaultDataSubscriptionId));
     }
 
     @GuardedBy("mImplLock")

@@ -16,11 +16,18 @@
 
 package com.android.car.audio;
 
+import static android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
+import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
+
 import static com.android.car.audio.CarActivationVolumeConfig.ActivationVolumeInvocationType;
 
 import android.annotation.NonNull;
 import android.car.builtin.util.Slogf;
+import android.car.media.CarAudioManager;
 import android.media.AudioAttributes;
+import android.os.Binder;
+import android.telephony.TelephonyCallback;
+import android.telephony.TelephonyManager;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
@@ -31,6 +38,8 @@ import com.android.internal.annotations.GuardedBy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public final class CarAudioPlaybackMonitor {
 
@@ -39,16 +48,35 @@ public final class CarAudioPlaybackMonitor {
     private final Object mLock = new Object();
     private final CarAudioService mCarAudioService;
     private final SparseArray<CarAudioZone> mCarAudioZones;
+    private final TelephonyManager mTelephonyManager;
+    private final Executor mExecutor;
+    private final CarCallStateListener mCallStateCallback;
     @GuardedBy("mLock")
     private final SparseArray<SparseIntArray> mZoneIdGroupIdToUidMap;
 
     CarAudioPlaybackMonitor(@NonNull CarAudioService carAudioService,
-                            @NonNull SparseArray<CarAudioZone> carAudioZones) {
+                            @NonNull SparseArray<CarAudioZone> carAudioZones,
+                            @NonNull TelephonyManager telephonyManager) {
         mCarAudioService = Objects.requireNonNull(carAudioService,
                 "Car audio service can not be null");
         mCarAudioZones = Objects.requireNonNull(carAudioZones,
                 "Car audio zones can not be null");
         mZoneIdGroupIdToUidMap = new SparseArray<>();
+        mTelephonyManager = Objects.requireNonNull(telephonyManager,
+                "Telephony manager can not be null");
+        mExecutor = Executors.newSingleThreadExecutor();
+        mCallStateCallback = new CarCallStateListener();
+        mTelephonyManager.registerTelephonyCallback(mExecutor, mCallStateCallback);
+    }
+
+    /**
+     * Reset car audio playback monitor
+     *
+     * <p>Once reset, car audio playback monitor cannot be reused since the listener to
+     * {@link TelephonyManager} has been unregistered.
+     */
+    void reset() {
+        mTelephonyManager.unregisterTelephonyCallback(mCallStateCallback);
     }
 
     void resetActivationTypesForZone(int zoneId) {
@@ -164,6 +192,29 @@ public final class CarAudioPlaybackMonitor {
         public String toString() {
             return "ActivationInfo { volume group id: " + mGroupId + ", invocation type = "
                     + mInvocationType + "}";
+        }
+    }
+
+    private class CarCallStateListener extends TelephonyCallback
+            implements TelephonyCallback.CallStateListener {
+        @Override
+        public void onCallStateChanged(int state) {
+            int usage;
+            switch (state) {
+                case TelephonyManager.CALL_STATE_RINGING:
+                    usage = USAGE_NOTIFICATION_RINGTONE;
+                    break;
+                case TelephonyManager.CALL_STATE_OFFHOOK:
+                    usage = USAGE_VOICE_COMMUNICATION;
+                    break;
+                default:
+                    return;
+            }
+            AudioAttributes audioAttributes = CarAudioContext.getAudioAttributeFromUsage(usage);
+            // TODO(331680279): get actual Uid from telephony or define a fake Uid for telephony
+            // playback only.
+            onActiveAudioPlaybackAttributesAdded(List.of(new Pair<>(audioAttributes,
+                            Binder.getCallingUid())), CarAudioManager.PRIMARY_AUDIO_ZONE);
         }
     }
 }
