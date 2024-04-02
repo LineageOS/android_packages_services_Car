@@ -216,10 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Scheibenwischer des Autos steuern."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"Pakete, für die Anzeigekompatibilität erforderlich ist, verwalten"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"Pakete, für die Anzeigekompatibilität erforderlich ist, verwalten."</string>
-    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
-    <skip />
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"Verbindung zu einem Anbieter von App-Karten herstellen"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"Verbindung zu einem Anbieter von App-Karten herstellen."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"Den Status von anderen Insassenbereichen im Auto und von ähnlichen Apps – d. h. Apps, die denselben Paketnamen wie der Aufrufer haben –, die in diesen Bereichen installiert sind, überwachen und die Energieeinstellungen dieser Bereiche verwalten."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Den Status von anderen Insassenbereichen im Auto und von ähnlichen Apps – d. h. Apps, die denselben Paketnamen wie der Aufrufer haben –, die in diesen Bereichen installiert sind, überwachen und die Energieeinstellungen dieser Bereiche verwalten."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"Verbindung mit ähnlichen Apps – d. h. Apps, die denselben Paketnamen wie der Aufrufer haben –, die in anderen Insassenbereichen im Auto installiert sind, herstellen und mit diesen kommunizieren"</string>

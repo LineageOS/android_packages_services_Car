@@ -216,10 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Контрола на бришачите на автомобилот."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"управување со пакети за компатибилност на екранот"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"управување со пакети што бараат компатибилност на екранот."</string>
-    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
-    <skip />
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"да се поврзе со давателите на картички за апликации"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"да се поврзе со давателите на картички за апликации."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"да ја следи состојбата на другите зони на присуство во автомобилот и на споредбените апликации (апликации што ги имаат истото име на пакет како повикувачот) инсталирани во тие зони и да управува со напојувањето на тие зони"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"да ја следи состојбата на другите зони на присуство во автомобилот и на споредбените апликации (апликации што ги имаат истото име на пакет како повикувачот) инсталирани во тие зони и да управува со напојувањето на тие зони"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"да утврди врска и да комуницира со споредбени апликации (апликации што ги имаат истото име на пакет како повикувачот) инсталирани во други зони на присуство во автомобилот"</string>

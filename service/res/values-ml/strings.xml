@@ -216,10 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"കാറിന്റെ വിൻഡ്‌ഷീൽഡ് വെെപ്പറുകൾ നിയന്ത്രിക്കുക."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"ഡിസ്പ്ലേ അനുയോജ്യതാ പാക്കേജുകൾ മാനേജ് ചെയ്യുക"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"ഡിസ്പ്ലേ അനുയോജ്യതാ പാക്കേജുകൾ മാനേജ് ചെയ്യുക."</string>
-    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
-    <skip />
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"ആപ്പ് കാർഡ് ദാതാക്കളുമായി ബന്ധിപ്പിക്കുക"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"ആപ്പ് കാർഡ് ദാതാക്കളുമായി ബന്ധിപ്പിക്കുക."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"കാറിലെ മറ്റ് ഒക്യുപന്റ് സോണുകളുടെയും ആ സോണുകളിൽ ഇൻസ്റ്റാൾ ചെയ്തിരിക്കുന്ന പിയർ ആപ്പുകളുടെയും (കോളറുടെ അതേ പാക്കേജ് പേരുള്ള ആപ്പുകൾ) നിലകൾ നിരീക്ഷിച്ച് ആ സോണുകളുടെ പവർ മാനേജ് ചെയ്യുക."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"കാറിലെ മറ്റ് ഒക്യുപന്റ് സോണുകളുടെയും ആ സോണുകളിൽ ഇൻസ്റ്റാൾ ചെയ്തിരിക്കുന്ന പിയർ ആപ്പുകളുടെയും (കോളറുടെ അതേ പാക്കേജ് പേരുള്ള ആപ്പുകൾ) നിലകൾ നിരീക്ഷിച്ച് ആ സോണുകളുടെ പവർ മാനേജ് ചെയ്യുക."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"കാറിലെ മറ്റ് ഒക്യുപന്റ് സോണുകളിൽ ഇൻസ്റ്റാൾ ചെയ്തിരിക്കുന്ന പിയർ ആപ്പുകളുമായി (കോളറുടെ അതേ പാക്കേജ് പേരുള്ള ആപ്പുകൾ) കണക്ഷൻ സ്ഥാപിച്ച് ആശയവിനിമയം നടത്തുക"</string>

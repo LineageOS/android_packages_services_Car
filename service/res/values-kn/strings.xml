@@ -216,10 +216,8 @@
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"ಕಾರಿನ ವಿಂಡ್‌ಶೀಲ್ಡ್ ವೈಪರ್‌ಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"ಡಿಸ್‌ಪ್ಲೇ ಹೊಂದಾಣಿಕೆಯ ಪ್ಯಾಕೇಜ್‌ಗಳನ್ನು ನಿರ್ವಹಿಸಿ"</string>
     <string name="car_permission_desc_manage_display_compatibility" msgid="903128563662035449">"ಪ್ರದರ್ಶನ ಹೊಂದಾಣಿಕೆಯ ಪ್ಯಾಕೇಜ್‌ಗಳನ್ನು ನಿರ್ವಹಿಸಿ."</string>
-    <!-- no translation found for car_permission_label_bind_app_card_provider (4905839485679347567) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_bind_app_card_provider (3392070358840581524) -->
-    <skip />
+    <string name="car_permission_label_bind_app_card_provider" msgid="4905839485679347567">"ಆ್ಯಪ್ ಕಾರ್ಡ್ ಪೂರೈಕೆದಾರರಿಗೆ ಬೈಂಡ್ ಮಾಡಿ"</string>
+    <string name="car_permission_desc_bind_app_card_provider" msgid="3392070358840581524">"ಆ್ಯಪ್ ಕಾರ್ಡ್ ಪೂರೈಕೆದಾರರಿಗೆ ಬೈಂಡ್ ಮಾಡಿ."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"ಕಾರ್‌ನಲ್ಲಿನ ಇತರ ಲಭ್ಯವಿರುವ ವಲಯಗಳ ಸ್ಥಿತಿಯನ್ನು ಮತ್ತು ಆ ವಲಯಗಳಲ್ಲಿ ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಲಾದ ಪೀಯರ್ ಆ್ಯಪ್‌ಗಳನ್ನು (ಕಾಲರ್ ಆ್ಯಪ್‌ಗಳ ಅದೇ ಪ್ಯಾಕೇಜ್ ಹೆಸರನ್ನು ಹೊಂದಿರುವ ಆ್ಯಪ್‌ಗಳು) ಮೇಲ್ವಿಚಾರಣೆ ಮಾಡಿ ಮತ್ತು ಆ ವಲಯಗಳ ಪವರ್ ಅನ್ನು ನಿರ್ವಹಿಸಿ."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"ಕಾರ್‌ನಲ್ಲಿನ ಇತರ ಲಭ್ಯವಿರುವ ವಲಯಗಳ ಸ್ಥಿತಿಯನ್ನು ಮತ್ತು ಆ ವಲಯಗಳಲ್ಲಿ ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಲಾದ ಪೀಯರ್ ಆ್ಯಪ್‌ಗಳನ್ನು (ಕಾಲರ್ ಆ್ಯಪ್‌ಗಳ ಅದೇ ಪ್ಯಾಕೇಜ್ ಹೆಸರನ್ನು ಹೊಂದಿರುವ ಆ್ಯಪ್‌ಗಳು) ಮೇಲ್ವಿಚಾರಣೆ ಮಾಡಿ ಮತ್ತು ಆ ವಲಯಗಳ ಪವರ್ ಅನ್ನು ನಿರ್ವಹಿಸಿ."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"ಕಾರ್‌ನಲ್ಲಿನ ಇತರ ಲಭ್ಯವಿರುವ ವಲಯಗಳಲ್ಲಿ ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಲಾದ ಪೀಯರ್ ಆ್ಯಪ್‌ಗಳಿಗೆ (ಕಾಲರ್ ಆ್ಯಪ್‌ಗಳ ಅದೇ ಪ್ಯಾಕೇಜ್ ಹೆಸರನ್ನು ಹೊಂದಿರುವ ಆ್ಯಪ್‌ಗಳು) ಕನೆಕ್ಷನ್ ಅನ್ನು ಸ್ಥಾಪಿಸಿ ಮತ್ತು ಅವುಗಳ ಜೊತೆಗೆ ಸಂವಹನ ನಡೆಸಿ"</string>
