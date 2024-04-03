@@ -57,6 +57,7 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.SparseIntArray;
 import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 import android.view.SurfaceControl;
@@ -117,19 +118,36 @@ public final class CarActivityService extends ICarActivityService.Stub
     @GuardedBy("mLock")
     private final RemoteCallbackList<ICarSystemUIProxyCallback> mCarSystemUIProxyCallbacks =
             new RemoteCallbackList<ICarSystemUIProxyCallback>();
+    /**
+     * Mapping between the task ID and the last known display ID.
+     */
+    @GuardedBy("mLock")
+    private final SparseIntArray mLastKnownDisplayIdForTask = new SparseIntArray();
 
     private IBinder mCurrentMonitor;
 
-    public interface ActivityLaunchListener {
+    /**
+     * Listener for activity callbacks.
+     */
+    public interface ActivityListener {
         /**
-         * Notify launch of activity.
+         * Notify coming of an activity on the top of the stack.
          *
          * @param topTask Task information for what is currently launched.
          */
-        void onActivityLaunch(TaskInfo topTask);
+        void onActivityCameOnTop(TaskInfo topTask);
+
+        /**
+         * Notify change or vanish of an activity in the backstack.
+         *
+         * @param taskInfo           task information for what is currently changed or vanished.
+         * @param lastKnownDisplayId the last known display id where the task changed or vanished.
+         */
+        void onActivityChangedInBackstack(TaskInfo taskInfo, int lastKnownDisplayId);
     }
+
     @GuardedBy("mLock")
-    private final ArrayList<ActivityLaunchListener> mActivityLaunchListeners = new ArrayList<>();
+    private final ArrayList<ActivityListener> mActivityListeners = new ArrayList<>();
 
     private final HandlerThread mMonitorHandlerThread = CarServiceUtils.getHandlerThread(
             SystemActivityMonitoringService.class.getSimpleName());
@@ -152,7 +170,7 @@ public final class CarActivityService extends ICarActivityService.Stub
     @Override
     public void release() {
         synchronized (mLock) {
-            mActivityLaunchListeners.clear();
+            mActivityListeners.clear();
         }
     }
 
@@ -182,15 +200,25 @@ public final class CarActivityService extends ICarActivityService.Stub
         return UserManagerHelper.getUserId(Binder.getCallingUid());
     }
 
-    public void registerActivityLaunchListener(@NonNull ActivityLaunchListener listener) {
+    /**
+     * Register an {@link ActivityListener}
+     *
+     * @param listener listener to register.
+     */
+    public void registerActivityListener(@NonNull ActivityListener listener) {
         synchronized (mLock) {
-            mActivityLaunchListeners.add(listener);
+            mActivityListeners.add(listener);
         }
     }
 
-    public void unregisterActivityLaunchListener(@NonNull ActivityLaunchListener listener) {
+    /**
+     * Unregister an {@link ActivityListener}.
+     *
+     * @param listener listener to unregister.
+     */
+    public void unregisterActivityListener(@NonNull ActivityListener listener) {
         synchronized (mLock) {
-            mActivityLaunchListeners.remove(listener);
+            mActivityListeners.remove(listener);
         }
     }
 
@@ -221,6 +249,7 @@ public final class CarActivityService extends ICarActivityService.Stub
         }
     }
 
+    /** Ensure permission is granted. */
     private void ensurePermission(String permission) {
         if (mContext.checkCallingOrSelfPermission(permission)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -256,19 +285,29 @@ public final class CarActivityService extends ICarActivityService.Stub
                 return;
             }
             mTasks.put(taskInfo.taskId, taskInfo);
+            mLastKnownDisplayIdForTask.put(taskInfo.taskId, TaskInfoHelper.getDisplayId(taskInfo));
             if (leash != null) {
                 mTaskToSurfaceMap.put(taskInfo.taskId, leash);
             }
         }
         if (TaskInfoHelper.isVisible(taskInfo)) {
-            mHandler.post(() -> notifyActivityLaunch(taskInfo));
+            mHandler.post(() -> notifyActivityCameOnTop(taskInfo));
         }
     }
 
-    private void notifyActivityLaunch(TaskInfo taskInfo) {
+    private void notifyActivityCameOnTop(TaskInfo taskInfo) {
         synchronized (mLock) {
-            for (int i = 0, size = mActivityLaunchListeners.size(); i < size; ++i) {
-                mActivityLaunchListeners.get(i).onActivityLaunch(taskInfo);
+            for (int i = 0, size = mActivityListeners.size(); i < size; ++i) {
+                mActivityListeners.get(i).onActivityCameOnTop(taskInfo);
+            }
+        }
+    }
+
+    private void notifyActivityChangedInBackStack(TaskInfo taskInfo) {
+        synchronized (mLock) {
+            for (int i = 0, size = mActivityListeners.size(); i < size; ++i) {
+                mActivityListeners.get(i).onActivityChangedInBackstack(taskInfo,
+                        mLastKnownDisplayIdForTask.get(taskInfo.taskId));
             }
         }
     }
@@ -296,8 +335,13 @@ public final class CarActivityService extends ICarActivityService.Stub
             if (!isAllowedToUpdateLocked(token)) {
                 return;
             }
+            // Do not remove the taskInfo from the mLastKnownDisplayIdForTask array since when
+            // the task vanishes, the display ID becomes -1. We want to preserve this information
+            // to finish the blocking ui for that display ID. mTasks and
+            // mLastKnownDisplayIdForTask come in sync when the blocking ui is finished.
             mTasks.remove(taskInfo.taskId);
             mTaskToSurfaceMap.remove(taskInfo.taskId);
+            mHandler.post(() -> notifyActivityChangedInBackStack(taskInfo));
         }
     }
 
@@ -315,11 +359,39 @@ public final class CarActivityService extends ICarActivityService.Stub
             // LinkedHashMap.
             TaskInfo oldTaskInfo = mTasks.remove(taskInfo.taskId);
             mTasks.put(taskInfo.taskId, taskInfo);
+            mLastKnownDisplayIdForTask.put(taskInfo.taskId, TaskInfoHelper.getDisplayId(taskInfo));
             if ((oldTaskInfo == null || !TaskInfoHelper.isVisible(oldTaskInfo)
                     || !Objects.equals(oldTaskInfo.topActivity, taskInfo.topActivity))
                     && TaskInfoHelper.isVisible(taskInfo)) {
-                mHandler.post(() -> notifyActivityLaunch(taskInfo));
+                mHandler.post(() -> notifyActivityCameOnTop(taskInfo));
+            } else {
+                mHandler.post(() -> notifyActivityChangedInBackStack(taskInfo));
             }
+        }
+    }
+
+    /**
+     * Removes the task from {@code mLastKnownDisplayIdForTask} if it is not present in
+     * {@code mTasks}.
+     */
+    public void cleanUpLastKnownDisplayIdForTask(TaskInfo taskInfo) {
+        synchronized (mLock) {
+            //This can happen since the tasks are removed from mTasks but not from
+            // mLastKnownDisplayIdForTask when the task vanishes in onTaskVanished.
+            if (!mTasks.containsKey(taskInfo.taskId) && mLastKnownDisplayIdForTask.get(
+                    taskInfo.taskId, Display.INVALID_DISPLAY) != Display.INVALID_DISPLAY) {
+                mLastKnownDisplayIdForTask.removeAt(
+                        mLastKnownDisplayIdForTask.indexOfKey(taskInfo.taskId));
+            }
+        }
+    }
+
+    /**
+     * Returns the array {@code mLastKnownDisplayIdForTask}.
+     */
+    public int getLastKnownDisplayIdForTask(int taskId) {
+        synchronized (mLock) {
+            return mLastKnownDisplayIdForTask.get(taskId);
         }
     }
 
@@ -698,7 +770,7 @@ public final class CarActivityService extends ICarActivityService.Stub
                 writer.println("  " + TaskInfoHelper.toString(taskInfo));
             }
             writer.println(" Surfaces: " + mTaskToSurfaceMap.toString());
-            writer.println(" ActivityLaunchListeners: " + mActivityLaunchListeners.toString());
+            writer.println(" ActivityListeners: " + mActivityListeners.toString());
         }
     }
 

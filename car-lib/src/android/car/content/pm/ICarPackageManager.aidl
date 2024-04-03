@@ -19,6 +19,7 @@ package android.car.content.pm;
 import android.app.PendingIntent;
 import android.car.CarVersion;
 import android.car.content.pm.CarAppBlockingPolicy;
+import android.car.content.pm.ICarBlockingUiCommandListener;
 import android.content.ComponentName;
 
 /** @hide */
@@ -38,4 +39,6 @@ interface ICarPackageManager {
     CarVersion getTargetCarVersion(String packageName) = 10;
     CarVersion getSelfTargetCarVersion(in String packageName) = 11;
     boolean requiresDisplayCompat(in String packageName) = 12;
+    void registerBlockingUiCommandListener(in ICarBlockingUiCommandListener listener, int displayId) = 13;
+    void unregisterBlockingUiCommandListener(in ICarBlockingUiCommandListener listener) = 14;
 }
