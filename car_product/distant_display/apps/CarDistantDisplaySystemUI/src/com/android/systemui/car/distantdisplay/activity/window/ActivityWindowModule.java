@@ -15,8 +15,10 @@
  */
 package com.android.systemui.car.distantdisplay.activity.window;
 
+import android.app.Activity;
 import android.os.Handler;
 
+import com.android.systemui.car.distantdisplay.activity.DistantDisplayCompanionActivity;
 import com.android.systemui.dagger.SysUISingleton;
 import com.android.wm.shell.common.HandlerExecutor;
 import com.android.wm.shell.common.ShellExecutor;
@@ -43,6 +45,12 @@ public abstract class ActivityWindowModule {
     @ClassKey(ActivityWindowController.class)
     public abstract ActivityWindowController bindActivityWindowController(
             ActivityWindowController activityWindowController);
+
+    /** Inject into DistantDisplayCompanionActivity. */
+    @Binds
+    @IntoMap
+    @ClassKey(DistantDisplayCompanionActivity.class)
+    public abstract Activity bindActivityBlockingActivity(DistantDisplayCompanionActivity activity);
 
     @Provides
     @SysUISingleton

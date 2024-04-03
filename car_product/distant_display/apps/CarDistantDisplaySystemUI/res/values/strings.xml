@@ -18,4 +18,8 @@
 <resources>
     <string name="qc_send_to_pano_title">Send to pano</string>
     <string name="qc_bring_back_to_default_display_title">Bring it back</string>
+
+    <string name="distant_display_companion_message">%s is shown on the distant display.</string>
+    <string name="distant_display_companion_message_default_app">App</string>
+    <string name="distant_display_companion_button_text">Bring it back</string>
 </resources>

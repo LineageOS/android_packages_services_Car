@@ -39,6 +39,7 @@ import androidx.annotation.Nullable;
 import com.android.car.ui.utils.CarUxRestrictionsUtil;
 import com.android.systemui.R;
 import com.android.systemui.broadcast.BroadcastDispatcher;
+import com.android.systemui.car.distantdisplay.activity.DistantDisplayCompanionActivity;
 import com.android.systemui.car.distantdisplay.activity.MoveTaskReceiver;
 import com.android.systemui.car.distantdisplay.activity.RootTaskViewWallpaperActivity;
 import com.android.systemui.car.distantdisplay.util.AppCategoryDetector;
@@ -295,14 +296,15 @@ public class TaskViewController {
             }
             TaskData data = mForegroundTasks.getTopTaskOnDisplay(
                     DEFAULT_DISPLAY_ID);
+            if (data == null) return;
             ComponentName componentName =
                     data.mBaseIntent == null ? null : data.mBaseIntent.getComponent();
             if (mRestrictedActivities.contains(componentName)) {
                 Log.w(TAG, "restricted activity: " + componentName);
                 return;
             }
-            if (data == null) return;
             moveTaskToDisplay(data.mTaskId, mDistantDisplayId);
+            launchCompanionUI(getPackageNameFromBaseIntent(data.mBaseIntent));
             mDisplayCompatService.setVisibility(true);
         }
     }
@@ -313,6 +315,13 @@ public class TaskViewController {
         } catch (Exception e) {
             Log.e(TAG, "Error moving task " + taskId + " to display " + displayId, e);
         }
+    }
+
+    private void launchCompanionUI(@Nullable String packageName) {
+        Intent intent = DistantDisplayCompanionActivity.createIntent(mContext, packageName);
+        ActivityOptions options = ActivityOptions.makeBasic()
+                .setLaunchDisplayId(DEFAULT_DISPLAY_ID);
+        mContext.startActivity(intent, options.toBundle());
     }
 
     private boolean isVideoApp(@Nullable String packageName) {
