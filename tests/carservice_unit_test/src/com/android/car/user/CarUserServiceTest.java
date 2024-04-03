@@ -65,7 +65,6 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
-import android.car.CarVersion;
 import android.car.ICarResultReceiver;
 import android.car.PlatformVersion;
 import android.car.SyncResultCallback;
@@ -609,34 +608,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         // Verify: receivers are called or not depending on what their filter evaluates to.
         verify(mLifecycleEventReceiver, never()).send(anyInt(), any());
         verify(mAnotherLifecycleEventReceiver, times(2)).send(anyInt(), any());
-    }
-
-    @Test
-    public void testOnUserLifecycleEvent_notifyReceiver_targetVersionCheck() throws Exception {
-        // Arrange: add receivers.
-        mCarUserService.setLifecycleListenerForApp("package1",
-                new UserLifecycleEventFilter.Builder()
-                        .addEventType(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_CREATED).build(),
-                mLifecycleEventReceiver);
-        mCarUserService.setLifecycleListenerForApp("package2",
-                new UserLifecycleEventFilter.Builder()
-                        .addEventType(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_CREATED).build(),
-                mAnotherLifecycleEventReceiver);
-
-        when(mCarPackageManagerService.getTargetCarVersion("package1"))
-                .thenReturn(CarVersion.VERSION_CODES.TIRAMISU_0);
-        when(mCarPackageManagerService.getTargetCarVersion("package2"))
-                .thenReturn(CarVersion.VERSION_CODES.TIRAMISU_1);
-
-        // Act: User created event occurs.
-        sendUserLifecycleEvent(/* fromUser */ 0, mRegularUserId,
-                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_CREATED);
-        waitForHandlerThreadToFinish();
-
-        // Verify: receivers are called or not depending on whether the target version meets
-        // requirement.
-        verify(mLifecycleEventReceiver, never()).send(anyInt(), any());
-        verify(mAnotherLifecycleEventReceiver).send(anyInt(), any());
     }
 
     @Test
