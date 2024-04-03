@@ -147,11 +147,6 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
             new ContentObserver(mHandler) {
                 @Override
                 public void onChange(boolean selfChange) {
-                    if (!mIsPersistTetheringCapabilitiesEnabled) {
-                        Slogf.i(TAG, "Persist tethering capability is not enabled");
-                        return;
-                    }
-
                     Slogf.i(TAG, "%s setting has changed", ENABLE_PERSISTENT_TETHERING);
                     // If the persist tethering setting is turned off, auto shutdown must be
                     // re-enabled.
@@ -187,8 +182,8 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
             return;
         }
 
-        // Listeners should be set if there's capability so tethering can be ready to turn on if
-        // setting is enabled, on next boot.
+        // Listeners should only be set if there's capability (also allows for
+        // tethering persisting if setting is enabled, on next boot).
         mWifiManager.registerSoftApCallback(mHandler::post, mSoftApCallback);
         mCarUserService.runOnUser0Unlock(this::onSystemUserUnlocked);
         mCarPowerManagementService.registerListener(mCarPowerStateListener);
