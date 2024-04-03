@@ -37,8 +37,6 @@ ExecutorRegistration: android.car.hardware.CarSensorManager#registerListener(and
     Registration methods should have overload that accepts delivery Executor: `registerListener`
 ExecutorRegistration: android.car.hardware.property.CarPropertyManager#registerCallback(android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int, float):
     Registration methods should have overload that accepts delivery Executor: `registerCallback`
-ExecutorRegistration: android.car.hardware.property.CarPropertyManager#unsubscribePropertyEvents(android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int):
-    Registration methods should have overload that accepts delivery Executor: `unsubscribePropertyEvents`
 ExecutorRegistration: android.car.media.CarAudioManager#registerCarVolumeCallback(android.car.media.CarAudioManager.CarVolumeCallback):
     Registration methods should have overload that accepts delivery Executor: `registerCarVolumeCallback`
 
@@ -53,8 +51,6 @@ ListenerLast: android.car.CarAppFocusManager#abandonAppFocus(android.car.CarAppF
     Listeners should always be at end of argument list (method `abandonAppFocus`)
 ListenerLast: android.car.CarAppFocusManager#isOwningFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int) parameter #1:
     Listeners should always be at end of argument list (method `isOwningFocus`)
-ListenerLast: android.car.hardware.property.CarPropertyManager#unsubscribePropertyEvents(android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int) parameter #1:
-    Listeners should always be at end of argument list (method `unsubscribePropertyEvents`)
 
 
 MissingGetterMatchingBuilder: android.car.drivingstate.CarUxRestrictions.Builder#setMaxStringLength(int):
@@ -317,10 +313,6 @@ UnflaggedApi: android.car.Car#getCarManager(Class<T>):
     New API must be flagged with @FlaggedApi: method android.car.Car.getCarManager(Class<T>)
 UnflaggedApi: android.car.Car#getCarManager(String):
     New API must be flagged with @FlaggedApi: method android.car.Car.getCarManager(String)
-UnflaggedApi: android.car.Car#getCarVersion():
-    New API must be flagged with @FlaggedApi: method android.car.Car.getCarVersion()
-UnflaggedApi: android.car.Car#getPlatformVersion():
-    New API must be flagged with @FlaggedApi: method android.car.Car.getPlatformVersion()
 UnflaggedApi: android.car.Car#isConnected():
     New API must be flagged with @FlaggedApi: method android.car.Car.isConnected()
 UnflaggedApi: android.car.Car#isConnecting():
@@ -1061,10 +1053,6 @@ UnflaggedApi: android.car.VehicleUnit#WATT_HOUR:
     New API must be flagged with @FlaggedApi: field android.car.VehicleUnit.WATT_HOUR
 UnflaggedApi: android.car.content.pm.CarPackageManager:
     New API must be flagged with @FlaggedApi: class android.car.content.pm.CarPackageManager
-UnflaggedApi: android.car.content.pm.CarPackageManager#MANIFEST_METADATA_TARGET_CAR_VERSION:
-    New API must be flagged with @FlaggedApi: field android.car.content.pm.CarPackageManager.MANIFEST_METADATA_TARGET_CAR_VERSION
-UnflaggedApi: android.car.content.pm.CarPackageManager#getTargetCarVersion():
-    New API must be flagged with @FlaggedApi: method android.car.content.pm.CarPackageManager.getTargetCarVersion()
 UnflaggedApi: android.car.content.pm.CarPackageManager#isActivityDistractionOptimized(String, String):
     New API must be flagged with @FlaggedApi: method android.car.content.pm.CarPackageManager.isActivityDistractionOptimized(String,String)
 UnflaggedApi: android.car.content.pm.CarPackageManager#isPendingIntentDistractionOptimized(android.app.PendingIntent):

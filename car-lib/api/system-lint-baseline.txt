@@ -893,10 +893,6 @@ RegistrationName: android.car.storagemonitoring.CarStorageMonitoringManager#unre
     Listener methods should be named add/remove; was unregisterListener
 
 
-RequiresPermission: android.car.view.WindowManagerHelper#setInputFeatureSpy(android.view.WindowManager.LayoutParams):
-    Method 'setInputFeatureSpy' documentation mentions permissions without declaring @RequiresPermission
-
-
 RethrowRemoteException: android.car.occupantconnection.AbstractReceiverService#forwardPayload(android.car.CarOccupantZoneManager.OccupantZoneInfo, String, android.car.occupantconnection.Payload):
     Methods calling system APIs should rethrow `RemoteException` as `RuntimeException` (but do not list it in the throws clause)
 
@@ -943,34 +939,6 @@ StaticFinalBuilder: android.car.diagnostic.CarDiagnosticEvent.Builder:
     Builder must be final: android.car.diagnostic.CarDiagnosticEvent.Builder
 StaticFinalBuilder: android.car.hardware.CarPropertyConfig.Builder:
     Builder must be final: android.car.hardware.CarPropertyConfig.Builder
-
-
-Todo: android.car.VehiclePropertyIds#AP_POWER_BOOTUP_REASON:
-    Documentation mentions 'TODO'
-Todo: android.car.VehiclePropertyIds#AP_POWER_STATE_REPORT:
-    Documentation mentions 'TODO'
-Todo: android.car.VehiclePropertyIds#AP_POWER_STATE_REQ:
-    Documentation mentions 'TODO'
-Todo: android.car.VehiclePropertyIds#DISPLAY_BRIGHTNESS:
-    Documentation mentions 'TODO'
-Todo: android.car.VehiclePropertyIds#HW_KEY_INPUT:
-    Documentation mentions 'TODO'
-Todo: android.car.VehiclePropertyIds#OBD2_FREEZE_FRAME:
-    Documentation mentions 'TODO'
-Todo: android.car.VehiclePropertyIds#OBD2_FREEZE_FRAME_CLEAR:
-    Documentation mentions 'TODO'
-Todo: android.car.VehiclePropertyIds#OBD2_FREEZE_FRAME_INFO:
-    Documentation mentions 'TODO'
-Todo: android.car.VehiclePropertyIds#OBD2_LIVE_FRAME:
-    Documentation mentions 'TODO'
-Todo: android.car.VehiclePropertyIds#PER_DISPLAY_BRIGHTNESS:
-    Documentation mentions 'TODO'
-Todo: android.car.VehiclePropertyIds#VEHICLE_MAP_SERVICE:
-    Documentation mentions 'TODO'
-Todo: android.car.evs.CarEvsManager#startVideoStream(int, android.os.IBinder, java.util.concurrent.Executor, android.car.evs.CarEvsManager.CarEvsStreamCallback):
-    Documentation mentions 'TODO'
-Todo: android.car.telemetry.CarTelemetryManager.MetricsReportCallback#onResult(String, android.os.PersistableBundle, byte[], int):
-    Documentation mentions 'TODO'
 
 
 UnflaggedApi: android.car.AoapService:
@@ -1855,8 +1823,6 @@ UnflaggedApi: android.car.content.pm.CarAppBlockingPolicyService#getAppBlockingP
     New API must be flagged with @FlaggedApi: method android.car.content.pm.CarAppBlockingPolicyService.getAppBlockingPolicy()
 UnflaggedApi: android.car.content.pm.CarAppBlockingPolicyService#onBind(android.content.Intent):
     New API must be flagged with @FlaggedApi: method android.car.content.pm.CarAppBlockingPolicyService.onBind(android.content.Intent)
-UnflaggedApi: android.car.content.pm.CarPackageManager#getTargetCarVersion(String):
-    New API must be flagged with @FlaggedApi: method android.car.content.pm.CarPackageManager.getTargetCarVersion(String)
 UnflaggedApi: android.car.content.pm.CarPackageManager#isActivityBackedBySafeActivity(android.content.ComponentName):
     New API must be flagged with @FlaggedApi: method android.car.content.pm.CarPackageManager.isActivityBackedBySafeActivity(android.content.ComponentName)
 UnflaggedApi: android.car.diagnostic.CarDiagnosticEvent:

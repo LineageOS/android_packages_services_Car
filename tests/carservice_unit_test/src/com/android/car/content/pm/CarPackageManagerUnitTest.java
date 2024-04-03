@@ -16,11 +16,15 @@
 package com.android.car.content.pm;
 
 import static android.car.testapi.CarMockitoHelper.mockHandleRemoteExceptionFromCarServiceWithDefaultValue;
+import static android.view.Display.DEFAULT_DISPLAY;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
@@ -37,6 +41,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.concurrent.Executor;
+
 public final class CarPackageManagerUnitTest extends AbstractExtendedMockitoTestCase {
 
     @Mock
@@ -44,6 +50,12 @@ public final class CarPackageManagerUnitTest extends AbstractExtendedMockitoTest
 
     @Mock
     private ICarPackageManager mService;
+
+    @Mock
+    private Executor mExecutor;
+
+    @Mock
+    private CarPackageManager.BlockingUiCommandListener mBlockingUiCommandListener;
 
     private CarPackageManager mMgr;
 
@@ -116,6 +128,41 @@ public final class CarPackageManagerUnitTest extends AbstractExtendedMockitoTest
 
         assertThat(e.getMessage()).contains("the.meaning.of.life");
         assertThat(e.getMessage()).doesNotContain("D'OH!");
+    }
+
+    @Test
+    public void registerBlockingUiCommandListener() throws Exception {
+        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
+
+        mMgr.registerBlockingUiCommandListener(DEFAULT_DISPLAY, mExecutor,
+                mBlockingUiCommandListener);
+
+        verify(mService).registerBlockingUiCommandListener(any(), anyInt());
+    }
+
+    @Test
+    public void registerBlockingUiCommandListener_sameListenerNotRegisterForAnotherDisplay()
+            throws Exception {
+        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
+        int tempDisplayId = 1;
+
+        mMgr.registerBlockingUiCommandListener(DEFAULT_DISPLAY, mExecutor,
+                mBlockingUiCommandListener);
+
+        assertThrows(IllegalStateException.class,
+                () -> mMgr.registerBlockingUiCommandListener(tempDisplayId, mExecutor,
+                        mBlockingUiCommandListener));
+    }
+
+    @Test
+    public void unregisterBlockingUiCommandListener() throws Exception {
+        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
+        mMgr.registerBlockingUiCommandListener(DEFAULT_DISPLAY, mExecutor,
+                mBlockingUiCommandListener);
+
+        mMgr.unregisterBlockingUiCommandListener(mBlockingUiCommandListener);
+
+        verify(mService).unregisterBlockingUiCommandListener(any());
     }
 
     private void mockPackageName(String name) {

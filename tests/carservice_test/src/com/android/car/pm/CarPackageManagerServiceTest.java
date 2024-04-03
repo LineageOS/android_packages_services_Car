@@ -259,14 +259,6 @@ public class CarPackageManagerServiceTest {
     }
 
     @Test
-    public void testBlockingActivity_nonDoNoHistory_isBlocked() throws Exception {
-        startActivity(toComponentName(getTestContext(), NonDoNoHistoryActivity.class));
-
-        assertThat(mDevice.wait(Until.findObject(By.res(ACTIVITY_BLOCKING_ACTIVITY_TEXTVIEW_ID)),
-                UI_TIMEOUT_MS)).isNotNull();
-    }
-
-    @Test
     public void testIsActivityBackedBySafeActivity_notMoving_nonDoActivity_returnsTrue()
             throws Exception {
         setDrivingStateParked();
@@ -441,9 +433,6 @@ public class CarPackageManagerServiceTest {
                 }
             }
         }
-    }
-
-    public static class NonDoNoHistoryActivity extends TempActivity {
     }
 
     public static class DoActivity extends TempActivity {
