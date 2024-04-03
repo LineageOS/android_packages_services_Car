@@ -49,18 +49,21 @@ public class FullScreenPanelAnimator extends PanelAnimator {
     /**
      * A {@code PanelAnimator} to animate the panel into the full screen state.
      *
-     * @param panel         The panel that should animate
-     * @param bounds        The final bounds of the panel within its parent
-     * @param initialOffset The initial top left corner of the panel in its parent.
-     * @param overlay       The overlay view that covers the {@code TaskView}. Used to display
-     *                      the application icon during animation.
+     * @param panel          The panel that should animate
+     * @param bounds         The final bounds of the panel within its parent
+     * @param initialOffset  The initial top left corner of the panel in its parent.
+     * @param overlay        The overlay view that covers the {@code TaskView}. Used to display
+     *                       the application icon during animation.
+     * @param animationScale Scaling factor for Animator-based animations.
      */
     public FullScreenPanelAnimator(ViewGroup panel, Rect bounds, Point initialOffset,
-            TaskViewPanelOverlay overlay) {
-        super(panel);
+            TaskViewPanelOverlay overlay, float animationScale) {
+        super(panel, animationScale);
         mBounds = bounds;
         mInitialOffset = initialOffset;
         mOverlay = overlay;
+        mStartDelay = getScaledDuration(OVERLAY_FADE_OUT_START_DELAY);
+        mDuration = getScaledDuration(OVERLAY_FADE_OUT_DURATION);
     }
 
     @Override
@@ -74,8 +77,8 @@ public class FullScreenPanelAnimator extends PanelAnimator {
 
         mAnimation = new BoundsAnimation(mPanel, mBounds, () -> {
             mOverlayAnimator = mOverlay.animate().alpha(OVERLAY_FADE_OUT_END_ALPHA)
-                    .setStartDelay(OVERLAY_FADE_OUT_START_DELAY)
-                    .setDuration(OVERLAY_FADE_OUT_DURATION)
+                    .setStartDelay(mStartDelay)
+                    .setDuration(mDuration)
                     .withEndAction(() -> {
                         mOverlay.hide();
                         mOverlay.setAlpha(OVERLAY_FADE_OUT_START_ALPHA);

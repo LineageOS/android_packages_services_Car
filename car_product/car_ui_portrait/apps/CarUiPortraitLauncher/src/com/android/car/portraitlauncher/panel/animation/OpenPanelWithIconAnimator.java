@@ -41,15 +41,18 @@ public class OpenPanelWithIconAnimator extends OpenPanelAnimator {
     /**
      * A {@code PanelAnimator} to animate the panel into the open state.
      *
-     * @param panel           The panel on which the animator acts.
-     * @param bounds          The final bounds that the panel should animate to.
-     * @param overlay         The overlay view that covers the {@code TaskView}. Used to cover
-     *                        the panel during animation.
+     * @param panel          The panel on which the animator acts.
+     * @param bounds         The final bounds that the panel should animate to.
+     * @param overlay        The overlay view that covers the {@code TaskView}. Used to cover
+     *                       the panel during animation.
+     * @param animationScale Scaling factor for Animator-based animations.
      */
     public OpenPanelWithIconAnimator(ViewGroup panel, Rect bounds,
-            TaskViewPanelOverlay overlay) {
-        super(panel, bounds);
+            TaskViewPanelOverlay overlay, float animationScale) {
+        super(panel, bounds, animationScale);
         mOverlay = overlay;
+        mDuration = getScaledDuration(OVERLAY_FADE_OUT_DURATION);
+        mStartDelay = getScaledDuration(OVERLAY_FADE_OUT_START_DELAY);
     }
 
     @Override
@@ -61,8 +64,8 @@ public class OpenPanelWithIconAnimator extends OpenPanelAnimator {
                 mOverlayAnimator = mOverlay
                         .animate()
                         .alpha(OVERLAY_FADE_OUT_END_ALPHA)
-                        .setStartDelay(OVERLAY_FADE_OUT_START_DELAY)
-                        .setDuration(OVERLAY_FADE_OUT_DURATION)
+                        .setStartDelay(mStartDelay)
+                        .setDuration(mDuration)
                         .withEndAction(() -> {
                             mOverlay.hide();
                             mOverlay.setAlpha(OVERLAY_FADE_OUT_START_ALPHA);

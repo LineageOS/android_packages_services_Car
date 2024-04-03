@@ -51,21 +51,24 @@ public class FadeOutPanelAnimator extends PanelAnimator {
     /**
      * A {@code PanelAnimator} to animate the panel into the open state using the fade-in animation.
      *
-     * @param panel The panel that should animate
-     * @param overlay The overlay view that covers the {@code TaskView}. Used to visually fade out
-     *                the {@code TaskView}.
-     * @param taskView The task view of the panel.
-     * @param toBounds The final bounds of the panel within its parent
+     * @param panel              The panel that should animate
+     * @param overlay            The overlay view that covers the {@code TaskView}. Used to visually
+     *                           fade out
+     *                           the {@code TaskView}.
+     * @param taskView           The task view of the panel.
+     * @param toBounds           The final bounds of the panel within its parent
      * @param offScreenYPosition Y value that can be applied to a panel to get it off the screen.
-     *                        This is needed to hide panels during the animation.
+     *                           This is needed to hide panels during the animation.
+     * @param animationScale     Scaling factor for Animator-based animations.
      */
     public FadeOutPanelAnimator(ViewGroup panel, TaskViewPanelOverlay overlay, View taskView,
-            Rect toBounds, float offScreenYPosition) {
-        super(panel);
+            Rect toBounds, float offScreenYPosition, float animationScale) {
+        super(panel, animationScale);
         mOverlay = overlay;
         mTaskView = taskView;
         mBounds = toBounds;
         mOffScreenYPosition = offScreenYPosition;
+        mDuration = getScaledDuration(OVERLAY_FADE_IN_DURATION);
     }
 
     @Override
@@ -76,9 +79,10 @@ public class FadeOutPanelAnimator extends PanelAnimator {
         // panel.
         // This is necessary since we cannot fade the task views.
         mOverlayAnimator = mOverlay.animate().alpha(FADE_IN_ALPHA)
-                .setDuration(OVERLAY_FADE_IN_DURATION)
+                .setDuration(mDuration)
                 .withEndAction(() -> {
-                    mPanel.animate().alpha(FADE_OUT_ALPHA).setDuration(PANEL_FADE_OUT_DURATION)
+                    mPanel.animate().alpha(FADE_OUT_ALPHA).setDuration(
+                                    getScaledDuration(PANEL_FADE_OUT_DURATION))
                             .withEndAction(() -> {
                                 mOverlay.setVisibility(GONE);
                                 mTaskView.setScaleX(INITIAL_SCALE);
@@ -90,7 +94,7 @@ public class FadeOutPanelAnimator extends PanelAnimator {
                 });
         // Scale the task view and hide it at the end.
         mTaskViewAnimator = mTaskView.animate().scaleX(FINAL_SCALE).scaleY(FINAL_SCALE)
-                .setDuration(OVERLAY_FADE_IN_DURATION).setInterpolator(INTERPOLATOR)
+                .setDuration(mDuration).setInterpolator(INTERPOLATOR)
                 .withEndAction(() -> {
                     // Restore the initial scale
                     mTaskView.setScaleX(INITIAL_SCALE);
