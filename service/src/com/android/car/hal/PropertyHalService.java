@@ -65,7 +65,6 @@ import android.os.SystemClock;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
-import android.util.Pair;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
@@ -127,7 +126,6 @@ public class PropertyHalService extends HalServiceBase {
     // it should be considered a success. If we get the initial value successfully and the
     // initial value is the same as the target value, we treat the async set as success.
     private static final int GET_INITIAL_VALUE_FOR_SET = 2;
-    private static final float UPDATE_RATE_ERROR = -1f;
 
     // A fake pending request ID for car property service.
     private static final int CAR_PROP_SVC_REQUEST_ID = -1;
@@ -395,8 +393,6 @@ public class PropertyHalService extends HalServiceBase {
     @GuardedBy("mLock")
     private final SparseArray<HalPropConfig> mHalPropIdToPropConfig =
             new SparseArray<>();
-    @GuardedBy("mLock")
-    private final SparseArray<Pair<String, String>> mMgrPropIdToPermissions = new SparseArray<>();
     // A pending request pool to store all pending async get/set property request info.
     // Service request ID is int, not long, but we only have one version of PendingRequestPool.
     @GuardedBy("mLock")
@@ -1204,7 +1200,6 @@ public class PropertyHalService extends HalServiceBase {
     public void subscribeProperty(List<CarSubscription> carSubscriptions)
             throws ServiceSpecificException {
         synchronized (mLock) {
-            Set<Integer> halPropIdsToSubscribe = new ArraySet<>();
             // Even though this involves binder call, this must be done inside the lock so that
             // the state in {@code mSubManager} is consistent with the state in VHAL.
             for (int i = 0; i < carSubscriptions.size(); i++) {
@@ -1255,21 +1250,6 @@ public class PropertyHalService extends HalServiceBase {
                 throw e;
             }
         }
-    }
-
-    @GuardedBy("mLock")
-    private int[] getAllAreaIdsLocked(int mgrPropId) {
-        int[] areaIds = EMPTY_INT_ARRAY;
-        HalPropConfig halPropConfig = mHalPropIdToPropConfig.get(managerToHalPropId(mgrPropId));
-        if (halPropConfig == null) {
-            if (DBG) {
-                Slogf.d(TAG, "Unable to get any areaIds from %s",
-                        VehiclePropertyIds.toString(mgrPropId));
-            }
-            return areaIds;
-        }
-        areaIds = halPropConfig.toCarPropertyConfig(mgrPropId).getAreaIds();
-        return areaIds;
     }
 
     @Override

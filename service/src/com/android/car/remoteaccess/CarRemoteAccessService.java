@@ -102,7 +102,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -366,7 +365,6 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     @GuardedBy("mLock")
     private boolean mRunGarageMode;
     private CarPowerManagementService mPowerService;
-    private AtomicBoolean mInitialized;
 
     private CarRemoteAccessServiceDep mDep;
 

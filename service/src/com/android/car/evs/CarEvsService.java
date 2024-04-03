@@ -16,17 +16,10 @@
 
 package com.android.car.evs;
 
-import static android.car.evs.CarEvsManager.ERROR_BUSY;
 import static android.car.evs.CarEvsManager.ERROR_NONE;
 import static android.car.evs.CarEvsManager.ERROR_UNAVAILABLE;
-import static android.car.evs.CarEvsManager.SERVICE_STATE_ACTIVE;
-import static android.car.evs.CarEvsManager.SERVICE_STATE_INACTIVE;
-import static android.car.evs.CarEvsManager.SERVICE_STATE_REQUESTED;
-import static android.car.evs.CarEvsManager.SERVICE_STATE_UNAVAILABLE;
-import static android.car.evs.CarEvsManager.STREAM_EVENT_STREAM_STOPPED;
 
 import static com.android.car.CarLog.TAG_EVS;
-import static com.android.car.evs.StateMachine.REQUEST_PRIORITY_LOW;
 import static com.android.car.evs.StateMachine.REQUEST_PRIORITY_NORMAL;
 import static com.android.car.evs.StateMachine.REQUEST_PRIORITY_HIGH;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -56,7 +49,6 @@ import android.hardware.automotive.vehicle.VehicleGear;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManager.DisplayListener;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -64,8 +56,8 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.UserHandle;
-import android.util.ArraySet;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.proto.ProtoOutputStream;
@@ -78,7 +70,6 @@ import com.android.car.R;
 import com.android.car.hal.EvsHalService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.evs.CarEvsUtils;
-import com.android.car.internal.evs.EvsHalWrapper;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -990,29 +981,6 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     void setLastEvsHalEvent(long timestamp, @CarEvsServiceType int type, boolean on) {
         synchronized (mLock) {
             mLastEvsHalEvent = new EvsHalEvent(timestamp, type, on);
-        }
-    }
-
-    /** Handles client disconnections; may request to stop a video stream. */
-    private void handleClientDisconnected(ICarEvsStreamCallback callback) {
-        // If the last stream client is disconnected before it stops a video stream, request to stop
-        // current video stream.
-        ArraySet<Integer> types = mCallbackToServiceType.get(callback.asBinder());
-        if (types == null) {
-            Slogf.d(TAG_EVS, "Ignores an incidental loss of unknown callback %s.",
-                    callback.asBinder());
-            return;
-        }
-
-        for (int i = 0; i < types.size(); i++) {
-            StateMachine instance = mServiceInstances.get(types.valueAt(i));
-            if (instance == null) {
-                Slogf.i(TAG_EVS, "Ignores an incidental loss of a callback %s for service %d.",
-                        callback.asBinder(), types.valueAt(i));
-                return;
-            }
-
-            instance.handleClientDisconnected(callback);
         }
     }
 

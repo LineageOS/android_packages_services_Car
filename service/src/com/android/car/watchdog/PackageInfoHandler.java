@@ -123,7 +123,7 @@ public final class PackageInfoHandler {
         }
         try {
             return getNameForPackage(PackageManagerHelper.getPackageInfoAsUser(
-                    mPackageManager, packageName, /* flags= */ 0, userId));
+                    mPackageManager, packageName, /* packageInfoFlags= */ 0, userId));
         } catch (PackageManager.NameNotFoundException e) {
             Slogf.e(TAG, "Package '%s' not found for user %d: %s", packageName, userId, e);
         }

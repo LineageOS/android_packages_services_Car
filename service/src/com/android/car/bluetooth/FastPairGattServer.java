@@ -90,7 +90,6 @@ public class FastPairGattServer {
             .fromString("00002A00-0000-1000-8000-00805f9b34fb");
     private static final String TAG = CarLog.tagFor(FastPairGattServer.class);
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
-    private static final int MAX_KEY_COUNT = 10;
     private static final int KEY_LIFESPAN_AWAIT_PAIRING = 60_000;
     // Spec *does* say indefinitely but not having a timeout is risky. This matches the BT stack's
     // internal pairing timeout
@@ -819,7 +818,6 @@ public class FastPairGattServer {
         // Check that the request is either a Key-based Pairing Request or an Action Request
         if (decryptedRequest[0] == 0x00 || decryptedRequest[0] == 0x10) {
             String localAddress = mBluetoothAdapter.getAddress();
-            byte[] localAddressBytes = BluetoothUtils.getBytesFromAddress(localAddress);
             // Extract the remote address bytes from the message
             byte[] remoteAddressBytes = Arrays.copyOfRange(decryptedRequest, 2, 8);
             BluetoothDevice localDevice = mBluetoothAdapter.getRemoteDevice(localAddress);

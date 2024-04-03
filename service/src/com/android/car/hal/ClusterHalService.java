@@ -345,7 +345,7 @@ public final class ClusterHalService extends HalServiceBase {
         }
         HalPropValue request = mPropValueBuilder.build(CLUSTER_NAVIGATION_STATE,
                 /* areaId= */ 0, SystemClock.elapsedRealtime(), VehiclePropertyStatus.AVAILABLE,
-                /* value= */ navigateState);
+                /* values= */ navigateState);
         send(request);
     }
 
