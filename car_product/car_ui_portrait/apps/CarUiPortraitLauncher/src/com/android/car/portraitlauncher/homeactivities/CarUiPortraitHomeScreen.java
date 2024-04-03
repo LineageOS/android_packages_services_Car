@@ -250,16 +250,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
 
         @Override
-        public void onTaskFocusChanged(int taskId, boolean focused) {
-            super.onTaskFocusChanged(taskId, focused);
-            logIfDebuggable("On task focus changed, task = " + taskId);
-            boolean hostFocused = taskId == getTaskId() && focused;
-            if (hostFocused && mTaskViewControllerWrapper != null) {
-                mTaskViewControllerWrapper.showEmbeddedTasks(new int[]{BACKGROUND, FULLSCREEN});
-            }
-        }
-
-        @Override
         public void onTaskMovedToFront(ActivityManager.RunningTaskInfo taskInfo)
                 throws RemoteException {
             logIfDebuggable("On task moved to front, task = " + taskInfo.taskId + ", cmp = "
@@ -657,6 +647,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         mRootTaskViewPanel.closePanel(createReason(ON_HOME_INTENT));
         // Close app grid to account for home key event
         mAppGridTaskViewPanel.closePanel(createReason(ON_HOME_INTENT));
+
+        mTaskViewControllerWrapper.updateAllowListedActivities(BACKGROUND,
+                mTaskCategoryManager.getBackgroundActivitiesList());
+        mTaskViewControllerWrapper.updateAllowListedActivities(FULLSCREEN,
+                mTaskCategoryManager.getFullScreenActivitiesList());
+        mTaskViewControllerWrapper.showEmbeddedTasks(new int[]{BACKGROUND, FULLSCREEN});
     }
 
     private void registerUserEventReceiver() {
@@ -761,13 +757,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        mTaskViewControllerWrapper.updateAllowListedActivities(BACKGROUND,
-                mTaskCategoryManager.getBackgroundActivitiesList());
-        mTaskViewControllerWrapper.updateAllowListedActivities(FULLSCREEN,
-                mTaskCategoryManager.getFullScreenActivitiesList());
-
-        mTaskViewControllerWrapper.showEmbeddedTasks(new int[]{BACKGROUND, FULLSCREEN});
-
         // the showEmbeddedTasks will make the task visible which will lead to opening of the panel
         // and that should be skipped for application panel  when the  home intent is sent. Because
         // that leads to CTS failures.
