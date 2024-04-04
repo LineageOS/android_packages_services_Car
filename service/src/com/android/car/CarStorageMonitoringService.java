@@ -466,7 +466,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     private List<LifetimeWriteInfo> loadLifetimeWrites() {
         if (!mLifetimeWriteFile.exists() || !mLifetimeWriteFile.isFile()) {
             Slogf.d(TAG, "lifetime write file missing or inaccessible " + mLifetimeWriteFile);
-            return Collections.emptyList();
+            return new ArrayList<>();
         }
         try {
             JSONObject jsonObject = new JSONObject(
@@ -481,7 +481,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
             return result;
         } catch (JSONException | IOException e) {
             Slogf.e(TAG, "lifetime write file does not contain valid JSON", e);
-            return Collections.emptyList();
+            return new ArrayList<>();
         }
     }
 

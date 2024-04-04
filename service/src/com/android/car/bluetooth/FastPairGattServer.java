@@ -657,8 +657,9 @@ public class FastPairGattServer {
      * Determine if this pairing request is based on the anti-spoof keys associated with the model
      * id or stored account keys.
      *
-     * @param accountKey
-     * @return
+     * @param pairingRequest Pairing request
+     * @return Whether pairing request is based on the anti-spoof keys associated with the model id
+     *         or stored account keys.
      */
     private byte[] processKeyBasedPairing(byte[] pairingRequest) {
         if (mFailureCounter.hasExceededLimit()) {

@@ -27,7 +27,6 @@ import android.car.builtin.util.Slogf;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
-import android.car.drivingstate.CarUxRestrictionsConfiguration.Builder;
 import android.car.drivingstate.CarUxRestrictionsConfiguration.DrivingStateRestrictions;
 import android.content.Context;
 import android.content.res.XmlResourceParser;
@@ -360,7 +359,8 @@ public final class CarUxRestrictionsConfigurationXmlParser {
                 }
 
                 // 3. Parse the restrictions for this driving state
-                Builder.SpeedRange speedRange = parseSpeedRange(minSpeed, maxSpeed);
+                CarUxRestrictionsConfiguration.Builder.SpeedRange speedRange = parseSpeedRange(
+                        minSpeed, maxSpeed);
                 if (!parseAllRestrictions(parser, drivingState, speedRange)) {
                     Slogf.e(TAG, "Could not parse restrictions for driving state:" + drivingState);
                     return false;
@@ -392,7 +392,7 @@ public final class CarUxRestrictionsConfigurationXmlParser {
      * Parses all <restrictions> tags nested with <drivingState> tag.
      */
     private boolean parseAllRestrictions(XmlResourceParser parser,
-            int drivingState, Builder.SpeedRange speedRange)
+            int drivingState, CarUxRestrictionsConfiguration.Builder.SpeedRange speedRange)
             throws IOException, XmlPullParserException {
         if (parser == null) {
             Slogf.e(TAG, "Invalid arguments");
@@ -542,7 +542,8 @@ public final class CarUxRestrictionsConfigurationXmlParser {
     }
 
     @Nullable
-    private Builder.SpeedRange parseSpeedRange(float minSpeed, float maxSpeed) {
+    private CarUxRestrictionsConfiguration.Builder.SpeedRange parseSpeedRange(float minSpeed,
+                                                                              float maxSpeed) {
         if (Float.compare(minSpeed, 0) < 0 || Float.compare(maxSpeed, 0) < 0) {
             return null;
         }

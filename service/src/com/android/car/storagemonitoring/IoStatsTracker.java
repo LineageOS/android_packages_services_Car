@@ -35,7 +35,7 @@ import java.util.Optional;
 public class IoStatsTracker {
 
     // NOTE: this class is not thread safe
-    private abstract class Lazy<T> {
+    private abstract static class Lazy<T> {
         protected Optional<T> mLazy = Optional.empty();
 
         protected abstract T supply();

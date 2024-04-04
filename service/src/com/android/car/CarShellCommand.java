@@ -2197,7 +2197,6 @@ final class CarShellCommand extends BasicShellCommandHandler {
             Thread.currentThread().interrupt();
             writer.println("Interrupted waiting for HAL");
         }
-        return;
     }
 
     private void switchUser(String[] args, IndentingPrintWriter writer) {

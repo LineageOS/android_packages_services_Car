@@ -64,14 +64,14 @@ public final class CarOemProxyServiceHelper {
     private static final int MIN_THREAD_POOL_SIZE = 8;
 
     @VisibleForTesting
-    /**
+    /*
      * Max number of circular calls per caller. A circular is call between CarService and OEM
      * Service where CarService calls OEM service and OEM services calls back to CarService.
      */
     static final int MAX_CIRCULAR_CALLS_PER_CALLER = 5;
 
     @VisibleForTesting
-    /**
+    /*
      * Max number of total circular calls. A circular is call between CarService and OEM
      * Service where CarService calls OEM service and OEM services calls back to CarService.
      *

@@ -348,7 +348,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         void take(T listener);
     }
 
-    private final class PowerManagerCallbackList<T extends IInterface> extends
+    private static final class PowerManagerCallbackList<T extends IInterface> extends
             RemoteCallbackList<T> {
         private ActionOnDeath<T> mActionOnDeath;
 
@@ -1601,9 +1601,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         // Otherwise, if the first listener calls finish() synchronously, we will
         // see the list go empty and we will think that we are done.
         PowerManagerCallbackList<ICarPowerStateListener> completingInternalListeners =
-                new PowerManagerCallbackList(l -> { });
+                new PowerManagerCallbackList(l -> {
+                });
         PowerManagerCallbackList<ICarPowerStateListener> completingBinderListeners =
-                new PowerManagerCallbackList(l -> { });
+                new PowerManagerCallbackList(l -> {
+                });
         synchronized (mLock) {
             if (isCompletionAllowed(newState)) {
                 if (timeoutMs < 0) {

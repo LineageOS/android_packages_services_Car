@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -184,7 +185,7 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
             }
         }
 
-        for (ArrayMap.Entry<CarDiagnosticService.DiagnosticClient, List<CarDiagnosticEvent>> entry :
+        for (Map.Entry<CarDiagnosticService.DiagnosticClient, List<CarDiagnosticEvent>> entry :
                 eventsByClient.entrySet()) {
             CarDiagnosticService.DiagnosticClient client = entry.getKey();
             List<CarDiagnosticEvent> clientEvents = entry.getValue();

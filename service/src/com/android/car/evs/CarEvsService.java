@@ -149,7 +149,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     // after a state transition to the REQUESTED state.
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
-    private final class StatusListenerList extends RemoteCallbackList<ICarEvsStatusListener> {
+    private static final class StatusListenerList
+            extends RemoteCallbackList<ICarEvsStatusListener> {
         private final WeakReference<CarEvsService> mService;
 
         StatusListenerList(CarEvsService evsService) {

@@ -906,7 +906,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      *
      * @param targetUserId - target user Id
      * @param timeoutMs - timeout for HAL to wait
-     * @param receiver - receiver for the results
+     * @param callback - callback for the results
      */
     @Override
     public void switchUser(@UserIdInt int targetUserId, int timeoutMs,

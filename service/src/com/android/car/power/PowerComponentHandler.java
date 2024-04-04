@@ -469,7 +469,8 @@ public final class PowerComponentHandler {
         }
     }
 
-    private final class VoiceInteractionPowerComponentMediator extends PowerComponentMediator {
+    private static final class VoiceInteractionPowerComponentMediator
+            extends PowerComponentMediator {
 
         private boolean mIsEnabled = true;
 
