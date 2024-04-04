@@ -153,7 +153,7 @@ public class CarUxRestrictionsManagerServiceTest {
                 + "\"restrictions\":511}],\"moving_restrictions\":[{\"req_opt\":true,"
                 + "\"restrictions\":511}],\"unknown_restrictions\":[{\"req_opt\":true,"
                 + "\"restrictions\":511}]}}]}";
-        assertEquals(readFile(staged.toPath()), expectedConfig);
+        assertEquals(expectedConfig, readFile(staged.toPath()));
         // Verify prod config file was not created.
         assertFalse(new File(mTempSystemCarDir, CONFIG_FILENAME_PRODUCTION).exists());
     }
@@ -178,20 +178,18 @@ public class CarUxRestrictionsManagerServiceTest {
             CarUxRestrictions movingRestrictions = config.getUxRestrictions(DRIVING_STATE_MOVING,
                     MAX_SPEED);
             assertTrue(movingRestrictions.isRequiresDistractionOptimization());
-            assertEquals(movingRestrictions.getActiveRestrictions(),
-                    UX_RESTRICTIONS_FULLY_RESTRICTED);
+            assertEquals(UX_RESTRICTIONS_FULLY_RESTRICTED,
+                    movingRestrictions.getActiveRestrictions());
 
             CarUxRestrictions parkedRestrictions = config.getUxRestrictions(DRIVING_STATE_PARKED,
                     0f);
             assertFalse(parkedRestrictions.isRequiresDistractionOptimization());
-            assertEquals(parkedRestrictions.getActiveRestrictions(),
-                    UX_RESTRICTIONS_BASELINE);
+            assertEquals(UX_RESTRICTIONS_BASELINE, parkedRestrictions.getActiveRestrictions());
 
             CarUxRestrictions idlingRestrictions = config.getUxRestrictions(DRIVING_STATE_IDLING,
                     0f);
             assertFalse(idlingRestrictions.isRequiresDistractionOptimization());
-            assertEquals(idlingRestrictions.getActiveRestrictions(),
-                    UX_RESTRICTIONS_BASELINE);
+            assertEquals(UX_RESTRICTIONS_BASELINE, idlingRestrictions.getActiveRestrictions());
         }
     }
 
@@ -213,7 +211,7 @@ public class CarUxRestrictionsManagerServiceTest {
 
         CarUxRestrictionsConfiguration actual = mService.loadConfig().get(0);
 
-        assertEquals(actual, expected);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -278,7 +276,7 @@ public class CarUxRestrictionsManagerServiceTest {
                                 .setRestrictions(510)
                                 .setMode(UX_RESTRICTION_MODE_PASSENGER))
                 .build();
-        assertEquals(actual, expectedConfig);
+        assertEquals(expectedConfig, actual);
     }
 
     @Test
@@ -293,7 +291,7 @@ public class CarUxRestrictionsManagerServiceTest {
 
         // Staged file should be moved as production.
         assertFalse(staged.exists());
-        assertEquals(actual, expected);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -308,7 +306,7 @@ public class CarUxRestrictionsManagerServiceTest {
 
         // Staged file should be untouched.
         assertTrue(staged.exists());
-        assertEquals(actual, expected);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -323,7 +321,7 @@ public class CarUxRestrictionsManagerServiceTest {
 
         // Staged file should be untouched.
         assertTrue(staged.exists());
-        assertEquals(actual, expected);
+        assertEquals(expected, actual);
     }
 
     @Test
