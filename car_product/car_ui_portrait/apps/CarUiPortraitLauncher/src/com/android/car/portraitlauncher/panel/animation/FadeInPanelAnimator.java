@@ -40,14 +40,18 @@ public class FadeInPanelAnimator extends PanelAnimator {
     /**
      * A {@code PanelAnimator} to animate the panel into the open state using the fade-in animation.
      *
-     * @param panel The panel that should animate
-     * @param taskView The task view of the panel.
-     * @param toBounds The final bounds of the panel within its parent
+     * @param panel          The panel that should animate
+     * @param taskView       The task view of the panel.
+     * @param toBounds       The final bounds of the panel within its parent
+     * @param animationScale Scaling factor for Animator-based animations.
      */
-    public FadeInPanelAnimator(ViewGroup panel, View taskView, Rect toBounds) {
-        super(panel);
+    public FadeInPanelAnimator(ViewGroup panel, View taskView, Rect toBounds,
+            float animationScale) {
+        super(panel, animationScale);
         mTaskView = taskView;
         mBounds = toBounds;
+        mDuration = getScaledDuration(DURATION);
+        mStartDelay = getScaledDuration(DELAY);
     }
 
     @Override
@@ -58,9 +62,9 @@ public class FadeInPanelAnimator extends PanelAnimator {
         mViewPropertyAnimator = mTaskView.animate()
                 .scaleX(FINAL_SCALE)
                 .scaleY(FINAL_SCALE)
-                .setDuration(DURATION)
+                .setDuration(mDuration)
                 .setInterpolator(INTERPOLATOR)
-                .setStartDelay(DELAY)
+                .setStartDelay(mStartDelay)
                 .withEndAction(endAction);
     }
 
