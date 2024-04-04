@@ -17,7 +17,6 @@
 package com.android.car;
 
 import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
-import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 
 import static com.android.car.BuiltinPackageDependency.CAR_ACCESSIBILITY_SERVICE_CLASS;
@@ -31,7 +30,6 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
-import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.CarProjectionManager;
@@ -541,12 +539,6 @@ public class CarInputService extends ICarInput.Stub
     @Override
     public void onMotionEvent(MotionEvent event, @DisplayTypeEnum int targetDisplayType,
             @VehicleAreaSeat.Enum int seat) {
-        if (!Car.getPlatformVersion().isAtLeast(UPSIDE_DOWN_CAKE_0)) {
-            Slogf.e(TAG, "Motion event for passenger is only supported from %s",
-                    UPSIDE_DOWN_CAKE_0);
-            return;
-        }
-
         if (seat == VehicleAreaSeat.SEAT_UNKNOWN) {
             throw new IllegalArgumentException("Unknown seat");
         }
