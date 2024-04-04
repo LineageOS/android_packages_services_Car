@@ -351,11 +351,20 @@ public class TaskViewController {
     }
 
     @Nullable
-    private String getPackageNameFromBaseIntent(Intent intent) {
-        if (intent == null || intent.getComponent() == null) {
+    private ComponentName getComponentNameFromBaseIntent(Intent intent) {
+        if (intent == null) {
             return null;
         }
-        return intent.getComponent().getPackageName();
+        return intent.getComponent();
+    }
+
+    @Nullable
+    private String getPackageNameFromBaseIntent(Intent intent) {
+        ComponentName componentName = getComponentNameFromBaseIntent(intent);
+        if (componentName == null) {
+            return null;
+        }
+        return componentName.getPackageName();
     }
 
     private static void logIfDebuggable(String message) {
@@ -375,21 +384,21 @@ public class TaskViewController {
 
     private void notifyListeners(int displayId) {
         if (displayId != DEFAULT_DISPLAY_ID && displayId != mDistantDisplayId) return;
-        String pkg;
+        ComponentName componentName;
         TaskData data = mForegroundTasks.getTopTaskOnDisplay(displayId);
         if (data != null) {
-            pkg = getPackageNameFromBaseIntent(data.mBaseIntent);
+            componentName = getComponentNameFromBaseIntent(data.mBaseIntent);
         } else {
-            pkg = null;
+            componentName = null;
         }
 
-        notifyListeners(displayId, pkg);
+        notifyListeners(displayId, componentName);
     }
 
-    private void notifyListeners(int displayId, String pkg) {
+    private void notifyListeners(int displayId, ComponentName componentName) {
         synchronized (mCallbacks) {
             for (Callback callback : mCallbacks) {
-                callback.topAppOnDisplayChanged(displayId, pkg);
+                callback.topAppOnDisplayChanged(displayId, componentName);
             }
         }
     }
@@ -398,9 +407,9 @@ public class TaskViewController {
     public interface Callback {
         /**
          * Called when the top app on a particular display changes, including the relevant
-         * display id and package name. Note that this will only be called for the default and the
+         * display id and component name. Note that this will only be called for the default and the
          * configured distant display ids.
          */
-        void topAppOnDisplayChanged(int displayId, @Nullable String packageName);
+        void topAppOnDisplayChanged(int displayId, @Nullable ComponentName componentName);
     }
 }
