@@ -3197,12 +3197,9 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             try {
                 log.traceBegin("switch-config-set-" + zoneConfig.getConfigId());
                 zone.setCurrentCarZoneConfig(zoneConfig);
-                CarAudioZoneConfig newZoneConfig = zone.getCurrentCarAudioZoneConfig();
-                // Default config always exists in the policy, so should be able to switch to
-                // default without creating a new policy
-                newAudioPolicy = newZoneConfig.isDefault()
-                        ? mRoutingAudioPolicy : setupRoutingAudioPolicyLocked();
+                newAudioPolicy = setupRoutingAudioPolicyLocked();
                 setAllUserIdDeviceAffinitiesToNewPolicyLocked(newAudioPolicy);
+                swapRoutingAudioPolicyLocked(newAudioPolicy);
                 zone.updateVolumeGroupsSettingsForUser(userId);
                 carVolumeGroupInfoList = getVolumeGroupInfosForZoneLocked(zoneId);
                 updateFadeManagerConfigurationLocked(zone.isPrimaryZone());
@@ -3221,9 +3218,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             log.traceBegin("switch-config-focus" + zoneConfig.getConfigId());
             mFocusHandler.reevaluateAndRegainAudioFocusList(pendingFocusInfos);
             log.traceEnd();
-            if (succeeded) {
-                swapRoutingAudioPolicyLocked(newAudioPolicy);
-            }
         }
         if (!succeeded) {
             log.traceEnd();
@@ -3273,15 +3267,23 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     @GuardedBy("mImplLock")
     private void swapRoutingAudioPolicyLocked(AudioPolicy newAudioPolicy) {
+        TimingsTraceLog log = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
+        log.traceBegin("swap-policy");
         if (newAudioPolicy == mRoutingAudioPolicy) {
+            log.traceEnd();
             return;
         }
         AudioPolicy previousRoutingPolicy = mRoutingAudioPolicy;
         mRoutingAudioPolicy = newAudioPolicy;
         if (previousRoutingPolicy == null) {
+            log.traceEnd();
             return;
         }
-        mAudioManager.unregisterAudioPolicyAsync(previousRoutingPolicy);
+        try {
+            mAudioManager.unregisterAudioPolicy(previousRoutingPolicy);
+        } finally {
+            log.traceEnd();
+        }
     }
 
     @GuardedBy("mImplLock")
