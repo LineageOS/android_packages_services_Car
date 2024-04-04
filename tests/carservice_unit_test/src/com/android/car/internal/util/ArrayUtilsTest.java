@@ -259,9 +259,9 @@ public final class ArrayUtilsTest {
                 new Integer[]{1, 2, 3});
         assertThat(ArrayUtils.appendElement(Integer.class, (Integer[]) null, 3)).isEqualTo(
                 new Integer[]{3});
-        assertThat(ArrayUtils.appendElement(Integer.class, array, 2, /* allowDuplicate=*/ true))
+        assertThat(ArrayUtils.appendElement(Integer.class, array, 2, /* allowDuplicates=*/ true))
                 .isEqualTo(new Integer[]{1, 2, 2});
-        assertThat(ArrayUtils.appendElement(Integer.class, array, 2, /* allowDuplicate=*/ false))
+        assertThat(ArrayUtils.appendElement(Integer.class, array, 2, /* allowDuplicates=*/ false))
                 .isEqualTo(new Integer[]{1, 2});
     }
 
@@ -283,9 +283,9 @@ public final class ArrayUtilsTest {
 
         assertThat(ArrayUtils.appendInt(array, 3)).isEqualTo(new int[]{1, 2, 3});
         assertThat(ArrayUtils.appendInt((int[]) null, 3)).isEqualTo(new int[]{3});
-        assertThat(ArrayUtils.appendInt(array, 2, /* allowDuplicate=*/ true))
+        assertThat(ArrayUtils.appendInt(array, 2, /* allowDuplicates=*/ true))
                 .isEqualTo(new int[]{1, 2, 2});
-        assertThat(ArrayUtils.appendInt(array, 2, /* allowDuplicate=*/ false))
+        assertThat(ArrayUtils.appendInt(array, 2, /* allowDuplicates=*/ false))
                 .isEqualTo(new int[]{1, 2});
         assertThat(ArrayUtils.appendInt(null, 3)).isEqualTo(new int[]{3});
     }
@@ -318,9 +318,9 @@ public final class ArrayUtilsTest {
 
         assertThat(ArrayUtils.appendLong(array, 3L)).isEqualTo(new long[]{1L, 2L, 3L});
         assertThat(ArrayUtils.appendLong((long[]) null, 3)).isEqualTo(new long[]{3L});
-        assertThat(ArrayUtils.appendLong(array, 2L, /* allowDuplicate=*/ true))
+        assertThat(ArrayUtils.appendLong(array, 2L, /* allowDuplicates=*/ true))
                 .isEqualTo(new long[]{1L, 2L, 2L});
-        assertThat(ArrayUtils.appendLong(array, 2L, /* allowDuplicate=*/ false))
+        assertThat(ArrayUtils.appendLong(array, 2L, /* allowDuplicates=*/ false))
                 .isEqualTo(new long[]{1L, 2L});
         assertThat(ArrayUtils.appendLong(null, 3L)).isEqualTo(new long[]{3L});
     }

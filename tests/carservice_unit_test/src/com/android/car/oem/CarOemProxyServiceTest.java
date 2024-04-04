@@ -273,7 +273,7 @@ public final class CarOemProxyServiceTest extends AbstractExtendedMockitoTestCas
         mTestOemCarService.mockServiceReady();
     }
 
-    private final class TestOemCarService extends IOemCarService.Stub {
+    private static final class TestOemCarService extends IOemCarService.Stub {
 
         private final Object mLock = new Object();
 

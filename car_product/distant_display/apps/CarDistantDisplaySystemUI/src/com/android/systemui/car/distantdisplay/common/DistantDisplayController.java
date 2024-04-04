@@ -17,6 +17,7 @@
 package com.android.systemui.car.distantdisplay.common;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
@@ -30,6 +31,7 @@ import android.view.Display;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.android.car.qc.QCItem;
 import com.android.systemui.R;
 import com.android.systemui.car.distantdisplay.util.AppCategoryDetector;
 import com.android.systemui.car.qc.DistantDisplayControlsUpdateListener;
@@ -194,19 +196,36 @@ public class DistantDisplayController {
             return new DistantDisplayQcItem.Builder()
                     .setTitle(mContext.getString(R.string.qc_bring_back_to_default_display_title))
                     .setIcon(mDefaultDisplayDrawable)
-                    .setActionHandler((item, context, intent) ->
-                            mTaskViewController.moveTaskFromDistantDisplay())
+                    .setActionHandler(createActionHandler(/* moveToDistantDisplay= */ false))
                     .build();
         } else if (isVideoApp(mTopPackageOnDefaultDisplay)) {
             return new DistantDisplayQcItem.Builder()
                     .setTitle(mContext.getString(R.string.qc_send_to_pano_title))
                     .setIcon(mDistantDisplayDrawable)
-                    .setActionHandler((item, context, intent) ->
-                            mTaskViewController.moveTaskToDistantDisplay())
+                    .setActionHandler(createActionHandler(/* moveToDistantDisplay= */ true))
                     .build();
         } else {
             return null;
         }
+    }
+
+    private QCItem.ActionHandler createActionHandler(boolean moveToDistantDisplay) {
+        return new QCItem.ActionHandler() {
+            @Override
+            public void onAction(@NonNull QCItem item, @NonNull Context context,
+                    @NonNull Intent intent) {
+                if (moveToDistantDisplay) {
+                    mTaskViewController.moveTaskToDistantDisplay();
+                } else {
+                    mTaskViewController.moveTaskFromDistantDisplay();
+                }
+            }
+
+            @Override
+            public boolean isActivity() {
+                return true;
+            }
+        };
     }
 
     private Optional<MediaController> getMediaControllerFromActiveMediaSession() {

@@ -48,8 +48,6 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import com.android.car.CarLog;
-import com.android.car.CarPropertyService;
-import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.telemetry.ResultStore;
 import com.android.car.telemetry.publisher.AbstractPublisher;
 import com.android.car.telemetry.publisher.PublisherFactory;
@@ -72,7 +70,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
@@ -133,8 +130,6 @@ public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestC
     @Mock
     private PackageManager mMockPackageManager;
     @Mock
-    private CarPropertyService mMockCarPropertyService;
-    @Mock
     private DataBroker.DataBrokerListener mMockDataBrokerListener;
     @Mock
     private IBinder mMockScriptExecutorBinder;
@@ -153,9 +148,6 @@ public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestC
 
     @Before
     public void setUp() throws Exception {
-        when(mMockCarPropertyService.getPropertyList())
-                .thenReturn(new CarPropertyConfigList(
-                        Collections.singletonList(PROP_CONFIG)));
         mockPackageManager();
 
         mFakeScriptExecutor = new FakeScriptExecutor();

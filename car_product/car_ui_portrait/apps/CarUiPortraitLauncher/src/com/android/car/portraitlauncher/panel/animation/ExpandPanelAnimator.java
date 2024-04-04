@@ -43,16 +43,19 @@ public class ExpandPanelAnimator extends PanelAnimator {
     /**
      * A {@code PanelAnimator} to animate the panel into the open state using the expand animation.
      *
-     * @param panel The panel that should animate
-     * @param origin The origin of the expand animation within the panel's parent
-     * @param bounds The final bounds of the panel within its parent
-     * @param gripBar The grip bar of the panel.
+     * @param panel          The panel that should animate
+     * @param origin         The origin of the expand animation within the panel's parent
+     * @param bounds         The final bounds of the panel within its parent
+     * @param gripBar        The grip bar of the panel.
+     * @param animationScale Scaling factor for Animator-based animations.
      */
-    public ExpandPanelAnimator(ViewGroup panel, Point origin, Rect bounds, View gripBar) {
-        super(panel);
+    public ExpandPanelAnimator(ViewGroup panel, Point origin, Rect bounds, View gripBar,
+            float animationScale) {
+        super(panel, animationScale);
         mBounds = bounds;
         mGripBar = gripBar;
         mOrigin = origin;
+        mDuration = getScaledDuration(DURATION);
     }
 
     @Override
@@ -70,7 +73,7 @@ public class ExpandPanelAnimator extends PanelAnimator {
                 .scaleY(FINAL_SCALE)
                 .translationX(/* value= */ 0)
                 .translationY(/* value= */ 0)
-                .setDuration(DURATION)
+                .setDuration(mDuration)
                 .setInterpolator(INTERPOLATOR)
                 .withEndAction(endAction);
     }

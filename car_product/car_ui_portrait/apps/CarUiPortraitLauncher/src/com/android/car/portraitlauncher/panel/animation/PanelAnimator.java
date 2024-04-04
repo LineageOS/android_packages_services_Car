@@ -27,8 +27,17 @@ public abstract class PanelAnimator {
     /** The panel on which the animation will be applied. */
     protected ViewGroup mPanel;
 
-    protected PanelAnimator(ViewGroup panel) {
+    /** The duration for this animator. */
+    protected long mStartDelay = 0;
+    /** the startDelay for this animator. */
+    protected long mDuration = 0;
+
+    /** Scaling factor for Animator-based animations.*/
+    private float mAnimationScale = 1f;
+
+    protected PanelAnimator(ViewGroup panel, float animationScale) {
         mPanel = panel;
+        mAnimationScale = animationScale;
     }
 
     /**
@@ -64,5 +73,9 @@ public abstract class PanelAnimator {
         path.cubicTo(/* x1= */ 0.208333f, /* y1= */ 0.82f, /* x2= */ 0.25f,
                 /* y2= */ 1f, /* x3= */ 1f, /* y3= */ 1f);
         return new PathInterpolator(path);
+    }
+
+    protected long getScaledDuration(long duration) {
+        return mAnimationScale == 1f ? duration : (long) (duration * mAnimationScale);
     }
 }

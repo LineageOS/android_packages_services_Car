@@ -37,19 +37,21 @@ public class ClosePanelAnimator extends PanelAnimator {
     /**
      * A {@code PanelAnimator} to animate the panel into the close state.
      *
-     * @param panel The panel on which the animator acts.
-     * @param bounds The final bounds that the panel should animate to.
+     * @param panel          The panel on which the animator acts.
+     * @param bounds         The final bounds that the panel should animate to.
+     * @param animationScale Scaling factor for Animator-based animations.
      */
-    public ClosePanelAnimator(ViewGroup panel, Rect bounds) {
-        super(panel);
+    public ClosePanelAnimator(ViewGroup panel, Rect bounds, float animationScale) {
+        super(panel, animationScale);
         mBounds = bounds;
+        mDuration = getScaledDuration(DURATION);
     }
 
     @Override
     public void animate(Runnable endAction) {
         mAnimation = new BoundsAnimation(mPanel, mBounds, endAction);
         mAnimation.setInterpolator(INTERPOLATOR);
-        mAnimation.setDuration(DURATION);
+        mAnimation.setDuration(mDuration);
         mPanel.startAnimation(mAnimation);
     }
 

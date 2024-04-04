@@ -174,7 +174,7 @@ public final class SilentModeHandlerUnitTest {
         handler.init();
         writeStringToFile(mFileHwStateMonitoring.getFile(), VALUE_SILENT_MODE);
 
-        assertSilentMode(handler, /* isForcedMode= */ false, /* expectedSilentMode= */ true);
+        assertSilentMode(handler, /* isForcedMode= */ false, /* expectedMode= */ true);
 
         handler.release();
         boolean currentSilentMode = handler.isSilentMode();

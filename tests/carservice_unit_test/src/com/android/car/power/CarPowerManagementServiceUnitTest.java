@@ -488,30 +488,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         }
     }
 
-
-    private String stateToString(int state) {
-        String result;
-        switch (state) {
-            case CarPowerManager.STATE_INVALID ->  result = "Invalid";
-            case CarPowerManager.STATE_WAIT_FOR_VHAL ->  result = "WaitForVHAL";
-            case CarPowerManager.STATE_SUSPEND_ENTER ->  result = "SuspendEnter";
-            case CarPowerManager.STATE_SUSPEND_EXIT ->  result = "SuspendExit";
-            case CarPowerManager.STATE_SHUTDOWN_ENTER ->  result = "ShutdownEnter";
-            case CarPowerManager.STATE_ON ->  result = "ON";
-            case CarPowerManager.STATE_SHUTDOWN_PREPARE ->  result = "ShutdownPrepare";
-            case CarPowerManager.STATE_SHUTDOWN_CANCELLED ->  result = "ShutdownCancelled";
-            case CarPowerManager.STATE_HIBERNATION_ENTER ->  result = "HibernationEnter";
-            case CarPowerManager.STATE_HIBERNATION_EXIT ->  result = "HibernationExit";
-            case CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE ->  result = "PreShutdownPrepare";
-            case CarPowerManager.STATE_POST_SUSPEND_ENTER ->  result = "PostSuspendEnter";
-            case CarPowerManager.STATE_POST_SHUTDOWN_ENTER ->  result = "PostShutdownEnter";
-            case CarPowerManager.STATE_POST_HIBERNATION_ENTER ->  result = "PostHibernationEnter";
-            default -> result = "Unknown";
-        }
-        return result;
-    }
-
-
     @Test
     public void testSuspend() throws Exception {
         mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
@@ -2294,8 +2270,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
         HalPropValue bootupReasonRequest = mHalPropValueBuilder.build(
                 VehicleProperty.AP_POWER_BOOTUP_REASON, /* areaId= */ 0);
-        HalPropValue bootupReasonResponse = mHalPropValueBuilder.build(
-                VehicleProperty.AP_POWER_BOOTUP_REASON,
+        mHalPropValueBuilder.build(VehicleProperty.AP_POWER_BOOTUP_REASON,
                 /* areaId= */ 0, VehicleApPowerBootupReason.SYSTEM_ENTER_GARAGE_MODE);
         when(mockVehicleStub.get(eq(bootupReasonRequest))).thenThrow(
                 new IllegalArgumentException());
@@ -3049,17 +3024,15 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         @Override
         void init() {}
 
-        private boolean isAutoPowerSaving() {
-            return mIsAutoPowerSaving;
-        }
-
         private void setIsAutoPowerSaving(boolean isPowerSaving) {
             mIsAutoPowerSaving = isPowerSaving;
         }
 
         private void setDisplayPowerInfo(int displayId, @FakeDisplayPowerMode int powerMode) {
             FakeDisplayPowerInfo info = new FakeDisplayPowerInfo(powerMode);
-            mDisplayPowerInfos.put(displayId, info);
+            synchronized (sLock) {
+                mDisplayPowerInfos.put(displayId, info);
+            }
         }
 
         boolean canTurnOnDisplay(int displayId) {
@@ -3123,10 +3096,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
             private @FakeDisplayPowerMode int mMode;
 
             FakeDisplayPowerInfo(@FakeDisplayPowerMode int mode) {
-                mMode = mode;
-            }
-
-            private void setMode(@FakeDisplayPowerMode int mode) {
                 mMode = mode;
             }
 

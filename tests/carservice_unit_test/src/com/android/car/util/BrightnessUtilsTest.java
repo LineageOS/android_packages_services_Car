@@ -32,7 +32,6 @@ public class BrightnessUtilsTest extends AbstractExtendedMockitoTestCase {
     private static final float MAX_FLOAT = 1.0f;
     private static final int MIN_BACKLIGHT = 10;   // config_screenBrightnessSettingMinimum
     private static final int MAX_BACKLIGHT = 255;  // config_screenBrightnessSettingMaximum
-    private static final int INVALID_BRIGHTNESS = -1;
 
     @Test
     public void linearToGamma_minValue_shouldReturnMin() {

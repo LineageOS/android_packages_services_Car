@@ -27,8 +27,6 @@ import android.bluetooth.le.AdvertisingSet;
 import android.bluetooth.le.AdvertisingSetCallback;
 import android.bluetooth.le.AdvertisingSetParameters;
 import android.bluetooth.le.BluetoothLeAdvertiser;
-import android.car.Car;
-import android.car.PlatformVersion;
 import android.car.builtin.bluetooth.le.AdvertisingSetCallbackHelper;
 import android.car.builtin.bluetooth.le.AdvertisingSetHelper;
 import android.car.builtin.util.Slogf;
@@ -320,59 +318,31 @@ public class FastPairAdvertiser {
     }
 
     private void initializeAdvertisingSetCallback() {
-        // Certain functionality of {@link AdvertisingSetCallback} were disabled in
-        // {@code TIRAMISU} (major == 33, minor == 0) due to hidden API usage. These functionality
-        // were later restored, but require platform version to be at least TM-QPR-1
-        // (major == 33, minor == 1).
-        PlatformVersion version = Car.getPlatformVersion();
-        if (DBG) {
-            Slogf.d(TAG, "AdvertisingSetCallback running on platform version (major=%d, minor=%d)",
-                    version.getMajorVersion(), version.getMinorVersion());
-        }
-        if (version.isAtLeast(PlatformVersion.VERSION_CODES.TIRAMISU_1)) {
-            AdvertisingSetCallbackHelper.Callback proxy =
-                    new AdvertisingSetCallbackHelper.Callback() {
-                @Override
-                public void onAdvertisingSetStarted(AdvertisingSet advertisingSet, int txPower,
-                        int status) {
-                    onAdvertisingSetStartedHandler(advertisingSet, txPower, status);
-                    if (advertisingSet != null) {
-                        AdvertisingSetHelper.getOwnAddress(advertisingSet);
+        AdvertisingSetCallbackHelper.Callback proxy =
+                new AdvertisingSetCallbackHelper.Callback() {
+                    @Override
+                    public void onAdvertisingSetStarted(AdvertisingSet advertisingSet, int txPower,
+                            int status) {
+                        onAdvertisingSetStartedHandler(advertisingSet, txPower, status);
+                        if (advertisingSet != null) {
+                            AdvertisingSetHelper.getOwnAddress(advertisingSet);
+                        }
                     }
-                }
 
-                @Override
-                public void onAdvertisingSetStopped(AdvertisingSet advertisingSet) {
-                    onAdvertisingSetStoppedHandler(advertisingSet);
-                }
+                    @Override
+                    public void onAdvertisingSetStopped(AdvertisingSet advertisingSet) {
+                        onAdvertisingSetStoppedHandler(advertisingSet);
+                    }
 
-                @Override
-                public void onOwnAddressRead(AdvertisingSet advertisingSet, int addressType,
-                        String address) {
-                    onOwnAddressReadHandler(addressType, address);
-                }
-            };
+                    @Override
+                    public void onOwnAddressRead(AdvertisingSet advertisingSet, int addressType,
+                            String address) {
+                        onOwnAddressReadHandler(addressType, address);
+                    }
+                };
 
-            mAdvertisingSetCallback =
-                    AdvertisingSetCallbackHelper.createRealCallbackFromProxy(proxy);
-        } else {
-            mAdvertisingSetCallback = new AdvertisingSetCallback() {
-                @Override
-                public void onAdvertisingSetStarted(AdvertisingSet advertisingSet, int txPower,
-                        int status) {
-                    onAdvertisingSetStartedHandler(advertisingSet, txPower, status);
-                    // TODO(b/241933163): once there are formal APIs to get own address, this
-                    // warning can be removed.
-                    Slogf.w(TAG, "AdvertisingSet#getOwnAddress not called."
-                            + " This feature is not supported in this platform version.");
-                }
-
-                @Override
-                public void onAdvertisingSetStopped(AdvertisingSet advertisingSet) {
-                    onAdvertisingSetStoppedHandler(advertisingSet);
-                }
-            };
-        }
+        mAdvertisingSetCallback =
+                AdvertisingSetCallbackHelper.createRealCallbackFromProxy(proxy);
     }
 
     // For {@link AdvertisingSetCallback#onAdvertisingSetStarted} and its proxy

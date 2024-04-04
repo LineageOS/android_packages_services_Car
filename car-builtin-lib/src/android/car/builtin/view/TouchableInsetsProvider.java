@@ -20,7 +20,6 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.annotation.UiThread;
-import android.car.builtin.util.Slogf;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.view.View;
@@ -62,7 +61,6 @@ public final class TouchableInsetsProvider {
 
     private void onComputeInternalInsets(InternalInsetsInfo inoutInfo) {
         if (!mView.isVisibleToUser()) {
-            Slogf.d(TAG, "Skip onComputeInternalInsets since the view is invisible");
             return;
         }
         if (inoutInfo.touchableRegion.isEmpty()) {

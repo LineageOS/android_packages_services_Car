@@ -70,7 +70,7 @@ public final class UserHelperTest extends AbstractExtendedMockitoTestCase {
                 /* enable= */ true);
 
         verify(mUserManager).setUserRestriction(
-                UserManager.DISALLOW_FACTORY_RESET, /* enable= */ true, UserHandle.of(userId));
+                UserManager.DISALLOW_FACTORY_RESET, /* value= */ true, UserHandle.of(userId));
     }
 
     @Test

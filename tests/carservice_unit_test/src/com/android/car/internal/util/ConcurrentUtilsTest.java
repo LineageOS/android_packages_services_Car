@@ -43,7 +43,7 @@ public final class ConcurrentUtilsTest {
 
     @Test
     public void testWaitForFutureNoInterruptInterrupted() throws Exception {
-        ExecutorService service = ConcurrentUtils.newFixedThreadPool(1, "test pool",
+        ConcurrentUtils.newFixedThreadPool(1, "test pool",
                 /* linuxThreadPriority= */ 0);
         Future<Boolean> mockFuture = mock(Future.class);
         when(mockFuture.get()).thenThrow(new InterruptedException());
