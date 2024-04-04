@@ -37,7 +37,7 @@ import java.lang.annotation.Target;
  * </code>
  * </pre>
  *
- * @memberDoc This method must be called on the common car thread. This is typically the thread
+ * <p>This method must be called on the common car thread. This is typically the thread
  * which the {@link CarServiceUtils#getCommonHandlerThread()} is bound to.
  */
 @Retention(SOURCE)

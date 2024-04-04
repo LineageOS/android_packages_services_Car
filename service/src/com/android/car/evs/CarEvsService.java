@@ -589,7 +589,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         ArraySet<Integer> types = mCallbackToServiceType.get(callback.asBinder());
         if (types == null) {
             mCallbackToServiceType.put(callback.asBinder(),
-                    new ArraySet<>(Set.of(new Integer(type))));
+                    new ArraySet<>(Set.of(type)));
         } else {
             types.add(type);
         }
@@ -941,7 +941,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         ArraySet<Integer> types = mCallbackToServiceType.get(callback.asBinder());
         if (types == null) {
             mCallbackToServiceType.put(callback.asBinder(),
-                    new ArraySet<>(Set.of(new Integer(type))));
+                    new ArraySet<>(Set.of(type)));
         } else {
             types.add(type);
         }

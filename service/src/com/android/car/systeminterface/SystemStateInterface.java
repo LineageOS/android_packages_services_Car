@@ -153,6 +153,7 @@ public interface SystemStateInterface {
             }
         };
 
+        @SuppressWarnings("FutureReturnValueIgnored")
         private void runActionWithDelay(Runnable action, Duration delay) {
             long delayInMs = delay.toMillis();
             if (DEBUG) {
