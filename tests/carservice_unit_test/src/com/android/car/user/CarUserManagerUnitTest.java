@@ -521,7 +521,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void testCreateUser_remoteException() throws Exception {
-        expectServiceCreateUserFails("dude", UserManager.USER_TYPE_FULL_SECONDARY, 42);
+        expectServiceCreateUserFails();
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
         SyncResultCallback<UserCreationResult> userCreationResultCallback =
                 new SyncResultCallback<>();
@@ -538,7 +538,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void testCreateUserId_remoteException() throws Exception {
-        expectServiceCreateUserFails("dude", UserManager.USER_TYPE_FULL_SECONDARY, 42);
+        expectServiceCreateUserFails();
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
 
         AsyncFuture<UserCreationResult> future = mMgr.createUser("dude", 42);
@@ -603,7 +603,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void testCreateGuest_remoteException() throws Exception {
-        expectServiceCreateUserFails("dudeGuest", UserManager.USER_TYPE_FULL_GUEST, 0);
+        expectServiceCreateUserFails();
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
 
         AsyncFuture<UserCreationResult> future = mMgr.createGuest("dudeGuest");
@@ -840,8 +840,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         }).when(mService).createUser(notNull(), anyInt(), notNull());
     }
 
-    private void expectServiceCreateUserFails(@Nullable String name,
-            @NonNull String userType, @UserInfoFlag int flags) throws RemoteException {
+    private void expectServiceCreateUserFails() throws RemoteException {
         doThrow(new RemoteException("D'OH!")).when(mService).createUser(notNull(), anyInt(),
                 notNull());
     }

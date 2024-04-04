@@ -166,20 +166,20 @@ public final class WatchdogStorageUnitTest {
         List<WatchdogStorage.UserPackageSettingsEntry> expected = Arrays.asList(
                 new WatchdogStorage.UserPackageSettingsEntry(
                         /* userId= */ 100, "system_package.non_critical.A", KILLABLE_STATE_YES,
-                        /* lastModifiedKillableStateEpoch= */ 123456789),
+                        /* killableStateLastModifiedEpochSeconds= */ 123456789),
                 new WatchdogStorage.UserPackageSettingsEntry(
                         /* userId= */ 100, "system_package.non_critical.B", KILLABLE_STATE_NO,
-                        /* lastModifiedKillableStateEpoch= */ 123456789));
+                        /* killableStateLastModifiedEpochSeconds= */ 123456789));
 
         assertThat(mService.saveUserPackageSettings(expected)).isTrue();
 
         expected = Arrays.asList(
                 new WatchdogStorage.UserPackageSettingsEntry(
                         /* userId= */ 100, "system_package.non_critical.A", KILLABLE_STATE_NEVER,
-                        /* lastModifiedKillableStateEpoch= */ 123456789),
+                        /* killableStateLastModifiedEpochSeconds= */ 123456789),
                 new WatchdogStorage.UserPackageSettingsEntry(
                         /* userId= */ 100, "system_package.non_critical.B", KILLABLE_STATE_NO,
-                        /* lastModifiedKillableStateEpoch= */ 123456789));
+                        /* killableStateLastModifiedEpochSeconds= */ 123456789));
 
         assertThat(mService.saveUserPackageSettings(expected)).isTrue();
 
@@ -848,15 +848,15 @@ public final class WatchdogStorageUnitTest {
             while (cursor.moveToNext()) {
                 actual.add(new WatchdogStorage.UserPackageSettingsEntry(cursor.getInt(0),
                         cursor.getString(1), cursor.getInt(2),
-                        /* lastModifiedKillableStateEpoch= */ 123456789));
+                        /* killableStateLastModifiedEpochSeconds= */ 123456789));
             }
         }
 
         List<WatchdogStorage.UserPackageSettingsEntry> expected =
                 Arrays.asList(new WatchdogStorage.UserPackageSettingsEntry(100, "package_A",
-                                1, /* lastModifiedKillableStateEpoch= */ 123456789),
+                                1, /* killableStateLastModifiedEpochSeconds= */ 123456789),
                         new WatchdogStorage.UserPackageSettingsEntry(101, "package_B",
-                                2, /* lastModifiedKillableStateEpoch= */ 123456789));
+                                2, /* killableStateLastModifiedEpochSeconds= */ 123456789));
 
         assertWithMessage("User package settings").that(actual).containsExactlyElementsIn(expected);
     }
@@ -948,22 +948,24 @@ public final class WatchdogStorageUnitTest {
         return new ArrayList<>(Arrays.asList(
                 new WatchdogStorage.UserPackageSettingsEntry(
                         /* userId= */ 100, "system_package.non_critical.A",
-                        KILLABLE_STATE_YES, /* lastModifiedKillableStateEpoch= */ 123456789),
+                        KILLABLE_STATE_YES, /* killableStateLastModifiedEpochSeconds= */ 123456789),
                 new WatchdogStorage.UserPackageSettingsEntry(
                         /* userId= */ 100, "system_package.non_critical.B",
-                        KILLABLE_STATE_NO, /* lastModifiedKillableStateEpoch= */ 123456789),
+                        KILLABLE_STATE_NO, /* killableStateLastModifiedEpochSeconds= */ 123456789),
                 new WatchdogStorage.UserPackageSettingsEntry(
                         /* userId= */ 100, "vendor_package.critical.C",
-                        KILLABLE_STATE_NEVER, /* lastModifiedKillableStateEpoch= */ 123456789),
+                        KILLABLE_STATE_NEVER,
+                        /* killableStateLastModifiedEpochSeconds= */ 123456789),
                 new WatchdogStorage.UserPackageSettingsEntry(
                         /* userId= */ 101, "system_package.non_critical.A",
-                        KILLABLE_STATE_NO, /* lastModifiedKillableStateEpoch= */ 123456789),
+                        KILLABLE_STATE_NO, /* killableStateLastModifiedEpochSeconds= */ 123456789),
                 new WatchdogStorage.UserPackageSettingsEntry(
                         /* userId= */ 101, "system_package.non_critical.B",
-                        KILLABLE_STATE_YES, /* lastModifiedKillableStateEpoch= */ 123456789),
+                        KILLABLE_STATE_YES, /* killableStateLastModifiedEpochSeconds= */ 123456789),
                 new WatchdogStorage.UserPackageSettingsEntry(
                         /* userId= */ 101, "vendor_package.critical.C",
-                        KILLABLE_STATE_NEVER, /* lastModifiedKillableStateEpoch= */ 123456789)));
+                        KILLABLE_STATE_NEVER,
+                        /* killableStateLastModifiedEpochSeconds= */ 123456789)));
     }
 
     private ArrayList<WatchdogStorage.IoUsageStatsEntry> sampleStatsBetweenDates(
@@ -1059,7 +1061,7 @@ public final class WatchdogStorageUnitTest {
         WatchdogStorage.WatchdogDbHelper dbHelper =
                 new WatchdogStorage.WatchdogDbHelper(mContext, /* useDataSystemCarDir= */ false,
                         mTimeSource);
-        dbHelper.onUpgrade(db, /*oldVersion=*/ 1, /*newVersion=*/ 2);
+        dbHelper.onUpgrade(db, /* oldVersion= */ 1, /* currentVersion= */ 2);
 
         if (version < 3) {
             return db;
@@ -1083,7 +1085,7 @@ public final class WatchdogStorageUnitTest {
         insertIoUsageStats(db, /*userPackageId=*/ 1, /*overuses=*/ 3, /*forgivenOveruses=*/ 2,
                 /*timesKilled=*/ 1, writtenBytes, remainingWriteBytes, forgivenWriteBytes);
 
-        dbHelper.onUpgrade(db, /* oldVersion= */ 2, /* newVersion= */ 3);
+        dbHelper.onUpgrade(db, /* oldVersion= */ 2, /* currentVersion= */ 3);
 
         return db;
     }

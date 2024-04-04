@@ -79,7 +79,6 @@ import android.app.StatsManager;
 import android.automotive.watchdog.internal.ApplicationCategoryType;
 import android.automotive.watchdog.internal.ComponentType;
 import android.automotive.watchdog.internal.GarageMode;
-import android.automotive.watchdog.internal.ICarWatchdog;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.PackageIdentifier;
 import android.automotive.watchdog.internal.PackageInfo;
@@ -113,7 +112,6 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.FileUtils;
-import android.os.IBinder;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
 import android.os.UserHandle;
@@ -164,8 +162,6 @@ import java.util.function.BiConsumer;
  */
 @RunWith(MockitoJUnitRunner.class)
 public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase {
-    private static final String CAR_WATCHDOG_DAEMON_INTERFACE =
-            "android.automotive.watchdog.internal.ICarWatchdog/default";
     private static final String SYSTEM_PACKAGE_NAME = "system_package";
     private static final int MAX_WAIT_TIME_MS = 3000;
     private static final long OVERUSE_HANDLING_DELAY_MILLS = 1000;
@@ -189,8 +185,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Mock private CarUserService mMockCarUserService;
     @Mock private CarUxRestrictionsManagerService mMockCarUxRestrictionsManagerService;
     @Mock private Resources mMockResources;
-    @Mock private IBinder mMockBinder;
-    @Mock private ICarWatchdog mMockCarWatchdogDaemon;
     @Mock private NotificationHelper mMockNotificationHelper;
     @Mock private ICarServiceHelper.Stub mMockCarServiceHelper;
     @Mock private WatchdogProcessHandler mMockWatchdogProcessHandler;
@@ -1351,7 +1345,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     private void setCarPowerState(int powerState) throws Exception {
         when(mMockCarPowerManagementService.getPowerState()).thenReturn(powerState);
-        mCarPowerStateListener.onStateChanged(powerState, /* timeoutMs= */ -1);
+        mCarPowerStateListener.onStateChanged(powerState, /* expirationTimeMs= */ -1);
     }
 
     private void injectPackageInfos(List<android.content.pm.PackageInfo> packageInfos) {
@@ -1430,9 +1424,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 mTimeSource.getCurrentDate());
         for (int i = 1; i < 8; ++i) {
             summaries.add(constructCarWatchdogDailyIoUsageSummary(
-                    /* fgWrBytes= */ 100 * i * weekMultiplier * sysOrUidMultiplier,
-                    /* bgWrBytes= */ 200 * i * weekMultiplier * sysOrUidMultiplier,
-                    /* gmWrBytes= */ 300 * i * weekMultiplier * sysOrUidMultiplier,
+                    /* fgWrBytes= */ weekMultiplier * sysOrUidMultiplier * 100 * i ,
+                    /* bgWrBytes= */ weekMultiplier * sysOrUidMultiplier * 200 * i,
+                    /* gmWrBytes= */ weekMultiplier * sysOrUidMultiplier * 300 * i,
                     /* overuseCount= */ 2 * i));
         }
         return summaries;

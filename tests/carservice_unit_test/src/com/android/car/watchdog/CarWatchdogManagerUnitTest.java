@@ -740,7 +740,7 @@ public class CarWatchdogManagerUnitTest {
                 /* systemWideThresholds= */new ArrayList<>()).build();
         ResourceOveruseConfiguration.Builder configBuilder =
                 new ResourceOveruseConfiguration.Builder(
-                        COMPONENT_TYPE_SYSTEM, /* safeTiKillPackages= */new ArrayList<>(),
+                        COMPONENT_TYPE_SYSTEM, /* safeToKillPackages= */new ArrayList<>(),
                         /* vendorPackagePrefixes= */new ArrayList<>(),
                         /* packagesToAppCategoryTypes= */ new ArrayMap<>());
         configBuilder.setIoOveruseConfiguration(ioOveruseConfig);
