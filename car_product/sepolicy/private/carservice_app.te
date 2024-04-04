@@ -140,3 +140,6 @@ allow carservice_app hint_service:service_manager find;
 
 # Allow finding AIDL EVS service
 allow carservice_app evsmanagerd_service:service_manager find;
+
+# Allow reading car boot information
+get_prop(carservice_app, car_boot_prop);
