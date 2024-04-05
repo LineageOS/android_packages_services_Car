@@ -27,6 +27,8 @@
     <item target="id/description" value="@id/description" />
     <item target="id/subtitle" value="@id/subtitle" />
     <item target="id/title" value="@id/title" />
+    <item target="id/customized_view_container"
+          value="@id/customized_view_container" />
     <item target="layout/auth_credential_password_view"
         value="@layout/auth_credential_password_view" />
     <item target="layout/auth_credential_pattern_view"
