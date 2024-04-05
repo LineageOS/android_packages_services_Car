@@ -54,7 +54,6 @@ PRODUCT_PACKAGES += \
     atrace \
     libandroidfw \
     libaudioutils \
-    libmdnssd \
     libnfc_ndef \
     libpowermanager \
     libvariablespeed \
