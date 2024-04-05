@@ -174,7 +174,6 @@ PRODUCT_PACKAGES += \
     atrace \
     libandroidfw \
     libaudioutils \
-    libmdnssd \
     libpowermanager \
     libvariablespeed \
     PackageInstaller \
