@@ -318,6 +318,17 @@ public final class CarVolumeGroupFactoryTest {
                 .contains("Car audio context");
     }
 
+    @Test
+    public void factoryConstructor_withNullCarActivationVolumeConfig_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class,
+                () -> new CarVolumeGroupFactory(mAudioManagerMock, mSettingsMock,
+                        TEST_CAR_AUDIO_CONTEXT, ZONE_ID, CONFIG_ID, GROUP_ID, GROUP_NAME,
+                        /* useCarVolumeGroupMute= */ true, /* carActivationVolumeConfig= */ null));
+
+        expect.withMessage("Constructor null car ativation volume config")
+                .that(thrown).hasMessageThat().contains("Car activation volume config");
+    }
+
     CarVolumeGroupFactory getFactory() {
         return new CarVolumeGroupFactory(mAudioManagerMock, mSettingsMock, TEST_CAR_AUDIO_CONTEXT,
                 ZONE_ID, CONFIG_ID, GROUP_ID, GROUP_NAME, /* useCarVolumeGroupMute= */ true,
