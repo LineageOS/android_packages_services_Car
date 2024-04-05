@@ -89,7 +89,6 @@ public final class CarActivityService extends ICarActivityService.Stub
     private static final String TAG = CarLog.TAG_AM;
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
-    private static final int MAX_RUNNING_TASKS_TO_GET = 100;
     private static final long MIRRORING_TOKEN_TIMEOUT_MS = 10 * 60 * 1000;  // 10 mins
 
     private final Context mContext;

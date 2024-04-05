@@ -35,7 +35,6 @@ import android.hardware.automotive.vehicle.VehicleLightState;
 import android.hardware.automotive.vehicle.VehicleLightSwitch;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehicleProperty;
-import android.hardware.automotive.vehicle.VehiclePropertyGroup;
 import android.util.Pair;
 import android.util.SparseArray;
 
@@ -845,15 +844,5 @@ public final class FakeVhalConfigParser {
      */
     private boolean isFileValid(File configFile) {
         return configFile.exists() && configFile.isFile();
-    }
-
-    /**
-     * Converts system property to vendor property.
-     *
-     * @param property The property going to be converted.
-     * @return an int represents vendor property.
-     */
-    private static int toVendorProperty(int property) {
-        return (property & VehiclePropertyGroup.MASK) | VehiclePropertyGroup.VENDOR;
     }
 }
