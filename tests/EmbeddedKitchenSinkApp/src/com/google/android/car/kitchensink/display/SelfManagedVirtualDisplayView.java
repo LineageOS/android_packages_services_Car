@@ -16,8 +16,6 @@
 
 package com.google.android.car.kitchensink.display;
 
-import static android.widget.Toast.LENGTH_SHORT;
-
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.content.Context;
@@ -30,7 +28,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.google.android.car.kitchensink.R;
 import com.google.android.car.kitchensink.users.UsersSpinner;
@@ -112,10 +109,11 @@ public final class SelfManagedVirtualDisplayView extends LinearLayout {
         try {
             boolean started = mContext.getSystemService(ActivityManager.class)
                     .startUserInBackgroundVisibleOnDisplay(user.id, mDisplayId);
-            logAndToastMessage("%s user %d on display %d",
+            ToastUtils.logAndToastMessage(getContext(), "%s user %d on display %d",
                     (started ? "Started" : "Failed to start"), user.id, mDisplayId);
         } catch (Exception e) {
-            logAndToastError(e, "Error starting user %d on display %d", user.id, mDisplayId);
+            ToastUtils.logAndToastError(getContext(), e,
+                    "Error starting user %d on display %d", user.id, mDisplayId);
         }
     }
 
@@ -145,9 +143,10 @@ public final class SelfManagedVirtualDisplayView extends LinearLayout {
         Log.i(TAG, "Creating virtual display");
         try {
             createDisplay();
-            logAndToastMessage("Created virtual display with id %d", mDisplayId);
+            ToastUtils.logAndToastMessage(getContext(),
+                    "Created virtual display with id %d", mDisplayId);
         } catch (Exception e) {
-            logAndToastError(e, "Failed to create virtual display");
+            ToastUtils.logAndToastError(getContext(), e, "Failed to create virtual display");
         }
     }
 
@@ -166,9 +165,9 @@ public final class SelfManagedVirtualDisplayView extends LinearLayout {
         Log.i(TAG, "Deleting display");
         try {
             deleteDisplay();
-            logAndToastMessage("Virtual display deleted");
+            ToastUtils.logAndToastMessage(getContext(), "Virtual display deleted");
         } catch (Exception e) {
-            logAndToastError(e, "Failed to delete virtual display");
+            ToastUtils.logAndToastError(getContext(), e, "Failed to delete virtual display");
         }
     }
 
@@ -201,28 +200,12 @@ public final class SelfManagedVirtualDisplayView extends LinearLayout {
         view.setVisibility(on ? View.VISIBLE : View.GONE);
     }
 
-    protected void logAndToastMessage(String format, Object...args) {
-        String message = String.format(format, args);
-        Log.i(TAG, message);
-        Toast.makeText(getContext(), message, LENGTH_SHORT).show();
-    }
-
-    protected void printMessage(PrintWriter writer, String format, Object...args) {
+    protected void printMessage(PrintWriter writer, String format, Object... args) {
         String message = String.format(format, args);
         writer.printf("%s\n", message);
     }
 
-    protected void logAndToastError(Exception e, String format, Object...args) {
-        String message = String.format(format, args);
-        if (e != null) {
-            Log.e(TAG, message, e);
-        } else {
-            Log.e(TAG, message);
-        }
-        Toast.makeText(getContext(), message, LENGTH_SHORT).show();
-    }
-
-    protected void printError(PrintWriter writer, Exception e, String format, Object...args) {
+    protected void printError(PrintWriter writer, Exception e, String format, Object... args) {
         String message = String.format(format, args);
         if (e != null) {
             writer.printf("%s: %s\n", message, e);
