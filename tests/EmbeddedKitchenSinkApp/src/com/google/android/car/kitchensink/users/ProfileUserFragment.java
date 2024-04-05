@@ -235,7 +235,7 @@ public class ProfileUserFragment extends Fragment {
         IActivityManager am = ActivityManager.getService();
         Log.i(TAG, "stop user:" + userToUpdate);
         try {
-            am.stopUser(userToUpdate, /* force= */ false, /* callback= */ null);
+            am.stopUserWithCallback(userToUpdate, /* callback= */ null);
         } catch (RemoteException e) {
             setMessage(WARN_MESSAGE, "Cannot stop user", e);
             return;
