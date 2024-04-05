@@ -185,11 +185,12 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
         configs = mPropertyService
                 .getPropertyConfigList(OPTIONAL_PROPERTIES).carPropertyConfigList.getConfigs();
         if (configs != null) {
-            mOptionalPropertiesSupported = new SparseBooleanArray();
+            SparseBooleanArray optionalPropertiesSupported = new SparseBooleanArray();
             for (CarPropertyConfig config : configs) {
-                synchronized (mLock) {
-                    mOptionalPropertiesSupported.put(config.getPropertyId(), true);
-                }
+                optionalPropertiesSupported.put(config.getPropertyId(), true);
+            }
+            synchronized (mLock) {
+                mOptionalPropertiesSupported = optionalPropertiesSupported;
             }
         }
         return true;

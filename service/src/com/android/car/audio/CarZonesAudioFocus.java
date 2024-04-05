@@ -353,8 +353,10 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     }
 
     public void updateUserForZoneId(int audioZoneId, @UserIdInt int userId) {
-        Preconditions.checkArgument(mCarAudioService.isAudioZoneIdValid(audioZoneId),
-                "Invalid zoneId %d", audioZoneId);
+        synchronized (mLock) {
+            Preconditions.checkArgument(mCarAudioService.isAudioZoneIdValid(audioZoneId),
+                    "Invalid zoneId %d", audioZoneId);
+        }
         mFocusZones.get(audioZoneId).getFocusInteraction().setUserIdForSettings(userId);
     }
 

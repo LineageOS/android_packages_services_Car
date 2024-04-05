@@ -694,7 +694,7 @@ public class PropertyHalService extends HalServiceBase {
                         if (carPropertyValue != null) {
                             int propertyId = carPropertyValue.getPropertyId();
                             int areaId = carPropertyValue.getAreaId();
-                            if (isStaticAndSystemProperty(propertyId)) {
+                            if (isStaticAndSystemPropertyLocked(propertyId)) {
                                 mStaticPropertyIdAreaIdCache.put(propertyId, areaId,
                                         carPropertyValue);
                             }
@@ -1098,7 +1098,7 @@ public class PropertyHalService extends HalServiceBase {
         HalPropConfig halPropConfig;
         synchronized (mLock) {
             halPropConfig = mHalPropIdToPropConfig.get(halPropId);
-            if (isStaticAndSystemProperty(mgrPropId)) {
+            if (isStaticAndSystemPropertyLocked(mgrPropId)) {
                 CarPropertyValue carPropertyValue = mStaticPropertyIdAreaIdCache.get(mgrPropId,
                         areaId);
                 if (carPropertyValue != null) {
@@ -1113,10 +1113,10 @@ public class PropertyHalService extends HalServiceBase {
         halPropValue = mVehicleHal.get(halPropId, areaId);
         try {
             CarPropertyValue result = halPropValue.toCarPropertyValue(mgrPropId, halPropConfig);
-            if (!isStaticAndSystemProperty(mgrPropId)) {
-                return result;
-            }
             synchronized (mLock) {
+                if (!isStaticAndSystemPropertyLocked(mgrPropId)) {
+                    return result;
+                }
                 mStaticPropertyIdAreaIdCache.put(mgrPropId, areaId, result);
                 return result;
             }
@@ -1942,7 +1942,7 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     @GuardedBy("mLock")
-    private boolean isStaticAndSystemProperty(int propertyId) {
+    private boolean isStaticAndSystemPropertyLocked(int propertyId) {
         return mHalPropIdToPropConfig.get(managerToHalPropId(propertyId))
                 .getChangeMode() == VEHICLE_PROPERTY_CHANGE_MODE_STATIC
                 && isSystemProperty(propertyId);

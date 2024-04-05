@@ -467,11 +467,11 @@ class GarageMode {
             mGarageModeActive = false;
             // Always update the completor with the latest completor.
             mBackgroundUserStopCompletor = completor;
+            Slogf.i(TAG, "Stopping of background user queued. Total background users to stop: "
+                    + "%d", mStartedBackgroundUsers.size());
         }
         stopMonitoringThread();
         CarStatsLogHelper.logGarageModeStop();
-        Slogf.i(TAG, "Stopping of background user queued. Total background users to stop: "
-                    + "%d", mStartedBackgroundUsers.size());
         mHandler.removeCallbacks(mStopUserCheckRunnable);
         mHandler.removeCallbacks(mBackgroundUserStopTimeout);
         mHandler.postDelayed(mBackgroundUserStopTimeout, STOP_BACKGROUND_USER_TIMEOUT_MS);

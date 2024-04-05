@@ -125,8 +125,14 @@ final class VmsClientInfo {
         }
     }
 
-    @GuardedBy("mLock")
     Collection<VmsLayersOffering> getAllOfferings() {
+        synchronized (mLock) {
+            return getAllOfferingsLcoked();
+        }
+    }
+
+    @GuardedBy("mLock")
+    Collection<VmsLayersOffering> getAllOfferingsLcoked() {
         List<VmsLayersOffering> result = new ArrayList<>(mOfferings.size());
         for (int i = 0; i < mOfferings.size(); i++) {
             int providerId = mOfferings.keyAt(i);

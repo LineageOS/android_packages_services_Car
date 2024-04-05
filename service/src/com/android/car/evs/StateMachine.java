@@ -125,8 +125,7 @@ final class StateMachine {
     @GuardedBy("mLock")
     private final ArrayList<TransitionLog> mTransitionLogs = new ArrayList<>();
 
-    @GuardedBy("mLock")
-    private String mCameraId;
+    private final String mCameraId;
 
     // Current state.
     @GuardedBy("mLock")
@@ -470,8 +469,10 @@ final class StateMachine {
 
     /** Requests to cancel a pending activity request. */
     void cancelActivityRequest() {
-        if (mState != SERVICE_STATE_REQUESTED) {
-            return;
+        synchronized (mLock) {
+            if (mState != SERVICE_STATE_REQUESTED) {
+                return;
+            }
         }
 
         if (execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE) != ERROR_NONE) {
@@ -696,6 +697,7 @@ final class StateMachine {
      * @return true if we should launch an activity.
      *         false otherwise.
      */
+    @GuardedBy("mLock")
     private boolean needToStartActivityLocked() {
         if (mActivityName == null || mHandler.hasCallbacks(mActivityRequestTimeoutRunnable)) {
             // No activity has been registered yet or it is already requested.
