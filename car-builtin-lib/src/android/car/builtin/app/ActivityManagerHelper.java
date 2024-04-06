@@ -102,8 +102,10 @@ public final class ActivityManagerHelper {
      * @throws IllegalStateException if ActivityManager binder throws RemoteException
      */
     public static int stopUser(@UserIdInt int userId, boolean force) {
+        // Note that the value of force is irrelevant. Even historically, it never had any effect
+        // in this case, since it only even applied to profiles (which Car didn't support).
         return runRemotely(
-                () -> getActivityManager().stopUser(userId, force, /* callback= */ null),
+                () -> getActivityManager().stopUserWithCallback(userId, /* callback= */ null),
                 "error while stopUser userId:%d force:%b", userId, force);
     }
 
@@ -113,9 +115,11 @@ public final class ActivityManagerHelper {
      * @throws IllegalStateException if ActivityManager binder throws RemoteException
      */
     public static int stopUserWithDelayedLocking(@UserIdInt int userId, boolean force) {
+        // Note that the value of force is irrelevant. Even historically, it never had any effect
+        // in this case, since it only even applied to profiles (which Car didn't support).
         return runRemotely(
                 () -> getActivityManager().stopUserWithDelayedLocking(
-                        userId, force, /* callback= */ null),
+                        userId, /* callback= */ null),
                 "error while stopUserWithDelayedLocking userId:%d force:%b", userId, force);
     }
 
