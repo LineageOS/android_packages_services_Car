@@ -222,7 +222,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private final ArrayMap<String, android.content.pm.PackageInfo> mPmPackageInfoByUserPackage =
             new ArrayMap<>();
     private final ArraySet<String> mDisabledUserPackages = new ArraySet<>();
-    private final SparseArray<String> mDisabledPackagesSettingsStringByUserid = new SparseArray<>();
     private final Set<WatchdogStorage.UserPackageSettingsEntry> mUserPackageSettingsEntries =
             new ArraySet<>();
     private final List<WatchdogStorage.IoUsageStatsEntry> mIoUsageStatsEntries = new ArrayList<>();

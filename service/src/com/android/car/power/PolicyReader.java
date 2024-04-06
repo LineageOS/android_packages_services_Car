@@ -24,7 +24,6 @@ import static android.car.hardware.power.PowerComponentUtil.toPowerComponent;
 import static android.frameworks.automotive.powerpolicy.PowerComponent.MINIMUM_CUSTOM_COMPONENT_VALUE;
 
 import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
-import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
@@ -927,16 +926,6 @@ public final class PolicyReader {
     boolean isOverridableComponent(int component) {
         return component >= MINIMUM_CUSTOM_COMPONENT_VALUE // custom components are overridable
             || SYSTEM_POLICY_CONFIGURABLE_COMPONENTS.contains(component);
-    }
-
-    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    private String componentsToString(int[] components) {
-        StringBuffer buffer = new StringBuffer();
-        for (int i = 0; i < components.length; i++) {
-            if (i > 0) buffer.append(", ");
-            buffer.append(powerComponentToString(components[i]));
-        }
-        return buffer.toString();
     }
 
     @PolicyOperationStatus.ErrorCode

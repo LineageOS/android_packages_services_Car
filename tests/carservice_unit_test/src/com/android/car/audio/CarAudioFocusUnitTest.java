@@ -1884,15 +1884,6 @@ public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
         return captor.getValue();
     }
 
-    private AudioFocusEntry captureOemServiceAudioFocusEntry() {
-        ArgumentCaptor<OemCarAudioFocusEvaluationRequest> captor = ArgumentCaptor
-                .forClass(OemCarAudioFocusEvaluationRequest.class);
-        verify(mMockAudioFocusProxyService).evaluateAudioFocusRequest(captor.capture());
-        OemCarAudioFocusEvaluationRequest request = captor.getValue();
-        AudioFocusEntry entry = request.getAudioFocusRequest();
-        return entry;
-    }
-
     private OemCarAudioFocusResult getAudioFocusResults(AudioFocusEntry entry, int results,
             List<AudioFocusEntry> lostEntries, List<AudioFocusEntry> blockedEntries,
             Map<AudioAttributes, CarAudioFadeConfiguration> attrToCarAudioFadeConfigMap) {

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef LIB_PROCFS_INSPECTOR_SERVER_DIRECTORY_H_
-#define LIB_PROCFS_INSPECTOR_SERVER_DIRECTORY_H_
+#ifndef LIBS_PROCFS_INSPECTOR_SERVER_DIRECTORY_H_
+#define LIBS_PROCFS_INSPECTOR_SERVER_DIRECTORY_H_
 
 #include <dirent.h>
 #include <sys/stat.h>
@@ -65,4 +65,4 @@ private:
 
 }  // namespace procfsinspector
 
-#endif  // LIB_PROCFS_INSPECTOR_SERVER_DIRECTORY_H_
+#endif  // LIBS_PROCFS_INSPECTOR_SERVER_DIRECTORY_H_

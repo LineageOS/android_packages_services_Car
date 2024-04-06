@@ -125,7 +125,7 @@ final class HidlVehicleStub extends VehicleStub {
     @Override
     public void linkToDeath(IVehicleDeathRecipient recipient) throws IllegalStateException {
         try {
-            mHidlVehicle.linkToDeath(recipient, /*flag=*/ 0);
+            mHidlVehicle.linkToDeath(recipient, /* cookie= */ 0);
         } catch (RemoteException e) {
             throw new IllegalStateException("Failed to linkToDeath Vehicle HAL");
         }

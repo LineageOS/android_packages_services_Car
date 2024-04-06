@@ -15,8 +15,6 @@
  */
 package com.google.android.car.kitchensink.display;
 
-import static android.widget.Toast.LENGTH_SHORT;
-
 import static com.google.android.car.kitchensink.KitchenSinkActivity.DUMP_ARG_CMD;
 import static com.google.android.car.kitchensink.KitchenSinkActivity.DUMP_ARG_FRAGMENT;
 
@@ -32,7 +30,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
@@ -51,8 +48,8 @@ import java.util.Arrays;
  * Example:
  *
  * <pre><code>
- adb shell 'am start -n com.google.android.car.kitchensink/.KitchenSinkActivity --es select "virtual display"'
- adb shell 'dumpsys activity com.google.android.car.kitchensink/.KitchenSinkActivity fragment "virtual display" cmd create'
+ * adb shell 'am start -n com.google.android.car.kitchensink/.KitchenSinkActivity --es select "virtual display"'
+ * adb shell 'dumpsys activity com.google.android.car.kitchensink/.KitchenSinkActivity fragment "virtual display" cmd create'
  * </code></pre>
  */
 public final class VirtualDisplayFragment extends Fragment {
@@ -119,6 +116,7 @@ public final class VirtualDisplayFragment extends Fragment {
                         long id) {
                     updateNumberDisplays(position + 1, /* force= */ false);
                 }
+
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
                 }
@@ -130,7 +128,7 @@ public final class VirtualDisplayFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.virtual_display, container, false);
 
-        mDisplaysContainer =  view.findViewById(R.id.displays_container);
+        mDisplaysContainer = view.findViewById(R.id.displays_container);
 
         return view;
     }
@@ -395,7 +393,7 @@ public final class VirtualDisplayFragment extends Fragment {
 
     private void maximizeScreen() {
         if (mMaximized) {
-            logAndToastError(/* exception= */ null, "Already maximized");
+            ToastUtils.logAndToastError(getContext(), /* exception= */ null, "Already maximized");
             return;
         }
         String msg1 = "Maximizing display. To minimize, run:";
@@ -403,8 +401,9 @@ public final class VirtualDisplayFragment extends Fragment {
         String activity = KitchenSinkActivity.class.getSimpleName();
         String msg2 = String.format("adb shell 'dumpsys activity %s/.%s %s \"%s\" %s %s'",
                 pkg, activity, DUMP_ARG_FRAGMENT, FRAGMENT_NAME, DUMP_ARG_CMD, CMD_MINIMIZE);
-        logAndToastMessage(msg1);
-        logAndToastMessage(msg2);
+        Context context = getContext();
+        ToastUtils.logAndToastMessage(context, msg1);
+        ToastUtils.logAndToastMessage(context, msg2);
         minimizeOrMaximizeViews(/* maximize= */ true);
     }
 
@@ -454,29 +453,13 @@ public final class VirtualDisplayFragment extends Fragment {
                 visibilityToString(view.getVisibility()));
     }
 
-    protected void logAndToastMessage(String format, Object...args) {
-        String message = String.format(format, args);
-        Log.i(TAG, message);
-        Toast.makeText(getContext(), message, LENGTH_SHORT).show();
-    }
-
-    protected void printMessage(PrintWriter writer, String format, Object...args) {
+    protected void printMessage(PrintWriter writer, String format, Object... args) {
         String message = String.format(format, args);
         writer.printf("%s\n", message);
     }
 
-    protected void logAndToastError(Exception e, String format, Object...args) {
-        String message = String.format(format, args);
-        if (e != null) {
-            Log.e(TAG, message, e);
-        } else {
-            Log.e(TAG, message);
-        }
-        Toast.makeText(getContext(), message, LENGTH_SHORT).show();
-    }
-
     protected void printError(PrintWriter writer, Exception exception,
-            String format, Object...args) {
+            String format, Object... args) {
         String message = String.format(format, args);
         if (exception != null) {
             writer.printf("%s: %s\n", message, exception);

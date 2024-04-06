@@ -44,12 +44,10 @@ public class CarAudioSettingsUnitTest extends AbstractExtendedMockitoTestCase {
     private static final int TEST_CONFIG_ID = 1;
     private static final int TEST_GROUP_ID = 0;
     private static final int TEST_GAIN_INDEX = 10;
-    private static final String TEST_GAIN_INDEX_KEY = new StringBuilder()
-            .append("android.car.VOLUME_GROUP/").append(TEST_ZONE_ID).append("/")
-            .append(TEST_CONFIG_ID).append("/").append(TEST_GROUP_ID).toString();
-    private static final String TEST_MUTE_KEY = new StringBuilder()
-            .append("android.car.VOLUME_GROUP_MUTE/").append(TEST_ZONE_ID).append("/")
-            .append(TEST_CONFIG_ID).append("/").append(TEST_GROUP_ID).toString();
+    private static final String TEST_GAIN_INDEX_KEY = "android.car.VOLUME_GROUP/" + TEST_ZONE_ID
+            + "/" + TEST_CONFIG_ID + "/" + TEST_GROUP_ID;
+    private static final String TEST_MUTE_KEY = "android.car.VOLUME_GROUP_MUTE/" + TEST_ZONE_ID
+            + "/" + TEST_CONFIG_ID + "/" + TEST_GROUP_ID;
 
     @Mock
     private Context mMockContext;

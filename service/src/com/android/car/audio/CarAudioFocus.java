@@ -1223,10 +1223,4 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         }
         return transientCarAudioFadeConfigFromXml;
     }
-
-    private Map<AudioAttributes,
-            CarAudioFadeConfiguration> getAllTransientCarAudioFadeConfigurations() {
-        return isFadeManagerSupported() ? mCarAudioZone.getCurrentCarAudioZoneConfig()
-                .getAllTransientCarAudioFadeConfigurations() : null;
-    }
 }

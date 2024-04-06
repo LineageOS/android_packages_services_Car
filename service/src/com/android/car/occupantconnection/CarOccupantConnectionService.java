@@ -336,7 +336,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
                 /* registeredReceiverEndpointMap= */ new BinderKeyValueContainer<>(),
                 /* pendingConnectionRequestMap= */ new BinderKeyValueContainer<>(),
                 /* acceptedConnectionRequestMap= */ new BinderKeyValueContainer<>(),
-                /* establishConnections= */ new ArraySet<>());
+                /* establishedConnections= */ new ArraySet<>());
     }
 
     @VisibleForTesting

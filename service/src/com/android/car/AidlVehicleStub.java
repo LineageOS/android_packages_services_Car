@@ -514,9 +514,6 @@ final class AidlVehicleStub extends VehicleStub {
      * An abstract interface for handling async get/set value requests from vehicle stub.
      */
     private abstract static class AsyncRequestsHandler<VhalRequestType, VhalRequestsType> {
-        protected LongSparseArray<List<Long>> mVhalRequestIdsByTimeoutInMs =
-                new LongSparseArray<>();
-
         /**
          * Preallocsate size array for storing VHAL requests.
          */

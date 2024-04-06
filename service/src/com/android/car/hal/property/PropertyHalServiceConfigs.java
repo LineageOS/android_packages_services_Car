@@ -30,7 +30,6 @@ import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.os.Trace;
 import android.util.ArraySet;
 import android.util.SparseArray;
-import android.util.SparseIntArray;
 
 import com.android.car.CarLog;
 import com.android.car.hal.BidirectionalSparseIntArray;
@@ -50,7 +49,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -141,13 +139,6 @@ public class PropertyHalServiceConfigs {
 
     private final FeatureFlags mFeatureFlags;
 
-    /**
-     * Index key is an AIDL HAL property ID, and the value is readPermission, writePermission.
-     * If the property can not be written (or read), set value as NULL.
-     * Throw an IllegalArgumentException when try to write READ_ONLY properties or read WRITE_ONLY
-     * properties.
-     */
-    private final SparseIntArray mHalPropIdToValidBitFlag = new SparseIntArray();
     private static final String TAG = CarLog.tagFor(PropertyHalServiceConfigs.class);
 
     private final SparseArray<Set<Integer>> mHalPropIdToEnumSet = new SparseArray<>();
@@ -645,29 +636,6 @@ public class PropertyHalServiceConfigs {
             }
         }
         return true;
-    }
-
-    private static List<Integer> getIntegersFromDataEnums(Class... clazz) {
-        List<Integer> integerList = new ArrayList<>(5);
-        for (Class c: clazz) {
-            Field[] fields = c.getDeclaredFields();
-            for (Field f : fields) {
-                if (f.getType() == int.class) {
-                    try {
-                        integerList.add(f.getInt(c));
-                    } catch (IllegalAccessException | RuntimeException e) {
-                        Slogf.w(TAG, "Failed to get value");
-                    }
-                }
-            }
-        }
-        return integerList;
-    }
-
-    // Generate all combinations at once
-    private static int generateAllCombination(Class clazz) {
-        List<Integer> bitFlags = getIntegersFromDataEnums(clazz);
-        return generateAllCombination(bitFlags);
     }
 
     private static int generateAllCombination(List<Integer> bitFlags) {

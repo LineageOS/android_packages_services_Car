@@ -212,9 +212,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     static final String ERROR_TEMPLATE_DISALLOW_ADD_USER =
             "Cannot create user because calling user %s has the '%s' restriction";
 
-    /** Timeout for pre-populating users. */
-    private static final int USER_CREATION_TIMEOUT_MS = 5_000;
-
     private static final String BG_HANDLER_THREAD_NAME = "UserService.BG";
 
     private final Context mContext;

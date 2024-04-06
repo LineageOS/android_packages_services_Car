@@ -79,6 +79,7 @@
     <string-array name="config_packagesExcludedFromDock" translatable="false">
         <item>com.android.car.portraitlauncher</item>
         <item>com.android.car.notification</item>
+        <item>android.car.usb.handler</item>
     </string-array>
 
     <!-- Blocking activity feature flag -->

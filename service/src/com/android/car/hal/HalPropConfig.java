@@ -95,42 +95,6 @@ public abstract class HalPropConfig {
      */
     public abstract Object toVehiclePropConfig();
 
-    private int getCommonAccessFromHalAreaConfigs(HalAreaConfig[] halAreaConfigs) {
-        boolean readOnlyPresent = false;
-        boolean writeOnlyPresent = false;
-        boolean readWritePresent = false;
-        for (int i = 0; i < halAreaConfigs.length; i++) {
-            int access = halAreaConfigs[i].getAccess();
-            switch (access) {
-                case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ:
-                    readOnlyPresent = true;
-                    break;
-                case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE:
-                    writeOnlyPresent = true;
-                    break;
-                case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE:
-                    readWritePresent = true;
-                    break;
-                default:
-                    // AreaId config has an invalid VehiclePropertyAccess value
-                    return CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_NONE;
-            }
-        }
-
-        if (writeOnlyPresent) {
-            if (!readOnlyPresent && !readWritePresent) {
-                return CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE;
-            }
-            // Config cannot set write-only access for some areaId configs and read/read-write
-            // access for other areaIds per property.
-            return CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_NONE;
-        }
-        if (readOnlyPresent) {
-            return CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ;
-        }
-        return CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE;
-    }
-
     /**
      * Converts {@link HalPropConfig} to {@link CarPropertyConfig}.
      *

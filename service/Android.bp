@@ -157,6 +157,7 @@ java_defaults {
 
     defaults: [
         "car-framework-aconfig-libraries",
+        "latest_android_hardware_automotive_audiocontrol_java_static",
     ],
 
     srcs: [
@@ -177,7 +178,7 @@ java_defaults {
 
     aidl: {
         include_dirs: [
-            "packages/services/Car/lib/procfs-inspector/client/src",
+            "packages/services/Car/libs/procfs-inspector/client/src",
         ],
     },
 
@@ -213,7 +214,6 @@ java_defaults {
         "android.hidl.base-V1.0-java",
         "android.hardware.automotive.audiocontrol-V1.0-java",
         "android.hardware.automotive.audiocontrol-V2.0-java",
-        "android.hardware.automotive.audiocontrol-V3-java",
         "android.hardware.automotive.remoteaccess-V2-java",
         "android.hardware.automotive.vehicle-V3-java",
         "android.hardware.automotive.vehicle.property-V3-java",

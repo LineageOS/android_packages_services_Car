@@ -1391,6 +1391,9 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                             case "AUXILIARY_5":
                                 type = CarOccupantZoneManager.DISPLAY_TYPE_AUXILIARY_5;
                                 break;
+                            case "DISPLAY_COMPATIBILITY":
+                                type = CarOccupantZoneManager.DISPLAY_TYPE_DISPLAY_COMPATIBILITY;
+                                break;
                             default:
                                 throwFormatErrorInDisplayMapping(
                                         "Unrecognized display type:" + entry);
