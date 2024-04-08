@@ -37,25 +37,32 @@
             android:gravity="center_horizontal"
             style="?android:attr/buttonBarStyle">
             <Button
-                android:id="@+id/start_button"
+                android:id="@+id/start_preview_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/camera2_multi_camera_start_button"
+                android:text="@string/camera2_start_preview_button"
+                style="?android:attr/buttonBarButtonStyle"/>
+            <Button
+                android:id="@+id/start_recording_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/camera2_start_recording_button"
                 style="?android:attr/buttonBarButtonStyle"/>
             <Button
                 android:id="@+id/stop_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/camera2_multi_camera_stop_button"
+                android:text="@string/camera2_stop_session_button"
                 style="?android:attr/buttonBarButtonStyle"/>
             <Button
                 android:id="@+id/quit_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/camera2_multi_camera_quit_button"
+                android:text="@string/camera2_quit_button"
                 style="?android:attr/buttonBarButtonStyle"/>
         </LinearLayout>
     </LinearLayout>

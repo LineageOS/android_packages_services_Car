@@ -535,10 +535,10 @@
     <!-- Camera2 test -->
     <string name="camera2_user0" translatable="false">Camera2 as User0</string>
     <string name="camera2_multi_camera_preview" translatable="false">Camera2 Multi-camera Preview</string>
-    <string name="camera2_multi_camera_start_button" translatable="false">Start Preview</string>
-    <string name="camera2_multi_camera_stop_button" translatable="false">Stop Preview</string>
-    <string name="camera2_multi_camera_quit_button" translatable="false">Quit</string>
-    <string name="camera2_multi_camera_details_button" translatable="false">Details</string>
-    <string name="camera2_multi_camera_preview_checkbox" translatable="false">Preview</string>
-
+    <string name="camera2_start_preview_button" translatable="false">Start Preview</string>
+    <string name="camera2_start_recording_button" translatable="false">Record</string>
+    <string name="camera2_stop_session_button" translatable="false">Stop Session</string>
+    <string name="camera2_quit_button" translatable="false">Quit</string>
+    <string name="camera2_details_button" translatable="false">Details</string>
+    <string name="camera2_selection_checkbox" translatable="false">Camera ID: %1$s</string>
 </resources>

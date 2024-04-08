@@ -23,16 +23,19 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.OutputConfiguration;
 import android.hardware.camera2.params.SessionConfiguration;
+import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.util.Size;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import androidx.annotation.NonNull;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -42,7 +45,10 @@ final class CameraPreviewManager {
     private static final int MSG_SURFACE_READY = 1;
     private static final int MSG_CAMERA_OPENED = 2;
     private static final int MSG_SESSION_REQUESTED = 3;
-    private final CameraSessionListener mCameraSessionListener;
+    private static final Size VIDEO_SIZE = new Size(/* width= */ 1280, /* height= */ 720);
+    private static final int VIDEO_FRAME_RATE = 30;
+    private static final int VIDEO_BIT_RATE = 10_000_000;
+    private final SessionStateListener mSessionStateListener;
     private final CameraDeviceStateListener mCameraDeviceStateListener;
     private final String mCameraId;
     private final SurfaceView mSurfaceView;
@@ -51,11 +57,15 @@ final class CameraPreviewManager {
     private final Handler mConfigHandler;
     private boolean mIsCameraConnected;
     private boolean mIsSurfaceCreated;
-    private boolean mIsCaptureSessionRequested;
-    private boolean mIsCaptureSessionCreated;
+    private boolean mIsPreviewSessionRequested;
+    private boolean mIsPreviewSessionCreated;
+    private boolean mIsRecordingSessionRequested;
+    private boolean mIsRecordingSessionCreated;
     private CameraDevice mCameraDevice;
     private CaptureRequest mCaptureRequest;
     private CameraCaptureSession mCaptureSession;
+    private MediaRecorder mRecorder;
+    private String mVideoFilePath;
 
     /**
      * CameraPreviewManager
@@ -74,7 +84,7 @@ final class CameraPreviewManager {
         mSurfaceView.getHolder().addCallback(new SurfacePreviewListener());
 
         mCameraDeviceStateListener = new CameraDeviceStateListener();
-        mCameraSessionListener = new CameraSessionListener();
+        mSessionStateListener = new SessionStateListener();
 
         mSessionHandler = new Handler(sessionHandlerThread.getLooper());
         mConfigHandler = new Handler(Looper.getMainLooper(), new CameraSurfaceInitListener());
@@ -87,6 +97,8 @@ final class CameraPreviewManager {
         } catch (CameraAccessException | IllegalStateException e) {
             Log.e(TAG, "Failed to open camera " + mCameraId + ". Got:", e);
         }
+        Log.d(TAG, "Initialize MediaRecorder.");
+        mRecorder = new MediaRecorder();
     }
 
     void closeCamera() {
@@ -96,15 +108,54 @@ final class CameraPreviewManager {
             mIsCameraConnected = false;
             Log.d(TAG, "Closed camera " + mCameraId);
         }
+        Log.d(TAG, "Release MediaRecorder.");
+        mRecorder.reset();
+        mRecorder.release();
     }
 
-    void startSession() {
-        mIsCaptureSessionRequested = true;
+    void startPreviewSession() {
+        mIsPreviewSessionRequested = true;
         mConfigHandler.sendEmptyMessage(MSG_SESSION_REQUESTED);
     }
 
+    void startRecordingSession(String filePrefix) {
+        mIsRecordingSessionRequested = true;
+        mVideoFilePath = String.format("%s_id_%s.mp4", filePrefix, mCameraId);
+        Log.d(TAG, String.format(
+                "Video recording path for camera %s set to %s", mCameraId, mVideoFilePath));
+        setupMediaRecorder();
+        mConfigHandler.sendEmptyMessage(MSG_SESSION_REQUESTED);
+    }
+
+    private void setupMediaRecorder() {
+        mRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        mRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+        mRecorder.setVideoSize(VIDEO_SIZE.getWidth(), VIDEO_SIZE.getHeight());
+        mRecorder.setVideoFrameRate(VIDEO_FRAME_RATE);
+        mRecorder.setVideoEncodingBitRate(VIDEO_BIT_RATE);
+        mRecorder.setOutputFile(mVideoFilePath);
+        try {
+            mRecorder.prepare();
+        } catch (IllegalStateException | IOException e) {
+            Log.e(TAG, "Unable to prepare media recorder with camera " + mCameraId, e);
+        }
+    }
+
     void stopSession() {
-        Log.d(TAG, "Attempting to stop current session of camera " + mCameraId);
+        if (mIsRecordingSessionRequested || mIsRecordingSessionCreated) {
+            Log.d(TAG, "Attempting to stop current recording session of camera " + mCameraId);
+            try {
+                mRecorder.stop();
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "Attempting to stop recording that wasn't started, got: ", e);
+            } catch (RuntimeException e) {
+                Log.e(TAG, "Received no data during recording, got: ", e);
+            }
+            mRecorder.reset();
+        } else {
+            Log.d(TAG, "Attempting to stop current preview session of camera " + mCameraId);
+        }
         try {
             if (mCaptureSession != null) {
                 mCaptureSession.stopRepeating();
@@ -115,26 +166,29 @@ final class CameraPreviewManager {
         } catch (Exception e) {
             Log.e(TAG, "Exception caught while stopping camera session " + mCameraId, e);
         }
-        mIsCaptureSessionRequested = false;
-        mIsCaptureSessionCreated = false;
+        mIsPreviewSessionRequested = false;
+        mIsPreviewSessionCreated = false;
+        mIsRecordingSessionRequested = false;
+        mIsRecordingSessionCreated = false;
     }
 
     final class SurfacePreviewListener implements SurfaceHolder.Callback {
 
         @Override
-        public void surfaceCreated(SurfaceHolder holder) {
+        public void surfaceCreated(@NonNull SurfaceHolder holder) {
             Log.d(TAG, "Surface created");
             mIsSurfaceCreated = true;
             mConfigHandler.sendEmptyMessage(MSG_SURFACE_READY);
         }
 
         @Override
-        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        public void surfaceChanged(
+                @NonNull SurfaceHolder holder, int format, int width, int height) {
             Log.d(TAG, "Surface Changed to: " + width + "x" + height);
         }
 
         @Override
-        public void surfaceDestroyed(SurfaceHolder holder) {
+        public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
             Log.d(TAG, "Surface destroyed");
             mIsSurfaceCreated = false;
         }
@@ -156,7 +210,7 @@ final class CameraPreviewManager {
     final class CameraDeviceStateListener extends CameraDevice.StateCallback {
 
         @Override
-        public void onOpened(CameraDevice camera) {
+        public void onOpened(@NonNull CameraDevice camera) {
             Log.d(TAG, "Camera Opened");
             mCameraDevice = camera;
             mIsCameraConnected = true;
@@ -164,17 +218,17 @@ final class CameraPreviewManager {
         }
 
         @Override
-        public void onDisconnected(CameraDevice camera) {
+        public void onDisconnected(@NonNull CameraDevice camera) {
             mIsCameraConnected = false;
         }
 
         @Override
-        public void onClosed(CameraDevice camera) {
+        public void onClosed(@NonNull CameraDevice camera) {
             mIsCameraConnected = false;
         }
 
         @Override
-        public void onError(CameraDevice camera, int error) {}
+        public void onError(@NonNull CameraDevice camera, int error) {}
     }
 
     final class CameraSurfaceInitListener implements Handler.Callback {
@@ -184,53 +238,96 @@ final class CameraPreviewManager {
                 case MSG_CAMERA_OPENED:
                 case MSG_SURFACE_READY:
                 case MSG_SESSION_REQUESTED:
-                    if ((mCameraDevice != null)
-                            && mIsCameraConnected
-                            && mIsSurfaceCreated
-                            && mIsCaptureSessionRequested
-                            && !mIsCaptureSessionCreated) {
-                        Log.d(TAG, "All conditions satisfied, starting session.");
-                        createCaptureSession();
+                    if ((mCameraDevice != null) && mIsCameraConnected && mIsSurfaceCreated) {
+                        // Camera and surfaces ready to start new capture session
+                        if (mIsPreviewSessionRequested && !mIsPreviewSessionCreated) {
+                            // Preview session requested but not created
+                            Log.d(TAG, "All conditions satisfied, starting preview session.");
+                            createPreviewSession();
+                        } else if (mIsRecordingSessionRequested && !mIsRecordingSessionCreated) {
+                            // Recording session requested but not created
+                            Log.d(TAG, "All conditions satisfied, starting recording session.");
+                            createRecordingSession();
+                        }
                     }
             }
             return true;
         }
     }
 
-    private void createCaptureSession() {
+    private void createPreviewSession() {
         try {
             CaptureRequest.Builder captureRequestBuilder = mCameraDevice.createCaptureRequest(
                     CameraDevice.TEMPLATE_PREVIEW);
             captureRequestBuilder.addTarget(mSurfaceView.getHolder().getSurface());
+            mCaptureRequest = captureRequestBuilder.build();
+
             List<OutputConfiguration> outputs = new ArrayList<>();
             outputs.add(new OutputConfiguration(mSurfaceView.getHolder().getSurface()));
             SessionConfiguration sessionConfig = new SessionConfiguration(
                     SessionConfiguration.SESSION_REGULAR, outputs,
-                    new SessionExecutor(mSessionHandler), mCameraSessionListener);
-            mCaptureRequest = captureRequestBuilder.build();
+                    new SessionExecutor(mSessionHandler), mSessionStateListener);
+
             sessionConfig.setSessionParameters(mCaptureRequest);
             mCameraDevice.createCaptureSession(sessionConfig);
-            mIsCaptureSessionCreated = true;
+            mIsPreviewSessionCreated = true;
+            Log.d(TAG, "Created preview capture session for camera " + mCameraId);
         } catch (CameraAccessException | IllegalStateException e) {
-            Log.e(TAG, "Failed to create capture session.", e);
+            Log.e(TAG, "Failed to create preview capture session with camera " + mCameraId, e);
         }
     }
 
-    final class CameraSessionListener extends CameraCaptureSession.StateCallback {
+    private void createRecordingSession() {
+        try {
+
+            Log.d(TAG, String.format(
+                    "Recorder for camera %s is valid? %b",
+                    mCameraId, mRecorder.getSurface().isValid()));
+
+            CaptureRequest.Builder captureRequestBuilder = mCameraDevice.createCaptureRequest(
+                    CameraDevice.TEMPLATE_RECORD);
+            captureRequestBuilder.addTarget(mSurfaceView.getHolder().getSurface());
+            captureRequestBuilder.addTarget(mRecorder.getSurface());
+            mCaptureRequest = captureRequestBuilder.build();
+
+            List<OutputConfiguration> outputs = new ArrayList<>();
+            outputs.add(new OutputConfiguration(mSurfaceView.getHolder().getSurface()));
+            outputs.add(new OutputConfiguration(mRecorder.getSurface()));
+            SessionConfiguration sessionConfig = new SessionConfiguration(
+                    SessionConfiguration.SESSION_REGULAR, outputs,
+                    new SessionExecutor(mSessionHandler), mSessionStateListener);
+
+            sessionConfig.setSessionParameters(mCaptureRequest);
+            mCameraDevice.createCaptureSession(sessionConfig);
+            mIsRecordingSessionCreated = true;
+            Log.d(TAG, "Created recording capture session for camera " + mCameraId);
+        } catch (CameraAccessException | IllegalStateException e) {
+            Log.e(TAG, "Failed to create recording capture session with camera " + mCameraId, e);
+        }
+    }
+
+
+    final class SessionStateListener extends CameraCaptureSession.StateCallback {
         @Override
-        public void onConfigured(CameraCaptureSession session) {
+        public void onConfigured(@NonNull CameraCaptureSession session) {
             mCaptureSession = session;
             try {
                 mCaptureSession.setRepeatingRequest(
                         mCaptureRequest, /* listener= */ null, mSessionHandler);
-            } catch (CameraAccessException | IllegalStateException e) {
-                Log.e(TAG, "Failed to start camera preview.", e);
+                if (mIsPreviewSessionRequested) {
+                    Log.d(TAG, "Successfully started recording session with camera " + mCameraId);
+                } else if (mIsRecordingSessionRequested) {
+                    mRecorder.start();
+                    Log.d(TAG, "Successfully started recording session with camera " + mCameraId);
+                }
+            } catch (CameraAccessException | IllegalStateException | IllegalArgumentException e) {
+                Log.e(TAG, "Failed to start camera preview with camera " + mCameraId, e);
             }
         }
 
         @Override
-        public void onConfigureFailed(CameraCaptureSession session) {
-            Log.e(TAG, "Failed to configure capture session.");
+        public void onConfigureFailed(@NonNull CameraCaptureSession session) {
+            Log.e(TAG, "Failed to configure session with camera " + mCameraId);
         }
     }
 }
