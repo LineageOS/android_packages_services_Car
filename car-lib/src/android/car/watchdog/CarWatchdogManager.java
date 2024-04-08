@@ -483,7 +483,7 @@ public final class CarWatchdogManager extends CarManagerBase {
      * @param listener Listener implementing {@link ResourceOveruseListener} interface.
      * @param resourceOveruseFlag Flag to indicate the types of resource overuses to listen.
      *
-     * @throws IllegalStateException if (@code listener} is already added.
+     * @throws IllegalStateException if {@code listener} is already added.
      */
     public void addResourceOveruseListener(
             @NonNull @CallbackExecutor Executor executor,
