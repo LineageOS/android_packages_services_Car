@@ -368,6 +368,10 @@ Result<void> WatchdogPerfService::onUserStateChange(userid_t userId, const UserS
     Mutex::Autolock lock(mMutex);
     if (mCurrCollectionEvent == EventType::BOOT_TIME_COLLECTION ||
         mCurrCollectionEvent == EventType::CUSTOM_COLLECTION) {
+        mUserSwitchCollection.from = mUserSwitchCollection.to;
+        mUserSwitchCollection.to = userId;
+        ALOGI("Current collection: %s. Ignoring user switch from userId = %d to userId = %d)",
+              toString(mCurrCollectionEvent), mUserSwitchCollection.from, mUserSwitchCollection.to);
         // Ignoring the user switch events because the boot-time and custom collections take
         // precedence over other collections.
         if (mCurrCollectionEvent == EventType::CUSTOM_COLLECTION) {
