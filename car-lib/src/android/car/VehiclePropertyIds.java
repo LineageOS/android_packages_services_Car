@@ -2424,6 +2424,8 @@ public final class VehiclePropertyIds {
     /**
      * Door lock.
      *
+     * <p>True indicates that the door is locked.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -4103,7 +4105,9 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_WINDOWS)
     public static final int WINDOW_MOVE = 322964417;
     /**
-     * Window Lock.
+     * Window Child Lock.
+     *
+     * <p>True indicates that the window is child-locked.
      *
      * <p>Property Config:
      * <ul>
