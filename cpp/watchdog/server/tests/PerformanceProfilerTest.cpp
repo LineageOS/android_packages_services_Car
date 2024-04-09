@@ -67,8 +67,6 @@ using ::testing::Test;
 using ::testing::UnorderedElementsAreArray;
 using ::testing::VariantWith;
 
-using time_point_ms = std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds>;
-
 constexpr int kTestTopNStatsPerCategory = 5;
 constexpr int kTestTopNStatsPerSubcategory = 5;
 constexpr int kTestMaxUserSwitchEvents = 3;
