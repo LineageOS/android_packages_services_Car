@@ -23,7 +23,6 @@ import android.automotive.powerpolicy.internal.PowerPolicyFailureReason;
 import android.automotive.powerpolicy.internal.PowerPolicyInitData;
 import android.car.hardware.power.PowerComponent;
 import android.car.hardware.power.PowerComponentUtil;
-import android.car.test.util.TemporaryFile;
 import android.frameworks.automotive.powerpolicy.CarPowerPolicy;
 import android.os.FileObserver;
 import android.os.Handler;
@@ -89,16 +88,15 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
     private String mLastDefinedPolicyId;
     private Handler mHandler;
     private ICarPowerPolicyDelegateCallback mCallback;
-    private TemporaryFile mFileKernelSilentMode;
+    private File mFileKernelSilentMode;
 
-    public FakeRefactoredCarPowerPolicyDaemon(@Nullable TemporaryFile fileKernelSilentMode,
+    public FakeRefactoredCarPowerPolicyDaemon(@Nullable File fileKernelSilentMode,
             @Nullable int[] customComponents) throws Exception {
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
         mFileKernelSilentMode = (fileKernelSilentMode == null)
-                ? new TemporaryFile("KERNEL_SILENT_MODE") : fileKernelSilentMode;
-        mFileObserver = new SilentModeFileObserver(mFileKernelSilentMode.getFile(),
-                FileObserver.CLOSE_WRITE);
+                ? new File("KERNEL_SILENT_MODE") : fileKernelSilentMode;
+        mFileObserver = new SilentModeFileObserver(mFileKernelSilentMode, FileObserver.CLOSE_WRITE);
         CarPowerPolicy policyInitialOn = createInitialOnPowerPolicy();
         CarPowerPolicy policyAllOn = createAllOnPowerPolicy();
         CarPowerPolicy policyNoUser = createNoUserPowerPolicy();

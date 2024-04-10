@@ -52,7 +52,6 @@ import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.PowerComponent;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.JavaMockitoHelper;
-import android.car.test.util.TemporaryFile;
 import android.car.testapi.FakeRefactoredCarPowerPolicyDaemon;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -84,10 +83,13 @@ import com.android.internal.annotations.GuardedBy;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.Spy;
 
+import java.io.File;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -104,19 +106,22 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
     // A shorter value for use when the test is expected to time out
     private static final long WAIT_WHEN_TIMEOUT_EXPECTED_MS = 100;
 
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private final MockDisplayInterface mDisplayInterface = new MockDisplayInterface();
     private final MockSystemStateInterface mSystemStateInterface = new MockSystemStateInterface();
     private final ICarPowerPolicyDelegate mRefactoredPowerPolicyDaemon =
             new FakeRefactoredCarPowerPolicyDaemon(
-                    /* fileKernelSilentMode= */ new TemporaryFile("KERNEL_SILENT_FILE"),
+                    /* fileKernelSilentMode= */ new File("KERNEL_SILENT_FILE"),
                     /* customComponents= */ null);
 
     @Spy
     private final Context mContext =
             InstrumentationRegistry.getInstrumentation().getTargetContext();
     private final Executor mExecutor = mContext.getMainExecutor();
-    private final TemporaryFile mComponentStateFile;
 
+    private File mComponentStateFile;
     private MockedPowerHalService mPowerHal;
     private SystemInterface mSystemInterface;
     private CarPowerManagementService mService;
@@ -139,11 +144,11 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
 
     public CarPowerManagerUnitTest() throws Exception {
         super(CarPowerManager.TAG);
-        mComponentStateFile = new TemporaryFile("COMPONENT_STATE_FILE");
     }
 
     @Before
     public void setUp() throws Exception {
+        mComponentStateFile = temporaryFolder.newFile("COMPONENT_STATE_FILE");
         mPowerHal = new MockedPowerHalService(/*isPowerStateSupported=*/true,
                 /*isDeepSleepAllowed=*/true,
                 /*isHibernationAllowed=*/true,
@@ -456,7 +461,7 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
         doReturn(false).when(mResources).getBoolean(
                 R.bool.config_enablePassengerDisplayPowerSaving);
         mPowerComponentHandler = new PowerComponentHandler(mContext, mSystemInterface,
-                new AtomicFile(mComponentStateFile.getFile()));
+                new AtomicFile(mComponentStateFile));
         IInterface powerPolicyDaemon;
         if (Flags.carPowerPolicyRefactoring()) {
             powerPolicyDaemon = mRefactoredPowerPolicyDaemon;

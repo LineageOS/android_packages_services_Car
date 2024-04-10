@@ -59,7 +59,6 @@ import android.car.hardware.power.PowerComponent;
 import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.JavaMockitoHelper;
-import android.car.test.util.TemporaryFile;
 import android.car.testapi.FakeRefactoredCarPowerPolicyDaemon;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -115,11 +114,14 @@ import com.android.internal.annotations.GuardedBy;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.Spy;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.annotation.ElementType;
@@ -206,6 +208,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
             PowerComponent.AUDIO, PowerComponent.DISPLAY, PowerComponent.VISUAL_INTERACTION,
             CUSTOM_COMPONENT_1002, CUSTOM_COMPONENT_1003);
 
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private final FakeFeatureFlagsImpl mFeatureFlags = new FakeFeatureFlagsImpl();
     private final MockDisplayInterface mDisplayInterface = new MockDisplayInterface();
     private final MockSystemStateInterface mSystemStateInterface = new MockSystemStateInterface();
@@ -214,7 +219,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private final PowerSignalListener mPowerSignalListener = new PowerSignalListener();
     @Spy
     private final Context mContext = InstrumentationRegistry.getInstrumentation().getContext();
-    private final TemporaryFile mComponentStateFile;
     private final HalPropValueBuilder mHalPropValueBuilder = new HalPropValueBuilder(
             /* isAidl= */ true);
 
@@ -223,8 +227,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private PowerComponentHandler mPowerComponentHandler;
     private CarPowerManagementService mService;
     private CompletableFuture<Void> mFuture;
-    private TemporaryFile mFileHwStateMonitoring;
-    private TemporaryFile mFileKernelSilentMode;
+    private File mComponentStateFile;
+    private File mFileHwStateMonitoring;
+    private File mFileKernelSilentMode;
     private FakeCarPowerPolicyDaemon mPowerPolicyDaemon;
     private FakeRefactoredCarPowerPolicyDaemon mRefactoredPowerPolicyDaemon;
     private boolean mVoiceInteractionEnabled;
@@ -243,8 +248,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     public CarPowerManagementServiceUnitTest() throws Exception {
         super(CarPowerManagementService.TAG);
-
-        mComponentStateFile = new TemporaryFile("COMPONENT_STATE_FILE");
     }
 
     @Override
@@ -256,6 +259,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Before
     public void setUp() throws Exception {
+        mComponentStateFile = temporaryFolder.newFile("COMPONENT_STATE_FILE");
         mPowerHal = new MockedPowerHalService(/*isPowerStateSupported=*/true,
                 /*isDeepSleepAllowed=*/true,
                 /*isHibernationAllowed=*/true,
@@ -909,8 +913,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .setPowerPolicyDaemon(mRefactoredPowerPolicyDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).setFeatureFlags(mFeatureFlags)
                 .setScreenOffHandler(mScreenOffHandler)
-                .setSilentModeHwStatePath(mFileHwStateMonitoring.getFile().getPath())
-                .setSilentModeKernelStatePath(mFileKernelSilentMode.getFile().getPath())
+                .setSilentModeHwStatePath(mFileHwStateMonitoring.getPath())
+                .setSilentModeKernelStatePath(mFileKernelSilentMode.getPath())
                 .setBootReason(NORMAL_BOOT).build();
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class, mService);
@@ -1743,8 +1747,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .setPowerPolicyDaemon(mPowerPolicyDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).setFeatureFlags(mFeatureFlags)
                 .setScreenOffHandler(mScreenOffHandler)
-                .setSilentModeHwStatePath(mFileHwStateMonitoring.getFile().getPath())
-                .setSilentModeKernelStatePath(mFileKernelSilentMode.getFile().getPath())
+                .setSilentModeHwStatePath(mFileHwStateMonitoring.getPath())
+                .setSilentModeKernelStatePath(mFileKernelSilentMode.getPath())
                 .setBootReason(NORMAL_BOOT).build();
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class, mService);
@@ -2200,8 +2204,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .setCarUserService(mUserService).setPowerPolicyDaemon(mRefactoredPowerPolicyDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).setFeatureFlags(mFeatureFlags)
                 .setScreenOffHandler(mScreenOffHandler)
-                .setSilentModeHwStatePath(mFileHwStateMonitoring.getFile().getPath())
-                .setSilentModeKernelStatePath(mFileKernelSilentMode.getFile().getPath())
+                .setSilentModeHwStatePath(mFileHwStateMonitoring.getPath())
+                .setSilentModeKernelStatePath(mFileKernelSilentMode.getPath())
                 .setBootReason(NORMAL_BOOT).build();
 
         HalPropValue vehicleInUseRequest = mHalPropValueBuilder.build(
@@ -2240,8 +2244,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .setCarUserService(mUserService).setPowerPolicyDaemon(mRefactoredPowerPolicyDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).setFeatureFlags(mFeatureFlags)
                 .setScreenOffHandler(mScreenOffHandler)
-                .setSilentModeHwStatePath(mFileHwStateMonitoring.getFile().getPath())
-                .setSilentModeKernelStatePath(mFileKernelSilentMode.getFile().getPath())
+                .setSilentModeHwStatePath(mFileHwStateMonitoring.getPath())
+                .setSilentModeKernelStatePath(mFileKernelSilentMode.getPath())
                 .setBootReason(NORMAL_BOOT).build();
 
         service.onInitComplete();
@@ -2264,8 +2268,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .setCarUserService(mUserService).setPowerPolicyDaemon(mRefactoredPowerPolicyDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).setFeatureFlags(mFeatureFlags)
                 .setScreenOffHandler(mScreenOffHandler)
-                .setSilentModeHwStatePath(mFileHwStateMonitoring.getFile().getPath())
-                .setSilentModeKernelStatePath(mFileKernelSilentMode.getFile().getPath())
+                .setSilentModeHwStatePath(mFileHwStateMonitoring.getPath())
+                .setSilentModeKernelStatePath(mFileKernelSilentMode.getPath())
                 .setBootReason(NORMAL_BOOT).build();
 
         HalPropValue bootupReasonRequest = mHalPropValueBuilder.build(
@@ -2297,8 +2301,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .setCarUserService(mUserService).setPowerPolicyDaemon(mRefactoredPowerPolicyDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).setFeatureFlags(mFeatureFlags)
                 .setScreenOffHandler(mScreenOffHandler)
-                .setSilentModeHwStatePath(mFileHwStateMonitoring.getFile().getPath())
-                .setSilentModeKernelStatePath(mFileKernelSilentMode.getFile().getPath())
+                .setSilentModeHwStatePath(mFileHwStateMonitoring.getPath())
+                .setSilentModeKernelStatePath(mFileKernelSilentMode.getPath())
                 .setBootReason(NORMAL_BOOT).build();
 
         HalPropValue vehicleInUseRequest = mHalPropValueBuilder.build(
@@ -2337,8 +2341,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .setCarUserService(mUserService).setPowerPolicyDaemon(mRefactoredPowerPolicyDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).setFeatureFlags(mFeatureFlags)
                 .setScreenOffHandler(mScreenOffHandler)
-                .setSilentModeHwStatePath(mFileHwStateMonitoring.getFile().getPath())
-                .setSilentModeKernelStatePath(mFileKernelSilentMode.getFile().getPath())
+                .setSilentModeHwStatePath(mFileHwStateMonitoring.getPath())
+                .setSilentModeKernelStatePath(mFileKernelSilentMode.getPath())
                 .setBootReason(NORMAL_BOOT).build();
 
         HalPropValue vehicleInUseRequest = mHalPropValueBuilder.build(
@@ -2389,11 +2393,11 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
             return null;
         }).when(() -> VoiceInteractionHelper.setEnabled(anyBoolean()));
 
-        mFileHwStateMonitoring = new TemporaryFile("HW_STATE_MONITORING");
-        mFileKernelSilentMode = new TemporaryFile("KERNEL_SILENT_MODE");
-        mFileHwStateMonitoring.write(NONSILENT_STRING);
+        mFileHwStateMonitoring = temporaryFolder.newFile("HW_STATE_MONITORING");
+        mFileKernelSilentMode = temporaryFolder.newFile("KERNEL_SILENT_MODE");
+        writeToTempFile(mFileHwStateMonitoring, NONSILENT_STRING);
         mPowerComponentHandler = new PowerComponentHandler(mContext, mSystemInterface,
-                new AtomicFile(mComponentStateFile.getFile()));
+                new AtomicFile(mComponentStateFile));
         mPowerPolicyDaemon = new FakeCarPowerPolicyDaemon();
         setCarPowerPolicyRefactoringFeatureFlag(false);
         mService = new CarPowerManagementService.Builder()
@@ -2403,8 +2407,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .setPowerPolicyDaemon(mPowerPolicyDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).setFeatureFlags(mFeatureFlags)
                 .setScreenOffHandler(mScreenOffHandler)
-                .setSilentModeHwStatePath(mFileHwStateMonitoring.getFile().getPath())
-                .setSilentModeKernelStatePath(mFileKernelSilentMode.getFile().getPath())
+                .setSilentModeHwStatePath(mFileHwStateMonitoring.getPath())
+                .setSilentModeKernelStatePath(mFileKernelSilentMode.getPath())
                 .setBootReason(NORMAL_BOOT).build();
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class, mService);
@@ -2430,8 +2434,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .setPowerPolicyDaemon(mRefactoredPowerPolicyDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).setFeatureFlags(mFeatureFlags)
                 .setScreenOffHandler(mScreenOffHandler)
-                .setSilentModeHwStatePath(mFileHwStateMonitoring.getFile().getPath())
-                .setSilentModeKernelStatePath(mFileKernelSilentMode.getFile().getPath())
+                .setSilentModeHwStatePath(mFileHwStateMonitoring.getPath())
+                .setSilentModeKernelStatePath(mFileKernelSilentMode.getPath())
                 .setBootReason(NORMAL_BOOT).build();
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class, mService);
@@ -2440,6 +2444,12 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mService.setShutdownTimersForTest(0, 0);
         mService.scheduleNextWakeupTime(WAKE_UP_DELAY);
         assertStateReceived(MockedPowerHalService.SET_WAIT_FOR_VHAL, 0);
+    }
+
+    private void writeToTempFile(File file, String content) throws IOException {
+        try (FileWriter fw = new FileWriter(file)) {
+            fw.write(content);
+        }
     }
 
     private void suspendDevice() throws Exception {
@@ -2508,7 +2518,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 SYSTEM_POWER_POLICY_INITIAL_ON);
         assertThat(mDisplayInterface.isAnyDisplayEnabled()).isTrue();
 
-        mFileHwStateMonitoring.write(NONSILENT_STRING); // Wake non-silently
+        writeToTempFile(mFileHwStateMonitoring, NONSILENT_STRING); // Wake non-silently
         mService.setStateForWakeUp();
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         assertVoiceInteractionEnabled();
