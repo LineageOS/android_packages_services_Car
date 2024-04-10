@@ -1,0 +1,2 @@
+# Only kernel, init, and vendor init can write to car_boot_prop properties
+neverallow { domain -kernel -init -vendor_init } car_boot_prop:property_service set;
