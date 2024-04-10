@@ -22,7 +22,7 @@ import android.view.WindowManager.LayoutParams;
 import androidx.annotation.NonNull;
 
 import com.android.car.ui.appstyledview.AppStyledDialogController.NavIcon;
-import com.android.car.ui.appstyledview.AppStyledViewController;
+import com.android.car.ui.appstyledview.AppStyledViewControllerImpl;
 import com.android.car.ui.plugin.oemapis.appstyledview.AppStyledViewControllerOEMV1;
 
 /**
@@ -32,21 +32,27 @@ import com.android.car.ui.plugin.oemapis.appstyledview.AppStyledViewControllerOE
 public class AppStyledViewControllerAdapterProxyV1 implements AppStyledViewControllerOEMV1 {
 
     @NonNull
-    private final AppStyledViewController mStaticController;
+    private final AppStyledViewControllerImpl mStaticController;
     private View mContentView;
 
-    public AppStyledViewControllerAdapterProxyV1(@NonNull AppStyledViewController controller) {
+    public AppStyledViewControllerAdapterProxyV1(@NonNull AppStyledViewControllerImpl controller) {
         mStaticController = controller;
     }
 
     @Override
     public View getView() {
-        return mStaticController.getAppStyledView(mContentView);
+        if (mContentView == null) {
+            return null;
+        }
+
+        //TODO(b/333901191): Rename api or cache
+        return mStaticController.createAppStyledView(mContentView);
     }
 
     @Override
     public void setContent(View view) {
         mContentView = view;
+        mStaticController.setContent(mContentView);
     }
 
     @Override
@@ -68,8 +74,10 @@ public class AppStyledViewControllerAdapterProxyV1 implements AppStyledViewContr
         }
     }
 
+    @NonNull
     @Override
-    public LayoutParams getDialogWindowLayoutParam(LayoutParams params) {
-        return mStaticController.getDialogWindowLayoutParam(params);
+    public LayoutParams getDialogWindowLayoutParam(@NonNull LayoutParams params) {
+        return mStaticController.getDialog().getDialogWindowLayoutParam(params);
     }
 }
+
