@@ -20,7 +20,7 @@
     android:id="@+id/toolbar"
     android:layout_width="match_parent"
     android:layout_height="@*android:dimen/status_bar_height"
-    android:background="@color/car_under_surface"
+    android:background="@color/car_shadow"
     android:visibility="gone">
 
     <ImageView
