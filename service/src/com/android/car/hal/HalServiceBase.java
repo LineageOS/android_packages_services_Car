@@ -86,7 +86,6 @@ public abstract class HalServiceBase {
      */
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public void takeProperties(@NonNull Collection<HalPropConfig> properties) {
-        return;
     }
 
     /**
@@ -94,7 +93,6 @@ public abstract class HalServiceBase {
      */
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public void onHalEvents(List<HalPropValue> values) {
-        return;
     }
 
     /**

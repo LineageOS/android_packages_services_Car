@@ -81,7 +81,8 @@ public class OccupantAwarenessService
 
     private final ChangeListenerToHalService mHalListener = new ChangeListenerToHalService(this);
 
-    private class ChangeCallbackList extends RemoteCallbackList<IOccupantAwarenessEventCallback> {
+    private static class ChangeCallbackList
+            extends RemoteCallbackList<IOccupantAwarenessEventCallback> {
         private final WeakReference<OccupantAwarenessService> mOasService;
 
         ChangeCallbackList(OccupantAwarenessService oasService) {

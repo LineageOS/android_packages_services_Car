@@ -32,6 +32,7 @@ import android.util.SparseArray;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /** Utils for Bluetooth */
 public final class BluetoothUtils {
@@ -260,7 +261,7 @@ public final class BluetoothUtils {
     static int[] getManagedProfilesIds() {
         int[] profileIds = new int[sProfileActions.size()];
         int i = 0;
-        for (HashMap.Entry record : sProfileActions.entrySet()) {
+        for (Map.Entry<String, Integer> record : sProfileActions.entrySet()) {
             profileIds[i] = ((Integer) record.getValue()).intValue();
             i += 1;
         }

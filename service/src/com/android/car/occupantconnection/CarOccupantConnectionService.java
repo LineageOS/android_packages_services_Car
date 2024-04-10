@@ -382,9 +382,9 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         // TODO(b/257117236): implement this method.
     }
 
+    /** Run `adb shell dumpsys car_service --services CarOccupantConnectionService` to dump. */
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    /** Run `adb shell dumpsys car_service --services CarOccupantConnectionService` to dump. */
     public void dump(IndentingPrintWriter writer) {
         writer.println("*CarOccupantConnectionService*");
         synchronized (mLock) {

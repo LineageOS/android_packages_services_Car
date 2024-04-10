@@ -212,13 +212,13 @@ public class InputCaptureClientController {
     private final SparseArray<SparseArray<LinkedList<ClientInfoForDisplay>>>
             mPerInputTypeCapturers = new SparseArray<>(2);
 
-    @GuardedBy("mLock")
     /** key: display type -> client binder */
+    @GuardedBy("mLock")
     private final SparseArray<HashMap<IBinder, ClientInfoForDisplay>> mAllClients =
             new SparseArray<>(1);
 
-    @GuardedBy("mLock")
     /** Keeps events to dispatch together. FIFO, last one added to last */
+    @GuardedBy("mLock")
     private final LinkedList<ClientsToDispatch> mClientDispatchQueue =
             new LinkedList<>();
 

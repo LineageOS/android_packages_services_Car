@@ -181,7 +181,6 @@ public class UidPackageMapper {
                         .removeIf(app -> app.mPackageName.equals(completelyRemoved.mPackageName));
             }
         }
-        return;
     }
 
     /** Returns installed and uninstalled packages, including Apex packages. */
@@ -244,7 +243,7 @@ public class UidPackageMapper {
                                 + " Ignoring.");
                 return;
             }
-            /**
+            /*
              * App updates (ACTION_PACKAGE_REPLACED) actually consist of REMOVE, ADD, and then
              * REPLACE broadcasts. To avoid waste, we ignore the extra REMOVE and ADD broadcasts
              * that contain the replacing flag (EXTRA_REPLACING).

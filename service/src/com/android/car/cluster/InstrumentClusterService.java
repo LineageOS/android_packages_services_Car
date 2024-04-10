@@ -415,7 +415,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
      * @deprecated CarClusterManager is being deprecated.
      */
     @Deprecated
-    private class ClusterManagerService extends IInstrumentClusterManagerService.Stub {
+    private static class ClusterManagerService extends IInstrumentClusterManagerService.Stub {
         @Override
         public void startClusterActivity(Intent intent) throws RemoteException {
             // No op.

@@ -786,7 +786,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     }
 
     /**
-     * @see {@link CarMediaManager#setMediaSource(ComponentName)}
+     * @see CarMediaManager#setMediaSource(ComponentName, int)
      */
     @Override
     public void setMediaSource(@NonNull ComponentName componentName,
@@ -802,7 +802,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     }
 
     /**
-     * @see {@link CarMediaManager#getMediaSource()}
+     * @see CarMediaManager#getMediaSource
      */
     @Override
     public ComponentName getMediaSource(@CarMediaManager.MediaSourceMode int mode,
@@ -826,7 +826,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     }
 
     /**
-     * @see {@link CarMediaManager#registerMediaSourceListener(MediaSourceChangedListener)}
+     * @see
+     * CarMediaManager#removeMediaSourceListener(CarMediaManager.MediaSourceChangedListener, int)
      */
     @Override
     public void registerMediaSourceListener(ICarMediaSourceListener callback,
@@ -842,7 +843,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     }
 
     /**
-     * @see {@link CarMediaManager#unregisterMediaSourceListener(ICarMediaSourceListener)}
+     * @see CarMediaManager#removeMediaSourceListener
      */
     @Override
     public void unregisterMediaSourceListener(ICarMediaSourceListener callback,
