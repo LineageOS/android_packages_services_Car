@@ -35,6 +35,8 @@ bluetooth.device.class_of_device=38,4,32
 # are disabled by default.
 bluetooth.profile.a2dp.sink.enabled=true
 bluetooth.profile.avrcp.controller.enabled=true
+bluetooth.profile.a2dp.source.enabled=true
+bluetooth.profile.avrcp.target.enabled=true
 bluetooth.profile.gatt.enabled=true
 bluetooth.profile.hfp.hf.enabled=true
 bluetooth.profile.map.client.enabled=true
