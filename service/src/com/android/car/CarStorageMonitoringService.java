@@ -466,7 +466,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     private List<LifetimeWriteInfo> loadLifetimeWrites() {
         if (!mLifetimeWriteFile.exists() || !mLifetimeWriteFile.isFile()) {
             Slogf.d(TAG, "lifetime write file missing or inaccessible " + mLifetimeWriteFile);
-            return Collections.emptyList();
+            return new ArrayList<>();
         }
         try {
             JSONObject jsonObject = new JSONObject(
@@ -481,7 +481,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
             return result;
         } catch (JSONException | IOException e) {
             Slogf.e(TAG, "lifetime write file does not contain valid JSON", e);
-            return Collections.emptyList();
+            return new ArrayList<>();
         }
     }
 
@@ -711,12 +711,12 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         Configuration(Resources resources) throws Resources.NotFoundException {
             ioStatsNumSamplesToStore = resources.getInteger(R.integer.ioStatsNumSamplesToStore);
             acceptableBytesWrittenPerSample =
-                    1024 * resources.getInteger(R.integer.acceptableWrittenKBytesPerSample);
+                    1024L * resources.getInteger(R.integer.acceptableWrittenKBytesPerSample);
             acceptableFsyncCallsPerSample =
                     resources.getInteger(R.integer.acceptableFsyncCallsPerSample);
             maxExcessiveIoSamplesInWindow =
                     resources.getInteger(R.integer.maxExcessiveIoSamplesInWindow);
-            uptimeIntervalBetweenUptimeDataWriteMs = 60 * 60 * 1000
+            uptimeIntervalBetweenUptimeDataWriteMs = 60L * 60 * 1000
                     * resources.getInteger(R.integer.uptimeHoursIntervalBetweenUptimeDataWrite);
             acceptableHoursPerOnePercentFlashWear =
                     resources.getInteger(R.integer.acceptableHoursPerOnePercentFlashWear);

@@ -70,7 +70,7 @@ public class SystemMonitor {
     /**
      * Creates a SystemMonitor instance set with default loadavg path.
      *
-     * @param context the context this is running in.
+     * @param activityManager Activity manager this is running in.
      * @param workerHandler a handler for running monitoring jobs.
      * @return SystemMonitor instance.
      */

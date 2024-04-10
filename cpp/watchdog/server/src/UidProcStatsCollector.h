@@ -112,6 +112,7 @@ struct UidProcStats {
      */
     uint64_t totalRssKb = 0;
     uint64_t totalPssKb = 0;
+    // TODO(b/333212872): Handles totalUssKb, totalSwapPssKb calculation logic here.
     std::unordered_map<pid_t, ProcessStats> processStatsByPid = {};
     std::string toString() const;
 };
@@ -138,8 +139,12 @@ public:
 
 class UidProcStatsCollector final : public UidProcStatsCollectorInterface {
 public:
+    // TODO(b/333722043): Once carwatchdogd has sys_ptrace capability, set mIsSmapsRollupSupported
+    // field from `android::meminfo::IsSmapsRollupSupported()`.
+    // Disabling smaps_rollup support because this file cannot be read without sys_ptrace
+    // capability.
     UidProcStatsCollector() :
-          UidProcStatsCollector(kProcDirPath, ::android::meminfo::IsSmapsRollupSupported()) {}
+          UidProcStatsCollector(kProcDirPath, /*isSmapsRollupSupported=*/false) {}
     // Used by tests.
     UidProcStatsCollector(const std::string& path, bool isSmapsRollupSupported);
 

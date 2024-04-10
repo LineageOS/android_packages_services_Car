@@ -392,7 +392,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    private class CarRemoteAccessServiceDepImpl implements CarRemoteAccessServiceDep {
+    private static class CarRemoteAccessServiceDepImpl implements CarRemoteAccessServiceDep {
         public int getCallingUid() {
             return Binder.getCallingUid();
         }

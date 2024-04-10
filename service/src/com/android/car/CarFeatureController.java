@@ -52,7 +52,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -461,12 +460,12 @@ public final class CarFeatureController implements CarServiceBase {
 
     /** Returns currently enabled experimental features */
     public @NonNull List<String> getEnabledExperimentalFeatures() {
+        ArrayList<String> experimentalFeature = new ArrayList<>();
         if (BuildHelper.isUserBuild()) {
             Slogf.e(TAG, "getEnabledExperimentalFeatures called in USER build",
                     new RuntimeException());
-            return Collections.emptyList();
+            return experimentalFeature;
         }
-        ArrayList<String> experimentalFeature = new ArrayList<>();
         for (int i = 0; i < mEnabledFeatures.size(); i++) {
             String enabledFeature = mEnabledFeatures.valueAt(i);
             if (MANDATORY_FEATURES.contains(enabledFeature)) {

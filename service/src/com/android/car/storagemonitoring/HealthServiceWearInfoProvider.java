@@ -58,7 +58,7 @@ public class HealthServiceWearInfoProvider implements WearInformationProvider {
         final MutableInt lifetimeB = new MutableInt(0);
         final MutableInt preEol = new MutableInt(0);
 
-        final IHealth.getStorageInfoCallback getStorageInfoCallback =
+        final IHealth.getStorageInfoCallback getStorageInfoCallbackImpl =
                 new IHealth.getStorageInfoCallback() {
             @Override
             public void onValues(int result, ArrayList<StorageInfo> value) {
@@ -84,7 +84,7 @@ public class HealthServiceWearInfoProvider implements WearInformationProvider {
         }
 
         try {
-            healthService.getStorageInfo(getStorageInfoCallback);
+            healthService.getStorageInfo(getStorageInfoCallbackImpl);
         } catch (Exception e) {
             Slogf.w(CarLog.TAG_STORAGE, "Failed to get storage information from"
                     + "health service, exception :" + e);

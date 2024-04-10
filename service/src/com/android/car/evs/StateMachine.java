@@ -23,16 +23,13 @@ import static android.car.evs.CarEvsManager.SERVICE_STATE_ACTIVE;
 import static android.car.evs.CarEvsManager.SERVICE_STATE_INACTIVE;
 import static android.car.evs.CarEvsManager.SERVICE_STATE_REQUESTED;
 import static android.car.evs.CarEvsManager.SERVICE_STATE_UNAVAILABLE;
-import static android.car.evs.CarEvsManager.STREAM_EVENT_STREAM_STOPPED;
 
 import static com.android.car.CarLog.TAG_EVS;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
 
 import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
-import android.car.feature.Flags;
 import android.car.evs.CarEvsBufferDescriptor;
 import android.car.evs.CarEvsManager;
 import android.car.evs.CarEvsManager.CarEvsError;
@@ -41,21 +38,19 @@ import android.car.evs.CarEvsManager.CarEvsServiceType;
 import android.car.evs.CarEvsManager.CarEvsStreamEvent;
 import android.car.evs.CarEvsStatus;
 import android.car.evs.ICarEvsStreamCallback;
+import android.car.feature.Flags;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.HardwareBuffer;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.util.ArraySet;
-import android.util.SparseIntArray;
 import android.util.Log;
+import android.util.SparseIntArray;
 
 import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarServiceUtils;
@@ -67,7 +62,6 @@ import com.android.car.util.TransitionLog;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -131,8 +125,7 @@ final class StateMachine {
     @GuardedBy("mLock")
     private final ArrayList<TransitionLog> mTransitionLogs = new ArrayList<>();
 
-    @GuardedBy("mLock")
-    private String mCameraId;
+    private final String mCameraId;
 
     // Current state.
     @GuardedBy("mLock")
@@ -476,8 +469,10 @@ final class StateMachine {
 
     /** Requests to cancel a pending activity request. */
     void cancelActivityRequest() {
-        if (mState != SERVICE_STATE_REQUESTED) {
-            return;
+        synchronized (mLock) {
+            if (mState != SERVICE_STATE_REQUESTED) {
+                return;
+            }
         }
 
         if (execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE) != ERROR_NONE) {
@@ -702,6 +697,7 @@ final class StateMachine {
      * @return true if we should launch an activity.
      *         false otherwise.
      */
+    @GuardedBy("mLock")
     private boolean needToStartActivityLocked() {
         if (mActivityName == null || mHandler.hasCallbacks(mActivityRequestTimeoutRunnable)) {
             // No activity has been registered yet or it is already requested.
@@ -795,7 +791,7 @@ final class StateMachine {
     /**
      * Try to connect to the EVS HAL service until it succeeds at a given interval.
      *
-     * @param internalInMillis an interval to try again if current attempt fails.
+     * @param intervalInMillis an interval to try again if current attempt fails.
      */
     private void connectToHalServiceIfNecessary(long intervalInMillis) {
         if (execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE) != ERROR_NONE) {

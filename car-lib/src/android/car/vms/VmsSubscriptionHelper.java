@@ -120,8 +120,14 @@ public final class VmsSubscriptionHelper {
      * Gets the current set of subscriptions.
      */
     @NonNull
-    @GuardedBy("mLock")
     public Set<VmsAssociatedLayer> getSubscriptions() {
+        synchronized (mLock) {
+            return getSubscriptionsLocked();
+        }
+    }
+
+    @GuardedBy("mLock")
+    private Set<VmsAssociatedLayer> getSubscriptionsLocked() {
         Set<VmsAssociatedLayer> vmsAssociatedLayerSet = new ArraySet<>();
         for (int i = 0; i < mLayerSubscriptions.size(); i++) {
             VmsLayer layer = mLayerSubscriptions.valueAt(i);
@@ -141,7 +147,7 @@ public final class VmsSubscriptionHelper {
     private void publishSubscriptionUpdate() {
         synchronized (mLock) {
             if (mPendingUpdate) {
-                mUpdateHandler.accept(getSubscriptions());
+                mUpdateHandler.accept(getSubscriptionsLocked());
             }
             mPendingUpdate = false;
         }

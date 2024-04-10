@@ -86,7 +86,7 @@ public class EvsHalService extends HalServiceBase {
      * Sets the event listener to receive Vehicle's EVS-related events.
      *
      * @param listener {@link EvsHalEventListener}
-     * @throws {@link IllegalStateException} if none of required VHAL properties are not supported
+     * @throws IllegalStateException if none of required VHAL properties are not supported
      *         on this device.
      */
     public void setListener(EvsHalEventListener listener) {
@@ -173,7 +173,7 @@ public class EvsHalService extends HalServiceBase {
     /**
      * Reports the current state of CarEvsService.
      *
-     * @param state {@link android.car.evs.CarEvsManager#CarEvsServiceState} value that represents
+     * @param state {@link android.car.evs.CarEvsManager.CarEvsServiceState} value that represents
      *              the current state of {@code CarEvsService}.
      */
     public void reportCurrentState(@CarEvsServiceState int[] state) {

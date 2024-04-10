@@ -23,6 +23,7 @@
 #include <android-base/stringprintf.h>
 #include <android/util/ProtoOutputStream.h>
 #include <log/log.h>
+#include <meminfo/androidprocheaps.h>
 
 #include <inttypes.h>
 
@@ -61,7 +62,7 @@ constexpr int32_t kDefaultTopNStatsPerCategory = 10;
 constexpr int32_t kDefaultTopNStatsPerSubcategory = 5;
 constexpr int32_t kDefaultMaxUserSwitchEvents = 5;
 constexpr std::chrono::seconds kSystemEventDataCacheDurationSec = 1h;
-constexpr const char kBootTimeCollectionTitle[] = "%s\nBoot-time performance report:\n%s\n";
+constexpr const char kBootTimeCollectionTitle[] = "\n%s\nBoot-time performance report:\n%s\n";
 constexpr const char kPeriodicCollectionTitle[] = "%s\nLast N minutes performance report:\n%s\n";
 constexpr const char kUserSwitchCollectionTitle[] =
         "%s\nUser-switch events performance report:\n%s\n";
@@ -95,6 +96,12 @@ constexpr const char kMajorFaultsHeader[] =
 constexpr const char kMajorFaultsSummary[] =
         "Number of major page faults since last collection: %" PRIu64 "\n"
         "Percentage of change in major page faults since last collection: %.2f%%\n";
+constexpr const char kMemStatsTitle[] = "\nTop N Memory Stats:\n%s\n";
+constexpr const char kMemStatsHeader[] =
+        "Android User ID, Package Name, RSS (kb), RSS %%, PSS (kb), PSS %%, USS (kb), Swap PSS (kb)"
+        "\n\tCommand, RSS (kb), PSS (kb), USS (kb), Swap PSS (kb)\n";
+constexpr const char kMemStatsSummary[] = "Total RSS (kb): %" PRIu64 "\n"
+                                          "Total PSS (kb): %" PRIu64 "\n";
 
 double percentage(uint64_t numer, uint64_t denom) {
     return denom == 0 ? 0.0 : (static_cast<double>(numer) / static_cast<double>(denom)) * 100.0;
@@ -266,26 +273,61 @@ UserPackageStats::UserPackageStats(MetricType metricType, const UidStats& uidSta
 }
 
 UserPackageStats::UserPackageStats(ProcStatType procStatType, const UidStats& uidStats,
-                                   int topNProcessCount) {
-    uint64_t value = procStatType == CPU_TIME        ? uidStats.cpuTimeMillis
-            : procStatType == IO_BLOCKED_TASKS_COUNT ? uidStats.procStats.ioBlockedTasksCount
-                                                     : uidStats.procStats.totalMajorFaults;
+                                   int topNProcessCount, bool isSmapsRollupSupported = false) {
     uid = uidStats.uid();
     genericPackageName = uidStats.genericPackageName();
-    if (procStatType == CPU_TIME) {
-        statsView = UserPackageStats::ProcCpuStatsView{.cpuTimeMillis = static_cast<int64_t>(value),
-                                                       .cpuCycles = static_cast<int64_t>(
-                                                               uidStats.procStats.cpuCycles)};
-        auto& procCpuStatsView = std::get<UserPackageStats::ProcCpuStatsView>(statsView);
-        procCpuStatsView.topNProcesses.resize(topNProcessCount);
-        cacheTopNProcessCpuStats(uidStats, topNProcessCount, &procCpuStatsView.topNProcesses);
-        return;
+    switch (procStatType) {
+        case CPU_TIME: {
+            statsView = UserPackageStats::ProcCpuStatsView{.cpuTimeMillis = static_cast<int64_t>(
+                                                                   uidStats.cpuTimeMillis),
+                                                           .cpuCycles = static_cast<int64_t>(
+                                                                   uidStats.procStats.cpuCycles)};
+            auto& procCpuStatsView = std::get<UserPackageStats::ProcCpuStatsView>(statsView);
+            procCpuStatsView.topNProcesses.resize(topNProcessCount);
+            cacheTopNProcessCpuStats(uidStats, topNProcessCount, &procCpuStatsView.topNProcesses);
+            break;
+        }
+        case MEMORY_STATS: {
+            uint64_t totalUssKb = 0;
+            uint64_t totalSwapPssKb = 0;
+            // TODO(b/333212872): Move totalUssKb, totalSwapPssKb calculation logic to
+            // UidProcStatsCollector
+            for (auto [_, processStats] : uidStats.procStats.processStatsByPid) {
+                totalUssKb += processStats.ussKb;
+                totalSwapPssKb += processStats.swapPssKb;
+            }
+            statsView = UserPackageStats::UidMemoryStats{.memoryStats.rssKb =
+                                                                 uidStats.procStats.totalRssKb,
+                                                         .memoryStats.pssKb =
+                                                                 uidStats.procStats.totalPssKb,
+                                                         .memoryStats.ussKb = totalUssKb,
+                                                         .memoryStats.swapPssKb = totalSwapPssKb,
+                                                         .isSmapsRollupSupported =
+                                                                 isSmapsRollupSupported};
+            auto& uidMemoryStats = std::get<UserPackageStats::UidMemoryStats>(statsView);
+            uidMemoryStats.topNProcesses.resize(topNProcessCount);
+            cacheTopNProcessMemStats(uidStats, topNProcessCount,
+                                     uidMemoryStats.isSmapsRollupSupported,
+                                     &uidMemoryStats.topNProcesses);
+            break;
+        }
+        case IO_BLOCKED_TASKS_COUNT:
+        case MAJOR_FAULTS: {
+            uint64_t value = procStatType == IO_BLOCKED_TASKS_COUNT
+                    ? uidStats.procStats.ioBlockedTasksCount
+                    : uidStats.procStats.totalMajorFaults;
+            statsView = UserPackageStats::ProcSingleStatsView{.value = value};
+            auto& procStatsView = std::get<UserPackageStats::ProcSingleStatsView>(statsView);
+            procStatsView.topNProcesses.resize(topNProcessCount);
+            cacheTopNProcessSingleStats(procStatType, uidStats, topNProcessCount,
+                                        &procStatsView.topNProcesses);
+            break;
+        }
+        default: {
+            ALOGE("Invalid process stat type: %u", procStatType);
+            break;
+        }
     }
-    statsView = UserPackageStats::ProcSingleStatsView{.value = value};
-    auto& procStatsView = std::get<UserPackageStats::ProcSingleStatsView>(statsView);
-    procStatsView.topNProcesses.resize(topNProcessCount);
-    cacheTopNProcessSingleStats(procStatType, uidStats, topNProcessCount,
-                                &procStatsView.topNProcesses);
 }
 
 uint64_t UserPackageStats::getValue() const {
@@ -300,6 +342,10 @@ uint64_t UserPackageStats::getValue() const {
                 }
                 if constexpr (std::is_same_v<T, UserPackageStats::ProcCpuStatsView>) {
                     return arg.cpuTimeMillis;
+                }
+                if constexpr (std::is_same_v<T, UserPackageStats::UidMemoryStats>) {
+                    return arg.isSmapsRollupSupported ? arg.memoryStats.pssKb
+                                                      : arg.memoryStats.rssKb;
                 }
                 // Unknown stats view
                 return 0;
@@ -348,6 +394,30 @@ std::string UserPackageStats::toString(int64_t totalValue) const {
     for (const auto& processValue : procStatsView.topNProcesses) {
         StringAppendF(&buffer, "\t%s, %" PRIu64 ", %.2f%%\n", processValue.comm.c_str(),
                       processValue.value, percentage(processValue.value, procStatsView.value));
+    }
+    return buffer;
+}
+
+std::string UserPackageStats::toString(int64_t totalRssKb, int64_t totalPssKb) const {
+    std::string buffer;
+    const auto* uidMemoryStats = std::get_if<UserPackageStats::UidMemoryStats>(&statsView);
+    if (uidMemoryStats == nullptr) {
+        return buffer;
+    }
+    StringAppendF(&buffer,
+                  "%" PRIu32 ", %s, %" PRIu64 ", %.2f%%, %" PRIu64 ", %.2f%%, %" PRIu64 ", %" PRIu64
+                  "\n",
+                  multiuser_get_user_id(uid), genericPackageName.c_str(),
+                  uidMemoryStats->memoryStats.rssKb,
+                  percentage(uidMemoryStats->memoryStats.rssKb, totalRssKb),
+                  uidMemoryStats->memoryStats.pssKb,
+                  percentage(uidMemoryStats->memoryStats.pssKb, totalPssKb),
+                  uidMemoryStats->memoryStats.ussKb, uidMemoryStats->memoryStats.swapPssKb);
+    for (const auto& processMemoryStats : uidMemoryStats->topNProcesses) {
+        StringAppendF(&buffer, "\t%s, %" PRIu64 ", %" PRIu64 ", %" PRIu64 ", %" PRIu64 "\n",
+                      processMemoryStats.comm.c_str(), processMemoryStats.memoryStats.rssKb,
+                      processMemoryStats.memoryStats.pssKb, processMemoryStats.memoryStats.ussKb,
+                      processMemoryStats.memoryStats.swapPssKb);
     }
     return buffer;
 }
@@ -410,6 +480,38 @@ void UserPackageStats::cacheTopNProcessCpuStats(
     }
 }
 
+void UserPackageStats::cacheTopNProcessMemStats(
+        const UidStats& uidStats, int topNProcessCount, bool isSmapsRollupSupported,
+        std::vector<UserPackageStats::UidMemoryStats::ProcessMemoryStats>* topNProcesses) {
+    int cachedProcessCount = 0;
+    for (const auto& [pid, processStats] : uidStats.procStats.processStatsByPid) {
+        uint64_t pssKb = processStats.pssKb;
+        uint64_t rssKb = processStats.rssKb;
+        if ((isSmapsRollupSupported ? pssKb : rssKb) == 0) {
+            continue;
+        }
+        for (auto it = topNProcesses->begin(); it != topNProcesses->end(); ++it) {
+            if (isSmapsRollupSupported ? pssKb > it->memoryStats.pssKb
+                                       : rssKb > it->memoryStats.rssKb) {
+                topNProcesses->insert(it,
+                                      UserPackageStats::UidMemoryStats::ProcessMemoryStats{
+                                              .comm = processStats.comm,
+                                              .memoryStats.rssKb = rssKb,
+                                              .memoryStats.pssKb = pssKb,
+                                              .memoryStats.ussKb = processStats.ussKb,
+                                              .memoryStats.swapPssKb = processStats.swapPssKb,
+                                      });
+                topNProcesses->pop_back();
+                ++cachedProcessCount;
+                break;
+            }
+        }
+    }
+    if (cachedProcessCount < topNProcessCount) {
+        topNProcesses->erase(topNProcesses->begin() + cachedProcessCount, topNProcesses->end());
+    }
+}
+
 std::string UserPackageSummaryStats::toString() const {
     std::string buffer;
     if (!topNCpuTimes.empty()) {
@@ -453,6 +555,14 @@ std::string UserPackageSummaryStats::toString() const {
             StringAppendF(&buffer, "%s", stats.toString(totalMajorFaults).c_str());
         }
         StringAppendF(&buffer, kMajorFaultsSummary, totalMajorFaults, majorFaultsPercentChange);
+    }
+    if (!topNMemStats.empty()) {
+        StringAppendF(&buffer, kMemStatsTitle, std::string(24, '-').c_str());
+        StringAppendF(&buffer, kMemStatsHeader);
+        for (const auto& stats : topNMemStats) {
+            StringAppendF(&buffer, "%s", stats.toString(totalRssKb, totalPssKb).c_str());
+        }
+        StringAppendF(&buffer, kMemStatsSummary, totalRssKb, totalPssKb);
     }
     return buffer;
 }
@@ -552,7 +662,14 @@ void PerformanceProfiler::terminate() {
 
 Result<void> PerformanceProfiler::onDump(int fd) const {
     Mutex::Autolock lock(mMutex);
-    if (!WriteStringToFd(StringPrintf(kBootTimeCollectionTitle, std::string(75, '-').c_str(),
+    if (!WriteStringToFd(StringPrintf("/proc/<pid>/smaps_rollup is %s\n",
+                                     mIsSmapsRollupSupported
+                                             ? "supported. So, using PSS to rank top memory "
+                                               "consuming processes."
+                                             : "not supported. So, using RSS to rank top memory "
+                                               "consuming processes."),
+                        fd) ||
+        !WriteStringToFd(StringPrintf(kBootTimeCollectionTitle, std::string(75, '-').c_str(),
                                       std::string(33, '=').c_str()),
                          fd) ||
         !WriteStringToFd(mBoottimeCollection.toString(), fd)) {
@@ -1013,12 +1130,14 @@ void PerformanceProfiler::processUidStatsLocked(
     if (uidStats.empty()) {
         return;
     }
+
     if (filterPackages.empty()) {
         userPackageSummaryStats->topNCpuTimes.resize(mTopNStatsPerCategory);
         userPackageSummaryStats->topNIoReads.resize(mTopNStatsPerCategory);
         userPackageSummaryStats->topNIoWrites.resize(mTopNStatsPerCategory);
         userPackageSummaryStats->topNIoBlocked.resize(mTopNStatsPerCategory);
         userPackageSummaryStats->topNMajorFaults.resize(mTopNStatsPerCategory);
+        userPackageSummaryStats->topNMemStats.resize(mTopNStatsPerCategory);
     }
     int64_t elapsedTimeSinceBootMs = kGetElapsedTimeSinceBootMillisFunc();
     for (const auto& curUidStats : uidStats) {
@@ -1026,6 +1145,10 @@ void PerformanceProfiler::processUidStatsLocked(
         userPackageSummaryStats->totalCpuCycles += curUidStats.procStats.cpuCycles;
         addUidIoStats(curUidStats.ioStats.metrics, userPackageSummaryStats->totalIoStats);
         userPackageSummaryStats->totalMajorFaults += curUidStats.procStats.totalMajorFaults;
+        if (mIsMemoryProfilingEnabled) {
+            userPackageSummaryStats->totalRssKb += curUidStats.procStats.totalRssKb;
+            userPackageSummaryStats->totalPssKb += curUidStats.procStats.totalPssKb;
+        }
 
         // Transform |UidStats| to |UserPackageStats| for each stats view.
         auto ioReadsPackageStats = UserPackageStats(MetricType::READ_BYTES, curUidStats);
@@ -1036,6 +1159,12 @@ void PerformanceProfiler::processUidStatsLocked(
                 UserPackageStats(IO_BLOCKED_TASKS_COUNT, curUidStats, mTopNStatsPerSubcategory);
         auto majorFaultsPackageStats =
                 UserPackageStats(MAJOR_FAULTS, curUidStats, mTopNStatsPerSubcategory);
+        UserPackageStats memoryPackageStats;
+        if (mIsMemoryProfilingEnabled) {
+            memoryPackageStats =
+                    UserPackageStats(MEMORY_STATS, curUidStats, mTopNStatsPerSubcategory,
+                                     mIsSmapsRollupSupported);
+        }
 
         if (filterPackages.empty()) {
             cacheTopNStats(ioReadsPackageStats, &userPackageSummaryStats->topNIoReads);
@@ -1046,6 +1175,9 @@ void PerformanceProfiler::processUidStatsLocked(
                         curUidStats.procStats.totalTasksCount;
             }
             cacheTopNStats(majorFaultsPackageStats, &userPackageSummaryStats->topNMajorFaults);
+            if (mIsMemoryProfilingEnabled) {
+                cacheTopNStats(memoryPackageStats, &userPackageSummaryStats->topNMemStats);
+            }
         } else if (filterPackages.count(curUidStats.genericPackageName()) != 0) {
             userPackageSummaryStats->topNIoReads.push_back(ioReadsPackageStats);
             userPackageSummaryStats->topNIoWrites.push_back(ioWritesPackageStats);
@@ -1054,6 +1186,9 @@ void PerformanceProfiler::processUidStatsLocked(
             userPackageSummaryStats->topNMajorFaults.push_back(majorFaultsPackageStats);
             userPackageSummaryStats->taskCountByUid[ioBlockedPackageStats.uid] =
                     curUidStats.procStats.totalTasksCount;
+            if (mIsMemoryProfilingEnabled) {
+                userPackageSummaryStats->topNMemStats.push_back(memoryPackageStats);
+            }
         }
 
         // A null value in uidResourceUsageStats indicates that uid resource usage stats
@@ -1106,6 +1241,7 @@ void PerformanceProfiler::processUidStatsLocked(
     removeEmptyStats(userPackageSummaryStats->topNIoWrites);
     removeEmptyStats(userPackageSummaryStats->topNIoBlocked);
     removeEmptyStats(userPackageSummaryStats->topNMajorFaults);
+    removeEmptyStats(userPackageSummaryStats->topNMemStats);
 }
 
 void PerformanceProfiler::processProcStatLocked(

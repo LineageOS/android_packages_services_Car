@@ -154,10 +154,10 @@
     <!--  Activity to be presented when un-safe activity is launched. Take a look at the javadoc of the
           default implementation. -->
     <string name="activityBlockingActivity" translatable="false">
-        com.android.systemui/com.android.systemui.car.activity.ActivityBlockingActivity
+        com.android.systemui/com.android.systemui.car.wm.activity.ActivityBlockingActivity
     </string>
     <string name="continuousBlankActivity" translatable="false">
-        com.android.systemui/com.android.systemui.car.activity.ContinuousBlankActivity
+        com.android.systemui/com.android.systemui.car.wm.activity.ContinuousBlankActivity
     </string>
     <!--  Comma separated list of activities that need to be exempted from getting
           blocked in a UX restricted state.

@@ -21,6 +21,7 @@
 #include "PerformanceProfiler.h"
 
 #include <WatchdogProperties.sysprop.h>
+#include <android_car_feature.h>
 #include <android-base/file.h>
 #include <gmock/gmock.h>
 #include <utils/RefBase.h>
@@ -28,6 +29,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <algorithm>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -48,6 +50,7 @@ using ::android::RefBase;
 using ::android::sp;
 using ::android::base::ReadFdToString;
 using ::android::base::Result;
+using ::android::car::feature::car_watchdog_memory_profiling;
 using ::android::util::ProtoReader;
 using ::google::protobuf::RepeatedPtrField;
 using ::testing::_;
@@ -75,6 +78,15 @@ const auto kTestNow = std::chrono::time_point_cast<std::chrono::milliseconds>(
 
 int64_t getTestElapsedRealtimeSinceBootMs() {
     return 20'000;
+}
+
+void applyFeatureFilter(UserPackageSummaryStats* userPackageSummaryStats) {
+    if (car_watchdog_memory_profiling()) {
+        return;
+    }
+    userPackageSummaryStats->totalRssKb = 0;
+    userPackageSummaryStats->totalPssKb = 0;
+    userPackageSummaryStats->topNMemStats = {};
 }
 
 MATCHER_P(IoStatsViewEq, expected, "") {
@@ -150,6 +162,49 @@ MATCHER_P(ProcCpuStatsViewEq, expected, "") {
                               arg, result_listener);
 }
 
+MATCHER_P(MemoryStatsEq, expected, "") {
+    return ExplainMatchResult(AllOf(Field("rssKb", &UserPackageStats::MemoryStats::rssKb,
+                                          Eq(expected.rssKb)),
+                                    Field("pssKb", &UserPackageStats::MemoryStats::pssKb,
+                                          Eq(expected.pssKb)),
+                                    Field("ussKb", &UserPackageStats::MemoryStats::ussKb,
+                                          Eq(expected.ussKb)),
+                                    Field("swapPssKb", &UserPackageStats::MemoryStats::swapPssKb,
+                                          Eq(expected.swapPssKb))),
+                              arg, result_listener);
+}
+
+MATCHER_P(ProcessMemoryStatsEq, expected, "") {
+    return ExplainMatchResult(AllOf(Field("comm",
+                                          &UserPackageStats::UidMemoryStats::ProcessMemoryStats::
+                                                  comm,
+                                          Eq(expected.comm)),
+                                    Field("memoryStats",
+                                          &UserPackageStats::UidMemoryStats::ProcessMemoryStats::
+                                                  memoryStats,
+                                          MemoryStatsEq(expected.memoryStats))),
+                              arg, result_listener);
+}
+
+MATCHER_P(UidMemoryStatsEq, expected, "") {
+    std::vector<Matcher<const UserPackageStats::UidMemoryStats::ProcessMemoryStats&>>
+            processValueMatchers;
+    processValueMatchers.reserve(expected.topNProcesses.size());
+    for (const auto& processValue : expected.topNProcesses) {
+        processValueMatchers.push_back(ProcessMemoryStatsEq(processValue));
+    }
+    return ExplainMatchResult(AllOf(Field("memoryStats",
+                                          &UserPackageStats::UidMemoryStats::memoryStats,
+                                          MemoryStatsEq(expected.memoryStats)),
+                                    Field("isSmapsRollupSupported",
+                                          &UserPackageStats::UidMemoryStats::isSmapsRollupSupported,
+                                          Eq(expected.isSmapsRollupSupported)),
+                                    Field("topNProcesses",
+                                          &UserPackageStats::UidMemoryStats::topNProcesses,
+                                          ElementsAreArray(processValueMatchers))),
+                              arg, result_listener);
+}
+
 MATCHER_P(UserPackageStatsEq, expected, "") {
     const auto uidMatcher = Field("uid", &UserPackageStats::uid, Eq(expected.uid));
     const auto packageNameMatcher =
@@ -182,6 +237,14 @@ MATCHER_P(UserPackageStatsEq, expected, "") {
                                                           VariantWith<UserPackageStats::
                                                                               ProcCpuStatsView>(
                                                                   ProcCpuStatsViewEq(statsView)))),
+                                              arg, result_listener);
+                } else if constexpr (std::is_same_v<T, UserPackageStats::UidMemoryStats>) {
+                    return ExplainMatchResult(AllOf(uidMatcher, packageNameMatcher,
+                                                    Field("statsView:UidMemoryStats",
+                                                          &UserPackageStats::statsView,
+                                                          VariantWith<
+                                                                  UserPackageStats::UidMemoryStats>(
+                                                                  UidMemoryStatsEq(statsView)))),
                                               arg, result_listener);
                 }
                 *result_listener << "Unexpected variant in UserPackageStats::stats";
@@ -216,6 +279,8 @@ MATCHER_P(UserPackageSummaryStatsEq, expected, "") {
                                     Field("topNMajorFaults",
                                           &UserPackageSummaryStats::topNMajorFaults,
                                           userPackageStatsMatchers(expected.topNMajorFaults)),
+                                    Field("topNMemStats", &UserPackageSummaryStats::topNMemStats,
+                                          userPackageStatsMatchers(expected.topNMemStats)),
                                     Field("totalIoStats", &UserPackageSummaryStats::totalIoStats,
                                           totalIoStatsArrayMatcher(expected.totalIoStats)),
                                     Field("taskCountByUid",
@@ -230,6 +295,10 @@ MATCHER_P(UserPackageSummaryStatsEq, expected, "") {
                                     Field("totalMajorFaults",
                                           &UserPackageSummaryStats::totalMajorFaults,
                                           Eq(expected.totalMajorFaults)),
+                                    Field("totalRssKb", &UserPackageSummaryStats::totalRssKb,
+                                          Eq(expected.totalRssKb)),
+                                    Field("totalPssKb", &UserPackageSummaryStats::totalPssKb,
+                                          Eq(expected.totalPssKb)),
                                     Field("majorFaultsPercentChange",
                                           &UserPackageSummaryStats::majorFaultsPercentChange,
                                           Eq(expected.majorFaultsPercentChange))),
@@ -317,8 +386,8 @@ int countOccurrences(std::string str, std::string subStr) {
     return occurrences;
 }
 
-std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(auto int64Multiplier,
-                                                                          auto uint64Multiplier) {
+std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(
+        auto int64Multiplier, auto uint64Multiplier, bool isSmapsRollupSupported = true) {
     /* The number of returned sample stats are less that the top N stats per category/sub-category.
      * The top N stats per category/sub-category is set to % during test setup. Thus, the default
      * testing behavior is # reported stats < top N stats.
@@ -336,6 +405,8 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(auto i
                                     .totalMajorFaults = uint64Multiplier(11'000),
                                     .totalTasksCount = 1,
                                     .ioBlockedTasksCount = 1,
+                                    .totalRssKb = 2010,
+                                    .totalPssKb = 1635,
                                     .processStatsByPid =
                                             {{/*pid=*/100,
                                               {/*comm=*/"disk I/O", /*startTime=*/234,
@@ -344,7 +415,9 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(auto i
                                                /*totalMajorFaults=*/uint64Multiplier(11'000),
                                                /*totalTasksCount=*/1,
                                                /*ioBlockedTasksCount=*/1,
-                                               /*cpuCyclesByTid=*/{{100, 4000}}}}}}},
+                                               /*cpuCyclesByTid=*/{{100, 4000}},
+                                               /*rssKb=*/2010, /*pssKb=*/1635,
+                                               /*ussKb=*/1286, /*swapPssKb=*/600}}}}},
                      {.packageInfo =
                               constructPackageInfo("com.google.android.car.kitchensink", 1002001),
                       .cpuTimeMillis = int64Multiplier(60),
@@ -359,6 +432,8 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(auto i
                                     .totalMajorFaults = uint64Multiplier(22'445),
                                     .totalTasksCount = 5,
                                     .ioBlockedTasksCount = 3,
+                                    .totalRssKb = 2000,
+                                    .totalPssKb = 1645,
                                     .processStatsByPid =
                                             {{/*pid=*/1001,
                                               {/*comm=*/"CTS", /*startTime=*/789,
@@ -367,7 +442,9 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(auto i
                                                /*totalMajorFaults=*/uint64Multiplier(10'100),
                                                /*totalTasksCount=*/3,
                                                /*ioBlockedTasksCount=*/2,
-                                               /*cpuCyclesByTid=*/{{1001, 3000}, {1002, 2000}}}},
+                                               /*cpuCyclesByTid=*/{{1001, 3000}, {1002, 2000}},
+                                               /*rssKb=*/1000, /*pssKb=*/770,
+                                               /*ussKb=*/656, /*swapPssKb=*/200}},
                                              {/*pid=*/1000,
                                               {/*comm=*/"KitchenSinkApp", /*startTime=*/467,
                                                /*cpuTimeMillis=*/int64Multiplier(25),
@@ -375,7 +452,9 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(auto i
                                                /*totalMajorFaults=*/uint64Multiplier(12'345),
                                                /*totalTasksCount=*/2,
                                                /*ioBlockedTasksCount=*/1,
-                                               /*cpuCyclesByTid=*/{{1000, 4000}}}}}}},
+                                               /*cpuCyclesByTid=*/{{1000, 4000}},
+                                               /*rssKb=*/1000, /*pssKb=*/875,
+                                               /*ussKb=*/630, /*swapPssKb=*/400}}}}},
                      {.packageInfo = constructPackageInfo("", 1012345),
                       .cpuTimeMillis = int64Multiplier(100),
                       .ioStats = {/*fgRdBytes=*/int64Multiplier(1'000),
@@ -389,6 +468,8 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(auto i
                                     .totalMajorFaults = uint64Multiplier(50'900),
                                     .totalTasksCount = 4,
                                     .ioBlockedTasksCount = 2,
+                                    .totalRssKb = 1000,
+                                    .totalPssKb = 865,
                                     .processStatsByPid =
                                             {{/*pid=*/2345,
                                               {/*comm=*/"MapsApp", /*startTime=*/6789,
@@ -397,7 +478,9 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(auto i
                                                /*totalMajorFaults=*/uint64Multiplier(50'900),
                                                /*totalTasksCount=*/4,
                                                /*ioBlockedTasksCount=*/2,
-                                               /*cpuCyclesByTid=*/{{2345, 50'000}}}}}}},
+                                               /*cpuCyclesByTid=*/{{2345, 50'000}},
+                                               /*rssKb=*/1000, /*pssKb=*/865,
+                                               /*ussKb=*/656, /*swapPssKb=*/200}}}}},
                      {.packageInfo = constructPackageInfo("com.google.radio", 1015678),
                       .cpuTimeMillis = 0,
                       .ioStats = {/*fgRdBytes=*/0,
@@ -420,6 +503,56 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(auto i
                                               /*ioBlockedTasksCount=*/0,
                                               /*cpuCyclesByTid=*/{}}}}}}};
 
+    std::vector<UserPackageStats> topNMemStatsRankedByPss =
+            {{1002001, "com.google.android.car.kitchensink",
+              UserPackageStats::UidMemoryStats{{/*rssKb=*/2000, /*pssKb=*/1645,
+                                                /*ussKb=*/1286, /*swapPssKb=*/600},
+                                               isSmapsRollupSupported,
+                                               {{"KitchenSinkApp",
+                                                 {/*rssKb=*/1000, /*pssKb=*/875,
+                                                  /*ussKb=*/630, /*swapPssKb=*/400}},
+                                                {"CTS",
+                                                 {/*rssKb=*/1000, /*pssKb=*/770,
+                                                  /*ussKb=*/656, /*swapPssKb=*/200}}}}},
+             {1009, "mount",
+              UserPackageStats::UidMemoryStats{{/*rssKb=*/2010, /*pssKb=*/1635,
+                                                /*ussKb=*/1286, /*swapPssKb=*/600},
+                                               isSmapsRollupSupported,
+                                               {{"disk I/O",
+                                                 {/*rssKb=*/2010, /*pssKb=*/1635,
+                                                  /*ussKb=*/1286, /*swapPssKb=*/600}}}}},
+             {1012345, "1012345",
+              UserPackageStats::UidMemoryStats{{/*rssKb=*/1000, /*pssKb=*/865,
+                                                /*ussKb=*/656, /*swapPssKb=*/200},
+                                               isSmapsRollupSupported,
+                                               {{"MapsApp",
+                                                 {/*rssKb=*/1000, /*pssKb=*/865,
+                                                  /*ussKb=*/656, /*swapPssKb=*/200}}}}}};
+    std::vector<UserPackageStats> topNMemStatsRankedByRss =
+            {{1009, "mount",
+              UserPackageStats::UidMemoryStats{{/*rssKb=*/2010, /*pssKb=*/1635,
+                                                /*ussKb=*/1286, /*swapPssKb=*/600},
+                                               isSmapsRollupSupported,
+                                               {{"disk I/O",
+                                                 {/*rssKb=*/2010, /*pssKb=*/1635,
+                                                  /*ussKb=*/1286, /*swapPssKb=*/600}}}}},
+             {1002001, "com.google.android.car.kitchensink",
+              UserPackageStats::UidMemoryStats{{/*rssKb=*/2000, /*pssKb=*/1645,
+                                                /*ussKb=*/1286, /*swapPssKb=*/600},
+                                               isSmapsRollupSupported,
+                                               {{"KitchenSinkApp",
+                                                 {/*rssKb=*/1000, /*pssKb=*/875,
+                                                  /*ussKb=*/630, /*swapPssKb=*/400}},
+                                                {"CTS",
+                                                 {/*rssKb=*/1000, /*pssKb=*/770,
+                                                  /*ussKb=*/656, /*swapPssKb=*/200}}}}},
+             {1012345, "1012345",
+              UserPackageStats::UidMemoryStats{{/*rssKb=*/1000, /*pssKb=*/865,
+                                                /*ussKb=*/656, /*swapPssKb=*/200},
+                                               isSmapsRollupSupported,
+                                               {{"MapsApp",
+                                                 {/*rssKb=*/1000, /*pssKb=*/865,
+                                                  /*ussKb=*/656, /*swapPssKb=*/200}}}}}};
     UserPackageSummaryStats userPackageSummaryStats{
             .topNCpuTimes = {{1012345, "1012345",
                               UserPackageStats::ProcCpuStatsView{int64Multiplier(100),
@@ -480,6 +613,8 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(auto i
                       UserPackageStats::ProcSingleStatsView{uint64Multiplier(11'000),
                                                             {{"disk I/O",
                                                               uint64Multiplier(11'000)}}}}},
+            .topNMemStats =
+                    isSmapsRollupSupported ? topNMemStatsRankedByPss : topNMemStatsRankedByRss,
             .totalIoStats = {{int64Multiplier(1'000), int64Multiplier(21'600)},
                              {int64Multiplier(300), int64Multiplier(28'300)},
                              {int64Multiplier(600), int64Multiplier(600)}},
@@ -487,8 +622,11 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(auto i
             .totalCpuTimeMillis = int64Multiplier(48'376),
             .totalCpuCycles = 64'000,
             .totalMajorFaults = uint64Multiplier(84'345),
+            .totalRssKb = 5010,
+            .totalPssKb = 4145,
             .majorFaultsPercentChange = 0.0,
     };
+    applyFeatureFilter(&userPackageSummaryStats);
     return std::make_tuple(uidStats, userPackageSummaryStats);
 }
 
@@ -673,14 +811,14 @@ ResourceStats getResourceStatsForSampledStats(auto int32Multiplier, auto int64Mu
 }
 
 struct StatsInfo {
-    std::vector<UidStats> uidStats;
-    UserPackageSummaryStats userPackageSummaryStats;
-    ProcStatInfo procStatInfo;
-    SystemSummaryStats systemSummaryStats;
-    ResourceStats resourceStats;
+    std::vector<UidStats> uidStats = {};
+    UserPackageSummaryStats userPackageSummaryStats = {};
+    ProcStatInfo procStatInfo = {};
+    SystemSummaryStats systemSummaryStats = {};
+    ResourceStats resourceStats = {};
 };
 
-StatsInfo getSampleStats(int multiplier = 1) {
+StatsInfo getSampleStats(int multiplier = 1, bool isSmapsRollupSupported = true) {
     /* Return results in a single value from three methods: sampleUidStats,
      * sampleProcStat and getResourceStatsForSampledStats.
      */
@@ -697,7 +835,8 @@ StatsInfo getSampleStats(int multiplier = 1) {
         return static_cast<uint32_t>(bytes * multiplier);
     };
 
-    auto [uidStats, userPackageSummaryStats] = sampleUidStats(int64Multiplier, uint64Multiplier);
+    auto [uidStats, userPackageSummaryStats] =
+            sampleUidStats(int64Multiplier, uint64Multiplier, isSmapsRollupSupported);
     auto [procStatInfo, systemSummaryStats] =
             sampleProcStat(int64Multiplier, uint64Multiplier, uint32Multiplier);
     ResourceStats resourceStats = getResourceStatsForSampledStats(int32Multiplier, int64Multiplier);
@@ -968,6 +1107,10 @@ public:
         mCollector->kGetElapsedTimeSinceBootMillisFunc = func;
     }
 
+    void setSmapsRollupSupportedEnabled(bool enable) {
+        mCollector->mIsSmapsRollupSupported = enable;
+    }
+
     const CollectionInfo& getBoottimeCollectionInfo() {
         Mutex::Autolock lock(mCollector->mMutex);
         return mCollector->mBoottimeCollection;
@@ -1013,6 +1156,7 @@ protected:
         mCollectorPeer->setSystemEventDataCacheDuration(kTestSystemEventDataCacheDurationSec);
         mCollectorPeer->setSendResourceUsageStatsEnabled(true);
         mCollectorPeer->setGetElapsedTimeSinceBootMillisFunc(getTestElapsedRealtimeSinceBootMs);
+        mCollectorPeer->setSmapsRollupSupportedEnabled(true);
     }
 
     void TearDown() override {
@@ -1066,7 +1210,7 @@ protected:
 };
 
 TEST_F(PerformanceProfilerTest, TestOnBoottimeCollection) {
-    const auto statsInfo = getSampleStats();
+    auto statsInfo = getSampleStats();
 
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(statsInfo.uidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(statsInfo.procStatInfo));
@@ -1080,13 +1224,12 @@ TEST_F(PerformanceProfilerTest, TestOnBoottimeCollection) {
 
     const auto actual = mCollectorPeer->getBoottimeCollectionInfo();
 
-    const CollectionInfo expected{
-            .maxCacheSize = std::numeric_limits<std::size_t>::max(),
-            .records = {{
-                    .systemSummaryStats = statsInfo.systemSummaryStats,
-                    .userPackageSummaryStats = statsInfo.userPackageSummaryStats,
-            }},
-    };
+    const CollectionInfo expected{.maxCacheSize = std::numeric_limits<std::size_t>::max(),
+                                  .records = {{
+                                          .systemSummaryStats = statsInfo.systemSummaryStats,
+                                          .userPackageSummaryStats =
+                                                  statsInfo.userPackageSummaryStats,
+                                  }}};
 
     EXPECT_THAT(actual, CollectionInfoEq(expected))
             << "Boottime collection info doesn't match.\nExpected:\n"
@@ -1112,13 +1255,12 @@ TEST_F(PerformanceProfilerTest, TestOnWakeUpCollection) {
 
     const auto actual = mCollectorPeer->getWakeUpCollectionInfo();
 
-    const CollectionInfo expected{
-            .maxCacheSize = std::numeric_limits<std::size_t>::max(),
-            .records = {{
-                    .systemSummaryStats = statsInfo.systemSummaryStats,
-                    .userPackageSummaryStats = statsInfo.userPackageSummaryStats,
-            }},
-    };
+    const CollectionInfo expected{.maxCacheSize = std::numeric_limits<std::size_t>::max(),
+                                  .records = {{
+                                          .systemSummaryStats = statsInfo.systemSummaryStats,
+                                          .userPackageSummaryStats =
+                                                  statsInfo.userPackageSummaryStats,
+                                  }}};
 
     EXPECT_THAT(actual, CollectionInfoEq(expected))
             << "Wake-up collection info doesn't match.\nExpected:\n"
@@ -1173,13 +1315,11 @@ TEST_F(PerformanceProfilerTest, TestOnUserSwitchCollection) {
     const auto& actual = actualInfos[0];
 
     UserSwitchCollectionInfo expected{
-            {
-                    .maxCacheSize = std::numeric_limits<std::size_t>::max(),
-                    .records = {{
-                            .systemSummaryStats = statsInfo.systemSummaryStats,
-                            .userPackageSummaryStats = statsInfo.userPackageSummaryStats,
-                    }},
-            },
+            {.maxCacheSize = std::numeric_limits<std::size_t>::max(),
+             .records = {{
+                     .systemSummaryStats = statsInfo.systemSummaryStats,
+                     .userPackageSummaryStats = statsInfo.userPackageSummaryStats,
+             }}},
             .from = 100,
             .to = 101,
     };
@@ -1349,14 +1489,14 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollection) {
 
     const auto actual = mCollectorPeer->getPeriodicCollectionInfo();
 
-    const CollectionInfo expected{
-            .maxCacheSize = static_cast<size_t>(sysprop::periodicCollectionBufferSize().value_or(
-                    kDefaultPeriodicCollectionBufferSize)),
-            .records = {{
-                    .systemSummaryStats = statsInfo.systemSummaryStats,
-                    .userPackageSummaryStats = statsInfo.userPackageSummaryStats,
-            }},
-    };
+    const CollectionInfo expected{.maxCacheSize = static_cast<size_t>(
+                                          sysprop::periodicCollectionBufferSize().value_or(
+                                                  kDefaultPeriodicCollectionBufferSize)),
+                                  .records = {{
+                                          .systemSummaryStats = statsInfo.systemSummaryStats,
+                                          .userPackageSummaryStats =
+                                                  statsInfo.userPackageSummaryStats,
+                                  }}};
 
     EXPECT_THAT(actual, CollectionInfoEq(expected))
             << "Periodic collection info doesn't match.\nExpected:\n"
@@ -1386,14 +1526,14 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithSendingUsageStatsDis
 
     const auto actual = mCollectorPeer->getPeriodicCollectionInfo();
 
-    const CollectionInfo expected{
-            .maxCacheSize = static_cast<size_t>(sysprop::periodicCollectionBufferSize().value_or(
-                    kDefaultPeriodicCollectionBufferSize)),
-            .records = {{
-                    .systemSummaryStats = statsInfo.systemSummaryStats,
-                    .userPackageSummaryStats = statsInfo.userPackageSummaryStats,
-            }},
-    };
+    const CollectionInfo expected{.maxCacheSize = static_cast<size_t>(
+                                          sysprop::periodicCollectionBufferSize().value_or(
+                                                  kDefaultPeriodicCollectionBufferSize)),
+                                  .records = {{
+                                          .systemSummaryStats = statsInfo.systemSummaryStats,
+                                          .userPackageSummaryStats =
+                                                  statsInfo.userPackageSummaryStats,
+                                  }}};
     const ResourceStats expectedResourceStats = {};
 
     EXPECT_THAT(actual, CollectionInfoEq(expected))
@@ -1424,13 +1564,11 @@ TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithoutPackageFilter) {
 
     const auto actual = mCollectorPeer->getCustomCollectionInfo();
 
-    CollectionInfo expected{
-            .maxCacheSize = std::numeric_limits<std::size_t>::max(),
-            .records = {{
-                    .systemSummaryStats = statsInfo.systemSummaryStats,
-                    .userPackageSummaryStats = statsInfo.userPackageSummaryStats,
-            }},
-    };
+    CollectionInfo expected{.maxCacheSize = std::numeric_limits<std::size_t>::max(),
+                            .records = {{
+                                    .systemSummaryStats = statsInfo.systemSummaryStats,
+                                    .userPackageSummaryStats = statsInfo.userPackageSummaryStats,
+                            }}};
 
     EXPECT_THAT(actual, CollectionInfoEq(expected))
             << "Custom collection info doesn't match.\nExpected:\n"
@@ -1459,6 +1597,7 @@ TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithPackageFilter) {
     // Filter by package name should ignore this limit with package filter.
     mCollectorPeer->setTopNStatsPerCategory(1);
 
+    bool isSmapsRollupSupported = true;
     const auto statsInfo = getSampleStats();
 
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(statsInfo.uidStats));
@@ -1472,6 +1611,7 @@ TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithPackageFilter) {
                                                     mMockUidStatsCollector, mMockProcStatCollector,
                                                     &actualResourceStats));
 
+    mCollectorPeer->setSmapsRollupSupportedEnabled(true);
     const auto actual = mCollectorPeer->getCustomCollectionInfo();
 
     UserPackageSummaryStats userPackageSummaryStats{
@@ -1503,21 +1643,39 @@ TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithPackageFilter) {
                                  UserPackageStats::ProcSingleStatsView{22'445,
                                                                        {{"KitchenSinkApp", 12'345},
                                                                         {"CTS", 10'100}}}}},
+            .topNMemStats =
+                    {{1009, "mount",
+                      UserPackageStats::UidMemoryStats{{/*rssKb=*/2010, /*pssKb=*/1635,
+                                                        /*ussKb=*/1286, /*swapPssKb=*/600},
+                                                       isSmapsRollupSupported,
+                                                       {{"disk I/O",
+                                                         {/*rssKb=*/2010, /*pssKb=*/1635,
+                                                          /*ussKb=*/1286, /*swapPssKb=*/600}}}}},
+                     {1002001, "com.google.android.car.kitchensink",
+                      UserPackageStats::UidMemoryStats{{/*rssKb=*/2000, /*pssKb=*/1645,
+                                                        /*ussKb=*/1286, /*swapPssKb=*/600},
+                                                       isSmapsRollupSupported,
+                                                       {{"KitchenSinkApp",
+                                                         {/*rssKb=*/1000, /*pssKb=*/875,
+                                                          /*ussKb=*/630, /*swapPssKb=*/400}},
+                                                        {"CTS",
+                                                         {/*rssKb=*/1000, /*pssKb=*/770,
+                                                          /*ussKb=*/656, /*swapPssKb=*/200}}}}}},
             .totalIoStats = {{1000, 21'600}, {300, 28'300}, {600, 600}},
             .taskCountByUid = {{1009, 1}, {1002001, 5}},
             .totalCpuTimeMillis = 48'376,
             .totalCpuCycles = 64'000,
             .totalMajorFaults = 84'345,
+            .totalRssKb = 5010,
+            .totalPssKb = 4145,
             .majorFaultsPercentChange = 0.0,
     };
-
-    CollectionInfo expected{
-            .maxCacheSize = std::numeric_limits<std::size_t>::max(),
-            .records = {{
-                    .systemSummaryStats = statsInfo.systemSummaryStats,
-                    .userPackageSummaryStats = userPackageSummaryStats,
-            }},
-    };
+    applyFeatureFilter(&userPackageSummaryStats);
+    CollectionInfo expected{.maxCacheSize = std::numeric_limits<std::size_t>::max(),
+                            .records = {{
+                                    .systemSummaryStats = statsInfo.systemSummaryStats,
+                                    .userPackageSummaryStats = userPackageSummaryStats,
+                            }}};
 
     EXPECT_THAT(actual, CollectionInfoEq(expected))
             << "Custom collection info doesn't match.\nExpected:\n"
@@ -1546,7 +1704,8 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithTrimmingStatsAfterTo
     mCollectorPeer->setTopNStatsPerCategory(1);
     mCollectorPeer->setTopNStatsPerSubcategory(1);
 
-    auto statsInfo = getSampleStats();
+    bool isSmapsRollupSupported = true;
+    auto statsInfo = getSampleStats(1, isSmapsRollupSupported);
 
     // Top N stats per category/sub-category is set to 1, so remove entries in the
     // expected value to match this.
@@ -1580,22 +1739,31 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithTrimmingStatsAfterTo
             .topNMajorFaults = {{1012345, "1012345",
                                  UserPackageStats::ProcSingleStatsView{50'900,
                                                                        {{"MapsApp", 50'900}}}}},
+            .topNMemStats = {{1002001, "com.google.android.car.kitchensink",
+                              UserPackageStats::UidMemoryStats{{/*rssKb=*/2000, /*pssKb=*/1645,
+                                                                /*ussKb=*/1286, /*swapPssKb=*/600},
+                                                               isSmapsRollupSupported,
+                                                               {{"KitchenSinkApp",
+                                                                 {/*rssKb=*/1000, /*pssKb=*/875,
+                                                                  /*ussKb=*/630,
+                                                                  /*swapPssKb=*/400}}}}}},
             .totalIoStats = {{1000, 21'600}, {300, 28'300}, {600, 600}},
             .taskCountByUid = {{1009, 1}, {1002001, 5}, {1012345, 4}},
             .totalCpuTimeMillis = 48'376,
             .totalCpuCycles = 64'000,
             .totalMajorFaults = 84'345,
+            .totalRssKb = 5010,
+            .totalPssKb = 4145,
             .majorFaultsPercentChange = 0.0,
     };
-
-    const CollectionInfo expected{
-            .maxCacheSize = static_cast<size_t>(sysprop::periodicCollectionBufferSize().value_or(
-                    kDefaultPeriodicCollectionBufferSize)),
-            .records = {{
-                    .systemSummaryStats = statsInfo.systemSummaryStats,
-                    .userPackageSummaryStats = userPackageSummaryStats,
-            }},
-    };
+    applyFeatureFilter(&userPackageSummaryStats);
+    const CollectionInfo expected{.maxCacheSize = static_cast<size_t>(
+                                          sysprop::periodicCollectionBufferSize().value_or(
+                                                  kDefaultPeriodicCollectionBufferSize)),
+                                  .records = {{
+                                          .systemSummaryStats = statsInfo.systemSummaryStats,
+                                          .userPackageSummaryStats = userPackageSummaryStats,
+                                  }}};
 
     EXPECT_THAT(actual, CollectionInfoEq(expected))
             << "Periodic collection info doesn't match.\nExpected:\n"
@@ -1643,14 +1811,18 @@ TEST_F(PerformanceProfilerTest, TestConsecutiveOnPeriodicCollection) {
 
     const auto actual = mCollectorPeer->getPeriodicCollectionInfo();
 
-    const CollectionInfo expected{
-            .maxCacheSize = static_cast<size_t>(sysprop::periodicCollectionBufferSize().value_or(
-                    kDefaultPeriodicCollectionBufferSize)),
-            .records = {{.systemSummaryStats = firstStatsInfo.systemSummaryStats,
-                         .userPackageSummaryStats = firstStatsInfo.userPackageSummaryStats},
-                        {.systemSummaryStats = secondStatsInfo.systemSummaryStats,
-                         .userPackageSummaryStats = secondStatsInfo.userPackageSummaryStats}},
-    };
+    const CollectionInfo
+            expected{.maxCacheSize =
+                             static_cast<size_t>(sysprop::periodicCollectionBufferSize().value_or(
+                                     kDefaultPeriodicCollectionBufferSize)),
+                     .records = {{.systemSummaryStats = firstStatsInfo.systemSummaryStats,
+                                  .userPackageSummaryStats =
+                                          firstStatsInfo.userPackageSummaryStats},
+                                 {
+                                         .systemSummaryStats = secondStatsInfo.systemSummaryStats,
+                                         .userPackageSummaryStats =
+                                                 secondStatsInfo.userPackageSummaryStats,
+                                 }}};
 
     EXPECT_THAT(actual, CollectionInfoEq(expected))
             << "Periodic collection info doesn't match.\nExpected:\n"
@@ -1841,6 +2013,49 @@ TEST_F(PerformanceProfilerTest, TestOnDumpProto) {
                     StatsRecordProtoEq(statsInfo.userPackageSummaryStats,
                                        statsInfo.systemSummaryStats, kTestNow));
     }
+}
+
+TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithSmapsRollupSupportDisabled) {
+    mCollectorPeer->setSmapsRollupSupportedEnabled(false);
+    bool isSmapsRollupSupported = false;
+    auto statsInfo = getSampleStats(1, isSmapsRollupSupported);
+
+    ASSERT_FALSE(statsInfo.resourceStats.resourceUsageStats->uidResourceUsageStats.empty());
+
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(statsInfo.uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(statsInfo.procStatInfo));
+
+    ResourceStats actualResourceStats = {};
+
+    ASSERT_RESULT_OK(mCollector->onPeriodicCollection(kTestNow, SystemState::NORMAL_MODE,
+                                                      mMockUidStatsCollector,
+                                                      mMockProcStatCollector,
+                                                      &actualResourceStats));
+
+    const auto actual = mCollectorPeer->getPeriodicCollectionInfo();
+
+    applyFeatureFilter(&statsInfo.userPackageSummaryStats);
+    const CollectionInfo expected{.maxCacheSize = static_cast<size_t>(
+                                          sysprop::periodicCollectionBufferSize().value_or(
+                                                  kDefaultPeriodicCollectionBufferSize)),
+                                  .records = {{
+                                          .systemSummaryStats = statsInfo.systemSummaryStats,
+                                          .userPackageSummaryStats =
+                                                  statsInfo.userPackageSummaryStats,
+                                  }}};
+
+    EXPECT_THAT(actual, CollectionInfoEq(expected))
+            << "When smaps rollup is not supported, periodic collection info doesn't match."
+            << "\nExpected:\n"
+            << expected.toString() << "\nActual:\n"
+            << actual.toString();
+
+    ASSERT_EQ(actualResourceStats, statsInfo.resourceStats)
+            << "Expected: " << statsInfo.resourceStats.toString()
+            << "\nActual: " << actualResourceStats.toString();
+
+    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/3))
+            << "Boot-time, wake-up and user-switch collections shouldn't be reported";
 }
 
 }  // namespace watchdog

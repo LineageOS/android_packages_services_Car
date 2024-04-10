@@ -548,7 +548,6 @@ public class CarBluetoothService implements CarServiceBase {
                 mDeviceManager.setDeviceConnectionPriority(device, priority);
             }
         }
-        return;
     }
 
     /**

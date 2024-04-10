@@ -23,10 +23,12 @@
 #include "WatchdogPerfService.h"
 
 #include <android-base/chrono_utils.h>
+#include <android_car_feature.h>
 #include <android-base/result.h>
 #include <android/util/ProtoOutputStream.h>
 #include <cutils/multiuser.h>
 #include <gtest/gtest_prod.h>
+#include <meminfo/procmeminfo.h>
 #include <utils/Errors.h>
 #include <utils/Mutex.h>
 #include <utils/RefBase.h>
@@ -58,12 +60,16 @@ enum ProcStatType {
     IO_BLOCKED_TASKS_COUNT = 0,
     MAJOR_FAULTS,
     CPU_TIME,
+    MEMORY_STATS,
     PROC_STAT_TYPES,
 };
 
 // UserPackageStats represents the user package performance stats.
 class UserPackageStats {
 public:
+    // TODO(b/332773702): Rename nested structs
+    //  first-level IoStatsView, ProcSingleStatsView, and ProcCpuStatsView renames to Uid*Stats
+    //  second-level ProcessValue and ProcessCpuValue renames to Process*Stats
     struct IoStatsView {
         int64_t bytes[UID_STATES] = {0};
         int64_t fsync[UID_STATES] = {0};
@@ -94,17 +100,33 @@ public:
         };
         std::vector<ProcessCpuValue> topNProcesses = {};
     };
+    struct MemoryStats {
+        uint64_t rssKb = 0;
+        uint64_t pssKb = 0;
+        uint64_t ussKb = 0;
+        uint64_t swapPssKb = 0;
+    };
+    struct UidMemoryStats {
+        MemoryStats memoryStats;
+        bool isSmapsRollupSupported;
+        struct ProcessMemoryStats {
+            std::string comm = "";
+            MemoryStats memoryStats;
+        };
+        std::vector<ProcessMemoryStats> topNProcesses = {};
+    };
 
     UserPackageStats(MetricType metricType, const UidStats& uidStats);
-    UserPackageStats(ProcStatType procStatType, const UidStats& uidStats, int topNProcessCount);
+    UserPackageStats(ProcStatType procStatType, const UidStats& uidStats, int topNProcessCount,
+                     bool isSmapsRollupSupported);
 
     // Class must be DefaultInsertable for std::vector<T>::resize to work
     UserPackageStats() : uid(0), genericPackageName("") {}
     // For unit test case only
-    UserPackageStats(
-            uid_t uid, std::string genericPackageName,
-            std::variant<std::monostate, IoStatsView, ProcSingleStatsView, ProcCpuStatsView>
-                    statsView) :
+    UserPackageStats(uid_t uid, std::string genericPackageName,
+                     std::variant<std::monostate, IoStatsView, ProcSingleStatsView,
+                                  ProcCpuStatsView, UidMemoryStats>
+                             statsView) :
           uid(uid),
           genericPackageName(std::move(genericPackageName)),
           statsView(std::move(statsView)) {}
@@ -116,10 +138,12 @@ public:
     uint64_t getValue() const;
     std::string toString(MetricType metricsType, const int64_t totalIoStats[][UID_STATES]) const;
     std::string toString(int64_t totalValue) const;
+    std::string toString(int64_t totalRssKb, int64_t totalPssKb) const;
 
     uid_t uid;
     std::string genericPackageName;
-    std::variant<std::monostate, IoStatsView, ProcSingleStatsView, ProcCpuStatsView> statsView;
+    std::variant<std::monostate, IoStatsView, ProcSingleStatsView, ProcCpuStatsView, UidMemoryStats>
+            statsView;
 
 private:
     void cacheTopNProcessSingleStats(
@@ -128,6 +152,9 @@ private:
     void cacheTopNProcessCpuStats(
             const UidStats& uidStats, int topNProcessCount,
             std::vector<UserPackageStats::ProcCpuStatsView::ProcessCpuValue>* topNProcesses);
+    void cacheTopNProcessMemStats(
+            const UidStats& uidStats, int topNProcessCount, bool isSmapsRollupSupported,
+            std::vector<UserPackageStats::UidMemoryStats::ProcessMemoryStats>* topNProcesses);
 };
 
 /**
@@ -140,11 +167,14 @@ struct UserPackageSummaryStats {
     std::vector<UserPackageStats> topNIoWrites = {};
     std::vector<UserPackageStats> topNIoBlocked = {};
     std::vector<UserPackageStats> topNMajorFaults = {};
+    std::vector<UserPackageStats> topNMemStats = {};
     int64_t totalIoStats[METRIC_TYPES][UID_STATES] = {{0}};
     std::unordered_map<uid_t, uint64_t> taskCountByUid = {};
     int64_t totalCpuTimeMillis = 0;
     uint64_t totalCpuCycles = 0;
     uint64_t totalMajorFaults = 0;
+    uint64_t totalRssKb = 0;
+    uint64_t totalPssKb = 0;
     // Percentage of increase/decrease in the major page faults since last collection.
     double majorFaultsPercentChange = 0.0;
     std::string toString() const;
@@ -193,6 +223,12 @@ public:
           mTopNStatsPerSubcategory(0),
           mMaxUserSwitchEvents(0),
           mSystemEventDataCacheDurationSec(0),
+          // TODO(b/333722043): Once carwatchdogd has sys_ptrace capability, set
+          // mIsSmapsRollupSupported field from `android::meminfo::IsSmapsRollupSupported()`.
+          // Disabling smaps_rollup support because this file cannot be read without sys_ptrace
+          // capability.
+          mIsSmapsRollupSupported(false),
+          mIsMemoryProfilingEnabled(android::car::feature::car_watchdog_memory_profiling()),
           mBoottimeCollection({}),
           mPeriodicCollection({}),
           mUserSwitchCollections({}),
@@ -320,6 +356,12 @@ private:
 
     // Amount of seconds before a system event's cache is cleared.
     std::chrono::seconds mSystemEventDataCacheDurationSec;
+
+    // Smaps rollup is supported by kernel or not.
+    bool mIsSmapsRollupSupported;
+
+    // Memory Profiling feature flag is enabled or not.
+    bool mIsMemoryProfilingEnabled;
 
     // Makes sure only one collection is running at any given time.
     mutable Mutex mMutex;

@@ -142,6 +142,11 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
         Objects.requireNonNull(gainCallback, "Audio Gain Callback can not be null");
         IAudioGainCallback agc = new AudioGainCallbackWrapper(gainCallback);
         try {
+            if (mAudioControl.getInterfaceVersion() < AIDL_AUDIO_CONTROL_VERSION_2) {
+                Slogf.w(TAG, "Registering audio gain callback is not supported"
+                        + " for versions less than " + AIDL_AUDIO_CONTROL_VERSION_2);
+                return;
+            }
             mAudioControl.registerGainCallback(agc);
         } catch (RemoteException e) {
             Slogf.e(TAG, "Failed to register gain callback");
@@ -269,6 +274,11 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
             @Override
             public void run() {
                 try {
+                    if (mAudioControl.getInterfaceVersion() < AIDL_AUDIO_CONTROL_VERSION_3) {
+                        Slogf.w(TAG, "Setting module change callback is not supported"
+                                + " for versions less than " + AIDL_AUDIO_CONTROL_VERSION_3);
+                        return;
+                    }
                     mAudioControl.setModuleChangeCallback(callback);
                     mModuleChangeCallbackRegistered = true;
                 } catch (RemoteException e) {
@@ -303,9 +313,8 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
             public void run() {
                 try {
                     if (mAudioControl.getInterfaceVersion() < AIDL_AUDIO_CONTROL_VERSION_3) {
-                        Slogf.w(TAG,
-                                "Failed to clear module change callback, feature not supported"
-                                + " for versions less than: " + AIDL_AUDIO_CONTROL_VERSION_3);
+                        Slogf.w(TAG, "Clearing module change callback is not supported"
+                                + " for versions less than " + AIDL_AUDIO_CONTROL_VERSION_3);
                         return;
                     }
                     mAudioControl.clearModuleChangeCallback();

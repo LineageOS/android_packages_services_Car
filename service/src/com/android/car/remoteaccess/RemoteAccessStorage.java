@@ -157,7 +157,7 @@ final class RemoteAccessStorage {
         }
 
         // Returns ClientIdEntry for the given package name.
-        @SuppressWarnings("FormatString")
+        @SuppressWarnings({"FormatString", "StringCharset"})
         @Nullable
         public static ClientIdEntry queryClientIdEntry(SQLiteDatabase db, String packageName) {
             String queryCommand = String.format("SELECT %s, %s, %s, %s FROM %s WHERE %s = ?",

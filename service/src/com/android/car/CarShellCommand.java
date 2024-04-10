@@ -163,6 +163,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
@@ -1216,7 +1217,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 if (args.length != 2) {
                     return showInvalidArguments(writer);
                 }
-                String pkgName = args[1].toLowerCase();
+                String pkgName = args[1].toLowerCase(Locale.US);
                 if (mCarPackageManagerService != null) {
                     String[] doActivities =
                             mCarPackageManagerService.getDistractionOptimizedActivities(
@@ -2085,7 +2086,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
         // Processing the last remaining argument. Argument is expected one of the tem functions
         // ('f1', 'f2', ..., 'f10') or just a plain integer representing the custom input event.
-        String eventValue = args[argIdx].toLowerCase();
+        String eventValue = args[argIdx].toLowerCase(Locale.US);
         Integer inputCode;
         if (eventValue.startsWith("f")) {
             inputCode = CUSTOM_INPUT_FUNCTION_ARGS.get(eventValue);
@@ -2197,7 +2198,6 @@ final class CarShellCommand extends BasicShellCommandHandler {
             Thread.currentThread().interrupt();
             writer.println("Interrupted waiting for HAL");
         }
-        return;
     }
 
     private void switchUser(String[] args, IndentingPrintWriter writer) {
