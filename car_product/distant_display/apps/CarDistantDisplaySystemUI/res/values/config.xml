@@ -33,4 +33,8 @@
         <item>com.google.android.apps.maps/com.google.android.maps.LimitedMapsActivity</item>
         <item>com.android.car.mapsplaceholder/com.android.car.mapsplaceholder.MapsPlaceholderActivity</item>
     </string-array>
+
+    <string-array name="config_distantDisplayGameControllerPackages" translatable="false">
+        <item>com.vectorunit.cobalt.googleplay</item>
+    </string-array>
 </resources>
