@@ -811,11 +811,11 @@ ResourceStats getResourceStatsForSampledStats(auto int32Multiplier, auto int64Mu
 }
 
 struct StatsInfo {
-    std::vector<UidStats> uidStats;
-    UserPackageSummaryStats userPackageSummaryStats;
-    ProcStatInfo procStatInfo;
-    SystemSummaryStats systemSummaryStats;
-    ResourceStats resourceStats;
+    std::vector<UidStats> uidStats = {};
+    UserPackageSummaryStats userPackageSummaryStats = {};
+    ProcStatInfo procStatInfo = {};
+    SystemSummaryStats systemSummaryStats = {};
+    ResourceStats resourceStats = {};
 };
 
 StatsInfo getSampleStats(int multiplier = 1, bool isSmapsRollupSupported = true) {

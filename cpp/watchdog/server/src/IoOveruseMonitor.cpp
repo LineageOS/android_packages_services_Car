@@ -219,9 +219,13 @@ Result<void> IoOveruseMonitor::init() {
 }
 
 void IoOveruseMonitor::terminate() {
+    ALOGW("Terminating %s", name().c_str());
+    if (mWriteToDiskThread.joinable()) {
+        mWriteToDiskThread.join();
+        ALOGI("Write to disk has completed. Proceeding with termination");
+    }
     std::unique_lock writeLock(mRwMutex);
 
-    ALOGW("Terminating %s", name().c_str());
     mWatchdogServiceHelper.clear();
     mIoOveruseConfigs.clear();
     mSystemWideWrittenBytes.clear();
@@ -538,7 +542,15 @@ Result<void> IoOveruseMonitor::updateResourceOveruseConfigurations(
     if (const auto result = mIoOveruseConfigs->update(configs); !result.ok()) {
         return result;
     }
-    std::thread writeToDiskThread([&]() {
+    // When a mWriteToDiskThread is already active, don't create a new thread to perform the same
+    // work. This thread writes to disk only after acquiring the mRwMutex write lock and the below
+    // check is performed after acquiring the same write lock. Thus, if the thread is still active
+    // at this point, it indicates the thread hasn't performed the write and will write the latest
+    // updated configs when it executes.
+    if (mWriteToDiskThread.joinable()) {
+        return {};
+    }
+    mWriteToDiskThread = std::thread([&]() {
         if (set_sched_policy(0, SP_BACKGROUND) != 0) {
             ALOGW("Failed to set background scheduling priority for writing resource overuse "
                   "configs to disk");
@@ -557,7 +569,6 @@ Result<void> IoOveruseMonitor::updateResourceOveruseConfigurations(
         }
     });
 
-    writeToDiskThread.detach();
     return {};
 }
 
