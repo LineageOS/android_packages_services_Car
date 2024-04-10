@@ -606,7 +606,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
             logd("Failed to inject stored location on attempt %s.", attemptCount);
             asyncOperation(() -> {
                 injectLocation(location, attemptCount + 1);
-            }, 200 * attemptCount);
+            }, 200L * attemptCount);
         } else {
             logd("No location injected.");
         }

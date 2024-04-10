@@ -3728,7 +3728,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                         mResumeDelayFromSimulatedSuspendSec);
                 Handler handler = new Handler(Looper.getMainLooper());
                 handler.postDelayed(() -> forceSimulatedResume(),
-                        mResumeDelayFromSimulatedSuspendSec * 1000);
+                        mResumeDelayFromSimulatedSuspendSec * 1000L);
             }
             while (!mWakeFromSimulatedSleep) {
                 try {

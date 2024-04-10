@@ -254,8 +254,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private CarAudioDeviceCallback mAudioDeviceInfoCallback;
 
     @GuardedBy("mImplLock")
-    private CarOccupantZoneService mOccupantZoneService;
-    @GuardedBy("mImplLock")
     private CarAudioModuleChangeMonitor mCarAudioModuleChangeMonitor;
     @GuardedBy("mImplLock")
     private @Nullable CarAudioPlaybackMonitor mCarAudioPlaybackMonitor;
@@ -297,8 +295,9 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             if (event.getAction() != ACTION_DOWN) {
                 return;
             }
-            int audioZoneId = mOccupantZoneService.getAudioZoneIdForOccupant(
-                    mOccupantZoneService.getOccupantZoneIdForSeat(seat));
+            CarOccupantZoneService carOccupantZoneService = getCarOccupantZoneService();
+            int audioZoneId = carOccupantZoneService.getAudioZoneIdForOccupant(
+                    carOccupantZoneService.getOccupantZoneIdForSeat(seat));
             if (!isAudioZoneIdValid(audioZoneId)) {
                 Slogf.e(TAG, "Audio zone is invalid for event %s, displayType %d, and seat %d",
                         event, displayType, seat);
@@ -467,7 +466,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         mAudioManager.setAudioServerStateCallback(mContext.getMainExecutor(),
                 mAudioServerStateCallback);
         synchronized (mImplLock) {
-            mOccupantZoneService = CarLocalServices.getService(CarOccupantZoneService.class);
             mCarInputService = CarLocalServices.getService(CarInputService.class);
             mIsAudioServerDown = isAudioServerDown;
             if (mIsAudioServerDown) {
@@ -564,7 +562,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             releasePowerListenerLocked();
             releaseAudioDeviceInfoCallbackLocked();
             releaseHalAudioModuleChangeCallbackLocked();
-            mOccupantZoneService.unregisterCallback(mOccupantZoneCallback);
+            getCarOccupantZoneService().unregisterCallback(mOccupantZoneCallback);
             mCarInputService.unregisterKeyEventListener(mCarKeyEventListener);
             // Audio control may be running in the same process as audio server.
             // Thus we can not release the audio control wrapper for now
@@ -574,6 +572,10 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             // Audio control wrapper must be released last
             releaseAudioControlWrapperLocked();
         }
+    }
+
+    private CarOccupantZoneService getCarOccupantZoneService() {
+        return CarLocalServices.getService(CarOccupantZoneService.class);
     }
 
     @GuardedBy("mImplLock")
@@ -1154,7 +1156,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         Objects.requireNonNull(callback, "Media audio request callback can not be null");
         Objects.requireNonNull(info, "Occupant zone info can not be null");
 
-        int audioZoneId = mOccupantZoneService.getAudioZoneIdForOccupant(info.zoneId);
+        int audioZoneId = getCarOccupantZoneService().getAudioZoneIdForOccupant(info.zoneId);
         if (audioZoneId == PRIMARY_AUDIO_ZONE) {
             throw new IllegalArgumentException("Occupant " + info
                     + " already owns the primary audio zone");
@@ -1178,7 +1180,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         if (mCarAudioMirrorRequestHandler.isMirrorEnabledForZone(audioZoneId)) {
             long mirrorId = mCarAudioMirrorRequestHandler.getRequestIdForAudioZone(audioZoneId);
             CarOccupantZoneManager.OccupantZoneInfo info =
-                    mOccupantZoneService.getOccupantForAudioZoneId(audioZoneId);
+                    getCarOccupantZoneService().getOccupantForAudioZoneId(audioZoneId);
             if (runIfFailed != null) {
                 runIfFailed.run();
             }
@@ -1216,13 +1218,14 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             return false;
         }
 
-        int audioZoneId = mOccupantZoneService.getAudioZoneIdForOccupant(info.zoneId);
+        CarOccupantZoneService carOccupantZoneService = getCarOccupantZoneService();
+        int audioZoneId = carOccupantZoneService.getAudioZoneIdForOccupant(info.zoneId);
 
         verifyMirrorNotEnabledForZone(() -> mMediaRequestHandler
                 .rejectMediaAudioRequest(requestId), "allow",  audioZoneId);
 
+        int userId = carOccupantZoneService.getUserForOccupant(info.zoneId);
         synchronized (mImplLock) {
-            int userId = mOccupantZoneService.getUserForOccupant(info.zoneId);
             return handleAssignAudioFromUserIdToPrimaryAudioZoneLocked(token,
                     userId, audioZoneId, requestId);
         }
@@ -1474,7 +1477,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                         "Audio zone must have an active user to allow mirroring");
             }
 
-            CarOccupantZoneManager.OccupantZoneInfo info = mOccupantZoneService
+            CarOccupantZoneManager.OccupantZoneInfo info = getCarOccupantZoneService()
                     .getOccupantForAudioZoneId(zoneId);
 
             if (mMediaRequestHandler.isMediaAudioAllowedInPrimaryZone(info)) {
@@ -1542,7 +1545,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 return;
             }
 
-            CarOccupantZoneManager.OccupantZoneInfo info = mOccupantZoneService
+            CarOccupantZoneManager.OccupantZoneInfo info = getCarOccupantZoneService()
                     .getOccupantForAudioZoneId(audioZoneId);
 
             if (mMediaRequestHandler.isMediaAudioAllowedInPrimaryZone(info)) {
@@ -2155,7 +2158,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         CarOccupantZoneService occupantZoneService;
         SparseIntArray audioZoneIdToOccupantZoneMapping;
         audioZoneIdToOccupantZoneMapping = mAudioZoneIdToOccupantZoneIdMapping;
-        occupantZoneService = mOccupantZoneService;
+        occupantZoneService = getCarOccupantZoneService();
         occupantZoneService.setAudioZoneIdsForOccupantZoneIds(audioZoneIdToOccupantZoneMapping);
         occupantZoneService.registerCallback(mOccupantZoneCallback);
     }
@@ -2542,7 +2545,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     int getCallStateForZone(int zoneId) {
         synchronized (mImplLock) {
             // Only driver can use telephony stack
-            if (getUserIdForZoneLocked(zoneId) == mOccupantZoneService.getDriverUserId()) {
+            if (getUserIdForZoneLocked(zoneId) == getCarOccupantZoneService().getDriverUserId()) {
                 return mTelephonyManager.getCallState();
             }
         }
@@ -2614,12 +2617,13 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     @GuardedBy("mImplLock")
     private int getZoneIdForUserLocked(UserHandle handle) {
+        CarOccupantZoneService carOccupantZoneService = getCarOccupantZoneService();
         CarOccupantZoneManager.OccupantZoneInfo info =
-                mOccupantZoneService.getOccupantZoneForUser(handle);
+                carOccupantZoneService.getOccupantZoneForUser(handle);
 
         int audioZoneId = CarAudioManager.INVALID_AUDIO_ZONE;
         if (info != null) {
-            audioZoneId = mOccupantZoneService.getAudioZoneIdForOccupant(info.zoneId);
+            audioZoneId = carOccupantZoneService.getAudioZoneIdForOccupant(info.zoneId);
         }
 
         return audioZoneId == CarAudioManager.INVALID_AUDIO_ZONE ? PRIMARY_AUDIO_ZONE : audioZoneId;
@@ -2787,8 +2791,9 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             Slogf.w(TAG, "Occupant %s is not mapped to any audio zone", info);
             return false;
         }
-        int userId = mOccupantZoneService.getUserForOccupant(info.zoneId);
-        int audioZoneId = mOccupantZoneService.getAudioZoneIdForOccupant(info.zoneId);
+        CarOccupantZoneService carOccupantZoneService = getCarOccupantZoneService();
+        int userId = carOccupantZoneService.getUserForOccupant(info.zoneId);
+        int audioZoneId = carOccupantZoneService.getAudioZoneIdForOccupant(info.zoneId);
 
         synchronized (mImplLock) {
             CarAudioZone audioZone = getCarAudioZoneLocked(audioZoneId);
@@ -3129,7 +3134,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
 
         CarOccupantZoneManager.OccupantZoneInfo info =
-                mOccupantZoneService.getOccupantForAudioZoneId(zoneId);
+                getCarOccupantZoneService().getOccupantForAudioZoneId(zoneId);
 
         if (mMediaRequestHandler.isMediaAudioAllowedInPrimaryZone(info)) {
             throw new IllegalStateException(
@@ -3160,7 +3165,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
 
         CarOccupantZoneManager.OccupantZoneInfo info =
-                mOccupantZoneService.getOccupantForAudioZoneId(zoneId);
+                getCarOccupantZoneService().getOccupantForAudioZoneId(zoneId);
         if (mMediaRequestHandler.isMediaAudioAllowedInPrimaryZone(info)) {
             Slogf.w(TAG, "handleSwitchZoneConfig failed, occupant %s in audio zone %d is "
                             + "currently sharing to primary zone, undo audio sharing in primary "
@@ -3293,7 +3298,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         for (int c = 0; c < mAudioZoneIdToOccupantZoneIdMapping.size(); c++) {
             int audioZoneId = mAudioZoneIdToOccupantZoneIdMapping.keyAt(c);
             int occupantZoneId = mAudioZoneIdToOccupantZoneIdMapping.get(audioZoneId);
-            int userId = mOccupantZoneService.getUserForOccupant(occupantZoneId);
+            int userId = getCarOccupantZoneService().getUserForOccupant(occupantZoneId);
             if (userId == UserManagerHelper.USER_NULL) {
                 continue;
             }
@@ -3310,7 +3315,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             CarAudioZone zone) {
         List<AudioDeviceInfo> devices = getAudioDeviceInfos(zone);
         CarOccupantZoneManager.OccupantZoneInfo info =
-                mOccupantZoneService.getOccupantForAudioZoneId(zone.getId());
+                getCarOccupantZoneService().getOccupantForAudioZoneId(zone.getId());
         if (mMediaRequestHandler.isMediaAudioAllowedInPrimaryZone(info)) {
             devices.add(getMediaDeviceForPrimaryZoneLocked());
         } else if (mCarAudioMirrorRequestHandler.isMirrorEnabledForZone(zone.getId())) {
@@ -3409,10 +3414,12 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     private List<AudioAttributes> getActiveHalAudioAttributesForZone(int zoneId) {
-        if (mHalAudioFocus == null) {
-            return new ArrayList<>(0);
+        synchronized (mImplLock) {
+            if (mHalAudioFocus == null) {
+                return new ArrayList<>(0);
+            }
+            return mHalAudioFocus.getActiveAudioAttributesForZone(zoneId);
         }
-        return mHalAudioFocus.getActiveAudioAttributesForZone(zoneId);
     }
 
     /**
@@ -3432,7 +3439,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     void handleOccupantZoneUserChanged() {
-        int driverUserId = mOccupantZoneService.getDriverUserId();
+        int driverUserId = getCarOccupantZoneService().getDriverUserId();
         synchronized (mImplLock) {
             if (!isOccupantZoneMappingAvailableLocked()) {
                 adjustZonesToUserIdLocked(driverUserId);
@@ -3503,7 +3510,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private void updateUserForOccupantZoneLocked(int occupantZoneId, int audioZoneId,
             @UserIdInt int driverUserId, int occupantZoneForDriver) {
         CarAudioZone audioZone = getCarAudioZoneLocked(audioZoneId);
-        int userId = mOccupantZoneService.getUserForOccupant(occupantZoneId);
+        int userId = getCarOccupantZoneService().getUserForOccupant(occupantZoneId);
         int prevUserId = getUserIdForZoneLocked(audioZoneId);
 
         if (userId == prevUserId) {
@@ -3567,7 +3574,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     private int getOccupantZoneIdForDriver() {
         List<CarOccupantZoneManager.OccupantZoneInfo> occupantZoneInfos =
-                mOccupantZoneService.getAllOccupantZones();
+                getCarOccupantZoneService().getAllOccupantZones();
         for (CarOccupantZoneManager.OccupantZoneInfo info: occupantZoneInfos) {
             if (info.occupantType == CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER) {
                 return info.zoneId;
@@ -3810,7 +3817,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 focusInfo.getAttributes());
 
         return isMedia && mMediaRequestHandler
-                .isMediaAudioAllowedInPrimaryZone(mOccupantZoneService
+                .isMediaAudioAllowedInPrimaryZone(getCarOccupantZoneService()
                         .getOccupantZoneForUser(UserHandle
                                 .getUserHandleForUid(focusInfo.getClientUid())));
     }

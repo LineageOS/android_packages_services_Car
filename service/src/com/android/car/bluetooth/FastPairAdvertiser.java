@@ -231,7 +231,7 @@ public class FastPairAdvertiser {
                 byte[] hashed = MessageDigest.getInstance("SHA-256").digest(v);
                 ByteBuffer byteBuffer = ByteBuffer.wrap(hashed);
                 for (int j = 0; j < 8; j++) {
-                    long k = Integer.toUnsignedLong(byteBuffer.getInt()) % (size * 8);
+                    long k = Integer.toUnsignedLong(byteBuffer.getInt()) % (size * 8L);
                     filter[(int) (k / 8)] |= (byte) (1 << (k % 8));
                 }
             } catch (Exception e) {

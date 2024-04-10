@@ -472,6 +472,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             writer.printf("Initial user: %s\n", mInitialUser);
             writer.println("Users not visible at starting: " + mNotVisibleAtStartingUsers);
             writer.println("createUser queue size: " + mCreateUserQueue.size());
+            writer.printf("User switch in process=%d\n", mUserIdForUserSwitchInProcess);
+            writer.printf("Request Id for the user switch in process=%d\n ",
+                    mRequestIdForUserSwitchInProcess);
         }
         writer.println("SwitchGuestUserBeforeSleep: " + mSwitchGuestUserBeforeSleep);
 
@@ -487,9 +490,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         writer.printf("config_multiuserMaxRunningUsers=%d\n",
                 UserManagerHelper.getMaxRunningUsers(mContext));
         writer.decreaseIndent();
-        writer.printf("User switch in process=%d\n", mUserIdForUserSwitchInProcess);
-        writer.printf("Request Id for the user switch in process=%d\n ",
-                    mRequestIdForUserSwitchInProcess);
         writer.printf("System UI package name=%s\n",
                 PackageManagerHelper.getSystemUiPackageName(mContext));
 
