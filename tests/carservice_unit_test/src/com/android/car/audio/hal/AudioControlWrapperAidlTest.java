@@ -38,6 +38,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -101,6 +102,8 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     private static final PlaybackTrackMetadata METADATA = usageToMetadata(USAGE);
 
     private static final int AIDL_AUDIO_CONTROL_VERSION_1 = 1;
+    private static final int AIDL_AUDIO_CONTROL_VERSION_2 = 2;
+    private static final int AIDL_AUDIO_CONTROL_VERSION_3 = 3;
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
             new CarAudioContext(CarAudioContext.getAllContextsInfo(),
                     /* useCoreAudioRouting= */ false);
@@ -126,6 +129,8 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Mock
     private AudioControlDeathRecipient mDeathRecipient;
+    @Mock
+    HalAudioModuleChangeCallback mHalAudioModuleChangeCallback;
 
     private AudioControlWrapperAidl mAudioControlWrapperAidl;
     private MutingInfo mPrimaryZoneMutingInfo;
@@ -141,7 +146,8 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws RemoteException {
+        when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_3);
         when(mBinder.queryLocalInterface(anyString())).thenReturn(mAudioControl);
         doReturn(mBinder).when(AudioControlWrapperAidl::getService);
         mAudioControlWrapperAidl = new AudioControlWrapperAidl(mBinder);
@@ -693,6 +699,15 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     }
 
     @Test
+    public void registerAudioGainCallback_withLowerVersion() throws Exception {
+        when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_1);
+
+        mAudioControlWrapperAidl.registerAudioGainCallback(mHalAudioGainCallback);
+
+        verify(mAudioControl, never()).registerGainCallback(any());
+    }
+
+    @Test
     public void onAudioDeviceGainsChanged_succeeds() throws Exception {
         ArgumentCaptor<IAudioGainCallback.Stub> captor =
                 ArgumentCaptor.forClass(IAudioGainCallback.Stub.class);
@@ -797,6 +812,15 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 .onAudioDeviceGainsChanged(eq(validReasons), captorGains.capture());
 
         assertThat(captorGains.getValue()).containsExactlyElementsIn(carGains);
+    }
+
+    @Test
+    public void setModuleChangeCallback_withLowerVersion() throws Exception {
+        when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_2);
+
+        mAudioControlWrapperAidl.setModuleChangeCallback(mHalAudioModuleChangeCallback);
+
+        verify(mAudioControl, never()).setModuleChangeCallback(any());
     }
 
     private static CarAudioZone generateAudioZoneMock() {
