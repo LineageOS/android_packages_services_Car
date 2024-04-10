@@ -21,7 +21,7 @@ import android.os.Handler;
 import android.view.IWindowManager;
 
 import com.android.systemui.car.CarServiceProvider;
-import com.android.systemui.car.taskview.CarFullscreenTaskMonitorListener;
+import com.android.systemui.car.wm.CarFullscreenTaskMonitorListener;
 import com.android.systemui.dagger.qualifiers.Main;
 import com.android.systemui.wm.CarUiPortraitDisplaySystemBarsController;
 import com.android.systemui.wm.DisplaySystemBarsController;
