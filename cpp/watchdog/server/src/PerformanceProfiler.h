@@ -223,7 +223,11 @@ public:
           mTopNStatsPerSubcategory(0),
           mMaxUserSwitchEvents(0),
           mSystemEventDataCacheDurationSec(0),
-          mIsSmapsRollupSupported(android::meminfo::IsSmapsRollupSupported()),
+          // TODO(b/333722043): Once carwatchdogd has sys_ptrace capability, set
+          // mIsSmapsRollupSupported field from `android::meminfo::IsSmapsRollupSupported()`.
+          // Disabling smaps_rollup support because this file cannot be read without sys_ptrace
+          // capability.
+          mIsSmapsRollupSupported(false),
           mIsMemoryProfilingEnabled(android::car::feature::car_watchdog_memory_profiling()),
           mBoottimeCollection({}),
           mPeriodicCollection({}),
