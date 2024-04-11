@@ -16,6 +16,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="car_permission_label_bind_receiver_service" msgid="5612642995949673298">"प्रापकको सेवासँग कनेक्ट गर्ने अनुमति दिइयोस्"</string>
+    <string name="car_permission_label_bind_receiver_service" msgid="5612642995949673298">"प्रापकको सेवासँग कनेक्ट गर्ने अनुमति दिनुहोस्"</string>
     <string name="car_permission_desc_bind_receiver_service" msgid="1486497019901597266">"फ्रेमवर्कलाई क्लाइन्टको एपमा प्रापकको सेवासँग कनेक्ट हुने अनुमति दिन्छ। सामान्य एपहरूका हकमा यो अनुमति कहिल्यै दिनु पर्दैन।"</string>
 </resources>
