@@ -52,10 +52,7 @@
     <string name="notification_bugreport_channel_name" msgid="776902295433824255">"ချွတ်ယွင်းမှု အစီရင်ခံချက် အခြေအနေ ချန်နယ်"</string>
     <string name="notification_screenshot_message" msgid="4334354123333893911">"ဖန်သားပြင်ဓာတ်ပုံ ရိုက်နေသည်"</string>
     <string name="notification_screenshot_channel_name" msgid="147055389545365419">"ချွတ်ယွင်းချက်အစီရင်ခံစာ ဖန်သားပြင်ဓာတ်ပုံချန်နယ်"</string>
-    <!-- no translation found for choice_dialog_title (2105355715733829907) -->
-    <skip />
-    <!-- no translation found for choice_dialog_begin_now (7326462054665389346) -->
-    <skip />
-    <!-- no translation found for choice_dialog_speak_later (1297471567273228307) -->
-    <skip />
+    <string name="choice_dialog_title" msgid="2105355715733829907">"ချွတ်ယွင်းမှုအကြောင်းအရာကို ပြောရန် အသင့်ဖြစ်ပါပြီ"</string>
+    <string name="choice_dialog_begin_now" msgid="7326462054665389346">"ယခုစတင်ပါ"</string>
+    <string name="choice_dialog_speak_later" msgid="1297471567273228307">"နောက်မှပြောပါ"</string>
 </resources>
