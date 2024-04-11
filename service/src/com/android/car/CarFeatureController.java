@@ -618,9 +618,8 @@ public final class CarFeatureController implements CarServiceBase {
                 Slogf.e(TAG, "config_default_enabled_optional_car_features including "
                         + "user build only feature, will be ignored:" + defaultEnabledFeature);
             } else {
-                throw new IllegalArgumentException(
-                        "config_default_enabled_optional_car_features include non-optional "
-                                + "features:" + defaultEnabledFeature);
+                Slogf.e(TAG, "config_default_enabled_optional_car_features include "
+                                + "non-optional features:" + defaultEnabledFeature);
             }
         }
         Slogf.i(TAG, "Loaded default features:" + mEnabledFeatures);
