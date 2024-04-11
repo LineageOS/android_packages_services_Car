@@ -2600,6 +2600,8 @@ public final class VehiclePropertyIds {
     /**
      * Mirror Lock.
      *
+     * <p>True indicates all mirror positions are locked and not changeable.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
