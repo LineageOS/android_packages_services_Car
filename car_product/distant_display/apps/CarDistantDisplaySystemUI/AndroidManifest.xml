@@ -61,6 +61,18 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".car.distantdisplay.activity.DistantDisplayGameController"
+            android:documentLaunchMode="always"
+            android:excludeFromRecents="true"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+            android:exported="true"
+            android:showForAllUsers="true"
+            android:theme="@android:style/Theme.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".car.distantdisplay.activity.NavigationTaskViewWallpaperActivity"
             android:exported="true"
             android:theme="@android:style/Theme.DeviceDefault.NoActionBar"

@@ -21,6 +21,7 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.OutputConfiguration;
 import android.hardware.camera2.params.SessionConfiguration;
 import android.media.MediaRecorder;
@@ -39,6 +40,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicLong;
 
 final class CameraPreviewManager {
     private static final String TAG = CameraPreviewManager.class.getSimpleName();
@@ -50,6 +52,7 @@ final class CameraPreviewManager {
     private static final int VIDEO_BIT_RATE = 10_000_000;
     private final SessionStateListener mSessionStateListener;
     private final CameraDeviceStateListener mCameraDeviceStateListener;
+    private final SessionCaptureListener mSessionCaptureListener;
     private final String mCameraId;
     private final SurfaceView mSurfaceView;
     private final CameraManager mCameraManager;
@@ -85,6 +88,7 @@ final class CameraPreviewManager {
 
         mCameraDeviceStateListener = new CameraDeviceStateListener();
         mSessionStateListener = new SessionStateListener();
+        mSessionCaptureListener = new SessionCaptureListener();
 
         mSessionHandler = new Handler(sessionHandlerThread.getLooper());
         mConfigHandler = new Handler(Looper.getMainLooper(), new CameraSurfaceInitListener());
@@ -170,6 +174,10 @@ final class CameraPreviewManager {
         mIsPreviewSessionCreated = false;
         mIsRecordingSessionRequested = false;
         mIsRecordingSessionCreated = false;
+    }
+
+    long getFrameCountOfLastSession() {
+        return mSessionCaptureListener.getFrameCount();
     }
 
     final class SurfacePreviewListener implements SurfaceHolder.Callback {
@@ -312,14 +320,16 @@ final class CameraPreviewManager {
         public void onConfigured(@NonNull CameraCaptureSession session) {
             mCaptureSession = session;
             try {
+                mSessionCaptureListener.resetFrameCount();
                 mCaptureSession.setRepeatingRequest(
-                        mCaptureRequest, /* listener= */ null, mSessionHandler);
+                        mCaptureRequest, mSessionCaptureListener, mSessionHandler);
                 if (mIsPreviewSessionRequested) {
                     Log.d(TAG, "Successfully started recording session with camera " + mCameraId);
                 } else if (mIsRecordingSessionRequested) {
                     mRecorder.start();
                     Log.d(TAG, "Successfully started recording session with camera " + mCameraId);
                 }
+                Log.d(TAG, "Successfully started recording session with camera " + mCameraId);
             } catch (CameraAccessException | IllegalStateException | IllegalArgumentException e) {
                 Log.e(TAG, "Failed to start camera preview with camera " + mCameraId, e);
             }
@@ -328,6 +338,26 @@ final class CameraPreviewManager {
         @Override
         public void onConfigureFailed(@NonNull CameraCaptureSession session) {
             Log.e(TAG, "Failed to configure session with camera " + mCameraId);
+        }
+    }
+
+    static final class SessionCaptureListener extends CameraCaptureSession.CaptureCallback {
+        private final AtomicLong mFrameCount = new AtomicLong(0);
+
+        @Override
+        public void onCaptureCompleted(
+                @NonNull CameraCaptureSession session,
+                @NonNull CaptureRequest request,
+                @NonNull TotalCaptureResult result) {
+            mFrameCount.incrementAndGet();
+        }
+
+        public void resetFrameCount() {
+            mFrameCount.set(0);
+        }
+
+        public long getFrameCount() {
+            return mFrameCount.get();
         }
     }
 }

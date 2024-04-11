@@ -1008,11 +1008,11 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     @GuardedBy("mImplLock")
-    private void resetActivationTypeLocked(CarAudioZoneConfigInfo configInfo) {
+    private void resetActivationTypeLocked(int zoneId) {
         if (mCarAudioPlaybackMonitor == null) {
             return;
         }
-        mCarAudioPlaybackMonitor.resetActivationTypesForZone(configInfo.getZoneId());
+        mCarAudioPlaybackMonitor.resetActivationTypesForZone(zoneId);
     }
 
     private void handleMuteChanged(int zoneId, int groupId, int flags) {
@@ -3208,7 +3208,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 zone.updateVolumeGroupsSettingsForUser(userId);
                 carVolumeGroupInfoList = getVolumeGroupInfosForZoneLocked(zoneId);
                 updateFadeManagerConfigurationLocked(zone.isPrimaryZone());
-                resetActivationTypeLocked(zoneConfig);
+                resetActivationTypeLocked(zoneConfig.getZoneId());
             } catch (Exception e) {
                 Slogf.e(TAG, "Failed to switch configuration id " + zoneConfig.getConfigId());
                 zone.setCurrentCarZoneConfig(prevZoneConfig.getCarAudioZoneConfigInfo());
@@ -3499,6 +3499,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         zone.updateVolumeGroupsSettingsForUser(userId);
         mFocusHandler.updateUserForZoneId(zone.getId(), userId);
         setUserIdForAudioZoneLocked(userId, zone.getId());
+        resetActivationTypeLocked(zone.getId());
     }
 
     @GuardedBy("mImplLock")
@@ -3547,6 +3548,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         audioZone.updateVolumeGroupsSettingsForUser(userId);
         mFocusHandler.updateUserForZoneId(audioZoneId, userId);
         setUserIdForAudioZoneLocked(userId, audioZoneId);
+        resetActivationTypeLocked(audioZoneId);
     }
 
     private void removeAudioMirrorForZoneId(int audioZoneId) {
@@ -3616,6 +3618,9 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private void resetZoneToDefaultUser(CarAudioZone zone, @UserIdInt int driverUserId) {
         resetCarZonesAudioFocus(zone.getId(), driverUserId);
         zone.updateVolumeGroupsSettingsForUser(driverUserId);
+        synchronized (mImplLock) {
+            resetActivationTypeLocked(zone.getId());
+        }
     }
 
     private void resetCarZonesAudioFocus(int audioZoneId, @UserIdInt int driverUserId) {

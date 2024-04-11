@@ -22,4 +22,5 @@
     <string name="distant_display_companion_message">%s is shown on the distant display.</string>
     <string name="distant_display_companion_message_default_app">App</string>
     <string name="distant_display_companion_button_text">Bring it back</string>
+    <string name="distant_display_game_companion_message">Use this screen to control %s on the distant display</string>
 </resources>

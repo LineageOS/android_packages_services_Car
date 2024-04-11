@@ -52,10 +52,7 @@
     <string name="notification_bugreport_channel_name" msgid="776902295433824255">"பிழை அறிக்கை நிலை தொடர்பான சேனல்"</string>
     <string name="notification_screenshot_message" msgid="4334354123333893911">"ஸ்கிரீன்ஷாட் எடுக்கிறது"</string>
     <string name="notification_screenshot_channel_name" msgid="147055389545365419">"பிழை அறிக்கைக்கான ஸ்கிரீன்ஷாட் சேனல்"</string>
-    <!-- no translation found for choice_dialog_title (2105355715733829907) -->
-    <skip />
-    <!-- no translation found for choice_dialog_begin_now (7326462054665389346) -->
-    <skip />
-    <!-- no translation found for choice_dialog_speak_later (1297471567273228307) -->
-    <skip />
+    <string name="choice_dialog_title" msgid="2105355715733829907">"பிழை விளக்கம் குறித்துப் பேசுவதற்குத் தயாரா?"</string>
+    <string name="choice_dialog_begin_now" msgid="7326462054665389346">"இப்போது தொடங்கு"</string>
+    <string name="choice_dialog_speak_later" msgid="1297471567273228307">"பிறகு பேசுகிறேன்"</string>
 </resources>
