@@ -74,9 +74,8 @@ android_test {
     ],
 
     test_suites: [
-        "general-tests",
+        "device-tests",
         "automotive-tests",
-        "automotive-general-tests",
     ],
     // TODO(b/319708040): re-enable use_resource_processor
     use_resource_processor: false,
