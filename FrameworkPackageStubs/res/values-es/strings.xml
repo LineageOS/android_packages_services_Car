@@ -6,7 +6,6 @@
     <string name="pip_not_supported" msgid="8681268258599412706">"La función de imagen en imagen no es compatible con este dispositivo"</string>
     <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"La gestión de fuentes de aplicaciones desconocidas no se admite en este dispositivo"</string>
     <string name="documentsui_not_supported" msgid="2786636475647817501">"La gestión de archivos no está disponible en este dispositivo"</string>
-    <!-- no translation found for dream_not_supported (2274365800432553936) -->
-    <skip />
+    <string name="dream_not_supported" msgid="2274365800432553936">"Los salvapantallas no se admiten en este dispositivo"</string>
     <string name="stub_name" msgid="3987164490218189006">"Ninguno"</string>
 </resources>
