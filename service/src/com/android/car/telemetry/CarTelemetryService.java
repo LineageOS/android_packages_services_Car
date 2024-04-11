@@ -25,8 +25,6 @@ import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFI
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
-import static java.util.stream.Collectors.toList;
-
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
@@ -80,6 +78,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -561,9 +560,14 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
      */
     @NonNull
     public List<String> getActiveMetricsConfigDetails() {
-        return mMetricsConfigStore.getActiveMetricsConfigs().stream()
-                .map((config) -> config.getName() + " version=" + config.getVersion())
-                .collect(toList());
+        List<TelemetryProto.MetricsConfig> activeMetricsConfigs = mMetricsConfigStore
+                .getActiveMetricsConfigs();
+        List<String> activeMetricsConfigDetails = new ArrayList<>(activeMetricsConfigs.size());
+        for (int index = 0; index < activeMetricsConfigs.size(); index++) {
+            TelemetryProto.MetricsConfig config = activeMetricsConfigs.get(index);
+            activeMetricsConfigDetails.add(config.getName() + " version=" + config.getVersion());
+        }
+        return activeMetricsConfigDetails;
     }
 
     /**

@@ -22,6 +22,8 @@ import android.car.vms.VmsAvailableLayers;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
+import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.util.Log;
 
 import com.android.car.CarLog;
@@ -29,11 +31,8 @@ import com.android.internal.annotations.GuardedBy;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Manages VMS availability for layers.
@@ -50,11 +49,11 @@ class VmsLayerAvailability {
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private final Map<VmsLayer, Set<Set<VmsLayer>>> mPotentialLayersAndDependencies =
-            new HashMap<>();
+            new ArrayMap<>();
     @GuardedBy("mLock")
     private Set<VmsAssociatedLayer> mAvailableAssociatedLayers = Collections.emptySet();
     @GuardedBy("mLock")
-    private Map<VmsLayer, Set<Integer>> mPotentialLayersAndPublishers = new HashMap<>();
+    private Map<VmsLayer, Set<Integer>> mPotentialLayersAndPublishers = new ArrayMap<>();
     @GuardedBy("mLock")
     private int mSeq = 0;
 
@@ -70,11 +69,11 @@ class VmsLayerAvailability {
                     VmsLayer layer = dependency.getLayer();
 
                     // Associate publishers with layers.
-                    mPotentialLayersAndPublishers.computeIfAbsent(layer, k -> new HashSet<>())
+                    mPotentialLayersAndPublishers.computeIfAbsent(layer, k -> new ArraySet<>())
                             .add(offering.getPublisherId());
 
                     // Add dependencies for availability calculation.
-                    mPotentialLayersAndDependencies.computeIfAbsent(layer, k -> new HashSet<>())
+                    mPotentialLayersAndDependencies.computeIfAbsent(layer, k -> new ArraySet<>())
                             .add(dependency.getDependencies());
                 }
             }
@@ -102,8 +101,8 @@ class VmsLayerAvailability {
 
     private void calculateLayers() {
         synchronized (mLock) {
-            Set<VmsLayer> availableLayersSet = new HashSet<>();
-            Set<VmsLayer> cyclicAvoidanceAuxiliarySet = new HashSet<>();
+            ArraySet<VmsLayer> availableLayersSet = new ArraySet<>();
+            ArraySet<VmsLayer> cyclicAvoidanceAuxiliarySet = new ArraySet<>();
 
             for (VmsLayer layer : mPotentialLayersAndDependencies.keySet()) {
                 addLayerToAvailabilityCalculationLocked(layer,
@@ -111,12 +110,14 @@ class VmsLayerAvailability {
                         cyclicAvoidanceAuxiliarySet);
             }
 
-            mAvailableAssociatedLayers = Collections.unmodifiableSet(
-                    availableLayersSet
-                            .stream()
-                            .map(l -> new VmsAssociatedLayer(l,
-                                    mPotentialLayersAndPublishers.get(l)))
-                            .collect(Collectors.toSet()));
+            ArraySet<VmsAssociatedLayer> associatedLayerSet = new ArraySet<>();
+            for (int index = 0; index < availableLayersSet.size(); index++) {
+                VmsLayer availableLayer = availableLayersSet.valueAt(index);
+                VmsAssociatedLayer associatedLayer = new VmsAssociatedLayer(availableLayer,
+                        mPotentialLayersAndPublishers.get(availableLayer));
+                associatedLayerSet.add(associatedLayer);
+            }
+            mAvailableAssociatedLayers = Collections.unmodifiableSet(associatedLayerSet);
         }
     }
 

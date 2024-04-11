@@ -627,15 +627,19 @@ public final class CarFeatureController implements CarServiceBase {
     }
 
     private static void addSupportFeatures(Collection<String> features) {
-        SUPPORT_FEATURES.stream()
-                .filter(entry -> features.contains(entry.first))
-                .forEach(entry -> features.add(entry.second));
+        for (int index = 0; index < SUPPORT_FEATURES.size(); index++) {
+            if (features.contains(SUPPORT_FEATURES.get(index).first)) {
+                features.add(SUPPORT_FEATURES.get(index).second);
+            }
+        }
     }
 
     private static void removeSupportFeatures(Collection<String> features) {
-        SUPPORT_FEATURES.stream()
-                .filter(entry -> features.contains(entry.first))
-                .forEach(entry -> features.remove(entry.second));
+        for (int index = 0; index < SUPPORT_FEATURES.size(); index++) {
+            if (features.contains(SUPPORT_FEATURES.get(index).first)) {
+                features.remove(SUPPORT_FEATURES.get(index).second);
+            }
+        }
     }
 
     private static ArraySet<String> combineFeatures(List<String> features,

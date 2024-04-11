@@ -34,6 +34,7 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.ArraySet;
 import android.util.Log;
 
 import com.android.car.CarLog;
@@ -44,9 +45,10 @@ import com.android.car.util.SetMultimap;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.StringJoiner;
 
 /**
  * Manages the inhibiting of Bluetooth profile connections to and from specific devices.
@@ -280,15 +282,15 @@ public class BluetoothProfileInhibitManager {
      */
     @GuardedBy("mProfileInhibitsLock")
     private void commitLocked() {
-        Set<BluetoothConnection> inhibitedProfiles = new HashSet<>(mProfileInhibits.keySet());
+        ArraySet<BluetoothConnection> inhibitedProfiles = new ArraySet<>(mProfileInhibits.keySet());
         // Don't write out profiles that were disabled before a request was made, since
         // restoring those profiles is a no-op.
         inhibitedProfiles.removeAll(mAlreadyDisabledProfiles);
-        String savedDisconnects =
-                inhibitedProfiles
-                        .stream()
-                        .map(BluetoothConnection::encode)
-                        .collect(Collectors.joining(SETTINGS_DELIMITER));
+        StringJoiner savedDisconnectsJoiner = new StringJoiner(SETTINGS_DELIMITER);
+        for (int index = 0; index < inhibitedProfiles.size(); index++) {
+            savedDisconnectsJoiner.add(inhibitedProfiles.valueAt(index).encode());
+        }
+        String savedDisconnects = savedDisconnectsJoiner.toString();
 
         Settings.Secure.putString(mUserContext.getContentResolver(),
                 KEY_BLUETOOTH_PROFILES_INHIBITED, savedDisconnects);
@@ -475,11 +477,15 @@ public class BluetoothProfileInhibitManager {
      */
     private InhibitRecord findInhibitRecord(BluetoothConnection params, IBinder token) {
         synchronized (mProfileInhibitsLock) {
-            return mProfileInhibits.get(params)
-                .stream()
-                .filter(r -> r.getToken() == token)
-                .findAny()
-                .orElse(null);
+            Set<InhibitRecord> profileInhibitSet = mProfileInhibits.get(params);
+            Iterator<InhibitRecord> it = profileInhibitSet.iterator();
+            while (it.hasNext()) {
+                InhibitRecord r = it.next();
+                if (r.getToken() == token) {
+                    return r;
+                }
+            }
+            return null;
         }
     }
 

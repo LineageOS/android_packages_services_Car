@@ -69,7 +69,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Helper class to read and manage vendor power policies.
@@ -835,10 +834,10 @@ public final class PolicyReader {
     private void reconstructSystemPowerPolicy(@Nullable CarPowerPolicy policyOverride) {
         if (policyOverride == null) return;
 
-        List<Integer> enabledComponents = Arrays.stream(NO_USER_INTERACTION_ENABLED_COMPONENTS)
-                .boxed().collect(Collectors.toList());
-        List<Integer> disabledComponents = Arrays.stream(NO_USER_INTERACTION_DISABLED_COMPONENTS)
-                .boxed().collect(Collectors.toList());
+        List<Integer> enabledComponents = CarServiceUtils.asList(
+                NO_USER_INTERACTION_ENABLED_COMPONENTS);
+        List<Integer> disabledComponents = CarServiceUtils.asList(
+                NO_USER_INTERACTION_DISABLED_COMPONENTS);
         int[] overrideEnabledComponents = policyOverride.getEnabledComponents();
         int[] overrideDisabledComponents = policyOverride.getDisabledComponents();
         for (int i = 0; i < overrideEnabledComponents.length; i++) {

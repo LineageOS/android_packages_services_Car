@@ -185,8 +185,7 @@ public class InputCaptureClientController {
             if (client.mGrantedTypes.isEmpty()) {
                 inputTypesToDispatch = EMPTY_INPUT_TYPES;
             } else {
-                inputTypesToDispatch = client.mGrantedTypes.stream().mapToInt(
-                        Integer::intValue).toArray();
+                inputTypesToDispatch = CarServiceUtils.toIntArray(client.mGrantedTypes);
             }
             mClientsToDispatch.put(client.mCallback, inputTypesToDispatch);
         }

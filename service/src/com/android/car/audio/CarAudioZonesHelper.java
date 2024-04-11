@@ -69,7 +69,6 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * A helper class loads all audio zones from the configuration XML file.
@@ -215,9 +214,14 @@ import java.util.stream.Collectors;
 
     private static Map<String, CarAudioDeviceInfo> generateAddressToInfoMap(
             List<CarAudioDeviceInfo> carAudioDeviceInfos) {
-        return carAudioDeviceInfos.stream()
-                .filter(info -> !TextUtils.isEmpty(info.getAddress()))
-                .collect(Collectors.toMap(CarAudioDeviceInfo::getAddress, info -> info));
+        Map<String, CarAudioDeviceInfo> addressToInfoMap = new ArrayMap<>();
+        for (int i = 0; i < carAudioDeviceInfos.size(); i++) {
+            CarAudioDeviceInfo info = carAudioDeviceInfos.get(i);
+            if (!TextUtils.isEmpty(info.getAddress())) {
+                addressToInfoMap.put(info.getAddress(), info);
+            }
+        }
+        return addressToInfoMap;
     }
 
     private static Map<String, AudioDeviceInfo> generateAddressToInputAudioDeviceInfoMap(
