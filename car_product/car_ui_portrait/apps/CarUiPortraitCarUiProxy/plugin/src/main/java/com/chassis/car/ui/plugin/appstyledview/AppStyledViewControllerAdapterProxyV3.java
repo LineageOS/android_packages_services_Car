@@ -17,6 +17,7 @@
 package com.chassis.car.ui.plugin.appstyledview;
 
 import android.view.View;
+import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 
 import androidx.annotation.NonNull;
@@ -24,6 +25,7 @@ import androidx.annotation.NonNull;
 import com.android.car.ui.appstyledview.AppStyledDialogController.NavIcon;
 import com.android.car.ui.appstyledview.AppStyledDialogController.SceneType;
 import com.android.car.ui.appstyledview.AppStyledViewController;
+import com.android.car.ui.appstyledview.AppStyledViewControllerImpl;
 import com.android.car.ui.plugin.oemapis.appstyledview.AppStyledViewControllerOEMV3;
 
 /**
@@ -32,21 +34,26 @@ import com.android.car.ui.plugin.oemapis.appstyledview.AppStyledViewControllerOE
 public class AppStyledViewControllerAdapterProxyV3 implements AppStyledViewControllerOEMV3 {
 
     @NonNull
-    private final AppStyledViewController mStaticController;
+    private final AppStyledViewControllerImpl mStaticController;
     private View mContentView;
 
-    public AppStyledViewControllerAdapterProxyV3(@NonNull AppStyledViewController controller) {
+    public AppStyledViewControllerAdapterProxyV3(@NonNull AppStyledViewControllerImpl controller) {
         mStaticController = controller;
     }
 
     @Override
     public View getView() {
-        return mStaticController.getAppStyledView(mContentView);
+        if (mContentView == null) {
+            return null;
+        }
+
+        return mStaticController.createAppStyledView(mContentView);
     }
 
     @Override
     public void setContent(View view) {
         mContentView = view;
+        mStaticController.setContent(mContentView);
     }
 
     @Override
@@ -88,18 +95,32 @@ public class AppStyledViewControllerAdapterProxyV3 implements AppStyledViewContr
         }
     }
 
+    @NonNull
     @Override
-    public LayoutParams getDialogWindowLayoutParam(LayoutParams params) {
-        return mStaticController.getDialogWindowLayoutParam(params);
+    public LayoutParams getDialogWindowLayoutParam(@NonNull LayoutParams params) {
+        return mStaticController.getDialog().getDialogWindowLayoutParam(params);
     }
 
     @Override
     public int getContentAreaWidth() {
+        WindowManager.LayoutParams latestParams =
+                mStaticController.getDialog().getDialogWindowLayoutParam(
+                        new WindowManager.LayoutParams());
+        mStaticController.getDialog().getWindow().setAttributes(latestParams);
+
         return mStaticController.getContentAreaWidth();
     }
 
     @Override
     public int getContentAreaHeight() {
+        // Update params
+        WindowManager.LayoutParams latestParams =
+                mStaticController.getDialog().getDialogWindowLayoutParam(
+                        new WindowManager.LayoutParams());
+        mStaticController.getDialog().getWindow().setAttributes(latestParams);
+
+
         return mStaticController.getContentAreaHeight();
     }
 }
+
