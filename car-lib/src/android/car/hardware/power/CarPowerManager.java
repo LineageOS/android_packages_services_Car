@@ -28,12 +28,12 @@ import android.annotation.SystemApi;
 import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.builtin.util.Slogf;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArrayMap;
 import android.util.Pair;
-import android.util.Slog;
 import android.util.SparseIntArray;
 
 import com.android.internal.annotations.GuardedBy;
@@ -486,7 +486,7 @@ public class CarPowerManager extends CarManagerBase {
         }
 
         if (listenerToService == null) {
-            Slog.w(TAG, "clearListener: listener was not registered");
+            Slogf.w(TAG, "clearListener: listener was not registered");
             return;
         }
 
@@ -794,7 +794,7 @@ public class CarPowerManager extends CarManagerBase {
     private void cleanupFutureLocked() {
         if (mFuture != null) {
             mFuture.invalidate();
-            Slog.w(TAG, "The current future becomes invalid");
+            Slogf.w(TAG, "The current future becomes invalid");
             mFuture = null;
         }
     }
@@ -884,7 +884,7 @@ public class CarPowerManager extends CarManagerBase {
         public void complete() {
             synchronized (mCompletionLock) {
                 if (!mCanBeCompleted) {
-                    Slog.w(TAG, "Cannot complete: already completed or invalid state");
+                    Slogf.w(TAG, "Cannot complete: already completed or invalid state");
                     return;
                 }
                 // Once completed, this instance cannot be completed again.
