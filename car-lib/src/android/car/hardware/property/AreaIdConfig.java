@@ -201,7 +201,10 @@ public final class AreaIdConfig<T> implements Parcelable {
      * method in {@code AreaIdConfig}.
      *
      * @hide
+     * @deprecated marked as deprecated because clients should not have direct access to the
+     * AreaIdConfig.Builder class
      */
+    @Deprecated
     @SystemApi
     public static final class Builder<T> {
         private final @CarPropertyConfig.VehiclePropertyAccessType int mAccess;
