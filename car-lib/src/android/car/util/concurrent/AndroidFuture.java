@@ -26,7 +26,7 @@ import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
@@ -153,7 +153,7 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
         cancelTimeout();
 
         if (DEBUG) {
-            Log.i(LOG_TAG, this + " completed with result " + (err == null ? res : err),
+            Slog.i(LOG_TAG, this + " completed with result " + (err == null ? res : err),
                     new RuntimeException());
         }
 
@@ -171,7 +171,7 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
             try {
                 mRemoteOrigin.complete(this /* resultContainer */);
             } catch (RemoteException e) {
-                Log.e(LOG_TAG, "Failed to propagate completion", e);
+                Slog.e(LOG_TAG, "Failed to propagate completion", e);
             }
         }
     }
@@ -258,7 +258,7 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
             }
         } catch (Throwable t2) {
             // give up on listener and log the result & exception to logcat
-            Log.e(LOG_TAG, "Failed to call whenComplete listener. res = " + res, t2);
+            Slog.e(LOG_TAG, "Failed to call whenComplete listener. res = " + res, t2);
         }
     }
 
@@ -521,7 +521,7 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
                         changed = completeExceptionally(unwrapExecutionException(t));
                     }
                     if (!changed) {
-                        Log.w(LOG_TAG, "Remote result " + resultContainer
+                        Slog.w(LOG_TAG, "Remote result " + resultContainer
                                 + " ignored, as local future is already completed: "
                                 + AndroidFuture.this);
                     }

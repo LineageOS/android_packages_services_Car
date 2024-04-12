@@ -25,6 +25,7 @@ import android.car.VehiclePropertyIds;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -274,7 +275,7 @@ public final class SubscriptionManager<ClientType> {
      */
     public void stageNewOptions(ClientType client, List<CarSubscription> options) {
         if (DBG) {
-            Log.d(TAG, "stageNewOptions: options: " + options);
+            Slog.d(TAG, "stageNewOptions: options: " + options);
         }
 
         cloneCurrentToStageIfClean();
@@ -302,7 +303,7 @@ public final class SubscriptionManager<ClientType> {
      */
     public void stageUnregister(ClientType client, ArraySet<Integer> propertyIdsToUnregister) {
         if (DBG) {
-            Log.d(TAG, "stageUnregister: propertyIdsToUnregister: " + propertyIdsToString(
+            Slog.d(TAG, "stageUnregister: propertyIdsToUnregister: " + propertyIdsToString(
                     propertyIdsToUnregister));
         }
 
@@ -318,7 +319,7 @@ public final class SubscriptionManager<ClientType> {
                 RateInfoForClients<ClientType> rateInfoForClients =
                         mStagedRateInfoByClientByPropIdAreaId.get(propertyId, areaId);
                 if (rateInfoForClients == null) {
-                    Log.e(TAG, "The property: " + VehiclePropertyIds.toString(propertyId)
+                    Slog.e(TAG, "The property: " + VehiclePropertyIds.toString(propertyId)
                             + ", area ID: " + areaId + " was not registered, do nothing");
                     continue;
                 }
@@ -339,7 +340,7 @@ public final class SubscriptionManager<ClientType> {
     public void commit() {
         if (mStagedAffectedPropIdAreaIds.isEmpty()) {
             if (DBG) {
-                Log.d(TAG, "No changes has been staged, nothing to commit");
+                Slog.d(TAG, "No changes has been staged, nothing to commit");
             }
             return;
         }
@@ -356,7 +357,7 @@ public final class SubscriptionManager<ClientType> {
     public void dropCommit() {
         if (mStagedAffectedPropIdAreaIds.isEmpty()) {
             if (DBG) {
-                Log.d(TAG, "No changes has been staged, nothing to drop");
+                Slog.d(TAG, "No changes has been staged, nothing to drop");
             }
             return;
         }
@@ -412,7 +413,7 @@ public final class SubscriptionManager<ClientType> {
             List<Integer> outPropertyIdsToUnsubscribe) {
         if (mStagedAffectedPropIdAreaIds.isEmpty()) {
             if (DBG) {
-                Log.d(TAG, "No changes has been staged, no diff");
+                Slog.d(TAG, "No changes has been staged, no diff");
             }
             return;
         }
@@ -426,8 +427,8 @@ public final class SubscriptionManager<ClientType> {
             if (!mStagedRateInfoByClientByPropIdAreaId.contains(propertyId, areaId)) {
                 // The [PropertyId, areaId] is no longer subscribed.
                 if (DBG) {
-                    Log.d(TAG, String.format("The property: %s, areaId: %d is no longer subscribed",
-                            VehiclePropertyIds.toString(propertyId), areaId));
+                    Slog.d(TAG, String.format("The property: %s, areaId: %d is no longer "
+                            + "subscribed", VehiclePropertyIds.toString(propertyId), areaId));
                 }
                 possiblePropIdsToUnsubscribe.add(propertyId);
                 continue;
@@ -441,7 +442,7 @@ public final class SubscriptionManager<ClientType> {
                             .get(propertyId, areaId).getCombinedRateInfo()
                             .equals(newCombinedRateInfo))) {
                 if (DBG) {
-                    Log.d(TAG, String.format(
+                    Slog.d(TAG, String.format(
                             "New combined subscription rate info for property: %s, areaId: %d, %s",
                             VehiclePropertyIds.toString(propertyId), areaId, newCombinedRateInfo));
                 }
@@ -456,7 +457,7 @@ public final class SubscriptionManager<ClientType> {
                     possiblePropIdToUnsubscribe).isEmpty()) {
                 // We should only unsubscribe the property if all area IDs are unsubscribed.
                 if (DBG) {
-                    Log.d(TAG, String.format(
+                    Slog.d(TAG, String.format(
                             "All areas for the property: %s are no longer subscribed, "
                             + "unsubscribe it", VehiclePropertyIds.toString(
                                     possiblePropIdToUnsubscribe)));

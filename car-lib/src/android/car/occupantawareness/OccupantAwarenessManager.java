@@ -28,7 +28,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
 
@@ -135,7 +135,7 @@ public class OccupantAwarenessManager extends CarManagerBase {
     @RequiresPermission(value = Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE)
     public void registerChangeCallback(@NonNull ChangeCallback callback) {
         if (DBG) {
-            Log.d(TAG, "Registering change listener");
+            Slog.d(TAG, "Registering change listener");
         }
 
         synchronized (mLock) {
@@ -164,12 +164,12 @@ public class OccupantAwarenessManager extends CarManagerBase {
     @RequiresPermission(value = Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE)
     public void unregisterChangeCallback() {
         if (DBG) {
-            Log.d(TAG, "Unregistering change listener");
+            Slog.d(TAG, "Unregistering change listener");
         }
 
         synchronized (mLock) {
             if (mChangeCallback == null) {
-                Log.e(TAG, "No listener exists to unregister.");
+                Slog.e(TAG, "No listener exists to unregister.");
                 return;
             }
             mChangeCallback = null;

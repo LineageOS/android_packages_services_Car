@@ -26,7 +26,7 @@ import android.car.annotation.RequiredFeature;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArrayMap;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
 
@@ -122,7 +122,7 @@ public final class VmsClientManager extends CarManagerBase {
         VmsClient client;
         synchronized (mLock) {
             if (mClients.containsKey(callback)) {
-                Log.w(TAG, "VmsClient already registered");
+                Slog.w(TAG, "VmsClient already registered");
                 return;
             }
 
@@ -130,14 +130,14 @@ public final class VmsClientManager extends CarManagerBase {
                     /* autoCloseMemory */ true,
                     this::handleRemoteExceptionFromCarService);
             mClients.put(callback, client);
-            if (DBG) Log.d(TAG, "Client count: " + mClients.size());
+            if (DBG) Slog.d(TAG, "Client count: " + mClients.size());
         }
 
         try {
-            if (DBG) Log.d(TAG, "Registering VmsClient");
+            if (DBG) Slog.d(TAG, "Registering VmsClient");
             client.register();
         } catch (RemoteException e) {
-            Log.e(TAG, "Error while registering", e);
+            Slog.e(TAG, "Error while registering", e);
             synchronized (mLock) {
                 mClients.remove(callback);
             }
@@ -145,7 +145,7 @@ public final class VmsClientManager extends CarManagerBase {
             return;
         }
 
-        if (DBG) Log.d(TAG, "Triggering callbacks for new VmsClient");
+        if (DBG) Slog.d(TAG, "Triggering callbacks for new VmsClient");
         executor.execute(() -> {
             callback.onClientConnected(client);
             if (!legacyClient) {
@@ -169,11 +169,11 @@ public final class VmsClientManager extends CarManagerBase {
             client = mClients.remove(callback);
         }
         if (client == null) {
-            Log.w(TAG, "Unregister called for unknown callback");
+            Slog.w(TAG, "Unregister called for unknown callback");
             return;
         }
 
-        if (DBG) Log.d(TAG, "Unregistering VmsClient");
+        if (DBG) Slog.d(TAG, "Unregistering VmsClient");
         try {
             client.unregister();
         } catch (RemoteException e) {
@@ -187,7 +187,7 @@ public final class VmsClientManager extends CarManagerBase {
     @Override
     protected void onCarDisconnected() {
         synchronized (mLock) {
-            Log.w(TAG, "Car disconnected with " + mClients.size() + " active clients");
+            Slog.w(TAG, "Car disconnected with " + mClients.size() + " active clients");
             mClients.clear();
         }
     }

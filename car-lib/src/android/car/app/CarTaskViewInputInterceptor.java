@@ -31,6 +31,7 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.hardware.input.InputManager;
 import android.util.Log;
+import android.util.Slog;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -111,7 +112,7 @@ final class CarTaskViewInputInterceptor {
     @MainThread
     void init() {
         if (mInitialized) {
-            Log.w(TAG, "Already initialized");
+            Slog.w(TAG, "Already initialized");
             return;
         }
         mInitialized = true;
@@ -126,7 +127,7 @@ final class CarTaskViewInputInterceptor {
     @MainThread
     void release() {
         if (!mInitialized) {
-            Log.w(TAG, "Failed to release as it is not initialized");
+            Slog.w(TAG, "Failed to release as it is not initialized");
             return;
         }
         mInitialized = false;
@@ -136,10 +137,10 @@ final class CarTaskViewInputInterceptor {
 
     private void startInterceptingGestures() {
         if (DBG) {
-            Log.d(TAG, "Start intercepting gestures");
+            Slog.d(TAG, "Start intercepting gestures");
         }
         if (mSpyWindow != null) {
-            Log.d(TAG, "Already intercepting gestures");
+            Slog.d(TAG, "Already intercepting gestures");
             return;
         }
         createAndAddSpyWindow();
@@ -147,10 +148,10 @@ final class CarTaskViewInputInterceptor {
 
     private void stopInterceptingGestures() {
         if (DBG) {
-            Log.d(TAG, "Stop intercepting gestures");
+            Slog.d(TAG, "Stop intercepting gestures");
         }
         if (mSpyWindow == null) {
-            Log.d(TAG, "Already not intercepting gestures");
+            Slog.d(TAG, "Already not intercepting gestures");
             return;
         }
         removeSpyWindow();
@@ -177,7 +178,7 @@ final class CarTaskViewInputInterceptor {
 
     private void removeSpyWindow() {
         if (mSpyWindow == null) {
-            Log.e(TAG, "Spy window is not present");
+            Slog.e(TAG, "Spy window is not present");
             return;
         }
         mWm.removeView(mSpyWindow);
@@ -276,7 +277,7 @@ final class CarTaskViewInputInterceptor {
                         && ((ControlledRemoteCarTaskView) tv).getConfig().mShouldCaptureGestures
                         && isIn(e, tv)) {
                     if (DBG) {
-                        Log.d(TAG, "Long press captured for taskView: " + tv);
+                        Slog.d(TAG, "Long press captured for taskView: " + tv);
                     }
                     InputManagerHelper.pilferPointers(mInputManager, mSpyWindow);
                     tv.performLongClick();
@@ -284,7 +285,7 @@ final class CarTaskViewInputInterceptor {
                 }
             }
             if (DBG) {
-                Log.d(TAG, "Long press not captured");
+                Slog.d(TAG, "Long press not captured");
             }
         }
     }

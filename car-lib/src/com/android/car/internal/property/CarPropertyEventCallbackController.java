@@ -22,6 +22,7 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback;
 import android.util.Log;
+import android.util.Slog;
 
 import java.util.concurrent.Executor;
 
@@ -56,7 +57,7 @@ public final class CarPropertyEventCallbackController extends CarPropertyEventCo
                 getCarPropertyValueIfCallbackRequired(carPropertyEvent);
         if (carPropertyValue == null) {
             if (DBG) {
-                Log.d(TAG, "onEvent should not be invoked, event: " + carPropertyEvent);
+                Slog.d(TAG, "onEvent should not be invoked, event: " + carPropertyEvent);
             }
             return;
         }
@@ -73,14 +74,14 @@ public final class CarPropertyEventCallbackController extends CarPropertyEventCo
                 break;
             case CarPropertyEvent.PROPERTY_EVENT_ERROR:
                 if (DBG) {
-                    Log.d(TAG, "onErrorEvent for event: " + updatedCarPropertyEvent);
+                    Slog.d(TAG, "onErrorEvent for event: " + updatedCarPropertyEvent);
                 }
                 mExecutor.execute(() -> mCarPropertyEventCallback.onErrorEvent(
                         carPropertyValue.getPropertyId(), carPropertyValue.getAreaId(),
                         updatedCarPropertyEvent.getErrorCode()));
                 break;
             default:
-                Log.e(TAG, "onEvent: unknown errorCode=" + updatedCarPropertyEvent.getErrorCode()
+                Slog.e(TAG, "onEvent: unknown errorCode=" + updatedCarPropertyEvent.getErrorCode()
                         + ", for event: " + updatedCarPropertyEvent);
                 break;
         }

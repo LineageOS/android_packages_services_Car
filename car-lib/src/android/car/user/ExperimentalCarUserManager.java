@@ -29,7 +29,7 @@ import android.car.util.concurrent.AndroidFuture;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -152,7 +152,7 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
                 @Override
                 protected void onCompleted(UserSwitchResult result, Throwable err) {
                     if (result == null) {
-                        Log.w(TAG, "switchDriver(" + driverId + ") failed: " + err);
+                        Slog.w(TAG, "switchDriver(" + driverId + ") failed: " + err);
                     }
                     super.onCompleted(result, err);
                 }

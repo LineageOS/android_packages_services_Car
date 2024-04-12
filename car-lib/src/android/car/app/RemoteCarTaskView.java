@@ -34,7 +34,7 @@ import android.graphics.Rect;
 import android.graphics.Region;
 import android.os.DeadObjectException;
 import android.os.RemoteException;
-import android.util.Log;
+import android.util.Slog;
 import android.view.SurfaceControl;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -206,7 +206,7 @@ public abstract class RemoteCarTaskView extends SurfaceView {
         try {
             mICarTaskViewHost.addInsets(index, type, frame);
         } catch (RemoteException e) {
-            Log.e(TAG, "exception in addInsets", e);
+            Slog.e(TAG, "exception in addInsets", e);
         }
     }
 
@@ -225,7 +225,7 @@ public abstract class RemoteCarTaskView extends SurfaceView {
         try {
             mICarTaskViewHost.removeInsets(index, type);
         } catch (RemoteException e) {
-            Log.e(TAG, "exception in removeInsets", e);
+            Slog.e(TAG, "exception in removeInsets", e);
         }
     }
 

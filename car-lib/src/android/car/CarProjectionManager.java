@@ -43,8 +43,8 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.ArraySet;
-import android.util.Log;
 import android.util.Pair;
+import android.util.Slog;
 import android.view.KeyEvent;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -341,12 +341,12 @@ public final class CarProjectionManager extends CarManagerBase {
             } else if (keyEvent == KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN) {
                 fromLongPress = true;
             } else {
-                Log.e(TAG, "Unexpected key event " + keyEvent);
+                Slog.e(TAG, "Unexpected key event " + keyEvent);
                 return;
             }
         }
 
-        Log.d(TAG, "Voice assistant request, long-press = " + fromLongPress);
+        Slog.d(TAG, "Voice assistant request, long-press = " + fromLongPress);
 
         legacyListener.onVoiceAssistantRequest(fromLongPress);
     }
@@ -460,11 +460,11 @@ public final class CarProjectionManager extends CarManagerBase {
 
         try {
             if (!events.isEmpty()) {
-                Log.d(TAG, "Registering handler with system for " + events);
+                Slog.d(TAG, "Registering handler with system for " + events);
                 byte[] eventMask = events.toByteArray();
                 mService.registerKeyEventHandler(mBinderHandler, eventMask);
             } else {
-                Log.d(TAG, "Unregistering handler with system");
+                Slog.d(TAG, "Unregistering handler with system");
                 mService.unregisterKeyEventHandler(mBinderHandler);
             }
         } catch (RemoteException e) {
@@ -825,18 +825,18 @@ public final class CarProjectionManager extends CarManagerBase {
             mHandler = new Handler(looper) {
                 @Override
                 public void handleMessage(Message msg) {
-                    Log.d(TAG, LOG_PREFIX + "handle message what: " + msg.what + " msg: " + msg);
+                    Slog.d(TAG, LOG_PREFIX + "handle message what: " + msg.what + " msg: " + msg);
 
                     CarProjectionManager manager = mCarProjectionManagerRef.get();
                     if (manager == null) {
-                        Log.w(TAG, LOG_PREFIX + "handle message post GC");
+                        Slog.w(TAG, LOG_PREFIX + "handle message post GC");
                         return;
                     }
 
                     switch (msg.what) {
                         case PROJECTION_AP_STARTED:
                             if (msg.obj == null) {
-                                Log.e(TAG, LOG_PREFIX + "config cannot be null.");
+                                Slog.e(TAG, LOG_PREFIX + "config cannot be null.");
                                 callback.onFailed(ProjectionAccessPointCallback.ERROR_GENERIC);
                                 return;
                             }
@@ -847,17 +847,17 @@ public final class CarProjectionManager extends CarManagerBase {
                             }
                             break;
                         case PROJECTION_AP_STOPPED:
-                            Log.i(TAG, LOG_PREFIX + "hotspot stopped");
+                            Slog.i(TAG, LOG_PREFIX + "hotspot stopped");
                             callback.onStopped();
                             break;
                         case PROJECTION_AP_FAILED:
                             int reasonCode = msg.arg1;
-                            Log.w(TAG, LOG_PREFIX + "failed to start.  reason: "
+                            Slog.w(TAG, LOG_PREFIX + "failed to start.  reason: "
                                     + reasonCode);
                             callback.onFailed(reasonCode);
                             break;
                         default:
-                            Log.e(TAG, LOG_PREFIX + "unhandled message.  type: " + msg.what);
+                            Slog.e(TAG, LOG_PREFIX + "unhandled message.  type: " + msg.what);
                     }
                 }
             };
@@ -880,7 +880,7 @@ public final class CarProjectionManager extends CarManagerBase {
 
         @Override
         public void onKeyEvent(@KeyEventNum int event) {
-            Log.d(TAG, "Received projection key event " + event);
+            Slog.d(TAG, "Received projection key event " + event);
             final CarProjectionManager manager = mManager.get();
             if (manager == null) {
                 return;

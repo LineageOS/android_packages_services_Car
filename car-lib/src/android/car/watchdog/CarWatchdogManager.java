@@ -30,7 +30,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.util.Log;
+import android.util.Slog;
 import android.util.SparseIntArray;
 
 import com.android.internal.annotations.GuardedBy;
@@ -197,7 +197,7 @@ public final class CarWatchdogManager extends CarManagerBase {
         try {
             mService.registerClient(mClientImpl, timeout);
             if (DEBUG) {
-                Log.d(TAG, "Car watchdog client is successfully registered");
+                Slog.d(TAG, "Car watchdog client is successfully registered");
             }
         } catch (RemoteException e) {
             synchronized (mLock) {
@@ -227,7 +227,7 @@ public final class CarWatchdogManager extends CarManagerBase {
         synchronized (CarWatchdogManager.this.mLock) {
             if (!mHealthCheckingClient.hasClientLocked()
                     || mHealthCheckingClient.callback != client) {
-                Log.w(TAG, "Cannot unregister the client. It has not been registered.");
+                Slog.w(TAG, "Cannot unregister the client. It has not been registered.");
                 return;
             }
             if (mHealthCheckingClient.isRegistrationInProgressLocked()) {
@@ -240,7 +240,7 @@ public final class CarWatchdogManager extends CarManagerBase {
         try {
             mService.unregisterClient(mClientImpl);
             if (DEBUG) {
-                Log.d(TAG, "Car watchdog client is successfully unregistered");
+                Slog.d(TAG, "Car watchdog client is successfully unregistered");
             }
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
@@ -272,7 +272,7 @@ public final class CarWatchdogManager extends CarManagerBase {
                     "Cannot report client status. Received session id (" + sessionId
                             + ") doesn't match the current one (" + mSession.currentId + ").");
             if (mSession.lastReportedId == sessionId) {
-                Log.w(TAG, "The given session id is already reported.");
+                Slog.w(TAG, "The given session id is already reported.");
                 return;
             }
             mSession.lastReportedId = sessionId;
@@ -534,7 +534,7 @@ public final class CarWatchdogManager extends CarManagerBase {
                 }
             }
             if (index == mResourceOveruseListenerInfos.size()) {
-                Log.w(TAG, "Cannot remove the listener. It has not been added.");
+                Slog.w(TAG, "Cannot remove the listener. It has not been added.");
                 return;
             }
             mResourceOveruseListenerInfos.remove(index);
@@ -621,7 +621,7 @@ public final class CarWatchdogManager extends CarManagerBase {
                 }
             }
             if (index == mResourceOveruseListenerForSystemInfos.size()) {
-                Log.w(TAG, "Cannot remove the listener. It has not been added.");
+                Slog.w(TAG, "Cannot remove the listener. It has not been added.");
                 return;
             }
             mResourceOveruseListenerForSystemInfos.remove(index);
@@ -759,7 +759,7 @@ public final class CarWatchdogManager extends CarManagerBase {
                     > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             throw new IllegalStateException(message);
         }
-        Log.e(TAG, "Suppressing illegal state exception on target SDK <= UDC: " + message);
+        Slog.e(TAG, "Suppressing illegal state exception on target SDK <= UDC: " + message);
     }
 
     private void checkClientStatus(int sessionId, int timeout) {
@@ -768,7 +768,7 @@ public final class CarWatchdogManager extends CarManagerBase {
         mMainHandler.removeCallbacks(mMainThreadCheck);
         synchronized (CarWatchdogManager.this.mLock) {
             if (!mHealthCheckingClient.hasClientLocked()) {
-                Log.w(TAG, "Cannot check client status. The client has not been registered.");
+                Slog.w(TAG, "Cannot check client status. The client has not been registered.");
                 return;
             }
             mSession.currentId = sessionId;
@@ -783,7 +783,7 @@ public final class CarWatchdogManager extends CarManagerBase {
         // Call the client callback to check if the client is active.
         executor.execute(() -> {
             boolean checkDone = clientCallback.onCheckHealthStatus(sessionId, timeout);
-            Log.i(TAG, "Called clientCallback.onCheckHealthStatus");
+            Slog.i(TAG, "Called clientCallback.onCheckHealthStatus");
             if (checkDone) {
                 boolean shouldReport;
                 synchronized (mLock) {
@@ -817,7 +817,7 @@ public final class CarWatchdogManager extends CarManagerBase {
     @GuardedBy("mLock")
     private boolean checkConditionLocked() {
         if (mRemainingConditions < 0) {
-            Log.wtf(TAG, "Remaining condition is less than zero: should not happen");
+            Slog.wtf(TAG, "Remaining condition is less than zero: should not happen");
         }
         return mRemainingConditions == 0;
     }
@@ -826,7 +826,7 @@ public final class CarWatchdogManager extends CarManagerBase {
         try {
             mService.tellClientAlive(mClientImpl, sessionId);
             if (DEBUG) {
-                Log.d(TAG, "Informed CarService that client is alive");
+                Slog.d(TAG, "Informed CarService that client is alive");
             }
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
@@ -838,7 +838,7 @@ public final class CarWatchdogManager extends CarManagerBase {
         Executor executor;
         synchronized (CarWatchdogManager.this.mLock) {
             if (!mHealthCheckingClient.hasClientLocked()) {
-                Log.w(TAG, "Cannot notify the client. The client has not been registered.");
+                Slog.w(TAG, "Cannot notify the client. The client has not been registered.");
                 return;
             }
             clientCallback = mHealthCheckingClient.callback;
@@ -853,7 +853,7 @@ public final class CarWatchdogManager extends CarManagerBase {
                     mResourceOveruseListenerImpl.resourceOveruseFlag(),
                     mResourceOveruseListenerImpl);
             if (DEBUG) {
-                Log.d(TAG, "Resource overuse listener implementation is successfully added to "
+                Slog.d(TAG, "Resource overuse listener implementation is successfully added to "
                         + "service");
             }
         } catch (RemoteException e) {
@@ -868,7 +868,7 @@ public final class CarWatchdogManager extends CarManagerBase {
         try {
             mService.removeResourceOveruseListener(mResourceOveruseListenerImpl);
             if (DEBUG) {
-                Log.d(TAG, "Resource overuse listener implementation is successfully removed "
+                Slog.d(TAG, "Resource overuse listener implementation is successfully removed "
                         + "from service");
             }
         } catch (RemoteException e) {
@@ -882,7 +882,7 @@ public final class CarWatchdogManager extends CarManagerBase {
                     mResourceOveruseListenerForSystemImpl.resourceOveruseFlag(),
                     mResourceOveruseListenerForSystemImpl);
             if (DEBUG) {
-                Log.d(TAG, "Resource overuse listener for system implementation is successfully "
+                Slog.d(TAG, "Resource overuse listener for system implementation is successfully "
                         + "added to service");
             }
         } catch (RemoteException e) {
@@ -897,7 +897,7 @@ public final class CarWatchdogManager extends CarManagerBase {
         try {
             mService.removeResourceOveruseListenerForSystem(mResourceOveruseListenerForSystemImpl);
             if (DEBUG) {
-                Log.d(TAG, "Resource overuse listener for system implementation is successfully "
+                Slog.d(TAG, "Resource overuse listener for system implementation is successfully "
                         + "removed from service");
             }
         } catch (RemoteException e) {
@@ -907,7 +907,7 @@ public final class CarWatchdogManager extends CarManagerBase {
 
     private void onResourceOveruse(ResourceOveruseStats resourceOveruseStats, boolean isSystem) {
         if (resourceOveruseStats.getIoOveruseStats() == null) {
-            Log.w(TAG, "Skipping resource overuse notification as the stats are missing");
+            Slog.w(TAG, "Skipping resource overuse notification as the stats are missing");
             return;
         }
         List<ResourceOveruseListenerInfo> listenerInfos;
@@ -919,7 +919,7 @@ public final class CarWatchdogManager extends CarManagerBase {
             }
         }
         if (listenerInfos.isEmpty()) {
-            Log.w(TAG, "Cannot notify resource overuse listener " + (isSystem ? "for system " : "")
+            Slog.w(TAG, "Cannot notify resource overuse listener " + (isSystem ? "for system " : "")
                     + "as it is not registered.");
             return;
         }
@@ -949,7 +949,7 @@ public final class CarWatchdogManager extends CarManagerBase {
             this.executor = executor;
             mIsRegistrationInProgress = true;
             if (DEBUG) {
-                Log.d(TAG, "Set CarWatchdog client callback to " + callback);
+                Slog.d(TAG, "Set CarWatchdog client callback to " + callback);
             }
         }
 
@@ -959,7 +959,7 @@ public final class CarWatchdogManager extends CarManagerBase {
             executor = null;
             mIsRegistrationInProgress = false;
             if (DEBUG) {
-                Log.d(TAG, "Reset CarWatchdog client callback");
+                Slog.d(TAG, "Reset CarWatchdog client callback");
             }
         }
 
@@ -968,7 +968,7 @@ public final class CarWatchdogManager extends CarManagerBase {
             mIsRegistrationInProgress = false;
             mLock.notify();
             if (DEBUG) {
-                Log.d(TAG, "Marked registration completed");
+                Slog.d(TAG, "Marked registration completed");
             }
         }
 
@@ -981,7 +981,7 @@ public final class CarWatchdogManager extends CarManagerBase {
                     mLock.wait(endMillis - nowMillis);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    Log.w(TAG, "Interrupted while waiting for registration to complete. "
+                    Slog.w(TAG, "Interrupted while waiting for registration to complete. "
                             + "Continuing to wait");
                 } finally {
                     nowMillis = System.currentTimeMillis();

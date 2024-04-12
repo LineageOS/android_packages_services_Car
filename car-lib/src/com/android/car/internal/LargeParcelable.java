@@ -23,7 +23,7 @@ import android.os.Parcel;
 import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
 import android.os.SharedMemory;
-import android.util.Log;
+import android.util.Slog;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -100,7 +100,7 @@ public class LargeParcelable extends LargeParcelableBase {
         }
         dest.writeParcelable(mParcelable, flags);
         if (DBG_PAYLOAD) {
-            Log.d(TAG, "serialize-payload, start:" + startPosition
+            Slog.d(TAG, "serialize-payload, start:" + startPosition
                     + " size:" + (dest.dataPosition() - startPosition));
         }
     }
@@ -113,7 +113,7 @@ public class LargeParcelable extends LargeParcelableBase {
         }
         dest.writeParcelable(null, 0);
         if (DBG_PAYLOAD) {
-            Log.d(TAG, "serializeNullPayload-payload, start:" + startPosition
+            Slog.d(TAG, "serializeNullPayload-payload, start:" + startPosition
                     + " size:" + (dest.dataPosition() - startPosition));
         }
     }
@@ -128,7 +128,7 @@ public class LargeParcelable extends LargeParcelableBase {
         }
         mParcelable = src.readParcelable(loader);
         if (DBG_PAYLOAD) {
-            Log.d(TAG, "deserialize-payload, start:" + startPosition
+            Slog.d(TAG, "deserialize-payload, start:" + startPosition
                     + " size:" + (src.dataPosition() - startPosition)
                     + " mParcelable:" + mParcelable);
         }
@@ -179,7 +179,7 @@ public class LargeParcelable extends LargeParcelableBase {
         }
         Class parcelableClass = p.getClass();
         if (DBG_STABLE_AIDL_CLASS) {
-            Log.d(TAG, "toLargeParcelable stable AIDL Parcelable:"
+            Slog.d(TAG, "toLargeParcelable stable AIDL Parcelable:"
                     + parcelableClass.getSimpleName());
         }
         Field field;
@@ -200,7 +200,7 @@ public class LargeParcelable extends LargeParcelableBase {
         if (payloadSize <= LargeParcelableBase.MAX_DIRECT_PAYLOAD_SIZE) {
             // direct path, no re-write to shared memory.
             if (DBG_PAYLOAD) {
-                Log.d(TAG, "toLargeParcelable send directly, payload size:" + payloadSize);
+                Slog.d(TAG, "toLargeParcelable send directly, payload size:" + payloadSize);
             }
             return p;
         }
@@ -257,7 +257,7 @@ public class LargeParcelable extends LargeParcelableBase {
         }
         Class parcelableClass = p.getClass();
         if (DBG_STABLE_AIDL_CLASS) {
-            Log.d(TAG, "reconstructStableAIDLParcelable stable AIDL Parcelable:"
+            Slog.d(TAG, "reconstructStableAIDLParcelable stable AIDL Parcelable:"
                     + parcelableClass.getSimpleName());
         }
         ParcelFileDescriptor sharedMemoryFd = null;
@@ -271,7 +271,7 @@ public class LargeParcelable extends LargeParcelableBase {
         }
         if (sharedMemoryFd == null) {
             if (DBG_PAYLOAD) {
-                Log.d(TAG, "reconstructStableAIDLParcelable null shared memory");
+                Slog.d(TAG, "reconstructStableAIDLParcelable null shared memory");
             }
             return p;
         }
@@ -291,7 +291,7 @@ public class LargeParcelable extends LargeParcelableBase {
                 fieldSharedMemory.set(retParcelable, sharedMemoryFd);
             }
             if (DBG_PAYLOAD) {
-                Log.d(TAG, "reconstructStableAIDLParcelable read shared memory, data size:"
+                Slog.d(TAG, "reconstructStableAIDLParcelable read shared memory, data size:"
                         + in.dataPosition());
             }
         } catch (Exception e) {

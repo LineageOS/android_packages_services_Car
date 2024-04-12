@@ -20,7 +20,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PR
 
 import android.annotation.Nullable;
 import android.util.ArrayMap;
-import android.util.Log;
+import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -155,7 +155,7 @@ public final class ConstantDebugUtils {
                     constantNameToValue.put(candidateField.getName(), candidateField.getInt(null));
                 }
             } catch (IllegalAccessException e) {
-                Log.wtf(TAG, "Failed trying to find value for " + candidateField.getName(), e);
+                Slog.wtf(TAG, "Failed trying to find value for " + candidateField.getName(), e);
             }
         }
         return constantNameToValue;
@@ -174,7 +174,7 @@ public final class ConstantDebugUtils {
                     constantValueToName.put(candidateField.getInt(null), candidateField.getName());
                 }
             } catch (IllegalAccessException e) {
-                Log.wtf(TAG, "Failed trying to find value for " + candidateField.getName(), e);
+                Slog.wtf(TAG, "Failed trying to find value for " + candidateField.getName(), e);
             }
         }
         return constantValueToName;

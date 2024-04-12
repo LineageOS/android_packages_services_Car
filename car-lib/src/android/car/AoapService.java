@@ -32,7 +32,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
@@ -164,7 +164,7 @@ public abstract class AoapService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         if (mBound) {
-            Log.w(TAG, "Received onBind event when the service was already bound");
+            Slog.w(TAG, "Received onBind event when the service was already bound");
         }
         mBound = true;
         return mMessenger.getBinder();
@@ -198,11 +198,11 @@ public abstract class AoapService extends Service {
             }
             Bundle data = msg.getData();
             if (data == null) {
-                Log.e(TAG, "Ignoring message " + msg.what + " without data");
+                Slog.e(TAG, "Ignoring message " + msg.what + " without data");
                 return;
             }
 
-            Log.i(TAG, "Message received: " + msg.what);
+            Slog.i(TAG, "Message received: " + msg.what);
 
             switch (msg.what) {
                 case MSG_NEW_DEVICE_ATTACHED: {
@@ -227,7 +227,7 @@ public abstract class AoapService extends Service {
                 }
 
                 default:
-                    Log.e(TAG, "Unknown message received: " + msg.what);
+                    Slog.e(TAG, "Unknown message received: " + msg.what);
                     break;
             }
         }
@@ -236,7 +236,7 @@ public abstract class AoapService extends Service {
             try {
                 messenger.send(createResponseMessage(msg, result));
             } catch (RemoteException e) {
-                Log.e(TAG, "Failed to send message", e);
+                Slog.e(TAG, "Failed to send message", e);
             }
         }
 

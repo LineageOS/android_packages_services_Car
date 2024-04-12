@@ -104,7 +104,7 @@ public final class ArrayUtils {
             cache = Array.newInstance(kind, 0);
             sCache[bucket] = cache;
 
-            // Log.e("cache", "new empty " + kind.getName() + " at " + bucket);
+            // Slog.e("cache", "new empty " + kind.getName() + " at " + bucket);
         }
 
         return (T[]) cache;

@@ -42,6 +42,7 @@ import android.util.JsonReader;
 import android.util.JsonToken;
 import android.util.JsonWriter;
 import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
@@ -167,7 +168,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
             if (BuildHelper.isEngBuild() || BuildHelper.isUserDebugBuild()) {
                 throw new IllegalArgumentException("Invalid currentSpeed: " + currentSpeed);
             }
-            Log.e(TAG, "getUxRestrictions: Invalid currentSpeed: " + currentSpeed);
+            Slog.e(TAG, "getUxRestrictions: Invalid currentSpeed: " + currentSpeed);
             return createDefaultUxRestrictionsEvent();
         }
         RestrictionsPerSpeedRange restriction = null;
@@ -178,7 +179,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
 
         if (restriction == null) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG,
+                Slog.d(TAG,
                         String.format("No restrictions specified for (mode: %s, drive state: %s)",
                                 mode,
                                 drivingState));
@@ -429,7 +430,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
         try {
             writeJson(writer);
         } catch (IOException e) {
-            Log.e(TAG, "Failed printing UX restrictions configuration", e);
+            Slog.e(TAG, "Failed printing UX restrictions configuration", e);
         }
         return charWriter.toString();
     }
@@ -570,7 +571,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
                             PASSENGER_MODE_NAME_FOR_MIGRATION, builder);
                     break;
                 default:
-                    Log.e(TAG, "Unknown name parsing json config: " + name);
+                    Slog.e(TAG, "Unknown name parsing json config: " + name);
                     reader.skipValue();
             }
         }
@@ -595,7 +596,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
                     readRestrictionsList(reader, DRIVING_STATE_UNKNOWN, mode, builder);
                     break;
                 default:
-                    Log.e(TAG, "Unknown name parsing restriction mode json config: " + name);
+                    Slog.e(TAG, "Unknown name parsing restriction mode json config: " + name);
             }
         }
         reader.endObject();
@@ -637,7 +638,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
                     } else if (Objects.equals(n, JSON_NAME_MAX_SPEED)) {
                         maxSpeed = Double.valueOf(reader.nextDouble()).floatValue();
                     } else {
-                        Log.e(TAG, "Unknown name parsing json config: " + n);
+                        Slog.e(TAG, "Unknown name parsing json config: " + n);
                         reader.skipValue();
                     }
                 }
@@ -1086,7 +1087,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
                 List<RestrictionsPerSpeedRange> restrictions =
                         container.getRestrictionsForDriveState(drivingState);
                 if (restrictions.size() == 0) {
-                    Log.i(TAG, "Using default restrictions for driving state: "
+                    Slog.i(TAG, "Using default restrictions for driving state: "
                             + getDrivingStateName(drivingState));
                     restrictions.add(new RestrictionsPerSpeedRange(
                             true, CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED));

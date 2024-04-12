@@ -33,6 +33,7 @@ import android.content.Context;
 import android.os.RemoteException;
 import android.os.UserManager;
 import android.util.Log;
+import android.util.Slog;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -194,12 +195,12 @@ public final class CarTaskViewController {
 
     void onRemoteCarTaskViewReleased(@NonNull RemoteCarTaskView taskView) {
         if (mReleased) {
-            Log.w(TAG, "Failed to remove the taskView as the "
+            Slog.w(TAG, "Failed to remove the taskView as the "
                     + "CarTaskViewController is already released");
             return;
         }
         if (!mRemoteCarTaskViews.contains(taskView)) {
-            Log.w(TAG, "This taskView has already been removed");
+            Slog.w(TAG, "This taskView has already been removed");
             return;
         }
         mRemoteCarTaskViews.remove(taskView);

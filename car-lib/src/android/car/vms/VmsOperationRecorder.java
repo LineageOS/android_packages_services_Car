@@ -18,6 +18,7 @@ package android.car.vms;
 
 import android.annotation.SystemApi;
 import android.util.Log;
+import android.util.Slog;
 
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -191,7 +192,7 @@ public final class VmsOperationRecorder {
             try {
                 write(new JSONObject().put(operation, new JSONObject()));
             } catch (JSONException e) {
-                Log.e(TAG, e.toString());
+                Slog.e(TAG, e.toString());
             }
         }
     }
@@ -201,7 +202,7 @@ public final class VmsOperationRecorder {
             try {
                 recordOp(operation, new JSONObject().put("layer", toJson(layer)));
             } catch (JSONException e) {
-                Log.e(TAG, e.toString());
+                Slog.e(TAG, e.toString());
             }
         }
     }
@@ -217,7 +218,7 @@ public final class VmsOperationRecorder {
                 }
                 recordOp(operation, args);
             } catch (JSONException e) {
-                Log.e(TAG, e.toString());
+                Slog.e(TAG, e.toString());
             }
         }
     }
@@ -227,7 +228,7 @@ public final class VmsOperationRecorder {
             try {
                 recordOp(operation, new JSONObject().put(intArgName, arg));
             } catch (JSONException e) {
-                Log.e(TAG, e.toString());
+                Slog.e(TAG, e.toString());
             }
         }
     }
@@ -238,7 +239,7 @@ public final class VmsOperationRecorder {
                 recordOp(operation,
                         new JSONObject().put(intArgName, arg).put("layer", toJson(layer)));
             } catch (JSONException e) {
-                Log.e(TAG, e.toString());
+                Slog.e(TAG, e.toString());
             }
         }
     }
@@ -248,7 +249,7 @@ public final class VmsOperationRecorder {
             try {
                 write(new JSONObject().put(operation, args));
             } catch (JSONException e) {
-                Log.e(TAG, e.toString());
+                Slog.e(TAG, e.toString());
             }
         }
     }
