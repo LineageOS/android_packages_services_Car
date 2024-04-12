@@ -819,6 +819,16 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         service.init();
 
         verify(mAudioManager).setAudioServerStateCallback(any(), any());
+        verify(mAudioManager, never()).registerAudioDeviceCallback(any(), any());
+    }
+
+    @Test
+    public void init_initializesAudioServiceCallbacks_withDynamicDevices() throws Exception {
+        CarAudioService service = setUpAudioServiceWithDynamicDevices();
+
+        service.init();
+
+        verify(mAudioManager).setAudioServerStateCallback(any(), any());
         verify(mAudioManager).registerAudioDeviceCallback(any(), any());
     }
 
@@ -842,8 +852,19 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    public void release_initializesAudioServiceCallbacks() throws Exception {
+    public void release_releasesAudioServiceCallbacks() throws Exception {
         CarAudioService service = setUpAudioService();
+
+        service.release();
+
+        verify(mAudioManager, never()).unregisterAudioDeviceCallback(any());
+        verify(mAudioManager).clearAudioServerStateCallback();
+    }
+
+    @Test
+    public void release_releasesAudioServiceCallbacks_withDynamicDevices() throws Exception {
+        CarAudioService service = setUpAudioServiceWithDynamicDevices();
+        service.init();
 
         service.release();
 

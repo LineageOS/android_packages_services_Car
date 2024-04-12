@@ -65,6 +65,7 @@ import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimingsTraceLog;
+import android.car.feature.Flags;
 import android.car.media.AudioZonesMirrorStatusCallback;
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioPatchHandle;
@@ -421,6 +422,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 setupPowerPolicyListener();
                 mCarInputService.registerKeyEventListener(mCarKeyEventListener,
                         KEYCODES_OF_INTEREST);
+                setupAudioDeviceInfoCallback();
             } else {
                 Slogf.i(TAG, "Audio dynamic routing not enabled, run in legacy mode");
                 setupLegacyVolumeChangedListener();
@@ -429,10 +431,23 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             mAudioManager.setSupportedSystemUsages(CarAudioContext.getSystemUsages());
             mAudioManager.setAudioServerStateCallback(mContext.getMainExecutor(),
                     mAudioServerStateCallback);
-            mAudioManager.registerAudioDeviceCallback(mAudioDeviceInfoCallback, mHandler);
         }
 
         restoreMasterMuteState();
+    }
+
+    private void setupAudioDeviceInfoCallback() {
+        if (!Flags.carAudioDynamicDevices()) {
+            return;
+        }
+        mAudioManager.registerAudioDeviceCallback(mAudioDeviceInfoCallback, mHandler);
+    }
+
+    private void releaseAudioDeviceInfoCallback() {
+        if (!Flags.carAudioDynamicDevices()) {
+            return;
+        }
+        mAudioManager.unregisterAudioDeviceCallback(mAudioDeviceInfoCallback);
     }
 
     private void setupPowerPolicyListener() {
@@ -456,6 +471,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         synchronized (mImplLock) {
             if (!runInLegacyMode()) {
                 releaseAudioPoliciesLocked();
+                releaseAudioDeviceInfoCallback();
             } else {
                 AudioManagerHelper.unregisterVolumeAndMuteReceiver(mContext,
                         mLegacyVolumeChangedHelper);
@@ -486,7 +502,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             }
             mAudioManager.clearAudioServerStateCallback();
             mCarInputService.unregisterKeyEventListener(mCarKeyEventListener);
-            mAudioManager.unregisterAudioDeviceCallback(mAudioDeviceInfoCallback);
         }
     }
 
