@@ -1132,18 +1132,18 @@ package android.car.hardware {
   }
 
   public final class CarPropertyConfig<T> implements android.os.Parcelable {
-    method public static <T> android.car.hardware.CarPropertyConfig.Builder<T> newBuilder(Class<T>, int, int, int);
+    method @Deprecated public static <T> android.car.hardware.CarPropertyConfig.Builder<T> newBuilder(Class<T>, int, int, int);
   }
 
-  public static class CarPropertyConfig.Builder<T> {
-    method @NonNull public android.car.hardware.CarPropertyConfig.Builder<T> addAreaIdConfig(@NonNull android.car.hardware.property.AreaIdConfig<T>);
-    method public android.car.hardware.CarPropertyConfig<T> build();
-    method public android.car.hardware.CarPropertyConfig.Builder<T> setAccess(int);
-    method public android.car.hardware.CarPropertyConfig.Builder<T> setChangeMode(int);
-    method public android.car.hardware.CarPropertyConfig.Builder<T> setConfigArray(java.util.ArrayList<java.lang.Integer>);
-    method public android.car.hardware.CarPropertyConfig.Builder<T> setConfigString(String);
-    method public android.car.hardware.CarPropertyConfig.Builder<T> setMaxSampleRate(float);
-    method public android.car.hardware.CarPropertyConfig.Builder<T> setMinSampleRate(float);
+  @Deprecated public static class CarPropertyConfig.Builder<T> {
+    method @Deprecated @NonNull public android.car.hardware.CarPropertyConfig.Builder<T> addAreaIdConfig(@NonNull android.car.hardware.property.AreaIdConfig<T>);
+    method @Deprecated public android.car.hardware.CarPropertyConfig<T> build();
+    method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> setAccess(int);
+    method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> setChangeMode(int);
+    method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> setConfigArray(java.util.ArrayList<java.lang.Integer>);
+    method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> setConfigString(String);
+    method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> setMaxSampleRate(float);
+    method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> setMinSampleRate(float);
   }
 
   @Deprecated public final class CarVendorExtensionManager {
@@ -1314,13 +1314,13 @@ package android.car.hardware.power {
 
 package android.car.hardware.property {
 
-  public static final class AreaIdConfig.Builder<T> {
-    ctor public AreaIdConfig.Builder(int);
-    ctor @FlaggedApi("android.car.feature.area_id_config_access") public AreaIdConfig.Builder(int, int);
-    method @NonNull public android.car.hardware.property.AreaIdConfig<T> build();
-    method @NonNull public android.car.hardware.property.AreaIdConfig.Builder<T> setMaxValue(T);
-    method @NonNull public android.car.hardware.property.AreaIdConfig.Builder<T> setMinValue(T);
-    method @NonNull public android.car.hardware.property.AreaIdConfig.Builder<T> setSupportedEnumValues(@NonNull java.util.List<T>);
+  @Deprecated public static final class AreaIdConfig.Builder<T> {
+    ctor @Deprecated public AreaIdConfig.Builder(int);
+    ctor @Deprecated @FlaggedApi("android.car.feature.area_id_config_access") public AreaIdConfig.Builder(int, int);
+    method @Deprecated @NonNull public android.car.hardware.property.AreaIdConfig<T> build();
+    method @Deprecated @NonNull public android.car.hardware.property.AreaIdConfig.Builder<T> setMaxValue(T);
+    method @Deprecated @NonNull public android.car.hardware.property.AreaIdConfig.Builder<T> setMinValue(T);
+    method @Deprecated @NonNull public android.car.hardware.property.AreaIdConfig.Builder<T> setSupportedEnumValues(@NonNull java.util.List<T>);
   }
 
   public final class AutomaticEmergencyBrakingState {
