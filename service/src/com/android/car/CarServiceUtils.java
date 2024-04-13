@@ -72,9 +72,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -268,9 +268,12 @@ public final class CarServiceUtils {
                 return true;
             }
         }
+        StringJoiner expectedTyepsStringJoiner = new StringJoiner(",");
+        for (int index = 0; index < expectedTypes.length; index++) {
+            expectedTyepsStringJoiner.add(lifecycleEventTypeToString(expectedTypes[index]));
+        }
         Slogf.wtf(tag, "Received an unexpected event: %s. Expected types: [%s]", event,
-                Arrays.stream(expectedTypes).mapToObj(t -> lifecycleEventTypeToString(t)).collect(
-                        Collectors.joining(",")));
+                expectedTyepsStringJoiner.toString());
         return false;
     }
 

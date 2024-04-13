@@ -21,7 +21,7 @@ import android.car.Car;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
+import android.util.Slog;
 
 /**
  * Service to be implemented by Service which wants to control app blocking policy.
@@ -54,13 +54,13 @@ public abstract class CarAppBlockingPolicyService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.i(TAG, "onBind");
+        Slog.i(TAG, "onBind");
         return mBinder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.i(TAG, "onUnbind");
+        Slog.i(TAG, "onUnbind");
         stopSelf();
         return false;
     }
@@ -70,7 +70,7 @@ public abstract class CarAppBlockingPolicyService extends Service {
 
         @Override
         public void setAppBlockingPolicySetter(ICarAppBlockingPolicySetter setter) {
-            Log.i(TAG, "setAppBlockingPolicySetter will set policy");
+            Slog.i(TAG, "setAppBlockingPolicySetter will set policy");
             CarAppBlockingPolicy policy = CarAppBlockingPolicyService.this.getAppBlockingPolicy();
             try {
                 setter.setAppBlockingPolicy(policy);

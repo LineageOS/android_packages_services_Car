@@ -34,7 +34,7 @@ import android.os.Parcelable;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.util.Log;
+import android.util.Slog;
 import android.view.Display;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -836,7 +836,7 @@ public class CarOccupantZoneManager extends CarManagerBase {
                     handleOnOccupantZoneConfigChanged(msg.arg1);
                     break;
                 default:
-                    Log.e(TAG, "Unknown msg not handdled:" + msg.what);
+                    Slog.e(TAG, "Unknown msg not handdled:" + msg.what);
                     break;
             }
         }

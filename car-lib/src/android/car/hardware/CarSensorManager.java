@@ -29,7 +29,7 @@ import android.car.hardware.property.ICarProperty;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.ArraySet;
-import android.util.Log;
+import android.util.Slog;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -478,7 +478,7 @@ public final class CarSensorManager extends CarManagerBase {
                 }
                 break;
             default:
-                Log.e(TAG, "unhandled VehiclePropertyType for propId="
+                Slog.e(TAG, "unhandled VehiclePropertyType for propId="
                         + propertyValue.getPropertyId());
                 break;
         }

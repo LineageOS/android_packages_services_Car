@@ -41,8 +41,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
-import android.util.Log;
 import android.util.Pair;
+import android.util.Slog;
 import android.view.Display;
 import android.view.SurfaceControl;
 
@@ -509,7 +509,7 @@ public final class CarActivityManager extends CarManagerBase {
     private boolean hasValidToken() {
         boolean valid = mTaskMonitorToken != null;
         if (!valid) {
-            Log.w(TAG, "Has invalid token, skip the operation: "
+            Slog.w(TAG, "Has invalid token, skip the operation: "
                     + new Throwable().getStackTrace()[1].getMethodName());
         }
         return valid;

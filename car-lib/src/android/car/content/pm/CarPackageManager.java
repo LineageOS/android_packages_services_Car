@@ -43,7 +43,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.util.ArrayMap;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -497,7 +497,7 @@ public final class CarPackageManager extends CarManagerBase {
         try {
             return mService.getTargetCarVersion(packageName);
         } catch (ServiceSpecificException e) {
-            Log.w(TAG, "Failed to get CarVersion for " + packageName, e);
+            Slog.w(TAG, "Failed to get CarVersion for " + packageName, e);
             handleServiceSpecificFromCarService(e, packageName);
         } catch (RemoteException e) {
             e.rethrowFromSystemServer();
@@ -524,7 +524,7 @@ public final class CarPackageManager extends CarManagerBase {
         try {
             return mService.getSelfTargetCarVersion(pkgName);
         } catch (RemoteException e) {
-            Log.w(TAG_CAR, "Car service threw exception calling getTargetCarVersion(" + pkgName
+            Slog.w(TAG_CAR, "Car service threw exception calling getTargetCarVersion(" + pkgName
                     + ")", e);
             e.rethrowFromSystemServer();
             return null;
@@ -548,18 +548,18 @@ public final class CarPackageManager extends CarManagerBase {
         try {
             return mService.requiresDisplayCompat(packageName);
         } catch (ServiceSpecificException e) {
-            Log.w(TAG_CAR, "Car service threw exception calling requiresDisplayCompat("
+            Slog.w(TAG_CAR, "Car service threw exception calling requiresDisplayCompat("
                     + packageName + ")", e);
             if (e.errorCode == ERROR_CODE_NO_PACKAGE) {
                 throw new NameNotFoundException("cannot find " + packageName);
             }
             throw new RuntimeException(e);
         } catch (SecurityException e) {
-            Log.w(TAG_CAR, "Car service threw exception calling requiresDisplayCompat("
+            Slog.w(TAG_CAR, "Car service threw exception calling requiresDisplayCompat("
                     + packageName + ")", e);
             throw e;
         } catch (RemoteException e) {
-            Log.w(TAG_CAR, "Car service threw exception calling requiresDisplayCompat("
+            Slog.w(TAG_CAR, "Car service threw exception calling requiresDisplayCompat("
                     + packageName + ")", e);
             e.rethrowFromSystemServer();
         }
@@ -640,7 +640,7 @@ public final class CarPackageManager extends CarManagerBase {
         synchronized (mLock) {
             try {
                 if (mICarBlockingUiCommandListener.get(listener) == null) {
-                    Log.e(TAG, "BlockingUiListener already unregistered");
+                    Slog.e(TAG, "BlockingUiListener already unregistered");
                     return;
                 }
                 mService.unregisterBlockingUiCommandListener(
@@ -667,7 +667,7 @@ public final class CarPackageManager extends CarManagerBase {
             try {
                 synchronized (mLock) {
                     if (mICarBlockingUiCommandListener.get(mListener) == null) {
-                        Log.e(TAG, "BlockingUiListener already unregistered");
+                        Slog.e(TAG, "BlockingUiListener already unregistered");
                         return;
                     }
                     mExecutor.execute(mListener::finishBlockingUi);

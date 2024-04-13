@@ -26,6 +26,7 @@ import android.os.RemoteException;
 import android.util.Dumpable;
 import android.util.DumpableContainer;
 import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.internal.ICarBase;
 
@@ -70,12 +71,12 @@ public abstract class CarManagerBase {
         }
 
         if (e instanceof RuntimeException) {
-            Log.w(TAG_CAR, "Car service threw Runtime Exception.", e);
+            Slog.w(TAG_CAR, "Car service threw Runtime Exception.", e);
             return returnValue;
         }
 
         // exception should be either runtime or remote exception
-        Log.wtf(TAG_CAR, "Car service threw Exception.", e);
+        Slog.wtf(TAG_CAR, "Car service threw Exception.", e);
 
         return returnValue;
     }
@@ -100,7 +101,8 @@ public abstract class CarManagerBase {
         if (container instanceof Activity) {
             T dumpable = dumpableSupplier.get();
             if (DEBUG) {
-                Log.d(TAG_CAR, "Adding " + dumpable.getDumpableName() + " to actvity " + container);
+                Slog.d(TAG_CAR, "Adding " + dumpable.getDumpableName() + " to actvity "
+                        + container);
             }
             ((Activity) container).addDumpable(dumpable);
             return dumpable;
@@ -108,13 +110,13 @@ public abstract class CarManagerBase {
         if (container instanceof DumpableContainer) {
             T dumpable = dumpableSupplier.get();
             if (DEBUG) {
-                Log.d(TAG_CAR, "Adding " + dumpable.getDumpableName() + " to DumpableContainer "
+                Slog.d(TAG_CAR, "Adding " + dumpable.getDumpableName() + " to DumpableContainer "
                         + container);
             }
             ((DumpableContainer) container).addDumpable(dumpable);
             return dumpable;
         }
-        Log.v(TAG_CAR, "NOT adding dumpable to object (" + container
+        Slog.v(TAG_CAR, "NOT adding dumpable to object (" + container
                 + ") that doesn't implement addDumpable");
         return null;
     }

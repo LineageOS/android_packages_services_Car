@@ -37,7 +37,7 @@ import android.car.util.concurrent.AndroidFuture;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.internal.ResultCallbackImpl;
 import com.android.car.internal.common.UserHelperLite;
@@ -163,9 +163,9 @@ public final class CarDevicePolicyManager extends CarManagerBase {
                     TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            Log.e(TAG, "CarDevicePolicyManager removeUser(user): ", e);
+            Slog.e(TAG, "CarDevicePolicyManager removeUser(user): ", e);
         } catch (TimeoutException e) {
-            Log.e(TAG, "CarDevicePolicyManager removeUser(user): ", e);
+            Slog.e(TAG, "CarDevicePolicyManager removeUser(user): ", e);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e,
                     new RemoveUserResult(UserRemovalResult.STATUS_ANDROID_FAILURE));

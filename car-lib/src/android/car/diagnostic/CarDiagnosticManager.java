@@ -28,7 +28,7 @@ import android.car.CarManagerBase;
 import android.car.diagnostic.ICarDiagnosticEventListener.Stub;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
+import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.internal.CarPermission;
@@ -399,7 +399,7 @@ public final class CarDiagnosticManager extends CarManagerBase {
             // throw away old data as oneway binder call can change order.
             long updateTime = event.timestamp;
             if (updateTime < mLastUpdateTime) {
-                Log.w(CarLibLog.TAG_DIAGNOSTIC, "dropping old data");
+                Slog.w(CarLibLog.TAG_DIAGNOSTIC, "dropping old data");
                 return;
             }
             mLastUpdateTime = updateTime;

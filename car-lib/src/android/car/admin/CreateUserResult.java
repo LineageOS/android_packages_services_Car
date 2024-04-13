@@ -21,7 +21,7 @@ import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.user.UserCreationResult;
 import android.os.UserHandle;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.internal.util.DebugUtils;
 import com.android.internal.annotations.VisibleForTesting;
@@ -84,7 +84,7 @@ public final class CreateUserResult {
         if (status == UserCreationResult.STATUS_SUCCESSFUL) {
             mUserHandle = result.getUser();
             if (mUserHandle == null) {
-                Log.w(TAG, "Successful UserCreationResult with no user: " + result);
+                Slog.w(TAG, "Successful UserCreationResult with no user: " + result);
                 mStatus = STATUS_FAILURE_GENERIC;
             } else {
                 mStatus = STATUS_SUCCESS;

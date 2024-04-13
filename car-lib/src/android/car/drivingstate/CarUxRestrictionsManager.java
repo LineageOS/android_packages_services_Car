@@ -30,7 +30,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.UserManager;
-import android.util.Log;
+import android.util.Slog;
 import android.view.Display;
 
 import com.android.internal.annotations.GuardedBy;
@@ -134,7 +134,7 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
             // Check if the listener has been already registered.
             if (mUxRListener != null) {
                 if (DBG) {
-                    Log.d(TAG, "Listener already registered listener");
+                    Slog.d(TAG, "Listener already registered listener");
                 }
                 return;
             }
@@ -161,7 +161,7 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
         synchronized (mLock) {
             if (mUxRListener == null) {
                 if (DBG) {
-                    Log.d(TAG, "Listener was not previously registered");
+                    Slog.d(TAG, "Listener was not previously registered");
                 }
                 return;
             }
@@ -413,18 +413,18 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
         // For example, if it is an Activity context, a valid display id will already be obtained
         // here. But if it is an Application context, it will return invalid display id.
         mDisplayId = ContextHelper.getAssociatedDisplayId(getContext());
-        Log.d(TAG, "Context returns associated display ID " + mDisplayId);
+        Slog.d(TAG, "Context returns associated display ID " + mDisplayId);
 
         if (mDisplayId == Display.INVALID_DISPLAY) {
             // If there is no display id associated with the context, further obtain the display
             // id by mapping the user to display id.
             mDisplayId = UserManagerHelper.getMainDisplayIdAssignedToUser(mUserManager);
-            Log.d(TAG, "Display ID assigned to user is display " + mDisplayId);
+            Slog.d(TAG, "Display ID assigned to user is display " + mDisplayId);
         }
 
         if (mDisplayId == Display.INVALID_DISPLAY) {
             mDisplayId = Display.DEFAULT_DISPLAY;
-            Log.e(TAG, "Could not retrieve display id. Using default: " + mDisplayId);
+            Slog.e(TAG, "Could not retrieve display id. Using default: " + mDisplayId);
         }
 
         return mDisplayId;

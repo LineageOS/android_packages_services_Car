@@ -27,9 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * <p>Loads lifetime write data for mounted filesystems via sysfs.</p>
@@ -108,10 +106,12 @@ public class SysfsLifetimeWriteInfoProvider implements LifetimeWriteInfoProvider
                 Slogf.e(TAG, "there are no directories at location " + fspath.getAbsolutePath());
                 continue;
             }
-            Arrays.stream(files)
-                .map(this::tryParse)
-                .filter(Objects::nonNull)
-                .forEach(writeInfos::add);
+            for (int index = 0; index < files.length; index++) {
+                LifetimeWriteInfo writeInfo = tryParse(files[index]);
+                if (writeInfo != null) {
+                    writeInfos.add(writeInfo);
+                }
+            }
         }
 
         return writeInfos.toArray(new LifetimeWriteInfo[0]);

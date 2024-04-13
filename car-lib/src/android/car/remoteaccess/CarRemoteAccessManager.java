@@ -36,7 +36,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.internal.ICarBase;
 import com.android.internal.annotations.GuardedBy;
@@ -193,7 +193,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
             Executor executor;
             synchronized (mLock) {
                 if (mRemoteTaskClientCallback == null || mExecutor == null) {
-                    Log.w(TAG, "Cannot call onRegistrationUpdated because no remote task client "
+                    Slog.w(TAG, "Cannot call onRegistrationUpdated because no remote task client "
                             + "is registered");
                     return;
                 }
@@ -211,7 +211,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
             Executor executor;
             synchronized (mLock) {
                 if (mRemoteTaskClientCallback == null || mExecutor == null) {
-                    Log.w(TAG, "Cannot call onRegistrationUpdated because no remote task client "
+                    Slog.w(TAG, "Cannot call onRegistrationUpdated because no remote task client "
                             + "is registered");
                     return;
                 }
@@ -223,7 +223,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
                 Binder.clearCallingIdentity();
                 executor.execute(() -> callback.onServerlessClientRegistered());
             } else {
-                Log.e(TAG, "Serverless remote access flag is not enabled, "
+                Slog.e(TAG, "Serverless remote access flag is not enabled, "
                         + "the callback must not be called");
             }
         }
@@ -234,7 +234,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
             Executor executor;
             synchronized (mLock) {
                 if (mRemoteTaskClientCallback == null || mExecutor == null) {
-                    Log.w(TAG, "Cannot call onRegistrationFailed because no remote task client "
+                    Slog.w(TAG, "Cannot call onRegistrationFailed because no remote task client "
                             + "is registered");
                     return;
                 }
@@ -252,7 +252,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
             Executor executor;
             synchronized (mLock) {
                 if (mCurrentClientId == null || !mCurrentClientId.equals(clientId)) {
-                    Log.w(TAG, "Received a task for a mismatched client ID(" + clientId
+                    Slog.w(TAG, "Received a task for a mismatched client ID(" + clientId
                             + "): the current client ID = " + mCurrentClientId);
                     return;
                 }
@@ -260,7 +260,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
                 executor = mExecutor;
             }
             if (callback == null || executor == null) {
-                Log.w(TAG, "Cannot call onRemoteTaskRequested because no remote task client is "
+                Slog.w(TAG, "Cannot call onRemoteTaskRequested because no remote task client is "
                         + "registered");
                 return;
             }
@@ -280,7 +280,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
                 executor = mExecutor;
             }
             if (clientId == null || callback == null || executor == null) {
-                Log.w(TAG, "Cannot call onShutdownStarting because no remote task client is "
+                Slog.w(TAG, "Cannot call onShutdownStarting because no remote task client is "
                         + "registered");
                 return;
             }
@@ -354,7 +354,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
          */
         @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
         default void onServerlessClientRegistered() {
-            Log.i(TAG, "onServerlessClientRegistered called");
+            Slog.i(TAG, "onServerlessClientRegistered called");
         }
 
         /**
@@ -445,7 +445,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
     public void clearRemoteTaskClient() {
         synchronized (mLock) {
             if (mRemoteTaskClientCallback == null) {
-                Log.w(TAG, "No registered remote task client to clear");
+                Slog.w(TAG, "No registered remote task client to clear");
                 return;
             }
             mRemoteTaskClientCallback = null;
@@ -474,7 +474,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
         String currentClientId;
         synchronized (mLock) {
             if (mCurrentClientId == null) {
-                Log.w(TAG, "Failed to report remote task completion: no remote task client is "
+                Slog.w(TAG, "Failed to report remote task completion: no remote task client is "
                         + "registered");
                 throw new IllegalStateException("No remote task client is registered");
             }
@@ -483,7 +483,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
         try {
             mService.reportRemoteTaskDone(currentClientId, taskId);
         } catch (IllegalStateException e) {
-            Log.w(TAG, "Task ID(" + taskId + ") is not valid", e);
+            Slog.w(TAG, "Task ID(" + taskId + ") is not valid", e);
             throw e;
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
@@ -556,7 +556,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
     @Nullable
     public InVehicleTaskScheduler getInVehicleTaskScheduler() {
         if (!isTaskScheduleSupported()) {
-            Log.w(TAG, "getInVehicleTaskScheduler: Task schedule is not supported, return null");
+            Slog.w(TAG, "getInVehicleTaskScheduler: Task schedule is not supported, return null");
             return null;
         }
         return mInVehicleTaskScheduler;

@@ -34,7 +34,7 @@ import android.graphics.Rect;
 import android.graphics.Region;
 import android.os.Binder;
 import android.os.UserManager;
-import android.util.Log;
+import android.util.Slog;
 import android.view.Display;
 import android.view.SurfaceControl;
 
@@ -163,7 +163,7 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     private void stopTheStartActivityBackoffIfExists() {
         if (mStartActivityWithBackoff == null) {
             if (CarTaskViewController.DBG) {
-                Log.d(TAG, "mStartActivityWithBackoff is not present.");
+                Slog.d(TAG, "mStartActivityWithBackoff is not present.");
             }
             return;
         }

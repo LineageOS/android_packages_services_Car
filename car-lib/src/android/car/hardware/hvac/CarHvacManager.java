@@ -27,7 +27,7 @@ import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback
 import android.car.hardware.property.ICarProperty;
 import android.os.IBinder;
 import android.util.ArraySet;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
 
@@ -349,7 +349,7 @@ public final class CarHvacManager extends CarManagerBase {
 
                 }
             } catch (RuntimeException e) {
-                Log.e(TAG, "getPropertyList exception ", e);
+                Slog.e(TAG, "getPropertyList exception ", e);
             }
             if (mCallbacks.isEmpty()) {
                 mCarPropertyMgr.unregisterCallback(mListenerToBase);

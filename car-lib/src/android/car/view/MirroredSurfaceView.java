@@ -100,7 +100,7 @@ public final class MirroredSurfaceView extends SurfaceView {
                 Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER,
                 (car, ready) -> {
                     if (!ready) {
-                        Log.w(TAG, "CarService looks crashed");
+                        Slog.w(TAG, "CarService looks crashed");
                         mCarAM = null;
                         return;
                     }

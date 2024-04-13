@@ -86,7 +86,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.TransactionTooLargeException;
 import android.util.ArrayMap;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.internal.ICarBase;
 import com.android.car.internal.VisibleForHiddenApiCheck;
@@ -169,7 +169,7 @@ public final class Car implements ICarBase {
                 int minor = SystemProperties.getInt(PROPERTY_EMULATED_PLATFORM_VERSION_MINOR,
                         PLATFORM_VERSION_MINOR_INT);
                 emulated = android.car.PlatformVersion.newInstance("EMULATED", major, minor);
-                Log.i(TAG_CAR, "Emulating PLATFORM_VERSION version: " + emulated);
+                Slog.i(TAG_CAR, "Emulating PLATFORM_VERSION version: " + emulated);
             }
         }
         PLATFORM_VERSION =
@@ -1644,7 +1644,7 @@ public final class Car implements ICarBase {
             synchronized (mLock) {
                 ICar newService = ICar.Stub.asInterface(service);
                 if (newService == null) {
-                    Log.wtf(TAG_CAR, "null binder service", new RuntimeException());
+                    Slog.wtf(TAG_CAR, "null binder service", new RuntimeException());
                     return;  // should not happen.
                 }
                 if (mService != null && mService.asBinder().equals(newService.asBinder())) {
@@ -1852,7 +1852,7 @@ public final class Car implements ICarBase {
             @Nullable Handler handler) {
         assertNonNullContext(context);
         if (!context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
-            Log.e(TAG_CAR, "FEATURE_AUTOMOTIVE not declared while android.car is used");
+            Slog.e(TAG_CAR, "FEATURE_AUTOMOTIVE not declared while android.car is used");
             return null;
         }
         try {
@@ -1938,7 +1938,7 @@ public final class Car implements ICarBase {
             }
             retryCount++;
             if (retryCount > CAR_SERVICE_BINDER_POLLING_MAX_RETRY) {
-                Log.e(TAG_CAR, "cannot get car_service, waited for car service (ms):"
+                Slog.e(TAG_CAR, "cannot get car_service, waited for car service (ms):"
                                 + CAR_SERVICE_BINDER_POLLING_INTERVAL_MS
                                 * CAR_SERVICE_BINDER_POLLING_MAX_RETRY,
                         new RuntimeException());
@@ -1947,7 +1947,7 @@ public final class Car implements ICarBase {
             try {
                 Thread.sleep(CAR_SERVICE_BINDER_POLLING_INTERVAL_MS);
             } catch (InterruptedException e) {
-                Log.e(CarLibLog.TAG_CAR, "interrupted while waiting for car_service",
+                Slog.e(CarLibLog.TAG_CAR, "interrupted while waiting for car_service",
                         new RuntimeException());
                 return null;
             }
@@ -1956,7 +1956,7 @@ public final class Car implements ICarBase {
         synchronized (car.mLock) {
             if (car.mService == null) {
                 car.mService = ICar.Stub.asInterface(service);
-                Log.w(TAG_CAR,
+                Slog.w(TAG_CAR,
                         "waited for car_service (ms):"
                                 + CAR_SERVICE_BINDER_POLLING_INTERVAL_MS * retryCount,
                         new RuntimeException());
@@ -2052,12 +2052,12 @@ public final class Car implements ICarBase {
             if (waitTimeoutMs < 0 && retryCount >= CAR_SERVICE_BINDER_POLLING_MAX_RETRY
                     && retryCount % CAR_SERVICE_BINDER_POLLING_MAX_RETRY == 0) {
                 // Log warning if car service is not alive even for waiting forever case.
-                Log.w(TAG_CAR, "car_service not ready, waited for car service (ms):"
+                Slog.w(TAG_CAR, "car_service not ready, waited for car service (ms):"
                                 + retryCount * CAR_SERVICE_BINDER_POLLING_INTERVAL_MS,
                         new RuntimeException());
             } else if (waitTimeoutMs >= 0 && retryCount > maxRetryCount) {
                 if (waitTimeoutMs > 0) {
-                    Log.w(TAG_CAR, "car_service not ready, waited for car service (ms):"
+                    Slog.w(TAG_CAR, "car_service not ready, waited for car service (ms):"
                                     + waitTimeoutMs,
                             new RuntimeException());
                 }
@@ -2068,13 +2068,13 @@ public final class Car implements ICarBase {
                 Thread.sleep(CAR_SERVICE_BINDER_POLLING_INTERVAL_MS);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                Log.w(TAG_CAR, "interrupted", new RuntimeException());
+                Slog.w(TAG_CAR, "interrupted", new RuntimeException());
                 return car;
             }
         }
         // Can be accessed from mServiceConnectionListener in main thread.
         synchronized (car.mLock) {
-            Log.w(TAG_CAR,
+            Slog.w(TAG_CAR,
                     "waited for car_service (ms):"
                             + retryCount * CAR_SERVICE_BINDER_POLLING_INTERVAL_MS,
                     new RuntimeException());
@@ -2220,7 +2220,7 @@ public final class Car implements ICarBase {
             return;
         }
         try {
-            Log.v(TAG_CAR, "Calling disconnect() on finalize()");
+            Slog.v(TAG_CAR, "Calling disconnect() on finalize()");
             disconnect();
         } finally {
             super.finalize();
@@ -2271,7 +2271,7 @@ public final class Car implements ICarBase {
         CarManagerBase manager;
         synchronized (mLock) {
             if (mService == null) {
-                Log.w(TAG_CAR, "getCarManager not working while car service not ready");
+                Slog.w(TAG_CAR, "getCarManager not working while car service not ready");
                 return null;
             }
             manager = mServiceMap.get(serviceName);
@@ -2279,13 +2279,13 @@ public final class Car implements ICarBase {
                 try {
                     IBinder binder = mService.getCarService(serviceName);
                     if (binder == null) {
-                        Log.w(TAG_CAR, "getCarManager could not get binder for service:"
+                        Slog.w(TAG_CAR, "getCarManager could not get binder for service:"
                                 + serviceName);
                         return null;
                     }
                     manager = createCarManagerLocked(serviceName, binder);
                     if (manager == null) {
-                        Log.w(TAG_CAR, "getCarManager could not create manager for service:"
+                        Slog.w(TAG_CAR, "getCarManager could not create manager for service:"
                                         + serviceName);
                         return null;
                     }
@@ -2488,10 +2488,10 @@ public final class Car implements ICarBase {
     @VisibleForHiddenApiCheck
     public void handleRemoteExceptionFromCarService(RemoteException e) {
         if (e instanceof TransactionTooLargeException) {
-            Log.w(TAG_CAR, "Car service threw TransactionTooLargeException", e);
+            Slog.w(TAG_CAR, "Car service threw TransactionTooLargeException", e);
             throw new CarTransactionException(e, "Car service threw TransactionTooLargeException");
         } else {
-            Log.w(TAG_CAR, "Car service has crashed", e);
+            Slog.w(TAG_CAR, "Car service has crashed", e);
         }
     }
 
@@ -2502,7 +2502,7 @@ public final class Car implements ICarBase {
         if (mContext instanceof Activity) {
             Activity activity = (Activity) mContext;
             if (!activity.isFinishing()) {
-                Log.w(TAG_CAR,
+                Slog.w(TAG_CAR,
                         "Car service crashed, client not handling it, finish Activity, created "
                                 + "from " + mConstructionStack);
                 activity.finish();
@@ -2517,7 +2517,7 @@ public final class Car implements ICarBase {
     }
 
     private void killClient(@Nullable String clientInfo) {
-        Log.w(TAG_CAR, "**Car service has crashed. Client(" + clientInfo + ") is not handling it."
+        Slog.w(TAG_CAR, "**Car service has crashed. Client(" + clientInfo + ") is not handling it."
                         + " Client should use Car.createCar(..., CarServiceLifecycleListener, .."
                         + ".) to handle it properly. Check printed callstack to check where other "
                         + "version of Car.createCar() was called. Killing the client process**",
@@ -2537,13 +2537,13 @@ public final class Car implements ICarBase {
     @VisibleForHiddenApiCheck
     public static  void handleRemoteExceptionFromCarService(Service service, RemoteException e) {
         if (e instanceof TransactionTooLargeException) {
-            Log.w(TAG_CAR, "Car service threw TransactionTooLargeException, client:"
+            Slog.w(TAG_CAR, "Car service threw TransactionTooLargeException, client:"
                     + service.getPackageName() + ","
                     + service.getClass().getSimpleName(), e);
             throw new CarTransactionException(e, "Car service threw TransactionTooLargeException, "
                 + "client: %s, %s", service.getPackageName(), service.getClass().getSimpleName());
         } else {
-            Log.w(TAG_CAR, "Car service has crashed, client:"
+            Slog.w(TAG_CAR, "Car service has crashed, client:"
                     + service.getPackageName() + ","
                     + service.getClass().getSimpleName(), e);
             service.stopSelf();
@@ -2692,7 +2692,7 @@ public final class Car implements ICarBase {
                     return null;
                 }
                 if (className == null) {
-                    Log.e(TAG_CAR, "Cannot construct CarManager for service:" + serviceName
+                    Slog.e(TAG_CAR, "Cannot construct CarManager for service:" + serviceName
                             + " : no class defined");
                     return null;
                 }
@@ -2713,7 +2713,7 @@ public final class Car implements ICarBase {
             return manager;
         } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException
                 | InstantiationException | InvocationTargetException e) {
-            Log.e(TAG_CAR, "Cannot construct CarManager, class:" + className, e);
+            Slog.e(TAG_CAR, "Cannot construct CarManager, class:" + className, e);
             return null;
         }
     }
@@ -2728,7 +2728,7 @@ public final class Car implements ICarBase {
             if (!bound) {
                 mConnectionRetryCount++;
                 if (mConnectionRetryCount > CAR_SERVICE_BIND_MAX_RETRY) {
-                    Log.w(TAG_CAR, "cannot bind to car service after max retry");
+                    Slog.w(TAG_CAR, "cannot bind to car service after max retry");
                     mMainThreadEventHandler.post(mConnectionRetryFailedRunnable);
                 } else {
                     mEventHandler.postDelayed(mConnectionRetryRunnable,

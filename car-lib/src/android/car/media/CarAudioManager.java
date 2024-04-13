@@ -44,7 +44,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.annotation.AttributeUsage;
@@ -378,7 +378,7 @@ public final class CarAudioManager extends CarManagerBase {
                     synchronized (mLock) {
                         if (mPrimaryZoneMediaAudioRequestCallbackExecutor == null
                                 || mPrimaryZoneMediaAudioRequestCallback == null) {
-                            Log.w(TAG, "Media request removed before change dispatched");
+                            Slog.w(TAG, "Media request removed before change dispatched");
                             return;
                         }
                         callback = mPrimaryZoneMediaAudioRequestCallback;
@@ -1069,7 +1069,7 @@ public final class CarAudioManager extends CarManagerBase {
 
         synchronized (mLock) {
             if (mZoneConfigurationsChangeCallbackWrapper == null) {
-                Log.w(TAG, "Audio zone configs callback was already cleared");
+                Slog.w(TAG, "Audio zone configs callback was already cleared");
                 return;
             }
             wrapper = mZoneConfigurationsChangeCallbackWrapper;
@@ -1785,7 +1785,7 @@ public final class CarAudioManager extends CarManagerBase {
         try {
             mService.registerVolumeCallback(mCarVolumeCallbackImpl.asBinder());
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "registerVolumeCallback failed", e);
+            Slog.e(CarLibLog.TAG_CAR, "registerVolumeCallback failed", e);
         }
     }
 
@@ -1833,7 +1833,7 @@ public final class CarAudioManager extends CarManagerBase {
                 return false;
             }
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR, "registerCarVolumeEventCallback failed", e);
+            Slog.e(CarLibLog.TAG_CAR, "registerCarVolumeEventCallback failed", e);
             return handleRemoteExceptionFromCarService(e, /* returnValue= */ false);
         }
 
@@ -1870,12 +1870,12 @@ public final class CarAudioManager extends CarManagerBase {
     private boolean unregisterVolumeGroupEventCallback() {
         try {
             if (!mService.unregisterCarVolumeEventCallback(mCarVolumeEventCallbackImpl)) {
-                Log.e(CarLibLog.TAG_CAR,
+                Slog.e(CarLibLog.TAG_CAR,
                         "unregisterCarVolumeEventCallback failed with service");
                 return false;
             }
         } catch (RemoteException e) {
-            Log.e(CarLibLog.TAG_CAR,
+            Slog.e(CarLibLog.TAG_CAR,
                     "unregisterCarVolumeEventCallback failed with exception", e);
             handleRemoteExceptionFromCarService(e);
         }
@@ -1978,7 +1978,7 @@ public final class CarAudioManager extends CarManagerBase {
                     List<CarVolumeGroupEvent> events = (List<CarVolumeGroupEvent>) msg.obj;
                     handleOnVolumeGroupEvent(events);
                 default:
-                    Log.e(CarLibLog.TAG_CAR, "Unknown message not handled:" + msg.what);
+                    Slog.e(CarLibLog.TAG_CAR, "Unknown message not handled:" + msg.what);
                     break;
             }
         }

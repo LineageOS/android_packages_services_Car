@@ -30,6 +30,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.internal.os.HandlerExecutor;
 import com.android.internal.annotations.GuardedBy;
@@ -71,7 +72,7 @@ public abstract class VmsPublisherClientService extends Service {
 
     @Override
     public void onCreate() {
-        if (DBG) Log.d(TAG, "Connecting to Car service");
+        if (DBG) Slog.d(TAG, "Connecting to Car service");
         synchronized (mLock) {
             mCar = Car.createCar(this, mHandler, Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT,
                     this::onCarLifecycleChanged);
@@ -80,7 +81,7 @@ public abstract class VmsPublisherClientService extends Service {
 
     @Override
     public void onDestroy() {
-        if (DBG) Log.d(TAG, "Disconnecting from Car service");
+        if (DBG) Slog.d(TAG, "Disconnecting from Car service");
         synchronized (mLock) {
             if (mCar != null) {
                 mCar.disconnect();
@@ -91,7 +92,7 @@ public abstract class VmsPublisherClientService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        if (DBG) Log.d(TAG, "onBind, intent: " + intent);
+        if (DBG) Slog.d(TAG, "onBind, intent: " + intent);
         return new Binder();
     }
 
@@ -100,13 +101,13 @@ public abstract class VmsPublisherClientService extends Service {
      */
     @VisibleForTesting
     protected void onCarLifecycleChanged(Car car, boolean ready) {
-        if (DBG) Log.d(TAG, "Car service ready: " + ready);
+        if (DBG) Slog.d(TAG, "Car service ready: " + ready);
         if (ready) {
             VmsClientManager clientManager =
                     (VmsClientManager) car.getCarManager(Car.VEHICLE_MAP_SERVICE);
-            if (DBG) Log.d(TAG, "VmsClientManager: " + clientManager);
+            if (DBG) Slog.d(TAG, "VmsClientManager: " + clientManager);
             if (clientManager == null) {
-                Log.e(TAG, "VmsClientManager is not available");
+                Slog.e(TAG, "VmsClientManager is not available");
                 return;
             }
             clientManager.registerVmsClientCallback(new HandlerExecutor(mHandler), mClientCallback,
