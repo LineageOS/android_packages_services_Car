@@ -28,9 +28,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * This class represents the entire history of flash wear changes as tracked
@@ -56,7 +56,9 @@ public class WearHistory {
 
     public static WearHistory fromRecords(@NonNull WearEstimateRecord... records) {
         WearHistory wearHistory = new WearHistory();
-        Arrays.stream(records).forEach(wearHistory::add);
+        for (int index = 0; index < records.length; index++) {
+            wearHistory.add(records[index]);
+        }
         return wearHistory;
     }
 
@@ -139,8 +141,11 @@ public class WearHistory {
 
     @Override
     public String toString() {
-        return mWearHistory.stream().map(WearEstimateRecord::toString).reduce(
-            "WearHistory[size = " + size() + "] -> ",
-            (String s, String t) -> s + ", " + t);
+        StringJoiner stringJoiner = new StringJoiner(",",
+                "WearHistory[size = " + size() + "] -> ", "");
+        for (int index = 0; index < mWearHistory.size(); index++) {
+            stringJoiner.add(mWearHistory.get(index).toString());
+        }
+        return stringJoiner.toString();
     }
 }

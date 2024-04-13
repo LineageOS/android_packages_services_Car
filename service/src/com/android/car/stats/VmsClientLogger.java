@@ -19,14 +19,14 @@ package com.android.car.stats;
 import android.annotation.Nullable;
 import android.car.vms.VmsLayer;
 import android.util.ArrayMap;
+import android.util.SparseArray;
 
 import com.android.car.CarStatsLog;
 import com.android.internal.annotations.GuardedBy;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 /**
  * Logger for per-client VMS statistics.
@@ -59,10 +59,10 @@ public class VmsClientLogger {
     private final String mPackageName;
 
     @GuardedBy("mLock")
-    private Map<Integer, AtomicLong> mConnectionStateCounters = new ArrayMap<>();
+    private SparseArray<AtomicLong> mConnectionStateCounters = new SparseArray<>();
 
     @GuardedBy("mLock")
-    private final Map<VmsLayer, VmsClientStats> mLayerStats = new ArrayMap<>();
+    private final ArrayMap<VmsLayer, VmsClientStats> mLayerStats = new ArrayMap<>();
 
     VmsClientLogger(int clientUid, @Nullable String clientPackage) {
         mUid = clientUid;
@@ -88,8 +88,10 @@ public class VmsClientLogger {
 
         AtomicLong counter;
         synchronized (mLock) {
-            counter = mConnectionStateCounters.computeIfAbsent(connectionState,
-                    ignored -> new AtomicLong());
+            if (!mConnectionStateCounters.contains(connectionState)) {
+                mConnectionStateCounters.put(connectionState, new AtomicLong());
+            }
+            counter = mConnectionStateCounters.get(connectionState);
         }
         counter.incrementAndGet();
     }
@@ -134,9 +136,11 @@ public class VmsClientLogger {
 
     Collection<VmsClientStats> getLayerEntries() {
         synchronized (mLock) {
-            return mLayerStats.values().stream()
-                    .map(VmsClientStats::new) // Make a deep copy of the entries
-                    .collect(Collectors.toList());
+            ArrayList<VmsClientStats> layerEntries = new ArrayList<>(mLayerStats.size());
+            for (int index = 0; index < mLayerStats.size(); index++) {
+                layerEntries.add(new VmsClientStats(mLayerStats.valueAt(index)));
+            }
+            return layerEntries;
         }
     }
 
