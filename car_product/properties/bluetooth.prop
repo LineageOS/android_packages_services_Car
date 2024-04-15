@@ -49,3 +49,6 @@ bluetooth.profile.pbap.client.enabled=true
 # Security Requests, that lead to pairing prompts and bond loss. This impacts
 # classic, LE, and Fast Pair bonding.
 bluetooth.gatt.check_encrypted_link.enabled=false
+
+# Enable art cover for a2dp source.
+persist.bluetooth.avrcpversion=avrcp16
