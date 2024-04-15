@@ -31,7 +31,7 @@
     <string name="exit_button_go_back" msgid="6921595432375141935">"Til baka"</string>
     <string name="importance_default" msgid="8017186728206153704">"Sjálfgefið mikilvægi"</string>
     <string name="importance_high" msgid="3393374688015554727">"Mjög mikilvægt"</string>
-    <string name="android_system_label" msgid="9209428539477894959">"Android kerfið"</string>
+    <string name="android_system_label" msgid="9209428539477894959">"Android-kerfið"</string>
     <string name="factory_reset_notification_title" msgid="6177770995437355965">"Núllstillingar er krafist"</string>
     <string name="factory_reset_notification_text" msgid="6051393302193696102">"Öllum gögnum í upplýsinga- og afþreyingarkerfi verður eytt. Hægt er að setja upp nýjan prófíl eftir endurstillingu."</string>
     <string name="factory_reset_notification_button" msgid="6926734587145351076">"Meira"</string>
