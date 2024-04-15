@@ -25,49 +25,43 @@ import com.android.car.docklib.ExcludedItemsProvider;
 import com.android.car.docklib.view.DockView;
 import com.android.systemui.car.CarServiceProvider;
 import com.android.systemui.car.dock.BackgroundExcludedItemsProvider;
-import com.android.systemui.car.statusbar.UserNameViewController;
-import com.android.systemui.car.statusicon.StatusIconPanelViewController;
+import com.android.systemui.car.systembar.element.CarSystemBarElementController;
+import com.android.systemui.car.systembar.element.CarSystemBarElementStateController;
+import com.android.systemui.car.systembar.element.CarSystemBarElementStatusBarDisableController;
+import com.android.systemui.car.systembar.element.layout.CarSystemBarFrameLayout;
 import com.android.systemui.settings.UserFileManager;
 import com.android.systemui.settings.UserTracker;
 
-import dagger.Lazy;
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 
 import java.io.File;
 import java.util.Set;
 
-import javax.inject.Provider;
-
-/** A single class which controls the navigation bar views. */
-public class CarUiPortraitSystemBarController extends CarSystemBarController {
+public class CarUiPortraitDockViewControllerWrapper extends DockViewControllerWrapper {
     private BackgroundExcludedItemsProvider mBackgroundExcludedItemsProvider;
 
-    public CarUiPortraitSystemBarController(
-            Context context,
-            UserTracker userTracker,
-            CarSystemBarViewFactory carSystemBarViewFactory,
-            CarServiceProvider carServiceProvider,
-            ButtonSelectionStateController buttonSelectionStateController,
-            Lazy<UserNameViewController> userNameViewControllerLazy,
-            Lazy<MicPrivacyChipViewController> micPrivacyChipViewControllerLazy,
-            Lazy<CameraPrivacyChipViewController> cameraPrivacyChipViewControllerLazy,
-            ButtonRoleHolderController buttonRoleHolderController,
-            SystemBarConfigs systemBarConfigs,
-            Provider<StatusIconPanelViewController.Builder> panelControllerBuilderProvider,
-            UserFileManager userFileManager
-    ) {
-        super(context, userTracker, carSystemBarViewFactory, carServiceProvider,
-                buttonSelectionStateController, userNameViewControllerLazy,
-                micPrivacyChipViewControllerLazy, cameraPrivacyChipViewControllerLazy,
-                buttonRoleHolderController, systemBarConfigs, panelControllerBuilderProvider,
-                userFileManager);
+    @AssistedInject
+    CarUiPortraitDockViewControllerWrapper(
+            @Assisted CarSystemBarFrameLayout view,
+            CarSystemBarElementStatusBarDisableController disableController,
+            CarSystemBarElementStateController stateController,
+            Context context, UserTracker userTracker,
+            UserFileManager userFileManager,
+            CarServiceProvider carServiceProvider) {
+        super(view, disableController, stateController, context, userTracker, userFileManager,
+                carServiceProvider);
     }
 
+    @AssistedFactory
+    public interface Factory extends
+            CarSystemBarElementController.Factory<CarSystemBarFrameLayout,
+                    CarUiPortraitDockViewControllerWrapper> {}
+
     @Override
-    protected DockViewController createDockViewController(
-            DockView dockView,
-            Context userContext,
-            File dataFile
-    ) {
+    protected DockViewController createDockViewController(DockView dockView, Context userContext,
+            File dataFile) {
         return new DockViewController(dockView, userContext, dataFile) {
             @Override
             public void destroy() {
