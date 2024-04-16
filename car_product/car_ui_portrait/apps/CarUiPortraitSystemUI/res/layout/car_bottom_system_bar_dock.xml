@@ -52,11 +52,16 @@
             systemui:intent="intent:#Intent;action=com.android.car.carlauncher.ACTION_APP_GRID;package=com.android.car.portraitlauncher;launchFlags=0x24000000;end"
             systemui:clearBackStack="false" />
 
-        <com.android.car.docklib.view.DockView
-            android:id="@+id/dock"
+        <com.android.systemui.car.systembar.element.layout.CarSystemBarFrameLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/dock_container_margin" />
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="@dimen/dock_container_margin"
+            systemui:controller="com.android.systemui.car.systembar.CarUiPortraitDockViewControllerWrapper">
+            <com.android.car.docklib.view.DockView
+                android:id="@+id/dock"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+        </com.android.systemui.car.systembar.element.layout.CarSystemBarFrameLayout>
 
         <!-- TODO(b/255887799): Use AssistantButton instead of CarUiAssistantButton once is fixed.     -->
         <com.android.systemui.car.systembar.CarUiAssistantButton

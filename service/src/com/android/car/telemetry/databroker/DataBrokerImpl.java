@@ -287,11 +287,17 @@ public class DataBrokerImpl implements DataBroker {
     private void disableBroker() {
         mDisabled = true;
         // remove all MetricConfigs, disable all publishers, stop receiving data
+        List<String> keysToRemove = new ArrayList<>();
         for (String configName : mSubscriptionMap.keySet()) {
-            // get the metrics config from the DataSubscriber and remove the metrics config
+            // get the metrics config from the DataSubscriber and store in a intermediate
+            // collection. It is not safe to modify a collection while iterating on it.
             if (mSubscriptionMap.get(configName).size() != 0) {
-                removeMetricsConfig(configName);
+                keysToRemove.add(configName);
             }
+        }
+        // remove metrics configurations
+        for (String configName : keysToRemove) {
+            removeMetricsConfig(configName);
         }
         mSubscriptionMap.clear();
     }
