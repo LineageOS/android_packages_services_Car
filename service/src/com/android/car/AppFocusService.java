@@ -76,7 +76,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
     private final SparseArray<OwnershipClientInfo> mFocusOwners = new SparseArray<>();
 
     @GuardedBy("mLock")
-    private final Set<Integer> mActiveAppTypes = new ArraySet<>();
+    private final ArraySet<Integer> mActiveAppTypes = new ArraySet<>();
 
     @GuardedBy("mLock")
     private final List<FocusOwnershipCallback> mFocusOwnershipCallbacks = new ArrayList<>();
@@ -129,7 +129,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
     @Override
     public int[] getActiveAppTypes() {
         synchronized (mLock) {
-            return mActiveAppTypes.stream().mapToInt(Integer::intValue).toArray();
+            return CarServiceUtils.toIntArray(mActiveAppTypes);
         }
     }
 
