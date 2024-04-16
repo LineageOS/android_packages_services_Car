@@ -16,6 +16,8 @@
 
 package com.android.car.audio;
 
+import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -97,6 +99,7 @@ final class CoreAudioRoutingUtils {
         // marshall AudioProductStrategy data
         parcel.writeString(MUSIC_CONTEXT_NAME);
         parcel.writeInt(MUSIC_STRATEGY_ID);
+        parcel.writeInt(PRIMARY_AUDIO_ZONE);
 
         parcel.writeInt(/* nb attributes groups= */ 1);
         parcel.writeInt(/* volumeGroupId= */ MUSIC_GROUP_ID);
@@ -128,6 +131,7 @@ final class CoreAudioRoutingUtils {
         // marshall AudioProductStrategy data
         parcel.writeString(NAV_CONTEXT_NAME);
         parcel.writeInt(NAV_STRATEGY_ID);
+        parcel.writeInt(PRIMARY_AUDIO_ZONE);
 
         parcel.writeInt(/* nb attributes groups= */ 1);
         parcel.writeInt(/* volumeGroupId= */ NAV_GROUP_ID);
@@ -159,6 +163,7 @@ final class CoreAudioRoutingUtils {
         // marshall AudioProductStrategy data
         parcel.writeString(OEM_CONTEXT_NAME);
         parcel.writeInt(OEM_STRATEGY_ID);
+        parcel.writeInt(PRIMARY_AUDIO_ZONE);
 
         parcel.writeInt(/* nb attributes groups= */ 1);
         parcel.writeInt(/* volumeGroupId= */ OEM_GROUP_ID);

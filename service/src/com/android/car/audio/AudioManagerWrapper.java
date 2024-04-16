@@ -50,6 +50,22 @@ public final class AudioManagerWrapper {
         mAudioManager = Objects.requireNonNull(audioManager, "Audio manager can not be null");
     }
 
+    int getVolumeGroupIdForAttributes(AudioAttributes audioAttributes) {
+        return mAudioManager.getVolumeGroupIdForAttributes(audioAttributes);
+    }
+
+    int getVolumeGroupMaxVolumeIndex(int groupId) {
+        return mAudioManager.getVolumeGroupMaxVolumeIndex(groupId);
+    }
+
+    int getVolumeGroupMinVolumeIndex(int groupId) {
+        return mAudioManager.getVolumeGroupMinVolumeIndex(groupId);
+    }
+
+    int getVolumeGroupVolumeIndex(int groupId) {
+        return mAudioManager.getVolumeGroupVolumeIndex(groupId);
+    }
+
     int getMinVolumeIndexForAttributes(AudioAttributes audioAttributes) {
         return mAudioManager.getMinVolumeIndexForAttributes(audioAttributes);
     }

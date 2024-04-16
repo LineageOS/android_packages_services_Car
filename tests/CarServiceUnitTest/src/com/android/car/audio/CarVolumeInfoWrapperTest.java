@@ -200,10 +200,9 @@ public final class CarVolumeInfoWrapperTest {
 
     @Test
     public void onAudioVolumeGroupChanged_dispatchedToCarAudioService() {
-        mCarVolumeInfoWrapper.onAudioVolumeGroupChanged(PRIMARY_AUDIO_ZONE, TEST_GROUP_NAME,
-                TEST_EXPECTED_FLAGS);
+        mCarVolumeInfoWrapper.onAudioVolumeGroupChanged(TEST_GROUP_NAME, TEST_EXPECTED_FLAGS);
 
-        verify(mMockCarAudioService).onAudioVolumeGroupChanged(PRIMARY_AUDIO_ZONE, TEST_GROUP_NAME,
+        verify(mMockCarAudioService).onAudioVolumeGroupChanged(TEST_GROUP_NAME,
                 TEST_EXPECTED_FLAGS);
     }
 }

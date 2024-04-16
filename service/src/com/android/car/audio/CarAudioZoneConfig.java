@@ -292,11 +292,17 @@ final class CarAudioZoneConfig {
             }
         }
 
-        List<Integer> allContexts = carAudioContext.getAllContextsIds();
+        List<Integer> allContexts;
+        if (useCoreAudioRouting) {
+            allContexts = carAudioContext.getAllContextsIdsForZoneId(mZoneId);
+        } else {
+            allContexts = carAudioContext.getAllContextsIds();
+        }
+        Slogf.e(CarLog.TAG_AUDIO, "Checking zone %d and context %s", mZoneId, allContexts);
         for (int index = 0; index < allContexts.size(); index++) {
             if (!contexts.contains(allContexts.get(index))) {
-                Slogf.e(CarLog.TAG_AUDIO, "Audio context %s is not assigned to a group",
-                        carAudioContext.toString(allContexts.get(index)));
+                Slogf.e(CarLog.TAG_AUDIO, "Audio context %s is not assigned to a group in zone %d",
+                        carAudioContext.toString(allContexts.get(index)), mZoneId);
                 return false;
             }
         }
@@ -526,7 +532,6 @@ final class CarAudioZoneConfig {
             mVolumeGroups.get(groupId).updateAudioDeviceInfo(deviceInfo);
             updatedGroupIds.add(groupId);
         }
-
         // for the updated groups, recalculate the gain stages. If new gain stage, create
         // an event to callback
         for (int index = 0; index < updatedGroupIds.size(); index++) {

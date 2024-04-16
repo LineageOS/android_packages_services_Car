@@ -72,8 +72,8 @@ final class CarVolumeInfoWrapper {
         return mCarAudioService.getCallStateForZone(zoneId);
     }
 
-    public void onAudioVolumeGroupChanged(int zoneId, String groupName, int flags) {
-        mCarAudioService.onAudioVolumeGroupChanged(zoneId, groupName, flags);
+    public void onAudioVolumeGroupChanged(String groupName, int flags) {
+        mCarAudioService.onAudioVolumeGroupChanged(groupName, flags);
     }
 
     public void onVolumeGroupEvent(List<CarVolumeGroupEvent> events) {

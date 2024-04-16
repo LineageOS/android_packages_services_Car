@@ -383,6 +383,10 @@ import java.util.Set;
         return mName;
     }
 
+    int getZoneId() {
+        return mZoneId;
+    }
+
     /**
      * Returns the devices address for the given context
      * or {@code null} if the context does not exist in the volume group
