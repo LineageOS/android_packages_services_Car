@@ -63,9 +63,10 @@ public final class RemoteCarRootTaskView extends RemoteCarTaskView {
     private final ICarActivityService mCarActivityService;
     private final CarTaskViewController mCarTaskViewController;
     private final Rect mTmpRect = new Rect();
-    private final RootTaskStackManager mRootTaskStackManager = new RootTaskStackManager();
     private final Object mLock = new Object();
     private final int mDisplayId;
+    @GuardedBy("mLock")
+    private final RootTaskStackManager mRootTaskStackManager = new RootTaskStackManager();
     /**
      * List of activities that appear in this {@link RemoteCarRootTaskView}. It's initialized
      * with the value from {@link RemoteCarRootTaskViewConfig#getAllowListedActivities()} and
@@ -111,9 +112,8 @@ public final class RemoteCarRootTaskView extends RemoteCarTaskView {
                     }
                     updateWindowBounds();
                 }
+                mRootTaskStackManager.taskAppeared(taskInfo, leash);
             }
-
-            mRootTaskStackManager.taskAppeared(taskInfo, leash);
         }
 
         @Override
@@ -127,8 +127,8 @@ public final class RemoteCarRootTaskView extends RemoteCarTaskView {
                             RemoteCarRootTaskView.this,
                             taskInfo.taskDescription.getBackgroundColor());
                 }
+                mRootTaskStackManager.taskInfoChanged(taskInfo);
             }
-            mRootTaskStackManager.taskInfoChanged(taskInfo);
         }
 
         @Override
@@ -140,8 +140,8 @@ public final class RemoteCarRootTaskView extends RemoteCarTaskView {
                 if (mRootTask.taskId == taskInfo.taskId) {
                     mRootTask = null;
                 }
+                mRootTaskStackManager.taskVanished(taskInfo);
             }
-            mRootTaskStackManager.taskVanished(taskInfo);
         }
 
         @Override
@@ -183,7 +183,9 @@ public final class RemoteCarRootTaskView extends RemoteCarTaskView {
      */
     @Nullable
     public ActivityManager.RunningTaskInfo getTopTaskInfo() {
-        return mRootTaskStackManager.getTopTask();
+        synchronized (mLock) {
+            return mRootTaskStackManager.getTopTask();
+        }
     }
 
     @Override

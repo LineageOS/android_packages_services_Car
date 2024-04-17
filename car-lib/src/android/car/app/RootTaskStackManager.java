@@ -23,6 +23,9 @@ import android.view.SurfaceControl;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
+/**
+ * Methods in this class ar not thread safe and the caller should hold the lock before calling them.
+ */
 final class RootTaskStackManager {
     private ActivityManager.RunningTaskInfo mRootTask;
     private final LinkedHashMap<Integer, ActivityManager.RunningTaskInfo> mChildrenTaskStack =

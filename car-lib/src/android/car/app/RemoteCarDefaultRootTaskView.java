@@ -48,8 +48,9 @@ public final class RemoteCarDefaultRootTaskView extends RemoteCarTaskView {
     private final CarTaskViewController mCarTaskViewController;
     private final RemoteCarDefaultRootTaskViewConfig mConfig;
     private final Rect mTmpRect = new Rect();
-    private final RootTaskStackManager mRootTaskStackManager = new RootTaskStackManager();
     private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private final RootTaskStackManager mRootTaskStackManager = new RootTaskStackManager();
 
     @GuardedBy("mLock")
     private ActivityManager.RunningTaskInfo mRootTask;
@@ -85,9 +86,9 @@ public final class RemoteCarDefaultRootTaskView extends RemoteCarTaskView {
                     }
                     updateWindowBounds();
                 }
+                mRootTaskStackManager.taskAppeared(taskInfo, leash);
             }
 
-            mRootTaskStackManager.taskAppeared(taskInfo, leash);
             long identity = Binder.clearCallingIdentity();
             try {
                 mCallbackExecutor.execute(() -> {
@@ -113,8 +114,8 @@ public final class RemoteCarDefaultRootTaskView extends RemoteCarTaskView {
                             RemoteCarDefaultRootTaskView.this,
                             taskInfo.taskDescription.getBackgroundColor());
                 }
+                mRootTaskStackManager.taskInfoChanged(taskInfo);
             }
-            mRootTaskStackManager.taskInfoChanged(taskInfo);
             long identity = Binder.clearCallingIdentity();
             try {
                 mCallbackExecutor.execute(() -> {
@@ -138,8 +139,8 @@ public final class RemoteCarDefaultRootTaskView extends RemoteCarTaskView {
                 if (mRootTask.taskId == taskInfo.taskId) {
                     mRootTask = null;
                 }
+                mRootTaskStackManager.taskVanished(taskInfo);
             }
-            mRootTaskStackManager.taskVanished(taskInfo);
             long identity = Binder.clearCallingIdentity();
             try {
                 mCallbackExecutor.execute(() -> {
@@ -188,7 +189,9 @@ public final class RemoteCarDefaultRootTaskView extends RemoteCarTaskView {
      */
     @Nullable
     public ActivityManager.RunningTaskInfo getTopTaskInfo() {
-        return mRootTaskStackManager.getTopTask();
+        synchronized (mLock) {
+            return mRootTaskStackManager.getTopTask();
+        }
     }
 
     @Override
