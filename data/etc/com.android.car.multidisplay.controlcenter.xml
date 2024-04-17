@@ -30,5 +30,6 @@
         <permission name="android.permission.CAPTURE_SECURE_VIDEO_OUTPUT" />
         <permission name="android.permission.ADD_TRUSTED_DISPLAY"/>
         <permission name="android.car.permission.CONTROL_CAR_APP_LAUNCH" />
+        <permission name="android.permission.QUERY_ALL_PACKAGES"/>
     </privapp-permissions>
 </permissions>
