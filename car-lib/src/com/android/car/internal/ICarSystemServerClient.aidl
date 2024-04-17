@@ -33,28 +33,14 @@ oneway interface ICarSystemServerClient {
      * @param fromUserId - user id of previous user when type is SWITCHING (or UserHandle.USER_NULL)
      * @param toUserId - user id of new user.
      */
-    void onUserLifecycleEvent(int eventType, int fromUserId, int toUserId) = 0;
-
-    /**
-     * Nofity when a user is removed.
-     *
-     * NOTE: this is different from onUserLifecycleEvent(), whic is used on user switching events.
-     *
-     * @param user info about the user that was removed.
-     */
-    void onUserRemoved(in UserHandle user) = 1;
-
-    /**
-     * Notify to init boot user.
-     */
-    void initBootUser() = 2;
+    void onUserLifecycleEvent(int eventType, int fromUserId, int toUserId);
 
     /**
       * Notify that the device must be factory reset, so CarService can ask user to confirm.
       *
       * @param callback used to trigger the factory reset.
       */
-    void onFactoryReset(ICarResultReceiver callback) = 3;
+    void onFactoryReset(ICarResultReceiver callback);
 
      /**
      * Initial user is decided by HAL and information is saved in CarUserService. It is possible
@@ -63,7 +49,7 @@ oneway interface ICarSystemServerClient {
      * {@link ICarServiceHelper.sendInitialUser}. If car service reconnects after crash, then this
      * call will set the initial user information in CarUserService.
      */
-     void setInitialUser(in UserHandle user) = 4;
+     void setInitialUser(in UserHandle user);
 
-     void notifyFocusChanged(int pid, int uid) = 5;
+     void notifyFocusChanged(int pid, int uid);
 }

@@ -1124,21 +1124,6 @@ public class ICarImpl extends ICar.Stub {
         }
 
         @Override
-        public void initBootUser() throws RemoteException {
-            // TODO(b/277271542). Remove this code path.
-        }
-
-        // TODO(235524989): Remove this method as on user removed will now go through
-        // onUserLifecycleEvent due to changes in CarServiceProxy and CarUserService.
-        @Override
-        public void onUserRemoved(UserHandle user) throws RemoteException {
-            assertCallingFromSystemProcess();
-            EventLogHelper.writeCarServiceOnUserRemoved(user.getIdentifier());
-            if (DBG) Slogf.d(TAG, "onUserRemoved(): " + user);
-            mCarUserService.onUserRemoved(user);
-        }
-
-        @Override
         public void onFactoryReset(ICarResultReceiver callback) {
             assertCallingFromSystemProcess();
 
