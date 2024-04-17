@@ -19,5 +19,6 @@
         <!-- Used for OccupantConnectionFragment -->
         <permission name="android.car.permission.MANAGE_OCCUPANT_CONNECTION"/>
         <permission name="android.car.permission.MANAGE_REMOTE_DEVICE"/>
+        <permission name="android.car.permission.CAR_POWER"/>
     </privapp-permissions>
 </permissions>

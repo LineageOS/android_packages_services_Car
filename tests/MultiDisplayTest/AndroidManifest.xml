@@ -25,6 +25,7 @@
     <!-- Used for OccupantConnectionFragment -->
     <uses-permission android:name="android.car.permission.MANAGE_OCCUPANT_CONNECTION"/>
     <uses-permission android:name="android.car.permission.MANAGE_REMOTE_DEVICE"/>
+    <uses-permission android:name="android.car.permission.CAR_POWER"/>
 
     <application android:label="MD Test">
         <activity android:name="MDTest"
