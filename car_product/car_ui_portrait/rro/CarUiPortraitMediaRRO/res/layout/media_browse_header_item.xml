@@ -20,7 +20,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginStart="@dimen/media_browse_header_action_margin"
-    android:background="@drawable/car_ui_toolbar_background"
     android:orientation="horizontal">
 
     <LinearLayout
