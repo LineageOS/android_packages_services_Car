@@ -44,6 +44,25 @@ public final class CarResolverActivity extends ResolverActivity
         mProfilePager.getViewTreeObserver().addOnGlobalLayoutListener(this);
     }
 
+    /**
+     * Override to use corresponding Car optimized layouts (supporting rotary) for content view.
+     */
+    @Override
+    public void setContentView(int layoutResID) {
+        int carLayoutResId = layoutResID;
+        switch (layoutResID) {
+            case R.layout.resolver_list:
+                carLayoutResId = com.android.car.activityresolver.R.layout.resolver_list;
+                break;
+            case R.layout.resolver_list_with_default:
+                carLayoutResId =
+                    com.android.car.activityresolver.R.layout.resolver_list_with_default;
+                break;
+        }
+
+        super.setContentView(carLayoutResId);
+    }
+
     @Override
     protected void onDestroy() {
         mProfilePager.getViewTreeObserver().removeOnGlobalLayoutListener(this);
