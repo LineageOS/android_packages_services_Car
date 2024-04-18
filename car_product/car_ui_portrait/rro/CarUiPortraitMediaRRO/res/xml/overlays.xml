@@ -85,6 +85,8 @@
     <item target="id/ui_content_end_guideline" value="@id/ui_content_end_guideline"/>
     <item target="id/ui_content_start_guideline" value="@id/ui_content_start_guideline"/>
     <item target="id/ui_content_top_guideline" value="@id/ui_content_top_guideline"/>
+    <item target="id/browse_item_custom_action_divider" value="@id/browse_item_custom_action_divider"/>
+    <item target="id/browse_item_custom_action" value="@id/browse_item_custom_action"/>
 
     <item target="layout/fragment_error" value="@layout/fragment_error"/>
     <item target="layout/browse_mini_bar" value="@layout/browse_mini_bar"/>
@@ -95,6 +97,7 @@
     <item target="layout/media_browse_header_item" value="@layout/media_browse_header_item"/>
     <item target="layout/media_browse_list_icons_item" value="@layout/media_browse_list_icons_item"/>
     <item target="layout/media_browse_list_item" value="@layout/media_browse_list_item"/>
+    <item target="layout/browse_custom_action" value="@layout/browse_custom_action"/>
 
     <item target="string/menu_item_app_selector_title" value="@string/menu_item_app_selector_title"/>
     <item target="string/menu_item_sound_settings_title" value="@string/menu_item_sound_settings_title"/>
@@ -113,4 +116,6 @@
     <item target="style/QueueListItemTitlesContainerStyle" value="@style/QueueListItemTitlesContainerStyle"/>
     <item target="style/QueueListItemTitleStyle" value="@style/QueueListItemTitleStyle"/>
     <item target="style/TextAppearance.NoContent" value="@style/TextAppearance.NoContent"/>
+
+    <item target="drawable/media_item_divider" value="@drawable/media_item_divider"/>
 </overlay>
