@@ -29,6 +29,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Process;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
@@ -59,9 +60,10 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         long getPassengerActivitySetProcessGroupRetryTimeoutMs();
     }
 
+    private static final boolean DBG = Slogf.isLoggable(CarLog.TAG_AM, Log.DEBUG);
     // Passenger Activity might not be in top-app group in the 1st try. In that case, try
     // again after this time. Retry will happen only once.
-    private static final long PASSENGER_ACTIVITY_SET_PROCESS_GROUP_RETRY_MS = 2_000;
+    private static final long PASSENGER_ACTIVITY_SET_PROCESS_GROUP_RETRY_MS = 200;
 
     private final ProcessObserverCallback mProcessObserver = new ProcessObserver();
 
@@ -84,6 +86,9 @@ public class SystemActivityMonitoringService implements CarServiceBase {
 
     @GuardedBy("mLock")
     private boolean mAssignPassengerActivityToFgGroup;
+
+    @GuardedBy("mLock")
+    private int mDriverTopAppPid = Process.INVALID_PID;
 
     public SystemActivityMonitoringService(Context context) {
         this(context, new DefaultInjector());
@@ -221,18 +226,22 @@ public class SystemActivityMonitoringService implements CarServiceBase {
      * Updates the process group for given PID if it is passenger app and returns true if it should
      * be retried.
      */
-    private boolean doHandleProcessGroupForFgApp(int pid, int uid) {
+    private boolean updateProcessGroupForFgApp(int pid, int uid) {
+        int driverTopAppPid;
         synchronized (mLock) {
             if (!mAssignPassengerActivityToFgGroup) {
                 return false;
             }
-        }
-        int userId = UserManagerHelper.getUserId(uid);
-        // Current user will be driver. So do not touch it.
-        // User 0 will be either current user or common system UI which should run with higher
-        // priority.
-        if (userId == ActivityManager.getCurrentUser() || userId == UserManagerHelper.USER_SYSTEM) {
-            return false;
+            int userId = UserManagerHelper.getUserId(uid);
+            // Current user will be driver. So do not touch it.
+            // User 0 will be either current user or common system UI which should run with higher
+            // priority.
+            if (userId == ActivityManager.getCurrentUser()
+                    || userId == UserManagerHelper.USER_SYSTEM) {
+                mDriverTopAppPid = pid;
+                return false;
+            }
+            driverTopAppPid = mDriverTopAppPid;
         }
         // TODO(b/261783537) ignore profile of the current user
 
@@ -240,13 +249,26 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         boolean shouldRetry = false;
         try {
             int processGroup = helper.getProcessGroup(pid);
+            if (DBG) {
+                Slogf.d(CarLog.TAG_AM, "doHandleProcessGroupForFgApp: pid=%d pGroup=%d",
+                        pid, processGroup);
+            }
             switch (processGroup) {
                 case ProcessHelper.THREAD_GROUP_FOREGROUND:
-                    // already in FG group, ignore
+                    // SetProcessGroup happens in OomAdjuster#mProcessGroupHandler in System
+                    // Server, but which is the different thread with the main thread of
+                    // OomAdjuster, and the focus change event is propagated to CarService
+                    // through Binder, so there is race-condition between setting ProcessGroup in
+                    // System Server and here.
+                    // So, there are chances that to set Top App is not executed yet.
+                    shouldRetry = true;
                     break;
                 case ProcessHelper.THREAD_GROUP_TOP_APP:
                     // Changing to FOREGROUND requires setting it to DEFAULT
                     helper.setProcessGroup(pid, ProcessHelper.THREAD_GROUP_DEFAULT);
+                    if (driverTopAppPid != Process.INVALID_PID) {
+                        helper.setProcessGroup(driverTopAppPid, ProcessHelper.THREAD_GROUP_TOP_APP);
+                    }
                     break;
                 default:
                     // not in top-app yet, should retry
@@ -262,10 +284,31 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     }
 
     private void handleProcessGroupForFgApp(int pid, int uid) {
-        if (doHandleProcessGroupForFgApp(pid, uid)) {
-            mHandler.postDelayed(() -> doHandleProcessGroupForFgApp(pid, uid),
+        if (updateProcessGroupForFgApp(pid, uid)) {
+            if (DBG) {
+                Slogf.d(CarLog.TAG_AM, "Will retry handleProcessGroupForFgApp: pid=%d, uid=%d",
+                        pid, uid);
+            }
+            mHandler.postDelayed(() -> updateProcessGroupForFgApp(pid, uid),
                     mInjector.getPassengerActivitySetProcessGroupRetryTimeoutMs());
         }
+    }
+
+    private void handleProcessGroupForDiedApp(int pid) {
+        synchronized (mLock) {
+            if (!mAssignPassengerActivityToFgGroup) {
+                return;
+            }
+            if (pid == mDriverTopAppPid) {
+                mDriverTopAppPid = Process.INVALID_PID;
+            }
+        }
+    }
+
+    /** Handles focusChanged event. */
+    public void handleFocusChanged(int pid, int uid) {
+        if (DBG) Slogf.d(CarLog.TAG_AM, "notifyFocusChanged: pid=%d uid=%d", pid, uid);
+        handleProcessGroupForFgApp(pid, uid);
     }
 
     private class ProcessObserver extends ProcessObserverCallback {
@@ -276,14 +319,12 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                         String.format("onForegroundActivitiesChanged uid %d pid %d fg %b",
                                 uid, pid, foregroundActivities));
             }
-            if (foregroundActivities) {
-                handleProcessGroupForFgApp(pid, uid);
-            }
             mHandler.requestForegroundActivitiesChanged(pid, uid, foregroundActivities);
         }
 
         @Override
         public void onProcessDied(int pid, int uid) {
+            handleProcessGroupForDiedApp(pid);
             mHandler.requestProcessDied(pid, uid);
         }
     }

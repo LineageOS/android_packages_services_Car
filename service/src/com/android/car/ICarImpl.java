@@ -1149,7 +1149,14 @@ public class ICarImpl extends ICar.Stub {
 
         @Override
         public void setInitialUser(UserHandle user) {
+            assertCallingFromSystemProcess();
             mCarUserService.setInitialUserFromSystemServer(user);
+        }
+
+        @Override
+        public void notifyFocusChanged(int pid, int uid) {
+            assertCallingFromSystemProcess();
+            mSystemActivityMonitoringService.handleFocusChanged(pid, uid);
         }
     }
 
