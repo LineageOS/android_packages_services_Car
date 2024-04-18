@@ -297,6 +297,9 @@ private:
     // the thread to access stale lock or member fields leading to crashing the process.
     std::thread mWriteToDiskThread;
 
+    // Tracks if mWriteToDiskThread is actively writing to disk.
+    bool mIsWriteToDiskPending GUARDED_BY(mRwMutex);
+
     // Indicates whether or not today's I/O usage stats, that were collected during previous boot,
     // are read from CarService because CarService persists these stats in database across reboot.
     bool mDidReadTodayPrevBootStats GUARDED_BY(mRwMutex);
