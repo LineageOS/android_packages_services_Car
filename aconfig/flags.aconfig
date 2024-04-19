@@ -1,5 +1,5 @@
 package: "android.car.feature"
-container: "com.android.car.framework"
+container: "system"
 
 # CarUserManager
 flag {
