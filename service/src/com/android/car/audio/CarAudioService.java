@@ -162,6 +162,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -227,6 +228,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private final boolean mUseHalDuckingSignals;
     private final boolean mUseMinMaxActivationVolume;
     private final boolean mUseIsolatedFocusForDynamicDevices;
+    private final boolean mUseKeyEventsForDynamicDevices;
     private final @CarVolume.CarVolumeListVersion int mAudioVolumeAdjustmentContextsVersion;
     private final boolean mPersistMasterMuteState;
     private final boolean mUseFadeManagerConfiguration;
@@ -447,6 +449,9 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         mUseIsolatedFocusForDynamicDevices = Flags.carAudioDynamicDevices() && !runInLegacyMode()
                 && mContext.getResources().getBoolean(
                         R.bool.audioUseIsolatedAudioFocusForDynamicDevices);
+        mUseKeyEventsForDynamicDevices = Flags.carAudioDynamicDevices() && !runInLegacyMode()
+                && mContext.getResources().getBoolean(
+                        R.bool.audioEnableVolumeKeyEventsToDynamicDevices);
         validateFeatureFlagSettings();
         mAudioServerStateCallback = new CarAudioServerStateCallback(this);
     }
@@ -727,6 +732,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 writer.printf("Use min/max activation volume? %b\n", mUseMinMaxActivationVolume);
                 writer.printf("Use isolated focus for dynamic devices? %b\n",
                         mUseIsolatedFocusForDynamicDevices);
+                writer.printf("Allow key events to dynamic devices? %b\n",
+                        mUseKeyEventsForDynamicDevices);
                 writer.println();
                 mCarVolume.dump(writer);
                 writer.println();
@@ -3410,7 +3417,22 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
         return carVolume.getSuggestedAudioContextAndSaveIfFound(
                 getAllActiveAttributesForZone(zoneId), getCallStateForZone(zoneId),
-                getActiveHalAudioAttributesForZone(zoneId));
+                getActiveHalAudioAttributesForZone(zoneId),
+                getInactiveAudioAttributesForZone(zoneId));
+    }
+
+    private List<AudioAttributes> getInactiveAudioAttributesForZone(int zoneId) {
+        if (mUseKeyEventsForDynamicDevices) {
+            return Collections.emptyList();
+        }
+
+        CarAudioZoneConfigInfo info;
+        synchronized (mImplLock) {
+            info = getCarAudioZoneLocked(zoneId).getCurrentCarAudioZoneConfig()
+                    .getCarAudioZoneConfigInfo();
+        }
+
+        return CarAudioUtils.getAudioAttributesForDynamicDevices(info);
     }
 
     private List<AudioAttributes> getActiveHalAudioAttributesForZone(int zoneId) {
