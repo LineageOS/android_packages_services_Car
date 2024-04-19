@@ -31,6 +31,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 
+/** Controller for the distant display status icon */
 public class DistantDisplayStatusIconController extends StatusIconViewController implements
         DistantDisplayController.StatusChangeListener {
     public static final String TAG = DistantDisplayStatusIconController.class.getSimpleName();
@@ -63,13 +64,13 @@ public class DistantDisplayStatusIconController extends StatusIconViewController
     @Override
     protected void onViewAttached() {
         super.onViewAttached();
-        mDistantDisplayController.setDistantDisplayControlStatusInfoListener(this);
+        mDistantDisplayController.addDistantDisplayControlStatusInfoListener(this);
     }
 
     @Override
     protected void onViewDetached() {
         super.onViewDetached();
-        mDistantDisplayController.removeDistantDisplayControlStatusInfoListener();
+        mDistantDisplayController.removeDistantDisplayControlStatusInfoListener(this);
     }
 
     @Override
@@ -86,11 +87,5 @@ public class DistantDisplayStatusIconController extends StatusIconViewController
     public void onDisplayChanged(int displayId) {
         mCurrentDisplayId = displayId;
         updateStatus();
-    }
-
-    @Override
-    public void onVisibilityChanged(boolean visible) {
-        setIconVisibility(visible);
-        onStatusUpdated();
     }
 }

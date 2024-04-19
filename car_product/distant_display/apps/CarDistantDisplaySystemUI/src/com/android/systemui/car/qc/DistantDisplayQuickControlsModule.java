@@ -18,6 +18,7 @@ package com.android.systemui.car.qc;
 
 import com.android.car.qc.provider.BaseLocalQCProvider;
 import com.android.systemui.car.statusicon.ui.DistantDisplayStatusIconController;
+import com.android.systemui.car.statusicon.ui.DistantDisplayStatusIconPanelController;
 import com.android.systemui.car.systembar.element.CarSystemBarElementController;
 
 import dagger.Binds;
@@ -43,4 +44,11 @@ public abstract class DistantDisplayQuickControlsModule {
     @ClassKey(DistantDisplayStatusIconController.class)
     public abstract CarSystemBarElementController.Factory bindDistantDisplayStatusIconController(
             DistantDisplayStatusIconController.Factory distantDisplayStatusIconController);
+
+    /** Injects DistantDisplayStatusIconPanelController. */
+    @Binds
+    @IntoMap
+    @ClassKey(DistantDisplayStatusIconPanelController.class)
+    public abstract CarSystemBarElementController.Factory bindDistantDisplayPanelController(
+            DistantDisplayStatusIconPanelController.Factory distantDisplaySPanelController);
 }
