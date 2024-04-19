@@ -40,6 +40,8 @@ import static org.mockito.Mockito.when;
 
 import android.media.AudioAttributes;
 
+import androidx.annotation.NonNull;
+
 import com.android.car.audio.CarAudioContext.AudioContext;
 
 import com.google.common.collect.ImmutableList;
@@ -194,8 +196,7 @@ public class CarVolumeTest {
     @Test
 
     public void getSuggestedAudioContext_withV1AndCallStateRinging_returnsCallRingContext() {
-        CarVolume carVolume = new CarVolume(TEST_CAR_AUDIO_CONTEXT, mMockClock,
-                VERSION_ONE, KEY_EVENT_TIMEOUT_MS);
+        CarVolume carVolume = getCarVolumeWithVersionOnePriorities();
 
         @AudioContext int suggestedContext =
                 carVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
@@ -235,8 +236,7 @@ public class CarVolumeTest {
 
     @Test
     public void getSuggestedAudioContext_withV1AndNavigationConfigurationAndCall_returnsNav() {
-        CarVolume carVolume = new CarVolume(TEST_CAR_AUDIO_CONTEXT, mMockClock,
-                VERSION_ONE, KEY_EVENT_TIMEOUT_MS);
+        CarVolume carVolume = getCarVolumeWithVersionOnePriorities();
         List<AudioAttributes> activePlaybackAttributes = ImmutableList.of(CarAudioContext
                 .getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
 
@@ -506,6 +506,76 @@ public class CarVolumeTest {
                 .getContextForAudioAttribute(CAR_DEFAULT_AUDIO_ATTRIBUTE));
     }
 
+    @Test
+    public void getSuggestedAudioContext_withV1AndMediaInactive_returnsNextDefaultContext() {
+        int nextDefault = mCarVolume.getSuggestedAudioContextAndSaveIfFound(Collections.emptyList(),
+                CALL_STATE_IDLE, Collections.emptyList(), List.of(TEST_MEDIA_ATTRIBUTE));
+
+        assertWithMessage("Next default audio context").that(nextDefault)
+                .isEqualTo(TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(
+                        TEST_CALL_ATTRIBUTE));
+    }
+
+    @Test
+    public void getSuggestedAudioContext_withV1AndMediaContextsInactive_returnsNextValidContext() {
+        CarVolume carVolume = getCarVolumeWithVersionOnePriorities();
+
+        int nextDefault = carVolume.getSuggestedAudioContextAndSaveIfFound(Collections.emptyList(),
+                CALL_STATE_IDLE, Collections.emptyList(), List.of(TEST_MEDIA_ATTRIBUTE));
+
+        assertWithMessage("Next default audio context for version 1 priority list")
+                .that(nextDefault).isEqualTo(TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(
+                        TEST_NAVIGATION_ATTRIBUTE));
+    }
+
+    @Test
+    public void getSuggestedAudioContext_withV2AndAllContextsInactive_returnsInvalidContext() {
+        int nextDefault = mCarVolume.getSuggestedAudioContextAndSaveIfFound(Collections.emptyList(),
+                CALL_STATE_IDLE, Collections.emptyList(), getAllAudioAttributes());
+
+        assertWithMessage("Invalid audio context for version 2 priority list")
+                .that(nextDefault).isEqualTo(CarAudioContext.getInvalidContext());
+    }
+
+    @Test
+    public void getSuggestedAudioContext_withV1AndAllContextsInactive_returnsInvalidContext() {
+        CarVolume carVolume = getCarVolumeWithVersionOnePriorities();
+        int nextDefault = carVolume.getSuggestedAudioContextAndSaveIfFound(Collections.emptyList(),
+                CALL_STATE_IDLE, Collections.emptyList(), getAllAudioAttributes());
+
+        assertWithMessage("Invalid audio context for version 1 priority list")
+                .that(nextDefault).isEqualTo(CarAudioContext.getInvalidContext());
+    }
+
+    @Test
+    public void getSuggestedAudioContext_withV1AndNavConfigAndMediaInactive_returnsNav() {
+        CarVolume carVolume = getCarVolumeWithVersionOnePriorities();
+        List<AudioAttributes> activePlaybackAttributes = ImmutableList.of(CarAudioContext
+                .getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
+
+        @AudioContext int suggestedContext = carVolume
+                .getSuggestedAudioContextAndSaveIfFound(activePlaybackAttributes,
+                        CALL_STATE_IDLE, new ArrayList<>(), List.of(TEST_MEDIA_ATTRIBUTE));
+
+        assertWithMessage("Active navigation context while media inactive")
+                .that(suggestedContext).isEqualTo(TEST_CAR_AUDIO_CONTEXT
+                .getContextForAudioAttribute(TEST_NAVIGATION_ATTRIBUTE));
+    }
+
+    @Test
+    public void getSuggestedAudioContext_withV1AndNavConfigAndNavInactive_returnsDefault() {
+        CarVolume carVolume = getCarVolumeWithVersionOnePriorities();
+        List<AudioAttributes> activePlaybackAttributes = ImmutableList.of(CarAudioContext
+                .getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
+
+        @AudioContext int suggestedContext = carVolume
+                .getSuggestedAudioContextAndSaveIfFound(activePlaybackAttributes,
+                        CALL_STATE_IDLE, new ArrayList<>(), List.of(TEST_NAVIGATION_ATTRIBUTE));
+
+        assertWithMessage("Media context while navigation inactive and navigation configuration")
+                .that(suggestedContext).isEqualTo(TEST_CAR_AUDIO_CONTEXT
+                        .getContextForAudioAttribute(TEST_MEDIA_ATTRIBUTE));
+    }
 
     @Test
     public void isAnyContextActive_withOneConfigurationAndMatchedContext_returnsTrue() {
@@ -638,5 +708,18 @@ public class CarVolumeTest {
         assertThrows(NullPointerException.class,
                 () -> mCarVolume.isAnyContextActive(activeContexts,
                         Collections.EMPTY_LIST, CALL_STATE_OFFHOOK, null));
+    }
+
+    private @NonNull CarVolume getCarVolumeWithVersionOnePriorities() {
+        return new CarVolume(TEST_CAR_AUDIO_CONTEXT, mMockClock,
+                VERSION_ONE, KEY_EVENT_TIMEOUT_MS);
+    }
+
+    private static List<AudioAttributes> getAllAudioAttributes() {
+        List<AudioAttributes> audioAttributes = new ArrayList<>();
+        for (CarAudioContextInfo info : CarAudioContext.getAllContextsInfo()) {
+            Collections.addAll(audioAttributes, info.getAudioAttributes());
+        }
+        return audioAttributes;
     }
 }
