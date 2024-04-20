@@ -64,4 +64,6 @@ oneway interface ICarSystemServerClient {
      * call will set the initial user information in CarUserService.
      */
      void setInitialUser(in UserHandle user) = 4;
+
+     void notifyFocusChanged(int pid, int uid) = 5;
 }
