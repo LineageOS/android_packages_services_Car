@@ -39,7 +39,7 @@ java_defaults {
 aconfig_declarations {
     name: "android.car.feature-aconfig",
     package: "android.car.feature",
-    container: "com.android.car.framework",
+    container: "system",
     srcs: ["flags.aconfig"],
 }
 

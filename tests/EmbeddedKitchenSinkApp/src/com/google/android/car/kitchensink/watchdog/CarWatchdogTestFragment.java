@@ -386,11 +386,15 @@ public class CarWatchdogTestFragment extends Fragment {
     }
 
     private long writeToFos(FileOutputStream fos, long remainingBytes) {
+        Runtime runtime = Runtime.getRuntime();
         long totalBytesWritten = 0;
         while (remainingBytes != 0) {
-            int writeBytes =
-                    (int) Math.min(Integer.MAX_VALUE,
-                                    Math.min(Runtime.getRuntime().freeMemory(), remainingBytes));
+            // The total available free memory can be calculated by adding the currently allocated
+            // memory that is free plus the total memory available to the process which hasn't been
+            // allocated yet.
+            long totalFreeMemory = runtime.maxMemory() - runtime.totalMemory()
+                    + runtime.freeMemory();
+            int writeBytes = Math.toIntExact(Math.min(totalFreeMemory, remainingBytes));
             try {
                 fos.write(new byte[writeBytes]);
             }  catch (InterruptedIOException e) {

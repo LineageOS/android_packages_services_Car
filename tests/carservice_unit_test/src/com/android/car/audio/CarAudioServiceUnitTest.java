@@ -85,6 +85,7 @@ import static android.view.KeyEvent.KEYCODE_VOLUME_DOWN;
 import static android.view.KeyEvent.KEYCODE_VOLUME_MUTE;
 import static android.view.KeyEvent.KEYCODE_VOLUME_UP;
 
+import static com.android.car.R.bool.audioEnableVolumeKeyEventsToDynamicDevices;
 import static com.android.car.R.bool.audioPersistMasterMuteState;
 import static com.android.car.R.bool.audioUseCarVolumeGroupEvent;
 import static com.android.car.R.bool.audioUseCarVolumeGroupMuting;
@@ -481,6 +482,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private boolean mUseCarVolumeGroupMuting = true;
     private boolean mUseCarVolumeGroupEvents = true;
     private boolean mUseMinMaxActivationVolume = true;
+    private boolean mEnableVolumeKeyEventsToDynamicDevices = false;
+
 
     private TemporaryFile mTempCarAudioConfigFile;
     private TemporaryFile mTempCarAudioFadeConfigFile;
@@ -777,6 +780,12 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockResources.getInteger(audioVolumeAdjustmentContextsVersion))
                 .thenReturn(AUDIO_CONTEXT_PRIORITY_LIST_VERSION_ONE);
         when(mMockResources.getBoolean(audioPersistMasterMuteState)).thenReturn(mPersistMasterMute);
+        enableVolumeKeyEventsToDynamicDevices(mEnableVolumeKeyEventsToDynamicDevices);
+    }
+
+    private void enableVolumeKeyEventsToDynamicDevices(boolean enableVolumeKeyEvents) {
+        when(mMockResources.getBoolean(audioEnableVolumeKeyEventsToDynamicDevices))
+                .thenReturn(enableVolumeKeyEvents);
     }
 
     @Test
@@ -3358,6 +3367,111 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 + "for action up")
                 .that(service.getGroupVolume(PRIMARY_AUDIO_ZONE,
                         TEST_PRIMARY_ZONE_GROUP_0)).isEqualTo(volumeBefore);
+    }
+
+    @Test
+    public void onKeyEvent_forDynamicDevKeyEventEnabledForDefaultConfigForZoneWithDynamicDevices()
+            throws Exception {
+        enableVolumeKeyEventsToDynamicDevices(/* enableVolumeKeyEvents= */ true);
+        CarAudioService service = setUpAudioServiceWithDynamicDevices();
+        service.init();
+        assignOccupantToAudioZones();
+        int volumeBefore = service.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0);
+        KeyEventListener listener = getAudioKeyEventListener();
+        when(mMockOccupantZoneService.getOccupantZoneIdForSeat(TEST_SEAT))
+                .thenReturn(PRIMARY_OCCUPANT_ZONE);
+        when(mMockOccupantZoneService.getAudioZoneIdForOccupant(PRIMARY_OCCUPANT_ZONE))
+                .thenReturn(PRIMARY_AUDIO_ZONE);
+        KeyEvent actionDownKeyEvent = new KeyEvent(ACTION_DOWN, KEYCODE_VOLUME_UP);
+        KeyEvent actionUpKeyEvent = new KeyEvent(ACTION_UP, KEYCODE_VOLUME_UP);
+        listener.onKeyEvent(actionDownKeyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        listener.onKeyEvent(actionUpKeyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        expectWithMessage("Volume group volume after volume up in primary zone in primary group "
+                + "for volume group without dynamic devices")
+                .that(service.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0))
+                .isEqualTo(volumeBefore + 1);
+    }
+
+    @Test
+    public void
+            onKeyEvent_forDynamicDevKeyEventEnabledForDynamicDeviceConfigForZoneWithDynamicDevices()
+            throws Exception {
+        enableVolumeKeyEventsToDynamicDevices(/* enableVolumeKeyEvents= */ true);
+        CarAudioService service = setUpAudioServiceWithDynamicDevices();
+        service.init();
+        assignOccupantToAudioZones();
+        SwitchAudioZoneConfigCallbackImpl callback = new SwitchAudioZoneConfigCallbackImpl();
+        TestAudioZoneConfigurationsChangeCallback configCallback =
+                getRegisteredZoneConfigCallback(service);
+        AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
+        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        configCallback.waitForCallback();
+        configCallback.reset();
+        List<CarAudioZoneConfigInfo> zoneConfigInfos =
+                service.getAudioZoneConfigInfos(PRIMARY_AUDIO_ZONE);
+        CarAudioZoneConfigInfo zoneConfigSwitchTo = zoneConfigInfos.stream()
+                .filter(c -> c.getName().equals(PRIMARY_CONFIG_NAME_DYNAMIC_DEVICES))
+                .findFirst().orElseThrow();
+        service.switchZoneToConfig(zoneConfigSwitchTo, callback);
+        configCallback.waitForCallback();
+        int volumeBefore = service.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0);
+        KeyEventListener listener = getAudioKeyEventListener();
+        when(mMockOccupantZoneService.getOccupantZoneIdForSeat(TEST_SEAT))
+                .thenReturn(PRIMARY_OCCUPANT_ZONE);
+        when(mMockOccupantZoneService.getAudioZoneIdForOccupant(PRIMARY_OCCUPANT_ZONE))
+                .thenReturn(PRIMARY_AUDIO_ZONE);
+        KeyEvent actionDownKeyEvent = new KeyEvent(ACTION_DOWN, KEYCODE_VOLUME_UP);
+        KeyEvent actionUpKeyEvent = new KeyEvent(ACTION_UP, KEYCODE_VOLUME_UP);
+        listener.onKeyEvent(actionDownKeyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        listener.onKeyEvent(actionUpKeyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        expectWithMessage("Volume after volume up in primary zone in primary group "
+                + "for volume group with dynamic devices while dynamic device key events enabled")
+                .that(service.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0))
+                .isEqualTo(volumeBefore + 1);
+    }
+
+    @Test
+    public void
+            onKeyEvent_forDynDevKeyEventDisabledForDynamicDeviceConfigForZoneWithDynamicDevices()
+            throws Exception {
+        enableVolumeKeyEventsToDynamicDevices(/* enableVolumeKeyEvents= */ false);
+        CarAudioService service = setUpAudioServiceWithDynamicDevices();
+        service.init();
+        assignOccupantToAudioZones();
+        SwitchAudioZoneConfigCallbackImpl callback = new SwitchAudioZoneConfigCallbackImpl();
+        TestAudioZoneConfigurationsChangeCallback configCallback =
+                getRegisteredZoneConfigCallback(service);
+        AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
+        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        configCallback.waitForCallback();
+        configCallback.reset();
+        List<CarAudioZoneConfigInfo> zoneConfigInfos =
+                service.getAudioZoneConfigInfos(PRIMARY_AUDIO_ZONE);
+        CarAudioZoneConfigInfo zoneConfigSwitchTo = zoneConfigInfos.stream()
+                .filter(c -> c.getName().equals(PRIMARY_CONFIG_NAME_DYNAMIC_DEVICES))
+                .findFirst().orElseThrow();
+        service.switchZoneToConfig(zoneConfigSwitchTo, callback);
+        configCallback.waitForCallback();
+        int volumeBefore = service.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0);
+        KeyEventListener listener = getAudioKeyEventListener();
+        when(mMockOccupantZoneService.getOccupantZoneIdForSeat(TEST_SEAT))
+                .thenReturn(PRIMARY_OCCUPANT_ZONE);
+        when(mMockOccupantZoneService.getAudioZoneIdForOccupant(PRIMARY_OCCUPANT_ZONE))
+                .thenReturn(PRIMARY_AUDIO_ZONE);
+        KeyEvent actionDownKeyEvent = new KeyEvent(ACTION_DOWN, KEYCODE_VOLUME_UP);
+        KeyEvent actionUpKeyEvent = new KeyEvent(ACTION_UP, KEYCODE_VOLUME_UP);
+        listener.onKeyEvent(actionDownKeyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        listener.onKeyEvent(actionUpKeyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        expectWithMessage("Volume after volume up in primary zone in primary group "
+                + "for volume group with dynamic devices while dynamic device key events disabled")
+                .that(service.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0))
+                .isEqualTo(volumeBefore);
     }
 
     @Test

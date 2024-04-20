@@ -16,6 +16,7 @@
 
 package com.android.car.audio;
 
+import static android.car.media.CarAudioManager.INVALID_VOLUME_GROUP_ID;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.media.AudioManager.ADJUST_LOWER;
 import static android.media.AudioManager.ADJUST_MUTE;
@@ -230,6 +231,48 @@ public class CarAudioPolicyVolumeCallbackTest {
 
         verify(mVolumeCallbackInternal).onGroupVolumeChange(PRIMARY_AUDIO_ZONE,
                 TEST_VOLUME_GROUP, TEST_MIN_VOLUME, TEST_EXPECTED_FLAGS);
+    }
+
+    @Test
+    public void onVolumeAdjustment_withAdjustRaiseForInvalidGroup() {
+        when(mMockVolumeInfoWrapper.getVolumeGroupIdForAudioZone(PRIMARY_AUDIO_ZONE))
+                .thenReturn(INVALID_VOLUME_GROUP_ID);
+        CarAudioPolicyVolumeCallback callback =
+                new CarAudioPolicyVolumeCallback(mVolumeCallbackInternal, mMockAudioManager,
+                        mMockVolumeInfoWrapper, /* useCarVolumeGroupMuting= */ true);
+
+        callback.onVolumeAdjustment(ADJUST_RAISE);
+
+        verify(mVolumeCallbackInternal, never())
+                .onGroupVolumeChange(anyInt(), anyInt(), anyInt(), anyInt());
+    }
+
+    @Test
+    public void onVolumeAdjustment_withAdjustLowerForInvalidGroup() {
+        when(mMockVolumeInfoWrapper.getVolumeGroupIdForAudioZone(PRIMARY_AUDIO_ZONE))
+                .thenReturn(INVALID_VOLUME_GROUP_ID);
+        CarAudioPolicyVolumeCallback callback =
+                new CarAudioPolicyVolumeCallback(mVolumeCallbackInternal, mMockAudioManager,
+                        mMockVolumeInfoWrapper, /* useCarVolumeGroupMuting= */ true);
+
+        callback.onVolumeAdjustment(ADJUST_LOWER);
+
+        verify(mVolumeCallbackInternal, never())
+                .onGroupVolumeChange(anyInt(), anyInt(), anyInt(), anyInt());
+    }
+
+    @Test
+    public void onVolumeAdjustment_withAdjustMuteForInvalidGroup() {
+        when(mMockVolumeInfoWrapper.getVolumeGroupIdForAudioZone(PRIMARY_AUDIO_ZONE))
+                .thenReturn(INVALID_VOLUME_GROUP_ID);
+        CarAudioPolicyVolumeCallback callback =
+                new CarAudioPolicyVolumeCallback(mVolumeCallbackInternal, mMockAudioManager,
+                        mMockVolumeInfoWrapper, /* useCarVolumeGroupMuting= */ true);
+
+        callback.onVolumeAdjustment(ADJUST_MUTE);
+
+        verify(mVolumeCallbackInternal, never())
+                .onMuteChange(anyBoolean(), anyInt(), anyInt(), anyInt());
     }
 
     @Test
