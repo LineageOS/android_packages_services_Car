@@ -36,6 +36,7 @@ import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADPHONES;
 import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET;
 
 import static com.android.car.audio.CarAudioUtils.excludesDynamicDevices;
+import static com.android.car.audio.CarAudioUtils.getAudioAttributesForDynamicDevices;
 import static com.android.car.audio.CarAudioUtils.getDynamicDevicesInConfig;
 import static com.android.car.audio.CarAudioUtils.hasExpired;
 import static com.android.car.audio.CarAudioUtils.isMicrophoneInputDevice;
@@ -53,6 +54,7 @@ import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.platform.test.flag.junit.SetFlagsRule;
 
+import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.car.internal.util.DebugUtils;
@@ -223,11 +225,7 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
     @Test
     public void excludesDynamicDevices_withOutDynamicDevices() {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-        CarAudioZoneConfigInfo testNoDynamicDevicesConfig =
-                new CarAudioZoneConfigInfo("Non-dynamic-devices-config",
-                        List.of(TEST_MEDIA_VOLUME_INFO, TEST_NAV_VOLUME_INFO),
-                        TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
-                        TEST_DEFAULT_STATUS);
+        CarAudioZoneConfigInfo testNoDynamicDevicesConfig = getCarAudioZoneConfigInfo();
 
         expectWithMessage("Info without dynamic devices")
                 .that(excludesDynamicDevices(testNoDynamicDevicesConfig)).isTrue();
@@ -236,11 +234,7 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
     @Test
     public void excludesDynamicDevices_withDynamicDevices() {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-        CarAudioZoneConfigInfo testDynamicDevicesConfig =
-                new CarAudioZoneConfigInfo("dynamic-devices-config",
-                        List.of(TEST_MEDIA_VOLUME_INFO, TEST_NAV_VOLUME_INFO, TEST_BT_VOLUME_INFO),
-                        TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
-                        TEST_DEFAULT_STATUS);
+        CarAudioZoneConfigInfo testDynamicDevicesConfig = getTestDynamicDevicesConfig();
 
         expectWithMessage("Info with dynamic devices")
                 .that(excludesDynamicDevices(testDynamicDevicesConfig)).isFalse();
@@ -249,11 +243,7 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
     @Test
     public void excludesDynamicDevices_withOutDynamicDevices_withDynamicFlagsDisabled() {
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-        CarAudioZoneConfigInfo testNoDynamicDevicesConfig =
-                new CarAudioZoneConfigInfo("Non-dynamic-devices-config",
-                        List.of(TEST_MEDIA_VOLUME_INFO, TEST_NAV_VOLUME_INFO),
-                        TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
-                        TEST_DEFAULT_STATUS);
+        CarAudioZoneConfigInfo testNoDynamicDevicesConfig = getCarAudioZoneConfigInfo();
 
         expectWithMessage("Info without dynamic devices with dynamic flags disable")
                 .that(excludesDynamicDevices(testNoDynamicDevicesConfig)).isTrue();
@@ -262,11 +252,7 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
     @Test
     public void excludesDynamicDevices_withDynamicDevices_withDynamicFlagsDisabled() {
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-        CarAudioZoneConfigInfo testDynamicDevicesConfig =
-                new CarAudioZoneConfigInfo("dynamic-devices-config",
-                        List.of(TEST_MEDIA_VOLUME_INFO, TEST_NAV_VOLUME_INFO, TEST_BT_VOLUME_INFO),
-                        TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
-                        TEST_DEFAULT_STATUS);
+        CarAudioZoneConfigInfo testDynamicDevicesConfig = getTestDynamicDevicesConfig();
 
         expectWithMessage("Info with dynamic devices with dynamic flags disable")
                 .that(excludesDynamicDevices(testDynamicDevicesConfig)).isTrue();
@@ -276,11 +262,7 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
     public void getDynamicDevicesInConfig_withDynamicDevices() {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         AudioManager manager = setUpMockAudioManager();
-        CarAudioZoneConfigInfo testDynamicDevicesConfig =
-                new CarAudioZoneConfigInfo("dynamic-devices-config",
-                        List.of(TEST_MEDIA_VOLUME_INFO, TEST_NAV_VOLUME_INFO, TEST_BT_VOLUME_INFO),
-                        TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
-                        TEST_DEFAULT_STATUS);
+        CarAudioZoneConfigInfo testDynamicDevicesConfig = getTestDynamicDevicesConfig();
 
         expectWithMessage("Non-dynamic devices")
                 .that(getDynamicDevicesInConfig(testDynamicDevicesConfig, manager))
@@ -291,11 +273,7 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
     public void getDynamicDevicesInConfig_withoutDynamicDevices() {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         AudioManager manager = setUpMockAudioManager();
-        CarAudioZoneConfigInfo testDynamicDevicesConfig =
-                new CarAudioZoneConfigInfo("dynamic-devices-config",
-                        List.of(TEST_MEDIA_VOLUME_INFO, TEST_NAV_VOLUME_INFO),
-                        TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
-                        TEST_DEFAULT_STATUS);
+        CarAudioZoneConfigInfo testDynamicDevicesConfig = getCarAudioZoneConfigInfo();
 
         expectWithMessage("Dynamic devices")
                 .that(getDynamicDevicesInConfig(testDynamicDevicesConfig, manager)).isEmpty();
@@ -305,11 +283,7 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
     public void getDynamicDevicesInConfig_withDynamicDevices_andFlagDisabled() {
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         AudioManager manager = setUpMockAudioManager();
-        CarAudioZoneConfigInfo testDynamicDevicesConfig =
-                new CarAudioZoneConfigInfo("dynamic-devices-config",
-                        List.of(TEST_MEDIA_VOLUME_INFO, TEST_NAV_VOLUME_INFO, TEST_BT_VOLUME_INFO),
-                        TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
-                        TEST_DEFAULT_STATUS);
+        CarAudioZoneConfigInfo testDynamicDevicesConfig = getTestDynamicDevicesConfig();
 
         expectWithMessage("Dynamic devices with flags disabled")
                 .that(getDynamicDevicesInConfig(testDynamicDevicesConfig, manager)).isEmpty();
@@ -319,14 +293,62 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
     public void getDynamicDevicesInConfig_withoutDynamicDevices_andFlagDisabled() {
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         AudioManager manager = setUpMockAudioManager();
-        CarAudioZoneConfigInfo testDynamicDevicesConfig =
-                new CarAudioZoneConfigInfo("dynamic-devices-config",
-                        List.of(TEST_MEDIA_VOLUME_INFO, TEST_NAV_VOLUME_INFO),
-                        TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
-                        TEST_DEFAULT_STATUS);
+        CarAudioZoneConfigInfo testNonDynamicDevicesConfig = getCarAudioZoneConfigInfo();
 
         expectWithMessage("Non-dynamic devices with flags disabled")
-                .that(getDynamicDevicesInConfig(testDynamicDevicesConfig, manager)).isEmpty();
+                .that(getDynamicDevicesInConfig(testNonDynamicDevicesConfig, manager)).isEmpty();
+    }
+
+    @Test
+    public void getAudioAttributesForDynamicDevices_withoutDynamicDevicesAndFlagDisabled() {
+        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        CarAudioZoneConfigInfo testNonDynamicDevicesConfig = getCarAudioZoneConfigInfo();
+
+        expectWithMessage("Audio attributes with flags disabled without dynamic device")
+                .that(getAudioAttributesForDynamicDevices(testNonDynamicDevicesConfig)).isEmpty();
+    }
+
+    @Test
+    public void getAudioAttributesForDynamicDevices_withDynamicDevicesAndFlagDisabled() {
+        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        CarAudioZoneConfigInfo testDynamicDevicesConfig = getTestDynamicDevicesConfig();
+
+        expectWithMessage("Audio attributes with flags disabled with dynamic devices")
+                .that(getAudioAttributesForDynamicDevices(testDynamicDevicesConfig)).isEmpty();
+    }
+
+    @Test
+    public void getAudioAttributesForDynamicDevices_withDynamicDevicesAndFlagEnabled() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        CarAudioZoneConfigInfo testDynamicDevicesConfig = getTestDynamicDevicesConfig();
+
+        expectWithMessage("Audio attributes for volume group with dynamic devices and "
+                + "flags enabled")
+                .that(getAudioAttributesForDynamicDevices(testDynamicDevicesConfig))
+                .containsExactlyElementsIn(TEST_BT_VOLUME_INFO.getAudioAttributes());
+    }
+
+    @Test
+    public void getAudioAttributesForDynamicDevices_withoutDynamicDevicesAndFlagEnabled() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        CarAudioZoneConfigInfo testDynamicDevicesConfig = getCarAudioZoneConfigInfo();
+
+        expectWithMessage("Audio attributes for volume group with no dynamic devices and "
+                + "flags enabled")
+                .that(getAudioAttributesForDynamicDevices(testDynamicDevicesConfig)).isEmpty();
+    }
+
+    private static CarAudioZoneConfigInfo getTestDynamicDevicesConfig() {
+        return new CarAudioZoneConfigInfo("dynamic-devices-config",
+                List.of(TEST_MEDIA_VOLUME_INFO, TEST_NAV_VOLUME_INFO, TEST_BT_VOLUME_INFO),
+                TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
+                TEST_DEFAULT_STATUS);
+    }
+
+    private static @NonNull CarAudioZoneConfigInfo getCarAudioZoneConfigInfo() {
+        return new CarAudioZoneConfigInfo("Non-dynamic-devices-config",
+                List.of(TEST_MEDIA_VOLUME_INFO, TEST_NAV_VOLUME_INFO), TEST_ZONE_ID, TEST_CONFIG_ID,
+                TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS, TEST_DEFAULT_STATUS);
     }
 
     private AudioManager setUpMockAudioManager() {

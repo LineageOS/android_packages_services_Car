@@ -18,6 +18,7 @@ package com.android.car.audio;
 
 import static android.car.builtin.media.AudioManagerHelper.adjustToString;
 import static android.car.builtin.media.AudioManagerHelper.isMasterMute;
+import static android.car.media.CarAudioManager.INVALID_VOLUME_GROUP_ID;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.media.AudioManager.ADJUST_LOWER;
 import static android.media.AudioManager.ADJUST_MUTE;
@@ -146,6 +147,13 @@ final class CarAudioPolicyVolumeCallback extends AudioPolicy.AudioPolicyVolumeCa
 
     private void evaluateVolumeAdjustmentInternal(int adjustment, int zoneId) {
         int groupId = mCarVolumeInfo.getVolumeGroupIdForAudioZone(zoneId);
+        if (groupId == INVALID_VOLUME_GROUP_ID) {
+            // This can happen if all volume groups are configured with dynamic devices and the
+            // configuration to allow volume key events to dynamic devices is disabled.
+            Slogf.w(TAG_AUDIO, "onVolumeAdjustment: %s but no suitable volume group id was found.",
+                    adjustToString(adjustment));
+            return;
+        }
         boolean isMuted = isMuted(zoneId, groupId);
 
         if (Slogf.isLoggable(TAG_AUDIO, VERBOSE)) {
