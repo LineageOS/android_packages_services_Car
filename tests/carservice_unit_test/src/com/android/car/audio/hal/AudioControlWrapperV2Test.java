@@ -234,6 +234,27 @@ public final class AudioControlWrapperV2Test {
     }
 
     @Test
+    public void setModuleChangeCallback_throws() {
+        UnsupportedOperationException thrown = assertThrows(UnsupportedOperationException.class,
+                () -> mAudioControlWrapperV2.setModuleChangeCallback(mock(
+                        HalAudioModuleChangeCallback.class)));
+
+        assertWithMessage("UnsupportedOperationException thrown by setModuleChangeCallback")
+                .that(thrown).hasMessageThat()
+                .contains("Module change callback is unsupported for IAudioControl@2.0");
+    }
+
+    @Test
+    public void clearModuleChangeCallback_throws() {
+        UnsupportedOperationException thrown = assertThrows(UnsupportedOperationException.class,
+                () -> mAudioControlWrapperV2.clearModuleChangeCallback());
+
+        assertWithMessage("UnsupportedOperationException thrown by clearModuleChangeCallback")
+                .that(thrown).hasMessageThat()
+                .contains("Module change callback is unsupported for IAudioControl@2.0");
+    }
+
+    @Test
     public void linkToDeath_succeeds() throws Exception {
         AudioControlWrapper.AudioControlDeathRecipient deathRecipient =
                 mock(AudioControlWrapper.AudioControlDeathRecipient.class);

@@ -21,11 +21,14 @@ import static android.media.audio.common.AudioDeviceType.IN_DEVICE;
 import static android.media.audio.common.AudioDeviceType.OUT_DEVICE;
 import static android.media.audio.common.AudioGainMode.JOINT;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.NonNull;
 import android.media.audio.common.AudioDevice;
 import android.media.audio.common.AudioGain;
 import android.media.audio.common.AudioPort;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.util.Preconditions;
 
 import java.util.Objects;
@@ -103,6 +106,7 @@ public final class HalAudioDeviceInfo {
         return mType == IN_DEVICE;
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     @Override
     public String toString() {
         return new StringBuilder()
