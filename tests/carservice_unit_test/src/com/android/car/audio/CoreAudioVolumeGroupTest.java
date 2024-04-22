@@ -552,4 +552,11 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         verify(mMockAudioManager, never()).setPreferredDeviceForStrategy(MUSIC_STRATEGY,
                 mMusicDeviceAttributes);
     }
+
+    @Test
+    public void calculateNewGainStageFromDeviceInfos() {
+        expectWithMessage("Gain stage from device infos")
+                .that(mMusicCoreAudioVolumeGroup.calculateNewGainStageFromDeviceInfos())
+                .isEqualTo(0);
+    }
 }
