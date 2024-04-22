@@ -18,12 +18,17 @@ package com.android.car.audio;
 
 import static android.media.AudioDeviceInfo.TYPE_BUS;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import static org.mockito.Mockito.when;
 
 import android.media.AudioDeviceAttributes;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+
 import org.mockito.Mockito;
 
+@ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
 public final class TestCarAudioDeviceInfoBuilder {
     public static final int STEP_VALUE = 2;
     public static final int MIN_GAIN = 3;

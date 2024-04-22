@@ -15,12 +15,17 @@
  */
 package com.android.car.audio;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 import android.os.Build;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
+
+@ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
 public final class CarAudioTestUtils {
 
     private static final String PACKAGE_NAME = "com.android.car.audio";

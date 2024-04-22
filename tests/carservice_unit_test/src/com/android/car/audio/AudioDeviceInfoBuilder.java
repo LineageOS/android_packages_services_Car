@@ -16,6 +16,8 @@
 
 package com.android.car.audio;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -23,6 +25,9 @@ import android.media.AudioDeviceInfo;
 import android.media.AudioDevicePort;
 import android.media.AudioGain;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+
+@ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
 public final class AudioDeviceInfoBuilder {
 
     private String mAddressName;
