@@ -173,6 +173,8 @@ import android.media.audiopolicy.AudioPolicy;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
@@ -193,6 +195,7 @@ import com.android.car.CarInputService;
 import com.android.car.CarInputService.KeyEventListener;
 import com.android.car.CarLocalServices;
 import com.android.car.CarOccupantZoneService;
+import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.audio.hal.AudioControlFactory;
 import com.android.car.audio.hal.AudioControlWrapper;
@@ -432,6 +435,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final int AUDIO_SERVICE_POLICY_REGISTRATIONS_WITH_FADE_MANAGER = 4;
     private static final int AUDIO_SERVICE_CALLBACKS_REGISTRATION = 1;
 
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
+
     @Mock
     private Context mMockContext;
     @Mock
@@ -539,6 +545,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Before
     public void setUp() throws Exception {
+        mHandlerThread = CarServiceUtils.getHandlerThread(CarAudioService.class.getSimpleName());
+        mHandler = new Handler(mHandlerThread.getLooper());
         mContext = ApplicationProvider.getApplicationContext();
 
         mockCarGetPlatformVersion(UPSIDE_DOWN_CAKE_0);
@@ -603,7 +611,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         when(mMockOccupantZoneService.getUserForOccupant(TEST_DRIVER_OCCUPANT_ZONE_ID))
                 .thenReturn(TEST_DRIVER_USER_ID);
-        when(mMockOccupantZoneService.getDriverUserId()).thenReturn(TEST_DRIVER_USER_ID);
         when(mMockOccupantZoneService.getAudioZoneIdForOccupant(TEST_DRIVER_OCCUPANT_ZONE_ID))
                 .thenReturn(PRIMARY_AUDIO_ZONE);
         when(mMockOccupantZoneService.getOccupantZoneForUser(UserHandle.of(TEST_DRIVER_USER_ID)))
@@ -644,6 +651,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .thenReturn(TEST_REAR_LEFT_PASSENGER_OCCUPANT);
         when(mMockOccupantZoneService.getOccupantForAudioZoneId(TEST_REAR_ROW_3_ZONE_ID))
                 .thenReturn(TEST_REAR_ROW_3_PASSENGER_OCCUPANT);
+
+        // Initially set occupant zone service at uninitialized
+        when(mMockOccupantZoneService.getDriverUserId()).thenReturn(UserHandle.USER_SYSTEM);
 
         CarLocalServices.removeServiceForTest(CarOccupantZoneService.class);
         CarLocalServices.addService(CarOccupantZoneService.class, mMockOccupantZoneService);
@@ -2088,6 +2098,26 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void init_forUserAlreadySetup_callsInternalConfigChange() throws Exception {
+        when(mMockOccupantZoneService.getDriverUserId()).thenReturn(TEST_DRIVER_USER_ID);
+        when(mMockOccupantZoneService.getUserForOccupant(TEST_DRIVER_OCCUPANT_ZONE_ID))
+                .thenReturn(TEST_DRIVER_USER_ID);
+        when(mMockOccupantZoneService.getUserForOccupant(TEST_REAR_RIGHT_OCCUPANT_ZONE_ID))
+                .thenReturn(TEST_REAR_RIGHT_USER_ID);
+        CarAudioService service = setUpAudioServiceWithoutInit();
+
+        service.init();
+
+        waitForInternalCallback();
+        expectWithMessage("User ID for primary zone for user available at init")
+                .that(service.getUserIdForZone(PRIMARY_AUDIO_ZONE))
+                .isEqualTo(TEST_DRIVER_USER_ID);
+        expectWithMessage("User ID secondary zone for user available at init")
+                .that(service.getUserIdForZone(TEST_REAR_RIGHT_ZONE_ID))
+                .isEqualTo(TEST_REAR_RIGHT_USER_ID);
+    }
+
+    @Test
     public void serviceDied_registersAudioGainCallback() throws Exception {
         setUpAudioService();
         ArgumentCaptor<AudioControlDeathRecipient> captor =
@@ -2302,6 +2332,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         callback.onAudioServerUp();
 
+        waitForInternalCallback();
         expectWithMessage("Re-initialized Car Audio Service Zones")
                 .that(service.getAudioZoneIds()).asList()
                 .containsExactly(PRIMARY_AUDIO_ZONE, TEST_REAR_LEFT_ZONE_ID,
@@ -2402,6 +2433,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void onAudioServerUp_forUserIdAssignments() throws Exception {
         CarAudioService service = setUpAudioService();
+        when(mMockOccupantZoneService.getDriverUserId()).thenReturn(TEST_DRIVER_USER_ID);
+        when(mMockOccupantZoneService.getUserForOccupant(TEST_DRIVER_OCCUPANT_ZONE_ID))
+                .thenReturn(TEST_DRIVER_USER_ID);
         AudioServerStateCallback callback = getAudioServerStateCallback();
         callback.onAudioServerDown();
 
@@ -3783,8 +3817,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     public void getCallStateForZone_forPrimaryZone() throws Exception {
         when(mMockTelephonyManagerWithoutSubscriptionId.getCallState())
                 .thenReturn(TelephonyManager.CALL_STATE_OFFHOOK);
-        when(mMockOccupantZoneService.getDriverUserId()).thenReturn(TEST_DRIVER_USER_ID);
         CarAudioService service = setUpAudioService();
+        when(mMockOccupantZoneService.getDriverUserId()).thenReturn(TEST_DRIVER_USER_ID);
         when(mMockOccupantZoneService.getUserForOccupant(anyInt()))
                 .thenReturn(TEST_DRIVER_USER_ID, TEST_REAR_RIGHT_USER_ID);
         assignOccupantToAudioZones();
@@ -3796,10 +3830,10 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void getCallStateForZone_forNonPrimaryZone() throws Exception {
+        CarAudioService service = setUpAudioService();
         when(mMockTelephonyManagerWithoutSubscriptionId.getCallState())
                 .thenReturn(TelephonyManager.CALL_STATE_OFFHOOK);
         when(mMockOccupantZoneService.getDriverUserId()).thenReturn(TEST_DRIVER_USER_ID);
-        CarAudioService service = setUpAudioService();
         when(mMockOccupantZoneService.getUserForOccupant(anyInt()))
                 .thenReturn(TEST_REAR_LEFT_USER_ID, TEST_REAR_RIGHT_USER_ID);
         assignOccupantToAudioZones();
@@ -5804,6 +5838,12 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 eq(ringGroupId), anyInt());
         expectWithMessage("No volume event callback for ring state in activation volume"
                 + " index range").that(volumeEventCallback.waitForCallback()).isFalse();
+    }
+
+    private void waitForInternalCallback() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        mHandler.post(latch::countDown);
+        latch.await(TEST_ZONE_CONFIG_CALLBACK_TIMEOUT_MS, TimeUnit.MILLISECONDS);
     }
 
     private CarAudioService setUpCarAudioServiceWithoutZoneMapping() throws Exception {
