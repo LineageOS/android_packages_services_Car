@@ -432,31 +432,43 @@ ScopedAStatus VirtualCamera::startVideoStream(const std::shared_ptr<IEvsCameraSt
     mStreamState = RUNNING;
 
     // Tell the underlying camera hardware that we want to stream
-    for (auto iter = mHalCamera.begin(); iter != mHalCamera.end(); ++iter) {
+    bool cleanUpAndReturn = true;
+    auto iter = mHalCamera.begin();
+    while (iter != mHalCamera.end()) {
         std::shared_ptr<HalCamera> pHwCamera = iter->second.lock();
         if (!pHwCamera) {
-            LOG(ERROR) << "Failed to start a video stream on " << iter->first;
+            LOG(WARNING) << "Failed to start a video stream on " << iter->first;
+            ++iter;
             continue;
         }
 
         LOG(INFO) << __FUNCTION__ << " starts a video stream on " << iter->first;
         if (!pHwCamera->clientStreamStarting().isOk()) {
-            // If we failed to start the underlying stream, then we're not actually running
-            mStream = nullptr;
-            mStreamState = STOPPED;
-
-            // Request to stop streams started by this client.
-            auto rb = mHalCamera.begin();
-            while (rb != iter) {
-                auto ptr = rb->second.lock();
-                if (ptr) {
-                    ptr->clientStreamEnding(this);
-                }
-                ++rb;
-            }
-
-            return Utils::buildScopedAStatusFromEvsResult(EvsResult::UNDERLYING_SERVICE_ERROR);
+            LOG(ERROR) << "Failed to start a video stream on " << iter->first;
+            cleanUpAndReturn = true;
+            break;
         }
+
+        cleanUpAndReturn = false;
+        ++iter;
+    }
+
+    if (cleanUpAndReturn) {
+        // If we failed to start the underlying stream, then we're not actually running
+        mStream = nullptr;
+        mStreamState = STOPPED;
+
+        // Request to stop streams started by this client.
+        auto rb = mHalCamera.begin();
+        while (rb != iter) {
+            auto ptr = rb->second.lock();
+            if (ptr) {
+                ptr->clientStreamEnding(this);
+            }
+            ++rb;
+        }
+
+        return Utils::buildScopedAStatusFromEvsResult(EvsResult::UNDERLYING_SERVICE_ERROR);
     }
 
     mCaptureThread = std::thread([this]() {
