@@ -87,6 +87,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class implements the binder interface for ICarProperty.aidl to make it easier to create
@@ -217,6 +219,15 @@ public class CarPropertyService extends ICarProperty.Stub
     @VisibleForTesting
     void setFeatureFlags(FeatureFlags fakeFeatureFlags) {
         mFeatureFlags = fakeFeatureFlags;
+    }
+
+    @VisibleForTesting
+    void finishHandlerTasks(int timeoutInMs) throws InterruptedException {
+        CountDownLatch cdLatch = new CountDownLatch(1);
+        mHandler.post(() -> {
+            cdLatch.countDown();
+        });
+        cdLatch.await(timeoutInMs, TimeUnit.MILLISECONDS);
     }
 
     @Override
