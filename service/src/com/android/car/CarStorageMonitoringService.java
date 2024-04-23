@@ -74,6 +74,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -523,14 +524,9 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
             doInitServiceIfNeededLocked();
             writer.println("last wear information retrieved: "
                     + mWearInformation.map(WearInformation::toString).orElse("missing"));
-            writer.println("wear change history: "
-                    + mWearEstimateChanges.stream()
-                    .map(WearEstimateChange::toString)
-                    .collect(Collectors.joining("\n")));
-            writer.println("boot I/O stats: "
-                    + mBootIoStats.stream()
-                    .map(IoStatsEntry::toString)
-                    .collect(Collectors.joining("\n")));
+            writer.println(listToString(mWearEstimateChanges, "\n",
+                    "wear change history: "));
+            writer.println(listToString(mBootIoStats, "\n", "boot I/O stats: "));
             writer.println("aggregate I/O stats: "
                     + SparseArrayStream.valueStream(mIoStatsTracker.getTotal())
                     .map(IoStatsEntry::toString)
@@ -538,9 +534,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
             writer.println("I/O stats snapshots: ");
             writer.println(
                     mIoStatsSamples.stream().map(
-                            sample -> sample.getStats().stream()
-                                    .map(IoStatsEntry::toString)
-                                    .collect(Collectors.joining("\n")))
+                            sample -> listToString(sample.getStats(), "\n", ""))
                             .collect(Collectors.joining("\n------\n")));
             if (mShutdownCostInfo < 0) {
                 writer.print("last shutdown cost: missing. ");
@@ -551,6 +545,14 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
                 writer.println("last shutdown cost: " + mShutdownCostInfo + " bytes, estimated");
             }
         }
+    }
+
+    private <T> String listToString(List<T> list, CharSequence delimiter, String prefix) {
+        StringJoiner stringJoiner = new StringJoiner(delimiter, prefix, /* suffix= */ "");
+        for (int index = 0; index < list.size(); index++) {
+            stringJoiner.add(list.get(index).toString());
+        }
+        return stringJoiner.toString();
     }
 
     @Override

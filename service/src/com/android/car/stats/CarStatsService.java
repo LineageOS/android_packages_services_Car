@@ -23,7 +23,7 @@ import android.app.StatsManager.PullAtomMetadata;
 import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.util.ArrayMap;
+import android.util.SparseArray;
 import android.util.StatsEvent;
 
 import com.android.car.CarLog;
@@ -35,11 +35,10 @@ import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.stats.VmsClientLogger.ConnectionState;
 import com.android.internal.annotations.GuardedBy;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -87,7 +86,7 @@ public class CarStatsService implements CarSystemService {
     private final StatsManager mStatsManager;
 
     @GuardedBy("mVmsClientStats")
-    private final Map<Integer, VmsClientLogger> mVmsClientStats = new ArrayMap<>();
+    private final SparseArray<VmsClientLogger> mVmsClientStats = new SparseArray();
 
     public CarStatsService(Context context) {
         mContext = context;
@@ -121,16 +120,19 @@ public class CarStatsService implements CarSystemService {
      */
     public VmsClientLogger getVmsClientLogger(int clientUid) {
         synchronized (mVmsClientStats) {
-            return mVmsClientStats.computeIfAbsent(
-                    clientUid,
-                    uid -> {
-                        String packageName = mPackageManager.getNameForUid(uid);
-                        if (DEBUG) {
-                            Slogf.d(TAG, "Created VmsClientLog: " + packageName);
-                        }
-                        return new VmsClientLogger(uid, packageName);
-                    });
+            if (!mVmsClientStats.contains(clientUid)) {
+                String packageName = mPackageManager.getNameForUid(clientUid);
+                if (DEBUG) {
+                    Slogf.d(TAG, "Created VmsClientLog: " + packageName);
+                }
+                mVmsClientStats.put(clientUid, new VmsClientLogger(clientUid, packageName));
+            }
+            return mVmsClientStats.get(clientUid);
         }
+    }
+
+    interface DumpVmsClientStats {
+        void dump(VmsClientStats vmsClientStats);
     }
 
     @Override
@@ -138,13 +140,17 @@ public class CarStatsService implements CarSystemService {
     public void dump(IndentingPrintWriter writer) {
         synchronized (mVmsClientStats) {
             writer.println(VMS_CONNECTION_STATS_DUMPSYS_HEADER);
-            mVmsClientStats.values().stream()
-                    // Unknown UID will not have connection stats
-                    .filter(entry -> entry.getUid() > 0)
-                    // Sort stats by UID
-                    .sorted(Comparator.comparingInt(VmsClientLogger::getUid))
-                    .forEachOrdered(entry -> writer.println(
-                            VMS_CONNECTION_STATS_DUMPSYS_FORMAT.apply(entry)));
+            List<VmsClientLogger> loggers = new ArrayList<>();
+            for (int index = 0; index < mVmsClientStats.size(); index++) {
+                // Unknown UID will not have connection stats
+                if (mVmsClientStats.valueAt(index).getUid() > 0) {
+                    loggers.add(mVmsClientStats.valueAt(index));
+                }
+            }
+            loggers.sort(Comparator.comparingInt(VmsClientLogger::getUid));
+            for (int index = 0; index < loggers.size(); index++) {
+                writer.println(VMS_CONNECTION_STATS_DUMPSYS_FORMAT.apply(loggers.get(index)));
+            }
             writer.println();
 
             writer.println(VMS_CLIENT_STATS_DUMPSYS_HEADER);
@@ -178,12 +184,16 @@ public class CarStatsService implements CarSystemService {
         return StatsManager.PULL_SUCCESS;
     }
 
-    private void dumpVmsClientStats(Consumer<VmsClientStats> dumpFn) {
+    private void dumpVmsClientStats(DumpVmsClientStats dumpFn) {
         synchronized (mVmsClientStats) {
-            mVmsClientStats.values().stream()
-                    .flatMap(log -> log.getLayerEntries().stream())
-                    .sorted(VMS_CLIENT_STATS_ORDER)
-                    .forEachOrdered(dumpFn);
+            List<VmsClientStats> loggers = new ArrayList<>();
+            for (int index = 0; index < mVmsClientStats.size(); index++) {
+                loggers.addAll(mVmsClientStats.valueAt(index).getLayerEntries());
+            }
+            loggers.sort(VMS_CLIENT_STATS_ORDER);
+            for (int index = 0; index < loggers.size(); index++) {
+                dumpFn.dump(loggers.get(index));
+            }
         }
     }
 }

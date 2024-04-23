@@ -484,6 +484,20 @@ public final class CarServiceUtils {
     }
 
     /**
+     * Converts int-value array set to values array
+     */
+    public static int[] toIntArray(ArraySet<Integer> set) {
+        Preconditions.checkArgument(set != null,
+                "Int array set to converted to array must not be null");
+        int size = set.size();
+        int[] array = new int[size];
+        for (int i = 0; i < size; ++i) {
+            array[i] = set.valueAt(i);
+        }
+        return array;
+    }
+
+    /**
      * Returns delta between elapsed time to uptime = {@link SystemClock#elapsedRealtime()} -
      * {@link SystemClock#uptimeMillis()}. Note that this value will be always >= 0.
      */

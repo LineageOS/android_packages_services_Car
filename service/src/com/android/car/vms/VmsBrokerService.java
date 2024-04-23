@@ -58,10 +58,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.IntSupplier;
-import java.util.stream.Collectors;
 
 /**
  * Message broker service for routing Vehicle Map Service messages between clients.
@@ -84,7 +82,7 @@ public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServi
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
-    private final Map<IBinder /* clientToken */, VmsClientInfo> mClientMap = new ArrayMap<>();
+    private final ArrayMap<IBinder /* clientToken */, VmsClientInfo> mClientMap = new ArrayMap<>();
     @GuardedBy("mLock")
     private Set<VmsLayersOffering> mAllOfferings = Collections.emptySet();
     @GuardedBy("mLock")
@@ -245,11 +243,13 @@ public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServi
         mStatsService.getVmsClientLogger(client.getUid())
                 .logPacketSent(layer, packetLength);
 
-        Collection<VmsClientInfo> subscribers;
+        ArrayList<VmsClientInfo> subscribers = new ArrayList<>();
         synchronized (mLock) {
-            subscribers = mClientMap.values().stream()
-                    .filter(subscriber -> subscriber.isSubscribed(providerId, layer))
-                    .collect(Collectors.toList());
+            for (int index = 0; index < mClientMap.size(); index++) {
+                if (mClientMap.valueAt(index).isSubscribed(providerId, layer)) {
+                    subscribers.add(mClientMap.valueAt(index));
+                }
+            }
         }
 
         if (DBG) Slogf.d(TAG, "Number of subscribers: %d", subscribers.size());
@@ -306,10 +306,10 @@ public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServi
     private void updateAvailableLayers() {
         synchronized (mLock) {
             // Fuse layer offerings
-            Set<VmsLayersOffering> allOfferings = mClientMap.values().stream()
-                    .map(VmsClientInfo::getAllOfferings)
-                    .flatMap(Collection::stream)
-                    .collect(Collectors.toCollection(ArraySet::new));
+            ArraySet<VmsLayersOffering> allOfferings = new ArraySet<>();
+            for (int index = 0; index < mClientMap.size(); index++) {
+                allOfferings.addAll(mClientMap.valueAt(index).getAllOfferings());
+            }
 
             // Ignore update if offerings are unchanged
             if (mAllOfferings.equals(allOfferings)) {
@@ -337,8 +337,8 @@ public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServi
     private void updateSubscriptionState() {
         VmsSubscriptionState subscriptionState;
         synchronized (mLock) {
-            Set<VmsLayer> layerSubscriptions = new ArraySet<>();
-            Map<VmsLayer, Set<Integer>> layerAndProviderSubscriptions = new ArrayMap<>();
+            ArraySet<VmsLayer> layerSubscriptions = new ArraySet<>();
+            ArrayMap<VmsLayer, Set<Integer>> layerAndProviderSubscriptions = new ArrayMap<>();
             // Fuse subscriptions
             for (VmsClientInfo client : mClientMap.values()) {
                 layerSubscriptions.addAll(client.getLayerSubscriptions());
@@ -355,10 +355,13 @@ public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServi
             layerSubscriptions.forEach(layerAndProviderSubscriptions::remove);
 
             // Transform provider-specific subscriptions into VmsAssociatedLayers
-            Set<VmsAssociatedLayer> associatedLayers =
-                    layerAndProviderSubscriptions.entrySet().stream()
-                            .map(entry -> new VmsAssociatedLayer(entry.getKey(), entry.getValue()))
-                            .collect(Collectors.toCollection(ArraySet::new));
+            ArraySet<VmsAssociatedLayer> associatedLayers =
+                    new ArraySet<>(layerAndProviderSubscriptions.size());
+            for (int index = 0; index < layerAndProviderSubscriptions.size(); index++) {
+                associatedLayers.add(new VmsAssociatedLayer(
+                        layerAndProviderSubscriptions.keyAt(index),
+                        layerAndProviderSubscriptions.valueAt(index)));
+            }
 
             // Ignore update if subscriptions are unchanged
             if (mSubscriptionState.getLayers().equals(layerSubscriptions)

@@ -1073,9 +1073,12 @@ public class ICarImpl extends ICar.Stub {
 
     @Nullable
     private CarSystemService getCarServiceBySubstring(String className) {
-        return Arrays.asList(mAllServicesInInitOrder).stream()
-                .filter(s -> s.getClass().getSimpleName().equals(className))
-                .findFirst().orElse(null);
+        for (int i = 0; i < mAllServicesInInitOrder.length; i++) {
+            if (Objects.equals(mAllServicesInInitOrder[i].getClass().getSimpleName(), className)) {
+                return mAllServicesInInitOrder[i];
+            }
+        }
+        return null;
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)

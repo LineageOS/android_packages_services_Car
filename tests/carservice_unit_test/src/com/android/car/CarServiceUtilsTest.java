@@ -45,6 +45,7 @@ import android.content.res.Resources;
 import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.os.Process;
 import android.text.TextUtils;
+import android.util.ArraySet;
 
 import com.android.car.util.TransitionLog;
 
@@ -55,6 +56,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoSession;
 
+import java.util.List;
 import java.util.UUID;
 
 public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
@@ -334,6 +336,26 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
 
         expectWithMessage("Null values exception").that(thrown).hasMessageThat()
                 .contains("Values to convert to array set");
+    }
+
+    @Test
+    public void toIntArray() {
+        List<Integer> values = List.of(1, 2, 3);
+        ArraySet<Integer> set = new ArraySet<>(values);
+
+        expectWithMessage("Array converted from int array set")
+                .that(CarServiceUtils.toIntArray(set)).asList()
+                .containsExactlyElementsIn(values);
+    }
+
+    @Test
+    public void toIntArray_fails() {
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
+                CarServiceUtils.toIntArray(/* set= */ (ArraySet<Integer>) null)
+        );
+
+        expectWithMessage("Null int array set exception").that(thrown).hasMessageThat()
+                .contains("Int array set to converted to array must not be null");
     }
 
     @Test
