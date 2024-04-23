@@ -895,6 +895,9 @@ public final class CarPropertyServiceUnitTest {
         assertThrows(ServiceSpecificException.class, () ->
                 mService.registerListener(subscribeOptions, mockHandler));
 
+        // Finish the async get initial value task.
+        mService.finishHandlerTasks(/*timeoutInMs=*/ 1000);
+
         // Simulate the error goes away.
         clearInvocations(mHalService);
         doNothing().when(mHalService).subscribeProperty(any());
@@ -1121,6 +1124,9 @@ public final class CarPropertyServiceUnitTest {
 
         assertThrows(ServiceSpecificException.class, () ->
                 mService.unregisterListener(SPEED_ID, mockHandler));
+
+        // Finish the async get initial value task.
+        mService.finishHandlerTasks(/*timeoutInMs=*/ 1000);
 
         // Simulate the error goes away.
         clearInvocations(mHalService);
