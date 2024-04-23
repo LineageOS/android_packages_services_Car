@@ -30,7 +30,7 @@ filegroup {
 filegroup {
     name: "cartelemetryservice-proto-srcs",
     srcs: [
-        "src/android/car/telemetry/telemetry.proto"
+        "src/android/car/telemetry/telemetry.proto",
     ],
 }
 
@@ -46,7 +46,7 @@ java_library {
         "com.android.car.framework",
     ],
     static_libs: ["libprotobuf-java-lite"],
-    srcs: ["src/android/car/navigation/navigation_state.proto"]
+    srcs: ["src/android/car/navigation/navigation_state.proto"],
 }
 
 filegroup {
@@ -94,10 +94,10 @@ java_library {
 java_library_static {
     name: "android.car.annotations.compile-only",
     srcs: [
-       "src/android/car/annotation/*",
-       "src/android/car/ApiVersion.java",
-       "src/android/car/CarVersion.java",
-       "src/android/car/PlatformVersion.java",
+        "src/android/car/annotation/*",
+        "src/android/car/ApiVersion.java",
+        "src/android/car/CarVersion.java",
+        "src/android/car/PlatformVersion.java",
     ],
 }
 
@@ -158,7 +158,7 @@ droidstubs {
         api_lint: {
             enabled: true,
             baseline_file: "api/lint-baseline.txt",
-        }
+        },
     },
 }
 
@@ -189,7 +189,7 @@ droidstubs {
         api_lint: {
             enabled: true,
             baseline_file: "api/system-lint-baseline.txt",
-        }
+        },
     },
 }
 
@@ -205,8 +205,8 @@ droidstubs {
             api_file: "api/test-current.txt",
             removed_api_file: "api/test-removed.txt",
             args: " -error 2 -error 3 -error 4 -error 5 -error 6 -error 7 -error 8 -error 9 -error 10 -error 11 " +
-                  " -error 12 -error 13 -error 14 -error 15 -error 16 -error 17 -error 18 -error 19 -error 20 " +
-                  " -error 21 -error 23 -error 24 -error 25 -hide 113 ",
+                " -error 12 -error 13 -error 14 -error 15 -error 16 -error 17 -error 18 -error 19 -error 20 " +
+                " -error 21 -error 23 -error 24 -error 25 -hide 113 ",
         },
     },
 }
@@ -247,13 +247,13 @@ droidstubs {
     ],
     // Add --verbose to print metalava details.
     args: "--manifest $(location AndroidManifest.xml) " +
-          "--error UnhiddenSystemApi " +
-          "--hide RequiresPermission " +
-          "--hide CallbackInterface " +
-          "--hide MissingPermission " +
-          "--hide HiddenSuperclass --hide DeprecationMismatch --hide UnavailableSymbol " +
-          "--hide SdkConstant --hide HiddenTypeParameter " +
-          "--hide Todo ",
+        "--error UnhiddenSystemApi " +
+        "--hide RequiresPermission " +
+        "--hide CallbackInterface " +
+        "--hide MissingPermission " +
+        "--hide HiddenSuperclass --hide DeprecationMismatch --hide UnavailableSymbol " +
+        "--hide SdkConstant --hide HiddenTypeParameter " +
+        "--hide Todo ",
     write_sdk_values: true,
 }
 
@@ -360,7 +360,7 @@ java_library {
     sdk_version: "test_current",
     dist: {
         targets: ["dist_files"],
-    }
+    },
 }
 
 // Export the api/system-current.txt file.
