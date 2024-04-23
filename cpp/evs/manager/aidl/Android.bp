@@ -15,6 +15,7 @@
 //
 
 package {
+    default_team: "trendy_team_automotive",
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
@@ -65,7 +66,7 @@ cc_defaults {
         debuggable: {
             cflags: [
                 "-DEVS_DEBUG",
-            ]
+            ],
         },
     },
 }
@@ -195,7 +196,7 @@ genrule {
     name: "statslog_evsmanagerd.h",
     tools: ["stats-log-api-gen"],
     cmd: "$(location stats-log-api-gen) --header $(genDir)/statslog_evsmanagerd.h --module evs" +
-         " --namespace aidl,android,automotive,evs,stats --bootstrap",
+        " --namespace aidl,android,automotive,evs,stats --bootstrap",
     out: [
         "statslog_evsmanagerd.h",
     ],
@@ -205,8 +206,8 @@ genrule {
     name: "statslog_evsmanagerd.cpp",
     tools: ["stats-log-api-gen"],
     cmd: "$(location stats-log-api-gen) --cpp $(genDir)/statslog_evsmanagerd.cpp --module evs" +
-         " --namespace aidl,android,automotive,evs,stats --importHeader statslog_evsmanagerd.h" +
-         " --bootstrap",
+        " --namespace aidl,android,automotive,evs,stats --importHeader statslog_evsmanagerd.h" +
+        " --bootstrap",
     out: [
         "statslog_evsmanagerd.cpp",
     ],
