@@ -970,4 +970,15 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
                     .isEqualTo(TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(attributes));
         }
     }
+
+    @Test
+    public void getContextsInfo() {
+        List<CarAudioContextInfo> audioContextInfos = CoreAudioRoutingUtils
+                .getCarAudioContextInfos();
+        CarAudioContext carAudioContext = new CarAudioContext(audioContextInfos,
+                /* useCoreAudioRouting= */ true);
+
+        expectWithMessage("Context infos").that(carAudioContext.getContextsInfo())
+                .containsExactlyElementsIn(audioContextInfos);
+    }
 }

@@ -32,6 +32,8 @@ import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADPHONES;
 import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET;
 import static android.media.AudioManager.GET_DEVICES_OUTPUTS;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
+
 import static java.util.Collections.EMPTY_LIST;
 
 import android.annotation.Nullable;
@@ -44,11 +46,14 @@ import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+
 import java.util.ArrayList;
 import java.util.List;
 
 final class CarAudioUtils {
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
     private CarAudioUtils() {
         throw new UnsupportedOperationException();
     }

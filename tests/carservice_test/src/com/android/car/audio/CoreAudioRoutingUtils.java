@@ -16,6 +16,8 @@
 
 package com.android.car.audio;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import static com.google.common.collect.Sets.newHashSet;
 
 import android.media.AudioAttributes;
@@ -24,9 +26,12 @@ import android.media.audiopolicy.AudioProductStrategy;
 import android.media.audiopolicy.AudioVolumeGroup;
 import android.os.Parcel;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
 final class CoreAudioRoutingUtils {
 
     static final List<AudioVolumeGroup> VOLUME_GROUPS;

@@ -24,6 +24,7 @@ import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
 import android.os.IBinder;
+import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -60,7 +61,7 @@ final class VmsClientInfo {
     @GuardedBy("mLock")
     private Set<VmsLayer> mLayerSubscriptions = Collections.emptySet();
     @GuardedBy("mLock")
-    private Map<VmsLayer, Set<Integer>> mLayerAndProviderSubscriptions = Collections.emptyMap();
+    private Map<VmsLayer, Set<Integer>> mLayerAndProviderSubscriptions = new ArrayMap<>();
     @GuardedBy("mLock")
     private boolean mMonitoringEnabled;
 
@@ -149,16 +150,20 @@ final class VmsClientInfo {
     }
 
     void setSubscriptions(List<VmsAssociatedLayer> layers) {
+        ArraySet<VmsLayer> layerSubscriptions = new ArraySet<>();
+        ArrayMap<VmsLayer, Set<Integer>> layerAndProviderSubscriptions = new ArrayMap<>();
+        for (int index = 0; index < layers.size(); index++) {
+            VmsAssociatedLayer associatedLayer = layers.get(index);
+            if (associatedLayer.getProviderIds().isEmpty()) {
+                layerSubscriptions.add(associatedLayer.getVmsLayer());
+            } else {
+                layerAndProviderSubscriptions.put(associatedLayer.getVmsLayer(),
+                        new ArraySet<>(associatedLayer.getProviderIds()));
+            }
+        }
         synchronized (mLock) {
-            mLayerSubscriptions = layers.stream()
-                    .filter(associatedLayer -> associatedLayer.getProviderIds().isEmpty())
-                    .map(VmsAssociatedLayer::getVmsLayer)
-                    .collect(Collectors.toSet());
-            mLayerAndProviderSubscriptions = layers.stream()
-                    .filter(associatedLayer -> !associatedLayer.getProviderIds().isEmpty())
-                    .collect(Collectors.toMap(
-                            VmsAssociatedLayer::getVmsLayer,
-                            associatedLayer -> new ArraySet<>(associatedLayer.getProviderIds())));
+            mLayerSubscriptions = layerSubscriptions;
+            mLayerAndProviderSubscriptions = layerAndProviderSubscriptions;
         }
     }
 

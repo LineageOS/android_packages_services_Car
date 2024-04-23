@@ -1073,9 +1073,12 @@ public class ICarImpl extends ICar.Stub {
 
     @Nullable
     private CarSystemService getCarServiceBySubstring(String className) {
-        return Arrays.asList(mAllServicesInInitOrder).stream()
-                .filter(s -> s.getClass().getSimpleName().equals(className))
-                .findFirst().orElse(null);
+        for (int i = 0; i < mAllServicesInInitOrder.length; i++) {
+            if (Objects.equals(mAllServicesInInitOrder[i].getClass().getSimpleName(), className)) {
+                return mAllServicesInInitOrder[i];
+            }
+        }
+        return null;
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
@@ -1121,21 +1124,6 @@ public class ICarImpl extends ICar.Stub {
                                 + toUserId + ")");
             }
             mCarUserService.onUserLifecycleEvent(eventType, fromUserId, toUserId);
-        }
-
-        @Override
-        public void initBootUser() throws RemoteException {
-            // TODO(b/277271542). Remove this code path.
-        }
-
-        // TODO(235524989): Remove this method as on user removed will now go through
-        // onUserLifecycleEvent due to changes in CarServiceProxy and CarUserService.
-        @Override
-        public void onUserRemoved(UserHandle user) throws RemoteException {
-            assertCallingFromSystemProcess();
-            EventLogHelper.writeCarServiceOnUserRemoved(user.getIdentifier());
-            if (DBG) Slogf.d(TAG, "onUserRemoved(): " + user);
-            mCarUserService.onUserRemoved(user);
         }
 
         @Override

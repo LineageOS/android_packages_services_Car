@@ -200,15 +200,27 @@ public final class CarAudioContextInfoTest {
     }
 
     @Test
-    public void equals_forDifferentAttributes() {
+    public void equals_forDifferentAttributesLength() {
         CarAudioContextInfo info1 = new CarAudioContextInfo(TEST_ALL_AUDIO_ATTRIBUTES_ARRAY,
                 TEST_CONTEXT_NAME_MUSIC, TEST_CONTEXT_ID_100);
         CarAudioContextInfo info = new CarAudioContextInfo(
                 new AudioAttributes[] {TEST_NAV_AUDIO_ATTRIBUTE, TEST_NAV_AUDIO_ATTRIBUTE},
                 TEST_CONTEXT_NAME_MUSIC, TEST_CONTEXT_ID_100);
 
-        assertWithMessage("Car audio context info equality for different attributes")
+        assertWithMessage("Car audio context info equality for different-length attributes")
                 .that(info.equals(info1)).isFalse();
+    }
+
+    @Test
+    public void equals_forDifferentAttributesWithTheSameLength() {
+        CarAudioContextInfo info1 = new CarAudioContextInfo(TEST_AUDIO_ATTRIBUTES_ARRAY,
+                TEST_CONTEXT_NAME_MUSIC, TEST_CONTEXT_ID_100);
+        CarAudioContextInfo info2 = new CarAudioContextInfo(
+                new AudioAttributes[]{TEST_NOTIFICATION_AUDIO_ATTRIBUTE}, TEST_CONTEXT_NAME_MUSIC,
+                TEST_CONTEXT_ID_100);
+
+        assertWithMessage("Car audio context info equality for different attributes of"
+                + " the same length").that(info2.equals(info1)).isFalse();
     }
 
     @Test

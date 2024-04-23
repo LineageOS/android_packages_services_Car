@@ -15,6 +15,8 @@
  */
 package com.android.car.audio.hal;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
+
 import android.media.audio.common.AudioDevice;
 import android.media.audio.common.AudioDeviceAddress;
 import android.media.audio.common.AudioDeviceDescription;
@@ -23,8 +25,11 @@ import android.media.audio.common.AudioPort;
 import android.media.audio.common.AudioPortDeviceExt;
 import android.media.audio.common.AudioPortExt;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+
 public final class CarAudioHalTestUtils {
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
     private CarAudioHalTestUtils() {
         throw new UnsupportedOperationException();
     }

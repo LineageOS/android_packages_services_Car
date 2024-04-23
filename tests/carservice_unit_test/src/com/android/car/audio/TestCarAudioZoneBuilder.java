@@ -16,6 +16,7 @@
 
 package com.android.car.audio;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -23,6 +24,7 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import java.util.ArrayList;
 import java.util.List;
 
+@ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
 public final class TestCarAudioZoneBuilder {
 
     private final int mAudioZoneId;
