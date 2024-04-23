@@ -98,6 +98,7 @@ cc_defaults {
     name: "libwatchdog_perf_service_defaults",
     shared_libs: [
         "libprocessgroup",
+        "libpsi",
         "libtinyxml2",
     ],
 }
@@ -119,17 +120,18 @@ cc_library {
         "libwatchdog_perf_service_defaults",
     ],
     srcs: [
-        "src/WatchdogPerfService.cpp",
         "src/IoOveruseConfigs.cpp",
         "src/IoOveruseMonitor.cpp",
-        "src/PerformanceProfiler.cpp",
         "src/OveruseConfigurationXmlHelper.cpp",
+        "src/PerformanceProfiler.cpp",
+        "src/PressureMonitor.cpp",
         "src/ProcDiskStatsCollector.cpp",
         "src/ProcStatCollector.cpp",
         "src/UidCpuStatsCollector.cpp",
         "src/UidIoStatsCollector.cpp",
         "src/UidProcStatsCollector.cpp",
         "src/UidStatsCollector.cpp",
+        "src/WatchdogPerfService.cpp",
     ],
     static_libs: [
         "libwatchdog_binder_utils",
@@ -183,6 +185,7 @@ cc_test {
         "tests/IoOveruseConfigsTest.cpp",
         "tests/IoOveruseMonitorTest.cpp",
         "tests/PerformanceProfilerTest.cpp",
+        "tests/PressureMonitorTest.cpp",
         "tests/LooperStub.cpp",
         "tests/OveruseConfigurationTestUtils.cpp",
         "tests/OveruseConfigurationXmlHelperTest.cpp",
