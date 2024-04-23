@@ -24,6 +24,7 @@ import static com.android.car.audio.GainBuilder.DEFAULT_GAIN;
 import static com.android.car.audio.GainBuilder.MAX_GAIN;
 import static com.android.car.audio.GainBuilder.MIN_GAIN;
 import static com.android.car.audio.GainBuilder.STEP_SIZE;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.media.audio.common.AudioDevice;
 import android.media.audio.common.AudioDeviceAddress;
@@ -33,7 +34,9 @@ import android.media.audio.common.AudioPortDeviceExt;
 import android.media.audio.common.AudioPortExt;
 
 import com.android.car.audio.hal.HalAudioDeviceInfo;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
+@ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
 public final class HalAudioDeviceInfoBuilder {
     private String mAddress;
     private String mName = " ";

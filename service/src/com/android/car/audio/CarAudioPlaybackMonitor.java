@@ -20,6 +20,7 @@ import static android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
 
 import static com.android.car.audio.CarActivationVolumeConfig.ActivationVolumeInvocationType;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
 import android.car.builtin.util.Slogf;
@@ -33,6 +34,7 @@ import android.util.SparseArray;
 import android.util.SparseIntArray;
 
 import com.android.car.CarLog;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;
@@ -189,6 +191,8 @@ public final class CarAudioPlaybackMonitor {
             return Objects.hash(mGroupId, mInvocationType);
         }
 
+        @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+        @Override
         public String toString() {
             return "ActivationInfo { volume group id: " + mGroupId + ", invocation type = "
                     + mInvocationType + "}";

@@ -34,6 +34,8 @@ import static android.media.AudioManager.AUDIOFOCUS_GAIN;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -52,6 +54,7 @@ import android.media.audiopolicy.AudioPolicy;
 import android.util.SparseArray;
 
 import com.android.car.CarLocalServices;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.oem.CarOemAudioFocusProxyService;
 import com.android.car.oem.CarOemProxyService;
 
@@ -292,6 +295,7 @@ abstract class CarZonesAudioFocusTestBase {
                 .setAudioFocusEntry(entry).build();
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public static final class AudioClientInfo {
         private final int mUsage;
         private final int mClientUid;

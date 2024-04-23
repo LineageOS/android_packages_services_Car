@@ -21,6 +21,7 @@ import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX
 import static com.android.car.audio.GainBuilder.DEFAULT_GAIN;
 import static com.android.car.audio.GainBuilder.MAX_GAIN;
 import static com.android.car.audio.GainBuilder.STEP_SIZE;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -33,6 +34,8 @@ import android.media.AudioAttributes;
 import android.util.ArrayMap;
 import android.util.SparseArray;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
@@ -42,6 +45,7 @@ import java.util.Map;
 /**
  * Class to build mock volume group
  */
+@ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
 public final class VolumeGroupBuilder {
 
     private static final int TEST_MIN_VOLUME = 0;

@@ -16,12 +16,17 @@
 
 package com.android.car.audio;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+
+@ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
 public final class AudioFocusInfoBuilder {
     private int mUsage;
     private int mClientUid;
