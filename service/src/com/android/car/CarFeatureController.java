@@ -27,6 +27,8 @@ import android.car.builtin.util.AtomicFileHelper;
 import android.car.builtin.util.Slogf;
 import android.car.feature.Flags;
 import android.content.Context;
+import android.content.res.Resources;
+import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.ArraySet;
@@ -34,6 +36,8 @@ import android.util.AtomicFile;
 import android.util.Pair;
 import android.util.proto.ProtoOutputStream;
 
+import com.android.car.hal.HalPropValue;
+import com.android.car.hal.VehicleHal;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
@@ -60,6 +64,7 @@ import java.util.List;
 public final class CarFeatureController implements CarServiceBase {
 
     private static final String TAG = CarLog.tagFor(CarFeatureController.class);
+    private static final int INITIAL_VHAL_GET_RETRY = 2;
 
     // We define this here for compatibility with older feature lists only
     private static final String BLUETOOTH_SERVICE = "car_bluetooth";
@@ -190,15 +195,28 @@ public final class CarFeatureController implements CarServiceBase {
     @GuardedBy("mLock")
     private ArraySet<String> mAvailableExperimentalFeatures = new ArraySet<>();
 
-    public CarFeatureController(@NonNull Context context,
-            @NonNull String[] defaultEnabledFeaturesFromConfig,
-            @NonNull String[] disabledFeaturesFromVhal, @NonNull File dataDir) {
+    public CarFeatureController(@NonNull Context context, @NonNull File dataDir, VehicleHal hal) {
         if (!BuildHelper.isUserBuild()) {
             OPTIONAL_FEATURES.addAll(NON_USER_ONLY_FEATURES);
         }
         mContext = context;
-        Arrays.sort(defaultEnabledFeaturesFromConfig);
-        mDefaultEnabledFeaturesFromConfig = Arrays.asList(defaultEnabledFeaturesFromConfig);
+        String[] disabledFeaturesFromVhal = null;
+        HalPropValue disabledOptionalFeatureValue = hal.getIfSupportedOrFailForEarlyStage(
+                VehicleProperty.DISABLED_OPTIONAL_FEATURES, INITIAL_VHAL_GET_RETRY);
+        if (disabledOptionalFeatureValue != null) {
+            String disabledFeatures = disabledOptionalFeatureValue.getStringValue();
+            if (disabledFeatures != null && !disabledFeatures.isEmpty()) {
+                disabledFeaturesFromVhal = disabledFeatures.split(",");
+            }
+        }
+        if (disabledFeaturesFromVhal == null) {
+            disabledFeaturesFromVhal = new String[0];
+        }
+        Resources res = mContext.getResources();
+        String[] defaultEnabledFeatures = res.getStringArray(
+                R.array.config_allowed_optional_car_features);
+        Arrays.sort(defaultEnabledFeatures);
+        mDefaultEnabledFeaturesFromConfig = Arrays.asList(defaultEnabledFeatures);
         mDisabledFeaturesFromVhal = Arrays.asList(disabledFeaturesFromVhal);
         Slogf.i(TAG, "mDefaultEnabledFeaturesFromConfig:" + mDefaultEnabledFeaturesFromConfig
                 + ",mDisabledFeaturesFromVhal:" + mDisabledFeaturesFromVhal);

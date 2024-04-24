@@ -47,8 +47,6 @@ import android.content.Context;
 import android.content.om.OverlayInfo;
 import android.content.om.OverlayManager;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -74,7 +72,6 @@ import com.android.car.cluster.ClusterNavigationService;
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.evs.CarEvsService;
 import com.android.car.garagemode.GarageModeService;
-import com.android.car.hal.HalPropValue;
 import com.android.car.hal.VehicleHal;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.ICarServiceHelper;
@@ -122,8 +119,6 @@ public class ICarImpl extends ICar.Stub {
 
     @VisibleForTesting
     static final String TAG = CarLog.tagFor(ICarImpl.class);
-
-    private static final int INITIAL_VHAL_GET_RETRY = 2;
 
     private final Context mContext;
     private final Context mCarServiceBuiltinPackageContext;
@@ -246,26 +241,9 @@ public class ICarImpl extends ICar.Stub {
         mHal = constructWithTrace(t, VehicleHal.class,
                 () -> new VehicleHal(mContext, builder.mVehicle), allServices);
 
-        HalPropValue disabledOptionalFeatureValue = mHal.getIfSupportedOrFailForEarlyStage(
-                VehicleProperty.DISABLED_OPTIONAL_FEATURES, INITIAL_VHAL_GET_RETRY);
-
-        String[] disabledFeaturesFromVhal = null;
-        if (disabledOptionalFeatureValue != null) {
-            String disabledFeatures = disabledOptionalFeatureValue.getStringValue();
-            if (disabledFeatures != null && !disabledFeatures.isEmpty()) {
-                disabledFeaturesFromVhal = disabledFeatures.split(",");
-            }
-        }
-        if (disabledFeaturesFromVhal == null) {
-            disabledFeaturesFromVhal = new String[0];
-        }
-        Resources res = mContext.getResources();
-        String[] defaultEnabledFeatures = res.getStringArray(
-                R.array.config_allowed_optional_car_features);
-        final String[] disabledFromVhal = disabledFeaturesFromVhal;
         mFeatureController = constructWithTrace(t, CarFeatureController.class,
-                () -> new CarFeatureController(mContext, defaultEnabledFeatures,
-                        disabledFromVhal, mSystemInterface.getSystemCarDir()), allServices);
+                () -> new CarFeatureController(
+                        mContext, mSystemInterface.getSystemCarDir(), mHal), allServices);
         mVehicleInterfaceName = builder.mVehicleInterfaceName;
         mCarPropertyService = constructWithTrace(
                 t, CarPropertyService.class,
