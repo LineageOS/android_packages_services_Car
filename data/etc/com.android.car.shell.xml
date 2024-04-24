@@ -144,5 +144,6 @@
         <permission name="android.car.permission.MANAGE_CAR_SYSTEM_UI" />
         <permission name="android.car.permission.MANAGE_DISPLAY_COMPATIBILITY" />
         <permission name="android.car.permission.CONTROL_REMOTE_ACCESS" />
+        <permission name="android.car.permission.READ_PERSIST_TETHERING_SETTINGS" />
     </privapp-permissions>
 </permissions>
