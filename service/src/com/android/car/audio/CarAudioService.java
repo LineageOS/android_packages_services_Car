@@ -183,8 +183,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private static final String MIRROR_COMMAND_DESTINATION = "mirroring_dst=";
     private static final String DISABLE_AUDIO_MIRRORING = "mirroring=off";
 
-    private static final String CAR_AUDIO_SERVICE_THREAD_NAME = "CarAudioService";
-
     static final AudioAttributes CAR_DEFAULT_AUDIO_ATTRIBUTE =
             CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA);
 
@@ -212,7 +210,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private static final int EVENT_LOGGER_QUEUE_SIZE = 50;
 
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
-            CAR_AUDIO_SERVICE_THREAD_NAME);
+            CarAudioService.class.getSimpleName());
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
 
     private final Object mImplLock = new Object();
@@ -567,7 +565,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             releasePowerListenerLocked();
             releaseAudioDeviceInfoCallbackLocked();
             releaseHalAudioModuleChangeCallbackLocked();
-            getCarOccupantZoneService().unregisterCallback(mOccupantZoneCallback);
+            CarOccupantZoneService occupantZoneService = getCarOccupantZoneService();
+            occupantZoneService.unregisterCallback(mOccupantZoneCallback);
             mCarInputService.unregisterKeyEventListener(mCarKeyEventListener);
             // Audio control may be running in the same process as audio server.
             // Thus we can not release the audio control wrapper for now
@@ -2168,6 +2167,32 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         occupantZoneService = getCarOccupantZoneService();
         occupantZoneService.setAudioZoneIdsForOccupantZoneIds(audioZoneIdToOccupantZoneMapping);
         occupantZoneService.registerCallback(mOccupantZoneCallback);
+        callOccupantConfigForSelfIfNeeded(occupantZoneService);
+    }
+
+    private void callOccupantConfigForSelfIfNeeded(CarOccupantZoneService occupantZoneService) {
+        int driverId = occupantZoneService.getDriverUserId();
+        boolean isSystemUser = UserHandle.SYSTEM.getIdentifier() == driverId;
+        // If the current driver is the system, then we need to wait for the user to be started.
+        // This will be triggered by the occupant zone service.
+        if (isSystemUser) {
+            return;
+        }
+        CarOccupantZoneManager.OccupantZoneInfo driverInfo =
+                occupantZoneService.getOccupantZoneForUser(UserHandle.of(driverId));
+        // If the driver is not configured then need to wait for the driver to be configured.
+        // This will be triggered by the occupant zone service.
+        if (driverInfo == null) {
+            return;
+        }
+        // Driver is already configured, need to handle the change given that we will not receive
+        // the user change callback. This must be handled in separate thread to prevent blocking the
+        // car service initialization. This may happen if audio server crash and car audio service
+        // is re-initializing or if the car audio service took too long to initialized and user
+        // driver occupant is already configured.
+        mServiceEventLogger.log("User already initialized during car audio service init,"
+                + " handling occupant zone config internally");
+        mHandler.post(this::handleOccupantZoneUserChanged);
     }
 
     @GuardedBy("mImplLock")
@@ -3460,8 +3485,9 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         return groupId;
     }
 
-    void handleOccupantZoneUserChanged() {
+    private void handleOccupantZoneUserChanged() {
         int driverUserId = getCarOccupantZoneService().getDriverUserId();
+        Slogf.i(TAG, "handleOccupantZoneUserChanged current driver %s", driverUserId);
         synchronized (mImplLock) {
             if (!isOccupantZoneMappingAvailableLocked()) {
                 adjustZonesToUserIdLocked(driverUserId);
