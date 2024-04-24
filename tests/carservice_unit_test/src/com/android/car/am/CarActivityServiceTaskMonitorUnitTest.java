@@ -53,6 +53,7 @@ import android.view.SurfaceControl;
 
 import androidx.test.filters.MediumTest;
 
+import com.android.compatibility.common.util.PollingCheck;
 import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.common.HandlerExecutor;
 import com.android.wm.shell.common.SyncTransactionQueue;
@@ -396,7 +397,8 @@ public class CarActivityServiceTaskMonitorUnitTest {
         // Now the Surface of the token will be invisible.
 
         Rect outBounds = new Rect();
-        assertThat(mService.getMirroredSurface(token, outBounds)).isNull();
+        PollingCheck.waitFor(() -> mService.getMirroredSurface(token, outBounds) == null,
+                "The mirrored surface couldn't become invisible");
     }
 
     @Test
