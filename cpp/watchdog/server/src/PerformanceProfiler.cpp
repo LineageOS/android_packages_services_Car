@@ -40,6 +40,9 @@
 namespace android {
 namespace automotive {
 namespace watchdog {
+
+namespace {
+
 using ::aidl::android::automotive::watchdog::PerStateBytes;
 using ::aidl::android::automotive::watchdog::internal::PackageIdentifier;
 using ::aidl::android::automotive::watchdog::internal::ProcessCpuUsageStats;
@@ -56,8 +59,6 @@ using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
 using ::android::util::ProtoOutputStream;
 
-namespace {
-
 constexpr int32_t kDefaultTopNStatsPerCategory = 10;
 constexpr int32_t kDefaultTopNStatsPerSubcategory = 5;
 constexpr int32_t kDefaultMaxUserSwitchEvents = 5;
@@ -71,14 +72,14 @@ constexpr const char kWakeUpCollectionTitle[] = "%s\nWake-up performance report:
 constexpr const char kCustomCollectionTitle[] = "%s\nCustom performance data report:\n%s\n";
 constexpr const char kUserSwitchEventTitle[] = "\nEvent %zu: From: %d To: %d\n%s\n";
 constexpr const char kCollectionTitle[] =
-        "Collection duration: %.f seconds\nNumber of collections: %zu\n";
+        "Collection duration: %.f seconds\nMaximum cache size: %zu\nNumber of collections: %zu\n";
 constexpr const char kRecordTitle[] = "\nCollection %zu: <%s>\n%s\n%s";
-constexpr const char kCpuTimeTitle[] = "\nTop N CPU Times:\n%s\n";
+constexpr const char kCpuTimeTitle[] = "\nTop N CPU times:\n%s\n";
 constexpr const char kCpuTimeHeader[] = "Android User ID, Package Name, CPU Time (ms), Percentage "
                                         "of total CPU time, CPU Cycles\n\tCommand, CPU Time (ms), "
                                         "Percentage of UID's CPU Time, CPU Cycles\n";
-constexpr const char kIoReadsTitle[] = "\nTop N Storage I/O Reads:\n%s\n";
-constexpr const char kIoWritesTitle[] = "\nTop N Storage I/O Writes:\n%s\n";
+constexpr const char kIoReadsTitle[] = "\nTop N storage I/O reads:\n%s\n";
+constexpr const char kIoWritesTitle[] = "\nTop N storage I/O writes:\n%s\n";
 constexpr const char kIoStatsHeader[] =
         "Android User ID, Package Name, Foreground Bytes, Foreground Bytes %%, Foreground Fsync, "
         "Foreground Fsync %%, Background Bytes, Background Bytes %%, Background Fsync, "
@@ -96,7 +97,7 @@ constexpr const char kMajorFaultsHeader[] =
 constexpr const char kMajorFaultsSummary[] =
         "Number of major page faults since last collection: %" PRIu64 "\n"
         "Percentage of change in major page faults since last collection: %.2f%%\n";
-constexpr const char kMemStatsTitle[] = "\nTop N Memory Stats:\n%s\n";
+constexpr const char kMemStatsTitle[] = "\nTop N memory stats:\n%s\n";
 constexpr const char kMemStatsHeader[] =
         "Android User ID, Package Name, RSS (kb), RSS %%, PSS (kb), PSS %%, USS (kb), Swap PSS (kb)"
         "\n\tCommand, RSS (kb), PSS (kb), USS (kb), Swap PSS (kb)\n";
@@ -557,7 +558,7 @@ std::string UserPackageSummaryStats::toString() const {
         StringAppendF(&buffer, kMajorFaultsSummary, totalMajorFaults, majorFaultsPercentChange);
     }
     if (!topNMemStats.empty()) {
-        StringAppendF(&buffer, kMemStatsTitle, std::string(24, '-').c_str());
+        StringAppendF(&buffer, kMemStatsTitle, std::string(19, '-').c_str());
         StringAppendF(&buffer, kMemStatsHeader);
         for (const auto& stats : topNMemStats) {
             StringAppendF(&buffer, "%s", stats.toString(totalRssKb, totalPssKb).c_str());
@@ -569,15 +570,18 @@ std::string UserPackageSummaryStats::toString() const {
 
 std::string SystemSummaryStats::toString() const {
     std::string buffer;
-    StringAppendF(&buffer, "Total CPU time (ms): %" PRIu64 "\n", totalCpuTimeMillis);
-    StringAppendF(&buffer, "Total CPU cycles: %" PRIu64 "\n", totalCpuCycles);
-    StringAppendF(&buffer, "Total idle CPU time (ms)/percent: %" PRIu64 " / %.2f%%\n",
+    StringAppendF(&buffer, "System summary stats:\n");
+    StringAppendF(&buffer, "\tTotal CPU time (ms): %" PRIu64 "\n", totalCpuTimeMillis);
+    StringAppendF(&buffer, "\tTotal CPU cycles: %" PRIu64 "\n", totalCpuCycles);
+    StringAppendF(&buffer, "\tTotal idle CPU time (ms)/percent: %" PRIu64 " / %.2f%%\n",
                   cpuIdleTimeMillis, percentage(cpuIdleTimeMillis, totalCpuTimeMillis));
-    StringAppendF(&buffer, "CPU I/O wait time (ms)/percent: %" PRIu64 " / %.2f%%\n",
+    StringAppendF(&buffer, "\tCPU I/O wait time (ms)/percent: %" PRIu64 " / %.2f%%\n",
                   cpuIoWaitTimeMillis, percentage(cpuIoWaitTimeMillis, totalCpuTimeMillis));
-    StringAppendF(&buffer, "Number of context switches: %" PRIu64 "\n", contextSwitchesCount);
-    StringAppendF(&buffer, "Number of I/O blocked processes/percent: %" PRIu32 " / %.2f%%\n",
+    StringAppendF(&buffer, "\tNumber of context switches: %" PRIu64 "\n", contextSwitchesCount);
+    StringAppendF(&buffer, "\tNumber of I/O blocked processes/percent: %" PRIu32 " / %.2f%%\n",
                   ioBlockedProcessCount, percentage(ioBlockedProcessCount, totalProcessCount));
+    // TODO(b/337115923): Report `totalMajorFaults`, `totalRssKb`, `totalPssKb`, and
+    //  `majorFaultsPercentChange` here.
     return buffer;
 }
 
@@ -596,7 +600,7 @@ std::string CollectionInfo::toString() const {
     double duration =
             difftime(std::chrono::system_clock::to_time_t(records.back().collectionTimeMillis),
                      std::chrono::system_clock::to_time_t(records.front().collectionTimeMillis));
-    StringAppendF(&buffer, kCollectionTitle, duration, records.size());
+    StringAppendF(&buffer, kCollectionTitle, duration, maxCacheSize, records.size());
     for (size_t i = 0; i < records.size(); ++i) {
         const auto& record = records[i];
         std::stringstream timestamp;
@@ -645,7 +649,6 @@ Result<void> PerformanceProfiler::init() {
 
 void PerformanceProfiler::terminate() {
     Mutex::Autolock lock(mMutex);
-
     ALOGW("Terminating %s", name().c_str());
 
     mBoottimeCollection.records.clear();
@@ -663,12 +666,12 @@ void PerformanceProfiler::terminate() {
 Result<void> PerformanceProfiler::onDump(int fd) const {
     Mutex::Autolock lock(mMutex);
     if (!WriteStringToFd(StringPrintf("/proc/<pid>/smaps_rollup is %s\n",
-                                     mIsSmapsRollupSupported
-                                             ? "supported. So, using PSS to rank top memory "
-                                               "consuming processes."
-                                             : "not supported. So, using RSS to rank top memory "
-                                               "consuming processes."),
-                        fd) ||
+                                      mIsSmapsRollupSupported
+                                              ? "supported. So, using PSS to rank top memory "
+                                                "consuming processes."
+                                              : "not supported. So, using RSS to rank top memory "
+                                                "consuming processes."),
+                         fd) ||
         !WriteStringToFd(StringPrintf(kBootTimeCollectionTitle, std::string(75, '-').c_str(),
                                       std::string(33, '=').c_str()),
                          fd) ||
@@ -693,8 +696,8 @@ Result<void> PerformanceProfiler::onDump(int fd) const {
     return {};
 }
 
-Result<void> PerformanceProfiler::onDumpProto(
-        const CollectionIntervals& collectionIntervals, ProtoOutputStream& outProto) const {
+Result<void> PerformanceProfiler::onDumpProto(const CollectionIntervals& collectionIntervals,
+                                              ProtoOutputStream& outProto) const {
     Mutex::Autolock lock(mMutex);
 
     uint64_t performanceStatsToken = outProto.start(PerformanceProfilerDump::PERFORMANCE_STATS);
@@ -1096,7 +1099,7 @@ Result<void> PerformanceProfiler::processLocked(
     // The system-wide CPU cycles are the aggregate of all the UID's CPU cycles collected during
     // each poll.
     record.systemSummaryStats.totalCpuCycles = record.userPackageSummaryStats.totalCpuCycles;
-    if (collectionInfo->records.size() > collectionInfo->maxCacheSize) {
+    if (collectionInfo->records.size() >= collectionInfo->maxCacheSize) {
         collectionInfo->records.erase(collectionInfo->records.begin());  // Erase the oldest record.
     }
     collectionInfo->records.push_back(record);

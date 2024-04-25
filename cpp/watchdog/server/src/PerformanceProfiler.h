@@ -170,6 +170,8 @@ struct UserPackageSummaryStats {
     std::vector<UserPackageStats> topNMemStats = {};
     int64_t totalIoStats[METRIC_TYPES][UID_STATES] = {{0}};
     std::unordered_map<uid_t, uint64_t> taskCountByUid = {};
+    // TODO(b/337115923): Clean up below duplicate fields and report `totalMajorFaults`,
+    //  `totalRssKb`, `totalPssKb`, and `majorFaultsPercentChange` as part of `SystemSummaryStats`.
     int64_t totalCpuTimeMillis = 0;
     uint64_t totalCpuCycles = 0;
     uint64_t totalMajorFaults = 0;
@@ -217,8 +219,9 @@ struct UserSwitchCollectionInfo : CollectionInfo {
 // PerformanceProfiler implements the I/O performance data collection module.
 class PerformanceProfiler final : public DataProcessorInterface {
 public:
-    PerformanceProfiler() :
-          kGetElapsedTimeSinceBootMillisFunc(elapsedRealtime),
+    PerformanceProfiler(
+            const std::function<int64_t()>& getElapsedTimeSinceBootMillisFunc = &elapsedRealtime) :
+          kGetElapsedTimeSinceBootMillisFunc(getElapsedTimeSinceBootMillisFunc),
           mTopNStatsPerCategory(0),
           mTopNStatsPerSubcategory(0),
           mMaxUserSwitchEvents(0),
@@ -343,7 +346,8 @@ private:
     void dumpPackageMajorPageFaultsProto(const std::vector<UserPackageStats>& userPackageStats,
                                          android::util::ProtoOutputStream& outProto) const;
 
-    std::function<int64_t()> kGetElapsedTimeSinceBootMillisFunc;
+    // Updated by test for mocking elapsed time.
+    const std::function<int64_t()> kGetElapsedTimeSinceBootMillisFunc;
 
     // Top N per-UID stats per category.
     int mTopNStatsPerCategory;
