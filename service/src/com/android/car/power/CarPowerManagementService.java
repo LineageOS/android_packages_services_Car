@@ -1702,10 +1702,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         synchronized (mLock) {
             mLastSleepEntryTime = SystemClock.elapsedRealtime();
         }
-        @CarPowerManager.CarPowerState int nextListenerState;
         if (simulatedMode) {
             simulateSleepByWaiting();
-            nextListenerState = CarPowerManager.STATE_SHUTDOWN_CANCELLED;
         } else {
             boolean sleepSucceeded = suspendWithRetries();
             if (!sleepSucceeded) {
@@ -1713,14 +1711,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 // We either won't get here at all or we will power off very soon.
                 return;
             }
-            synchronized (mLock) {
-                // We suspended and have now resumed
-                nextListenerState = (mActionOnFinish == ACTION_ON_FINISH_DEEP_SLEEP)
-                        ? CarPowerManager.STATE_SUSPEND_EXIT
-                        : CarPowerManager.STATE_HIBERNATION_EXIT;
-            }
         }
+        @CarPowerManager.CarPowerState int nextListenerState;
         synchronized (mLock) {
+            nextListenerState = (mActionOnFinish == ACTION_ON_FINISH_DEEP_SLEEP)
+                            ? CarPowerManager.STATE_SUSPEND_EXIT
+                            : CarPowerManager.STATE_HIBERNATION_EXIT;
             // Any wakeup time from before is no longer valid.
             mNextWakeupSec = 0;
         }
@@ -3232,8 +3228,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     public void forceSimulatedResume() {
         synchronized (mLock) {
             // Cancel Garage Mode in case it's running
+            boolean isSuspendToDisk = mActionOnFinish == ACTION_ON_FINISH_HIBERNATION;
             mPendingPowerStates.addFirst(new CpmsState(CpmsState.WAIT_FOR_VHAL,
-                    CarPowerManager.STATE_SHUTDOWN_CANCELLED, /* canPostpone= */ false));
+                    isSuspendToDisk ? CarPowerManager.STATE_HIBERNATION_EXIT
+                            : CarPowerManager.STATE_SUSPEND_EXIT, /* canPostpone= */ false));
             mLock.notifyAll();
         }
         mHandler.handlePowerStateChange();
