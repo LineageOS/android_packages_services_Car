@@ -149,7 +149,6 @@ import com.android.car.telemetry.util.IoUtils;
 import com.android.car.user.CarUserService;
 import com.android.car.user.UserHandleHelper;
 import com.android.car.watchdog.CarWatchdogService;
-import com.android.car.wifi.CarWifiService;
 import com.android.internal.util.Preconditions;
 import com.android.modules.utils.BasicShellCommandHandler;
 
@@ -309,7 +308,6 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_GENERATE_TEST_VENDOR_CONFIGS = "gen-test-vendor-configs";
     private static final String COMMAND_RESTORE_TEST_VENDOR_CONFIGS = "restore-vendor-configs";
 
-    private static final String COMMAND_GET_TETHERING_CAPABILITY = "get-tethering-capability";
 
     private static final String COMMAND_GET_CURRENT_UX_RESTRICTIONS = "get-current-ux-restrictions";
     private static final String COMMAND_SET_CURRENT_UXR_MODE = "set-current-uxr-mode";
@@ -544,7 +542,6 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private final CarWatchdogService mCarWatchdogService;
     private final CarTelemetryService mCarTelemetryService;
     private final CarUxRestrictionsManagerService mCarUxRestrictionsManagerService;
-    private final CarWifiService mCarWifiService;
     private final Map<Class, CarSystemService> mAllServicesByClazz;
     private long mKeyDownTime;
     private long mMotionDownTime;
@@ -579,7 +576,6 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 allServicesByClazz.get(CarTelemetryService.class);
         mCarUxRestrictionsManagerService = (CarUxRestrictionsManagerService)
                 allServicesByClazz.get(CarUxRestrictionsManagerService.class);
-        mCarWifiService = (CarWifiService) allServicesByClazz.get(CarWifiService.class);
         mAllServicesByClazz = allServicesByClazz;
     }
 
@@ -970,9 +966,6 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t Gets all supported UX restrictions modes.");
         pw.printf("\t%s", COMMAND_GET_UXR_CONFIG);
         pw.println("\t Gets UX restrictions configuration.");
-
-        pw.printf("\t%s", COMMAND_GET_TETHERING_CAPABILITY);
-        pw.println("\t Gets the current tethering persistence capability.");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -1516,9 +1509,6 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             case COMMAND_GET_USER_BY_DISPLAY:
                 getUserByDisplay(args, writer);
-                break;
-            case COMMAND_GET_TETHERING_CAPABILITY:
-                getTetheringCapability(writer);
                 break;
             case COMMAND_GET_CURRENT_UX_RESTRICTIONS:
                 getCurrentUxRestrictions(args, writer);
@@ -4289,11 +4279,6 @@ final class CarShellCommand extends BasicShellCommandHandler {
             return;
         }
         writer.println(userId);
-    }
-
-    private void getTetheringCapability(IndentingPrintWriter writer) {
-        writer.printf("Persist tethering capabilities enabled: %b\n",
-                mCarWifiService.canControlPersistTetheringSettings());
     }
 
     private static boolean isPropertyAreaTypeGlobal(int propertyId) {
