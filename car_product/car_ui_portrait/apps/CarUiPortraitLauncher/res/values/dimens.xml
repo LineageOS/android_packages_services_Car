@@ -36,4 +36,20 @@
     <dimen name="calm_mode_clock_translationY">100dp</dimen>
     <dimen name="calm_mode_clock_media_title_margin">100dp</dimen>
 
+    <!-- Control bar dimens -->
+    <dimen name="control_bar_media_card_height">408dp</dimen>
+    <dimen name="control_bar_media_card_radius">48dp</dimen>
+    <dimen name="control_bar_media_card_padding">32dp</dimen>
+    <dimen name="control_bar_media_card_view_end_margin">48dp</dimen>
+    <dimen name="control_bar_media_card_icon_size">48dp</dimen>
+    <dimen name="control_bar_media_card_custom_action_spacing">64dp</dimen>
+    <dimen name="control_bar_media_card_custom_action_size">40dp</dimen>
+    <dimen name="control_bar_media_card_seek_bar_height">56dp</dimen>
+    <dimen name="control_bar_media_card_text_view_separation_margin">32dp</dimen>
+    <dimen name="control_bar_media_card_half_pill_button_width">120dp</dimen>
+    <dimen name="control_bar_media_card_half_pill_button_radius">120dp</dimen>
+    <dimen name="control_bar_media_card_pill_button_width">160dp</dimen>
+    <dimen name="control_bar_media_card_app_icon_size">26dp</dimen>
+    <dimen name="control_bar_media_card_album_art_size">240dp</dimen>
+
 </resources>

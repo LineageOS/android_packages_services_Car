@@ -18,11 +18,20 @@ package com.android.car.portraitlauncher.controlbar;
 
 import static android.car.media.CarMediaIntents.EXTRA_MEDIA_COMPONENT;
 
+import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.updateActionsWithPlaybackState;
+import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.updatePlayButtonWithPlaybackState;
+
 import android.car.media.CarMediaIntents;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.view.View;
 
 import com.android.car.carlauncher.homescreen.audio.media.MediaIntentRouter;
+import com.android.car.media.common.R;
+import com.android.car.media.common.playback.PlaybackProgress;
+import com.android.car.media.common.playback.PlaybackViewModel;
 import com.android.car.media.common.source.MediaSource;
+import com.android.car.media.common.source.MediaSourceColors;
 import com.android.car.media.common.ui.PlaybackCardController;
 
 public class ControlBarMediaController extends PlaybackCardController {
@@ -55,5 +64,44 @@ public class ControlBarMediaController extends PlaybackCardController {
             }
             mMediaIntentRouter.handleMediaIntent(intent);
         });
+    }
+
+    // TODO b/336857625: Possibly move SeekBar hide logic to parent class
+    @Override
+    protected void updateProgress(PlaybackProgress progress) {
+        super.updateProgress(progress);
+        if (progress == null || !progress.hasTime()) {
+            mSeekBar.setVisibility(View.GONE);
+        }
+    }
+
+    // TODO b/336857156: Add disabled state for play/pause button and make sure it reflects here
+    @Override
+    protected void updateViewsWithMediaSourceColors(MediaSourceColors colors) {
+        int defaultColor = mView.getResources().getColor(R.color.car_on_surface, null);
+        ColorStateList accentColor = colors != null ? ColorStateList.valueOf(
+                colors.getAccentColor(defaultColor)) :
+                ColorStateList.valueOf(defaultColor);
+
+        if (mPlayPauseButton != null) {
+            mPlayPauseButton.setBackgroundTintList(accentColor);
+        }
+        if (mSeekBar != null) {
+            mSeekBar.setProgressTintList(accentColor);
+        }
+    }
+
+    @Override
+    protected void updatePlaybackState(PlaybackViewModel.PlaybackStateWrapper playbackState) {
+        if (playbackState != null) {
+            updatePlayButtonWithPlaybackState(mPlayPauseButton, playbackState);
+            updateActionsWithPlaybackState(mView.getContext(), mActions, playbackState,
+                    mDataModel.getPlaybackController().getValue(),
+                    mView.getContext().getDrawable(R.drawable.ic_skip_previous),
+                    mView.getContext().getDrawable(R.drawable.ic_skip_next),
+                    mView.getContext().getDrawable(R.drawable.left_half_pill_button_shape),
+                    mView.getContext().getDrawable(R.drawable.right_half_pill_button_shape),
+                    /* reserveSkipSlots */ true, /* defaultButtonDrawable */ null);
+        }
     }
 }
