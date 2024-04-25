@@ -38,6 +38,21 @@ using ::android::base::StringPrintf;
 
 constexpr const char kThreadName[] = "PressureMonitor";
 
+std::string PressureMonitorInterface::PressureLevelToString(PressureLevel pressureLevel) {
+    switch (pressureLevel) {
+        case PRESSURE_LEVEL_NONE:
+            return "PRESSURE_LEVEL_NONE";
+        case PRESSURE_LEVEL_LOW:
+            return "PRESSURE_LEVEL_LOW";
+        case PRESSURE_LEVEL_MEDIUM:
+            return "PRESSURE_LEVEL_MEDIUM";
+        case PRESSURE_LEVEL_HIGH:
+            return "PRESSURE_LEVEL_HIGH";
+        default:
+            return "UNKNOWN_PRESSURE_LEVEL";
+    }
+}
+
 Result<void> PressureMonitor::init() {
     std::string memoryPath = StringPrintf("%s/%s", kProcPressureDirPath.c_str(), kMemoryFile);
     if (access(memoryPath.c_str(), R_OK) != 0) {
@@ -85,21 +100,6 @@ void PressureMonitor::terminate() {
     {
         Mutex::Autolock lock(mMutex);
         destroyActivePsiMonitorsLocked();
-    }
-}
-
-std::string PressureMonitor::PressureLevelToString(PressureMonitor::PressureLevel pressureLevel) {
-    switch (pressureLevel) {
-        case PRESSURE_LEVEL_NONE:
-            return "PRESSURE_LEVEL_NONE";
-        case PRESSURE_LEVEL_LOW:
-            return "PRESSURE_LEVEL_LOW";
-        case PRESSURE_LEVEL_MEDIUM:
-            return "PRESSURE_LEVEL_MEDIUM";
-        case PRESSURE_LEVEL_HIGH:
-            return "PRESSURE_LEVEL_HIGH";
-        default:
-            return "UNKNOWN_PRESSURE_LEVEL";
     }
 }
 
