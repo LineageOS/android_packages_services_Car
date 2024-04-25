@@ -175,4 +175,6 @@
     <uses-permission android:name="android.car.permission.CAR_NAVIGATION_MANAGER" />
     <!-- permissions required for CarProjectionManagerTest -->
     <uses-permission android:name="android.car.permission.CAR_PROJECTION" />
+    <!-- permissions required for CarWifiManagerTest -->
+    <uses-permission android:name="android.car.permission.READ_PERSIST_TETHERING_SETTINGS" />
 </manifest>

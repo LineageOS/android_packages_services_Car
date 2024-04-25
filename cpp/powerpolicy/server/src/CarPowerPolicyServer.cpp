@@ -628,7 +628,9 @@ ScopedAStatus CarPowerPolicyServer::applyPowerPolicyPerPowerStateChangeAsync(
               powerStateName.c_str());
     }
 
-    if (auto ret = enqueuePowerPolicyRequest(requestId, policyId, /*force=*/false); !ret.isOk()) {
+    const bool useForce = !mSilentModeHandler.isSilentMode();
+
+    if (auto ret = enqueuePowerPolicyRequest(requestId, policyId, useForce); !ret.isOk()) {
         ALOGW("Failed to apply power policy(%s) for power state(%s) with request ID(%d)",
               policyId.c_str(), powerStateName.c_str(), requestId);
         return ret;

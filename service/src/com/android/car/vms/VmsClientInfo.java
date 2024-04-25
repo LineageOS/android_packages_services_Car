@@ -37,9 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Class for tracking Vehicle Map Service client information, offerings, and subscriptions.
@@ -61,7 +59,7 @@ final class VmsClientInfo {
     @GuardedBy("mLock")
     private Set<VmsLayer> mLayerSubscriptions = Collections.emptySet();
     @GuardedBy("mLock")
-    private Map<VmsLayer, Set<Integer>> mLayerAndProviderSubscriptions = new ArrayMap<>();
+    private ArrayMap<VmsLayer, ArraySet<Integer>> mLayerAndProviderSubscriptions = new ArrayMap<>();
     @GuardedBy("mLock")
     private boolean mMonitoringEnabled;
 
@@ -106,7 +104,7 @@ final class VmsClientInfo {
         }
     }
 
-    boolean setProviderOfferings(int providerId, Collection<VmsLayerDependency> offerings) {
+    boolean setProviderOfferings(int providerId, List<VmsLayerDependency> offerings) {
         synchronized (mLock) {
             Set<VmsLayerDependency> providerOfferings = mOfferings.get(providerId);
 
@@ -119,9 +117,11 @@ final class VmsClientInfo {
 
             // Otherwise, update the offerings and return true
             mOfferings.put(providerId, new ArraySet<>(offerings));
-            mPotentialOfferings.put(providerId, offerings.stream()
-                    .map(VmsLayerDependency::getLayer)
-                    .collect(Collectors.toSet()));
+            ArraySet<VmsLayer> layerSet = new ArraySet<>(offerings.size());
+            for (int i = 0; i < offerings.size(); i++) {
+                layerSet.add(offerings.get(i).getLayer());
+            }
+            mPotentialOfferings.put(providerId, layerSet);
             return true;
         }
     }
@@ -151,7 +151,7 @@ final class VmsClientInfo {
 
     void setSubscriptions(List<VmsAssociatedLayer> layers) {
         ArraySet<VmsLayer> layerSubscriptions = new ArraySet<>();
-        ArrayMap<VmsLayer, Set<Integer>> layerAndProviderSubscriptions = new ArrayMap<>();
+        ArrayMap<VmsLayer, ArraySet<Integer>> layerAndProviderSubscriptions = new ArrayMap<>();
         for (int index = 0; index < layers.size(); index++) {
             VmsAssociatedLayer associatedLayer = layers.get(index);
             if (associatedLayer.getProviderIds().isEmpty()) {
@@ -173,7 +173,7 @@ final class VmsClientInfo {
         }
     }
 
-    Map<VmsLayer, Set<Integer>> getLayerAndProviderSubscriptions() {
+    ArrayMap<VmsLayer, ArraySet<Integer>> getLayerAndProviderSubscriptions() {
         synchronized (mLock) {
             return deepCopy(mLayerAndProviderSubscriptions);
         }
@@ -189,7 +189,7 @@ final class VmsClientInfo {
         synchronized (mLock) {
             return mMonitoringEnabled
                     || mLayerSubscriptions.contains(layer)
-                    || mLayerAndProviderSubscriptions.getOrDefault(layer, Collections.emptySet())
+                    || mLayerAndProviderSubscriptions.getOrDefault(layer, new ArraySet<>())
                             .contains(providerId);
         }
     }
@@ -233,17 +233,19 @@ final class VmsClientInfo {
                 for (VmsLayer layer : mLayerSubscriptions) {
                     writer.println(prefix + layer);
                 }
-                for (Map.Entry<VmsLayer, Set<Integer>> layerEntry :
-                        mLayerAndProviderSubscriptions.entrySet()) {
-                    writer.println(prefix + layerEntry.getKey() + ": " + layerEntry.getValue());
+                for (int i = 0; i < mLayerAndProviderSubscriptions.size(); i++) {
+                    writer.println(prefix + mLayerAndProviderSubscriptions.keyAt(i) + ": "
+                            + mLayerAndProviderSubscriptions.valueAt(i));
                 }
             }
         }
     }
 
-    private static <K, V> Map<K, Set<V>> deepCopy(Map<K, Set<V>> original) {
-        return original.entrySet().stream().collect(Collectors.toMap(
-                Map.Entry::getKey,
-                entry -> new ArraySet<>(entry.getValue())));
+    private static <K, V> ArrayMap<K, ArraySet<V>> deepCopy(ArrayMap<K, ArraySet<V>> original) {
+        ArrayMap<K, ArraySet<V>> newMap = new ArrayMap<>(original.size());
+        for (int i = 0; i < original.size(); i++) {
+            newMap.put(original.keyAt(i), new ArraySet<>(original.valueAt(i)));
+        }
+        return newMap;
     }
 }
