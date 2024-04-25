@@ -274,20 +274,6 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
                     }
                 });
     }
-
-    @GuardedBy("mLock")
-    private void initSharedPreferencesLocked() {
-        // SharedPreferences are shared among different users thus only need initialized once. They
-        // should be initialized after user 0 is unlocked because SharedPreferences in
-        // credential encrypted storage are not available until after user 0 is unlocked.
-        if (mSharedPreferences != null) {
-            Slogf.d(TAG, "SharedPreferences store has already been initialized");
-            return;
-        }
-
-        mSharedPreferences = mContext.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
-    }
-
     private void onStateOn() {
         synchronized (mLock) {
             if (mSharedPreferences == null) {
@@ -302,7 +288,11 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
 
     private void onSystemUserUnlocked() {
         synchronized (mLock) {
-            initSharedPreferencesLocked();
+            // SharedPreferences are shared among different users thus only need initialized once.
+            // They should be initialized after user 0 is unlocked because SharedPreferences in
+            // credential encrypted storage are not available until after user 0 is unlocked.
+            mSharedPreferences = mContext.getSharedPreferences(SHARED_PREF_NAME,
+                    Context.MODE_PRIVATE);
         }
 
         if (mCarPowerManagementService.getPowerState() == CarPowerManager.STATE_ON) {
