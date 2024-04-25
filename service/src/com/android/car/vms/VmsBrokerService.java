@@ -122,9 +122,14 @@ public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServi
             writer.println("mSubscriptionState: " + mSubscriptionState);
             writer.println();
             writer.println("mClientMap:");
-            mClientMap.values().stream()
-                    .sorted(Comparator.comparingInt(VmsClientInfo::getUid))
-                    .forEach(client -> client.dump(writer, "  "));
+            ArrayList<VmsClientInfo> clientInfos = new ArrayList<>(mClientMap.size());
+            for (int i = 0; i < mClientMap.size(); i++) {
+                clientInfos.add(mClientMap.valueAt(i));
+            }
+            clientInfos.sort(Comparator.comparingInt(VmsClientInfo::getUid));
+            for (int i = 0; i < clientInfos.size(); i++) {
+                clientInfos.get(i).dump(writer, "  ");
+            }
         }
     }
 
