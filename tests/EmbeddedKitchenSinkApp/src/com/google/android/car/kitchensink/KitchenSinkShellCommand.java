@@ -32,6 +32,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.car.kitchensink.drivemode.DriveModeSwitchController;
+import com.google.android.car.kitchensink.customizationtool.CustomizationToolController;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -69,6 +70,7 @@ final class KitchenSinkShellCommand {
     private static final String CMD_POST_NOTIFICATION = "post-notification";
     private static final String CMD_POST_TOAST = "post-toast";
     private static final String CMD_SET_DRIVE_MODE_SWITCH= "set-drive-mode-switch";
+    private static final String CMD_SET_CUSTOMIZATION_TOOL= "set-customization-tool";
 
     private static final String ARG_VERBOSE = "-v";
     private static final String ARG_VERBOSE_FULL = "--verbose";
@@ -125,6 +127,9 @@ final class KitchenSinkShellCommand {
             case CMD_SET_DRIVE_MODE_SWITCH:
                 setDriveModeSwitch();
                 break;
+            case CMD_SET_CUSTOMIZATION_TOOL:
+                setCustomizationTool();
+                break;
             default:
                 showHelp("Invalid command: %s", cmd);
         }
@@ -156,6 +161,8 @@ final class KitchenSinkShellCommand {
                 "<MESSAGE>");
         showCommandHelp("Enables / Disables the DriveMode Switch in the System UI.",
                 CMD_SET_DRIVE_MODE_SWITCH, "<true|false>");
+        showCommandHelp("Enables / Disables the Customization Tool service.",
+                CMD_SET_CUSTOMIZATION_TOOL, "<true|false>");
         mWriter.decreaseIndent();
     }
 
@@ -288,6 +295,14 @@ final class KitchenSinkShellCommand {
                 mContext
         );
         driveModeSwitchController.setDriveMode(value);
+    }
+
+    private void setCustomizationTool() {
+        boolean value = getNextBooleanArg();
+        CustomizationToolController customizationToolController = new CustomizationToolController(
+                mContext
+        );
+        customizationToolController.toggleCustomizationTool(value);
     }
 
     private void warnAboutAsyncCall() {

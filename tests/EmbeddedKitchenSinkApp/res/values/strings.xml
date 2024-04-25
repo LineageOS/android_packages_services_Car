@@ -543,4 +543,8 @@
     <string name="camera2_quit_button" translatable="false">Quit</string>
     <string name="camera2_details_button" translatable="false">Details</string>
     <string name="camera2_selection_checkbox" translatable="false">Camera ID: %1$s</string>
+
+    <!-- Customization Switch -->
+    <string name="customization_tool_switch" translatable="false">Enable the Customization Tool</string>
+
 </resources>
