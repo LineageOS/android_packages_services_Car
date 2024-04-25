@@ -45,6 +45,16 @@ flag {
   bug: "286303350"
 }
 
+flag {
+  name: "per_display_max_brightness"
+  namespace: "car_framework"
+  description: "Use per display max brightness defined by VHAL"
+  bug: "336831738"
+  metadata {
+    purpose: PURPOSE_BUGFIX
+  }
+}
+
 # CarAudioManager
 flag {
   name: "car_audio_dynamic_devices"
