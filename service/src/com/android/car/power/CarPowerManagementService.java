@@ -256,6 +256,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @GuardedBy("mSimulationWaitObject")
     private int mResumeDelayFromSimulatedSuspendSec = NO_WAKEUP_BY_TIMER;
     @GuardedBy("mSimulationWaitObject")
+    private int mCancelDelayFromSimulatedSuspendSec = NO_WAKEUP_BY_TIMER;
+    @GuardedBy("mSimulationWaitObject")
     private boolean mFreeMemoryBeforeSuspend;
 
     @GuardedBy("mLock")
@@ -333,6 +335,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     // Allows for injecting feature flag values during testing
     private FeatureFlags mFeatureFlags = new FeatureFlagsImpl();
+    @GuardedBy("mSimulationWaitObject")
+    private boolean mBlockFromSimulatedCancelEvent;
 
     @VisibleForTesting
     void readPowerPolicyFromXml(InputStream inputStream)
@@ -1265,12 +1269,42 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         waitForShutdownPrepareListenersToComplete(timeoutMs, intervalMs);
     }
 
+    private void forceSimulatedCancel() {
+        synchronized (mLock) {
+            mPendingPowerStates.addFirst(new CpmsState(CpmsState.WAIT_FOR_VHAL,
+                    CarPowerManager.STATE_SHUTDOWN_CANCELLED,
+                    /* canPostpone= */ false));
+        }
+        mHandler.handlePowerStateChange();
+        synchronized (mSimulationWaitObject) {
+            mBlockFromSimulatedCancelEvent = true;
+            mSimulationWaitObject.notifyAll();
+        }
+    }
+
     private void handleWaitForFinish(CpmsState state) {
         int timeoutMs = getShutdownEnterTimeoutConfig();
         sendPowerManagerEvent(state.mCarPowerStateListenerState, timeoutMs);
         Runnable taskAtCompletion = () -> {
             Slogf.i(TAG, "All listeners completed for %s",
                     powerStateToString(state.mCarPowerStateListenerState));
+            if (mFeatureFlags.carPowerCancelShellCommand()) {
+                synchronized (mSimulationWaitObject) {
+                    if (mInSimulatedDeepSleepMode && mCancelDelayFromSimulatedSuspendSec >= 0) {
+                        mHandler.postDelayed(() -> forceSimulatedCancel(),
+                                mCancelDelayFromSimulatedSuspendSec * 1000L);
+                        while (!mBlockFromSimulatedCancelEvent) {
+                            try {
+                                mSimulationWaitObject.wait();
+                            } catch (InterruptedException ignored) {
+                                Thread.currentThread().interrupt(); // Restore interrupted status
+                            }
+                        }
+                        mInSimulatedDeepSleepMode = false;
+                        return;
+                    }
+                }
+            }
             int wakeupSec;
             synchronized (mLock) {
                 // If we're shutting down immediately, don't schedule a wakeup time.
@@ -3255,14 +3289,42 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * This is similar to {@code 'onApPowerStateChange()'} except that it needs to create a
      * {@code CpmsState} that is not directly derived from a {@code VehicleApPowerStateReq}.
      */
-    // TODO(b/274895468): Add tests
     public void simulateSuspendAndMaybeReboot(@PowerState.ShutdownType int shutdownType,
             boolean shouldReboot, boolean skipGarageMode, int wakeupAfter, boolean freeMemory) {
+        simulateSuspendAndMaybeReboot(shutdownType, shouldReboot, skipGarageMode, wakeupAfter,
+                CarPowerManagementService.NO_WAKEUP_BY_TIMER, freeMemory);
+    }
+
+    /**
+     * Manually enters simulated suspend (deep sleep or hibernation) mode, trigging Garage mode.
+     *
+     * <p>If {@code shouldReboot} is 'true', reboots the system when Garage Mode completes.
+     *
+     * Can be invoked using
+     * {@code "adb shell cmd car_service suspend --simulate"} or
+     * {@code "adb shell cmd car_service hibernate --simulate"} or
+     * {@code "adb shell cmd car_service garage-mode reboot"}.
+     *
+     * This is similar to {@code 'onApPowerStateChange()'} except that it needs to create a
+     * {@code CpmsState} that is not directly derived from a {@code VehicleApPowerStateReq}.
+     */
+    // TODO(b/274895468): Add tests
+    public void simulateSuspendAndMaybeReboot(@PowerState.ShutdownType int shutdownType,
+            boolean shouldReboot, boolean skipGarageMode, int wakeupAfter, int cancelAfter,
+            boolean freeMemory) {
         boolean isDeepSleep = shutdownType == PowerState.SHUTDOWN_TYPE_DEEP_SLEEP;
+        if (cancelAfter >= 0) {
+            Slogf.i(TAG, "Cancel after is: %d", cancelAfter);
+        }
+        if (wakeupAfter >= 0) {
+            Slogf.i(TAG, "Wakeup after is: %d", wakeupAfter);
+        }
         synchronized (mSimulationWaitObject) {
             mInSimulatedDeepSleepMode = true;
             mWakeFromSimulatedSleep = false;
+            mBlockFromSimulatedCancelEvent = false;
             mResumeDelayFromSimulatedSuspendSec = wakeupAfter;
+            mCancelDelayFromSimulatedSuspendSec = cancelAfter;
             mFreeMemoryBeforeSuspend = freeMemory;
         }
         synchronized (mLock) {
