@@ -2450,6 +2450,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         callback.onAudioServerUp();
 
+        waitForInternalCallback();
         expectWithMessage("Re-initialized Car Audio Service Zones")
                 .that(service.getAudioZoneIds()).asList()
                 .containsExactly(PRIMARY_AUDIO_ZONE, TEST_REAR_LEFT_ZONE_ID,
