@@ -18,6 +18,7 @@ package com.android.car.hal;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.car.feature.FeatureFlagsImpl;
 import android.car.test.mocks.JavaMockitoHelper;
 import android.content.Context;
 import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
@@ -88,7 +89,8 @@ public class MockedPowerHalService extends PowerHalService {
 
     public MockedPowerHalService(boolean isPowerStateSupported, boolean isDeepSleepAllowed,
             boolean isHibernationAllowed, boolean isTimedWakeupAllowed) {
-        super(mock(Context.class), createVehicleHalWithMockedServices());
+        super(mock(Context.class), new FeatureFlagsImpl(),
+                createVehicleHalWithMockedServices());
         mIsPowerStateSupported = isPowerStateSupported;
         mIsDeepSleepAllowed = isDeepSleepAllowed;
         mIsHibernationAllowed = isHibernationAllowed;

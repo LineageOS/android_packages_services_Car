@@ -27,8 +27,8 @@ import static android.hardware.automotive.vehicle.VehicleApPowerStateShutdownPar
 import static android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY;
 import static android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY;
 import static android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY;
-import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE_REPORT;
 import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_BOOTUP_REASON;
+import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE_REPORT;
 import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE_REQ;
 import static android.hardware.automotive.vehicle.VehicleProperty.DISPLAY_BRIGHTNESS;
 import static android.hardware.automotive.vehicle.VehicleProperty.PER_DISPLAY_BRIGHTNESS;
@@ -52,6 +52,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.feature.FakeFeatureFlagsImpl;
+import android.car.feature.Flags;
 import android.car.test.util.FakeContext;
 import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.VehicleApPowerBootupReason;
@@ -83,6 +85,10 @@ import java.util.List;
 public final class PowerHalServiceUnitTest {
 
     private static final String TAG = PowerHalServiceUnitTest.class.getSimpleName();
+
+    // TODO(b/337307388): replace this with VehicleProperty.PER_DISPLAY_MAX_BRIGHTNESS once we use
+    // property V4.
+    private static final int PER_DISPLAY_MAX_BRIGHTNESS = 0x11410F4E;
 
     private static final SparseBooleanArray CAN_POSTPONE_SHUTDOWN = new SparseBooleanArray(6);
     static {
@@ -125,11 +131,14 @@ public final class PowerHalServiceUnitTest {
     private DisplayManager mDisplayManager;
     private PowerHalService mPowerHalService;
 
+    private FakeFeatureFlagsImpl mFakeFeatureFlags = new FakeFeatureFlagsImpl();
+
     @Before
     public void setUp() {
         mFakeContext.setSystemService(DisplayManager.class, mDisplayManager);
+        mFakeFeatureFlags.setFlag(Flags.FLAG_PER_DISPLAY_MAX_BRIGHTNESS, false);
 
-        mPowerHalService = new PowerHalService(mFakeContext, mHal);
+        mPowerHalService = new PowerHalService(mFakeContext, mFakeFeatureFlags, mHal);
         mPowerHalService.setListener(mEventListener);
     }
 
@@ -139,6 +148,7 @@ public final class PowerHalServiceUnitTest {
             AP_POWER_STATE_REPORT,
             DISPLAY_BRIGHTNESS,
             PER_DISPLAY_BRIGHTNESS,
+            PER_DISPLAY_MAX_BRIGHTNESS,
             VEHICLE_IN_USE,
         };
         List<HalPropConfig> configs = new ArrayList<>();
@@ -248,6 +258,11 @@ public final class PowerHalServiceUnitTest {
     }
 
     @Test
+    public void testHalEventListenerMaxBrightness() {
+        assertThat(PowerHalService.MAX_BRIGHTNESS).isEqualTo(100);
+    }
+
+    @Test
     public void testHalEventListenerDisplayBrightnessChange() {
         AidlHalPropConfig config = new AidlHalPropConfig(
                 AidlVehiclePropConfigBuilder.newBuilder(DISPLAY_BRIGHTNESS)
@@ -287,7 +302,7 @@ public final class PowerHalServiceUnitTest {
     }
 
     @Test
-    public void testHalEventListenerPerDisplayBrightnessChange() {
+    public void testPerDisplayBrightnessChange_perDisplayMaxNotSupported() {
         AidlHalPropConfig config = new AidlHalPropConfig(
                 AidlVehiclePropConfigBuilder.newBuilder(PER_DISPLAY_BRIGHTNESS)
                 .addAreaConfig(/* areaId= */ 0, /* minValue= */ 0, /* maxValue= */ 100).build());
@@ -312,7 +327,7 @@ public final class PowerHalServiceUnitTest {
     }
 
     @Test
-    public void testHalEventListenerPerDisplayBrightnessChange_non100MaxBrightness() {
+    public void testPerDisplayBrightnessChange_non100MaxBrightness_perDisplayMaxNotSupported() {
         AidlHalPropConfig config = new AidlHalPropConfig(
                 AidlVehiclePropConfigBuilder.newBuilder(PER_DISPLAY_BRIGHTNESS)
                 .addAreaConfig(/* areaId= */ 0, /* minValue= */ 0, /* maxValue= */ 50).build());
@@ -322,6 +337,83 @@ public final class PowerHalServiceUnitTest {
 
         int displayId, displayPort;
         displayPort = displayId = 5;
+        Display display = createMockDisplay(displayId, displayPort);
+        when(mDisplayManager.getDisplays()).thenReturn(new Display[]{display});
+        when(mDisplayManager.getDisplay(displayId)).thenReturn(display);
+
+        int brightness = 24;
+        // Max brightness is 50, so the expected brightness should be multiplied 2 times to fit in
+        // 100 scale.
+        int expectedBrightness = brightness * 2;
+        HalPropValue value = mPropValueBuilder.build(PER_DISPLAY_BRIGHTNESS, /* areaId= */ 0,
+                new int[]{displayPort, brightness});
+        mPowerHalService.onHalEvents(List.of(value));
+
+        assertWithMessage("Display brightness")
+                .that(mEventListener.getDisplayBrightness(displayPort))
+                .isEqualTo(expectedBrightness);
+    }
+
+    @Test
+    public void testPerDisplayBrightnessChange_perDisplayMaxSupported() {
+        mFakeFeatureFlags.setFlag(Flags.FLAG_PER_DISPLAY_MAX_BRIGHTNESS, true);
+
+        var config1 = new AidlHalPropConfig(
+                AidlVehiclePropConfigBuilder.newBuilder(PER_DISPLAY_BRIGHTNESS)
+                .build());
+        var config2 = new AidlHalPropConfig(
+                AidlVehiclePropConfigBuilder.newBuilder(PER_DISPLAY_MAX_BRIGHTNESS)
+                .build());
+        mPowerHalService.takeProperties(List.of(config1, config2));
+
+        int displayId = 11;
+        int displayPort = 11;
+        int displayPort2 = 12;
+        // Set the max display brightness for display port to be 100.
+        when(mHal.get(PER_DISPLAY_MAX_BRIGHTNESS)).thenReturn(mPropValueBuilder.build(
+                PER_DISPLAY_MAX_BRIGHTNESS, /* areaId= */ 0,
+                new int[] {displayPort, 100, displayPort2, 50}));
+
+        mPowerHalService.init();
+        mPowerHalService.setListener(mEventListener);
+
+        Display display = createMockDisplay(displayId, displayPort);
+        when(mDisplayManager.getDisplays()).thenReturn(new Display[]{display});
+        when(mDisplayManager.getDisplay(displayId)).thenReturn(display);
+
+        int expectedBrightness = 73;
+        HalPropValue value = mPropValueBuilder.build(PER_DISPLAY_BRIGHTNESS, /* areaId= */ 0,
+                new int[]{displayPort, expectedBrightness});
+        mPowerHalService.onHalEvents(List.of(value));
+
+        assertWithMessage("Display brightness")
+                .that(mEventListener.getDisplayBrightness(displayPort))
+                .isEqualTo(expectedBrightness);
+    }
+
+    @Test
+    public void testPerDisplayBrightnessChange_non100MaxBrightness_perDisplaySupported() {
+        mFakeFeatureFlags.setFlag(Flags.FLAG_PER_DISPLAY_MAX_BRIGHTNESS, true);
+
+        var config1 = new AidlHalPropConfig(
+                AidlVehiclePropConfigBuilder.newBuilder(PER_DISPLAY_BRIGHTNESS)
+                .build());
+        var config2 = new AidlHalPropConfig(
+                AidlVehiclePropConfigBuilder.newBuilder(PER_DISPLAY_MAX_BRIGHTNESS)
+                .build());
+        mPowerHalService.takeProperties(List.of(config1, config2));
+
+        int displayId = 11;
+        int displayPort = 11;
+        int displayPort2 = 12;
+        // Set the max display brightness for display port to be 50.
+        when(mHal.get(PER_DISPLAY_MAX_BRIGHTNESS)).thenReturn(mPropValueBuilder.build(
+                PER_DISPLAY_MAX_BRIGHTNESS, /* areaId= */ 0,
+                new int[] {displayPort2, 100, displayPort, 50}));
+
+        mPowerHalService.init();
+        mPowerHalService.setListener(mEventListener);
+
         Display display = createMockDisplay(displayId, displayPort);
         when(mDisplayManager.getDisplays()).thenReturn(new Display[]{display});
         when(mDisplayManager.getDisplay(displayId)).thenReturn(display);
