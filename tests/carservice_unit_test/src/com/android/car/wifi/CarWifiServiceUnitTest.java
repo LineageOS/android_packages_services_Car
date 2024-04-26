@@ -188,6 +188,21 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testPersistCarSettingOn_tetheringAlreadyEnabled_noTethering() throws Exception {
+        mMockSettings.putString(CarSettings.Global.ENABLE_PERSISTENT_TETHERING, "true");
+        when(mSharedPreferences.getBoolean(anyString(), anyBoolean())).thenReturn(false);
+        when(mWifiManager.isWifiApEnabled()).thenReturn(true);
+
+        mCarWifiService = new CarWifiService(mContext);
+        mCarWifiService.init();
+        getUserLifecycleListener().run();
+        getCarPowerStateListener().onStateChanged(CarPowerManager.STATE_ON, 0);
+
+        verify(mTetheringManager, never()).startTethering(eq(TetheringManager.TETHERING_WIFI), any(
+                Executor.class), any(TetheringManager.StartTetheringCallback.class));
+    }
+
+    @Test
     public void testPersistCarSettingOn_powerOnBeforeUserUnlock_tetheringOn() throws Exception {
         mMockSettings.putString(CarSettings.Global.ENABLE_PERSISTENT_TETHERING, "true");
         when(mSharedPreferences.getBoolean(anyString(), anyBoolean())).thenReturn(true);
