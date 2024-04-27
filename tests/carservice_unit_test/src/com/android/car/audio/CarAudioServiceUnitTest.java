@@ -5683,6 +5683,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 TEST_REAR_LEFT_ZONE_ID);
         service.switchZoneToConfig(zoneConfigSwitchTo, zoneConfigSwitchCallback);
         zoneConfigSwitchCallback.waitForCallback();
+        resetVolumeCallbacks(volumeEventCallback);
         maxActivationVolume = service.getVolumeGroupInfo(TEST_REAR_LEFT_ZONE_ID,
                 TEST_SECONDARY_ZONE_GROUP_0).getMaxActivationVolumeGainIndex();
         setVolumeForGroup(service, volumeEventCallback, TEST_REAR_LEFT_ZONE_ID,
@@ -6726,6 +6727,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         }
 
         public void reset() {
+            mVolumeGroupEvents = null;
             mStatusLatch = new CountDownLatch(1);
         }
     }
