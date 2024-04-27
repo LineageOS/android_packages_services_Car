@@ -18,30 +18,269 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="408dp"
-    app:layout_constraintLeft_toLeftOf="parent"
-    app:layout_constraintRight_toRightOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:cardBackgroundColor="@color/car_surface_3"
-    app:cardCornerRadius="48dp"
+    android:layout_height="@dimen/control_bar_media_card_height"
+    android:layout_gravity="center_horizontal|bottom"
+    app:cardBackgroundColor="@color/car_surface"
+    app:cardCornerRadius="@dimen/control_bar_media_card_radius"
     app:cardElevation="0dp">
+
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_width="match_parent">
+        android:padding="@dimen/control_bar_media_card_padding">
+
+        <ImageButton
+            android:id="@+id/play_pause_button"
+            android:layout_width="@dimen/control_bar_media_card_pill_button_width"
+            android:layout_height="@dimen/media_card_large_button_size"
+            android:src="@drawable/ic_play_pause_selector"
+            android:tint="@color/car_surface"
+            android:scaleType="center"
+            android:background="@drawable/pill_button_shape"
+            android:backgroundTint="@color/car_on_surface"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <ImageButton
+            android:id="@+id/action_id1"
+            android:layout_width="@dimen/control_bar_media_card_half_pill_button_width"
+            android:layout_height="@dimen/media_card_large_button_size"
+            android:layout_marginStart="@dimen/media_card_view_separation_margin"
+            android:background="@drawable/left_half_pill_button_shape"
+            android:src="@drawable/ic_skip_previous"
+            android:tint="@color/car_on_surface"
+            app:layout_constraintStart_toEndOf="@id/play_pause_button"
+            app:layout_constraintBottom_toBottomOf="@id/play_pause_button"
+            app:layout_constraintTop_toTopOf="@id/play_pause_button" />
+
+        <ImageButton
+            android:id="@+id/action_id2"
+            android:layout_width="@dimen/control_bar_media_card_half_pill_button_width"
+            android:layout_height="@dimen/media_card_large_button_size"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/right_half_pill_button_shape"
+            android:src="@drawable/ic_skip_next"
+            android:tint="@color/car_on_surface"
+            app:layout_goneMarginStart="@dimen/media_card_view_separation_margin"
+            app:layout_constraintStart_toEndOf="@id/action_id1"
+            app:layout_constraintBottom_toBottomOf="@id/play_pause_button"
+            app:layout_constraintTop_toTopOf="@id/play_pause_button" />
+
+        <ImageButton
+            android:id="@+id/queue_button"
+            android:layout_width="@dimen/media_card_large_button_size"
+            android:layout_height="@dimen/media_card_large_button_size"
+            android:layout_marginEnd="@dimen/control_bar_media_card_view_end_margin"
+            android:src="@drawable/ic_queue"
+            android:tint="@color/car_on_surface"
+            android:background="@drawable/dark_circle_button_background"
+            android:backgroundTint="@color/car_surface_variant"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintEnd_toStartOf="@id/history_button"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+
+        <ImageButton
+            android:id="@+id/history_button"
+            android:layout_width="@dimen/media_card_large_button_size"
+            android:layout_height="@dimen/media_card_large_button_size"
+            android:layout_marginEnd="@dimen/media_card_view_separation_margin"
+            android:src="@drawable/ic_history"
+            android:tint="@color/car_on_surface"
+            android:background="@drawable/dark_circle_button_background"
+            android:backgroundTint="@color/car_surface_variant"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <ImageView
+            android:id="@+id/media_widget_app_icon"
+            android:layout_width="@dimen/control_bar_media_card_app_icon_size"
+            android:layout_height="@dimen/control_bar_media_card_app_icon_size"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/album_art"
+            android:layout_width="@dimen/control_bar_media_card_album_art_size"
+            android:layout_height="@dimen/control_bar_media_card_album_art_size"
+            android:background="@drawable/radius_24_background"
+            android:clipToOutline="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.android.car.media.common.ContentFormatView
+            android:id="@+id/content_format"
+            android:layout_width="@dimen/control_bar_media_card_custom_action_size"
+            android:layout_height="@dimen/control_bar_media_card_custom_action_size"
+            android:background="@android:color/transparent"
+            android:layout_marginTop="@dimen/control_bar_media_card_text_view_separation_margin"
+            android:layout_marginEnd="@dimen/control_bar_media_card_view_end_margin"
+            app:logoSize="small"
+            app:logoTint="@color/car_on_surface_variant"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            app:layout_constraintEnd_toStartOf="@id/album_art" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/control_bar_media_card_view_end_margin"
+            android:layout_marginStart="@dimen/media_card_view_separation_margin"
+            app:layout_constraintBottom_toBottomOf="@id/play_pause_button"
+            app:layout_constraintStart_toEndOf="@id/action_id2"
+            app:layout_constraintEnd_toStartOf="@id/queue_button"
+            app:layout_constraintTop_toTopOf="@id/play_pause_button"
+            app:layout_constraintHorizontal_bias="1">
+
+            <ImageButton
+                android:id="@+id/action_id3"
+                style="@style/ControlBarCustomActionStyle" />
+
+            <ImageButton
+                android:id="@+id/action_id4"
+                style="@style/ControlBarCustomActionStyle"
+                android:layout_marginStart="@dimen/control_bar_media_card_custom_action_spacing"/>
+
+            <ImageButton
+                android:id="@+id/action_id5"
+                style="@style/ControlBarCustomActionStyle"
+                android:layout_marginStart="@dimen/control_bar_media_card_custom_action_spacing"/>
+
+            <ImageButton
+                android:id="@+id/action_id6"
+                style="@style/ControlBarCustomActionStyle"
+                android:layout_marginStart="@dimen/control_bar_media_card_custom_action_spacing"/>
+
+            <ImageButton
+                android:id="@+id/action_id7"
+                style="@style/ControlBarCustomActionStyle"
+                android:layout_marginStart="@dimen/control_bar_media_card_custom_action_spacing"/>
+
+            <ImageButton
+                android:id="@+id/action_id8"
+                style="@style/ControlBarCustomActionStyle"
+                android:layout_marginStart="@dimen/control_bar_media_card_custom_action_spacing"/>
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/overflow_button"
+            android:layout_width="@dimen/control_bar_media_card_custom_action_size"
+            android:layout_height="@dimen/control_bar_media_card_custom_action_size"
+            android:layout_marginEnd="@dimen/control_bar_media_card_view_end_margin"
+            android:src="@drawable/ic_overflow_horizontal"
+            android:tint="@color/car_on_surface"
+            android:background="@android:color/transparent"
+            app:layout_constraintBottom_toBottomOf="@id/play_pause_button"
+            app:layout_constraintStart_toEndOf="@id/action_id2"
+            app:layout_constraintEnd_toStartOf="@id/album_art"
+            app:layout_constraintTop_toTopOf="@id/play_pause_button"
+            app:layout_constraintHorizontal_bias="1"
+            android:visibility="gone"/>
+
+        <SeekBar
+            android:id="@+id/playback_seek_bar"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/control_bar_media_card_seek_bar_height"
+            android:layout_marginBottom="@dimen/media_card_view_separation_margin"
+            android:layout_marginEnd="@dimen/control_bar_media_card_view_end_margin"
+            android:clickable="false"
+            android:paddingEnd="0dp"
+            android:paddingStart="0dp"
+            android:progressBackgroundTint="@color/car_on_surface_variant"
+            android:progressDrawable="@drawable/media_card_seekbar_progress"
+            android:progressTint="@color/car_on_surface"
+            android:splitTrack="true"
+            android:thumb="@drawable/media_card_seekbar_thumb"
+            android:thumbTint="@color/car_on_surface"
+            android:thumbOffset="0px"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/play_pause_button"
+            app:layout_constraintEnd_toStartOf="@id/current_time"
+            app:layout_constraintHorizontal_bias="0" />
+
+        <TextView
+            android:id="@+id/current_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/car_on_surface"
+            style="@style/TextAppearance.Car.Sub.Large"
+            app:layout_constraintStart_toEndOf="@id/playback_seek_bar"
+            app:layout_constraintEnd_toStartOf="@id/inner_separator"
+            app:layout_constraintTop_toTopOf="@id/max_time"
+            app:layout_constraintBottom_toBottomOf="@id/max_time"/>
+
+        <TextView
+            android:id="@+id/inner_separator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/car_on_surface_variant"
+            android:text="@string/times_separator"
+            style="@style/TextAppearance.Car.Sub.Large"
+            app:layout_constraintStart_toEndOf="@id/current_time"
+            app:layout_constraintEnd_toStartOf="@id/max_time"
+            app:layout_constraintTop_toTopOf="@id/max_time"
+            app:layout_constraintBottom_toBottomOf="@id/max_time" />
+
+        <TextView
+            android:id="@+id/max_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/control_bar_media_card_view_end_margin"
+            android:textColor="@color/car_on_surface_variant"
+            style="@style/TextAppearance.Car.Sub.Large"
+            app:layout_constraintStart_toEndOf="@id/inner_separator"
+            app:layout_constraintEnd_toStartOf="@id/album_art"
+            app:layout_constraintTop_toTopOf="@id/playback_seek_bar"
+            app:layout_constraintBottom_toBottomOf="@id/playback_seek_bar"
+            app:layout_constraintHorizontal_bias="1"/>
+
+        <TextView
+            android:id="@+id/album_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/media_card_view_separation_margin"
+            android:layout_marginEnd="@dimen/control_bar_media_card_view_end_margin"
+            android:gravity="center_vertical"
+            android:includeFontPadding="false"
+            android:textColor="@color/car_on_surface_variant"
+            style="@style/TextAppearance.Car.Sub.Large"
+            app:layout_constraintStart_toEndOf="@id/media_widget_app_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/album_art"
+            app:layout_constraintHorizontal_bias="0"/>
+
         <TextView
             android:id="@id/title"
-            android:layout_height="wrap_content"
             android:layout_width="0dp"
-            android:text="@string/metadata_default_title"
-            style="@style/TextAppearance.Car.Body.Large"
-            android:layout_marginStart="@dimen/card_content_image_margin"
-            android:layout_marginEnd="@dimen/card_content_image_margin"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintVertical_bias="0.5"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/control_bar_media_card_text_view_separation_margin"
+            android:layout_marginEnd="@dimen/control_bar_media_card_view_end_margin"
+            android:gravity="center_vertical"
+            android:includeFontPadding="false"
+            style="@style/TextAppearance.Car.Headline.Medium"
+            android:textColor="@color/car_on_surface"
+            android:maxLines="1"
+            android:ellipsize="end"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/media_widget_app_icon"
+            app:layout_constraintEnd_toStartOf="@id/album_art"
+            app:layout_constraintHorizontal_bias="0"/>
+
+        <TextView
+            android:id="@+id/artist"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/control_bar_media_card_text_view_separation_margin"
+            android:layout_marginEnd="@dimen/control_bar_media_card_view_end_margin"
+            android:gravity="center_vertical"
+            android:includeFontPadding="false"
+            android:textColor="@color/car_on_surface_variant"
+            style="@style/TextAppearance.Car.Body.Medium"
+            android:maxLines="1"
+            android:ellipsize="end"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            app:layout_constraintEnd_toStartOf="@id/album_art"
+            app:layout_constraintHorizontal_bias="0"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

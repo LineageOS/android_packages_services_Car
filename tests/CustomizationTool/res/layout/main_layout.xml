@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright (C) 2023 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<com.android.car.customization.tool.ui.MainLayoutView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_Layout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <ImageButton
+        android:id="@+id/entry_point"
+        android:layout_width="@dimen/entry_point_button_size"
+        android:layout_height="@dimen/entry_point_button_size"
+        android:background="@drawable/circle_bg"
+        android:src="@drawable/ic_tune" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp" />
+
+    <LinearLayout
+        android:id="@+id/control_panel_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical"
+        android:background="@drawable/panel_background">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/control_panel_header"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="20dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/control_panel_items"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginHorizontal="25dp" />
+    </LinearLayout>
+
+</com.android.car.customization.tool.ui.MainLayoutView>
+
