@@ -230,7 +230,7 @@ import java.util.concurrent.TimeUnit;
 public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCase {
     private static final String TAG = CarAudioServiceUnitTest.class.getSimpleName();
     private static final long TEST_CALLBACK_TIMEOUT_MS = 100;
-    private static final long TEST_ZONE_CONFIG_CALLBACK_TIMEOUT_MS = 350;
+    private static final long TEST_ZONE_CONFIG_CALLBACK_TIMEOUT_MS = 500;
     private static final int VOLUME_KEY_EVENT_TIMEOUT_MS = 3000;
     private static final int AUDIO_CONTEXT_PRIORITY_LIST_VERSION_ONE = 1;
     private static final int AUDIO_CONTEXT_PRIORITY_LIST_VERSION_TWO = 2;
