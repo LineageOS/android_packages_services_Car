@@ -16,6 +16,7 @@
 
 #define LOG_TAG "carwatchdogd"
 #define DEBUG false  // STOPSHIP if true.
+#define ATRACE_TAG ATRACE_TAG_SYSTEM_SERVER
 
 #include "WatchdogProcessService.h"
 
@@ -35,6 +36,7 @@
 #include <binder/IPCThreadState.h>
 #include <hidl/HidlTransportSupport.h>
 #include <utils/SystemClock.h>
+#include <utils/Trace.h>
 
 #include <IVhalClient.h>
 #include <VehicleHalTypes.h>
@@ -212,6 +214,19 @@ int toProtoHealthCheckTimeout(TimeoutLength timeoutLength) {
 
 }  // namespace
 
+std::string timeoutToString(TimeoutLength timeout) {
+    switch (timeout) {
+        case TimeoutLength::TIMEOUT_CRITICAL:
+            return "TIMEOUT_CRITICAL";
+        case TimeoutLength::TIMEOUT_MODERATE:
+            return "TIMEOUT_MODERATE";
+        case TimeoutLength::TIMEOUT_NORMAL:
+            return "TIMEOUT_NORMAL";
+        default:
+            return "UNKNOWN TIMEOUT";
+    }
+}
+
 WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) :
       WatchdogProcessService(IVhalClient::tryCreate, kDefaultTryGetHidlServiceManager,
                              getStartTimeForPid, kDefaultVhalPidCachingRetryDelayNs, handlerLooper,
@@ -267,6 +282,7 @@ WatchdogProcessService::~WatchdogProcessService() {
 
 ScopedAStatus WatchdogProcessService::registerClient(
         const std::shared_ptr<ICarWatchdogClient>& client, TimeoutLength timeout) {
+    ATRACE_CALL();
     if (client == nullptr) {
         return ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_ARGUMENT,
                                                            "Must provide non-null client");
@@ -292,6 +308,7 @@ ScopedAStatus WatchdogProcessService::unregisterClient(
 
 ScopedAStatus WatchdogProcessService::registerCarWatchdogService(
         const SpAIBinder& binder, const sp<WatchdogServiceHelperInterface>& helper) {
+    ATRACE_CALL();
     pid_t callingPid = IPCThreadState::self()->getCallingPid();
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
     userid_t callingUserId = multiuser_get_user_id(callingUid);
@@ -328,6 +345,7 @@ void WatchdogProcessService::unregisterCarWatchdogService(const SpAIBinder& bind
 
 ScopedAStatus WatchdogProcessService::registerMonitor(
         const std::shared_ptr<ICarWatchdogMonitor>& monitor) {
+    ATRACE_CALL();
     if (monitor == nullptr) {
         return ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_ARGUMENT,
                                                            "Must provide non-null monitor");
@@ -732,6 +750,7 @@ void WatchdogProcessService::terminate() {
 
 Result<void> WatchdogProcessService::registerClient(const ClientInfo& clientInfo,
                                                     TimeoutLength timeout) {
+    ATRACE_CALL();
     uintptr_t cookieId = reinterpret_cast<uintptr_t>(clientInfo.getAIBinder());
     {
         Mutex::Autolock lock(mMutex);
@@ -974,6 +993,7 @@ void WatchdogProcessService::handleVhalDeath() {
 }
 
 void WatchdogProcessService::reportWatchdogAliveToVhal() {
+    ATRACE_CALL();
     if (mNotSupportedVhalProperties.count(VehicleProperty::WATCHDOG_ALIVE) > 0) {
         ALOGW("VHAL doesn't support WATCHDOG_ALIVE. Car watchdog will not update WATCHDOG_ALIVE.");
         return;
@@ -997,6 +1017,7 @@ void WatchdogProcessService::reportWatchdogAliveToVhal() {
 
 void WatchdogProcessService::reportTerminatedProcessToVhal(
         const std::vector<ProcessIdentifier>& processesNotResponding) {
+    ATRACE_CALL();
     if (mNotSupportedVhalProperties.count(VehicleProperty::WATCHDOG_TERMINATED_PROCESS) > 0) {
         ALOGW("VHAL doesn't support WATCHDOG_TERMINATED_PROCESS. Terminated process is not "
               "reported to VHAL.");
@@ -1025,6 +1046,7 @@ void WatchdogProcessService::reportTerminatedProcessToVhal(
 }
 
 Result<void> WatchdogProcessService::updateVhal(const VehiclePropValue& value) {
+    ATRACE_CALL();
     const auto& connectRet = connectToVhal();
     if (!connectRet.ok()) {
         std::string errorMsg = "VHAL is not connected: " + connectRet.error().message();
@@ -1364,6 +1386,7 @@ ScopedAStatus WatchdogProcessService::ClientInfo::unlinkToDeath(
 }
 
 ScopedAStatus WatchdogProcessService::ClientInfo::checkIfAlive(TimeoutLength timeout) const {
+    ATRACE_NAME(StringPrintf("checkIfAlive - %s", timeoutToString(timeout).c_str()).c_str());
     if (kType == ClientType::Regular) {
         return kClient->checkIfAlive(sessionId, timeout);
     }
@@ -1371,6 +1394,7 @@ ScopedAStatus WatchdogProcessService::ClientInfo::checkIfAlive(TimeoutLength tim
 }
 
 ScopedAStatus WatchdogProcessService::ClientInfo::prepareProcessTermination() const {
+    ATRACE_CALL();
     if (kType == ClientType::Regular) {
         return kClient->prepareProcessTermination();
     }
