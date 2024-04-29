@@ -173,6 +173,7 @@ public interface DisplayInterface {
         private final DisplayManager.DisplayListener mDisplayListener = new DisplayListener() {
             @Override
             public void onDisplayAdded(int displayId) {
+                Slogf.i(TAG, "onDisplayAdded: displayId=%d", displayId);
                 synchronized (mLock) {
                     mDisplayStateSet.put(displayId, isDisplayOn(displayId));
                     mDisplayBrightnessSet.put(displayId, INVALID_DISPLAY_BRIGHTNESS);
@@ -181,6 +182,7 @@ public interface DisplayInterface {
 
             @Override
             public void onDisplayRemoved(int displayId) {
+                Slogf.i(TAG, "onDisplayRemoved: displayId=%d", displayId);
                 synchronized (mLock) {
                     mDisplayStateSet.delete(displayId);
                     mDisplayBrightnessSet.delete(displayId);
@@ -189,6 +191,7 @@ public interface DisplayInterface {
 
             @Override
             public void onDisplayChanged(int displayId) {
+                Slogf.i(TAG, "onDisplayChanged: displayId=%d", displayId);
                 handleDisplayChanged(displayId);
             }
         };
@@ -333,6 +336,7 @@ public interface DisplayInterface {
 
         @Override
         public void startDisplayStateMonitoring() {
+            Slogf.i(TAG, "Starting to monitor display state change");
             CarPowerManagementService carPowerManagementService;
             CarUserService carUserService;
             synchronized (mLock) {
