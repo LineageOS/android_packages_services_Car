@@ -124,7 +124,8 @@ cc_library {
         "src/IoOveruseMonitor.cpp",
         "src/OveruseConfigurationXmlHelper.cpp",
         "src/PerformanceProfiler.cpp",
-        "src/PressureMonitor.cpp",
+        // TODO(b/337943351): Uncomment this once conflicting changes are resolved.
+        // "src/PressureMonitor.cpp",
         "src/ProcDiskStatsCollector.cpp",
         "src/ProcStatCollector.cpp",
         "src/UidCpuStatsCollector.cpp",
@@ -185,7 +186,8 @@ cc_test {
         "tests/IoOveruseConfigsTest.cpp",
         "tests/IoOveruseMonitorTest.cpp",
         "tests/PerformanceProfilerTest.cpp",
-        "tests/PressureMonitorTest.cpp",
+        // TODO(b/337943351): Uncomment this once conflicting changes are resolved.
+        // "tests/PressureMonitorTest.cpp",
         "tests/LooperStub.cpp",
         "tests/OveruseConfigurationTestUtils.cpp",
         "tests/OveruseConfigurationXmlHelperTest.cpp",
