@@ -135,10 +135,6 @@ PRODUCT_SYSTEM_PROPERTIES += \
 
 ### end of multi-user properties ###
 
-# TODO(b/255631687): Enable the shell transition as soon as all CTS issues are resolved.
-PRODUCT_SYSTEM_PROPERTIES += \
-    persist.wm.debug.shell_transit=0
-
 # TODO(b/198516172): Find a better location to add this read only property
 # It is added here to check the functionality, will be updated in next CL
 PRODUCT_SYSTEM_PROPERTIES += \
