@@ -16,12 +16,9 @@
 
 package com.android.car.portraitlauncher.controlbar;
 
-import static android.car.media.CarMediaIntents.EXTRA_MEDIA_COMPONENT;
-
 import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.updateActionsWithPlaybackState;
 import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.updatePlayButtonWithPlaybackState;
 
-import android.car.media.CarMediaIntents;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.view.View;
@@ -57,11 +54,7 @@ public class ControlBarMediaController extends PlaybackCardController {
 
         mView.setOnClickListener(view -> {
             MediaSource mediaSource = mDataModel.getMediaSource().getValue();
-            Intent intent = new Intent(CarMediaIntents.ACTION_MEDIA_TEMPLATE);
-            if (mediaSource != null) {
-                intent.putExtra(EXTRA_MEDIA_COMPONENT,
-                        mediaSource.getBrowseServiceComponentName().flattenToString());
-            }
+            Intent intent = mediaSource != null ? mediaSource.getIntent() : null;
             mMediaIntentRouter.handleMediaIntent(intent);
         });
     }
