@@ -38,7 +38,6 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.car.Car;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.test.AbstractExpectableTestCase;
 import android.content.Context;
@@ -50,11 +49,14 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.platform.test.ravenwood.RavenwoodRule;
 
-import com.android.car.CarServiceUtils;
 import com.android.car.audio.AudioDeviceInfoBuilder;
+import com.android.car.internal.ICarBase;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -68,6 +70,11 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
+    // Required to set the process ID and set the "main" thread for this test, otherwise
+    // getMainLooper will return null.
+    @Rule
+    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder().setProcessApp()
+            .setProvideMainThread(true).build();
 
     private static final String Car_AUDIO_MANAGER_TEST_THREAD_NAME = "CarAudioManagerUnitTest";
     private static final String MICROPHONE_ADDRESS = "Built-In Mic";
@@ -101,13 +108,12 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
 
     private static final Executor DIRECT_EXECUTOR = Runnable::run;
 
-    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
-            Car_AUDIO_MANAGER_TEST_THREAD_NAME);
-    private final Handler mHandler = new Handler(mHandlerThread.getLooper());
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
     private final RemoteException mRemoteException = new RemoteException();
 
     @Mock
-    private Car mCar;
+    private ICarBase mCar;
     @Mock
     private IBinder mBinderMock;
     @Mock
@@ -152,6 +158,10 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
 
     @Before
     public void setUp() throws Exception {
+        mHandlerThread = new HandlerThread(Car_AUDIO_MANAGER_TEST_THREAD_NAME);
+        mHandlerThread.start();
+        mHandler = new Handler(mHandlerThread.getLooper());
+
         when(mBinderMock.queryLocalInterface(anyString())).thenReturn(mServiceMock);
         when(mCar.getContext()).thenReturn(mContextMock);
         when(mCar.getEventHandler()).thenReturn(mHandler);
@@ -161,6 +171,12 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
                 .handleRemoteExceptionFromCarService(any(RemoteException.class), any());
         mTestConfigCallback = new TestAudioZoneConfigurationsChangeCallback();
         when(mServiceMock.registerAudioZoneConfigsChangeCallback(any())).thenReturn(true);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        mHandlerThread.quitSafely();
+        mHandlerThread.join();
     }
 
     @Test
@@ -1756,9 +1772,11 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
 
     @Test
     public void getInputDevicesForZoneId() throws Exception {
-        List<AudioDeviceAttributes> inputDevicesFromService = List.of(
-                new AudioDeviceAttributes(TEST_MICROPHONE_INPUT_DEVICE), new AudioDeviceAttributes(
-                        TEST_TUNER_INPUT_DEVICE));
+        AudioDeviceAttributes microphoneAttr = mock(AudioDeviceAttributes.class);
+        when(microphoneAttr.getAddress()).thenReturn(MICROPHONE_ADDRESS);
+        AudioDeviceAttributes tunerAttr = mock(AudioDeviceAttributes.class);
+        when(tunerAttr.getAddress()).thenReturn(FM_TUNER_ADDRESS);
+        List<AudioDeviceAttributes> inputDevicesFromService = List.of(microphoneAttr, tunerAttr);
         when(mServiceMock.getInputDevicesForZoneId(PRIMARY_AUDIO_ZONE)).thenReturn(
                 inputDevicesFromService);
         when(mAudioManagerMock.getDevices(AudioManager.GET_DEVICES_INPUTS)).thenReturn(
@@ -1773,10 +1791,10 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
 
     @Test
     public void getInputDevicesForZoneId_withInvalidDevicesInAudioManager() throws Exception {
-        List<AudioDeviceAttributes> inputDevicesFromService = List.of(new AudioDeviceAttributes(
-                TEST_MICROPHONE_INPUT_DEVICE));
+        AudioDeviceAttributes microphoneAttr = mock(AudioDeviceAttributes.class);
+        when(microphoneAttr.getAddress()).thenReturn(MICROPHONE_ADDRESS);
         when(mServiceMock.getInputDevicesForZoneId(PRIMARY_AUDIO_ZONE)).thenReturn(
-                inputDevicesFromService);
+                List.of(microphoneAttr));
         when(mAudioManagerMock.getDevices(AudioManager.GET_DEVICES_INPUTS)).thenReturn(
                 new AudioDeviceInfo[]{TEST_MEDIA_OUTPUT_DEVICE, TEST_TUNER_INPUT_DEVICE});
 
