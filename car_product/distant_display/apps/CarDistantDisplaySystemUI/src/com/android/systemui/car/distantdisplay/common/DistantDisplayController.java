@@ -26,9 +26,11 @@ import android.media.MediaDescription;
 import android.media.session.MediaController;
 import android.media.session.MediaSessionManager;
 import android.media.session.MediaSessionManager.OnActiveSessionsChangedListener;
+import android.util.ArraySet;
 import android.util.Log;
 import android.view.Display;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -42,6 +44,7 @@ import com.android.systemui.settings.UserTracker;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -62,11 +65,12 @@ public class DistantDisplayController {
     private final List<ComponentName> mRestrictedActivities;
     private final Drawable mDistantDisplayDrawable;
     private final Drawable mDefaultDisplayDrawable;
+    @GuardedBy("mStatusChangeListeners")
+    private final Set<StatusChangeListener> mStatusChangeListeners = new ArraySet<>();
     @Nullable
     private ComponentName mTopActivityOnDefaultDisplay;
     @Nullable
     private ComponentName mTopActivityOnDistantDisplay;
-    private StatusChangeListener mStatusChangeListener;
     private DistantDisplayControlsUpdateListener mDistantDisplayControlsUpdateListener;
 
     /**
@@ -77,12 +81,12 @@ public class DistantDisplayController {
         /**
          * Callback triggered for display changes of the task.
          */
-        void onDisplayChanged(int displayId);
+        default void onDisplayChanged(int displayId) {}
 
         /**
          * Callback triggered for visibility changes.
          */
-        void onVisibilityChanged(boolean visible);
+        default void onVisibilityChanged(boolean visible) {}
     }
 
     private final TaskViewController.Callback mTaskViewControllerCallback =
@@ -148,19 +152,22 @@ public class DistantDisplayController {
     }
 
     /**
-     * Sets a listener that needs to be notified of controls change available in status panel.
+     * Adds a listener that needs to be notified of controls change available in status panel.
      **/
-    public void setDistantDisplayControlStatusInfoListener(
-            StatusChangeListener statusChangeListener) {
-        mStatusChangeListener = statusChangeListener;
-        updateButtonState();
+    public void addDistantDisplayControlStatusInfoListener(StatusChangeListener listener) {
+        synchronized (mStatusChangeListeners) {
+            mStatusChangeListeners.add(listener);
+            notifyStatusChangeListener(listener);
+        }
     }
 
     /**
      * Removes a DistantDisplayControlStatusInfoListener.
      **/
-    public void removeDistantDisplayControlStatusInfoListener() {
-        mStatusChangeListener = null;
+    public void removeDistantDisplayControlStatusInfoListener(StatusChangeListener listener) {
+        synchronized (mStatusChangeListeners) {
+            mStatusChangeListeners.remove(listener);
+        }
     }
 
     public void setDistantDisplayControlsUpdateListener(
@@ -274,20 +281,26 @@ public class DistantDisplayController {
     }
 
     private void updateButtonState() {
-        if (mStatusChangeListener == null) return;
-
-        if (canMoveBetweenDisplays(mTopActivityOnDistantDisplay)) {
-            mStatusChangeListener.onDisplayChanged(mDistantDisplayId);
-            mStatusChangeListener.onVisibilityChanged(true);
-        } else if (canMoveBetweenDisplays(mTopActivityOnDefaultDisplay)) {
-            mStatusChangeListener.onDisplayChanged(Display.DEFAULT_DISPLAY);
-            mStatusChangeListener.onVisibilityChanged(true);
-        } else {
-            mStatusChangeListener.onVisibilityChanged(false);
+        synchronized (mStatusChangeListeners) {
+            mStatusChangeListeners.forEach(this::notifyStatusChangeListener);
         }
 
         if (mDistantDisplayControlsUpdateListener != null) {
             mDistantDisplayControlsUpdateListener.onControlsChanged();
+        }
+    }
+
+    private void notifyStatusChangeListener(StatusChangeListener listener) {
+        if (listener == null) return;
+
+        if (canMoveBetweenDisplays(mTopActivityOnDistantDisplay)) {
+            listener.onDisplayChanged(mDistantDisplayId);
+            listener.onVisibilityChanged(true);
+        } else if (canMoveBetweenDisplays(mTopActivityOnDefaultDisplay)) {
+            listener.onDisplayChanged(Display.DEFAULT_DISPLAY);
+            listener.onVisibilityChanged(true);
+        } else {
+            listener.onVisibilityChanged(false);
         }
     }
 
