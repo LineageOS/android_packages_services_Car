@@ -116,4 +116,14 @@ interface ICarRemoteAccessService {
      * For testing only. Remove a package as serverless remote access client.
      */
     void removeServerlessRemoteTaskClient(in String packageName);
+
+    /**
+     * For testing only. Check whether the VHAL property: {@code VEHICLE_IN_USE} is supported.
+     */
+    boolean isVehicleInUseSupported();
+
+    /**
+     * For testing only. Check whether the VHAL property: {@code SHUTDOWN_REQUEST} is supported.
+     */
+    boolean isShutdownRequestSupported();
 }

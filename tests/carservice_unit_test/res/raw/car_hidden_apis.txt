@@ -637,6 +637,8 @@ android.car.projection ProjectionOptions.Builder Builder setConsentActivity(Comp
 android.car.projection ProjectionOptions.Builder Builder setProjectionActivityOptions(ActivityOptions activityOptions)
 android.car.projection ProjectionOptions.Builder Builder setUiMode(int uiMode)
 android.car.projection ProjectionOptions.Builder ProjectionOptions build()
+android.car.remoteaccess CarRemoteAccessManager boolean isShutdownRequestSupported()
+android.car.remoteaccess CarRemoteAccessManager boolean isVehicleInUseSupported()
 android.car.remoteaccess CarRemoteAccessManager void addServerlessRemoteTaskClient(String packageName, String clientId)
 android.car.remoteaccess CarRemoteAccessManager void onCarDisconnected()
 android.car.remoteaccess CarRemoteAccessManager void removeServerlessRemoteTaskClient(String packageName)

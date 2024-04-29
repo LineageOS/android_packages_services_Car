@@ -1124,6 +1124,24 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
     }
 
+    /**
+     * Returns whether {@code VEHICLE_IN_USE} is supported and getting it returns a valid value.
+     */
+    @Override
+    public boolean isVehicleInUseSupported() {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_REMOTE_ACCESS);
+        return mPowerHalService.isVehicleInUseSupported();
+    }
+
+    /**
+     * Returns whether {@code SHUTDOWN_REQUEST} is supported.
+     */
+    @Override
+    public boolean isShutdownRequestSupported() {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_REMOTE_ACCESS);
+        return mPowerHalService.isShutdownRequestSupported();
+    }
+
     @VisibleForTesting
     RemoteAccessHalCallback getRemoteAccessHalCallback() {
         return mHalCallback;
