@@ -210,7 +210,20 @@ class TaskCategoryManager {
     }
 
     boolean isAppGridActivity(TaskInfo taskInfo) {
-        return mAppGridActivityComponent.equals(taskInfo.baseActivity);
+        return mAppGridActivityComponent.equals(getVisibleActivity(taskInfo));
+    }
+
+    private ComponentName getVisibleActivity(TaskInfo taskInfo) {
+        if (taskInfo == null) {
+            return null;
+        }
+        if (taskInfo.topActivity != null) {
+            return taskInfo.topActivity;
+        } else if (taskInfo.baseActivity != null) {
+            return taskInfo.baseActivity;
+        } else {
+            return taskInfo.baseIntent.getComponent();
+        }
     }
 
     ComponentName getAppGridActivity() {
@@ -230,7 +243,7 @@ class TaskCategoryManager {
     }
 
     boolean isNotificationActivity(TaskInfo taskInfo) {
-        return mNotificationActivityComponent.equals(taskInfo.baseActivity);
+        return mNotificationActivityComponent.equals(getVisibleActivity(taskInfo));
     }
 
     boolean isRecentsActivity(TaskInfo taskInfo) {
@@ -241,9 +254,9 @@ class TaskCategoryManager {
         return mCalmModeComponent.equals(taskInfo.baseActivity);
     }
 
-    boolean shouldIgnoreOpeningForegroundDA(TaskInfo taskInfo) {
-        return taskInfo.baseIntent != null && mIgnoreOpeningRootTaskViewComponentsSet.contains(
-                taskInfo.baseIntent.getComponent());
+    boolean shouldIgnoreForApplicationPanel(TaskInfo taskInfo) {
+        return mIgnoreOpeningRootTaskViewComponentsSet.contains(
+                        taskInfo.baseIntent.getComponent());
     }
 
     public void onDestroy() {

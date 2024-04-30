@@ -80,16 +80,13 @@ public class TaskViewPanel extends RelativeLayout {
         private final boolean mIsFullScreen;
         /** Whether the panel should display the toolbar. */
         private boolean mHasToolBar;
-        /** Whether the panel should show the background surfaceView. */
-        private boolean mHasBackgroundSurfaceView;
 
         public State(boolean hasGripBar, boolean isVisible, boolean isFullScreen,
-                boolean hasToolBar, boolean hasBackgroundSurfaceView) {
+                boolean hasToolBar) {
             mHasGripBar = hasGripBar;
             mIsVisible = isVisible;
             mIsFullScreen = isFullScreen;
             mHasToolBar = hasToolBar;
-            mHasBackgroundSurfaceView = hasBackgroundSurfaceView;
         }
 
         boolean hasGripBar() {
@@ -98,10 +95,6 @@ public class TaskViewPanel extends RelativeLayout {
 
         boolean hasToolBar() {
             return mHasToolBar;
-        }
-
-        boolean hasBackgroundSurfaceView() {
-            return mHasBackgroundSurfaceView;
         }
 
         /** Whether the panel in this state has any visible parts. */
@@ -229,14 +222,11 @@ public class TaskViewPanel extends RelativeLayout {
         mPanelTopMargin = (int) getResources().getDimension(R.dimen.panel_default_top_margin);
 
         mOpenState = new State(/* hasGripBar = */ true, /* isVisible = */ true,
-                /* isFullScreen */false, /* hasToolBar = */ false,
-                /* hasBackgroundSurfaceView = */ false);
+                /* isFullScreen */false, /* hasToolBar = */ false);
         mCloseState = new State(/* hasGripBar = */ true, /* isVisible = */ false,
-                /* isFullScreen */false, /* hasToolBar = */ false,
-                /* hasBackgroundSurfaceView = */ false);
+                /* isFullScreen */false, /* hasToolBar = */ false);
         mFullScreenState = new State(/* hasGripBar = */ false, /* isVisible = */ true,
-                /* isFullScreen */true, /* hasToolBar = */ true,
-                /* hasBackgroundSurfaceView = */ true);
+                /* isFullScreen */true, /* hasToolBar = */ true);
 
         mCurrentTask = null;
     }
@@ -250,7 +240,6 @@ public class TaskViewPanel extends RelativeLayout {
         mTaskViewContainer = findViewById(R.id.task_view_container);
         mTaskViewOverlay = findViewById(R.id.task_view_overlay);
         mBackgroundSurfaceView = findViewById(R.id.surface_view);
-        mBackgroundSurfaceView.setZOrderOnTop(false);
         mActiveState = mCloseState;
 
         setupGripBar();
@@ -442,6 +431,9 @@ public class TaskViewPanel extends RelativeLayout {
         if (state.hasGripBar()) {
             bounds.top += mGripBar.getHeight();
         }
+        if (state.hasToolBar()) {
+            bounds.top += mToolBarView.getHeight();
+        }
 
         return bounds;
     }
@@ -524,12 +516,12 @@ public class TaskViewPanel extends RelativeLayout {
                 + " to " + toState + " with reason code = " + reason);
 
         if (mActiveAnimator != null) {
-            logIfDebuggable("cancelling the old animation");
+            // Should try to avoid cancelling panel animation, might cause flicker.
+            Log.e(TAG, "Cancelling the old panel animation");
             mActiveAnimator.cancel();
             mActiveAnimator = null;
             mGripBar.setVisibility(mActiveState.hasGripBar() ? VISIBLE : GONE);
             mToolBarView.setVisibility(GONE);
-            mBackgroundSurfaceView.setVisibility(GONE);
         }
 
         float animationScale = getAnimationScale(getContext());
@@ -555,16 +547,12 @@ public class TaskViewPanel extends RelativeLayout {
             post(() -> animator.animate(() -> {
                 mGripBar.setVisibility(mActiveState.hasGripBar() ? VISIBLE : GONE);
                 mToolBarView.setVisibility(mActiveState.hasToolBar() ? VISIBLE : GONE);
-                mBackgroundSurfaceView.setVisibility(
-                        mActiveState.hasBackgroundSurfaceView() ? VISIBLE : GONE);
                 updateBounds(mActiveState.mBounds);
                 onStateChangeEnd(fromState, mActiveState, /* animated= */ true);
             }));
         } else {
             mGripBar.setVisibility(mActiveState.hasGripBar() ? VISIBLE : GONE);
             mToolBarView.setVisibility(mActiveState.hasToolBar() ? VISIBLE : GONE);
-            mBackgroundSurfaceView.setVisibility(
-                    mActiveState.hasBackgroundSurfaceView() ? VISIBLE : GONE);
             updateBounds(mActiveState.mBounds);
             mTaskViewOverlay.setVisibility(GONE);
             onStateChangeEnd(fromState, mActiveState, /* animated= */ false);

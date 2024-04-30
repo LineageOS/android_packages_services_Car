@@ -19,7 +19,6 @@ package com.android.car.portraitlauncher.panel;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
@@ -33,6 +32,7 @@ import com.android.car.portraitlauncher.R;
 /**
  * A {@link SurfaceView} that acts as a solid black background of {@link TaskViewPanel}. It
  * avoids user to see the background app when an activity in RootTaskView fades out.
+ * TODO(b/336858361): improve the UI for this surfaceview.
  */
 public class BackgroundSurfaceView extends SurfaceView {
 
@@ -41,6 +41,7 @@ public class BackgroundSurfaceView extends SurfaceView {
 
     // The color used in the surface view.
     private int mColor;
+    private int mTextColor;
 
     // The Text at the center of the surface view.
     private String mText;
@@ -72,6 +73,7 @@ public class BackgroundSurfaceView extends SurfaceView {
 
     private void setupSurfaceView() {
         mColor = getResources().getColor(R.color.car_background, getContext().getTheme());
+        mTextColor = getResources().getColor(R.color.car_on_background, getContext().getTheme());
 
         getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
@@ -101,7 +103,7 @@ public class BackgroundSurfaceView extends SurfaceView {
 
         if (mText != null) {
             Paint paint = new Paint();
-            paint.setColor(Color.WHITE);
+            paint.setColor(mTextColor);
             paint.setTextSize(20);
             paint.setTextAlign(Paint.Align.CENTER);
             float xPos = (canvas.getWidth() / 2f);
@@ -119,6 +121,12 @@ public class BackgroundSurfaceView extends SurfaceView {
         drawSurface(getHolder());
     }
 
+    /** Sets the text that shows on the surface view */
+    public void setText(String text) {
+        mText = text;
+        drawSurface(getHolder());
+    }
+
     /** Sets the fixed color and centered text on the surface view */
     public void setFixedColorAndText(int color, String text) {
         mText = text;
@@ -129,6 +137,8 @@ public class BackgroundSurfaceView extends SurfaceView {
     public void refresh(Resources.Theme theme) {
         if (!mUseFixedColor) {
             mColor = getResources().getColor(R.color.car_background, theme);
+            mTextColor = getResources().getColor(R.color.car_on_background,
+                    getContext().getTheme());
             drawSurface(getHolder());
         }
     }
