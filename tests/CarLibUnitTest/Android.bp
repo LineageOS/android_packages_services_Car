@@ -55,6 +55,9 @@ java_defaults {
 
 android_ravenwood_test {
     name: "CarLibHostUnitTest",
+    static_libs: [
+        "android.car.builtin.testonly",
+    ],
     defaults: [
         "CarLibUnitTestDefault",
     ],

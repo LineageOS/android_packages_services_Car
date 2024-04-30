@@ -33,7 +33,6 @@ import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
 import android.car.feature.FeatureFlags;
 import android.car.feature.FeatureFlagsImpl;
-import android.car.feature.Flags;
 import android.car.hardware.CarHvacFanDirection;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
@@ -74,6 +73,8 @@ import com.android.car.internal.property.SubscriptionManager;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.IntArray;
+import com.android.car.logging.HistogramFactoryInterface;
+import com.android.car.logging.SystemHistogramFactory;
 import com.android.car.property.CarPropertyServiceClient;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -85,6 +86,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -156,34 +158,15 @@ public class CarPropertyService extends ICarProperty.Stub
                 WINDSHIELD_WIPERS_SWITCH_UNWRITABLE_STATES);
     }
 
-    private static final Histogram sConcurrentSyncOperationHistogram = new Histogram(
-            "automotive_os.value_concurrent_sync_operations",
-            new Histogram.UniformOptions(/* binCount= */ 17, /* minValue= */ 0,
-                    /* exclusiveMaxValue= */ 17));
+    private final FeatureFlags mFeatureFlags;
+    private final HistogramFactoryInterface mHistogramFactory;
 
-    private static final Histogram sGetPropertySyncLatencyHistogram = new Histogram(
-            "automotive_os.value_sync_get_property_latency",
-            new Histogram.ScaledRangeOptions(/* binCount= */ 20, /* minValue= */ 0,
-                    /* firstBinWidth= */ 2, /* scaleFactor= */ 1.5f));
-
-    private static final Histogram sSetPropertySyncLatencyHistogram = new Histogram(
-            "automotive_os.value_sync_set_property_latency",
-            new Histogram.ScaledRangeOptions(/* binCount= */ 20, /* minValue= */ 0,
-                    /* firstBinWidth= */ 2, /* scaleFactor= */ 1.5f));
-
-    private static final Histogram sSubscriptionUpdateRateHistogram = new Histogram(
-            "automotive_os.value_subscription_update_rate",
-            new Histogram.UniformOptions(/* binCount= */ 101, /* minValue= */ 0,
-                    /* exclusiveMaxValue= */ 101));
-    private static final Histogram sGetAsyncLatencyHistogram = new Histogram(
-            "automotive_os.value_get_async_latency",
-            new Histogram.UniformOptions(/* binCount= */ 20, /* minValue= */ 0,
-                    /* exclusiveMaxValue= */ 1000));
-
-    private static final Histogram sSetAsyncLatencyHistogram = new Histogram(
-            "automotive_os.value_set_async_latency",
-            new Histogram.UniformOptions(/* binCount= */ 20, /* minValue= */ 0,
-                    /* exclusiveMaxValue= */ 1000));
+    private Histogram mConcurrentSyncOperationHistogram;
+    private Histogram mGetPropertySyncLatencyHistogram;
+    private Histogram mSetPropertySyncLatencyHistogram;
+    private Histogram mSubscriptionUpdateRateHistogram;
+    private Histogram mGetAsyncLatencyHistogram;
+    private Histogram mSetAsyncLatencyHistogram;
 
     private final Context mContext;
     private final PropertyHalService mPropertyHalService;
@@ -205,20 +188,65 @@ public class CarPropertyService extends ICarProperty.Stub
     @GuardedBy("mLock")
     private int mSyncGetSetPropertyOpCount;
 
-    private FeatureFlags mFeatureFlags = new FeatureFlagsImpl();
+    /**
+     * The builder for {@link com.android.car.CarPropertyService}.
+     */
+    public static final class Builder {
+        private Context mContext;
+        private PropertyHalService mPropertyHalService;
+        private @Nullable FeatureFlags mFeatureFlags;
+        private @Nullable HistogramFactoryInterface mHistogramFactory;
+        private boolean mBuilt;
 
-    public CarPropertyService(Context context, PropertyHalService propertyHalService) {
+        /** Sets the context. */
+        public Builder setContext(Context context) {
+            mContext = context;
+            return this;
+        }
+
+        /** Sets the {@link PropertyHalService}. */
+        public Builder setPropertyHalService(PropertyHalService propertyHalService) {
+            mPropertyHalService = propertyHalService;
+            return this;
+        }
+
+        /**
+         * Builds the {@link com.android.car.CarPropertyService}.
+         */
+        public CarPropertyService build() {
+            if (mBuilt) {
+                throw new IllegalStateException("Only allowed to be built once");
+            }
+            mBuilt = true;
+            return new CarPropertyService(this);
+        }
+
+        /** Sets fake feature flag for unit testing. */
+        @VisibleForTesting
+        Builder setFeatureFlags(FeatureFlags fakeFeatureFlags) {
+            mFeatureFlags = fakeFeatureFlags;
+            return this;
+        }
+
+        /** Sets fake histogram builder for unit testing. */
+        @VisibleForTesting
+        Builder setHistogramFactory(HistogramFactoryInterface histogramFactory) {
+            mHistogramFactory = histogramFactory;
+            return this;
+        }
+    }
+
+    private CarPropertyService(Builder builder) {
         if (DBG) {
             Slogf.d(TAG, "CarPropertyService started!");
         }
-        mPropertyHalService = propertyHalService;
-        mContext = context;
-    }
-
-    /** Sets fake feature flag for unit testing. */
-    @VisibleForTesting
-    void setFeatureFlags(FeatureFlags fakeFeatureFlags) {
-        mFeatureFlags = fakeFeatureFlags;
+        mPropertyHalService = Objects.requireNonNull(builder.mPropertyHalService);
+        mContext = Objects.requireNonNull(builder.mContext);
+        mFeatureFlags = Objects.requireNonNullElseGet(builder.mFeatureFlags,
+                () -> new FeatureFlagsImpl());
+        mHistogramFactory = Objects.requireNonNullElseGet(builder.mHistogramFactory,
+                () -> new SystemHistogramFactory());
+        initializeHistogram();
     }
 
     @VisibleForTesting
@@ -413,7 +441,7 @@ public class CarPropertyService extends ICarProperty.Stub
 
             for (int i = 0; i < sanitizedOptions.size(); i++) {
                 CarSubscription option = sanitizedOptions.get(i);
-                sSubscriptionUpdateRateHistogram.logSample(option.updateRateHz);
+                mSubscriptionUpdateRateHistogram.logSample(option.updateRateHz);
                 if (DBG) {
                     Slogf.d(TAG, "registerListener after update rate sanitization, options: "
                             + sanitizedOptions.get(i));
@@ -722,11 +750,11 @@ public class CarPropertyService extends ICarProperty.Stub
     private <V> V runSyncOperationCheckLimit(Callable<V> c) {
         synchronized (mLock) {
             if (mSyncGetSetPropertyOpCount >= SYNC_GET_SET_PROPERTY_OP_LIMIT) {
-                sConcurrentSyncOperationHistogram.logSample(mSyncGetSetPropertyOpCount);
+                mConcurrentSyncOperationHistogram.logSample(mSyncGetSetPropertyOpCount);
                 throw new ServiceSpecificException(SYNC_OP_LIMIT_TRY_AGAIN);
             }
             mSyncGetSetPropertyOpCount += 1;
-            sConcurrentSyncOperationHistogram.logSample(mSyncGetSetPropertyOpCount);
+            mConcurrentSyncOperationHistogram.logSample(mSyncGetSetPropertyOpCount);
             if (DBG) {
                 Slogf.d(TAG, "mSyncGetSetPropertyOpCount: %d", mSyncGetSetPropertyOpCount);
             }
@@ -765,7 +793,7 @@ public class CarPropertyService extends ICarProperty.Stub
                 Slogf.d(TAG, "Latency of getPropertySync is: %f", (float) (System
                         .currentTimeMillis() - currentTimeMs));
             }
-            sGetPropertySyncLatencyHistogram.logSample((float) (System.currentTimeMillis()
+            mGetPropertySyncLatencyHistogram.logSample((float) (System.currentTimeMillis()
                     - currentTimeMs));
             Trace.traceEnd(TRACE_TAG);
         }
@@ -849,7 +877,7 @@ public class CarPropertyService extends ICarProperty.Stub
                 Slogf.d(TAG, "Latency of setPropertySync is: %f", (float) (System
                         .currentTimeMillis() - currentTimeMs));
             }
-            sSetPropertySyncLatencyHistogram.logSample((float) (System.currentTimeMillis()
+            mSetPropertySyncLatencyHistogram.logSample((float) (System.currentTimeMillis()
                     - currentTimeMs));
         }
     }
@@ -1000,7 +1028,7 @@ public class CarPropertyService extends ICarProperty.Stub
             Slogf.d(TAG, "Latency of getPropertyAsync is: %f", (float) (System
                     .currentTimeMillis() - currentTime));
         }
-        sGetAsyncLatencyHistogram.logSample((float) (System.currentTimeMillis() - currentTime));
+        mGetAsyncLatencyHistogram.logSample((float) (System.currentTimeMillis() - currentTime));
     }
 
     /**
@@ -1049,7 +1077,7 @@ public class CarPropertyService extends ICarProperty.Stub
             Slogf.d(TAG, "Latency of setPropertyAsync is: %f", (float) (System
                     .currentTimeMillis() - currentTime));
         }
-        sSetAsyncLatencyHistogram.logSample((float) (System.currentTimeMillis() - currentTime));
+        mSetAsyncLatencyHistogram.logSample((float) (System.currentTimeMillis() - currentTime));
     }
 
     @Override
@@ -1084,9 +1112,9 @@ public class CarPropertyService extends ICarProperty.Stub
         mPropertyHalService.cancelRequests(serviceRequestIds);
     }
 
-    private static void assertPropertyIsReadable(CarPropertyConfig<?> carPropertyConfig,
+    private void assertPropertyIsReadable(CarPropertyConfig<?> carPropertyConfig,
             int areaId) {
-        int accessLevel = Flags.areaIdConfigAccess()
+        int accessLevel = mFeatureFlags.areaIdConfigAccess()
                 ? carPropertyConfig.getAreaIdConfig(areaId).getAccess()
                 : carPropertyConfig.getAccess();
         Preconditions.checkArgument(
@@ -1101,6 +1129,29 @@ public class CarPropertyService extends ICarProperty.Stub
         Preconditions.checkArgument(ArrayUtils.contains(carPropertyConfig.getAreaIds(), areaId),
                 "area ID: 0x" + toHexString(areaId) + " not supported for property ID: "
                         + VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()));
+    }
+
+    private void initializeHistogram() {
+        mConcurrentSyncOperationHistogram = mHistogramFactory.newUniformHistogram(
+                "automotive_os.value_concurrent_sync_operations",
+                /* binCount= */ 17, /* minValue= */ 0, /* exclusiveMaxValue= */ 17);
+        mGetPropertySyncLatencyHistogram = mHistogramFactory.newScaledRangeHistogram(
+                "automotive_os.value_sync_get_property_latency",
+                /* binCount= */ 20, /* minValue= */ 0,
+                /* firstBinWidth= */ 2, /* scaleFactor= */ 1.5f);
+        mSetPropertySyncLatencyHistogram = mHistogramFactory.newScaledRangeHistogram(
+                "automotive_os.value_sync_set_property_latency",
+                /* binCount= */ 20, /* minValue= */ 0,
+                /* firstBinWidth= */ 2, /* scaleFactor= */ 1.5f);
+        mSubscriptionUpdateRateHistogram = mHistogramFactory.newUniformHistogram(
+                "automotive_os.value_subscription_update_rate",
+                /* binCount= */ 101, /* minValue= */ 0, /* exclusiveMaxValue= */ 101);
+        mGetAsyncLatencyHistogram = mHistogramFactory.newUniformHistogram(
+                "automotive_os.value_get_async_latency",
+                /* binCount= */ 20, /* minValue= */ 0, /* exclusiveMaxValue= */ 1000);
+        mSetAsyncLatencyHistogram = mHistogramFactory.newUniformHistogram(
+                "automotive_os.value_set_async_latency",
+                /* binCount= */ 20, /* minValue= */ 0, /* exclusiveMaxValue= */ 1000);
     }
 
     @Nullable
@@ -1161,7 +1212,7 @@ public class CarPropertyService extends ICarProperty.Stub
         assertAreaIdIsSupported(carPropertyConfig, areaId);
 
         // Assert property is writable.
-        int accessLevel = Flags.areaIdConfigAccess()
+        int accessLevel = mFeatureFlags.areaIdConfigAccess()
                 ? carPropertyConfig.getAreaIdConfig(areaId).getAccess()
                 : carPropertyConfig.getAccess();
         Preconditions.checkArgument(

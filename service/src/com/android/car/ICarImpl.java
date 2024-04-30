@@ -247,7 +247,10 @@ public class ICarImpl extends ICar.Stub {
         mVehicleInterfaceName = builder.mVehicleInterfaceName;
         mCarPropertyService = constructWithTrace(
                 t, CarPropertyService.class,
-                () -> new CarPropertyService(mContext, mHal.getPropertyHal()), allServices);
+                () -> new CarPropertyService.Builder()
+                        .setContext(mContext)
+                        .setPropertyHalService(mHal.getPropertyHal())
+                        .build(), allServices);
         mCarDrivingStateService = constructWithTrace(
                 t, CarDrivingStateService.class,
                 () -> new CarDrivingStateService(mContext, mCarPropertyService), allServices);

@@ -29,6 +29,7 @@ import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.os.Trace;
 import android.util.ArraySet;
+import android.util.JsonReader;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
@@ -43,12 +44,9 @@ import com.android.car.internal.property.CarPropertyHelper;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -166,7 +164,8 @@ public class PropertyHalServiceConfigs {
             mHalPropIdToCarSvcConfig = parseJsonConfig(defaultConfigInputStream,
                     "defaultResource");
         } catch (IOException e) {
-            String errorMsg = "failed to close resource input stream for: " + CONFIG_RESOURCE_NAME;
+            String errorMsg = "failed to open/close resource input stream for: "
+                    + CONFIG_RESOURCE_NAME;
             Slogf.e(TAG, errorMsg, e);
             throw new IllegalStateException(errorMsg, e);
         }
@@ -480,113 +479,219 @@ public class PropertyHalServiceConfigs {
     @VisibleForTesting
     /* package */ SparseArray<CarSvcPropertyConfig> parseJsonConfig(InputStream configFile,
             String path) {
-        String configString;
         try {
-            configString = new String(configFile.readAllBytes());
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Cannot read from config file: " + path, e);
-        }
-        JSONObject configJsonObject;
-        try {
-            configJsonObject = new JSONObject(configString);
-        } catch (JSONException e) {
-            throw new IllegalArgumentException("Config file: " + path
-                    + " does not contain a valid JSONObject.", e);
-        }
-        JSONObject properties;
-        SparseArray<CarSvcPropertyConfig> configs = new SparseArray<>();
-        try {
-            properties = configJsonObject.getJSONObject(JSON_FIELD_NAME_PROPERTIES);
-            for (String propertyName : properties.keySet()) {
-                JSONObject propertyObj = properties.getJSONObject(propertyName);
-                String featureFlag = propertyObj.optString("featureFlag");
-                if (!featureFlag.isEmpty()) {
-                    if (featureFlag.equals(VIC_FLAG_NAME)) {
-                        if (!mFeatureFlags.androidVicVehicleProperties()) {
-                            Slogf.w(TAG, "The required feature flag for property: "
-                                    + propertyName + " is not enabled, so its config is ignored");
-                            continue;
+            SparseArray<CarSvcPropertyConfig> configs = new SparseArray<>();
+            try (var reader = new JsonReader(new InputStreamReader(configFile, "UTF-8"))) {
+                reader.setLenient(true);
+                parseObjectEntry(reader, () -> {
+                    if (!reader.nextName().equals(JSON_FIELD_NAME_PROPERTIES)) {
+                        reader.skipValue();
+                        return;
+                    }
+                    parseObjectEntry(reader, () -> {
+                        String propertyName = reader.nextName();
+                        CarSvcPropertyConfig config;
+                        try {
+                            config = readPropertyObject(propertyName, reader);
+                        } catch (IllegalArgumentException e) {
+                            throw new IllegalArgumentException("Invalid json config for property: "
+                                     + propertyName + ", error: " + e);
                         }
-                    } else {
-                        throw new IllegalArgumentException("Unknown feature flag: "
-                                + featureFlag + " for property: " + propertyName);
-                    }
-                }
-
-                CarSvcPropertyConfig config = new CarSvcPropertyConfig();
-                if (propertyObj.optBoolean("deprecated")) {
-                    continue;
-                }
-                config.propertyId = propertyObj.getInt("propertyId");
-                int halPropId = config.propertyId;
-                if (propertyObj.has("vhalPropertyId")) {
-                    halPropId = propertyObj.getInt("vhalPropertyId");
-                }
-                config.halPropId = halPropId;
-                config.propertyName = propertyName;
-                config.description = propertyObj.getString("description");
-                JSONArray enumJsonArray = propertyObj.optJSONArray("dataEnums");
-                if (enumJsonArray != null) {
-                    config.dataEnums = new ArraySet<Integer>();
-                    for (int i = 0; i < enumJsonArray.length(); i++) {
-                        config.dataEnums.add(enumJsonArray.getInt(i));
-                    }
-                }
-                JSONArray flagJsonArray = propertyObj.optJSONArray("dataFlags");
-                if (flagJsonArray != null) {
-                    List<Integer> dataFlags = new ArrayList<>();
-                    for (int i = 0; i < flagJsonArray.length(); i++) {
-                        dataFlags.add(flagJsonArray.getInt(i));
-                    }
-                    config.validBitFlag = generateAllCombination(dataFlags);
-                }
-                config.permissions = parsePermission(propertyName, propertyObj);
-                configs.put(config.halPropId, config);
+                        if (config == null) {
+                            return;
+                        }
+                        configs.put(config.halPropId, config);
+                    });
+                });
             }
             return configs;
-        } catch (JSONException e) {
+        } catch (IllegalStateException | IOException e) {
             throw new IllegalArgumentException("Config file: " + path
-                    + " has invalid JSON format.", e);
+                    + " does not contain a valid JSON object.", e);
         }
     }
 
-    private static PropertyPermissions parsePermission(String propertyName, JSONObject propertyObj)
-            throws JSONException {
-        PropertyPermissions.Builder builder = new PropertyPermissions.Builder();
-        JSONObject jsonReadPermission = propertyObj.optJSONObject("readPermission");
-        if (jsonReadPermission != null) {
-            builder.setReadPermission(parsePermissionCondition(jsonReadPermission));
+    private @Nullable CarSvcPropertyConfig readPropertyObject(
+            String propertyName, JsonReader reader) throws IOException {
+        String featureFlag = null;
+        boolean deprecated = false;
+        int propertyId = 0;
+        int vhalPropertyId = 0;
+        String description = null;
+        ArraySet<Integer> dataEnums = new ArraySet<Integer>();
+        List<Integer> dataFlags = new ArrayList<>();
+        PermissionCondition readPermission = null;
+        PermissionCondition writePermission = null;
+        // Starts parsing each field.
+        reader.beginObject();
+        while (reader.hasNext()) {
+            String name = reader.nextName();
+            switch (name) {
+                case "featureFlag":
+                    featureFlag = reader.nextString();
+                    break;
+                case "deprecated":
+                    deprecated = reader.nextBoolean();
+                    break;
+                case "propertyId":
+                    propertyId = reader.nextInt();
+                    break;
+                case "vhalPropertyId":
+                    vhalPropertyId = reader.nextInt();
+                    break;
+                case "description":
+                    description = reader.nextString();
+                    break;
+                case "dataEnums":
+                    reader.beginArray();
+                    while (reader.hasNext()) {
+                        dataEnums.add(reader.nextInt());
+                    }
+                    reader.endArray();
+                    break;
+                case "dataFlags":
+                    reader.beginArray();
+                    while (reader.hasNext()) {
+                        dataFlags.add(reader.nextInt());
+                    }
+                    reader.endArray();
+                    break;
+                case "readPermission":
+                    try {
+                        readPermission = parsePermissionCondition(reader);
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException(
+                                "Failed to parse read permissions for property: " + propertyName
+                                + ", error: " + e);
+                    }
+                    break;
+                case "writePermission":
+                    try {
+                        writePermission = parsePermissionCondition(reader);
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException(
+                                "Failed to parse write permissions for property: " + propertyName
+                                + ", error: " + e);
+                    }
+                    break;
+                default:
+                    reader.skipValue();
+            }
         }
-        JSONObject jsonWritePermission = propertyObj.optJSONObject("writePermission");
-        if (jsonWritePermission != null) {
-            builder.setWritePermission(parsePermissionCondition(jsonWritePermission));
+        reader.endObject();
+
+        // Finished parsing each field, now check whether the required fields are present and
+        // assign them to config.
+        if (deprecated) {
+            return null;
         }
-        if (jsonReadPermission == null && jsonWritePermission == null) {
+        if (featureFlag != null) {
+            if (featureFlag.equals(VIC_FLAG_NAME)) {
+                if (!mFeatureFlags.androidVicVehicleProperties()) {
+                    Slogf.w(TAG, "The required feature flag for property: "
+                            + propertyName + " is not enabled, so its config is ignored");
+                    return null;
+                }
+            } else {
+                throw new IllegalArgumentException("Unknown feature flag: "
+                        + featureFlag + " for property: " + propertyName);
+            }
+        }
+        CarSvcPropertyConfig config = new CarSvcPropertyConfig();
+        config.propertyName = propertyName;
+        if (description == null) {
+            throw new IllegalArgumentException("Missing required description field for property: "
+                    + propertyName);
+        }
+        config.description = description;
+        if (propertyId == 0) {
+            throw new IllegalArgumentException("Missing required propertyId field for property: "
+                    + propertyName);
+        }
+        config.propertyId = propertyId;
+        if (vhalPropertyId != 0) {
+            config.halPropId = vhalPropertyId;
+        } else {
+            config.halPropId = propertyId;
+        }
+        if (!dataEnums.isEmpty()) {
+            config.dataEnums = dataEnums;
+        }
+        if (!dataFlags.isEmpty()) {
+            config.validBitFlag = generateAllCombination(dataFlags);
+        }
+        if (readPermission == null && writePermission == null) {
             throw new IllegalArgumentException(
                     "No read or write permission specified for: " + propertyName);
         }
-        return builder.build();
+        var builder = new PropertyPermissions.Builder();
+        if (readPermission != null) {
+            builder.setReadPermission(readPermission);
+        }
+        if (writePermission != null) {
+            builder.setWritePermission(writePermission);
+        }
+        config.permissions = builder.build();
+        return config;
     }
 
-    private static PermissionCondition parsePermissionCondition(JSONObject permissionObj)
-            throws JSONException {
-        String type = permissionObj.getString("type");
+    private interface RunanbleWithException {
+        void run() throws IOException;
+    }
+
+    private static void parseObjectEntry(JsonReader reader, RunanbleWithException forEachEntry)
+            throws IOException {
+        reader.beginObject();
+        while (reader.hasNext()) {
+            forEachEntry.run();
+        }
+        reader.endObject();
+    }
+
+    private static PermissionCondition parsePermissionCondition(JsonReader reader)
+            throws IOException {
+        // we only have one type, use a list to be effective-final.
+        List<String> types = new ArrayList<>();
+        List<PermissionCondition> permissions = new ArrayList<>();
+        parseObjectEntry(reader, () -> {
+            String name = reader.nextName();
+            switch (name) {
+                case "type":
+                    types.add(reader.nextString());
+                    break;
+                case "value":
+                    try {
+                        permissions.add(new SinglePermission(reader.nextString()));
+                    } catch (IllegalStateException e) {
+                        // The value field is not a string, then it must be an array.
+                        reader.beginArray();
+                        while (reader.hasNext()) {
+                            permissions.add(parsePermissionCondition(reader));
+                        }
+                        reader.endArray();
+                    }
+                    break;
+                default:
+                    reader.skipValue();
+            }
+        });
+        if (types.size() == 0) {
+            throw new IllegalArgumentException("Missing type field for permission");
+        }
+        String type = types.get(0);
+        if (permissions.size() < 1) {
+            throw new IllegalArgumentException("Missing valid value field for permission");
+        }
         if (type.equals("single")) {
-            return new SinglePermission(permissionObj.getString("value"));
-        }
-        if (!type.equals("anyOf") && !type.equals("allOf")) {
-            throw new IllegalArgumentException("Unknown permission type: " + type
-                    + ", only support single, anyOf or allOf");
-        }
-        JSONArray jsonSubPermissions = permissionObj.getJSONArray("value");
-        PermissionCondition[] subPermissions = new PermissionCondition[jsonSubPermissions.length()];
-        for (int i = 0; i < jsonSubPermissions.length(); i++) {
-            subPermissions[i] = parsePermissionCondition(jsonSubPermissions.getJSONObject(i));
+            return permissions.get(0);
         }
         if (type.equals("anyOf")) {
-            return new AnyOfPermissions(subPermissions);
+            return new AnyOfPermissions(permissions.toArray(new PermissionCondition[0]));
         }
-        return new AllOfPermissions(subPermissions);
+        if (type.equals("allOf")) {
+            return new AllOfPermissions(permissions.toArray(new PermissionCondition[0]));
+        }
+        throw new IllegalArgumentException("Invalid permission type: " + type);
     }
 
     private static boolean checkFormatForAllProperties(HalPropValue propValue) {

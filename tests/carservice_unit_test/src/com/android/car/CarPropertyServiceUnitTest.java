@@ -18,7 +18,6 @@ package com.android.car;
 
 import static android.car.hardware.property.CarPropertyManager.SENSOR_RATE_ONCHANGE;
 
-import static com.android.car.hal.PropertyHalServiceTest.createCarSubscriptionOption;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -26,6 +25,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -53,6 +53,7 @@ import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.platform.test.ravenwood.RavenwoodRule;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -61,14 +62,16 @@ import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.logging.HistogramFactoryInterface;
+import com.android.modules.expresslog.Histogram;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 
 import java.time.Duration;
 import java.util.List;
@@ -77,10 +80,14 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(MockitoJUnitRunner.class)
 public final class CarPropertyServiceUnitTest {
-
     private static final String TAG = CarLog.tagFor(CarPropertyServiceUnitTest.class);
+
+    @Rule
+    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder()
+            .setProcessSystem()
+            .setProvideMainThread(true)
+            .build();
 
     @Mock
     private Context mContext;
@@ -94,6 +101,8 @@ public final class CarPropertyServiceUnitTest {
     private IAsyncPropertyResultCallback mAsyncPropertyResultCallback;
     @Mock
     private FeatureFlags mFeatureFlags;
+    @Mock
+    private HistogramFactoryInterface mHistogramFactory;
     @Captor
     private ArgumentCaptor<List<CarPropertyEvent>> mPropertyEventCaptor;
 
@@ -137,6 +146,7 @@ public final class CarPropertyServiceUnitTest {
 
     @Before
     public void setUp() {
+        MockitoAnnotations.initMocks(this);
 
         when(mICarPropertyEventListener.asBinder()).thenReturn(mIBinder);
 
@@ -282,8 +292,17 @@ public final class CarPropertyServiceUnitTest {
         when(mFeatureFlags.variableUpdateRate()).thenReturn(true);
         when(mFeatureFlags.subscriptionWithResolution()).thenReturn(true);
 
-        mService = new CarPropertyService(mContext, mHalService);
-        mService.setFeatureFlags(mFeatureFlags);
+        when(mHistogramFactory.newUniformHistogram(any(), anyInt(), anyFloat(), anyFloat()))
+                .thenReturn(mock(Histogram.class));
+        when(mHistogramFactory.newScaledRangeHistogram(any(), anyInt(), anyInt(), anyFloat(),
+                anyFloat())).thenReturn(mock(Histogram.class));
+
+        mService = new CarPropertyService.Builder()
+                .setContext(mContext)
+                .setPropertyHalService(mHalService)
+                .setFeatureFlags(mFeatureFlags)
+                .setHistogramFactory(mHistogramFactory)
+                .build();
         mService.init();
     }
 
@@ -1681,5 +1700,31 @@ public final class CarPropertyServiceUnitTest {
     public void isSupportedAndHasWritePermissionOnly_readOnly() throws Exception {
         assertThat(mService.isSupportedAndHasWritePermissionOnly(CONTINUOUS_READ_ONLY_PROPERTY_ID))
                 .isFalse();
+    }
+
+    /** Creates a {@code CarSubscription} with Vur off. */
+    private static CarSubscription createCarSubscriptionOption(int propertyId,
+            int[] areaId, float updateRateHz) {
+        return createCarSubscriptionOption(propertyId, areaId, updateRateHz,
+                /* enableVur= */ false, /*resolution*/ 0.0f);
+    }
+
+    /** Creates a {@code CarSubscription}. */
+    private static CarSubscription createCarSubscriptionOption(int propertyId,
+            int[] areaId, float updateRateHz, boolean enableVur) {
+        return createCarSubscriptionOption(propertyId, areaId, updateRateHz,
+                enableVur, /*resolution*/ 0.0f);
+    }
+
+    /** Creates a {@code CarSubscription}. */
+    private static CarSubscription createCarSubscriptionOption(int propertyId,
+            int[] areaId, float updateRateHz, boolean enableVur, float resolution) {
+        CarSubscription options = new CarSubscription();
+        options.propertyId = propertyId;
+        options.areaIds = areaId;
+        options.updateRateHz = updateRateHz;
+        options.enableVariableUpdateRate = enableVur;
+        options.resolution = resolution;
+        return options;
     }
 }

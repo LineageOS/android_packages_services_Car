@@ -324,6 +324,14 @@ android_library {
     defaults: ["carservice-updatable-min-java-defaults"],
 
     manifest: "EmptyAndroidManifest.xml",
+
+    // Avoid using the java_sdk_library version for android.car.builtin since it cannot be found
+    // during runtime on host. Use a java_library version instead.
+    exclude_uses_libs: ["android.car.builtin"],
+
+    static_libs: [
+        "android.car.builtin.testonly",
+    ],
 }
 
 filegroup {
