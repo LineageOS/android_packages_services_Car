@@ -416,7 +416,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         // and user assignments are changed. So it's safe not to register if visible background
         // users are disabled. But, if we'll add more functionalies in the callback, consider to
         // move the condition into the callback.
-        if (mIsVisibleBackgroundUsersOnDefaultDisplaySupported) {
+        if (isMultipleUsersOnMultipleDisplaysSupported(mUserManager)) {
             mCarOccupantZoneService.registerCallback(mOccupantZoneCallback);
         }
         CarServiceHelperWrapper.getInstance().runOnConnection(() ->
