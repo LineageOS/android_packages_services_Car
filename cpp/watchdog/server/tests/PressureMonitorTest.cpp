@@ -140,8 +140,8 @@ protected:
     void SetUp() override {
         mTempProcPressureDir = std::make_unique<TemporaryDir>();
         createPressureFiles();
-        mInitPsiMonitorMockFunc =
-                std::make_unique<MockFunction<int(enum psi_stall_type, int, int)>>();
+        mInitPsiMonitorMockFunc = std::make_unique<
+                MockFunction<int(enum psi_stall_type, int, int, enum psi_resource)>>();
         mRegisterPsiMonitorMockFunc = std::make_unique<MockFunction<int(int, int, void*)>>();
         mUnregisterPsiMonitorMockFunc = std::make_unique<MockFunction<int(int, int)>>();
         mDestroyPsiMonitorMockFunc = std::make_unique<MockFunction<void(int)>>();
@@ -172,9 +172,9 @@ protected:
 
     void MockPsiApis() {
         // Note: For failure case, mock individual calls and return error.
-        ON_CALL(*mInitPsiMonitorMockFunc, Call(_, _, _))
-                .WillByDefault([this](enum psi_stall_type stallType, int thresholdUs,
-                                      int windowUs) -> int {
+        ON_CALL(*mInitPsiMonitorMockFunc, Call(_, _, _, PSI_MEMORY))
+                .WillByDefault([this](enum psi_stall_type stallType, int thresholdUs, int windowUs,
+                                      [[maybe_unused]] enum psi_resource _) -> int {
                     mCachedPsiMonitorInfos.push_back(PsiMonitorInfo{
                             .kStallType = stallType,
                             .kThresholdUs = thresholdUs,
@@ -245,7 +245,8 @@ protected:
 
 protected:
     std::unique_ptr<TemporaryDir> mTempProcPressureDir;
-    std::unique_ptr<MockFunction<int(enum psi_stall_type, int, int)>> mInitPsiMonitorMockFunc;
+    std::unique_ptr<MockFunction<int(enum psi_stall_type, int, int, enum psi_resource)>>
+            mInitPsiMonitorMockFunc;
     std::unique_ptr<MockFunction<int(int, int, void*)>> mRegisterPsiMonitorMockFunc;
     std::unique_ptr<MockFunction<int(int, int)>> mUnregisterPsiMonitorMockFunc;
     std::unique_ptr<MockFunction<void(int)>> mDestroyPsiMonitorMockFunc;
@@ -283,7 +284,8 @@ TEST_F(PressureMonitorTest, TestInitializeAndTerminate) {
 
 TEST_F(PressureMonitorTest, TestFailInitPsiMonitor) {
     ON_CALL(*mInitPsiMonitorMockFunc,
-            Call(kHighPsiStallLevel, kHighThresholdUs.count(), kPsiWindowSizeUs.count()))
+            Call(kHighPsiStallLevel, kHighThresholdUs.count(), kPsiWindowSizeUs.count(),
+                 PSI_MEMORY))
             .WillByDefault(Return(-1));
 
     auto result = mPressureMonitor->init();

@@ -112,7 +112,7 @@ Result<void> PressureMonitor::initializePsiMonitorsLocked() {
         // require all PSI monitors to be initialized successfully. So, early fail when one of
         // PSI monitor fails to initialize.
         int fd = mInitPsiMonitorFunc(info.kStallType, info.kThresholdUs.count(),
-                                     kPsiWindowSizeUs.count());
+                                     kPsiWindowSizeUs.count(), PSI_MEMORY);
         if (fd < 0) {
             return Error() << "Failed to initialize memory PSI monitor for "
                            << PressureLevelToString(info.kPressureLevel) << ": " << strerror(errno);

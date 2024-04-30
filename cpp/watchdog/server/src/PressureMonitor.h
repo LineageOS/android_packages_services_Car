@@ -65,7 +65,8 @@ public:
 
     // Used by unittest to configure the internal state and mock the outgoing API calls.
     PressureMonitor(const std::string& procPressureDirPath,
-                    const std::function<int(enum psi_stall_type, int, int)>& initPsiMonitorFunc,
+                    const std::function<int(enum psi_stall_type, int, int, enum psi_resource)>&
+                            initPsiMonitorFunc,
                     const std::function<int(int, int, void*)>& registerPsiMonitorFunc,
                     const std::function<int(int, int)>& unregisterPsiMonitorFunc,
                     const std::function<void(int)>& destroyPsiMonitorFunc) :
@@ -115,7 +116,7 @@ private:
     const std::string kProcPressureDirPath;
 
     // Updated by test to mock the PSI interfaces.
-    std::function<int(enum psi_stall_type, int, int)> mInitPsiMonitorFunc;
+    std::function<int(enum psi_stall_type, int, int, enum psi_resource)> mInitPsiMonitorFunc;
     std::function<int(int, int, void*)> mRegisterPsiMonitorFunc;
     std::function<int(int, int)> mUnregisterPsiMonitorFunc;
     std::function<void(int)> mDestroyPsiMonitorFunc;
