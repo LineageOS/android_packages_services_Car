@@ -17,9 +17,9 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-// This library is internal only and should not be used outside core car stack.
-java_sdk_library {
-    name: "android.car.builtin",
+java_defaults {
+    name: "android.car.builtin-defaults",
+
     srcs: [
         "src/**/*.java",
         "src/**/*.aidl",
@@ -50,6 +50,13 @@ java_sdk_library {
         "framework-bluetooth",
         "framework-annotations-lib",
     ],
+}
+
+// This library is internal only and should not be used outside core car stack.
+java_sdk_library {
+    name: "android.car.builtin",
+
+    defaults: ["android.car.builtin-defaults"],
 
     test: {
         enabled: false,
@@ -72,7 +79,7 @@ java_sdk_library {
         "//packages/services/Car/libs/procfs-inspector/client",
         "//packages/services/Car/service-builtin",
         "//packages/services/Car/service",
-        "//packages/services/Car/tests/CarLibHostUnitTest",
+        "//packages/services/Car/tests/CarLibUnitTest:__subpackages__",
         "//packages/services/Car/tests/carservice_test",
         "//packages/services/Car/tests/carservice_unit_test",
         "//packages/services/Car/cpp/watchdog/car-watchdog-lib",
@@ -94,4 +101,15 @@ java_sdk_library {
     compile_dex: true,
 
     installable: true,
+}
+
+java_library {
+    name: "android.car.builtin.testonly",
+
+    defaults: ["android.car.builtin-defaults"],
+
+    visibility: [
+        "//packages/services/Car/service",
+        "//packages/services/Car/tests/CarLibUnitTest",
+    ],
 }

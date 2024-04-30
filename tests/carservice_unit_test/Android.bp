@@ -89,7 +89,9 @@ android_test {
         "compatibility-device-util-axt",
         "frameworks-base-testutils",
         "flag-junit",
+        "ravenwood-junit",
         "mockito-target-extended",
+        "ravenwood-junit",
         "SettingsLib",
         "servicestests-utils",
         "truth",
@@ -112,4 +114,34 @@ android_test {
     ],
     // TODO(b/319708040): re-enable use_resource_processor
     use_resource_processor: false,
+}
+
+android_ravenwood_test {
+    name: "CarServiceHostUnitTest",
+
+    srcs: [
+        "src/com/android/car/CarPropertyServiceUnitTest.java",
+        "src/com/android/car/hal/property/PropertyHalServiceConfigsUnitTest.java",
+        // Don't depends on "com.android.car.test" because it uses
+        // "mockito-target-extended" which might not be the same mockito
+        // library used on host.
+        ":com.android.car.test.lib-srcs",
+    ],
+
+    static_libs: [
+        "android.car",
+        "android.car.test.utils",
+        "androidx.annotation_annotation",
+        "androidx.test.rules",
+        "car-service-test-static-lib",
+    ],
+
+    libs: [
+        "android.test.base",
+        "framework-annotations-lib",
+    ],
+
+    platform_apis: true,
+
+    auto_gen_config: true,
 }

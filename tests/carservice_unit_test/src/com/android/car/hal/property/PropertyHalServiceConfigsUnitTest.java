@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,10 +38,9 @@ import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehicleUnit;
 import android.hardware.automotive.vehicle.VehicleVendorPermission;
 import android.os.SystemClock;
+import android.platform.test.ravenwood.RavenwoodRule;
 import android.util.ArraySet;
 import android.util.SparseArray;
-
-import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
@@ -55,8 +54,8 @@ import com.android.car.hal.property.PropertyPermissionInfo.SinglePermission;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
@@ -68,8 +67,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@RunWith(AndroidJUnit4.class)
-public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
+public final class PropertyHalServiceConfigsUnitTest extends AbstractExpectableTestCase {
     private static final int VENDOR_PROPERTY_1 = 0x21e01111;
     private static final int VENDOR_PROPERTY_2 = 0x21e01112;
     private static final int VENDOR_PROPERTY_3 = 0x21e01113;
@@ -83,11 +81,14 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
 
     @Rule
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
+
+    @Rule
+    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder().build();
+
     @Mock
     private Context mContext;
 
     private PropertyHalServiceConfigs mPropertyHalServiceConfigs;
-    private static final String TAG = PropertyHalServiceConfigsTest.class.getSimpleName();
     private static final HalPropValueBuilder PROP_VALUE_BUILDER =
             new HalPropValueBuilder(/*isAidl=*/true);
     //payload test
@@ -134,6 +135,8 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
 
     @Before
     public void setUp() {
+        MockitoAnnotations.initMocks(this);
+
         mFakeFeatureFlags = new FakeFeatureFlagsImpl();
         mFakeFeatureFlags.setFlag(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES, true);
 
@@ -418,7 +421,7 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    public void testParseJsonConfig_validConfig() {
+    public void testParseJsonConfig_validConfig() throws Exception {
         InputStream is = strToInputStream("""
         {
             'version': 1,
@@ -458,7 +461,7 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
                 }
             }
         }
-        """);
+                """);
         CarSvcPropertyConfig expectedConfig = new CarSvcPropertyConfig();
         expectedConfig.propertyId = 1234;
         expectedConfig.halPropId = 2345;
@@ -466,8 +469,8 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
         expectedConfig.description = "DESCRIPTION";
         expectedConfig.permissions =  new PropertyPermissions.Builder()
                 .setReadPermission(new AnyOfPermissions(
-                    new SinglePermission("PERM1"),
-                    new SinglePermission("PERM2")
+                        new SinglePermission("PERM1"),
+                        new SinglePermission("PERM2")
                 ))
                 .setWritePermission(new AllOfPermissions(
                         new SinglePermission("PERM1"),
@@ -486,7 +489,7 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    public void testParseJsonConfig_halPropIdDefaultEqualPropId() {
+    public void testParseJsonConfig_halPropIdDefaultEqualPropId() throws Exception {
         InputStream is = strToInputStream("""
         {
             "version": 1,
@@ -502,7 +505,7 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
                 }
             }
         }
-        """);
+                """);
         CarSvcPropertyConfig expectedConfig = new CarSvcPropertyConfig();
         expectedConfig.propertyId = 1234;
         expectedConfig.halPropId = 1234;
@@ -520,7 +523,7 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    public void testParseJsonConfig_dataFlags() {
+    public void testParseJsonConfig_dataFlags() throws Exception {
         InputStream is = strToInputStream("""
         {
             "version": 1,
@@ -537,7 +540,7 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
                 }
             }
         }
-        """);
+                """);
         CarSvcPropertyConfig expectedConfig = new CarSvcPropertyConfig();
         expectedConfig.propertyId = 1234;
         expectedConfig.halPropId = 1234;
@@ -557,7 +560,7 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    public void testParseJsonConfig_ignoreDeprecate() {
+    public void testParseJsonConfig_ignoreDeprecate() throws Exception {
         InputStream is = strToInputStream("""
         {
             "version": 1,
@@ -579,7 +582,7 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
                 }
             }
         }
-        """);
+                """);
 
         SparseArray<CarSvcPropertyConfig> configs = mPropertyHalServiceConfigs.parseJsonConfig(
                 is, /* path= */ "test");
@@ -599,7 +602,7 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    public void testParseJsonConfig_invalidJsonFormat() {
+    public void testParseJsonConfig_invalidJsonFormat() throws Exception {
         InputStream is = strToInputStream("{");
 
         assertThrows(IllegalArgumentException.class, () ->
@@ -607,7 +610,7 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    public void testParseJsonConfig_missingPropertyIdField() {
+    public void testParseJsonConfig_missingPropertyIdField() throws Exception {
         InputStream is = strToInputStream("""
         {
             "version": 1,
@@ -623,14 +626,14 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
                 }
             }
         }
-        """);
+                """);
 
         assertThrows(IllegalArgumentException.class, () ->
                 mPropertyHalServiceConfigs.parseJsonConfig(is, /* path= */ "test"));
     }
 
     @Test
-    public void testParseJsonConfig_noReadOrWritePermission() {
+    public void testParseJsonConfig_noReadOrWritePermission() throws Exception {
         InputStream is = strToInputStream("""
         {
             "version": 1,
@@ -643,7 +646,7 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
                 }
             }
         }
-        """);
+                """);
 
         assertThrows(IllegalArgumentException.class, () ->
                 mPropertyHalServiceConfigs.parseJsonConfig(is, /* path= */ "test"));

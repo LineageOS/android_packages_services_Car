@@ -1,0 +1,29 @@
+userdebug_or_eng(`
+  # Domain to run Surround View App (com.android.surroundview)
+  type surroundview_app, domain;
+  app_domain(surroundview_app)
+
+  # Allow use of EVS service
+  hal_client_domain(surroundview_app, hal_evs)
+  hal_client_domain(surroundview_app, hal_vehicle)
+
+  # Allow "find" permission on certain system services, surfaced as required by SELinux logs.
+  # As far as understood, the reference app does not use some of these (e.g. autofill_service),
+  # but the app will not run without them.
+  allow surroundview_app {
+      activity_service
+      audio_service
+      autofill_service
+      content_capture_service
+      game_service
+      gpu_service
+      hint_service
+      surfaceflinger_service
+  }:service_manager find;
+
+  # Allow R+W /data subdirectory.
+  allow surroundview_app system_app_data_file:dir { getattr search };
+  allow surroundview_app system_app_data_file:file { open };
+  allow surroundview_app system_data_file:dir search;
+  allow surroundview_app user_profile_root_file:dir search;
+')

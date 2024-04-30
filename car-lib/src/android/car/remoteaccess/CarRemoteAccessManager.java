@@ -824,6 +824,42 @@ public final class CarRemoteAccessManager extends CarManagerBase {
     }
 
     /**
+     * For testing only. Check whether the VHAL property: {@code VEHICLE_IN_USE} is supported.
+     *
+     * This property must be supported if serverless remote access is supported.
+     *
+     * @hide
+     */
+    @TestApi
+    @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
+    @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
+    public boolean isVehicleInUseSupported() {
+        try {
+            return mService.isVehicleInUseSupported();
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, false);
+        }
+    }
+
+    /**
+     * For testing only. Check whether the VHAL property: {@code SHUTDOWN_REQUEST} is supported.
+     *
+     * This property must be supported if serverless remote access is supported.
+     *
+     * @hide
+     */
+    @TestApi
+    @FlaggedApi(FLAG_SERVERLESS_REMOTE_ACCESS)
+    @RequiresPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS)
+    public boolean isShutdownRequestSupported() {
+        try {
+            return mService.isShutdownRequestSupported();
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, false);
+        }
+    }
+
+    /**
      * A scheduler for scheduling a task to be executed later.
      *
      * <p>It schedules a task via sending a scheduled task message to a device in the same vehicle,

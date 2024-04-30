@@ -33,13 +33,15 @@ java_library {
     sdk_version: "module_current",
 }
 
-android_ravenwood_test {
-    name: "CarLibHostUnitTest",
+java_defaults {
+    name: "CarLibUnitTestDefault",
     static_libs: [
         "android.car-no-dep",
         "android.car.test.utils",
         "androidx.annotation_annotation",
         "androidx.test.rules",
+        "ravenwood-junit",
+        "truth",
         "vehicle-hal-support-lib",
     ],
     srcs: [
@@ -49,5 +51,36 @@ android_ravenwood_test {
         "android.test.base",
         "framework-annotations-lib",
     ],
+}
+
+android_ravenwood_test {
+    name: "CarLibHostUnitTest",
+    static_libs: [
+        "android.car.builtin.testonly",
+    ],
+    defaults: [
+        "CarLibUnitTestDefault",
+    ],
     auto_gen_config: true,
+}
+
+android_test {
+    name: "CarLibDeviceUnitTest",
+    static_libs: [
+        "mockito-target-extended",
+    ],
+    defaults: [
+        "CarLibUnitTestDefault",
+    ],
+    test_suites: [
+        "general-tests",
+        "automotive-tests",
+        "automotive-general-tests",
+    ],
+    // mockito-target-inline dependency
+    jni_libs: [
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
+    ],
+    platform_apis: true,
 }

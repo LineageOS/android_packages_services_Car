@@ -138,12 +138,12 @@ public class PropertyHalService extends HalServiceBase {
     private final PairSparseArray<CarPropertyValue> mStaticPropertyIdAreaIdCache =
             new PairSparseArray<>();
 
-    private static final Histogram sGetAsyncEndToEndLatencyHistogram = new Histogram(
+    private final Histogram mGetAsyncEndToEndLatencyHistogram = new Histogram(
             "automotive_os.value_get_async_end_to_end_latency",
             new Histogram.ScaledRangeOptions(/* binCount= */ 20, /* minValue= */ 0,
                     /* firstBinWidth= */ 2, /* scaleFactor= */ 1.5f));
 
-    private static final Histogram sSetAsyncEndToEndLatencyHistogram = new Histogram(
+    private final Histogram mSetAsyncEndToEndLatencyHistogram = new Histogram(
             "automotive_os.value_set_async_end_to_end_latency",
             new Histogram.ScaledRangeOptions(/* binCount= */ 20, /* minValue= */ 0,
                     /* firstBinWidth= */ 2, /* scaleFactor= */ 1.5f));
@@ -495,7 +495,7 @@ public class PropertyHalService extends HalServiceBase {
                 return;
             }
             List<GetSetValueResult> getSetValueResults = logAndReturnResults(
-                    sGetAsyncEndToEndLatencyHistogram, results, GET);
+                    mGetAsyncEndToEndLatencyHistogram, results, GET);
             try {
                 mAsyncPropertyResultCallback.onGetValueResults(
                         new GetSetValueResultList(getSetValueResults));
@@ -509,7 +509,7 @@ public class PropertyHalService extends HalServiceBase {
                 return;
             }
             List<GetSetValueResult> getSetValueResults = logAndReturnResults(
-                    sSetAsyncEndToEndLatencyHistogram, results, SET);
+                    mSetAsyncEndToEndLatencyHistogram, results, SET);
             try {
                 mAsyncPropertyResultCallback.onSetValueResults(
                         new GetSetValueResultList(getSetValueResults));
@@ -784,7 +784,7 @@ public class PropertyHalService extends HalServiceBase {
                                 clientRequestInfo.getAsyncRequestStartTime(),
                                 clientRequestInfo.getRetryCount()));
                         removePendingAsyncPropRequestInfoLocked(clientRequestInfo);
-                        sSetAsyncEndToEndLatencyHistogram
+                        mSetAsyncEndToEndLatencyHistogram
                                 .logSample((float) System.currentTimeMillis()
                                 - clientRequestInfo.getAsyncRequestStartTime());
                         continue;

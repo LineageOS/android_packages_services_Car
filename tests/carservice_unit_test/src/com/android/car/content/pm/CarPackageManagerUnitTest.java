@@ -15,7 +15,7 @@
  */
 package com.android.car.content.pm;
 
-import static android.car.testapi.CarMockitoHelper.mockHandleRemoteExceptionFromCarServiceWithDefaultValue;
+import static android.car.test.mock.CarMockitoHelper.mockHandleRemoteExceptionFromCarServiceWithDefaultValue;
 import static android.view.Display.DEFAULT_DISPLAY;
 
 import static com.google.common.truth.Truth.assertThat;

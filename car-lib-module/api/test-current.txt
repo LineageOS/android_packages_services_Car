@@ -128,6 +128,8 @@ package android.car.remoteaccess {
 
   public final class CarRemoteAccessManager {
     method @FlaggedApi("android.car.feature.serverless_remote_access") @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void addServerlessRemoteTaskClient(@NonNull String, @NonNull String);
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public boolean isShutdownRequestSupported();
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public boolean isVehicleInUseSupported();
     method @FlaggedApi("android.car.feature.serverless_remote_access") @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void removeServerlessRemoteTaskClient(@NonNull String);
   }
 

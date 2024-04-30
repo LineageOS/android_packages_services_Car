@@ -31,7 +31,6 @@ import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
 import android.annotation.UserIdInt;
-import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.ICarResultReceiver;
 import android.car.ICarUserService;
@@ -55,6 +54,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.Slog;
 
+import com.android.car.internal.ICarBase;
 import com.android.car.internal.ResultCallbackImpl;
 import com.android.car.internal.common.CommonConstants;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
@@ -361,6 +361,7 @@ public final class CarUserManager extends CarManagerBase {
 
     private final ICarUserService mService;
     private final UserManager mUserManager;
+    private final boolean mIsHeadlessSystemUserMode;
 
     /**
      * Map of listeners registers by the app.
@@ -394,17 +395,18 @@ public final class CarUserManager extends CarManagerBase {
     /**
      * @hide
      */
-    public CarUserManager(@NonNull Car car, @NonNull IBinder service) {
+    public CarUserManager(@NonNull ICarBase car, @NonNull IBinder service) {
         this(car, ICarUserService.Stub.asInterface(service),
-                car.getContext().getSystemService(UserManager.class));
+                car.getContext().getSystemService(UserManager.class),
+                UserManager.isHeadlessSystemUserMode());
     }
 
     /**
      * @hide
      */
     @VisibleForTesting
-    public CarUserManager(@NonNull Car car, @NonNull ICarUserService service,
-            @NonNull UserManager userManager) {
+    public CarUserManager(@NonNull ICarBase car, @NonNull ICarUserService service,
+            @NonNull UserManager userManager, boolean isHeadlessSystemUserMode) {
         super(car);
 
         mDumper = addDumpable(car.getContext(), () -> new Dumper());
@@ -412,6 +414,7 @@ public final class CarUserManager extends CarManagerBase {
 
         mService = service;
         mUserManager = userManager;
+        mIsHeadlessSystemUserMode = isHeadlessSystemUserMode;
     }
 
     /**
@@ -1296,7 +1299,7 @@ public final class CarUserManager extends CarManagerBase {
         for (int i = 0; i < allUsers.size(); i++) {
             UserHandle user = allUsers.get(i);
             if (user.equals(userHandle) && (!userHandle.equals(UserHandle.SYSTEM)
-                    || !UserManager.isHeadlessSystemUserMode())) {
+                    || !mIsHeadlessSystemUserMode)) {
                 return true;
             }
         }
