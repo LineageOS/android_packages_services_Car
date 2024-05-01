@@ -37,7 +37,8 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 public class CarDeveloperOptionsIntentTest {
     private static final List<String> ACTIVITY_ALLOWLIST = Arrays.asList(
-            "com.android.car.developeroptions.CarDevelopmentSettingsDashboardActivity");
+            "com.android.car.developeroptions.CarDevelopmentSettingsDashboardActivity",
+            "com.android.settings.development.DevelopmentSettingsDisabledActivity");
 
     private Context mContext = ApplicationProvider.getApplicationContext();
     private PackageManager mPm;
