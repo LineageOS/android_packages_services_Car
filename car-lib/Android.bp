@@ -111,28 +111,6 @@ stubs_defaults {
     ],
 }
 
-genrule {
-    name: "android-car-last-released-api",
-    srcs: [
-        "api/released/*.txt",
-    ],
-    cmd: "cp -f $$(echo $(in) | tr \" \" \"\\n\" | sort -n | tail -1) $(genDir)/last-released-api.txt",
-    out: [
-        "last-released-api.txt",
-    ],
-}
-
-genrule {
-    name: "android-car-last-released-system-api",
-    srcs: [
-        "api/system-released/*.txt",
-    ],
-    cmd: "cp -f $$(echo $(in) | tr \" \" \"\\n\" | sort -n | tail -1) $(genDir)/last-released-system-api.txt",
-    out: [
-        "last-released-system-api.txt",
-    ],
-}
-
 droidstubs {
     name: "android.car-stubs-docs",
     defaults: ["android.car-docs-default"],
@@ -142,8 +120,8 @@ droidstubs {
     installable: false,
     check_api: {
         last_released: {
-            api_file: ":android-car-last-released-api",
-            removed_api_file: "api/removed.txt",
+            api_file: ":android.car.api.combined.public.latest",
+            removed_api_file: ":android.car-removed.api.combined.public.latest",
         },
         current: {
             api_file: "api/current.txt",
@@ -151,6 +129,7 @@ droidstubs {
         },
         api_lint: {
             enabled: true,
+            new_since: ":android.car.api.combined.public.latest",
             baseline_file: "api/lint-baseline.txt",
         },
     },
@@ -167,8 +146,8 @@ droidstubs {
     installable: false,
     check_api: {
         last_released: {
-            api_file: ":android-car-last-released-system-api",
-            removed_api_file: "api/system-removed.txt",
+            api_file: ":android.car.api.combined.system.latest",
+            removed_api_file: ":android.car-removed.api.combined.system.latest",
         },
         current: {
             api_file: "api/system-current.txt",
@@ -176,6 +155,7 @@ droidstubs {
         },
         api_lint: {
             enabled: true,
+            new_since: ":android.car.api.combined.system.latest",
             baseline_file: "api/system-lint-baseline.txt",
         },
     },
@@ -223,7 +203,7 @@ droidstubs {
         "sdk-dir",
         "api-versions-jars-dir",
     ],
-    previous_api: ":android-car-last-released-api",
+    previous_api: ":android.car.api.combined.public.latest",
     merge_annotations_dirs: [
         "metalava-manual",
     ],
