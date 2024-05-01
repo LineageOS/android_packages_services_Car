@@ -63,6 +63,13 @@ flag {
   bug: "337063842"
 }
 
+flag {
+  name: "stop_process_before_suspend_to_disk"
+  namespace: "car_framework"
+  description: "Controls whether processes need to be stopped before suspend to disk"
+  bug: "324593655"
+}
+
 # CarAudioManager
 flag {
   name: "car_audio_dynamic_devices"
