@@ -18,6 +18,7 @@ package android.car.evs;
 
 import static android.car.feature.Flags.FLAG_CAR_EVS_QUERY_SERVICE_STATUS;
 import static android.car.feature.Flags.FLAG_CAR_EVS_STREAM_MANAGEMENT;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.CallbackExecutor;
@@ -32,7 +33,8 @@ import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.RequiredFeature;
 import android.car.builtin.util.Slogf;
-import android.car.feature.Flags;
+import android.car.feature.FeatureFlags;
+import android.car.feature.FeatureFlagsImpl;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -41,6 +43,7 @@ import android.util.SparseArray;
 import android.util.SparseIntArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.ICarBase;
 import com.android.car.internal.evs.CarEvsUtils;
 import com.android.internal.annotations.GuardedBy;
 
@@ -67,6 +70,8 @@ public final class CarEvsManager extends CarManagerBase {
 
     private final ICarEvsService mService;
     private final Object mStreamLock = new Object();
+
+    private final FeatureFlags mFeatureFlags;
 
     // This array maintains mappings between service type and its client.
     @GuardedBy("mStreamLock")
@@ -281,9 +286,10 @@ public final class CarEvsManager extends CarManagerBase {
      *
      * @hide
      */
-    public CarEvsManager(Car car, IBinder service) {
+    public CarEvsManager(ICarBase car, IBinder service, @Nullable FeatureFlags featureFlags) {
         super(car);
 
+        mFeatureFlags = Objects.requireNonNullElse(featureFlags, new FeatureFlagsImpl());
         // Gets CarEvsService
         mService = ICarEvsService.Stub.asInterface(service);
     }
@@ -574,7 +580,7 @@ public final class CarEvsManager extends CarManagerBase {
     @GuardedBy("mStreamLock")
     private void handleStreamEventLocked(@CarEvsServiceType int origin,
             @CarEvsStreamEvent int event, CarEvsStreamCallback cb, Executor executor) {
-        if (Flags.carEvsStreamManagement()) {
+        if (mFeatureFlags.carEvsStreamManagement()) {
             executor.execute(() -> cb.onStreamEvent(origin, event));
         } else {
             executor.execute(() -> cb.onStreamEvent(CarEvsUtils.putTag(origin, event)));
@@ -599,7 +605,7 @@ public final class CarEvsManager extends CarManagerBase {
 
         synchronized (mStreamLock) {
             int type;
-            if (Flags.carEvsStreamManagement()) {
+            if (mFeatureFlags.carEvsStreamManagement()) {
                 type = buffer.getType();
             } else {
                 type = CarEvsUtils.getTag(buffer.getId());
@@ -639,8 +645,8 @@ public final class CarEvsManager extends CarManagerBase {
         for (int i = 0; i < mStreamCallbacks.size(); i++) {
             if (!mStreamListenerToService.waitForStreamEvent(mStreamCallbacks.keyAt(i),
                       STREAM_EVENT_STREAM_STOPPED)) {
-                Slogf.w(TAG, "EVS did not notify us that target streams are stopped " +
-                        "before a time expires.");
+                Slogf.w(TAG, "EVS did not notify us that target streams are stopped "
+                        + "before a time expires.");
             }
 
             // Notify clients that streams are stopped.
@@ -659,7 +665,7 @@ public final class CarEvsManager extends CarManagerBase {
     private void stopVideoStreamLocked(@CarEvsServiceType int type) {
         CarEvsStreamCallback cb = mStreamCallbacks.get(type);
         if (cb == null) {
-            Slogf.i(TAG, "A requested service type %d is not active.", type);
+            Slogf.i(TAG, "A requested service type " + type + " is not active.");
             return;
         }
 
@@ -672,8 +678,8 @@ public final class CarEvsManager extends CarManagerBase {
         // Wait for a confirmation.
         // TODO(b/321913871): Check whether or not we need to verify the origin of a received event.
         if (!mStreamListenerToService.waitForStreamEvent(type, STREAM_EVENT_STREAM_STOPPED)) {
-            Slogf.w(TAG, "EVS did not notify us that target streams are stopped " +
-                    "before a time expires.");
+            Slogf.w(TAG, "EVS did not notify us that target streams are stopped "
+                    + "before a time expires.");
         }
 
         // Notify clients that streams are stopped.

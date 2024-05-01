@@ -17,6 +17,8 @@
 #ifndef CPP_WATCHDOG_SERVER_SRC_PRESSUREMONITOR_H_
 #define CPP_WATCHDOG_SERVER_SRC_PRESSUREMONITOR_H_
 
+#include "LooperWrapper.h"
+
 #include <android-base/chrono_utils.h>
 #include <android-base/result.h>
 #include <psi/psi.h>
@@ -26,6 +28,7 @@
 
 #include <unistd.h>
 
+#include <thread>  // NOLINT(build/c++11)
 #include <unordered_set>
 
 namespace android {
@@ -48,8 +51,13 @@ constexpr std::chrono::microseconds kLowThresholdUs = 15ms;
 constexpr std::chrono::microseconds kMediumThresholdUs = 30ms;
 constexpr std::chrono::microseconds kHighThresholdUs = 50ms;
 
+// Time between consecutive polling of pressure events.
+constexpr std::chrono::milliseconds kPollingIntervalMillis = 1s;
+
 // Monitors memory pressure and notifies registered callbacks when the pressure level changes.
-class PressureMonitor final : virtual public android::RefBase {
+class PressureMonitor final :
+      virtual public android::RefBase,
+      virtual public android::MessageHandler {
 public:
     enum PressureLevel {
         PRESSURE_LEVEL_NONE = 0,
@@ -59,23 +67,43 @@ public:
         PRESSURE_LEVEL_COUNT,
     };
 
+    // Clients implement and register this callback to get notified on pressure changes.
+    class PressureChangeCallbackInterface : virtual public android::RefBase {
+    public:
+        virtual ~PressureChangeCallbackInterface() {}
+
+        // Called when the memory pressure level is changed.
+        virtual void onPressureChanged(PressureLevel pressureLevel) = 0;
+    };
+
     PressureMonitor() :
-          PressureMonitor(kDefaultProcPressureDirPath, &init_psi_monitor, &register_psi_monitor,
-                          &unregister_psi_monitor, &destroy_psi_monitor) {}
+          PressureMonitor(kDefaultProcPressureDirPath, kPollingIntervalMillis, &init_psi_monitor,
+                          &register_psi_monitor, &unregister_psi_monitor, &destroy_psi_monitor,
+                          &epoll_wait) {}
 
     // Used by unittest to configure the internal state and mock the outgoing API calls.
     PressureMonitor(const std::string& procPressureDirPath,
-                    const std::function<int(enum psi_stall_type, int, int)>& initPsiMonitorFunc,
+
+                    std::chrono::milliseconds pollingIntervalMillis,
+                    const std::function<int(enum psi_stall_type, int, int, enum psi_resource)>&
+                            initPsiMonitorFunc,
                     const std::function<int(int, int, void*)>& registerPsiMonitorFunc,
                     const std::function<int(int, int)>& unregisterPsiMonitorFunc,
-                    const std::function<void(int)>& destroyPsiMonitorFunc) :
+                    const std::function<void(int)>& destroyPsiMonitorFunc,
+                    const std::function<int(int, epoll_event*, int, int)>& epollWaitFunc) :
           kProcPressureDirPath(procPressureDirPath),
+          mPollingIntervalMillis(pollingIntervalMillis),
           mInitPsiMonitorFunc(initPsiMonitorFunc),
           mRegisterPsiMonitorFunc(registerPsiMonitorFunc),
           mUnregisterPsiMonitorFunc(unregisterPsiMonitorFunc),
           mDestroyPsiMonitorFunc(destroyPsiMonitorFunc),
+          mEpollWaitFunc(epollWaitFunc),
+          mHandlerLooper(android::sp<LooperWrapper>::make()),
           mIsEnabled(false),
-          mPsiEpollFd(-1) {}
+          mIsMonitorActive(false),
+          mPsiEpollFd(-1),
+          mLastPollUptimeNs(0),
+          mLatestPressureLevel(PRESSURE_LEVEL_NONE) {}
 
     // Initializes the PSI monitors for pressure levels defined in PressureLevel enum.
     android::base::Result<void> init();
@@ -93,7 +121,27 @@ public:
     // pressure changes.
     android::base::Result<void> start();
 
+    // Registers a callback for pressure change notifications.
+    android::base::Result<void> registerPressureChangeCallback(
+            android::sp<PressureChangeCallbackInterface> callback);
+
+    // Unregisters a previously registered pressure change callback.
+    void unregisterPressureChangeCallback(android::sp<PressureChangeCallbackInterface> callback);
+
+    // Returns true when the pressure monitor thread is active.
+    bool isMonitorActive() { return mIsMonitorActive; }
+
 private:
+    template <typename T>
+    struct SpHash {
+        size_t operator()(const sp<T>& k) const { return std::hash<T*>()(k.get()); }
+    };
+    // Looper messages to post / handle pressure monitor events.
+    enum LooperMessage {
+        MONITOR_PRESSURE = 0,
+        NOTIFY_PRESSURE_CHANGE,
+        LOOPER_MESSAGE_COUNT,
+    };
     // Contains information about a pressure level.
     struct PressureLevelInfo {
         const PressureLevel kPressureLevel = PRESSURE_LEVEL_NONE;
@@ -111,26 +159,64 @@ private:
     // Destroys active PSI monitors.
     void destroyActivePsiMonitorsLocked();
 
+    // Monitors current pressure levels.
+    android::base::Result<void> monitorPressure();
+
+    // Waits for the latest PSI events and returns the latest pressure level.
+    android::base::Result<PressureLevel> waitForLatestPressureLevel(int psiEpollFd,
+                                                                    epoll_event* events,
+                                                                    size_t maxEvents);
+
+    // Handles the looper messages.
+    void handleMessage(const Message& message);
+
+    // Notifies the clients of the latest pressure level changes.
+    void notifyPressureChange();
+
     // Proc pressure directory path.
     const std::string kProcPressureDirPath;
 
+    // Thread that waits for PSI triggers and notifies the pressure changes.
+    std::thread mMonitorThread;
+
+    // Time between consecutive polling of pressure events. Also used for the epoll_wait timeout.
+    std::chrono::milliseconds mPollingIntervalMillis;
+
     // Updated by test to mock the PSI interfaces.
-    std::function<int(enum psi_stall_type, int, int)> mInitPsiMonitorFunc;
+    std::function<int(enum psi_stall_type, int, int, enum psi_resource)> mInitPsiMonitorFunc;
     std::function<int(int, int, void*)> mRegisterPsiMonitorFunc;
     std::function<int(int, int)> mUnregisterPsiMonitorFunc;
     std::function<void(int)> mDestroyPsiMonitorFunc;
+    std::function<int(int, epoll_event*, int, int)> mEpollWaitFunc;
 
     // Lock to guard internal state against multi-threaded access.
     mutable Mutex mMutex;
 
+    // Handler looper to monitor pressure and notify callbacks.
+    android::sp<LooperWrapper> mHandlerLooper GUARDED_BY(mMutex);
+
     // Set to true only when the required Kernel interfaces are accessible.
     bool mIsEnabled GUARDED_BY(mMutex);
+
+    // Indicates whether or not the pressure monitor should continue monitoring.
+    bool mIsMonitorActive GUARDED_BY(mMutex);
 
     // Epoll fd used to monitor the psi triggers.
     int mPsiEpollFd GUARDED_BY(mMutex);
 
+    // Uptime NS when the last poll was performed. Used to calculate the next poll uptime.
+    nsecs_t mLastPollUptimeNs GUARDED_BY(mMutex);
+
+    // Latest highest active pressure level since the previous polling.
+    PressureLevel mLatestPressureLevel GUARDED_BY(mMutex);
+
     // Cache of supported pressure level info.
     std::vector<PressureLevelInfo> mPressureLevels GUARDED_BY(mMutex);
+
+    // Callbacks to notify when the pressure level changes.
+    std::unordered_set<android::sp<PressureChangeCallbackInterface>,
+                       SpHash<PressureChangeCallbackInterface>>
+            mPressureChangeCallbacks GUARDED_BY(mMutex);
 };
 
 }  // namespace watchdog

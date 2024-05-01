@@ -21,6 +21,7 @@
 
 #include <android-base/stringprintf.h>
 #include <log/log.h>
+#include <processgroup/sched_policy.h>
 
 #include <errno.h>
 #include <string.h>
@@ -30,9 +31,12 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
+using ::android::sp;
 using ::android::base::Error;
 using ::android::base::Result;
 using ::android::base::StringPrintf;
+
+constexpr const char kThreadName[] = "PressureMonitor";
 
 Result<void> PressureMonitor::init() {
     std::string memoryPath = StringPrintf("%s/%s", kProcPressureDirPath.c_str(), kMemoryFile);
@@ -69,8 +73,19 @@ Result<void> PressureMonitor::init() {
 }
 
 void PressureMonitor::terminate() {
-    Mutex::Autolock lock(mMutex);
-    destroyActivePsiMonitorsLocked();
+    {
+        Mutex::Autolock lock(mMutex);
+        mIsMonitorActive = false;
+        mHandlerLooper->removeMessages(sp<PressureMonitor>::fromExisting(this));
+        mHandlerLooper->wake();
+    }
+    if (mMonitorThread.joinable()) {
+        mMonitorThread.join();
+    }
+    {
+        Mutex::Autolock lock(mMutex);
+        destroyActivePsiMonitorsLocked();
+    }
 }
 
 std::string PressureMonitor::PressureLevelToString(PressureMonitor::PressureLevel pressureLevel) {
@@ -112,11 +127,10 @@ Result<void> PressureMonitor::initializePsiMonitorsLocked() {
         // require all PSI monitors to be initialized successfully. So, early fail when one of
         // PSI monitor fails to initialize.
         int fd = mInitPsiMonitorFunc(info.kStallType, info.kThresholdUs.count(),
-                                     kPsiWindowSizeUs.count());
+                                     kPsiWindowSizeUs.count(), PSI_MEMORY);
         if (fd < 0) {
             return Error() << "Failed to initialize memory PSI monitor for "
                            << PressureLevelToString(info.kPressureLevel) << ": " << strerror(errno);
-            continue;
         }
         if (mRegisterPsiMonitorFunc(mPsiEpollFd, fd, reinterpret_cast<void*>(info.kPressureLevel)) <
             0) {
@@ -161,9 +175,181 @@ Result<void> PressureMonitor::start() {
         if (!mIsEnabled) {
             return Error() << "Monitor is either disabled or not initialized";
         }
+        if (mMonitorThread.joinable()) {
+            return Error()
+                    << "Pressure monitoring is already in progress. So skipping this request";
+        }
+        mIsMonitorActive = true;
     }
-    // TODO(b/335514378): Start the monitor thread here and wait for PSI events.
+    mMonitorThread = std::thread([&]() {
+        if (set_sched_policy(0, SP_BACKGROUND) != 0) {
+            ALOGW("Failed to set background scheduling priority to %s thread", kThreadName);
+        }
+        if (int result = pthread_setname_np(pthread_self(), kThreadName); result != 0) {
+            ALOGW("Failed to set %s thread name: %d", kThreadName, result);
+        }
+        bool isMonitorActive;
+        {
+            Mutex::Autolock lock(mMutex);
+            mHandlerLooper->setLooper(Looper::prepare(/*opts=*/0));
+            mLastPollUptimeNs = mHandlerLooper->now();
+            mHandlerLooper->sendMessage(sp<PressureMonitor>::fromExisting(this),
+                                        LooperMessage::MONITOR_PRESSURE);
+            isMonitorActive = mIsMonitorActive;
+        }
+        ALOGI("Starting pressure monitor");
+        while (isMonitorActive) {
+            mHandlerLooper->pollAll(/*timeoutMillis=*/-1);
+            Mutex::Autolock lock(mMutex);
+            isMonitorActive = mIsMonitorActive;
+        }
+    });
     return {};
+}
+
+Result<void> PressureMonitor::registerPressureChangeCallback(
+        sp<PressureChangeCallbackInterface> callback) {
+    Mutex::Autolock lock(mMutex);
+    if (mPressureChangeCallbacks.find(callback) != mPressureChangeCallbacks.end()) {
+        return Error() << "Callback is already registered";
+    }
+    mPressureChangeCallbacks.insert(callback);
+    return {};
+}
+
+void PressureMonitor::unregisterPressureChangeCallback(
+        sp<PressureChangeCallbackInterface> callback) {
+    Mutex::Autolock lock(mMutex);
+    const auto& it = mPressureChangeCallbacks.find(callback);
+    if (it == mPressureChangeCallbacks.end()) {
+        ALOGE("Pressure change callback is not registered. Skipping unregister request");
+        return;
+    }
+    mPressureChangeCallbacks.erase(it);
+}
+
+void PressureMonitor::handleMessage(const Message& message) {
+    Result<void> result;
+    switch (message.what) {
+        case LooperMessage::MONITOR_PRESSURE:
+            if (const auto& monitorResult = monitorPressure(); !monitorResult.ok()) {
+                result = Error() << "Failed to monitor pressure: " << monitorResult.error();
+            }
+            break;
+        case LooperMessage::NOTIFY_PRESSURE_CHANGE:
+            notifyPressureChange();
+            break;
+        default:
+            ALOGE("Skipping unknown pressure monitor message: %d", message.what);
+    }
+    if (!result.ok()) {
+        ALOGE("Terminating pressure monitor: %s", result.error().message().c_str());
+        Mutex::Autolock lock(mMutex);
+        mIsMonitorActive = false;
+    }
+}
+
+Result<void> PressureMonitor::monitorPressure() {
+    size_t maxEvents;
+    int psiEpollFd;
+    {
+        Mutex::Autolock lock(mMutex);
+        psiEpollFd = mPsiEpollFd;
+        maxEvents = mPressureLevels.size();
+    }
+    if (psiEpollFd < 0) {
+        return Error() << "Memory pressure monitor is not initialized";
+    }
+    struct epoll_event* events = new epoll_event[maxEvents];
+    auto result = waitForLatestPressureLevel(psiEpollFd, events, maxEvents);
+    if (!result.ok()) {
+        delete[] events;
+        return Error() << "Failed to get the latest pressure level: " << result.error();
+    }
+    delete[] events;
+
+    Mutex::Autolock lock(mMutex);
+    if (mLatestPressureLevel != *result) {
+        mLatestPressureLevel = *result;
+        mHandlerLooper->sendMessage(sp<PressureMonitor>::fromExisting(this),
+                                    LooperMessage::NOTIFY_PRESSURE_CHANGE);
+    }
+
+    mLastPollUptimeNs +=
+            std::chrono::duration_cast<std::chrono::nanoseconds>(mPollingIntervalMillis).count();
+    // The NOTIFY_PRESSURE_CHANGE message must be handled before MONITOR_PRESSURE message.
+    // Otherwise, the callbacks won't be notified of the recent pressure level change. To avoid
+    // inserting MONITOR_PRESSURE message before NOTIFY_PRESSURE_CHANGE message, check the uptime.
+    nsecs_t now = mHandlerLooper->now();
+    mHandlerLooper->sendMessageAtTime(mLastPollUptimeNs > now ? mLastPollUptimeNs : now,
+                                      sp<PressureMonitor>::fromExisting(this),
+                                      LooperMessage::MONITOR_PRESSURE);
+    return {};
+}
+
+Result<PressureMonitor::PressureLevel> PressureMonitor::waitForLatestPressureLevel(
+        int psiEpollFd, epoll_event* events, size_t maxEvents) {
+    PressureLevel highestActivePressure;
+    {
+        Mutex::Autolock lock(mMutex);
+        highestActivePressure = mLatestPressureLevel;
+    }
+    int totalActiveEvents;
+    do {
+        if (highestActivePressure == PRESSURE_LEVEL_NONE) {
+            // When the recent pressure level was none, wait with no timeout until the pressure
+            // increases.
+            totalActiveEvents = mEpollWaitFunc(psiEpollFd, events, maxEvents, /*timeout=*/-1);
+        } else {
+            // When the recent pressure level was high, assume that the pressure will stay high
+            // for at least 1 second. Within 1 second window, the memory pressure state can go up
+            // causing an event to trigger or it can go down when the window expires.
+
+            // TODO(b/333411972): Review whether 1 second wait is sufficient and whether an event
+            //  will trigger if the memory pressure continues to stay higher for more than this
+            //  period.
+            totalActiveEvents =
+                    mEpollWaitFunc(psiEpollFd, events, maxEvents, mPollingIntervalMillis.count());
+            if (totalActiveEvents == 0) {
+                return PRESSURE_LEVEL_NONE;
+            }
+        }
+        // Keep waiting if interrupted.
+    } while (totalActiveEvents == -1 && errno == EINTR);
+
+    if (totalActiveEvents == -1) {
+        return Error() << "epoll_wait failed while waiting for PSI events: " << strerror(errno);
+    }
+    // Reset and identify the recent highest active pressure from the PSI events.
+    highestActivePressure = PRESSURE_LEVEL_NONE;
+
+    for (int i = 0; i < totalActiveEvents; i++) {
+        if (events[i].events & (EPOLLERR | EPOLLHUP)) {
+            // Should never happen unless psi got disabled in the Kernel.
+            return Error() << "Memory pressure events are not available anymore";
+        }
+        if (events[i].data.u32 > highestActivePressure) {
+            highestActivePressure = static_cast<PressureLevel>(events[i].data.u32);
+        }
+    }
+    return highestActivePressure;
+}
+
+void PressureMonitor::notifyPressureChange() {
+    PressureLevel pressureLevel;
+    std::unordered_set<sp<PressureChangeCallbackInterface>, SpHash<PressureChangeCallbackInterface>>
+            callbacks;
+    {
+        Mutex::Autolock lock(mMutex);
+        pressureLevel = mLatestPressureLevel;
+        callbacks = mPressureChangeCallbacks;
+    }
+    if (DEBUG) {
+        ALOGD("Sending pressure change notification to %zu callbacks", callbacks.size());
+    }
+    for (const sp<PressureChangeCallbackInterface>& callback : callbacks) {
+        callback->onPressureChanged(pressureLevel);
+    }
 }
 
 }  // namespace watchdog

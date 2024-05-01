@@ -23,6 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Reasons why {@link TaskViewPanel}'s {@link TaskViewPanel.State} changes.
+ * TODO(b/338091566): clean this class for better API structure.
  */
 public final class TaskViewPanelStateChangeReason {
     public static final String ON_ACTIVITY_RESTART_ATTEMPT = "ON_ACTIVITY_RESTART_ATTEMPT";
@@ -89,6 +90,13 @@ public final class TaskViewPanelStateChangeReason {
     public String toString() {
         return "{ reason=" + mReason + ", taskId=" + mTaskId + ", componentName=" + mComponentName
                 + "}";
+    }
+
+    /**
+     * Returns the {@link Reason}.
+     */
+    public String getReason() {
+        return mReason;
     }
 
     @StringDef({ON_ACTIVITY_RESTART_ATTEMPT,

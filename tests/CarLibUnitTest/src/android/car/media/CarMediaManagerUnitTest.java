@@ -24,15 +24,18 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.car.Car;
 import android.car.test.AbstractExpectableTestCase;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.platform.test.ravenwood.RavenwoodRule;
+
+import com.android.car.internal.ICarBase;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -44,10 +47,15 @@ import java.util.List;
 @RunWith(MockitoJUnitRunner.class)
 public final class CarMediaManagerUnitTest extends AbstractExpectableTestCase {
 
+    // Need to setup ravenwood rule to stub out Binder.clearCallingIdentity/restoreCallingIdentity
+    // on host.
+    @Rule
+    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder().build();
+
     private static final int TEST_MODE = CarMediaManager.MEDIA_SOURCE_MODE_BROWSE;
     private static final int TEST_USER_ID = 100;
     @Mock
-    private Car mCarMock;
+    private ICarBase mCarMock;
     @Mock
     private IBinder mBinderMock;
     @Mock

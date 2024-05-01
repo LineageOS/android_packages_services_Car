@@ -78,7 +78,7 @@
         <item>android.server.wm.app/android.server.wm.app.AssistantActivity</item>
         <item>android.server.wm.app/android.server.wm.app.AnimationTestActivity</item>
         <!-- Add activity to full screen since focus is lost when all the windows are removed. -->
-        <item>android.server.wm.cts/android.server.wm.window.LayoutTests$TestActivity</item>
+        <item>android.server.wm.cts/android.server.wm.animations.LayoutTests$TestActivity</item>
         <!-- Add activity to full screen due to some issue with focus. -->
         <item>android.server.wm.cts/android.server.wm.window.WindowUntrustedTouchTest$TestActivity</item>
         <!-- Add activity to full screen due to slow animations  -->
@@ -88,10 +88,10 @@
         <!-- START: Add activities to full screen since the panel open animation interferes with the
             screenshot which is taken in the test. This is likely due to the core transitions being
             completed right away but surface animations taking time to complete. -->
-        <item>android.server.wm.cts/android.server.wm.activity.ActivityTransitionTests$LauncherActivity</item>
-        <item>android.server.wm.cts/android.server.wm.activity.ActivityTransitionTests$EdgeExtensionActivity</item>
-        <item>android.server.wm.cts/android.server.wm.activity.ActivityTransitionTests$CustomWindowAnimationActivity</item>
-        <item>android.server.wm.cts/android.server.wm.activity.ActivityTransitionTests$TransitionActivity</item>
+        <item>android.server.wm.cts/android.server.wm.animations.ActivityTransitionTests$LauncherActivity</item>
+        <item>android.server.wm.cts/android.server.wm.animations.ActivityTransitionTests$EdgeExtensionActivity</item>
+        <item>android.server.wm.cts/android.server.wm.animations.ActivityTransitionTests$CustomWindowAnimationActivity</item>
+        <item>android.server.wm.cts/android.server.wm.animations.ActivityTransitionTests$TransitionActivity</item>
         <!-- END -->
     </string-array>
 

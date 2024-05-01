@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "MockPressureChangeCallback.h"
 #include "PressureMonitor.h"
 
 #include <android-base/file.h>
@@ -23,6 +24,8 @@
 
 #include <sys/epoll.h>
 
+#include <condition_variable>  // NOLINT(build/c++11)
+#include <mutex>               // NOLINT(build/c++11)
 #include <queue>
 
 namespace android {
@@ -35,8 +38,11 @@ using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFile;
 using ::testing::_;
 using ::testing::AllOf;
+using ::testing::AnyNumber;
+using ::testing::AtLeast;
 using ::testing::Eq;
 using ::testing::Field;
+using ::testing::InSequence;
 using ::testing::Matcher;
 using ::testing::MockFunction;
 using ::testing::NotNull;
@@ -47,6 +53,8 @@ using ::testing::UnorderedElementsAreArray;
 namespace {
 constexpr const char kSamplePsiData[] = "some avg10=0.00 avg60=0.00 avg300=0.00 total=51013728\n"
                                         "full avg10=0.00 avg60=0.00 avg300=0.00 total=25154435";
+constexpr std::chrono::milliseconds kTestPollingIntervalMillis = 100ms;
+constexpr std::chrono::milliseconds kMaxWaitForResponsesConsumed = 5s;
 
 enum PsiMonitorState {
     INITIALIZED = 0,
@@ -137,29 +145,50 @@ std::vector<Matcher<const PsiMonitorInfo&>> getPsiMonitorInfoMatchers(
 
 class PressureMonitorTest : public Test {
 protected:
+    enum EpollResponse {
+        EVENT_TRIGGERED = 0,
+        TIMEOUT,
+        EPOLL_ERROR,
+        EPOLL_HUP,
+    };
+
+    struct EpollResponseInfo {
+        EpollResponse response = EVENT_TRIGGERED;
+        PressureMonitor::PressureLevel highestPressureLevel = PressureMonitor::PRESSURE_LEVEL_NONE;
+    };
+
     void SetUp() override {
         mTempProcPressureDir = std::make_unique<TemporaryDir>();
         createPressureFiles();
-        mInitPsiMonitorMockFunc =
-                std::make_unique<MockFunction<int(enum psi_stall_type, int, int)>>();
+        mInitPsiMonitorMockFunc = std::make_unique<
+                MockFunction<int(enum psi_stall_type, int, int, enum psi_resource)>>();
         mRegisterPsiMonitorMockFunc = std::make_unique<MockFunction<int(int, int, void*)>>();
         mUnregisterPsiMonitorMockFunc = std::make_unique<MockFunction<int(int, int)>>();
         mDestroyPsiMonitorMockFunc = std::make_unique<MockFunction<void(int)>>();
-        mPressureMonitor = sp<PressureMonitor>::make(mTempProcPressureDir->path,
-                                                     mInitPsiMonitorMockFunc->AsStdFunction(),
-                                                     mRegisterPsiMonitorMockFunc->AsStdFunction(),
-                                                     mUnregisterPsiMonitorMockFunc->AsStdFunction(),
-                                                     mDestroyPsiMonitorMockFunc->AsStdFunction());
+        mEpollWaitMockFunc = std::make_unique<MockFunction<int(int, epoll_event*, int, int)>>();
+        mMockPressureChangeCallback = sp<MockPressureChangeCallback>::make();
+        mPressureMonitor =
+                sp<PressureMonitor>::make(mTempProcPressureDir->path, kTestPollingIntervalMillis,
+                                          mInitPsiMonitorMockFunc->AsStdFunction(),
+                                          mRegisterPsiMonitorMockFunc->AsStdFunction(),
+                                          mUnregisterPsiMonitorMockFunc->AsStdFunction(),
+                                          mDestroyPsiMonitorMockFunc->AsStdFunction(),
+                                          mEpollWaitMockFunc->AsStdFunction());
+        ASSERT_TRUE(
+                mPressureMonitor->registerPressureChangeCallback(mMockPressureChangeCallback).ok())
+                << "Failed to register pressure change callback";
         MockPsiApis();
     }
 
     void TearDown() override {
+        mPressureMonitor->unregisterPressureChangeCallback(mMockPressureChangeCallback);
         mPressureMonitor->terminate();
         mTempProcPressureDir.reset();
         mInitPsiMonitorMockFunc.reset();
         mRegisterPsiMonitorMockFunc.reset();
         mUnregisterPsiMonitorMockFunc.reset();
         mDestroyPsiMonitorMockFunc.reset();
+        mMockPressureChangeCallback.clear();
         mPressureMonitor.clear();
         mCachedPsiMonitorInfos.clear();
     }
@@ -172,9 +201,9 @@ protected:
 
     void MockPsiApis() {
         // Note: For failure case, mock individual calls and return error.
-        ON_CALL(*mInitPsiMonitorMockFunc, Call(_, _, _))
-                .WillByDefault([this](enum psi_stall_type stallType, int thresholdUs,
-                                      int windowUs) -> int {
+        ON_CALL(*mInitPsiMonitorMockFunc, Call(_, _, _, PSI_MEMORY))
+                .WillByDefault([this](enum psi_stall_type stallType, int thresholdUs, int windowUs,
+                                      [[maybe_unused]] enum psi_resource _) -> int {
                     mCachedPsiMonitorInfos.push_back(PsiMonitorInfo{
                             .kStallType = stallType,
                             .kThresholdUs = thresholdUs,
@@ -241,19 +270,92 @@ protected:
             // Do not erase the entry from mCachedPsiMonitorInfos. Otherwise, indexing based on fd
             // won't work for following entries.
         });
+
+        ON_CALL(*mEpollWaitMockFunc, Call(_, _, _, _))
+                .WillByDefault([this](int epollFd, epoll_event* events, int maxEvents,
+                                      int timeout) -> int {
+                    if (mEpollFds.find(epollFd) == mEpollFds.end()) {
+                        ALOGE("Failing epoll_wait: Invalid epoll fd received");
+                        return -1;
+                    }
+                    if (events == nullptr ||
+                        maxEvents != static_cast<int>(mCachedPsiMonitorInfos.size())) {
+                        ALOGE("Failing epoll_wait: Null events or incorrect maxEvents received");
+                        return -1;
+                    }
+                    if (mEpollResponses.empty()) {
+                        return 0;
+                    }
+                    EpollResponseInfo responseInfo = mEpollResponses.front();
+                    mEpollResponses.pop();
+
+                    if (responseInfo.response == EPOLL_ERROR ||
+                        responseInfo.response == EPOLL_HUP) {
+                        events[0].events =
+                                responseInfo.response == EPOLL_ERROR ? EPOLLERR : EPOLLHUP;
+                        std::unique_lock lock(mMutex);
+                        mPollCondition.notify_all();
+                        return 1;
+                    }
+
+                    if (responseInfo.response == TIMEOUT) {
+                        if (timeout == -1) {
+                            ALOGE("Failing epoll_wait: Cannot timeout on indefinite wait");
+                            std::unique_lock lock(mMutex);
+                            mPollCondition.notify_all();
+                            return -1;
+                        }
+                        std::this_thread::sleep_for(std::chrono::milliseconds(timeout));
+                    }
+                    int totalEvents = 0;
+                    for (const auto& info : mCachedPsiMonitorInfos) {
+                        if (info.epollData.u32 <= responseInfo.highestPressureLevel) {
+                            events[totalEvents].events = 0;
+                            events[totalEvents++].data.u32 = info.epollData.u32;
+                        }
+                    }
+                    std::unique_lock lock(mMutex);
+                    mPollCondition.notify_all();
+                    return totalEvents;
+                });
+    }
+
+    void queueResponses(const std::vector<EpollResponseInfo>& responses) {
+        std::unique_lock lock(mMutex);
+        for (const auto& response : responses) {
+            mEpollResponses.push(response);
+        }
+    }
+
+    void waitUntilResponsesConsumed() {
+        std::unique_lock lock(mMutex);
+        mPollCondition.wait_for(lock, kMaxWaitForResponsesConsumed,
+                                [this]() { return mEpollResponses.empty(); });
+        // Wait for additional polling interval duration before returning to ensure that any
+        // notification message posted at the end of the lopper queue is processed before the test
+        // ends.
+        std::this_thread::sleep_for(std::chrono::milliseconds(kTestPollingIntervalMillis));
     }
 
 protected:
     std::unique_ptr<TemporaryDir> mTempProcPressureDir;
-    std::unique_ptr<MockFunction<int(enum psi_stall_type, int, int)>> mInitPsiMonitorMockFunc;
+    std::unique_ptr<MockFunction<int(enum psi_stall_type, int, int, enum psi_resource)>>
+            mInitPsiMonitorMockFunc;
     std::unique_ptr<MockFunction<int(int, int, void*)>> mRegisterPsiMonitorMockFunc;
     std::unique_ptr<MockFunction<int(int, int)>> mUnregisterPsiMonitorMockFunc;
     std::unique_ptr<MockFunction<void(int)>> mDestroyPsiMonitorMockFunc;
+    std::unique_ptr<MockFunction<int(int, epoll_event*, int, int)>> mEpollWaitMockFunc;
+    sp<MockPressureChangeCallback> mMockPressureChangeCallback;
 
     sp<PressureMonitor> mPressureMonitor;
     std::unordered_set<int> mEpollFds;
 
     std::vector<PsiMonitorInfo> mCachedPsiMonitorInfos;
+
+private:
+    mutable std::mutex mMutex;
+    std::condition_variable mPollCondition GUARDED_BY(mMutex);
+    std::queue<EpollResponseInfo> mEpollResponses GUARDED_BY(mMutex);
 };
 
 TEST_F(PressureMonitorTest, TestInitializeAndTerminate) {
@@ -283,7 +385,8 @@ TEST_F(PressureMonitorTest, TestInitializeAndTerminate) {
 
 TEST_F(PressureMonitorTest, TestFailInitPsiMonitor) {
     ON_CALL(*mInitPsiMonitorMockFunc,
-            Call(kHighPsiStallLevel, kHighThresholdUs.count(), kPsiWindowSizeUs.count()))
+            Call(kHighPsiStallLevel, kHighThresholdUs.count(), kPsiWindowSizeUs.count(),
+                 PSI_MEMORY))
             .WillByDefault(Return(-1));
 
     auto result = mPressureMonitor->init();
@@ -305,6 +408,9 @@ TEST_F(PressureMonitorTest, TestFailInitPsiMonitor) {
 
     ASSERT_FALSE(mPressureMonitor->start().ok())
             << "Should fail to start pressure monitor when the initialization has failed";
+
+    ASSERT_FALSE(mPressureMonitor->isMonitorActive())
+            << "Pressure monitor should be inactive when the initialization has failed";
 }
 
 TEST_F(PressureMonitorTest, TestFailRegisterPsiMonitor) {
@@ -329,6 +435,126 @@ TEST_F(PressureMonitorTest, TestFailRegisterPsiMonitor) {
 
     ASSERT_FALSE(mPressureMonitor->start().ok())
             << "Should fail to start pressure monitor when the initialization has failed";
+
+    ASSERT_FALSE(mPressureMonitor->isMonitorActive())
+            << "Pressure monitor should be inactive when the initialization has failed";
+}
+
+TEST_F(PressureMonitorTest, TestFailToStartMonitorTwice) {
+    auto result = mPressureMonitor->init();
+    ASSERT_TRUE(result.ok()) << "Initialize pressure monitor. Result: " << result.error();
+
+    result = mPressureMonitor->start();
+    ASSERT_TRUE(result.ok()) << "Failed to start pressure monitor thread. Result: "
+                             << result.error();
+
+    ASSERT_TRUE(mPressureMonitor->isMonitorActive());
+
+    result = mPressureMonitor->start();
+    ASSERT_FALSE(result.ok()) << "Shouldn't start pressure monitor more than once. Result: "
+                              << result.error();
+}
+
+TEST_F(PressureMonitorTest, TestPressureEvents) {
+    auto result = mPressureMonitor->init();
+    ASSERT_TRUE(result.ok()) << "Initialize pressure monitor. Result: " << result.error();
+
+    {
+        InSequence sequence;
+        EXPECT_CALL(*mMockPressureChangeCallback,
+                    onPressureChanged(PressureMonitor::PRESSURE_LEVEL_MEDIUM))
+                .Times(1);
+        EXPECT_CALL(*mMockPressureChangeCallback,
+                    onPressureChanged(PressureMonitor::PRESSURE_LEVEL_LOW))
+                .Times(1);
+        EXPECT_CALL(*mMockPressureChangeCallback,
+                    onPressureChanged(PressureMonitor::PRESSURE_LEVEL_HIGH))
+                .Times(1);
+    }
+    EXPECT_CALL(*mMockPressureChangeCallback,
+                onPressureChanged(PressureMonitor::PRESSURE_LEVEL_NONE))
+            .Times(AnyNumber());
+
+    queueResponses(
+            {EpollResponseInfo{.response = EVENT_TRIGGERED,
+                               .highestPressureLevel = PressureMonitor::PRESSURE_LEVEL_MEDIUM},
+             EpollResponseInfo{.response = TIMEOUT,
+                               .highestPressureLevel = PressureMonitor::PRESSURE_LEVEL_LOW},
+             EpollResponseInfo{.response = EVENT_TRIGGERED,
+                               .highestPressureLevel = PressureMonitor::PRESSURE_LEVEL_HIGH}});
+
+    result = mPressureMonitor->start();
+    ASSERT_TRUE(result.ok()) << "Failed to start pressure monitor thread. Result: "
+                             << result.error();
+
+    waitUntilResponsesConsumed();
+
+    ASSERT_TRUE(mPressureMonitor->isMonitorActive());
+}
+
+TEST_F(PressureMonitorTest, TestHighPressureEvents) {
+    auto result = mPressureMonitor->init();
+    ASSERT_TRUE(result.ok()) << "Initialize pressure monitor. Result: " << result.error();
+
+    EXPECT_CALL(*mMockPressureChangeCallback,
+                onPressureChanged(PressureMonitor::PRESSURE_LEVEL_HIGH))
+            .Times(2);
+
+    EXPECT_CALL(*mMockPressureChangeCallback,
+                onPressureChanged(PressureMonitor::PRESSURE_LEVEL_NONE))
+            .Times(AtLeast(1));
+
+    queueResponses(
+            {EpollResponseInfo{.response = EVENT_TRIGGERED,
+                               .highestPressureLevel = PressureMonitor::PRESSURE_LEVEL_HIGH},
+
+             EpollResponseInfo{.response = TIMEOUT,
+                               .highestPressureLevel = PressureMonitor::PRESSURE_LEVEL_NONE},
+
+             EpollResponseInfo{.response = EVENT_TRIGGERED,
+                               .highestPressureLevel = PressureMonitor::PRESSURE_LEVEL_HIGH}});
+
+    result = mPressureMonitor->start();
+    ASSERT_TRUE(result.ok()) << "Failed to start pressure monitor thread. Result: "
+                             << result.error();
+
+    waitUntilResponsesConsumed();
+
+    ASSERT_TRUE(mPressureMonitor->isMonitorActive());
+}
+
+TEST_F(PressureMonitorTest, TestFailEpollError) {
+    auto result = mPressureMonitor->init();
+    ASSERT_TRUE(result.ok()) << "Initialize pressure monitor. Result: " << result.error();
+
+    EXPECT_CALL(*mMockPressureChangeCallback, onPressureChanged(_)).Times(0);
+
+    queueResponses({EpollResponseInfo{.response = EPOLL_ERROR}});
+
+    result = mPressureMonitor->start();
+    ASSERT_TRUE(result.ok()) << "Failed to start pressure monitor thread. Result: "
+                             << result.error();
+
+    waitUntilResponsesConsumed();
+
+    ASSERT_FALSE(mPressureMonitor->isMonitorActive()) << "Monitor should stop on epoll error";
+}
+
+TEST_F(PressureMonitorTest, TestFailEpollHup) {
+    auto result = mPressureMonitor->init();
+    ASSERT_TRUE(result.ok()) << "Initialize pressure monitor. Result: " << result.error();
+
+    EXPECT_CALL(*mMockPressureChangeCallback, onPressureChanged(_)).Times(0);
+
+    queueResponses({EpollResponseInfo{.response = EPOLL_HUP}});
+
+    result = mPressureMonitor->start();
+    ASSERT_TRUE(result.ok()) << "Failed to start pressure monitor thread. Result: "
+                             << result.error();
+
+    waitUntilResponsesConsumed();
+
+    ASSERT_FALSE(mPressureMonitor->isMonitorActive()) << "Monitor should stop on epoll hang up";
 }
 
 }  // namespace watchdog

@@ -35,7 +35,6 @@
 
         <activity
             android:name=".CarDevelopmentSettingsDashboardActivity"
-            android:enabled="false"
             android:exported="true"
             android:icon="@drawable/ic_settings_development"
             android:label="@string/development_settings_title"
@@ -1102,6 +1101,15 @@
 
         <activity
             android:name="com.android.settings.Settings$ColorAndMotionActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$ColorContrastActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
@@ -2848,6 +2856,15 @@
 
         <activity-alias
             android:name="com.android.settings.TextReadingForSetupWizardActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity-alias>
+
+        <activity-alias
+            android:name="com.android.settings.BackupTasksActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"

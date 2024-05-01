@@ -68,7 +68,8 @@ final class RemoteCarTaskViewControllerWrapperImpl extends TaskViewControllerWra
 
                                 @Override
                                 public void onDisconnected(
-                                        CarTaskViewController carTaskViewController) {}
+                                        CarTaskViewController carTaskViewController) {
+                                }
                             });
                 });
     }
@@ -113,6 +114,7 @@ final class RemoteCarTaskViewControllerWrapperImpl extends TaskViewControllerWra
 
     @Override
     public void setWindowBounds(Rect taskViewBounds, int taskViewId) {
+        logIfDebuggable("Set window bounds " + taskViewId + ", to bounds" + taskViewBounds);
         RemoteCarTaskView targetTaskView = (RemoteCarTaskView) getTaskView(taskViewId);
         if (targetTaskView == null) {
             return;
@@ -130,6 +132,8 @@ final class RemoteCarTaskViewControllerWrapperImpl extends TaskViewControllerWra
 
     @Override
     void setObscuredTouchRegion(Region obscuredTouchRegion, int taskViewId) {
+        logIfDebuggable(
+                "Set ObscuredTouchRegion " + taskViewId + ", " + obscuredTouchRegion.getBounds());
         RemoteCarTaskView targetTaskView = (RemoteCarTaskView) getTaskView(taskViewId);
         if (targetTaskView == null) {
             return;
@@ -139,7 +143,7 @@ final class RemoteCarTaskViewControllerWrapperImpl extends TaskViewControllerWra
 
     @Override
     void showEmbeddedTasks(int[] taskViewIds) {
-        for (int key: taskViewIds) {
+        for (int key : taskViewIds) {
             SurfaceView surfaceView = mTaskViewsMap.get(key);
             if (surfaceView instanceof RemoteCarTaskView remoteCarTaskView) {
                 logIfDebuggable("showEmbeddedTasks, TaskView key=" + key);
