@@ -20,6 +20,7 @@ import static android.car.media.CarMediaIntents.EXTRA_MEDIA_COMPONENT;
 
 import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.updateActionsWithPlaybackState;
 import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.updatePlayButtonWithPlaybackState;
+import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.updateTextViewAndVisibility;
 
 import android.car.media.CarMediaIntents;
 import android.content.Intent;
@@ -27,6 +28,7 @@ import android.content.res.ColorStateList;
 import android.view.View;
 
 import com.android.car.carlauncher.homescreen.audio.media.MediaIntentRouter;
+import com.android.car.media.common.MediaItemMetadata;
 import com.android.car.media.common.R;
 import com.android.car.media.common.playback.PlaybackProgress;
 import com.android.car.media.common.playback.PlaybackViewModel;
@@ -64,6 +66,15 @@ public class ControlBarMediaController extends PlaybackCardController {
             }
             mMediaIntentRouter.handleMediaIntent(intent);
         });
+    }
+
+    @Override
+    protected void updateMetadata(MediaItemMetadata metadata) {
+        super.updateMetadata(metadata);
+        if (metadata == null) {
+            updateTextViewAndVisibility(mTitle,
+                    mView.getContext().getResources().getString(R.string.default_media_song_title));
+        }
     }
 
     // TODO b/336857625: Possibly move SeekBar hide logic to parent class
