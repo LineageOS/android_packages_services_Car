@@ -47,7 +47,9 @@ import android.app.ActivityManager;
 import android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate;
 import android.car.Car;
 import android.car.ICarResultReceiver;
+import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.app.VoiceInteractionHelper;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.feature.FakeFeatureFlagsImpl;
 import android.car.feature.Flags;
 import android.car.hardware.power.CarPowerManager;
@@ -182,6 +184,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private static final String POWER_POLICY_GROUP_VALID = "policy_group_id_valid";
     private static final String POWER_POLICY_GROUP_INVALID = "policy_group_id_invalid";
     private static final String POWER_POLICY_GROUP_1 = "policy_group_1";
+    private static final String PROCESS_TEST_NAME_1 = "test.process.name";
+    private static final String PROCESS_TEST_NAME_2 = "test.process.name2";
 
     public static final int CUSTOM_COMPONENT_1000 = 1000;
     public static final int CUSTOM_COMPONENT_1001 = 1001;
@@ -245,6 +249,12 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private WifiManager mWifiManager;
     @Mock
     private TetheringManager mTetheringManager;
+    @Mock
+    private ActivityManager mMockActivityManager;
+    @Mock
+    private ActivityManager.RunningAppProcessInfo mRunningProcess1;
+    @Mock
+    private ActivityManager.RunningAppProcessInfo mRunningProcess2;
 
     public CarPowerManagementServiceUnitTest() throws Exception {
         super(CarPowerManagementService.TAG);
@@ -254,6 +264,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session
             .spyStatic(ActivityManager.class)
+            .spyStatic(ActivityManagerHelper.class)
             .spyStatic(VoiceInteractionHelper.class);
     }
 
@@ -322,6 +333,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Test
     public void testCanHibernate() throws Exception {
+        setStopProcessBeforeSuspendToDisk(false);
         mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
         mPowerSignalListener.addEventListener(PowerHalService.SET_HIBERNATION_ENTRY);
         mPowerSignalListener.addEventListener(PowerHalService.SET_HIBERNATION_EXIT);
@@ -345,6 +357,166 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Test
     public void testHibernateImmediately() throws Exception {
+        setStopProcessBeforeSuspendToDisk(true);
+        when(mResources.getString(R.string.config_suspend_to_disk_memory_savings))
+                .thenReturn("none");
+        hibernateImmediately();
+    }
+
+    @Test
+    public void testHibernateFreeMemory() throws Exception {
+        when(mResources.getString(R.string.config_suspend_to_disk_memory_savings))
+                .thenReturn("high");
+        doReturn(List.of(mRunningProcess1)).when(
+                () -> ActivityManagerHelper.getRunningAppProcesses());
+        setStopProcessBeforeSuspendToDisk(true);
+        mRunningProcess1.pkgList = new String[]{PROCESS_TEST_NAME_1};
+        mRunningProcess1.importance = ActivityManager.RunningAppProcessInfo
+                .IMPORTANCE_FOREGROUND_SERVICE;
+
+        hibernateImmediately();
+
+        verify(mMockActivityManager).forceStopPackageAsUser(PROCESS_TEST_NAME_1,
+                UserManagerHelper.USER_ALL);
+    }
+
+    @Test
+    public void testHibernateFreeMemory_multipleProcesses() throws Exception {
+        when(mResources.getString(R.string.config_suspend_to_disk_memory_savings))
+                .thenReturn("high");
+        doReturn(List.of(mRunningProcess1, mRunningProcess2)).when(
+                () -> ActivityManagerHelper.getRunningAppProcesses());
+        setStopProcessBeforeSuspendToDisk(true);
+        mRunningProcess1.pkgList = new String[]{PROCESS_TEST_NAME_1};
+        mRunningProcess1.importance = ActivityManager.RunningAppProcessInfo
+                .IMPORTANCE_FOREGROUND_SERVICE;
+        mRunningProcess1.uid = 1;
+        mRunningProcess2.pkgList = new String[]{PROCESS_TEST_NAME_2};
+        mRunningProcess2.importance = ActivityManager.RunningAppProcessInfo
+                .IMPORTANCE_FOREGROUND_SERVICE;
+        mRunningProcess2.uid = 2;
+
+        hibernateImmediately();
+
+        verify(mMockActivityManager).forceStopPackageAsUser(PROCESS_TEST_NAME_1,
+                UserManagerHelper.USER_ALL);
+        verify(mMockActivityManager).forceStopPackageAsUser(PROCESS_TEST_NAME_2,
+                UserManagerHelper.USER_ALL);
+    }
+
+    @Test
+    public void testHibernateFreeMemory_multipleProcessesWithOneProcessTooLow()
+            throws Exception {
+        when(mResources.getString(R.string.config_suspend_to_disk_memory_savings))
+                .thenReturn("medium");
+        doReturn(List.of(mRunningProcess1, mRunningProcess2)).when(
+                () -> ActivityManagerHelper.getRunningAppProcesses());
+        setStopProcessBeforeSuspendToDisk(true);
+        mRunningProcess1.pkgList = new String[]{PROCESS_TEST_NAME_1};
+        mRunningProcess1.importance = ActivityManager.RunningAppProcessInfo
+                .IMPORTANCE_FOREGROUND_SERVICE;
+        mRunningProcess1.uid = 1;
+        mRunningProcess2.pkgList = new String[]{PROCESS_TEST_NAME_2};
+        mRunningProcess2.importance = ActivityManager.RunningAppProcessInfo
+                .IMPORTANCE_SERVICE;
+        mRunningProcess2.uid = 2;
+
+        hibernateImmediately();
+
+        verify(mMockActivityManager, never()).forceStopPackageAsUser(PROCESS_TEST_NAME_1,
+                UserManagerHelper.USER_ALL);
+        verify(mMockActivityManager).forceStopPackageAsUser(PROCESS_TEST_NAME_2,
+                UserManagerHelper.USER_ALL);
+    }
+
+    @Test
+    public void testHibernateFreeMemory_multipleProcessesWithOneProcessNotInAllowList()
+            throws Exception {
+        when(mResources.getString(R.string.config_suspend_to_disk_memory_savings))
+                .thenReturn("high");
+        when(mResources.getStringArray(R.array.config_packages_not_to_stop_during_suspend))
+                .thenReturn(new String[] {PROCESS_TEST_NAME_1});
+        doReturn(List.of(mRunningProcess1, mRunningProcess2)).when(
+                () -> ActivityManagerHelper.getRunningAppProcesses());
+        setStopProcessBeforeSuspendToDisk(true);
+        mRunningProcess1.pkgList = new String[]{PROCESS_TEST_NAME_1};
+        mRunningProcess1.importance = ActivityManager.RunningAppProcessInfo
+                .IMPORTANCE_FOREGROUND_SERVICE;
+        mRunningProcess1.processName = PROCESS_TEST_NAME_1;
+        mRunningProcess1.uid = 1;
+        mRunningProcess2.pkgList = new String[]{PROCESS_TEST_NAME_2};
+        mRunningProcess2.processName = PROCESS_TEST_NAME_2;
+        mRunningProcess2.importance = ActivityManager.RunningAppProcessInfo
+                .IMPORTANCE_SERVICE;
+        mRunningProcess2.uid = 2;
+
+        hibernateImmediately();
+
+        verify(mMockActivityManager, never()).forceStopPackageAsUser(PROCESS_TEST_NAME_1,
+                UserManagerHelper.USER_ALL);
+        verify(mMockActivityManager).forceStopPackageAsUser(PROCESS_TEST_NAME_2,
+                UserManagerHelper.USER_ALL);
+    }
+
+    @Test
+    public void testHibernateFreeMemory_multipleProcessesSameUid()
+            throws Exception {
+        when(mResources.getString(R.string.config_suspend_to_disk_memory_savings))
+                .thenReturn("high");
+        when(mResources.getStringArray(R.array.config_packages_not_to_stop_during_suspend))
+                .thenReturn(new String[] {PROCESS_TEST_NAME_1});
+        doReturn(List.of(mRunningProcess1, mRunningProcess2)).when(
+                () -> ActivityManagerHelper.getRunningAppProcesses());
+        setStopProcessBeforeSuspendToDisk(true);
+        mRunningProcess1.pkgList = new String[]{PROCESS_TEST_NAME_1};
+        mRunningProcess1.importance = ActivityManager.RunningAppProcessInfo
+                .IMPORTANCE_FOREGROUND_SERVICE;
+        mRunningProcess1.processName = PROCESS_TEST_NAME_1;
+        mRunningProcess1.uid = 42;
+        mRunningProcess2.pkgList = new String[]{PROCESS_TEST_NAME_2};
+        mRunningProcess2.processName = PROCESS_TEST_NAME_2;
+        mRunningProcess2.importance = ActivityManager.RunningAppProcessInfo
+                .IMPORTANCE_SERVICE;
+        mRunningProcess2.uid = 42;
+
+        hibernateImmediately();
+
+        verify(mMockActivityManager, never()).forceStopPackageAsUser(PROCESS_TEST_NAME_1,
+                UserManagerHelper.USER_ALL);
+        verify(mMockActivityManager, never()).forceStopPackageAsUser(PROCESS_TEST_NAME_2,
+                UserManagerHelper.USER_ALL);
+    }
+
+    @Test
+    public void testHibernateFreeMemory_multipleProcessesPersistentProcess()
+            throws Exception {
+        when(mResources.getString(R.string.config_suspend_to_disk_memory_savings))
+                .thenReturn("high");
+        doReturn(List.of(mRunningProcess1, mRunningProcess2)).when(
+                () -> ActivityManagerHelper.getRunningAppProcesses());
+        setStopProcessBeforeSuspendToDisk(true);
+        mRunningProcess1.pkgList = new String[]{PROCESS_TEST_NAME_1};
+        mRunningProcess1.importance = ActivityManager.RunningAppProcessInfo
+                .IMPORTANCE_FOREGROUND_SERVICE;
+        mRunningProcess1.processName = PROCESS_TEST_NAME_1;
+        mRunningProcess1.flags = ActivityManagerHelper.PROCESS_INFO_PERSISTENT_FLAG;
+        mRunningProcess1.uid = 42;
+        mRunningProcess2.pkgList = new String[]{PROCESS_TEST_NAME_2};
+        mRunningProcess2.processName = PROCESS_TEST_NAME_2;
+        mRunningProcess2.importance = ActivityManager.RunningAppProcessInfo
+                .IMPORTANCE_SERVICE;
+        mRunningProcess2.uid = 42;
+
+        hibernateImmediately();
+
+        verify(mMockActivityManager, never()).forceStopPackageAsUser(PROCESS_TEST_NAME_1,
+                UserManagerHelper.USER_ALL);
+        verify(mMockActivityManager, never()).forceStopPackageAsUser(PROCESS_TEST_NAME_2,
+                UserManagerHelper.USER_ALL);
+    }
+
+
+    private void hibernateImmediately() throws Exception {
         mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
         mPowerSignalListener.addEventListener(PowerHalService.SET_HIBERNATION_ENTRY);
         mPowerSignalListener.addEventListener(PowerHalService.SET_HIBERNATION_EXIT);
@@ -2399,6 +2571,10 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mFeatureFlags.setFlag(Flags.FLAG_CAR_POWER_CANCEL_SHELL_COMMAND, flagValue);
     }
 
+    private void setStopProcessBeforeSuspendToDisk(boolean flagValue) {
+        mFeatureFlags.setFlag(Flags.FLAG_STOP_PROCESS_BEFORE_SUSPEND_TO_DISK, flagValue);
+    }
+
     /**
      * Helper method to create mService and initialize a test case
      */
@@ -2408,6 +2584,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         // to timeout. Also, we don't want to actually change Wifi state.
         doReturn(mWifiManager).when(mContext).getSystemService(WifiManager.class);
         doReturn(mTetheringManager).when(mContext).getSystemService(TetheringManager.class);
+        doReturn(mMockActivityManager).when(mContext).getSystemService(ActivityManager.class);
         when(mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs))
                 .thenReturn(900);
         when(mResources.getInteger(R.integer.config_maxSuspendWaitDuration))

@@ -36,9 +36,11 @@ import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.ICarResultReceiver;
 import android.car.builtin.app.ActivityManagerHelper;
+import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.HandlerHelper;
 import android.car.builtin.os.ServiceManagerHelper;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
 import android.car.feature.FeatureFlags;
@@ -91,6 +93,7 @@ import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarStatsLogHelper;
+import com.android.car.ICarImpl;
 import com.android.car.R;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.BootupReason;
@@ -3824,6 +3827,16 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         return getCompletionWaitTimeoutConfig(R.integer.config_postShutdownEnterTimeout);
     }
 
+    private int getS2dImportanceLevel() {
+        return convertMemorySuspendConfigToValue(mContext.getResources().getString(
+                R.string.config_suspend_to_disk_memory_savings));
+    }
+
+    private ArraySet<String> getS2dAllowList() {
+        return new ArraySet<>(mContext.getResources().getStringArray(
+                R.array.config_packages_not_to_stop_during_suspend));
+    }
+
     private int getCompletionWaitTimeoutConfig(int resourceId) {
         int timeout = mContext.getResources().getInteger(resourceId);
         return timeout >= 0 ? timeout : DEFAULT_COMPLETION_WAIT_TIMEOUT;
@@ -3859,8 +3872,44 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     /**
      * Utility method to help with memory freeing before entering Suspend-To-Disk
      */
-    static void freeMemory() {
+    private void freeMemory() {
         ActivityManagerHelper.killAllBackgroundProcesses();
+        if (!mFeatureFlags.stopProcessBeforeSuspendToDisk()) {
+            return;
+        }
+        List<ActivityManager.RunningAppProcessInfo> allRunningAppProcesses =
+                ActivityManagerHelper.getRunningAppProcesses();
+        ArraySet<Integer> safeUids = new ArraySet<>();
+        ArraySet<String> suspendToDiskAllowList = getS2dAllowList();
+        int suspendToDiskImportanceLevel = getS2dImportanceLevel();
+        for (int i = 0; i < allRunningAppProcesses.size(); i++) {
+            ActivityManager.RunningAppProcessInfo info = allRunningAppProcesses.get(i);
+            boolean isCarServiceOrMyPid = ICarImpl.class.getPackage().getName()
+                    .equals(info.processName)
+                    || info.pid == android.os.Process.myPid();
+            boolean isSystemOrShellUid = info.uid == Process.SYSTEM_UID
+                    || info.uid == Process.SHELL_UID;
+            boolean isProcessPersistent = (ActivityManagerHelper
+                    .getFlagsForRunningAppProcessInfo(info)
+                    & ActivityManagerHelper.PROCESS_INFO_PERSISTENT_FLAG) != 0;
+            boolean isWithinConfig = suspendToDiskImportanceLevel > info.importance;
+            boolean isProcessAllowListed = suspendToDiskAllowList.contains(info.processName);
+            if (isCarServiceOrMyPid || isSystemOrShellUid || isProcessPersistent
+                    || isWithinConfig || isProcessAllowListed) {
+                safeUids.add(info.uid);
+            }
+        }
+
+        for (int i = 0; i < allRunningAppProcesses.size(); i++) {
+            ActivityManager.RunningAppProcessInfo info = allRunningAppProcesses.get(i);
+            if (!safeUids.contains(info.uid)) {
+                for (int j = 0; j < info.pkgList.length; j++) {
+                    String pkgToStop = info.pkgList[j];
+                    PackageManagerHelper.forceStopPackageAsUser(mContext, pkgToStop,
+                            UserManagerHelper.USER_ALL);
+                }
+            }
+        }
     }
 
     /**
@@ -3873,5 +3922,15 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             int displayId = display.getDisplayId();
             consumer.accept(displayId);
         }
+    }
+
+    private int convertMemorySuspendConfigToValue(String configValue) {
+        return switch (configValue) {
+            case "low" -> ActivityManager.RunningAppProcessInfo.IMPORTANCE_CACHED;
+            case "medium" -> ActivityManager.RunningAppProcessInfo.IMPORTANCE_SERVICE;
+            case "high" -> ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND_SERVICE;
+            // none will fallthrough
+            default -> ActivityManager.RunningAppProcessInfo.IMPORTANCE_GONE;
+        };
     }
 }
