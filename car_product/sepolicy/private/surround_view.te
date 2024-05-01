@@ -1,8 +1,9 @@
-userdebug_or_eng(`
-  # Domain to run Surround View App (com.android.surroundview)
-  type surroundview_app, domain;
-  app_domain(surroundview_app)
+# Domain to run Surround View App (com.android.surroundview)
+# Defined outside `userdebug_or_eng` to ensure domain exists for seapp_contexts reference.
+type surroundview_app, domain;
+app_domain(surroundview_app)
 
+userdebug_or_eng(`
   # Allow use of EVS service
   hal_client_domain(surroundview_app, hal_evs)
   hal_client_domain(surroundview_app, hal_vehicle)
