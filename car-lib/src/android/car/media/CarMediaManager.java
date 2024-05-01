@@ -20,13 +20,13 @@ import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
-import android.car.Car;
 import android.car.CarManagerBase;
 import android.content.ComponentName;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.android.car.internal.ICarBase;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.annotation.Retention;
@@ -65,7 +65,7 @@ public final class CarMediaManager extends CarManagerBase {
      * Should not be obtained directly by clients, use {@link Car#getCarManager(String)} instead.
      * @hide
      */
-    public CarMediaManager(Car car, IBinder service) {
+    public CarMediaManager(ICarBase car, IBinder service) {
         super(car);
         mService = ICarMedia.Stub.asInterface(service);
     }

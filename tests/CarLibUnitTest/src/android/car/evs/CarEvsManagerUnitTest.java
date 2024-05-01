@@ -16,94 +16,55 @@
 
 package android.car.evs;
 
-import static android.car.evs.CarEvsManager.ERROR_BUSY;
 import static android.car.evs.CarEvsManager.ERROR_NONE;
 import static android.car.evs.CarEvsManager.ERROR_UNAVAILABLE;
-import static android.car.evs.CarEvsManager.SERVICE_STATE_ACTIVE;
-import static android.car.evs.CarEvsManager.SERVICE_STATE_INACTIVE;
-import static android.car.evs.CarEvsManager.SERVICE_STATE_REQUESTED;
-import static android.car.evs.CarEvsManager.SERVICE_STATE_UNAVAILABLE;
-import static android.car.evs.CarEvsManager.STREAM_EVENT_STREAM_STOPPED;
-
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doNothing;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
+import static android.car.feature.Flags.FLAG_CAR_EVS_STREAM_MANAGEMENT;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
-import static org.mockito.AdditionalMatchers.or;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyFloat;
 import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.car.evs.CarEvsBufferDescriptor;
-import android.car.evs.CarEvsManager;
-import android.car.evs.CarEvsManager.CarEvsError;
-import android.car.evs.CarEvsManager.CarEvsServiceState;
-import android.car.evs.CarEvsManager.CarEvsServiceType;
 import android.car.evs.CarEvsManager.CarEvsStatusListener;
 import android.car.evs.CarEvsManager.CarEvsStreamCallback;
-import android.car.evs.CarEvsManager.CarEvsStreamEvent;
-import android.car.evs.CarEvsStatus;
-import android.car.evs.ICarEvsService;
-import android.car.evs.ICarEvsStatusListener;
-import android.car.evs.ICarEvsStreamCallback;
-import android.car.feature.Flags;
-import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.car.Car;
-import android.content.Context;
+import android.car.feature.FakeFeatureFlagsImpl;
 import android.hardware.HardwareBuffer;
 import android.os.IBinder;
-import android.os.Process;
 import android.os.RemoteException;
-import android.os.ServiceManager;
-import android.platform.test.flag.junit.SetFlagsRule;
-import android.util.Log;
+import android.platform.test.annotations.IgnoreUnderRavenwood;
+import android.platform.test.ravenwood.RavenwoodRule;
 
-import com.android.car.evs.CarEvsService;
+import com.android.car.internal.ICarBase;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.runner.RunWith;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.MockitoSession;
-import org.mockito.quality.Strictness;
-
-import java.util.concurrent.Executor;
+import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * <p>This class contains unit tests for the {@link CarEvsManager}.
  */
 @RunWith(MockitoJUnitRunner.class)
-public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase {
+public final class CarEvsManagerUnitTest {
 
-    private static final String TAG = CarEvsManagerUnitTest.class.getSimpleName();
+    @Rule
+    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder().build();
 
-    private static final int SERVICE_TYPES[] = {
+    private static final int[] SERVICE_TYPES = {
         CarEvsManager.SERVICE_TYPE_REARVIEW, CarEvsManager.SERVICE_TYPE_SURROUNDVIEW,
         CarEvsManager.SERVICE_TYPE_FRONTVIEW, CarEvsManager.SERVICE_TYPE_LEFTVIEW,
         CarEvsManager.SERVICE_TYPE_RIGHTVIEW, CarEvsManager.SERVICE_TYPE_DRIVERVIEW,
@@ -111,7 +72,7 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
         CarEvsManager.SERVICE_TYPE_REAR_PASSENGERSVIEW,
     };
 
-    @Mock private Car mMockCar;
+    @Mock private ICarBase mMockCar;
     @Mock private CarEvsStatusListener mMockCarEvsStatusListener;
     @Mock private CarEvsStreamCallback mMockCarEvsStreamCallback;
     @Mock private IBinder mMockBinder;
@@ -121,20 +82,15 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
     @Captor private ArgumentCaptor<ICarEvsStreamCallback> mCarEvsStreamCallbackCaptor;
     @Captor private ArgumentCaptor<CarEvsStatus> mCarEvsStatusCaptor;
 
-    @Rule
-    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
-
+    private final FakeFeatureFlagsImpl mFakeFeatureFlags = new FakeFeatureFlagsImpl();
     private CarEvsManager mManager;
-
-    public CarEvsManagerUnitTest() {
-        super(TAG);
-    }
 
     @Before
     public void setUp() throws Exception {
+        mFakeFeatureFlags.setFlag(FLAG_CAR_EVS_STREAM_MANAGEMENT, true);
         when(mMockBinder.queryLocalInterface(anyString())).thenReturn(mMockICarEvsService);
 
-        mManager = new CarEvsManager(mMockCar, mMockBinder);
+        mManager = new CarEvsManager(mMockCar, mMockBinder, mFakeFeatureFlags);
         assertThat(mManager).isNotNull();
     }
 
@@ -146,9 +102,9 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
     @Test
     public void testSetStatusListenerWithInvalidArguments() {
         assertThrows(NullPointerException.class,
-            () -> mManager.setStatusListener(/* executor= */ null, /* listener= */ null));
+                () -> mManager.setStatusListener(/* executor= */ null, /* listener= */ null));
         assertThrows(NullPointerException.class,
-            () -> mManager.setStatusListener(/* executor= */ null, mMockCarEvsStatusListener));
+                () -> mManager.setStatusListener(/* executor= */ null, mMockCarEvsStatusListener));
     }
 
     @Test
@@ -217,6 +173,7 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
     }
 
     @Test
+    @IgnoreUnderRavenwood(blockedBy = HardwareBuffer.class)
     public void testStartVideoStreamWithoutToken() throws Exception {
         when(mMockICarEvsService
                 .startVideoStream(anyInt(), any(), mCarEvsStreamCallbackCaptor.capture()))
@@ -291,7 +248,6 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
 
     @Test
     public void testGetCurrentStatus() throws Exception {
-        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_EVS_STREAM_MANAGEMENT);
         when(mMockICarEvsService.getCurrentStatus(anyInt()))
                 .thenReturn(new CarEvsStatus(CarEvsManager.SERVICE_TYPE_REARVIEW,
                                              CarEvsManager.SERVICE_STATE_INACTIVE));
@@ -305,7 +261,6 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
 
     @Test
     public void testGetCurrentStatusWithType() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_EVS_STREAM_MANAGEMENT);
         for (int type : SERVICE_TYPES) {
             when(mMockICarEvsService.getCurrentStatus(anyInt()))
                     .thenReturn(new CarEvsStatus(type, CarEvsManager.SERVICE_STATE_INACTIVE));
@@ -320,7 +275,6 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
 
     @Test
     public void testGetCurrentStatusRemoteExceptionThrown() throws Exception {
-        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_EVS_STREAM_MANAGEMENT);
         when(mMockICarEvsService.getCurrentStatus(anyInt())).thenThrow(new RemoteException());
 
         CarEvsStatus currentStatus = mManager.getCurrentStatus();
@@ -331,7 +285,6 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
 
     @Test
     public void testGetCurrentStatusWithTypeRemoteExceptionThrown() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_EVS_STREAM_MANAGEMENT);
         when(mMockICarEvsService.getCurrentStatus(anyInt())).thenThrow(new RemoteException());
 
         for (int type : SERVICE_TYPES) {
@@ -372,6 +325,7 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
     }
 
     @Test
+    @IgnoreUnderRavenwood(blockedBy = HardwareBuffer.class)
     public void testReturnFrameBuffer() throws Exception {
         int bufferId = 1;
         HardwareBuffer hwbuffer =
@@ -387,6 +341,7 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
     }
 
     @Test
+    @IgnoreUnderRavenwood(blockedBy = HardwareBuffer.class)
     public void testReturnFrameBufferRemoteExceptionThrown() throws Exception {
         doThrow(new RemoteException()).when(mMockICarEvsService).returnFrameBuffer(any());
         int bufferId = 1;
@@ -459,6 +414,7 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
     }
 
     @Test
+    @IgnoreUnderRavenwood(blockedBy = HardwareBuffer.class)
     public void testCarEvsBufferDescriptor() {
         CarEvsBufferDescriptor[] arr = CarEvsBufferDescriptor.CREATOR.newArray(3);
         assertThat(arr.length).isEqualTo(3);
