@@ -67,6 +67,15 @@ public:
         PRESSURE_LEVEL_COUNT,
     };
 
+    // Clients implement and register this callback to get notified on pressure changes.
+    class PressureChangeCallbackInterface : virtual public android::RefBase {
+    public:
+        virtual ~PressureChangeCallbackInterface() {}
+
+        // Called when the memory pressure level is changed.
+        virtual void onPressureChanged(PressureLevel pressureLevel) = 0;
+    };
+
     PressureMonitor() :
           PressureMonitor(kDefaultProcPressureDirPath, kPollingIntervalMillis, &init_psi_monitor,
                           &register_psi_monitor, &unregister_psi_monitor, &destroy_psi_monitor,
@@ -112,10 +121,21 @@ public:
     // pressure changes.
     android::base::Result<void> start();
 
+    // Registers a callback for pressure change notifications.
+    android::base::Result<void> registerPressureChangeCallback(
+            android::sp<PressureChangeCallbackInterface> callback);
+
+    // Unregisters a previously registered pressure change callback.
+    void unregisterPressureChangeCallback(android::sp<PressureChangeCallbackInterface> callback);
+
     // Returns true when the pressure monitor thread is active.
     bool isMonitorActive() { return mIsMonitorActive; }
 
 private:
+    template <typename T>
+    struct SpHash {
+        size_t operator()(const sp<T>& k) const { return std::hash<T*>()(k.get()); }
+    };
     // Looper messages to post / handle pressure monitor events.
     enum LooperMessage {
         MONITOR_PRESSURE = 0,
@@ -192,6 +212,11 @@ private:
 
     // Cache of supported pressure level info.
     std::vector<PressureLevelInfo> mPressureLevels GUARDED_BY(mMutex);
+
+    // Callbacks to notify when the pressure level changes.
+    std::unordered_set<android::sp<PressureChangeCallbackInterface>,
+                       SpHash<PressureChangeCallbackInterface>>
+            mPressureChangeCallbacks GUARDED_BY(mMutex);
 };
 
 }  // namespace watchdog

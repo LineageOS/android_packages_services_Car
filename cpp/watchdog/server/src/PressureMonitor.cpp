@@ -207,6 +207,27 @@ Result<void> PressureMonitor::start() {
     return {};
 }
 
+Result<void> PressureMonitor::registerPressureChangeCallback(
+        sp<PressureChangeCallbackInterface> callback) {
+    Mutex::Autolock lock(mMutex);
+    if (mPressureChangeCallbacks.find(callback) != mPressureChangeCallbacks.end()) {
+        return Error() << "Callback is already registered";
+    }
+    mPressureChangeCallbacks.insert(callback);
+    return {};
+}
+
+void PressureMonitor::unregisterPressureChangeCallback(
+        sp<PressureChangeCallbackInterface> callback) {
+    Mutex::Autolock lock(mMutex);
+    const auto& it = mPressureChangeCallbacks.find(callback);
+    if (it == mPressureChangeCallbacks.end()) {
+        ALOGE("Pressure change callback is not registered. Skipping unregister request");
+        return;
+    }
+    mPressureChangeCallbacks.erase(it);
+}
+
 void PressureMonitor::handleMessage(const Message& message) {
     Result<void> result;
     switch (message.what) {
@@ -315,7 +336,20 @@ Result<PressureMonitor::PressureLevel> PressureMonitor::waitForLatestPressureLev
 }
 
 void PressureMonitor::notifyPressureChange() {
-    // TODO(b/335514378): Notify pressure change to clients.
+    PressureLevel pressureLevel;
+    std::unordered_set<sp<PressureChangeCallbackInterface>, SpHash<PressureChangeCallbackInterface>>
+            callbacks;
+    {
+        Mutex::Autolock lock(mMutex);
+        pressureLevel = mLatestPressureLevel;
+        callbacks = mPressureChangeCallbacks;
+    }
+    if (DEBUG) {
+        ALOGD("Sending pressure change notification to %zu callbacks", callbacks.size());
+    }
+    for (const sp<PressureChangeCallbackInterface>& callback : callbacks) {
+        callback->onPressureChanged(pressureLevel);
+    }
 }
 
 }  // namespace watchdog
