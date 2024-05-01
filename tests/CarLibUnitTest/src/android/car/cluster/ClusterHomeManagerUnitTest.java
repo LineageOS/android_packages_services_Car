@@ -34,18 +34,22 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.app.Activity;
-import android.car.Car;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.platform.test.annotations.DisabledOnRavenwood;
+import android.platform.test.ravenwood.RavenwoodRule;
 import android.view.SurfaceControl;
 import android.view.View;
 import android.view.ViewRootImpl;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 
+import com.android.car.internal.ICarBase;
+
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -58,9 +62,15 @@ import java.util.concurrent.Executor;
  * Unit tests for {@link ClusterHomeManager}
  */
 @RunWith(MockitoJUnitRunner.class)
+@DisabledOnRavenwood(
+        reason = "SurfaceControl cannot be mocked because it uses dalvik.system.CloseGuard")
 public final class ClusterHomeManagerUnitTest {
+
+    @Rule
+    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder().build();
+
     @Mock
-    private Car mCar;
+    private ICarBase mCar;
 
     @Mock
     private IBinder mBinder;

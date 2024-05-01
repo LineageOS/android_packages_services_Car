@@ -41,6 +41,7 @@ import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnPreDrawListener;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.ICarBase;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.annotation.Retention;
@@ -188,7 +189,7 @@ public final class ClusterHomeManager extends CarManagerBase {
 
     /** @hide */
     @VisibleForTesting
-    public ClusterHomeManager(Car car, IBinder service) {
+    public ClusterHomeManager(ICarBase car, IBinder service) {
         super(car);
         mService = IClusterHomeService.Stub.asInterface(service);
         mClusterStateListenerBinderCallback = new IClusterStateListenerImpl(this);
