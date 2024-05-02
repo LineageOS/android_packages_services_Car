@@ -169,6 +169,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private static final long CAR_POWER_POLICY_DAEMON_FIND_MARGINAL_TIME_MS = 300;
     private static final long CAR_POWER_POLICY_DAEMON_BIND_RETRY_INTERVAL_MS = 500;
     private static final int CAR_POWER_POLICY_DAEMON_BIND_MAX_RETRY = 3;
+    private static final long CAR_POWER_POLICY_DEFINITION_TIMEOUT_MS = 500;
     // TODO(b/286303350): remove once power policy refactor complete, replace w/refactored version
     private static final String CAR_POWER_POLICY_DAEMON_INTERFACE =
             "android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification/"
@@ -294,6 +295,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     // After ICarPowerPolicyDelegateCallback is set, mReadyForCallback is set to true;
     private AtomicBoolean mReadyForCallback = new AtomicBoolean(false);
     private BinderHandler mBinderHandler;
+    private boolean mPowerPoliciesInitialized;
     // TODO(b/286303350): remove after policy refactor, since daemon will be source of truth
     @GuardedBy("mLock")
     private String mCurrentPowerPolicyId;
@@ -307,6 +309,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     // TODO(b/286303350): remove after policy refactor, since daemon will control power policy
     @GuardedBy("mLock")
     private boolean mHasControlOverDaemon;
+    private final CountDownLatch mPowerPolicyInitializationLatch = new CountDownLatch(1);
     @GuardedBy("mLock")
     private CarPowerPolicy mCurrentAccumulatedPowerPolicy = getInitialAccumulatedPowerPolicy();
     private AtomicBoolean mIsListenerWaitingCancelled = new AtomicBoolean(false);
@@ -549,6 +552,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         IInterface powerPolicyDaemon = builder.mPowerPolicyDaemon;
         if (mFeatureFlags.carPowerPolicyRefactoring()) {
             mRefactoredCarPowerPolicyDaemon = (ICarPowerPolicyDelegate) powerPolicyDaemon;
+            mPowerPoliciesInitialized = false;
         } else {
             mCarPowerPolicyDaemon = (ICarPowerPolicySystemNotification) powerPolicyDaemon;
             if (powerPolicyDaemon != null) {
@@ -2312,6 +2316,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     enabledComponents.toArray(String[]::new),
                     disabledComponents.toArray(String[]::new));
         }
+        mPowerPoliciesInitialized = true;
+        mPowerPolicyInitializationLatch.countDown();
     }
 
     @VisibleForTesting
@@ -2697,11 +2703,34 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         notifyPowerPolicyChange(policyId, appliedPolicy, accumulatedPolicy);
     }
 
+    @Nullable
+    private CarPowerPolicy getPowerPolicyDefinition(String policyId, long timeoutMs)
+            throws InterruptedException {
+        if (!mPowerPoliciesInitialized) {
+            boolean result =
+                    mPowerPolicyInitializationLatch.await(timeoutMs, TimeUnit.MILLISECONDS);
+            if (!result) {
+                Slogf.e(TAG, "Failed to get power policy initialization after waiting %d ms",
+                        timeoutMs);
+                return null;
+            }
+        }
+        return mPolicyReader.getPowerPolicy(policyId);
+    }
+
     private void notifyPowerPolicyChange(CarPowerPolicy accumulatedPowerPolicy) {
         String policyId = accumulatedPowerPolicy.getPolicyId();
-        CarPowerPolicy appliedPolicy = mPolicyReader.getPowerPolicy(policyId);
-        notifyPowerPolicyChange(policyId, appliedPolicy, accumulatedPowerPolicy);
-        Slogf.i(TAG, "Power policy change to %s is notified to apps", policyId);
+        try {
+            CarPowerPolicy appliedPolicy =
+                    getPowerPolicyDefinition(policyId, CAR_POWER_POLICY_DEFINITION_TIMEOUT_MS);
+            if (appliedPolicy == null) {
+                Slogf.wtf(TAG, "The new power policy(%s) should exist", policyId);
+                return;
+            }
+            notifyPowerPolicyChange(policyId, appliedPolicy, accumulatedPowerPolicy);
+        } catch (InterruptedException e) {
+            Slogf.e(TAG, e, "Failed to get power policy definition for policy ID %s", policyId);
+        }
     }
 
     // TODO(b/286303350): after power policy refactor is complete, remove this function and replace
@@ -2713,6 +2742,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         if (appliedPolicy == null) {
             Slogf.wtf(TAG, "The new power policy(%s) should exist", policyId);
         }
+        Slogf.i(TAG, "Power policy change to %s is notified to apps", policyId);
         mBroadcastHandler.post(() -> {
             int idx = mPowerPolicyListeners.beginBroadcast();
 
