@@ -22,11 +22,12 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.car.Car;
 import android.car.wifi.CarWifiManager;
 import android.car.wifi.ICarWifi;
 import android.os.IBinder;
 import android.os.RemoteException;
+
+import com.android.car.internal.ICarBase;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +37,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CarWifiManagerUnitTest {
-    @Mock private Car mCar;
+    @Mock private ICarBase mCar;
     @Mock private IBinder mBinder;
     @Mock private ICarWifi mService;
 
