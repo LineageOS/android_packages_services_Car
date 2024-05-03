@@ -39,6 +39,8 @@ import android.platform.test.annotations.RequiresFlagsEnabled;
 import android.platform.test.flag.junit.CheckFlagsRule;
 import android.platform.test.flag.junit.DeviceFlagsValueProvider;
 
+import com.android.car.hal.property.PropertyHalServiceConfigs;
+
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -86,6 +88,9 @@ public final class HalPropConfigTest {
                     VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS,
                     VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS,
                     VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
+
+    private final PropertyHalServiceConfigs mPropertyHalServiceConfigs =
+            PropertyHalServiceConfigs.getInstance();
 
     @Rule
     public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
@@ -269,7 +274,7 @@ public final class HalPropConfigTest {
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
 
         CarPropertyConfig<?> carPropertyConfig = halPropConfig.toCarPropertyConfig(
-                GLOBAL_INTEGER_PROP_ID);
+                GLOBAL_INTEGER_PROP_ID, mPropertyHalServiceConfigs);
         assertThat(carPropertyConfig.getPropertyId()).isEqualTo(GLOBAL_INTEGER_PROP_ID);
         assertThat(carPropertyConfig.getAreaIdConfigs()).hasSize(1);
 
@@ -292,7 +297,7 @@ public final class HalPropConfigTest {
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
 
         AreaIdConfig<?> areaIdConfig = halPropConfig.toCarPropertyConfig(
-                GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(TEST_AREA_ID);
+                GLOBAL_INTEGER_PROP_ID, mPropertyHalServiceConfigs).getAreaIdConfig(TEST_AREA_ID);
         assertThat(areaIdConfig).isNotNull();
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
         assertThat(areaIdConfig.getMinValue()).isEqualTo(MIN_INT32_VALUE);
@@ -312,7 +317,7 @@ public final class HalPropConfigTest {
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
 
         AreaIdConfig<?> areaIdConfig = halPropConfig.toCarPropertyConfig(
-                GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(TEST_AREA_ID);
+                GLOBAL_INTEGER_PROP_ID, mPropertyHalServiceConfigs).getAreaIdConfig(TEST_AREA_ID);
         assertThat(areaIdConfig).isNotNull();
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
         assertThat(areaIdConfig.getMinValue()).isNull();
@@ -331,7 +336,7 @@ public final class HalPropConfigTest {
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
 
         AreaIdConfig<?> areaIdConfig = halPropConfig.toCarPropertyConfig(
-                GLOBAL_LONG_PROP_ID).getAreaIdConfig(TEST_AREA_ID);
+                GLOBAL_LONG_PROP_ID, mPropertyHalServiceConfigs).getAreaIdConfig(TEST_AREA_ID);
         assertThat(areaIdConfig).isNotNull();
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
         assertThat(areaIdConfig.getMinValue()).isEqualTo(MIN_INT64_VALUE);
@@ -352,7 +357,7 @@ public final class HalPropConfigTest {
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
 
         AreaIdConfig<?> areaIdConfig = halPropConfig.toCarPropertyConfig(
-                GLOBAL_LONG_PROP_ID).getAreaIdConfig(TEST_AREA_ID);
+                GLOBAL_LONG_PROP_ID, mPropertyHalServiceConfigs).getAreaIdConfig(TEST_AREA_ID);
         assertThat(areaIdConfig).isNotNull();
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
         assertThat(areaIdConfig.getMinValue()).isNull();
@@ -371,7 +376,7 @@ public final class HalPropConfigTest {
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
 
         AreaIdConfig<?> areaIdConfig = halPropConfig.toCarPropertyConfig(
-                GLOBAL_FLOAT_PROP_ID).getAreaIdConfig(TEST_AREA_ID);
+                GLOBAL_FLOAT_PROP_ID, mPropertyHalServiceConfigs).getAreaIdConfig(TEST_AREA_ID);
         assertThat(areaIdConfig).isNotNull();
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
         assertThat(areaIdConfig.getMinValue()).isEqualTo(MIN_FLOAT_VALUE);
@@ -392,7 +397,7 @@ public final class HalPropConfigTest {
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
 
         AreaIdConfig<?> areaIdConfig = halPropConfig.toCarPropertyConfig(
-                GLOBAL_FLOAT_PROP_ID).getAreaIdConfig(TEST_AREA_ID);
+                GLOBAL_FLOAT_PROP_ID, mPropertyHalServiceConfigs).getAreaIdConfig(TEST_AREA_ID);
         assertThat(areaIdConfig).isNotNull();
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
         assertThat(areaIdConfig.getMinValue()).isNull();
@@ -411,7 +416,8 @@ public final class HalPropConfigTest {
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
 
         AreaIdConfig<?> areaIdConfig = halPropConfig.toCarPropertyConfig(
-                GLOBAL_INTEGER_VEC_PROP_ID).getAreaIdConfig(TEST_AREA_ID);
+                GLOBAL_INTEGER_VEC_PROP_ID, mPropertyHalServiceConfigs)
+                .getAreaIdConfig(TEST_AREA_ID);
         assertThat(areaIdConfig).isNotNull();
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
         assertThat(areaIdConfig.getMinValue()).isNull();
@@ -429,7 +435,8 @@ public final class HalPropConfigTest {
         aidlVehiclePropConfig.areaConfigs[0].supportedEnumValues = null;
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
 
-        assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
+        assertThat(halPropConfig.toCarPropertyConfig(
+                GLOBAL_INTEGER_PROP_ID, mPropertyHalServiceConfigs).getAreaIdConfig(
                 TEST_AREA_ID).getSupportedEnumValues()).isEmpty();
     }
 
@@ -439,7 +446,8 @@ public final class HalPropConfigTest {
         aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
 
-        assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
+        assertThat(halPropConfig.toCarPropertyConfig(
+                GLOBAL_INTEGER_PROP_ID, mPropertyHalServiceConfigs).getAreaIdConfig(
                 TEST_AREA_ID).getSupportedEnumValues()).containsExactly(99, 100);
     }
 
@@ -450,7 +458,8 @@ public final class HalPropConfigTest {
         aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
 
-        assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
+        assertThat(halPropConfig.toCarPropertyConfig(
+                GLOBAL_INTEGER_PROP_ID, mPropertyHalServiceConfigs).getAreaIdConfig(
                 TEST_AREA_ID).getSupportedEnumValues()).isEmpty();
     }
 
@@ -462,7 +471,8 @@ public final class HalPropConfigTest {
         aidlVehiclePropConfig.areaConfigs[0].supportedEnumValues = null;
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
 
-        assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
+        assertThat(halPropConfig.toCarPropertyConfig(
+                GLOBAL_INTEGER_PROP_ID, mPropertyHalServiceConfigs).getAreaIdConfig(
                 TEST_AREA_ID).getSupportedEnumValues()).containsExactlyElementsIn(
                         List.of(
                                 VehicleOilLevel.LEVEL_CRITICALLY_LOW,
@@ -481,7 +491,8 @@ public final class HalPropConfigTest {
                         Arrays.asList(getTestHidlAreaConfig()));
         HidlHalPropConfig halPropConfig = new HidlHalPropConfig(hidlVehiclePropConfig);
 
-        assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
+        assertThat(halPropConfig.toCarPropertyConfig(
+                GLOBAL_INTEGER_PROP_ID, mPropertyHalServiceConfigs).getAreaIdConfig(
                 TEST_AREA_ID).getSupportedEnumValues()).isEmpty();
     }
 
@@ -495,7 +506,8 @@ public final class HalPropConfigTest {
                         Arrays.asList(getTestHidlAreaConfig()));
         HidlHalPropConfig halPropConfig = new HidlHalPropConfig(hidlVehiclePropConfig);
 
-        assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
+        assertThat(halPropConfig.toCarPropertyConfig(
+                GLOBAL_INTEGER_PROP_ID, mPropertyHalServiceConfigs).getAreaIdConfig(
                 TEST_AREA_ID).getAccess()).isEqualTo(halPropConfig.getAccess());
     }
 
@@ -510,7 +522,7 @@ public final class HalPropConfigTest {
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
 
         CarPropertyConfig<?> carPropertyConfig = halPropConfig.toCarPropertyConfig(
-                GLOBAL_INTEGER_PROP_ID);
+                GLOBAL_INTEGER_PROP_ID, mPropertyHalServiceConfigs);
         assertThat(carPropertyConfig.getAccess()).isEqualTo(TEST_ACCESS);
 
         AreaIdConfig<?> areaIdConfig1 = carPropertyConfig.getAreaIdConfig(TEST_AREA_ID);
@@ -531,7 +543,8 @@ public final class HalPropConfigTest {
         for (Integer propId: CONFIG_ARRAY_DEFINES_SUPPORTED_ENUM_VALUES) {
             aidlVehiclePropConfig.prop = propId;
             HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
-            assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
+            assertThat(halPropConfig.toCarPropertyConfig(
+                    GLOBAL_INTEGER_PROP_ID, mPropertyHalServiceConfigs).getAreaIdConfig(
                         TEST_AREA_ID).getSupportedEnumValues())
                         .containsExactlyElementsIn(TEST_CONFIG_ARRAY_LIST);
         }
@@ -543,7 +556,8 @@ public final class HalPropConfigTest {
         aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
 
-        assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
+        assertThat(halPropConfig.toCarPropertyConfig(
+                GLOBAL_INTEGER_PROP_ID, mPropertyHalServiceConfigs).getAreaIdConfig(
                 TEST_AREA_ID).isVariableUpdateRateSupported()).isTrue();
     }
 
@@ -556,7 +570,8 @@ public final class HalPropConfigTest {
                         Arrays.asList(getTestHidlAreaConfig()));
         HidlHalPropConfig halPropConfig = new HidlHalPropConfig(hidlConfig);
 
-        assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
+        assertThat(halPropConfig.toCarPropertyConfig(
+                GLOBAL_INTEGER_PROP_ID, mPropertyHalServiceConfigs).getAreaIdConfig(
                 TEST_AREA_ID).isVariableUpdateRateSupported()).isFalse();
     }
 
@@ -571,7 +586,7 @@ public final class HalPropConfigTest {
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
 
         CarPropertyConfig<?> carPropertyConfig = halPropConfig.toCarPropertyConfig(
-                VENDOR_INTEGER_VEC_PROP_ID);
+                VENDOR_INTEGER_VEC_PROP_ID, mPropertyHalServiceConfigs);
         assertThat(carPropertyConfig.getPropertyId()).isEqualTo(VENDOR_INTEGER_VEC_PROP_ID);
         assertThat(carPropertyConfig.getAreaType())
                 .isEqualTo(VehicleAreaType.VEHICLE_AREA_TYPE_VENDOR);
@@ -588,6 +603,6 @@ public final class HalPropConfigTest {
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
 
         assertThrows(RuntimeException.class, () -> halPropConfig.toCarPropertyConfig(
-                VENDOR_INTEGER_VEC_PROP_ID));
+                VENDOR_INTEGER_VEC_PROP_ID, mPropertyHalServiceConfigs));
     }
 }
