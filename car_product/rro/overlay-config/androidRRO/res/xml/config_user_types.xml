@@ -28,4 +28,7 @@
     <profile-type name="android.os.usertype.profile.CLONE"
         enabled='0' >
     </profile-type>
+    <profile-type name="android.os.usertype.profile.PRIVATE"
+        enabled='0' >
+    </profile-type>
 </user-types>
