@@ -2559,6 +2559,23 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         verify(mockVehicleStub, never()).set(any());
     }
 
+    @Test
+    public void testApplyNonPreemptivePolicyOverPreemptivePolicy() throws Exception {
+        setRefactoredService();
+        grantPowerPolicyPermission();
+        String policyId = SYSTEM_POWER_POLICY_NO_USER_INTERACTION;
+        boolean isSuccess = applyPowerPolicyFromCommand(policyId);
+        assertWithMessage("Apply power policy from command status").that(
+                isSuccess).isTrue();
+        waitForPowerPolicy(policyId);
+
+        MockedPowerPolicyListener listenerToWait = setUpPowerPolicyAudioInvert();
+
+        mService.applyPowerPolicy(POWER_POLICY_AUDIO_INVERT);
+
+        assertPowerPolicyNotApplied(POWER_POLICY_AUDIO_INVERT, listenerToWait);
+    }
+
     private void setCarPowerPolicyRefactoringFeatureFlag(boolean flagValue) {
         mFeatureFlags.setFlag(Flags.FLAG_CAR_POWER_POLICY_REFACTORING, flagValue);
     }
@@ -2902,10 +2919,32 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 () -> listenerToWait.getCurrentPowerPolicy() != null);
         if (mFeatureFlags.carPowerPolicyRefactoring()) {
             assertWithMessage("Power policy daemon last notified policy ID").that(
-                    mRefactoredPowerPolicyDaemon.getLastAppliedPowerPolicyId()).isEqualTo(policyId);
+                    mRefactoredPowerPolicyDaemon.getCurrentPowerPolicyId()).isEqualTo(policyId);
         } else {
             assertWithMessage("Power policy daemon last notified policy ID").that(
                     mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(policyId);
+        }
+    }
+
+    private void assertPowerPolicyNotApplied(String policyId,
+            MockedPowerPolicyListener listenerToCheck) throws Exception {
+        CarPowerPolicy policy = mService.getCurrentPowerPolicy();
+        if (policy != null) {
+            assertWithMessage("Current policy ID").that(policy.getPolicyId())
+                    .isNotEqualTo(policyId);
+        }
+        policy = listenerToCheck.getCurrentPowerPolicy();
+        if (policy != null) {
+            assertWithMessage("Notified policy ID").that(policy.getPolicyId())
+                    .isNotEqualTo(policyId);
+        }
+        if (mFeatureFlags.carPowerPolicyRefactoring()) {
+            assertWithMessage("Power policy daemon last notified policy ID")
+                    .that(mRefactoredPowerPolicyDaemon.getCurrentPowerPolicyId())
+                    .isNotEqualTo(policyId);
+        } else {
+            assertWithMessage("Power policy daemon last notified policy ID").that(
+                    mPowerPolicyDaemon.getLastNotifiedPolicyId()).isNotEqualTo(policyId);
         }
     }
 

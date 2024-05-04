@@ -93,7 +93,7 @@ public:
 class MockPowerPolicyDelegateCallback : public BnCarPowerPolicyDelegateCallback {
 public:
     MOCK_METHOD(ScopedAStatus, updatePowerComponents, (const CarPowerPolicy&), (override));
-    MOCK_METHOD(ScopedAStatus, onApplyPowerPolicySucceeded, (int32_t, const CarPowerPolicy&),
+    MOCK_METHOD(ScopedAStatus, onApplyPowerPolicySucceeded, (int32_t, const CarPowerPolicy&, bool),
                 (override));
     MOCK_METHOD(ScopedAStatus, onApplyPowerPolicyFailed, (int32_t, PowerPolicyFailureReason),
                 (override));
@@ -357,8 +357,8 @@ public:
         EXPECT_CALL(*callback, onApplyPowerPolicySucceeded)
                 .WillRepeatedly(
                         Invoke([&calledRequestId, &policyIdForNotification, &cv,
-                                &mutex](int32_t requestId,
-                                        const CarPowerPolicy& accumulatedPolicy) -> ScopedAStatus {
+                                &mutex](int32_t requestId, const CarPowerPolicy& accumulatedPolicy,
+                                        [[maybe_unused]] bool deferred) -> ScopedAStatus {
                             calledRequestId = requestId;
                             policyIdForNotification = accumulatedPolicy.policyId;
                             std::unique_lock lock(mutex);
@@ -543,8 +543,10 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyFromCarService) {
                     }));
     EXPECT_CALL(*callback, onApplyPowerPolicySucceeded)
             .WillRepeatedly(Invoke([]([[maybe_unused]] int32_t requestId,
-                                      [[maybe_unused]] const CarPowerPolicy& accumulatedPolicy)
-                                           -> ScopedAStatus { return ScopedAStatus::ok(); }));
+                                      [[maybe_unused]] const CarPowerPolicy& accumulatedPolicy,
+                                      [[maybe_unused]] bool deferred) -> ScopedAStatus {
+                return ScopedAStatus::ok();
+            }));
 
     ScopedAStatus status = server->applyPowerPolicyAsync(/*requestId=*/9999, "policy_id_other_off",
                                                          /*force=*/false);
@@ -637,8 +639,10 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyFromCarService_duplicatedRe
                     }));
     EXPECT_CALL(*callback, onApplyPowerPolicySucceeded)
             .WillRepeatedly(Invoke([]([[maybe_unused]] int32_t requestId,
-                                      [[maybe_unused]] const CarPowerPolicy& accumulatedPolicy)
-                                           -> ScopedAStatus { return ScopedAStatus::ok(); }));
+                                      [[maybe_unused]] const CarPowerPolicy& accumulatedPolicy,
+                                      [[maybe_unused]] bool deferred) -> ScopedAStatus {
+                return ScopedAStatus::ok();
+            }));
     PowerPolicyInitData initData;
     server->notifyCarServiceReady(callback, &initData);
 

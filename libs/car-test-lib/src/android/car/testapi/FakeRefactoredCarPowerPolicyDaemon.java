@@ -19,7 +19,6 @@ package android.car.testapi;
 import android.annotation.Nullable;
 import android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate;
 import android.automotive.powerpolicy.internal.ICarPowerPolicyDelegateCallback;
-import android.automotive.powerpolicy.internal.PowerPolicyFailureReason;
 import android.automotive.powerpolicy.internal.PowerPolicyInitData;
 import android.car.hardware.power.PowerComponent;
 import android.car.hardware.power.PowerComponentUtil;
@@ -79,13 +78,13 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
     private final Map<String, CarPowerPolicy> mPolicies = new ArrayMap<>();
     private final Map<String, SparseArray<CarPowerPolicy>> mPowerPolicyGroups = new ArrayMap<>();
 
-    private String mLastAppliedPowerPolicyId = SYSTEM_POWER_POLICY_INITIAL_ON;
     private String mLastSetPowerPolicyGroupId = POLICY_PER_STATE_GROUP_ID;
 
     private int mLastNotifiedPowerState;
     private boolean mSilentModeOn;
     private String mPendingPowerPolicyId;
     private String mLastDefinedPolicyId;
+    private String mCurrentPowerPolicyId = SYSTEM_POWER_POLICY_INITIAL_ON;
     private Handler mHandler;
     private ICarPowerPolicyDelegateCallback mCallback;
     private File mFileKernelSilentMode;
@@ -178,14 +177,14 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
         Log.i(TAG, "Fake refactored CPPD was notified that car service is ready");
         mCallback = callback;
         PowerPolicyInitData initData = new PowerPolicyInitData();
-        initData.currentPowerPolicy = mPolicies.get(mLastAppliedPowerPolicyId);
+        initData.currentPowerPolicy = mPolicies.get(mCurrentPowerPolicyId);
         initData.registeredPolicies = new CarPowerPolicy[]{
                 mPolicies.get(SYSTEM_POWER_POLICY_INITIAL_ON),
                 mPolicies.get(SYSTEM_POWER_POLICY_ALL_ON),
                 mPolicies.get(SYSTEM_POWER_POLICY_NO_USER_INTERACTION),
                 mPolicies.get(SYSTEM_POWER_POLICY_SUSPEND_PREP)};
         initData.registeredCustomComponents = mCustomComponents;
-        mComponentHandler.applyPolicy(mPolicies.get(mLastAppliedPowerPolicyId));
+        mComponentHandler.applyPolicy(mPolicies.get(mCurrentPowerPolicyId));
         return initData;
     }
 
@@ -197,7 +196,8 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
             throw new IllegalStateException("Fake refactored CPPD callback is null, was "
                     + "notifyCarServiceReady() called?");
         }
-        mLastAppliedPowerPolicyId = policyId;
+        boolean deferred = isPreemptivePolicy(mCurrentPowerPolicyId)
+                && !isPreemptivePolicy(policyId);
         CarPowerPolicy currentPolicy = mPolicies.get(policyId);
         if (currentPolicy == null) {
             throw new IllegalArgumentException("Power policy " + policyId + " is invalid");
@@ -205,7 +205,10 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
         mComponentHandler.applyPolicy(currentPolicy);
         CarPowerPolicy accumulatedPolicy = mComponentHandler.getAccumulatedPolicy(policyId);
         mCallback.updatePowerComponents(accumulatedPolicy);
-        mCallback.onApplyPowerPolicySucceeded(requestId, accumulatedPolicy);
+        mCallback.onApplyPowerPolicySucceeded(requestId, accumulatedPolicy, deferred);
+        if (!deferred) {
+            mCurrentPowerPolicyId = policyId;
+        }
     }
 
     @Override
@@ -217,19 +220,18 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
         }
         if (mSilentModeOn) {
             mPendingPowerPolicyId = policy.policyId;
-            Log.d(TAG, "Silent mode is on, so cannot apply power policy for state " + state
-                    + ", setting pending power policy to " + mPendingPowerPolicyId);
-            mCallback.onApplyPowerPolicyFailed(requestId,
-                    PowerPolicyFailureReason.POWER_POLICY_FAILURE_CANNOT_OVERRIDE);
+            Log.d(TAG, "Silent mode is on, so applying power policy for state " + state
+                    + " is deferred, setting pending power policy to " + mPendingPowerPolicyId);
+            mCallback.onApplyPowerPolicySucceeded(requestId, policy, /* deferred= */ true);
             return;
         }
         mHandler.post(() -> {
             try {
-                mCallback.onApplyPowerPolicySucceeded(requestId, policy);
                 mCallback.updatePowerComponents(policy);
+                mCallback.onApplyPowerPolicySucceeded(requestId, policy, /* deferred= */ false);
                 mLastNotifiedPowerState = state;
-                mLastAppliedPowerPolicyId = policy.policyId;
                 mComponentHandler.applyPolicy(policy);
+                mCurrentPowerPolicyId = policy.policyId;
             } catch (Exception e) {
                 Log.w(TAG, "Cannot call onApplyPowerPolicySucceeded", e);
             }
@@ -242,7 +244,7 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
         try {
             mCallback.onPowerPolicyChanged(accumulatedPolicy);
             mCallback.updatePowerComponents(accumulatedPolicy);
-            mLastAppliedPowerPolicyId = policyId;
+            mCurrentPowerPolicyId = policyId;
         } catch (RemoteException e) {
             Log.d(TAG, errMsg, e);
         }
@@ -305,12 +307,12 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
         return mLastNotifiedPowerState;
     }
 
-    public String getLastAppliedPowerPolicyId() {
-        return mLastAppliedPowerPolicyId;
-    }
-
     public String getLastDefinedPolicyId() {
         return mLastDefinedPolicyId;
+    }
+
+    public String getCurrentPowerPolicyId() {
+        return mCurrentPowerPolicyId;
     }
 
     /**
@@ -337,6 +339,11 @@ public final class FakeRefactoredCarPowerPolicyDaemon extends ICarPowerPolicyDel
     @Override
     public String getInterfaceHash() {
         return ICarPowerPolicyDelegate.HASH;
+    }
+
+    private boolean isPreemptivePolicy(String policyId) {
+        return Objects.equals(policyId, SYSTEM_POWER_POLICY_NO_USER_INTERACTION)
+                || Objects.equals(policyId, SYSTEM_POWER_POLICY_SUSPEND_PREP);
     }
 
     private final class SilentModeFileObserver extends FileObserver {
