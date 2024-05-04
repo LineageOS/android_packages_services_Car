@@ -46,6 +46,7 @@ import android.view.Display;
 
 import androidx.car.app.activity.CarAppActivity;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -60,6 +61,7 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
+@FlakyTest(bugId = 338646912)
 public class CarPackageManagerServiceTest {
     private static final String ACTIVITY_BLOCKING_ACTIVITY_TEXTVIEW_ID =
             "com.android.systemui:id/blocking_text";
