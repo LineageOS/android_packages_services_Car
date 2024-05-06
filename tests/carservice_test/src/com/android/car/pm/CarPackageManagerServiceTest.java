@@ -61,7 +61,6 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
-@FlakyTest(bugId = 338646912)
 public class CarPackageManagerServiceTest {
     private static final String ACTIVITY_BLOCKING_ACTIVITY_TEXTVIEW_ID =
             "com.android.systemui:id/blocking_text";
@@ -104,6 +103,7 @@ public class CarPackageManagerServiceTest {
 
         for (TempActivity testingActivity : sTestingActivities) {
             testingActivity.finishCompletely();
+            sTestingActivities.remove(testingActivity);
         }
     }
 
@@ -210,6 +210,7 @@ public class CarPackageManagerServiceTest {
                 UI_TIMEOUT_MS)).isNotNull();
     }
 
+    @FlakyTest(bugId = 338646912)
     @Test
     public void testBlockingActivity_DoLaunchesNonDo_nonDoIsKilled_noBlockingActivity()
             throws Exception {
@@ -226,6 +227,23 @@ public class CarPackageManagerServiceTest {
         assertBlockingActivityNotFound();
         // After NonDo & ABA finishes, DoActivity will come to the top.
         assertActivityLaunched(DoActivity.class.getSimpleName());
+    }
+
+    @FlakyTest(bugId = 338646912)
+    @Test
+    public void testBlockingActivity_DoLaunchesNonDo_DoIsKilled_isBlocked()
+            throws Exception {
+        startDoActivity(DoActivity.INTENT_EXTRA_LAUNCH_NONDO_NEW_TASK);
+        assertBlockingActivityFound();
+
+        for (TempActivity activity : sTestingActivities) {
+            if (activity instanceof DoActivity) {
+                activity.finishCompletely();
+                sTestingActivities.remove(activity);
+            }
+        }
+
+        assertBlockingActivityFound();
     }
 
     @Test
