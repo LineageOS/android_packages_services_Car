@@ -35,12 +35,10 @@ import android.hardware.automotive.vehicle.VehicleSeatOccupancyState;
 import android.hardware.automotive.vehicle.VehicleUnit;
 import android.util.SparseArray;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,7 +46,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-@RunWith(AndroidJUnit4.class)
+@SmallTest
 public class FakeVhalConfigParserUnitTest {
     private static final int DOOR_1_LEFT = VehicleAreaDoor.ROW_1_LEFT;
     private static final int WHEEL_FRONT_LEFT = VehicleAreaWheel.LEFT_FRONT;
@@ -136,8 +134,6 @@ public class FakeVhalConfigParserUnitTest {
     @Test
     public void testParseEachPropertyJsonObjectIsEmpty() throws Exception {
         String jsonString = "{\"properties\": [{}]}";
-        JSONObject jsonObject = new JSONObject(jsonString);
-        Object propertyObject = jsonObject.optJSONArray("properties").optJSONObject(0);
         File tempFile = createTempFileWithContent(jsonString);
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
