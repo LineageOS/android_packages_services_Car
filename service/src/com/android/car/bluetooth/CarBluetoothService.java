@@ -96,6 +96,10 @@ public class CarBluetoothService implements CarServiceBase {
     private ICarPerUserService mCarPerUserService;
     @GuardedBy("mPerUserLock")
     private ICarBluetoothUserService mCarBluetoothUserService;
+    // Whether this service is already released. We should not create new handler thread if service
+    // is already released.
+    @GuardedBy("mPerUserLock")
+    private boolean mReleased = false;
     private final CarPerUserServiceHelper mUserServiceHelper;
     private final CarPerUserServiceHelper.ServiceCallback mUserServiceCallback =
             new CarPerUserServiceHelper.ServiceCallback() {
@@ -105,6 +109,13 @@ public class CarBluetoothService implements CarServiceBase {
                 Slogf.d(TAG, "Connected to CarPerUserService");
             }
             synchronized (mPerUserLock) {
+                if (mReleased) {
+                    // We create handlerThread in initializeUserLocked. We must make sure we do not
+                    // create handler thread after release otherwise the newly created thread might
+                    // not be cleaned up properly.
+                    return;
+                }
+
                 // Explicitly clear out existing per-user objects since we can't rely on the
                 // onServiceDisconnected and onPreUnbind calls to always be called before this
                 destroyUserLocked();
@@ -164,6 +175,9 @@ public class CarBluetoothService implements CarServiceBase {
         if (DBG) {
             Slogf.d(TAG, "init()");
         }
+        synchronized (mPerUserLock) {
+            mReleased = false;
+        }
         mUserServiceHelper.registerServiceCallback(mUserServiceCallback);
     }
 
@@ -180,6 +194,7 @@ public class CarBluetoothService implements CarServiceBase {
         mUserServiceHelper.unregisterServiceCallback(mUserServiceCallback);
         synchronized (mPerUserLock) {
             destroyUserLocked();
+            mReleased = true;
         }
     }
 
