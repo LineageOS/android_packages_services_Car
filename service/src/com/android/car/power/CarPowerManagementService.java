@@ -3017,6 +3017,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         long retryIntervalMs = INITIAL_SUSPEND_RETRY_INTERVAL_MS;
         long totalWaitDurationMs = 0;
         while (true) {
+            long suspendStartTime = SystemClock.elapsedRealtime();
             Slogf.i(TAG, "Entering %s", suspendTarget);
             if (isSuspendToDisk) {
                 freeMemory();
@@ -3042,7 +3043,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                         return false;
                     }
                 }
-
+                long suspendStopTime = SystemClock.elapsedRealtime();
                 Slogf.w(TAG, "Failed to Suspend; will retry after %dms", retryIntervalMs);
                 try {
                     mLock.wait(retryIntervalMs);
@@ -3050,6 +3051,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     Thread.currentThread().interrupt();
                 }
                 totalWaitDurationMs += retryIntervalMs;
+                totalWaitDurationMs += (suspendStopTime - suspendStartTime);
                 retryIntervalMs = Math.min(retryIntervalMs * 2, MAX_RETRY_INTERVAL_MS);
             }
         }
