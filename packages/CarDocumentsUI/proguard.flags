@@ -1,0 +1,3 @@
+# include DocumentsUI proguard file
+-include ../../../../../packages/apps/DocumentsUI/proguard.flags
+
