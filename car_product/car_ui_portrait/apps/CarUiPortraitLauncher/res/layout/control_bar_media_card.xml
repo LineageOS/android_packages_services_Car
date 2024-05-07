@@ -42,7 +42,7 @@
             app:layout_constraintBottom_toBottomOf="parent" />
 
         <ImageButton
-            android:id="@+id/action_id1"
+            android:id="@+id/playback_action_id1"
             android:layout_width="@dimen/control_bar_media_card_half_pill_button_width"
             android:layout_height="@dimen/media_card_large_button_size"
             android:layout_marginStart="@dimen/media_card_view_separation_margin"
@@ -54,7 +54,7 @@
             app:layout_constraintTop_toTopOf="@id/play_pause_button" />
 
         <ImageButton
-            android:id="@+id/action_id2"
+            android:id="@+id/playback_action_id2"
             android:layout_width="@dimen/control_bar_media_card_half_pill_button_width"
             android:layout_height="@dimen/media_card_large_button_size"
             android:layout_marginStart="4dp"
@@ -62,7 +62,7 @@
             android:src="@drawable/ic_skip_next"
             android:tint="@color/car_on_surface"
             app:layout_goneMarginStart="@dimen/media_card_view_separation_margin"
-            app:layout_constraintStart_toEndOf="@id/action_id1"
+            app:layout_constraintStart_toEndOf="@id/playback_action_id1"
             app:layout_constraintBottom_toBottomOf="@id/play_pause_button"
             app:layout_constraintTop_toTopOf="@id/play_pause_button" />
 
@@ -129,20 +129,20 @@
             android:paddingStart="@dimen/control_bar_media_card_custom_action_layout_horizontal_padding"
             android:paddingEnd="@dimen/control_bar_media_card_custom_action_layout_horizontal_padding"
             app:layout_constraintBottom_toBottomOf="@id/play_pause_button"
-            app:layout_constraintStart_toEndOf="@id/action_id2"
+            app:layout_constraintStart_toEndOf="@id/playback_action_id2"
             app:layout_constraintEnd_toStartOf="@id/queue_button"
             app:layout_constraintTop_toTopOf="@id/play_pause_button"
             app:layout_constraintHorizontal_bias="1">
 
             <ImageButton
-                android:id="@+id/action_id3"
+                android:id="@+id/playback_action_id3"
                 android:layout_width="@dimen/control_bar_media_card_custom_action_size"
                 android:layout_height="@dimen/control_bar_media_card_custom_action_size"
                 android:layout_gravity="center_vertical"
                 style="@style/ControlBarCustomActionStyle" />
 
             <ImageButton
-                android:id="@+id/action_id4"
+                android:id="@+id/playback_action_id4"
                 android:layout_width="@dimen/control_bar_media_card_custom_action_size"
                 android:layout_height="@dimen/control_bar_media_card_custom_action_size"
                 android:layout_gravity="center_vertical"
@@ -150,7 +150,7 @@
                 android:layout_marginStart="@dimen/control_bar_media_card_custom_action_spacing"/>
 
             <ImageButton
-                android:id="@+id/action_id5"
+                android:id="@+id/playback_action_id5"
                 android:layout_width="@dimen/control_bar_media_card_custom_action_size"
                 android:layout_height="@dimen/control_bar_media_card_custom_action_size"
                 android:layout_gravity="center_vertical"
@@ -158,7 +158,7 @@
                 android:layout_marginStart="@dimen/control_bar_media_card_custom_action_spacing"/>
 
             <ImageButton
-                android:id="@+id/action_id6"
+                android:id="@+id/playback_action_id6"
                 android:layout_width="@dimen/control_bar_media_card_custom_action_size"
                 android:layout_height="@dimen/control_bar_media_card_custom_action_size"
                 android:layout_gravity="center_vertical"
@@ -166,7 +166,7 @@
                 android:layout_marginStart="@dimen/control_bar_media_card_custom_action_spacing"/>
 
             <ImageButton
-                android:id="@+id/action_id7"
+                android:id="@+id/playback_action_id7"
                 android:layout_width="@dimen/control_bar_media_card_custom_action_size"
                 android:layout_height="@dimen/control_bar_media_card_custom_action_size"
                 android:layout_gravity="center_vertical"
@@ -174,7 +174,7 @@
                 android:layout_marginStart="@dimen/control_bar_media_card_custom_action_spacing"/>
 
             <ImageButton
-                android:id="@+id/action_id8"
+                android:id="@+id/playback_action_id8"
                 android:layout_width="@dimen/control_bar_media_card_custom_action_size"
                 android:layout_height="@dimen/control_bar_media_card_custom_action_size"
                 android:layout_gravity="center_vertical"
@@ -203,20 +203,20 @@
             android:backgroundTint="@color/car_on_surface_variant"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/play_pause_button"
-            app:layout_constraintStart_toEndOf="@id/action_id2"
+            app:layout_constraintStart_toEndOf="@id/playback_action_id2"
             app:layout_constraintEnd_toStartOf="@id/queue_button"
             app:layout_constraintTop_toTopOf="@id/play_pause_button"
             app:layout_constraintHorizontal_bias="1">
 
             <ImageButton
-                android:id="@+id/action_id9"
+                android:id="@+id/playback_action_id9"
                 android:layout_width="@dimen/control_bar_media_card_custom_action_size"
                 android:layout_height="@dimen/control_bar_media_card_custom_action_size"
                 android:layout_gravity="center_vertical"
                 style="@style/ControlBarCustomActionOverflowStyle"/>
 
             <ImageButton
-                android:id="@+id/action_id10"
+                android:id="@+id/playback_action_id10"
                 android:layout_width="@dimen/control_bar_media_card_custom_action_size"
                 android:layout_height="@dimen/control_bar_media_card_custom_action_size"
                 android:layout_gravity="center_vertical"
@@ -224,7 +224,7 @@
                 android:layout_marginStart="@dimen/control_bar_media_card_custom_action_spacing" />
 
             <ImageButton
-                android:id="@+id/action_id11"
+                android:id="@+id/playback_action_id11"
                 android:layout_width="@dimen/control_bar_media_card_custom_action_size"
                 android:layout_height="@dimen/control_bar_media_card_custom_action_size"
                 android:layout_gravity="center_vertical"
@@ -333,7 +333,7 @@
             app:layout_constraintHorizontal_bias="0"/>
 
         <TextView
-            android:id="@+id/artist"
+            android:id="@+id/subtitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/control_bar_media_card_text_view_separation_margin"
