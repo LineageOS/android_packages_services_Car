@@ -255,7 +255,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 mSystemMonitor = SystemMonitor.create(activityManager, mTelemetryHandler);
                 mSystemMonitor.setSystemMonitorCallback(this::onSystemMonitorEvent);
             } else {
-                Log.w(TAG, "Not creating mSystemMonitor due to bug 233973826");
+                Slogf.w(TAG, "Not creating mSystemMonitor due to bug 233973826");
             }
             mTelemetryThreadTraceLog.traceEnd();
             // save state at reboot and shutdown
