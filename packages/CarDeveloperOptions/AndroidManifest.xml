@@ -35,7 +35,6 @@
 
         <activity
             android:name=".CarDevelopmentSettingsDashboardActivity"
-            android:enabled="false"
             android:exported="true"
             android:icon="@drawable/ic_settings_development"
             android:label="@string/development_settings_title"
@@ -3228,6 +3227,15 @@
             android:exported="false"
             tools:node="merge"
             tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
+        <receiver
+            android:name="com.android.settings.development.Enable16KBootReceiver"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:enabled,android:exported">
             <intent-filter tools:node="removeAll"/>
         </receiver>
 
