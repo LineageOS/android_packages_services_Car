@@ -275,6 +275,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
         setCurrentUser(CURRENT_USER_ID, /* isGuest= */ false);
         setService();
+        setCarPowerCancelShellCommand(true);
     }
 
     @After
@@ -289,6 +290,17 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Test
     public void testShutdown() throws Exception {
+        shutdownTest_withCarPowerCancelShellCommand(/* carShellCommandFlag= */ true);
+    }
+
+    @Test
+    public void testShutdown_carPowerShellCommandDisabled() throws Exception {
+        shutdownTest_withCarPowerCancelShellCommand(/* carShellCommandFlag= */ false);
+    }
+
+    private void shutdownTest_withCarPowerCancelShellCommand(boolean carShellCommandFlag)
+            throws Exception {
+        setCarPowerCancelShellCommand(carShellCommandFlag);
         mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
         mPowerSignalListener.addEventListener(PowerHalService.SET_SHUTDOWN_START);
         // Transition to ON state
@@ -494,6 +506,17 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Test
     public void testSuspend() throws Exception {
+        suspendTest_withCarPowerCancelShellCommand(/* carShellCommandFlag= */ true);
+    }
+
+    @Test
+    public void testSuspend_carPowerCancelShellDisabled() throws Exception {
+        suspendTest_withCarPowerCancelShellCommand(/* carShellCommandFlag= */ false);
+    }
+
+    private void suspendTest_withCarPowerCancelShellCommand(boolean carShellCommandFlag)
+            throws Exception {
+        setCarPowerCancelShellCommand(carShellCommandFlag);
         mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
         // Start in the ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
@@ -2370,6 +2393,10 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     private void setServerlessRemoteAccessFlag(boolean flagValue) {
         mFeatureFlags.setFlag(Flags.FLAG_SERVERLESS_REMOTE_ACCESS, flagValue);
+    }
+
+    private void setCarPowerCancelShellCommand(boolean flagValue) {
+        mFeatureFlags.setFlag(Flags.FLAG_CAR_POWER_CANCEL_SHELL_COMMAND, flagValue);
     }
 
     /**
