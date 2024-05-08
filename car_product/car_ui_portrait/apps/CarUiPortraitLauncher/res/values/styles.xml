@@ -29,12 +29,21 @@
         <item name="android:maxWidth">800dp</item>
     </style>
     <style name="ControlBarCustomActionStyle">
-        <item name="android:layout_width">@dimen/control_bar_media_card_custom_action_size</item>
-        <item name="android:layout_height">@dimen/control_bar_media_card_custom_action_size</item>
-        <item name="android:layout_gravity">center_vertical</item>
         <item name="android:tint">@color/car_on_surface_variant</item>
-        <item name="android:scaleType">centerCrop</item>
+        <item name="android:scaleType">fitCenter</item>
         <item name="android:background">@android:color/transparent</item>
         <item name="android:visibility">gone</item>
+    </style>
+    <style name="ControlBarOverflowButtonStyle">
+        <item name="android:tint">@color/car_on_surface_variant</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:visibility">gone</item>
+    </style>
+    <style name="ControlBarCustomActionOverflowStyle" parent="ControlBarCustomActionStyle">
+        <item name="android:tint">@color/car_surface_variant</item>
+    </style>
+    <style name="ControlBarOverflowExitButtonStyle" parent="ControlBarCustomActionStyle">
+        <item name="android:tint">@color/car_surface_variant</item>
     </style>
 </resources>
