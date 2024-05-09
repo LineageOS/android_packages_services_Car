@@ -30,24 +30,13 @@
         android:layout_alignParentTop="true"
         style="@style/TextAppearance.DialNumber" />
 
-    <Chronometer
-        android:id="@+id/call_state"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:focusable="true"
-        android:singleLine="true"
-        android:layout_marginTop="@dimen/in_call_state_margin"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/title"
-        style="@style/TextAppearance.InCallState" />
-
     <com.android.car.ui.FocusArea
         android:id="@+id/dialpad_focus_area"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/in_call_dialpad_focus_area_margin"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/call_state">
+        android:layout_below="@+id/title">
 
         <fragment
             android:id="@+id/dialpad_fragment"
