@@ -45,6 +45,7 @@ import android.os.ServiceSpecificException;
 import android.util.ArrayMap;
 import android.util.Slog;
 
+import com.android.car.internal.ICarBase;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -214,13 +215,13 @@ public final class CarPackageManager extends CarManagerBase {
             mICarBlockingUiCommandListener = new ArrayMap<>(2);
 
     /** @hide */
-    public CarPackageManager(Car car, IBinder service) {
+    public CarPackageManager(ICarBase car, IBinder service) {
         this(car, ICarPackageManager.Stub.asInterface(service));
     }
 
     /** @hide */
     @VisibleForTesting
-    public CarPackageManager(Car car, ICarPackageManager service) {
+    public CarPackageManager(ICarBase car, ICarPackageManager service) {
         super(car);
         mService = service;
     }

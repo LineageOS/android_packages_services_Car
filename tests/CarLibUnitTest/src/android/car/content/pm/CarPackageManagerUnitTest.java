@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car.content.pm;
+package android.car.content.pm;
 
-import static android.car.test.mock.CarMockitoHelper.mockHandleRemoteExceptionFromCarServiceWithDefaultValue;
 import static android.view.Display.DEFAULT_DISPLAY;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -27,26 +26,36 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.car.Car;
 import android.car.CarVersion;
-import android.car.content.pm.CarPackageManager;
-import android.car.content.pm.ICarPackageManager;
-import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.platform.test.annotations.DisabledOnRavenwood;
+import android.platform.test.ravenwood.RavenwoodRule;
+
+import com.android.car.internal.ICarBase;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.concurrent.Executor;
 
-public final class CarPackageManagerUnitTest extends AbstractExtendedMockitoTestCase {
+@RunWith(MockitoJUnitRunner.class)
+public final class CarPackageManagerUnitTest {
+
+    // Need to fake Process.myUserHandle().
+    @Rule
+    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder()
+            .setProcessApp()
+            .build();
 
     @Mock
-    private Car mCar;
+    private ICarBase mCar;
 
     @Mock
     private ICarPackageManager mService;
@@ -94,7 +103,6 @@ public final class CarPackageManagerUnitTest extends AbstractExtendedMockitoTest
 
     @Test
     public void testGetTargetCarVersion_runtimeException() throws Exception {
-        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
         RemoteException cause = new RemoteException("D'OH!");
         when(mService.getTargetCarVersion("the.meaning.of.life")).thenThrow(cause);
 
@@ -106,7 +114,6 @@ public final class CarPackageManagerUnitTest extends AbstractExtendedMockitoTest
 
     @Test
     public void testGetTargetCarVersion_serviceException_unexpectedErrorCode() throws Exception {
-        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
         ServiceSpecificException cause = new ServiceSpecificException(666, "D'OH!");
         when(mService.getTargetCarVersion("the.meaning.of.life")).thenThrow(cause);
 
@@ -117,8 +124,8 @@ public final class CarPackageManagerUnitTest extends AbstractExtendedMockitoTest
     }
 
     @Test
+    @DisabledOnRavenwood(blockedBy = NameNotFoundException.class)
     public void testGetTargetCarVersion_serviceException_notFound() throws Exception {
-        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
         when(mService.getTargetCarVersion("the.meaning.of.life"))
                 .thenThrow(new ServiceSpecificException(CarPackageManager.ERROR_CODE_NO_PACKAGE,
                         "D'OH!"));
@@ -132,8 +139,6 @@ public final class CarPackageManagerUnitTest extends AbstractExtendedMockitoTest
 
     @Test
     public void registerBlockingUiCommandListener() throws Exception {
-        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
-
         mMgr.registerBlockingUiCommandListener(DEFAULT_DISPLAY, mExecutor,
                 mBlockingUiCommandListener);
 
@@ -143,7 +148,6 @@ public final class CarPackageManagerUnitTest extends AbstractExtendedMockitoTest
     @Test
     public void registerBlockingUiCommandListener_sameListenerNotRegisterForAnotherDisplay()
             throws Exception {
-        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
         int tempDisplayId = 1;
 
         mMgr.registerBlockingUiCommandListener(DEFAULT_DISPLAY, mExecutor,
@@ -156,7 +160,6 @@ public final class CarPackageManagerUnitTest extends AbstractExtendedMockitoTest
 
     @Test
     public void unregisterBlockingUiCommandListener() throws Exception {
-        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
         mMgr.registerBlockingUiCommandListener(DEFAULT_DISPLAY, mExecutor,
                 mBlockingUiCommandListener);
 

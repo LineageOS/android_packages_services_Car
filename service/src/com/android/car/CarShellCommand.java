@@ -207,6 +207,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String PARAM_SKIP_GARAGEMODE = "--skip-garagemode";
     private static final String PARAM_REBOOT = "--reboot";
     private static final String PARAM_WAKEUP_AFTER = "--wakeup-after";
+    private static final String PARAM_CANCEL_AFTER = "--cancel-after";
     private static final String PARAM_FREE_MEMORY = "--free-memory";
     private static final String COMMAND_SET_UID_TO_ZONE = "set-audio-zone-for-uid";
     private static final String COMMAND_RESET_VOLUME_CONTEXT = "reset-selected-volume-context";
@@ -654,6 +655,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.printf("\t  %s skips Garage Mode before going into sleep.\n", PARAM_SKIP_GARAGEMODE);
         pw.printf("\t  %s [RESUME_DELAY] wakes up the device RESUME_DELAY seconds after suspend.\n",
                 PARAM_WAKEUP_AFTER);
+        pw.printf("\t  %s [RESUME_DELAY] cancels the wake up after RESUME_DELAY seconds, if this"
+                        + " flag is set, device will not go into suspend mode and wait in shutdown"
+                        + " prepare for RESUME_DELAY seconds.\n",
+                PARAM_CANCEL_AFTER);
         pw.printf("\t%s\n", getSuspendCommandUsage(COMMAND_HIBERNATE));
         pw.println("\t  Suspend the system to disk.");
         pw.printf("\t  %s forces the device to perform suspend-to-disk.\n", PARAM_REAL);
@@ -2864,6 +2869,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         boolean skipGarageMode = false;
         boolean freeMemory = false;
         int resumeDelay = CarPowerManagementService.NO_WAKEUP_BY_TIMER;
+        int cancelDelay = CarPowerManagementService.NO_WAKEUP_BY_TIMER;
         int index = 1;
         while (index < args.length) {
             switch (args[index]) {
@@ -2906,6 +2912,15 @@ final class CarShellCommand extends BasicShellCommandHandler {
                     }
                     resumeDelay = Integer.parseInt(args[index]);
                     break;
+                case PARAM_CANCEL_AFTER:
+                    index++;
+                    if (index >= args.length) {
+                        writer.printf("Invalid command syntax.\nUsage: %s\n",
+                                getSuspendCommandUsage(command));
+                        return;
+                    }
+                    cancelDelay = Integer.parseInt(args[index]);
+                    break;
                 case PARAM_FREE_MEMORY:
                     freeMemory = true;
                     break;
@@ -2916,8 +2931,14 @@ final class CarShellCommand extends BasicShellCommandHandler {
             }
             index++;
         }
-        if (resumeDelay >= 0 && !simulate) {
-            writer.printf("Wake up by timer is available only with simulated suspend.\n");
+        if ((cancelDelay >= 0 || resumeDelay >= 0) && !simulate) {
+            writer.printf("Wake up and cancel by timer is available only with simulated suspend."
+                    + "\n");
+            return;
+        }
+
+        if (cancelDelay >= 0 && resumeDelay >= 0 && simulate) {
+            writer.printf("Cancel and resume cannot be set at the same time.\n");
             return;
         }
 
@@ -2930,10 +2951,18 @@ final class CarShellCommand extends BasicShellCommandHandler {
         if (simulate) {
             try {
                 writer.printf("Suspend: simulating suspend-to-%s.\n", suspendType);
-                mCarPowerManagementService.simulateSuspendAndMaybeReboot(
-                        isHibernation ? PowerHalService.PowerState.SHUTDOWN_TYPE_HIBERNATION
-                                : PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP,
-                        /* shouldReboot= */ false, skipGarageMode, resumeDelay, freeMemory);
+                if (Flags.carPowerCancelShellCommand()) {
+                    mCarPowerManagementService.simulateSuspendAndMaybeReboot(
+                            isHibernation ? PowerHalService.PowerState.SHUTDOWN_TYPE_HIBERNATION
+                                    : PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP,
+                            /* shouldReboot= */ false, skipGarageMode, resumeDelay, cancelDelay,
+                            freeMemory);
+                } else {
+                    mCarPowerManagementService.simulateSuspendAndMaybeReboot(
+                            isHibernation ? PowerHalService.PowerState.SHUTDOWN_TYPE_HIBERNATION
+                                    : PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP,
+                            /* shouldReboot= */ false, skipGarageMode, resumeDelay, freeMemory);
+                }
             } catch (Exception e) {
                 writer.printf("Simulating suspend-to-%s failed: %s\n", suspendType, e.getMessage());
             }
@@ -4287,8 +4316,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
     private static String getSuspendCommandUsage(String command) {
         return command + " [" + PARAM_AUTO + "|" + PARAM_SIMULATE + "|" + PARAM_REAL + "] ["
-                + PARAM_SKIP_GARAGEMODE + "] [" + PARAM_WAKEUP_AFTER + " RESUME_DELAY]" + "["
-                + PARAM_FREE_MEMORY + "]";
+                + PARAM_SKIP_GARAGEMODE + "] [" + PARAM_WAKEUP_AFTER + " RESUME_DELAY | "
+                + PARAM_CANCEL_AFTER + " CANCEL_DELAY]" + "[" + PARAM_FREE_MEMORY + "]";
     }
 
     private static final class AudioZoneMirrorStatusCallbackImpl extends

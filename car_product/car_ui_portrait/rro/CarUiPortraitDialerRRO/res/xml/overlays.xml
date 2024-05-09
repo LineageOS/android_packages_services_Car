@@ -33,7 +33,6 @@
     <item target="id/background_image" value="@id/background_image" />
     <item target="id/call_action_id" value="@id/call_action_id" />
     <item target="id/call_button" value="@id/call_button" />
-    <item target="id/call_state" value="@id/call_state" />
     <item target="id/connect_bluetooth_button" value="@id/connect_bluetooth_button" />
     <item target="id/contact_details_favorite_button" value="@id/contact_details_favorite_button" />
     <item target="id/contact_details_sms_button" value="@id/contact_details_sms_button" />

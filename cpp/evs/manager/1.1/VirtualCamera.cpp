@@ -340,11 +340,12 @@ Return<EvsResult> VirtualCamera::startVideoStream(
     mStreamState = RUNNING;
 
     // Tell the underlying camera hardware that we want to stream
+    bool cleanUpAndReturn = true;
     auto iter = mHalCamera.begin();
     while (iter != mHalCamera.end()) {
         auto pHwCamera = iter->second.promote();
         if (pHwCamera == nullptr) {
-            LOG(ERROR) << "Failed to start a video stream on " << iter->first;
+            LOG(WARNING) << "Failed to start a video stream on " << iter->first;
             ++iter;
             continue;
         }
@@ -352,22 +353,30 @@ Return<EvsResult> VirtualCamera::startVideoStream(
         LOG(INFO) << __FUNCTION__ << " starts a video stream on " << iter->first;
         Return<EvsResult> result = pHwCamera->clientStreamStarting();
         if ((!result.isOk()) || (result != EvsResult::OK)) {
-            // If we failed to start the underlying stream, then we're not actually running
-            mStream = mStream_1_1 = nullptr;
-            mStreamState = STOPPED;
-
-            // Request to stop streams started by this client.
-            auto rb = mHalCamera.begin();
-            while (rb != iter) {
-                auto ptr = rb->second.promote();
-                if (ptr != nullptr) {
-                    ptr->clientStreamEnding(this);
-                }
-                ++rb;
-            }
-            return EvsResult::UNDERLYING_SERVICE_ERROR;
+            LOG(ERROR) << "Failed to start a video stream on " << iter->first;
+            cleanUpAndReturn = true;
+            break;
         }
+
+        cleanUpAndReturn = false;
         ++iter;
+    }
+
+    if (cleanUpAndReturn) {
+        // If we failed to start the underlying stream, then we're not actually running
+        mStream = mStream_1_1 = nullptr;
+        mStreamState = STOPPED;
+
+        // Request to stop streams started by this client.
+        auto rb = mHalCamera.begin();
+        while (rb != iter) {
+            auto ptr = rb->second.promote();
+            if (ptr != nullptr) {
+                ptr->clientStreamEnding(this);
+            }
+            ++rb;
+        }
+        return EvsResult::UNDERLYING_SERVICE_ERROR;
     }
 
     // Start a thread that waits on the fence and forwards collected frames

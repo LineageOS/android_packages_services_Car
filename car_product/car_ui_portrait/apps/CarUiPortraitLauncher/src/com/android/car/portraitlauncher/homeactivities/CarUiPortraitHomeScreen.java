@@ -42,6 +42,7 @@ import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeRea
 import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.createReason;
 
 import android.annotation.Nullable;
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.ActivityTaskManager;
@@ -642,6 +643,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         // SemiControlledCarTaskView allowlist to avoid null pointers.
         mTaskViewControllerWrapper.updateAllowListedActivities(BACKGROUND, List.of());
         mTaskViewControllerWrapper.updateAllowListedActivities(FULLSCREEN, List.of());
+    }
+
+    @Override
+    @SuppressLint("MissingSuperCall")
+    public void onBackPressed() {
+        // ignore back presses
     }
 
     private boolean shouldUpdateApplicationPanelState(TaskInfo taskInfo) {

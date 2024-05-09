@@ -55,6 +55,14 @@ flag {
   }
 }
 
+flag {
+  name: "car_power_cancel_shell_command"
+  is_exported: true
+  namespace: "car_framework"
+  description: "Controls whether --cancel-after flag can be used in suspend command"
+  bug: "337063842"
+}
+
 # CarAudioManager
 flag {
   name: "car_audio_dynamic_devices"
