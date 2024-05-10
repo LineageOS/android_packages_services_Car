@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-/*
- * Copyright 2019, The Android Open Source Project
+ * Copyright (c) 2024, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +13,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+*/
 -->
-<TextView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="@*android:string/use_a_different_app"
-    android:textAppearance="@*android:style/TextAppearance.DeviceDefault.DialogWindowTitle"
-    android:gravity="start|center_vertical"
-    android:paddingVertical="@*android:dimen/car_padding_4"
-    android:paddingHorizontal="@*android:dimen/car_padding_4" />
+<resources>
+    <dimen name="background_blur_radius">14dp</dimen>
+    <dimen name="resolver_list_max_height">@*android:dimen/car_activity_resolver_list_max_height</dimen>
+</resources>
