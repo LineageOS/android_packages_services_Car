@@ -21,7 +21,6 @@ import static android.app.Activity.RESULT_CANCELED;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import android.app.DownloadManager;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
@@ -89,55 +88,6 @@ public final class StubsTest {
         mData = "package:com.android.car.frameworkpackagestubs.test";
         mExpectedResult = RESULT_CANCELED;
         checkIfHandleByStub(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
-    }
-
-    @Test
-    public void testOpenDocument() {
-        mMimeType = "*/*";
-        mCategory = Intent.CATEGORY_OPENABLE;
-        mExpectedResult = RESULT_CANCELED;
-        checkIfHandleByStub(Intent.ACTION_OPEN_DOCUMENT);
-    }
-
-    @Test
-    public void testCreateDocument() {
-        mMimeType = "*/*";
-        mCategory = Intent.CATEGORY_OPENABLE;
-        mExpectedResult = RESULT_CANCELED;
-        checkIfHandleByStub(Intent.ACTION_CREATE_DOCUMENT);
-    }
-
-    @Test
-    public void testGetContent() {
-        // A media picker, etc. may support ACTION_GET_CONTENT with other MIME-types. Therefore,
-        // a non-existent MIME-type: "type/nonexistent" is used to check the general file picker.
-        mMimeType = "type/nonexistent";
-        mCategory = Intent.CATEGORY_OPENABLE;
-        mExpectedResult = RESULT_CANCELED;
-        checkIfHandleByStub(Intent.ACTION_GET_CONTENT);
-    }
-
-    @Test
-    public void testOpenDocumentTree() {
-        mExpectedResult = RESULT_CANCELED;
-        checkIfHandleByStub(Intent.ACTION_OPEN_DOCUMENT_TREE);
-    }
-
-    @Test
-    public void testViewDocumentRoot() {
-        mMimeType = "vnd.android.document/root";
-        checkIfHandleByStub(Intent.ACTION_VIEW);
-    }
-
-    @Test
-    public void testViewDocumentDirectory() {
-        mMimeType = "vnd.android.document/directory";
-        checkIfHandleByStub(Intent.ACTION_VIEW);
-    }
-
-    @Test
-    public void testViewDownloads() {
-        checkIfHandleByStub(DownloadManager.ACTION_VIEW_DOWNLOADS);
     }
 
     private void checkIfHandleByStub(String strIntent) {

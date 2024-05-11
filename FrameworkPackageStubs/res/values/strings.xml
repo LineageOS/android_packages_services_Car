@@ -13,9 +13,6 @@
     <!-- Toast message displayed when MANAGE_UNKNOWN_APP_SOURCES isn't supported. [CHAR LIMIT=NONE] -->
     <string name="manage_unknown_app_sources_not_supported">Manage Unknown App Sources is not supported on this device</string>
 
-    <!-- Toast message displayed when documentsui isn't supported. [CHAR LIMIT=NONE] -->
-    <string name="documentsui_not_supported">File Management is not supported on this device</string>
-
     <!-- Toast message displayed when android.settings.DREAM_SETTINGS isn't supported. [CHAR LIMIT=NONE] -->
     <string name="dream_not_supported">Screensavers are not supported on this device</string>
 

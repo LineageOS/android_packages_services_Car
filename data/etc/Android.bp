@@ -91,6 +91,13 @@ prebuilt_etc {
 }
 
 prebuilt_etc {
+    name: "allowed_privapp_com.android.car.documentsui",
+    sub_dir: "permissions",
+    src: "com.android.car.documentsui.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
     name: "allowed_privapp_com.android.car.hvac",
     sub_dir: "permissions",
     src: "com.android.car.hvac.xml",

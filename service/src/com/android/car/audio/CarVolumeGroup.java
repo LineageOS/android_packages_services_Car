@@ -210,11 +210,6 @@ import java.util.Set;
     }
 
     @GuardedBy("mLock")
-    protected boolean hasPendingAttenuationReasonsLocked() {
-        return !mReasons.isEmpty();
-    }
-
-    @GuardedBy("mLock")
     protected void setBlockedLocked(int blockedIndex) {
         mBlockedGainIndex = blockedIndex;
     }

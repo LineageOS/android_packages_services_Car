@@ -156,22 +156,6 @@ public final class Stubs {
         }
     }
 
-    /** Stub activity for DocumentsUI intents. */
-    public static class DocumentsUIStub extends BaseActivity {
-        @Override
-        protected CharSequence getMessage() {
-            return getResources().getString(R.string.documentsui_not_supported);
-        }
-    }
-
-    /** Stub activity for DocumentsUI intents expecting the result. */
-    public static class DocumentsUIStubWithResult extends DocumentsUIStub {
-        @Override
-        protected void setResultImp() {
-            setResult(RESULT_CANCELED);
-        }
-    }
-
     /** Stub activity for Dream Settings. */
     public static class DreamSettingsStub extends BaseActivity {
         @Override

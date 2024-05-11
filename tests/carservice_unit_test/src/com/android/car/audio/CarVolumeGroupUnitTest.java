@@ -2158,6 +2158,14 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
                 .that(existingDevices).containsExactly(TYPE_BLUETOOTH_A2DP);
     }
 
+    @Test
+    public void onAudioVolumeGroupChanged() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup(/* useCarVolumeGroupMute= */ false);
+
+        expectWithMessage("Flags for audio volume group change")
+                .that(carVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0)).isEqualTo(0);
+    }
+
     private CarVolumeGroup getCarVolumeGroupWithMusicBound() {
         CarVolumeGroupFactory factory = getFactory(/* useCarVolumeGroupMute= */ true);
         factory.setDeviceInfoForContext(TEST_MEDIA_CONTEXT_ID, mMediaDeviceInfo);
