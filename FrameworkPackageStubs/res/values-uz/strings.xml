@@ -5,7 +5,6 @@
     <string name="message_not_supported" msgid="133939962837892495">"Bu amalni bajaradigan ilova mavjud emas"</string>
     <string name="pip_not_supported" msgid="8681268258599412706">"Tasvir ustida tasvir bu qurilmada ishlamaydi"</string>
     <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"Bu qurilmada Notanish ilova manbalarini boshqarish ishlamaydi"</string>
-    <string name="documentsui_not_supported" msgid="2786636475647817501">"Bu qurilmada fayl boshqaruvi ishlamaydi"</string>
     <string name="dream_not_supported" msgid="2274365800432553936">"Bu qurilmada ekran lavhasi ishlamaydi"</string>
     <string name="stub_name" msgid="3987164490218189006">"Hech qanday"</string>
 </resources>

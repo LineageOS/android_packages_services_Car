@@ -5,7 +5,6 @@
     <string name="message_not_supported" msgid="133939962837892495">"沒有可處理此操作的應用程式"</string>
     <string name="pip_not_supported" msgid="8681268258599412706">"此裝置不支援「畫中畫」功能"</string>
     <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"此裝置不支援「管理不明的應用程式來源」"</string>
-    <string name="documentsui_not_supported" msgid="2786636475647817501">"此裝置不支援「檔案管理」"</string>
     <string name="dream_not_supported" msgid="2274365800432553936">"此裝置不支援螢幕保護程式"</string>
     <string name="stub_name" msgid="3987164490218189006">"無"</string>
 </resources>

@@ -5,7 +5,6 @@
     <string name="message_not_supported" msgid="133939962837892495">"Ingen app kan hantera den här åtgärden"</string>
     <string name="pip_not_supported" msgid="8681268258599412706">"Bild-i-bild stöds inte på enheten"</string>
     <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"Det finns inte stöd för att hantera appar med okända källor på den här enheten"</string>
-    <string name="documentsui_not_supported" msgid="2786636475647817501">"Det finns inte stöd för filhantering på den här enheten"</string>
     <string name="dream_not_supported" msgid="2274365800432553936">"Skärmsläckare stöds inte på enheten"</string>
     <string name="stub_name" msgid="3987164490218189006">"Inga"</string>
 </resources>
