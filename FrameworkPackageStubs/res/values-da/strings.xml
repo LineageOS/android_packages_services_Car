@@ -5,7 +5,6 @@
     <string name="message_not_supported" msgid="133939962837892495">"Ingen app kan håndtere denne handling"</string>
     <string name="pip_not_supported" msgid="8681268258599412706">"Denne enhed understøtter ikke integreret billede"</string>
     <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"Administrering af ukendte appkilder understøttes ikke på denne enhed"</string>
-    <string name="documentsui_not_supported" msgid="2786636475647817501">"Filhåndtering understøttes ikke på denne enhed"</string>
     <string name="dream_not_supported" msgid="2274365800432553936">"Pauseskærme understøttes ikke på denne enhed"</string>
     <string name="stub_name" msgid="3987164490218189006">"Ingen"</string>
 </resources>

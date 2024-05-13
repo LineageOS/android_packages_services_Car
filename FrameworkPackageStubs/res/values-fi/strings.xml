@@ -5,7 +5,6 @@
     <string name="message_not_supported" msgid="133939962837892495">"Yksikään sovellus ei voi käsitellä tätä toimintoa."</string>
     <string name="pip_not_supported" msgid="8681268258599412706">"Pikkuruutua ei tueta tällä laitteella"</string>
     <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"Tuntemattomien sovelluslähteiden hallinnointia ei tueta tällä laitteella"</string>
-    <string name="documentsui_not_supported" msgid="2786636475647817501">"Tiedostonhallintaa ei tueta tällä laitteella"</string>
     <string name="dream_not_supported" msgid="2274365800432553936">"Näytönsäästäjiä ei tueta tällä laitteella"</string>
     <string name="stub_name" msgid="3987164490218189006">"–"</string>
 </resources>
