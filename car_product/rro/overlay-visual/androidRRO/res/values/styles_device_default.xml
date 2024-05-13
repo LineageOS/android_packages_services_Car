@@ -82,9 +82,10 @@
     <style name="DialogWindowTitle.DeviceDefault" parent="*android:DialogWindowTitle.Material">
         <item name="android:textAppearance">@*android:style/TextAppearance.DeviceDefault.DialogWindowTitle</item>
     </style>
-    <style name="TextAppearance.DeviceDefault.DialogWindowTitle" parent="android:TextAppearance.DeviceDefault.Large">
+    <style name="TextAppearance.DeviceDefault.DialogWindowTitle" parent="android:TextAppearance.Material.DialogWindowTitle">
         <item name="android:fontFamily">@*android:string/config_headlineFontFamilyMedium</item>
         <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@*android:dimen/car_body2_size</item>
         <item name="android:textColor">@*android:color/car_body2</item>
     </style>
     <style name="TextAppearance.Material.DialogWindowTitle" parent="android:TextAppearance.Material.Title" />
