@@ -21,7 +21,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:text="@*android:string/use_a_different_app"
-    android:textAppearance="@*android:style/TextAppearance.DeviceDefault.DialogWindowTitle"
+    android:minHeight="56dp"
+    android:textAppearance="?android:attr/textAppearanceLarge"
+    android:textSize="@*android:dimen/car_body2_size"
     android:gravity="start|center_vertical"
-    android:paddingVertical="@*android:dimen/car_padding_4"
-    android:paddingHorizontal="@*android:dimen/car_padding_4" />
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:elevation="8dp"
+/>
