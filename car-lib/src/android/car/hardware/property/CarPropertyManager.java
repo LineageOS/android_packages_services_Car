@@ -2241,9 +2241,9 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws CarInternalErrorException when there is an unexpected error detected in cars
      * @throws PropertyAccessDeniedSecurityException when cars denied the access of the
      * property
-     * @throws PropertyNotAvailableAndRetryException when the property is temporarily
+     * @throws PropertyNotAvailableAndRetryException when [propertyId, areaId] is temporarily
      * not available and likely that retrying will be successful
-     * @throws PropertyNotAvailableException when the property is not available and might be
+     * @throws PropertyNotAvailableException when [propertyId, areaId] is not available and might be
      * unavailable for a while.
      * @throws IllegalArgumentException when the [propertyId, areaId] is not supported for U and
      * later client, or when the property is of wrong type.
@@ -2269,9 +2269,9 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws CarInternalErrorException when there is an unexpected error detected in cars
      * @throws PropertyAccessDeniedSecurityException when cars denied the access of the
      * property
-     * @throws PropertyNotAvailableAndRetryException when the property is temporarily
+     * @throws PropertyNotAvailableAndRetryException when [propertyId, areaId] is temporarily
      * not available and likely that retrying will be successful
-     * @throws PropertyNotAvailableException when the property is not available and might be
+     * @throws PropertyNotAvailableException when [propertyId, areaId] is not available and might be
      * unavailable for a while.
      * @throws IllegalArgumentException when the [propertyId, areaId] is not supported for U and
      * later client, or when the property is of wrong type.
@@ -2297,9 +2297,9 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws CarInternalErrorException when there is an unexpected error detected in cars
      * @throws PropertyAccessDeniedSecurityException when cars denied the access of the
      * property
-     * @throws PropertyNotAvailableAndRetryException when the property is temporarily
+     * @throws PropertyNotAvailableAndRetryException when [propertyId, areaId] is temporarily
      * not available and likely that retrying will be successful
-     * @throws PropertyNotAvailableException when the property is not available and might be
+     * @throws PropertyNotAvailableException when [propertyId, areaId] is not available and might be
      * unavailable for a while.
      * @throws IllegalArgumentException when the [propertyId, areaId] is not supported for U and
      * later client, or when the property is of wrong type.
@@ -2325,9 +2325,9 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws CarInternalErrorException when there is an unexpected error detected in cars
      * @throws PropertyAccessDeniedSecurityException when cars denied the access of the
      * property
-     * @throws PropertyNotAvailableAndRetryException when the property is temporarily
+     * @throws PropertyNotAvailableAndRetryException when [propertyId, areaId] is temporarily
      * not available and likely that retrying will be successful
-     * @throws PropertyNotAvailableException when the property is not available and might be
+     * @throws PropertyNotAvailableException when [propertyId, areaId] is not available and might be
      * unavailable for a while.
      * @throws IllegalArgumentException when the [propertyId, areaId] is not supported for U and
      * later client, or when the property is of wrong type.
@@ -2495,9 +2495,9 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws CarInternalErrorException when there is an unexpected error detected in cars
      * @throws PropertyAccessDeniedSecurityException when cars denied the access of the
      * property
-     * @throws PropertyNotAvailableAndRetryException when the property is temporarily
+     * @throws PropertyNotAvailableAndRetryException when [propertyId, areaId] is temporarily
      * not available and likely that retrying will be successful
-     * @throws PropertyNotAvailableException when the property is not available and might be
+     * @throws PropertyNotAvailableException when [propertyId, areaId] is not available and might be
      * unavailable for a while.
      * @throws IllegalArgumentException when the [propertyId, areaId] is not supported for U and
      * later client, or when the specified class does not match the property type.
@@ -2607,9 +2607,9 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws CarInternalErrorException when there is an unexpected error detected in cars
      * @throws PropertyAccessDeniedSecurityException when cars denied the access of the
      * property
-     * @throws PropertyNotAvailableAndRetryException when the property is temporarily
+     * @throws PropertyNotAvailableAndRetryException when [propertyId, areaId] is temporarily
      * not available and likely that retrying will be successful
-     * @throws PropertyNotAvailableException when the property is not available and might be
+     * @throws PropertyNotAvailableException when [propertyId, areaId] is not available and might be
      * unavailable for a while.
      * @throws IllegalArgumentException when the [propertyId, areaId] is not supported for U and
      * later client.
@@ -2744,10 +2744,10 @@ public class CarPropertyManager extends CarManagerBase {
      *
      * @throws CarInternalErrorException when there is an unexpected error detected in cars.
      * @throws PropertyAccessDeniedSecurityException when cars denied the access of the property.
-     * @throws PropertyNotAvailableException when the property is not available and might be
+     * @throws PropertyNotAvailableException when [propertyId, areaId] is not available and might be
      * unavailable for a while.
-     * @throws PropertyNotAvailableAndRetryException when the property is temporarily not available
-     * and likely that retrying will be successful.
+     * @throws PropertyNotAvailableAndRetryException when [propertyId, areaId] is temporarily not
+     * available and likely that retrying will be successful.
      * @throws IllegalArgumentException when the [propertyId, areaId] is not supported.
      */
     public <E> void setProperty(@NonNull Class<E> clazz, int propertyId, int areaId,
