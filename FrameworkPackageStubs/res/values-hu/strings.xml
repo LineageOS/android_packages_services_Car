@@ -5,7 +5,6 @@
     <string name="message_not_supported" msgid="133939962837892495">"Ezt nem tudják elvégezni az alkalmazások"</string>
     <string name="pip_not_supported" msgid="8681268258599412706">"A Kép a képben funkció nem támogatott ezen az eszközön"</string>
     <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"Ezen az eszközön nem támogatott az ismeretlen alkalmazásforrások kezelése"</string>
-    <string name="documentsui_not_supported" msgid="2786636475647817501">"Ezen az eszközön nem támogatott a fájlkezelés"</string>
     <string name="dream_not_supported" msgid="2274365800432553936">"Ez az eszköz nem támogatja a képernyőkímélőket"</string>
     <string name="stub_name" msgid="3987164490218189006">"Nincs"</string>
 </resources>
