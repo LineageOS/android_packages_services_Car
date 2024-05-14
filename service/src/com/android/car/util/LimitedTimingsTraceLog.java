@@ -26,21 +26,12 @@ import android.car.builtin.util.TimingsTraceLog;
  */
 public final class LimitedTimingsTraceLog extends TimingsTraceLog {
 
-    private final int mMinDurationMs;
-
     /**
      * Same as {@link TimingsTraceLog} except last argument {@code minDurationMs} which specifies
      * the minimum duration to log the duration.
      */
     public LimitedTimingsTraceLog(String tag, long traceTag, int minDurationMs) {
-        super(tag, traceTag);
-        mMinDurationMs = minDurationMs;
+        super(tag, traceTag, minDurationMs);
     }
 
-    @Override
-    public void logDuration(String name, long timeMs) {
-        if (timeMs >= mMinDurationMs) {
-            super.logDuration(name, timeMs);
-        }
-    }
 }
