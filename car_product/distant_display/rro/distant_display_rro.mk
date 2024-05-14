@@ -19,5 +19,8 @@ PRODUCT_PACKAGES += \
     CarServiceRRO \
     DistantDisplayFrameworkResRRO \
 
+PRODUCT_PACKAGES_DEBUG += \
+    LaunchOnPrivateDisplayTestAppRRO \
+
 PRODUCT_PRODUCT_PROPERTIES += \
     car.ui.config=distantdisplay

@@ -221,5 +221,7 @@
     </string>
 
     <!-- Allowlisted packages for launch on a private display. -->
-    <string-array name="config_defaultAllowlistLaunchOnPrivateDisplayPackages"></string-array>
+    <string-array name="config_defaultAllowlistLaunchOnPrivateDisplayPackages">
+        <item>com.example.android.launchonprivatedisplay</item>
+    </string-array>
 </resources>
