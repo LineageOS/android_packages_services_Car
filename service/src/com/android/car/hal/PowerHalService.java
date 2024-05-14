@@ -29,6 +29,7 @@ import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.DisplayHelper;
+import android.car.feature.FeatureFlags;
 import android.content.Context;
 import android.hardware.automotive.vehicle.VehicleApPowerBootupReason;
 import android.hardware.automotive.vehicle.VehicleApPowerStateConfigFlag;
@@ -41,6 +42,7 @@ import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.display.DisplayManager;
 import android.os.ServiceSpecificException;
 import android.util.SparseArray;
+import android.util.SparseIntArray;
 import android.view.Display;
 
 import com.android.car.CarLog;
@@ -64,6 +66,10 @@ public class PowerHalService extends HalServiceBase {
     // Set display brightness from 0-100%
     public static final int MAX_BRIGHTNESS = 100;
 
+    // TODO(b/337307388): replace this with VehicleProperty.PER_DISPLAY_MAX_BRIGHTNESS once we use
+    // property V4.
+    private static final int PER_DISPLAY_MAX_BRIGHTNESS = 0x11410F4E;
+
     private record PropertyInfo(boolean needSubscription) {}
 
     private static SparseArray<PropertyInfo> getSupportedProperties() {
@@ -75,6 +81,7 @@ public class PowerHalService extends HalServiceBase {
         propertyInfo.put(PER_DISPLAY_BRIGHTNESS, new PropertyInfo(/*needSubscription=*/ true));
         propertyInfo.put(VEHICLE_IN_USE, new PropertyInfo(/*needSubscription=*/ false));
         propertyInfo.put(AP_POWER_BOOTUP_REASON, new PropertyInfo(/*needSubscription=*/ false));
+        propertyInfo.put(PER_DISPLAY_MAX_BRIGHTNESS, new PropertyInfo(/*needSubscription=*/ false));
         return propertyInfo;
     }
 
@@ -315,6 +322,7 @@ public class PowerHalService extends HalServiceBase {
     private final SparseArray<HalPropConfig> mProperties = new SparseArray<>();
     private final Context mContext;
     private final VehicleHal mHal;
+    private final FeatureFlags mFeatureFlags;
     @Nullable
     @GuardedBy("mLock")
     private ArrayList<HalPropValue> mQueuedEvents;
@@ -323,10 +331,13 @@ public class PowerHalService extends HalServiceBase {
     @GuardedBy("mLock")
     private int mMaxDisplayBrightness;
     @GuardedBy("mLock")
+    private SparseIntArray mMaxPerDisplayBrightness = new SparseIntArray();
+    @GuardedBy("mLock")
     private boolean mPerDisplayBrightnessSupported;
 
-    public PowerHalService(Context context, VehicleHal hal) {
+    public PowerHalService(Context context, FeatureFlags featureFlags, VehicleHal hal) {
         mContext = context;
+        mFeatureFlags = featureFlags;
         mHal = hal;
     }
 
@@ -677,7 +688,8 @@ public class PowerHalService extends HalServiceBase {
         synchronized (mLock) {
             for (int i = 0; i < mProperties.size(); i++) {
                 int propId = mProperties.valueAt(i).getPropId();
-                if (SUPPORTED_PROPERTIES.get(propId).needSubscription) {
+                if (mProperties.contains(propId)
+                        && SUPPORTED_PROPERTIES.get(propId).needSubscription) {
                     mHal.subscribeProperty(this, propId);
                 }
             }
@@ -695,8 +707,38 @@ public class PowerHalService extends HalServiceBase {
                             + mMaxDisplayBrightness);
                     mMaxDisplayBrightness = 1;
                 }
+
+                if (mFeatureFlags.perDisplayMaxBrightness()) {
+                    getMaxPerDisplayBrightnessFromVhalLocked();
+                }
             }
         }
+    }
+
+    @GuardedBy("mLock")
+    private void getMaxPerDisplayBrightnessFromVhalLocked() {
+        if (!mPerDisplayBrightnessSupported
+                || !mProperties.contains(PER_DISPLAY_MAX_BRIGHTNESS)) {
+            return;
+        }
+
+        try {
+            HalPropValue value = mHal.get(PER_DISPLAY_MAX_BRIGHTNESS);
+            for (int i = 0; i + 1 < value.getInt32ValuesSize(); i += 2) {
+                int displayPort = value.getInt32Value(i);
+                int maxDisplayBrightness = value.getInt32Value(i + 1);
+                if (maxDisplayBrightness <= 0) {
+                    Slogf.w(CarLog.TAG_POWER,
+                            "Max display brightness from vehicle HAL for display port: %d is "
+                            + "invalid:  %d", displayPort, maxDisplayBrightness);
+                    maxDisplayBrightness = 1;
+                }
+                mMaxPerDisplayBrightness.put(displayPort, maxDisplayBrightness);
+            }
+        } catch (ServiceSpecificException e) {
+            Slogf.e(CarLog.TAG_POWER, "Cannot get PER_DISPLAY_MAX_BRIGHTNESS", e);
+        }
+
     }
 
     @Override
@@ -805,20 +847,27 @@ public class PowerHalService extends HalServiceBase {
                 }
                 case PER_DISPLAY_BRIGHTNESS:
                 {
-                    int maxBrightness;
-                    synchronized (mLock) {
-                        maxBrightness = mMaxDisplayBrightness;
-                    }
                     int displayPort;
                     int brightness;
                     try {
                         displayPort = v.getInt32Value(0);
-                        brightness = v.getInt32Value(1) * MAX_BRIGHTNESS / maxBrightness;
+                        brightness = v.getInt32Value(1);
                     } catch (IndexOutOfBoundsException e) {
                         Slogf.e(CarLog.TAG_POWER, "Received invalid event, ignore, int32Values: "
                                 + v.dumpInt32Values(), e);
                         break;
                     }
+                    int maxBrightness;
+                    synchronized (mLock) {
+                        if (!mFeatureFlags.perDisplayMaxBrightness()
+                                || mMaxPerDisplayBrightness.size() == 0) {
+                            maxBrightness = mMaxDisplayBrightness;
+                        } else {
+                            maxBrightness = mMaxPerDisplayBrightness.get(displayPort,
+                                    /* valueIfKeyNotFound= */ 1);
+                        }
+                    }
+                    brightness = brightness * MAX_BRIGHTNESS / maxBrightness;
                     brightness = adjustBrightness(brightness, /* minBrightness= */ 0,
                             MAX_BRIGHTNESS);
                     Slogf.i(CarLog.TAG_POWER, "Received PER_DISPLAY_BRIGHTNESS=" + brightness
