@@ -854,6 +854,11 @@ public class AudioTestFragment extends Fragment {
         for (int audioZoneId: mCarAudioManager.getAudioZoneIds()) {
             AudioDeviceInfo deviceInfo = mCarAudioManager
                     .getOutputDeviceForUsage(audioZoneId, USAGE_MEDIA);
+            if (deviceInfo == null) {
+                Log.i(TAG, "Audio device info for media in zone " + audioZoneId
+                        + " is not available.");
+                continue;
+            }
             CarAudioZoneDeviceInfo carAudioZoneDeviceInfo = new CarAudioZoneDeviceInfo();
             carAudioZoneDeviceInfo.mDeviceInfo = deviceInfo;
             carAudioZoneDeviceInfo.mAudioZoneId = audioZoneId;
