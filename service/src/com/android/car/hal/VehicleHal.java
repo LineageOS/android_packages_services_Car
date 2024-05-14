@@ -270,7 +270,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         mPropValueBuilder = vehicle.getHalPropValueBuilder();
         mHandlerThread = handlerThread;
         mHandler = new Handler(mHandlerThread.getLooper());
-        mPowerHal = powerHal != null ? powerHal : new PowerHalService(context, this);
+        mPowerHal = powerHal != null ? powerHal : new PowerHalService(context, mFeatureFlags, this);
         mPropertyHal = propertyHal != null ? propertyHal : new PropertyHalService(this);
         mInputHal = inputHal != null ? inputHal : new InputHalService(this);
         mVmsHal = vmsHal != null ? vmsHal : new VmsHalService(context, this);

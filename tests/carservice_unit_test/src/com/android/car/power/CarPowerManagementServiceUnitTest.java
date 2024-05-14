@@ -2222,7 +2222,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
         var service = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
-                .setPowerHalService(new PowerHalService(mContext, vehicleHal))
+                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal))
                 .setSystemInterface(mSystemInterface).setUserManager(mUserManager)
                 .setCarUserService(mUserService).setPowerPolicyDaemon(mRefactoredPowerPolicyDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).setFeatureFlags(mFeatureFlags)
@@ -2262,7 +2262,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
         var service = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
-                .setPowerHalService(new PowerHalService(mContext, vehicleHal))
+                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal))
                 .setSystemInterface(mSystemInterface).setUserManager(mUserManager)
                 .setCarUserService(mUserService).setPowerPolicyDaemon(mRefactoredPowerPolicyDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).setFeatureFlags(mFeatureFlags)
@@ -2286,7 +2286,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
         var service = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
-                .setPowerHalService(new PowerHalService(mContext, vehicleHal))
+                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal))
                 .setSystemInterface(mSystemInterface).setUserManager(mUserManager)
                 .setCarUserService(mUserService).setPowerPolicyDaemon(mRefactoredPowerPolicyDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).setFeatureFlags(mFeatureFlags)
@@ -2319,7 +2319,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
         var service = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
-                .setPowerHalService(new PowerHalService(mContext, vehicleHal))
+                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal))
                 .setSystemInterface(mSystemInterface).setUserManager(mUserManager)
                 .setCarUserService(mUserService).setPowerPolicyDaemon(mRefactoredPowerPolicyDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).setFeatureFlags(mFeatureFlags)
@@ -2359,7 +2359,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
         var service = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
-                .setPowerHalService(new PowerHalService(mContext, vehicleHal))
+                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal))
                 .setSystemInterface(mSystemInterface).setUserManager(mUserManager)
                 .setCarUserService(mUserService).setPowerPolicyDaemon(mRefactoredPowerPolicyDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).setFeatureFlags(mFeatureFlags)
