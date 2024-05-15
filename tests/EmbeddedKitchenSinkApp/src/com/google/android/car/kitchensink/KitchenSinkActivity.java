@@ -30,8 +30,6 @@ import android.car.telemetry.CarTelemetryManager;
 import android.car.watchdog.CarWatchdogManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemProperties;
@@ -142,10 +140,67 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
     private int mNotificationId = 1000;
     private boolean mShowHeaderInfo;
 
+    private final KitchenSinkHelperImpl mKsHelperImpl = new KitchenSinkHelperImpl();
+
     public static final String DUMP_ARG_CMD = "cmd";
     public static final String DUMP_ARG_FRAGMENT = "fragment";
     public static final String DUMP_ARG_QUIET = "quiet";
     public static final String DUMP_ARG_REFRESH = "refresh";
+
+    @Override
+    public Car getCar() {
+        return mKsHelperImpl.getCar();
+    }
+
+    @Override
+    public void requestRefreshManager(Runnable r, Handler h) {
+        mKsHelperImpl.requestRefreshManager(r, h);
+    }
+
+    @Override
+    public CarPropertyManager getPropertyManager() {
+        return mKsHelperImpl.getPropertyManager();
+    }
+
+    @Override
+    public CarHvacManager getHvacManager() {
+        return mKsHelperImpl.getHvacManager();
+    }
+
+    @Override
+    public CarOccupantZoneManager getOccupantZoneManager() {
+        return mKsHelperImpl.getOccupantZoneManager();
+    }
+
+    @Override
+    public CarPowerManager getPowerManager() {
+        return mKsHelperImpl.getPowerManager();
+    }
+
+    @Override
+    public CarSensorManager getSensorManager() {
+        return mKsHelperImpl.getSensorManager();
+    }
+
+    @Override
+    public CarProjectionManager getProjectionManager() {
+        return mKsHelperImpl.getProjectionManager();
+    }
+
+    @Override
+    public CarTelemetryManager getCarTelemetryManager() {
+        return mKsHelperImpl.getCarTelemetryManager();
+    }
+
+    @Override
+    public CarWatchdogManager getCarWatchdogManager() {
+        return mKsHelperImpl.getCarWatchdogManager();
+    }
+
+    @Override
+    public CarPerformanceManager getPerformanceManager() {
+        return mKsHelperImpl.getPerformanceManager();
+    }
 
     private interface ClickHandler {
         void onClick();
@@ -313,23 +368,6 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
             new Pair<>("Camera2", Camera2TestFragment.class),
             new Pair<>(RadioTestFragment.FRAGMENT_NAME, RadioTestFragment.class));
 
-    private Car mCarApi;
-    private CarHvacManager mHvacManager;
-    private CarOccupantZoneManager mOccupantZoneManager;
-    private CarPowerManager mPowerManager;
-    private CarPropertyManager mPropertyManager;
-    private CarSensorManager mSensorManager;
-    private CarProjectionManager mCarProjectionManager;
-    private CarTelemetryManager mCarTelemetryManager;
-    private CarWatchdogManager mCarWatchdogManager;
-    private CarPerformanceManager mCarPerformanceManager;
-    private Object mPropertyManagerReady = new Object();
-
-    @Override
-    public Car getCar() {
-        return mCarApi;
-    }
-
     public KitchenSinkActivity() {
         for (Pair<String, Class> entry : MENU_ENTRIES) {
             mMenuEntries.add(new FragmentMenuEntry(entry.first, entry.second));
@@ -337,41 +375,6 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
         mMenuEntries.sort(Comparator.comparing(MenuEntry::getText));
     }
 
-    public CarHvacManager getHvacManager() {
-        return mHvacManager;
-    }
-
-    public CarOccupantZoneManager getOccupantZoneManager() {
-        return mOccupantZoneManager;
-    }
-
-    public CarPowerManager getPowerManager() {
-        return mPowerManager;
-    }
-
-    public CarPropertyManager getPropertyManager() {
-        return mPropertyManager;
-    }
-
-    public CarSensorManager getSensorManager() {
-        return mSensorManager;
-    }
-
-    public CarProjectionManager getProjectionManager() {
-        return mCarProjectionManager;
-    }
-
-    public CarTelemetryManager getCarTelemetryManager() {
-        return mCarTelemetryManager;
-    }
-
-    public CarWatchdogManager getCarWatchdogManager() {
-        return mCarWatchdogManager;
-    }
-
-    public CarPerformanceManager getPerformanceManager() {
-        return mCarPerformanceManager;
-    }
 
     /* Open any tab directly:
      * adb shell am force-stop com.google.android.car.kitchensink
@@ -426,10 +429,7 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
             return insets.inset(i).consumeSystemWindowInsets();
         });
 
-        // Connection to Car Service does not work for non-automotive yet.
-        if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
-            initCarApi();
-        }
+        mKsHelperImpl.initCarApiIfAutomotive(this);
 
         mKitchenContent = findViewById(R.id.kitchen_content);
 
@@ -515,19 +515,6 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
         startActivity(homeIntent);
     }
 
-    private void initCarApi() {
-        if (mCarApi != null && mCarApi.isConnected()) {
-            mCarApi.disconnect();
-            mCarApi = null;
-        }
-        mCarApi = Car.createCar(this, null, Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER,
-                (Car car, boolean ready) -> {
-                    if (ready) {
-                        initManagers(car);
-                    }
-                });
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -568,9 +555,7 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
 
     @Override
     protected void onDestroy() {
-        if (mCarApi != null) {
-            mCarApi.disconnect();
-        }
+        mKsHelperImpl.disconnect();
         Log.i(TAG, "onDestroy");
         super.onDestroy();
     }
@@ -645,30 +630,6 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
         mLastFragment = fragment;
     }
 
-    private void initManagers(Car car) {
-        synchronized (mPropertyManagerReady) {
-            mHvacManager = (CarHvacManager) car.getCarManager(
-                    android.car.Car.HVAC_SERVICE);
-            mOccupantZoneManager = (CarOccupantZoneManager) car.getCarManager(
-                    android.car.Car.CAR_OCCUPANT_ZONE_SERVICE);
-            mPowerManager = (CarPowerManager) car.getCarManager(
-                    android.car.Car.POWER_SERVICE);
-            mPropertyManager = (CarPropertyManager) car.getCarManager(
-                    android.car.Car.PROPERTY_SERVICE);
-            mSensorManager = (CarSensorManager) car.getCarManager(
-                    android.car.Car.SENSOR_SERVICE);
-            mCarProjectionManager =
-                    (CarProjectionManager) car.getCarManager(Car.PROJECTION_SERVICE);
-            mCarTelemetryManager =
-                    (CarTelemetryManager) car.getCarManager(Car.CAR_TELEMETRY_SERVICE);
-            mCarWatchdogManager =
-                    (CarWatchdogManager) car.getCarManager(Car.CAR_WATCHDOG_SERVICE);
-            mCarPerformanceManager =
-                    (CarPerformanceManager) car.getCarManager(Car.CAR_PERFORMANCE_SERVICE);
-            mPropertyManagerReady.notifyAll();
-        }
-    }
-
     private void updateHeaderInfoVisibility() {
         mShowHeaderInfo = getBooleanProperty(PROPERTY_SHOW_HEADER_INFO, false);
         Log.i(TAG, "updateHeaderInfoVisibility(): showHeaderInfo=" + mShowHeaderInfo);
@@ -717,31 +678,6 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
             super(itemView);
             mTitle = itemView.findViewById(R.id.title);
         }
-    }
-
-    // Use AsyncTask to refresh Car*Manager after car service connected
-    public void requestRefreshManager(final Runnable r, final Handler h) {
-        final AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... unused) {
-                synchronized (mPropertyManagerReady) {
-                    while (!mCarApi.isConnected()) {
-                        try {
-                            mPropertyManagerReady.wait();
-                        } catch (InterruptedException e) {
-                            return null;
-                        }
-                    }
-                }
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void unused) {
-                h.post(r);
-            }
-        };
-        task.execute();
     }
 
     private static boolean getBooleanProperty(String prop, boolean defaultValue) {
