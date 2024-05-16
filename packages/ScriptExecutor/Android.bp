@@ -87,6 +87,7 @@ android_app {
 
     jni_uses_platform_apis: true,
 
+    use_embedded_native_libs: true,
     apex_available: [
         "//apex_available:platform",
         "com.android.car.framework",
