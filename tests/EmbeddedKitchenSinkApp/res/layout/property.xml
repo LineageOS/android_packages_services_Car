@@ -167,6 +167,16 @@
                     android:layout_weight="1"
                     android:layout_width="0dp" />
             </LinearLayout>
+
+            <ToggleButton
+                android:clickable="false"
+                android:id="@+id/tbSubscribeButton"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:textOff="@string/subscribe"
+                android:textOn="@string/unsubscribe"
+                android:textSize="@dimen/propertyTextSize"/>
         </LinearLayout>
         <!-- Event Log -->
         <ScrollView

@@ -267,6 +267,8 @@
     <string name="property_resolution" translatable="false">Resolution</string>
     <string name="property_variable_update_rate" translatable="false">Variable Update Rate</string>
     <string name="set_value_hint" translatable="false">value</string>
+    <string name="subscribe" translatable="false">Subscribe</string>
+    <string name="unsubscribe" translatable="false">Unsubscribe</string>
 
     <!-- radio test -->
     <string name="radio_fm_am_tuner" translatable="false">FM/AM Tuner</string>
