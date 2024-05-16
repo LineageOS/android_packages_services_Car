@@ -32,6 +32,7 @@ import com.android.car.media.common.MediaItemMetadata;
 import com.android.car.media.common.R;
 import com.android.car.media.common.playback.PlaybackProgress;
 import com.android.car.media.common.playback.PlaybackViewModel;
+import com.android.car.media.common.playback.PlaybackViewModel.PlaybackController;
 import com.android.car.media.common.source.MediaSource;
 import com.android.car.media.common.source.MediaSourceColors;
 import com.android.car.media.common.ui.PlaybackCardController;
@@ -115,8 +116,9 @@ public class ControlBarMediaController extends PlaybackCardController {
     @Override
     protected void updatePlaybackState(PlaybackViewModel.PlaybackStateWrapper playbackState) {
         boolean hasOverflow = false;
+        PlaybackController playbackController = mDataModel.getPlaybackController().getValue();
         if (playbackState != null) {
-            updatePlayButtonWithPlaybackState(mPlayPauseButton, playbackState);
+            updatePlayButtonWithPlaybackState(mPlayPauseButton, playbackState, playbackController);
             int count = 0;
             if (playbackState.isSkipNextEnabled() || playbackState.isSkipNextReserved()) {
                 count++;
@@ -138,8 +140,7 @@ public class ControlBarMediaController extends PlaybackCardController {
                 mActionOverflowButton.setVisibility(View.GONE);
             }
             updateActionsWithPlaybackState(mView.getContext(), mActionsCopy, playbackState,
-                    mDataModel.getPlaybackController().getValue(),
-                    mView.getContext().getDrawable(R.drawable.ic_skip_previous),
+                    playbackController, mView.getContext().getDrawable(R.drawable.ic_skip_previous),
                     mView.getContext().getDrawable(R.drawable.ic_skip_next),
                     mView.getContext().getDrawable(R.drawable.left_half_pill_button_shape),
                     mView.getContext().getDrawable(R.drawable.right_half_pill_button_shape),
