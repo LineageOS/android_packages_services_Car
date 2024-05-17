@@ -14,40 +14,24 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <layer-list
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt">
     <item android:gravity="center"
-          android:width="@dimen/system_bar_icon_drawing_size"
-          android:height="@dimen/system_bar_icon_drawing_size">
+        android:width="@dimen/hvac_temperature_icon_size"
+        android:height="@dimen/hvac_temperature_icon_size">
         <aapt:attr name="android:drawable">
-            <shape android:shape="oval">
-                <size
-                    android:width="@dimen/system_bar_icon_drawing_size"
-                    android:height="@dimen/system_bar_icon_drawing_size"/>
-                <solid
-                    android:color="@color/hvac_temperature_adjust_button_color"/>
-            </shape>
-        </aapt:attr>
-    </item>
-    <item android:gravity="center"
-          android:width="@dimen/system_bar_icon_drawing_size"
-          android:height="@dimen/system_bar_icon_drawing_size">
-        <aapt:attr name="android:drawable">
-            <vector android:width="@dimen/system_bar_icon_drawing_size"
-                    android:height="@dimen/system_bar_icon_drawing_size"
-                    android:viewportWidth="24.0"
-                    android:viewportHeight="24.0">
+            <vector android:width="@dimen/hvac_temperature_icon_size"
+                android:height="@dimen/hvac_temperature_icon_size"
+                android:viewportWidth="960"
+                android:viewportHeight="960">
                 <path
-                    android:fillColor="@color/hvac_temperature_decrease_arrow_color"
-                    android:pathData="M14,7l-5,5 5,5V7z"/>
+                    android:fillColor="@color/car_outline"
+                    android:pathData="M200,520L200,440L760,440L760,520L200,520Z"/>
             </vector>
         </aapt:attr>
     </item>
-    <item>
-        <aapt:attr name="android:drawable">
-            <ripple android:color="?android:attr/colorControlHighlight"/>
-        </aapt:attr>
-    </item>
+    <item android:width="@dimen/hvac_temperature_button_size"
+        android:height="@dimen/hvac_temperature_button_size"
+        android:drawable="@drawable/system_bar_button_background"/>
 </layer-list>
