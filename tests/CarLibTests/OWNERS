@@ -1,7 +1,7 @@
 # Bug component: 1316886
 
 # AppFocus
-per-file src/android/car/CarAppFocusManagerTest.java = ycheo@google.com
+per-file src/android/car/CarAppFocusManagerTest.java = bkchoi@google.com
 
 # Navigation
-per-file src/android/car/CarNavigationStatusManagerTest.java = ycheo@google.com
+per-file src/android/car/CarNavigationStatusManagerTest.java = bkchoi@google.com

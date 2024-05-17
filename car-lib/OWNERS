@@ -1,8 +1,8 @@
 # App
-per-file src/android/car/app/* = ycheo@google.com
+per-file src/android/car/app/* = gauravbhola@google.com
 
 # AppFocus
-per-file src/android/car/app/IAppFocus* = ycheo@google.com
+per-file src/android/car/app/IAppFocus* = bkchoi@google.com
 
 # Audio
 per-file src/android/car/media/CarAudio*.java = oscarazu@google.com, ericjeong@google.com
@@ -10,20 +10,20 @@ per-file src/android/car/media/ICarAudio.aidl = oscarazu@google.com, ericjeong@g
 per-file src/android/car/media/ICarVolumeCallback.aidl = oscarazu@google.com, ericjeong@google.com
 
 # Cluster
-per-file src/android/car/cluster/* = ycheo@google.com
+per-file src/android/car/cluster/* = bkchoi@google.com
 
 # Input
-per-file src/android/car/input/* = ycheo@google.com, kanant@google.com
+per-file src/android/car/input/* = kanant@google.com
 
 # Navigation
-per-file src/android/car/navigation/* = ycheo@google.com
+per-file src/android/car/navigation/* = bkchoi@google.com
 
 # OccupantZone
-per-file src/android/car/CarOccupantZoneManager.* = ycheo@google.com, oscarazu@google.com, ericjeong@google.com
-per-file src/android/car/ICarOccupantZone* = ycheo@google.com, oscarazu@google.com, ericjeong@google.com
+per-file src/android/car/CarOccupantZoneManager.* = xiangw@google.com, oscarazu@google.com, ericjeong@google.com
+per-file src/android/car/ICarOccupantZone* = xiangw@google.com, oscarazu@google.com, ericjeong@google.com
 
 # PackageManager
-per-file src/android/car/content/pm/* = ycheo@google.com
+per-file src/android/car/content/pm/* = gauravbhola@google.com, gargmayank@google.com
 
 # Power
 per-file src/android/car/hardware/power/* = ericjeong@google.com

@@ -14,13 +14,13 @@ per-file src/com/google/android/car/kitchensink/bluetooth/* = salsavage@google.c
 per-file src/com/google/android/car/kitchensink/connectivity/* = salsavage@google.com, twasilczyk@google.com
 
 # Cluster
-per-file src/com/google/android/car/kitchensink/cluster/* = ycheo@google.com
+per-file src/com/google/android/car/kitchensink/cluster/* = bkchoi@google.com
 
 # OccupantZone
-per-file src/com/google/android/car/kitchensink/OccupantZoneStartActivity.java = ycheo@google.com, oscarazu@google.com, ericjeong@google.com
+per-file src/com/google/android/car/kitchensink/OccupantZoneStartActivity.java = xiangw@google.com, oscarazu@google.com, ericjeong@google.com
 
 # PackageManager
-per-file src/com/google/android/car/kitchensink/packageinfo/* = ycheo@google.com
+per-file src/com/google/android/car/kitchensink/packageinfo/* = gargmayank@google.com, gauravbhola@google.com
 
 # Power
 per-file src/com/google/android/car/kitchensink/power/* = ericjeong@google.com
