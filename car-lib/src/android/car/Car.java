@@ -108,7 +108,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- *   Top level car API for embedded Android Auto deployments.
+ *   Top level car API for Android Automotive OS deployments.
  *   This API works only for devices with {@link PackageManager#FEATURE_AUTOMOTIVE}
  *   Calling this API on a device with no such feature will lead to an exception.
  */

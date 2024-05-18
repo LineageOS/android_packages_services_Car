@@ -16,6 +16,7 @@
 
 <overlay>
     <item target="layout/car_bottom_system_bar" value="@layout/car_passenger_bottom_system_bar"/>
+    <item target="layout/car_bottom_system_bar_dock" value="@layout/car_passenger_bottom_system_bar"/>
 
     <item target="bool/config_enableTopSystemBar" value="false"/>
     <item target="string/config_notificationPanelViewMediator" value="@string/config_notificationPanelViewMediator" />
