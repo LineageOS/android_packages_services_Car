@@ -46,6 +46,10 @@ public final class ActivityManagerHelper {
     /** Invalid task ID. */
     public static final int INVALID_TASK_ID = ActivityTaskManager.INVALID_TASK_ID;
 
+    /** Persistent process flag */
+    public static final int PROCESS_INFO_PERSISTENT_FLAG =
+            ActivityManager.RunningAppProcessInfo.FLAG_PERSISTENT;
+
     private static final String TAG = "CAR.AM";  // CarLog.TAG_AM
 
     // Lazy initialization holder class idiom for static fields; See go/ej3e-83 for the detail.
@@ -200,6 +204,31 @@ public final class ActivityManagerHelper {
             Slogf.e(TAG, "Failed to removeTask", e);
         }
         return false;
+    }
+
+    /**
+     * Gets the flag values for the given {@link ActivityManager.RunningAppProcessInfo}
+     *
+     * @param appProcessInfo The {@link ActivityManager.RunningAppProcessInfo}
+     * @return The flags for the appProcessInfo
+     */
+    public static int getFlagsForRunningAppProcessInfo(
+            @NonNull ActivityManager.RunningAppProcessInfo appProcessInfo) {
+        return appProcessInfo.flags;
+    }
+
+    /**
+     * Gets all the running app process
+     *
+     * @return List of all the RunningAppProcessInfo
+     */
+    public static List<ActivityManager.RunningAppProcessInfo> getRunningAppProcesses() {
+        try {
+            return getActivityManager().getRunningAppProcesses();
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Failed to removeTask", e);
+        }
+        return List.of();
     }
 
     /**

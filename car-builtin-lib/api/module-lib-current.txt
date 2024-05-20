@@ -31,6 +31,8 @@ package android.car.builtin.app {
     method public static int checkComponentPermission(@NonNull String, int, int, boolean);
     method @NonNull public static android.app.ActivityOptions createActivityOptions(@NonNull android.os.Bundle);
     method public static android.os.IBinder getActivityToken(android.app.Activity);
+    method public static int getFlagsForRunningAppProcessInfo(@NonNull android.app.ActivityManager.RunningAppProcessInfo);
+    method public static java.util.List<android.app.ActivityManager.RunningAppProcessInfo> getRunningAppProcesses();
     method public static java.util.List<android.app.ActivityManager.RunningTaskInfo> getTasks(int, boolean, boolean, int);
     method public static boolean isVisible(android.app.Activity);
     method public static void killAllBackgroundProcesses();
@@ -48,6 +50,7 @@ package android.car.builtin.app {
     method public static boolean unlockUser(int);
     method public static void unregisterProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
     field public static final int INVALID_TASK_ID = -1; // 0xffffffff
+    field public static final int PROCESS_INFO_PERSISTENT_FLAG = 2; // 0x2
   }
 
   public abstract static class ActivityManagerHelper.ProcessObserverCallback {
@@ -341,6 +344,7 @@ package android.car.builtin.os {
     field public static final int FLAG_QUIET_MODE = 128; // 0x80
     field public static final int FLAG_RESTRICTED = 8; // 0x8
     field public static final int FLAG_SYSTEM = 2048; // 0x800
+    field public static final int USER_ALL = -1; // 0xffffffff
     field public static final int USER_NULL = -10000; // 0xffffd8f0
     field public static final int USER_SYSTEM = 0; // 0x0
   }

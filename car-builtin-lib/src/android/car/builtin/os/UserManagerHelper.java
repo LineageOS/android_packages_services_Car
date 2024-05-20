@@ -45,6 +45,9 @@ public final class UserManagerHelper {
     /** A user id constant to indicate the "system" user of the device */
     public static final @UserIdInt int USER_SYSTEM = UserHandle.USER_SYSTEM;
 
+    /** A user id constant to indicate "all" users of the device */
+    public static final @UserIdInt int USER_ALL = UserHandle.USER_ALL;
+
     // Flags copied from UserInfo.
     public static final int FLAG_PRIMARY = UserInfo.FLAG_PRIMARY;
     public static final int FLAG_ADMIN = UserInfo.FLAG_ADMIN;
