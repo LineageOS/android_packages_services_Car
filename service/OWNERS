@@ -3,9 +3,9 @@
 include platform/packages/services/Car:/OWNERS
 
 # ActivityManager
-per-file src/com/android/car/SystemActivityMonitoringService.java = ycheo@google.com
-per-file src/com/android/car/am/* = ycheo@google.com
-per-file src/com/android/car/systeminterface/ActivityManagerInterface.java = ycheo@google.com
+per-file src/com/android/car/SystemActivityMonitoringService.java = gauravbhola@google.com
+per-file src/com/android/car/am/* = gauravbhola@google.com
+per-file src/com/android/car/systeminterface/ActivityManagerInterface.java = gauravbhola@google.com
 
 # Audio
 per-file proto/android/car/audio/* = oscarazu@google.com, ericjeong@google.com
@@ -16,18 +16,19 @@ per-file src/com/android/car/audio/hal/* = oscarazu@google.com, ericjeong@google
 per-file src/com/android/car/bluetooth/* = salsavage@google.com, chengandrew@google.com
 
 # Cluster
-per-file src/com/android/car/cluster/* = ycheo@google.com
-per-file src/com/android/car/hal/ClusterHalService.java = ycheo@google.com
+per-file src/com/android/car/cluster/* = bkchoi@google.com
+per-file src/com/android/car/hal/ClusterHalService.java = bkchoi@google.com
 
 # Input
-per-file src/com/android/car/CarInputService.java = ycheo@google.com, kanant@google.com
-per-file src/com/android/car/hal/InputHalService.java = ycheo@google.com, kanant@google.com
+per-file src/com/android/car/CarInputService.java = kanant@google.com
+per-file src/com/android/car/hal/InputHalService.java = kanant@google.com
 
 # PackageManager
-per-file src/com/android/car/pm/AppBlockingPolicyProxy.java = ycheo@google.com
-per-file src/com/android/car/pm/Car*.java = ycheo@google.com
-per-file src/com/android/car/pm/TEST_MAPPING = ycheo@google.com
-per-file src/com/android/car/pm/WindowDumpParser.java = ycheo@google.com
+per-file src/com/android/car/pm/AppBlockingPolicyProxy.java = gauravbhola@google.com
+per-file src/com/android/car/pm/Car*.java = gauravbhola@google.com, gargmayank@google.com
+per-file src/com/android/car/pm/TEST_MAPPING = gauravbhola@google.com
+per-file src/com/android/car/pm/Vendor*.java = gargmayank@google.com
+per-file src/com/android/car/pm/WindowDumpParser.java = gauravbhola@google.com
 
 # Power
 per-file src/com/android/car/garagemode/* = ericjeong@google.com
