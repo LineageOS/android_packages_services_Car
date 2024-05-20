@@ -1,19 +1,19 @@
 # Bug component: 1316886
 
 # ActivityManager
-per-file src/android/car/apitest/CarActivityManagerTest.java = ycheo@google.com
+per-file src/android/car/apitest/CarActivityManagerTest.java = gauravbhola@google.com
 
 # AppFocus
-per-file src/android/car/apitest/CarAppFocusManagerTest.java = ycheo@google.com
+per-file src/android/car/apitest/CarAppFocusManagerTest.java = bkchoi@google.com
 
 # Audio
 per-file src/android/car/apitest/media/CarAudioManagerTest.java = oscarazu@google.com, ericjeong@google.com
 
 # Navigation
-per-file src/android/car/apitest/CarNavigationManagerTest.java = ycheo@google.com
+per-file src/android/car/apitest/CarNavigationManagerTest.java = bkchoi@google.com
 
 # PackageManager
-per-file src/android/car/apitest/CarPackageManagerTest.java = ycheo@google.com
+per-file src/android/car/apitest/CarPackageManagerTest.java = gauravbhola@google.com, gargmayank@google.com
 
 # Property
 per-file src/android/car/apitest/CarProperty* = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
