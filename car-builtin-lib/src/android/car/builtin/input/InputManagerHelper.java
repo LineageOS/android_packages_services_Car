@@ -52,4 +52,25 @@ public class InputManagerHelper {
     public static void pilferPointers(@NonNull InputManager inputManager, @NonNull View v) {
         inputManager.pilferPointers(v.getViewRootImpl().getInputToken());
     }
+
+    /**
+     * See {@link InputManager#addUniqueIdAssociationByDescriptor(String, String)}.
+     */
+    public static void addUniqueIdAssociationByDescriptor(@NonNull InputManager inputManager,
+            @NonNull String inputDeviceDescriptor,
+            @NonNull String displayUniqueId) {
+        // TODO(b/341949977): Improve addUniqueIdAssociationByDescriptor to handle incorrect
+        // input
+        inputManager.addUniqueIdAssociationByDescriptor(inputDeviceDescriptor, displayUniqueId);
+    }
+
+    /**
+     * See {@link InputManager#removeUniqueIdAssociationByDescriptor(String)}.
+     */
+    public static void removeUniqueIdAssociationByDescriptor(@NonNull InputManager inputManager,
+            @NonNull String inputDeviceDescriptor) {
+        // TODO(b/341949977): Improve removeUniqueIdAssociationByDescriptor to handle incorrect
+        // input
+        inputManager.removeUniqueIdAssociationByDescriptor(inputDeviceDescriptor);
+    }
 }

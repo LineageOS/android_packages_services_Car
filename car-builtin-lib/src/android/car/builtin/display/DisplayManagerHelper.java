@@ -17,12 +17,15 @@
 package android.car.builtin.display;
 
 import android.annotation.FloatRange;
+import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManager.DisplayListener;
 import android.hardware.display.DisplayManager.EventsMask;
 import android.os.Handler;
+import android.view.Display;
 
 /**
  * Helper for DisplayManager related operations.
@@ -111,5 +114,13 @@ public final class DisplayManagerHelper {
             @FloatRange(from = 0f, to = 1f) float brightness) {
         DisplayManager displayManager = context.getSystemService(DisplayManager.class);
         displayManager.setBrightness(displayId, brightness);
+    }
+
+    /**
+     * See {@link Display#getUniqueId()}.
+     */
+    @Nullable
+    public static String getUniqueId(@NonNull Display display) {
+        return display.getUniqueId();
     }
 }

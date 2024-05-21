@@ -53,6 +53,8 @@ import android.car.CarVersion;
 import android.car.SyncResultCallback;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.content.pm.PackageManagerHelper;
+import android.car.builtin.display.DisplayManagerHelper;
+import android.car.builtin.input.InputManagerHelper;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
@@ -104,6 +106,8 @@ import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleDisplay;
 import android.hardware.automotive.vehicle.VehicleGear;
 import android.hardware.automotive.vehicle.VehiclePropError;
+import android.hardware.display.DisplayManager;
+import android.hardware.input.InputManager;
 import android.os.Binder;
 import android.os.FileUtils;
 import android.os.IBinder;
@@ -315,6 +319,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_GET_CURRENT_UXR_MODE = "get-current-uxr-mode";
     private static final String COMMAND_GET_SUPPORTED_UXR_MODES = "get-supported-uxr-modes";
     private static final String COMMAND_GET_UXR_CONFIG = "get-uxr-config";
+    private static final String COMMAND_GET_INPUT_AND_DISPLAY_INFO = "get-input-and-display-info";
+    private static final String COMMAND_ADD_INPUT_DESCRIPTOR_ASSOCIATION_TO_DISPLAY_UNIQUE_ID =
+            "add-input-descriptor-association-to-display-unique-id";
+    private static final String COMMAND_REMOVE_INPUT_DESCRIPTOR_ASSOCIATION =
+            "remove-input-descriptor-association";
 
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
@@ -971,6 +980,15 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t Gets all supported UX restrictions modes.");
         pw.printf("\t%s", COMMAND_GET_UXR_CONFIG);
         pw.println("\t Gets UX restrictions configuration.");
+        pw.printf("\t%s", COMMAND_GET_INPUT_AND_DISPLAY_INFO);
+        pw.println("\t Gets input devices & their descriptor; and gets display devices & their "
+                + "uniqueId");
+        pw.printf("\t%s <input descriptor> <display unique id>",
+                COMMAND_ADD_INPUT_DESCRIPTOR_ASSOCIATION_TO_DISPLAY_UNIQUE_ID);
+        pw.println("\t Add association of the input device to the particular display by using "
+                + "input descriptor.");
+        pw.printf("\t%s <input descriptor>", COMMAND_REMOVE_INPUT_DESCRIPTOR_ASSOCIATION);
+        pw.println("\t Remove association of the input device descriptor to any display.");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -1530,6 +1548,15 @@ final class CarShellCommand extends BasicShellCommandHandler {
             case COMMAND_GET_UXR_CONFIG:
                 getUxrConfig(writer);
                 break;
+            case COMMAND_GET_INPUT_AND_DISPLAY_INFO:
+                getInputAndDisplayInfo(writer);
+                break;
+            case COMMAND_ADD_INPUT_DESCRIPTOR_ASSOCIATION_TO_DISPLAY_UNIQUE_ID:
+                addInputDescriptorAssociationToDisplayUniqueId(args, writer);
+                break;
+            case COMMAND_REMOVE_INPUT_DESCRIPTOR_ASSOCIATION:
+                removeInputDescriptorAssociation(args, writer);
+                break;
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
                 showHelp(writer);
@@ -1571,6 +1598,49 @@ final class CarShellCommand extends BasicShellCommandHandler {
         CarUxRestrictions restrictions = mCarUxRestrictionsManagerService
                 .getCurrentUxRestrictions(displayId);
         writer.printf("Current Restrictions:\n %s", restrictions.getActiveRestrictionsString());
+    }
+
+    private void getInputAndDisplayInfo(IndentingPrintWriter writer) {
+        InputManager inputManager = mContext.getSystemService(InputManager.class);
+        int[] inputDeviceIds = inputManager.getInputDeviceIds();
+
+        for (int inputDeviceId : inputDeviceIds) {
+            InputDevice device = inputManager.getInputDevice(inputDeviceId);
+            String deviceInfo = "Input Device " + device.getId() + ": " + device.getName() + "\n"
+                    + "\tDescriptor: " + device.getDescriptor() + "\n";
+            writer.printf(deviceInfo);
+        }
+
+        DisplayManager displayManager = mContext.getSystemService(DisplayManager.class);
+        Display[] displays = displayManager.getDisplays();
+        for (Display display : displays) {
+            String displayInfo = "Display Devices " + display.getDisplayId() + ": \n"
+                    + "\tUniqueId: " + DisplayManagerHelper.getUniqueId(display) + " \n";
+            writer.printf(displayInfo);
+        }
+    }
+
+    private void addInputDescriptorAssociationToDisplayUniqueId(String[] args,
+            IndentingPrintWriter writer) {
+        InputManager inputManager = mContext.getSystemService(InputManager.class);
+        if (args.length == 3) {
+            InputManagerHelper.addUniqueIdAssociationByDescriptor(inputManager, args[1], args[2]);
+            writer.println("Associated input " + args[1] + " with display " + args[2] + "\n");
+        } else {
+            writer.printf("Incorrect Usage.\nUsage: %s <inputDeviceDescriptor> <displayUniqueId>\n",
+                    COMMAND_ADD_INPUT_DESCRIPTOR_ASSOCIATION_TO_DISPLAY_UNIQUE_ID);
+        }
+    }
+
+    private void removeInputDescriptorAssociation(String[] args, IndentingPrintWriter writer) {
+        InputManager inputManager = mContext.getSystemService(InputManager.class);
+        if (args.length == 2) {
+            InputManagerHelper.removeUniqueIdAssociationByDescriptor(inputManager, args[1]);
+            writer.println("Input " + args[1] + " association removed.\n");
+        } else {
+            writer.printf("Incorrect Usage.\nUsage: %s <inputDeviceDescriptor>\n",
+                    COMMAND_REMOVE_INPUT_DESCRIPTOR_ASSOCIATION);
+        }
     }
 
     private void setStartBackgroundUsersOnGarageMode(String[] args, IndentingPrintWriter writer) {
