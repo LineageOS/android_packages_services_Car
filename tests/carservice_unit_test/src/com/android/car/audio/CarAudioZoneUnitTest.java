@@ -367,18 +367,10 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    public void validateZoneConfigs_withoutInvalidDefaultZoneConfigId_returnsFalse() {
-        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
-
-        expectWithMessage("Invalid zone with invalid default zone configuration id")
-                .that(mTestAudioZone.validateZoneConfigs(/* useCoreAudioRouting= */ false))
-                .isFalse();
-    }
-
-    @Test
     public void validateZoneConfigs_withWrongZoneIdInZoneConfigs_returnsFalse() {
         CarAudioZoneConfig zoneConfig2 = new TestCarAudioZoneConfigBuilder(TEST_ZONE_ID + 1,
                 /* configId= */ 2, TEST_ZONE_CONFIG_NAME_1).build();
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
         mTestAudioZone.addZoneConfig(zoneConfig2);
 
         expectWithMessage("Invalid zone with wrong zone id in zone configurations")
