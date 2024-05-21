@@ -92,6 +92,7 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
+import android.util.SparseIntArray;
 import android.util.SparseLongArray;
 import android.util.proto.ProtoOutputStream;
 import android.view.Display;
@@ -237,6 +238,11 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
 
     private final PackageParsingEventReceiver mPackageParsingEventReceiver =
             new PackageParsingEventReceiver();
+    /**
+     * Mapping between the task ID and the last known display ID.
+     */
+    @GuardedBy("mLock")
+    private final SparseIntArray mLastKnownDisplayIdForTask = new SparseIntArray();
 
     private final UserLifecycleListener mUserLifecycleListener = event -> {
         if (!isEventOfType(TAG, event, USER_LIFECYCLE_EVENT_TYPE_SWITCHING)) {
@@ -1932,23 +1938,45 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 Slogf.e(TAG, "Received callback with null top task.");
                 return;
             }
-            if (Objects.equals(mActivityBlockingActivity, topTask.topActivity)) {
-                // This is to keep track of the blocking ui taskInfo.
-                synchronized (mLock) {
+            boolean isBlockingActivity = Objects.equals(mActivityBlockingActivity,
+                    topTask.topActivity);
+            synchronized (mLock) {
+                if (isBlockingActivity) {
+                    // This is to keep track of the blocking ui taskInfo.
                     mBlockingUiTaskInfoPerDisplay.put(TaskInfoHelper.getDisplayId(topTask),
                             topTask);
                 }
+                mLastKnownDisplayIdForTask.put(topTask.taskId,
+                        TaskInfoHelper.getDisplayId(topTask));
             }
             blockTopActivityIfNecessary(topTask);
         }
 
         @Override
-        public void onActivityChangedInBackstack(TaskInfo taskInfo, int lastKnownDisplayId) {
+        public void onActivityChangedInBackstack(TaskInfo taskInfo) {
             if (taskInfo == null) {
                 Slogf.e(TAG, "Received callback with null task info.");
                 return;
             }
-            if (isBlockingUiVisible(lastKnownDisplayId) && isNotBlockingUiTask(taskInfo)) {
+            int lastKnownDisplayId;
+            synchronized (mLock) {
+                // Only update the array if display Id for the task is valid since display Id can
+                // often be invalid when the task has vanished.
+                if (TaskInfoHelper.getDisplayId(taskInfo) != Display.INVALID_DISPLAY) {
+                    mLastKnownDisplayIdForTask.put(taskInfo.taskId,
+                            TaskInfoHelper.getDisplayId(taskInfo));
+                }
+                lastKnownDisplayId = mLastKnownDisplayIdForTask.get(taskInfo.taskId);
+            }
+            if (DBG) {
+                Slogf.i(TAG, "Callback for task %s on display id %d.", taskInfo.taskId,
+                        lastKnownDisplayId);
+            }
+            // Only finish the blocking ui if it is visible and there is some change in the
+            // backstack for the activity that is being blocked. This is because the blocked
+            // activity could have crashed due to which there is a need for blocking ui to finish.
+            if (isBlockingUiVisible(lastKnownDisplayId) && isBlockedActivityTarget(
+                    lastKnownDisplayId, taskInfo)) {
                 mHandler.post(() -> finishBlockingUi(taskInfo));
                 synchronized (mLock) {
                     mBlockingUiTaskInfoPerDisplay.delete(lastKnownDisplayId);
@@ -1971,14 +1999,17 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     }
 
     /**
-     * Check if this stack change came from some {@code taskInfo} other than the blocking ui.
+     * Check if this stack change came from the blocked {@code taskInfo} in
+     * {@code mBlockingActivityTargets} for {@code displayId}. Ignore other activities since they
+     * cannot can cause a visibility change for the blocked activity target.
      *
-     * @param taskInfo {@link TaskInfo} due to which the task stack changed.
-     * @return {@code true} if this stack change came from {@code taskInfo} other than the
-     * blocking ui, {@code false} otherwise.
+     * @param displayId the display id of the {@link TaskInfo}.
+     * @param taskInfo  {@link TaskInfo} due to which the task stack changed.
+     * @return {@code true} if this stack change came from blocked {@code taskInfo} for
+     * {@code displayId}, {@code false} otherwise.
      */
-    private boolean isNotBlockingUiTask(TaskInfo taskInfo) {
-        return !Objects.equals(mActivityBlockingActivity, taskInfo.baseIntent.getComponent());
+    private boolean isBlockedActivityTarget(int displayId, TaskInfo taskInfo) {
+        return mBlockingActivityTargets.get(displayId) == taskInfo.topActivity;
     }
 
     /**
@@ -2011,12 +2042,29 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
      */
     public void finishBlockingUi(TaskInfo taskInfo) {
         ensurePermission();
-        int displayId;
-        synchronized (mLock) {
-            displayId = mActivityService.getLastKnownDisplayIdForTask(taskInfo.taskId);
-        }
+        int displayId = getLastKnownDisplayIdForTask(taskInfo.taskId);
         mBlockingUiCommandListenerMediator.finishBlockingUi(taskInfo, displayId);
-        mActivityService.cleanUpLastKnownDisplayIdForTask(taskInfo);
+        cleanUpLastKnownDisplayIdForTask(taskInfo);
+    }
+
+    /**
+     * Returns the last known display Id for the given {@link TaskInfo}.
+     */
+    private int getLastKnownDisplayIdForTask(int taskId) {
+        synchronized (mLock) {
+            return mLastKnownDisplayIdForTask.get(taskId);
+        }
+    }
+
+    /**
+     * Removes the task from {@code mLastKnownDisplayIdForTask}.
+     */
+    private void cleanUpLastKnownDisplayIdForTask(TaskInfo taskInfo) {
+        synchronized (mLock) {
+            // This can happen when the task has not been removed from mLastKnownDisplayIdForTask
+            // when the task vanishes in onTaskVanished.
+            mLastKnownDisplayIdForTask.delete(taskInfo.taskId);
+        }
     }
 
     /**

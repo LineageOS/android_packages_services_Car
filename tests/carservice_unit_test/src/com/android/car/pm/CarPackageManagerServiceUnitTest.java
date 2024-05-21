@@ -57,7 +57,6 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.UserHandle;
-import android.util.SparseIntArray;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -430,7 +429,6 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
         ICarBlockingUiCommandListener carBlockingUiCommandListener2 =
                 setupBlockingUiCommandListener();
         ActivityManager.RunningTaskInfo taskInfo = createTask();
-        mockLastKnownDisplayId(taskInfo, DEFAULT_DISPLAY);
 
         mService.registerBlockingUiCommandListener(carBlockingUiCommandListener1, DEFAULT_DISPLAY);
         mService.registerBlockingUiCommandListener(carBlockingUiCommandListener2, DEFAULT_DISPLAY);
@@ -448,7 +446,6 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
                 setupBlockingUiCommandListener();
         ActivityManager.RunningTaskInfo taskInfo = createTask();
         int tempDisplayId = 1;
-        mockLastKnownDisplayId(taskInfo, tempDisplayId);
 
         mService.registerBlockingUiCommandListener(carBlockingUiCommandListener, tempDisplayId);
         mService.finishBlockingUi(taskInfo);
@@ -468,7 +465,6 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
                 setupBlockingUiCommandListener();
         ActivityManager.RunningTaskInfo taskInfo = createTask();
         int tempDisplayId = 1;
-        mockLastKnownDisplayId(taskInfo, tempDisplayId);
 
         mService.registerBlockingUiCommandListener(carBlockingUiCommandListener1, DEFAULT_DISPLAY);
         mService.registerBlockingUiCommandListener(carBlockingUiCommandListener2, DEFAULT_DISPLAY);
@@ -499,13 +495,5 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
     private void applyPermission(int permissionValue) {
         doReturn(permissionValue).when(mSpiedContext).checkCallingOrSelfPermission(
                 PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY);
-    }
-
-    private void mockLastKnownDisplayId(ActivityManager.RunningTaskInfo taskInfo,
-            int displayId) {
-        SparseIntArray tempLastKnownDisplayIdForTask = new SparseIntArray();
-        tempLastKnownDisplayIdForTask.put(taskInfo.taskId, displayId);
-        when(mMockActivityService.getLastKnownDisplayIdForTask(taskInfo.taskId)).thenReturn(
-                displayId);
     }
 }
