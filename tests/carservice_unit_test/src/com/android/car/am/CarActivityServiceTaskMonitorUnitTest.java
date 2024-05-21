@@ -540,7 +540,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
         }
 
         @Override
-        public void onActivityChangedInBackstack(TaskInfo taskInfo, int lastKnownDisplayId) {
+        public void onActivityChangedInBackstack(TaskInfo taskInfo) {
             if (isActivityOutsideTestPackage(taskInfo)) {
                 return;
             }
