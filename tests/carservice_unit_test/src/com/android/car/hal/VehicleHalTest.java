@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 
 import android.car.feature.FeatureFlags;
 import android.car.hardware.property.CarPropertyManager;
-import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.AbstractExpectableTestCase;
 import android.content.Context;
 import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.SubscribeOptions;
@@ -57,6 +57,7 @@ import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
+import android.platform.test.ravenwood.RavenwoodRule;
 
 import com.android.car.CarServiceUtils;
 import com.android.car.VehicleStub;
@@ -65,6 +66,7 @@ import com.android.car.hal.VehicleHal.HalSubscribeOptions;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -83,7 +85,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
-public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
+public class VehicleHalTest extends AbstractExpectableTestCase {
 
     private static final int WAIT_TIMEOUT_MS = 1000;
 
@@ -122,9 +124,6 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     @Mock private VehicleStub.SubscriptionClient mSubscriptionClient;
     @Mock private FeatureFlags mFeatureFlags;
 
-    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
-            VehicleHal.class.getSimpleName());
-    private final Handler mHandler = new Handler(mHandlerThread.getLooper());
     private final HalPropValueBuilder mPropValueBuilder = new HalPropValueBuilder(
             /* isAidl= */ true);
     private static final int REQUEST_ID_1 = 1;
@@ -138,7 +137,14 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
             new AsyncGetSetRequest(REQUEST_ID_1, mHalPropValue, /* timeoutUptimeMs= */ 0);
 
     @Rule public final TestName mTestName = new TestName();
+    // Required for HandlerThread to work.
+    @Rule
+    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder()
+            .setProvideMainThread(true)
+            .build();
 
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
     private VehicleHal mVehicleHal;
 
     /** Hal services configurations */
@@ -251,6 +257,11 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
 
     @Before
     public void setUp() throws Exception {
+        mHandlerThread = new HandlerThread("VehicleHalTest");
+        mHandlerThread.start();
+
+        mHandler = mHandlerThread.getThreadHandler();
+
         when(mVehicle.getHalPropValueBuilder()).thenReturn(mPropValueBuilder);
         when(mVehicle.newSubscriptionClient(any())).thenReturn(mSubscriptionClient);
 
@@ -272,6 +283,11 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
                     List.of(staticPropConfig, writeOnlyConfig, continuousPropConfig));
             initVehicleHal();
         }
+    }
+
+    @After
+    public void tearDown() {
+        mHandlerThread.quitSafely();
     }
 
     @Test
@@ -515,22 +531,6 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testInitGetAllProdConfigsException_skipSetupInit() throws Exception {
-        // Initialize PowerHAL service with a READ_WRITE and ON_CHANGE property
-        when(mPowerHalService.getAllSupportedProperties()).thenReturn(
-                new int[]{SOME_READ_ON_CHANGE_PROPERTY});
-
-        // Initialize PropertyHAL service with a READ_WRITE and STATIC property
-        when(mPropertyHalService.getAllSupportedProperties()).thenReturn(
-                new int[]{SOME_READ_WRITE_STATIC_PROPERTY});
-
-        // Initialize the remaining services with empty properties
-        when(mInputHalService.getAllSupportedProperties()).thenReturn(new int[0]);
-        when(mVmsHalService.getAllSupportedProperties()).thenReturn(new int[0]);
-        when(mUserHalService.getAllSupportedProperties()).thenReturn(new int[0]);
-        when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
-        when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
-        when(mClusterHalService.getAllSupportedProperties()).thenReturn(new int[0]);
-
         // Throw exception.
         when(mVehicle.getAllPropConfigs()).thenThrow(new RemoteException());
 
@@ -1382,8 +1382,6 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
     public void testGetIfSupportedOrFailForEarlyStage_skipSetupInit() throws Exception {
         // Skip setup init() because this function would be called before init() is called.
         // Initialize PowerHAL service with a READ_WRITE and ON_CHANGE property
-        when(mPowerHalService.getAllSupportedProperties()).thenReturn(
-                new int[]{SOME_READ_ON_CHANGE_PROPERTY});
         mConfigs.add(getPowerHalConfig());
         var halPropConfigs = toHalPropConfigs(mConfigs);
         when(mVehicle.getAllPropConfigs()).thenReturn(halPropConfigs);
@@ -1956,7 +1954,6 @@ public class VehicleHalTest extends AbstractExtendedMockitoTestCase {
 
         HalPropValue propValue = mPropValueBuilder.build(/* prop= */ 0, /* areaId= */ 0,
                 "some_value");
-        when(mVehicle.get(any(HalPropValue.class))).thenReturn(propValue);
 
         // Act
         // Note here we cannot use UNSUPPORTED_PROPERTY because its value -1 has special meaning

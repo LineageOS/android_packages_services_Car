@@ -23,10 +23,10 @@ import static com.android.car.hal.property.HalPropertyDebugUtils.toValueString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.VehiclePropertyIds;
+import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyValue;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
-import android.util.Log;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.property.CarPropertyHelper;
@@ -208,45 +208,45 @@ public abstract class HalPropValue {
         HalPropValue other = (HalPropValue) argument;
 
         if (other.getPropId() != getPropId()) {
-            Log.i(TAG, "Property ID mismatch, got " + other.getPropId() + " want "
+            Slogf.i(TAG, "Property ID mismatch, got " + other.getPropId() + " want "
                     + getPropId());
             return false;
         }
         if (other.getAreaId() != getAreaId()) {
-            Log.i(TAG, "Area ID mismatch, got " + other.getAreaId() + " want " + getAreaId());
+            Slogf.i(TAG, "Area ID mismatch, got " + other.getAreaId() + " want " + getAreaId());
             return false;
         }
         if (other.getStatus() != getStatus()) {
-            Log.i(TAG, "Status mismatch, got " + other.getStatus() + " want " + getStatus());
+            Slogf.i(TAG, "Status mismatch, got " + other.getStatus() + " want " + getStatus());
             return false;
         }
         if (other.getTimestamp() != getTimestamp()) {
-            Log.i(TAG, "Timestamp mismatch, got " + other.getTimestamp() + " want "
+            Slogf.i(TAG, "Timestamp mismatch, got " + other.getTimestamp() + " want "
                     + getTimestamp());
             return false;
         }
         if (!equalInt32Values(other)) {
-            Log.i(TAG, "Int32Values mismatch, got " + other.dumpInt32Values() + " want "
+            Slogf.i(TAG, "Int32Values mismatch, got " + other.dumpInt32Values() + " want "
                     + dumpInt32Values());
             return false;
         }
         if (!equalFloatValues(other)) {
-            Log.i(TAG, "FloatValues mismatch, got " + other.dumpFloatValues() + " want "
+            Slogf.i(TAG, "FloatValues mismatch, got " + other.dumpFloatValues() + " want "
                     + dumpFloatValues());
             return false;
         }
         if (!equalInt64Values(other)) {
-            Log.i(TAG, "Int64Values mismatch, got " + other.dumpInt64Values() + " want "
+            Slogf.i(TAG, "Int64Values mismatch, got " + other.dumpInt64Values() + " want "
                     + dumpInt64Values());
             return false;
         }
         if (!Arrays.equals(other.getByteArray(), getByteArray())) {
-            Log.i(TAG, "ByteValues mismatch, got " + Arrays.toString(other.getByteArray())
+            Slogf.i(TAG, "ByteValues mismatch, got " + Arrays.toString(other.getByteArray())
                     + " want " + Arrays.toString(getByteArray()));
             return false;
         }
         if (!other.getStringValue().equals(getStringValue())) {
-            Log.i(TAG, "StringValue mismatch, got " + other.getStringValue() + " want "
+            Slogf.i(TAG, "StringValue mismatch, got " + other.getStringValue() + " want "
                     + getStringValue());
             return false;
         }

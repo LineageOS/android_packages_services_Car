@@ -33,7 +33,7 @@
     <string name="importance_high" msgid="3393374688015554727">"Велика важност"</string>
     <string name="android_system_label" msgid="9209428539477894959">"Android систем"</string>
     <string name="factory_reset_notification_title" msgid="6177770995437355965">"Потребно је ресетовање на фабричка подешавања"</string>
-    <string name="factory_reset_notification_text" msgid="6051393302193696102">"Сви подаци из система за инфо-забаву ће бити обрисани. После ресетовања можете да подесите нови профил."</string>
+    <string name="factory_reset_notification_text" msgid="6051393302193696102">"Сви подаци из система за информације и забаву ће бити обрисани. После ресетовања можете да подесите нови профил."</string>
     <string name="factory_reset_notification_button" msgid="6926734587145351076">"Још"</string>
     <string name="factory_reset_warning" msgid="8463356329619149262">"Уређај ће бити обрисан"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"Не можете да користите ову апликацију за администраторе. Уређај ће сада бити обрисан.\n\nАко имате питања, обратите се администратору организације."</string>

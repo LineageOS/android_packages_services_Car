@@ -39,7 +39,6 @@ import android.car.hardware.power.PowerComponent;
 import android.hardware.automotive.vehicle.VehicleApPowerStateReport;
 import android.util.ArrayMap;
 import android.util.ArraySet;
-import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.Xml;
@@ -822,7 +821,7 @@ public final class PolicyReader {
 
         if ((defaultGroupPolicyId == null || defaultGroupPolicyId.isEmpty())
                 && !policyGroups.isEmpty()) {
-            Log.w(TAG, "No defaultGroupPolicyId is defined");
+            Slogf.w(TAG, "No defaultGroupPolicyId is defined");
         }
 
         if (defaultGroupPolicyId != null && !policyGroups.containsKey(defaultGroupPolicyId)) {

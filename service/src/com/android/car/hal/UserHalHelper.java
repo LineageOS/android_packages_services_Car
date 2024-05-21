@@ -23,6 +23,7 @@ import static com.android.internal.util.Preconditions.checkArgument;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.builtin.os.UserManagerHelper;
+import android.car.builtin.util.Slogf;
 import android.hardware.automotive.vehicle.CreateUserRequest;
 import android.hardware.automotive.vehicle.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.InitialUserInfoResponse;
@@ -44,7 +45,6 @@ import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.android.car.hal.HalCallback.HalCallbackStatus;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -347,7 +347,7 @@ public final class UserHalHelper {
      * @throws IllegalArgumentException if the HAL property doesn't have the proper format.
      */
     public static InitialUserInfoResponse toInitialUserInfoResponse(HalPropValue prop) {
-        if (DEBUG) Log.d(TAG, "toInitialUserInfoResponse(): " + prop);
+        if (DEBUG) Slogf.d(TAG, "toInitialUserInfoResponse(): %s", prop);
         Objects.requireNonNull(prop, "prop cannot be null");
         checkArgument(prop.getPropId() == INITIAL_USER_INFO_PROPERTY, "invalid prop on %s", prop);
 
@@ -368,7 +368,7 @@ public final class UserHalHelper {
         if (!TextUtils.isEmpty(prop.getStringValue())) {
             stringValues = TextUtils.split(prop.getStringValue(), STRING_SEPARATOR);
             if (DEBUG) {
-                Log.d(TAG, "toInitialUserInfoResponse(): values=" + Arrays.toString(stringValues)
+                Slogf.d(TAG, "toInitialUserInfoResponse(): values=" + Arrays.toString(stringValues)
                         + " length: " + stringValues.length);
             }
         }
@@ -398,7 +398,7 @@ public final class UserHalHelper {
                         + " on " + prop);
         }
 
-        if (DEBUG) Log.d(TAG, "returning : " + response);
+        if (DEBUG) Slogf.d(TAG, "returning : " + response);
 
         return response;
     }
@@ -595,7 +595,7 @@ public final class UserHalHelper {
         List<UserHandle> users = UserManagerHelper.getUserHandles(um, /* excludeDying= */ false);
 
         if (users == null || users.isEmpty()) {
-            Log.w(TAG, "newUsersInfo(): no users");
+            Slogf.w(TAG, "newUsersInfo(): no users");
             return emptyUsersInfo();
         }
 
@@ -616,7 +616,7 @@ public final class UserHalHelper {
                 halUsers.add(halUser);
             } catch (Exception e) {
                 // Most likely the user was removed
-                Log.w(TAG, "newUsersInfo(): ignoring user " + user + " due to exception", e);
+                Slogf.w(TAG, "newUsersInfo(): ignoring user " + user + " due to exception", e);
             }
         }
         int existingUsersSize = halUsers.size();
@@ -627,7 +627,7 @@ public final class UserHalHelper {
             usersInfo.currentUser.flags = convertFlags(userHandleHelper, currentUser);
         } else {
             // This should not happen.
-            Log.wtf(TAG, "Current user is not part of existing users. usersInfo: " + usersInfo);
+            Slogf.wtf(TAG, "Current user is not part of existing users. usersInfo: " + usersInfo);
         }
 
         return usersInfo;

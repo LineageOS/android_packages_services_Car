@@ -198,7 +198,7 @@ public class PropertyHalServiceTest {
         HalPropConfig mockPropConfig1 = mock(HalPropConfig.class);
         when(mockPropConfig1.getPropId()).thenReturn(VehicleProperty.HVAC_TEMPERATURE_SET);
         when(mockPropConfig1.getChangeMode()).thenReturn(VehiclePropertyChangeMode.ON_CHANGE);
-        when(mockPropConfig1.toCarPropertyConfig(VehicleProperty.HVAC_TEMPERATURE_SET))
+        when(mockPropConfig1.toCarPropertyConfig(eq(VehicleProperty.HVAC_TEMPERATURE_SET), any()))
                 .thenReturn(mMockCarPropertyConfig1);
         when(mMockCarPropertyConfig1.getChangeMode())
                 .thenReturn(VehiclePropertyChangeMode.ON_CHANGE);
@@ -209,7 +209,7 @@ public class PropertyHalServiceTest {
         when(mockPropConfig2.getChangeMode()).thenReturn(VehiclePropertyChangeMode.CONTINUOUS);
         when(mockPropConfig2.getMinSampleRate()).thenReturn(20.0f);
         when(mockPropConfig2.getMaxSampleRate()).thenReturn(100.0f);
-        when(mockPropConfig2.toCarPropertyConfig(VehicleProperty.PERF_VEHICLE_SPEED))
+        when(mockPropConfig2.toCarPropertyConfig(eq(VehicleProperty.PERF_VEHICLE_SPEED), any()))
                 .thenReturn(mMockCarPropertyConfig2);
         when(mMockCarPropertyConfig2.getChangeMode())
                 .thenReturn(VehiclePropertyChangeMode.CONTINUOUS);

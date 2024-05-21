@@ -1075,7 +1075,7 @@ public class PropertyHalService extends HalServiceBase {
                 HalPropConfig halPropConfig = mHalPropIdToPropConfig.valueAt(i);
                 int mgrPropId = halToManagerPropId(halPropConfig.getPropId());
                 CarPropertyConfig<?> carPropertyConfig = halPropConfig.toCarPropertyConfig(
-                        mgrPropId);
+                        mgrPropId, mPropertyHalServiceConfigs);
                 mgrPropIdToCarPropConfig.put(mgrPropId, carPropertyConfig);
             }
             return mgrPropIdToCarPropConfig;
@@ -1776,7 +1776,7 @@ public class PropertyHalService extends HalServiceBase {
                 HalPropConfig halPropConfig = mHalPropIdToPropConfig.get(halPropId);
 
                 setRequestInfo.parseClientUpdateRateHz(halPropConfig.toCarPropertyConfig(
-                        setRequestInfo.getPropertyId()));
+                        setRequestInfo.getPropertyId(), mPropertyHalServiceConfigs));
 
                 if (mHalPropIdToWaitingUpdateRequestInfo.get(halPropId) == null) {
                     mHalPropIdToWaitingUpdateRequestInfo.put(halPropId, new ArrayList<>());
