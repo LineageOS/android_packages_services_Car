@@ -52,6 +52,8 @@ import java.util.List;
  * this case handler will be launched. b) Device has not handler assigned. In this case supported
  * handlers will be captured, and user will be presented with choice to assign default handler.
  * After that handler will be launched.
+ *
+ * <p>Note: Activity launched by the system and by {@link BootUsbService}.
  */
 public class UsbHostManagementActivity extends Activity {
     private static final String TAG = UsbHostManagementActivity.class.getSimpleName();
@@ -69,6 +71,7 @@ public class UsbHostManagementActivity extends Activity {
 
     private void unregisterResolveBroadcastReceiver() {
         if (mReceiverRegistered) {
+            Log.d(TAG, "Unregistering USER_UNLOCKED broadcast");
             unregisterReceiver(mResolveBroadcastReceiver);
             mReceiverRegistered = false;
         }
@@ -78,8 +81,10 @@ public class UsbHostManagementActivity extends Activity {
         UsbDevice connectedDevice = getDevice();
 
         if (connectedDevice != null) {
+            Log.d(TAG, "Processing device: " + connectedDevice.getProductName());
             mController.processDevice(connectedDevice);
         } else {
+            Log.d(TAG, "Device not found.");
             finish();
         }
     }
@@ -138,9 +143,12 @@ public class UsbHostManagementActivity extends Activity {
         super.onResume();
 
         UserManager userManager = getSystemService(UserManager.class);
+        // Checks should pass if activity is started from BootUsbService, but necessary for system
+        // calls.
         if (userManager.isUserUnlocked() || getUserId() == UserHandle.USER_SYSTEM) {
             processDevice();
         } else {
+            Log.d(TAG, "Waiting for user unlocked to process device.");
             mReceiverRegistered = true;
             registerReceiver(mResolveBroadcastReceiver, new IntentFilter(ACTION_USER_UNLOCKED),
                     Context.RECEIVER_NOT_EXPORTED);
