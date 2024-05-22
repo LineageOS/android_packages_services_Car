@@ -18,12 +18,13 @@ package com.android.car.audio;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_ATTENUATION_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED;
+import static android.media.AudioManager.ADJUST_MUTE;
+import static android.media.AudioManager.ADJUST_UNMUTE;
 
 import static com.android.car.CarLog.TAG_AUDIO;
 import static com.android.car.audio.CoreAudioHelper.getProductStrategyForAudioAttributes;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
-import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
@@ -48,11 +49,12 @@ import java.util.List;
  */
 final class CoreAudioVolumeGroup extends CarVolumeGroup {
     static final String TAG = TAG_AUDIO + ".CoreAudioVolumeGroup";
+    public static final int EMPTY_FLAGS = 0;
     /**
      * For all volume operations, attributes are required
      */
     private final AudioAttributes mAudioAttributes;
-    private final AudioManager mAudioManager;
+    private final AudioManagerWrapper mAudioManager;
     @GuardedBy("mLock")
     private int mAmCurrentGainIndex;
     private final int mAmId;
@@ -62,7 +64,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
     private boolean mAmGroupMuted;
     private int mAmLastAudibleGainIndex;
 
-    CoreAudioVolumeGroup(AudioManager audioManager, CarAudioContext carAudioContext,
+    CoreAudioVolumeGroup(AudioManagerWrapper audioManager, CarAudioContext carAudioContext,
             CarAudioSettings settingsManager, SparseArray<CarAudioDeviceInfo> contextToDevices,
             int zoneId, int configId, int volumeGroupId, String name,
             boolean useCarVolumeGroupMute, CarActivationVolumeConfig carActivationVolumeConfig) {
@@ -100,11 +102,11 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
     }
 
     boolean isAmGroupMuted() {
-        return AudioManagerHelper.isVolumeGroupMuted(mAudioManager, mAmId);
+        return mAudioManager.isVolumeGroupMuted(mAmId);
     }
 
     int getAmLastAudibleIndex() {
-        return AudioManagerHelper.getLastAudibleVolumeGroupVolume(mAudioManager, mAmId);
+        return mAudioManager.getLastAudibleVolumeForVolumeGroup(mAmId);
     }
 
     @Override
@@ -151,8 +153,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
         }
         if (isAmGroupMuted() != mute) {
             if (mute) {
-                AudioManagerHelper.adjustVolumeGroupVolume(mAudioManager, mAmId,
-                        AudioManager.ADJUST_MUTE, /* flags= */ 0);
+                mAudioManager.adjustVolumeGroupVolume(mAmId, ADJUST_MUTE, EMPTY_FLAGS);
             } else if (!isBlockedLocked() && !isHalMutedLocked()) {
                 // Unmute shall not break any pending attenuation / limitation
                 int index = getRestrictedGainForIndexLocked(getCurrentGainIndexLocked());
@@ -161,8 +162,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
                     setCurrentGainIndexLocked(index, /* canChangeMuteState= */ true);
                 }
                 // TODO(b/260298113): index 0 mutes Am Group, wait for orthogonal mute/volume in AM
-                AudioManagerHelper.adjustVolumeGroupVolume(mAudioManager, mAmId,
-                        AudioManager.ADJUST_UNMUTE, /* flags= */ 0);
+                mAudioManager.adjustVolumeGroupVolume(mAmId, ADJUST_UNMUTE, EMPTY_FLAGS);
             }
         }
     }

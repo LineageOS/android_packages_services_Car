@@ -36,8 +36,8 @@ import static android.media.AudioDeviceInfo.TYPE_USB_HEADSET;
 import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADPHONES;
 import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET;
 
-import static com.android.car.audio.hal.HalAudioGainCallback.reasonToString;
 import static com.android.car.audio.CarActivationVolumeConfig.ActivationVolumeInvocationType;
+import static com.android.car.audio.hal.HalAudioGainCallback.reasonToString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 

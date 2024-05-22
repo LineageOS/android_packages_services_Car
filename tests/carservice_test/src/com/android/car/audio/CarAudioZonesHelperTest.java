@@ -197,7 +197,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     private Context mContext;
     private CarAudioSettings mCarAudioSettings;
     @Mock
-    private AudioManager mAudioManager;
+    private AudioManagerWrapper mAudioManagerWrapper;
 
     @Mock
     private CarAudioDeviceInfo mTestCarMirrorDeviceOne;
@@ -291,7 +291,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void loadAudioZones_parsesAllZones() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper, mCarAudioSettings,
                 mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                 mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                 /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
@@ -307,9 +307,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void loadAudioZones_versionTwoParsesAllZones() throws Exception {
         try (InputStream versionTwoStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_V2)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionTwoStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -325,9 +325,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void loadAudioZones_versionOneParsesAllZones() throws Exception {
         try (InputStream versionOneStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_V1)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionOneStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionOneStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -340,7 +340,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void loadAudioZones_parsesAudioZoneId() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper, mCarAudioSettings,
                 mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                 mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                 /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
@@ -359,9 +359,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void loadAudioZones_versionTwoParsesAudioZoneId() throws Exception {
         try (InputStream versionTwoStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_V2)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionTwoStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -377,7 +377,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void loadAudioZones_parsesOccupantZoneId() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper, mCarAudioSettings,
                 mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                 mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                 /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
@@ -400,9 +400,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void loadAudioZones_versionTwoParsesOccupantZoneId() throws Exception {
         try (InputStream versionTwoStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_V2)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionTwoStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -422,7 +422,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void loadAudioZones_parsesZoneName() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper, mCarAudioSettings,
                 mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                 mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                 /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
@@ -440,9 +440,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void loadAudioZones_versionTwoParsesZoneName() throws Exception {
         try (InputStream versionTwoStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_V2)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionTwoStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -457,7 +457,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void loadAudioZones_parsesIsPrimary() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper, mCarAudioSettings,
                 mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                 mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                 /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
@@ -474,9 +474,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void loadAudioZones_versionTwoParsesIsPrimary() throws Exception {
         try (InputStream versionTwoStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_V2)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionTwoStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -492,7 +492,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void loadAudioZones_parsesZoneConfigs() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper, mCarAudioSettings,
                 mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                 mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                 /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
@@ -518,7 +518,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void loadAudioZones_parsesDefaultZoneConfigs() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper, mCarAudioSettings,
                 mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                 mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                 /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
@@ -537,7 +537,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void loadAudioZones_parsesVolumeGroups() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper, mCarAudioSettings,
                 mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                 mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                 /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
@@ -558,9 +558,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void loadAudioZones_versionTwoParsesVolumeGroups() throws Exception {
         try (InputStream versionTwoStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_V2)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionTwoStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -575,7 +575,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void loadAudioZones_parsesAddresses() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper, mCarAudioSettings,
                 mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                 mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                 /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
@@ -600,9 +600,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void loadAudioZones_versionTwoParsesAddresses() throws Exception {
         try (InputStream versionTwoStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_V2)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionTwoStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -619,7 +619,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void loadAudioZones_parsesContexts() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper, mCarAudioSettings,
                 mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                 mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                 /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
@@ -644,9 +644,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void getCarAudioContext_withOEMContexts() throws Exception {
         try (InputStream oemDefinedContextStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_using_oem_defined_context)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    oemDefinedContextStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, oemDefinedContextStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -669,9 +669,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void loadAudioZones_versionTwoParsesContexts() throws Exception {
         try (InputStream versionTwoStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_V2)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionTwoStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -697,7 +697,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         try (InputStream versionOneStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_V1)) {
 
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
                     mCarAudioSettings, versionOneStream,
                     mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                     mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
@@ -724,7 +724,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
                 R.raw.car_audio_configuration_V1_with_non_legacy_contexts)) {
 
             CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mAudioManager,
+                    new CarAudioZonesHelper(mAudioManagerWrapper,
                             mCarAudioSettings, v1NonLegacyContextStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                             mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
@@ -744,7 +744,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         try (InputStream missingAudioZoneIdStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_no_audio_zone_id_for_primary_zone)) {
             CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mAudioManager,
+                    new CarAudioZonesHelper(mAudioManagerWrapper,
                             mCarAudioSettings, missingAudioZoneIdStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                             mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
@@ -764,7 +764,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void loadAudioZones_versionOneFailsOnAudioZoneId() throws Exception {
         try (InputStream versionOneAudioZoneIdStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_V1_with_audio_zone_id)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
                     mCarAudioSettings, versionOneAudioZoneIdStream, mCarAudioOutputDeviceInfos,
                     mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
@@ -782,7 +782,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         try (InputStream versionOneOccupantIdStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_V1_with_occupant_zone_id)) {
             CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mAudioManager,
+                    new CarAudioZonesHelper(mAudioManagerWrapper,
                             mCarAudioSettings, versionOneOccupantIdStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                             mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
@@ -798,7 +798,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void loadAudioZones_primaryZoneHasInputDevices() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper, mCarAudioSettings,
                 mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                 mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                 /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
@@ -816,9 +816,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void loadAudioZones_versionTwoPrimaryZoneHasInputDevices() throws Exception {
         try (InputStream versionTwoStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_V2)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionTwoStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -833,7 +833,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void loadAudioZones_primaryZoneHasMicrophoneDevice() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper, mCarAudioSettings,
                 mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                 mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                 /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
@@ -852,9 +852,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void loadAudioZones_versionTwoPrimaryZoneHasMicrophoneDevice() throws Exception {
         try (InputStream versionTwoStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_V2)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionTwoStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -874,7 +874,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         try (InputStream inputDevicesStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_input_devices)) {
             CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mAudioManager,
+                    new CarAudioZonesHelper(mAudioManagerWrapper,
                             mCarAudioSettings, inputDevicesStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                             mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
@@ -911,7 +911,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void loadAudioZones_failsOnDuplicateOccupantZoneId() throws Exception {
         try (InputStream duplicateOccupantZoneIdStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_duplicate_occupant_zone_id)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
                     mCarAudioSettings, duplicateOccupantZoneIdStream, mCarAudioOutputDeviceInfos,
                     mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
@@ -929,7 +929,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         try (InputStream duplicateAudioZoneIdStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_duplicate_audio_zone_id)) {
             CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mAudioManager,
+                    new CarAudioZonesHelper(mAudioManagerWrapper,
                             mCarAudioSettings, duplicateAudioZoneIdStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                             mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
@@ -948,7 +948,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         try (InputStream duplicateZoneConfigNameStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_duplicate_zone_config_name)) {
             CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    new CarAudioZonesHelper(mAudioManagerWrapper, mCarAudioSettings,
                             duplicateZoneConfigNameStream, mCarAudioOutputDeviceInfos,
                             mInputAudioDeviceInfos, mServiceEventLogger,
                             /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
@@ -969,7 +969,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         try (InputStream emptyZoneConfigNameStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_empty_zone_config_name)) {
             CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    new CarAudioZonesHelper(mAudioManagerWrapper, mCarAudioSettings,
                             emptyZoneConfigNameStream, mCarAudioOutputDeviceInfos,
                             mInputAudioDeviceInfos, mServiceEventLogger,
                             /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
@@ -990,7 +990,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         try (InputStream missingZoneConfigNameStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_missing_zone_config_name)) {
             CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    new CarAudioZonesHelper(mAudioManagerWrapper, mCarAudioSettings,
                             missingZoneConfigNameStream, mCarAudioOutputDeviceInfos,
                             mInputAudioDeviceInfos, mServiceEventLogger,
                             /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
@@ -1011,7 +1011,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         try (InputStream missingZoneConfigNameStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_primary_zone_with_multiple_configs)) {
             CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    new CarAudioZonesHelper(mAudioManagerWrapper, mCarAudioSettings,
                             missingZoneConfigNameStream, mCarAudioOutputDeviceInfos,
                             mInputAudioDeviceInfos, mServiceEventLogger,
                             /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
@@ -1033,7 +1033,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         try (InputStream inputDevicesStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_empty_input_device)) {
             CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mAudioManager,
+                    new CarAudioZonesHelper(mAudioManagerWrapper,
                             mCarAudioSettings, inputDevicesStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                             mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
@@ -1053,7 +1053,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         try (InputStream nonNumericalStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_non_numerical_audio_zone_id)) {
             CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mAudioManager,
+                    new CarAudioZonesHelper(mAudioManagerWrapper,
                             mCarAudioSettings, nonNumericalStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                             mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
@@ -1072,7 +1072,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         try (InputStream negativeAudioZoneIdStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_negative_audio_zone_id)) {
             CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    new CarAudioZonesHelper(mAudioManagerWrapper, mCarAudioSettings,
                             negativeAudioZoneIdStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                             mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
@@ -1091,7 +1091,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         try (InputStream inputDevicesStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_missing_address)) {
             CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mAudioManager,
+                    new CarAudioZonesHelper(mAudioManagerWrapper,
                             mCarAudioSettings, inputDevicesStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                             mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
@@ -1111,7 +1111,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         try (InputStream nonNumericalStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_non_numerical_occupant_zone_id)) {
             CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mAudioManager,
+                    new CarAudioZonesHelper(mAudioManagerWrapper,
                             mCarAudioSettings, nonNumericalStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                             mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
@@ -1129,7 +1129,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void loadAudioZones_failsOnNegativeOccupantZoneId() throws Exception {
         try (InputStream negativeOccupantZoneIdStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_negative_occupant_zone_id)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
                     mCarAudioSettings,
                     negativeOccupantZoneIdStream, mCarAudioOutputDeviceInfos,
                     mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
@@ -1148,7 +1148,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         try (InputStream inputDevicesStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_non_existent_input_device)) {
             CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mAudioManager,
+                    new CarAudioZonesHelper(mAudioManagerWrapper,
                             mCarAudioSettings, inputDevicesStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                             mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
@@ -1168,7 +1168,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         try (InputStream emptyOccupantZoneIdStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_empty_occupant_zone_id)) {
             CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mAudioManager,
+                    new CarAudioZonesHelper(mAudioManagerWrapper,
                             mCarAudioSettings, emptyOccupantZoneIdStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                             mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
@@ -1187,7 +1187,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         try (InputStream nonZeroForPrimaryStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_primary_zone_with_non_zero_audio_zone_id)) {
             CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    new CarAudioZonesHelper(mAudioManagerWrapper, mCarAudioSettings,
                             nonZeroForPrimaryStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                             mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
@@ -1205,7 +1205,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void loadAudioZones_failsOnZeroAudioZoneIdForSecondary() throws Exception {
         try (InputStream zeroZoneIdForSecondaryStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_non_primary_zone_with_primary_audio_zone_id)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
                     mCarAudioSettings,
                     zeroZoneIdForSecondaryStream, mCarAudioOutputDeviceInfos,
                     mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
@@ -1224,7 +1224,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         try (InputStream inputDevicesStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_repeat_input_device)) {
             CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mAudioManager,
+                    new CarAudioZonesHelper(mAudioManagerWrapper,
                             mCarAudioSettings, inputDevicesStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                             mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
@@ -1244,7 +1244,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         try (InputStream outputDevicesStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_output_address_does_not_exist)) {
             CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mAudioManager,
+                    new CarAudioZonesHelper(mAudioManagerWrapper,
                             mCarAudioSettings, outputDevicesStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                             mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
@@ -1263,9 +1263,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void loadAudioZones_usingCoreAudioVersionThreeParsesAllZones() throws Exception {
         try (InputStream versionOneStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_using_core_routing_and_volume)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionOneStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionOneStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ true, /* useCoreAudioRouting= */ true,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1281,9 +1281,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
             throws Exception {
         try (InputStream versionOneStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_using_core_routing_and_volume_invalid_strategy)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionOneStream,  mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionOneStream,  mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ true, /* useCoreAudioRouting= */ true,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1305,9 +1305,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
             throws Exception {
         try (InputStream versionOneStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_using_core_routing_and_volume_invalid_strategy_2)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionOneStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionOneStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ true, /* useCoreAudioRouting= */ true,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1329,9 +1329,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
             throws Exception {
         try (InputStream versionOneStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_using_core_routing_and_volume_empty_group_name)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionOneStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionOneStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ true, /* useCoreAudioRouting= */ true,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1349,9 +1349,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
             throws Exception {
         try (InputStream versionOneStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_using_core_routing_and_volume_invalid_order)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionOneStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionOneStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ true, /* useCoreAudioRouting= */ true,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1369,9 +1369,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
             throws Exception {
         try (InputStream versionOneStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_using_core_routing_attr_valid_optional_fields)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionOneStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionOneStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ true, /* useCoreAudioRouting= */ true,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1387,9 +1387,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
             throws Exception {
         try (InputStream versionOneStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_using_core_routing_attr_invalid_empty_fields)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionOneStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionOneStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ true, /* useCoreAudioRouting= */ true,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1404,7 +1404,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void getMirrorDeviceInfos() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper, mCarAudioSettings,
                 mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
                 mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                 /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
@@ -1420,9 +1420,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void getMirrorDeviceInfos_withOutMirroringDevices() throws Exception {
         try (InputStream versionOneStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_without_mirroring)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionOneStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionOneStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1437,9 +1437,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void loadAudioZones_failsOnMirroringDevicesInV2() throws Exception {
         try (InputStream versionOneStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_mirroring_V2)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionOneStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionOneStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1456,9 +1456,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public void loadAudioZones_failsOnDuplicateMirroringDevices() throws Exception {
         try (InputStream versionOneStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_duplicate_mirror_devices)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionOneStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionOneStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1476,9 +1476,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_dynamic_devices_for_primary_zone)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionFourStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1510,9 +1510,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_dynamic_devices_for_primary_zone_in_v3)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionFourStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1531,9 +1531,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_dynamic_devices_for_primary_zone)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionFourStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1558,9 +1558,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_min_max_activation_volume)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionFourStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1593,9 +1593,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_min_max_activation_volume)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionFourStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1631,9 +1631,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_min_max_activation_volume_in_v3)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionFourStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1651,9 +1651,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_min_max_activation_volume_out_of_range)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionFourStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1671,9 +1671,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_min_greater_than_max_activation_volume)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionFourStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1692,9 +1692,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_invalid_activation_volume_type)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionFourStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1714,9 +1714,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_activation_volume_multiple_entries)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionFourStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1735,9 +1735,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_activation_volume_repeated_config_name)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionFourStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1756,9 +1756,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_without_activation_volume_config_name)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionFourStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ false,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1777,9 +1777,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_apply_fade_configs_in_v3)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionFourStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ true,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1799,9 +1799,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_apply_fade_configs)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionFourStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ true,
                     /* carAudioFadeConfigurationHelper= */ null);
@@ -1823,9 +1823,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
                 R.raw.car_audio_fade_configuration);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_apply_fade_configs_with_empty_address)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionFourStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ true, fadeConfiguration);
 
@@ -1846,9 +1846,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
                 R.raw.car_audio_fade_configuration);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_apply_fade_configs_with_neitherDefaultNorTransient)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionFourStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ true, fadeConfiguration);
 
@@ -1869,9 +1869,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
                 R.raw.car_audio_fade_configuration);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_apply_fade_configs_with_unavailable_config)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
-                    versionFourStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManagerWrapper,
+                    mCarAudioSettings, versionFourStream, mCarAudioOutputDeviceInfos,
+                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
                     /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
                     /* useFadeManagerConfiguration= */ true, fadeConfiguration);
 

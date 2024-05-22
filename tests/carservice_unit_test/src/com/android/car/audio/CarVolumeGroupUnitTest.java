@@ -51,7 +51,6 @@ import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
 import android.hardware.automotive.audiocontrol.Reasons;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
-import android.media.AudioManager;
 import android.os.UserHandle;
 import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.ArraySet;
@@ -138,7 +137,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     @Mock
     CarAudioSettings mSettingsMock;
     @Mock
-    AudioManager mAudioManagerMock;
+    AudioManagerWrapper mAudioManagerMock;
 
     @Rule
     public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();

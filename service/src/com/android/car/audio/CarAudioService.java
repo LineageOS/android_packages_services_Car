@@ -217,7 +217,9 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     private final Context mContext;
     private final TelephonyManager mTelephonyManager;
+    // TODO(b/340666980) : Remove audio manager once audio manager wrapper in fully refactored
     private final AudioManager mAudioManager;
+    private final AudioManagerWrapper mAudioManagerWrapper;
     private final boolean mUseDynamicRouting;
     private final boolean mUseCoreAudioVolume;
     private final boolean mUseCoreAudioRouting;
@@ -417,7 +419,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         mCarAudioFadeConfigurationPath = audioFadeConfigurationPath;
         mTelephonyManager = mContext.getSystemService(TelephonyManager.class);
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-
+        mAudioManagerWrapper = new AudioManagerWrapper(mAudioManager);
         mUseDynamicRouting = mContext.getResources().getBoolean(R.bool.audioUseDynamicRouting);
         mUseCoreAudioVolume = mContext.getResources().getBoolean(R.bool.audioUseCoreVolume);
         mUseCoreAudioRouting = mContext.getResources().getBoolean(R.bool.audioUseCoreRouting);
@@ -1820,7 +1822,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
             AudioDeviceInfo info = deviceInfos[index];
             AudioDeviceAttributes attributes = new AudioDeviceAttributes(info);
-            CarAudioDeviceInfo carInfo = new CarAudioDeviceInfo(mAudioManager, attributes);
+            CarAudioDeviceInfo carInfo = new CarAudioDeviceInfo(mAudioManagerWrapper, attributes);
             // TODO(b/305301155): Move set audio device info closer to where it is used.
             //  On dynamic configuration change for example
             carInfo.setAudioDeviceInfo(info);
@@ -1841,7 +1843,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
         try (InputStream fileStream = new FileInputStream(mCarAudioConfigurationPath);
                  InputStream inputStream = new BufferedInputStream(fileStream)) {
-            CarAudioZonesHelper zonesHelper = new CarAudioZonesHelper(mAudioManager,
+            CarAudioZonesHelper zonesHelper = new CarAudioZonesHelper(mAudioManagerWrapper,
                     mCarAudioSettings, inputStream, carAudioDeviceInfos, inputDevices,
                     mServiceEventLogger, mUseCarVolumeGroupMuting, mUseCoreAudioVolume,
                     mUseCoreAudioRouting, mUseFadeManagerConfiguration,
