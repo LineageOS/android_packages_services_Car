@@ -389,7 +389,6 @@ import java.util.Set;
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             if (Objects.equals(parser.getName(), TAG_AUDIO_ZONE)) {
                 CarAudioZone zone = parseAudioZone(parser);
-                verifyOnlyOnePrimaryZone(zone, carAudioZones);
                 carAudioZones.put(zone.getId(), zone);
             } else {
                 CarAudioParserUtils.skip(parser);
@@ -408,13 +407,6 @@ import java.util.Set;
                     && isMicrophoneInputDevice(info)) {
                 primaryAudioZone.addInputAudioDevice(new AudioDeviceAttributes(info));
             }
-        }
-    }
-
-    private void verifyOnlyOnePrimaryZone(CarAudioZone newZone, SparseArray<CarAudioZone> zones) {
-        if (newZone.getId() == PRIMARY_AUDIO_ZONE && zones.contains(PRIMARY_AUDIO_ZONE)) {
-            throw new RuntimeException("More than one zone parsed with primary audio zone ID: "
-                    + PRIMARY_AUDIO_ZONE);
         }
     }
 
