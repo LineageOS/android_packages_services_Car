@@ -344,7 +344,7 @@ public final class CarAudioVolumeGroupTest extends AbstractExtendedMockitoTestCa
 
         int eventType = carVolumeGroup.calculateNewGainStageFromDeviceInfos();
 
-        expect.withMessage("Calculated event type for new gain stage\"")
+        expect.withMessage("Calculated event type for new gain stage")
                 .that(eventType).isEqualTo(EVENT_TYPE_NONE);
         expect.withMessage("Calculated min gain index for new gain stage")
                 .that(carVolumeGroup.getMinGainIndex()).isEqualTo(MIN_GAIN_INDEX);

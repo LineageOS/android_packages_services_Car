@@ -17,8 +17,12 @@ package com.android.car.audio;
 
 import static android.media.AudioAttributes.USAGE_NOTIFICATION_EVENT;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
+
 import android.car.builtin.media.AudioManagerHelper;
 import android.media.AudioAttributes;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -45,6 +49,11 @@ import java.util.Objects;
     public static final String ATTR_USAGE = "usage";
     public static final String ATTR_TAGS = "tags";
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
+    private CarAudioParserUtils() {
+        throw new UnsupportedOperationException(
+                "CarAudioParserUtils class is non-instantiable, contains static members only");
+    }
 
     /* package */ static List<AudioAttributes> parseAudioAttributes(XmlPullParser parser,
             String sectionName) throws XmlPullParserException, IOException {

@@ -172,12 +172,6 @@ public class CarAudioZone {
             Slogf.w(CarLog.TAG_AUDIO, "No zone configurations for zone %d", mId);
             return false;
         }
-        int currentConfigId = getCurrentConfigId();
-        if (!mCarAudioZoneConfigs.contains(currentConfigId)) {
-            Slogf.w(CarLog.TAG_AUDIO, "Current zone configuration %d for zone %d does not exist",
-                    currentConfigId, mId);
-            return false;
-        }
         boolean isDefaultConfigFound = false;
         for (int index = 0; index < mCarAudioZoneConfigs.size(); index++) {
             CarAudioZoneConfig zoneConfig = mCarAudioZoneConfigs.valueAt(index);
@@ -196,8 +190,7 @@ public class CarAudioZone {
                 }
                 isDefaultConfigFound = true;
             }
-            if (!zoneConfig.validateVolumeGroups(mCarAudioContext,
-                    useCoreAudioRouting)) {
+            if (!zoneConfig.validateVolumeGroups(mCarAudioContext, useCoreAudioRouting)) {
                 return false;
             }
         }
@@ -330,7 +323,7 @@ public class CarAudioZone {
                 continue;
             }
             config.updateVolumeGroupsSettingsForUser(userId);
-            return;
+            break;
         }
     }
 

@@ -802,7 +802,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         NullPointerException thrown =
                 assertThrows(NullPointerException.class, () -> new CarAudioService(null));
 
-        expectWithMessage("Car Audio Service Construction")
+        expectWithMessage("Car Audio Service Construction Exception")
                 .that(thrown).hasMessageThat().contains("Context");
     }
 

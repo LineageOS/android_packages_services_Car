@@ -159,6 +159,7 @@ package android.car.builtin.display {
 
   public final class DisplayManagerHelper {
     method public static float getBrightness(android.content.Context, int);
+    method @Nullable public static String getUniqueId(@NonNull android.view.Display);
     method public static void registerDisplayListener(android.content.Context, android.hardware.display.DisplayManager.DisplayListener, android.os.Handler, long);
     method public static void setBrightness(android.content.Context, int, @FloatRange(from=0.0f, to=1.0f) float);
     field public static final long EVENT_FLAG_DISPLAY_ADDED = 1L; // 0x1L
@@ -172,8 +173,10 @@ package android.car.builtin.display {
 package android.car.builtin.input {
 
   public class InputManagerHelper {
+    method public static void addUniqueIdAssociationByDescriptor(@NonNull android.hardware.input.InputManager, @NonNull String, @NonNull String);
     method public static boolean injectInputEvent(@NonNull android.hardware.input.InputManager, @NonNull android.view.InputEvent);
     method public static void pilferPointers(@NonNull android.hardware.input.InputManager, @NonNull android.view.View);
+    method public static void removeUniqueIdAssociationByDescriptor(@NonNull android.hardware.input.InputManager, @NonNull String);
   }
 
 }

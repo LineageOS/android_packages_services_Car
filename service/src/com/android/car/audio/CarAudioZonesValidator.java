@@ -15,14 +15,16 @@
  */
 package com.android.car.audio;
 
-
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.media.AudioDeviceInfo.TYPE_BUILTIN_MIC;
+
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
 
 import android.media.AudioDeviceAttributes;
 import android.util.ArraySet;
 import android.util.SparseArray;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.util.Preconditions;
 
 import java.util.List;
@@ -33,6 +35,7 @@ import java.util.Set;
  */
 final class CarAudioZonesValidator {
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
     private CarAudioZonesValidator() {
         throw new UnsupportedOperationException(
                 "CarAudioZonesValidator class is non-instantiable, contains static members only");
