@@ -2044,7 +2044,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         // Used to configure our audio policy to handle focus events.
         // This gives us the ability to decide which audio focus requests to accept and bypasses
         // the framework ducking logic.
-        mFocusHandler = CarZonesAudioFocus.createCarZonesAudioFocus(mAudioManager,
+        mFocusHandler = CarZonesAudioFocus.createCarZonesAudioFocus(mAudioManagerWrapper,
                 mContext.getPackageManager(), mCarAudioZones, mCarAudioSettings, mCarDucking,
                 new CarVolumeInfoWrapper(this), getAudioFeaturesInfo());
 

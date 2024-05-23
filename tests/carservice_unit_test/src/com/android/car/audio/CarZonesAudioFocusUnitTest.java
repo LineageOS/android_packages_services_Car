@@ -73,7 +73,7 @@ public final class CarZonesAudioFocusUnitTest {
     private final SparseArray<CarAudioZone> mMockZones = generateAudioZones();
 
     @Mock
-    private AudioManager mMockAudioManager;
+    private AudioManagerWrapper mMockAudioManager;
     @Mock
     private AudioPolicy mAudioPolicy;
     @Mock
